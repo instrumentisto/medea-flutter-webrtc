@@ -74,21 +74,6 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   }
 
   @override
-  Future<ByteBuffer> captureFrame() async {
-    var filePath = await getTemporaryDirectory();
-    await WebRTC.invokeMethod(
-      'captureFrame',
-      <String, dynamic>{
-        'trackId': _trackId,
-        'path': filePath.path + '/captureFrame.png'
-      },
-    );
-    return File(filePath.path + '/captureFrame.png')
-        .readAsBytes()
-        .then((value) => value.buffer);
-  }
-
-  @override
   Future<void> applyConstraints([Map<String, dynamic>? constraints]) {
     if (constraints == null) return Future.value();
 
