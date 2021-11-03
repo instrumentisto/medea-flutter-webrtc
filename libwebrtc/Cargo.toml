@@ -1,0 +1,15 @@
+[package]
+name = "libwebrtc"
+version = "0.0.1"
+edition = "2018"
+build = "build.rs"
+
+[lib]
+name = "libwebrtc"
+crate-type = ["cdylib"]
+
+[dependencies]
+libwebrtc-sys = { path="../libwebrtc-sys" }
+
+[build-dependencies]
+cbindgen = "0.20"
