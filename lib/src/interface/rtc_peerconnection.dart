@@ -11,36 +11,17 @@ import 'rtc_session_description.dart';
 import 'rtc_stats_report.dart';
 import 'rtc_track_event.dart';
 
-typedef SignalingStateCallback = void Function(RTCSignalingState state);
-typedef PeerConnectionStateCallback = void Function(
-    RTCPeerConnectionState state);
-typedef IceGatheringStateCallback = void Function(RTCIceGatheringState state);
-typedef IceConnectionStateCallback = void Function(RTCIceConnectionState state);
-typedef IceCandidateCallback = void Function(RTCIceCandidate candidate);
-typedef AddTrackCallback = void Function(
-    MediaStream stream, MediaStreamTrack track);
-typedef RemoveTrackCallback = void Function(
-    MediaStream stream, MediaStreamTrack track);
-typedef RenegotiationNeededCallback = void Function();
-
-/// Unified-Plan
-typedef UnifiedPlanTrackCallback = void Function(RTCTrackEvent event);
-
 abstract class RTCPeerConnection {
   RTCPeerConnection();
 
   // public: delegate
-  SignalingStateCallback? onSignalingState;
-  PeerConnectionStateCallback? onConnectionState;
-  IceGatheringStateCallback? onIceGatheringState;
-  IceConnectionStateCallback? onIceConnectionState;
-  IceCandidateCallback? onIceCandidate;
-  AddTrackCallback? onAddTrack;
-  RemoveTrackCallback? onRemoveTrack;
-  RenegotiationNeededCallback? onRenegotiationNeeded;
-
-  /// Unified-Plan
-  UnifiedPlanTrackCallback? onTrack;
+  void Function(RTCSignalingState state)? onSignalingState;
+  void Function(RTCPeerConnectionState state)? onConnectionState;
+  void Function(RTCIceGatheringState state)? onIceGatheringState;
+  void Function(RTCIceConnectionState state)? onIceConnectionState;
+  void Function(RTCIceCandidate candidate)? onIceCandidate;
+  void Function()? onRenegotiationNeeded;
+  void Function(RTCTrackEvent event)? onTrack;
 
   RTCSignalingState? get signalingState;
 
