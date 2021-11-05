@@ -1,7 +1,7 @@
 #include "flutter_webrtc.h"
 
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
-#include <mylibwebrtc.hpp>
+#include <jason_flutter_webrtc.hpp>
 
 namespace flutter_webrtc_plugin {
 
@@ -49,10 +49,10 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("getSources") == 0) {
     GetSources(std::move(result));
   } else if (method_call.method_name().compare("getSystemTime") == 0) {
-    char *a = mylibwebrtc::audioDevicesCount();
+    char *a = jason_flutter_webrtc::SystemTimeMillis();
     std::string b = a;
     result->Success(b);
-    mylibwebrtc::string_free(a);
+    jason_flutter_webrtc::string_free(a);
   } else if (method_call.method_name().compare("mediaStreamGetTracks") == 0) {
     if (!method_call.arguments()) {
       result->Error("Bad Arguments", "Null constraints arguments received");

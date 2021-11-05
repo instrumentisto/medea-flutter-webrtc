@@ -1,6 +1,6 @@
+use cbindgen::Config;
 use std::env;
 use std::path::PathBuf;
-use cbindgen::Config;
 
 fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
@@ -12,8 +12,8 @@ fn main() {
         .to_string();
 
     let config = Config {
-        namespace: Some(String::from("mylibwebrtc")),
-        ..Default::default()
+        namespace: Some(String::from("jason_flutter_webrtc")),
+        ..cbindgen::Config::default()
     };
 
     cbindgen::generate_with_config(&crate_dir, config)

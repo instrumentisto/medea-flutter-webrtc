@@ -186,6 +186,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b71991ff56294aa922b450139ee08b3bfc70982c6b2c7562771375cf73542dd4"
 
 [[package]]
+name = "jason_flutter_webrtc"
+version = "0.0.1"
+dependencies = [
+ "cbindgen",
+ "libwebrtc-sys",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -221,14 +229,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "mylibwebrtc"
-version = "0.0.1"
-dependencies = [
- "cbindgen",
- "libwebrtc-sys",
 ]
 
 [[package]]
