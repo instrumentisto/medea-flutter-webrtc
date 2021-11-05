@@ -5,6 +5,10 @@ deps: lib.download flutter.create.windows flutter.deps
 build: rust.build flutter.build
 run: flutter.run
 
+# mylibwebrtc?
+# add doc for each method
+# what is .d, .exp, .pdb, do we need to copy all this stuff
+# debug or release
 rust.build:
 	cd libwebrtc && \
  	cargo build && \
@@ -14,6 +18,7 @@ rust.build:
 	cp target/debug/mylibwebrtc.dll.lib ../windows/rust/lib/mylibwebrtc.dll.lib && \
 	cp target/debug/mylibwebrtc.pdb ../windows/rust/lib/mylibwebrtc.pdb
 
+# use tar instead of 7z
 lib.download:
 	rm -rf libwebrtc-sys/include && \
 	rm -rf libwebrtc-sys/webrtc && \
@@ -39,3 +44,7 @@ flutter.deps:
 
 flutter.create.windows:
 	cd example/ && flutter create --platforms windows .
+
+# add tests to libwebrtc-sys
+# run tests on ci
+# add rust related makefile scripts + dockerized

@@ -1,5 +1,5 @@
 [package]
-name = "mylibwebrtc"
+name = "mylibwebrtc" # jason-flutter-webrtc
 version = "0.0.1"
 edition = "2018"
 build = "build.rs"

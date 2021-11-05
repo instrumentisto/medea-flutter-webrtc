@@ -1,10 +1,10 @@
-#[cxx::bridge(namespace = "bridge")]
-mod ffi {
+#[cxx::bridge(namespace = "rtc")]
+mod rtc {
     // C++ types and signatures exposed to Rust.
     unsafe extern "C++" {
         include!("libwebrtc-sys/bridge.h");
 
-        pub fn getSystemTime() -> UniquePtr<CxxString>;
+        pub fn SystemTimeMillis() -> UniquePtr<CxxString>;
     }
 }
 
