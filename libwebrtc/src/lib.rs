@@ -3,9 +3,8 @@ use std::{
 };
 use libwebrtc_sys::run;
 
-
 #[no_mangle]
-pub extern "C" fn lol() -> ptr::NonNull<c_char> {
+pub extern "C" fn audioDevicesCount() -> ptr::NonNull<c_char> {
     string_into_c_str(run())
 }
 

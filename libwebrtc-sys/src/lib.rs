@@ -4,10 +4,10 @@ mod ffi {
     unsafe extern "C++" {
         include!("libwebrtc-sys/bridge.h");
 
-        pub fn bridge_hello_world() -> UniquePtr<CxxString>;
+        pub fn getSystemTime() -> UniquePtr<CxxString>;
     }
 }
 
 pub fn run() -> String {
-    ffi::bridge_hello_world().to_string()
+    ffi::getSystemTime().to_string()
 }

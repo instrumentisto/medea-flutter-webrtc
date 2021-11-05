@@ -12,7 +12,7 @@ fn main() {
         .to_string();
 
     let config = Config {
-        namespace: Some(String::from("mylib")),
+        namespace: Some(String::from("mylibwebrtc")),
         ..Default::default()
     };
 

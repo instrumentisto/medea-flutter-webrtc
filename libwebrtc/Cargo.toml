@@ -1,11 +1,11 @@
 [package]
-name = "libwebrtc"
+name = "mylibwebrtc"
 version = "0.0.1"
 edition = "2018"
 build = "build.rs"
 
 [lib]
-name = "libwebrtc"
+name = "mylibwebrtc"
 crate-type = ["cdylib"]
 
 [dependencies]

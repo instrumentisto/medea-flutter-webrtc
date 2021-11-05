@@ -12,6 +12,7 @@ import 'src/get_user_media_sample.dart'
     if (dart.library.html) 'src/get_user_media_sample_web.dart';
 import 'src/loopback_sample.dart';
 import 'src/route_item.dart';
+import 'src/test_sample.dart';
 
 void main() {
   if (WebRTC.platformIsDesktop) {
@@ -80,37 +81,12 @@ class _MyAppState extends State<MyApp> {
   void _initItems() {
     items = <RouteItem>[
       RouteItem(
-          title: 'GetUserMedia',
+          title: 'Test',
           push: (BuildContext context) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => GetUserMediaSample()));
-          }),
-      RouteItem(
-          title: 'GetDisplayMedia',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        GetDisplayMediaSample()));
-          }),
-      RouteItem(
-          title: 'LoopBack Sample',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => LoopBackSample()));
-          }),
-      RouteItem(
-          title: 'DataChannel',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => DataChannelSample()));
+                    builder: (BuildContext context) => TestSample()));
           }),
     ];
   }
