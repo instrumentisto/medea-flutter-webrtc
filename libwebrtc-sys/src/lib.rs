@@ -1,5 +1,5 @@
-#[cxx::bridge(namespace = "rtc")]
-mod rtc {
+#[cxx::bridge(namespace = "RTC")]
+mod RTC {
     // C++ types and signatures exposed to Rust.
     unsafe extern "C++" {
         include!("libwebrtc-sys/bridge.h");
@@ -8,6 +8,6 @@ mod rtc {
     }
 }
 
-pub fn run() -> String {
-    ffi::getSystemTime().to_string()
+pub fn system_time_millis() -> String {
+    RTC::SystemTimeMillis().to_string()
 }

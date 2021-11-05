@@ -7,16 +7,12 @@ run: flutter.run
 
 # mylibwebrtc?
 # add doc for each method
-# what is .d, .exp, .pdb, do we need to copy all this stuff
 # debug or release
 rust.build:
 	cd libwebrtc && \
  	cargo build && \
-	cp target/debug/mylibwebrtc.d ../windows/rust/lib/mylibwebrtc.d && \
 	cp target/debug/mylibwebrtc.dll ../windows/rust/lib/mylibwebrtc.dll && \
-	cp target/debug/mylibwebrtc.dll.exp ../windows/rust/lib/mylibwebrtc.dll.exp && \
-	cp target/debug/mylibwebrtc.dll.lib ../windows/rust/lib/mylibwebrtc.dll.lib && \
-	cp target/debug/mylibwebrtc.pdb ../windows/rust/lib/mylibwebrtc.pdb
+	cp target/debug/mylibwebrtc.dll.lib ../windows/rust/lib/mylibwebrtc.dll.lib 
 
 # use tar instead of 7z
 lib.download:

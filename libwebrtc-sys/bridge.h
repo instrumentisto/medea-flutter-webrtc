@@ -3,6 +3,6 @@
 #include <memory>
 #include <string>
 
-namespace bridge {
-    std::unique_ptr<std::string> getSystemTime();
+namespace RTC {
+    std::unique_ptr<std::string> SystemTimeMillis();
 }

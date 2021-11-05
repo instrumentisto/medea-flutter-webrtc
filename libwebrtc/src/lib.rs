@@ -1,11 +1,11 @@
 use std::{
     ptr, ffi::CString, os::raw::c_char
 };
-use libwebrtc_sys::run;
+use libwebrtc_sys::system_time_millis;
 
 #[no_mangle]
-pub extern "C" fn audioDevicesCount() -> ptr::NonNull<c_char> {
-    string_into_c_str(run())
+pub extern "C" fn SystemTimeMillis() -> ptr::NonNull<c_char> {
+    string_into_c_str(system_time_millis())
 }
 
 #[no_mangle]
