@@ -13,35 +13,78 @@ package com.cloudwebrtc.webrtc.utils;
 import android.os.Build;
 import android.util.Log;
 
+import org.webrtc.AudioTrack;
+import org.webrtc.MediaStreamTrack;
+import org.webrtc.VideoTrack;
+
+import java.lang.reflect.Field;
+
 /**
  * RTCUtils provides helper functions for managing thread safety.
  */
 public final class RTCUtils {
-  private RTCUtils() {}
-
-  /** Helper method which throws an exception  when an assertion has failed. */
-  public static void assertIsTrue(boolean condition) {
-    if (!condition) {
-      throw new AssertionError("Expected condition to be true");
+    private RTCUtils() {
     }
-  }
 
-  /** Helper method for building a string of thread information.*/
-  public static String getThreadInfo() {
-    return "@[name=" + Thread.currentThread().getName() + ", id=" + Thread.currentThread().getId()
-        + "]";
-  }
+    /**
+     * Helper method which throws an exception  when an assertion has failed.
+     */
+    public static void assertIsTrue(boolean condition) {
+        if (!condition) {
+            throw new AssertionError("Expected condition to be true");
+        }
+    }
 
-  /** Information about the current build, taken from system properties. */
-  public static void logDeviceInfo(String tag) {
-    Log.d(tag, "Android SDK: " + Build.VERSION.SDK_INT + ", "
-            + "Release: " + Build.VERSION.RELEASE + ", "
-            + "Brand: " + Build.BRAND + ", "
-            + "Device: " + Build.DEVICE + ", "
-            + "Id: " + Build.ID + ", "
-            + "Hardware: " + Build.HARDWARE + ", "
-            + "Manufacturer: " + Build.MANUFACTURER + ", "
-            + "Model: " + Build.MODEL + ", "
-            + "Product: " + Build.PRODUCT);
-  }
+    /**
+     * Helper method for building a string of thread information.
+     */
+    public static String getThreadInfo() {
+        return "@[name=" + Thread.currentThread().getName() + ", id=" + Thread.currentThread().getId()
+                + "]";
+    }
+
+    /**
+     * Helper method for cloning MediaStreamTrack by using Java reflection.
+     * 
+     * @param track MediaStreamTrack which should be cloned
+     * @return clone of the provided MediaStreamTrack
+     */
+    public static MediaStreamTrack cloneMediaStreamTrack(MediaStreamTrack track) {
+        long nativeTrackAddress;
+        try {
+            Class<?> trackClass = track.getClass().getSuperclass();
+            if (trackClass != MediaStreamTrack.class) {
+                throw new IllegalArgumentException("You're trying to clone MediaStreamTrack, but provided object is not child of MediaStreamTrack");
+            }
+            
+            Field nativeTrackField = trackClass.getDeclaredField("nativeTrack");
+            nativeTrackField.setAccessible(true);
+            nativeTrackAddress = nativeTrackField.getLong(track);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Failed to get nativeTrack field from MediaStreamTrack: " + e.toString());
+        }
+
+        if (track instanceof AudioTrack) {
+            return new AudioTrack(nativeTrackAddress);
+        } else if (track instanceof VideoTrack) {
+            return new VideoTrack(nativeTrackAddress);
+        } else {
+            throw new RuntimeException("Provided MediaStreamTrack with an unknown kind");
+        }
+    }
+
+    /**
+     * Information about the current build, taken from system properties.
+     */
+    public static void logDeviceInfo(String tag) {
+        Log.d(tag, "Android SDK: " + Build.VERSION.SDK_INT + ", "
+                + "Release: " + Build.VERSION.RELEASE + ", "
+                + "Brand: " + Build.BRAND + ", "
+                + "Device: " + Build.DEVICE + ", "
+                + "Id: " + Build.ID + ", "
+                + "Hardware: " + Build.HARDWARE + ", "
+                + "Manufacturer: " + Build.MANUFACTURER + ", "
+                + "Model: " + Build.MODEL + ", "
+                + "Product: " + Build.PRODUCT);
+    }
 }

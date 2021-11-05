@@ -95,9 +95,6 @@ class RTCRtpTransceiverWeb extends RTCRtpTransceiver {
   bool get stoped => jsutil.getProperty(_jsTransceiver, 'stopped');
 
   @override
-  String get transceiverId => mid;
-
-  @override
   Future<void> setDirection(TransceiverDirection direction) async {
     try {
       jsutil.setProperty(_jsTransceiver, 'direction',

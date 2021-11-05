@@ -2,10 +2,7 @@ package com.cloudwebrtc.webrtc;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
@@ -15,14 +12,9 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
-import android.media.projection.MediaProjection;
-import android.media.projection.MediaProjectionManager;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.ResultReceiver;
 import android.util.Log;
 import android.util.Range;
 import android.view.Surface;
@@ -162,7 +154,7 @@ class GetUserMediaImpl {
         }
 
         // falling back to the first available camera
-        if (videoCapturer == null && deviceNames.length > 0){
+        if (videoCapturer == null && deviceNames.length > 0) {
             videoCapturer = enumerator.createCapturer(deviceNames[0], new CameraEventsHandler());
             Log.d(TAG, "Falling back to the first available camera");
         }
@@ -238,17 +230,6 @@ class GetUserMediaImpl {
         //   should change `parseConstraints()` according
         //   see: https://www.w3.org/TR/mediacapture-streams/#idl-def-MediaTrackConstraints
 
-        ConstraintsMap videoConstraintsMap = null;
-        ConstraintsMap videoConstraintsMandatory = null;
-
-        if (constraints.getType("video") == ObjectType.Map) {
-            videoConstraintsMap = constraints.getMap("video");
-            if (videoConstraintsMap.hasKey("mandatory")
-                    && videoConstraintsMap.getType("mandatory") == ObjectType.Map) {
-                videoConstraintsMandatory = videoConstraintsMap.getMap("mandatory");
-            }
-        }
-
         final ArrayList<String> requestPermissions = new ArrayList<>();
 
         if (constraints.hasKey("audio")) {
@@ -300,23 +281,17 @@ class GetUserMediaImpl {
 
         requestPermissions(
                 requestPermissions,
-                /* successCallback */ new Callback() {
-                    @Override
-                    public void invoke(Object... args) {
-                        List<String> grantedPermissions = (List<String>) args[0];
+                /* successCallback */ args -> {
+                    List<String> grantedPermissions = (List<String>) args[0];
 
-                        getUserMedia(constraints, result, mediaStream, grantedPermissions);
-                    }
+                    getUserMedia(constraints, result, mediaStream, grantedPermissions);
                 },
-                /* errorCallback */ new Callback() {
-                    @Override
-                    public void invoke(Object... args) {
-                        // According to step 10 Permission Failure of the
-                        // getUserMedia() algorithm, if the user has denied
-                        // permission, fail "with a new DOMException object whose
-                        // name attribute has the value NotAllowedError."
-                        resultError("getUserMedia", "DOMException, NotAllowedError", result);
-                    }
+                /* errorCallback */ args -> {
+                    // According to step 10 Permission Failure of the
+                    // getUserMedia() algorithm, if the user has denied
+                    // permission, fail "with a new DOMException object whose
+                    // name attribute has the value NotAllowedError."
+                    resultError("getUserMedia", "DOMException, NotAllowedError", result);
                 });
     }
 
@@ -367,7 +342,6 @@ class GetUserMediaImpl {
             } else {
                 mediaStream.addTrack((VideoTrack) track);
             }
-            stateProvider.getLocalTracks().put(id, track);
 
             ConstraintsMap track_ = new ConstraintsMap();
             String kind = track.kind();
@@ -625,7 +599,7 @@ class GetUserMediaImpl {
             List<String> supportedModes = params.getSupportedFlashModes();
 
             result.success(
-                    (supportedModes == null) ? false : supportedModes.contains(Parameters.FLASH_MODE_TORCH));
+                    (supportedModes != null) && supportedModes.contains(Parameters.FLASH_MODE_TORCH));
             return;
         }
 
@@ -722,7 +696,7 @@ class GetUserMediaImpl {
         resultError("setTorch", "[TORCH] Video capturer not compatible", result);
     }
 
-    private Object getPrivateProperty(Class klass, Object object, String fieldName)
+    private Object getPrivateProperty(Class<?> klass, Object object, String fieldName)
             throws NoSuchFieldWithNameException {
         try {
             Field field = klass.getDeclaredField(fieldName);
@@ -736,7 +710,7 @@ class GetUserMediaImpl {
         }
     }
 
-    private class NoSuchFieldWithNameException extends NoSuchFieldException {
+    private static class NoSuchFieldWithNameException extends NoSuchFieldException {
 
         String className;
         String fieldName;
@@ -764,7 +738,7 @@ class GetUserMediaImpl {
         boolean isEnabled(String id);
     }
 
-    public class VideoCapturerInfo {
+    public static class VideoCapturerInfo {
         VideoCapturer capturer;
         int width;
         int height;
