@@ -18,6 +18,8 @@ jobs:
 
   test:
     name: Rust tests
+    needs:
+     - download
     runs-on: windows-latest
     steps:
       - uses: actions-rs/toolchain@v1
