@@ -24,8 +24,7 @@ jobs:
         run: make cargo.lint
       
   FMT:
-     if: ${{ github.ref == 'refs/heads/master'
-            || !contains(github.event.head_commit.message, '[skip ci]') }}
+     if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -41,8 +40,7 @@ jobs:
         run: make cargo.fmt check=yes
 
   Test:
-     if: ${{ github.ref == 'refs/heads/master'
-            || !contains(github.event.head_commit.message, '[skip ci]') }}
+     if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -58,8 +56,7 @@ jobs:
         run: make cargo.test
 
   Build:
-     if: ${{ github.ref == 'refs/heads/master'
-            || !contains(github.event.head_commit.message, '[skip ci]') }}
+     if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
