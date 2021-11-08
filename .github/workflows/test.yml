@@ -1,33 +1,33 @@
-name: Test
+# name: Test
 
-on:
-  push:
+# on:
+#   push:
 
-jobs:
-  download:
-    name: Download lib
-    runs-on: ubuntu-latest
-    steps: 
-      - uses: actions/checkout@v2
-      - run: make lib.download
-      - name: Upload libwebrtc-sys
-        uses: actions/upload-artifact@v2
-        with:
-          name: libwebrtc-sys
-          path: libwebrtc-sys/
+# jobs:
+#   download:
+#     name: Download lib
+#     runs-on: ubuntu-latest
+#     steps: 
+#       - uses: actions/checkout@v2
+#       - run: make lib.download
+#       - name: Upload libwebrtc-sys
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: libwebrtc-sys
+#           path: libwebrtc-sys/
 
-  test:
-    name: Rust tests
-    needs:
-     - download
-    runs-on: windows-latest
-    steps:
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Download libwebrtc-sys
-        uses: actions/download-artifact@v2
-        with:
-          name: libwebrtc-sys
-      - run: cargo test --test integration_test
+#   test:
+#     name: Rust tests
+#     needs:
+#      - download
+#     runs-on: windows-latest
+#     steps:
+#       - uses: actions-rs/toolchain@v1
+#         with:
+#           toolchain: stable
+#       - name: Download libwebrtc-sys
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: libwebrtc-sys
+#       - run: cargo test --test integration_test
   

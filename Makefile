@@ -17,6 +17,7 @@ LIBWEBRTC_PATH = https://github.com/logist322/libwebrtc-bin/releases/download/
 LIBWEBRTC_VER = nadlast
 
 RUST_VER = 1.55
+RUST_NIGHTLY_VER = 'nightly-2021-09-08'
 
 
 
@@ -36,16 +37,24 @@ run: flutter.run
 # Running commands #
 ####################
 
-# mylibwebrtc?
 # add doc for each method
 # debug or release
+
+# Build libwebrtc crate and deliver all necessity files to flutter windows directory.
+#
+# Usage:
+#	make rust.build [dockerized=(no|yes)]
 rust.build:
+	rm -rf windows/rust/
+	mkdir windows/rust/ && \
+	mkdir windows/rust/include && \
+	mkdir windows/rust/lib && \
 	cd libwebrtc && \
  	cargo build && \
 	cp target/debug/jason_flutter_webrtc.dll ../windows/rust/lib/jason_flutter_webrtc.dll && \
 	cp target/debug/jason_flutter_webrtc.dll.lib ../windows/rust/lib/jason_flutter_webrtc.dll.lib 
 
-# use tar instead of 7z
+
 lib.download:
 	rm -rf lib_zip && \
 	rm -rf libwebrtc-sys/include && \
@@ -73,10 +82,6 @@ flutter.deps:
 
 flutter.create.windows:
 	cd example/ && flutter create --platforms windows .
-
-# add tests to libwebrtc-sys
-# run tests on ci
-# add rust related makefile scripts + dockerized
 
 
 
@@ -111,7 +116,7 @@ endif
 
 cargo.fmt:
 ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	MSYS_NO_PATHCONV=1 docker run --rm --network=host -v "$(PWD)":/app -w /app \
 		-u $(shell id -u):$(shell id -g) \
 		-v "$(HOME)/.cargo/registry":/usr/local/cargo/registry \
 		ghcr.io/instrumentisto/rust:$(RUST_NIGHTLY_VER) \

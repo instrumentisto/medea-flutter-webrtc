@@ -9,18 +9,18 @@ set(PLUGIN_NAME "flutter_webrtc_plugin")
 add_definitions(-DLIB_WEBRTC_API_DLL)
 
 add_library(${PLUGIN_NAME} SHARED
-  "./cpp/flutter_webrtc_plugin.cc"
-  "./cpp/src/flutter_data_channel.cc"
-  "./cpp/src/flutter_media_stream.cc"
-  "./cpp/src/flutter_peerconnection.cc"
-  "./cpp/src/flutter_video_renderer.cc"
-  "./cpp/src/flutter_webrtc.cc"
-  "./cpp/src/flutter_webrtc_base.cc"
+  "../common/cpp/flutter_webrtc_plugin.cc"
+  "../common/cpp/src/flutter_data_channel.cc"
+  "../common/cpp/src/flutter_media_stream.cc"
+  "../common/cpp/src/flutter_peerconnection.cc"
+  "../common/cpp/src/flutter_video_renderer.cc"
+  "../common/cpp/src/flutter_webrtc.cc"
+  "../common/cpp/src/flutter_webrtc_base.cc"
   "../third_party/uuidxx/uuidxx.cc"
 )
 
 include_directories(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cpp/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../common/cpp/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/uuidxx"
   "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libwebrtc/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/include"
@@ -31,7 +31,7 @@ set_target_properties(${PLUGIN_NAME} PROPERTIES
   CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE
-  "${CMAKE_CURRENT_SOURCE_DIR}/cpp/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../common/cpp/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/include"
 )
 target_link_libraries(${PLUGIN_NAME} PRIVATE 

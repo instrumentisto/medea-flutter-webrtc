@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  chocotest:
+    name: Chokotest
+    runs-on: windows-latest
+    steps:
+      - run: choco install make
+      - run: make -v
