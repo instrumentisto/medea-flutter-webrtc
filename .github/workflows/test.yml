@@ -5,14 +5,16 @@ on:
 
 jobs:
   test:
-    name: Rust tests
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - run: choco install make
-      - run: make lib.download
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
-      - run: cd libwebrtc-sys && cargo test --test integration_test
+          toolchain: nightly
+          components: rustfmt, clippy
+      - run: choco install make
+      - run: make lib.download
+      - name: Tests
+        run: make cargo.test
+
   

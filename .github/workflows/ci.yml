@@ -1,15 +1,19 @@
-# name: CI
+name: CI
 
-# on:
-#   push:
+on:
+  push:
 
-# env:
-#   RUST_BACKTRACE: 1
+env:
+  RUST_BACKTRACE: 1
 
-# jobs:
-#   chocotest:
-#     name: Chokotest
-#     runs-on: windows-latest
-#     steps:
-#       - run: choco install make
-#       - run: make -v
+jobs:
+  chocotest:
+    name: Chokotest
+    runs-on: windows-latest
+    steps:
+      - run: choco install make
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - 

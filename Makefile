@@ -27,7 +27,10 @@ RUST_NIGHTLY_VER = 'nightly-2021-09-08'
 ###########
 
 deps: lib.download flutter.create.windows flutter.deps
-build: rust.build flutter.build
+build: 
+	lib.build release=$(if $(call eq,$(release),yes),yes,)
+	flutter.build release=$(if $(call eq,$(release),yes),yes,)
+
 run: flutter.run
 
 
@@ -37,24 +40,24 @@ run: flutter.run
 # Running commands #
 ####################
 
-# add doc for each method
-# debug or release
-
-# Build libwebrtc crate and deliver all necessity files to flutter windows directory.
+# Build libwebrtc and deliver all necessity files to flutter windows directory.
 #
 # Usage:
-#	make rust.build [dockerized=(no|yes)]
-rust.build:
+#	make lib.build [release=(no|yes)]
+lib.build:
 	rm -rf windows/rust/
 	mkdir windows/rust/ && \
 	mkdir windows/rust/include && \
 	mkdir windows/rust/lib && \
-	cd libwebrtc && \
- 	cargo build && \
-	cp target/debug/jason_flutter_webrtc.dll ../windows/rust/lib/jason_flutter_webrtc.dll && \
-	cp target/debug/jason_flutter_webrtc.dll.lib ../windows/rust/lib/jason_flutter_webrtc.dll.lib 
+	make cargo.build release=$(if $(call eq,$(release),yes),yes,) && \
+	cp target/$(if $(call eq,$(release),yes),release,)/jason_flutter_webrtc.dll ../windows/rust/lib/jason_flutter_webrtc.dll && \
+	cp target/$(if $(call eq,$(release),yes),release,)/jason_flutter_webrtc.dll.lib ../windows/rust/lib/jason_flutter_webrtc.dll.lib 
 
 
+# Downloead libwebrtc source and deliver all necessity files to libwebrtc-sys.
+#
+# Usage:
+#	make lib.download
 lib.download:
 	rm -rf lib_zip && \
 	rm -rf libwebrtc-sys/include && \
@@ -71,15 +74,41 @@ lib.download:
 	cd ../ && \
 	rm -rf lib_zip
 
+
+
+
+####################
+# Flutter commands #
+####################
+
+# Build flutter application.
+#
+# Usage:
+#	make flutter.build [release=(no|yes)]
 flutter.build:
 	cd example && flutter build windows
 
+
+# Run flutter application.
+#
+# Usage:
+#	make flutter.run
 flutter.run:
 	cd example && flutter run -d windows
 
+
+# Install flutter dependencies.
+#
+# Usage:
+#	make flutter.deps
 flutter.deps:
 	flutter pub get
 
+
+# Create flutter build for Windows.
+#
+# Usage:
+#	make flutter.deps
 flutter.create.windows:
 	cd example/ && flutter create --platforms windows .
 
@@ -107,6 +136,22 @@ else
 endif
 
 
+# Build libwebrtc.
+#
+# Usage:
+#	make cargo.build [release=(no|yes)]
+
+cargo.build:
+	cargo build $(if $(call eq,$(release),yes),--release,) --manifest-path libwebrtc/Cargo.toml
+
+
+# Test libwebrtc-sys.
+#
+# Usage:
+#	make cargo.test
+
+cargo.test:
+	cargo test --manifest-path libwebrtc-sys/Cargo.toml --test integration_test
 
 
 # Format Rust sources with rustfmt.
@@ -124,8 +169,6 @@ ifeq ($(dockerized),yes)
 else
 	cargo fmt --manifest-path libwebrtc/Cargo.toml --all $(if $(call eq,$(check),yes),-- --check,)
 endif
-
-
 
 
 # Lint Rust sources with Clippy.
