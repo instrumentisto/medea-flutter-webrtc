@@ -13,8 +13,15 @@ jobs:
           toolchain: nightly
           components: rustfmt, clippy
       - run: choco install make
-      - run: make lib.download
+      - name: Download
+        run: make lib.download
       - name: Tests
         run: make cargo.test
+      - name: Lint
+        run: make cargo.lint
+      - name: FMT
+        run: make cargo.fmt
+      - name: Build
+        run: make cargo.build
 
   
