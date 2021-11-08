@@ -280,7 +280,8 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 break;
             }
             case "trackDispose": {
-                // TODO (evdokimovs): Implement MediaStreamTracks disposing
+                // TODO (evdokimovs): Implement MediaStreamTracks disposing in
+                //                    the "Implement missing flutter_webrtc APIs" PR
                 // String trackId = call.argument("trackId");
 
                 result.success(null);

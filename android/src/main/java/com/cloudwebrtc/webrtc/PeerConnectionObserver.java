@@ -236,7 +236,6 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
         ConstraintsMap params = new ConstraintsMap();
         ConstraintsArray streams = new ConstraintsArray();
         for (MediaStream stream : mediaStreams) {
-            // FIXME (evdokimovs): ID isn't ownerTag this is error from flutter_webrtc maintainers
             streams.pushMap(new ConstraintsMap(ObjectExporter.exportMediaStream(id, stream)));
         }
 
