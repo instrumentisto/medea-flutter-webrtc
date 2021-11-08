@@ -1,19 +1,76 @@
-# name: CI
+name: CI
 
-# on:
-#   push:
+on:
+  push:
 
-# env:
-#   RUST_BACKTRACE: 1
+env:
+  RUST_BACKTRACE: 1
 
-# jobs:
-#   chocotest:
-#     name: Chokotest
-#     runs-on: windows-latest
-#     steps:
-#       - run: choco install make
-#       - uses: actions/checkout@v2
-#       - uses: actions-rs/toolchain@v1
-#         with:
-#           toolchain: stable
-#       - 
+jobs:
+  Lint:
+     if: ${{ github.ref == 'refs/heads/master'
+            || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+      - name: Install make
+        run: choco install make
+      - name: Download
+        run: make lib.download
+      - name: Lint
+        run: make cargo.lint
+      
+  FMT:
+     if: ${{ github.ref == 'refs/heads/master'
+            || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+      - name: Install make
+        run: choco install make
+      - name: Download
+        run: make lib.download
+      - name: FMT
+        run: make cargo.fmt check=yes
+
+  Test:
+     if: ${{ github.ref == 'refs/heads/master'
+            || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+      - name: Install make
+        run: choco install make
+      - name: Download
+        run: make lib.download
+      - name: Test
+        run: make cargo.test
+
+  Build:
+     if: ${{ github.ref == 'refs/heads/master'
+            || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+      - name: Install make
+        run: choco install make
+      - name: Download
+        run: make lib.download
+      - name: Build
+        run: make cargo.build 
