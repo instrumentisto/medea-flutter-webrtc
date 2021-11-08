@@ -4,18 +4,6 @@ on:
   push:
 
 jobs:
-  download:
-    name: Download lib
-    runs-on: ubuntu-latest
-    steps: 
-      - uses: actions/checkout@v2
-      - run: make lib.download
-      - name: Upload libwebrtc-sys
-        uses: actions/upload-artifact@v2
-        with:
-          name: libwebrtc-sys
-          path: libwebrtc-sys/
-
   test:
     name: Rust tests
     needs:
