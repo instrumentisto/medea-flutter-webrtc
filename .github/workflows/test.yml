@@ -6,8 +6,6 @@ on:
 jobs:
   test:
     name: Rust tests
-    needs:
-     - download
     runs-on: windows-latest
     steps:
       - run: choco install make
