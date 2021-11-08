@@ -154,6 +154,15 @@ cargo.test:
 	cargo test --manifest-path libwebrtc-sys/Cargo.toml --test integration_test
 
 
+# Create documentation for libwebrtc.
+#
+# Usage:
+#	make cargo.doc
+
+cargo.doc:
+	cargo doc --manifest-path libwebrtc-sys/Cargo.toml
+
+
 # Format Rust sources with rustfmt.
 #
 # Usage:
