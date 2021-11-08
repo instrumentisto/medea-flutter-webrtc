@@ -321,7 +321,8 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
     try {
       final response = await WebRTC.invokeMethod('getTransceivers',
           <String, dynamic>{'peerConnectionId': _peerConnectionId});
-      var transceivers = RTCRtpTransceiverNative.fromMaps(response['transceivers'],
+      var transceivers = RTCRtpTransceiverNative.fromMaps(
+          response['transceivers'],
           peerConnectionId: _peerConnectionId);
       _transceivers.addAll(transceivers);
       return transceivers;
