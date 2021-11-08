@@ -12,5 +12,6 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - run: make lib.download
       - run: cd libwebrtc-sys && cargo test --test integration_test
   
