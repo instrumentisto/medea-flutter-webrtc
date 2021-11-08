@@ -8,9 +8,9 @@ jobs:
     name: Rust tests
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
       - run: choco install make
       - run: make lib.download
-      - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
