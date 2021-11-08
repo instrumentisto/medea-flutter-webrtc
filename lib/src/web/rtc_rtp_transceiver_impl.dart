@@ -105,6 +105,11 @@ class RTCRtpTransceiverWeb extends RTCRtpTransceiver {
   }
 
   @override
+  Future<void> sync() async {
+    // Web implementation doesn't need sync method.
+  }
+
+  @override
   Future<void> stop() async {
     try {
       jsutil.callMethod(_jsTransceiver, 'stop', []);

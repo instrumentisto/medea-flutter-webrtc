@@ -89,15 +89,6 @@ class _MyAppState extends State<LoopBackSample> {
     print(state);
   }
 
-  void _onAddStream(MediaStream stream) {
-    print('New stream: ' + stream.id);
-    _remoteRenderer.srcObject = stream;
-  }
-
-  void _onRemoveStream(MediaStream stream) {
-    _remoteRenderer.srcObject = null;
-  }
-
   void _onCandidate(RTCIceCandidate candidate) {
     print('onCandidate: ${candidate.candidate}');
     _peerConnection?.addCandidate(candidate);
@@ -107,18 +98,6 @@ class _MyAppState extends State<LoopBackSample> {
     print('onTrack');
     if (event.track.kind == 'video') {
       _remoteRenderer.srcObject = event.streams[0];
-    }
-  }
-
-  void _onAddTrack(MediaStream stream, MediaStreamTrack track) {
-    if (track.kind == 'video') {
-      _remoteRenderer.srcObject = stream;
-    }
-  }
-
-  void _onRemoveTrack(MediaStream stream, MediaStreamTrack track) {
-    if (track.kind == 'video') {
-      _remoteRenderer.srcObject = null;
     }
   }
 
@@ -184,8 +163,6 @@ class _MyAppState extends State<LoopBackSample> {
       switch (sdpSemantics) {
         case 'unified-plan':
           _peerConnection!.onTrack = _onTrack;
-          _peerConnection!.onAddTrack = _onAddTrack;
-          _peerConnection!.onRemoveTrack = _onRemoveTrack;
           _localStream!.getTracks().forEach((track) {
             _peerConnection!.addTrack(track, _localStream!);
           });
@@ -248,18 +225,7 @@ class _MyAppState extends State<LoopBackSample> {
     return Scaffold(
       appBar: AppBar(
         title: Text('LoopBack example'),
-        actions: _inCalling
-            ? <Widget>[
-          IconButton(
-            icon: Icon(Icons.keyboard),
-            onPressed: () async {
-              print("Starting getTransceivers");
-              await _peerConnection?.getTransceivers();
-              print("End getTransceivers");
-            },
-          ),
-        ]
-            : null,
+        actions: null,
       ),
       body: OrientationBuilder(
         builder: (context, orientation) {
