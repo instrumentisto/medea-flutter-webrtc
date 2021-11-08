@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: '${{ github.repository }}/libwebrtc-sys'
+          repository: ${{ github.repository }}/libwebrtc-sys
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
