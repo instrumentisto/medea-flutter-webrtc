@@ -26,7 +26,7 @@ RUST_NIGHTLY_VER = 'nightly-2021-09-08'
 # Aliases #
 ###########
 
-deps: lib.download flutter.create.windows flutter.deps
+deps: lib.download cargo flutter
 build: 
 	lib.build release=$(if $(call eq,$(release),yes),yes,)
 	flutter.build release=$(if $(call eq,$(release),yes),yes,)
@@ -100,17 +100,9 @@ flutter.run:
 # Install flutter dependencies.
 #
 # Usage:
-#	make flutter.deps
-flutter.deps:
-	flutter pub get
-
-
-# Create flutter build for Windows.
-#
-# Usage:
-#	make flutter.deps
-flutter.create.windows:
-	cd example/ && flutter create --platforms windows .
+#	make flutter [cmd=(pub get|<flutter-cmd>)]
+flutter:
+	flutter $(if $(call eq,$(cmd),pub),pub get,$(cmd))
 
 
 
@@ -139,10 +131,10 @@ endif
 # Build libwebrtc.
 #
 # Usage:
-#	make cargo.build [release=(no|yes)]
+#	make cargo.build [debug=(no|yes)]
 
 cargo.build:
-	cargo build $(if $(call eq,$(release),yes),--release,) --manifest-path libwebrtc/Cargo.toml
+	cargo build $(if $(call eq,$(debug),no),--release,) --manifest-path libwebrtc/Cargo.toml
 
 
 # Test libwebrtc-sys.
