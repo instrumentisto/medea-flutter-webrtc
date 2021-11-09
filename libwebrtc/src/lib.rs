@@ -17,3 +17,7 @@ pub unsafe extern "C" fn string_free(s: ptr::NonNull<c_char>) {
 fn string_into_c_str(string: String) -> ptr::NonNull<c_char> {
     ptr::NonNull::new(CString::new(string).unwrap().into_raw()).unwrap()
 }
+
+// fn main() {
+//     println!("\n{}", system_time_millis());
+// }

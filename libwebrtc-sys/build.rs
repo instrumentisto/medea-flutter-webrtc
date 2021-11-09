@@ -19,15 +19,9 @@ fn main() {
         .file("src/bridge.cc")
         .include(path.join("include"))
         .include(path.join("include/third_party/abseil-cpp"))
-        .include(
-            path.join("include/third_party/googletest/src/googletest/include"),
-        )
-        .include(
-            path.join("include/third_party/googletest/src/googlemock/include"),
-        )
-        .define("WEBRTC_WIN", None)
-        .define("NOMINMAX", None)
-        .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", None)
+        .define("WEBRTC_WIN", "1")
+        .define("NOMINMAX", "1")
+        .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")
         .compile("libwebrtc-sys");
 
     println!("cargo:rerun-if-changed=src/lib.rs.rs");

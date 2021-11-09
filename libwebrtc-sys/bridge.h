@@ -5,4 +5,5 @@
 
 namespace RTC {
     std::unique_ptr<std::string> SystemTimeMillis();
+    // void customGetSource();
 }
