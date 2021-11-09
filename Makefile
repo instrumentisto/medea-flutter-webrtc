@@ -45,13 +45,9 @@ run: flutter.run
 # Usage:
 #	make lib.build [release=(no|yes)]
 lib.build:
-	rm -rf windows/rust/
-	mkdir windows/rust/ && \
-	mkdir windows/rust/include && \
-	mkdir windows/rust/lib && \
-	make cargo.build release=$(if $(call eq,$(release),yes),yes,) && \
-	cp target/$(if $(call eq,$(release),yes),release,)/jason_flutter_webrtc.dll ../windows/rust/lib/jason_flutter_webrtc.dll && \
-	cp target/$(if $(call eq,$(release),yes),release,)/jason_flutter_webrtc.dll.lib ../windows/rust/lib/jason_flutter_webrtc.dll.lib 
+	make cargo.build $(if $(call eq,$(release),yes),dev=no,) && \
+	cp libwebrtc/target/$(if $(call eq,$(release),yes),release,debug)/jason_flutter_webrtc.dll windows/rust/lib/jason_flutter_webrtc.dll && \
+	cp libwebrtc/target/$(if $(call eq,$(release),yes),release,debug)/jason_flutter_webrtc.dll.lib windows/rust/lib/jason_flutter_webrtc.dll.lib 
 
 
 # Downloead libwebrtc source and deliver all necessity files to libwebrtc-sys.
