@@ -2,7 +2,7 @@
 #include <string>
 
 #include "../bridge.h"
-#include "../wrapper.h"
+#include "../wrapper.h" // TODO: remove wrapper, use only things that we need
 
 namespace RTC {
     std::unique_ptr<std::string> SystemTimeMillis() {

@@ -19,13 +19,13 @@ fn main() {
         .file("src/bridge.cc")
         .include(path.join("include"))
         .include(path.join("include/third_party/abseil-cpp"))
-        .include(
+        .include( // обсудили же что без тестов будем собирать? мол там есть какой-то флажок
             path.join("include/third_party/googletest/src/googletest/include"),
         )
         .include(
             path.join("include/third_party/googletest/src/googlemock/include"),
         )
-        .define("WEBRTC_WIN", None)
+        .define("WEBRTC_WIN", None) // почему none, прокидывайте единички?
         .define("NOMINMAX", None)
         .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", None)
         .compile("libwebrtc-sys");
