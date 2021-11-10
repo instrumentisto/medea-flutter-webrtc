@@ -1,12 +1,12 @@
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{thread::sleep, time::Duration};
 
 use libwebrtc_sys::system_time_millis;
 
 #[test]
 fn it_works() {
-    let millis_from_rust = SystemTime::now
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards");
+    let a: i32 = system_time_millis().parse().unwrap();
+    sleep(Duration::from_secs(1));
+    let b: i32 = system_time_millis().parse().unwrap();
 
-    assert!((millis_from_rust - millis_from_cpp).abs() < 1000);
+    assert!((a - b).abs() < 1500);
 }
