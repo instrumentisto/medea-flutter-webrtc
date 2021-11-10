@@ -24,9 +24,8 @@ fn main() {
         .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")
         .compile("libwebrtc-sys");
 
-    println!("cargo:rerun-if-changed=src/lib.rs.rs");
+    println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=src/bridge.cc");
-    println!("cargo:rerun-if-changed=../libwebrtc/libwebrtc.cc");
-    println!("cargo:rerun-if-changed=../libwebrtc/libwebrtc.lib");
+    println!("cargo:rerun-if-changed=webrtc/webrtc.lib");
     println!("cargo:rerun-if-changed=src/bridge.h");
 }

@@ -18,4 +18,9 @@ fn main() {
     cbindgen::generate_with_config(&crate_dir, config)
         .unwrap()
         .write_to_file(&output_file);
+
+    println!("cargo:rerun-if-changed=../libwebrtc-sys/src/lib.rs");
+    println!("cargo:rerun-if-changed=../libwebrtc-sys/src/bridge.cc");
+    println!("cargo:rerun-if-changed=../libwebrtc-sys/webrtc/webrtc.lib");
+    println!("cargo:rerun-if-changed=../libwebrtc-sys/src/bridge.h");
 }
