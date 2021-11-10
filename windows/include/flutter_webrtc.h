@@ -5,15 +5,23 @@
 #include <flutter/plugin_registrar.h>
 #include <flutter/standard_message_codec.h>
 
-#include "flutter_data_channel.h"
-#include "flutter_media_stream.h"
-#include "flutter_peerconnection.h"
-#include "flutter_video_renderer.h"
-#include "libwebrtc.h"
+#include <flutter/encodable_value.h>
+#include <flutter/event_channel.h>
+#include <flutter/event_stream_handler_functions.h>
+#include <flutter/method_channel.h>
+#include <flutter/plugin_registrar.h>
+#include <flutter/standard_message_codec.h>
+#include <flutter/standard_method_codec.h>
+#include <flutter/texture_registrar.h>
+
+#include <string.h>
+#include <list>
+#include <map>
+#include <memory>
+
+using namespace flutter;
 
 namespace flutter_webrtc_plugin {
-using namespace libwebrtc;
-
 class FlutterWebRTCPlugin : public flutter::Plugin {
  public:
   virtual flutter::BinaryMessenger *messenger() = 0;
@@ -21,11 +29,7 @@ class FlutterWebRTCPlugin : public flutter::Plugin {
   virtual flutter::TextureRegistrar *textures() = 0;
 };
 
-class FlutterWebRTC : public FlutterWebRTCBase,
-                      public FlutterVideoRendererManager,
-                      public FlutterMediaStream,
-                      public FlutterPeerConnection,
-                      public FlutterDataChannel {
+class FlutterWebRTC {
  public:
   FlutterWebRTC(FlutterWebRTCPlugin *plugin);
   virtual ~FlutterWebRTC();
