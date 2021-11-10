@@ -11,5 +11,6 @@ mod rtc {
 
 pub fn system_time_millis() -> String {
     // RTC::customGetSource();
+    // It leaks, but thats ok for demonstration purposes.
     rtc::SystemTimeMillis().to_string()
 }

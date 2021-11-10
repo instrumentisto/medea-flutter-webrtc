@@ -45,7 +45,7 @@ run: flutter.run
 lib.build:
 	make cargo.build $(if $(call eq,$(release),yes),dev=no,) && \
 	cp libwebrtc/target/$(if $(call eq,$(release),yes),release,debug)/jason_flutter_webrtc.dll windows/rust/lib/jason_flutter_webrtc.dll && \
-	cp libwebrtc/target/$(if $(call eq,$(release),yes),release,debug)/jason_flutter_webrtc.dll.lib windows/rust/lib/jason_flutter_webrtc.dll.lib 
+	cp libwebrtc/target/$(if $(call eq,$(release),yes),release,debug)/jason_flutter_webrtc.dll.lib windows/rust/lib/jason_flutter_webrtc.dll.lib
 
 
 # Downloead libwebrtc source and deliver all necessity files to libwebrtc-sys.
@@ -58,7 +58,7 @@ lib.download:
 	rm -rf libwebrtc-sys/webrtc && \
 	mkdir lib_zip && \
 	cd lib_zip && \
-	curl -L -O --silent $(LIBWEBRTC_PATH)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar && \
+	curl -L -O $(LIBWEBRTC_PATH)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar && \
 	tar -x -f libwebrtc-win-x64.tar && \
 	echo "Copying headers..." && \
 	cp -R include ../libwebrtc-sys && \
