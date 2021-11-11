@@ -30,11 +30,11 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
 target_link_libraries(${PLUGIN_NAME} PRIVATE
   flutter
   flutter_wrapper_plugin
-  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/jason_flutter_webrtc.dll.lib"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/flutter_webrtc_native.dll.lib"
 )
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(flutter_webrtc_bundled_libraries
-  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/jason_flutter_webrtc.dll"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/flutter_webrtc_native.dll"
   PARENT_SCOPE
 )

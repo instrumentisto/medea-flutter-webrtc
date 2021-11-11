@@ -13,7 +13,7 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-LIBWEBRTC_PATH = https://github.com/logist322/libwebrtc-bin/releases/download/
+LIBWEBRTC_URL = https://github.com/logist322/libwebrtc-bin/releases/download/
 LIBWEBRTC_VER = nadlast
 
 RUST_VER = 1.55
@@ -26,47 +26,33 @@ RUST_NIGHTLY_VER = 'nightly-2021-09-08'
 # Aliases #
 ###########
 
-deps: lib.download cargo flutter
-build: lib.build $(if $(call eq,$(release),yes),release=yes,) flutter.build $(if $(call eq,$(release),yes),release=yes,)
+deps: deps.thirdparty cargo flutter
+
+build: cargo.build
 
 run: flutter.run
 
+fmt: cargo.fmt
+
+lint: cargo.lint
+
+test: cargo.test
+
+doc: cargo.doc
 
 
 
-####################
-# Running commands #
-####################
 
-# Build libwebrtc and deliver all necessity files to flutter windows directory.
+# Downloads compiled libwebrtc with headers to libwebrtc-sys crate.
 #
 # Usage:
-#	make lib.build [release=(no|yes)]
-lib.build:
-	make cargo.build $(if $(call eq,$(release),yes),dev=no,) && \
-	cp libwebrtc/target/$(if $(call eq,$(release),yes),release,debug)/jason_flutter_webrtc.dll windows/rust/lib/jason_flutter_webrtc.dll && \
-	cp libwebrtc/target/$(if $(call eq,$(release),yes),release,debug)/jason_flutter_webrtc.dll.lib windows/rust/lib/jason_flutter_webrtc.dll.lib
-
-
-# Downloead libwebrtc source and deliver all necessity files to libwebrtc-sys.
-#
-# Usage:
-#	make lib.download
-lib.download:
-	rm -rf lib_zip && \
-	rm -rf libwebrtc-sys/include && \
-	rm -rf libwebrtc-sys/webrtc && \
-	mkdir lib_zip && \
-	cd lib_zip && \
-	curl -L -O $(LIBWEBRTC_PATH)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar && \
-	tar -x -f libwebrtc-win-x64.tar && \
-	echo "Copying headers..." && \
-	cp -R include ../libwebrtc-sys && \
-	mkdir ../libwebrtc-sys/webrtc && \
-	echo "Copying libwebrtc..." && \
-	cp release/webrtc.lib ../libwebrtc-sys/webrtc/ && \
-	cd ../ && \
-	rm -rf lib_zip
+#	make deps.thirdparty
+deps.thirdparty:
+	mkdir -p temp && \
+	curl -L --output-dir temp -O $(LIBWEBRTC_URL)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar && \
+	rm -r crates/libwebrtc-sys/lib/* || true && \
+	tar -xf temp/libwebrtc-win-x64.tar -C crates/libwebrtc-sys/lib
+	rm -rf temp
 
 
 
@@ -79,6 +65,7 @@ lib.download:
 #
 # Usage:
 #	make flutter.build [release=(no|yes)]
+
 flutter.build:
 	cd example && flutter build windows
 
@@ -87,6 +74,7 @@ flutter.build:
 #
 # Usage:
 #	make flutter.run
+
 flutter.run:
 	cd example && flutter run -d windows
 
@@ -95,6 +83,7 @@ flutter.run:
 #
 # Usage:
 #	make flutter [cmd=(pub get|<flutter-cmd>)]
+
 flutter:
 	flutter $(if $(call eq,$(cmd),pub),pub get,$(cmd))
 
@@ -112,41 +101,52 @@ flutter:
 
 cargo:
 ifeq ($(dockerized),yes)
-	MSYS_NO_PATHCONV=1 docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 		-u $(shell id -u):$(shell id -g) \
 		-v "$(HOME)/.cargo/registry":/usr/local/cargo/registry \
 		ghcr.io/instrumentisto/rust:$(RUST_VER) \
 			make cargo cmd='$(cmd)' dockerized=no
 else
-	cargo $(or $(cmd),fetch) --manifest-path libwebrtc/Cargo.toml
+	cargo $(or $(cmd),fetch)
 endif
 
 
-# Build libwebrtc.
+# Build flutter_webrtc_native crate and copies final artifacts to platform-specific directories.
 #
 # Usage:
-#	make cargo.build [debug=(no|yes)]
+#	make cargo.build [debug=(yes|no)]
+
+lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
-	cargo build $(if $(call eq,$(debug),no),--release,) --manifest-path libwebrtc/Cargo.toml
+	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,) && \
+	cp $(lib-out-path)/flutter_webrtc_native.dll windows/rust/lib/flutter_webrtc_native.dll && \
+	cp $(lib-out-path)/flutter_webrtc_native.dll.lib windows/rust/lib/flutter_webrtc_native.dll.lib
+	cp crates/native/target/flutter_webrtc_native.hpp windows/rust/include/flutter_webrtc_native.hpp
 
 
-# Test libwebrtc-sys.
+# Run Rust tests of project.
 #
 # Usage:
 #	make cargo.test
 
 cargo.test:
-	cargo test --manifest-path libwebrtc-sys/Cargo.toml --test integration_test
+	cargo test
 
 
 # Create documentation for libwebrtc.
 #
 # Usage:
-#	make cargo.doc
+#	make cargo.doc [open=(yes|no)] [clean=(no|yes)]
+#	               [dev=(no|yes)]
 
 cargo.doc:
-	cargo doc --manifest-path libwebrtc-sys/Cargo.toml
+ifeq ($(clean),yes)
+	@rm -rf target/doc/
+endif
+	cargo doc --workspace --no-deps \
+			$(if $(call eq,$(dev),yes),--document-private-items,) \
+			$(if $(call eq,$(open),no),,--open)
 
 
 # Format Rust sources with rustfmt.
@@ -156,39 +156,20 @@ cargo.doc:
 
 cargo.fmt:
 ifeq ($(dockerized),yes)
-	MSYS_NO_PATHCONV=1 docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 		-u $(shell id -u):$(shell id -g) \
 		-v "$(HOME)/.cargo/registry":/usr/local/cargo/registry \
 		ghcr.io/instrumentisto/rust:$(RUST_NIGHTLY_VER) \
 			make cargo.fmt check=$(check) dockerized=no
 else
-	cargo fmt --manifest-path libwebrtc/Cargo.toml --all $(if $(call eq,$(check),yes),-- --check,)
+	cargo +nightly fmt --all $(if $(call eq,$(check),yes),-- --check,)
 endif
 
 
 # Lint Rust sources with Clippy.
 #
 # Usage:
-#	make cargo.lint [dockerized=(no|yes)]
+#	make cargo.lint
 
 cargo.lint:
-ifeq ($(dockerized),yes)
-	MSYS_NO_PATHCONV=1  docker run --rm --network=host -v "$(PWD)":/app -w /app \
-		-u $(shell id -u):$(shell id -g) \
-		-v "$(HOME)/.cargo/registry":/usr/local/cargo/registry \
-		ghcr.io/instrumentisto/rust:$(RUST_VER) \
-			make cargo.lint dockerized=no
-else
-	cargo clippy --manifest-path libwebrtc/Cargo.toml --workspace -- -D clippy::pedantic -D warnings
-endif
-
-
-# Show version of project's Cargo crate.
-#
-# Usage:
-#	make cargo.version [crate=(medea|<crate-name>)]
-
-cargo.version:
-	@printf "$(crate-ver)"
-
-
+	cargo clippy --workspace -- -D clippy::pedantic -D warnings

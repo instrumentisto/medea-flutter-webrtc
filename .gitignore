@@ -52,5 +52,7 @@ android/.settings/org.eclipse.buildship.core.prefs
 # VSCode
 .vscode/
 
+/target/
+
 !webrtc_android.iml
 !webrtc.iml

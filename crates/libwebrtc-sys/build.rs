@@ -1,7 +1,15 @@
 use std::{env, path::PathBuf};
 
 fn main() {
-    println!("cargo:rustc-link-search=native=./webrtc/");
+    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let profile = std::env::var("PROFILE").unwrap();
+
+    match profile.as_str() {
+        "debug" => println!("cargo:rustc-link-search=native=./lib/debug"),
+        "release" => println!("cargo:rustc-link-search=native=./lib/release"),
+        _ => unreachable!(),
+    }
+
     println!("cargo:rustc-link-lib=static=webrtc");
     println!("cargo:rustc-link-lib=dylib=winmm");
     println!("cargo:rustc-link-lib=dylib=secur32");
@@ -13,20 +21,17 @@ fn main() {
     println!("cargo:rustc-link-lib=dylib=d3d11");
     println!("cargo:rustc-link-lib=dylib=dxgi");
 
-    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-
-    cxx_build::bridge("src/lib.rs")
+    cxx_build::bridge("src/bridge.rs")
         .file("src/bridge.cc")
-        .include(path.join("include"))
-        .include(path.join("include/third_party/abseil-cpp"))
+        .include(path.join("lib/include"))
+        .include(path.join("lib/include/third_party/abseil-cpp"))
         .define("WEBRTC_WIN", "1")
         .define("NOMINMAX", "1")
         .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")
         .compile("libwebrtc-sys");
 
-    println!("cargo:rerun-if-changed=src/lib.rs.rs");
     println!("cargo:rerun-if-changed=src/bridge.cc");
-    println!("cargo:rerun-if-changed=../libwebrtc/libwebrtc.cc");
-    println!("cargo:rerun-if-changed=../libwebrtc/libwebrtc.lib");
-    println!("cargo:rerun-if-changed=src/bridge.h");
+    println!("cargo:rerun-if-changed=src/bridge.rs");
+    println!("cargo:rerun-if-changed=include/bridge.h");
+    println!("cargo:rerun-if-changed=./lib");
 }

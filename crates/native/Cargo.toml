@@ -1,11 +1,10 @@
 [package]
-name = "jason_flutter_webrtc"
+name = "flutter-webrtc-native"
 version = "0.0.1"
 edition = "2018"
 build = "build.rs"
 
 [lib]
-name = "jason_flutter_webrtc"
 crate-type = ["cdylib"]
 
 [dependencies]

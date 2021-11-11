@@ -19,7 +19,7 @@ class _TestSampleState extends State<TestSample> {
     super.initState();
   }
 
-  void _getDevices() async {
+  void _getSystemTime() async {
     var a = await WebRTC.invokeMethod('getSystemTime', text);
     setState(() {
       text = 'System time: ' + a;
@@ -34,7 +34,7 @@ class _TestSampleState extends State<TestSample> {
       ),
       body: Center(child: Text(text)),
       floatingActionButton: FloatingActionButton(
-        onPressed: _getDevices,
+        onPressed: _getSystemTime,
         child: Icon(Icons.phone),
       ),
     );
