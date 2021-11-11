@@ -5,8 +5,8 @@ fn main() {
     let profile = std::env::var("PROFILE").unwrap();
 
     match profile.as_str() {
-        "debug" => println!("cargo:rustc-link-search=native=./lib/debug"),
-        "release" => println!("cargo:rustc-link-search=native=./lib/release"),
+        "debug" => println!("cargo:rustc-link-search=native=./lib/debug/"),
+        "release" => println!("cargo:rustc-link-search=native=./lib/release/"),
         _ => unreachable!(),
     }
 
