@@ -13,8 +13,8 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-LIBWEBRTC_URL = https://github.com/logist322/libwebrtc-bin/releases/download/
-LIBWEBRTC_VER = nadlast
+LIBWEBRTC_URL = https://github.com/instrumentisto/libwebrtc-bin/releases/download/
+LIBWEBRTC_VER = 97.4692.0.0-r0
 
 RUST_VER = 1.55
 RUST_NIGHTLY_VER = 'nightly-2021-09-08'
@@ -49,9 +49,9 @@ doc: cargo.doc
 #	make deps.thirdparty
 deps.thirdparty:
 	mkdir -p temp && \
-	curl -L --output-dir temp -O $(LIBWEBRTC_URL)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar && \
-	rm -r crates/libwebrtc-sys/lib/* || true && \
-	tar -xf temp/libwebrtc-win-x64.tar -C crates/libwebrtc-sys/lib
+	curl -L --output-dir temp -O $(LIBWEBRTC_URL)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar.gz && \
+	rm -rf crates/libwebrtc-sys/lib/* || true && \
+	tar -xf temp/libwebrtc-win-x64.tar.gz -C crates/libwebrtc-sys/lib
 	rm -rf temp
 
 
@@ -173,3 +173,18 @@ endif
 
 cargo.lint:
 	cargo clippy --workspace -- -D clippy::pedantic -D warnings
+
+
+
+
+##################
+# .PHONY section #
+##################
+
+.PHONY: build deps doc run test fmt lint \
+		cargo \
+			cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
+		flutter \
+			flutter.build flutter.run \
+		deps.thirdparty \
+

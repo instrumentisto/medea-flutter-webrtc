@@ -5,6 +5,5 @@ pub mod rtc {
         include!("libwebrtc-sys/include/bridge.h");
 
         pub fn SystemTimeMillis() -> i64;
-        // pub fn customGetSource();
     }
 }

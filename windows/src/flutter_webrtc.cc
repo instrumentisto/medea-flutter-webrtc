@@ -15,7 +15,7 @@ void FlutterWebRTC::HandleMethodCall(
   if (method_call.method_name().compare("getSystemTime") == 0) {
     int64_t millis = flutter_webrtc_native::SystemTimeMillis();
 
-    result->Success(millis);
+    result->Success(std::to_string(millis));
   } else {
     result->NotImplemented();
   }

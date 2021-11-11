@@ -2,14 +2,9 @@ use std::{env, path::PathBuf};
 
 fn main() {
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let profile = std::env::var("PROFILE").unwrap();
 
-    match profile.as_str() {
-        "debug" => println!("cargo:rustc-link-search=native=./lib/debug/"),
-        "release" => println!("cargo:rustc-link-search=native=./lib/release/"),
-        _ => unreachable!(),
-    }
-
+    // TODO: rustc always links against non-debug Windows runtime https://github.com/rust-lang/rust/issues/39016
+    println!("cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/");
     println!("cargo:rustc-link-lib=static=webrtc");
     println!("cargo:rustc-link-lib=dylib=winmm");
     println!("cargo:rustc-link-lib=dylib=secur32");

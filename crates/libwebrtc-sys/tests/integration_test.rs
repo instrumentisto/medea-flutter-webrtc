@@ -1,5 +1,3 @@
-use std::{thread::sleep, time::Duration};
-
 use libwebrtc_sys::system_time_millis;
 
 #[test]
