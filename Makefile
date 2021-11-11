@@ -85,7 +85,7 @@ flutter.run:
 #	make flutter [cmd=(pub get|<flutter-cmd>)]
 
 flutter:
-	flutter $(if $(call eq,$(cmd),pub),pub get,$(cmd))
+	flutter $(or $(cmd),pub get)
 
 
 
