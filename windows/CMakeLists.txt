@@ -11,7 +11,6 @@ add_definitions(-DLIB_WEBRTC_API_DLL)
 add_library(${PLUGIN_NAME} SHARED
   "flutter_webrtc_plugin.cc"
   "src/flutter_webrtc.cc"
-  "third_party/uuidxx/uuidxx.cc"
 )
 
 include_directories(
