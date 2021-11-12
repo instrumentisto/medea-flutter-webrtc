@@ -27,7 +27,7 @@ jobs:
 
   rustfmt:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -35,9 +35,8 @@ jobs:
           profile: minimal
           toolchain: nightly
           components: rustfmt
-      - run: choco install make
 
-      - run: make fmt check=yes
+      - run: make cargo.fmt check=yes
 
   build:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -55,8 +54,7 @@ jobs:
 
   rustdoc:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
-    needs: build
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -65,11 +63,9 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
-      - run: choco install make
       - run: make deps.thirdparty
 
-      - run: make build
-      - run: make doc
+      - run: make docs
 
   test:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
