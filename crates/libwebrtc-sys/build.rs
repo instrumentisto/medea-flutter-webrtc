@@ -3,12 +3,13 @@ use std::{env, path::PathBuf};
 fn main() {
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
-    // TODO: rustc always links against non-debug Windows runtime
-    // https://github.com/rust-lang/rust/issues/39016
+    // TODO: rustc always links against non-debug Windows runtime, so we always
+    //       use release build of libwebrtc.
+    //       https://github.com/rust-lang/rust/issues/39016
     println!(
         "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/"
     );
-    println!("cargo:rustc-link-lib=static=webrtc");
+    println!("cargo:rustc-link-lib=webrtc");
     println!("cargo:rustc-link-lib=dylib=winmm");
     println!("cargo:rustc-link-lib=dylib=secur32");
     println!("cargo:rustc-link-lib=dylib=dmoguids");

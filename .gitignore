@@ -22,14 +22,12 @@ example/ios/Flutter/flutter_export_environment.sh
 *.log
 *.pyc
 *.swp
-.DS_Store
 .atom/
 .buildlog/
 .history
 .svn/
 
 # IntelliJ related
-*.iml
 *.ipr
 *.iws
 .idea/

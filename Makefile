@@ -13,8 +13,7 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-LIBWEBRTC_URL = https://github.com/instrumentisto/libwebrtc-bin/releases/download/
-LIBWEBRTC_VER = 97.4692.0.0-r0
+LIBWEBRTC_URL = https://github.com/instrumentisto/libwebrtc-bin/releases/download/97.4692.0.0-r0
 
 RUST_VER = 1.55
 RUST_NIGHTLY_VER = 'nightly-2021-09-08'
@@ -43,23 +42,13 @@ docs: docs.rust
 
 
 
-# Removes `target/` directory.
-#
-# Usage:
-#	make clean
-clean:
-	rm -rf target/
-
-
-
-
-# Downloads compiled libwebrtc with headers to libwebrtc-sys crate.
+# Downloads compiled libwebrtc with headers to the libwebrtc-sys crate.
 #
 # Usage:
 #	make deps.thirdparty
 deps.thirdparty:
 	mkdir -p temp && \
-	curl -L -o temp/libwebrtc-win-x64.tar.gz $(LIBWEBRTC_URL)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar.gz && \
+	curl -L -o temp/libwebrtc-win-x64.tar.gz $(LIBWEBRTC_URL)/libwebrtc-win-x64.tar.gz && \
 	rm -rf crates/libwebrtc-sys/lib/* || true && \
 	tar -xf temp/libwebrtc-win-x64.tar.gz -C crates/libwebrtc-sys/lib
 	rm -rf temp
@@ -121,7 +110,7 @@ else
 endif
 
 
-# Build flutter_webrtc_native crate and copies final artifacts to platform-specific directories.
+# Build flutter_webrtc_native crate and copies final artifacts to the platform-specific directories.
 #
 # Usage:
 #	make cargo.build [debug=(yes|no)]
@@ -141,7 +130,7 @@ cargo.build:
 #	make cargo.test
 
 cargo.test:
-	cargo test --test integration_test
+	cargo test
 
 
 # Create documentation for libwebrtc.
@@ -179,10 +168,18 @@ endif
 # Lint Rust sources with Clippy.
 #
 # Usage:
-#	make cargo.lint
+#	make cargo.lint [dockerized=(no|yes)]
 
 cargo.lint:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+		-u $(shell id -u):$(shell id -g) \
+		-v "$(HOME)/.cargo/registry":/usr/local/cargo/registry \
+		ghcr.io/instrumentisto/rust:$(RUST_VER) \
+			make cargo.lint dockerized=no
+else
 	cargo clippy --workspace -- -D clippy::pedantic -D warnings
+endif
 
 
 
@@ -196,5 +193,4 @@ cargo.lint:
 			cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
 		flutter \
 			flutter.build flutter.run \
-		deps.thirdparty \
-
+		deps.thirdparty

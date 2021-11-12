@@ -2,7 +2,6 @@
 name = "flutter-webrtc-native"
 version = "0.0.1"
 edition = "2018"
-build = "build.rs"
 
 [lib]
 crate-type = ["cdylib"]

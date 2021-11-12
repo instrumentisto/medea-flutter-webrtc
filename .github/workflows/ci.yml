@@ -10,7 +10,7 @@ jobs:
 
   clippy:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -20,7 +20,6 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
-      - run: choco install make
       - run: make deps.thirdparty
 
       - run: make lint
@@ -47,6 +46,8 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
       - run: choco install make
       - run: make deps.thirdparty
 
@@ -80,5 +81,4 @@ jobs:
       - run: choco install make
       - run: make deps.thirdparty
 
-      - run: make build
       - run: make test
