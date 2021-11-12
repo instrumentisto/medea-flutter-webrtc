@@ -20,14 +20,9 @@ fn main() {
     println!("cargo:rustc-link-lib=dylib=dxgi");
 
     cxx_build::bridge("src/bridge.rs")
-        .file(path.join("src").join("bridge.cc"))
-        .include(path.join("lib").join("include"))
-        .include(
-            path.join("lib")
-                .join("include")
-                .join("third_party")
-                .join("abseil-cpp"),
-        )
+        .file("src/bridge.cc")
+        .include(path.join("lib/include"))
+        .include(path.join("lib/include/third_party/abseil-cpp"))
         .define("WEBRTC_WIN", "1")
         .define("NOMINMAX", "1")
         .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")

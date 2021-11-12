@@ -146,7 +146,7 @@ ifeq ($(clean),yes)
 endif
 	cargo doc --workspace --no-deps \
 			$(if $(call eq,$(dev),yes),--document-private-items,) \
-			$(if $(call eq,$(open),no),,--open)
+			$(if $(call eq,$(open),no),,--open) 
 
 
 # Format Rust sources with rustfmt.
