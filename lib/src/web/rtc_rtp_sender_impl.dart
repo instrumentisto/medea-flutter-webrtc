@@ -22,10 +22,14 @@ class RTCRtpSenderWeb extends RTCRtpSender {
   bool _ownsTrack = false;
 
   @override
-  Future<void> replaceTrack(MediaStreamTrack track) async {
+  Future<void> replaceTrack(MediaStreamTrack? track) async {
     try {
-      var nativeTrack = track as MediaStreamTrackWeb;
-      jsutil.callMethod(_jsRtpSender, 'replaceTrack', [nativeTrack.jsTrack]);
+      var jsTrack;
+      if (track != null) {
+        var nativeTrack = track as MediaStreamTrackWeb;
+        jsTrack = nativeTrack.jsTrack;
+      }
+      jsutil.callMethod(_jsRtpSender, 'replaceTrack', [jsTrack]);
     } on PlatformException catch (e) {
       throw 'Unable to RTCRtpSender::replaceTrack: ${e.message}';
     }
