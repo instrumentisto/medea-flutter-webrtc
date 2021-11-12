@@ -23,7 +23,7 @@ jobs:
       - run: choco install make
       - run: make deps.thirdparty
 
-      - run: make cargo.lint
+      - run: make lint
 
   rustfmt:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -37,7 +37,7 @@ jobs:
           components: rustfmt
       - run: choco install make
 
-      - run: make cargo.fmt check=yes
+      - run: make fmt check=yes
 
   build:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -51,7 +51,7 @@ jobs:
       - run: choco install make
       - run: make deps.thirdparty
 
-      - run: make cargo.build
+      - run: make build
 
   rustdoc:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -64,11 +64,11 @@ jobs:
           profile: minimal
           toolchain: stable
       - uses: Swatinem/rust-cache@v1
-        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
+        # if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
       - run: choco install make
 
       - run: make build
-      - run: make cargo.doc
+      - run: make doc
 
   test:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -84,4 +84,4 @@ jobs:
       - run: make deps.thirdparty
 
       - run: make build
-      - run: make cargo.test
+      - run: make test
