@@ -27,7 +27,7 @@ RUST_NIGHTLY_VER = 'nightly-2021-09-08'
 ###########
 
 deps: lib.download cargo flutter
-build: lib.build $(if $(call eq,$(release),yes),release=yes,) flutter.build $(if $(call eq,$(release),yes),release=yes,)
+build: lib.build
 
 run: lib.build flutter.run
 
@@ -96,7 +96,7 @@ flutter.run:
 # Usage:
 #	make flutter [cmd=(pub get|<flutter-cmd>)]
 flutter:
-	flutter $(if $(call eq,$(cmd),pub),pub get,$(cmd))
+	flutter $(if $(call eq,$(cmd),),pub get,$(cmd))
 
 
 

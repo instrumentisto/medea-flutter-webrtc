@@ -12,6 +12,9 @@ fn main() {
     println!("cargo:rustc-link-lib=dylib=gdi32");
     println!("cargo:rustc-link-lib=dylib=d3d11");
     println!("cargo:rustc-link-lib=dylib=dxgi");
+    println!("cargo:rustc-link-lib=dylib=ole32");
+    println!("cargo:rustc-link-lib=dylib=oleaut32");
+    println!("cargo:rustc-link-lib=dylib=user32");
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
