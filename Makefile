@@ -49,7 +49,7 @@ doc: cargo.doc
 #	make deps.thirdparty
 deps.thirdparty:
 	mkdir -p temp && \
-	curl -L --output-dir temp -O $(LIBWEBRTC_URL)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar.gz && \
+	curl -L -o temp/libwebrtc-win-x64.tar.gz $(LIBWEBRTC_URL)$(LIBWEBRTC_VER)/libwebrtc-win-x64.tar.gz && \
 	rm -rf crates/libwebrtc-sys/lib/* || true && \
 	tar -xf temp/libwebrtc-win-x64.tar.gz -C crates/libwebrtc-sys/lib
 	rm -rf temp
