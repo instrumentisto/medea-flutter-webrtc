@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+
 import '../helper.dart';
 import '../interface/media_stream_track.dart';
 import 'utils.dart';
@@ -80,6 +82,16 @@ class MediaStreamTrackNative extends MediaStreamTrack {
     }
 
     return Future.value();
+  }
+
+  @override
+  Future<MediaStreamTrackReadyState> readyState() async {
+    final response = await WebRTC.invokeMethod(
+      'mediaStreamTrackReadyState',
+      <String, dynamic>{'trackId': _trackId},
+    );
+
+    return typeStringToMediaStreamTrackState[response['result']]!;
   }
 
   @override

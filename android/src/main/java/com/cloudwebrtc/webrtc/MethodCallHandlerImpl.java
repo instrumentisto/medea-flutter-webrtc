@@ -15,6 +15,7 @@ import com.cloudwebrtc.webrtc.utils.AnyThreadResult;
 import com.cloudwebrtc.webrtc.utils.ConstraintsArray;
 import com.cloudwebrtc.webrtc.utils.ConstraintsMap;
 import com.cloudwebrtc.webrtc.utils.EglUtils;
+import com.cloudwebrtc.webrtc.utils.EnumStringifier;
 import com.cloudwebrtc.webrtc.utils.ObjectType;
 import com.cloudwebrtc.webrtc.utils.RTCUtils;
 
@@ -354,6 +355,16 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 String trackId = call.argument("trackId");
                 boolean torch = call.argument("torch");
                 getUserMediaImpl.setTorch(trackId, torch, result);
+                break;
+            }
+            case "mediaStreamTrackReadyState": {
+                String trackId = call.argument("trackId");
+                MediaStreamTrack.State state = getTrackForId(trackId).state();
+
+                ConstraintsMap params = new ConstraintsMap();
+                params.putString("result", EnumStringifier.trackReadyStateString(state));
+                result.success(params.toMap());
+
                 break;
             }
             case "mediaStreamTrackSwitchCamera": {

@@ -2,6 +2,7 @@ package com.cloudwebrtc.webrtc.utils;
 
 import androidx.annotation.Nullable;
 
+import org.webrtc.MediaStreamTrack;
 import org.webrtc.PeerConnection;
 import org.webrtc.RtpTransceiver;
 
@@ -89,6 +90,17 @@ public class EnumStringifier {
                 return "recvonly";
             case INACTIVE:
                 return "inactive";
+        }
+        return null;
+    }
+    
+    @Nullable
+    public static String trackReadyStateString(MediaStreamTrack.State state) {
+        switch (state) {
+            case ENDED:
+                return "ended";
+            case LIVE:
+                return "live";
         }
         return null;
     }

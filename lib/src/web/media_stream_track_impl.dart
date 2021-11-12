@@ -3,6 +3,8 @@ import 'dart:html' as html;
 import 'dart:js_util' as js;
 import 'dart:typed_data';
 
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+
 import '../interface/media_stream_track.dart';
 
 class MediaStreamTrackWeb extends MediaStreamTrack {
@@ -78,6 +80,11 @@ class MediaStreamTrackWeb extends MediaStreamTrack {
         await js.promiseToFuture(js.callMethod(blod, 'arrayBuffer', []));
     bitmap.close();
     return array;
+  }
+
+  @override
+  Future<MediaStreamTrackReadyState> readyState() async {
+    return typeStringToMediaStreamTrackState[jsTrack.readyState!]!;
   }
 
   @override

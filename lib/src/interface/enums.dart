@@ -55,6 +55,11 @@ enum RTCRtpMediaType {
   RTCRtpMediaTypeData,
 }
 
+enum MediaStreamTrackReadyState {
+  Live,
+  Ended,
+}
+
 final typeRTCRtpMediaTypetoString = <RTCRtpMediaType, String>{
   RTCRtpMediaType.RTCRtpMediaTypeAudio: 'audio',
   RTCRtpMediaType.RTCRtpMediaTypeVideo: 'video',
@@ -65,6 +70,11 @@ final typeStringToRTCRtpMediaType = <String, RTCRtpMediaType>{
   'audio': RTCRtpMediaType.RTCRtpMediaTypeAudio,
   'video': RTCRtpMediaType.RTCRtpMediaTypeVideo,
   'data': RTCRtpMediaType.RTCRtpMediaTypeData,
+};
+
+final typeStringToMediaStreamTrackState = <String, MediaStreamTrackReadyState> {
+  'live': MediaStreamTrackReadyState.Live,
+  'ended': MediaStreamTrackReadyState.Ended,
 };
 
 enum TransceiverDirection {

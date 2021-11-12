@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:flutter_webrtc/src/interface/enums.dart';
+
 import '../helper.dart';
 
 typedef StreamTrackCallback = Function();
@@ -97,6 +99,10 @@ abstract class MediaStreamTrack {
   }
 
   void enableSpeakerphone(bool enable) {
+    throw UnimplementedError();
+  }
+
+  Future<MediaStreamTrackReadyState> readyState() {
     throw UnimplementedError();
   }
 
