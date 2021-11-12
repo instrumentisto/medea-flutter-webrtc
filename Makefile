@@ -43,6 +43,16 @@ docs: docs.rust
 
 
 
+# Removes `target/` directory.
+#
+# Usage:
+#	make clean
+clean:
+	rm -rf target/
+
+
+
+
 # Downloads compiled libwebrtc with headers to libwebrtc-sys crate.
 #
 # Usage:
@@ -131,7 +141,7 @@ cargo.build:
 #	make cargo.test
 
 cargo.test:
-	cargo test
+	cargo test --test integration_test
 
 
 # Create documentation for libwebrtc.
