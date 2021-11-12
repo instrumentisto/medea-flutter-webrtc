@@ -3,8 +3,11 @@ use std::{env, path::PathBuf};
 fn main() {
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
-    // TODO: rustc always links against non-debug Windows runtime https://github.com/rust-lang/rust/issues/39016
-    println!("cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/");
+    // TODO: rustc always links against non-debug Windows runtime
+    // https://github.com/rust-lang/rust/issues/39016
+    println!(
+        "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/"
+    );
     println!("cargo:rustc-link-lib=static=webrtc");
     println!("cargo:rustc-link-lib=dylib=winmm");
     println!("cargo:rustc-link-lib=dylib=secur32");
@@ -17,9 +20,14 @@ fn main() {
     println!("cargo:rustc-link-lib=dylib=dxgi");
 
     cxx_build::bridge("src/bridge.rs")
-        .file("src/bridge.cc")
-        .include(path.join("lib/include"))
-        .include(path.join("lib/include/third_party/abseil-cpp"))
+        .file(path.join("src").join("bridge.cc"))
+        .include(path.join("lib").join("include"))
+        .include(
+            path.join("lib")
+                .join("include")
+                .join("third_party")
+                .join("abseil-cpp"),
+        )
         .define("WEBRTC_WIN", "1")
         .define("NOMINMAX", "1")
         .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")
