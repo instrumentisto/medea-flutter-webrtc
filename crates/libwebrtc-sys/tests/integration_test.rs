@@ -7,3 +7,5 @@ fn it_works() {
 
     assert!((a - b).abs() < 100);
 }
+
+mod test_test;
