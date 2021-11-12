@@ -38,7 +38,7 @@ lint: cargo.lint
 
 test: cargo.test
 
-doc: cargo.doc
+docs: docs.rust
 
 
 
@@ -61,6 +61,15 @@ deps.thirdparty:
 # Flutter commands #
 ####################
 
+# Install flutter dependencies.
+#
+# Usage:
+#	make flutter [cmd=(pub get|<flutter-cmd>)]
+
+flutter:
+	flutter $(or $(cmd),pub get)
+
+
 # Build flutter application.
 #
 # Usage:
@@ -77,15 +86,6 @@ flutter.build:
 
 flutter.run:
 	cd example && flutter run -d windows
-
-
-# Install flutter dependencies.
-#
-# Usage:
-#	make flutter [cmd=(pub get|<flutter-cmd>)]
-
-flutter:
-	flutter $(or $(cmd),pub get)
 
 
 
@@ -137,16 +137,16 @@ cargo.test:
 # Create documentation for libwebrtc.
 #
 # Usage:
-#	make cargo.doc [open=(yes|no)] [clean=(no|yes)]
+#	make docs.rust [open=(yes|no)] [clean=(no|yes)]
 #	               [dev=(no|yes)]
 
-cargo.doc:
+docs.rust:
 ifeq ($(clean),yes)
 	@rm -rf target/doc/
 endif
 	cargo doc --workspace --no-deps \
 			$(if $(call eq,$(dev),yes),--document-private-items,) \
-			$(if $(call eq,$(open),no),,--open) 
+			$(if $(call eq,$(open),no),,--open)
 
 
 # Format Rust sources with rustfmt.
