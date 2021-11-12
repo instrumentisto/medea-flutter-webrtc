@@ -144,7 +144,7 @@ cargo.doc:
 ifeq ($(clean),yes)
 	@rm -rf target/doc/
 endif
-	cargo doc --workspace --no-deps \
+	RUST_BACKTRACE=1 cargo doc --workspace --no-deps \
 			$(if $(call eq,$(dev),yes),--document-private-items,) \
 			$(if $(call eq,$(open),no),,--open)
 
