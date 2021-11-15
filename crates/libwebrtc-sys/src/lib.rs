@@ -1,6 +1,6 @@
 mod bridge;
 
-use bridge::rtc;
+use self::bridge::rtc;
 
 #[must_use]
 pub fn system_time_millis() -> i64 {

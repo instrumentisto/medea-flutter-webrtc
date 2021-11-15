@@ -1,6 +1,3 @@
-*.iml
-.idea
-.DS_Store
 example/pubspec.lock
 pubspec.lock
 example/ios/Podfile.lock
@@ -22,15 +19,22 @@ example/ios/Flutter/flutter_export_environment.sh
 *.log
 *.pyc
 *.swp
+.DS_Store
 .atom/
 .buildlog/
 .history
 .svn/
 
 # IntelliJ related
+*.iml
 *.ipr
 *.iws
 .idea/
+!webrtc_android.iml
+!webrtc.iml
+
+# VSCode
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -43,14 +47,8 @@ example/ios/Flutter/flutter_export_environment.sh
 /build/
 /android/.gradle/
 
-
 android/.classpath
 android/.settings/org.eclipse.buildship.core.prefs
 
-# VSCode
-.vscode/
-
+# Rust
 /target/
-
-!webrtc_android.iml
-!webrtc.iml

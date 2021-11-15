@@ -8,7 +8,7 @@ const char *kChannelName = "FlutterWebRTC.Method";
 
 namespace flutter_webrtc_plugin {
 
-// A webrtc plugin for windows/linux.
+// WebRTC plugin for Windows/Linux.
 class FlutterWebRTCPluginImpl : public FlutterWebRTCPlugin {
  public:
   static void RegisterWithRegistrar(flutter::PluginRegistrar *registrar) {

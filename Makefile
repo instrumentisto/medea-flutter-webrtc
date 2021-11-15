@@ -1,4 +1,6 @@
-# Checks two given strings for equality.
+###############################
+# Common defaults/definitions #
+###############################
 
 comma := ,
 
@@ -13,10 +15,10 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-LIBWEBRTC_URL = https://github.com/instrumentisto/libwebrtc-bin/releases/download/97.4692.0.0-r0
+LIBWEBRTC_URL ?= https://github.com/instrumentisto/libwebrtc-bin/releases/download/97.4692.0.0-r0
 
-RUST_VER = 1.55
-RUST_NIGHTLY_VER = 'nightly-2021-09-08'
+RUST_VER ?= 1.55
+RUST_NIGHTLY_VER ?= nightly-2021-09-08
 
 
 
@@ -25,19 +27,19 @@ RUST_NIGHTLY_VER = 'nightly-2021-09-08'
 # Aliases #
 ###########
 
-deps: deps.thirdparty cargo flutter
-
 build: cargo.build
 
-run: flutter.run
+deps: deps.thirdparty flutter.pub
+
+docs: cargo.doc
 
 fmt: cargo.fmt
 
 lint: cargo.lint
 
-test: cargo.test
+run: flutter.run
 
-docs: docs.rust
+test: cargo.test
 
 
 
@@ -46,6 +48,7 @@ docs: docs.rust
 #
 # Usage:
 #	make deps.thirdparty
+
 deps.thirdparty:
 	mkdir -p temp && \
 	curl -L -o temp/libwebrtc-win-x64.tar.gz $(LIBWEBRTC_URL)/libwebrtc-win-x64.tar.gz && \
@@ -60,31 +63,33 @@ deps.thirdparty:
 # Flutter commands #
 ####################
 
-# Install flutter dependencies.
-#
-# Usage:
-#	make flutter [cmd=(pub get|<flutter-cmd>)]
-
-flutter:
-	flutter $(or $(cmd),pub get)
-
-
-# Build flutter application.
+# Build Flutter example application for Windows.
 #
 # Usage:
 #	make flutter.build [release=(no|yes)]
 
 flutter.build:
-	cd example && flutter build windows
+	cd example/ && \
+	flutter build windows
 
 
-# Run flutter application.
+# Install Flutter Pub dependencies.
+#
+# Usage:
+#	make flutter.pub [cmd=(get|<pub-cmd>)]
+
+flutter.pub:
+	flutter pub $(or $(cmd),get)
+
+
+# Run Flutter example application for Windows.
 #
 # Usage:
 #	make flutter.run
 
 flutter.run:
-	cd example && flutter run -d windows
+	cd example/ && \
+	flutter run -d windows
 
 
 
@@ -93,24 +98,8 @@ flutter.run:
 # Cargo commands #
 ##################
 
-# Resolve Cargo project dependencies.
-#
-# Usage:
-#	make cargo [cmd=(fetch|<cargo-cmd>)] [dockerized=(no|yes)]
-
-cargo:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-		-u $(shell id -u):$(shell id -g) \
-		-v "$(HOME)/.cargo/registry":/usr/local/cargo/registry \
-		ghcr.io/instrumentisto/rust:$(RUST_VER) \
-			make cargo cmd='$(cmd)' dockerized=no
-else
-	cargo $(or $(cmd),fetch)
-endif
-
-
-# Build flutter_webrtc_native crate and copies final artifacts to the platform-specific directories.
+# Build `flutter-webrtc-native` crate and copy final artifacts to appropriate
+# platform-specific directories.
 #
 # Usage:
 #	make cargo.build [debug=(yes|no)]
@@ -118,34 +107,27 @@ endif
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
-	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,) && \
-	cp $(lib-out-path)/flutter_webrtc_native.dll windows/rust/lib/flutter_webrtc_native.dll && \
-	cp $(lib-out-path)/flutter_webrtc_native.dll.lib windows/rust/lib/flutter_webrtc_native.dll.lib
-	cp crates/native/target/flutter_webrtc_native.hpp windows/rust/include/flutter_webrtc_native.hpp
+	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
+	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
+		windows/rust/lib/flutter_webrtc_native.dll
+	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
+		windows/rust/lib/flutter_webrtc_native.dll.lib
+	cp -f crates/native/target/flutter_webrtc_native.hpp \
+		windows/rust/include/flutter_webrtc_native.hpp
 
 
-# Run Rust tests of project.
+# Generate documentation for project crates.
 #
 # Usage:
-#	make cargo.test
+#	make cargo.doc [open=(yes|no)] [clean=(no|yes)] [dev=(no|yes)]
 
-cargo.test:
-	cargo test
-
-
-# Create documentation for libwebrtc.
-#
-# Usage:
-#	make docs.rust [open=(yes|no)] [clean=(no|yes)]
-#	               [dev=(no|yes)]
-
-docs.rust:
+cargo.doc:
 ifeq ($(clean),yes)
 	@rm -rf target/doc/
 endif
 	cargo doc --workspace --no-deps \
-			$(if $(call eq,$(dev),yes),--document-private-items,) \
-			$(if $(call eq,$(open),no),,--open)
+		$(if $(call eq,$(dev),yes),--document-private-items,) \
+		$(if $(call eq,$(open),no),,--open)
 
 
 # Format Rust sources with rustfmt.
@@ -178,8 +160,35 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/rust:$(RUST_VER) \
 			make cargo.lint dockerized=no
 else
-	cargo clippy --workspace -- -D clippy::pedantic -D warnings
+	cargo clippy --workspace -- -D warnings
 endif
+
+
+# Run Rust tests of project.
+#
+# Usage:
+#	make cargo.test
+
+cargo.test:
+	cargo test --workspace
+
+
+
+
+##########################
+# Documentation commands #
+##########################
+
+docs.rust: cargo.doc
+
+
+
+
+####################
+# Testing commands #
+####################
+
+test.cargo: cargo.test
 
 
 
@@ -189,8 +198,8 @@ endif
 ##################
 
 .PHONY: build deps doc run test fmt lint \
-		cargo \
-			cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
-		flutter \
-			flutter.build flutter.run \
-		deps.thirdparty
+        cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
+        docs.rust \
+        test.cargo \
+        flutter.pub flutter.build flutter.run \
+        deps.thirdparty
