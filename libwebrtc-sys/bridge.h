@@ -12,10 +12,11 @@ namespace RTC {
 
     std::unique_ptr<std::string> SystemTimeMillis();
     std::unique_ptr<webrtc::TaskQueueFactory> CreateDefaultTaskQueueFactory();
-    std::unique_ptr<webrtc::AudioDeviceModule> InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory);
-    int16_t PlayoutDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule);
-    int16_t RecordingDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule);
-    std::unique_ptr<std::vector<char>> getAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index);
+    webrtc::AudioDeviceModule* InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory);
+    // std::unique_ptr<webrtc::AudioDeviceModule> InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory);
+    // int16_t PlayoutDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule);
+    // int16_t RecordingDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule);
+    // std::unique_ptr<std::vector<char>> getAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index);
 
     void customGetSource();
 }
