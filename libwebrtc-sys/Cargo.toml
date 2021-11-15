@@ -5,6 +5,7 @@ edition = "2018"
 
 [dependencies]
 cxx = "1.0"
+lazy_static = "1.4.0"
 
 [build-dependencies]
 cxx-build = "1.0"

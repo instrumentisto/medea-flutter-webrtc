@@ -16,6 +16,36 @@ namespace RTC {
         return std::make_unique<std::string>(b);
     }
 
+    std::unique_ptr<webrtc::TaskQueueFactory> CreateDefaultTaskQueueFactory() {
+        return webrtc::CreateDefaultTaskQueueFactory();
+    }
+
+    std::unique_ptr<webrtc::AudioDeviceModule> InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory) {
+        rtc::scoped_refptr<webrtc::AudioDeviceModule> adm = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio, TaskQueueFactory.get());
+        webrtc::AudioDeviceModule *adm_rel = adm.release();
+        adm_rel->Init();
+
+        return std::make_unique<webrtc::AudioDeviceModule>(adm_rel);
+    };
+
+    int16_t PlayoutDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule) {
+        return AudioDeviceModule->PlayoutDevices();
+    };
+
+    int16_t RecordingDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule) {
+        return AudioDeviceModule->RecordingDevices();
+    };
+
+    std::unique_ptr<std::vector<char>> getPlayoutAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index) {
+        char strNameUTF8[128];
+        char strGuidUTF8[128];
+
+        AudioDeviceModule->PlayoutDeviceName(index, strNameUTF8, strGuidUTF8);
+
+        std::vector<char> info = { strNameUTF8, strGuidUTF8 };
+        return std::make_unique<std::vector<char>>(info);
+    };
+
     void customGetSource() {
         std::unique_ptr<webrtc::TaskQueueFactory> a = webrtc::CreateDefaultTaskQueueFactory();
 
