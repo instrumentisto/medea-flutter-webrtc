@@ -10,9 +10,11 @@ extern "C" {
 
 char *SystemTimeMillis();
 
+DeviceInfo VideoInfoTest();
+
 /// # Safety
 ///
-/// Pupa and lupa go for salary
+/// No safety
 void string_free(char *s);
 
 } // extern "C"

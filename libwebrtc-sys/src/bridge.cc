@@ -4,10 +4,6 @@
 
 #include "../bridge.h"
 #include "rtc_base/time_utils.h"
-#include "api/task_queue/default_task_queue_factory.h"
-#include "modules/audio_device/include/audio_device_factory.h"
-#include "modules/video_capture/video_capture_factory.h"
-#include "api/create_peerconnection_factory.h"
 
 namespace RTC {
     std::unique_ptr<std::string> SystemTimeMillis() {
@@ -23,41 +19,80 @@ namespace RTC {
 
     webrtc::AudioDeviceModule* InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory) {
         rtc::scoped_refptr<webrtc::AudioDeviceModule> adm = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio, TaskQueueFactory.get());
-        webrtc::AudioDeviceModule *adm_rel = adm.release();
+        webrtc::AudioDeviceModule* adm_rel = adm.release();
         adm_rel->Init();
 
         return adm_rel;
     };
 
-    std::unique_ptr<TestCl> testclasses() {
-        TestCl examp;
-        
-        std::make_unique<TestCl>(examp);
-    }
+    void dropAudioDeviceModule(webrtc::AudioDeviceModule* AudioDeviceModule) {
+        AudioDeviceModule->Release();
+    };
 
-    // int16_t PlayoutDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule) {
-    //     return AudioDeviceModule->PlayoutDevices();
-    // };
+    int16_t PlayoutDevices(webrtc::AudioDeviceModule* AudioDeviceModule) {
+        return AudioDeviceModule->PlayoutDevices();
+    };
 
-    // int16_t RecordingDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule) {
-    //     return AudioDeviceModule->RecordingDevices();
-    // };
+    int16_t RecordingDevices(webrtc::AudioDeviceModule* AudioDeviceModule) {
+        return AudioDeviceModule->RecordingDevices();
+    };
 
-    // std::unique_ptr<std::vector<char>> getPlayoutAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index) {
-    //     char strNameUTF8[128];
-    //     char strGuidUTF8[128];
+    rust::Vec<rust::String> getPlayoutAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index) {
+        char strNameUTF8[128];
+        char strGuidUTF8[128];
 
-    //     AudioDeviceModule->PlayoutDeviceName(index, strNameUTF8, strGuidUTF8);
+        AudioDeviceModule->PlayoutDeviceName(index, strNameUTF8, strGuidUTF8);
 
-    //     std::vector<char> info = { strNameUTF8, strGuidUTF8 };
-    //     return std::make_unique<std::vector<char>>(info);
-    // };
+        rust::String strname = strNameUTF8;
+        rust::String strid = strGuidUTF8;
+
+        rust::Vec<rust::String> info = { strname, strid };
+        return info;
+    };
+
+    rust::Vec<rust::String> getRecordingAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index) {
+        char strNameUTF8[128];
+        char strGuidUTF8[128];
+
+        AudioDeviceModule->RecordingDeviceName(index, strNameUTF8, strGuidUTF8);
+
+        rust::String strname = strNameUTF8;
+        rust::String strid = strGuidUTF8;
+
+        rust::Vec<rust::String> info = { strname, strid };
+        return info;
+    };
+
+    webrtc::VideoCaptureModule::DeviceInfo* CreateVideoDeviceInfo() {
+        return webrtc::VideoCaptureFactory::CreateDeviceInfo();
+    };
+
+    uint32_t NumberOfVideoDevices(webrtc::VideoCaptureModule::DeviceInfo* DeviceInfo) {
+        return DeviceInfo->NumberOfDevices();
+    };
+
+    rust::Vec<rust::String> GetVideoDeviceName(webrtc::VideoCaptureModule::DeviceInfo* DeviceInfo, uint32_t index) {
+        char device_name[256];
+        char unique_id[256];
+
+        DeviceInfo->GetDeviceName(index, device_name, 256, unique_id, 256);
+
+        rust::String strname = device_name;
+        rust::String strid = unique_id;
+
+        rust::Vec<rust::String> info = { strname, strid };
+        return info;
+    };
+
+    void dropVideoDeviceInfo(webrtc::VideoCaptureModule::DeviceInfo* DeviceInfo) {
+        delete DeviceInfo;
+    };
 
     void customGetSource() {
         std::unique_ptr<webrtc::TaskQueueFactory> a = webrtc::CreateDefaultTaskQueueFactory();
 
         rtc::scoped_refptr<webrtc::AudioDeviceModule> adm = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio, a.get());
-        webrtc::AudioDeviceModule *adm_rel = adm.get();
+        webrtc::AudioDeviceModule* adm_rel = adm.get();
         adm_rel->Init();
         int16_t countPl = adm_rel->PlayoutDevices();
         int16_t countRc = adm_rel->RecordingDevices();
@@ -87,12 +122,12 @@ namespace RTC {
         char device_name[256];
         char unique_id[256];
         char product_id[256];
-        const char * name;
+        const char* name;
 
-        auto info = webrtc::VideoCaptureFactory::CreateDeviceInfo();
-        auto cnt = info->NumberOfDevices();
+        webrtc::VideoCaptureModule::DeviceInfo* info = webrtc::VideoCaptureFactory::CreateDeviceInfo();
+        uint32_t cnt = info->NumberOfDevices();
         info->GetDeviceName(0, device_name, 256, unique_id, 256, product_id, 256);
-        auto capcnt = info->NumberOfCapabilities(unique_id);
+        uint32_t capcnt = info->NumberOfCapabilities(unique_id);
         printf("%s\n", device_name);
         printf("%s\n", unique_id);
         printf("%s\n", product_id);
