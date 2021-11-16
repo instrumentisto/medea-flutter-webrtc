@@ -15,8 +15,6 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-LIBWEBRTC_URL ?= https://github.com/instrumentisto/libwebrtc-bin/releases/download/97.4692.0.0-r0
-
 RUST_VER ?= 1.55
 RUST_NIGHTLY_VER ?= nightly-2021-09-08
 
@@ -29,7 +27,7 @@ RUST_NIGHTLY_VER ?= nightly-2021-09-08
 
 build: cargo.build
 
-deps: deps.thirdparty flutter.pub
+deps: flutter.pub
 
 docs: cargo.doc
 
@@ -40,21 +38,6 @@ lint: cargo.lint
 run: flutter.run
 
 test: cargo.test
-
-
-
-
-# Downloads compiled libwebrtc with headers to the libwebrtc-sys crate.
-#
-# Usage:
-#	make deps.thirdparty
-
-deps.thirdparty:
-	mkdir -p temp && \
-	curl -L -o temp/libwebrtc-win-x64.tar.gz $(LIBWEBRTC_URL)/libwebrtc-win-x64.tar.gz && \
-	rm -rf crates/libwebrtc-sys/lib/* || true && \
-	tar -xf temp/libwebrtc-win-x64.tar.gz -C crates/libwebrtc-sys/lib
-	rm -rf temp
 
 
 

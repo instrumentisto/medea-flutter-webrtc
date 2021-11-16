@@ -1,8 +1,16 @@
 use std::{env, path::PathBuf};
+use std::process::Command;
 
 fn main() {
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let libwebrtc_url = "https://github.com/instrumentisto/libwebrtc-bin/releases/download/97.4692.0.0-r0";
 
+    Command::new("mkdir").args(&["-p", "./temp"]).status().unwrap();
+    Command::new("curl").args(&["-L", "-o", "./temp/libwebrtc-win-x64.tar.gz"]).arg(&format!("{}/libwebrtc-win-x64.tar.gz", libwebrtc_url)).status().unwrap();
+    Command::new("rm").args(&["-rf", "./lib/* || true"]).status().unwrap();
+    Command::new("tar").args(&["-xf", "./temp/libwebrtc-win-x64.tar.gz", "-C", "./lib"]).status().unwrap();    
+    Command::new("rm").args(&["-rf", "./temp"]).status().unwrap();
+    
     // TODO: `rustc` always links against non-debug Windows runtime, so we
     //       always use a release build of `libwebrtc`:
     //       https://github.com/rust-lang/rust/issues/39016
