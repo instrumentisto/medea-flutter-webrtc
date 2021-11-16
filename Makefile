@@ -15,8 +15,6 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-LIBWEBRTC_URL ?= https://github.com/instrumentisto/libwebrtc-bin/releases/download/97.4692.0.0-r0
-
 RUST_VER ?= 1.55
 RUST_NIGHTLY_VER ?= nightly-2021-09-08
 
@@ -92,7 +90,7 @@ flutter.run:
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
-	LIBWEBRTC_URL=$(LIBWEBRTC_URL) cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
+	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
@@ -110,7 +108,7 @@ cargo.doc:
 ifeq ($(clean),yes)
 	@rm -rf target/doc/
 endif
-	LIBWEBRTC_URL=$(LIBWEBRTC_URL) cargo doc --workspace --no-deps \
+	cargo doc --workspace --no-deps \
 		$(if $(call eq,$(dev),yes),--document-private-items,) \
 		$(if $(call eq,$(open),no),,--open)
 
@@ -145,7 +143,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/rust:$(RUST_VER) \
 			make cargo.lint dockerized=no
 else
-	LIBWEBRTC_URL=$(LIBWEBRTC_URL) cargo clippy --workspace -- -D warnings
+	cargo clippy --workspace -- -D warnings
 endif
 
 
@@ -155,7 +153,7 @@ endif
 #	make cargo.test
 
 cargo.test:
-	LIBWEBRTC_URL=$(LIBWEBRTC_URL) cargo test --workspace
+	cargo test --workspace
 
 
 

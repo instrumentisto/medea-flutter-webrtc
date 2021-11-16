@@ -1,30 +1,13 @@
-use std::{env, path::PathBuf, process::Command};
+use std::{env, fs, io, path::PathBuf};
+
+use dotenv::dotenv;
 
 fn main() {
-    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let libwebrtc_url = env::var("LIBWEBRTC_URL").unwrap();
+    // This won't override any env vars that already present.
+    let _ = dotenv();
+    download_libwebrtc();
 
-    Command::new("mkdir")
-        .args(&["-p", "./temp"])
-        .status()
-        .unwrap();
-    Command::new("curl")
-        .args(&["-L", "-o", "./temp/libwebrtc-win-x64.tar.gz"])
-        .arg(&format!("{}/libwebrtc-win-x64.tar.gz", libwebrtc_url))
-        .status()
-        .unwrap();
-    Command::new("rm")
-        .args(&["-rf", "./lib/* || true"])
-        .status()
-        .unwrap();
-    Command::new("tar")
-        .args(&["-xf", "./temp/libwebrtc-win-x64.tar.gz", "-C", "./lib"])
-        .status()
-        .unwrap();
-    Command::new("rm")
-        .args(&["-rf", "./temp"])
-        .status()
-        .unwrap();
+    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
     // TODO: `rustc` always links against non-debug Windows runtime, so we
     //       always use a release build of `libwebrtc`:
@@ -56,4 +39,57 @@ fn main() {
     println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=include/bridge.h");
     println!("cargo:rerun-if-changed=./lib");
+}
+
+/// Downloads and unpacks compiled `libwebrtc` library.
+fn download_libwebrtc() {
+    let mut libwebrtc_url = env::var("LIBWEBRTC_URL")
+        .expect("`LIBWEBRTC_URL` env var should be present");
+    libwebrtc_url.push_str("/libwebrtc-win-x64.tar.gz");
+    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let temp_dir = manifest_path.join("temp");
+    let archive = temp_dir.join("libwebrtc-win-x64.tar.gz");
+    let lib_dir = manifest_path.join("lib");
+
+    // Clear `temp` directory.
+    if temp_dir.exists() {
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    fs::create_dir(&temp_dir).unwrap();
+
+    // Download compiled `libwebrtc` archive.
+    {
+        let mut resp = reqwest::blocking::get(&libwebrtc_url).unwrap();
+        let mut out_file = fs::File::create(&archive).unwrap();
+        io::copy(&mut resp, &mut out_file).unwrap();
+    }
+
+    // Clear `lib` directory.
+    fs::read_dir(&lib_dir)
+        .unwrap()
+        .map(Result::unwrap)
+        .filter(|entry| {
+            // Skip hidden files.
+            !entry.file_name().to_str().unwrap().starts_with('.')
+        })
+        .for_each(|entry| {
+            if entry.metadata().unwrap().is_dir() {
+                fs::remove_dir_all(entry.path()).unwrap();
+            } else {
+                fs::remove_file(entry.path()).unwrap();
+            }
+        });
+
+    // Untar the downloaded archive.
+    std::process::Command::new("tar")
+        .args(&[
+            "-xf",
+            archive.to_str().unwrap(),
+            "-C",
+            lib_dir.to_str().unwrap(),
+        ])
+        .status()
+        .unwrap();
+
+    fs::remove_dir_all(&temp_dir).unwrap();
 }
