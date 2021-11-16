@@ -2,7 +2,7 @@ use std::{env, path::PathBuf, process::Command};
 
 fn main() {
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    #[rustfmt_skip]
+    #[rustfmt::skip]
     let libwebrtc_url = "https://github.com/instrumentisto/libwebrtc-bin/releases/download/97.4692.0.0-r0";
 
     Command::new("mkdir")
