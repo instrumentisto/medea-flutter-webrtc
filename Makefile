@@ -97,7 +97,7 @@ cargo.build:
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
 		windows/rust/lib/flutter_webrtc_native.dll.lib
-	cp -f crates/native/target/flutter_webrtc_native.hpp \
+	cp -f target/flutter_webrtc_native.hpp \
 		windows/rust/include/flutter_webrtc_native.hpp
 
 
