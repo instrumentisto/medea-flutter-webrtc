@@ -1,5 +1,6 @@
 #include <memory>
 #include <string>
+#include <iostream>
 
 #include "../bridge.h"
 #include "rtc_base/time_utils.h"
@@ -20,14 +21,35 @@ namespace RTC {
         return webrtc::CreateDefaultTaskQueueFactory();
     }
 
-    webrtc::AudioDeviceModule* InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory) {
+    // webrtc::AudioDeviceModule* InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory) {
+    std::unique_ptr<webrtc::AudioDeviceModule> InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory) {
         rtc::scoped_refptr<webrtc::AudioDeviceModule> adm = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio, TaskQueueFactory.get());
         webrtc::AudioDeviceModule *adm_rel = adm.release();
         adm_rel->Init();
 
-        // return std::make_unique<webrtc::AudioDeviceModule>(adm_rel);
-        return adm_rel;
+        return std::make_unique<webrtc::AudioDeviceModule>(adm_rel);
+        // return adm_rel;
     };
+
+    // class Test
+    // {
+    //     public:
+    //     Test()
+    //     {
+    //         std::cout << "Constructor called";
+    //     }
+
+    //     ~Test()
+    //     {
+    //         std::cout << "Destructor called";
+    //     }
+    // };
+
+    // std::unique_ptr<Test> testclass() {
+    //     Test examp;
+        
+    //     std::make_unique<Test>(examp);
+    // }
 
     // int16_t PlayoutDevices(std::unique_ptr<webrtc::AudioDeviceModule> AudioDeviceModule) {
     //     return AudioDeviceModule->PlayoutDevices();
