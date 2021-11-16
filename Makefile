@@ -184,5 +184,4 @@ test.cargo: cargo.test
         cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
         docs.rust \
         test.cargo \
-        flutter.pub flutter.build flutter.run \
-        deps.thirdparty
+        flutter.pub flutter.build flutter.run
