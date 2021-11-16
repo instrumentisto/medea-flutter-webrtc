@@ -20,7 +20,6 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
-      - run: make deps.thirdparty
 
       - run: make lint
 
@@ -49,7 +48,6 @@ jobs:
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
       - run: choco install make
-      - run: make deps.thirdparty
 
       - run: make build
 
@@ -64,7 +62,6 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
-      - run: make deps.thirdparty
 
       - run: make docs
 
@@ -78,6 +75,5 @@ jobs:
           profile: minimal
           toolchain: stable
       - run: choco install make
-      - run: make deps.thirdparty
 
       - run: make test
