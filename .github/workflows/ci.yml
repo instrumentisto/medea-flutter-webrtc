@@ -21,7 +21,7 @@ jobs:
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
 
-      - run: make lint
+      - run: make cargo.lint
 
   rustfmt:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -47,9 +47,10 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
+
       - run: choco install make
 
-      - run: make build
+      - run: make cargo.build
 
   rustdoc:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -63,7 +64,7 @@ jobs:
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
 
-      - run: make docs
+      - run: make cargo.doc
 
   test:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}

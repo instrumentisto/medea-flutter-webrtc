@@ -1,13 +1,15 @@
 use std::{env, fs, io, path::PathBuf};
 
+use anyhow::anyhow;
 use dotenv::dotenv;
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     // This won't override any env vars that already present.
     let _ = dotenv();
-    download_libwebrtc();
 
-    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    download_libwebrtc()?;
+
+    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
 
     // TODO: `rustc` always links against non-debug Windows runtime, so we
     //       always use a release build of `libwebrtc`:
@@ -39,57 +41,60 @@ fn main() {
     println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=include/bridge.h");
     println!("cargo:rerun-if-changed=./lib");
+
+    Ok(())
 }
 
 /// Downloads and unpacks compiled `libwebrtc` library.
-fn download_libwebrtc() {
-    let mut libwebrtc_url = env::var("LIBWEBRTC_URL")
-        .expect("`LIBWEBRTC_URL` env var should be present");
+fn download_libwebrtc() -> anyhow::Result<()> {
+    let mut libwebrtc_url = env::var("LIBWEBRTC_URL")?;
     libwebrtc_url.push_str("/libwebrtc-win-x64.tar.gz");
-    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+
+    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
     let archive = temp_dir.join("libwebrtc-win-x64.tar.gz");
     let lib_dir = manifest_path.join("lib");
 
     // Clear `temp` directory.
     if temp_dir.exists() {
-        fs::remove_dir_all(&temp_dir).unwrap();
+        fs::remove_dir_all(&temp_dir)?;
     }
-    fs::create_dir(&temp_dir).unwrap();
+    fs::create_dir_all(&temp_dir)?;
 
     // Download compiled `libwebrtc` archive.
     {
-        let mut resp = reqwest::blocking::get(&libwebrtc_url).unwrap();
-        let mut out_file = fs::File::create(&archive).unwrap();
-        io::copy(&mut resp, &mut out_file).unwrap();
+        let mut resp = reqwest::blocking::get(&libwebrtc_url)?;
+        let mut out_file = fs::File::create(&archive)?;
+        io::copy(&mut resp, &mut out_file)?;
     }
 
     // Clear `lib` directory.
-    fs::read_dir(&lib_dir)
-        .unwrap()
-        .map(Result::unwrap)
-        .filter(|entry| {
-            // Skip hidden files.
-            !entry.file_name().to_str().unwrap().starts_with('.')
-        })
-        .for_each(|entry| {
-            if entry.metadata().unwrap().is_dir() {
-                fs::remove_dir_all(entry.path()).unwrap();
+    for entry in fs::read_dir(&lib_dir)? {
+        let entry = entry?;
+        if !entry.file_name().to_string_lossy().starts_with('.') {
+            if entry.metadata()?.is_dir() {
+                fs::remove_dir_all(entry.path())?;
             } else {
-                fs::remove_file(entry.path()).unwrap();
+                fs::remove_file(entry.path())?;
             }
-        });
+        }
+    }
 
     // Untar the downloaded archive.
     std::process::Command::new("tar")
         .args(&[
             "-xf",
-            archive.to_str().unwrap(),
+            archive
+                .to_str()
+                .ok_or_else(|| anyhow!("Invalid archive path"))?,
             "-C",
-            lib_dir.to_str().unwrap(),
+            lib_dir
+                .to_str()
+                .ok_or_else(|| anyhow!("Invalid `lib/` dir path"))?,
         ])
-        .status()
-        .unwrap();
+        .status()?;
 
-    fs::remove_dir_all(&temp_dir).unwrap();
+    fs::remove_dir_all(&temp_dir)?;
+
+    Ok(())
 }

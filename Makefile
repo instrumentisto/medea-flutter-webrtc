@@ -180,8 +180,8 @@ test.cargo: cargo.test
 # .PHONY section #
 ##################
 
-.PHONY: build deps doc run test fmt lint \
+.PHONY: build deps docs fmt lint run test \
         cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
         docs.rust \
+        flutter.build flutter.pub flutter.run \
         test.cargo \
-        flutter.pub flutter.build flutter.run

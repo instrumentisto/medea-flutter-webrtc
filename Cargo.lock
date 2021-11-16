@@ -12,6 +12,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee10e43ae4a853c0a3591d4e2ada1719e553be18199d9da9d4a83f5927c2f5c7"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -187,6 +193,7 @@ dependencies = [
 name = "flutter-webrtc-native"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "cbindgen",
  "libwebrtc-sys",
 ]
@@ -454,6 +461,7 @@ checksum = "fbe5e23404da5b4f555ef85ebed98fb4083e55a00c317800bc2a50ede9f3d219"
 name = "libwebrtc-sys"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "cxx",
  "cxx-build",
  "dotenv",
