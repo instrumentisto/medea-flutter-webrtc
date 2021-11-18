@@ -7,79 +7,74 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
-  Lint:
-    if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
+
+  clippy:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
           components: clippy
-      - name: Install make
-        run: choco install make
-      - name: Download
-        run: make lib.download
-      - name: Lint
-        run: make cargo.lint
-      
-  fmt:
-    if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
+      - uses: Swatinem/rust-cache@v1
+        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
+
+      - run: make cargo.lint
+
+  rustfmt:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: nightly
           components: rustfmt
-      - name: Install make
-        run: choco install make
-      - name: Download
-        run: make lib.download
-      - name: fmt
-        run: make cargo.fmt check=yes
 
-  Test:
-    if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
+      - run: make cargo.fmt check=yes
+
+  build:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
-      - name: Install make
-        run: choco install make
-      - name: Download
-        run: make lib.download
-      - name: Test
-        run: make cargo.test
+      - uses: Swatinem/rust-cache@v1
+        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
 
-  Build:
-    if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
+      - run: choco install make
+
+      - run: make cargo.build
+
+  rustdoc:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
+
+      - run: make cargo.doc
+
+  test:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
-      - name: Install make
-        run: choco install make
-      - name: Download
-        run: make lib.download
-      - name: Build
-        run: make cargo.build
+      - run: choco install make
 
-  Documentation:
-    if: ${{ github.ref == 'refs/heads/master' || !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Install make
-        run: choco install make
-      - name: Download
-        run: make lib.download
-      - name: Documentation
-        run: make cargo.doc 
+      - run: make test

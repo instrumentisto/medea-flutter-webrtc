@@ -11,12 +11,14 @@ add_definitions(-DLIB_WEBRTC_API_DLL)
 add_library(${PLUGIN_NAME} SHARED
   "flutter_webrtc_plugin.cc"
   "src/flutter_webrtc.cc"
-  "third_party/uuidxx/uuidxx.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/src/flutter_webrtc_native.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cxx/src/cxx.cc"
 )
 
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cxx/include"
 )
 
 apply_standard_settings(${PLUGIN_NAME})
@@ -26,15 +28,16 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cxx/include"
 )
 target_link_libraries(${PLUGIN_NAME} PRIVATE
   flutter
   flutter_wrapper_plugin
-  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/jason_flutter_webrtc.dll.lib"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/flutter_webrtc_native.dll.lib"
 )
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(flutter_webrtc_bundled_libraries
-  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/jason_flutter_webrtc.dll"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/flutter_webrtc_native.dll"
   PARENT_SCOPE
 )

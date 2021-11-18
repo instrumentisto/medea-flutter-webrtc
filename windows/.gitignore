@@ -1,4 +1,6 @@
-flutter/
+rust/src/*
+rust/include/*
+rust/lib/*
 
 # Visual Studio files
 *.user

@@ -1,7 +1,9 @@
+#include <sstream>
+
 #include "flutter_webrtc.h"
 
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
-#include <jason_flutter_webrtc.hpp>
+#include <flutter_webrtc_native.h>
 
 namespace flutter_webrtc_plugin {
 
@@ -14,10 +16,10 @@ void FlutterWebRTC::HandleMethodCall(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
   } else if (method_call.method_name().compare("getSystemTime") == 0) {
-    char *a = jason_flutter_webrtc::SystemTimeMillis();
-    std::string b = a;
-    result->Success(b);
-    jason_flutter_webrtc::string_free(a);
+    FinalDeviceInfo info = video_info_test();
+    std::stringstream str;
+    str << "Kind: " << info.kind.c_str() << "\nName: " << info.label.c_str() << "\nId: " << info.deviceId.c_str();
+    result->Success(str.str());
   } else if (method_call.method_name().compare("getUserMedia") == 0) {
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
   } else if (method_call.method_name().compare("getSources") == 0) {

@@ -6,6 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import 'src/data_channel_sample.dart';
+import 'src/get_display_media_sample.dart';
+import 'src/get_user_media_sample.dart'
+    if (dart.library.html) 'src/get_user_media_sample_web.dart';
+import 'src/loopback_sample.dart';
 import 'src/route_item.dart';
 import 'src/test_sample.dart';
 
@@ -75,6 +80,39 @@ class _MyAppState extends State<MyApp> {
 
   void _initItems() {
     items = <RouteItem>[
+      RouteItem(
+          title: 'GetUserMedia',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => GetUserMediaSample()));
+          }),
+      RouteItem(
+          title: 'GetDisplayMedia',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        GetDisplayMediaSample()));
+          }),
+      RouteItem(
+          title: 'LoopBack Sample',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => LoopBackSample()));
+          }),
+      RouteItem(
+          title: 'DataChannel',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => DataChannelSample()));
+          }),
       RouteItem(
           title: 'Test',
           push: (BuildContext context) {

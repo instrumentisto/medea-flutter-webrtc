@@ -1,13 +1,13 @@
-# See full list at:
-# https://github.com/rust-lang-nursery/rustfmt/blob/master/Configurations.md
+# Project configuration for rustfmt Rust code formatter.
+# See full list of configurations at:
+# https://github.com/rust-lang/rustfmt/blob/master/Configurations.md
 
 max_width = 80
 format_strings = false
 imports_granularity = "Crate"
-normalize_comments = true
-wrap_comments = true
 
-reorder_impl_items = true
+format_code_in_doc_comments = true
+format_macro_matchers = true
 use_try_shorthand = true
 
 error_on_line_overflow = true
