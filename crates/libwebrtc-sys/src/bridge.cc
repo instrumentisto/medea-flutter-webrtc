@@ -17,17 +17,16 @@ namespace RTC {
         return webrtc::CreateDefaultTaskQueueFactory();
     }
 
-    webrtc::AudioDeviceModule* InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory) {
+    webrtc::AudioDeviceModule* CreateAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory) {
         rtc::scoped_refptr<webrtc::AudioDeviceModule> adm = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio, TaskQueueFactory.get());
         webrtc::AudioDeviceModule* adm_rel = adm.release();
-        adm_rel->Init();
 
         return adm_rel;
     };
 
-    void dropAudioDeviceModule(webrtc::AudioDeviceModule* AudioDeviceModule) {
-        AudioDeviceModule->Release();
-    };
+    void InitAudioDeviceModule(webrtc::AudioDeviceModule* AudioDeviceModule) {
+        AudioDeviceModule->Init();
+    }
 
     int16_t PlayoutDevices(webrtc::AudioDeviceModule* AudioDeviceModule) {
         return AudioDeviceModule->PlayoutDevices();
@@ -61,6 +60,10 @@ namespace RTC {
 
         rust::Vec<rust::String> info = { strname, strid };
         return info;
+    };
+
+    void dropAudioDeviceModule(webrtc::AudioDeviceModule* AudioDeviceModule) {
+        AudioDeviceModule->Release();
     };
 
     webrtc::VideoCaptureModule::DeviceInfo* CreateVideoDeviceInfo() {

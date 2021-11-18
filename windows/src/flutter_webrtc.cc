@@ -15,14 +15,26 @@ void FlutterWebRTC::HandleMethodCall(
     const flutter::MethodCall<EncodableValue> &method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
-  } else if (method_call.method_name().compare("getSystemTime") == 0) {
-    FinalDeviceInfo info = video_info_test();
-    std::stringstream str;
-    str << "Kind: " << info.kind.c_str() << "\nName: " << info.label.c_str() << "\nId: " << info.deviceId.c_str();
-    result->Success(str.str());
+  } else if (method_call.method_name().compare("getSources") == 0) {
+    DeviceInfoList devices = enumerate_devices();
+    
+    EncodableList sources;
+    
+    for (size_t i = 0; i < devices.infos.size(); ++i) {
+      EncodableMap info;
+      info[EncodableValue("label")] = EncodableValue(std::string(devices.infos[i].label));
+      info[EncodableValue("deviceId")] = EncodableValue(std::string(devices.infos[i].deviceId));
+      info[EncodableValue("kind")] = EncodableValue(std::string(devices.infos[i].kind));
+      info[EncodableValue("groupId")] = EncodableValue(std::string(""));
+
+      sources.push_back(EncodableValue(info));
+    }
+  
+    EncodableMap params;
+    params[EncodableValue("sources")] = EncodableValue(sources);
+    result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("getUserMedia") == 0) {
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
-  } else if (method_call.method_name().compare("getSources") == 0) {
   } else if (method_call.method_name().compare("mediaStreamGetTracks") == 0) {
   } else if (method_call.method_name().compare("createOffer") == 0) {
   } else if (method_call.method_name().compare("createAnswer") == 0) {

@@ -2,33 +2,90 @@ use libwebrtc_sys::*;
 
 #[cxx::bridge]
 mod ffi {
-    struct FinalDeviceInfo {
+    struct DeviceInfo {
         pub deviceId: String,
         pub kind: String,
         pub label: String,
     }
 
+    struct DeviceInfoList {
+        infos: Vec<DeviceInfo>,
+    }
+
     extern "Rust" {
-        fn video_info_test() -> FinalDeviceInfo;
+        fn enumerate_devices() -> DeviceInfoList;
     }
 }
 
-pub fn video_info_test() -> ffi::FinalDeviceInfo {
-    let video_device_module = init_video_device_module();
-    let video_device_info = get_video_device_info(video_device_module, 0);
-    drop_video_device_module(video_device_module);
+enum AudioKind {
+    Playout,
+    Recording,
+}
 
-    let kind: String;
+fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
+    let task_queue = create_default_task_queue_factory();
+    let audio_device_module = create_audio_device_module(task_queue);
+    init_audio_device_module(audio_device_module);
+    let audio_device_count = if let AudioKind::Playout = kind {
+        count_audio_playout_devices(audio_device_module)
+    } else {
+        count_audio_recording_devices(audio_device_module)
+    };
 
-    match video_device_info.kind {
-        DeviceKind::AudioInput => kind = String::from("audioinput"),
-        DeviceKind::AudioOutput => kind = String::from("audiooutput"),
-        DeviceKind::VideoInput => kind = String::from("videoinput"),
+    let mut list = vec![];
+
+    for i in 0..audio_device_count {
+        let audio_device_info = if let AudioKind::Playout = kind {
+            get_audio_playout_device_info(audio_device_module, i)
+        } else {
+            get_audio_recording_device_info(audio_device_module, i)
+        };
+
+        let device_info = ffi::DeviceInfo {
+            deviceId: audio_device_info.0,
+            kind: if let AudioKind::Playout = kind {
+                "audiooutput".to_string()
+            } else {
+                "audioinput".to_string()
+            },
+            label: audio_device_info.1,
+        };
+
+        list.push(device_info);
     }
 
-    ffi::FinalDeviceInfo {
-        deviceId: video_device_info.id,
-        kind: kind,
-        label: video_device_info.name,
+    drop_audio_device_module(audio_device_module);
+    list
+}
+
+fn video_devices_info() -> Vec<ffi::DeviceInfo> {
+    let video_device_module = init_video_device_module();
+    let video_device_count = count_video_devices(video_device_module);
+    let mut list = vec![];
+
+    for i in 0..video_device_count {
+        let video_device_info = get_video_device_info(video_device_module, i);
+
+        let device_info = ffi::DeviceInfo {
+            deviceId: video_device_info.0,
+            kind: "videoinput".to_string(),
+            label: video_device_info.1,
+        };
+
+        list.push(device_info);
+    }
+
+    drop_video_device_module(video_device_module);
+    list
+}
+
+pub fn enumerate_devices() -> ffi::DeviceInfoList {
+    let iters = audio_devices_info(AudioKind::Playout)
+        .into_iter()
+        .chain(audio_devices_info(AudioKind::Recording).into_iter())
+        .chain(video_devices_info().into_iter());
+
+    ffi::DeviceInfoList {
+        infos: iters.collect(),
     }
 }

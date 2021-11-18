@@ -18,7 +18,8 @@ namespace RTC {
 
     std::unique_ptr<webrtc::TaskQueueFactory> CreateDefaultTaskQueueFactory();
 
-    webrtc::AudioDeviceModule* InitAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory);
+    webrtc::AudioDeviceModule* CreateAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory);
+    void InitAudioDeviceModule(webrtc::AudioDeviceModule* AudioDeviceModule);
     int16_t PlayoutDevices(webrtc::AudioDeviceModule* AudioDeviceModule);
     int16_t RecordingDevices(webrtc::AudioDeviceModule* AudioDeviceModule);
     rust::Vec<rust::String> getPlayoutAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index);

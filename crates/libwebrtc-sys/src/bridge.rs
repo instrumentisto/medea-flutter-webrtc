@@ -12,9 +12,12 @@ pub mod rtc {
 
         pub fn CreateDefaultTaskQueueFactory() -> UniquePtr<TaskQueueFactory>;
 
-        pub fn InitAudioDeviceModule(
+        pub fn CreateAudioDeviceModule(
             TaskQueueFactory: UniquePtr<TaskQueueFactory>,
         ) -> *mut AudioDeviceModule;
+        pub unsafe fn InitAudioDeviceModule(
+            AudioDeviceModule: *mut AudioDeviceModule,
+        );
         pub unsafe fn PlayoutDevices(
             AudioDeviceModule: *mut AudioDeviceModule,
         ) -> i16;
