@@ -1,6 +1,4 @@
-rust/src/*
-rust/include/*
-rust/lib/*
+rust/
 
 # Visual Studio files
 *.user

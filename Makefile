@@ -91,6 +91,10 @@ lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
 	$(if $(call eq,$(no-cache),yes),INSTALL_WEBRTC=1,) cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
+	if [ ! -d "windows/rust" ]; then mkdir windows/rust; fi
+	if [ ! -d "windows/rust/src" ]; then mkdir windows/rust/src; fi
+	if [ ! -d "windows/rust/lib" ]; then mkdir windows/rust/lib; fi
+	if [ ! -d "windows/rust/include" ]; then mkdir windows/rust/include; fi
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
