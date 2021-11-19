@@ -10,29 +10,26 @@ pub mod webrtc {
 
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
 
-        pub fn create_audio_device_module(
+        pub unsafe fn create_audio_device_module(
             task_queue_factory: UniquePtr<TaskQueueFactory>,
-        ) -> *mut AudioDeviceModule;
+        ) -> UniquePtr<AudioDeviceModule>;
         pub unsafe fn init_audio_device_module(
-            audio_device_module: *mut AudioDeviceModule,
+            audio_device_module: &UniquePtr<AudioDeviceModule>,
         );
         pub unsafe fn playout_devices(
-            audio_device_module: *mut AudioDeviceModule,
+            audio_device_module: &UniquePtr<AudioDeviceModule>,
         ) -> i16;
         pub unsafe fn recording_devices(
-            audio_device_module: *mut AudioDeviceModule,
+            audio_device_module: &UniquePtr<AudioDeviceModule>,
         ) -> i16;
         pub unsafe fn get_playout_audio_info(
-            audio_device_module: *mut AudioDeviceModule,
+            audio_device_module: &UniquePtr<AudioDeviceModule>,
             index: i16,
         ) -> Vec<String>;
         pub unsafe fn get_recording_audio_info(
-            audio_device_module: *mut AudioDeviceModule,
+            audio_device_module: &UniquePtr<AudioDeviceModule>,
             index: i16,
         ) -> Vec<String>;
-        pub unsafe fn drop_audio_device_module(
-            audio_device_module: *mut AudioDeviceModule,
-        );
 
         pub fn create_video_device_info() -> *mut VideoDeviceInfo;
         pub unsafe fn number_of_video_devices(

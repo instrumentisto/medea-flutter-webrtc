@@ -16,36 +16,36 @@ pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory
 /// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
 pub fn create_audio_device_module(
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
-) -> *mut webrtc::AudioDeviceModule {
-    webrtc::create_audio_device_module(task_queue_factory)
+) -> UniquePtr<webrtc::AudioDeviceModule> {
+    unsafe { webrtc::create_audio_device_module(task_queue_factory) }
 }
 
 /// Initializes [libWebRTC Audio Device Module].
 /// 
 /// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
 pub fn init_audio_device_module(
-    audio_device_module: *mut webrtc::AudioDeviceModule,
+    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
 ) {
     unsafe { webrtc::init_audio_device_module(audio_device_module) }
 }
 
 /// Returns count of audio playout devices.
 pub fn count_audio_playout_devices(
-    audio_device_module: *mut webrtc::AudioDeviceModule,
+    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
 ) -> i16 {
     unsafe { webrtc::playout_devices(audio_device_module) }
 }
 
 /// Returns count of audio recording devices.
 pub fn count_audio_recording_devices(
-    audio_device_module: *mut webrtc::AudioDeviceModule,
+    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
 ) -> i16 {
     unsafe { webrtc::recording_devices(audio_device_module) }
 }
 
 /// Returns a tuple with an audio playout device information `(name, id)`.
 pub fn get_audio_playout_device_info(
-    audio_device_module: *mut webrtc::AudioDeviceModule,
+    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
     index: i16,
 ) -> (String, String) {
     let mut info;
@@ -57,7 +57,7 @@ pub fn get_audio_playout_device_info(
 
 /// Returns a tuple with an audio recording device information `(name, id)`.
 pub fn get_audio_recording_device_info(
-    audio_device_module: *mut webrtc::AudioDeviceModule,
+    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
     index: i16,
 ) -> (String, String) {
     let mut info;
@@ -65,17 +65,6 @@ pub fn get_audio_recording_device_info(
         info = webrtc::get_recording_audio_info(audio_device_module, index);
     }
     (info.pop().unwrap(), info.pop().unwrap())
-}
-
-/// Drops [libWebRTC Audio Device Module].
-/// 
-/// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
-pub fn drop_audio_device_module(
-    audio_device_module: *mut webrtc::AudioDeviceModule,
-) {
-    unsafe {
-        webrtc::drop_audio_device_module(audio_device_module);
-    }
 }
 
 /// Creates libWebRTC Video Device Info.

@@ -22,20 +22,20 @@ enum AudioKind {
 fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
     let task_queue = create_default_task_queue_factory();
     let audio_device_module = create_audio_device_module(task_queue);
-    init_audio_device_module(audio_device_module);
+    init_audio_device_module(&audio_device_module);
     let audio_device_count = if let AudioKind::Playout = kind {
-        count_audio_playout_devices(audio_device_module)
+        count_audio_playout_devices(&audio_device_module)
     } else {
-        count_audio_recording_devices(audio_device_module)
+        count_audio_recording_devices(&audio_device_module)
     };
 
     let mut list = vec![];
 
     for i in 0..audio_device_count {
         let audio_device_info = if let AudioKind::Playout = kind {
-            get_audio_playout_device_info(audio_device_module, i)
+            get_audio_playout_device_info(&audio_device_module, i)
         } else {
-            get_audio_recording_device_info(audio_device_module, i)
+            get_audio_recording_device_info(&audio_device_module, i)
         };
 
         let device_info = ffi::DeviceInfo {
@@ -50,8 +50,7 @@ fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
 
         list.push(device_info);
     }
-
-    drop_audio_device_module(audio_device_module);
+    
     list
 }
 
