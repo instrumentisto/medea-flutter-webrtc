@@ -3,13 +3,13 @@ use cxx::UniquePtr;
 mod bridge;
 use bridge::webrtc;
 
-/// Creates default task queue factory.
+/// Creates default libWebRTC Task Queue Factory.
 pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory>
 {
     webrtc::create_default_task_queue_factory()
 }
 
-/// Creates WEBRTC Audio Device Module with default Windows layout.
+/// Creates libWebRTC Audio Device Module with default Windows layout.
 pub fn create_audio_device_module(
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
 ) -> *mut webrtc::AudioDeviceModule {

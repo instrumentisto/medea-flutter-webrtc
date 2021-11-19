@@ -1,11 +1,12 @@
 use libwebrtc_sys::*;
 
+/// The module which describes the bridge to call Rust from C++.
 #[cxx::bridge]
 pub mod ffi {
     struct DeviceInfo {
-        pub deviceId: String,
-        pub kind: String,
-        pub label: String,
+        deviceId: String,
+        kind: String,
+        label: String,
     }
 
     extern "Rust" {
