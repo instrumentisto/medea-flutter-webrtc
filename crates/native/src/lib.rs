@@ -8,12 +8,8 @@ pub mod ffi {
         pub label: String,
     }
 
-    struct DeviceInfoList {
-        infos: Vec<DeviceInfo>,
-    }
-
     extern "Rust" {
-        fn enumerate_devices() -> DeviceInfoList;
+        fn enumerate_devices() -> Vec<DeviceInfo>;
     }
 }
 
@@ -80,13 +76,11 @@ fn video_devices_info() -> Vec<ffi::DeviceInfo> {
 }
 
 /// Enumerates all the available media devices.
-pub fn enumerate_devices() -> ffi::DeviceInfoList {
+pub fn enumerate_devices() -> Vec<ffi::DeviceInfo> {
     let iters = audio_devices_info(AudioKind::Playout)
         .into_iter()
         .chain(audio_devices_info(AudioKind::Recording).into_iter())
         .chain(video_devices_info().into_iter());
 
-    ffi::DeviceInfoList {
-        infos: iters.collect(),
-    }
+    iters.collect()
 }

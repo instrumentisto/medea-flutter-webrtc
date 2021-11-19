@@ -16,15 +16,15 @@ void FlutterWebRTC::HandleMethodCall(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
   } else if (method_call.method_name().compare("getSources") == 0) {
-    DeviceInfoList devices = enumerate_devices();
+    rust::Vec<DeviceInfo> devices = enumerate_devices();
     
     EncodableList sources;
     
-    for (size_t i = 0; i < devices.infos.size(); ++i) {
+    for (size_t i = 0; i < devices.size(); ++i) {
       EncodableMap info;
-      info[EncodableValue("label")] = EncodableValue(std::string(devices.infos[i].label));
-      info[EncodableValue("deviceId")] = EncodableValue(std::string(devices.infos[i].deviceId));
-      info[EncodableValue("kind")] = EncodableValue(std::string(devices.infos[i].kind));
+      info[EncodableValue("label")] = EncodableValue(std::string(devices[i].label));
+      info[EncodableValue("deviceId")] = EncodableValue(std::string(devices[i].deviceId));
+      info[EncodableValue("kind")] = EncodableValue(std::string(devices[i].kind));
       info[EncodableValue("groupId")] = EncodableValue(std::string(""));
 
       sources.push_back(EncodableValue(info));
