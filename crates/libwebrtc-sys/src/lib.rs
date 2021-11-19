@@ -3,20 +3,26 @@ use cxx::UniquePtr;
 mod bridge;
 use bridge::webrtc;
 
-/// Creates default libWebRTC Task Queue Factory.
+/// Creates default [libWebRTC Task Queue Factory].
+/// 
+/// [libWebRTC Task Queue Factory]: https://webrtc.googlesource.com/src/+/HEAD/g3doc/implementation_basics.md#threads
 pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory>
 {
     webrtc::create_default_task_queue_factory()
 }
 
-/// Creates libWebRTC Audio Device Module with default Windows layout.
+/// Creates [libWebRTC Audio Device Module] with default Windows layout.
+/// 
+/// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
 pub fn create_audio_device_module(
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
 ) -> *mut webrtc::AudioDeviceModule {
     webrtc::create_audio_device_module(task_queue_factory)
 }
 
-/// Initializes libWebRTC Audio Device Module.
+/// Initializes [libWebRTC Audio Device Module].
+/// 
+/// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
 pub fn init_audio_device_module(
     audio_device_module: *mut webrtc::AudioDeviceModule,
 ) {
@@ -61,7 +67,9 @@ pub fn get_audio_recording_device_info(
     (info.pop().unwrap(), info.pop().unwrap())
 }
 
-/// Drops libWebRTC Audio Device Module.
+/// Drops [libWebRTC Audio Device Module].
+/// 
+/// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
 pub fn drop_audio_device_module(
     audio_device_module: *mut webrtc::AudioDeviceModule,
 ) {
