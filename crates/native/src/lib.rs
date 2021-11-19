@@ -1,7 +1,7 @@
 use libwebrtc_sys::*;
 
 #[cxx::bridge]
-mod ffi {
+pub mod ffi {
     struct DeviceInfo {
         pub deviceId: String,
         pub kind: String,
@@ -79,6 +79,7 @@ fn video_devices_info() -> Vec<ffi::DeviceInfo> {
     list
 }
 
+/// Enumerates all the available media devices.
 pub fn enumerate_devices() -> ffi::DeviceInfoList {
     let iters = audio_devices_info(AudioKind::Playout)
         .into_iter()
