@@ -31,14 +31,13 @@ pub mod webrtc {
             index: i16,
         ) -> Vec<String>;
 
-        pub fn create_video_device_info() -> *mut VideoDeviceInfo;
+        pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
         pub unsafe fn number_of_video_devices(
-            device_info: *mut VideoDeviceInfo,
+            device_info: &UniquePtr<VideoDeviceInfo>,
         ) -> u32;
         pub unsafe fn get_video_device_name(
-            device_info: *mut VideoDeviceInfo,
+            device_info: &UniquePtr<VideoDeviceInfo>,
             index: u32,
         ) -> Vec<String>;
-        pub unsafe fn drop_video_device_info(device_info: *mut VideoDeviceInfo);
     }
 }

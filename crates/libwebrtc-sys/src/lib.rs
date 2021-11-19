@@ -4,7 +4,7 @@ mod bridge;
 use bridge::webrtc;
 
 /// Creates default [libWebRTC Task Queue Factory].
-/// 
+///
 /// [libWebRTC Task Queue Factory]: https://webrtc.googlesource.com/src/+/HEAD/g3doc/implementation_basics.md#threads
 pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory>
 {
@@ -12,7 +12,7 @@ pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory
 }
 
 /// Creates [libWebRTC Audio Device Module] with default Windows layout.
-/// 
+///
 /// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
 pub fn create_audio_device_module(
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
@@ -21,7 +21,7 @@ pub fn create_audio_device_module(
 }
 
 /// Initializes [libWebRTC Audio Device Module].
-/// 
+///
 /// [libWebRTC Audio Device Module]: https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
 pub fn init_audio_device_module(
     audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
@@ -68,20 +68,20 @@ pub fn get_audio_recording_device_info(
 }
 
 /// Creates libWebRTC Video Device Info.
-pub fn create_video_device_module() -> *mut webrtc::VideoDeviceInfo {
+pub fn create_video_device_module() -> UniquePtr<webrtc::VideoDeviceInfo> {
     webrtc::create_video_device_info()
 }
 
 /// Returns count of video recording devices.
 pub fn count_video_devices(
-    video_device_module: *mut webrtc::VideoDeviceInfo,
+    video_device_module: &UniquePtr<webrtc::VideoDeviceInfo>,
 ) -> u32 {
     unsafe { webrtc::number_of_video_devices(video_device_module) }
 }
 
 /// Returns a tuple with an video recording device information `(name, id)`.
 pub fn get_video_device_info(
-    video_device_module: *mut webrtc::VideoDeviceInfo,
+    video_device_module: &UniquePtr<webrtc::VideoDeviceInfo>,
     index: u32,
 ) -> (String, String) {
     let mut info;
@@ -89,13 +89,4 @@ pub fn get_video_device_info(
         info = webrtc::get_video_device_name(video_device_module, index);
     }
     (info.pop().unwrap(), info.pop().unwrap())
-}
-
-/// Drops libWebRTC Video Device Info.
-pub fn drop_video_device_module(
-    video_device_module: *mut webrtc::VideoDeviceInfo,
-) {
-    unsafe {
-        webrtc::drop_video_device_info(video_device_module);
-    }
 }

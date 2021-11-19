@@ -53,28 +53,26 @@ namespace WEBRTC {
         return info;
     };
 
-    webrtc::VideoCaptureModule::DeviceInfo* create_video_device_info() {
-        return webrtc::VideoCaptureFactory::CreateDeviceInfo();
+    std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info() {
+        std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> unq_ptr(webrtc::VideoCaptureFactory::CreateDeviceInfo());
+
+        return unq_ptr;
     };
 
-    uint32_t number_of_video_devices(webrtc::VideoCaptureModule::DeviceInfo* device_info) {
-        return device_info->NumberOfDevices();
+    uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info) {
+        return device_info.get()->NumberOfDevices();
     };
 
-    rust::Vec<rust::String> get_video_device_name(webrtc::VideoCaptureModule::DeviceInfo* device_info, uint32_t index) {
+    rust::Vec<rust::String> get_video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info, uint32_t index) {
         char device_name[256];
         char unique_id[256];
 
-        device_info->GetDeviceName(index, device_name, 256, unique_id, 256);
+        device_info.get()->GetDeviceName(index, device_name, 256, unique_id, 256);
 
         rust::String strname = device_name;
         rust::String strid = unique_id;
 
         rust::Vec<rust::String> info = { strname, strid };
         return info;
-    };
-
-    void drop_video_device_info(webrtc::VideoCaptureModule::DeviceInfo* device_info) {
-        delete device_info;
     };
 }

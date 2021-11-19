@@ -50,17 +50,17 @@ fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
 
         list.push(device_info);
     }
-    
+
     list
 }
 
 fn video_devices_info() -> Vec<ffi::DeviceInfo> {
     let video_device_module = create_video_device_module();
-    let video_device_count = count_video_devices(video_device_module);
+    let video_device_count = count_video_devices(&video_device_module);
     let mut list = vec![];
 
     for i in 0..video_device_count {
-        let video_device_info = get_video_device_info(video_device_module, i);
+        let video_device_info = get_video_device_info(&video_device_module, i);
 
         let device_info = ffi::DeviceInfo {
             deviceId: video_device_info.0,
@@ -71,7 +71,6 @@ fn video_devices_info() -> Vec<ffi::DeviceInfo> {
         list.push(device_info);
     }
 
-    drop_video_device_module(video_device_module);
     list
 }
 

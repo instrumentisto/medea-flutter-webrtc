@@ -38,8 +38,7 @@ namespace WEBRTC {
     rust::Vec<rust::String> get_playout_audio_info(const std::unique_ptr<AudioDeviceModule>& audio_device_module, int16_t index);
     rust::Vec<rust::String> get_recording_audio_info(const std::unique_ptr<AudioDeviceModule>& audio_device_module, int16_t index);
 
-    webrtc::VideoCaptureModule::DeviceInfo* create_video_device_info();
-    uint32_t number_of_video_devices(webrtc::VideoCaptureModule::DeviceInfo* device_info);
-    rust::Vec<rust::String> get_video_device_name(webrtc::VideoCaptureModule::DeviceInfo* device_info, uint32_t index);
-    void drop_video_device_info(webrtc::VideoCaptureModule::DeviceInfo* device_info);
+    std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info();
+    uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info);
+    rust::Vec<rust::String> get_video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info, uint32_t index);
 }
