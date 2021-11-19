@@ -9,27 +9,23 @@
 #include "modules/video_capture/video_capture_factory.h"
 #include "rust/cxx.h"
 
-namespace RTC {
+namespace WEBRTC {
     using TaskQueueFactory = webrtc::TaskQueueFactory;
     using AudioDeviceModule = webrtc::AudioDeviceModule;
     using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 
-    std::unique_ptr<std::string> SystemTimeMillis();
+    std::unique_ptr<webrtc::TaskQueueFactory> create_default_task_queue_factory();
 
-    std::unique_ptr<webrtc::TaskQueueFactory> CreateDefaultTaskQueueFactory();
+    webrtc::AudioDeviceModule* create_audio_device_module(std::unique_ptr<webrtc::TaskQueueFactory> task_queue_factory);
+    void init_audio_device_module(webrtc::AudioDeviceModule* audio_device_module);
+    int16_t playout_devices(webrtc::AudioDeviceModule* audio_device_module);
+    int16_t recording_devices(webrtc::AudioDeviceModule* audio_device_module);
+    rust::Vec<rust::String> get_playout_audio_info(webrtc::AudioDeviceModule* audio_device_module, int16_t index);
+    rust::Vec<rust::String> get_recording_audio_info(webrtc::AudioDeviceModule* audio_device_module, int16_t index);
+    void drop_audio_device_module(webrtc::AudioDeviceModule* audio_device_module);
 
-    webrtc::AudioDeviceModule* CreateAudioDeviceModule(std::unique_ptr<webrtc::TaskQueueFactory> TaskQueueFactory);
-    void InitAudioDeviceModule(webrtc::AudioDeviceModule* AudioDeviceModule);
-    int16_t PlayoutDevices(webrtc::AudioDeviceModule* AudioDeviceModule);
-    int16_t RecordingDevices(webrtc::AudioDeviceModule* AudioDeviceModule);
-    rust::Vec<rust::String> getPlayoutAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index);
-    rust::Vec<rust::String> getRecordingAudioInfo(webrtc::AudioDeviceModule* AudioDeviceModule, int16_t index);
-    void dropAudioDeviceModule(webrtc::AudioDeviceModule* AudioDeviceModule);
-
-    webrtc::VideoCaptureModule::DeviceInfo* CreateVideoDeviceInfo();
-    uint32_t NumberOfVideoDevices(webrtc::VideoCaptureModule::DeviceInfo* DeviceInfo);
-    rust::Vec<rust::String> GetVideoDeviceName(webrtc::VideoCaptureModule::DeviceInfo* DeviceInfo, uint32_t index);
-    void dropVideoDeviceInfo(webrtc::VideoCaptureModule::DeviceInfo* DeviceInfo);
-
-    void customGetSource();
+    webrtc::VideoCaptureModule::DeviceInfo* create_video_device_info();
+    uint32_t number_of_video_devices(webrtc::VideoCaptureModule::DeviceInfo* device_info);
+    rust::Vec<rust::String> get_video_device_name(webrtc::VideoCaptureModule::DeviceInfo* device_info, uint32_t index);
+    void drop_video_device_info(webrtc::VideoCaptureModule::DeviceInfo* device_info);
 }

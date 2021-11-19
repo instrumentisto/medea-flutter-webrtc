@@ -59,7 +59,7 @@ fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
 }
 
 fn video_devices_info() -> Vec<ffi::DeviceInfo> {
-    let video_device_module = init_video_device_module();
+    let video_device_module = create_video_device_module();
     let video_device_count = count_video_devices(video_device_module);
     let mut list = vec![];
 
