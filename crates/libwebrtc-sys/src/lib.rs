@@ -43,7 +43,7 @@ pub fn count_audio_recording_devices(
     unsafe { webrtc::recording_devices(audio_device_module) }
 }
 
-/// Returns a tuple with an audio playout device information `(name, id)`.
+/// Returns a tuple with an audio playout device information `(id, name)`.
 pub fn get_audio_playout_device_info(
     audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
     index: i16,
@@ -55,7 +55,7 @@ pub fn get_audio_playout_device_info(
     (info.pop().unwrap(), info.pop().unwrap())
 }
 
-/// Returns a tuple with an audio recording device information `(name, id)`.
+/// Returns a tuple with an audio recording device information `(id, name)`.
 pub fn get_audio_recording_device_info(
     audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
     index: i16,
@@ -79,7 +79,7 @@ pub fn count_video_devices(
     unsafe { webrtc::number_of_video_devices(video_device_module) }
 }
 
-/// Returns a tuple with an video recording device information `(name, id)`.
+/// Returns a tuple with an video recording device information `(id, name)`.
 pub fn get_video_device_info(
     video_device_module: &UniquePtr<webrtc::VideoDeviceInfo>,
     index: u32,
