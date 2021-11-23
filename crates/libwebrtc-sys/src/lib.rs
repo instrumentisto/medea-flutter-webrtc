@@ -90,3 +90,17 @@ pub fn get_video_device_info(
     }
     (info.pop().unwrap(), info.pop().unwrap())
 }
+
+pub fn stream_test() -> bool {
+    webrtc::stream_test()
+}
+
+#[cfg(test)]
+mod test {
+    use super::stream_test;
+
+    #[test]
+    fn it_works() {
+        assert!(stream_test());
+    }
+}

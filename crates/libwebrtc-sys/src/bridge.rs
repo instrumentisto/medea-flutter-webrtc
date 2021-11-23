@@ -39,5 +39,7 @@ pub mod webrtc {
             device_info: &UniquePtr<VideoDeviceInfo>,
             index: u32,
         ) -> Vec<String>;
+
+        pub fn stream_test() -> bool;
     }
 }
