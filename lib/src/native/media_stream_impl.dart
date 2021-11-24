@@ -21,14 +21,12 @@ class MediaStreamNative extends MediaStream {
     _audioTracks.clear();
 
     audioTracks.forEach((track) {
-      _audioTracks.add(MediaStreamTrackNative(
-          track['id'], track['label'], track['kind'], track['enabled']));
+      _audioTracks.add(MediaStreamTrackNative.fromMap(track));
     });
 
     _videoTracks.clear();
     videoTracks.forEach((track) {
-      _videoTracks.add(MediaStreamTrackNative(
-          track['id'], track['label'], track['kind'], track['enabled']));
+      _videoTracks.add(MediaStreamTrackNative.fromMap(track));
     });
   }
 

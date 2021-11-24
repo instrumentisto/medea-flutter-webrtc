@@ -2,6 +2,8 @@ package com.cloudwebrtc.webrtc.utils;
 
 import androidx.annotation.Nullable;
 
+import com.cloudwebrtc.webrtc.GetUserMediaImpl;
+
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
 import org.webrtc.MediaStreamTrack;
@@ -27,11 +29,11 @@ public class ObjectExporter {
         ConstraintsArray videoTracks = new ConstraintsArray();
 
         for (MediaStreamTrack track : stream.audioTracks) {
-            audioTracks.pushMap(new ConstraintsMap(exportMediaStreamTrack(track)));
+            audioTracks.pushMap(new ConstraintsMap(exportMediaStreamTrack(track, null)));
         }
 
         for (MediaStreamTrack track : stream.videoTracks) {
-            videoTracks.pushMap(new ConstraintsMap(exportMediaStreamTrack(track)));
+            videoTracks.pushMap(new ConstraintsMap(exportMediaStreamTrack(track, null)));
         }
 
         params.putArray("audioTracks", audioTracks.toArrayList());
@@ -40,7 +42,7 @@ public class ObjectExporter {
     }
 
     @Nullable
-    public static Map<String, Object> exportMediaStreamTrack(MediaStreamTrack track) {
+    public static Map<String, Object> exportMediaStreamTrack(MediaStreamTrack track, GetUserMediaImpl.MediaStreamTrackSettings settings) {
         ConstraintsMap info = new ConstraintsMap();
         if (track != null) {
             info.putString("id", track.id());
@@ -48,34 +50,48 @@ public class ObjectExporter {
             info.putString("kind", track.kind());
             info.putBoolean("enabled", track.enabled());
             info.putString("readyState", track.state().toString());
+
+            Map<String, Object> trackSettingsMap = new HashMap<>();
+            if (settings != null) {
+                trackSettingsMap.put("width", settings.width);
+                trackSettingsMap.put("height", settings.height);
+                trackSettingsMap.put("facingMode", settings.facingMode);
+                trackSettingsMap.put("isScreen", settings.isScreen);
+                info.putString("deviceId", settings.deviceId);
+            } else {
+                info.putString("deviceId", "undefined");
+            }
+            info.putMap("settings", trackSettingsMap);
         }
         return info.toMap();
     }
 
-    public static Map<String, Object> exportRtpSender(RtpSender sender) {
+    public static Map<String, Object> exportRtpSender(RtpSender sender, GetUserMediaImpl.MediaStreamTrackSettings settings) {
         ConstraintsMap info = new ConstraintsMap();
         info.putString("senderId", sender.id());
         info.putBoolean("ownsTrack", true);
         info.putMap("rtpParameters", exportRtpParameters(sender.getParameters()));
-        info.putMap("track", exportMediaStreamTrack(sender.track()));
+        info.putMap("track", exportMediaStreamTrack(sender.track(), settings));
         return info.toMap();
     }
 
-    public static Map<String, Object> exportRtpReceiver(RtpReceiver receiver) {
+    public static Map<String, Object> exportRtpReceiver(RtpReceiver receiver, GetUserMediaImpl.MediaStreamTrackSettings settings) {
         ConstraintsMap info = new ConstraintsMap();
         info.putString("receiverId", receiver.id());
         info.putMap("rtpParameters", exportRtpParameters(receiver.getParameters()));
-        info.putMap("track", exportMediaStreamTrack(receiver.track()));
+        info.putMap("track", exportMediaStreamTrack(receiver.track(), settings));
         return info.toMap();
     }
 
-    public static Map<String, Object> exportTransceiver(int id, RtpTransceiver transceiver) {
+    public static Map<String, Object> exportTransceiver(int id, RtpTransceiver transceiver, GetUserMediaImpl gUMImpl) {
         ConstraintsMap info = new ConstraintsMap();
         info.putInt("transceiverId", id);
         info.putString("mid", transceiver.getMid());
         info.putString("direction", transceiverDirectionString(transceiver.getDirection()));
-        info.putMap("sender", exportRtpSender(transceiver.getSender()));
-        info.putMap("receiver", exportRtpReceiver(transceiver.getReceiver()));
+        RtpSender sender = transceiver.getSender();
+        info.putMap("sender", exportRtpSender(sender, gUMImpl.getTrackSettings(sender.id())));
+        RtpReceiver receiver = transceiver.getReceiver();
+        info.putMap("receiver", exportRtpReceiver(receiver, gUMImpl.getTrackSettings(receiver.id())));
         return info.toMap();
     }
 

@@ -19,6 +19,7 @@ import android.util.Log;
 import android.util.Range;
 import android.view.Surface;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.cloudwebrtc.webrtc.utils.Callback;
@@ -60,7 +61,7 @@ import io.flutter.plugin.common.MethodChannel.Result;
  * The implementation of {@code getUserMedia} extracted into a separate file in order to reduce
  * complexity and to (somewhat) separate concerns.
  */
-class GetUserMediaImpl {
+public class GetUserMediaImpl {
 
     private static final int DEFAULT_WIDTH = 1280;
     private static final int DEFAULT_HEIGHT = 720;
@@ -72,6 +73,10 @@ class GetUserMediaImpl {
     static final String TAG = FlutterWebRTCPlugin.TAG;
 
     private final Map<String, VideoCapturerInfo> mVideoCapturers = new HashMap<>();
+
+    private final Map<String, MediaStreamTrackSettings> mediaStreamTrackSettings = new HashMap<>();
+    private AudioSource audioSource = null;
+    private AudioTrack audioTrack = null;
 
     private final StateProvider stateProvider;
     private final Context applicationContext;
@@ -107,59 +112,31 @@ class GetUserMediaImpl {
                 new MediaConstraints.KeyValuePair("googDAEchoCancellation", "true"));
     }
 
-    /**
-     * Create video capturer via given facing mode
-     *
-     * @param enumerator a <tt>CameraEnumerator</tt> provided by webrtc it can be Camera1Enumerator or
-     *                   Camera2Enumerator
-     * @param isFacing   'user' mapped with 'front' is true (default) 'environment' mapped with 'back'
-     *                   is false
-     * @param sourceId   (String) use this sourceId and ignore facing mode if specified.
-     * @return VideoCapturer can invoke with <tt>startCapture</tt>/<tt>stopCapture</tt> <tt>null</tt>
-     * if not matched camera with specified facing mode.
-     */
-    private VideoCapturer createVideoCapturer(
-            CameraEnumerator enumerator, boolean isFacing, String sourceId) {
-        VideoCapturer videoCapturer = null;
+    private String findVideoCapturer(
+            CameraEnumerator enumerator, boolean isFacing, String sourceId
+    ) {
 
         // if sourceId given, use specified sourceId first
         final String[] deviceNames = enumerator.getDeviceNames();
         if (sourceId != null) {
             for (String name : deviceNames) {
                 if (name.equals(sourceId)) {
-                    videoCapturer = enumerator.createCapturer(name, new CameraEventsHandler());
-                    if (videoCapturer != null) {
-                        Log.d(TAG, "create user specified camera " + name + " succeeded");
-                        return videoCapturer;
-                    } else {
-                        Log.d(TAG, "create user specified camera " + name + " failed");
-                        break; // fallback to facing mode
-                    }
+                    return name;
                 }
             }
         }
 
-        // otherwise, use facing mode
-        String facingStr = isFacing ? "front" : "back";
         for (String name : deviceNames) {
             if (enumerator.isFrontFacing(name) == isFacing) {
-                videoCapturer = enumerator.createCapturer(name, new CameraEventsHandler());
-                if (videoCapturer != null) {
-                    Log.d(TAG, "Create " + facingStr + " camera " + name + " succeeded");
-                    return videoCapturer;
-                } else {
-                    Log.e(TAG, "Create " + facingStr + " camera " + name + " failed");
-                }
+                return name;
             }
         }
 
-        // falling back to the first available camera
-        if (videoCapturer == null && deviceNames.length > 0) {
-            videoCapturer = enumerator.createCapturer(deviceNames[0], new CameraEventsHandler());
-            Log.d(TAG, "Falling back to the first available camera");
+        if (deviceNames.length > 0) {
+            return deviceNames[0];
         }
 
-        return videoCapturer;
+        return null;
     }
 
     /**
@@ -211,9 +188,14 @@ class GetUserMediaImpl {
 
         String trackId = stateProvider.getNextTrackUUID();
         PeerConnectionFactory pcFactory = stateProvider.getPeerConnectionFactory();
-        AudioSource audioSource = pcFactory.createAudioSource(audioConstraints);
+        AudioSource source = pcFactory.createAudioSource(audioConstraints);
+        audioSource = source;
+        Log.d(TAG, "GETUSERAUDIO");
+        AudioTrack track = pcFactory.createAudioTrack(trackId, source);
+        audioTrack = track;
 
-        return pcFactory.createAudioTrack(trackId, audioSource);
+//        return pcFactory.createAudioTrack(trackId, source);
+        return track;
     }
 
     /**
@@ -352,6 +334,16 @@ class GetUserMediaImpl {
             track_.putString("label", kind);
             track_.putString("readyState", track.state().toString());
             track_.putBoolean("remote", false);
+            track_.putString("deviceId", "audio");
+            MediaStreamTrackSettings settings = getTrackSettings(id);
+            Map<String, Object> trackSettingsMap = new HashMap<>();
+            if (settings != null) {
+                trackSettingsMap.put("width", settings.width);
+                trackSettingsMap.put("height", settings.height);
+                trackSettingsMap.put("facingMode", settings.facingMode);
+                trackSettingsMap.put("isScreen", settings.isScreen);
+            }
+            track_.putMap("settings", trackSettingsMap);
 
             if (track instanceof AudioTrack) {
                 audioTracks.pushMap(track_);
@@ -406,7 +398,8 @@ class GetUserMediaImpl {
         isFacing = facingMode == null || !facingMode.equals("environment");
         String sourceId = getSourceIdConstraint(videoConstraintsMap);
 
-        VideoCapturer videoCapturer = createVideoCapturer(cameraEnumerator, isFacing, sourceId);
+        String deviceId = findVideoCapturer(cameraEnumerator, isFacing, sourceId);
+        VideoCapturer videoCapturer = cameraEnumerator.createCapturer(deviceId, new CameraEventsHandler());
 
         if (videoCapturer == null) {
             return null;
@@ -439,6 +432,14 @@ class GetUserMediaImpl {
         String trackId = stateProvider.getNextTrackUUID();
         mVideoCapturers.put(trackId, info);
 
+        MediaStreamTrackSettings settings = new MediaStreamTrackSettings();
+        settings.deviceId = deviceId;
+        settings.facingMode = facingMode;
+        settings.width = info.width;
+        settings.height = info.height;
+        settings.isScreen = false;
+        mediaStreamTrackSettings.put(trackId, settings);
+
         Log.d(TAG, "changeCaptureFormat: " + info.width + "x" + info.height + "@" + info.fps);
         videoSource.adaptOutputFormat(info.width, info.height, info.fps);
 
@@ -447,6 +448,14 @@ class GetUserMediaImpl {
 
     void removeVideoCapturer(String id) {
         VideoCapturerInfo info = mVideoCapturers.get(id);
+        if (audioSource != null) {
+            audioSource.dispose();
+            audioSource = null;
+        }
+        if (audioTrack != null) {
+            audioTrack.dispose();
+            audioTrack = null;
+        }
         if (info != null) {
             try {
                 info.capturer.stopCapture();
@@ -455,7 +464,10 @@ class GetUserMediaImpl {
             } finally {
                 info.capturer.dispose();
                 mVideoCapturers.remove(id);
+                Log.d(TAG, "VideoCapturer disposed");
             }
+        } else {
+            Log.e(TAG, "VideoCapturer not found");
         }
     }
 
@@ -722,6 +734,11 @@ class GetUserMediaImpl {
         }
     }
 
+    @Nullable
+    public MediaStreamTrackSettings getTrackSettings(String trackId) {
+        return mediaStreamTrackSettings.get(trackId);
+    }
+
     public void reStartCamera(IsCameraEnabled getCameraId) {
         for (Map.Entry<String, VideoCapturerInfo> item : mVideoCapturers.entrySet()) {
             if (!item.getValue().isScreenCapture && getCameraId.isEnabled(item.getKey())) {
@@ -744,5 +761,13 @@ class GetUserMediaImpl {
         int height;
         int fps;
         boolean isScreenCapture = false;
+    }
+
+    public static class MediaStreamTrackSettings {
+        public int width;
+        public int height;
+        public String deviceId;
+        public String facingMode;
+        public boolean isScreen;
     }
 }

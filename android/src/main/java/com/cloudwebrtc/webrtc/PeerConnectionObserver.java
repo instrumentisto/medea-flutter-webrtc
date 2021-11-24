@@ -44,13 +44,15 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
     public PeerConnection peerConnection;
     private final PeerConnection.RTCConfiguration configuration;
     private final StateProvider stateProvider;
+    private final GetUserMediaImpl getUserMediaImpl;
     private final EventChannel eventChannel;
     private EventChannel.EventSink eventSink;
 
-    PeerConnectionObserver(PeerConnection.RTCConfiguration configuration, StateProvider stateProvider, BinaryMessenger messenger, String id) {
+    PeerConnectionObserver(PeerConnection.RTCConfiguration configuration, StateProvider stateProvider, BinaryMessenger messenger, String id, GetUserMediaImpl getUserMediaImpl) {
         this.configuration = configuration;
         this.stateProvider = stateProvider;
         this.id = id;
+        this.getUserMediaImpl = getUserMediaImpl;
 
         eventChannel = new EventChannel(messenger, "FlutterWebRTC/peerConnectionEvent" + id);
         eventChannel.setStreamHandler(this);
@@ -241,15 +243,15 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
 
         params.putString("event", "onTrack");
         params.putArray("streams", streams.toArrayList());
-        params.putMap("track", ObjectExporter.exportMediaStreamTrack(receiver.track()));
-        params.putMap("receiver", ObjectExporter.exportRtpReceiver(receiver));
+        params.putMap("track", ObjectExporter.exportMediaStreamTrack(receiver.track(), getUserMediaImpl.getTrackSettings(receiver.id())));
+        params.putMap("receiver", ObjectExporter.exportRtpReceiver(receiver, getUserMediaImpl.getTrackSettings(receiver.id())));
 
         if (this.configuration.sdpSemantics == PeerConnection.SdpSemantics.UNIFIED_PLAN) {
             List<RtpTransceiver> transceivers = peerConnection.getTransceivers();
             int id = 0;
             for (RtpTransceiver transceiver : transceivers) {
                 if (transceiver.getReceiver() != null && receiver.id().equals(transceiver.getReceiver().id())) {
-                    params.putMap("transceiver", ObjectExporter.exportTransceiver(id++, transceiver));
+                    params.putMap("transceiver", ObjectExporter.exportTransceiver(id++, transceiver, getUserMediaImpl));
                 }
             }
         }
@@ -385,7 +387,7 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
 
     public void addTrack(MediaStreamTrack track, List<String> streamIds, Result result) {
         RtpSender sender = peerConnection.addTrack(track, streamIds);
-        result.success(ObjectExporter.exportRtpSender(sender));
+        result.success(ObjectExporter.exportRtpSender(sender, getUserMediaImpl.getTrackSettings(sender.id())));
     }
 
     public void removeTrack(String senderId, Result result) {
@@ -408,7 +410,7 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
             transceiver = peerConnection.addTransceiver(track);
         }
         int id = peerConnection.getTransceivers().size() - 1;
-        result.success(ObjectExporter.exportTransceiver(id, transceiver));
+        result.success(ObjectExporter.exportTransceiver(id, transceiver, getUserMediaImpl));
     }
 
     public void addTransceiverOfType(String mediaType, Map<String, Object> transceiverInit, Result result) {
@@ -419,7 +421,7 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
         }
         List<RtpTransceiver> transceivers = peerConnection.getTransceivers();
         int id = transceivers.size() - 1;
-        result.success(ObjectExporter.exportTransceiver(id, transceivers.get(id)));
+        result.success(ObjectExporter.exportTransceiver(id, transceivers.get(id), getUserMediaImpl));
     }
 
     public void rtpTransceiverSetDirection(String direction, int transceiverId, Result result) {
@@ -517,7 +519,7 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
         List<RtpSender> senders = peerConnection.getSenders();
         ConstraintsArray sendersParams = new ConstraintsArray();
         for (RtpSender sender : senders) {
-            sendersParams.pushMap(new ConstraintsMap(ObjectExporter.exportRtpSender(sender)));
+            sendersParams.pushMap(new ConstraintsMap(ObjectExporter.exportRtpSender(sender, getUserMediaImpl.getTrackSettings(sender.id()))));
         }
         ConstraintsMap params = new ConstraintsMap();
         params.putArray("senders", sendersParams.toArrayList());
@@ -528,7 +530,7 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
         List<RtpReceiver> receivers = peerConnection.getReceivers();
         ConstraintsArray receiversParams = new ConstraintsArray();
         for (RtpReceiver receiver : receivers) {
-            receiversParams.pushMap(new ConstraintsMap(ObjectExporter.exportRtpReceiver(receiver)));
+            receiversParams.pushMap(new ConstraintsMap(ObjectExporter.exportRtpReceiver(receiver, getUserMediaImpl.getTrackSettings(receiver.id()))));
         }
         ConstraintsMap params = new ConstraintsMap();
         params.putArray("receivers", receiversParams.toArrayList());
@@ -540,7 +542,7 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
         ConstraintsArray transceiversParams = new ConstraintsArray();
         int id = 0;
         for (RtpTransceiver receiver : transceivers) {
-            transceiversParams.pushMap(new ConstraintsMap(ObjectExporter.exportTransceiver(id++, receiver)));
+            transceiversParams.pushMap(new ConstraintsMap(ObjectExporter.exportTransceiver(id++, receiver, getUserMediaImpl)));
         }
         ConstraintsMap params = new ConstraintsMap();
         params.putArray("transceivers", transceiversParams.toArrayList());

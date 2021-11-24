@@ -7,15 +7,23 @@ import '../interface/media_stream_track.dart';
 import 'utils.dart';
 
 class MediaStreamTrackNative extends MediaStreamTrack {
-  MediaStreamTrackNative(this._trackId, this._label, this._kind, this._enabled);
+  MediaStreamTrackNative(this._trackId, this._label, this._kind, this._enabled, this._settings, this._deviceId);
 
   factory MediaStreamTrackNative.fromMap(Map<dynamic, dynamic> map) {
-    return MediaStreamTrackNative(
-        map['id'], map['label'], map['kind'], map['enabled']);
+    print("MediaStreamTrackNative.fromMap");
+    try {
+      return MediaStreamTrackNative(
+          map['id'], map['label'], map['kind'], map['enabled'], map['settings'], map['deviceId']);
+    } catch (e) {
+      print("Exception thrown while fromMap: " + map.toString());
+      throw UnimplementedError();
+    }
   }
   final String _trackId;
   final String _label;
   final String _kind;
+  final Map<dynamic, dynamic> _settings;
+  final String _deviceId;
   bool _enabled;
 
   bool _muted = false;
@@ -46,6 +54,16 @@ class MediaStreamTrackNative extends MediaStreamTrack {
 
   @override
   bool get muted => _muted;
+
+  @override
+  String deviceId() {
+    return _deviceId;
+  }
+
+  @override
+  Map<dynamic, dynamic> getSettings() {
+    return _settings;
+  }
 
   @override
   Future<bool> hasTorch() => WebRTC.invokeMethod(

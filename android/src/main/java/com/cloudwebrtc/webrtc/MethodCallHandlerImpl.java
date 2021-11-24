@@ -200,16 +200,27 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                     trackMap.put("id", track.id());
                     trackMap.put("kind", track.kind());
                     trackMap.put("label", track.id());
+                    trackMap.put("deviceId", "remote");
+                    trackMap.put("settings", new HashMap<>());
                     trackMap.put("remote", false);
                     audioTracks.add(trackMap);
                 }
                 for (VideoTrack track : stream.videoTracks) {
+                    GetUserMediaImpl.MediaStreamTrackSettings settings = getUserMediaImpl.getTrackSettings(track.id());
+                    Map<String, Object> trackSettingsMap = new HashMap<>();
+                    trackSettingsMap.put("width", settings.width);
+                    trackSettingsMap.put("height", settings.height);
+                    trackSettingsMap.put("facingMode", settings.facingMode);
+                    trackSettingsMap.put("isScreen", settings.isScreen);
+
                     Map<String, Object> trackMap = new HashMap<>();
                     trackMap.put("enabled", track.enabled());
                     trackMap.put("id", track.id());
                     trackMap.put("kind", track.kind());
                     trackMap.put("label", track.id());
+                    trackMap.put("deviceId", settings.deviceId);
                     trackMap.put("remote", false);
+                    trackMap.put("settings", trackSettingsMap);
                     videoTracks.add(trackMap);
                 }
                 resultMap.put("audioTracks", audioTracks);
@@ -281,9 +292,11 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 break;
             }
             case "trackDispose": {
+                Log.d(TAG, "trackDispose");
                 // TODO (evdokimovs): Implement MediaStreamTracks disposing in
                 //                    the "Implement missing flutter_webrtc APIs" PR
-                // String trackId = call.argument("trackId");
+                 String trackId = call.argument("trackId");
+                 getUserMediaImpl.removeVideoCapturer(trackId);
 
                 result.success(null);
                 break;
@@ -295,6 +308,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 break;
             }
             case "peerConnectionDispose": {
+                Log.d(TAG, "DISPOSE PEER_CONNECTION");
                 String peerConnectionId = call.argument("peerConnectionId");
                 peerConnectionDispose(peerConnectionId);
                 result.success(null);
@@ -814,7 +828,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     public String peerConnectionInit(ConstraintsMap configuration, ConstraintsMap constraints) {
         String peerConnectionId = getNextStreamUUID();
         RTCConfiguration conf = parseRTCConfiguration(configuration);
-        PeerConnectionObserver observer = new PeerConnectionObserver(conf, this, messenger, peerConnectionId);
+        PeerConnectionObserver observer = new PeerConnectionObserver(conf, this, messenger, peerConnectionId, getUserMediaImpl);
         PeerConnection peerConnection
                 = mFactory.createPeerConnection(
                 conf,
@@ -921,7 +935,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
 
         ConstraintsMap audio = new ConstraintsMap();
         audio.putString("label", "Audio");
-        audio.putString("deviceId", "audio-1");
+        audio.putString("deviceId", "NOT SUPPORTED");
         audio.putString("facing", "");
         audio.putString("kind", "audioinput");
         array.pushMap(audio);

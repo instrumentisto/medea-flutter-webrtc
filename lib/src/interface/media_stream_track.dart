@@ -77,7 +77,9 @@ abstract class MediaStreamTrack {
   //
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/getSettings
   //
-  Map<String, dynamic> getSettings() => throw UnimplementedError();
+  Map<dynamic, dynamic> getSettings() => throw UnimplementedError();
+
+  String? deviceId() => throw UnimplementedError();
 
   /// Throws error if switching camera failed
   @Deprecated('use Helper.switchCamera() instead')
