@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "VcmCapturer.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
@@ -15,6 +16,7 @@
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
+#include "pc/video_track_source.h"
 #include "rust/cxx.h"
 
 namespace WEBRTC {

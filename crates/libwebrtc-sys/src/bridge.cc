@@ -97,108 +97,64 @@ rust::Vec<rust::String> get_video_device_name(
 
 bool stream_test() {
   const std::string id = "123";
-  // rtc::scoped_refptr<webrtc::MediaStream> media_stream =
-  //     webrtc::MediaStream::Create(id);
 
-  // cricket::AudioOptions opts;
-  // rtc::scoped_refptr<webrtc::LocalAudioSource> audio_src =
-  //     webrtc::LocalAudioSource::Create(&opts);
+  // auto g_worker_thread = rtc::Thread::Create();
+  // g_worker_thread->Start();
+  // auto g_signaling_thread = rtc::Thread::Create();
+  // g_signaling_thread->Start();
 
-  // rtc::scoped_refptr<webrtc::AudioTrack> audio_track =
-  //     webrtc::AudioTrack::Create(id, audio_src);
+  // rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> pcf =
+  //     webrtc::CreatePeerConnectionFactory(
+  //         g_worker_thread.get(), g_worker_thread.get(),
+  //         g_signaling_thread.get(),
+  //         webrtc::AudioDeviceModule::Create(
+  //             webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio,
+  //             create_default_task_queue_factory().get()),
+  //         webrtc::CreateBuiltinAudioEncoderFactory(),
+  //         webrtc::CreateBuiltinAudioDecoderFactory(),
+  //         webrtc::CreateBuiltinVideoEncoderFactory(),
+  //         webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
-  // media_stream.get()->AddTrack(audio_track.get());
+  class CapturerTrackSource : public webrtc::VideoTrackSource {
+   public:
+    static rtc::scoped_refptr<CapturerTrackSource> Create() {
+      const size_t kWidth = 640;
+      const size_t kHeight = 480;
+      const size_t kFps = 30;
+      const size_t kDeviceIndex = 0;
+      std::unique_ptr<webrtc::test::VcmCapturer> capturer =
+          absl::WrapUnique(webrtc::test::VcmCapturer::Create(
+              kWidth, kHeight, kFps, kDeviceIndex));
+      if (!capturer) {
+        return nullptr;
+      }
+      return new rtc::RefCountedObject<CapturerTrackSource>(
+          std::move(capturer));
+    }
 
-  // printf("Stream: %d\n", media_stream.get()->GetAudioTracks().size());
+   protected:
+    explicit CapturerTrackSource(
+        std::unique_ptr<webrtc::test::VcmCapturer> capturer)
+        : VideoTrackSource(/*remote=*/false), capturer_(std::move(capturer)) {}
+
+   private:
+    rtc::VideoSourceInterface<webrtc::VideoFrame>* source() override {
+      return capturer_.get();
+    }
+    std::unique_ptr<webrtc::test::VcmCapturer> capturer_;
+  };
+
+  rtc::scoped_refptr<CapturerTrackSource> src = CapturerTrackSource::Create();
+
+  // auto vtrack = pcf.get()->CreateVideoTrack("test", src);
+
+  // printf("Track: %s\n", vtrack.get()->id());
 
   // if (src.get()->remote()) {
-  //   printf("remote");
+  //   printf("true\n");
   // } else {
-  //   printf("local");
+  //   printf("false\n");
   // }
-
-  // auto b = a.get()->GetAudioTracks();
-  // auto c = a.get()->id();
-
-  // webrtc::PeerConnectionInterface::RTCConfiguration cnstr;
-  // webrtc::PeerConnectionDependencies dpnds(nullptr);
-
-  auto g_worker_thread = rtc::Thread::Create();
-  g_worker_thread->Start();
-  auto g_signaling_thread = rtc::Thread::Create();
-  g_signaling_thread->Start();
-
-  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> pcf =
-      webrtc::CreatePeerConnectionFactory(
-          g_worker_thread.get(), g_worker_thread.get(),
-          g_signaling_thread.get(),
-          webrtc::AudioDeviceModule::Create(
-              webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio,
-              create_default_task_queue_factory().get()),
-          webrtc::CreateBuiltinAudioEncoderFactory(),
-          webrtc::CreateBuiltinAudioDecoderFactory(),
-          webrtc::CreateBuiltinVideoEncoderFactory(),
-          webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
-
-  // rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc =
-  //     pcf.get()->CreatePeerConnection(cnstr, std::move(dpnds));
-
-  // std::string label = "test_track";
-  // cricket::AudioOptions opts;
-  // rtc::scoped_refptr<webrtc::AudioSourceInterface> src =
-  //     pcf.get()->CreateAudioSource(opts);
-
-  // auto track = pcf.get()->CreateAudioTrack(label, src);
-
-  // if (track.get()->enabled()) {
-  //   printf("enabled\n");
-  // } else {
-  //   printf("disabled\n");
-  // }
-
-  // track.get()->set_enabled(false);
-
-  // if (track.get()->enabled()) {
-  //   printf("enabled\n");
-  // } else {
-  //   printf("disabled\n");
-  // }
-
-  // auto lcst = pcf.get()->CreateLocalMediaStream(id);
-  // lcst.get()->AddTrack(track);
-
-  // printf("\nSize: %d\n\n", lcst.get()->GetAudioTracks().size());
-
-  // auto a = webrtc::VideoTrackSource(false);
-  // auto a = webrtc::FrameGeneratorCapturerVideoTrackSource(
-  //     webrtc::FrameGeneratorCapturerVideoTrackSource::Config(),
-  //     webrtc::Clock::GetRealTimeClock());
-
-  // pcf.get()->CreateVideoTrack(id, a);
-
-  auto a = webrtc::VideoCaptureFactory::CreateDeviceInfo();
-
-  char strNameUTF8[128];
-  char strGuidUTF8[128];
-
-  a->GetDeviceName(0, strNameUTF8, 128, strGuidUTF8, 128);
-
-  webrtc::VideoCaptureCapability cap;
-
-  a->GetCapability(strGuidUTF8, 0, cap);
-
-  printf("Test: %d\n.", cap.videoType);
-
-  auto b = webrtc::VideoCaptureFactory::Create(strGuidUTF8);
-
-  b.get()->StartCapture(cap);
-  _sleep(5000);
-  b.get()->StopCapture();
-
-  auto vtrack =
-      pcf.get()->CreateVideoTrack("test", CapturerTrackSource::Create());
-
-  printf("Track: %s\n", vtrack.get()->id());
 
   return true;
 }
