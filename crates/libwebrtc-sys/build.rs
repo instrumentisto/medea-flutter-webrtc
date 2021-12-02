@@ -30,9 +30,11 @@ fn main() -> anyhow::Result<()> {
 
     cxx_build::bridge("src/bridge.rs")
         .file("src/bridge.cc")
-        .file("src/VcmCapturer.cc")
-        .file("src/VideoCapturer.cc")
+        .file("momo/native_buffer.cpp")
+        .file("momo/device_video_capturer.cpp")
+        .file("momo/scalable_track_source.cpp")
         .include(path.join("include"))
+        .include(path.join("momo"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .define("WEBRTC_WIN", "1")

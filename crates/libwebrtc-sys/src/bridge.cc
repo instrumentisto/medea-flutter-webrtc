@@ -98,63 +98,57 @@ rust::Vec<rust::String> get_video_device_name(
 bool stream_test() {
   const std::string id = "123";
 
-  // auto g_worker_thread = rtc::Thread::Create();
-  // g_worker_thread->Start();
-  // auto g_signaling_thread = rtc::Thread::Create();
-  // g_signaling_thread->Start();
+  auto g_worker_thread = rtc::Thread::Create();
+  g_worker_thread->Start();
+  auto g_signaling_thread = rtc::Thread::Create();
+  g_signaling_thread->Start();
 
-  // rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> pcf =
-  //     webrtc::CreatePeerConnectionFactory(
-  //         g_worker_thread.get(), g_worker_thread.get(),
-  //         g_signaling_thread.get(),
-  //         webrtc::AudioDeviceModule::Create(
-  //             webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio,
-  //             create_default_task_queue_factory().get()),
-  //         webrtc::CreateBuiltinAudioEncoderFactory(),
-  //         webrtc::CreateBuiltinAudioDecoderFactory(),
-  //         webrtc::CreateBuiltinVideoEncoderFactory(),
-  //         webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> pcf =
+      webrtc::CreatePeerConnectionFactory(
+          g_worker_thread.get(), g_worker_thread.get(),
+          g_signaling_thread.get(), nullptr,
+          webrtc::CreateBuiltinAudioEncoderFactory(),
+          webrtc::CreateBuiltinAudioDecoderFactory(),
+          webrtc::CreateBuiltinVideoEncoderFactory(),
+          webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
-  class CapturerTrackSource : public webrtc::VideoTrackSource {
-   public:
-    static rtc::scoped_refptr<CapturerTrackSource> Create() {
-      const size_t kWidth = 640;
-      const size_t kHeight = 480;
-      const size_t kFps = 30;
-      const size_t kDeviceIndex = 0;
-      std::unique_ptr<webrtc::test::VcmCapturer> capturer =
-          absl::WrapUnique(webrtc::test::VcmCapturer::Create(
-              kWidth, kHeight, kFps, kDeviceIndex));
-      if (!capturer) {
-        return nullptr;
-      }
-      return new rtc::RefCountedObject<CapturerTrackSource>(
-          std::move(capturer));
-    }
+  rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> vsrc =
+      webrtc::CreateVideoTrackSourceProxy(
+          g_signaling_thread.get(), g_worker_thread.get(),
+          DeviceVideoCapturer::Create(640, 480, 30, 0));
+  rtc::scoped_refptr<webrtc::AudioSourceInterface> asrc =
+      pcf.get()->CreateAudioSource(cricket::AudioOptions());
 
-   protected:
-    explicit CapturerTrackSource(
-        std::unique_ptr<webrtc::test::VcmCapturer> capturer)
-        : VideoTrackSource(/*remote=*/false), capturer_(std::move(capturer)) {}
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> vtrack =
+      pcf.get()->CreateVideoTrack("video_track", vsrc);
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> atrack =
+      pcf.get()->CreateAudioTrack("audio_source", asrc);
 
-   private:
-    rtc::VideoSourceInterface<webrtc::VideoFrame>* source() override {
-      return capturer_.get();
-    }
-    std::unique_ptr<webrtc::test::VcmCapturer> capturer_;
-  };
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> lstream =
+      pcf.get()->CreateLocalMediaStream("local_stream");
+  lstream.get()->AddTrack(vtrack);
+  lstream.get()->AddTrack(atrack);
 
-  rtc::scoped_refptr<CapturerTrackSource> src = CapturerTrackSource::Create();
+  printf("Id: %s\nKind: %s\nState: %d\n", vtrack.get()->id().c_str(),
+         vtrack.get()->kind().c_str(), vtrack.get()->state());
+  printf("Id: %s\nKind: %s\nState: %d\n", atrack.get()->id().c_str(),
+         atrack.get()->kind().c_str(), atrack.get()->state());
+  printf("Id: %s\nVideos: %zd\nAudios: %zd\n", lstream.get()->id().c_str(),
+         lstream.get()->GetVideoTracks().size(),
+         lstream.get()->GetAudioTracks().size());
 
-  // auto vtrack = pcf.get()->CreateVideoTrack("test", src);
+  printf("Enabled: %s\n", lstream.get()->GetVideoTracks()[0].get()->enabled()
+                              ? "true"
+                              : "false");
 
-  // printf("Track: %s\n", vtrack.get()->id());
+  system("PAUSE");
 
-  // if (src.get()->remote()) {
-  //   printf("true\n");
-  // } else {
-  //   printf("false\n");
-  // }
+  lstream.get()->GetVideoTracks()[0].get()->set_enabled(false);
+  printf("Enabled: %s\n", lstream.get()->GetVideoTracks()[0].get()->enabled()
+                              ? "true"
+                              : "false");
+
+  system("PAUSE");
 
   return true;
 }

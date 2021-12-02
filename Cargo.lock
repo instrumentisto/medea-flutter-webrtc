@@ -142,6 +142,7 @@ dependencies = [
  "anyhow",
  "cxx",
  "cxx-build",
+ "lazy_static",
  "libwebrtc-sys",
 ]
 

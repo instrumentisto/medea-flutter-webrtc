@@ -1,3 +1,4 @@
+use cxx::UniquePtr;
 use libwebrtc_sys::*;
 
 /// The module which describes the bridge to call Rust from C++.
@@ -10,13 +11,20 @@ pub mod ffi {
     }
 
     extern "Rust" {
+        type WebrtcRust;
+
         fn enumerate_devices() -> Vec<DeviceInfo>;
+        fn init() -> *const WebrtcRust;
     }
 }
 
 enum AudioKind {
     Playout,
     Recording,
+}
+
+pub struct WebrtcRust {
+    task_queue_factory: *mut webrtc::TaskQueueFactory,
 }
 
 fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
@@ -82,4 +90,10 @@ pub fn enumerate_devices() -> Vec<ffi::DeviceInfo> {
         .chain(video_devices_info().into_iter());
 
     iters.collect()
+}
+
+pub fn init() -> *const WebrtcRust {
+    Box::into_raw(Box::new(WebrtcRust {
+        task_queue_factory: create_default_task_queue_factory().into_raw(),
+    }))
 }

@@ -1,7 +1,7 @@
 use cxx::UniquePtr;
 
 mod bridge;
-use bridge::webrtc;
+pub use bridge::webrtc;
 
 /// Creates default [libWebRTC Task Queue Factory].
 ///

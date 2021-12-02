@@ -8,7 +8,8 @@ pub mod webrtc {
         type AudioDeviceModule;
         type VideoDeviceInfo;
 
-        pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
+        pub fn create_default_task_queue_factory(
+        ) -> UniquePtr<TaskQueueFactory>;
 
         pub unsafe fn create_audio_device_module(
             task_queue_factory: UniquePtr<TaskQueueFactory>,
@@ -43,3 +44,5 @@ pub mod webrtc {
         pub fn stream_test() -> bool;
     }
 }
+
+unsafe impl Send for webrtc::TaskQueueFactory {}
