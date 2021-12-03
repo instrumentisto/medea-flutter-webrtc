@@ -7,9 +7,15 @@ pub mod webrtc {
         type TaskQueueFactory;
         type AudioDeviceModule;
         type VideoDeviceInfo;
+        type Thread;
+        type PeerConnectionFactoryInterface;
+        type VideoTrackSourceInterface;
+        type AudioSourceInterface;
+        type VideoTrackInterface;
+        type AudioTrackInterface;
+        type MediaStreamInterface;
 
-        pub fn create_default_task_queue_factory(
-        ) -> UniquePtr<TaskQueueFactory>;
+        pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
 
         pub unsafe fn create_audio_device_module(
             task_queue_factory: UniquePtr<TaskQueueFactory>,
@@ -40,6 +46,41 @@ pub mod webrtc {
             device_info: &UniquePtr<VideoDeviceInfo>,
             index: u32,
         ) -> Vec<String>;
+
+        pub fn create_thread() -> UniquePtr<Thread>;
+
+        pub unsafe fn start_thread(thread: &UniquePtr<Thread>);
+
+        pub unsafe fn create_peer_connection_factory(
+            worker_thread: &UniquePtr<Thread>,
+            signaling_thread: &UniquePtr<Thread>,
+        ) -> UniquePtr<PeerConnectionFactoryInterface>;
+
+        pub unsafe fn create_video_source(
+            worker_thread: &UniquePtr<Thread>,
+            signaling_thread: &UniquePtr<Thread>,
+            width: usize,
+            height: usize,
+            fps: usize,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
+
+        pub unsafe fn create_audio_source(
+            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
+        ) -> UniquePtr<AudioSourceInterface>;
+
+        pub unsafe fn create_video_track(
+            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
+            video_source: &UniquePtr<VideoTrackSourceInterface>,
+        ) -> UniquePtr<VideoTrackInterface>;
+
+        pub unsafe fn create_audio_track(
+            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
+            audio_source: &UniquePtr<AudioSourceInterface>,
+        ) -> UniquePtr<AudioTrackInterface>;
+
+        pub unsafe fn create_local_media_stream(
+            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
+        ) -> UniquePtr<MediaStreamInterface>;
 
         pub fn stream_test() -> bool;
     }

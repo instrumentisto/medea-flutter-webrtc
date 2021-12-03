@@ -91,6 +91,69 @@ pub fn get_video_device_info(
     (info.pop().unwrap(), info.pop().unwrap())
 }
 
+pub fn create_thread() -> UniquePtr<webrtc::Thread> {
+    webrtc::create_thread()
+}
+
+pub fn start_thread(thread: &UniquePtr<webrtc::Thread>) {
+    unsafe {
+        webrtc::start_thread(thread);
+    }
+}
+
+pub fn create_peer_connection_factory(
+    worker_thread: &UniquePtr<webrtc::Thread>,
+    signaling_thread: &UniquePtr<webrtc::Thread>,
+) -> UniquePtr<webrtc::PeerConnectionFactoryInterface> {
+    unsafe {
+        webrtc::create_peer_connection_factory(worker_thread, signaling_thread)
+    }
+}
+
+pub fn create_video_source(
+    worker_thread: &UniquePtr<webrtc::Thread>,
+    signaling_thread: &UniquePtr<webrtc::Thread>,
+    width: usize,
+    height: usize,
+    fps: usize,
+) -> UniquePtr<webrtc::VideoTrackSourceInterface> {
+    unsafe {
+        webrtc::create_video_source(
+            worker_thread,
+            signaling_thread,
+            width,
+            height,
+            fps,
+        )
+    }
+}
+
+pub fn create_audio_source(
+    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+) -> UniquePtr<webrtc::AudioSourceInterface> {
+    unsafe { webrtc::create_audio_source(peer_connection_factory) }
+}
+
+pub fn create_video_track(
+    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+    video_source: &UniquePtr<webrtc::VideoTrackSourceInterface>,
+) -> UniquePtr<webrtc::VideoTrackInterface> {
+    unsafe { webrtc::create_video_track(peer_connection_factory, video_source) }
+}
+
+pub fn create_audio_track(
+    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+    audio_source: &UniquePtr<webrtc::AudioSourceInterface>,
+) -> UniquePtr<webrtc::AudioTrackInterface> {
+    unsafe { webrtc::create_audio_track(peer_connection_factory, audio_source) }
+}
+
+pub fn create_local_media_stream(
+    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+) -> UniquePtr<webrtc::MediaStreamInterface> {
+    unsafe { webrtc::create_local_media_stream(peer_connection_factory) }
+}
+
 pub fn stream_test() -> bool {
     webrtc::stream_test()
 }

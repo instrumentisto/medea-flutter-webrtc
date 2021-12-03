@@ -11,10 +11,11 @@ pub mod ffi {
     }
 
     extern "Rust" {
-        type WebrtcRust;
+        type Webrtc;
 
         fn enumerate_devices() -> Vec<DeviceInfo>;
-        fn init() -> *const WebrtcRust;
+        fn init() -> Box<Webrtc>;
+        unsafe fn drop_source(pc: &mut Box<Webrtc>);
     }
 }
 
@@ -23,9 +24,15 @@ enum AudioKind {
     Recording,
 }
 
-pub struct WebrtcRust {
-    task_queue_factory: *mut webrtc::TaskQueueFactory,
+pub struct WebrtcInner {
+    task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
+    worker_thread: UniquePtr<webrtc::Thread>,
+    signaling_thread: UniquePtr<webrtc::Thread>,
+    peer_connection_factory: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+    video_source: Vec<UniquePtr<webrtc::VideoTrackSourceInterface>>,
 }
+
+pub struct Webrtc(Box<WebrtcInner>);
 
 fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
     let task_queue = create_default_task_queue_factory();
@@ -92,8 +99,29 @@ pub fn enumerate_devices() -> Vec<ffi::DeviceInfo> {
     iters.collect()
 }
 
-pub fn init() -> *const WebrtcRust {
-    Box::into_raw(Box::new(WebrtcRust {
-        task_queue_factory: create_default_task_queue_factory().into_raw(),
-    }))
+pub fn init() -> Box<Webrtc> {
+    let worker_thread = create_thread();
+    start_thread(&worker_thread);
+
+    let signaling_thread = create_thread();
+    start_thread(&signaling_thread);
+    let peer_connection_factory =
+        create_peer_connection_factory(&worker_thread, &signaling_thread);
+    let task_queue_factory = create_default_task_queue_factory();
+    let video_source =
+        create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
+
+    Box::new(Webrtc {
+        0: Box::new(WebrtcInner {
+            task_queue_factory,
+            worker_thread,
+            signaling_thread,
+            peer_connection_factory,
+            video_source: vec![video_source],
+        }),
+    })
+}
+
+pub fn drop_source(pc: &mut Box<Webrtc>) {
+    pc.0.video_source.remove(0);
 }

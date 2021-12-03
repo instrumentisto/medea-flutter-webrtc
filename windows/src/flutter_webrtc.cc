@@ -1,3 +1,4 @@
+#include <Windows.h>
 #include <sstream>
 
 #include "flutter_webrtc.h"
@@ -37,12 +38,11 @@ void FlutterWebRTC::HandleMethodCall(
     params[EncodableValue("sources")] = EncodableValue(sources);
     result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("test") == 0) {
-    bool btest = test();
-    if (btest) {
-      result->Success(std::string("true"));
-    } else {
-      result->Success(std::string("false"));
-    }
+    rust::cxxbridge1::Box<Webrtc> btest = init();
+    Sleep(2000);
+    drop_source(btest);
+    Sleep(2000);
+    result->Success(std::string("true"));
   } else if (method_call.method_name().compare("getUserMedia") == 0) {
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
   } else if (method_call.method_name().compare("mediaStreamGetTracks") == 0) {
