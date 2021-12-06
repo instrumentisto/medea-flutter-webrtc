@@ -103,11 +103,19 @@ std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const std::unique_ptr<PeerConnectionFactoryInterface>&
         peer_connection_factory);
 
-bool add_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-               const std::unique_ptr<AudioTrackInterface>& track);
+bool add_video_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
+                     const std::unique_ptr<VideoTrackInterface>& track);
 
-bool add_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-               const std::unique_ptr<VideoTrackInterface>& track);
+bool add_audio_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
+                     const std::unique_ptr<AudioTrackInterface>& track);
+
+bool remove_video_track(
+    const std::unique_ptr<MediaStreamInterface>& media_stream,
+    const std::unique_ptr<VideoTrackInterface>& track);
+
+bool remove_audio_track(
+    const std::unique_ptr<MediaStreamInterface>& media_stream,
+    const std::unique_ptr<AudioTrackInterface>& track);
 
 bool stream_test();
 }  // namespace WEBRTC

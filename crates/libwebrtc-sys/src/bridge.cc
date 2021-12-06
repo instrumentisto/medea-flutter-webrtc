@@ -161,14 +161,26 @@ std::unique_ptr<MediaStreamInterface> create_local_media_stream(
           "local_stream"));
 }
 
-bool add_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-               const std::unique_ptr<AudioTrackInterface>& track) {
+bool add_video_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
+                     const std::unique_ptr<VideoTrackInterface>& track) {
   return media_stream.get()->getptr()->AddTrack(track.get()->getptr());
 }
 
-bool add_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-               const std::unique_ptr<VideoTrackInterface>& track) {
+bool add_audio_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
+                     const std::unique_ptr<AudioTrackInterface>& track) {
   return media_stream.get()->getptr()->AddTrack(track.get()->getptr());
+}
+
+bool remove_video_track(
+    const std::unique_ptr<MediaStreamInterface>& media_stream,
+    const std::unique_ptr<VideoTrackInterface>& track) {
+  return media_stream.get()->getptr()->RemoveTrack(track.get()->getptr());
+}
+
+bool remove_audio_track(
+    const std::unique_ptr<MediaStreamInterface>& media_stream,
+    const std::unique_ptr<AudioTrackInterface>& track) {
+  return media_stream.get()->getptr()->RemoveTrack(track.get()->getptr());
 }
 
 bool stream_test() {

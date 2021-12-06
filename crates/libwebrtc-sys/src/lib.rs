@@ -154,8 +154,49 @@ pub fn create_local_media_stream(
     unsafe { webrtc::create_local_media_stream(peer_connection_factory) }
 }
 
+pub fn add_video_track(
+    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
+    track: &UniquePtr<webrtc::VideoTrackInterface>,
+) -> bool {
+    unsafe { webrtc::add_video_track(media_stream, track) }
+}
+
+pub fn add_audio_track(
+    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
+    track: &UniquePtr<webrtc::AudioTrackInterface>,
+) -> bool {
+    unsafe { webrtc::add_audio_track(media_stream, track) }
+}
+
+pub fn remove_video_track(
+    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
+    track: &UniquePtr<webrtc::VideoTrackInterface>,
+) -> bool {
+    unsafe { webrtc::remove_video_track(media_stream, track) }
+}
+
+pub fn remove_audio_track(
+    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
+    track: &UniquePtr<webrtc::AudioTrackInterface>,
+) -> bool {
+    unsafe { webrtc::remove_audio_track(media_stream, track) }
+}
+
 pub fn stream_test() -> bool {
-    webrtc::stream_test()
+    let worker_thread = create_thread();
+    start_thread(&worker_thread);
+
+    let signaling_thread = create_thread();
+    start_thread(&signaling_thread);
+
+    let a = create_local_media_stream(&create_peer_connection_factory(
+        &worker_thread,
+        &signaling_thread,
+    ));
+
+    drop(a);
+
+    true
 }
 
 #[cfg(test)]

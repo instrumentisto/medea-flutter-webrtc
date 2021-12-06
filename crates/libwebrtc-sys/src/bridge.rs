@@ -82,6 +82,26 @@ pub mod webrtc {
             peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
         ) -> UniquePtr<MediaStreamInterface>;
 
+        pub unsafe fn add_video_track(
+            peer_connection_factory: &UniquePtr<MediaStreamInterface>,
+            track: &UniquePtr<VideoTrackInterface>,
+        ) -> bool;
+
+        pub unsafe fn add_audio_track(
+            peer_connection_factory: &UniquePtr<MediaStreamInterface>,
+            track: &UniquePtr<AudioTrackInterface>,
+        ) -> bool;
+
+        pub unsafe fn remove_video_track(
+            media_stream: &UniquePtr<MediaStreamInterface>,
+            track: &UniquePtr<VideoTrackInterface>,
+        ) -> bool;
+
+        pub unsafe fn remove_audio_track(
+            media_stream: &UniquePtr<MediaStreamInterface>,
+            track: &UniquePtr<AudioTrackInterface>,
+        ) -> bool;
+
         pub fn stream_test() -> bool;
     }
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use cxx::UniquePtr;
 use libwebrtc_sys::*;
 
@@ -15,7 +17,36 @@ pub mod ffi {
 
         fn enumerate_devices() -> Vec<DeviceInfo>;
         fn init() -> Box<Webrtc>;
-        unsafe fn drop_source(pc: &mut Box<Webrtc>);
+        fn create_local_stream(pcf: &mut Box<Webrtc>, id: String);
+        fn create_local_video_source(
+            pcf: &mut Box<Webrtc>,
+            id: String,
+            width: String,
+            height: String,
+            fps: String,
+        );
+        fn create_local_video_track(
+            pcf: &mut Box<Webrtc>,
+            id: String,
+            source: String,
+        );
+        fn create_local_audio_source(pcf: &mut Box<Webrtc>, id: String);
+        fn create_local_audio_track(
+            pcf: &mut Box<Webrtc>,
+            id: String,
+            source: String,
+        );
+        fn add_video_track_to_local(
+            pcf: &mut Box<Webrtc>,
+            stream: String,
+            id: String,
+        );
+        fn add_audio_track_to_local(
+            pcf: &mut Box<Webrtc>,
+            stream: String,
+            id: String,
+        );
+        fn dispose_stream(pcf: &mut Box<Webrtc>, id: String);
     }
 }
 
@@ -29,10 +60,50 @@ pub struct WebrtcInner {
     worker_thread: UniquePtr<webrtc::Thread>,
     signaling_thread: UniquePtr<webrtc::Thread>,
     peer_connection_factory: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
-    video_source: Vec<UniquePtr<webrtc::VideoTrackSourceInterface>>,
+    video_sources: HashMap<String, VideoSource>,
+    video_tracks: HashMap<String, VideoTrack>,
+    audio_sources: HashMap<String, UniquePtr<webrtc::AudioSourceInterface>>,
+    audio_tracks: HashMap<String, AudioTrack>,
+    local_media_streams: HashMap<String, MediaStream>,
 }
 
 pub struct Webrtc(Box<WebrtcInner>);
+
+struct MediaStream {
+    ptr: UniquePtr<webrtc::MediaStreamInterface>,
+    video_tracks: Vec<String>,
+    audio_tracks: Vec<String>,
+}
+
+struct VideoTrack {
+    ptr: UniquePtr<webrtc::VideoTrackInterface>,
+    source: String,
+}
+
+struct VideoSource {
+    ptr: UniquePtr<webrtc::VideoTrackSourceInterface>,
+    tracks_on: u32,
+}
+
+impl VideoSource {
+    fn increase(&mut self) {
+        self.tracks_on += 1;
+    }
+
+    fn decrease(&mut self) -> bool {
+        if self.tracks_on < 2 {
+            false
+        } else {
+            self.tracks_on -= 1;
+            true
+        }
+    }
+}
+
+struct AudioTrack {
+    ptr: UniquePtr<webrtc::AudioTrackInterface>,
+    source: String,
+}
 
 fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
     let task_queue = create_default_task_queue_factory();
@@ -105,11 +176,10 @@ pub fn init() -> Box<Webrtc> {
 
     let signaling_thread = create_thread();
     start_thread(&signaling_thread);
+
     let peer_connection_factory =
         create_peer_connection_factory(&worker_thread, &signaling_thread);
     let task_queue_factory = create_default_task_queue_factory();
-    let video_source =
-        create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
 
     Box::new(Webrtc {
         0: Box::new(WebrtcInner {
@@ -117,11 +187,132 @@ pub fn init() -> Box<Webrtc> {
             worker_thread,
             signaling_thread,
             peer_connection_factory,
-            video_source: vec![video_source],
+            video_sources: HashMap::new(),
+            video_tracks: HashMap::new(),
+            audio_sources: HashMap::new(),
+            audio_tracks: HashMap::new(),
+            local_media_streams: HashMap::new(),
         }),
     })
 }
 
-pub fn drop_source(pc: &mut Box<Webrtc>) {
-    pc.0.video_source.remove(0);
+pub fn create_local_stream(pcf: &mut Box<Webrtc>, id: String) {
+    pcf.0.local_media_streams.insert(
+        id,
+        MediaStream {
+            ptr: create_local_media_stream(&pcf.0.peer_connection_factory),
+            video_tracks: vec![],
+            audio_tracks: vec![],
+        },
+    );
+}
+
+pub fn create_local_video_source(
+    pcf: &mut Box<Webrtc>,
+    id: String,
+    width: String,
+    height: String,
+    fps: String,
+) {
+    pcf.0.video_sources.insert(
+        id,
+        VideoSource {
+            ptr: create_video_source(
+                &pcf.0.worker_thread,
+                &pcf.0.signaling_thread,
+                width.parse::<usize>().unwrap(),
+                height.parse::<usize>().unwrap(),
+                fps.parse::<usize>().unwrap(),
+            ),
+            tracks_on: 0,
+        },
+    );
+}
+
+pub fn create_local_video_track(
+    pcf: &mut Box<Webrtc>,
+    id: String,
+    source: String,
+) {
+    pcf.0.video_sources.get_mut(&source).unwrap().increase();
+
+    pcf.0.video_tracks.insert(
+        id,
+        VideoTrack {
+            ptr: create_video_track(
+                &pcf.0.peer_connection_factory,
+                &pcf.0.video_sources.get(&source).unwrap().ptr,
+            ),
+            source,
+        },
+    );
+}
+
+pub fn create_local_audio_source(pcf: &mut Box<Webrtc>, id: String) {
+    pcf.0
+        .audio_sources
+        .insert(id, create_audio_source(&pcf.0.peer_connection_factory));
+}
+
+pub fn create_local_audio_track(
+    pcf: &mut Box<Webrtc>,
+    id: String,
+    source: String,
+) {
+    pcf.0.audio_tracks.insert(
+        id,
+        AudioTrack {
+            ptr: create_audio_track(
+                &pcf.0.peer_connection_factory,
+                &pcf.0.audio_sources.get(&source).unwrap(),
+            ),
+            source,
+        },
+    );
+}
+
+pub fn add_video_track_to_local(
+    pcf: &mut Box<Webrtc>,
+    stream: String,
+    id: String,
+) {
+    let stream = pcf.0.local_media_streams.get_mut(&stream).unwrap();
+    let track = pcf.0.video_tracks.get(&id).unwrap();
+
+    add_video_track(&stream.ptr, &track.ptr);
+
+    stream.video_tracks.push(id);
+}
+
+pub fn add_audio_track_to_local(
+    pcf: &mut Box<Webrtc>,
+    stream: String,
+    id: String,
+) {
+    let stream = pcf.0.local_media_streams.get_mut(&stream).unwrap();
+    let track = pcf.0.audio_tracks.get(&id).unwrap();
+
+    add_audio_track(&stream.ptr, &track.ptr);
+
+    stream.audio_tracks.push(id);
+}
+
+pub fn dispose_stream(pcf: &mut Box<Webrtc>, id: String) {
+    let local_stream = pcf.0.local_media_streams.remove(&id).unwrap();
+
+    let video_tracks = local_stream.video_tracks;
+    let audio_tracks = local_stream.audio_tracks;
+
+    video_tracks.into_iter().for_each(|track| {
+        let src = pcf.0.video_tracks.remove(&track).unwrap().source;
+
+        if !pcf.0.video_sources.get_mut(&src).unwrap().decrease() {
+            pcf.0.video_sources.remove(&src);
+        };
+    });
+
+    audio_tracks.into_iter().for_each(|track| {
+        let src = pcf.0.audio_tracks.remove(&track).unwrap().source;
+        pcf.0.audio_sources.remove(&src);
+    });
 }

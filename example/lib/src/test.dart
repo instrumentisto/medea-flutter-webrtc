@@ -12,19 +12,46 @@ class Test extends StatefulWidget {
 }
 
 class _TestState extends State<Test> {
-  String text = 'Press call button to test';
+  String text = 'Press the button to start test local stream.';
+  bool on = false;
+  late MediaStream? localStream;
 
   @override
   void initState() {
     super.initState();
   }
 
-  void _getSources() async {
-    var test = await WebRTC.invokeMethod(
-      'test',
-    );
+  void _upStream() async {
+    final mediaConstraints = <String, dynamic>{
+      'audio': true,
+      'video': {
+        'mandatory': {
+          'minWidth':
+              '640', // Provide your own width, height and frame rate here
+          'minHeight': '480',
+          'minFrameRate': '30',
+        },
+        'facingMode': 'user',
+        'optional': [],
+      }
+    };
+
+    var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    var test = stream.id;
     setState(() {
-      text = test;
+      text = 'Stream id: $test. Click again to stop local stream.';
+      on = true;
+      localStream = stream;
+    });
+  }
+
+  void _dropStream() async {
+    await localStream?.dispose();
+
+    setState(() {
+      text = 'Press the button to start test local stream.';
+      on = false;
+      localStream = null;
     });
   }
 
@@ -36,8 +63,8 @@ class _TestState extends State<Test> {
       ),
       body: Center(child: Text(text)),
       floatingActionButton: FloatingActionButton(
-        onPressed: _getSources,
-        child: Icon(Icons.phone),
+        onPressed: !on ? _upStream : _dropStream,
+        child: Icon(!on ? Icons.stream : Icons.cancel_outlined),
       ),
     );
   }
