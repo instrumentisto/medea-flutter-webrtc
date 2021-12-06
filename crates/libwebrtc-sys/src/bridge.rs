@@ -101,8 +101,6 @@ pub mod webrtc {
             media_stream: &UniquePtr<MediaStreamInterface>,
             track: &UniquePtr<AudioTrackInterface>,
         ) -> bool;
-
-        pub fn stream_test() -> bool;
     }
 }
 

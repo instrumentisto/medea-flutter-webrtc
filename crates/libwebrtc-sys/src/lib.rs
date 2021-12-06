@@ -183,19 +183,6 @@ pub fn remove_audio_track(
 }
 
 pub fn stream_test() -> bool {
-    let worker_thread = create_thread();
-    start_thread(&worker_thread);
-
-    let signaling_thread = create_thread();
-    start_thread(&signaling_thread);
-
-    let a = create_local_media_stream(&create_peer_connection_factory(
-        &worker_thread,
-        &signaling_thread,
-    ));
-
-    drop(a);
-
     true
 }
 

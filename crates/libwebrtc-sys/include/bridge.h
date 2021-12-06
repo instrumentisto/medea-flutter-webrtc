@@ -116,6 +116,4 @@ bool remove_video_track(
 bool remove_audio_track(
     const std::unique_ptr<MediaStreamInterface>& media_stream,
     const std::unique_ptr<AudioTrackInterface>& track);
-
-bool stream_test();
 }  // namespace WEBRTC

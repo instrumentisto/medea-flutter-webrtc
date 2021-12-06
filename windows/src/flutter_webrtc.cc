@@ -29,18 +29,6 @@ inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
   return EncodableMap();
 }
 
-inline int toInt(EncodableValue inputVal, int defaultVal) {
-  int intValue = defaultVal;
-  if (TypeIs<int>(inputVal)) {
-    intValue = GetValue<int>(inputVal);
-  } else if (TypeIs<int32_t>(inputVal)) {
-    intValue = GetValue<int32_t>(inputVal);
-  } else if (TypeIs<std::string>(inputVal)) {
-    intValue = atoi(GetValue<std::string>(inputVal).c_str());
-  }
-  return intValue;
-}
-
 inline std::string findString(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<std::string>(it->second))
@@ -84,43 +72,22 @@ void FlutterWebRTC::HandleMethodCall(
       return;
     }
 
+    Constraints cnstrts;
+    VideoConstraints vdcntsrts;
+
     const EncodableMap param_constrs =
         GetValue<EncodableMap>(*method_call.arguments());
     const EncodableMap constraints = findMap(param_constrs, "constraints");
-
-    EncodableMap params;
-    rust::String stream_id = "test_stream_id";
-    create_local_stream(webrtc, stream_id);
-    params[EncodableValue("streamId")] = EncodableValue(stream_id.c_str());
 
     auto audio_constraints = constraints.find(EncodableValue("audio"))->second;
 
     if ((TypeIs<bool>(audio_constraints) &&
          GetValue<bool>(audio_constraints)) ||
         TypeIs<EncodableMap>(audio_constraints)) {
-      std::string audio_source_id = "test_audio_source_id";
-      std::string audio_track_id = "test_audio_track_id";
-
-      create_local_audio_source(webrtc, audio_source_id);
-      create_local_audio_track(webrtc, audio_track_id, audio_source_id);
-
-      add_audio_track_to_local(webrtc, stream_id, audio_track_id);
-
-      EncodableMap track_info;
-      track_info[EncodableValue("id")] = EncodableValue(audio_track_id);
-      track_info[EncodableValue("label")] = EncodableValue(audio_track_id);
-      track_info[EncodableValue("kind")] = EncodableValue("audio");
-      track_info[EncodableValue("enabled")] = EncodableValue(true);
-
-      EncodableList audioTracks;
-      audioTracks.push_back(EncodableValue(track_info));
-      params[EncodableValue("audioTracks")] = EncodableValue(audioTracks);
+      cnstrts.audio = true;
     } else {
-      params[EncodableValue("audioTracks")] = EncodableValue(EncodableList());
+      cnstrts.audio = false;
     }
-
-    std::string video_source_id = "test_video_source_id";
-    std::string video_track_id = "test_video_track_id";
 
     EncodableMap video_mandatory;
     auto it = constraints.find(EncodableValue("video"));
@@ -137,23 +104,58 @@ void FlutterWebRTC::HandleMethodCall(
     EncodableValue fpsValue =
         video_mandatory.find(EncodableValue("minFrameRate"))->second;
 
-    create_local_video_source(webrtc, video_source_id,
-                              rust::String(GetValue<std::string>(widthValue)),
-                              rust::String(GetValue<std::string>(heightValue)),
-                              rust::String(GetValue<std::string>(fpsValue)));
+    vdcntsrts.min_width = rust::String(GetValue<std::string>(widthValue));
+    vdcntsrts.min_height = rust::String(GetValue<std::string>(heightValue));
+    vdcntsrts.min_fps = rust::String(GetValue<std::string>(fpsValue));
+    cnstrts.video = vdcntsrts;
 
-    create_local_video_track(webrtc, video_track_id, video_source_id);
+    LocalStreamInfo user_media = get_user_media(webrtc, cnstrts);
 
-    add_video_track_to_local(webrtc, stream_id, video_track_id);
+    EncodableMap params;
+    params[EncodableValue("streamId")] =
+        EncodableValue(user_media.stream_id.c_str());
 
     EncodableList videoTracks;
-    EncodableMap info;
-    info[EncodableValue("id")] = EncodableValue(video_track_id);
-    info[EncodableValue("label")] = EncodableValue(video_track_id);
-    info[EncodableValue("kind")] = EncodableValue("video");
-    info[EncodableValue("enabled")] = EncodableValue(true);
-    videoTracks.push_back(EncodableValue(info));
+    if (user_media.video_tracks.size() == 0) {
+      params[EncodableValue("videoTracks")] = EncodableValue(EncodableList());
+    } else {
+      for (size_t i = 0; i < user_media.video_tracks.size(); ++i) {
+        EncodableMap info;
+        info[EncodableValue("id")] =
+            EncodableValue(user_media.video_tracks[i].id.c_str());
+        info[EncodableValue("label")] =
+            EncodableValue(user_media.video_tracks[i].label.c_str());
+        info[EncodableValue("kind")] = EncodableValue(
+            user_media.video_tracks[i].kind == TrackKind::Video ? "video"
+                                                                : "audio");
+        info[EncodableValue("enabled")] =
+            EncodableValue(user_media.video_tracks[i].enabled);
+
+        videoTracks.push_back(EncodableValue(info));
+      }
+    }
     params[EncodableValue("videoTracks")] = EncodableValue(videoTracks);
+
+    EncodableList audioTracks;
+    if (user_media.audio_tracks.size() == 0) {
+      params[EncodableValue("audioTracks")] = EncodableValue(EncodableList());
+    } else {
+      for (size_t i = 0; i < user_media.audio_tracks.size(); ++i) {
+        EncodableMap info;
+        info[EncodableValue("id")] =
+            EncodableValue(user_media.audio_tracks[i].id.c_str());
+        info[EncodableValue("label")] =
+            EncodableValue(user_media.audio_tracks[i].label.c_str());
+        info[EncodableValue("kind")] = EncodableValue(
+            user_media.audio_tracks[i].kind == TrackKind::Video ? "video"
+                                                                : "audio");
+        info[EncodableValue("enabled")] =
+            EncodableValue(user_media.audio_tracks[i].enabled);
+
+        audioTracks.push_back(EncodableValue(info));
+      }
+    }
+    params[EncodableValue("audioTracks")] = EncodableValue(audioTracks);
 
     result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
