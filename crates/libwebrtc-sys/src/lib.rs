@@ -231,8 +231,8 @@ pub fn stream_test() -> bool {
     let signaling_thread = create_thread();
     start_thread(&signaling_thread);
 
-    let azas = create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
-    Command::new("cmd.exe").arg("/c").arg("pause").status();
+    let _azas = create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
+    let _ = Command::new("cmd.exe").arg("/c").arg("pause").status();
     true
 }
 

@@ -172,6 +172,11 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("dataChannelSend") == 0) {
   } else if (method_call.method_name().compare("dataChannelClose") == 0) {
   } else if (method_call.method_name().compare("streamDispose") == 0) {
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
+    const std::string stream_id = findString(params, "streamId");
+    dispose_stream(webrtc, rust::String(stream_id));
+    result->Success();
   } else if (method_call.method_name().compare("mediaStreamTrackSetEnable") ==
              0) {
   } else if (method_call.method_name().compare("trackDispose") == 0) {

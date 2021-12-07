@@ -28,12 +28,19 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rustc-link-lib=dylib=d3d11");
     println!("cargo:rustc-link-lib=dylib=dxgi");
 
+    let src_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+
+    let cpp_src_path = src_path.join("cpp_src");
+
+    let cpp_src = fs::read_dir(&cpp_src_path)?.fold(vec![], |mut acc, item| {
+        let file = item.unwrap().file_name();
+        acc.push(PathBuf::from(&cpp_src_path).join(file));
+        acc
+    });
+
     cxx_build::bridge("src/bridge.rs")
-        .file("src/bridge.cc")
-        .file("momo/device_video_capturer.cpp")
-        .file("momo/custom_track_source.cpp")
+        .files(cpp_src)
         .include(path.join("include"))
-        .include(path.join("momo"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .define("WEBRTC_WIN", "1")
@@ -41,7 +48,7 @@ fn main() -> anyhow::Result<()> {
         .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")
         .compile("libwebrtc-sys");
 
-    println!("cargo:rerun-if-changed=src/bridge.cc");
+    println!("cargo:rerun-if-changed=cpp_src/bridge.cc");
     println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=include/bridge.h");
     println!("cargo:rerun-if-changed=./lib");
