@@ -172,22 +172,35 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("dataChannelSend") == 0) {
   } else if (method_call.method_name().compare("dataChannelClose") == 0) {
   } else if (method_call.method_name().compare("streamDispose") == 0) {
-    const EncodableMap params =
-        GetValue<EncodableMap>(*method_call.arguments());
-    const std::string stream_id = findString(params, "streamId");
-    dispose_stream(webrtc, rust::String(stream_id));
-    result->Success();
   } else if (method_call.method_name().compare("mediaStreamTrackSetEnable") ==
              0) {
   } else if (method_call.method_name().compare("trackDispose") == 0) {
   } else if (method_call.method_name().compare("peerConnectionClose") == 0) {
+  } else if (method_call.method_name().compare("peerConnectionDispose") == 0) {
   } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
              0) {
-  } else if (method_call.method_name().compare(
-                 "mediaStreamTrackSwitchCamera") == 0) {
   } else if (method_call.method_name().compare("setVolume") == 0) {
+  } else if (method_call.method_name().compare("getLocalDescription") == 0) {
+  } else if (method_call.method_name().compare("getRemoteDescription") == 0) {
+  } else if (method_call.method_name().compare("mediaStreamAddTrack") == 0) {
+  } else if (method_call.method_name().compare("mediaStreamRemoveTrack") == 0) {
+  } else if (method_call.method_name().compare("addTrack") == 0) {
+  } else if (method_call.method_name().compare("removeTrack") == 0) {
+  } else if (method_call.method_name().compare("addTransceiver") == 0) {
+  } else if (method_call.method_name().compare("getTransceivers") == 0) {
+  } else if (method_call.method_name().compare("getReceivers") == 0) {
+  } else if (method_call.method_name().compare("getSenders") == 0) {
+  } else if (method_call.method_name().compare("rtpSenderDispose") == 0) {
+  } else if (method_call.method_name().compare("rtpSenderSetTrack") == 0) {
+  } else if (method_call.method_name().compare("rtpSenderReplaceTrack") == 0) {
+  } else if (method_call.method_name().compare("rtpSenderSetParameters") == 0) {
+  } else if (method_call.method_name().compare("rtpTransceiverStop") == 0) {
+  } else if (method_call.method_name().compare("rtpTransceiverSetDirection") ==
+             0) {
+  } else if (method_call.method_name().compare("setConfiguration") == 0) {
+  } else if (method_call.method_name().compare("captureFrame") == 0) {
   } else {
     result->NotImplemented();
   }
