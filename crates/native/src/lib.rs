@@ -6,29 +6,38 @@ use libwebrtc_sys::*;
 /// The module which describes the bridge to call Rust from C++.
 #[cxx::bridge]
 pub mod ffi {
+    /// Information about a physical device instance.
     struct DeviceInfo {
         deviceId: String,
         kind: String,
         label: String,
     }
 
+    /// Media Stream constrants.
     struct Constraints {
         audio: bool,
         video: VideoConstraints,
     }
 
+    /// Constraints for video capturer.
     struct VideoConstraints {
         min_width: String,
         min_height: String,
         min_fps: String,
     }
 
+    /// Information about local [Media Stream].
+    ///
+    /// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
     struct LocalStreamInfo {
         stream_id: String,
         video_tracks: Vec<TrackInfo>,
         audio_tracks: Vec<TrackInfo>,
     }
 
+    /// Information about [Track].
+    ///
+    /// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
     struct TrackInfo {
         id: String,
         label: String,
@@ -36,6 +45,9 @@ pub mod ffi {
         enabled: bool,
     }
 
+    /// Kind of [Track].
+    ///
+    /// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
     enum TrackKind {
         Audio,
         Video,
@@ -54,12 +66,16 @@ pub mod ffi {
     }
 }
 
+/// Kind of a phisycal audio device. 
 enum AudioKind {
     Playout,
     Recording,
 }
 
-pub struct WebrtcInner {
+/// Contains all necessary tools for interoperate with [libWebRTC].
+///
+/// [libWebrtc]: https://webrtc.googlesource.com/src/
+pub struct Inner {
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
     worker_thread: UniquePtr<webrtc::Thread>,
     signaling_thread: UniquePtr<webrtc::Thread>,
@@ -71,7 +87,11 @@ pub struct WebrtcInner {
     local_media_streams: HashMap<String, MediaStream>,
 }
 
-pub struct Webrtc(Box<WebrtcInner>);
+/// Wraps some [Inner] instanse.
+/// This struct is intended to be extern and managed outside of the Rust app.
+///
+/// [Inner](Inner)
+pub struct Webrtc(Box<Inner>);
 
 struct MediaStream {
     ptr: UniquePtr<webrtc::MediaStreamInterface>,
@@ -259,6 +279,9 @@ pub fn enumerate_devices() -> Vec<ffi::DeviceInfo> {
     iters.collect()
 }
 
+/// Creates an instanse of [Webrtc]. 
+///
+/// [Webrtc](Webrtc)
 pub fn init() -> Box<Webrtc> {
     let worker_thread = create_thread();
     start_thread(&worker_thread);
@@ -271,7 +294,7 @@ pub fn init() -> Box<Webrtc> {
     let task_queue_factory = create_default_task_queue_factory();
 
     Box::new(Webrtc {
-        0: Box::new(WebrtcInner {
+        0: Box::new(Inner {
             task_queue_factory,
             worker_thread,
             signaling_thread,
@@ -285,6 +308,11 @@ pub fn init() -> Box<Webrtc> {
     })
 }
 
+/// Creates a local [Media Stream] with [Track]s according to accepted [Constraints].
+///
+/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
+/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Constraints]: ffi::Constraints
 pub fn get_user_media(
     pcf: &mut Box<Webrtc>,
     constraints: ffi::Constraints,
@@ -350,6 +378,10 @@ pub fn get_user_media(
     }
 }
 
+/// Disposes the [Media Stream] and all involved [Track]s and Audio/Video sources. 
+///
+/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
 pub fn dispose_stream(pcf: &mut Box<Webrtc>, id: String) {
     let local_stream = pcf.0.local_media_streams.remove(&id).unwrap();
 
