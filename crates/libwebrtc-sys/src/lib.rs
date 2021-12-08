@@ -5,8 +5,8 @@ pub use bridge::webrtc;
 
 /// Creates default [libWebRTC Task Queue Factory].
 ///
-/// [libWebRTC Task Queue Factory]:
-/// https://webrtc.googlesource.com/src/+/HEAD/g3doc/implementation_basics.md#threads
+/// [libWebRTC Task Queue Factory]: https://tinyurl.com/yhtrryye
+#[rustfmt::skip]
 pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory>
 {
     webrtc::create_default_task_queue_factory()
@@ -14,8 +14,7 @@ pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory
 
 /// Creates [libWebRTC Audio Device Module] with default Windows layout.
 ///
-/// [libWebRTC Audio Device Module]:
-/// https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
+/// [libWebRTC Audio Device Module]: https://tinyurl.com/2xf4pnrt
 pub fn create_audio_device_module(
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
 ) -> UniquePtr<webrtc::AudioDeviceModule> {
@@ -24,8 +23,7 @@ pub fn create_audio_device_module(
 
 /// Initializes [libWebRTC Audio Device Module].
 ///
-/// [libWebRTC Audio Device Module]:
-/// https://webrtc.googlesource.com/src/+/HEAD/modules/audio_device/g3doc/audio_device_module.md
+/// [libWebRTC Audio Device Module]: https://tinyurl.com/2xf4pnrt
 pub fn init_audio_device_module(
     audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
 ) {
@@ -96,16 +94,14 @@ pub fn get_video_device_info(
 
 /// Creates a [Thread].
 ///
-/// [Thread]:
-/// https://webrtc.googlesource.com/src/+/HEAD/g3doc/implementation_basics.md#threads
+/// [Thread]: https://tinyurl.com/yhtrryye
 pub fn create_thread() -> UniquePtr<webrtc::Thread> {
     webrtc::create_thread()
 }
 
 /// Starts the [Thread].
 ///
-/// [Thread]:
-/// https://webrtc.googlesource.com/src/+/HEAD/g3doc/implementation_basics.md#threads
+/// [Thread]: https://tinyurl.com/yhtrryye
 pub fn start_thread(thread: &UniquePtr<webrtc::Thread>) {
     unsafe {
         webrtc::start_thread(thread);
@@ -116,8 +112,7 @@ pub fn start_thread(thread: &UniquePtr<webrtc::Thread>) {
 /// This interface provides 3 main directions: Peer Connection Interface, Local
 /// Media Stream Interface and Local Video and Audio Track Interface,
 ///
-/// [Peer Connection Factory]:
-/// https://webrtc.github.io/webrtc-org/native-code/native-apis/
+/// [Peer Connection Factory]: https://tinyurl.com/44wywepd
 pub fn create_peer_connection_factory(
     worker_thread: &UniquePtr<webrtc::Thread>,
     signaling_thread: &UniquePtr<webrtc::Thread>,
@@ -130,8 +125,7 @@ pub fn create_peer_connection_factory(
 /// Creates a new [Video Source], which provides source of frames from native
 /// platform.
 ///
-/// [Video Source]:
-/// https://webrtc.googlesource.com/src/+/HEAD/video/g3doc/adaptation.md
+/// [Video Source]: https://tinyurl.com/52fwxnan
 pub fn create_video_source(
     worker_thread: &UniquePtr<webrtc::Thread>,
     signaling_thread: &UniquePtr<webrtc::Thread>,
@@ -160,7 +154,7 @@ pub fn create_audio_source(
 
 /// Creates Video [Track].
 ///
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub fn create_video_track(
     peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
     video_source: &UniquePtr<webrtc::VideoTrackSourceInterface>,
@@ -170,7 +164,7 @@ pub fn create_video_track(
 
 /// Creates Audio [Track].
 ///
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub fn create_audio_track(
     peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
     audio_source: &UniquePtr<webrtc::AudioSourceInterface>,
@@ -180,7 +174,7 @@ pub fn create_audio_track(
 
 /// Creates an empty local [Media Stream].
 ///
-/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
+/// [Media Stream]: https://tinyurl.com/2k2376z9
 pub fn create_local_media_stream(
     peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
 ) -> UniquePtr<webrtc::MediaStreamInterface> {
@@ -189,8 +183,8 @@ pub fn create_local_media_stream(
 
 /// Adds Video [Track] to [Media Stream].
 ///
-/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Media Stream]: https://tinyurl.com/2k2376z9
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub fn add_video_track(
     media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
     track: &UniquePtr<webrtc::VideoTrackInterface>,
@@ -200,8 +194,8 @@ pub fn add_video_track(
 
 /// Adds Audio [Track] to [Media Stream].
 ///
-/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Media Stream]: https://tinyurl.com/2k2376z9
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub fn add_audio_track(
     media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
     track: &UniquePtr<webrtc::AudioTrackInterface>,
@@ -211,8 +205,8 @@ pub fn add_audio_track(
 
 /// Removes Video [Track] from [Media Stream].
 ///
-/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Media Stream]: https://tinyurl.com/2k2376z9
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub fn remove_video_track(
     media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
     track: &UniquePtr<webrtc::VideoTrackInterface>,
@@ -222,8 +216,8 @@ pub fn remove_video_track(
 
 /// Removes Audio [Track] from [Media Stream].
 ///
-/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Media Stream]: https://tinyurl.com/2k2376z9
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub fn remove_audio_track(
     media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
     track: &UniquePtr<webrtc::AudioTrackInterface>,

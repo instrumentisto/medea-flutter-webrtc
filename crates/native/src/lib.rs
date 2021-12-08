@@ -34,7 +34,7 @@ pub mod ffi {
 
     /// Information about local [Media Stream].
     ///
-    /// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
+    /// [Media Stream]: https://tinyurl.com/2k2376z9
     struct LocalStreamInfo {
         stream_id: String,
         video_tracks: Vec<TrackInfo>,
@@ -43,7 +43,7 @@ pub mod ffi {
 
     /// Information about [Track].
     ///
-    /// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+    /// [Track]: https://tinyurl.com/yc79x5s8
     struct TrackInfo {
         id: String,
         label: String,
@@ -53,7 +53,7 @@ pub mod ffi {
 
     /// Kind of [Track].
     ///
-    /// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+    /// [Track]: https://tinyurl.com/yc79x5s8
     enum TrackKind {
         Audio,
         Video,
@@ -74,7 +74,7 @@ pub mod ffi {
 
 /// Contains all necessary tools for interoperate with [libWebRTC].
 ///
-/// [libWebrtc]: https://webrtc.googlesource.com/src/
+/// [libWebrtc]: https://tinyurl.com/54y935zz
 
 #[allow(dead_code)]
 pub struct Inner {

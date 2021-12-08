@@ -1,4 +1,5 @@
 #[cxx::bridge(namespace = "WEBRTC")]
+#[rustfmt::skip]
 pub mod webrtc {
     // C++ types and signatures exposed to Rust.
     unsafe extern "C++" {

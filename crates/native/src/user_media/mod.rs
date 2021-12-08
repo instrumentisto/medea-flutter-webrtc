@@ -172,8 +172,8 @@ pub fn init() -> Box<Webrtc> {
 /// Creates a local [Media Stream] with [Track]s according to accepted
 /// [Constraints].
 ///
-/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+/// [Media Stream]: https://tinyurl.com/2k2376z9
+/// [Track]: https://tinyurl.com/yc79x5s8
 /// [Constraints]: ffi::Constraints
 pub fn get_user_media(
     webrtc: &mut Box<Webrtc>,
@@ -243,8 +243,8 @@ pub fn get_user_media(
 /// Disposes the [Media Stream] and all involved [Track]s and Audio/Video
 /// sources.
 ///
-/// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
-/// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
+/// [Track]: https://tinyurl.com/yc79x5s8
+/// [Media Stream]: https://tinyurl.com/2k2376z9
 pub fn dispose_stream(webrtc: &mut Box<Webrtc>, id: StreamId) {
     let this = webrtc.as_mut().0.as_mut();
 
