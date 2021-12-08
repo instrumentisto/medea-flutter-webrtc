@@ -75,6 +75,8 @@ pub mod ffi {
 /// Contains all necessary tools for interoperate with [libWebRTC].
 ///
 /// [libWebrtc]: https://webrtc.googlesource.com/src/
+
+#[allow(dead_code)]
 pub struct Inner {
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
     worker_thread: UniquePtr<webrtc::Thread>,
