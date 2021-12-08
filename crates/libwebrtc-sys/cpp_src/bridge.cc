@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 
+#include "examples/peerconnection/client/main_wnd.h"
 #include "libwebrtc-sys/include/bridge.h"
 
 namespace WEBRTC {
@@ -181,6 +182,98 @@ bool remove_audio_track(
     const std::unique_ptr<MediaStreamInterface>& media_stream,
     const std::unique_ptr<AudioTrackInterface>& track) {
   return media_stream.get()->getptr()->RemoveTrack(track.get()->getptr());
+}
+
+void test() {
+  class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+   public:
+    VideoRenderer(HWND wnd,
+                  int width,
+                  int height,
+                  webrtc::VideoTrackInterface* track_to_render);
+    virtual ~VideoRenderer();
+
+    // VideoSinkInterface implementation
+    void OnFrame(const webrtc::VideoFrame& frame) override;
+
+    const BITMAPINFO& bmi() const { return bmi_; }
+    const uint8_t* image() const { return image_.get(); }
+
+   protected:
+    void SetSize(int width, int height);
+
+    enum {
+      SET_SIZE,
+      RENDER_FRAME,
+    };
+
+    HWND wnd_;
+    BITMAPINFO bmi_;
+    std::unique_ptr<uint8_t[]> image_;
+    rtc::scoped_refptr<webrtc::VideoTrackInterface> rendered_track_;
+  };
+
+  // VideoRenderer::VideoRenderer(HWND wnd, int width, int height,
+  //                              webrtc::VideoTrackInterface* track_to_render)
+  //     : wnd_(wnd), rendered_track_(track_to_render) {
+  //   ZeroMemory(&bmi_, sizeof(bmi_));
+  //   bmi_.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+  //   bmi_.bmiHeader.biPlanes = 1;
+  //   bmi_.bmiHeader.biBitCount = 32;
+  //   bmi_.bmiHeader.biCompression = BI_RGB;
+  //   bmi_.bmiHeader.biWidth = width;
+  //   bmi_.bmiHeader.biHeight = -height;
+  //   bmi_.bmiHeader.biSizeImage =
+  //       width * height * (bmi_.bmiHeader.biBitCount >> 3);
+  //   rendered_track_->AddOrUpdateSink(this, rtc::VideoSinkWants());
+  // }
+
+  // VideoRenderer::~VideoRenderer() { rendered_track_->RemoveSink(this); }
+
+  // void VideoRenderer::SetSize(int width, int height) {
+  //   if (width == bmi_.bmiHeader.biWidth && height == bmi_.bmiHeader.biHeight)
+  //   {
+  //     return;
+  //   }
+
+  //   bmi_.bmiHeader.biWidth = width;
+  //   bmi_.bmiHeader.biHeight = -height;
+  //   bmi_.bmiHeader.biSizeImage =
+  //       width * height * (bmi_.bmiHeader.biBitCount >> 3);
+  //   image_.reset(new uint8_t[bmi_.bmiHeader.biSizeImage]);
+  // }
+
+  // void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
+  //   {
+  //     rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
+  //         video_frame.video_frame_buffer()->ToI420());
+  //     if (video_frame.rotation() != webrtc::kVideoRotation_0) {
+  //       buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame.rotation());
+  //     }
+
+  //     SetSize(buffer->width(), buffer->height());
+
+  //     RTC_DCHECK(image_.get() != NULL);
+  //     libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
+  //                        buffer->StrideU(), buffer->DataV(),
+  //                        buffer->StrideV(), image_.get(),
+  //                        bmi_.bmiHeader.biWidth * bmi_.bmiHeader.biBitCount /
+  //                        8, buffer->width(), buffer->height());
+  //   }
+  //   InvalidateRect(wnd_, NULL, TRUE);
+  // }
+
+  auto worker = create_thread();
+  worker.get()->Start();
+
+  auto signal = create_thread();
+  signal.get()->Start();
+  auto pcf = create_peer_connection_factory(worker, signal);
+
+  auto a = create_video_source(worker, signal, 640, 380, 30);
+  auto b = create_video_track(pcf, a);
+
+  system("PAUSE");
 }
 
 }  // namespace WEBRTC

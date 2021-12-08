@@ -1,5 +1,3 @@
-use std::process::Command;
-
 use cxx::UniquePtr;
 
 mod bridge;
@@ -225,14 +223,7 @@ pub fn remove_audio_track(
 }
 
 pub fn stream_test() -> bool {
-    let worker_thread = create_thread();
-    start_thread(&worker_thread);
-    
-    let signaling_thread = create_thread();
-    start_thread(&signaling_thread);
-
-    let _azas = create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
-    let _ = Command::new("cmd.exe").arg("/c").arg("pause").status();
+    webrtc::test();
     true
 }
 
