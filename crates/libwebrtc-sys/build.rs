@@ -41,6 +41,8 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=include/bridge.h");
     println!("cargo:rerun-if-changed=./lib");
+    println!("cargo:rerun-if-env-changed=INSTALL_WEBRTC");
+    println!("cargo:rerun-if-env-changed=LIBWEBRTC_URL");
 
     Ok(())
 }
@@ -55,9 +57,9 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     let archive = temp_dir.join("libwebrtc-win-x64.tar.gz");
     let lib_dir = manifest_path.join("lib");
 
-    // Check if `INSTALL_WEBRTC` is declared.
-    if env::var("INSTALL_WEBRTC").is_err() {
-        // Check if `lib` directory is not empty.
+    // Force download if `INSTALL_WEBRTC=1`.
+    if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
+        // Skip download if already downloaded.
         if fs::read_dir(&lib_dir)?.fold(0, |acc, b| {
             if !b.unwrap().file_name().to_string_lossy().starts_with('.') {
                 acc + 1
