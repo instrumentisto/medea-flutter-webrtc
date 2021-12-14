@@ -12,6 +12,8 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
+#include "custom_video_renderer.h"
+// #include "./main_wnd.h"
 #include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
@@ -19,6 +21,7 @@
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
 #include "rust/cxx.h"
+#include "sdl_renderer.h"
 
 namespace WEBRTC {
 template <class T>

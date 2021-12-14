@@ -17,7 +17,10 @@ fn main() -> anyhow::Result<()> {
     println!(
         "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/"
     );
+    println!("cargo:rustc-link-search=all=crates/libwebrtc-sys/sdl/lib/x64");
+
     println!("cargo:rustc-link-lib=webrtc");
+    println!("cargo:rustc-link-lib=SDL2");
     println!("cargo:rustc-link-lib=dylib=winmm");
     println!("cargo:rustc-link-lib=dylib=secur32");
     println!("cargo:rustc-link-lib=dylib=dmoguids");
@@ -42,7 +45,10 @@ fn main() -> anyhow::Result<()> {
         .files(cpp_src)
         .include(path.join("include"))
         .include(path.join("lib/include"))
+        .include(path.join("sdl/include"))
+        .include("c:/boost_1_78_0")
         .include(path.join("lib/include/third_party/abseil-cpp"))
+        .include(path.join("lib/include/third_party/libyuv/include"))
         .define("WEBRTC_WIN", "1")
         .define("NOMINMAX", "1")
         .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")
