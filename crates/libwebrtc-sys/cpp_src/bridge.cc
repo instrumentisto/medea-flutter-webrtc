@@ -276,9 +276,7 @@ void test() {
   WNDCLASSEXW wcex = {sizeof(WNDCLASSEX)};
   wcex.style = CS_DBLCLKS;
   wcex.hInstance = GetModuleHandle(NULL);
-  // wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
   wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-  // wcex.lpfnWndProc = DefWindowProc;
   wcex.lpfnWndProc = DWProc;
   wcex.lpszClassName = L"Test_Class";
   wcex.hbrBackground = CreateSolidBrush(RGB(0, 0, 0));
