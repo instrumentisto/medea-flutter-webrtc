@@ -19,8 +19,6 @@
 #include <api/video/video_rotation.h>
 #include <rtc_base/logging.h>
 
-#include "native_buffer.h"
-
 ScalableVideoTrackSource::ScalableVideoTrackSource()
     : AdaptedVideoTrackSource(4) {}
 ScalableVideoTrackSource::~ScalableVideoTrackSource() {}
@@ -48,38 +46,8 @@ void ScalableVideoTrackSource::OnCapturedFrame(
   const int64_t translated_timestamp_us =
       timestamp_aligner_.TranslateTimestamp(timestamp_us, rtc::TimeMicros());
 
-  int adapted_width;
-  int adapted_height;
-  int crop_width;
-  int crop_height;
-  int crop_x;
-  int crop_y;
-  if (!AdaptFrame(frame.width(), frame.height(), timestamp_us, &adapted_width,
-                  &adapted_height, &crop_width, &crop_height, &crop_x,
-                  &crop_y)) {
-    return;
-  }
-
-  if (UseNativeBuffer() && frame.video_frame_buffer()->type() ==
-                               webrtc::VideoFrameBuffer::Type::kNative) {
-    NativeBuffer* frame_buffer =
-        dynamic_cast<NativeBuffer*>(frame.video_frame_buffer().get());
-    frame_buffer->SetScaledSize(adapted_width, adapted_height);
-    OnFrame(frame);
-    return;
-  }
-
   rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer =
       frame.video_frame_buffer();
-
-  if (adapted_width != frame.width() || adapted_height != frame.height()) {
-    // Video adapter has requested a down-scale. Allocate a new buffer and
-    // return scaled version.
-    rtc::scoped_refptr<webrtc::I420Buffer> i420_buffer =
-        webrtc::I420Buffer::Create(adapted_width, adapted_height);
-    i420_buffer->ScaleFrom(*buffer->ToI420());
-    buffer = i420_buffer;
-  }
 
   OnFrame(webrtc::VideoFrame::Builder()
               .set_video_frame_buffer(buffer)

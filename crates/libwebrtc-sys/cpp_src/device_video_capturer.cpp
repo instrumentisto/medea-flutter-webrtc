@@ -64,28 +64,6 @@ bool DeviceVideoCapturer::Init(size_t width,
   return true;
 }
 
-rtc::scoped_refptr<DeviceVideoCapturer>
-DeviceVideoCapturer::Create(size_t width, size_t height, size_t target_fps) {
-  rtc::scoped_refptr<DeviceVideoCapturer> capturer;
-  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> info(
-      webrtc::VideoCaptureFactory::CreateDeviceInfo());
-  if (!info) {
-    RTC_LOG(LS_WARNING) << "Failed to CreateDeviceInfo";
-    return nullptr;
-  }
-  int num_devices = info->NumberOfDevices();
-  for (int i = 0; i < num_devices; ++i) {
-    capturer = Create(width, height, target_fps, i);
-    if (capturer) {
-      RTC_LOG(LS_WARNING) << "Get Capture";
-      return capturer;
-    }
-  }
-  RTC_LOG(LS_WARNING) << "Failed to create DeviceVideoCapturer";
-
-  return nullptr;
-}
-
 rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
     size_t width,
     size_t height,
@@ -100,31 +78,6 @@ rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
     return nullptr;
   }
   return vcm_capturer;
-}
-
-rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
-    size_t width,
-    size_t height,
-    size_t target_fps,
-    const std::string& capture_device) {
-  rtc::scoped_refptr<DeviceVideoCapturer> vcm_capturer(
-      new rtc::RefCountedObject<DeviceVideoCapturer>());
-
-  // 便利なのでデバイスの一覧をログに出力しておく
-  if (vcm_capturer->LogDeviceInfo() != 0) {
-    return nullptr;
-  }
-
-  // デバイス指定なし
-  if (capture_device.empty()) {
-    return Create(width, height, target_fps);
-  }
-
-  auto index = vcm_capturer->GetDeviceIndex(capture_device);
-  if (index < 0) {
-    return nullptr;
-  }
-  return Create(width, height, target_fps, static_cast<size_t>(index));
 }
 
 void DeviceVideoCapturer::Destroy() {
@@ -161,55 +114,4 @@ int DeviceVideoCapturer::LogDeviceInfo() {
                      << ", unique_name=" << id;
   }
   return 0;
-}
-
-int DeviceVideoCapturer::GetDeviceIndex(const std::string& device) {
-  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> info(
-      webrtc::VideoCaptureFactory::CreateDeviceInfo());
-  if (!info) {
-    RTC_LOG(LS_ERROR) << "Failed to CreateDeviceInfo";
-    return -1;
-  }
-
-  int ndev = -1;
-  // 指定されたdeviceがすべて数字で構成されているかどうかを確認
-  // してから数値に変換
-  if (std::all_of(device.cbegin(), device.cend(),
-                  [](char ch) { return std::isdigit(ch); })) {
-    try {
-      ndev = std::stoi(device);
-    } catch (const std::exception&) {
-      ndev = -1;
-    }
-  }
-
-  auto size = device.size();
-  int num_devices = info->NumberOfDevices();
-  for (int i = 0; i < num_devices; ++i) {
-    const uint32_t kSize = 256;
-    char name[kSize] = {0};
-    char mid[kSize] = {0};
-    if (info->GetDeviceName(static_cast<uint32_t>(i), name, kSize, mid,
-                            kSize) != -1) {
-      // デバイスidでの検索
-      if (i == ndev) {
-        return i;
-      }
-      // デバイスmidでの前方一致検索
-      std::string candidate_mid{mid};
-      if (candidate_mid.size() >= size &&
-          std::equal(std::begin(device), std::end(device),
-                     std::begin(candidate_mid))) {
-        return i;
-      }
-      // デバイス名での前方一致検索
-      std::string candidate_name{name};
-      if (candidate_name.size() >= size &&
-          std::equal(std::begin(device), std::end(device),
-                     std::begin(candidate_name))) {
-        return i;
-      }
-    }
-  }
-  return -1;
 }

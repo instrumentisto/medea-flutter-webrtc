@@ -184,105 +184,22 @@ bool remove_audio_track(
   return media_stream.get()->getptr()->RemoveTrack(track.get()->getptr());
 }
 
-///////////////////////////////////////////
-
-// const char g_szClassName[] = "myWindowClass";a
-
-// // Step 4: the Window Procedure
-// LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-//   switch (msg) {
-//     case WM_CLOSE:
-//       DestroyWindow(hwnd);
-//       break;
-//     case WM_DESTROY:
-//       PostQuitMessage(0);
-//       break;
-//     default:
-//       return DefWindowProc(hwnd, msg, wParam, lParam);
-//   }
-//   return 0;
-// }
-
-// int WINAPI WinMain(HINSTANCE hInstance,
-//                    HINSTANCE hPrevInstance,
-//                    LPSTR lpCmdLine,
-//                    int nCmdShow) {
-//   WNDCLASSEX wc;
-//   HWND hwnd;
-//   MSG Msg;
-
-//   // Step 1: Registering the Window Class
-//   wc.cbSize = sizeof(WNDCLASSEX);
-//   wc.style = 0;
-//   wc.lpfnWndProc = WndProc;
-//   wc.cbClsExtra = 0;
-//   wc.cbWndExtra = 0;
-//   wc.hInstance = hInstance;
-//   wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-//   wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-//   wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-//   wc.lpszMenuName = NULL;
-//   wc.lpszClassName = g_szClassName;
-//   wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-
-//   if (!RegisterClassEx(&wc)) {
-//     MessageBox(NULL, "Window Registration Failed!", "Error!",
-//                MB_ICONEXCLAMATION | MB_OK);
-//     return 0;
-//   }
-
-//   // Step 2: Creating the Window
-//   hwnd =
-//       CreateWindowEx(WS_EX_CLIENTEDGE, g_szClassName, "The title of my
-//       window",
-//                      WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 240,
-//                      120, NULL, NULL, hInstance, NULL);
-
-//   if (hwnd == NULL) {
-//     MessageBox(NULL, "Window Creation Failed!", "Error!",
-//                MB_ICONEXCLAMATION | MB_OK);
-//     return 0;
-//   }
-
-//   ShowWindow(hwnd, nCmdShow);
-//   UpdateWindow(hwnd);
-
-//   // Step 3: The Message Loop
-//   while (GetMessage(&Msg, NULL, 0, 0) > 0) {
-//     TranslateMessage(&Msg);
-//     DispatchMessage(&Msg);
-//   }
-//   return Msg.wParam;
-// }
-
-//////////////////////////////////////////
-
 VideoRenderer* c;
 
 #define RAND_MAX 255
-
-template <typename T>
-class AutoLock {
- public:
-  explicit AutoLock(T* obj) : obj_(obj) { obj_->Lock(); }
-  ~AutoLock() { obj_->Unlock(); }
-
- protected:
-  T* obj_;
-};
 
 LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
   LRESULT result = 0;
 
   if (msg == WM_PAINT) {
     PAINTSTRUCT ps;
-    ::BeginPaint(hwnd, &ps);
+    BeginPaint(hwnd, &ps);
 
     RECT rc;
-    ::GetClientRect(hwnd, &rc);
+    GetClientRect(hwnd, &rc);
 
-    HDC dc_mem = ::CreateCompatibleDC(ps.hdc);
-    ::SetStretchBltMode(dc_mem, HALFTONE);
+    HDC dc_mem = CreateCompatibleDC(ps.hdc);
+    SetStretchBltMode(dc_mem, HALFTONE);
 
     HDC all_dc[] = {ps.hdc, dc_mem};
 
@@ -291,7 +208,6 @@ LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
       return LRESULT(0);
     }
 
-    AutoLock<VideoRenderer> local_lock(c);
     const BITMAPINFO& bmi = c->bmi();
     int height = abs(bmi.bmiHeader.biHeight);
     int width = bmi.bmiHeader.biWidth;
@@ -299,7 +215,7 @@ LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     const uint8_t* image = c->image();
     if (image != NULL) {
       HDC dc_mem = ::CreateCompatibleDC(ps.hdc);
-      ::SetStretchBltMode(dc_mem, HALFTONE);
+      SetStretchBltMode(dc_mem, HALFTONE);
 
       HDC all_dc[] = {ps.hdc, dc_mem};
       for (size_t i = 0; i < arraysize(all_dc); ++i) {
@@ -308,45 +224,37 @@ LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         SetViewportExtEx(all_dc[i], rc.right, rc.bottom, NULL);
       }
 
-      HBITMAP bmp_mem = ::CreateCompatibleBitmap(ps.hdc, rc.right, rc.bottom);
-      HGDIOBJ bmp_old = ::SelectObject(dc_mem, bmp_mem);
+      HBITMAP bmp_mem = CreateCompatibleBitmap(ps.hdc, rc.right, rc.bottom);
+      HGDIOBJ bmp_old = SelectObject(dc_mem, bmp_mem);
 
       POINT logical_area = {rc.right, rc.bottom};
       DPtoLP(ps.hdc, &logical_area, 1);
 
-      HBRUSH brush = ::CreateSolidBrush(RGB(0, 0, 0));
+      HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
       RECT logical_rect = {0, 0, logical_area.x, logical_area.y};
-      ::FillRect(dc_mem, &logical_rect, brush);
-      ::DeleteObject(brush);
+      FillRect(dc_mem, &logical_rect, brush);
+      DeleteObject(brush);
 
       int x = (logical_area.x / 2) - (width / 2);
       int y = (logical_area.y / 2) - (height / 2);
 
-      StretchDIBits(dc_mem, x, y, width, height, 0, 0, width, height, image,
-                    &bmi, DIB_RGB_COLORS, SRCCOPY);
+      StretchDIBits(dc_mem, x + width, y, -width, height, 0, 0, width, height,
+                    image, &bmi, DIB_RGB_COLORS, SRCCOPY);
 
       BitBlt(ps.hdc, 0, 0, logical_area.x, logical_area.y, dc_mem, 0, 0,
              SRCCOPY);
 
       // Cleanup.
-      ::SelectObject(dc_mem, bmp_old);
-      ::DeleteObject(bmp_mem);
-      ::DeleteDC(dc_mem);
+      SelectObject(dc_mem, bmp_old);
+      DeleteObject(bmp_mem);
+      DeleteDC(dc_mem);
     }
 
-    // HBRUSH brush =
-    //     ::CreateSolidBrush(RGB(std::rand(), std::rand(), std::rand()));
-    // ::FillRect(ps.hdc, &rc, brush);
-    // ::DeleteObject(brush);
-
-    ::EndPaint(hwnd, &ps);
+    EndPaint(hwnd, &ps);
   } else if (msg == WM_CLOSE) {
     exit(0);
-  } else if (msg == WM_ERASEBKGND) {
-  } else if (msg == WM_SETFOCUS) {
-  } else if (msg == WM_SIZE) {
-  } else if (msg == WM_CTLCOLORSTATIC) {
-  } else if (msg == WM_COMMAND) {
+  } else if (msg == WM_ERASEBKGND || msg == WM_SETFOCUS || msg == WM_SIZE ||
+             msg == WM_CTLCOLORSTATIC || msg == WM_COMMAND) {
   } else {
     result = DefWindowProc(hwnd, msg, wp, lp);
   }
@@ -382,7 +290,7 @@ void test() {
                       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                       CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL), NULL);
 
-  c = new VideoRenderer(wnd, 100, 100, b.get()->getptr());
+  c = new VideoRenderer(wnd, 640, 380, b.get()->getptr());
 
   ShowWindow(wnd, SW_SHOWNORMAL);
   UpdateWindow(wnd);
