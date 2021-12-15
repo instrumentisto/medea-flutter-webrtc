@@ -10,14 +10,8 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   MediaStreamTrackNative(this._trackId, this._label, this._kind, this._enabled, this._settings, this._deviceId);
 
   factory MediaStreamTrackNative.fromMap(Map<dynamic, dynamic> map) {
-    print("MediaStreamTrackNative.fromMap");
-    try {
-      return MediaStreamTrackNative(
-          map['id'], map['label'], map['kind'], map['enabled'], map['settings'], map['deviceId']);
-    } catch (e) {
-      print("Exception thrown while fromMap: " + map.toString());
-      throw UnimplementedError();
-    }
+    return MediaStreamTrackNative(
+        map['id'], map['label'], map['kind'], map['enabled'], map['settings'], map['deviceId']);
   }
   final String _trackId;
   final String _label;
@@ -119,9 +113,13 @@ class MediaStreamTrackNative extends MediaStreamTrack {
 
   @override
   Future<void> stop() async {
-    await WebRTC.invokeMethod(
-      'trackDispose',
-      <String, dynamic>{'trackId': _trackId},
-    );
+    try {
+      await WebRTC.invokeMethod(
+        'trackDispose',
+        <String, dynamic>{'trackId': _trackId},
+      );
+    } catch (e) {
+
+    }
   }
 }

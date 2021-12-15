@@ -75,8 +75,8 @@ public class GetUserMediaImpl {
     private final Map<String, VideoCapturerInfo> mVideoCapturers = new HashMap<>();
 
     private final Map<String, MediaStreamTrackSettings> mediaStreamTrackSettings = new HashMap<>();
-    private AudioSource audioSource = null;
-    private AudioTrack audioTrack = null;
+
+    private final Map<String, VideoSource> videoSources = new HashMap<>();
 
     private final StateProvider stateProvider;
     private final Context applicationContext;
@@ -156,22 +156,12 @@ public class GetUserMediaImpl {
      * @return String value of "sourceId" optional "GUM" constraint or <tt>null</tt> if not specified.
      */
     private String getSourceIdConstraint(ConstraintsMap mediaConstraints) {
-        if (mediaConstraints != null
-                && mediaConstraints.hasKey("optional")
-                && mediaConstraints.getType("optional") == ObjectType.Array) {
-            ConstraintsArray optional = mediaConstraints.getArray("optional");
-
-            for (int i = 0, size = optional.size(); i < size; i++) {
-                if (optional.getType(i) == ObjectType.Map) {
-                    ConstraintsMap option = optional.getMap(i);
-
-                    if (option.hasKey("sourceId") && option.getType("sourceId") == ObjectType.String) {
-                        return option.getString("sourceId");
-                    }
-                }
+        if (mediaConstraints != null && mediaConstraints.hasKey("optional") && mediaConstraints.getType("optional") == ObjectType.Map) {
+            ConstraintsMap optional = mediaConstraints.getMap("optional");
+            if (optional.hasKey("sourceId") && optional.getType("sourceId") == ObjectType.String) {
+                return optional.getString("sourceId");
             }
         }
-
         return null;
     }
 
@@ -189,12 +179,8 @@ public class GetUserMediaImpl {
         String trackId = stateProvider.getNextTrackUUID();
         PeerConnectionFactory pcFactory = stateProvider.getPeerConnectionFactory();
         AudioSource source = pcFactory.createAudioSource(audioConstraints);
-        audioSource = source;
-        Log.d(TAG, "GETUSERAUDIO");
         AudioTrack track = pcFactory.createAudioTrack(trackId, source);
-        audioTrack = track;
 
-//        return pcFactory.createAudioTrack(trackId, source);
         return track;
     }
 
@@ -431,6 +417,7 @@ public class GetUserMediaImpl {
 
         String trackId = stateProvider.getNextTrackUUID();
         mVideoCapturers.put(trackId, info);
+        videoSources.put(trackId, videoSource);
 
         MediaStreamTrackSettings settings = new MediaStreamTrackSettings();
         settings.deviceId = deviceId;
@@ -448,14 +435,6 @@ public class GetUserMediaImpl {
 
     void removeVideoCapturer(String id) {
         VideoCapturerInfo info = mVideoCapturers.get(id);
-        if (audioSource != null) {
-            audioSource.dispose();
-            audioSource = null;
-        }
-        if (audioTrack != null) {
-            audioTrack.dispose();
-            audioTrack = null;
-        }
         if (info != null) {
             try {
                 info.capturer.stopCapture();
@@ -464,10 +443,7 @@ public class GetUserMediaImpl {
             } finally {
                 info.capturer.dispose();
                 mVideoCapturers.remove(id);
-                Log.d(TAG, "VideoCapturer disposed");
             }
-        } else {
-            Log.e(TAG, "VideoCapturer not found");
         }
     }
 
@@ -551,6 +527,17 @@ public class GetUserMediaImpl {
             }
         }
         resultError("switchCamera", "Switching camera failed: " + id, result);
+    }
+
+    void disposeSource(String trackId) {
+        VideoCapturerInfo capturerInfo = mVideoCapturers.get(trackId);
+        if (capturerInfo != null) {
+            capturerInfo.capturer.dispose();
+        }
+        VideoSource videoSource = videoSources.get(trackId);
+        if (videoSource != null) {
+            videoSource.dispose();
+        }
     }
 
     void hasTorch(String trackId, Result result) {

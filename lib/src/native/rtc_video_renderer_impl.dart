@@ -104,8 +104,9 @@ class RTCVideoRendererNative extends VideoRenderer {
       throw Exception('Can\'t be muted: The MediaStream is null');
     }
     if (_srcObject!.ownerTag != 'local') {
-      throw Exception(
-          'You\'re trying to mute a remote track, this is not supported');
+      return;
+      // throw Exception(
+      //     'You\'re trying to mute a remote track, this is not supported');
     }
     if (_srcObject!.getAudioTracks().isEmpty) {
       throw Exception('Can\'t be muted: The MediaStreamTrack(audio) is empty');

@@ -20,6 +20,9 @@ import com.cloudwebrtc.webrtc.utils.ObjectType;
 import com.cloudwebrtc.webrtc.utils.RTCUtils;
 
 import org.webrtc.AudioTrack;
+import org.webrtc.Camera1Enumerator;
+import org.webrtc.Camera2Enumerator;
+import org.webrtc.CameraEnumerator;
 import org.webrtc.CryptoOptions;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.EglBase;
@@ -49,6 +52,7 @@ import org.webrtc.VideoTrack;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,8 +277,12 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 mediaStreamAddTrack(streamId, trackId, result);
                 for (int i = 0; i < renderers.size(); i++) {
                     FlutterRTCVideoRenderer renderer = renderers.get(i);
-                    if (renderer.checkMediaStream(streamId)) {
-                        renderer.setVideoTrack((VideoTrack) getLocalTrack(trackId));
+                    try {
+                        if (renderer.checkMediaStream(streamId)) {
+                            renderer.setVideoTrack((VideoTrack) getLocalTrack(trackId));
+                        }
+                    } catch (Exception e) {
+
                     }
                 }
                 break;
@@ -292,11 +300,61 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 break;
             }
             case "trackDispose": {
-                Log.d(TAG, "trackDispose");
-                // TODO (evdokimovs): Implement MediaStreamTracks disposing in
-                //                    the "Implement missing flutter_webrtc APIs" PR
                  String trackId = call.argument("trackId");
-                 getUserMediaImpl.removeVideoCapturer(trackId);
+                 int renderersSize = renderers.size();
+                for (int i = 0; i < renderersSize; i++) {
+                    try {
+                        FlutterRTCVideoRenderer renderer = renderers.get(i);
+                        if (renderer == null) {
+                            renderers.remove(i);
+                            renderersSize--;
+                            i--;
+                            if (renderersSize > i) {
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (renderer.checkVideoTrack(trackId)) {
+                            renderer.Dispose();
+                            renderers.remove(i);
+                            renderersSize--;
+                            i--;
+                            if (renderersSize > i) {
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+                MediaStreamTrack track = getLocalTrack(trackId);
+                 ArrayList<MediaStreamTrack> tracksToDispose = new ArrayList();
+                 while (track != null) {
+                     for (MediaStream s : localStreams.values()) {
+                         for (MediaStreamTrack t : s.audioTracks) {
+                             if (t.id().equals(trackId)) {
+                                 s.removeTrack((AudioTrack) track);
+                             }
+                         }
+                         for (MediaStreamTrack t : s.videoTracks) {
+                             if (t.id().equals(trackId)) {
+                                 s.removeTrack((VideoTrack) track);
+                             }
+                         }
+                     }
+                     tracksToDispose.add(track);
+                     track = getLocalTrack(trackId);
+                 }
+                 try {
+                     MediaStreamTrack rootTrack = tracksToDispose.get(0);
+                     rootTrack.dispose();
+                     getUserMediaImpl.disposeSource(trackId);
+                 } catch (Exception e) {
+
+                 }
 
                 result.success(null);
                 break;
@@ -308,7 +366,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 break;
             }
             case "peerConnectionDispose": {
-                Log.d(TAG, "DISPOSE PEER_CONNECTION");
                 String peerConnectionId = call.argument("peerConnectionId");
                 peerConnectionDispose(peerConnectionId);
                 result.success(null);
@@ -832,7 +889,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         PeerConnection peerConnection
                 = mFactory.createPeerConnection(
                 conf,
-                parseMediaConstraints(constraints),
                 observer);
         observer.setPeerConnection(peerConnection);
         if (mPeerConnectionObservers.size() == 0) {
@@ -926,16 +982,29 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     public void getSources(Result result) {
         ConstraintsArray array = new ConstraintsArray();
 
-        for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
-            ConstraintsMap info = getCameraInfo(i);
-            if (info != null) {
-                array.pushMap(info);
-            }
+        CameraEnumerator cameraEnumerator;
+
+        if (Camera2Enumerator.isSupported(context)) {
+            Log.d(TAG, "Creating video capturer using Camera2 API.");
+            cameraEnumerator = new Camera2Enumerator(context);
+        } else {
+            Log.d(TAG, "Creating video capturer using Camera1 API.");
+            cameraEnumerator = new Camera1Enumerator(false);
+        }
+
+        for (String deviceName : cameraEnumerator.getDeviceNames()) {
+            ConstraintsMap params = new ConstraintsMap();
+            String facingMode = cameraEnumerator.isBackFacing(deviceName) ? "back" : "front";
+            params.putString("facing", facingMode);
+            params.putString("deviceId", deviceName);
+            params.putString("label", "Camera " + deviceName + ", Facing " + facingMode);
+            params.putString("kind", "videoinput");
+            array.pushMap(params);
         }
 
         ConstraintsMap audio = new ConstraintsMap();
         audio.putString("label", "Audio");
-        audio.putString("deviceId", "NOT SUPPORTED");
+        audio.putString("deviceId", "undefined");
         audio.putString("facing", "");
         audio.putString("kind", "audioinput");
         array.pushMap(audio);
@@ -1243,6 +1312,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     }
 
     public void peerConnectionDispose(final String id) {
+        Log.d(TAG, "Disposing PeerConnection");
         PeerConnectionObserver pco = mPeerConnectionObservers.get(id);
         if (pco == null || pco.getPeerConnection() == null) {
             Log.d(TAG, "peerConnectionDispose() peerConnection is null");
@@ -1258,9 +1328,10 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     public void mediaStreamRelease(final String id) {
         MediaStream mediaStream = localStreams.get(id);
         if (mediaStream != null) {
-            for (VideoTrack track : mediaStream.videoTracks) {
-                getUserMediaImpl.removeVideoCapturer(track.id());
-            }
+//            for (VideoTrack track : mediaStream.videoTracks) {
+//                getUserMediaImpl.removeVideoCapturer(track.id());
+//            }
+            mediaStream.dispose();
             localStreams.remove(id);
         } else {
             Log.d(TAG, "mediaStreamRelease() mediaStream is null");
