@@ -72,6 +72,11 @@ pub mod ffi {
     }
 }
 
+#[no_mangle]
+unsafe extern "C" fn foo(fp: extern "C" fn()) {
+    stream_test(fp);
+}
+
 /// Contains all necessary tools for interoperate with [libWebRTC].
 ///
 /// [libWebrtc]: https://webrtc.googlesource.com/src/

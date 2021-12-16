@@ -17,10 +17,8 @@ fn main() -> anyhow::Result<()> {
     println!(
         "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/"
     );
-    println!("cargo:rustc-link-search=all=crates/libwebrtc-sys/sdl/lib/x64");
 
     println!("cargo:rustc-link-lib=webrtc");
-    println!("cargo:rustc-link-lib=SDL2");
     println!("cargo:rustc-link-lib=dylib=winmm");
     println!("cargo:rustc-link-lib=dylib=secur32");
     println!("cargo:rustc-link-lib=dylib=dmoguids");

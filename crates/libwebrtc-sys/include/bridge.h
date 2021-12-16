@@ -118,5 +118,7 @@ bool remove_audio_track(
     const std::unique_ptr<MediaStreamInterface>& media_stream,
     const std::unique_ptr<AudioTrackInterface>& track);
 
-void test();
+// typedef int32_t(cb)();
+// extern "C" void test(cb cb);
+void test(rust::Fn<void()> cb);
 }  // namespace WEBRTC

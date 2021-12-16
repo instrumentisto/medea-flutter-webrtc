@@ -10,12 +10,19 @@
 #include "rtc_base/win32.h"
 #include "third_party/libyuv/include/libyuv/convert_argb.h"
 
+#include "rust/cxx.h"
+
+void frame_rober();
+
+typedef void (*myfunc)();
+
 class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   VideoRenderer(HWND wnd,
                 int width,
                 int height,
-                webrtc::VideoTrackInterface* track_to_render);
+                webrtc::VideoTrackInterface* track_to_render,
+                rust::cxxbridge1::Fn<void()> cb);
   virtual ~VideoRenderer();
 
   void Lock() { ::EnterCriticalSection(&buffer_lock_); }
@@ -41,4 +48,5 @@ class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
   std::unique_ptr<uint8_t[]> image_;
   CRITICAL_SECTION buffer_lock_;
   rtc::scoped_refptr<webrtc::VideoTrackInterface> rendered_track_;
+  rust::cxxbridge1::Fn<void()> cb_;
 };

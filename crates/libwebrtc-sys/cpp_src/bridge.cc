@@ -262,7 +262,7 @@ LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
   return result;
 }
 
-void test() {
+void test(rust::Fn<void()> cb) {
   auto worker = create_thread();
   worker.get()->Start();
 
@@ -288,7 +288,7 @@ void test() {
                       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                       CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL), NULL);
 
-  c = new VideoRenderer(wnd, 640, 380, b.get()->getptr());
+  c = new VideoRenderer(wnd, 640, 380, b.get()->getptr(), cb);
 
   ShowWindow(wnd, SW_SHOWNORMAL);
   UpdateWindow(wnd);

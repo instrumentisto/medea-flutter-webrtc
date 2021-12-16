@@ -8,11 +8,12 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import 'src/data_channel_sample.dart';
 import 'src/get_display_media_sample.dart';
+import 'src/get_sources_sample.dart';
 import 'src/get_user_media_sample.dart'
     if (dart.library.html) 'src/get_user_media_sample_web.dart';
 import 'src/loopback_sample.dart';
+import 'src/renderer_test.dart';
 import 'src/route_item.dart';
-import 'src/get_sources_sample.dart';
 import 'src/test.dart';
 
 void main() {
@@ -129,6 +130,14 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => Test()));
+          }),
+      RouteItem(
+          title: 'renderer_test',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => RendererTest()));
           }),
     ];
   }

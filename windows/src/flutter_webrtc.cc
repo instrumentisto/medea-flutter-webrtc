@@ -10,6 +10,14 @@
 #define DEFAULT_HEIGHT 480
 #define DEFAULT_FPS 30
 
+typedef void (*myfunc)();
+
+extern "C" void foo(myfunc);
+
+void f() {
+  printf("%d\n", 322);
+}
+
 namespace flutter_webrtc_plugin {
 
 template <typename T>
@@ -183,6 +191,11 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("peerConnectionClose") == 0) {
   } else if (method_call.method_name().compare("peerConnectionDispose") == 0) {
   } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
+    foo(f);
+
+    EncodableMap params;
+    params[EncodableValue("textureId")] = EncodableValue("texture_id");
+    result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
              0) {
