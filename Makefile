@@ -72,7 +72,7 @@ flutter.pub:
 
 flutter.run:
 	cd example/ && \
-	flutter run -d windows
+	flutter run -d windows --release
 
 
 
