@@ -47,6 +47,9 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: 2.8.1
 
       - run: choco install make
 
