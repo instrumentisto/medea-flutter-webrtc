@@ -12,4 +12,6 @@ libwebrtc-sys = { path = "../libwebrtc-sys" }
 cxx = "1.0"
 
 [build-dependencies]
+anyhow = "1.0"
 cxx-build = "1.0"
+walkdir = "2.3"

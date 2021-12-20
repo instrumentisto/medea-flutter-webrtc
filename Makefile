@@ -99,6 +99,8 @@ cargo.build:
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
 		windows/rust/lib/flutter_webrtc_native.dll.lib
+	cp -f target/cxxbridge/cxxbridge1.lib \
+		windows/rust/lib/cxxbridge1.lib
 	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
 	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.cc \
