@@ -20,31 +20,10 @@ void f() {
 
 namespace flutter_webrtc_plugin {
 
-template <typename T>
-inline bool TypeIs(const EncodableValue val) {
-  return std::holds_alternative<T>(val);
-}
-
-template <typename T>
-inline const T GetValue(EncodableValue val) {
-  return std::get<T>(val);
-}
-
-inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<EncodableMap>(it->second))
-    return GetValue<EncodableMap>(it->second);
-  return EncodableMap();
-}
-
-inline std::string findString(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<std::string>(it->second))
-    return GetValue<std::string>(it->second);
-  return std::string();
-}
-
-FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
+FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
+    : FlutterWebRTCBase::FlutterWebRTCBase(plugin->messenger(),
+                                           plugin->textures()),
+      FlutterVideoRendererManager::FlutterVideoRendererManager(this) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 
@@ -191,11 +170,15 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("peerConnectionClose") == 0) {
   } else if (method_call.method_name().compare("peerConnectionDispose") == 0) {
   } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
-    foo(f);
+    // myfunc asd = []() { printf("%d\n", 8); };
+    // foo(asd);
 
-    EncodableMap params;
-    params[EncodableValue("textureId")] = EncodableValue("texture_id");
-    result->Success(EncodableValue(params));
+    CreateVideoRendererTexture(std::move(result));
+    // OnFrame();
+
+    // EncodableMap params;
+    // params[EncodableValue("textureId")] = EncodableValue("texture_id");
+    // result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
              0) {

@@ -213,21 +213,16 @@ pub fn remove_audio_track(
     webrtc::remove_audio_track(media_stream, track)
 }
 
+pub fn frame_width(frame: &UniquePtr<webrtc::VideoFrame>) -> i32 {
+    webrtc::frame_width(frame)
+}
+
 // extern "C" {
 //     pub fn test(cb: extern "C" fn() -> i32);
 // }
 
-static mut FN: extern "C" fn() = {
-    extern "C" fn __() {0;}
-    __
-};
-
-pub fn stream_test(cb: extern "C" fn()) -> bool {
-    unsafe {
-        FN = cb;
-    }
-
-    webrtc::test(|| {unsafe {FN()}});
+pub fn stream_test(cb: fn(UniquePtr<webrtc::VideoFrame>)) -> bool {
+    webrtc::test(cb);
     true
 }
 

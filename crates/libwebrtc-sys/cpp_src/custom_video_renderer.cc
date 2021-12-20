@@ -10,12 +10,12 @@ class AutoLock {
   T* obj_;
 };
 
-VideoRenderer::VideoRenderer(HWND wnd,
-                             int width,
-                             int height,
-                             webrtc::VideoTrackInterface* track_to_render,
-                             rust::cxxbridge1::Fn<void()> cb)
-    : wnd_(wnd), rendered_track_(track_to_render), cb_(cb) {
+VideoRenderer::VideoRenderer(
+    int width,
+    int height,
+    webrtc::VideoTrackInterface* track_to_render,
+    rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>)> cb)
+    : rendered_track_(track_to_render), cb_(cb) {
   ::InitializeCriticalSection(&buffer_lock_);
   ZeroMemory(&bmi_, sizeof(bmi_));
   bmi_.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -49,7 +49,7 @@ void VideoRenderer::SetSize(int width, int height) {
 }
 
 void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
-  cb_();
+  cb_(std::make_unique<webrtc::VideoFrame>(video_frame));
   {
     AutoLock<VideoRenderer> lock(this);
 
@@ -68,5 +68,4 @@ void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
                        bmi_.bmiHeader.biWidth * bmi_.bmiHeader.biBitCount / 8,
                        buffer->width(), buffer->height());
   }
-  InvalidateRect(wnd_, NULL, TRUE);
 }

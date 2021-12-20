@@ -262,7 +262,59 @@ LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
   return result;
 }
 
-void test(rust::Fn<void()> cb) {
+int32_t frame_width(const std::unique_ptr<VideoFrame>& frame) {
+  return frame.get()->width();
+}
+
+int32_t frame_height(const std::unique_ptr<VideoFrame>& frame) {
+  return frame.get()->height();
+}
+
+int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame) {
+  return frame.get()->rotation();
+}
+
+std::unique_ptr<I420BufferInterface> i420_buffer(
+    const std::unique_ptr<VideoFrame>& frame) {
+  return std::make_unique<I420BufferInterface>(
+      frame.get()->video_frame_buffer().get()->ToI420());
+}
+
+rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame) {
+  auto video_frame = frame.get();
+  int size = video_frame->width() * video_frame->height() * (32 >> 3);
+  rust::Vec<uint8_t> out;
+  std::unique_ptr<uint8_t[]> image;
+  image.reset(new uint8_t[size]);
+
+  // auto frame_buffer = buffer.get()->getptr();
+
+  // libyuv::I420ToARGB(
+  //     frame_buffer->DataY(), frame_buffer->StrideY(), frame_buffer->DataU(),
+  //     frame_buffer->StrideU(), frame_buffer->DataV(),
+  //     frame_buffer->StrideV(), image.get(), frame_buffer->width() *
+  //     frame_buffer->height() / 8, frame_buffer->width(),
+  //     frame_buffer->height());
+
+  rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
+      video_frame->video_frame_buffer()->ToI420());
+  if (video_frame->rotation() != webrtc::kVideoRotation_0) {
+    buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame->rotation());
+  }
+
+  libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
+                     buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
+                     image.get(), video_frame->width() * 32 / 8,
+                     buffer->width(), buffer->height());
+
+  for (int i = 0; i < size; i++) {
+    out.push_back(image.get()[i]);
+  }
+
+  return out;
+}
+
+void test(rust::Fn<void(std::unique_ptr<VideoFrame>)> cb) {
   auto worker = create_thread();
   worker.get()->Start();
 
@@ -273,35 +325,36 @@ void test(rust::Fn<void()> cb) {
   auto a = create_video_source(worker, signal, 640, 380, 30);
   auto b = create_video_track(pcf, a);
 
-  WNDCLASSEXW wcex = {sizeof(WNDCLASSEX)};
-  wcex.style = CS_DBLCLKS;
-  wcex.hInstance = GetModuleHandle(NULL);
-  wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-  wcex.lpfnWndProc = DWProc;
-  wcex.lpszClassName = L"Test_Class";
-  wcex.hbrBackground = CreateSolidBrush(RGB(0, 0, 0));
-  ATOM wnd_class_ = ::RegisterClassExW(&wcex);
+  // WNDCLASSEXW wcex = {sizeof(WNDCLASSEX)};
+  // wcex.style = CS_DBLCLKS;
+  // wcex.hInstance = GetModuleHandle(NULL);
+  // wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+  // wcex.lpfnWndProc = DWProc;
+  // wcex.lpszClassName = L"Test_Class";
+  // wcex.hbrBackground = CreateSolidBrush(RGB(0, 0, 0));
+  // ATOM wnd_class_ = ::RegisterClassExW(&wcex);
 
-  HWND wnd =
-      CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, L"Test_Class", L"Test",
-                      WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
-                      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                      CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL), NULL);
+  // HWND wnd =
+  //     CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, L"Test_Class", L"Test",
+  //                     WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
+  //                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+  //                     CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL),
+  //                     NULL);
 
-  c = new VideoRenderer(wnd, 640, 380, b.get()->getptr(), cb);
+  c = new VideoRenderer(640, 380, b.get()->getptr(), cb);
 
-  ShowWindow(wnd, SW_SHOWNORMAL);
-  UpdateWindow(wnd);
+  // ShowWindow(wnd, SW_SHOWNORMAL);
+  // UpdateWindow(wnd);
 
-  DWORD d = GetLastError();
-  printf("bridge %d\n", d);
+  // DWORD d = GetLastError();
+  // printf("bridge %d\n", d);
 
-  MSG Msg;
+  // MSG Msg;
 
-  while (GetMessage(&Msg, NULL, 0, 0) > 0) {
-    TranslateMessage(&Msg);
-    DispatchMessage(&Msg);
-  }
+  // while (GetMessage(&Msg, NULL, 0, 0) > 0) {
+  //   TranslateMessage(&Msg);
+  //   DispatchMessage(&Msg);
+  // }
 
   // system("PAUSE");
 }

@@ -166,6 +166,7 @@ pub fn init() -> Box<Webrtc> {
         audio_sources: HashMap::new(),
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
+        renderers: HashMap::new(),
     })))
 }
 

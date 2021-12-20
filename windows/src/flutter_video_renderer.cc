@@ -1,6 +1,12 @@
 #include "flutter_video_renderer.h"
+#include "flutter_webrtc_native.h"
+#include "wrapper.h"
 
 namespace flutter_webrtc_plugin {
+
+typedef void (*myfunc)(const FrameInfo*);
+
+extern "C" void foo(myfunc);
 
 FlutterVideoRenderer::FlutterVideoRenderer(TextureRegistrar* registrar,
                                            BinaryMessenger* messenger)
@@ -39,13 +45,14 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
     size_t width,
     size_t height) const {
   mutex_.lock();
+
   if (pixel_buffer_.get() && frame_.get()) {
-    if (pixel_buffer_->width != frame_->width() ||
-        pixel_buffer_->height != frame_->height()) {
-      size_t buffer_size = (frame_->width() * frame_->height()) * (32 >> 3);
+    if (pixel_buffer_->width != frame_->width ||
+        pixel_buffer_->height != frame_->height) {
+      size_t buffer_size = (frame_->width * frame_->height) * (32 >> 3);
       rgb_buffer_.reset(new uint8_t[buffer_size]);
-      pixel_buffer_->width = frame_->width();
-      pixel_buffer_->height = frame_->height();
+      pixel_buffer_->width = frame_->width;
+      pixel_buffer_->height = frame_->height;
     }
 
     frame_->ConvertToARGB(RTCVideoFrame::Type::kABGR, rgb_buffer_.get(), 0,
@@ -60,7 +67,7 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
   return nullptr;
 }
 
-void FlutterVideoRenderer::OnFrame(scoped_refptr<RTCVideoFrame> frame) {
+void FlutterVideoRenderer::OnFrame(const FrameInfo* frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
       EncodableMap params;
@@ -73,29 +80,28 @@ void FlutterVideoRenderer::OnFrame(scoped_refptr<RTCVideoFrame> frame) {
     pixel_buffer_->height = 0;
     first_frame_rendered = true;
   }
-  if (rotation_ != frame->rotation()) {
+  if (rotation_ != frame->rotation) {
     if (event_sink_) {
       EncodableMap params;
       params[EncodableValue("event")] = "didTextureChangeRotation";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       params[EncodableValue("rotation")] =
-          EncodableValue((int32_t)frame->rotation());
+          EncodableValue((int32_t)frame->rotation);
       event_sink_->Success(EncodableValue(params));
     }
-    rotation_ = frame->rotation();
+    rotation_ = frame->rotation;
   }
-  if (last_frame_size_.width != frame->width() ||
-      last_frame_size_.height != frame->height()) {
+  if (last_frame_size_.width != frame->width ||
+      last_frame_size_.height != frame->height) {
     if (event_sink_) {
       EncodableMap params;
       params[EncodableValue("event")] = "didTextureChangeVideoSize";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
-      params[EncodableValue("width")] = EncodableValue((int32_t)frame->width());
-      params[EncodableValue("height")] =
-          EncodableValue((int32_t)frame->height());
+      params[EncodableValue("width")] = EncodableValue((int32_t)frame->width);
+      params[EncodableValue("height")] = EncodableValue((int32_t)frame->height);
       event_sink_->Success(EncodableValue(params));
     }
-    last_frame_size_ = {(size_t)frame->width(), (size_t)frame->height()};
+    last_frame_size_ = {(size_t)frame->width, (size_t)frame->height};
   }
   mutex_.lock();
   frame_ = frame;
@@ -103,31 +109,32 @@ void FlutterVideoRenderer::OnFrame(scoped_refptr<RTCVideoFrame> frame) {
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
 
-void FlutterVideoRenderer::SetVideoTrack(scoped_refptr<RTCVideoTrack> track) {
-  if (track_ != track) {
-    if (track_)
-      track_->RemoveRenderer(this);
-    track_ = track;
-    last_frame_size_ = {0, 0};
-    first_frame_rendered = false;
-    if (track_)
-      track_->AddRenderer(this);
-  }
-}
+// void FlutterVideoRenderer::SetVideoTrack(scoped_refptr<RTCVideoTrack> track)
+// {
+//   if (track_ != track) {
+//     if (track_)
+//       track_->RemoveRenderer(this);
+//     track_ = track;
+//     last_frame_size_ = {0, 0};
+//     first_frame_rendered = false;
+//     if (track_)
+//       track_->AddRenderer(this);
+//   }
+// }
 
-bool FlutterVideoRenderer::CheckMediaStream(std::string mediaId) {
-  if (0 == mediaId.size() || 0 == media_stream_id.size()) {
-    return false;
-  }
-  return mediaId == media_stream_id;
-}
+// bool FlutterVideoRenderer::CheckMediaStream(std::string mediaId) {
+//   if (0 == mediaId.size() || 0 == media_stream_id.size()) {
+//     return false;
+//   }
+//   return mediaId == media_stream_id;
+// }
 
-bool FlutterVideoRenderer::CheckVideoTrack(std::string mediaId) {
-  if (0 == mediaId.size() || !track_) {
-    return false;
-  }
-  return mediaId == track_->id().std_string();
-}
+// bool FlutterVideoRenderer::CheckVideoTrack(std::string mediaId) {
+//   if (0 == mediaId.size() || !track_) {
+//     return false;
+//   }
+//   return mediaId == track_->id().std_string();
+// }
 
 FlutterVideoRendererManager::FlutterVideoRendererManager(
     FlutterWebRTCBase* base)
@@ -141,24 +148,30 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
   renderers_[texture_id] = std::move(texture);
   EncodableMap params;
   params[EncodableValue("textureId")] = EncodableValue(texture_id);
+
+  auto cb = std::bind(&FlutterVideoRenderer::OnFrame, texture.get(),
+                      std::placeholders::_1);
+  myfunc wrapped_cb = Wrapper<0, void(const Keklol*)>::wrap(cb);
+  foo(wrapped_cb);
+
   result->Success(EncodableValue(params));
 }
 
 void FlutterVideoRendererManager::SetMediaStream(int64_t texture_id,
                                                  const std::string& stream_id) {
-  scoped_refptr<RTCMediaStream> stream = base_->MediaStreamForId(stream_id);
+  // scoped_refptr<RTCMediaStream> stream = base_->MediaStreamForId(stream_id);
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
-    FlutterVideoRenderer* renderer = it->second.get();
-    if (stream.get()) {
-      auto video_tracks = stream->video_tracks();
-      if (video_tracks.size() > 0) {
-        renderer->SetVideoTrack(video_tracks[0]);
-        renderer->media_stream_id = stream_id;
-      }
-    } else {
-      renderer->SetVideoTrack(nullptr);
-    }
+    // FlutterVideoRenderer* renderer = it->second.get();
+    // if (stream.get()) {
+    //   auto video_tracks = stream->video_tracks();
+    //   if (video_tracks.size() > 0) {
+    //     renderer->SetVideoTrack(video_tracks[0]);
+    //     renderer->media_stream_id = stream_id;
+    //   }
+    // } else {
+    // renderer->SetVideoTrack(nullptr);
+    // }
   }
 }
 

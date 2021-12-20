@@ -59,6 +59,17 @@ pub mod ffi {
         Video,
     }
 
+    struct Keklol {
+        id: i32,
+    }
+
+    struct FrameInfo {
+        width: i32,
+        height: i32,
+        rotation: i32,
+        buffer: Vec<u8>,
+    }
+
     extern "Rust" {
         type Webrtc;
 
@@ -72,9 +83,44 @@ pub mod ffi {
     }
 }
 
+// pub struct Keklol {
+//     id: i32,
+// }
+
+impl ffi::Keklol {
+    pub fn rise(&mut self) {
+        self.id += 1;
+    }
+
+    pub fn get(&self) -> i32 {
+        self.id
+    }
+}
+
+static mut FN: extern "C" fn(*const ffi::FrameInfo) = {
+    extern "C" fn __(_: *const ffi::FrameInfo) {
+        0;
+    }
+    __
+};
+
+pub fn cb(frame: UniquePtr<webrtc::VideoFrame>) {
+    let a = ffi::FrameInfo {
+        width: webrtc::frame_width(&frame),
+        height: webrtc::frame_height(&frame),
+        rotation: webrtc::frame_rotation(&frame),
+        buffer: webrtc::convert_to_argb(&frame),
+    };
+    unsafe {
+        FN(Box::into_raw(Box::new(a)));
+    }
+}
+
 #[no_mangle]
-unsafe extern "C" fn foo(fp: extern "C" fn()) {
-    stream_test(fp);
+unsafe extern "C" fn foo(fp: extern "C" fn(*const ffi::FrameInfo)) {
+    FN = fp;
+
+    stream_test(cb);
 }
 
 /// Contains all necessary tools for interoperate with [libWebRTC].
@@ -91,6 +137,14 @@ pub struct Inner {
         HashMap<AudioSourceId, UniquePtr<webrtc::AudioSourceInterface>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<StreamId, MediaStream>,
+    renderers: HashMap<String, Renderer>,
+}
+
+struct Renderer {
+    texture: String,
+    stream: MediaStream,
+    frames: HashMap<String, UniquePtr<webrtc::VideoFrame>>,
+    callback: extern "C" fn(),
 }
 
 /// Wraps the [Inner] instanse.

@@ -14,7 +14,7 @@ class RendererTest extends StatefulWidget {
 
 class _RendererTestState extends State<RendererTest> {
   MediaStream? _localStream;
-  // final _localRenderer = RTCVideoRenderer();
+  final _localRenderer = RTCVideoRenderer();
   bool _inCalling = false;
   bool _isTorchOn = false;
   // MediaRecorder? _mediaRecorder;
@@ -22,11 +22,11 @@ class _RendererTestState extends State<RendererTest> {
 
   List<MediaDeviceInfo>? _mediaDevicesList;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   initRenderers();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    initRenderers();
+  }
 
   @override
   void deactivate() {
@@ -42,9 +42,9 @@ class _RendererTestState extends State<RendererTest> {
     print(a['textureId']);
   }
 
-  // void initRenderers() async {
-  //   await _localRenderer.initialize();
-  // }
+  void initRenderers() async {
+    await _localRenderer.initialize();
+  }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   void _makeCall() async {
@@ -170,11 +170,10 @@ class _RendererTestState extends State<RendererTest> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Renderer'), actions: [
-        IconButton(
-          icon: Icon(_isTorchOn ? Icons.flash_off : Icons.flash_on),
-          onPressed: test,
-        ),
-
+        // IconButton(
+        //   icon: Icon(_isTorchOn ? Icons.flash_off : Icons.flash_on),
+        //   onPressed: test,
+        // ),
         // IconButton(
         //   icon: Icon(Icons.switch_video),
         //   onPressed: _toggleCamera,
@@ -212,7 +211,7 @@ class _RendererTestState extends State<RendererTest> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               decoration: BoxDecoration(color: Colors.black54),
-              // child: RTCVideoView(_localRenderer, mirror: true),
+              child: RTCVideoView(_localRenderer, mirror: true),
             ),
           );
         },

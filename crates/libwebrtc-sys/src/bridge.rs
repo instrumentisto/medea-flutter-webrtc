@@ -14,6 +14,9 @@ pub mod webrtc {
         type VideoTrackInterface;
         type AudioTrackInterface;
         type MediaStreamInterface;
+        type VideoFrame;
+        type I420BufferInterface;
+        type Image;
 
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
 
@@ -102,6 +105,16 @@ pub mod webrtc {
             track: &UniquePtr<AudioTrackInterface>,
         ) -> bool;
 
-        pub fn test(cb: fn());
+        pub fn frame_width(frame: &UniquePtr<VideoFrame>) -> i32;
+        
+        pub fn frame_height(frame: &UniquePtr<VideoFrame>) -> i32;
+        
+        pub fn frame_rotation(frame: &UniquePtr<VideoFrame>) -> i32;
+
+        pub fn i420_buffer(frame: &UniquePtr<VideoFrame>) -> UniquePtr<I420BufferInterface>;
+        
+        pub fn convert_to_argb(frame: &UniquePtr<VideoFrame>) -> Vec<u8>;
+
+        pub fn test(cb: fn(UniquePtr<VideoFrame>));
     }
 }
