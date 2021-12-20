@@ -4,7 +4,8 @@ use anyhow::{anyhow, Context};
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
-    cxx_build::bridge("src/lib.rs").compile("jason_flutter_webrtc");
+    let package_name = env::var("CARGO_PKG_NAME")?.replace("-", "_");
+    cxx_build::bridge("src/lib.rs").compile(&package_name);
 
     copy_cxxbridge1_lib()?;
 
