@@ -8,8 +8,8 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-libwebrtc-sys = { path = "../libwebrtc-sys" }
 cxx = "1.0"
+libwebrtc-sys = { path = "../libwebrtc-sys" }
 
 [build-dependencies]
 anyhow = "1.0"

@@ -15,7 +15,7 @@ void FlutterWebRTC::HandleMethodCall(
   if (method_call.method_name().compare("getSystemTime") == 0) {
     int64_t millis = SystemTimeMillis();
 
-    { // Just to make sure that we can access cxx's Rust types.
+    { // Just to make sure that we can access `cxx`'s Rust types.
       auto rust_vec = ReturnRustVec();
       rust_vec.push_back(77);
     }

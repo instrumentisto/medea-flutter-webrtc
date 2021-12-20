@@ -12,8 +12,8 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Finds and copies compiled `cxxbridge1` static library to the
-/// `target/cxxbridge` directory.
+/// Finds and copies the compiled `cxxbridge1` static library to the
+/// `target/cxxbridge/` directory.
 fn copy_cxxbridge1_lib() -> anyhow::Result<()> {
     let out_dir = env::var_os("OUT_DIR")
         .ok_or(anyhow!("`OUT_DIR` environment variable not found"))?;
@@ -21,10 +21,10 @@ fn copy_cxxbridge1_lib() -> anyhow::Result<()> {
     let cxxbridge_dir = out_dir_path
         .ancestors()
         .nth(4)
-        .ok_or(anyhow!("Could not find `target` directory"))?
+        .ok_or(anyhow!("Could not find `target/` directory"))?
         .join("cxxbridge");
     let build_dir = out_dir_path.ancestors().nth(2).ok_or(anyhow!(
-        "Could not find `target/debug|release/build` directory"
+        "Could not find `target/debug/`|`release/build/` directory",
     ))?;
     let target_env = env::var("CARGO_CFG_TARGET_ENV")?;
     let lib_name = if target_env == "msvc" {
@@ -41,11 +41,11 @@ fn copy_cxxbridge1_lib() -> anyhow::Result<()> {
 
     let cxxbridge = libs
         .pop()
-        .with_context(|| "Could not find cxxbridge1 static library.")?;
+        .with_context(|| "Could not find `cxxbridge1` static library.")?;
     if !libs.is_empty() {
         return Err(anyhow!(
-            "Found multiple cxxbridge1 libraries, only one is expected, try \
-            running `cargo clean`."
+            "Found multiple `cxxbridge1` libraries, only one is expected, try \
+             running `cargo clean`."
         ));
     }
 
