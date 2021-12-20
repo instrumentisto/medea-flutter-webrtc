@@ -49,11 +49,11 @@ test: cargo.test
 # Build Flutter example application for Windows.
 #
 # Usage:
-#	make flutter.build [debug=(yes|no)]
+#	make flutter.build
 
 flutter.build:
 	cd example/ && \
-	flutter build windows $(if $(call eq,$(debug),no),--release,--debug)
+	flutter build windows
 
 
 # Install Flutter Pub dependencies.
