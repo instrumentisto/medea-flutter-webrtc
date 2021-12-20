@@ -10,17 +10,8 @@ pub mod ffi {
     }
 
     extern "Rust" {
-        #[cxx_name = "SystemTimeMillis"]
-        fn system_time_millis() -> i64;
-
-        #[cxx_name = "ReturnRustVec"]
-        fn return_rust_vec() -> Vec<u64>;
+        fn enumerate_devices() -> Vec<DeviceInfo>;
     }
-}
-
-// TODO: For demonstration purposes only, will be remove in the next PR.
-fn return_rust_vec() -> Vec<u64> {
-    vec![1, 2, 3]
 }
 
 enum AudioKind {
@@ -57,7 +48,38 @@ fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
             label: audio_device_info.1,
         };
 
-#[no_mangle]
-pub extern "C" fn SystemTimeMillis() -> i64 {
-    system_time_millis()
+        list.push(device_info);
+    }
+
+    list
+}
+
+fn video_devices_info() -> Vec<ffi::DeviceInfo> {
+    let video_device_module = create_video_device_module();
+    let video_device_count = count_video_devices(&video_device_module);
+    let mut list = vec![];
+
+    for i in 0..video_device_count {
+        let video_device_info = get_video_device_info(&video_device_module, i);
+
+        let device_info = ffi::DeviceInfo {
+            deviceId: video_device_info.0,
+            kind: "videoinput".to_string(),
+            label: video_device_info.1,
+        };
+
+        list.push(device_info);
+    }
+
+    list
+}
+
+/// Enumerates all the available media devices.
+pub fn enumerate_devices() -> Vec<ffi::DeviceInfo> {
+    let iters = audio_devices_info(AudioKind::Playout)
+        .into_iter()
+        .chain(audio_devices_info(AudioKind::Recording).into_iter())
+        .chain(video_devices_info().into_iter());
+
+    iters.collect()
 }
