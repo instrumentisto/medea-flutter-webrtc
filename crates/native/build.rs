@@ -43,10 +43,10 @@ fn copy_cxxbridge1_lib() -> anyhow::Result<()> {
         .pop()
         .with_context(|| "Could not find cxxbridge1 static library.")?;
     if !libs.is_empty() {
-        panic!(
+        return Err(anyhow!(
             "Found multiple cxxbridge1 libraries, only one is expected, try \
             running `cargo clean`."
-        );
+        ));
     }
 
     fs::copy(cxxbridge.path(), cxxbridge_dir.join(lib_name))?;
