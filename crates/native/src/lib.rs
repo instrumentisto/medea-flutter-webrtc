@@ -25,8 +25,8 @@ pub mod ffi {
 
 /// Enumerates all the available media devices.
 pub fn enumerate_devices() -> Vec<ffi::MediaDeviceInfo> {
-    let mut audio_playout = audio_devices_info(AudioKind::Playout);
-    let mut audio_recording = audio_devices_info(AudioKind::Recording);
+    let mut audio_playout = audio_devices_info(true);
+    let mut audio_recording = audio_devices_info(false);
     let mut video = video_devices_info();
 
     audio_playout.append(&mut audio_recording);
@@ -51,10 +51,10 @@ fn audio_devices_info(playout: bool) -> Vec<ffi::MediaDeviceInfo> {
     let mut result = Vec::with_capacity(count as usize);
 
     for i in 0..count {
-        let info = if playout {
-            adm.playout_device_name(i);
+        let (device_id, label) = if playout {
+            adm.playout_device_name(i)
         } else {
-            adm.recording_device_name(i);
+            adm.recording_device_name(i)
         };
 
         let kind = if playout {
@@ -64,9 +64,9 @@ fn audio_devices_info(playout: bool) -> Vec<ffi::MediaDeviceInfo> {
         };
 
         result.push(ffi::MediaDeviceInfo {
-            device_id: info.0,
+            device_id,
             kind,
-            label: info.1,
+            label,
         });
     }
 
@@ -79,12 +79,12 @@ fn video_devices_info() -> Vec<ffi::MediaDeviceInfo> {
     let mut result = Vec::with_capacity(count as usize);
 
     for i in 0..count {
-        let info = vdi.get_device_name(i);
+        let (device_id, label) = vdi.get_device_name(i);
 
         result.push(ffi::MediaDeviceInfo {
-            device_id: info.0,
+            device_id,
             kind: ffi::MediaDeviceKind::kVideoInput,
-            label: info.1,
+            label,
         });
     }
 
