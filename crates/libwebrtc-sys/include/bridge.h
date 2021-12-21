@@ -53,7 +53,5 @@ namespace bridge {
 
     std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info();
 
-    uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info);
-
-    rust::Vec<rust::String> video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info, uint32_t index);
+    rust::Vec<rust::String> video_device_name(webrtc::VideoCaptureModule::DeviceInfo &device_info, uint32_t index);
 }

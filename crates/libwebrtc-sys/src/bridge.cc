@@ -68,19 +68,14 @@ create_video_device_info() {
   return ptr;
 };
 
-uint32_t number_of_video_devices(
-    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info) {
-  return device_info->NumberOfDevices();
-};
-
 rust::Vec<rust::String> video_device_name(
-    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
+    webrtc::VideoCaptureModule::DeviceInfo &device_info,
     uint32_t index
 ) {
   char name[256];
   char guid[256];
 
-  device_info->GetDeviceName(index, name, 256, guid, 256);
+  device_info.GetDeviceName(index, name, 256, guid, 256);
 
   return {name, guid};
 };

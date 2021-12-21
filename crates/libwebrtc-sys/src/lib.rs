@@ -79,13 +79,13 @@ impl VideoDeviceInfo {
     }
 
     /// Returns count of a video recording devices.
-    pub fn number_of_devices(&self) -> u32 {
-        webrtc::number_of_video_devices(&self.0)
+    pub fn number_of_devices(&mut self) -> u32 {
+        self.0.pin_mut().number_of_video_devices()
     }
 
     /// Returns a tuple with an video recording device information `(id, name)`.
-    pub fn device_name(&self, index: u32) -> (String, String) {
-        let mut info = webrtc::video_device_name(&self.0, index);
+    pub fn device_name(&mut self, index: u32) -> (String, String) {
+        let mut info = webrtc::video_device_name(self.0.pin_mut(), index);
         (info.pop().unwrap(), info.pop().unwrap())
     }
 }

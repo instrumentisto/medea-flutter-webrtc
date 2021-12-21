@@ -79,12 +79,14 @@ pub(crate) mod webrtc {
 
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
+        #[namespace = "webrtc"]
+        #[cxx_name = "NumberOfDevices"]
         pub fn number_of_video_devices(
-            device_info: &UniquePtr<VideoDeviceInfo>,
+            self: Pin<&mut VideoDeviceInfo>,
         ) -> u32;
 
         pub fn video_device_name(
-            device_info: &UniquePtr<VideoDeviceInfo>,
+            device_info: Pin<&mut VideoDeviceInfo>,
             index: u32,
         ) -> Vec<String>;
     }

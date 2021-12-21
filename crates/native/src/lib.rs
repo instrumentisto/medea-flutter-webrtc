@@ -96,7 +96,7 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
 
 /// Returns a list of the available video input devices.
 fn video_devices_info() -> Vec<MediaDeviceInfo> {
-    let vdi = VideoDeviceInfo::create_device_info();
+    let mut vdi = VideoDeviceInfo::create_device_info();
     let count = vdi.number_of_devices();
     let mut result = Vec::with_capacity(count as usize);
 
