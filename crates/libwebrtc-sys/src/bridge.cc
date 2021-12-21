@@ -45,30 +45,21 @@ rust::Vec<rust::String> playout_device_name(
                                                 name,
                                                 guid);
 
-  rust::String strname = name;
-  rust::String strid = guid;
-
-  rust::Vec<rust::String> info = {strname, strid};
-  return info;
+  return {name, guid};
 };
 
 rust::Vec<rust::String> recording_device_name(
     const std::unique_ptr<AudioDeviceModule> &audio_device_module,
     int16_t index
 ) {
-  char strNameUTF8[128];
-  char strGuidUTF8[128];
+  char name[webrtc::kAdmMaxDeviceNameSize];
+  char guid[webrtc::kAdmMaxGuidSize];
 
   audio_device_module->ptr()->RecordingDeviceName(
-      index, strNameUTF8, strGuidUTF8
+      index, name, guid
   );
 
-  rust::String strname = strNameUTF8;
-  rust::String strid = strGuidUTF8;
-
-  rust::Vec<rust::String> info = {strname, strid};
-
-  return info;
+  return {name, guid};
 };
 
 std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>
@@ -88,15 +79,11 @@ rust::Vec<rust::String> video_device_name(
     const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
     uint32_t index
 ) {
-  char device_name[256];
-  char unique_id[256];
+  char name[256];
+  char guid[256];
 
-  device_info->GetDeviceName(index, device_name, 256, unique_id, 256);
+  device_info->GetDeviceName(index, name, 256, guid, 256);
 
-  rust::String strname = device_name;
-  rust::String strid = unique_id;
-
-  rust::Vec<rust::String> info = {strname, strid};
-  return info;
+  return {name, guid};
 };
 }

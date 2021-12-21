@@ -68,14 +68,15 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
         Vec::with_capacity((count_playout + count_recording) as usize);
 
     for kind in [MediaDeviceKind::kAudioOutput, MediaDeviceKind::kAudioInput] {
-        let count = if MediaDeviceKind::kAudioOutput = kind {
+        let count = if let MediaDeviceKind::kAudioOutput = kind {
             count_playout
         } else {
             count_recording
         };
 
         for i in 0..count {
-            let (device_id, label) = if MediaDeviceKind::kAudioOutput = kind {
+            let (device_id, label) = if let MediaDeviceKind::kAudioOutput = kind
+            {
                 adm.playout_device_name(i)
             } else {
                 adm.recording_device_name(i)
