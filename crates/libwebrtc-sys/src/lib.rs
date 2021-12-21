@@ -7,18 +7,18 @@ pub use bridge::webrtc::AudioLayer;
 
 use bridge::webrtc;
 
-struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
+pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
 impl TaskQueueFactory {
-    fn create_default_task_queue_factory() -> Self {
+    pub fn create_default_task_queue_factory() -> Self {
         Self(webrtc::create_default_task_queue_factory())
     }
 }
 
-struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
+pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
 
 impl AudioDeviceModule {
-    fn create(
+    pub fn create(
         audio_layer: AudioLayer,
         task_queue_factory: &TaskQueueFactory,
     ) -> Self {
@@ -58,11 +58,11 @@ impl AudioDeviceModule {
     }
 }
 
-struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
+pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
 impl VideoDeviceInfo {
     /// Creates libwebrtc Video Device Info.
-    fn create_device_info() -> Self {
+    pub fn create_device_info() -> Self {
         Self(webrtc::create_video_device_info())
     }
 

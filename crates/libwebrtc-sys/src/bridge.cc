@@ -67,6 +67,7 @@ rust::Vec<rust::String> get_recording_audio_info(
   rust::String strid = strGuidUTF8;
 
   rust::Vec<rust::String> info = {strname, strid};
+
   return info;
 };
 
