@@ -52,7 +52,7 @@ impl AudioDeviceModule {
     }
 
     /// Returns a tuple with an audio recording device information `(id, name)`.
-    pub fn recording_device_name(&self, index: i16) -> Vec<String> {
+    pub fn recording_device_name(&self, index: i16) -> (String, String) {
         let mut info = webrtc::get_recording_audio_info(&self.0, index);
         (info.pop().unwrap(), info.pop().unwrap())
     }
