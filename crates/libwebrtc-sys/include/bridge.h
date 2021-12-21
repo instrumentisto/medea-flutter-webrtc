@@ -18,13 +18,10 @@ namespace bridge {
       ~RefCounted() {
         ptr_->Release();
       }
-      T* ptr() {
+      T* ptr() const {
         return ptr_;
       }
-      T& operator*() {
-        return *ptr_;
-      }
-      T* operator -> () {
+      T* operator -> () const {
         return ptr_;
       }
      protected:
@@ -52,7 +49,7 @@ namespace bridge {
       int16_t index
     );
 
-    rust::Vec<rust::String> recording_device_name(const std::unique_ptr<AudioDeviceModule> &audio_device_module, int16_t index);
+    rust::Vec<rust::String> recording_device_name(const AudioDeviceModule &audio_device_module, int16_t index);
 
     std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info();
 

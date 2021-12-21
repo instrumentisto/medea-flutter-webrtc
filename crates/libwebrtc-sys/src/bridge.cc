@@ -49,15 +49,13 @@ rust::Vec<rust::String> playout_device_name(
 };
 
 rust::Vec<rust::String> recording_device_name(
-    const std::unique_ptr<AudioDeviceModule> &audio_device_module,
+    const AudioDeviceModule &audio_device_module,
     int16_t index
 ) {
   char name[webrtc::kAdmMaxDeviceNameSize];
   char guid[webrtc::kAdmMaxGuidSize];
 
-  audio_device_module->ptr()->RecordingDeviceName(
-      index, name, guid
-  );
+  audio_device_module->RecordingDeviceName(index, name, guid);
 
   return {name, guid};
 };

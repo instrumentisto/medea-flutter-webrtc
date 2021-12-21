@@ -14,6 +14,7 @@ pub mod ffi {
 
     /// The [MediaDeviceInfo] contains information that describes a single
     /// media input or output device.
+    #[derive(Debug)]
     pub struct MediaDeviceInfo {
         /// Unique identifier for the represented device.
         pub device_id: String,

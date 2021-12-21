@@ -67,7 +67,7 @@ pub(crate) mod webrtc {
         ) -> Vec<String>;
 
         pub fn recording_device_name(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
+            audio_device_module: &AudioDeviceModule,
             index: i16,
         ) -> Vec<String>;
     }
