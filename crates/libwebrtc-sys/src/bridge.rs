@@ -1,8 +1,8 @@
 #[cxx::bridge(namespace = "bridge")]
-pub mod webrtc {
+pub(crate) mod webrtc {
     struct DeviceName {
         name: String,
-        guid: String
+        guid: String,
     }
 
     #[repr(i32)]
@@ -20,14 +20,10 @@ pub mod webrtc {
         kDummyAudio,
     }
 
-    // C++ types and signatures exposed to Rust.
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
 
         type TaskQueueFactory;
-        type AudioDeviceModule;
-        type VideoDeviceInfo;
-        type AudioLayer;
 
         /// Creates default libwebrtc [Task Queue Factory].
         ///
@@ -36,6 +32,13 @@ pub mod webrtc {
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory()
             -> UniquePtr<TaskQueueFactory>;
+    }
+
+    unsafe extern "C++" {
+        include!("libwebrtc-sys/include/bridge.h");
+
+        type AudioDeviceModule;
+        type AudioLayer;
 
         /// Creates libwebrtc [Audio Device Module] with default Windows layout.
         ///
@@ -71,6 +74,12 @@ pub mod webrtc {
             audio_device_module: &UniquePtr<AudioDeviceModule>,
             index: i16,
         ) -> Vec<String>;
+    }
+
+    unsafe extern "C++" {
+        include!("libwebrtc-sys/include/bridge.h");
+
+        type VideoDeviceInfo;
 
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
@@ -88,9 +97,5 @@ pub mod webrtc {
 #[cfg(test)]
 mod test {
     #[test]
-    fn init_audio_device_module() {
-
-    }
-
-
+    fn init_audio_device_module() {}
 }

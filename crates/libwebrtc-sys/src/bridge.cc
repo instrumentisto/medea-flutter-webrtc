@@ -5,7 +5,6 @@
 #include "libwebrtc-sys/include/bridge.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 
-
 namespace bridge {
 
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -20,8 +19,6 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   return std::make_unique<AudioDeviceModule>(adm);
 };
 
-//void AudioDeviceModule::init_audio_device_module() {
-//}
 void init_audio_device_module(
     const std::unique_ptr<AudioDeviceModule> &audio_device_module) {
   audio_device_module->ptr()->Init();
@@ -45,8 +42,8 @@ rust::Vec<rust::String> get_playout_audio_info(
   char guid[webrtc::kAdmMaxGuidSize];
 
   audio_device_module->ptr()->PlayoutDeviceName(index,
-                                                         name,
-                                                         guid);
+                                                name,
+                                                guid);
 
   rust::String strname = name;
   rust::String strid = guid;
@@ -85,35 +82,6 @@ uint32_t number_of_video_devices(
     const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info) {
   return device_info->NumberOfDevices();
 };
-
-//DeviceName get_video_device_name2(
-//    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
-//    uint32_t index
-//) {
-//  char name[256];
-//  char guid[256];
-//
-//  device_info.get()->GetDeviceName(index, name, 256, guid, 256);
-//
-//  return {name, guid};
-//};
-
-//void get_video_device_name3(
-//  const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
-//  rust::String &name,
-//  rust::String &name,
-//  uint32_t index
-//){
-//  char device_name[256];
-//  char unique_id[256];
-//
-//  device_info.get()->GetDeviceName(index, device_name, 256, unique_id, 256);
-//
-//  name = device_name;
-//
-////  rust::String strname = device_name;
-////  rust::String strid = unique_id;
-//};
 
 rust::Vec<rust::String> get_video_device_name(
     const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
