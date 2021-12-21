@@ -120,7 +120,7 @@ abstract class MediaDevices {
 /// cameras, headsets, and so forth.
 class MediaDeviceInfo {
   MediaDeviceInfo({
-    this.kind,
+    required this.kind,
     required this.label,
     this.groupId,
     required this.deviceId,
@@ -140,7 +140,7 @@ class MediaDeviceInfo {
 
   /// Returns an enumerated value that is either 'videoinput', 'audioinput' or
   /// 'audiooutput'.
-  final String? kind;
+  final String kind;
 
   /// Returns a String that is a label describing this device
   /// (for example "External USB Webcam").

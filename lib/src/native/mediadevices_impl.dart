@@ -61,7 +61,7 @@ class MediaDeviceNative extends MediaDevices {
           (e) => MediaDeviceInfo(
               deviceId: e['deviceId'],
               groupId: e['groupId'],
-              kind: e['kind'],
+              kind: e['kind']!,
               label: e['label']),
         )
         .toList();

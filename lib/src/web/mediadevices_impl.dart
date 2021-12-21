@@ -74,7 +74,7 @@ class MediaDevicesWeb extends MediaDevices {
         deviceId:
             input.deviceId ?? 'Generated Device Id :(${devices.indexOf(e)})',
         groupId: input.groupId,
-        kind: input.kind,
+        kind: input.kind!,
         label: input.label ?? 'Generated label :(${devices.indexOf(e)})',
       );
     }).toList();
