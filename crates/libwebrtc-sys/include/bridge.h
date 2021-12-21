@@ -47,22 +47,16 @@ namespace bridge {
 
     int16_t recording_devices(const std::unique_ptr<AudioDeviceModule> &audio_device_module);
 
-    rust::Vec<rust::String> get_playout_audio_info(
+    rust::Vec<rust::String> playout_device_name(
       const std::unique_ptr<AudioDeviceModule> &audio_device_module,
       int16_t index
     );
 
-    rust::Vec<rust::String> get_recording_audio_info(const std::unique_ptr<AudioDeviceModule> &audio_device_module, int16_t index);
+    rust::Vec<rust::String> recording_device_name(const std::unique_ptr<AudioDeviceModule> &audio_device_module, int16_t index);
 
     std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info();
 
     uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info);
 
-    rust::Vec<rust::String> get_video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info, uint32_t index);
-
-    void get_video_device_name3(
-      const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
-      rust::String &name,
-      uint32_t index
-    );
+    rust::Vec<rust::String> video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info, uint32_t index);
 }

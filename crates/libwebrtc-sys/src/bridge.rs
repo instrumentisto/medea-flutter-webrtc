@@ -25,9 +25,8 @@ pub(crate) mod webrtc {
 
         type TaskQueueFactory;
 
-        /// Creates default libwebrtc [Task Queue Factory].
-        ///
-        /// [Task Queue Factory]: https://tinyurl.com/doc-threads
+        /// Creates a default [TaskQueueFactory] based on the current platform
+        /// capabilities.
         #[namespace = "webrtc"]
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory()
@@ -40,37 +39,34 @@ pub(crate) mod webrtc {
         type AudioDeviceModule;
         type AudioLayer;
 
-        /// Creates libwebrtc [Audio Device Module] with default Windows layout.
-        ///
-        /// [Audio Device Module]: https://tinyurl.com/doc-adm
+        /// Creates a default [AudioDeviceModule].
         pub fn create_audio_device_module(
             audio_layer: AudioLayer,
             task_queue_factory: &UniquePtr<TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
-        /// Initializes libwebrtc [Audio Device Module].
-        ///
-        /// [Audio Device Module]: https://tinyurl.com/doc-adm
+        /// Initializes current [AudioDeviceModule].
         pub fn init_audio_device_module(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
         );
 
-        /// Returns count of audio playout devices.
+        /// Returns count of available audio playout devices.
         pub fn playout_devices(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
         ) -> i16;
 
-        /// Returns count of audio recording devices.
+        /// Returns count of available audio recording devices.
         pub fn recording_devices(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
         ) -> i16;
 
-        pub fn get_playout_audio_info(
+        /// Returns a tuple with an audio playout device information `(id, name)`.
+        pub fn playout_device_name(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
             index: i16,
         ) -> Vec<String>;
 
-        pub fn get_recording_audio_info(
+        pub fn recording_device_name(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
             index: i16,
         ) -> Vec<String>;
@@ -87,7 +83,7 @@ pub(crate) mod webrtc {
             device_info: &UniquePtr<VideoDeviceInfo>,
         ) -> u32;
 
-        pub fn get_video_device_name(
+        pub fn video_device_name(
             device_info: &UniquePtr<VideoDeviceInfo>,
             index: u32,
         ) -> Vec<String>;

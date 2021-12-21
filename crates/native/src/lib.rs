@@ -12,13 +12,22 @@ pub mod ffi {
         kVideoInput,
     }
 
+    /// The [MediaDeviceInfo] contains information that describes a single
+    /// media input or output device.
     pub struct MediaDeviceInfo {
+        /// Unique identifier for the represented device.
         pub device_id: String,
+
+        /// This [MediaDeviceInfo] kind.
         pub kind: MediaDeviceKind,
+
+        /// A label describing this device.
         pub label: String,
     }
 
     extern "Rust" {
+        /// Returns a list of the available media input and output devices,
+        /// such as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
         fn enumerate_devices() -> Vec<MediaDeviceInfo>;
     }
@@ -26,7 +35,8 @@ pub mod ffi {
 
 use ffi::{MediaDeviceInfo, MediaDeviceKind};
 
-/// Enumerates all the available media devices.
+/// Returns a list of the available media input and output devices, such as
+/// microphones, cameras, headsets, and so forth.
 pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
     let mut audio = audio_devices_info();
     let mut video = video_devices_info();
@@ -36,6 +46,7 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
     audio
 }
 
+/// Returns a list of the available audio input and output devices.
 fn audio_devices_info() -> Vec<MediaDeviceInfo> {
     let task_queue = TaskQueueFactory::create_default_task_queue_factory();
     let adm =
@@ -81,13 +92,14 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
     result
 }
 
+/// Returns a list of the available video input devices.
 fn video_devices_info() -> Vec<MediaDeviceInfo> {
     let vdi = VideoDeviceInfo::create_device_info();
     let count = vdi.number_of_devices();
     let mut result = Vec::with_capacity(count as usize);
 
     for i in 0..count {
-        let (device_id, label) = vdi.get_device_name(i);
+        let (device_id, label) = vdi.device_name(i);
 
         result.push(MediaDeviceInfo {
             device_id,
