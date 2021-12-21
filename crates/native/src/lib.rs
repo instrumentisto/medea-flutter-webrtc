@@ -119,6 +119,6 @@ mod test {
     fn init_audio_device_module() {
         let devices = enumerate_devices();
 
-        // panic!("{}",format!("{:?}", devices));
+        panic!("{}",format!("{:?}", devices));
     }
 }

@@ -9,7 +9,7 @@ namespace bridge {
 
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
-    webrtc::TaskQueueFactory &task_queue_factory
+    TaskQueueFactory &task_queue_factory
 ) {
   auto adm = webrtc::AudioDeviceModule::Create(
       audio_layer,
@@ -60,23 +60,27 @@ rust::Vec<rust::String> recording_device_name(
   return {name, guid};
 };
 
-std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>
-create_video_device_info() {
-  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> ptr(
+std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
+  std::unique_ptr<VideoDeviceInfo> ptr(
       webrtc::VideoCaptureFactory::CreateDeviceInfo());
 
   return ptr;
 };
 
-rust::Vec<rust::String> video_device_name(
-    webrtc::VideoCaptureModule::DeviceInfo &device_info,
-    uint32_t index
+int32_t video_device_name(
+    VideoDeviceInfo &device_info,
+    uint32_t index,
+    rust::String &name,
+    rust::String &guid
 ) {
-  char name[256];
-  char guid[256];
+  char name_buff[256];
+  char guid_buff[256];
 
-  device_info.GetDeviceName(index, name, 256, guid, 256);
+  const int32_t size = device_info.GetDeviceName(index, name_buff, 256, guid_buff, 256);
 
-  return {name, guid};
+  name = name_buff;
+  guid = guid_buff;
+
+  return size;
 };
 }

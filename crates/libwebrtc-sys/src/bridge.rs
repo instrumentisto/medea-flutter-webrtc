@@ -88,7 +88,9 @@ pub(crate) mod webrtc {
         pub fn video_device_name(
             device_info: Pin<&mut VideoDeviceInfo>,
             index: u32,
-        ) -> Vec<String>;
+            name: &mut String,
+            guid: &mut String
+        ) -> i32;
     }
 }
 

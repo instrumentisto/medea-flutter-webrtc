@@ -85,7 +85,9 @@ impl VideoDeviceInfo {
 
     /// Returns a tuple with an video recording device information `(id, name)`.
     pub fn device_name(&mut self, index: u32) -> (String, String) {
-        let mut info = webrtc::video_device_name(self.0.pin_mut(), index);
-        (info.pop().unwrap(), info.pop().unwrap())
+        let mut name = String::new();
+        let mut guid = String::new();
+        webrtc::video_device_name(self.0.pin_mut(), index, &mut name, &mut guid);
+        (name, guid)
     }
 }
