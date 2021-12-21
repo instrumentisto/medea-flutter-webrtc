@@ -18,7 +18,13 @@ namespace bridge {
       ~RefCounted() {
         ptr_->Release();
       }
-      auto getptr() {
+      T* ptr() {
+        return ptr_;
+      }
+      T& operator*() {
+        return *ptr_;
+      }
+      T* operator -> () {
         return ptr_;
       }
      protected:

@@ -20,19 +20,21 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   return std::make_unique<AudioDeviceModule>(adm);
 };
 
+//void AudioDeviceModule::init_audio_device_module() {
+//}
 void init_audio_device_module(
     const std::unique_ptr<AudioDeviceModule> &audio_device_module) {
-  audio_device_module.get()->getptr()->Init();
+  audio_device_module->ptr()->Init();
 }
 
 int16_t playout_devices(
     const std::unique_ptr<AudioDeviceModule> &audio_device_module) {
-  return audio_device_module.get()->getptr()->PlayoutDevices();
+  return audio_device_module->ptr()->PlayoutDevices();
 };
 
 int16_t recording_devices(
     const std::unique_ptr<AudioDeviceModule> &audio_device_module) {
-  return audio_device_module.get()->getptr()->RecordingDevices();
+  return audio_device_module->ptr()->RecordingDevices();
 };
 
 rust::Vec<rust::String> get_playout_audio_info(
@@ -42,7 +44,7 @@ rust::Vec<rust::String> get_playout_audio_info(
   char name[webrtc::kAdmMaxDeviceNameSize];
   char guid[webrtc::kAdmMaxGuidSize];
 
-  audio_device_module.get()->getptr()->PlayoutDeviceName(index,
+  audio_device_module->ptr()->PlayoutDeviceName(index,
                                                          name,
                                                          guid);
 
@@ -60,7 +62,7 @@ rust::Vec<rust::String> get_recording_audio_info(
   char strNameUTF8[128];
   char strGuidUTF8[128];
 
-  audio_device_module.get()->getptr()->RecordingDeviceName(
+  audio_device_module->ptr()->RecordingDeviceName(
       index, strNameUTF8, strGuidUTF8
   );
 
@@ -81,7 +83,7 @@ create_video_device_info() {
 
 uint32_t number_of_video_devices(
     const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info) {
-  return device_info.get()->NumberOfDevices();
+  return device_info->NumberOfDevices();
 };
 
 //DeviceName get_video_device_name2(
@@ -120,7 +122,7 @@ rust::Vec<rust::String> get_video_device_name(
   char device_name[256];
   char unique_id[256];
 
-  device_info.get()->GetDeviceName(index, device_name, 256, unique_id, 256);
+  device_info->GetDeviceName(index, device_name, 256, unique_id, 256);
 
   rust::String strname = device_name;
   rust::String strid = unique_id;
