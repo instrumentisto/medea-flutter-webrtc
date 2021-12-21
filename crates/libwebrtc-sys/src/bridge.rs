@@ -42,7 +42,7 @@ pub(crate) mod webrtc {
         /// Creates a default [AudioDeviceModule].
         pub fn create_audio_device_module(
             audio_layer: AudioLayer,
-            task_queue_factory: &TaskQueueFactory,
+            task_queue_factory: Pin<&mut TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
         /// Initializes current [AudioDeviceModule].
@@ -80,11 +80,11 @@ pub(crate) mod webrtc {
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
         pub fn number_of_video_devices(
-            device_info: &VideoDeviceInfo,
+            device_info: &UniquePtr<VideoDeviceInfo>,
         ) -> u32;
 
         pub fn video_device_name(
-            device_info: &VideoDeviceInfo,
+            device_info: &UniquePtr<VideoDeviceInfo>,
             index: u32,
         ) -> Vec<String>;
     }

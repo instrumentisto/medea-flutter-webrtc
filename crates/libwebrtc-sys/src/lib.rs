@@ -33,11 +33,11 @@ impl AudioDeviceModule {
     /// Creates a default [AudioDeviceModule].
     pub fn create(
         audio_layer: AudioLayer,
-        task_queue_factory: &TaskQueueFactory,
+        task_queue_factory: &mut TaskQueueFactory,
     ) -> Self {
         Self(webrtc::create_audio_device_module(
             audio_layer,
-            &task_queue_factory.0,
+            task_queue_factory.0.pin_mut(),
         ))
     }
 

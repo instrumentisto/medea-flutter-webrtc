@@ -49,9 +49,9 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
 
 /// Returns a list of the available audio input and output devices.
 fn audio_devices_info() -> Vec<MediaDeviceInfo> {
-    let task_queue = TaskQueueFactory::create_default_task_queue_factory();
+    let mut task_queue = TaskQueueFactory::create_default_task_queue_factory();
     let adm =
-        AudioDeviceModule::create(AudioLayer::kWindowsCoreAudio, &task_queue);
+        AudioDeviceModule::create(AudioLayer::kWindowsCoreAudio, &mut task_queue);
     adm.init();
 
     let count_playout = adm.playout_devices();
@@ -111,4 +111,14 @@ fn video_devices_info() -> Vec<MediaDeviceInfo> {
     }
 
     result
+}
+
+mod test {
+    use super::*;
+    #[test]
+    fn init_audio_device_module() {
+        let devices = enumerate_devices();
+
+        // panic!("{}",format!("{:?}", devices));
+    }
 }

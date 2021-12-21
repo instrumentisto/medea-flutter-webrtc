@@ -35,7 +35,7 @@ namespace bridge {
 
     std::unique_ptr<AudioDeviceModule> create_audio_device_module(
       AudioLayer audio_layer,
-      const webrtc::TaskQueueFactory &task_queue_factory
+      webrtc::TaskQueueFactory &task_queue_factory
     );
 
     void init_audio_device_module(const AudioDeviceModule &audio_device_module);
@@ -53,7 +53,7 @@ namespace bridge {
 
     std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info();
 
-    uint32_t number_of_video_devices(const webrtc::VideoCaptureModule::DeviceInfo &device_info);
+    uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info);
 
-    rust::Vec<rust::String> video_device_name(const webrtc::VideoCaptureModule::DeviceInfo &device_info, uint32_t index);
+    rust::Vec<rust::String> video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info, uint32_t index);
 }
