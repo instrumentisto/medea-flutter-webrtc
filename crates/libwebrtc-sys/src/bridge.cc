@@ -34,7 +34,7 @@ int16_t recording_devices(
   return audio_device_module->RecordingDevices();
 };
 
-rust::Vec<rust::String> playout_device_name(
+int32_t playout_device_name(
     const AudioDeviceModule &audio_device_module,
     int16_t index,
     rust::String &name,
