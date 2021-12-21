@@ -3,18 +3,19 @@
 #include <cstdint>
 
 #include "libwebrtc-sys/include/bridge.h"
+#include "libwebrtc-sys/src/bridge.rs.h"
 
-namespace WEBRTC {
-std::unique_ptr<webrtc::TaskQueueFactory> create_default_task_queue_factory() {
-  return webrtc::CreateDefaultTaskQueueFactory();
-}
+
+namespace bridge {
 
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
-    std::unique_ptr<webrtc::TaskQueueFactory> &task_queue_factory
+    AudioLayer audio_layer,
+    const std::unique_ptr<webrtc::TaskQueueFactory> &task_queue_factory
 ) {
   auto adm = webrtc::AudioDeviceModule::Create(
-      webrtc::AudioDeviceModule::AudioLayer::kWindowsCoreAudio,
-      task_queue_factory.get());
+      audio_layer,
+      task_queue_factory.get()
+  );
 
   return std::make_unique<AudioDeviceModule>(adm);
 };
@@ -37,15 +38,16 @@ int16_t recording_devices(
 rust::Vec<rust::String> get_playout_audio_info(
     const std::unique_ptr<AudioDeviceModule> &audio_device_module,
     int16_t index) {
-  char strNameUTF8[128];
-  char strGuidUTF8[128];
+
+  char name[webrtc::kAdmMaxDeviceNameSize];
+  char guid[webrtc::kAdmMaxGuidSize];
 
   audio_device_module.get()->getptr()->PlayoutDeviceName(index,
-                                                         strNameUTF8,
-                                                         strGuidUTF8);
+                                                         name,
+                                                         guid);
 
-  rust::String strname = strNameUTF8;
-  rust::String strid = strGuidUTF8;
+  rust::String strname = name;
+  rust::String strid = guid;
 
   rust::Vec<rust::String> info = {strname, strid};
   return info;
@@ -81,6 +83,35 @@ uint32_t number_of_video_devices(
     const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info) {
   return device_info.get()->NumberOfDevices();
 };
+
+//DeviceName get_video_device_name2(
+//    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
+//    uint32_t index
+//) {
+//  char name[256];
+//  char guid[256];
+//
+//  device_info.get()->GetDeviceName(index, name, 256, guid, 256);
+//
+//  return {name, guid};
+//};
+
+//void get_video_device_name3(
+//  const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
+//  rust::String &name,
+//  rust::String &name,
+//  uint32_t index
+//){
+//  char device_name[256];
+//  char unique_id[256];
+//
+//  device_info.get()->GetDeviceName(index, device_name, 256, unique_id, 256);
+//
+//  name = device_name;
+//
+////  rust::String strname = device_name;
+////  rust::String strid = unique_id;
+//};
 
 rust::Vec<rust::String> get_video_device_name(
     const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,

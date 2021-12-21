@@ -3,50 +3,16 @@ use cxx::UniquePtr;
 #[rustfmt::skip]
 mod bridge;
 
-use bridge::webrtc::{AudioDeviceModule, TaskQueueFactory};
+pub use bridge::webrtc::{
+    create_audio_device_module, create_default_task_queue_factory,
+    init_audio_device_module, playout_devices, recording_devices, AudioLayer,
+};
 
-/// Creates default libwebrtc [Task Queue Factory].
-///
-/// [Task Queue Factory]: https://tinyurl.com/doc-threads
-pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory> {
-    webrtc::create_default_task_queue_factory()
-}
-
-/// Creates libwebrtc [Audio Device Module] with default Windows layout.
-///
-/// [Audio Device Module]: https://tinyurl.com/doc-adm
-pub fn create_audio_device_module(
-    task_queue_factory: UniquePtr<TaskQueueFactory>,
-) -> UniquePtr<AudioDeviceModule> {
-    webrtc::create_audio_device_module(task_queue_factory)
-}
-
-/// Initializes libwebrtc [Audio Device Module].
-///
-/// [Audio Device Module]: https://tinyurl.com/doc-adm
-pub fn init_audio_device_module(
-    audio_device_module: &UniquePtr<AudioDeviceModule>,
-) {
-    webrtc::init_audio_device_module(audio_device_module)
-}
-
-/// Returns count of audio playout devices.
-pub fn count_audio_playout_devices(
-    audio_device_module: &UniquePtr<AudioDeviceModule>,
-) -> i16 {
-    webrtc::playout_devices(audio_device_module)
-}
-
-/// Returns count of audio recording devices.
-pub fn count_audio_recording_devices(
-    audio_device_module: &UniquePtr<AudioDeviceModule>,
-) -> i16 {
-    webrtc::recording_devices(audio_device_module)
-}
+use bridge::webrtc;
 
 /// Returns a tuple with an audio playout device information `(id, name)`.
 pub fn get_audio_playout_device_info(
-    audio_device_module: &UniquePtr<AudioDeviceModule>,
+    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
     index: i16,
 ) -> (String, String) {
     let mut info = webrtc::get_playout_audio_info(audio_device_module, index);
@@ -55,7 +21,7 @@ pub fn get_audio_playout_device_info(
 
 /// Returns a tuple with an audio recording device information `(id, name)`.
 pub fn get_audio_recording_device_info(
-    audio_device_module: &UniquePtr<AudioDeviceModule>,
+    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
     index: i16,
 ) -> (String, String) {
     let mut info = webrtc::get_recording_audio_info(audio_device_module, index);

@@ -9,7 +9,7 @@
 #include "modules/video_capture/video_capture_factory.h"
 #include "rust/cxx.h"
 
-namespace WEBRTC {
+namespace bridge {
     template <class T>
     class RefCounted {
      public:
@@ -28,17 +28,35 @@ namespace WEBRTC {
     using TaskQueueFactory = webrtc::TaskQueueFactory;
     using AudioDeviceModule = RefCounted<webrtc::AudioDeviceModule>;
     using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+    using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 
-    std::unique_ptr<webrtc::TaskQueueFactory> create_default_task_queue_factory();
+    std::unique_ptr<AudioDeviceModule> create_audio_device_module(
+      AudioLayer audio_layer,
+      const std::unique_ptr<webrtc::TaskQueueFactory> &task_queue_factory
+    );
 
-    std::unique_ptr<AudioDeviceModule> create_audio_device_module(std::unique_ptr<webrtc::TaskQueueFactory> task_queue_factory);
-    void init_audio_device_module(const std::unique_ptr<AudioDeviceModule>& audio_device_module);
-    int16_t playout_devices(const std::unique_ptr<AudioDeviceModule>& audio_device_module);
-    int16_t recording_devices(const std::unique_ptr<AudioDeviceModule>& audio_device_module);
-    rust::Vec<rust::String> get_playout_audio_info(const std::unique_ptr<AudioDeviceModule>& audio_device_module, int16_t index);
-    rust::Vec<rust::String> get_recording_audio_info(const std::unique_ptr<AudioDeviceModule>& audio_device_module, int16_t index);
+    void init_audio_device_module(const std::unique_ptr<AudioDeviceModule> &audio_device_module);
+
+    int16_t playout_devices(const std::unique_ptr<AudioDeviceModule> &audio_device_module);
+
+    int16_t recording_devices(const std::unique_ptr<AudioDeviceModule> &audio_device_module);
+
+    rust::Vec<rust::String> get_playout_audio_info(
+      const std::unique_ptr<AudioDeviceModule> &audio_device_module,
+      int16_t index
+    );
+
+    rust::Vec<rust::String> get_recording_audio_info(const std::unique_ptr<AudioDeviceModule> &audio_device_module, int16_t index);
 
     std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info();
-    uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info);
-    rust::Vec<rust::String> get_video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info, uint32_t index);
+
+    uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info);
+
+    rust::Vec<rust::String> get_video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info, uint32_t index);
+
+    void get_video_device_name3(
+      const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
+      rust::String &name,
+      uint32_t index
+    );
 }

@@ -1,4 +1,10 @@
-use libwebrtc_sys::*;
+use libwebrtc_sys::{
+    count_video_devices, create_audio_device_module,
+    create_default_task_queue_factory, create_video_device_module,
+    get_audio_playout_device_info, get_audio_recording_device_info,
+    get_video_device_info, init_audio_device_module, playout_devices,
+    recording_devices, AudioLayer,
+};
 
 /// The module which describes the bridge to call Rust from C++.
 #[cxx::bridge]
@@ -21,12 +27,13 @@ enum AudioKind {
 
 fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
     let task_queue = create_default_task_queue_factory();
-    let audio_device_module = create_audio_device_module(task_queue);
+    let audio_device_module =
+        create_audio_device_module(AudioLayer::kWindowsCoreAudio, &task_queue);
     init_audio_device_module(&audio_device_module);
     let audio_device_count = if let AudioKind::Playout = kind {
-        count_audio_playout_devices(&audio_device_module)
+        playout_devices(&audio_device_module)
     } else {
-        count_audio_recording_devices(&audio_device_module)
+        recording_devices(&audio_device_module)
     };
 
     let mut list = vec![];

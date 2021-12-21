@@ -1,5 +1,25 @@
-#[cxx::bridge(namespace = "WEBRTC")]
+#[cxx::bridge(namespace = "bridge")]
 pub mod webrtc {
+    struct DeviceName {
+        name: String,
+        guid: String
+    }
+
+    #[repr(i32)]
+    pub enum AudioLayer {
+        kPlatformDefaultAudio = 0,
+        kWindowsCoreAudio,
+        kWindowsCoreAudio2,
+        kLinuxAlsaAudio,
+        kLinuxPulseAudio,
+        kAndroidJavaAudio,
+        kAndroidOpenSLESAudio,
+        kAndroidJavaInputAndOpenSLESOutputAudio,
+        kAndroidAAudioAudio,
+        kAndroidJavaInputAndAAudioOutputAudio,
+        kDummyAudio,
+    }
+
     // C++ types and signatures exposed to Rust.
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -7,22 +27,37 @@ pub mod webrtc {
         type TaskQueueFactory;
         type AudioDeviceModule;
         type VideoDeviceInfo;
+        type AudioLayer;
 
+        /// Creates default libwebrtc [Task Queue Factory].
+        ///
+        /// [Task Queue Factory]: https://tinyurl.com/doc-threads
+        #[namespace = "webrtc"]
+        #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory()
             -> UniquePtr<TaskQueueFactory>;
 
+        /// Creates libwebrtc [Audio Device Module] with default Windows layout.
+        ///
+        /// [Audio Device Module]: https://tinyurl.com/doc-adm
         pub fn create_audio_device_module(
-            task_queue_factory: UniquePtr<TaskQueueFactory>,
+            audio_layer: AudioLayer,
+            task_queue_factory: &UniquePtr<TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
+        /// Initializes libwebrtc [Audio Device Module].
+        ///
+        /// [Audio Device Module]: https://tinyurl.com/doc-adm
         pub fn init_audio_device_module(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
         );
 
+        /// Returns count of audio playout devices.
         pub fn playout_devices(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
         ) -> i16;
 
+        /// Returns count of audio recording devices.
         pub fn recording_devices(
             audio_device_module: &UniquePtr<AudioDeviceModule>,
         ) -> i16;
@@ -48,4 +83,14 @@ pub mod webrtc {
             index: u32,
         ) -> Vec<String>;
     }
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn init_audio_device_module() {
+
+    }
+
+
 }

@@ -19,6 +19,10 @@ fn main() -> anyhow::Result<()> {
     );
     println!("cargo:rustc-link-lib=webrtc");
 
+    println!("cargo:rustc-link-lib=dylib=dmoguids");
+    println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
+    println!("cargo:rustc-link-lib=dylib=amstrmid");
+    println!("cargo:rustc-link-lib=dylib=msdmo");
     println!("cargo:rustc-link-lib=dylib=winmm");
 
     cxx_build::bridge("src/bridge.rs")
