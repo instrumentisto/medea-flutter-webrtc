@@ -1,5 +1,5 @@
 #[cxx::bridge(namespace = "bridge")]
-pub(crate) mod webrtc {
+pub(crate) mod bridge {
     struct DeviceName {
         name: String,
         guid: String,
@@ -96,10 +96,4 @@ pub(crate) mod webrtc {
             guid: &mut String
         ) -> i32;
     }
-}
-
-#[cfg(test)]
-mod test {
-    #[test]
-    fn init_audio_device_module() {}
 }
