@@ -1,6 +1,6 @@
 use std::{collections::HashMap, rc::Rc};
 
-use cxx::{CxxVector, UniquePtr};
+use cxx::UniquePtr;
 use libwebrtc_sys::*;
 
 mod user_media;
@@ -141,7 +141,7 @@ unsafe extern "C" fn foo(fp: extern "C" fn(*mut Frame)) {
 }
 
 unsafe fn delete_frame(frame_ptr: *mut Frame) {
-    Box::from_raw(frame_ptr);
+    let _ = Box::from_raw(frame_ptr);
 }
 
 /// Contains all necessary tools for interoperate with [libWebRTC].

@@ -41,7 +41,7 @@ class FlutterVideoRenderer {
   std::unique_ptr<EventSink<EncodableValue>> event_sink_;
   int64_t texture_id_ = -1;
   // scoped_refptr<RTCVideoTrack> track_ = nullptr;
-  Frame* frame_;
+  Frame* frame_ = nullptr;
   // webrtc::VideoFrame frame_;
   std::unique_ptr<flutter::TextureVariant> texture_;
   std::shared_ptr<FlutterDesktopPixelBuffer> pixel_buffer_;
@@ -49,7 +49,6 @@ class FlutterVideoRenderer {
   mutable std::mutex mutex_;
   VideoRotation rotation_ = VideoRotation::kVideoRotation_0;
   mutable int count = 0;
-  mutable int count_frame = 0;
 };
 
 class FlutterVideoRendererManager {
