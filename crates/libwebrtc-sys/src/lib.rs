@@ -58,14 +58,22 @@ impl AudioDeviceModule {
 
     /// Returns a tuple with an audio playout device information `(id, name)`.
     pub fn playout_device_name(&self, index: i16) -> (String, String) {
-        let mut info = webrtc::playout_device_name(&self.0, index);
-        (info.pop().unwrap(), info.pop().unwrap())
+        let mut name = String::new();
+        let mut guid = String::new();
+
+        webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
+
+        (name, guid)
     }
 
     /// Returns a tuple with an audio recording device information `(id, name)`.
     pub fn recording_device_name(&self, index: i16) -> (String, String) {
-        let mut info = webrtc::recording_device_name(&self.0, index);
-        (info.pop().unwrap(), info.pop().unwrap())
+        let mut name = String::new();
+        let mut guid = String::new();
+
+        webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
+
+        (name, guid)
     }
 }
 
@@ -87,7 +95,9 @@ impl VideoDeviceInfo {
     pub fn device_name(&mut self, index: u32) -> (String, String) {
         let mut name = String::new();
         let mut guid = String::new();
+
         webrtc::video_device_name(self.0.pin_mut(), index, &mut name, &mut guid);
+
         (name, guid)
     }
 }

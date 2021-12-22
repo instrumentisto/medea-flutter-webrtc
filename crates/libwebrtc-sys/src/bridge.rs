@@ -64,12 +64,16 @@ pub(crate) mod webrtc {
         pub fn playout_device_name(
             audio_device_module: &AudioDeviceModule,
             index: i16,
-        ) -> Vec<String>;
+            name: &mut String,
+            guid: &mut String
+        ) -> i32;
 
         pub fn recording_device_name(
             audio_device_module: &AudioDeviceModule,
             index: i16,
-        ) -> Vec<String>;
+            name: &mut String,
+            guid: &mut String
+        ) -> i32;
     }
 
     unsafe extern "C++" {

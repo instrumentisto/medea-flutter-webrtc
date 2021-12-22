@@ -36,28 +36,38 @@ int16_t recording_devices(
 
 rust::Vec<rust::String> playout_device_name(
     const AudioDeviceModule &audio_device_module,
-    int16_t index) {
+    int16_t index,
+    rust::String &name,
+    rust::String &guid) {
 
-  char name[webrtc::kAdmMaxDeviceNameSize];
-  char guid[webrtc::kAdmMaxGuidSize];
+  char name_buff[webrtc::kAdmMaxDeviceNameSize];
+  char guid_buff[webrtc::kAdmMaxGuidSize];
 
-  audio_device_module->PlayoutDeviceName(index,
-                                                name,
-                                                guid);
+  const int32_t result = audio_device_module->PlayoutDeviceName(index,
+                                                                name_buff,
+                                                                guid_buff);
+  name = name_buff;
+  guid = guid_buff;
 
-  return {name, guid};
+  return result;
 };
 
-rust::Vec<rust::String> recording_device_name(
+int32_t recording_device_name(
     const AudioDeviceModule &audio_device_module,
-    int16_t index
+    int16_t index,
+    rust::String &name,
+    rust::String &guid
 ) {
-  char name[webrtc::kAdmMaxDeviceNameSize];
-  char guid[webrtc::kAdmMaxGuidSize];
+  char name_buff[webrtc::kAdmMaxDeviceNameSize];
+  char guid_buff[webrtc::kAdmMaxGuidSize];
 
-  audio_device_module->RecordingDeviceName(index, name, guid);
+  const int32_t result =
+      audio_device_module->RecordingDeviceName(index, name_buff, guid_buff);
 
-  return {name, guid};
+  name = name_buff;
+  guid = guid_buff;
+
+  return result;
 };
 
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
@@ -76,7 +86,8 @@ int32_t video_device_name(
   char name_buff[256];
   char guid_buff[256];
 
-  const int32_t size = device_info.GetDeviceName(index, name_buff, 256, guid_buff, 256);
+  const int32_t
+      size = device_info.GetDeviceName(index, name_buff, 256, guid_buff, 256);
 
   name = name_buff;
   guid = guid_buff;
