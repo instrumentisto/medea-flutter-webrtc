@@ -47,7 +47,7 @@ void FlutterWebRTC::HandleMethodCall(
 
   if (method.compare("createPeerConnection") == 0) {
   } else if (method.compare("getSources") == 0) {
-    rust::Vec<MediaDeviceInfo> devices = EnumerateDevices(webrtc);
+    rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
     EncodableList sources;
 

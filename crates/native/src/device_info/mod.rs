@@ -6,16 +6,16 @@ use ffi::{MediaDeviceInfo, MediaDeviceKind};
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
-#[must_use]
-pub fn enumerate_devices(webrtc: &mut Box<Webrtc>) -> Vec<MediaDeviceInfo> {
-    let this = webrtc.as_mut().0.as_mut();
+impl Webrtc {
+    #[must_use]
+    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo> {
+        let mut audio = audio_devices_info(&mut self.0.task_queue_factory);
+        let mut video = video_devices_info();
 
-    let mut audio = audio_devices_info(&mut this.task_queue_factory);
-    let mut video = video_devices_info();
+        audio.append(&mut video);
 
-    audio.append(&mut video);
-
-    audio
+        audio
+    }
 }
 
 /// Returns a list of all available audio input and output devices.

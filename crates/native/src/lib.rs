@@ -15,7 +15,6 @@ use user_media::{
 };
 
 mod device_info;
-use device_info::enumerate_devices;
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
@@ -107,7 +106,7 @@ pub mod ffi {
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
-        fn enumerate_devices(webrtc: &mut Box<Webrtc>) -> Vec<MediaDeviceInfo>;
+        fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
         /// Creates a local Media Stream with Tracks according to
         /// accepted Constraints.
