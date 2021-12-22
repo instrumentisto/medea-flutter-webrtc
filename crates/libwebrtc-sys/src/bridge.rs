@@ -1,5 +1,5 @@
 #[cxx::bridge(namespace = "bridge")]
-pub(crate) mod bridge {
+pub(crate) mod webrtc {
     struct DeviceName {
         name: String,
         guid: String,

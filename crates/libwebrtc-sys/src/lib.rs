@@ -3,21 +3,21 @@ mod bridge;
 
 use cxx::UniquePtr;
 
-use bridge::bridge;
+use bridge::webrtc;
 
-pub use bridge::bridge::AudioLayer;
+pub use webrtc::AudioLayer;
 
 /// A thread safe task queue factory internally used in `WebRTC` that is
 /// capable of creating [Task Queue]s.
 ///
 /// [Task Queue Factory]: https://tinyurl.com/doc-threads
-pub struct TaskQueueFactory(UniquePtr<bridge::TaskQueueFactory>);
+pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
 impl TaskQueueFactory {
     /// Creates a default [TaskQueueFactory] based on the current platform
     /// capabilities.
     pub fn create_default_task_queue_factory() -> Self {
-        Self(bridge::create_default_task_queue_factory())
+        Self(webrtc::create_default_task_queue_factory())
     }
 }
 
@@ -27,7 +27,7 @@ impl TaskQueueFactory {
 /// Backed by WebRTC's [Audio Device Module].
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
-pub struct AudioDeviceModule(UniquePtr<bridge::AudioDeviceModule>);
+pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
 
 impl AudioDeviceModule {
     /// Creates a default [AudioDeviceModule].
@@ -35,7 +35,7 @@ impl AudioDeviceModule {
         audio_layer: AudioLayer,
         task_queue_factory: &mut TaskQueueFactory,
     ) -> Self {
-        Self(bridge::create_audio_device_module(
+        Self(webrtc::create_audio_device_module(
             audio_layer,
             task_queue_factory.0.pin_mut(),
         ))
@@ -43,17 +43,17 @@ impl AudioDeviceModule {
 
     /// Initializes current [AudioDeviceModule].
     pub fn init(&self) {
-        bridge::init_audio_device_module(&self.0);
+        webrtc::init_audio_device_module(&self.0);
     }
 
     /// Returns count of available audio playout devices.
     pub fn playout_devices(&self) -> i16 {
-        bridge::playout_devices(&self.0)
+        webrtc::playout_devices(&self.0)
     }
 
     /// Returns count of available audio recording devices.
     pub fn recording_devices(&self) -> i16 {
-        bridge::recording_devices(&self.0)
+        webrtc::recording_devices(&self.0)
     }
 
     /// Returns a tuple with an audio playout device information `(id, name)`.
@@ -61,7 +61,7 @@ impl AudioDeviceModule {
         let mut name = String::new();
         let mut guid = String::new();
 
-        bridge::playout_device_name(&self.0, index, &mut name, &mut guid);
+        webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
 
         (name, guid)
     }
@@ -71,19 +71,19 @@ impl AudioDeviceModule {
         let mut name = String::new();
         let mut guid = String::new();
 
-        bridge::recording_device_name(&self.0, index, &mut name, &mut guid);
+        webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
 
         (name, guid)
     }
 }
 
 /// Interface for receiving information about available camera devices.
-pub struct VideoDeviceInfo(UniquePtr<bridge::VideoDeviceInfo>);
+pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
 impl VideoDeviceInfo {
     /// Creates a new [VideoDeviceInfo].
     pub fn create_device_info() -> Self {
-        Self(bridge::create_video_device_info())
+        Self(webrtc::create_video_device_info())
     }
 
     /// Returns count of a video recording devices.
@@ -96,7 +96,7 @@ impl VideoDeviceInfo {
         let mut name = String::new();
         let mut guid = String::new();
 
-        bridge::video_device_name(
+        webrtc::video_device_name(
             self.0.pin_mut(),
             index,
             &mut name,
