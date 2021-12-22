@@ -1,7 +1,11 @@
+#[allow(clippy::expl_impl_clone_on_copy)]
+#[rustfmt::skip]
+
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
     /// Audio devices implementation kind.
     #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum AudioLayer {
         kPlatformDefaultAudio = 0,
         kWindowsCoreAudio,
@@ -17,6 +21,8 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
+        include!("libwebrtc-sys/include/bridge.h");
+
         type TaskQueueFactory;
 
         /// Creates a default [TaskQueueFactory] based on the current platform.

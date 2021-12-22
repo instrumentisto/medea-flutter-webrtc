@@ -5,7 +5,7 @@ use dotenv::dotenv;
 
 fn main() -> anyhow::Result<()> {
     // This won't override any env vars that already present.
-    let _ = dotenv();
+    drop(dotenv());
 
     download_libwebrtc()?;
 
@@ -56,10 +56,10 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
         // Skip download if already downloaded.
         if fs::read_dir(&lib_dir)?.fold(0, |acc, b| {
-            if !b.unwrap().file_name().to_string_lossy().starts_with('.') {
-                acc + 1
-            } else {
+            if b.unwrap().file_name().to_string_lossy().starts_with('.') {
                 acc
+            } else {
+                acc + 1
             }
         }) != 0
         {

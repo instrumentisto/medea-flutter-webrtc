@@ -3,6 +3,7 @@ use libwebrtc_sys::{
 };
 
 /// The module which describes the bridge to call Rust from C++.
+#[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod ffi {
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -38,6 +39,7 @@ use ffi::{MediaDeviceInfo, MediaDeviceKind};
 
 /// Returns a list of the available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
+#[must_use]
 pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
     let mut audio = audio_devices_info();
     let mut video = video_devices_info();
@@ -60,6 +62,7 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
     let count_playout = adm.playout_devices().unwrap();
     let count_recording = adm.recording_devices().unwrap();
 
+    #[allow(clippy::cast_sign_loss)]
     let mut result =
         Vec::with_capacity((count_playout + count_recording) as usize);
 

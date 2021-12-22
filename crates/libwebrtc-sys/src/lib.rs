@@ -1,4 +1,5 @@
-#[rustfmt::skip]
+#![allow(clippy::missing_errors_doc)]
+
 mod bridge;
 
 use anyhow::{bail, Result};
@@ -15,7 +16,8 @@ pub use webrtc::AudioLayer;
 pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
 impl TaskQueueFactory {
-    /// Creates a default [TaskQueueFactory] based on the current platform.
+    /// Creates a default [`TaskQueueFactory`] based on the current platform.
+    #[must_use]
     pub fn create_default_task_queue_factory() -> Self {
         Self(webrtc::create_default_task_queue_factory())
     }
@@ -24,7 +26,7 @@ impl TaskQueueFactory {
 /// Available audio devices manager that is responsible for driving input
 /// (microphone) and output (speaker) audio in `WebRTC`.
 ///
-/// Backed by WebRTC's [Audio Device Module].
+/// Backed by `WebRTC`'s [Audio Device Module].
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
 pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
@@ -56,7 +58,7 @@ impl AudioDeviceModule {
     }
 
     /// Returns count of available audio playout devices.
-    pub fn playout_devices(&self) -> Result<u16> {
+    pub fn playout_devices(&self) -> Result<i16> {
         let count = webrtc::playout_devices(&self.0);
 
         if count < 0 {
@@ -65,11 +67,12 @@ impl AudioDeviceModule {
                 count
             );
         }
-        Ok(count as u16)
+
+        Ok(count)
     }
 
     /// Returns count of available audio recording devices.
-    pub fn recording_devices(&self) -> Result<u16> {
+    pub fn recording_devices(&self) -> Result<i16> {
         let count = webrtc::recording_devices(&self.0);
 
         if count < 0 {
@@ -78,21 +81,18 @@ impl AudioDeviceModule {
                 count
             );
         }
-        Ok(count as u16)
+
+        Ok(count)
     }
 
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
-    pub fn playout_device_name(&self, index: u16) -> Result<(String, String)> {
+    pub fn playout_device_name(&self, index: i16) -> Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
-        let result = webrtc::playout_device_name(
-            &self.0,
-            index as i16,
-            &mut name,
-            &mut guid,
-        );
+        let result =
+            webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
 
         if result != 0 {
             bail!(
@@ -108,17 +108,13 @@ impl AudioDeviceModule {
     /// `index`.
     pub fn recording_device_name(
         &self,
-        index: u16,
+        index: i16,
     ) -> Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
-        let result = webrtc::recording_device_name(
-            &self.0,
-            index as i16,
-            &mut name,
-            &mut guid,
-        );
+        let result =
+            webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
 
         if result != 0 {
             bail!(
@@ -136,7 +132,7 @@ impl AudioDeviceModule {
 pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
 impl VideoDeviceInfo {
-    /// Creates a new [VideoDeviceInfo].
+    /// Creates a new [`VideoDeviceInfo`].
     pub fn create_device_info() -> Result<Self> {
         let ptr = webrtc::create_video_device_info();
 
