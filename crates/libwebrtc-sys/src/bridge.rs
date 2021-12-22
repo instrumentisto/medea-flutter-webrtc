@@ -17,8 +17,6 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
-        include!("libwebrtc-sys/include/bridge.h");
-
         type TaskQueueFactory;
 
         /// Creates a default [TaskQueueFactory] based on the current platform.
@@ -28,8 +26,6 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
-        include!("libwebrtc-sys/include/bridge.h");
-
         type AudioDeviceModule;
         type AudioLayer;
 
@@ -72,8 +68,6 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
-        include!("libwebrtc-sys/include/bridge.h");
-
         type VideoDeviceInfo;
 
         /// Creates a new [VideoDeviceInfo].
