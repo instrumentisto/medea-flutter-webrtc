@@ -2,29 +2,49 @@
 
 #include "flutter_webrtc.h"
 
-#include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include <flutter_webrtc_native.h>
+#include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 
 namespace flutter_webrtc_plugin {
 
-FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin *plugin) {}
+FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 
 void FlutterWebRTC::HandleMethodCall(
-    const flutter::MethodCall<EncodableValue> &method_call,
+    const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
   } else if (method_call.method_name().compare("getSources") == 0) {
-    rust::Vec<DeviceInfo> devices = enumerate_devices();
+    rust::Vec<MediaDeviceInfo> devices = EnumerateDevices();
 
     EncodableList sources;
 
     for (size_t i = 0; i < devices.size(); ++i) {
+      std::string kind;
+      switch (devices[i].kind) {
+        case MediaDeviceKind::kAudioInput:
+          kind = "audioinput";
+          break;
+
+        case MediaDeviceKind::kAudioOutput:
+          kind = "audiooutput";
+          break;
+
+        case MediaDeviceKind::kVideoInput:
+          kind = "videoinput";
+          break;
+
+        default:
+          throw std::exception("Invalid MediaDeviceKind");
+      }
+
       EncodableMap info;
-      info[EncodableValue("label")] = EncodableValue(std::string(devices[i].label));
-      info[EncodableValue("deviceId")] = EncodableValue(std::string(devices[i].deviceId));
-      info[EncodableValue("kind")] = EncodableValue(std::string(devices[i].kind));
+      info[EncodableValue("label")] =
+          EncodableValue(std::string(devices[i].label));
+      info[EncodableValue("deviceId")] =
+          EncodableValue(std::string(devices[i].device_id));
+      info[EncodableValue("kind")] = EncodableValue(kind);
       info[EncodableValue("groupId")] = EncodableValue(std::string(""));
 
       sources.push_back(EncodableValue(info));
