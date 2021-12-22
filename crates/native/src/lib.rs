@@ -53,19 +53,12 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
     let adm = AudioDeviceModule::create(
         AudioLayer::kPlatformDefaultAudio,
         &mut task_queue,
-    );
-    adm.init();
+    )
+    .unwrap();
+    adm.init().unwrap();
 
-    let count_playout = adm.playout_devices();
-    let count_recording = adm.recording_devices();
-    debug_assert!(
-        count_playout >= 0,
-        "playout audio device count is less than `0`"
-    );
-    debug_assert!(
-        count_recording >= 0,
-        "recording audio device count is less than `0`"
-    );
+    let count_playout = adm.playout_devices().unwrap();
+    let count_recording = adm.recording_devices().unwrap();
 
     let mut result =
         Vec::with_capacity((count_playout + count_recording) as usize);
@@ -80,9 +73,9 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
         for i in 0..count {
             let (label, device_id) = if let MediaDeviceKind::kAudioOutput = kind
             {
-                adm.playout_device_name(i)
+                adm.playout_device_name(i).unwrap()
             } else {
-                adm.recording_device_name(i)
+                adm.recording_device_name(i).unwrap()
             };
 
             result.push(MediaDeviceInfo {
@@ -98,12 +91,12 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
 
 /// Returns a list of the available video input devices.
 fn video_devices_info() -> Vec<MediaDeviceInfo> {
-    let mut vdi = VideoDeviceInfo::create_device_info();
+    let mut vdi = VideoDeviceInfo::create_device_info().unwrap();
     let count = vdi.number_of_devices();
     let mut result = Vec::with_capacity(count as usize);
 
     for i in 0..count {
-        let (label, device_id) = vdi.device_name(i);
+        let (label, device_id) = vdi.device_name(i).unwrap();
 
         result.push(MediaDeviceInfo {
             device_id,

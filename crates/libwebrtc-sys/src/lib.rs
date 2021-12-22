@@ -1,7 +1,7 @@
 #[rustfmt::skip]
 mod bridge;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Result};
 use cxx::UniquePtr;
 
 use bridge::webrtc;
@@ -43,7 +43,7 @@ impl AudioDeviceModule {
         if ptr.is_null() {
             bail!("Null pointer returned from AudioDeviceModule::Create()");
         }
-        Self(ptr)
+        Ok(Self(ptr))
     }
 
     /// Initializes the current [`AudioDeviceModule`].
@@ -56,7 +56,7 @@ impl AudioDeviceModule {
     }
 
     /// Returns count of available audio playout devices.
-    pub fn playout_devices(&self) -> Result<u32> {
+    pub fn playout_devices(&self) -> Result<u16> {
         let count = webrtc::playout_devices(&self.0);
 
         if count < 0 {
@@ -65,11 +65,11 @@ impl AudioDeviceModule {
                 count
             );
         }
-        Ok(count as u32)
+        Ok(count as u16)
     }
 
     /// Returns count of available audio recording devices.
-    pub fn recording_devices(&self) -> Result<u32> {
+    pub fn recording_devices(&self) -> Result<u16> {
         let count = webrtc::recording_devices(&self.0);
 
         if count < 0 {
@@ -78,17 +78,21 @@ impl AudioDeviceModule {
                 count
             );
         }
-        Ok(count as u32)
+        Ok(count as u16)
     }
 
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
-    pub fn playout_device_name(&self, index: i16) -> Result<(String, String)> {
+    pub fn playout_device_name(&self, index: u16) -> Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
-        let result =
-            webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
+        let result = webrtc::playout_device_name(
+            &self.0,
+            index as i16,
+            &mut name,
+            &mut guid,
+        );
 
         if result != 0 {
             bail!(
@@ -104,13 +108,17 @@ impl AudioDeviceModule {
     /// `index`.
     pub fn recording_device_name(
         &self,
-        index: i16,
+        index: u16,
     ) -> Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
-        let result =
-            webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
+        let result = webrtc::recording_device_name(
+            &self.0,
+            index as i16,
+            &mut name,
+            &mut guid,
+        );
 
         if result != 0 {
             bail!(
@@ -138,7 +146,7 @@ impl VideoDeviceInfo {
                 VideoCaptureFactory::CreateDeviceInfo()"
             );
         }
-        Self(ptr)
+        Ok(Self(ptr))
     }
 
     /// Returns count of a video recording devices.

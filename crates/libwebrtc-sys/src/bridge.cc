@@ -23,7 +23,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
 // Calls AudioDeviceModule->Init().
 int32_t init_audio_device_module(
     const AudioDeviceModule &audio_device_module) {
-  audio_device_module->Init();
+  return audio_device_module->Init();
 }
 
 // Calls AudioDeviceModule->PlayoutDevices().
