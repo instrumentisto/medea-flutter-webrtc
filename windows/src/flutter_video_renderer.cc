@@ -55,40 +55,27 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
   mutex_.lock();
 
   if (pixel_buffer_.get() && frame_) {
-    printf("copy %lld %d\n",
-           duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-               .count(),
-           count);
-    //   if (pixel_buffer_->width != frame_->width() ||
-    //       pixel_buffer_->height != frame_->height()) {
-    //     size_t buffer_size = frame_->buffer_size();
-    //     rgb_buffer_.reset(new uint8_t[buffer_size]);
-    //     pixel_buffer_->width = frame_->width();
-    //     pixel_buffer_->height = frame_->height();
-    //   }
+    if (pixel_buffer_->width != frame_->width() ||
+        pixel_buffer_->height != frame_->height()) {
+      size_t buffer_size = frame_->buffer_size();
+      rgb_buffer_.reset(new uint8_t[buffer_size]);
+      pixel_buffer_->width = frame_->width();
+      pixel_buffer_->height = frame_->height();
+    }
 
-    //   auto buffer = frame_->buffer();
+    auto buffer = frame_->buffer();
 
-    //   std::copy(buffer.begin(), buffer.end(), rgb_buffer_.get());
+    std::copy(buffer.begin(), buffer.end(), rgb_buffer_.get());
 
-    //   pixel_buffer_->buffer = rgb_buffer_.get();
-    //   mutex_.unlock();
-    //   return pixel_buffer_.get();
+    pixel_buffer_->buffer = rgb_buffer_.get();
+    mutex_.unlock();
+    return pixel_buffer_.get();
   }
   mutex_.unlock();
   return nullptr;
 }
 
 void FlutterVideoRenderer::OnFrame(Frame* frame) {
-  count++;
-  printf("on frame %lld %d\n",
-         duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-             .count(),
-         count);
-  if (frame_ != nullptr) {
-    delete_frame(frame_);
-  }
-
   if (!first_frame_rendered) {
     if (event_sink_) {
       EncodableMap params;
@@ -126,6 +113,9 @@ void FlutterVideoRenderer::OnFrame(Frame* frame) {
     last_frame_size_ = {(size_t)frame->width(), (size_t)frame->height()};
   }
   mutex_.lock();
+  if (frame_ != nullptr) {
+    delete_frame(frame_);
+  }
   frame_ = frame;
   mutex_.unlock();
   registrar_->MarkTextureFrameAvailable(texture_id_);

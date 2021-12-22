@@ -42,13 +42,11 @@ class FlutterVideoRenderer {
   int64_t texture_id_ = -1;
   // scoped_refptr<RTCVideoTrack> track_ = nullptr;
   Frame* frame_ = nullptr;
-  // webrtc::VideoFrame frame_;
   std::unique_ptr<flutter::TextureVariant> texture_;
   std::shared_ptr<FlutterDesktopPixelBuffer> pixel_buffer_;
   mutable std::shared_ptr<uint8_t> rgb_buffer_;
   mutable std::mutex mutex_;
   VideoRotation rotation_ = VideoRotation::kVideoRotation_0;
-  mutable int count = 0;
 };
 
 class FlutterVideoRendererManager {
