@@ -1,14 +1,14 @@
-use crate::{
-    api, AudioDeviceModule, AudioLayer, TaskQueueFactory, VideoDeviceInfo,
-    Webrtc,
+use libwebrtc_sys::{
+    AudioDeviceModule, AudioLayer, TaskQueueFactory, VideoDeviceInfo,
 };
-use api::{MediaDeviceInfo, MediaDeviceKind};
+
+use crate::{api, Webrtc};
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
 impl Webrtc {
     #[must_use]
-    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo> {
+    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
         let mut audio = audio_devices_info(&mut self.0.task_queue_factory);
         let mut video = video_devices_info();
 
@@ -21,7 +21,7 @@ impl Webrtc {
 /// Returns a list of all available audio input and output devices.
 fn audio_devices_info(
     task_queue: &mut TaskQueueFactory,
-) -> Vec<MediaDeviceInfo> {
+) -> Vec<api::MediaDeviceInfo> {
     // TODO: Do not unwrap.
     let adm = AudioDeviceModule::create(
         AudioLayer::kPlatformDefaultAudio,
@@ -37,22 +37,25 @@ fn audio_devices_info(
     let mut result =
         Vec::with_capacity((count_playout + count_recording) as usize);
 
-    for kind in [MediaDeviceKind::kAudioOutput, MediaDeviceKind::kAudioInput] {
-        let count = if let MediaDeviceKind::kAudioOutput = kind {
+    for kind in [
+        api::MediaDeviceKind::kAudioOutput,
+        api::MediaDeviceKind::kAudioInput,
+    ] {
+        let count = if let api::MediaDeviceKind::kAudioOutput = kind {
             count_playout
         } else {
             count_recording
         };
 
         for i in 0..count {
-            let (label, device_id) = if let MediaDeviceKind::kAudioOutput = kind
-            {
-                adm.playout_device_name(i).unwrap()
-            } else {
-                adm.recording_device_name(i).unwrap()
-            };
+            let (label, device_id) =
+                if let api::MediaDeviceKind::kAudioOutput = kind {
+                    adm.playout_device_name(i).unwrap()
+                } else {
+                    adm.recording_device_name(i).unwrap()
+                };
 
-            result.push(MediaDeviceInfo {
+            result.push(api::MediaDeviceInfo {
                 device_id,
                 kind,
                 label,
@@ -64,7 +67,7 @@ fn audio_devices_info(
 }
 
 /// Returns a list of all available video input devices.
-fn video_devices_info() -> Vec<MediaDeviceInfo> {
+fn video_devices_info() -> Vec<api::MediaDeviceInfo> {
     // TODO: Do not unwrap.
     let mut vdi = VideoDeviceInfo::create().unwrap();
     let count = vdi.number_of_devices();
@@ -73,9 +76,9 @@ fn video_devices_info() -> Vec<MediaDeviceInfo> {
     for i in 0..count {
         let (label, device_id) = vdi.device_name(i).unwrap();
 
-        result.push(MediaDeviceInfo {
+        result.push(api::MediaDeviceInfo {
             device_id,
-            kind: MediaDeviceKind::kVideoInput,
+            kind: api::MediaDeviceKind::kVideoInput,
             label,
         });
     }

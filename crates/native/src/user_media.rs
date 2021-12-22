@@ -5,14 +5,14 @@ use libwebrtc_sys as sys;
 use crate::{api, Webrtc};
 
 // TODO: use new-types
-pub type StreamId = u64;
+pub type MediaStreamId = u64;
 pub type VideoSourceId = u64;
-pub type TrackId = u64;
-pub type VideoTrackId = u64;
 pub type AudioSourceId = u64;
+pub type VideoTrackId = u64;
 pub type AudioTrackId = u64;
 
 pub struct MediaStream {
+    id: MediaStreamId,
     inner: sys::LocalMediaStream,
     video_tracks: Vec<VideoTrackId>,
     audio_tracks: Vec<AudioTrackId>,
@@ -94,7 +94,7 @@ impl Webrtc {
     /// Disposes the [`MediaStreamNative`] and all involved
     /// [`AudioTrackNative`]s/[`VideoTrackNative`]s and
     /// [`AudioSource`]s/[`VideoSourceNative`]s.
-    pub fn dispose_stream(self: &mut Webrtc, id: StreamId) {
+    pub fn dispose_stream(self: &mut Webrtc, id: MediaStreamId) {
         if let Some(stream) = self.0.local_media_streams.remove(&id) {
             let video_tracks = stream.video_tracks;
             let audio_tracks = stream.audio_tracks;
@@ -125,6 +125,7 @@ impl Webrtc {
             .create_local_media_stream()
             .unwrap();
         let stream = MediaStream {
+            id,
             inner,
             video_tracks: vec![],
             audio_tracks: vec![],

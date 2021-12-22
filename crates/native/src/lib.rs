@@ -9,7 +9,7 @@ use libwebrtc_sys::{PeerConnectionFactory, TaskQueueFactory};
 
 use crate::user_media::{
     AudioSource, AudioSourceId, AudioTrack, AudioTrackId, MediaStream,
-    StreamId, VideoSource, VideoSourceId, VideoTrack, VideoTrackId,
+    MediaStreamId, VideoSource, VideoSourceId, VideoTrack, VideoTrackId,
 };
 
 /// The module which describes the bridge to call Rust from C++.
@@ -115,10 +115,7 @@ pub mod api {
         /// AudioTrackNatives/VideoTrackNatives and
         /// AudioSources/VideoSourceNatives.
         #[cxx_name = "DisposeStream"]
-        pub fn dispose_stream(
-            self: &mut Webrtc,
-            id: u64,
-        );
+        pub fn dispose_stream(self: &mut Webrtc, id: u64);
     }
 }
 
@@ -132,7 +129,7 @@ pub struct Inner {
     video_tracks: HashMap<VideoTrackId, VideoTrack>,
     audio_sources: HashMap<AudioSourceId, AudioSource>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
-    local_media_streams: HashMap<StreamId, MediaStream>,
+    local_media_streams: HashMap<MediaStreamId, MediaStream>,
 }
 
 /// Wraps the [`Inner`] instanse.
