@@ -38,16 +38,17 @@ class RTCVideoRendererNative extends VideoRenderer {
   set srcObject(MediaStream? stream) {
     if (textureId == null) throw 'Call initialize before setting the stream';
 
-    _srcObject = stream;
-    WebRTC.invokeMethod('videoRendererSetSrcObject', <String, dynamic>{
-      'textureId': textureId,
-      'streamId': stream?.id ?? '',
-      'ownerTag': stream?.ownerTag ?? ''
-    }).then((_) {
-      value = (stream == null)
-          ? RTCVideoValue.empty
-          : value.copyWith(renderVideo: renderVideo);
-    });
+    // _srcObject = stream;
+    // WebRTC.invokeMethod('videoRendererSetSrcObject', <String, dynamic>{
+    //   'textureId': textureId,
+    //   'streamId': stream?.id ?? '',
+    //   'ownerTag': stream?.ownerTag ?? ''
+    // }).then((_) {
+    //   value = (stream == null)
+    //       ? RTCVideoValue.empty
+    //       : value.copyWith(renderVideo: renderVideo);
+    // });
+    value.copyWith(renderVideo: renderVideo);
   }
 
   @override

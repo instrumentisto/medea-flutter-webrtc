@@ -55,13 +55,16 @@ class RTCVideoView extends StatelessWidget {
               child: Transform(
                 transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
                 alignment: FractionalOffset.center,
-                child: videoRenderer.textureId != null &&
-                        videoRenderer.srcObject != null
+                child: videoRenderer.textureId != null
                     ? Texture(
                         textureId: videoRenderer.textureId!,
                         filterQuality: filterQuality,
                       )
-                    : Container(),
+                    : Container(color: Color.fromRGBO(231, 12, 12, 1.0)),
+                // child: Texture(
+                //         textureId: videoRenderer.textureId!,
+                //         filterQuality: filterQuality,
+                // )
               ),
             ),
           ),

@@ -213,10 +213,6 @@ pub fn remove_audio_track(
     webrtc::remove_audio_track(media_stream, track)
 }
 
-pub fn frame_width(frame: &UniquePtr<webrtc::VideoFrame>) -> i32 {
-    webrtc::frame_width(frame)
-}
-
 // extern "C" {
 //     pub fn test(cb: extern "C" fn() -> i32);
 // }
@@ -226,12 +222,18 @@ pub fn stream_test(cb: fn(UniquePtr<webrtc::VideoFrame>)) -> bool {
     true
 }
 
+// pub fn teststs() -> bool {
+//     let mut a = unsafe {webrtc::convert_to_argb(1)};
+//     panic!("TESTING {}", a.pin_mut().pop().unwrap());
+//     true
+// }
+
 // #[cfg(test)]
 // mod test {
-//     use super::stream_test;
+//     use super::teststs;
 
 //     #[test]
 //     fn it_works() {
-//         assert!(stream_test());
+//         assert!(teststs());
 //     }
 // }

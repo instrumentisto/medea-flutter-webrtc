@@ -274,27 +274,13 @@ int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame) {
   return frame.get()->rotation();
 }
 
-std::unique_ptr<I420BufferInterface> i420_buffer(
-    const std::unique_ptr<VideoFrame>& frame) {
-  return std::make_unique<I420BufferInterface>(
-      frame.get()->video_frame_buffer().get()->ToI420());
-}
-
-rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame) {
+rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
+                                   const int32_t buffer_size) {
   auto video_frame = frame.get();
-  int size = video_frame->width() * video_frame->height() * (32 >> 3);
-  rust::Vec<uint8_t> out;
-  std::unique_ptr<uint8_t[]> image;
-  image.reset(new uint8_t[size]);
-
-  // auto frame_buffer = buffer.get()->getptr();
-
-  // libyuv::I420ToARGB(
-  //     frame_buffer->DataY(), frame_buffer->StrideY(), frame_buffer->DataU(),
-  //     frame_buffer->StrideU(), frame_buffer->DataV(),
-  //     frame_buffer->StrideV(), image.get(), frame_buffer->width() *
-  //     frame_buffer->height() / 8, frame_buffer->width(),
-  //     frame_buffer->height());
+  rust::Vec<uint8_t> image;
+  for (int i = 0; i < buffer_size; i++) {
+    image.push_back((uint8_t)0);
+  }
 
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       video_frame->video_frame_buffer()->ToI420());
@@ -302,16 +288,12 @@ rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame) {
     buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame->rotation());
   }
 
-  libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
+  libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     image.get(), video_frame->width() * 32 / 8,
+                     image.data(), video_frame->width() * 32 / 8,
                      buffer->width(), buffer->height());
 
-  for (int i = 0; i < size; i++) {
-    out.push_back(image.get()[i]);
-  }
-
-  return out;
+  return image;
 }
 
 void test(rust::Fn<void(std::unique_ptr<VideoFrame>)> cb) {
@@ -322,7 +304,7 @@ void test(rust::Fn<void(std::unique_ptr<VideoFrame>)> cb) {
   signal.get()->Start();
   auto pcf = create_peer_connection_factory(worker, signal);
 
-  auto a = create_video_source(worker, signal, 640, 380, 30);
+  auto a = create_video_source(worker, signal, 640, 480, 30);
   auto b = create_video_track(pcf, a);
 
   // WNDCLASSEXW wcex = {sizeof(WNDCLASSEX)};
@@ -341,7 +323,7 @@ void test(rust::Fn<void(std::unique_ptr<VideoFrame>)> cb) {
   //                     CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL),
   //                     NULL);
 
-  c = new VideoRenderer(640, 380, b.get()->getptr(), cb);
+  c = new VideoRenderer(640, 480, b.get()->getptr(), cb);
 
   // ShowWindow(wnd, SW_SHOWNORMAL);
   // UpdateWindow(wnd);

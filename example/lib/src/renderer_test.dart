@@ -63,10 +63,10 @@ class _RendererTestState extends State<RendererTest> {
     };
 
     try {
-      var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-      _mediaDevicesList = await navigator.mediaDevices.enumerateDevices();
-      _localStream = stream;
-      // _localRenderer.srcObject = _localStream;
+      // var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      // _mediaDevicesList = await navigator.mediaDevices.enumerateDevices();
+      // _localStream = stream;
+      _localRenderer.srcObject = _localStream;
     } catch (e) {
       print(e.toString());
     }

@@ -6,16 +6,7 @@
 #include "flutter_webrtc_base.h"
 #include "flutter_webrtc_native.h"
 
-// #include "api/media_stream_interface.h"
-
 namespace flutter_webrtc_plugin {
-
-enum VideoRotation {
-  kVideoRotation_0 = 0,
-  kVideoRotation_90 = 90,
-  kVideoRotation_180 = 180,
-  kVideoRotation_270 = 270
-};
 
 using namespace flutter;
 
@@ -26,7 +17,7 @@ class FlutterVideoRenderer {
   virtual const FlutterDesktopPixelBuffer* CopyPixelBuffer(size_t width,
                                                            size_t height) const;
 
-  void OnFrame(const Keklol* asd);
+  void OnFrame(Frame* frame);
 
   // void SetVideoTrack(scoped_refptr<RTCVideoTrack> track);
 
@@ -50,13 +41,15 @@ class FlutterVideoRenderer {
   std::unique_ptr<EventSink<EncodableValue>> event_sink_;
   int64_t texture_id_ = -1;
   // scoped_refptr<RTCVideoTrack> track_ = nullptr;
-  const FrameInfo* frame_;
+  Frame* frame_;
   // webrtc::VideoFrame frame_;
   std::unique_ptr<flutter::TextureVariant> texture_;
   std::shared_ptr<FlutterDesktopPixelBuffer> pixel_buffer_;
   mutable std::shared_ptr<uint8_t> rgb_buffer_;
   mutable std::mutex mutex_;
   VideoRotation rotation_ = VideoRotation::kVideoRotation_0;
+  mutable int count = 0;
+  mutable int count_frame = 0;
 };
 
 class FlutterVideoRendererManager {

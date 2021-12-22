@@ -46,8 +46,7 @@ using VideoTrackInterface = RefCounted<webrtc::VideoTrackInterface>;
 using AudioTrackInterface = RefCounted<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = RefCounted<webrtc::MediaStreamInterface>;
 using VideoFrame = webrtc::VideoFrame;
-using I420BufferInterface = RefCounted<webrtc::I420BufferInterface>;
-using Image = uint8_t[];
+using Buffer = uint8_t[];
 
 std::unique_ptr<webrtc::TaskQueueFactory> create_default_task_queue_factory();
 
@@ -127,10 +126,8 @@ int32_t frame_height(const std::unique_ptr<VideoFrame>& frame);
 
 int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame);
 
-std::unique_ptr<I420BufferInterface> i420_buffer(
-    const std::unique_ptr<VideoFrame>& frame);
-
-rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame);
+rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
+                                   int32_t buffer_size);
 
 void test(rust::Fn<void(std::unique_ptr<VideoFrame>)> cb);
 }  // namespace WEBRTC
