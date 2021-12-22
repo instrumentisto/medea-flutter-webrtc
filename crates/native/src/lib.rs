@@ -51,7 +51,7 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
 fn audio_devices_info() -> Vec<MediaDeviceInfo> {
     let mut task_queue = TaskQueueFactory::create_default_task_queue_factory();
     let adm = AudioDeviceModule::create(
-        AudioLayer::kWindowsCoreAudio,
+        AudioLayer::kPlatformDefaultAudio,
         &mut task_queue,
     );
     adm.init();

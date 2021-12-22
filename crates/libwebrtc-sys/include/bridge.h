@@ -10,40 +10,62 @@
 #include "rust/cxx.h"
 
 namespace bridge {
+
+// Smart pointer designed to wrap WebRTC's rtc::scoped_refptr.
+//
+// rtc::scoped_refptr cant be used with std::uniqueptr since it has private
+// destructor. rc unwraps raw pointer from the provided
+// rtc::scoped_refptr and calls Release in it's destructor therefore this allows
+// wrapping rc in the std::uniqueptr.
 template<class T>
-class RefCounted {
+class rc {
  public:
   typedef T element_type;
-  RefCounted(rtc::scoped_refptr<T> p) : ptr_(p.release()) {}
-  ~RefCounted() {
+
+  // Unwraps an actual pointer from the provided rtc::scoped_refptr.
+  rc(rtc::scoped_refptr<T> p) : ptr_(p.release()) {}
+
+  // Calls RefCountInterface::Release() on the underlying pointer.
+  ~rc() {
     ptr_->Release();
   }
+
+  // Returns a pointer to the managed object.
   T *ptr() const {
     return ptr_;
   }
+
+  // Returns a pointer to the managed object.
   T *operator->() const {
     return ptr_;
   }
+
  protected:
+  // Pointer to the managed object.
   T *ptr_;
 };
 
 using TaskQueueFactory = webrtc::TaskQueueFactory;
-using AudioDeviceModule = RefCounted<webrtc::AudioDeviceModule>;
+using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 
+// Creates a new AudioDeviceModule for the given audio layer.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
     TaskQueueFactory &task_queue_factory
 );
 
-void init_audio_device_module(const AudioDeviceModule &audio_device_module);
+// Initializes the native audio parts required for each platform.
+int32_t init_audio_device_module(const AudioDeviceModule &audio_device_module);
 
+// Returns count of the available playout audio devices.
 int16_t playout_devices(const AudioDeviceModule &audio_device_module);
 
+// Returns count of the available recording audio devices.
 int16_t recording_devices(const AudioDeviceModule &audio_device_module);
 
+// Obtains information regarding specified audio playout device.
 int32_t playout_device_name(
     const AudioDeviceModule &audio_device_module,
     int16_t index,
@@ -51,13 +73,16 @@ int32_t playout_device_name(
     rust::String &guid
 );
 
+// Obtains information regarding specified audio recording device.
 int32_t recording_device_name(const AudioDeviceModule &audio_device_module,
                               int16_t index,
                               rust::String &name,
                               rust::String &guid);
 
+// Creates a new VideoDeviceInfo.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info();
 
+// Obtains information regarding specified video recording device.
 int32_t video_device_name(VideoDeviceInfo &device_info,
                           uint32_t index,
                           rust::String &name,

@@ -1,10 +1,6 @@
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
-    struct DeviceName {
-        name: String,
-        guid: String,
-    }
-
+    /// Audio devices implementation kind.
     #[repr(i32)]
     pub enum AudioLayer {
         kPlatformDefaultAudio = 0,
@@ -25,8 +21,7 @@ pub(crate) mod webrtc {
 
         type TaskQueueFactory;
 
-        /// Creates a default [TaskQueueFactory] based on the current platform
-        /// capabilities.
+        /// Creates a default [TaskQueueFactory] based on the current platform.
         #[namespace = "webrtc"]
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory()
@@ -39,16 +34,16 @@ pub(crate) mod webrtc {
         type AudioDeviceModule;
         type AudioLayer;
 
-        /// Creates a default [AudioDeviceModule].
+        /// Creates a new [`AudioDeviceModule`] for the given [`AudioLayer`].
         pub fn create_audio_device_module(
             audio_layer: AudioLayer,
             task_queue_factory: Pin<&mut TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
-        /// Initializes current [AudioDeviceModule].
+        /// Initializes the current [`AudioDeviceModule`].
         pub fn init_audio_device_module(
             audio_device_module: &AudioDeviceModule,
-        );
+        ) -> i32;
 
         /// Returns count of available audio playout devices.
         pub fn playout_devices(
@@ -60,19 +55,22 @@ pub(crate) mod webrtc {
             audio_device_module: &AudioDeviceModule,
         ) -> i16;
 
-        /// Returns a tuple with an audio playout device information `(id, name)`.
+        /// Returns the `(name, id)` tuple for the given audio playout device
+        /// `index`.
         pub fn playout_device_name(
             audio_device_module: &AudioDeviceModule,
             index: i16,
             name: &mut String,
-            guid: &mut String
+            id: &mut String
         ) -> i32;
 
+        /// Writes device info to the provided `name` and `id` for the given
+        /// audio recording device `index`.
         pub fn recording_device_name(
             audio_device_module: &AudioDeviceModule,
             index: i16,
             name: &mut String,
-            guid: &mut String
+            id: &mut String
         ) -> i32;
     }
 
@@ -81,19 +79,23 @@ pub(crate) mod webrtc {
 
         type VideoDeviceInfo;
 
+        /// Creates a new [VideoDeviceInfo].
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
+        /// Returns count of a video recording devices.
         #[namespace = "webrtc"]
         #[cxx_name = "NumberOfDevices"]
         pub fn number_of_video_devices(
             self: Pin<&mut VideoDeviceInfo>,
         ) -> u32;
 
+        /// Writes device info to the provided `name` and `id` for the given
+        /// video device `index`.
         pub fn video_device_name(
             device_info: Pin<&mut VideoDeviceInfo>,
             index: u32,
             name: &mut String,
-            guid: &mut String
+            id: &mut String
         ) -> i32;
     }
 }
