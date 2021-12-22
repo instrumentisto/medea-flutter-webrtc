@@ -42,27 +42,27 @@ pub(crate) mod webrtc {
         /// Creates a default [AudioDeviceModule].
         pub fn create_audio_device_module(
             audio_layer: AudioLayer,
-            task_queue_factory: &UniquePtr<TaskQueueFactory>,
+            task_queue_factory: &TaskQueueFactory,
         ) -> UniquePtr<AudioDeviceModule>;
 
         /// Initializes current [AudioDeviceModule].
         pub fn init_audio_device_module(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
+            audio_device_module: &AudioDeviceModule,
         );
 
         /// Returns count of available audio playout devices.
         pub fn playout_devices(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
+            audio_device_module: &AudioDeviceModule,
         ) -> i16;
 
         /// Returns count of available audio recording devices.
         pub fn recording_devices(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
+            audio_device_module: &AudioDeviceModule,
         ) -> i16;
 
         /// Returns a tuple with an audio playout device information `(id, name)`.
         pub fn playout_device_name(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
+            audio_device_module: &AudioDeviceModule,
             index: i16,
         ) -> Vec<String>;
 
@@ -80,11 +80,11 @@ pub(crate) mod webrtc {
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
         pub fn number_of_video_devices(
-            device_info: &UniquePtr<VideoDeviceInfo>,
+            device_info: &VideoDeviceInfo,
         ) -> u32;
 
         pub fn video_device_name(
-            device_info: &UniquePtr<VideoDeviceInfo>,
+            device_info: &VideoDeviceInfo,
             index: u32,
         ) -> Vec<String>;
     }

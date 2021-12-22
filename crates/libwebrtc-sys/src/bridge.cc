@@ -9,7 +9,7 @@ namespace bridge {
 
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
-    const std::unique_ptr<webrtc::TaskQueueFactory> &task_queue_factory
+    webrtc::TaskQueueFactory &task_queue_factory
 ) {
   auto adm = webrtc::AudioDeviceModule::Create(
       audio_layer,
@@ -19,31 +19,26 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   return std::make_unique<AudioDeviceModule>(adm);
 };
 
-void init_audio_device_module(
-    const std::unique_ptr<AudioDeviceModule> &audio_device_module) {
-  audio_device_module->ptr()->Init();
+void init_audio_device_module(AudioDeviceModule &audio_device_module) {
+  audio_device_module->Init();
 }
 
-int16_t playout_devices(
-    const std::unique_ptr<AudioDeviceModule> &audio_device_module) {
-  return audio_device_module->ptr()->PlayoutDevices();
+int16_t playout_devices(AudioDeviceModule &audio_device_module) {
+  return audio_device_module->PlayoutDevices();
 };
 
-int16_t recording_devices(
-    const std::unique_ptr<AudioDeviceModule> &audio_device_module) {
-  return audio_device_module->ptr()->RecordingDevices();
+int16_t recording_devices(AudioDeviceModule &audio_device_module) {
+  return audio_device_module->RecordingDevices();
 };
 
 rust::Vec<rust::String> playout_device_name(
-    const std::unique_ptr<AudioDeviceModule> &audio_device_module,
+    AudioDeviceModule &audio_device_module,
     int16_t index) {
 
   char name[webrtc::kAdmMaxDeviceNameSize];
   char guid[webrtc::kAdmMaxGuidSize];
 
-  audio_device_module->ptr()->PlayoutDeviceName(index,
-                                                name,
-                                                guid);
+  audio_device_module->PlayoutDeviceName(index, name, guid);
 
   return {name, guid};
 };
@@ -69,12 +64,12 @@ create_video_device_info() {
 };
 
 uint32_t number_of_video_devices(
-    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info) {
+    webrtc::VideoCaptureModule::DeviceInfo &device_info) {
   return device_info->NumberOfDevices();
 };
 
 rust::Vec<rust::String> video_device_name(
-    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info,
+    webrtc::VideoCaptureModule::DeviceInfo &device_info,
     uint32_t index
 ) {
   char name[256];

@@ -35,17 +35,17 @@ namespace bridge {
 
     std::unique_ptr<AudioDeviceModule> create_audio_device_module(
       AudioLayer audio_layer,
-      const std::unique_ptr<webrtc::TaskQueueFactory> &task_queue_factory
+      const webrtc::TaskQueueFactory &task_queue_factory
     );
 
-    void init_audio_device_module(const std::unique_ptr<AudioDeviceModule> &audio_device_module);
+    void init_audio_device_module(const AudioDeviceModule &audio_device_module);
 
-    int16_t playout_devices(const std::unique_ptr<AudioDeviceModule> &audio_device_module);
+    int16_t playout_devices(const AudioDeviceModule &audio_device_module);
 
-    int16_t recording_devices(const std::unique_ptr<AudioDeviceModule> &audio_device_module);
+    int16_t recording_devices(const AudioDeviceModule &audio_device_module);
 
     rust::Vec<rust::String> playout_device_name(
-      const std::unique_ptr<AudioDeviceModule> &audio_device_module,
+      const AudioDeviceModule &audio_device_module,
       int16_t index
     );
 
@@ -53,7 +53,7 @@ namespace bridge {
 
     std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_video_device_info();
 
-    uint32_t number_of_video_devices(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info);
+    uint32_t number_of_video_devices(const webrtc::VideoCaptureModule::DeviceInfo &device_info);
 
-    rust::Vec<rust::String> video_device_name(const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> &device_info, uint32_t index);
+    rust::Vec<rust::String> video_device_name(const webrtc::VideoCaptureModule::DeviceInfo &device_info, uint32_t index);
 }
