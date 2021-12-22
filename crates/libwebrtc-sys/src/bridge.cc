@@ -17,6 +17,10 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
       &task_queue_factory
   );
 
+  if (adm == nullptr) {
+    return nullptr;
+  }
+
   return std::make_unique<AudioDeviceModule>(adm);
 };
 
