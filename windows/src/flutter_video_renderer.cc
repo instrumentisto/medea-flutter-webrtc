@@ -14,7 +14,10 @@ namespace flutter_webrtc_plugin {
 
 typedef void (*myfunc)(Frame*);
 
-extern "C" void foo(myfunc);
+extern "C" void foo(rust::cxxbridge1::Box<Webrtc>&,
+                    int64_t,
+                    rust::String,
+                    myfunc);
 
 FlutterVideoRenderer::FlutterVideoRenderer(TextureRegistrar* registrar,
                                            BinaryMessenger* messenger)
@@ -162,20 +165,21 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
   EncodableMap params;
   params[EncodableValue("textureId")] = EncodableValue(texture_id);
 
-  auto cb = std::bind(&FlutterVideoRenderer::OnFrame,
-                      renderers_[texture_id].get(), std::placeholders::_1);
-  myfunc wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
-  foo(wrapped_cb);
-
   result->Success(EncodableValue(params));
 }
 
-void FlutterVideoRendererManager::SetMediaStream(int64_t texture_id,
-                                                 const std::string& stream_id) {
+void FlutterVideoRendererManager::SetMediaStream(
+    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    int64_t texture_id,
+    const std::string& stream_id) {
   // scoped_refptr<RTCMediaStream> stream =
   // base_->MediaStreamForId(stream_id);
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
+    auto cb = std::bind(&FlutterVideoRenderer::OnFrame,
+                        renderers_[texture_id].get(), std::placeholders::_1);
+    myfunc wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
+    foo(webrtc, texture_id, rust::String(stream_id), wrapped_cb);
     // FlutterVideoRenderer* renderer = it->second.get();
     // if (stream.get()) {
     //   auto video_tracks = stream->video_tracks();

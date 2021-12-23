@@ -10,14 +10,6 @@
 #define DEFAULT_HEIGHT 480
 #define DEFAULT_FPS 30
 
-typedef void (*myfunc)();
-
-extern "C" void foo(myfunc);
-
-void f() {
-  printf("%d\n", 322);
-}
-
 namespace flutter_webrtc_plugin {
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
@@ -170,18 +162,21 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("peerConnectionClose") == 0) {
   } else if (method_call.method_name().compare("peerConnectionDispose") == 0) {
   } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
-    // myfunc asd = []() { printf("%d\n", 8); };
-    // foo(asd);
-
     CreateVideoRendererTexture(std::move(result));
-    // OnFrame();
-
-    // EncodableMap params;
-    // params[EncodableValue("textureId")] = EncodableValue("texture_id");
-    // result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
              0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
+    const std::string stream_id = findString(params, "streamId");
+    int64_t texture_id = findLongInt(params, "textureId");
+
+    SetMediaStream(webrtc, texture_id, stream_id);
+    result->Success();
   } else if (method_call.method_name().compare("setVolume") == 0) {
   } else if (method_call.method_name().compare("getLocalDescription") == 0) {
   } else if (method_call.method_name().compare("getRemoteDescription") == 0) {

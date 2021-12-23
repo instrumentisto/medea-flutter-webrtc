@@ -46,7 +46,6 @@ using VideoTrackInterface = RefCounted<webrtc::VideoTrackInterface>;
 using AudioTrackInterface = RefCounted<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = RefCounted<webrtc::MediaStreamInterface>;
 using VideoFrame = webrtc::VideoFrame;
-using Buffer = uint8_t[];
 
 std::unique_ptr<webrtc::TaskQueueFactory> create_default_task_queue_factory();
 
@@ -129,5 +128,8 @@ int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame);
 rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
                                    int32_t buffer_size);
 
-void test(rust::Fn<void(std::unique_ptr<VideoFrame>)> cb);
+std::unique_ptr<VideoRenderer> get_video_renderer(
+    rust::Fn<void(std::unique_ptr<VideoFrame>, int64_t*)> cb,
+    int64_t* flutter_cb_ptr,
+    const std::unique_ptr<VideoTrackInterface>& track_to_render);
 }  // namespace WEBRTC

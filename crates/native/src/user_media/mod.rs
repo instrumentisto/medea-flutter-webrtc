@@ -8,16 +8,17 @@ pub type VideoSouceId = String;
 pub type VideoTrackId = String;
 pub type AudioSourceId = String;
 pub type AudioTrackId = String;
+pub type TextureId = i64;
 
 pub struct MediaStream {
-    ptr: UniquePtr<webrtc::MediaStreamInterface>,
-    video_tracks: Vec<VideoTrackId>,
-    audio_tracks: Vec<AudioTrackId>,
+    pub ptr: UniquePtr<webrtc::MediaStreamInterface>,
+    pub video_tracks: Vec<VideoTrackId>,
+    pub audio_tracks: Vec<AudioTrackId>,
 }
 
 pub struct VideoTrack {
-    ptr: UniquePtr<webrtc::VideoTrackInterface>,
-    source: Rc<VideoSource>,
+    pub ptr: UniquePtr<webrtc::VideoTrackInterface>,
+    pub source: Rc<VideoSource>,
 }
 
 pub struct VideoSource {

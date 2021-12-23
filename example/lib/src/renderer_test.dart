@@ -17,8 +17,8 @@ class _RendererTestState extends State<RendererTest> {
   final _localRenderer = RTCVideoRenderer();
   bool _inCalling = false;
   bool _isTorchOn = false;
-  // MediaRecorder? _mediaRecorder;
-  // bool get _isRec => _mediaRecorder != null;
+  MediaRecorder? _mediaRecorder;
+  bool get _isRec => _mediaRecorder != null;
 
   List<MediaDeviceInfo>? _mediaDevicesList;
 
@@ -34,7 +34,7 @@ class _RendererTestState extends State<RendererTest> {
     if (_inCalling) {
       _hangUp();
     }
-    // _localRenderer.dispose();
+    _localRenderer.dispose();
   }
 
   void test() async {
@@ -63,9 +63,9 @@ class _RendererTestState extends State<RendererTest> {
     };
 
     try {
-      // var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-      // _mediaDevicesList = await navigator.mediaDevices.enumerateDevices();
-      // _localStream = stream;
+      var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      _mediaDevicesList = await navigator.mediaDevices.enumerateDevices();
+      _localStream = stream;
       _localRenderer.srcObject = _localStream;
     } catch (e) {
       print(e.toString());
@@ -80,7 +80,7 @@ class _RendererTestState extends State<RendererTest> {
   void _hangUp() async {
     try {
       await _localStream?.dispose();
-      // _localRenderer.srcObject = null;
+      _localRenderer.srcObject = null;
       setState(() {
         _inCalling = false;
       });
@@ -89,61 +89,61 @@ class _RendererTestState extends State<RendererTest> {
     }
   }
 
-  // void _startRecording() async {
-  //   if (_localStream == null) throw Exception('Stream is not initialized');
-  //   if (Platform.isIOS) {
-  //     print('Recording is not available on iOS');
-  //     return;
-  //   }
-  //   // TODO(rostopira): request write storage permission
-  //   final storagePath = await getExternalStorageDirectory();
-  //   if (storagePath == null) throw Exception('Can\'t find storagePath');
-  //
-  //   final filePath = storagePath.path + '/webrtc_sample/test.mp4';
-  //   _mediaRecorder = MediaRecorder();
-  //   setState(() {});
-  //
-  //   final videoTrack = _localStream!
-  //       .getVideoTracks()
-  //       .firstWhere((track) => track.kind == 'video');
-  //   await _mediaRecorder!.start(
-  //     filePath,
-  //     videoTrack: videoTrack,
-  //   );
-  // }
-  //
-  // void _stopRecording() async {
-  //   await _mediaRecorder?.stop();
-  //   setState(() {
-  //     _mediaRecorder = null;
-  //   });
-  // }
+  void _startRecording() async {
+    if (_localStream == null) throw Exception('Stream is not initialized');
+    if (Platform.isIOS) {
+      print('Recording is not available on iOS');
+      return;
+    }
+    // TODO(rostopira): request write storage permission
+    final storagePath = await getExternalStorageDirectory();
+    if (storagePath == null) throw Exception('Can\'t find storagePath');
 
-  // void _toggleTorch() async {
-  //   if (_localStream == null) throw Exception('Stream is not initialized');
-  //
-  //   final videoTrack = _localStream!
-  //       .getVideoTracks()
-  //       .firstWhere((track) => track.kind == 'video');
-  //   final has = await videoTrack.hasTorch();
-  //   if (has) {
-  //     print('[TORCH] Current camera supports torch mode');
-  //     setState(() => _isTorchOn = !_isTorchOn);
-  //     await videoTrack.setTorch(_isTorchOn);
-  //     print('[TORCH] Torch state is now ${_isTorchOn ? 'on' : 'off'}');
-  //   } else {
-  //     print('[TORCH] Current camera does not support torch mode');
-  //   }
-  // }
+    final filePath = storagePath.path + '/webrtc_sample/test.mp4';
+    _mediaRecorder = MediaRecorder();
+    setState(() {});
 
-  // void _toggleCamera() async {
-  //   if (_localStream == null) throw Exception('Stream is not initialized');
-  //
-  //   final videoTrack = _localStream!
-  //       .getVideoTracks()
-  //       .firstWhere((track) => track.kind == 'video');
-  //   await Helper.switchCamera(videoTrack);
-  // }
+    final videoTrack = _localStream!
+        .getVideoTracks()
+        .firstWhere((track) => track.kind == 'video');
+    await _mediaRecorder!.start(
+      filePath,
+      videoTrack: videoTrack,
+    );
+  }
+
+  void _stopRecording() async {
+    await _mediaRecorder?.stop();
+    setState(() {
+      _mediaRecorder = null;
+    });
+  }
+
+  void _toggleTorch() async {
+    if (_localStream == null) throw Exception('Stream is not initialized');
+
+    final videoTrack = _localStream!
+        .getVideoTracks()
+        .firstWhere((track) => track.kind == 'video');
+    final has = await videoTrack.hasTorch();
+    if (has) {
+      print('[TORCH] Current camera supports torch mode');
+      setState(() => _isTorchOn = !_isTorchOn);
+      await videoTrack.setTorch(_isTorchOn);
+      print('[TORCH] Torch state is now ${_isTorchOn ? 'on' : 'off'}');
+    } else {
+      print('[TORCH] Current camera does not support torch mode');
+    }
+  }
+
+  void _toggleCamera() async {
+    if (_localStream == null) throw Exception('Stream is not initialized');
+
+    final videoTrack = _localStream!
+        .getVideoTracks()
+        .firstWhere((track) => track.kind == 'video');
+    await Helper.switchCamera(videoTrack);
+  }
 
   void _captureFrame() async {
     if (_localStream == null) throw Exception('Stream is not initialized');
@@ -170,22 +170,22 @@ class _RendererTestState extends State<RendererTest> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Renderer'), actions: [
-        // IconButton(
-        //   icon: Icon(_isTorchOn ? Icons.flash_off : Icons.flash_on),
-        //   onPressed: test,
-        // ),
-        // IconButton(
-        //   icon: Icon(Icons.switch_video),
-        //   onPressed: _toggleCamera,
-        // ),
-        // IconButton(
-        //   icon: Icon(Icons.camera),
-        //   onPressed: _captureFrame,
-        // ),
-        // IconButton(
-        //   icon: Icon(_isRec ? Icons.stop : Icons.fiber_manual_record),
-        //   onPressed: _isRec ? _stopRecording : _startRecording,
-        // ),
+        IconButton(
+          icon: Icon(_isTorchOn ? Icons.flash_off : Icons.flash_on),
+          onPressed: test,
+        ),
+        IconButton(
+          icon: Icon(Icons.switch_video),
+          onPressed: _toggleCamera,
+        ),
+        IconButton(
+          icon: Icon(Icons.camera),
+          onPressed: _captureFrame,
+        ),
+        IconButton(
+          icon: Icon(_isRec ? Icons.stop : Icons.fiber_manual_record),
+          onPressed: _isRec ? _stopRecording : _startRecording,
+        ),
         PopupMenuButton<String>(
           onSelected: _selectAudioOutput,
           itemBuilder: (BuildContext context) {
@@ -225,6 +225,6 @@ class _RendererTestState extends State<RendererTest> {
   }
 
   void _selectAudioOutput(String deviceId) {
-    // _localRenderer.audioOutput = deviceId;
+    _localRenderer.audioOutput = deviceId;
   }
 }

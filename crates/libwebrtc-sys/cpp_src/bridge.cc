@@ -184,84 +184,6 @@ bool remove_audio_track(
   return media_stream.get()->getptr()->RemoveTrack(track.get()->getptr());
 }
 
-VideoRenderer* c;
-
-#define RAND_MAX 255
-
-LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-  LRESULT result = 0;
-
-  if (msg == WM_PAINT) {
-    PAINTSTRUCT ps;
-    BeginPaint(hwnd, &ps);
-
-    RECT rc;
-    GetClientRect(hwnd, &rc);
-
-    HDC dc_mem = CreateCompatibleDC(ps.hdc);
-    SetStretchBltMode(dc_mem, HALFTONE);
-
-    HDC all_dc[] = {ps.hdc, dc_mem};
-
-    if (c == nullptr) {
-      printf("no img\n");
-      return LRESULT(0);
-    }
-
-    const BITMAPINFO& bmi = c->bmi();
-    int height = abs(bmi.bmiHeader.biHeight);
-    int width = bmi.bmiHeader.biWidth;
-
-    const uint8_t* image = c->image();
-    if (image != NULL) {
-      HDC dc_mem = ::CreateCompatibleDC(ps.hdc);
-      SetStretchBltMode(dc_mem, HALFTONE);
-
-      HDC all_dc[] = {ps.hdc, dc_mem};
-      for (size_t i = 0; i < arraysize(all_dc); ++i) {
-        SetMapMode(all_dc[i], MM_ISOTROPIC);
-        SetWindowExtEx(all_dc[i], width, height, NULL);
-        SetViewportExtEx(all_dc[i], rc.right, rc.bottom, NULL);
-      }
-
-      HBITMAP bmp_mem = CreateCompatibleBitmap(ps.hdc, rc.right, rc.bottom);
-      HGDIOBJ bmp_old = SelectObject(dc_mem, bmp_mem);
-
-      POINT logical_area = {rc.right, rc.bottom};
-      DPtoLP(ps.hdc, &logical_area, 1);
-
-      HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
-      RECT logical_rect = {0, 0, logical_area.x, logical_area.y};
-      FillRect(dc_mem, &logical_rect, brush);
-      DeleteObject(brush);
-
-      int x = (logical_area.x / 2) - (width / 2);
-      int y = (logical_area.y / 2) - (height / 2);
-
-      StretchDIBits(dc_mem, x + width, y, -width, height, 0, 0, width, height,
-                    image, &bmi, DIB_RGB_COLORS, SRCCOPY);
-
-      BitBlt(ps.hdc, 0, 0, logical_area.x, logical_area.y, dc_mem, 0, 0,
-             SRCCOPY);
-
-      // Cleanup.
-      SelectObject(dc_mem, bmp_old);
-      DeleteObject(bmp_mem);
-      DeleteDC(dc_mem);
-    }
-
-    EndPaint(hwnd, &ps);
-  } else if (msg == WM_CLOSE) {
-    exit(0);
-  } else if (msg == WM_ERASEBKGND || msg == WM_SETFOCUS || msg == WM_SIZE ||
-             msg == WM_CTLCOLORSTATIC || msg == WM_COMMAND) {
-  } else {
-    result = DefWindowProc(hwnd, msg, wp, lp);
-  }
-
-  return result;
-}
-
 int32_t frame_width(const std::unique_ptr<VideoFrame>& frame) {
   return frame.get()->width();
 }
@@ -296,49 +218,12 @@ rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
   return image;
 }
 
-void test(rust::Fn<void(std::unique_ptr<VideoFrame>)> cb) {
-  auto worker = create_thread();
-  worker.get()->Start();
-
-  auto signal = create_thread();
-  signal.get()->Start();
-  auto pcf = create_peer_connection_factory(worker, signal);
-
-  auto a = create_video_source(worker, signal, 640, 480, 30);
-  auto b = create_video_track(pcf, a);
-
-  // WNDCLASSEXW wcex = {sizeof(WNDCLASSEX)};
-  // wcex.style = CS_DBLCLKS;
-  // wcex.hInstance = GetModuleHandle(NULL);
-  // wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-  // wcex.lpfnWndProc = DWProc;
-  // wcex.lpszClassName = L"Test_Class";
-  // wcex.hbrBackground = CreateSolidBrush(RGB(0, 0, 0));
-  // ATOM wnd_class_ = ::RegisterClassExW(&wcex);
-
-  // HWND wnd =
-  //     CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, L"Test_Class", L"Test",
-  //                     WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
-  //                     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-  //                     CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL),
-  //                     NULL);
-
-  c = new VideoRenderer(640, 480, b.get()->getptr(), cb);
-
-  // ShowWindow(wnd, SW_SHOWNORMAL);
-  // UpdateWindow(wnd);
-
-  // DWORD d = GetLastError();
-  // printf("bridge %d\n", d);
-
-  // MSG Msg;
-
-  // while (GetMessage(&Msg, NULL, 0, 0) > 0) {
-  //   TranslateMessage(&Msg);
-  //   DispatchMessage(&Msg);
-  // }
-
-  // system("PAUSE");
+std::unique_ptr<VideoRenderer> get_video_renderer(
+    rust::Fn<void(std::unique_ptr<VideoFrame>, int64_t*)> cb,
+    int64_t* flutter_cb_ptr,
+    const std::unique_ptr<VideoTrackInterface>& track_to_render) {
+  return std::make_unique<VideoRenderer>(cb, flutter_cb_ptr,
+                                         track_to_render.get()->getptr());
 }
 
 }  // namespace WEBRTC

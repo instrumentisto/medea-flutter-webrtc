@@ -1,4 +1,4 @@
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, mem, rc::Rc};
 
 use cxx::UniquePtr;
 use libwebrtc_sys::*;
@@ -118,26 +118,44 @@ impl Frame {
     }
 }
 
-static mut FN: extern "C" fn(*mut Frame) = {
-    extern "C" fn __(_: *mut Frame) {
-        0;
-    }
-    __
-};
-
-pub fn cb(frame: UniquePtr<webrtc::VideoFrame>) {
+pub fn cb(frame: UniquePtr<webrtc::VideoFrame>, flutter_cb_ptr: *mut i64) {
     let a = Frame(Box::new(FrameInner(frame)));
 
     unsafe {
-        FN(Box::into_raw(Box::new(a)));
+        let flutter_cb: extern "C" fn(*mut Frame) =
+            mem::transmute(flutter_cb_ptr);
+
+        flutter_cb(Box::into_raw(Box::new(a)));
     }
 }
 
 #[no_mangle]
-unsafe extern "C" fn foo(fp: extern "C" fn(*mut Frame)) {
-    FN = fp;
+unsafe extern "C" fn foo(
+    webrtc: &mut Box<Webrtc>,
+    texture_id: TextureId,
+    stream_id: StreamId,
+    cpp_cb: extern "C" fn(*mut Frame),
+) {
+    let this = webrtc.as_mut().0.as_mut();
 
-    stream_test(cb);
+    let mut current_renderer = Renderer {
+        texture: texture_id,
+        stream: stream_id,
+        pointer: UniquePtr::null(),
+        callback: cpp_cb,
+    };
+
+    let video_track_id = this.local_media_streams[&current_renderer.stream]
+        .video_tracks[0]
+        .as_str();
+
+    current_renderer.pointer = webrtc::get_video_renderer(
+        cb,
+        mem::transmute_copy(&current_renderer.callback),
+        &this.video_tracks[video_track_id].ptr,
+    );
+
+    this.renderers.insert(texture_id, current_renderer);
 }
 
 unsafe fn delete_frame(frame_ptr: *mut Frame) {
@@ -158,14 +176,14 @@ pub struct Inner {
         HashMap<AudioSourceId, UniquePtr<webrtc::AudioSourceInterface>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<StreamId, MediaStream>,
-    renderers: HashMap<String, Renderer>,
+    renderers: HashMap<TextureId, Renderer>,
 }
 
 struct Renderer {
-    texture: String,
-    stream: MediaStream,
-    frames: HashMap<String, UniquePtr<webrtc::VideoFrame>>,
-    callback: extern "C" fn(),
+    texture: TextureId,
+    stream: StreamId,
+    pointer: UniquePtr<webrtc::VideoRenderer>,
+    callback: extern "C" fn(*mut Frame),
 }
 
 /// Wraps the [Inner] instanse.

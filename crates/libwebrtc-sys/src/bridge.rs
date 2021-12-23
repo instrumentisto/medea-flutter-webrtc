@@ -15,7 +15,7 @@ pub mod webrtc {
         type AudioTrackInterface;
         type MediaStreamInterface;
         type VideoFrame;
-        type Buffer;
+        type VideoRenderer;
 
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
 
@@ -115,6 +115,8 @@ pub mod webrtc {
             buffer_size: i32,
         ) -> Vec<u8>;
 
-        pub fn test(cb: fn(UniquePtr<VideoFrame>));
+        pub unsafe fn get_video_renderer(cb: unsafe fn(UniquePtr<VideoFrame>, *mut i64), flutter_cb_ptr: *mut i64, video_track: &UniquePtr<VideoTrackInterface>) -> UniquePtr<VideoRenderer>;
+
+        // pub fn test(cb: fn(UniquePtr<VideoFrame>));
     }
 }
