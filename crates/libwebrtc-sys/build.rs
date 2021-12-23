@@ -7,7 +7,7 @@ use std::{
 
 use anyhow::anyhow;
 use dotenv::dotenv;
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
     // This won't override any env vars that already present.
@@ -42,9 +42,9 @@ fn main() -> anyhow::Result<()> {
         .flag("-DNOMINMAX")
         .compile("libwebrtc-sys");
 
-    cpp_files.into_iter().for_each(|file| {
+    for file in cpp_files {
         println!("cargo:rerun-if-changed={}", file.display());
-    });
+    }
     get_header_files()?.into_iter().for_each(|file| {
         println!("cargo:rerun-if-changed={}", file.display());
     });
@@ -145,8 +145,8 @@ fn get_header_files() -> anyhow::Result<Vec<PathBuf>> {
 fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
     WalkDir::new(dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(Result::ok)
         .filter(|e| e.file_type().is_file())
-        .map(|e| e.into_path())
+        .map(DirEntry::into_path)
         .collect()
 }
