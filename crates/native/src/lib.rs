@@ -51,6 +51,7 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
 
 /// Returns a list of the available audio input and output devices.
 fn audio_devices_info() -> Vec<MediaDeviceInfo> {
+    // TODO: Do not unwrap.
     let mut task_queue = TaskQueueFactory::create_default_task_queue_factory();
     let adm = AudioDeviceModule::create(
         AudioLayer::kPlatformDefaultAudio,
@@ -94,6 +95,7 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
 
 /// Returns a list of the available video input devices.
 fn video_devices_info() -> Vec<MediaDeviceInfo> {
+    // TODO: Do not unwrap.
     let mut vdi = VideoDeviceInfo::create_device_info().unwrap();
     let count = vdi.number_of_devices();
     let mut result = Vec::with_capacity(count as usize);
