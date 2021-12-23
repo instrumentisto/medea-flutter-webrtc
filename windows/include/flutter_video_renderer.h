@@ -19,6 +19,8 @@ class FlutterVideoRenderer {
 
   void OnFrame(Frame* frame);
 
+  void FlutterVideoRenderer::ResetRenderer();
+
   // void SetVideoTrack(scoped_refptr<RTCVideoTrack> track);
 
   int64_t texture_id() { return texture_id_; }
@@ -61,6 +63,7 @@ class FlutterVideoRendererManager {
                       const std::string& stream_id);
 
   void VideoRendererDispose(
+      rust::cxxbridge1::Box<Webrtc>& webrtc,
       int64_t texture_id,
       std::unique_ptr<MethodResult<EncodableValue>> result);
 

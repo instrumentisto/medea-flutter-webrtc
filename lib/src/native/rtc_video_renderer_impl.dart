@@ -48,7 +48,6 @@ class RTCVideoRendererNative extends VideoRenderer {
           ? RTCVideoValue.empty
           : value.copyWith(renderVideo: renderVideo);
     });
-    // value.copyWith(renderVideo: renderVideo);
   }
 
   @override

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, mem, rc::Rc};
+use std::{collections::HashMap, mem, rc::Rc, slice::SliceIndex};
 
 use cxx::UniquePtr;
 use libwebrtc_sys::*;
@@ -83,6 +83,7 @@ pub mod ffi {
         fn buffer_size(self: &Frame) -> i32;
         unsafe fn buffer(self: &Frame) -> Vec<u8>;
         unsafe fn delete_frame(frame_ptr: *mut Frame);
+        fn dispose_renderer(webrtc: &mut Box<Webrtc>, texture_id: i64);
     }
 }
 
@@ -118,7 +119,7 @@ impl Frame {
     }
 }
 
-pub fn cb(frame: UniquePtr<webrtc::VideoFrame>, flutter_cb_ptr: *mut i64) {
+pub fn cb(frame: UniquePtr<webrtc::VideoFrame>, flutter_cb_ptr: usize) {
     let a = Frame(Box::new(FrameInner(frame)));
 
     unsafe {
@@ -139,15 +140,13 @@ unsafe extern "C" fn foo(
     let this = webrtc.as_mut().0.as_mut();
 
     let mut current_renderer = Renderer {
-        texture: texture_id,
-        stream: stream_id,
+        texture_id: Rc::new(texture_id),
         pointer: UniquePtr::null(),
         callback: cpp_cb,
     };
 
-    let video_track_id = this.local_media_streams[&current_renderer.stream]
-        .video_tracks[0]
-        .as_str();
+    let video_track_id =
+        this.local_media_streams[&stream_id].video_tracks[0].as_str();
 
     current_renderer.pointer = webrtc::get_video_renderer(
         cb,
@@ -155,7 +154,26 @@ unsafe extern "C" fn foo(
         &this.video_tracks[video_track_id].ptr,
     );
 
+    this.video_tracks
+        .get_mut(video_track_id)
+        .unwrap()
+        .renderers
+        .push(Rc::clone(&current_renderer.texture_id));
+
     this.renderers.insert(texture_id, current_renderer);
+}
+
+fn dispose_renderer(webrtc: &mut Box<Webrtc>, texture_id: TextureId) {
+    let this = webrtc.as_mut().0.as_mut();
+
+    let no_track =
+        Rc::strong_count(&this.renderers[&texture_id].texture_id) < 2;
+
+    if no_track {
+        webrtc::set_renderer_no_track(&this.renderers[&texture_id].pointer);
+    }
+
+    this.renderers.remove(&texture_id).unwrap();
 }
 
 unsafe fn delete_frame(frame_ptr: *mut Frame) {
@@ -180,8 +198,7 @@ pub struct Inner {
 }
 
 struct Renderer {
-    texture: TextureId,
-    stream: StreamId,
+    texture_id: Rc<TextureId>,
     pointer: UniquePtr<webrtc::VideoRenderer>,
     callback: extern "C" fn(*mut Frame),
 }

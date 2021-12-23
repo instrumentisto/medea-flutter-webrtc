@@ -13,9 +13,8 @@ class AutoLock {
 namespace WEBRTC {
 
 VideoRenderer::VideoRenderer(
-    rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, int64_t*)>
-        cb,
-    int64_t* flutter_cb_ptr,
+    rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
+    size_t flutter_cb_ptr,
     webrtc::VideoTrackInterface* track_to_render)
     : cb_(cb),
       flutter_cb_ptr_(flutter_cb_ptr),
@@ -24,7 +23,13 @@ VideoRenderer::VideoRenderer(
 }
 
 VideoRenderer::~VideoRenderer() {
-  rendered_track_->RemoveSink(this);
+  if (!no_track_) {
+    rendered_track_->RemoveSink(this);
+  }
+}
+
+void VideoRenderer::SetNoTrack() {
+  no_track_ = true;
 }
 
 void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {

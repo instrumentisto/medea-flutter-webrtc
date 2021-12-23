@@ -124,6 +124,11 @@ void FlutterVideoRenderer::OnFrame(Frame* frame) {
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
 
+void FlutterVideoRenderer::ResetRenderer() {
+  last_frame_size_ = {0, 0};
+  first_frame_rendered = false;
+}
+
 // void FlutterVideoRenderer::SetVideoTrack(scoped_refptr<RTCVideoTrack>
 // track)
 // {
@@ -176,10 +181,16 @@ void FlutterVideoRendererManager::SetMediaStream(
   // base_->MediaStreamForId(stream_id);
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
-    auto cb = std::bind(&FlutterVideoRenderer::OnFrame,
-                        renderers_[texture_id].get(), std::placeholders::_1);
-    myfunc wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
-    foo(webrtc, texture_id, rust::String(stream_id), wrapped_cb);
+    if (stream_id != "") {
+      auto cb = std::bind(&FlutterVideoRenderer::OnFrame,
+                          renderers_[texture_id].get(), std::placeholders::_1);
+      myfunc wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
+      foo(webrtc, texture_id, rust::String(stream_id), wrapped_cb);
+    } else {
+      dispose_renderer(webrtc, texture_id);
+      it->second.get()->ResetRenderer();
+    }
+
     // FlutterVideoRenderer* renderer = it->second.get();
     // if (stream.get()) {
     //   auto video_tracks = stream->video_tracks();
@@ -194,6 +205,7 @@ void FlutterVideoRendererManager::SetMediaStream(
 }
 
 void FlutterVideoRendererManager::VideoRendererDispose(
+    rust::cxxbridge1::Box<Webrtc>& webrtc,
     int64_t texture_id,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   auto it = renderers_.find(texture_id);

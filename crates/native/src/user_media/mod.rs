@@ -19,6 +19,7 @@ pub struct MediaStream {
 pub struct VideoTrack {
     pub ptr: UniquePtr<webrtc::VideoTrackInterface>,
     pub source: Rc<VideoSource>,
+    pub renderers: Vec<Rc<TextureId>>,
 }
 
 pub struct VideoSource {
@@ -83,6 +84,7 @@ fn create_local_video_track(
                 &this.video_sources.get(&source).unwrap().ptr,
             ),
             source: Rc::clone(this.video_sources.get(&source).unwrap()),
+            renderers: vec![],
         },
     );
 }

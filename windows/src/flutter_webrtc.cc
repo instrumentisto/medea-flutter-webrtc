@@ -164,6 +164,14 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
     CreateVideoRendererTexture(std::move(result));
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
+    int64_t texture_id = findLongInt(params, "textureId");
+    VideoRendererDispose(webrtc, texture_id, std::move(result));
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
              0) {
     if (!method_call.arguments()) {
@@ -174,6 +182,12 @@ void FlutterWebRTC::HandleMethodCall(
         GetValue<EncodableMap>(*method_call.arguments());
     const std::string stream_id = findString(params, "streamId");
     int64_t texture_id = findLongInt(params, "textureId");
+
+    // if (stream_id == "") {
+    //   dispose_renderer(webrtc, texture_id);
+    //   result->Success();
+    //   return;
+    // }
 
     SetMediaStream(webrtc, texture_id, stream_id);
     result->Success();

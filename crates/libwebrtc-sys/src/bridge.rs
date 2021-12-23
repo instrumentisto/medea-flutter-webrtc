@@ -115,7 +115,9 @@ pub mod webrtc {
             buffer_size: i32,
         ) -> Vec<u8>;
 
-        pub unsafe fn get_video_renderer(cb: unsafe fn(UniquePtr<VideoFrame>, *mut i64), flutter_cb_ptr: *mut i64, video_track: &UniquePtr<VideoTrackInterface>) -> UniquePtr<VideoRenderer>;
+        pub unsafe fn get_video_renderer(cb: unsafe fn(UniquePtr<VideoFrame>, usize), flutter_cb_ptr: usize, video_track: &UniquePtr<VideoTrackInterface>) -> UniquePtr<VideoRenderer>;
+
+        pub fn set_renderer_no_track(video_renderer: &UniquePtr<VideoRenderer>);
 
         // pub fn test(cb: fn(UniquePtr<VideoFrame>));
     }

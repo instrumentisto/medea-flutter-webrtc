@@ -17,16 +17,19 @@ namespace WEBRTC {
 class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   VideoRenderer(rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>,
-                                          int64_t*)> cb,
-                int64_t* flutter_cb_ptr,
+                                          size_t)> cb,
+                size_t flutter_cb_ptr,
                 webrtc::VideoTrackInterface* track_to_render);
   virtual ~VideoRenderer();
+
+  void SetNoTrack();
 
   // VideoSinkInterface implementation
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
   webrtc::VideoTrackInterface* rendered_track_;
-  rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, int64_t*)> cb_;
-  int64_t* flutter_cb_ptr_;
+  rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb_;
+  size_t flutter_cb_ptr_;
+  bool no_track_ = false;
 };
 }  // namespace WEBRTC
