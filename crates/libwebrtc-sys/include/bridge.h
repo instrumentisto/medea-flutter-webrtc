@@ -72,7 +72,7 @@ rust::Vec<rust::String> get_video_device_name(
 
 std::unique_ptr<rtc::Thread> create_thread();
 
-void start_thread(const std::unique_ptr<rtc::Thread>& thread);
+bool start_thread(const std::unique_ptr<rtc::Thread>& thread);
 
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<rtc::Thread>& worker_thread,

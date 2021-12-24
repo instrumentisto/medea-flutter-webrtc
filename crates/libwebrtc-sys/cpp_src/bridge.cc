@@ -99,8 +99,8 @@ std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
-void start_thread(const std::unique_ptr<rtc::Thread>& thread) {
-  thread.get()->Start();
+bool start_thread(const std::unique_ptr<rtc::Thread>& thread) {
+  return thread.get()->Start();
 }
 
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(

@@ -6,6 +6,7 @@ publish = false
 
 [dependencies]
 cxx = "1.0"
+anyhow = "1.0"
 
 [build-dependencies]
 anyhow = "1.0"

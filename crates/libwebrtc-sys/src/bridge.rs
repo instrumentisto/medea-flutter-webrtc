@@ -66,7 +66,7 @@ pub mod webrtc {
         pub fn create_thread() -> UniquePtr<Thread>;
 
         #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn start_thread(thread: &UniquePtr<Thread>);
+        pub unsafe fn start_thread(thread: &UniquePtr<Thread>) -> bool;
 
         #[allow(clippy::missing_safety_doc)]
         pub unsafe fn create_peer_connection_factory(

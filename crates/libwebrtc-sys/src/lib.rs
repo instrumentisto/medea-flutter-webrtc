@@ -1,3 +1,5 @@
+use anyhow::{bail, Result};
+use bridge::webrtc::VideoTrackSourceInterface;
 use cxx::UniquePtr;
 
 mod bridge;
@@ -226,16 +228,177 @@ pub fn remove_audio_track(
 }
 
 pub fn stream_test() -> bool {
-    let worker_thread = create_thread();
-    start_thread(&worker_thread);
+    // let worker_thread = create_thread();
+    // start_thread(&worker_thread);
 
-    let signaling_thread = create_thread();
-    start_thread(&signaling_thread);
+    // let signaling_thread = create_thread();
+    // start_thread(&signaling_thread);
 
-    let _ =
-        create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
+    // let _ =
+    //     create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
+
+    let c = PeerConnectionFactory::create().unwrap();
+    let asd = c.create_video_source(640, 380, 30).unwrap();
+    let dsa = c.create_video_track(&asd);
 
     true
+}
+
+pub struct Thread(UniquePtr<webrtc::Thread>);
+
+impl Thread {
+    pub fn create() -> Result<Self> {
+        let ptr = webrtc::create_thread();
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                rtc::Thread::Create()"
+            );
+        }
+        Ok(Self(ptr))
+    }
+
+    pub fn start(&self) -> Result<()> {
+        let result = unsafe { webrtc::start_thread(&self.0) };
+
+        if !result {
+            bail!(
+                "Thread is running or failed calling \
+                rtc::Thread::Start()"
+            );
+        }
+        Ok(())
+    }
+}
+
+pub struct PeerConnectionFactory {
+    pointer: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+    worker_thread: Thread,
+    signaling_thread: Thread,
+}
+
+impl PeerConnectionFactory {
+    pub fn create() -> Result<Self> {
+        let worker_thread = Thread::create().unwrap();
+        worker_thread.start().unwrap();
+        let signaling_thread = Thread::create().unwrap();
+        signaling_thread.start().unwrap();
+
+        let pointer = unsafe {
+            webrtc::create_peer_connection_factory(
+                &worker_thread.0,
+                &signaling_thread.0,
+            )
+        };
+
+        if pointer.is_null() {
+            bail!(
+                "Null pointer returned from \
+                webrtc::CreatePeerConnectionFactory()"
+            );
+        }
+        Ok(Self {
+            pointer,
+            worker_thread,
+            signaling_thread,
+        })
+    }
+
+    pub fn create_video_source(
+        &self,
+        width: usize,
+        height: usize,
+        fps: usize,
+    ) -> Result<VideoSource> {
+        let ptr = unsafe {
+            webrtc::create_video_source(
+                &self.worker_thread.0,
+                &self.signaling_thread.0,
+                width,
+                height,
+                fps,
+            )
+        };
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                webrtc::CreateVideoTrackSourceProxy()"
+            );
+        }
+        Ok(VideoSource(ptr))
+    }
+
+    pub fn create_audio_source(&self) -> Result<AudioSource> {
+        let ptr = unsafe { webrtc::create_audio_source(&self.pointer) };
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                webrtc::PeerConnectionFactoryInterface::CreateAudioSource()"
+            );
+        }
+        Ok(AudioSource(ptr))
+    }
+
+    pub fn create_video_track(
+        &self,
+        video_src: &VideoSource,
+    ) -> Result<VideoTrack> {
+        let ptr =
+            unsafe { webrtc::create_video_track(&self.pointer, &video_src.0) };
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                    webrtc::VideoTrackSourceInterface::CreateVideoTrack()"
+            );
+        }
+        Ok(VideoTrack(ptr))
+    }
+
+    pub fn create_audio_track(
+        &self,
+        audio_src: &AudioSource,
+    ) -> Result<AudioTrack> {
+        let ptr =
+            unsafe { webrtc::create_audio_track(&self.pointer, &audio_src.0) };
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                    webrtc::VideoTrackSourceInterface::CreateAudioTrack()"
+            );
+        }
+        Ok(AudioTrack(ptr))
+    }
+
+    pub fn create_local_media_stream(&self) -> Result<LocalMediaStream> {
+        let ptr = unsafe { webrtc::create_local_media_stream(&self.pointer) };
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                    webrtc::VideoTrackSourceInterface::CreateLocalMediaStream()"
+            );
+        }
+        Ok(LocalMediaStream(ptr))
+    }
+}
+
+pub struct VideoSource(UniquePtr<webrtc::VideoTrackSourceInterface>);
+
+pub struct AudioSource(UniquePtr<webrtc::AudioSourceInterface>);
+
+pub struct VideoTrack(UniquePtr<webrtc::VideoTrackInterface>);
+
+pub struct AudioTrack(UniquePtr<webrtc::AudioTrackInterface>);
+
+pub struct LocalMediaStream(UniquePtr<webrtc::MediaStreamInterface>);
+
+impl LocalMediaStream {
+    pub fn add_video_track(&self, track: VideoTrack) -> Result<()> {}
 }
 
 #[cfg(test)]
