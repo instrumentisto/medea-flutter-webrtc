@@ -183,12 +183,6 @@ void FlutterWebRTC::HandleMethodCall(
     const std::string stream_id = findString(params, "streamId");
     int64_t texture_id = findLongInt(params, "textureId");
 
-    // if (stream_id == "") {
-    //   dispose_renderer(webrtc, texture_id);
-    //   result->Success();
-    //   return;
-    // }
-
     SetMediaStream(webrtc, texture_id, stream_id);
     result->Success();
   } else if (method_call.method_name().compare("setVolume") == 0) {
