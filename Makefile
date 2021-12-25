@@ -150,7 +150,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/rust:$(RUST_VER) \
 			make cargo.lint dockerized=no
 else
-	cargo clippy --workspace -- -D clippy::pedantic -D warnings
+	cargo clippy --workspace -- -D warnings
 endif
 
 

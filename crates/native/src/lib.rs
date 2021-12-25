@@ -1,11 +1,16 @@
+#![warn(clippy::pedantic)]
+
 use libwebrtc_sys::{
     AudioDeviceModule, AudioLayer, TaskQueueFactory, VideoDeviceInfo,
 };
+
+use self::ffi::{MediaDeviceInfo, MediaDeviceKind};
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod ffi {
+    /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
         kAudioInput,
@@ -13,31 +18,28 @@ pub mod ffi {
         kVideoInput,
     }
 
-    /// The [MediaDeviceInfo] contains information that describes a single
-    /// media input or output device.
+    /// Information describing a single media input or output device.
     #[derive(Debug)]
     pub struct MediaDeviceInfo {
         /// Unique identifier for the represented device.
         pub device_id: String,
 
-        /// This [MediaDeviceInfo] kind.
+        /// Kind of the represented device.
         pub kind: MediaDeviceKind,
 
-        /// A label describing this device.
+        /// Label describing the represented device.
         pub label: String,
     }
 
     extern "Rust" {
-        /// Returns a list of the available media input and output devices,
-        /// such as microphones, cameras, headsets, and so forth.
+        /// Returns a list of all available media input and output devices, such
+        /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
         fn enumerate_devices() -> Vec<MediaDeviceInfo>;
     }
 }
 
-use ffi::{MediaDeviceInfo, MediaDeviceKind};
-
-/// Returns a list of the available media input and output devices, such as
+/// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
 #[must_use]
 pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
@@ -49,7 +51,7 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
     audio
 }
 
-/// Returns a list of the available audio input and output devices.
+/// Returns a list of all available audio input and output devices.
 fn audio_devices_info() -> Vec<MediaDeviceInfo> {
     // TODO: Do not unwrap.
     let mut task_queue = TaskQueueFactory::create_default_task_queue_factory();
@@ -93,7 +95,7 @@ fn audio_devices_info() -> Vec<MediaDeviceInfo> {
     result
 }
 
-/// Returns a list of the available video input devices.
+/// Returns a list of all available video input devices.
 fn video_devices_info() -> Vec<MediaDeviceInfo> {
     // TODO: Do not unwrap.
     let mut vdi = VideoDeviceInfo::create_device_info().unwrap();

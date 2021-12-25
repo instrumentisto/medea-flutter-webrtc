@@ -1,15 +1,16 @@
+#![warn(clippy::pedantic)]
 #![allow(clippy::missing_errors_doc)]
 
 mod bridge;
 
-use anyhow::{bail, Result};
+use anyhow::bail;
 use cxx::UniquePtr;
 
-use bridge::webrtc;
+use self::bridge::webrtc;
 
 pub use webrtc::AudioLayer;
 
-/// A thread safe task queue factory internally used in `WebRTC` that is
+/// Thread safe task queue factory internally used in [`webrtc`] that is
 /// capable of creating [Task Queue]s.
 ///
 /// [Task Queue Factory]: https://tinyurl.com/doc-threads
@@ -24,9 +25,9 @@ impl TaskQueueFactory {
 }
 
 /// Available audio devices manager that is responsible for driving input
-/// (microphone) and output (speaker) audio in `WebRTC`.
+/// (microphone) and output (speaker) audio in WebRTC.
 ///
-/// Backed by `WebRTC`'s [Audio Device Module].
+/// Backed by WebRTC's [Audio Device Module].
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
 pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
@@ -36,35 +37,35 @@ impl AudioDeviceModule {
     pub fn create(
         audio_layer: AudioLayer,
         task_queue_factory: &mut TaskQueueFactory,
-    ) -> Result<Self> {
+    ) -> anyhow::Result<Self> {
         let ptr = webrtc::create_audio_device_module(
             audio_layer,
             task_queue_factory.0.pin_mut(),
         );
 
         if ptr.is_null() {
-            bail!("Null pointer returned from AudioDeviceModule::Create()");
+            bail!("`null` pointer returned from `AudioDeviceModule::Create()`");
         }
         Ok(Self(ptr))
     }
 
     /// Initializes the current [`AudioDeviceModule`].
-    pub fn init(&self) -> Result<()> {
+    pub fn init(&self) -> anyhow::Result<()> {
         let result = webrtc::init_audio_device_module(&self.0);
         if result != 0 {
-            bail!("AudioDeviceModule::Init() failed with `{}` code", result);
+            bail!("`AudioDeviceModule::Init()` failed with `{}` code", result);
         }
         Ok(())
     }
 
     /// Returns count of available audio playout devices.
-    pub fn playout_devices(&self) -> Result<i16> {
+    pub fn playout_devices(&self) -> anyhow::Result<i16> {
         let count = webrtc::playout_devices(&self.0);
 
         if count < 0 {
             bail!(
-                "AudioDeviceModule::PlayoutDevices() failed with `{}` code",
-                count
+                "`AudioDeviceModule::PlayoutDevices()` failed with `{}` code",
+                count,
             );
         }
 
@@ -72,12 +73,12 @@ impl AudioDeviceModule {
     }
 
     /// Returns count of available audio recording devices.
-    pub fn recording_devices(&self) -> Result<i16> {
+    pub fn recording_devices(&self) -> anyhow::Result<i16> {
         let count = webrtc::recording_devices(&self.0);
 
         if count < 0 {
             bail!(
-                "AudioDeviceModule::RecordingDevices() failed with `{}` code",
+                "`AudioDeviceModule::RecordingDevices()` failed with `{}` code",
                 count
             );
         }
@@ -87,7 +88,10 @@ impl AudioDeviceModule {
 
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
-    pub fn playout_device_name(&self, index: i16) -> Result<(String, String)> {
+    pub fn playout_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
@@ -96,8 +100,9 @@ impl AudioDeviceModule {
 
         if result != 0 {
             bail!(
-                "AudioDeviceModule::PlayoutDeviceName() failed with `{}` code",
-                result
+                "`AudioDeviceModule::PlayoutDeviceName()` failed with `{}` \
+                 code",
+                result,
             );
         }
 
@@ -109,7 +114,7 @@ impl AudioDeviceModule {
     pub fn recording_device_name(
         &self,
         index: i16,
-    ) -> Result<(String, String)> {
+    ) -> anyhow::Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
@@ -118,9 +123,9 @@ impl AudioDeviceModule {
 
         if result != 0 {
             bail!(
-                "AudioDeviceModule::RecordingDeviceName() failed with \
-                `{}` code",
-                result
+                "`AudioDeviceModule::RecordingDeviceName()` failed with \
+                 `{}` code",
+                result,
             );
         }
 
@@ -133,13 +138,13 @@ pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
 impl VideoDeviceInfo {
     /// Creates a new [`VideoDeviceInfo`].
-    pub fn create_device_info() -> Result<Self> {
+    pub fn create_device_info() -> anyhow::Result<Self> {
         let ptr = webrtc::create_video_device_info();
 
         if ptr.is_null() {
             bail!(
-                "Null pointer returned from \
-                VideoCaptureFactory::CreateDeviceInfo()"
+                "`null` pointer returned from \
+                 `VideoCaptureFactory::CreateDeviceInfo()`",
             );
         }
         Ok(Self(ptr))
@@ -151,7 +156,10 @@ impl VideoDeviceInfo {
     }
 
     /// Returns the `(label, id)` tuple for the given video device `index`.
-    pub fn device_name(&mut self, index: u32) -> Result<(String, String)> {
+    pub fn device_name(
+        &mut self,
+        index: u32,
+    ) -> anyhow::Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
@@ -164,8 +172,8 @@ impl VideoDeviceInfo {
 
         if result != 0 {
             bail!(
-                "AudioDeviceModule::GetDeviceName() failed with `{}` code",
-                result
+                "`AudioDeviceModule::GetDeviceName()` failed with `{}` code",
+                result,
             );
         }
 

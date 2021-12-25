@@ -1,9 +1,7 @@
 #[allow(clippy::expl_impl_clone_on_copy)]
-#[rustfmt::skip]
-
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
-    /// Audio devices implementation kind.
+    /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum AudioLayer {
@@ -20,12 +18,14 @@ pub(crate) mod webrtc {
         kDummyAudio,
     }
 
+    #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
 
         type TaskQueueFactory;
 
-        /// Creates a default [TaskQueueFactory] based on the current platform.
+        /// Creates a default [`TaskQueueFactory`] based on the current
+        /// platform.
         #[namespace = "webrtc"]
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
@@ -41,7 +41,7 @@ pub(crate) mod webrtc {
             task_queue_factory: Pin<&mut TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
-        /// Initializes the current [`AudioDeviceModule`].
+        /// Initializes the given [`AudioDeviceModule`].
         pub fn init_audio_device_module(
             audio_device_module: &AudioDeviceModule,
         ) -> i32;
@@ -54,8 +54,8 @@ pub(crate) mod webrtc {
             audio_device_module: &AudioDeviceModule,
         ) -> i16;
 
-        /// Returns the `(name, id)` tuple for the given audio playout device
-        /// `index`.
+        /// Writes device info to the provided `name` and `id` for the given
+        /// audio playout device `index`.
         pub fn playout_device_name(
             audio_device_module: &AudioDeviceModule,
             index: i16,
@@ -76,7 +76,7 @@ pub(crate) mod webrtc {
     unsafe extern "C++" {
         type VideoDeviceInfo;
 
-        /// Creates a new [VideoDeviceInfo].
+        /// Creates a new [`VideoDeviceInfo`].
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
         /// Returns count of a video recording devices.
