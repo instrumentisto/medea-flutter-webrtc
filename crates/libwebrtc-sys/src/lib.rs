@@ -165,8 +165,8 @@ impl PeerConnectionFactory {
 
         let pointer = unsafe {
             webrtc::create_peer_connection_factory(
-                &worker_thread.0,
-                &signaling_thread.0,
+                worker_thread.0.as_mut().unwrap(),
+                signaling_thread.0.as_mut().unwrap(),
             )
         };
 
@@ -186,15 +186,15 @@ impl PeerConnectionFactory {
     /// Creates a new [`VideoSource`], which provides source of frames from
     /// native platform.
     pub fn create_video_source(
-        &self,
+        &mut self,
         width: usize,
         height: usize,
         fps: usize,
     ) -> Result<VideoSource> {
         let ptr = unsafe {
             webrtc::create_video_source(
-                &self.worker_thread.0,
-                &self.signaling_thread.0,
+                self.worker_thread.0.as_mut().unwrap(),
+                self.signaling_thread.0.as_mut().unwrap(),
                 width,
                 height,
                 fps,

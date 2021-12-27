@@ -103,12 +103,12 @@ std::unique_ptr<rtc::Thread> create_thread();
 bool start_thread(rtc::Thread& thread);
 
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    const std::unique_ptr<rtc::Thread>& worker_thread,
-    const std::unique_ptr<rtc::Thread>& signaling_thread);
+    Thread& worker_thread,
+    Thread& signaling_thread);
 
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
-    const std::unique_ptr<rtc::Thread>& worker_thread,
-    const std::unique_ptr<rtc::Thread>& signaling_thread,
+    Thread& worker_thread,
+    Thread& signaling_thread,
     size_t width,
     size_t height,
     size_t fps);

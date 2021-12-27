@@ -95,44 +95,50 @@ rust::Vec<rust::String> get_video_device_name(
   return info;
 };
 
+/// Calls `Thread->Create()`.
 std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
+/// Calls `Thread->Start()`.
 bool start_thread(Thread& thread) {
   return thread.Start();
 }
 
+/// Calls `CreatePeerConnectionFactory()`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    const std::unique_ptr<rtc::Thread>& worker_thread,
-    const std::unique_ptr<rtc::Thread>& signaling_thread) {
+    Thread& worker_thread,
+    Thread& signaling_thread) {
   return std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
-          worker_thread.get(), worker_thread.get(), signaling_thread.get(),
-          nullptr, webrtc::CreateBuiltinAudioEncoderFactory(),
+          &worker_thread, &worker_thread, &signaling_thread, nullptr,
+          webrtc::CreateBuiltinAudioEncoderFactory(),
           webrtc::CreateBuiltinAudioDecoderFactory(),
           webrtc::CreateBuiltinVideoEncoderFactory(),
           webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr));
 }
 
+/// Calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
-    const std::unique_ptr<rtc::Thread>& worker_thread,
-    const std::unique_ptr<rtc::Thread>& signaling_thread,
+    Thread& worker_thread,
+    Thread& signaling_thread,
     size_t width,
     size_t height,
     size_t fps) {
   return std::make_unique<VideoTrackSourceInterface>(
       webrtc::CreateVideoTrackSourceProxy(
-          signaling_thread.get(), worker_thread.get(),
+          &signaling_thread, &worker_thread,
           DeviceVideoCapturer::Create(width, height, fps, 0)));
 }
 
+/// Calls `PeerConnectionFactoryInterface->CreateAudioSource()`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
   return std::make_unique<AudioSourceInterface>(
       peer_connection_factory->CreateAudioSource(cricket::AudioOptions()));
 }
 
+/// Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.
 std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     const VideoTrackSourceInterface& video_source) {
@@ -141,6 +147,7 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
                                                 video_source.ptr()));
 }
 
+/// Calls `PeerConnectionFactoryInterface->CreateAudioTrack`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     const AudioSourceInterface& audio_source) {
@@ -149,27 +156,32 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
                                                 audio_source.ptr()));
 }
 
+/// Calls `MediaStreamInterface->CreateLocalMediaStream`.
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
   return std::make_unique<MediaStreamInterface>(
       peer_connection_factory->CreateLocalMediaStream("local_stream"));
 }
 
+/// Calls `MediaStreamInterface->AddTrack`.
 bool add_video_track(const MediaStreamInterface& media_stream,
                      const VideoTrackInterface& track) {
   return media_stream->AddTrack(track.ptr());
 }
 
+/// Calls `MediaStreamInterface->AddTrack`.
 bool add_audio_track(const MediaStreamInterface& media_stream,
                      const AudioTrackInterface& track) {
   return media_stream->AddTrack(track.ptr());
 }
 
+/// Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_video_track(const MediaStreamInterface& media_stream,
                         const VideoTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
 }
 
+/// Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());

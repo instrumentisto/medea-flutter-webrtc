@@ -70,14 +70,14 @@ pub mod webrtc {
 
         #[allow(clippy::missing_safety_doc)]
         pub unsafe fn create_peer_connection_factory(
-            worker_thread: &UniquePtr<Thread>,
-            signaling_thread: &UniquePtr<Thread>,
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
 
         #[allow(clippy::missing_safety_doc)]
         pub unsafe fn create_video_source(
-            worker_thread: &UniquePtr<Thread>,
-            signaling_thread: &UniquePtr<Thread>,
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
             width: usize,
             height: usize,
             fps: usize,
