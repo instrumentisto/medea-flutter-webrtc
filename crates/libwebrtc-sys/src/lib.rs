@@ -138,7 +138,7 @@ pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
 impl VideoDeviceInfo {
     /// Creates a new [`VideoDeviceInfo`].
-    pub fn create_device_info() -> anyhow::Result<Self> {
+    pub fn create() -> anyhow::Result<Self> {
         let ptr = webrtc::create_video_device_info();
 
         if ptr.is_null() {
