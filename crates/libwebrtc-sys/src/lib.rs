@@ -13,7 +13,7 @@ pub use webrtc::AudioLayer;
 /// Thread safe task queue factory internally used in [`webrtc`] that is
 /// capable of creating [Task Queue]s.
 ///
-/// [Task Queue Factory]: https://tinyurl.com/doc-threads
+/// [Task Queue]: https://tinyurl.com/doc-threads
 pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
 impl TaskQueueFactory {
