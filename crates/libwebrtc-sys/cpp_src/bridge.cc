@@ -99,8 +99,8 @@ std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
-bool start_thread(const std::unique_ptr<rtc::Thread>& thread) {
-  return thread.get()->Start();
+bool start_thread(Thread& thread) {
+  return thread.Start();
 }
 
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
@@ -128,59 +128,51 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 }
 
 std::unique_ptr<AudioSourceInterface> create_audio_source(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory) {
+    const PeerConnectionFactoryInterface& peer_connection_factory) {
   return std::make_unique<AudioSourceInterface>(
-      peer_connection_factory.get()->getptr()->CreateAudioSource(
-          cricket::AudioOptions()));
+      peer_connection_factory->CreateAudioSource(cricket::AudioOptions()));
 }
 
 std::unique_ptr<VideoTrackInterface> create_video_track(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory,
-    const std::unique_ptr<VideoTrackSourceInterface>& video_source) {
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    const VideoTrackSourceInterface& video_source) {
   return std::make_unique<VideoTrackInterface>(
-      peer_connection_factory.get()->getptr()->CreateVideoTrack(
-          "video_track", video_source.get()->getptr()));
+      peer_connection_factory->CreateVideoTrack("video_track",
+                                                video_source.ptr()));
 }
 
 std::unique_ptr<AudioTrackInterface> create_audio_track(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory,
-    const std::unique_ptr<AudioSourceInterface>& audio_source) {
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    const AudioSourceInterface& audio_source) {
   return std::make_unique<AudioTrackInterface>(
-      peer_connection_factory.get()->getptr()->CreateAudioTrack(
-          "audio_track", audio_source.get()->getptr()));
+      peer_connection_factory->CreateAudioTrack("audio_track",
+                                                audio_source.ptr()));
 }
 
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory) {
+    const PeerConnectionFactoryInterface& peer_connection_factory) {
   return std::make_unique<MediaStreamInterface>(
-      peer_connection_factory.get()->getptr()->CreateLocalMediaStream(
-          "local_stream"));
+      peer_connection_factory->CreateLocalMediaStream("local_stream"));
 }
 
-bool add_video_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-                     const std::unique_ptr<VideoTrackInterface>& track) {
-  return media_stream.get()->getptr()->AddTrack(track.get()->getptr());
+bool add_video_track(const MediaStreamInterface& media_stream,
+                     const VideoTrackInterface& track) {
+  return media_stream->AddTrack(track.ptr());
 }
 
-bool add_audio_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-                     const std::unique_ptr<AudioTrackInterface>& track) {
-  return media_stream.get()->getptr()->AddTrack(track.get()->getptr());
+bool add_audio_track(const MediaStreamInterface& media_stream,
+                     const AudioTrackInterface& track) {
+  return media_stream->AddTrack(track.ptr());
 }
 
-bool remove_video_track(
-    const std::unique_ptr<MediaStreamInterface>& media_stream,
-    const std::unique_ptr<VideoTrackInterface>& track) {
-  return media_stream.get()->getptr()->RemoveTrack(track.get()->getptr());
+bool remove_video_track(const MediaStreamInterface& media_stream,
+                        const VideoTrackInterface& track) {
+  return media_stream->RemoveTrack(track.ptr());
 }
 
-bool remove_audio_track(
-    const std::unique_ptr<MediaStreamInterface>& media_stream,
-    const std::unique_ptr<AudioTrackInterface>& track) {
-  return media_stream.get()->getptr()->RemoveTrack(track.get()->getptr());
+bool remove_audio_track(const MediaStreamInterface& media_stream,
+                        const AudioTrackInterface& track) {
+  return media_stream->RemoveTrack(track.ptr());
 }
 
 }  // namespace WEBRTC

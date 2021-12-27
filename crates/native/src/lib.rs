@@ -19,7 +19,7 @@ pub mod ffi {
         label: String,
     }
 
-    /// Media Stream constrants.
+    /// `Media Stream` constrants.
     struct Constraints {
         audio: bool,
         video: VideoConstraints,
@@ -32,18 +32,14 @@ pub mod ffi {
         min_fps: String,
     }
 
-    /// Information about local [Media Stream].
-    ///
-    /// [Media Stream]: https://tinyurl.com/2k2376z9
+    /// Information about `Local Media Stream`.
     struct LocalStreamInfo {
         stream_id: String,
         video_tracks: Vec<TrackInfo>,
         audio_tracks: Vec<TrackInfo>,
     }
 
-    /// Information about [Track].
-    ///
-    /// [Track]: https://tinyurl.com/yc79x5s8
+    /// Information about `Track`.
     struct TrackInfo {
         id: String,
         label: String,
@@ -51,9 +47,7 @@ pub mod ffi {
         enabled: bool,
     }
 
-    /// Kind of [Track].
-    ///
-    /// [Track]: https://tinyurl.com/yc79x5s8
+    /// Kind of `Track`.
     enum TrackKind {
         Audio,
         Video,
@@ -75,7 +69,6 @@ pub mod ffi {
 /// Contains all necessary tools for interoperate with [libWebRTC].
 ///
 /// [libWebrtc]: https://tinyurl.com/54y935zz
-
 #[allow(dead_code)]
 pub struct Inner {
     task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
@@ -87,8 +80,6 @@ pub struct Inner {
     local_media_streams: HashMap<StreamId, MediaStreamNative>,
 }
 
-/// Wraps the [Inner] instanse.
+/// Wraps the [`Inner`] instanse.
 /// This struct is intended to be extern and managed outside of the Rust app.
-///
-/// [Inner](Inner)
 pub struct Webrtc(Box<Inner>);

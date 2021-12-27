@@ -1,5 +1,4 @@
 use anyhow::{bail, Result};
-use bridge::webrtc::VideoTrackSourceInterface;
 use cxx::UniquePtr;
 
 mod bridge;
@@ -94,139 +93,6 @@ pub fn get_video_device_info(
     (info.pop().unwrap(), info.pop().unwrap())
 }
 
-/// Creates a [Thread].
-///
-/// [Thread]: https://tinyurl.com/yhtrryye
-pub fn create_thread() -> UniquePtr<webrtc::Thread> {
-    webrtc::create_thread()
-}
-
-/// Starts the [Thread].
-///
-/// [Thread]: https://tinyurl.com/yhtrryye
-pub fn start_thread(thread: &UniquePtr<webrtc::Thread>) {
-    unsafe {
-        webrtc::start_thread(thread);
-    }
-}
-
-/// Creates a new [Peer Connection Factory].
-/// This interface provides 3 main directions: Peer Connection Interface, Local
-/// Media Stream Interface and Local Video and Audio Track Interface,
-///
-/// [Peer Connection Factory]: https://tinyurl.com/44wywepd
-pub fn create_peer_connection_factory(
-    worker_thread: &UniquePtr<webrtc::Thread>,
-    signaling_thread: &UniquePtr<webrtc::Thread>,
-) -> UniquePtr<webrtc::PeerConnectionFactoryInterface> {
-    unsafe {
-        webrtc::create_peer_connection_factory(worker_thread, signaling_thread)
-    }
-}
-
-/// Creates a new [Video Source], which provides source of frames from native
-/// platform.
-///
-/// [Video Source]: https://tinyurl.com/52fwxnan
-pub fn create_video_source(
-    worker_thread: &UniquePtr<webrtc::Thread>,
-    signaling_thread: &UniquePtr<webrtc::Thread>,
-    width: usize,
-    height: usize,
-    fps: usize,
-) -> UniquePtr<webrtc::VideoTrackSourceInterface> {
-    unsafe {
-        webrtc::create_video_source(
-            worker_thread,
-            signaling_thread,
-            width,
-            height,
-            fps,
-        )
-    }
-}
-
-/// Creates a new Audio Source, which provides sound recording from native
-/// platform.
-pub fn create_audio_source(
-    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
-) -> UniquePtr<webrtc::AudioSourceInterface> {
-    unsafe { webrtc::create_audio_source(peer_connection_factory) }
-}
-
-/// Creates Video [Track].
-///
-/// [Track]: https://tinyurl.com/yc79x5s8
-pub fn create_video_track(
-    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
-    video_source: &UniquePtr<webrtc::VideoTrackSourceInterface>,
-) -> UniquePtr<webrtc::VideoTrackInterface> {
-    unsafe { webrtc::create_video_track(peer_connection_factory, video_source) }
-}
-
-/// Creates Audio [Track].
-///
-/// [Track]: https://tinyurl.com/yc79x5s8
-pub fn create_audio_track(
-    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
-    audio_source: &UniquePtr<webrtc::AudioSourceInterface>,
-) -> UniquePtr<webrtc::AudioTrackInterface> {
-    unsafe { webrtc::create_audio_track(peer_connection_factory, audio_source) }
-}
-
-/// Creates an empty local [Media Stream].
-///
-/// [Media Stream]: https://tinyurl.com/2k2376z9
-pub fn create_local_media_stream(
-    peer_connection_factory: &UniquePtr<webrtc::PeerConnectionFactoryInterface>,
-) -> UniquePtr<webrtc::MediaStreamInterface> {
-    unsafe { webrtc::create_local_media_stream(peer_connection_factory) }
-}
-
-/// Adds Video [Track] to [Media Stream].
-///
-/// [Media Stream]: https://tinyurl.com/2k2376z9
-/// [Track]: https://tinyurl.com/yc79x5s8
-pub fn add_video_track(
-    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
-    track: &UniquePtr<webrtc::VideoTrackInterface>,
-) -> bool {
-    unsafe { webrtc::add_video_track(media_stream, track) }
-}
-
-/// Adds Audio [Track] to [Media Stream].
-///
-/// [Media Stream]: https://tinyurl.com/2k2376z9
-/// [Track]: https://tinyurl.com/yc79x5s8
-pub fn add_audio_track(
-    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
-    track: &UniquePtr<webrtc::AudioTrackInterface>,
-) -> bool {
-    unsafe { webrtc::add_audio_track(media_stream, track) }
-}
-
-/// Removes Video [Track] from [Media Stream].
-///
-/// [Media Stream]: https://tinyurl.com/2k2376z9
-/// [Track]: https://tinyurl.com/yc79x5s8
-pub fn remove_video_track(
-    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
-    track: &UniquePtr<webrtc::VideoTrackInterface>,
-) -> bool {
-    unsafe { webrtc::remove_video_track(media_stream, track) }
-}
-
-/// Removes Audio [Track] from [Media Stream].
-///
-/// [Media Stream]: https://tinyurl.com/2k2376z9
-/// [Track]: https://tinyurl.com/yc79x5s8
-pub fn remove_audio_track(
-    media_stream: &UniquePtr<webrtc::MediaStreamInterface>,
-    track: &UniquePtr<webrtc::AudioTrackInterface>,
-) -> bool {
-    unsafe { webrtc::remove_audio_track(media_stream, track) }
-}
-
 pub fn stream_test() -> bool {
     // let worker_thread = create_thread();
     // start_thread(&worker_thread);
@@ -237,16 +103,20 @@ pub fn stream_test() -> bool {
     // let _ =
     //     create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
 
-    let c = PeerConnectionFactory::create().unwrap();
-    let asd = c.create_video_source(640, 380, 30).unwrap();
-    let dsa = c.create_video_track(&asd);
+    // let c = PeerConnectionFactory::create().unwrap();
+    // let asd = c.create_video_source(640, 380, 30).unwrap();
+    // let dsa = c.create_video_track(&asd);
 
     true
 }
 
+/// Interface for using a [Thread].
+///
+/// [Thread]: https://tinyurl.com/yhtrryye
 pub struct Thread(UniquePtr<webrtc::Thread>);
 
 impl Thread {
+    /// Creates a [`Thread`].
     pub fn create() -> Result<Self> {
         let ptr = webrtc::create_thread();
 
@@ -259,8 +129,9 @@ impl Thread {
         Ok(Self(ptr))
     }
 
-    pub fn start(&self) -> Result<()> {
-        let result = unsafe { webrtc::start_thread(&self.0) };
+    /// Starts the [`Thread`].
+    pub fn start(&mut self) -> Result<()> {
+        let result = unsafe { webrtc::start_thread(self.0.as_mut().unwrap()) };
 
         if !result {
             bail!(
@@ -272,6 +143,9 @@ impl Thread {
     }
 }
 
+/// Interface for using [Peer Connection Factory].
+///
+/// [Peer Connection Factory]: https://tinyurl.com/44wywepd
 pub struct PeerConnectionFactory {
     pointer: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
     worker_thread: Thread,
@@ -279,10 +153,14 @@ pub struct PeerConnectionFactory {
 }
 
 impl PeerConnectionFactory {
+    /// Creates a new [`PeerConnectionFactory`].
+    /// This interface provides 3 main directions: Peer Connection Interface,
+    /// Local Media Stream Interface and Local Video and Audio Track
+    /// Interface.
     pub fn create() -> Result<Self> {
-        let worker_thread = Thread::create().unwrap();
+        let mut worker_thread = Thread::create().unwrap();
         worker_thread.start().unwrap();
-        let signaling_thread = Thread::create().unwrap();
+        let mut signaling_thread = Thread::create().unwrap();
         signaling_thread.start().unwrap();
 
         let pointer = unsafe {
@@ -305,6 +183,8 @@ impl PeerConnectionFactory {
         })
     }
 
+    /// Creates a new [`VideoSource`], which provides source of frames from
+    /// native platform.
     pub fn create_video_source(
         &self,
         width: usize,
@@ -330,6 +210,8 @@ impl PeerConnectionFactory {
         Ok(VideoSource(ptr))
     }
 
+    /// Creates a new [`AudioSource`], which provides sound recording from
+    /// native platform.
     pub fn create_audio_source(&self) -> Result<AudioSource> {
         let ptr = unsafe { webrtc::create_audio_source(&self.pointer) };
 
@@ -342,6 +224,7 @@ impl PeerConnectionFactory {
         Ok(AudioSource(ptr))
     }
 
+    /// Creates a new [`VideoTrack`] using [`VideoSource`].
     pub fn create_video_track(
         &self,
         video_src: &VideoSource,
@@ -358,6 +241,7 @@ impl PeerConnectionFactory {
         Ok(VideoTrack(ptr))
     }
 
+    /// Creates a new [`AudioTrack`] using [`AudioSource`].
     pub fn create_audio_track(
         &self,
         audio_src: &AudioSource,
@@ -374,6 +258,7 @@ impl PeerConnectionFactory {
         Ok(AudioTrack(ptr))
     }
 
+    /// Creates an empty [`LocalMediaStream`].
     pub fn create_local_media_stream(&self) -> Result<LocalMediaStream> {
         let ptr = unsafe { webrtc::create_local_media_stream(&self.pointer) };
 
@@ -387,17 +272,31 @@ impl PeerConnectionFactory {
     }
 }
 
+/// Interface for [Video Source].
+///
+/// [Video Source]: https://tinyurl.com/52fwxnan
 pub struct VideoSource(UniquePtr<webrtc::VideoTrackSourceInterface>);
 
+/// Interface for Audio Source.
 pub struct AudioSource(UniquePtr<webrtc::AudioSourceInterface>);
 
+/// Interface for Video [Track]
+///
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub struct VideoTrack(UniquePtr<webrtc::VideoTrackInterface>);
 
+/// Interface for Audio [Track]
+///
+/// [Track]: https://tinyurl.com/yc79x5s8
 pub struct AudioTrack(UniquePtr<webrtc::AudioTrackInterface>);
 
+/// Interface for local [Media Stream].
+///
+/// [Media Stream]: https://tinyurl.com/2k2376z9
 pub struct LocalMediaStream(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl LocalMediaStream {
+    /// Adds [`VideoTrack`] to [`LocalMediaStream`].
     pub fn add_video_track(&self, track: &VideoTrack) -> Result<()> {
         let result = unsafe { webrtc::add_video_track(&self.0, &track.0) };
 
@@ -410,6 +309,7 @@ impl LocalMediaStream {
         Ok(())
     }
 
+    /// Adds [`AudioTrack`] to [`LocalMediaStream`].
     pub fn add_audio_track(&self, track: &AudioTrack) -> Result<()> {
         let result = unsafe { webrtc::add_audio_track(&self.0, &track.0) };
 
@@ -422,6 +322,7 @@ impl LocalMediaStream {
         Ok(())
     }
 
+    /// Removes [`VideoTrack`] from [`LocalMediaStream`].
     pub fn remove_video_track(&self, track: &VideoTrack) -> Result<()> {
         let result = unsafe { webrtc::remove_video_track(&self.0, &track.0) };
 
@@ -434,6 +335,7 @@ impl LocalMediaStream {
         Ok(())
     }
 
+    /// Removes [`AudioTrack`] from [`LocalMediaStream`].
     pub fn remove_audio_track(&self, track: &AudioTrack) -> Result<()> {
         let result = unsafe { webrtc::remove_audio_track(&self.0, &track.0) };
 

@@ -1,7 +1,6 @@
 use std::{collections::HashMap, rc::Rc};
 
 use crate::*;
-use cxx::UniquePtr;
 
 pub type StreamId = String;
 pub type VideoSouceId = String;
@@ -154,12 +153,6 @@ fn add_audio_track_to_local(
 ///
 /// [Webrtc](Webrtc)
 pub fn init() -> Box<Webrtc> {
-    let worker_thread = create_thread();
-    start_thread(&worker_thread);
-
-    let signaling_thread = create_thread();
-    start_thread(&signaling_thread);
-
     let peer_connection_factory = PeerConnectionFactory::create().unwrap();
     let task_queue_factory = create_default_task_queue_factory();
 
