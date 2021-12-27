@@ -398,7 +398,53 @@ pub struct AudioTrack(UniquePtr<webrtc::AudioTrackInterface>);
 pub struct LocalMediaStream(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl LocalMediaStream {
-    pub fn add_video_track(&self, track: VideoTrack) -> Result<()> {}
+    pub fn add_video_track(&self, track: &VideoTrack) -> Result<()> {
+        let result = unsafe { webrtc::add_video_track(&self.0, &track.0) };
+
+        if !result {
+            bail!(
+                "Failed calling \
+                webrtc::MediaStreamInterface::AddTrack()"
+            );
+        }
+        Ok(())
+    }
+
+    pub fn add_audio_track(&self, track: &AudioTrack) -> Result<()> {
+        let result = unsafe { webrtc::add_audio_track(&self.0, &track.0) };
+
+        if !result {
+            bail!(
+                "Failed calling \
+                webrtc::MediaStreamInterface::AddTrack()"
+            );
+        }
+        Ok(())
+    }
+
+    pub fn remove_video_track(&self, track: &VideoTrack) -> Result<()> {
+        let result = unsafe { webrtc::remove_video_track(&self.0, &track.0) };
+
+        if !result {
+            bail!(
+                "Failed calling \
+                webrtc::MediaStreamInterface::RemoveTrack()"
+            );
+        }
+        Ok(())
+    }
+
+    pub fn remove_audio_track(&self, track: &AudioTrack) -> Result<()> {
+        let result = unsafe { webrtc::remove_audio_track(&self.0, &track.0) };
+
+        if !result {
+            bail!(
+                "Failed calling \
+                webrtc::MediaStreamInterface::RemoveTrack()"
+            );
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]

@@ -9,24 +9,24 @@ pub type VideoTrackId = String;
 pub type AudioSourceId = String;
 pub type AudioTrackId = String;
 
-pub struct MediaStream {
-    ptr: UniquePtr<webrtc::MediaStreamInterface>,
+pub struct MediaStreamNative {
+    ptr: LocalMediaStream,
     video_tracks: Vec<VideoTrackId>,
     audio_tracks: Vec<AudioTrackId>,
 }
 
-pub struct VideoTrack {
-    ptr: UniquePtr<webrtc::VideoTrackInterface>,
-    source: Rc<VideoSource>,
+pub struct VideoTrackNative {
+    ptr: VideoTrack,
+    source: Rc<VideoSourceNative>,
 }
 
-pub struct VideoSource {
-    ptr: UniquePtr<webrtc::VideoTrackSourceInterface>,
+pub struct VideoSourceNative {
+    ptr: VideoSource,
     id: VideoSouceId,
 }
 
-pub struct AudioTrack {
-    ptr: UniquePtr<webrtc::AudioTrackInterface>,
+pub struct AudioTrackNative {
+    ptr: AudioTrack,
     source: AudioTrackId,
 }
 
@@ -35,8 +35,11 @@ fn create_local_stream(webrtc: &mut Box<Webrtc>, id: StreamId) {
 
     this.local_media_streams.insert(
         id,
-        MediaStream {
-            ptr: create_local_media_stream(&this.peer_connection_factory),
+        MediaStreamNative {
+            ptr: this
+                .peer_connection_factory
+                .create_local_media_stream()
+                .unwrap(),
             video_tracks: vec![],
             audio_tracks: vec![],
         },
@@ -54,14 +57,15 @@ fn create_local_video_source(
 
     this.video_sources.insert(
         id.to_string(),
-        Rc::new(VideoSource {
-            ptr: create_video_source(
-                &this.worker_thread,
-                &this.signaling_thread,
-                width.parse::<usize>().unwrap(),
-                height.parse::<usize>().unwrap(),
-                fps.parse::<usize>().unwrap(),
-            ),
+        Rc::new(VideoSourceNative {
+            ptr: this
+                .peer_connection_factory
+                .create_video_source(
+                    width.parse::<usize>().unwrap(),
+                    height.parse::<usize>().unwrap(),
+                    fps.parse::<usize>().unwrap(),
+                )
+                .unwrap(),
             id,
         }),
     );
@@ -76,11 +80,13 @@ fn create_local_video_track(
 
     this.video_tracks.insert(
         id,
-        VideoTrack {
-            ptr: create_video_track(
-                &this.peer_connection_factory,
-                &this.video_sources.get(&source).unwrap().ptr,
-            ),
+        VideoTrackNative {
+            ptr: this
+                .peer_connection_factory
+                .create_video_track(
+                    &this.video_sources.get(&source).unwrap().ptr,
+                )
+                .unwrap(),
             source: Rc::clone(this.video_sources.get(&source).unwrap()),
         },
     );
@@ -89,8 +95,10 @@ fn create_local_video_track(
 fn create_local_audio_source(webrtc: &mut Box<Webrtc>, id: AudioSourceId) {
     let this = webrtc.as_mut().0.as_mut();
 
-    this.audio_sources
-        .insert(id, create_audio_source(&this.peer_connection_factory));
+    this.audio_sources.insert(
+        id,
+        this.peer_connection_factory.create_audio_source().unwrap(),
+    );
 }
 
 fn create_local_audio_track(
@@ -102,11 +110,11 @@ fn create_local_audio_track(
 
     this.audio_tracks.insert(
         id,
-        AudioTrack {
-            ptr: create_audio_track(
-                &this.peer_connection_factory,
-                this.audio_sources.get(&source).unwrap(),
-            ),
+        AudioTrackNative {
+            ptr: this
+                .peer_connection_factory
+                .create_audio_track(this.audio_sources.get(&source).unwrap())
+                .unwrap(),
             source,
         },
     );
@@ -122,7 +130,7 @@ fn add_video_track_to_local(
     let stream = this.local_media_streams.get_mut(&stream).unwrap();
     let track = this.video_tracks.get(&id).unwrap();
 
-    add_video_track(&stream.ptr, &track.ptr);
+    stream.ptr.add_video_track(&track.ptr).unwrap();
 
     stream.video_tracks.push(id);
 }
@@ -137,7 +145,7 @@ fn add_audio_track_to_local(
     let stream = this.local_media_streams.get_mut(&stream).unwrap();
     let track = this.audio_tracks.get(&id).unwrap();
 
-    add_audio_track(&stream.ptr, &track.ptr);
+    stream.ptr.add_audio_track(&track.ptr).unwrap();
 
     stream.audio_tracks.push(id);
 }
@@ -152,14 +160,11 @@ pub fn init() -> Box<Webrtc> {
     let signaling_thread = create_thread();
     start_thread(&signaling_thread);
 
-    let peer_connection_factory =
-        create_peer_connection_factory(&worker_thread, &signaling_thread);
+    let peer_connection_factory = PeerConnectionFactory::create().unwrap();
     let task_queue_factory = create_default_task_queue_factory();
 
     Box::new(Webrtc(Box::new(Inner {
         task_queue_factory,
-        worker_thread,
-        signaling_thread,
         peer_connection_factory,
         video_sources: HashMap::new(),
         video_tracks: HashMap::new(),
