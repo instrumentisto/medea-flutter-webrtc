@@ -1,71 +1,75 @@
-use crate::*;
+/// Returns a list of all available media input and output devices, such as
+/// microphones, cameras, headsets, and so forth.
+#[must_use]
+pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
+    let mut audio = audio_devices_info();
+    let mut video = video_devices_info();
 
-enum AudioKind {
-    Playout,
-    Recording,
+    audio.append(&mut video);
+
+    audio
 }
 
-fn audio_devices_info(kind: AudioKind) -> Vec<ffi::DeviceInfo> {
-    let task_queue = create_default_task_queue_factory();
-    let audio_device_module = create_audio_device_module(task_queue);
-    init_audio_device_module(&audio_device_module);
-    let audio_device_count = if let AudioKind::Playout = kind {
-        count_audio_playout_devices(&audio_device_module)
-    } else {
-        count_audio_recording_devices(&audio_device_module)
-    };
+/// Returns a list of all available audio input and output devices.
+fn audio_devices_info() -> Vec<MediaDeviceInfo> {
+    // TODO: Do not unwrap.
+    let mut task_queue = TaskQueueFactory::create_default_task_queue_factory();
+    let adm = AudioDeviceModule::create(
+        AudioLayer::kPlatformDefaultAudio,
+        &mut task_queue,
+    )
+    .unwrap();
+    adm.init().unwrap();
 
-    let mut list = vec![];
+    let count_playout = adm.playout_devices().unwrap();
+    let count_recording = adm.recording_devices().unwrap();
 
-    for i in 0..audio_device_count {
-        let audio_device_info = if let AudioKind::Playout = kind {
-            get_audio_playout_device_info(&audio_device_module, i)
+    #[allow(clippy::cast_sign_loss)]
+    let mut result =
+        Vec::with_capacity((count_playout + count_recording) as usize);
+
+    for kind in [MediaDeviceKind::kAudioOutput, MediaDeviceKind::kAudioInput] {
+        let count = if let MediaDeviceKind::kAudioOutput = kind {
+            count_playout
         } else {
-            get_audio_recording_device_info(&audio_device_module, i)
+            count_recording
         };
 
-        let device_info = ffi::DeviceInfo {
-            deviceId: audio_device_info.0,
-            kind: if let AudioKind::Playout = kind {
-                "audiooutput".to_string()
+        for i in 0..count {
+            let (label, device_id) = if let MediaDeviceKind::kAudioOutput = kind
+            {
+                adm.playout_device_name(i).unwrap()
             } else {
-                "audioinput".to_string()
-            },
-            label: audio_device_info.1,
-        };
+                adm.recording_device_name(i).unwrap()
+            };
 
-        list.push(device_info);
+            result.push(MediaDeviceInfo {
+                device_id,
+                kind,
+                label,
+            });
+        }
     }
 
-    list
+    result
 }
 
-fn video_devices_info() -> Vec<ffi::DeviceInfo> {
-    let video_device_module = create_video_device_module();
-    let video_device_count = count_video_devices(&video_device_module);
-    let mut list = vec![];
+/// Returns a list of all available video input devices.
+fn video_devices_info() -> Vec<MediaDeviceInfo> {
+    // TODO: Do not unwrap.
+    let mut vdi = VideoDeviceInfo::create().unwrap();
+    let count = vdi.number_of_devices();
+    let mut result = Vec::with_capacity(count as usize);
 
-    for i in 0..video_device_count {
-        let video_device_info = get_video_device_info(&video_device_module, i);
+    for i in 0..count {
+        let (label, device_id) = vdi.device_name(i).unwrap();
 
-        let device_info = ffi::DeviceInfo {
-            deviceId: video_device_info.0,
-            kind: "videoinput".to_string(),
-            label: video_device_info.1,
-        };
-
-        list.push(device_info);
+        result.push(MediaDeviceInfo {
+            device_id,
+            kind: MediaDeviceKind::kVideoInput,
+            label,
+        });
     }
 
-    list
-}
-
-/// Enumerates all the available media devices.
-pub fn enumerate_devices() -> Vec<ffi::DeviceInfo> {
-    let iters = audio_devices_info(AudioKind::Playout)
-        .into_iter()
-        .chain(audio_devices_info(AudioKind::Recording).into_iter())
-        .chain(video_devices_info().into_iter());
-
-    iters.collect()
+    result
 }

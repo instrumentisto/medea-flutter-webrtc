@@ -1,113 +1,183 @@
-use anyhow::{bail, Result};
+#![warn(clippy::pedantic)]
+#![allow(clippy::missing_errors_doc)]
+use anyhow::bail;
 use cxx::UniquePtr;
 
 mod bridge;
-pub use bridge::webrtc;
 
-/// Creates default [libWebRTC Task Queue Factory].
+use self::bridge::webrtc;
+
+pub use webrtc::AudioLayer;
+
+/// Thread safe task queue factory internally used in [`webrtc`] that is
+/// capable of creating [Task Queue]s.
 ///
-/// [libWebRTC Task Queue Factory]: https://tinyurl.com/yhtrryye
-#[rustfmt::skip]
-pub fn create_default_task_queue_factory() -> UniquePtr<webrtc::TaskQueueFactory>
-{
-    webrtc::create_default_task_queue_factory()
+/// [Task Queue]: https://tinyurl.com/doc-threads
+pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
+
+impl TaskQueueFactory {
+    /// Creates a default [`TaskQueueFactory`] based on the current platform.
+    #[must_use]
+    pub fn create_default_task_queue_factory() -> Self {
+        Self(webrtc::create_default_task_queue_factory())
+    }
 }
 
-/// Creates [libWebRTC Audio Device Module] with default Windows layout.
+/// Available audio devices manager that is responsible for driving input
+/// (microphone) and output (speaker) audio in WebRTC.
 ///
-/// [libWebRTC Audio Device Module]: https://tinyurl.com/2xf4pnrt
-pub fn create_audio_device_module(
-    task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
-) -> UniquePtr<webrtc::AudioDeviceModule> {
-    unsafe { webrtc::create_audio_device_module(task_queue_factory) }
-}
-
-/// Initializes [libWebRTC Audio Device Module].
+/// Backed by WebRTC's [Audio Device Module].
 ///
-/// [libWebRTC Audio Device Module]: https://tinyurl.com/2xf4pnrt
-pub fn init_audio_device_module(
-    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
-) {
-    unsafe { webrtc::init_audio_device_module(audio_device_module) }
-}
+/// [Audio Device Module]: https://tinyurl.com/doc-adm
+pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
 
-/// Returns count of audio playout devices.
-pub fn count_audio_playout_devices(
-    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
-) -> i16 {
-    unsafe { webrtc::playout_devices(audio_device_module) }
-}
+impl AudioDeviceModule {
+    /// Creates a new [`AudioDeviceModule`] for the given [`AudioLayer`].
+    pub fn create(
+        audio_layer: AudioLayer,
+        task_queue_factory: &mut TaskQueueFactory,
+    ) -> anyhow::Result<Self> {
+        let ptr = webrtc::create_audio_device_module(
+            audio_layer,
+            task_queue_factory.0.pin_mut(),
+        );
 
-/// Returns count of audio recording devices.
-pub fn count_audio_recording_devices(
-    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
-) -> i16 {
-    unsafe { webrtc::recording_devices(audio_device_module) }
-}
-
-/// Returns a tuple with an audio playout device information `(id, name)`.
-pub fn get_audio_playout_device_info(
-    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
-    index: i16,
-) -> (String, String) {
-    let mut info;
-    unsafe {
-        info = webrtc::get_playout_audio_info(audio_device_module, index);
+        if ptr.is_null() {
+            bail!("`null` pointer returned from `AudioDeviceModule::Create()`");
+        }
+        Ok(Self(ptr))
     }
-    (info.pop().unwrap(), info.pop().unwrap())
-}
 
-/// Returns a tuple with an audio recording device information `(id, name)`.
-pub fn get_audio_recording_device_info(
-    audio_device_module: &UniquePtr<webrtc::AudioDeviceModule>,
-    index: i16,
-) -> (String, String) {
-    let mut info;
-    unsafe {
-        info = webrtc::get_recording_audio_info(audio_device_module, index);
+    /// Initializes the current [`AudioDeviceModule`].
+    pub fn init(&self) -> anyhow::Result<()> {
+        let result = webrtc::init_audio_device_module(&self.0);
+        if result != 0 {
+            bail!("`AudioDeviceModule::Init()` failed with `{}` code", result);
+        }
+        Ok(())
     }
-    (info.pop().unwrap(), info.pop().unwrap())
-}
 
-/// Creates libWebRTC Video Device Info.
-pub fn create_video_device_module() -> UniquePtr<webrtc::VideoDeviceInfo> {
-    webrtc::create_video_device_info()
-}
+    /// Returns count of available audio playout devices.
+    pub fn playout_devices(&self) -> anyhow::Result<i16> {
+        let count = webrtc::playout_devices(&self.0);
 
-/// Returns count of video recording devices.
-pub fn count_video_devices(
-    video_device_module: &UniquePtr<webrtc::VideoDeviceInfo>,
-) -> u32 {
-    unsafe { webrtc::number_of_video_devices(video_device_module) }
-}
+        if count < 0 {
+            bail!(
+                "`AudioDeviceModule::PlayoutDevices()` failed with `{}` code",
+                count,
+            );
+        }
 
-/// Returns a tuple with an video recording device information `(id, name)`.
-pub fn get_video_device_info(
-    video_device_module: &UniquePtr<webrtc::VideoDeviceInfo>,
-    index: u32,
-) -> (String, String) {
-    let mut info;
-    unsafe {
-        info = webrtc::get_video_device_name(video_device_module, index);
+        Ok(count)
     }
-    (info.pop().unwrap(), info.pop().unwrap())
+
+    /// Returns count of available audio recording devices.
+    pub fn recording_devices(&self) -> anyhow::Result<i16> {
+        let count = webrtc::recording_devices(&self.0);
+
+        if count < 0 {
+            bail!(
+                "`AudioDeviceModule::RecordingDevices()` failed with `{}` code",
+                count
+            );
+        }
+
+        Ok(count)
+    }
+
+    /// Returns the `(label, id)` tuple for the given audio playout device
+    /// `index`.
+    pub fn playout_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
+        let mut name = String::new();
+        let mut guid = String::new();
+
+        let result =
+            webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
+
+        if result != 0 {
+            bail!(
+                "`AudioDeviceModule::PlayoutDeviceName()` failed with `{}` \
+                 code",
+                result,
+            );
+        }
+
+        Ok((name, guid))
+    }
+
+    /// Returns the `(label, id)` tuple for the given audio recording device
+    /// `index`.
+    pub fn recording_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
+        let mut name = String::new();
+        let mut guid = String::new();
+
+        let result =
+            webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
+
+        if result != 0 {
+            bail!(
+                "`AudioDeviceModule::RecordingDeviceName()` failed with \
+                 `{}` code",
+                result,
+            );
+        }
+
+        Ok((name, guid))
+    }
 }
 
-pub fn stream_test() -> bool {
-    // let worker_thread = create_thread();
-    // start_thread(&worker_thread);
+/// Interface for receiving information about available camera devices.
+pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
-    // let signaling_thread = create_thread();
-    // start_thread(&signaling_thread);
+impl VideoDeviceInfo {
+    /// Creates a new [`VideoDeviceInfo`].
+    pub fn create() -> anyhow::Result<Self> {
+        let ptr = webrtc::create_video_device_info();
 
-    // let _ =
-    //     create_video_source(&worker_thread, &signaling_thread, 640, 380, 30);
+        if ptr.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `VideoCaptureFactory::CreateDeviceInfo()`",
+            );
+        }
+        Ok(Self(ptr))
+    }
 
-    // let c = PeerConnectionFactory::create().unwrap();
-    // let asd = c.create_video_source(640, 380, 30).unwrap();
-    // let dsa = c.create_video_track(&asd);
+    /// Returns count of a video recording devices.
+    pub fn number_of_devices(&mut self) -> u32 {
+        self.0.pin_mut().number_of_video_devices()
+    }
 
-    true
+    /// Returns the `(label, id)` tuple for the given video device `index`.
+    pub fn device_name(
+        &mut self,
+        index: u32,
+    ) -> anyhow::Result<(String, String)> {
+        let mut name = String::new();
+        let mut guid = String::new();
+
+        let result = webrtc::video_device_name(
+            self.0.pin_mut(),
+            index,
+            &mut name,
+            &mut guid,
+        );
+
+        if result != 0 {
+            bail!(
+                "`AudioDeviceModule::GetDeviceName()` failed with `{}` code",
+                result,
+            );
+        }
+
+        Ok((name, guid))
+    }
 }
 
 /// Interface for using a [Thread].
@@ -349,12 +419,12 @@ impl LocalMediaStream {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::stream_test;
+// #[cfg(test)]
+// mod test {
+//     use super::stream_test;
 
-    #[test]
-    fn it_works() {
-        assert!(stream_test());
-    }
-}
+//     #[test]
+//     fn it_works() {
+//         assert!(stream_test())
+//     }
+// }

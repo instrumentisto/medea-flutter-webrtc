@@ -1,3 +1,4 @@
+#![warn(clippy::pedantic)]
 use std::{collections::HashMap, rc::Rc};
 
 use cxx::UniquePtr;
@@ -10,6 +11,7 @@ mod device_info;
 use device_info::*;
 
 /// The module which describes the bridge to call Rust from C++.
+#[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod ffi {
     /// Information about a physical device instance.
@@ -53,10 +55,34 @@ pub mod ffi {
         Video,
     }
 
+    /// Possible kinds of media devices.
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum MediaDeviceKind {
+        kAudioInput,
+        kAudioOutput,
+        kVideoInput,
+    }
+
+    /// Information describing a single media input or output device.
+    #[derive(Debug)]
+    pub struct MediaDeviceInfo {
+        /// Unique identifier for the represented device.
+        pub device_id: String,
+
+        /// Kind of the represented device.
+        pub kind: MediaDeviceKind,
+
+        /// Label describing the represented device.
+        pub label: String,
+    }
+
     extern "Rust" {
         type Webrtc;
 
-        fn enumerate_devices() -> Vec<DeviceInfo>;
+        /// Returns a list of all available media input and output devices, such
+        /// as microphones, cameras, headsets, and so forth.
+        #[cxx_name = "EnumerateDevices"]
+        fn enumerate_devices() -> Vec<MediaDeviceInfo>;
         fn init() -> Box<Webrtc>;
         fn get_user_media(
             webrtc: &mut Box<Webrtc>,

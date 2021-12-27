@@ -125,10 +125,8 @@ class _MyAppState extends State<MyApp> {
       RouteItem(
           title: 'test',
           push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => Test()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (BuildContext context) => Test()));
           }),
     ];
   }

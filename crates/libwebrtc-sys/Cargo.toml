@@ -3,10 +3,11 @@ name = "libwebrtc-sys"
 version = "0.0.0"
 edition = "2021"
 publish = false
+links = "webrtc"
 
 [dependencies]
-cxx = "1.0"
 anyhow = "1.0"
+cxx = "1.0"
 
 [build-dependencies]
 anyhow = "1.0"

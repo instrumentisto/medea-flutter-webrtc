@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 use std::{env, fs, io, path::PathBuf};
 
 use anyhow::anyhow;
@@ -5,7 +7,7 @@ use dotenv::dotenv;
 
 fn main() -> anyhow::Result<()> {
     // This won't override any env vars that already present.
-    let _ = dotenv();
+    drop(dotenv());
 
     download_libwebrtc()?;
 
@@ -18,15 +20,12 @@ fn main() -> anyhow::Result<()> {
         "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/"
     );
     println!("cargo:rustc-link-lib=webrtc");
-    println!("cargo:rustc-link-lib=dylib=winmm");
-    println!("cargo:rustc-link-lib=dylib=secur32");
+
     println!("cargo:rustc-link-lib=dylib=dmoguids");
     println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
     println!("cargo:rustc-link-lib=dylib=amstrmid");
     println!("cargo:rustc-link-lib=dylib=msdmo");
-    println!("cargo:rustc-link-lib=dylib=gdi32");
-    println!("cargo:rustc-link-lib=dylib=d3d11");
-    println!("cargo:rustc-link-lib=dylib=dxgi");
+    println!("cargo:rustc-link-lib=dylib=winmm");
 
     let src_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
 
@@ -43,15 +42,15 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("include"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
-        .define("WEBRTC_WIN", "1")
-        .define("NOMINMAX", "1")
-        .define("WEBRTC_USE_BUILTIN_ISAC_FLOAT", "1")
+        .flag("-DWEBRTC_WIN")
         .compile("libwebrtc-sys");
 
     println!("cargo:rerun-if-changed=cpp_src/bridge.cc");
     println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=include/bridge.h");
     println!("cargo:rerun-if-changed=./lib");
+    println!("cargo:rerun-if-env-changed=INSTALL_WEBRTC");
+    println!("cargo:rerun-if-env-changed=LIBWEBRTC_URL");
 
     Ok(())
 }
@@ -66,14 +65,14 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     let archive = temp_dir.join("libwebrtc-win-x64.tar.gz");
     let lib_dir = manifest_path.join("lib");
 
-    // Check if `INSTALL_WEBRTC` is declared.
-    if env::var("INSTALL_WEBRTC").is_err() {
-        // Check if `lib` directory is not empty.
+    // Force download if `INSTALL_WEBRTC=1`.
+    if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
+        // Skip download if already downloaded.
         if fs::read_dir(&lib_dir)?.fold(0, |acc, b| {
-            if !b.unwrap().file_name().to_string_lossy().starts_with('.') {
-                acc + 1
-            } else {
+            if b.unwrap().file_name().to_string_lossy().starts_with('.') {
                 acc
+            } else {
+                acc + 1
             }
         }) != 0
         {
