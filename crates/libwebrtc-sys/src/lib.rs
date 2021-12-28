@@ -180,3 +180,54 @@ impl VideoDeviceInfo {
         Ok((name, guid))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::bridge::webrtc::*;
+
+
+    #[test]
+    fn thread() {
+        let mut thread = create_thread();
+        let run = unsafe {start_thread(thread.pin_mut())};
+        assert!(run)
+    }
+
+    #[test]
+    fn video_encode_decode_factory() {
+        let ve = create_builtin_video_encoder_factory();
+        let vd = create_builtin_video_decoder_factory();
+    }
+
+    #[test]
+    fn audio_encode_decode_factory() {
+        let ae = create_builtin_audio_decoder_factory();
+        let ad = create_builtin_audio_decoder_factory();
+    }
+
+    #[test]
+    fn create_peer_connection_factory_test() {
+        let mut thread1 = create_thread();
+        unsafe {start_thread(thread1.pin_mut())};
+
+        let mut thread2 = create_thread();
+        unsafe {start_thread(thread2.pin_mut())};
+
+        let mut thread3 = create_thread();
+        unsafe {start_thread(thread3.pin_mut())};
+
+        let ve = create_builtin_video_encoder_factory();
+        let vd = create_builtin_video_decoder_factory();
+        let mut ae = create_builtin_audio_encoder_factory();
+        let mut ad = create_builtin_audio_decoder_factory();
+
+        let pcf = create_peer_connection_factory_null(
+            thread1.pin_mut(), 
+            thread2.pin_mut(), 
+            thread3.pin_mut(), 
+            ae.pin_mut(), 
+            ad.pin_mut(), 
+            ve, 
+            vd);
+    }
+}
