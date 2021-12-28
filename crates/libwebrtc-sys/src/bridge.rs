@@ -126,17 +126,27 @@ pub(crate) mod webrtc {
         pub fn create_builtin_audio_decoder_factory(
         ) -> UniquePtr<AudioDecoderFactory>;
 
-        pub fn create_audio_drame_processor_null() -> UniquePtr<AudioFrameProcessor>;
+        pub fn create_audio_device_module_null() -> UniquePtr<AudioDeviceModule>;
+
+        pub fn create_audio_mixer_null() -> UniquePtr<AudioMixer>;
+
+        pub fn create_audio_processing_null() -> UniquePtr<AudioProcessing>;
+
+        pub fn create_audio_frame_processor_null(
+        ) -> UniquePtr<AudioFrameProcessor>;
 
         pub unsafe fn create_peer_connection_factory_null(
             network_thread: *mut Thread,
             worker_thread: *mut Thread,
             signaling_thread: *mut Thread,
+            default_adm: *mut AudioDeviceModule,
             audio_encoder_factory: Pin<&mut AudioEncoderFactory>,
             audio_decoder_factory: Pin<&mut AudioDecoderFactory>,
             video_encoder_factory: UniquePtr<VideoEncoderFactory>,
             video_decoder_factory: UniquePtr<VideoDecoderFactory>,
-            audio_frame_processor: *mut AudioFrameProcessor
+            audio_mixer: *mut AudioMixer,
+            audio_processing: *mut AudioProcessing,
+            audio_frame_processor: *mut AudioFrameProcessor,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
     }
 }

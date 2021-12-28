@@ -206,7 +206,6 @@ mod test {
 
     #[test]
     fn create_peer_connection_factory_test() {
-
         let mut thread = create_thread();
         start_thread(thread.pin_mut());
         let thread = thread.into_raw();
@@ -216,18 +215,24 @@ mod test {
         let mut ae = create_builtin_audio_encoder_factory();
         let mut ad = create_builtin_audio_decoder_factory();
 
-        let afp = create_audio_drame_processor_null();
+        let afp = create_audio_frame_processor_null();
+        let default_adm = create_audio_device_module_null();
+        let am = create_audio_mixer_null();
+        let ap = create_audio_processing_null();
 
         let pcf = unsafe {
             create_peer_connection_factory_null(
                 thread.clone(),
                 thread.clone(),
                 thread,
+                default_adm.into_raw(),
                 ae.pin_mut(),
                 ad.pin_mut(),
                 ve,
                 vd,
-                afp.into_raw()
+                am.into_raw(),
+                ap.into_raw(),
+                afp.into_raw(),
             )
         };
     }

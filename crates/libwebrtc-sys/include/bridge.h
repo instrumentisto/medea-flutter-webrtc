@@ -124,20 +124,29 @@ std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory();
 /// Creates 'AudioDecoderFactory'
 std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory();
 
+/// Creates 'NULL AudioDeviceModule'
+std::unique_ptr<AudioDeviceModule> create_audio_device_module_null();
+
+/// Creates 'NULL AudioMixer'
+std::unique_ptr<AudioMixer> create_audio_mixer_null();
+
+/// Creates 'NULL AudioProcessing'
+std::unique_ptr<AudioProcessing> create_audio_processing_null();
+
 /// Creates 'NULL AudioFrameProcessor'
-std::unique_ptr<AudioFrameProcessor> create_audio_drame_processor_null();
+std::unique_ptr<AudioFrameProcessor> create_audio_frame_processor_null();
 
 /// Creates a new Peer Connection Factory.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_null(
     Thread* network_thread,
     Thread* worker_thread,
     Thread* signaling_thread,
-    //AudioDeviceModule& default_adm,
+    AudioDeviceModule* default_adm,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
     std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
     std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
-    //AudioMixer& audio_mixer,
-    //AudioProcessing& audio_processing,
+    AudioMixer* audio_mixer,
+    AudioProcessing* audio_processing,
     AudioFrameProcessor* audio_frame_processor); 
 }

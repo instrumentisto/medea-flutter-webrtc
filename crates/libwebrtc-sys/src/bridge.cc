@@ -130,8 +130,23 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
   return std::make_unique<AudioDecoderFactory>(builtin_audio_encoder_factory);
 }
 
+/// Creates 'NULL AudioDeviceModule'
+std::unique_ptr<AudioDeviceModule> create_audio_device_module_null() {
+  return std::unique_ptr<AudioDeviceModule>(nullptr);
+}
+
+/// Creates 'NULL AudioMixer'
+std::unique_ptr<AudioMixer> create_audio_mixer_null() {
+  return std::unique_ptr<AudioMixer>(nullptr);
+}
+
+/// Creates 'NULL AudioProcessing'
+std::unique_ptr<AudioProcessing> create_audio_processing_null() {
+  return std::unique_ptr<AudioProcessing>(nullptr);
+}
+
 /// Creates 'NULL AudioFrameProcessor'
-std::unique_ptr<AudioFrameProcessor> create_audio_drame_processor_null() {
+std::unique_ptr<AudioFrameProcessor> create_audio_frame_processor_null() {
   return std::unique_ptr<AudioFrameProcessor>(nullptr);
 }
 
@@ -140,13 +155,13 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_n
     Thread* network_thread,
     Thread* worker_thread,
     Thread* signaling_thread,
-    //AudioDeviceModule& default_adm,
+    AudioDeviceModule* default_adm,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
     std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
     std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
-    //AudioMixer& audio_mixer,
-    //AudioProcessing& audio_processing,
+    AudioMixer* audio_mixer,
+    AudioProcessing* audio_processing,
     AudioFrameProcessor* audio_frame_processor) {
   return std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
