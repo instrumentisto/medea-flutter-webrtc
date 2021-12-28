@@ -1,15 +1,16 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::missing_errors_doc)]
-use anyhow::{bail, Result};
-use cxx::UniquePtr;
 
 mod bridge;
+
+use anyhow::bail;
+use cxx::UniquePtr;
 
 use self::bridge::webrtc;
 
 pub use webrtc::AudioLayer;
 
-/// Thread safe task queue factory internally used in [`webrtc`] that is
+/// Thread safe task queue factory internally used in `webrtc` that is
 /// capable of creating [Task Queue]s.
 ///
 /// [Task Queue]: https://tinyurl.com/doc-threads
@@ -187,7 +188,7 @@ pub struct Thread(UniquePtr<webrtc::Thread>);
 
 impl Thread {
     /// Creates a [`Thread`].
-    pub fn create() -> Result<Self> {
+    pub fn create() -> anyhow::Result<Self> {
         let ptr = webrtc::create_thread();
 
         if ptr.is_null() {
@@ -200,7 +201,11 @@ impl Thread {
     }
 
     /// Starts the [`Thread`].
-    pub fn start(&mut self) -> Result<()> {
+    ///
+    /// # Panics
+    ///
+    /// Panics if thread is not valiable to be started.
+    pub fn start(&mut self) -> anyhow::Result<()> {
         let result = unsafe { webrtc::start_thread(self.0.as_mut().unwrap()) };
 
         if !result {
@@ -227,7 +232,11 @@ impl PeerConnectionFactory {
     /// This interface provides 3 main directions: Peer Connection Interface,
     /// Local Media Stream Interface and Local Video and Audio Track
     /// Interface.
-    pub fn create() -> Result<Self> {
+    ///
+    /// # Panics
+    ///
+    /// Panics if thread is not valiable to be started.
+    pub fn create() -> anyhow::Result<Self> {
         let mut worker_thread = Thread::create().unwrap();
         worker_thread.start().unwrap();
         let mut signaling_thread = Thread::create().unwrap();
@@ -255,12 +264,16 @@ impl PeerConnectionFactory {
 
     /// Creates a new [`VideoSource`], which provides source of frames from
     /// native platform.
+    ///
+    /// # Panics
+    ///
+    /// Panics if thread is not valiable to be started.
     pub fn create_video_source(
         &mut self,
         width: usize,
         height: usize,
         fps: usize,
-    ) -> Result<VideoSource> {
+    ) -> anyhow::Result<VideoSource> {
         let ptr = unsafe {
             webrtc::create_video_source(
                 self.worker_thread.0.as_mut().unwrap(),
@@ -282,7 +295,7 @@ impl PeerConnectionFactory {
 
     /// Creates a new [`AudioSource`], which provides sound recording from
     /// native platform.
-    pub fn create_audio_source(&self) -> Result<AudioSource> {
+    pub fn create_audio_source(&self) -> anyhow::Result<AudioSource> {
         let ptr = unsafe { webrtc::create_audio_source(&self.pointer) };
 
         if ptr.is_null() {
@@ -298,7 +311,7 @@ impl PeerConnectionFactory {
     pub fn create_video_track(
         &self,
         video_src: &VideoSource,
-    ) -> Result<VideoTrack> {
+    ) -> anyhow::Result<VideoTrack> {
         let ptr =
             unsafe { webrtc::create_video_track(&self.pointer, &video_src.0) };
 
@@ -315,7 +328,7 @@ impl PeerConnectionFactory {
     pub fn create_audio_track(
         &self,
         audio_src: &AudioSource,
-    ) -> Result<AudioTrack> {
+    ) -> anyhow::Result<AudioTrack> {
         let ptr =
             unsafe { webrtc::create_audio_track(&self.pointer, &audio_src.0) };
 
@@ -329,7 +342,9 @@ impl PeerConnectionFactory {
     }
 
     /// Creates an empty [`LocalMediaStream`].
-    pub fn create_local_media_stream(&self) -> Result<LocalMediaStream> {
+    pub fn create_local_media_stream(
+        &self,
+    ) -> anyhow::Result<LocalMediaStream> {
         let ptr = unsafe { webrtc::create_local_media_stream(&self.pointer) };
 
         if ptr.is_null() {
@@ -367,7 +382,7 @@ pub struct LocalMediaStream(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl LocalMediaStream {
     /// Adds [`VideoTrack`] to [`LocalMediaStream`].
-    pub fn add_video_track(&self, track: &VideoTrack) -> Result<()> {
+    pub fn add_video_track(&self, track: &VideoTrack) -> anyhow::Result<()> {
         let result = unsafe { webrtc::add_video_track(&self.0, &track.0) };
 
         if !result {
@@ -380,7 +395,7 @@ impl LocalMediaStream {
     }
 
     /// Adds [`AudioTrack`] to [`LocalMediaStream`].
-    pub fn add_audio_track(&self, track: &AudioTrack) -> Result<()> {
+    pub fn add_audio_track(&self, track: &AudioTrack) -> anyhow::Result<()> {
         let result = unsafe { webrtc::add_audio_track(&self.0, &track.0) };
 
         if !result {
@@ -393,7 +408,7 @@ impl LocalMediaStream {
     }
 
     /// Removes [`VideoTrack`] from [`LocalMediaStream`].
-    pub fn remove_video_track(&self, track: &VideoTrack) -> Result<()> {
+    pub fn remove_video_track(&self, track: &VideoTrack) -> anyhow::Result<()> {
         let result = unsafe { webrtc::remove_video_track(&self.0, &track.0) };
 
         if !result {
@@ -406,7 +421,7 @@ impl LocalMediaStream {
     }
 
     /// Removes [`AudioTrack`] from [`LocalMediaStream`].
-    pub fn remove_audio_track(&self, track: &AudioTrack) -> Result<()> {
+    pub fn remove_audio_track(&self, track: &AudioTrack) -> anyhow::Result<()> {
         let result = unsafe { webrtc::remove_audio_track(&self.0, &track.0) };
 
         if !result {

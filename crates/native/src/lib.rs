@@ -1,13 +1,21 @@
 #![warn(clippy::pedantic)]
 use std::{collections::HashMap, rc::Rc};
 
-use libwebrtc_sys::*;
+use libwebrtc_sys::{
+    AudioDeviceModule, AudioLayer, AudioSource, AudioTrack, LocalMediaStream,
+    PeerConnectionFactory, TaskQueueFactory, VideoDeviceInfo, VideoSource,
+    VideoTrack,
+};
 
 mod user_media;
-use user_media::*;
+use user_media::{
+    dispose_stream, get_users_media, AudioSourceId, AudioTrackId,
+    AudioTrackNative, MediaStreamNative, StreamId, VideoSouceId,
+    VideoSourceNative, VideoTrackId, VideoTrackNative,
+};
 
 mod device_info;
-use device_info::*;
+use device_info::enumerate_devices;
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
@@ -90,23 +98,22 @@ pub mod ffi {
         /// Creates a local Media Stream with Tracks according to
         /// accepted Constraints.
         #[cxx_name = "GetUserMedia"]
-        fn get_user_media(
+        fn get_users_media(
             webrtc: &mut Box<Webrtc>,
-            constraints: Constraints,
+            constraints: &Constraints,
         ) -> LocalStreamInfo;
 
         /// Disposes the MediaStreamNative and all involved
         /// AudioTrackNatives/VideoTrackNatives and
         /// AudioSources/VideoSourceNatives.
         #[cxx_name = "DisposeStream"]
-        fn dispose_stream(webrtc: &mut Box<Webrtc>, id: String);
+        fn dispose_stream(webrtc: &mut Box<Webrtc>, id: &str);
     }
 }
 
-/// Contains all necessary tools for interoperate with [libWebRTC].
+/// Contains all necessary tools for interoperate with [`libWebRTC`].
 ///
-/// [libWebrtc]: https://tinyurl.com/54y935zz
-#[allow(dead_code)]
+/// [`libWebrtc`]: https://tinyurl.com/54y935zz
 pub struct Inner {
     task_queue_factory: TaskQueueFactory,
     peer_connection_factory: PeerConnectionFactory,
@@ -122,6 +129,11 @@ pub struct Inner {
 pub struct Webrtc(Box<Inner>);
 
 /// Creates an instanse of [`Webrtc`].
+///
+/// # Panics
+///
+/// May panic if `PeerconnectionFactory` is not valiable to be created.
+#[must_use]
 pub fn init() -> Box<Webrtc> {
     let task_queue_factory =
         TaskQueueFactory::create_default_task_queue_factory();
