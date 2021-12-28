@@ -93,4 +93,43 @@ pub(crate) mod webrtc {
             id: &mut String,
         ) -> i32;
     }
+
+    unsafe extern "C++" {
+        type Thread;
+        type VideoEncoderFactory;
+        type VideoDecoderFactory;
+        type PeerConnectionFactoryInterface;
+        type AudioEncoderFactory;
+        type AudioDecoderFactory;
+        type AudioMixer;
+        type AudioProcessing;
+        type AudioFrameProcessor;
+
+        pub fn create_thread() -> UniquePtr<Thread>;
+
+        #[allow(clippy::missing_safety_doc)]
+        pub unsafe fn start_thread(thread: Pin<&mut Thread>) -> bool;
+
+        #[namespace = "webrtc"]
+        #[cxx_name = "CreateBuiltinVideoEncoderFactory"]
+        pub fn create_builtin_video_encoder_factory() -> UniquePtr<VideoEncoderFactory>;
+
+        #[namespace = "webrtc"]
+        #[cxx_name = "CreateBuiltinVideoDecoderFactory"]
+        pub fn create_builtin_video_decoder_factory() -> UniquePtr<VideoDecoderFactory>;
+
+        pub fn create_builtin_audio_encoder_factory() -> UniquePtr<AudioEncoderFactory>;
+
+        pub fn create_builtin_audio_decoder_factory() -> UniquePtr<AudioDecoderFactory>;
+
+        pub fn create_peer_connection_factory_null(    
+            network_thread: Pin<&mut Thread>,
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
+            audio_encoder_factory: Pin<&mut AudioEncoderFactory>,
+            audio_decoder_factory: Pin<&mut AudioDecoderFactory>,
+            video_encoder_factory: UniquePtr<VideoEncoderFactory>,
+            video_decoder_factory: UniquePtr<VideoDecoderFactory>) 
+            -> UniquePtr<PeerConnectionFactoryInterface>;
+    }
 }

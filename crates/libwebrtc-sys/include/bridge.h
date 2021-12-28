@@ -4,6 +4,13 @@
 #include <string>
 #include <iostream>
 
+#include "api/create_peerconnection_factory.h"
+#include "api/peer_connection_interface.h"
+#include "api/audio_codecs/builtin_audio_decoder_factory.h"
+#include "api/audio_codecs/builtin_audio_encoder_factory.h"
+#include "api/video_codecs/builtin_video_decoder_factory.h"
+#include "api/video_codecs/builtin_video_encoder_factory.h"
+
 #include "api/task_queue/default_task_queue_factory.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
@@ -50,6 +57,23 @@ using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 
+using Thread = rtc::Thread;
+using PeerConnectionFactoryInterface =
+    rc<webrtc::PeerConnectionFactoryInterface>;
+
+using PeerConnectionInterface = rc<webrtc::PeerConnectionInterface>;
+using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
+using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
+
+using AudioEncoderFactory = rc<webrtc::AudioEncoderFactory>;
+using AudioDecoderFactory = rc<webrtc::AudioDecoderFactory>;
+
+using AudioMixer = rc<webrtc::AudioMixer>;
+using AudioProcessing = rc<webrtc::AudioProcessing>;
+using VideoEncoderFactory = webrtc::VideoEncoderFactory;
+using VideoDecoderFactory = webrtc::VideoDecoderFactory;
+using AudioFrameProcessor = webrtc::AudioFrameProcessor;
+
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
@@ -88,4 +112,25 @@ int32_t video_device_name(VideoDeviceInfo &device_info,
                           rust::String &name,
                           rust::String &guid);
 
+/// Creates a new thread.
+std::unique_ptr<rtc::Thread> create_thread();
+
+/// Starts the thread.
+bool start_thread(rtc::Thread& thread);
+
+/// Creates 'AudioEncoderFactory'
+std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory();
+
+/// Creates 'AudioDecoderFactory'
+std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory();
+
+/// Creates a new Peer Connection Factory.
+std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_null(
+    Thread& network_thread,
+    Thread& worker_thread,
+    Thread& signaling_thread,
+    AudioEncoderFactory& audio_encoder_factory,
+    AudioDecoderFactory& audio_decoder_factory,
+    std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
+    std::unique_ptr<VideoDecoderFactory> video_decoder_factory); 
 }
