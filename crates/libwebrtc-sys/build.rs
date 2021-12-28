@@ -26,12 +26,14 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rustc-link-lib=dylib=amstrmid");
     println!("cargo:rustc-link-lib=dylib=msdmo");
     println!("cargo:rustc-link-lib=dylib=winmm");
+    println!("cargo:rustc-link-lib=dylib=Secur32");
 
     cxx_build::bridge("src/bridge.rs")
         .file("src/bridge.cc")
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .flag("-DWEBRTC_WIN")
+        .flag("-DNOMINMAX")
         .compile("libwebrtc-sys");
 
     println!("cargo:rerun-if-changed=src/bridge.cc");
