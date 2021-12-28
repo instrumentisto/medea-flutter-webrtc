@@ -126,9 +126,9 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory();
 
 /// Creates a new Peer Connection Factory.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_null(
-    Thread& network_thread,
-    Thread& worker_thread,
-    Thread& signaling_thread,
+    Thread* network_thread,
+    Thread* worker_thread,
+    Thread* signaling_thread,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
     std::unique_ptr<VideoEncoderFactory> video_encoder_factory,

@@ -108,28 +108,32 @@ pub(crate) mod webrtc {
         pub fn create_thread() -> UniquePtr<Thread>;
 
         #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn start_thread(thread: Pin<&mut Thread>) -> bool;
+        pub fn start_thread(thread: Pin<&mut Thread>) -> bool;
 
         #[namespace = "webrtc"]
         #[cxx_name = "CreateBuiltinVideoEncoderFactory"]
-        pub fn create_builtin_video_encoder_factory() -> UniquePtr<VideoEncoderFactory>;
+        pub fn create_builtin_video_encoder_factory(
+        ) -> UniquePtr<VideoEncoderFactory>;
 
         #[namespace = "webrtc"]
         #[cxx_name = "CreateBuiltinVideoDecoderFactory"]
-        pub fn create_builtin_video_decoder_factory() -> UniquePtr<VideoDecoderFactory>;
+        pub fn create_builtin_video_decoder_factory(
+        ) -> UniquePtr<VideoDecoderFactory>;
 
-        pub fn create_builtin_audio_encoder_factory() -> UniquePtr<AudioEncoderFactory>;
+        pub fn create_builtin_audio_encoder_factory(
+        ) -> UniquePtr<AudioEncoderFactory>;
 
-        pub fn create_builtin_audio_decoder_factory() -> UniquePtr<AudioDecoderFactory>;
+        pub fn create_builtin_audio_decoder_factory(
+        ) -> UniquePtr<AudioDecoderFactory>;
 
-        pub fn create_peer_connection_factory_null(    
-            network_thread: Pin<&mut Thread>,
-            worker_thread: Pin<&mut Thread>,
-            signaling_thread: Pin<&mut Thread>,
+        pub unsafe fn create_peer_connection_factory_null(
+            network_thread: *mut Thread,
+            worker_thread: *mut Thread,
+            signaling_thread: *mut Thread,
             audio_encoder_factory: Pin<&mut AudioEncoderFactory>,
             audio_decoder_factory: Pin<&mut AudioDecoderFactory>,
             video_encoder_factory: UniquePtr<VideoEncoderFactory>,
-            video_decoder_factory: UniquePtr<VideoDecoderFactory>) 
-            -> UniquePtr<PeerConnectionFactoryInterface>;
+            video_decoder_factory: UniquePtr<VideoDecoderFactory>,
+        ) -> UniquePtr<PeerConnectionFactoryInterface>;
     }
 }

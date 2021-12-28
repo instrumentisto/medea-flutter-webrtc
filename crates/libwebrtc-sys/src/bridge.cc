@@ -109,7 +109,7 @@ int32_t video_device_name(
 };
 
 /// Calls `Thread->Create()`.
-std::unique_ptr<rtc::Thread> create_thread() {
+std::unique_ptr<Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
@@ -132,17 +132,16 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
 
 /// Calls `CreatePeerConnectionFactory()`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_null(
-    Thread& network_thread,
-    Thread& worker_thread,
-    Thread& signaling_thread,
+    Thread* network_thread,
+    Thread* worker_thread,
+    Thread* signaling_thread,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
     std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
-    std::unique_ptr<VideoDecoderFactory> video_decoder_factory
-    ) {
+    std::unique_ptr<VideoDecoderFactory> video_decoder_factory) {
   return std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
-          &network_thread, &worker_thread, &signaling_thread, nullptr,
+          network_thread, worker_thread, signaling_thread, nullptr,
           audio_encoder_factory.ptr(),
           audio_decoder_factory.ptr(),
           std::move(video_encoder_factory),
