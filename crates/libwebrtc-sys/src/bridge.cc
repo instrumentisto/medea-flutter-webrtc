@@ -130,15 +130,24 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
   return std::make_unique<AudioDecoderFactory>(builtin_audio_encoder_factory);
 }
 
+/// Creates 'NULL AudioFrameProcessor'
+std::unique_ptr<AudioFrameProcessor> create_audio_drame_processor_null() {
+  return std::unique_ptr<AudioFrameProcessor>(nullptr);
+}
+
 /// Calls `CreatePeerConnectionFactory()`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_null(
     Thread* network_thread,
     Thread* worker_thread,
     Thread* signaling_thread,
+    //AudioDeviceModule& default_adm,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
     std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
-    std::unique_ptr<VideoDecoderFactory> video_decoder_factory) {
+    std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
+    //AudioMixer& audio_mixer,
+    //AudioProcessing& audio_processing,
+    AudioFrameProcessor* audio_frame_processor) {
   return std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
           network_thread, worker_thread, signaling_thread, nullptr,
@@ -147,6 +156,6 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_n
           std::move(video_encoder_factory),
           std::move(video_decoder_factory), 
           nullptr, nullptr,
-          nullptr));
+          audio_frame_processor));
 }
 }
