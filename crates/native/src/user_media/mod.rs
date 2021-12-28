@@ -1,4 +1,4 @@
-use std::{collections::HashMap, rc::Rc};
+use std::rc::Rc;
 
 use crate::*;
 
@@ -29,6 +29,7 @@ pub struct AudioTrackNative {
     source: AudioTrackId,
 }
 
+/// Creates a new Local Media Stream.
 fn create_local_stream(webrtc: &mut Box<Webrtc>, id: StreamId) {
     let this = webrtc.as_mut().0.as_mut();
 
@@ -45,6 +46,7 @@ fn create_local_stream(webrtc: &mut Box<Webrtc>, id: StreamId) {
     );
 }
 
+/// Creates a new local Video Source.
 fn create_local_video_source(
     webrtc: &mut Box<Webrtc>,
     id: VideoSouceId,
@@ -70,6 +72,7 @@ fn create_local_video_source(
     );
 }
 
+/// Creates a new local Video Track.
 fn create_local_video_track(
     webrtc: &mut Box<Webrtc>,
     id: VideoTrackId,
@@ -91,6 +94,7 @@ fn create_local_video_track(
     );
 }
 
+/// Creates a new local Audio Source.
 fn create_local_audio_source(webrtc: &mut Box<Webrtc>, id: AudioSourceId) {
     let this = webrtc.as_mut().0.as_mut();
 
@@ -100,6 +104,7 @@ fn create_local_audio_source(webrtc: &mut Box<Webrtc>, id: AudioSourceId) {
     );
 }
 
+/// Creates a new local Audio Track.
 fn create_local_audio_track(
     webrtc: &mut Box<Webrtc>,
     id: AudioTrackId,
@@ -119,6 +124,7 @@ fn create_local_audio_track(
     );
 }
 
+/// Adds the video track to the Local Media Stream.
 fn add_video_track_to_local(
     webrtc: &mut Box<Webrtc>,
     stream: StreamId,
@@ -134,6 +140,7 @@ fn add_video_track_to_local(
     stream.video_tracks.push(id);
 }
 
+/// Adds the audio track to the Local Media Stream.
 fn add_audio_track_to_local(
     webrtc: &mut Box<Webrtc>,
     stream: StreamId,
@@ -149,30 +156,12 @@ fn add_audio_track_to_local(
     stream.audio_tracks.push(id);
 }
 
-/// Creates an instanse of [Webrtc].
-///
-/// [Webrtc](Webrtc)
-pub fn init() -> Box<Webrtc> {
-    let peer_connection_factory = PeerConnectionFactory::create().unwrap();
-    let task_queue_factory = create_default_task_queue_factory();
-
-    Box::new(Webrtc(Box::new(Inner {
-        task_queue_factory,
-        peer_connection_factory,
-        video_sources: HashMap::new(),
-        video_tracks: HashMap::new(),
-        audio_sources: HashMap::new(),
-        audio_tracks: HashMap::new(),
-        local_media_streams: HashMap::new(),
-    })))
-}
-
 /// Creates a local [Media Stream] with [Track]s according to accepted
-/// [Constraints].
+/// [`Constraints`].
 ///
 /// [Media Stream]: https://tinyurl.com/2k2376z9
 /// [Track]: https://tinyurl.com/yc79x5s8
-/// [Constraints]: ffi::Constraints
+/// [`Constraints`]: ffi::Constraints
 pub fn get_user_media(
     webrtc: &mut Box<Webrtc>,
     constraints: ffi::Constraints,
@@ -238,11 +227,9 @@ pub fn get_user_media(
     }
 }
 
-/// Disposes the [Media Stream] and all involved [Track]s and Audio/Video
-/// sources.
-///
-/// [Track]: https://tinyurl.com/yc79x5s8
-/// [Media Stream]: https://tinyurl.com/2k2376z9
+/// Disposes the [`MediaStreamNative`] and all involved
+/// [`AudioTrackNative`]s/[`VideoTrackNative`]s and
+/// [`AudioSource`]s/[`VideoSourceNative`]s.
 pub fn dispose_stream(webrtc: &mut Box<Webrtc>, id: StreamId) {
     let this = webrtc.as_mut().0.as_mut();
 

@@ -45,7 +45,7 @@ void FlutterWebRTC::HandleMethodCall(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
   } else if (method_call.method_name().compare("getSources") == 0) {
-    rust::Vec<MediaDeviceInfo> devices = EnumerateDevices();
+    rust::Vec<MediaDeviceInfo> devices = EnumerateDevices(webrtc);
 
     EncodableList sources;
 
@@ -125,7 +125,7 @@ void FlutterWebRTC::HandleMethodCall(
     vdcntsrts.min_fps = rust::String(GetValue<std::string>(fpsValue));
     cnstrts.video = vdcntsrts;
 
-    LocalStreamInfo user_media = get_user_media(webrtc, cnstrts);
+    LocalStreamInfo user_media = GetUserMedia(webrtc, cnstrts);
 
     EncodableMap params;
     params[EncodableValue("streamId")] =
@@ -191,7 +191,7 @@ void FlutterWebRTC::HandleMethodCall(
     const EncodableMap params =
         GetValue<EncodableMap>(*method_call.arguments());
     const std::string stream_id = findString(params, "streamId");
-    dispose_stream(webrtc, rust::String(stream_id));
+    DisposeStream(webrtc, rust::String(stream_id));
     result->Success();
   } else if (method_call.method_name().compare("mediaStreamTrackSetEnable") ==
              0) {

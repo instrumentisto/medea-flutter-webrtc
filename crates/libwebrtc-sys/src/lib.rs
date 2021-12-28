@@ -1,6 +1,6 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::missing_errors_doc)]
-use anyhow::bail;
+use anyhow::{bail, Result};
 use cxx::UniquePtr;
 
 mod bridge;

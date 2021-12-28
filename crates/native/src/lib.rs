@@ -1,7 +1,6 @@
 #![warn(clippy::pedantic)]
 use std::{collections::HashMap, rc::Rc};
 
-use cxx::UniquePtr;
 use libwebrtc_sys::*;
 
 mod user_media;
@@ -21,7 +20,7 @@ pub mod ffi {
         label: String,
     }
 
-    /// `Media Stream` constrants.
+    /// Media Stream constrants.
     struct Constraints {
         audio: bool,
         video: VideoConstraints,
@@ -41,7 +40,7 @@ pub mod ffi {
         audio_tracks: Vec<TrackInfo>,
     }
 
-    /// Information about `Track`.
+    /// Information about Track.
     struct TrackInfo {
         id: String,
         label: String,
@@ -49,7 +48,7 @@ pub mod ffi {
         enabled: bool,
     }
 
-    /// Kind of `Track`.
+    /// Kind of Track.
     enum TrackKind {
         Audio,
         Video,
@@ -82,12 +81,24 @@ pub mod ffi {
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
-        fn enumerate_devices() -> Vec<MediaDeviceInfo>;
+        fn enumerate_devices(webrtc: &mut Box<Webrtc>) -> Vec<MediaDeviceInfo>;
+
+        /// Creates an instanse of Webrtc.
+        #[cxx_name = "Init"]
         fn init() -> Box<Webrtc>;
+
+        /// Creates a local Media Stream with Tracks according to
+        /// accepted Constraints.
+        #[cxx_name = "GetUserMedia"]
         fn get_user_media(
             webrtc: &mut Box<Webrtc>,
             constraints: Constraints,
         ) -> LocalStreamInfo;
+
+        /// Disposes the MediaStreamNative and all involved
+        /// AudioTrackNatives/VideoTrackNatives and
+        /// AudioSources/VideoSourceNatives.
+        #[cxx_name = "DisposeStream"]
         fn dispose_stream(webrtc: &mut Box<Webrtc>, id: String);
     }
 }
@@ -97,7 +108,7 @@ pub mod ffi {
 /// [libWebrtc]: https://tinyurl.com/54y935zz
 #[allow(dead_code)]
 pub struct Inner {
-    task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
+    task_queue_factory: TaskQueueFactory,
     peer_connection_factory: PeerConnectionFactory,
     video_sources: HashMap<VideoSouceId, Rc<VideoSourceNative>>,
     video_tracks: HashMap<VideoTrackId, VideoTrackNative>,
@@ -109,3 +120,20 @@ pub struct Inner {
 /// Wraps the [`Inner`] instanse.
 /// This struct is intended to be extern and managed outside of the Rust app.
 pub struct Webrtc(Box<Inner>);
+
+/// Creates an instanse of [`Webrtc`].
+pub fn init() -> Box<Webrtc> {
+    let task_queue_factory =
+        TaskQueueFactory::create_default_task_queue_factory();
+    let peer_connection_factory = PeerConnectionFactory::create().unwrap();
+
+    Box::new(Webrtc(Box::new(Inner {
+        task_queue_factory,
+        peer_connection_factory,
+        video_sources: HashMap::new(),
+        video_tracks: HashMap::new(),
+        audio_sources: HashMap::new(),
+        audio_tracks: HashMap::new(),
+        local_media_streams: HashMap::new(),
+    })))
+}

@@ -1,8 +1,13 @@
+use crate::*;
+use ffi::*;
+
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
 #[must_use]
-pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
-    let mut audio = audio_devices_info();
+pub fn enumerate_devices(webrtc: &mut Box<Webrtc>) -> Vec<MediaDeviceInfo> {
+    let this = webrtc.as_mut().0.as_mut();
+
+    let mut audio = audio_devices_info(&mut this.task_queue_factory);
     let mut video = video_devices_info();
 
     audio.append(&mut video);
@@ -11,12 +16,13 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
 }
 
 /// Returns a list of all available audio input and output devices.
-fn audio_devices_info() -> Vec<MediaDeviceInfo> {
+fn audio_devices_info(
+    task_queue: &mut TaskQueueFactory,
+) -> Vec<MediaDeviceInfo> {
     // TODO: Do not unwrap.
-    let mut task_queue = TaskQueueFactory::create_default_task_queue_factory();
     let adm = AudioDeviceModule::create(
         AudioLayer::kPlatformDefaultAudio,
-        &mut task_queue,
+        task_queue,
     )
     .unwrap();
     adm.init().unwrap();

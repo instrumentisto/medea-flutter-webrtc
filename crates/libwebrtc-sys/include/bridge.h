@@ -98,14 +98,18 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
                           rust::String& name,
                           rust::String& guid);
 
+/// Creates a new thread.
 std::unique_ptr<rtc::Thread> create_thread();
 
+/// Starts the thread.
 bool start_thread(rtc::Thread& thread);
 
+/// Creates a new Peer Connection Factory.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread& worker_thread,
     Thread& signaling_thread);
 
+/// Creates a new video source.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
@@ -113,29 +117,37 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t height,
     size_t fps);
 
+/// Creates a new audio source.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory);
 
+/// Creates a new video track.
 std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     const VideoTrackSourceInterface& video_source);
 
+/// Creates a new audio track.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     const AudioSourceInterface& audio_source);
 
+/// Creates a new Local Media Stream.
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory);
 
+/// Adds the video track to media stream.
 bool add_video_track(const MediaStreamInterface& media_stream,
                      const VideoTrackInterface& track);
 
+/// Adds the audio track to media stream.
 bool add_audio_track(const MediaStreamInterface& media_stream,
                      const AudioTrackInterface& track);
 
+/// Removes the video track from media stream.
 bool remove_video_track(const MediaStreamInterface& media_stream,
                         const VideoTrackInterface& track);
 
+/// Removes the audio track from media stream.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 }  // namespace bridge
