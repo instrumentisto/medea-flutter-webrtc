@@ -21,6 +21,7 @@ jobs:
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
 
+      - run: make cargo.clean
       - run: make cargo.lint
 
   rustfmt:
@@ -34,6 +35,7 @@ jobs:
           toolchain: nightly
           components: rustfmt
 
+      - run: make cargo.clean
       - run: make cargo.fmt check=yes
 
   build:
@@ -53,6 +55,7 @@ jobs:
       - run: flutter config --enable-windows-desktop
       - run: choco install make
 
+      - run: make cargo.clean
       - run: make cargo.build
       - run: make flutter.build
 
@@ -68,6 +71,7 @@ jobs:
       - uses: Swatinem/rust-cache@v1
         if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
 
+      - run: make cargo.clean
       - run: make cargo.doc
 
   test:
@@ -81,4 +85,5 @@ jobs:
           toolchain: stable
       - run: choco install make
 
+      - run: make cargo.clean
       - run: make test

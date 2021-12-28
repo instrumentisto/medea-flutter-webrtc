@@ -27,6 +27,8 @@ RUST_NIGHTLY_VER ?= nightly-2021-09-08
 
 build: cargo.build
 
+clean: cargo.clean
+
 deps: flutter.pub
 
 docs: cargo.doc
@@ -104,6 +106,16 @@ cargo.build:
 		windows/rust/include/flutter_webrtc_native.h
 	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
+
+
+# Cleans target directory.
+#
+# Usage:
+#	make cargo.clean
+
+cargo.clean:
+	cargo clean
+
 
 
 # Generate documentation for project crates.
