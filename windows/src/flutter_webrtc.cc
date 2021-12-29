@@ -120,7 +120,7 @@ void FlutterWebRTC::HandleMethodCall(
     video_constraints.min_fps = rust::String(GetValue<std::string>(fps));
     constraints.video = video_constraints;
 
-    MediaStream user_media = GetUserMedia(webrtc, constraints);
+    MediaStream user_media = webrtc->GetUserMedia(constraints);
 
     EncodableMap params;
     params[EncodableValue("streamId")] =
@@ -186,7 +186,7 @@ void FlutterWebRTC::HandleMethodCall(
     const EncodableMap
         params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string stream_id = findString(params, "streamId");
-    DisposeStream(webrtc, rust::String(stream_id));
+    webrtc->DisposeStream(rust::String(stream_id));
     result->Success();
   } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
   } else if (method.compare("trackDispose") == 0) {

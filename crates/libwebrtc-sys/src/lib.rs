@@ -10,7 +10,7 @@ use self::bridge::webrtc;
 
 pub use webrtc::AudioLayer;
 
-/// Thread safe task queue factory internally used in `webrtc` that is
+/// Thread safe task queue factory internally used in [`webrtc`] that is
 /// capable of creating [Task Queue]s.
 ///
 /// [Task Queue]: https://tinyurl.com/doc-threads

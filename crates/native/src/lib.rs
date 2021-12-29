@@ -1,4 +1,8 @@
 #![warn(clippy::pedantic)]
+
+mod device_info;
+mod user_media;
+
 use std::{collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
@@ -7,14 +11,10 @@ use libwebrtc_sys::{
     VideoTrack,
 };
 
-mod user_media;
-use user_media::{
-    dispose_stream, get_users_media, AudioSourceId, AudioTrackId,
-    AudioTrackNative, MediaStreamNative, StreamId, VideoSouceId,
-    VideoSourceNative, VideoTrackId, VideoTrackNative,
+use crate::user_media::{
+    AudioSourceId, AudioTrackId, AudioTrackNative, MediaStreamNative, StreamId,
+    VideoSourceId, VideoSourceNative, VideoTrackId, VideoTrackNative,
 };
-
-mod device_info;
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
@@ -46,21 +46,21 @@ pub mod ffi {
     /// [get_users_media()].
     pub struct MediaStreamConstraints {
         pub audio: bool,
-        pub video: VideoConstraints,
+        pub video: VideoConstraints, // TODO: supposed to be optional
     }
 
     /// Constraints for video capturer.
     pub struct VideoConstraints {
-        pub min_width: String,
-        pub min_height: String,
-        pub min_fps: String,
+        pub min_width: usize,
+        pub min_height: usize,
+        pub min_fps: usize,
     }
 
     /// The [MediaStream] represents a stream of media content. A stream
     /// consists of several tracks, such as video or audio tracks. Each track
     /// is specified as an instance of [MediaStreamTrack].
     pub struct MediaStream {
-        pub stream_id: String,
+        pub stream_id: crate::user_media::StreamId,
         pub video_tracks: Vec<MediaStreamTrack>,
         pub audio_tracks: Vec<MediaStreamTrack>,
     }
@@ -70,7 +70,7 @@ pub mod ffi {
     /// types may exist as well.
     pub struct MediaStreamTrack {
         /// Unique identifier (GUID) for the track
-        pub id: String,
+        pub id: crate::user_media::TrackId,
 
         /// Label that identifies the track source, as in "internal microphone".
         pub label: String,
@@ -106,13 +106,13 @@ pub mod ffi {
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
-        fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
+        pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
         /// Creates a local Media Stream with Tracks according to
         /// accepted Constraints.
         #[cxx_name = "GetUserMedia"]
-        fn get_users_media(
-            webrtc: &mut Box<Webrtc>,
+        pub fn get_users_media(
+            self: &mut Webrtc,
             constraints: &MediaStreamConstraints,
         ) -> MediaStream;
 
@@ -120,7 +120,7 @@ pub mod ffi {
         /// AudioTrackNatives/VideoTrackNatives and
         /// AudioSources/VideoSourceNatives.
         #[cxx_name = "DisposeStream"]
-        fn dispose_stream(webrtc: &mut Box<Webrtc>, id: &str);
+        pub fn dispose_stream(self: &mut Webrtc, id: crate::user_media::StreamId);
     }
 }
 
@@ -130,7 +130,7 @@ pub mod ffi {
 pub struct Inner {
     task_queue_factory: TaskQueueFactory,
     peer_connection_factory: PeerConnectionFactory,
-    video_sources: HashMap<VideoSouceId, Rc<VideoSourceNative>>,
+    video_sources: HashMap<VideoSourceId, Rc<VideoSourceNative>>,
     video_tracks: HashMap<VideoTrackId, VideoTrackNative>,
     audio_sources: HashMap<AudioSourceId, AudioSource>,
     audio_tracks: HashMap<AudioTrackId, AudioTrackNative>,
