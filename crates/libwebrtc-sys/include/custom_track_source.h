@@ -11,10 +11,7 @@
 #define SCALABLE_VIDEO_TRACK_SOURCE_H_
 
 #include <stddef.h>
-
 #include <memory>
-
-// WebRTC
 #include <media/base/adapted_video_track_source.h>
 #include <media/base/video_adapter.h>
 #include <rtc_base/timestamp_aligner.h>
@@ -28,10 +25,10 @@ class CustomVideoTrackSource : public rtc::AdaptedVideoTrackSource {
   absl::optional<bool> needs_denoising() const override;
   webrtc::MediaSourceInterface::SourceState state() const override;
   bool remote() const override;
-  void OnCapturedFrame(const webrtc::VideoFrame& frame);
+  void OnCapturedFrame(const webrtc::VideoFrame &frame);
 
  private:
   rtc::TimestampAligner timestamp_aligner_;
 };
 
-#endif  // SCALABLE_VIDEO_TRACK_SOURCE_H_
+#endif

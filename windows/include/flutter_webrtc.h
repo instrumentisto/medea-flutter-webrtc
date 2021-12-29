@@ -26,20 +26,20 @@ using namespace flutter;
 namespace flutter_webrtc_plugin {
 class FlutterWebRTCPlugin : public flutter::Plugin {
  public:
-  virtual flutter::BinaryMessenger* messenger() = 0;
+  virtual flutter::BinaryMessenger *messenger() = 0;
 
-  virtual flutter::TextureRegistrar* textures() = 0;
+  virtual flutter::TextureRegistrar *textures() = 0;
 };
 
 class FlutterWebRTC {
  public:
-  FlutterWebRTC(FlutterWebRTCPlugin* plugin);
+  FlutterWebRTC(FlutterWebRTCPlugin *plugin);
   virtual ~FlutterWebRTC();
 
   rust::cxxbridge1::Box<Webrtc> webrtc = Init();
 
   void HandleMethodCall(
-      const flutter::MethodCall<EncodableValue>& method_call,
+      const flutter::MethodCall<EncodableValue> &method_call,
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 };
 

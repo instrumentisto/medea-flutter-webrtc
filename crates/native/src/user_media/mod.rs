@@ -175,7 +175,7 @@ fn add_audio_track_to_local(
 pub fn get_users_media(
     webrtc: &mut Box<Webrtc>,
     constraints: &ffi::Constraints,
-) -> ffi::LocalStreamInfo {
+) -> ffi::MediaStream {
     let stream_id = "test_stream_id";
     let video_source_id = "test_video_source_id";
     let video_track_id = "test_video_track_id";
@@ -208,16 +208,16 @@ pub fn get_users_media(
         add_audio_track_to_local(webrtc, stream_id, audio_track_id.to_string());
     };
 
-    ffi::LocalStreamInfo {
+    ffi::MediaStream {
         stream_id: stream_id.to_string(),
-        video_tracks: vec![ffi::TrackInfo {
+        video_tracks: vec![ffi::MediaStreamTrack {
             id: video_track_id.to_string(),
             label: video_track_id.to_string(),
             kind: ffi::TrackKind::Video,
             enabled: true,
         }],
         audio_tracks: if constraints.audio {
-            vec![ffi::TrackInfo {
+            vec![ffi::MediaStreamTrack {
                 id: audio_track_id.to_string(),
                 label: audio_track_id.to_string(),
                 kind: ffi::TrackKind::Audio,

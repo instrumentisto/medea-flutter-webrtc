@@ -410,6 +410,7 @@ dependencies = [
  "cxx-build",
  "dotenv",
  "reqwest",
+ "walkdir",
 ]
 
 [[package]]

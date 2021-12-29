@@ -21,47 +21,6 @@ use device_info::enumerate_devices;
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod ffi {
-    /// Information about a physical device instance.
-    struct DeviceInfo {
-        deviceId: String,
-        kind: String,
-        label: String,
-    }
-
-    /// Media Stream constrants.
-    struct Constraints {
-        audio: bool,
-        video: VideoConstraints,
-    }
-
-    /// Constraints for video capturer.
-    struct VideoConstraints {
-        min_width: String,
-        min_height: String,
-        min_fps: String,
-    }
-
-    /// Information about `Local Media Stream`.
-    struct LocalStreamInfo {
-        stream_id: String,
-        video_tracks: Vec<TrackInfo>,
-        audio_tracks: Vec<TrackInfo>,
-    }
-
-    /// Information about Track.
-    struct TrackInfo {
-        id: String,
-        label: String,
-        kind: TrackKind,
-        enabled: bool,
-    }
-
-    /// Kind of Track.
-    enum TrackKind {
-        Audio,
-        Video,
-    }
-
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -83,25 +42,80 @@ pub mod ffi {
         pub label: String,
     }
 
+    /// The [MediaStreamConstraints] is used to instruct what sort of
+    /// [MediaStreamTracks] to include in the [MediaStream] returned by
+    /// [get_users_media()].
+    pub struct MediaStreamConstraints {
+        pub audio: bool,
+        pub video: VideoConstraints,
+    }
+
+    /// Constraints for video capturer.
+    pub struct VideoConstraints {
+        pub min_width: String,
+        pub min_height: String,
+        pub min_fps: String,
+    }
+
+    /// The [MediaStream] represents a stream of media content. A stream
+    /// consists of several tracks, such as video or audio tracks. Each track
+    /// is specified as an instance of [MediaStreamTrack].
+    pub struct MediaStream {
+        pub stream_id: String,
+        pub video_tracks: Vec<MediaStreamTrack>,
+        pub audio_tracks: Vec<MediaStreamTrack>,
+    }
+
+    /// The [MediaStreamTrack] interface represents a single media track within
+    /// a stream; typically, these are audio or video tracks, but other track
+    /// types may exist as well.
+    pub struct MediaStreamTrack {
+        /// Unique identifier (GUID) for the track
+        pub id: String,
+
+        /// Label that identifies the track source, as in "internal microphone".
+        pub label: String,
+
+        /// The MediaStreamTrack.kind read-only property returns a DOMString
+        /// set to "audio" if the track is an audio track and to "video",
+        /// if it is a video track. It doesn't change if the track is
+        /// deassociated from its source.
+        pub kind: TrackKind,
+
+        /// The enabled property on the MediaStreamTrack interface is a Boolean
+        /// value which is true if the track is allowed to render the source
+        /// stream or false if it is not. This can be used to intentionally
+        /// mute a track.
+        pub enabled: bool,
+    }
+
+    /// Representation of a [`MediaStreamTrack.kind`][1].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack-kind
+    pub enum TrackKind {
+        Audio,
+        Video,
+    }
+
     extern "Rust" {
         type Webrtc;
+
+        /// Creates an instance of [Webrtc].
+        #[cxx_name = "Init"]
+        fn init() -> Box<Webrtc>;
 
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
         fn enumerate_devices(webrtc: &mut Box<Webrtc>) -> Vec<MediaDeviceInfo>;
 
-        /// Creates an instanse of Webrtc.
-        #[cxx_name = "Init"]
-        fn init() -> Box<Webrtc>;
-
         /// Creates a local Media Stream with Tracks according to
         /// accepted Constraints.
         #[cxx_name = "GetUserMedia"]
         fn get_users_media(
             webrtc: &mut Box<Webrtc>,
-            constraints: &Constraints,
-        ) -> LocalStreamInfo;
+            constraints: &MediaStreamConstraints,
+        ) -> MediaStream;
 
         /// Disposes the MediaStreamNative and all involved
         /// AudioTrackNatives/VideoTrackNatives and

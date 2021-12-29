@@ -13,7 +13,6 @@
 #include <memory>
 #include <vector>
 
-// WebRTC
 #include <api/scoped_refptr.h>
 #include <modules/video_capture/video_capture.h>
 #include <rtc_base/ref_counted_object.h>
@@ -39,11 +38,10 @@ class DeviceVideoCapturer : public CustomVideoTrackSource,
             size_t capture_device_index);
   void Destroy();
 
-  // rtc::VideoSinkInterface interface.
-  void OnFrame(const webrtc::VideoFrame& frame) override;
+  void OnFrame(const webrtc::VideoFrame &frame) override;
 
   rtc::scoped_refptr<webrtc::VideoCaptureModule> vcm_;
   webrtc::VideoCaptureCapability capability_;
 };
 
-#endif  // DEVICE_VIDEO_CAPTURER_H_
+#endif
