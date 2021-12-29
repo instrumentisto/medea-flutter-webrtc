@@ -2,6 +2,9 @@
 #include <memory>
 #include <string>
 
+#include <modules/desktop_capture/cropped_desktop_frame.h>
+#include <modules/desktop_capture/desktop_and_cursor_composer.h>
+#include <modules/desktop_capture/desktop_capture_options.h>
 #include "libwebrtc-sys/include/bridge.h"
 
 namespace bridge {
@@ -183,6 +186,16 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
+}
+
+void test() {
+  webrtc::DesktopCapturer::SourceList sourceList;
+  ScreenVideoCapturer::GetSourceList(&sourceList);
+  std::unique_ptr<ScreenVideoCapturer> capturer(
+      new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, 640, 480,
+                                                     30));
+  while (true) {
+  }
 }
 
 }  // namespace bridge

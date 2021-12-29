@@ -174,6 +174,8 @@ void FlutterWebRTC::HandleMethodCall(
     params[EncodableValue("audioTracks")] = EncodableValue(audioTracks);
 
     result->Success(EncodableValue(params));
+  } else if (method_call.method_name().compare("test") == 0) {
+    testfl();
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
   } else if (method_call.method_name().compare("mediaStreamGetTracks") == 0) {
   } else if (method_call.method_name().compare("createOffer") == 0) {

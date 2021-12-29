@@ -108,6 +108,8 @@ pub mod ffi {
         /// AudioSources/VideoSourceNatives.
         #[cxx_name = "DisposeStream"]
         fn dispose_stream(webrtc: &mut Box<Webrtc>, id: &str);
+
+        fn testfl();
     }
 }
 
@@ -148,4 +150,8 @@ pub fn init() -> Box<Webrtc> {
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
     })))
+}
+
+pub fn testfl() {
+    libwebrtc_sys::testasd();
 }

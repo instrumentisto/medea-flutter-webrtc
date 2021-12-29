@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -19,6 +18,13 @@ class _TestState extends State<Test> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void test() async {
+    await WebRTC.invokeMethod(
+      'test',
+      null,
+    );
   }
 
   void _upStream() async {
@@ -63,7 +69,8 @@ class _TestState extends State<Test> {
       ),
       body: Center(child: Text(text)),
       floatingActionButton: FloatingActionButton(
-        onPressed: !on ? _upStream : _dropStream,
+        // onPressed: !on ? _upStream : _dropStream,
+        onPressed: test,
         child: Icon(!on ? Icons.stream : Icons.cancel_outlined),
       ),
     );
