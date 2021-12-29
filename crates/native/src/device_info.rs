@@ -1,8 +1,8 @@
 use crate::{
-    ffi, AudioDeviceModule, AudioLayer, TaskQueueFactory, VideoDeviceInfo,
+    api, AudioDeviceModule, AudioLayer, TaskQueueFactory, VideoDeviceInfo,
     Webrtc,
 };
-use ffi::{MediaDeviceInfo, MediaDeviceKind};
+use api::{MediaDeviceInfo, MediaDeviceKind};
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.

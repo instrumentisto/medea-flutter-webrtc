@@ -1,9 +1,8 @@
 use std::rc::Rc;
 
-use crate::{
-    ffi, ffi::VideoConstraints, AudioTrack, LocalMediaStream, VideoSource,
-    VideoTrack, Webrtc,
-};
+use libwebrtc_sys as sys;
+
+use crate::{api, Webrtc};
 
 // TODO: use new-types
 pub type StreamId = u64;
@@ -13,25 +12,34 @@ pub type VideoTrackId = u64;
 pub type AudioSourceId = u64;
 pub type AudioTrackId = u64;
 
-pub struct MediaStreamNative {
-    inner: LocalMediaStream,
+pub struct MediaStream {
+    inner: sys::LocalMediaStream,
     video_tracks: Vec<VideoTrackId>,
     audio_tracks: Vec<AudioTrackId>,
 }
 
-pub struct VideoTrackNative {
-    inner: VideoTrack,
-    source: Rc<VideoSourceNative>,
+pub struct VideoTrack {
+    id: VideoTrackId,
+    inner: sys::VideoTrack,
+    source: Rc<VideoSource>,
+    kind: api::TrackKind,
 }
 
-pub struct VideoSourceNative {
+pub struct VideoSource {
     id: VideoSourceId,
-    inner: VideoSource,
+    inner: sys::VideoSource,
 }
 
-pub struct AudioTrackNative {
-    inner: AudioTrack,
-    source: AudioTrackId,
+pub struct AudioTrack {
+    id: AudioTrackId,
+    inner: sys::AudioTrack,
+    source: AudioSourceId,
+    kind: api::TrackKind,
+}
+
+pub struct AudioSource {
+    id: AudioSourceId,
+    inner: sys::AudioSource,
 }
 
 impl Webrtc {
@@ -43,93 +51,95 @@ impl Webrtc {
     /// [`Constraints`]: ffi::Constraints
     pub fn get_users_media(
         self: &mut Webrtc,
-        constraints: &ffi::MediaStreamConstraints,
-    ) -> ffi::MediaStream {
+        constraints: &api::MediaStreamConstraints,
+    ) -> api::MediaStream {
         // TODO: dont hardcode id's
-        let stream_id = self.create_local_stream();
-        let mut stream = ffi::MediaStream {
+        let mut stream = self.create_local_stream();
+        let mut result = api::MediaStream {
             stream_id,
             video_tracks: vec![],
             audio_tracks: vec![],
         };
 
-        let video_source_id =
-            self.create_local_video_source(&constraints.video);
-        let video_track_id = self.create_local_video_track(video_source_id);
-        self.add_video_track_to_local(stream_id, video_track_id);
+        {
+            // TODO: if let Some(constraints) = constraints.video
+            let video_source = self.create_video_source(&constraints.video);
+            let video_track =
+                self.create_local_video_track(Rc::clone(&video_source));
+            self.add_video_track_to_stream(&mut stream, video_track);
 
-        stream.video_tracks.push(ffi::MediaStreamTrack {
-            id: video_track_id,
-            label: video_track_id.to_string(),
-            kind: ffi::TrackKind::Video,
-            enabled: true,
-        });
+            result.video_tracks.push(api::MediaStreamTrack {
+                id: video_track.id,
+                label: video_track.id.to_string(), // TODO: source device label
+                kind: api::TrackKind::kVideo,
+                enabled: true,
+            });
+        }
 
         if constraints.audio {
-            let audio_source_id = self.create_audio_source();
-            let audio_track_id =
-                self.create_local_audio_track(audio_source_id);
-            stream.audio_tracks.push(ffi::MediaStreamTrack {
-                id: audio_track_id,
-                label: audio_track_id.to_string(),
-                kind: ffi::TrackKind::Audio,
+            let source = self.create_audio_source();
+            let track = self.create_local_audio_track(source);
+            self.add_audio_track_to_stream(&mut stream, track);
+            result.audio_tracks.push(api::MediaStreamTrack {
+                id: track.id,
+                label: track.id.to_string(), // TODO: source device label
+                kind: track.kind,
                 enabled: true,
             });
         };
 
-        stream
+        result
     }
 
     /// Disposes the [`MediaStreamNative`] and all involved
     /// [`AudioTrackNative`]s/[`VideoTrackNative`]s and
     /// [`AudioSource`]s/[`VideoSourceNative`]s.
     pub fn dispose_stream(self: &mut Webrtc, id: StreamId) {
-        let local_stream =
-            self.0.local_media_streams.remove(&id).unwrap();
+        if let Some(stream) = self.0.local_media_streams.remove(&id) {
+            let video_tracks = stream.video_tracks;
+            let audio_tracks = stream.audio_tracks;
 
-        let video_tracks = local_stream.0.video_tracks;
-        let audio_tracks = local_stream.0.audio_tracks;
+            for track in video_tracks {
+                let src = self.0.video_tracks.remove(&track).unwrap().source;
 
-        for track in video_tracks {
-            let src = self.0.video_tracks.remove(&track).unwrap().source;
+                if Rc::strong_count(&src) == 2 {
+                    self.0.video_sources.remove(&src.id);
+                };
+            }
 
-            if Rc::strong_count(&src) == 2 {
-                self.0.video_sources.remove(&src.id);
-            };
-        }
-
-        for track in audio_tracks {
-            let src = self.0.audio_tracks.remove(&track).unwrap().source;
-            self.0.audio_sources.remove(&src);
+            for track in audio_tracks {
+                // TODO: are we sure that single audio source cannot source
+                //       multiple audio tracks?
+                let src = self.0.audio_tracks.remove(&track).unwrap().source;
+                self.0.audio_sources.remove(&src);
+            }
         }
     }
 
     /// Creates a new Local Media Stream.
-    fn create_local_stream(&mut self) -> StreamId {
+    fn create_local_stream(&mut self) -> &mut MediaStream {
         let id = 0;
         let inner = self
             .0
             .peer_connection_factory
             .create_local_media_stream()
             .unwrap();
-        self.0.local_media_streams.insert(
-            id,
-            MediaStreamNative {
-                inner,
-                video_tracks: vec![],
-                audio_tracks: vec![],
-            },
-        );
+        let stream = MediaStream {
+            inner,
+            video_tracks: vec![],
+            audio_tracks: vec![],
+        };
 
-        id
+        self.0.local_media_streams.entry(id).or_insert(stream)
     }
 
     /// Creates a new local Video Source.
-    fn create_local_video_source(
+    fn create_video_source(
         &mut self,
-        constraints: &VideoConstraints,
-    ) -> VideoSourceId {
-        let obj = self
+        constraints: &api::VideoConstraints,
+    ) -> &Rc<VideoSource> {
+        let id = 0;
+        let inner = self
             .0
             .peer_connection_factory
             .create_video_source(
@@ -138,108 +148,82 @@ impl Webrtc {
                 constraints.min_width,
             )
             .unwrap();
-        let id = 0;
-        self.0.video_sources.insert(
-            id,
-            Rc::new(VideoSourceNative {
-                id,
-                inner: obj,
-            }),
-        );
+        let source = VideoSource { id, inner };
 
-        id
+        self.0.video_sources.entry(id).or_insert(Rc::new(source))
+    }
+
+    fn create_audio_source(&mut self) -> &AudioSource {
+        let id = 0;
+        let inner = self
+            .0
+            .peer_connection_factory
+            .create_audio_source()
+            .unwrap();
+
+        let source = AudioSource { id, inner };
+
+        self.0.audio_sources.entry(id).or_insert(source)
     }
 
     /// Creates a new local Video Track.
-    fn create_local_video_track(&mut self, source: VideoSourceId) -> VideoTrackId {
+    fn create_local_video_track(
+        &mut self,
+        source: Rc<VideoSource>,
+    ) -> &VideoTrack {
         let id = 0;
-        self.0.video_tracks.insert(
+        let inner = self
+            .0
+            .peer_connection_factory
+            .create_video_track(&source.inner)
+            .unwrap();
+        let track = VideoTrack {
             id,
-            VideoTrackNative {
-                inner: self
-                    .0
-                    .peer_connection_factory
-                    .create_video_track(
-                        &self
-                            .0
-                            .video_sources
-                            .get(&source)
-                            .unwrap()
-                            .inner,
-                    )
-                    .unwrap(),
-                source: Rc::clone(
-                    self.0.video_sources.get(&source).unwrap(),
-                ),
-            },
-        );
+            inner,
+            source,
+            kind: api::TrackKind::kVideo,
+        };
 
-        id
+        self.0.video_tracks.entry(id).or_insert(track)
     }
 
     /// Creates a new local Audio Track.
     fn create_local_audio_track(
         &mut self,
-        source: AudioSourceId,
-    ) -> AudioTrackId {
+        source: &AudioSource,
+    ) -> &AudioTrack {
         let id = 0;
-        self.0.audio_tracks.insert(
+        let track = AudioTrack {
             id,
-            AudioTrackNative {
-                inner: self
-                    .0
-                    .peer_connection_factory
-                    .create_audio_track(
-                        self.0.audio_sources.get(&source).unwrap(),
-                    )
-                    .unwrap(),
-                source,
-            },
-        );
-        self.add_audio_track_to_local(stream_id, audio_track_id.to_string());
+            inner: self
+                .0
+                .peer_connection_factory
+                .create_audio_track(&source.inner)
+                .unwrap(),
+            source: source.id,
+            kind: api::TrackKind::kAudio,
+        };
 
-        id
+        self.0.audio_tracks.entry(id).or_insert(track)
     }
 
     /// Adds the video track to the Local Media Stream.
-    fn add_video_track_to_local(&mut self, stream: StreamId, id: VideoTrackId) {
-        let stream = self
-            .0
-            .local_media_streams
-            .get_mut(&stream)
-            .unwrap();
-        let track = self.0.video_tracks.get(&id).unwrap();
-
+    fn add_video_track_to_stream(
+        &mut self,
+        stream: &mut MediaStream,
+        track: &VideoTrack,
+    ) {
         stream.inner.add_video_track(&track.inner).unwrap();
-
-        stream.0.video_tracks.push(id);
+        stream.video_tracks.push(track.id);
     }
 
     /// Adds the audio track to the Local Media Stream.
-    fn add_audio_track_to_local(&mut self, stream: StreamId, id: AudioTrackId) {
-        let stream = self
-            .0
-            .local_media_streams
-            .get_mut(&stream)
-            .unwrap();
-        let track = self.0.audio_tracks.get(&id).unwrap();
-
+    fn add_audio_track_to_stream(
+        &mut self,
+        stream: &mut MediaStream,
+        track: &AudioTrack,
+    ) {
         stream.inner.add_audio_track(&track.inner).unwrap();
-
-        stream.0.audio_tracks.push(id);
-    }
-
-    fn create_audio_source(&mut self) -> AudioSourceId {
-        let id = 0;
-        let audio_source = self
-            .0
-            .peer_connection_factory
-            .create_audio_source()
-            .unwrap();
-        self.0
-            .audio_sources
-            .insert(id, audio_source);
-
-        id
+        stream.audio_tracks.push(track.id);
     }
 }
