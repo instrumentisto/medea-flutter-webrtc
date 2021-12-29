@@ -16,19 +16,8 @@
 #include <memory>
 #include <mutex>
 
-#include "libwebrtc.h"
-#include "rtc_audio_device.h"
-#include "rtc_media_stream.h"
-#include "rtc_media_track.h"
-#include "rtc_mediaconstraints.h"
-#include "rtc_peerconnection.h"
-#include "rtc_peerconnection_factory.h"
-#include "rtc_video_device.h"
-#include "uuidxx.h"
-
 namespace flutter_webrtc_plugin {
 
-using namespace libwebrtc;
 using namespace flutter;
 
 class FlutterVideoRenderer;
@@ -119,56 +108,6 @@ class FlutterWebRTCBase {
   FlutterWebRTCBase(BinaryMessenger* messenger, TextureRegistrar* textures);
   ~FlutterWebRTCBase();
 
-  std::string GenerateUUID();
-
-  RTCPeerConnection* PeerConnectionForId(const std::string& id);
-
-  void RemovePeerConnectionForId(const std::string& id);
-
-  RTCMediaTrack* MediaTrackForId(const std::string& id);
-
-  void RemoveMediaTrackForId(const std::string& id);
-
-  FlutterPeerConnectionObserver* PeerConnectionObserversForId(
-      const std::string& id);
-
-  void RemovePeerConnectionObserversForId(const std::string& id);
-
-  scoped_refptr<RTCMediaStream> MediaStreamForId(const std::string& id);
-
-  void RemoveStreamForId(const std::string& id);
-
-  bool ParseConstraints(const EncodableMap& constraints,
-                        RTCConfiguration* configuration);
-
-  scoped_refptr<RTCMediaConstraints> ParseMediaConstraints(
-      const EncodableMap& constraints);
-
-  bool ParseRTCConfiguration(const EncodableMap& map,
-                             RTCConfiguration& configuration);
-
-  scoped_refptr<RTCMediaTrack> MediaTracksForId(const std::string& id);
-
-  void RemoveTracksForId(const std::string& id);
-
- private:
-  void ParseConstraints(const EncodableMap& src,
-                        scoped_refptr<RTCMediaConstraints> mediaConstraints,
-                        ParseConstraintType type = kMandatory);
-
-  bool CreateIceServers(const EncodableList& iceServersArray,
-                        IceServer* ice_servers);
-
- protected:
-  scoped_refptr<RTCPeerConnectionFactory> factory_;
-  scoped_refptr<RTCAudioDevice> audio_device_;
-  scoped_refptr<RTCVideoDevice> video_device_;
-  RTCConfiguration configuration_;
-
-  std::map<std::string, scoped_refptr<RTCPeerConnection>> peerconnections_;
-  std::map<std::string, scoped_refptr<RTCMediaStream>> local_streams_;
-  std::map<std::string, scoped_refptr<RTCMediaTrack>> local_tracks_;
-  std::map<std::string, scoped_refptr<RTCDataChannel>> data_channels_;
   std::map<int64_t, std::shared_ptr<FlutterVideoRenderer>> renders_;
   std::map<int, std::shared_ptr<FlutterRTCDataChannelObserver>>
       data_channel_observers_;

@@ -1,6 +1,6 @@
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
-pub(crate) mod webrtc {
+pub mod webrtc {
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -30,6 +30,8 @@ pub(crate) mod webrtc {
         type VideoTrackInterface;
         type AudioTrackInterface;
         type MediaStreamInterface;
+        type VideoFrame;
+        type VideoRenderer;
 
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform.
@@ -102,6 +104,30 @@ pub(crate) mod webrtc {
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
+
+        pub fn frame_width(frame: &UniquePtr<VideoFrame>) -> i32;
+
+        pub fn frame_height(frame: &UniquePtr<VideoFrame>) -> i32;
+
+        pub fn frame_rotation(frame: &UniquePtr<VideoFrame>) -> i32;
+
+        pub unsafe fn convert_to_argb(
+            frame: &UniquePtr<VideoFrame>,
+            buffer_size: i32,
+        ) -> Vec<u8>;
+
+        pub unsafe fn get_video_renderer(cb: unsafe fn(UniquePtr<VideoFrame>, usize), flutter_cb_ptr: usize, video_track: &UniquePtr<VideoTrackInterface>) -> UniquePtr<VideoRenderer>;
+
+        pub fn set_renderer_no_track(video_renderer: &UniquePtr<VideoRenderer>);
+
+        #[allow(clippy::missing_safety_doc)]
+        pub unsafe fn create_screen_source(
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
+            width: usize,
+            height: usize,
+            fps: usize,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
 
         pub fn test();
     }

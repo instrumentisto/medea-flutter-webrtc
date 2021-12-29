@@ -188,12 +188,95 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
   return media_stream->RemoveTrack(track.ptr());
 }
 
+int32_t frame_width(const std::unique_ptr<VideoFrame>& frame) {
+  return frame.get()->width();
+}
+
+int32_t frame_height(const std::unique_ptr<VideoFrame>& frame) {
+  return frame.get()->height();
+}
+
+int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame) {
+  return frame.get()->rotation();
+}
+
+rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
+                                   const int32_t buffer_size) {
+  auto video_frame = frame.get();
+  rust::Vec<uint8_t> image;
+  for (int i = 0; i < buffer_size; i++) {
+    image.push_back((uint8_t)0);
+  }
+
+  rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
+      video_frame->video_frame_buffer()->ToI420());
+  if (video_frame->rotation() != webrtc::kVideoRotation_0) {
+    buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame->rotation());
+  }
+
+  libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
+                     buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
+                     image.data(), video_frame->width() * 32 / 8,
+                     buffer->width(), buffer->height());
+
+  return image;
+}
+
+std::unique_ptr<VideoRenderer> get_video_renderer(
+    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
+    size_t flutter_cb_ptr,
+    const std::unique_ptr<VideoTrackInterface>& track_to_render) {
+  return std::make_unique<VideoRenderer>(cb, flutter_cb_ptr,
+                                         track_to_render.get()->ptr());
+}
+
+void set_renderer_no_track(
+    const std::unique_ptr<VideoRenderer>& video_renderer) {
+  video_renderer.get()->SetNoTrack();
+}
+
+/// Calls `CreateVideoTrackSourceProxy()`.
+std::unique_ptr<VideoTrackSourceInterface> create_screen_source(
+    Thread& worker_thread,
+    Thread& signaling_thread,
+    size_t width,
+    size_t height,
+    size_t fps) {
+  webrtc::DesktopCapturer::SourceList sourceList;
+  ScreenVideoCapturer::GetSourceList(&sourceList);
+  std::unique_ptr<ScreenVideoCapturer> capturer(
+      new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, width,
+                                                     height, fps));
+
+  return std::make_unique<VideoTrackSourceInterface>(
+      webrtc::CreateVideoTrackSourceProxy(&signaling_thread, &worker_thread,
+                                          capturer.get()));
+}
+
 void test() {
+  auto work = rtc::Thread::Create();
+  work.get()->Start();
+
+  auto signal = rtc::Thread::Create();
+  signal.get()->Start();
+
+  auto pcf = webrtc::CreatePeerConnectionFactory(
+      work.get(), work.get(), signal.get(), nullptr,
+      webrtc::CreateBuiltinAudioEncoderFactory(),
+      webrtc::CreateBuiltinAudioDecoderFactory(),
+      webrtc::CreateBuiltinVideoEncoderFactory(),
+      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
+
   webrtc::DesktopCapturer::SourceList sourceList;
   ScreenVideoCapturer::GetSourceList(&sourceList);
   std::unique_ptr<ScreenVideoCapturer> capturer(
       new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, 640, 480,
                                                      30));
+
+  pcf.get()->CreateVideoTrack(
+      "asd", webrtc::CreateVideoTrackSourceProxy(signal.get(), work.get(),
+                                                 capturer.get()));
+
   while (true) {
   }
 }

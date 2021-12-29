@@ -19,6 +19,8 @@
 #include <map>
 #include <memory>
 
+#include "flutter_video_renderer.h"
+
 #include <flutter_webrtc_native.h>
 
 using namespace flutter;
@@ -31,7 +33,8 @@ class FlutterWebRTCPlugin : public flutter::Plugin {
   virtual flutter::TextureRegistrar* textures() = 0;
 };
 
-class FlutterWebRTC {
+class FlutterWebRTC : public FlutterWebRTCBase,
+                      public FlutterVideoRendererManager {
  public:
   FlutterWebRTC(FlutterWebRTCPlugin* plugin);
   virtual ~FlutterWebRTC();

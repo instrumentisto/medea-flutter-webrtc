@@ -9,16 +9,18 @@ pub type VideoSouceId = String;
 pub type VideoTrackId = String;
 pub type AudioSourceId = String;
 pub type AudioTrackId = String;
+pub type TextureId = i64;
 
 pub struct MediaStreamNative {
     ptr: LocalMediaStream,
-    video_tracks: Vec<VideoTrackId>,
+    pub video_tracks: Vec<VideoTrackId>,
     audio_tracks: Vec<AudioTrackId>,
 }
 
 pub struct VideoTrackNative {
-    ptr: VideoTrack,
+    pub ptr: VideoTrack,
     source: Rc<VideoSourceNative>,
+    pub renderers: Vec<Rc<TextureId>>,
 }
 
 pub struct VideoSourceNative {
@@ -94,6 +96,7 @@ fn create_local_video_track(
             source: Rc::clone(
                 this.video_sources.get(&source.to_string()).unwrap(),
             ),
+            renderers: vec![],
         },
     );
 }
@@ -252,5 +255,44 @@ pub fn dispose_stream(webrtc: &mut Box<Webrtc>, id: &str) {
     for track in audio_tracks {
         let src = this.audio_tracks.remove(&track).unwrap().source;
         this.audio_sources.remove(&src);
+    }
+}
+
+pub fn get_display_media(webrtc: &mut Box<Webrtc>) -> ffi::LocalStreamInfo {
+    let stream_id = "test_stream_id";
+    let video_source_id = "test_video_source_id";
+    let video_track_id = "test_video_track_id";
+    let audio_source_id = "test_audio_source_id";
+    let audio_track_id = "test_audio_track_id";
+
+    create_local_stream(webrtc, stream_id.to_string());
+
+    webrtc.0.video_sources.insert(
+        video_source_id.to_string(),
+        Rc::new(VideoSourceNative {
+            ptr: webrtc
+                .0
+                .peer_connection_factory
+                .create_screen_source(640, 480, 30)
+                .unwrap(),
+            id: video_source_id.to_string(),
+        }),
+    );
+    create_local_video_track(
+        webrtc,
+        video_track_id.to_string(),
+        video_source_id,
+    );
+    add_video_track_to_local(webrtc, stream_id, video_track_id.to_string());
+
+    ffi::LocalStreamInfo {
+        stream_id: stream_id.to_string(),
+        video_tracks: vec![ffi::TrackInfo {
+            id: video_track_id.to_string(),
+            label: video_track_id.to_string(),
+            kind: ffi::TrackKind::Video,
+            enabled: true,
+        }],
+        audio_tracks: vec![],
     }
 }

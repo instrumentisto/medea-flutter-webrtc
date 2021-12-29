@@ -20,13 +20,6 @@ class _TestState extends State<Test> {
     super.initState();
   }
 
-  void test() async {
-    await WebRTC.invokeMethod(
-      'test',
-      null,
-    );
-  }
-
   void _upStream() async {
     final mediaConstraints = <String, dynamic>{
       'audio': true,
@@ -69,8 +62,7 @@ class _TestState extends State<Test> {
       ),
       body: Center(child: Text(text)),
       floatingActionButton: FloatingActionButton(
-        // onPressed: !on ? _upStream : _dropStream,
-        onPressed: test,
+        onPressed: !on ? _upStream : _dropStream,
         child: Icon(!on ? Icons.stream : Icons.cancel_outlined),
       ),
     );

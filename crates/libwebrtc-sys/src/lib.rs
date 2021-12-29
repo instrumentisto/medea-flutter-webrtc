@@ -6,7 +6,7 @@ mod bridge;
 use anyhow::bail;
 use cxx::UniquePtr;
 
-use self::bridge::webrtc;
+pub use self::bridge::webrtc;
 
 pub use webrtc::AudioLayer;
 
@@ -355,6 +355,31 @@ impl PeerConnectionFactory {
         }
         Ok(LocalMediaStream(ptr))
     }
+
+    pub fn create_screen_source(
+        &mut self,
+        width: usize,
+        height: usize,
+        fps: usize,
+    ) -> anyhow::Result<VideoSource> {
+        let ptr = unsafe {
+            webrtc::create_screen_source(
+                self.worker_thread.0.as_mut().unwrap(),
+                self.signaling_thread.0.as_mut().unwrap(),
+                width,
+                height,
+                fps,
+            )
+        };
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                webrtc::CreateVideoTrackSourceProxy()"
+            );
+        }
+        Ok(VideoSource(ptr))
+    }
 }
 
 /// Interface for [Video Source].
@@ -368,7 +393,7 @@ pub struct AudioSource(UniquePtr<webrtc::AudioSourceInterface>);
 /// Interface for Video [Track]
 ///
 /// [Track]: https://tinyurl.com/yc79x5s8
-pub struct VideoTrack(UniquePtr<webrtc::VideoTrackInterface>);
+pub struct VideoTrack(pub UniquePtr<webrtc::VideoTrackInterface>);
 
 /// Interface for Audio [Track]
 ///

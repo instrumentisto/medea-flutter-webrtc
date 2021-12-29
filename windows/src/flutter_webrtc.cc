@@ -12,31 +12,36 @@
 
 namespace flutter_webrtc_plugin {
 
-template <typename T>
-inline bool TypeIs(const EncodableValue val) {
-  return std::holds_alternative<T>(val);
-}
+// template <typename T>
+// inline bool TypeIs(const EncodableValue val) {
+//   return std::holds_alternative<T>(val);
+// }
 
-template <typename T>
-inline const T GetValue(EncodableValue val) {
-  return std::get<T>(val);
-}
+// template <typename T>
+// inline const T GetValue(EncodableValue val) {
+//   return std::get<T>(val);
+// }
 
-inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<EncodableMap>(it->second))
-    return GetValue<EncodableMap>(it->second);
-  return EncodableMap();
-}
+// inline EncodableMap findMap(const EncodableMap& map, const std::string& key)
+// {
+//   auto it = map.find(EncodableValue(key));
+//   if (it != map.end() && TypeIs<EncodableMap>(it->second))
+//     return GetValue<EncodableMap>(it->second);
+//   return EncodableMap();
+// }
 
-inline std::string findString(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<std::string>(it->second))
-    return GetValue<std::string>(it->second);
-  return std::string();
-}
+// inline std::string findString(const EncodableMap& map, const std::string&
+// key) {
+//   auto it = map.find(EncodableValue(key));
+//   if (it != map.end() && TypeIs<std::string>(it->second))
+//     return GetValue<std::string>(it->second);
+//   return std::string();
+// }
 
-FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
+FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
+    : FlutterWebRTCBase::FlutterWebRTCBase(plugin->messenger(),
+                                           plugin->textures()),
+      FlutterVideoRendererManager::FlutterVideoRendererManager(this) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 
@@ -177,6 +182,61 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("test") == 0) {
     testfl();
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+
+    LocalStreamInfo display_media = GetDisplayMedia(webrtc);
+
+    EncodableMap params;
+    params[EncodableValue("streamId")] =
+        EncodableValue(display_media.stream_id.c_str());
+
+    EncodableList videoTracks;
+    if (display_media.video_tracks.size() == 0) {
+      params[EncodableValue("videoTracks")] = EncodableValue(EncodableList());
+    } else {
+      for (size_t i = 0; i < display_media.video_tracks.size(); ++i) {
+        EncodableMap info;
+        info[EncodableValue("id")] =
+            EncodableValue(display_media.video_tracks[i].id.c_str());
+        info[EncodableValue("label")] =
+            EncodableValue(display_media.video_tracks[i].label.c_str());
+        info[EncodableValue("kind")] = EncodableValue(
+            display_media.video_tracks[i].kind == TrackKind::Video ? "video"
+                                                                   : "audio");
+        info[EncodableValue("enabled")] =
+            EncodableValue(display_media.video_tracks[i].enabled);
+
+        videoTracks.push_back(EncodableValue(info));
+      }
+    }
+    params[EncodableValue("videoTracks")] = EncodableValue(videoTracks);
+
+    EncodableList audioTracks;
+    // if (display_media.audio_tracks.size() == 0) {
+    params[EncodableValue("audioTracks")] = EncodableValue(EncodableList());
+    // } else {
+    //   for (size_t i = 0; i < display_media.audio_tracks.size(); ++i) {
+    //     EncodableMap info;
+    //     info[EncodableValue("id")] =
+    //         EncodableValue(display_media.audio_tracks[i].id.c_str());
+    //     info[EncodableValue("label")] =
+    //         EncodableValue(display_media.audio_tracks[i].label.c_str());
+    //     info[EncodableValue("kind")] = EncodableValue(
+    //         display_media.audio_tracks[i].kind == TrackKind::Video ? "video"
+    //                                                                :
+    //                                                                "audio");
+    //     info[EncodableValue("enabled")] =
+    //         EncodableValue(display_media.audio_tracks[i].enabled);
+
+    //     audioTracks.push_back(EncodableValue(info));
+    //   }
+    // }
+    params[EncodableValue("audioTracks")] = EncodableValue(audioTracks);
+
+    result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("mediaStreamGetTracks") == 0) {
   } else if (method_call.method_name().compare("createOffer") == 0) {
   } else if (method_call.method_name().compare("createAnswer") == 0) {
@@ -201,9 +261,29 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("peerConnectionClose") == 0) {
   } else if (method_call.method_name().compare("peerConnectionDispose") == 0) {
   } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
+    CreateVideoRendererTexture(std::move(result));
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
+    int64_t texture_id = findLongInt(params, "textureId");
+    VideoRendererDispose(webrtc, texture_id, std::move(result));
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
              0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
+    const std::string stream_id = findString(params, "streamId");
+    int64_t texture_id = findLongInt(params, "textureId");
+    SetMediaStream(webrtc, texture_id, stream_id);
+    result->Success();
   } else if (method_call.method_name().compare("setVolume") == 0) {
   } else if (method_call.method_name().compare("getLocalDescription") == 0) {
   } else if (method_call.method_name().compare("getRemoteDescription") == 0) {

@@ -4,18 +4,24 @@ use std::{collections::HashMap, rc::Rc};
 use libwebrtc_sys::{
     AudioDeviceModule, AudioLayer, AudioSource, AudioTrack, LocalMediaStream,
     PeerConnectionFactory, TaskQueueFactory, VideoDeviceInfo, VideoSource,
-    VideoTrack,
+    VideoTrack, *,
 };
 
 mod user_media;
 use user_media::{
-    dispose_stream, get_users_media, AudioSourceId, AudioTrackId,
-    AudioTrackNative, MediaStreamNative, StreamId, VideoSouceId,
-    VideoSourceNative, VideoTrackId, VideoTrackNative,
+    dispose_stream, get_display_media, get_users_media, AudioSourceId,
+    AudioTrackId, AudioTrackNative, MediaStreamNative, StreamId, TextureId,
+    VideoSouceId, VideoSourceNative, VideoTrackId, VideoTrackNative,
 };
 
 mod device_info;
 use device_info::enumerate_devices;
+
+mod frame;
+use frame::*;
+
+mod renderer;
+use renderer::*;
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
@@ -83,8 +89,16 @@ pub mod ffi {
         pub label: String,
     }
 
+    enum VideoRotation {
+        kVideoRotation_0 = 0,
+        kVideoRotation_90 = 90,
+        kVideoRotation_180 = 180,
+        kVideoRotation_270 = 270,
+    }
+
     extern "Rust" {
         type Webrtc;
+        type Frame;
 
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
@@ -109,6 +123,17 @@ pub mod ffi {
         #[cxx_name = "DisposeStream"]
         fn dispose_stream(webrtc: &mut Box<Webrtc>, id: &str);
 
+        #[cxx_name = "GetDisplayMedia"]
+        fn get_display_media(webrtc: &mut Box<Webrtc>) -> LocalStreamInfo;
+
+        fn width(self: &Frame) -> i32;
+        fn height(self: &Frame) -> i32;
+        fn rotation(self: &Frame) -> VideoRotation;
+        fn buffer_size(self: &Frame) -> i32;
+        unsafe fn buffer(self: &Frame) -> Vec<u8>;
+        unsafe fn delete_frame(frame_ptr: *mut Frame);
+        fn dispose_renderer(webrtc: &mut Box<Webrtc>, texture_id: i64);
+
         fn testfl();
     }
 }
@@ -124,6 +149,7 @@ pub struct Inner {
     audio_sources: HashMap<AudioSourceId, AudioSource>,
     audio_tracks: HashMap<AudioTrackId, AudioTrackNative>,
     local_media_streams: HashMap<StreamId, MediaStreamNative>,
+    renderers: HashMap<TextureId, Renderer>,
 }
 
 /// Wraps the [`Inner`] instanse.
@@ -149,6 +175,7 @@ pub fn init() -> Box<Webrtc> {
         audio_sources: HashMap::new(),
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
+        renderers: HashMap::new(),
     })))
 }
 

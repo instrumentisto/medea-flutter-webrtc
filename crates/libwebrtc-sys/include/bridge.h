@@ -12,6 +12,7 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
+#include "custom_video_renderer.h"
 #include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
@@ -63,6 +64,7 @@ using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
 using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
 using AudioTrackInterface = rc<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = rc<webrtc::MediaStreamInterface>;
+using VideoFrame = webrtc::VideoFrame;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -151,6 +153,30 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 /// Removes the audio track from media stream.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
+
+int32_t frame_width(const std::unique_ptr<VideoFrame>& frame);
+
+int32_t frame_height(const std::unique_ptr<VideoFrame>& frame);
+
+int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame);
+
+rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
+                                   int32_t buffer_size);
+
+std::unique_ptr<VideoRenderer> get_video_renderer(
+    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
+    size_t flutter_cb_ptr,
+    const std::unique_ptr<VideoTrackInterface>& track_to_render);
+
+void set_renderer_no_track(
+    const std::unique_ptr<VideoRenderer>& video_renderer);
+
+std::unique_ptr<VideoTrackSourceInterface> create_screen_source(
+    Thread& worker_thread,
+    Thread& signaling_thread,
+    size_t width,
+    size_t height,
+    size_t fps);
 
 void test();
 }  // namespace bridge
