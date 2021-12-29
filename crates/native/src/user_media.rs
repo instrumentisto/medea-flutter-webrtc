@@ -4,7 +4,7 @@ use libwebrtc_sys as sys;
 
 use crate::{api, Webrtc};
 
-// TODO: use new-types
+// TODO: use new-types, dont hardcode IDs
 pub type MediaStreamId = u64;
 pub type VideoSourceId = u64;
 pub type AudioSourceId = u64;
@@ -18,11 +18,36 @@ pub struct MediaStream {
     audio_tracks: Vec<AudioTrackId>,
 }
 
+impl MediaStream {
+    fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: 0,
+            inner: pc.create_local_media_stream()?,
+            video_tracks: Vec::new(),
+            audio_tracks: Vec::new(),
+        })
+    }
+}
+
 pub struct VideoTrack {
     id: VideoTrackId,
     inner: sys::VideoTrack,
-    source: Rc<VideoSource>,
+    src: Rc<VideoSource>,
     kind: api::TrackKind,
+}
+
+impl VideoTrack {
+    fn new(
+        pc: &sys::PeerConnectionFactory,
+        src: Rc<VideoSource>,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: 0,
+            inner: pc.create_video_track(&src.inner)?,
+            src,
+            kind: api::TrackKind::kVideo,
+        })
+    }
 }
 
 pub struct VideoSource {
@@ -30,16 +55,55 @@ pub struct VideoSource {
     inner: sys::VideoSource,
 }
 
+impl VideoSource {
+    fn new(
+        pc: &mut sys::PeerConnectionFactory,
+        caps: &api::VideoConstraints,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: 0,
+            inner: pc.create_video_source(
+                caps.min_width,
+                caps.min_height,
+                caps.min_width,
+            )?,
+        })
+    }
+}
+
 pub struct AudioTrack {
     id: AudioTrackId,
     inner: sys::AudioTrack,
-    source: AudioSourceId,
+    src: AudioSourceId,
     kind: api::TrackKind,
+}
+
+impl AudioTrack {
+    fn new(
+        pc: &sys::PeerConnectionFactory,
+        src: AudioSourceId,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: 0,
+            inner: pc.create_audio_track(&source.inner)?,
+            src,
+            kind: api::TrackKind::kAudio,
+        })
+    }
 }
 
 pub struct AudioSource {
     id: AudioSourceId,
     inner: sys::AudioSource,
+}
+
+impl AudioSource {
+    fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: 0,
+            inner: pc.create_audio_source()?,
+        })
+    }
 }
 
 impl Webrtc {
@@ -54,32 +118,71 @@ impl Webrtc {
         constraints: &api::MediaStreamConstraints,
     ) -> api::MediaStream {
         // TODO: dont hardcode id's
-        let mut stream = self.create_local_stream();
+        let mut stream = {
+            let stream =
+                MediaStream::new(&self.0.peer_connection_factory).unwrap();
+
+            self.0
+                .local_media_streams
+                .entry(stream.id)
+                .or_insert(stream)
+        };
+
         let mut result = api::MediaStream {
             stream_id,
-            video_tracks: vec![],
-            audio_tracks: vec![],
+            video_tracks: Vec::new(),
+            audio_tracks: Vec::new(),
         };
 
         {
             // TODO: if let Some(constraints) = constraints.video
-            let video_source = self.create_video_source(&constraints.video);
-            let video_track =
-                self.create_local_video_track(Rc::clone(&video_source));
-            self.add_video_track_to_stream(&mut stream, video_track);
+            let source = {
+                let source = Rc::new(
+                    VideoSource::new(
+                        &mut self.0.peer_connection_factory,
+                        &constraints.video,
+                    )
+                    .unwrap(),
+                );
+                self.0.video_sources.insert(source.id, Rc::clone(&source));
+                source
+            };
+            let track = {
+                let track =
+                    VideoTrack::new(&self.0.peer_connection_factory, source)
+                        .unwrap();
+
+                self.0.video_tracks.entry(track.id).or_insert(track)
+            };
+            stream.inner.add_video_track(&track.inner).unwrap();
+            stream.video_tracks.push(track.id);
 
             result.video_tracks.push(api::MediaStreamTrack {
-                id: video_track.id,
-                label: video_track.id.to_string(), // TODO: source device label
+                id: track.id,
+                label: track.id.to_string(), // TODO: source device label
                 kind: api::TrackKind::kVideo,
                 enabled: true,
             });
         }
 
         if constraints.audio {
-            let source = self.create_audio_source();
-            let track = self.create_local_audio_track(source);
-            self.add_audio_track_to_stream(&mut stream, track);
+            let source = {
+                let source =
+                    AudioSource::new(&self.0.peer_connection_factory).unwrap();
+
+                self.0.audio_sources.entry(source.id).or_insert(source)
+            };
+            let track = {
+                let track =
+                    AudioTrack::new(&self.0.peer_connection_factory, source.id)
+                        .unwrap();
+
+                self.0.audio_tracks.entry(track.id).or_insert(track)
+            };
+
+            stream.inner.add_audio_track(&track.inner).unwrap();
+            stream.audio_tracks.push(track.id);
+
             result.audio_tracks.push(api::MediaStreamTrack {
                 id: track.id,
                 label: track.id.to_string(), // TODO: source device label
@@ -100,7 +203,7 @@ impl Webrtc {
             let audio_tracks = stream.audio_tracks;
 
             for track in video_tracks {
-                let src = self.0.video_tracks.remove(&track).unwrap().source;
+                let src = self.0.video_tracks.remove(&track).unwrap().src;
 
                 if Rc::strong_count(&src) == 2 {
                     self.0.video_sources.remove(&src.id);
@@ -110,121 +213,9 @@ impl Webrtc {
             for track in audio_tracks {
                 // TODO: are we sure that single audio source cannot source
                 //       multiple audio tracks?
-                let src = self.0.audio_tracks.remove(&track).unwrap().source;
+                let src = self.0.audio_tracks.remove(&track).unwrap().src;
                 self.0.audio_sources.remove(&src);
             }
         }
-    }
-
-    /// Creates a new Local Media Stream.
-    fn create_local_stream(&mut self) -> &mut MediaStream {
-        let id = 0;
-        let inner = self
-            .0
-            .peer_connection_factory
-            .create_local_media_stream()
-            .unwrap();
-        let stream = MediaStream {
-            id,
-            inner,
-            video_tracks: vec![],
-            audio_tracks: vec![],
-        };
-
-        self.0.local_media_streams.entry(id).or_insert(stream)
-    }
-
-    /// Creates a new local Video Source.
-    fn create_video_source(
-        &mut self,
-        constraints: &api::VideoConstraints,
-    ) -> &Rc<VideoSource> {
-        let id = 0;
-        let inner = self
-            .0
-            .peer_connection_factory
-            .create_video_source(
-                constraints.min_width,
-                constraints.min_height,
-                constraints.min_width,
-            )
-            .unwrap();
-        let source = VideoSource { id, inner };
-
-        self.0.video_sources.entry(id).or_insert(Rc::new(source))
-    }
-
-    fn create_audio_source(&mut self) -> &AudioSource {
-        let id = 0;
-        let inner = self
-            .0
-            .peer_connection_factory
-            .create_audio_source()
-            .unwrap();
-
-        let source = AudioSource { id, inner };
-
-        self.0.audio_sources.entry(id).or_insert(source)
-    }
-
-    /// Creates a new local Video Track.
-    fn create_local_video_track(
-        &mut self,
-        source: Rc<VideoSource>,
-    ) -> &VideoTrack {
-        let id = 0;
-        let inner = self
-            .0
-            .peer_connection_factory
-            .create_video_track(&source.inner)
-            .unwrap();
-        let track = VideoTrack {
-            id,
-            inner,
-            source,
-            kind: api::TrackKind::kVideo,
-        };
-
-        self.0.video_tracks.entry(id).or_insert(track)
-    }
-
-    /// Creates a new local Audio Track.
-    fn create_local_audio_track(
-        &mut self,
-        source: &AudioSource,
-    ) -> &AudioTrack {
-        let id = 0;
-        let track = AudioTrack {
-            id,
-            inner: self
-                .0
-                .peer_connection_factory
-                .create_audio_track(&source.inner)
-                .unwrap(),
-            source: source.id,
-            kind: api::TrackKind::kAudio,
-        };
-
-        self.0.audio_tracks.entry(id).or_insert(track)
-    }
-
-    /// Adds the video track to the Local Media Stream.
-    fn add_video_track_to_stream(
-        &mut self,
-        stream: &mut MediaStream,
-        track: &VideoTrack,
-    ) {
-        stream.inner.add_video_track(&track.inner).unwrap();
-        stream.video_tracks.push(track.id);
-    }
-
-    /// Adds the audio track to the Local Media Stream.
-    fn add_audio_track_to_stream(
-        &mut self,
-        stream: &mut MediaStream,
-        track: &AudioTrack,
-    ) {
-        stream.inner.add_audio_track(&track.inner).unwrap();
-        stream.audio_tracks.push(track.id);
     }
 }
