@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 
+#include "libwebrtc-sys/include/peer_connection_observer.h"
 #include "api/create_peerconnection_factory.h"
 #include "api/peer_connection_interface.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
@@ -75,6 +76,7 @@ using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using AudioFrameProcessor = webrtc::AudioFrameProcessor;
 using RTCErrorOr = webrtc::RTCErrorOr<PeerConnectionInterface>;
 using RTCError = webrtc::RTCError;
+using MyObserver = my_stuff::MyObserver;
 
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -167,5 +169,12 @@ std::unique_ptr<RTCError> move_error(RTCErrorOr& rtc_error_or);
 
 /// Get PeerConnectionInterface from RTCErrorOr.      
 std::unique_ptr<PeerConnectionInterface> move_value(RTCErrorOr& rtc_error_or);
+
+/// Create MyObserver.   
+std::unique_ptr<MyObserver> create_my_observer();
+
+/// Create PeerConnectionDependencies.      
+std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
+  std::unique_ptr<MyObserver> observer);
 
 }

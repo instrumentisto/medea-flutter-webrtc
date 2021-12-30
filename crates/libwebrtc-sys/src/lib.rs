@@ -241,4 +241,62 @@ mod test {
     fn create_default_rtc() {
         let rtc_config = create_default_rtc_configuration();
     }
+
+    #[test]
+    fn create_myobserver() {
+        let obs = create_my_observer();
+    }
+
+    #[test]
+    fn create_peer_connection_dependencies_test() {
+        let obs = create_my_observer();
+        let pcd = create_peer_connection_dependencies(obs);
+    }
+
+    #[test]
+    fn create_peer_connection_or_error_test() {
+        let mut thread = create_thread();
+        start_thread(thread.pin_mut());
+        let thread = thread.into_raw();
+
+        let ve = create_builtin_video_encoder_factory();
+        let vd = create_builtin_video_decoder_factory();
+        let mut ae = create_builtin_audio_encoder_factory();
+        let mut ad = create_builtin_audio_decoder_factory();
+
+        let afp = create_audio_frame_processor_null();
+        let default_adm = create_audio_device_module_null();
+        let am = create_audio_mixer_null();
+        let ap = create_audio_processing_null();
+
+        let mut pcf = unsafe {
+            create_peer_connection_factory(
+                thread.clone(),
+                thread.clone(),
+                thread,
+                default_adm.into_raw(),
+                ae.pin_mut(),
+                ad.pin_mut(),
+                ve,
+                vd,
+                am.into_raw(),
+                ap.into_raw(),
+                afp.into_raw(),
+            )
+        };
+
+        let obs = create_my_observer();
+        let pcd = create_peer_connection_dependencies(obs);
+        let rtc_config = create_default_rtc_configuration();
+
+        pcf.pin_mut();
+
+        let pc = {
+            create_peer_connection_or_error(
+                pcf.pin_mut(),
+                &rtc_config,
+                pcd
+            )
+        };
+    }
 }
