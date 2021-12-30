@@ -116,12 +116,11 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// TODO: Don't panic
+    /// TODO: Don't panic.
     pub fn get_users_media(
         self: &mut Webrtc,
         constraints: &api::MediaStreamConstraints,
     ) -> api::MediaStream {
-        // TODO: dont hardcode id's
         let stream = {
             let stream =
                 MediaStream::new(&self.0.peer_connection_factory).unwrap();
@@ -141,6 +140,7 @@ impl Webrtc {
         {
             // TODO: if let Some(constraints) = constraints.video
             let source = {
+                // TODO: reuse existing video source?
                 let source = Rc::new(
                     VideoSource::new(
                         &mut self.0.peer_connection_factory,
@@ -171,6 +171,7 @@ impl Webrtc {
 
         if constraints.audio {
             let source = {
+                // TODO: reuse existing audio source?
                 let source =
                     AudioSource::new(&self.0.peer_connection_factory).unwrap();
 
