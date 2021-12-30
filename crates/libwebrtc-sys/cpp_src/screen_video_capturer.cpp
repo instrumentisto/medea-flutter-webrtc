@@ -125,6 +125,7 @@ bool ScreenVideoCapturer::CaptureProcess() {
 void ScreenVideoCapturer::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
     std::unique_ptr<webrtc::DesktopFrame> frame) {
+  printf("onframe\n");
   bool success = result == webrtc::DesktopCapturer::Result::SUCCESS;
 
   if (!success) {

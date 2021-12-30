@@ -60,7 +60,8 @@ class _GetDisplayMediaTestState extends State<GetDisplayMediaTest> {
       };
 
       _localStream = stream;
-      _localRenderer.srcObject = _localStream;
+      print(stream.getVideoTracks()[0].kind);
+      // _localRenderer.srcObject = _localStream;
     } catch (e) {
       print(e.toString());
     }

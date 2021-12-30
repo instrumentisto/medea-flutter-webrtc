@@ -24,8 +24,8 @@ pub struct VideoTrackNative {
 }
 
 pub struct VideoSourceNative {
-    ptr: VideoSource,
-    id: VideoSouceId,
+    pub(crate) ptr: VideoSource,
+    pub(crate) id: VideoSouceId,
 }
 
 pub struct AudioTrackNative {
@@ -262,11 +262,8 @@ pub fn get_display_media(webrtc: &mut Box<Webrtc>) -> ffi::LocalStreamInfo {
     let stream_id = "test_stream_id";
     let video_source_id = "test_video_source_id";
     let video_track_id = "test_video_track_id";
-    let audio_source_id = "test_audio_source_id";
-    let audio_track_id = "test_audio_track_id";
 
     create_local_stream(webrtc, stream_id.to_string());
-
     webrtc.0.video_sources.insert(
         video_source_id.to_string(),
         Rc::new(VideoSourceNative {

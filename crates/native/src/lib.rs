@@ -1,10 +1,11 @@
 #![warn(clippy::pedantic)]
 use std::{collections::HashMap, rc::Rc};
 
+use cxx::UniquePtr;
 use libwebrtc_sys::{
-    AudioDeviceModule, AudioLayer, AudioSource, AudioTrack, LocalMediaStream,
-    PeerConnectionFactory, TaskQueueFactory, VideoDeviceInfo, VideoSource,
-    VideoTrack, *,
+    webrtc::VideoFrame, AudioDeviceModule, AudioLayer, AudioSource, AudioTrack,
+    LocalMediaStream, PeerConnectionFactory, TaskQueueFactory, VideoDeviceInfo,
+    VideoSource, VideoTrack, *,
 };
 
 mod user_media;
@@ -180,5 +181,36 @@ pub fn init() -> Box<Webrtc> {
 }
 
 pub fn testfl() {
-    libwebrtc_sys::testasd();
+    // libwebrtc_sys::testasd();
+}
+
+fn cb(frame: UniquePtr<VideoFrame>, cbf: usize) {
+    0;
+}
+
+#[cfg(test)]
+mod test {
+
+    use libwebrtc_sys::webrtc;
+
+    use crate::{cb, init};
+
+    #[test]
+    fn testik() {
+        let mut webrtc = init();
+        let ptr = webrtc
+            .0
+            .peer_connection_factory
+            .create_screen_source(640, 480, 30)
+            .unwrap();
+
+        let track_ptr = webrtc
+            .0
+            .peer_connection_factory
+            .create_video_track(&ptr)
+            .unwrap();
+        let a = unsafe { webrtc::get_video_renderer(cb, 0, &track_ptr.0) };
+        loop {}
+        assert!(true);
+    }
 }

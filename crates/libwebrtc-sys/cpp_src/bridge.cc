@@ -222,6 +222,7 @@ rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
   return image;
 }
 
+/// testasd
 std::unique_ptr<VideoRenderer> get_video_renderer(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
@@ -244,13 +245,13 @@ std::unique_ptr<VideoTrackSourceInterface> create_screen_source(
     size_t fps) {
   webrtc::DesktopCapturer::SourceList sourceList;
   ScreenVideoCapturer::GetSourceList(&sourceList);
-  std::unique_ptr<ScreenVideoCapturer> capturer(
+  rtc::scoped_refptr<ScreenVideoCapturer> capturer(
       new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, width,
                                                      height, fps));
 
   return std::make_unique<VideoTrackSourceInterface>(
       webrtc::CreateVideoTrackSourceProxy(&signaling_thread, &worker_thread,
-                                          capturer.get()));
+                                          capturer));
 }
 
 void test() {
@@ -273,12 +274,12 @@ void test() {
       new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, 640, 480,
                                                      30));
 
-  pcf.get()->CreateVideoTrack(
+  auto asd = pcf.get()->CreateVideoTrack(
       "asd", webrtc::CreateVideoTrackSourceProxy(signal.get(), work.get(),
                                                  capturer.get()));
 
-  while (true) {
-  }
+  // while (true) {
+  // }
 }
 
 }  // namespace bridge

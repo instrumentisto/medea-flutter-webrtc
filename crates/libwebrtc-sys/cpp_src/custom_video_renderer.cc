@@ -15,11 +15,9 @@ namespace bridge {
 VideoRenderer::VideoRenderer(
     rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
-    webrtc::VideoTrackInterface* track_to_render)
-    : cb_(cb),
-      flutter_cb_ptr_(flutter_cb_ptr),
-      rendered_track_(track_to_render) {
-  rendered_track_->AddOrUpdateSink(this, rtc::VideoSinkWants());
+    webrtc::VideoTrackInterface* track_to_render) {
+  printf("created rend\n");
+  // rendered_track_->AddOrUpdateSink(this, rtc::VideoSinkWants());
 }
 
 VideoRenderer::~VideoRenderer() {
@@ -33,7 +31,8 @@ void VideoRenderer::SetNoTrack() {
 }
 
 void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
-  cb_(std::make_unique<webrtc::VideoFrame>(video_frame), flutter_cb_ptr_);
+  // cb_(std::make_unique<webrtc::VideoFrame>(video_frame), flutter_cb_ptr_);
+  printf("on frame renderer\n");
 }
 
 }  // namespace bridge

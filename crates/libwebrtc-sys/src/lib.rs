@@ -222,7 +222,7 @@ impl Thread {
 ///
 /// [Peer Connection Factory]: https://tinyurl.com/44wywepd
 pub struct PeerConnectionFactory {
-    pointer: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+    pub pointer: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
     worker_thread: Thread,
     signaling_thread: Thread,
 }
@@ -459,17 +459,17 @@ impl LocalMediaStream {
     }
 }
 
-pub fn testasd() -> bool {
-    webrtc::test();
-    true
-}
+// pub fn testasd() -> bool {
+//     webrtc::test();
+//     true
+// }
 
-#[cfg(test)]
-mod test {
-    use super::testasd;
+// #[cfg(test)]
+// mod test {
+//     use super::testasd;
 
-    #[test]
-    fn it_works() {
-        assert!(testasd())
-    }
-}
+//     #[test]
+//     fn it_works() {
+//         assert!(testasd())
+//     }
+// }
