@@ -1,4 +1,5 @@
 #[allow(clippy::expl_impl_clone_on_copy)]
+use std::os::raw::c_char;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
     /// Possible kinds of audio devices implementation.
@@ -105,6 +106,7 @@ pub(crate) mod webrtc {
         type AudioProcessing;
         type AudioFrameProcessor;
         type RTCErrorOr;
+        type RTCError;
         type PeerConnectionDependencies;
         type RTCConfiguration;
 
@@ -152,10 +154,20 @@ pub(crate) mod webrtc {
             audio_frame_processor: *mut AudioFrameProcessor,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
 
+        pub fn create_default_rtc_configuration() -> UniquePtr<RTCConfiguration>;
+
         pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
             configuration: Pin<&RTCConfiguration>,
             dependencies: UniquePtr<PeerConnectionDependencies>,
         ) -> UniquePtr<RTCErrorOr>;
+
+        #[namespace = "webrtc"]
+        #[cxx_name = "ok"]
+        pub fn rtc_error_or_is_ok(self: Pin<&RTCErrorOr>) -> bool;
+
+        #[namespace = "webrtc"]
+        #[cxx_name = "message"]
+        pub fn rtc_error_message(self: Pin<&RTCError>) -> *const c_char;
     }
 }

@@ -221,7 +221,7 @@ mod test {
         let ap = create_audio_processing_null();
 
         let pcf = unsafe {
-            create_peer_connection_factory_null(
+            create_peer_connection_factory(
                 thread.clone(),
                 thread.clone(),
                 thread,
@@ -235,5 +235,10 @@ mod test {
                 afp.into_raw(),
             )
         };
+    }
+
+    #[test]
+    fn create_default_rtc() {
+        let rtc_config = create_default_rtc_configuration();
     }
 }

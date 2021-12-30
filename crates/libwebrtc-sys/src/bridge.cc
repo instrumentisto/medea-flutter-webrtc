@@ -178,8 +178,25 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
 std::unique_ptr<RTCErrorOr> create_peer_connection_or_error(
       PeerConnectionFactoryInterface& peer_connection_factory,
       const RTCConfiguration& configuration,
-      PeerConnectionDependencies dependencies) {
-        RTCErrorOr peer_connection = peer_connection_factory->CreatePeerConnection(configuration, std::move(dependencies));
-        return std::make_unique<RTCErrorOr>(peer_connection);
+      std::unique_ptr<PeerConnectionDependencies> dependencies) {
+        RTCErrorOr peer_connection = 
+          peer_connection_factory->CreatePeerConnection(configuration, std::move(*dependencies));
+        return std::make_unique<RTCErrorOr>(std::move(peer_connection));
       }
+
+/// Creates default RTCConfiguration.      
+std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
+  RTCConfiguration config;
+  return std::make_unique<RTCConfiguration>(config);
+}
+
+/// Get error from RTCErrorOr.      
+std::unique_ptr<RTCError> move_error(RTCErrorOr& rtc_error_or) {
+  return std::make_unique<RTCError>(rtc_error_or.MoveError());
+}
+
+/// Get PeerConnectionInterface from RTCErrorOr.      
+std::unique_ptr<PeerConnectionInterface> move_value(RTCErrorOr& rtc_error_or) {
+  return std::make_unique<PeerConnectionInterface>(rtc_error_or.MoveValue());
+}
 }
