@@ -184,6 +184,7 @@ impl VideoDeviceInfo {
 #[cfg(test)]
 mod test {
     use crate::bridge::webrtc::*;
+    use cxx::UniquePtr;
     use std::ffi::CStr;
 
     #[test]
@@ -207,35 +208,7 @@ mod test {
 
     #[test]
     fn create_peer_connection_factory_test() {
-        let mut thread = create_thread();
-        start_thread(thread.pin_mut());
-        let thread = thread.into_raw();
-
-        let ve = create_builtin_video_encoder_factory();
-        let vd = create_builtin_video_decoder_factory();
-        let mut ae = create_builtin_audio_encoder_factory();
-        let mut ad = create_builtin_audio_decoder_factory();
-
-        let afp = create_audio_frame_processor_null();
-        let default_adm = create_audio_device_module_null();
-        let am = create_audio_mixer_null();
-        let ap = create_audio_processing_null();
-
-        let pcf = unsafe {
-            create_peer_connection_factory(
-                thread.clone(),
-                thread.clone(),
-                thread,
-                default_adm.into_raw(),
-                ae.pin_mut(),
-                ad.pin_mut(),
-                ve,
-                vd,
-                am.into_raw(),
-                ap.into_raw(),
-                afp.into_raw(),
-            )
-        };
+        pcf();
     }
 
     #[test]
@@ -254,8 +227,7 @@ mod test {
         let pcd = create_peer_connection_dependencies(obs);
     }
 
-    //#[test]
-    fn create_peer_connection_or_error_test() {
+    fn pcf() -> UniquePtr<PeerConnectionFactoryInterface> {
         let mut thread = create_thread();
         start_thread(thread.pin_mut());
         let thread = thread.into_raw();
@@ -285,74 +257,61 @@ mod test {
                 afp.into_raw(),
             )
         };
+        pcf
+    }
 
+    fn pcoe() -> UniquePtr<RTCErrorOr> {
+        let mut pcf = pcf();
         let obs = create_my_observer();
         let pcd = create_peer_connection_dependencies(obs);
         let rtc_config = create_default_rtc_configuration();
 
-        pcf.pin_mut();
-
         let mut pc = {
-            create_peer_connection_or_error(
-                pcf.pin_mut(),
-                &rtc_config,
-                pcd
-            )
+            create_peer_connection_or_error(pcf.pin_mut(), &rtc_config, pcd)
         };
-
-        assert!(rtc_error_or_is_ok(pc.pin_mut()));
+        pc
     }
 
     #[test]
+    fn create_peer_connection_or_error_test() {
+        let mut pc = pcoe();
+        assert!(rtc_error_or_is_ok(pc.pin_mut()));
+    }
+
+    //#[test]
     fn create_peer_connection_error_test() {
-        let mut thread = create_thread();
-        start_thread(thread.pin_mut());
-        let thread = thread.into_raw();
-
-        let ve = create_builtin_video_encoder_factory();
-        let vd = create_builtin_video_decoder_factory();
-        let mut ae = create_builtin_audio_encoder_factory();
-        let mut ad = create_builtin_audio_decoder_factory();
-
-        let afp = create_audio_frame_processor_null();
-        let default_adm = create_audio_device_module_null();
-        let am = create_audio_mixer_null();
-        let ap = create_audio_processing_null();
-
-        let mut pcf = unsafe {
-            create_peer_connection_factory(
-                thread.clone(),
-                thread.clone(),
-                thread,
-                default_adm.into_raw(),
-                ae.pin_mut(),
-                ad.pin_mut(),
-                ve,
-                vd,
-                am.into_raw(),
-                ap.into_raw(),
-                afp.into_raw(),
-            )
-        };
-
-        let obs = create_my_observer();
-        let pcd = create_peer_connection_dependencies(obs);
-        let rtc_config = create_default_rtc_configuration();
-
-        pcf.pin_mut();
-
-        let mut pc = {
-            create_peer_connection_or_error(
-                pcf.pin_mut(),
-                &rtc_config,
-                pcd
-            )
-        };
+        let mut pc = pcoe();
 
         let mut err = move_error(pc.pin_mut());
         let message = rtc_error_or_message(err.pin_mut());
-        let cstr = unsafe {CStr::from_ptr(message)};
+        let cstr = unsafe { CStr::from_ptr(message) };
 
         println!("{:?}", cstr);
+    }
+
+    fn pc() -> UniquePtr<PeerConnectionInterface> {
+        let mut pc = pcoe();
+        move_value(pc.pin_mut())
+    }
+
+    #[test]
+    fn get_peer_connection_test() {
+        pc();
+    }
+
+    #[test]
+    fn create_offer_test() {
+        let options = create_default_rtc_offer_answer_options();
+        let mut pc = pc();
+
+        unsafe { create_offer(pc.into_raw(), &options) };
+    }
+
+    #[test]
+    fn create_answer_test() {
+        let options = create_default_rtc_offer_answer_options();
+        let mut pc = pc();
+
+        unsafe { create_answer(pc.into_raw(), &options) };
     }
 }

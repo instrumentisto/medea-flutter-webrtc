@@ -110,6 +110,10 @@ pub(crate) mod webrtc {
         type PeerConnectionDependencies;
         type RTCConfiguration;
         type MyObserver;
+        type PeerConnectionInterface;
+        type CreateSessionDescriptionObserver;
+        type RTCOfferAnswerOptions;
+        type SessionDescriptionInterface;
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
@@ -171,8 +175,40 @@ pub(crate) mod webrtc {
 
         pub fn rtc_error_or_is_ok(rtc: Pin<&mut RTCErrorOr>) -> bool;
 
-        pub fn move_error(rtc_error_or: Pin<&mut RTCErrorOr>) -> UniquePtr<RTCError>;
+        pub fn move_error(
+            rtc_error_or: Pin<&mut RTCErrorOr>,
+        ) -> UniquePtr<RTCError>;
 
-        pub fn rtc_error_or_message(rtc_error: Pin<&mut RTCError>) -> *const c_char;
+        pub fn rtc_error_or_message(
+            rtc_error: Pin<&mut RTCError>,
+        ) -> *const c_char;
+
+        pub fn move_value(
+            rtc: Pin<&mut RTCErrorOr>,
+        ) -> UniquePtr<PeerConnectionInterface>;
+
+        pub fn create_default_rtc_offer_answer_options(
+        ) -> UniquePtr<RTCOfferAnswerOptions>;
+
+        pub unsafe fn create_offer(
+            peer_connection_interface: *mut PeerConnectionInterface,
+            options: &RTCOfferAnswerOptions,
+        );
+
+        pub unsafe fn create_answer(
+            peer_connection_interface: *mut PeerConnectionInterface,
+            options: &RTCOfferAnswerOptions,
+        );
+
+        /*pub fn set_local_description(
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            desc: UniquePtr<SessionDescriptionInterface>,
+        );
+
+        pub fn set_remote_description(
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            desc: UniquePtr<SessionDescriptionInterface>,
+        );*/
+
     }
 }

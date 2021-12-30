@@ -81,6 +81,7 @@ using CreateSessionDescriptionObserver = webrtc::CreateSessionDescriptionObserve
 using RTCOfferAnswerOptions = webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
 using SetLocalDescriptionObserverInterface = rc<webrtc::SetLocalDescriptionObserverInterface>;
+using SetRemoteDescriptionObserverInterface = rc<webrtc::SetRemoteDescriptionObserverInterface>;
 
 
 
@@ -187,4 +188,23 @@ bool rtc_error_or_is_ok(RTCErrorOr& rtc);
 
 /// Get RTCError message. 
 const char* rtc_error_or_message(RTCError& rtc);
+
+/// Create RTCOfferAnswerOptions
+std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
+
+/// Call CreateOffer
+void create_offer(PeerConnectionInterface* peer_connection_interface,
+  const RTCOfferAnswerOptions& options);
+
+/// Call CreateAnswer
+void create_answer(PeerConnectionInterface* peer_connection_interface,
+  const RTCOfferAnswerOptions& options);
+
+/// Call setLocalDescription
+void set_local_description(PeerConnectionInterface& peer_connection_interface,
+      std::unique_ptr<SessionDescriptionInterface> desc);
+
+/// Call setRemoteDescription
+void set_remote_description(PeerConnectionInterface& peer_connection_interface,
+      std::unique_ptr<SessionDescriptionInterface> desc);
 }

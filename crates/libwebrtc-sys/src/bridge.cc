@@ -198,7 +198,7 @@ std::unique_ptr<RTCError> move_error(RTCErrorOr& rtc_error_or) {
 
 /// Get PeerConnectionInterface from RTCErrorOr.      
 std::unique_ptr<PeerConnectionInterface> move_value(RTCErrorOr& rtc_error_or) {
-  return std::make_unique<PeerConnectionInterface>(rtc_error_or.MoveValue());
+  return std::make_unique<PeerConnectionInterface>(std::move(rtc_error_or.MoveValue()));
 }
 
 /// Create MyObserver.   
@@ -223,4 +223,34 @@ bool rtc_error_or_is_ok(RTCErrorOr& rtc) {
 const char* rtc_error_or_message(RTCError& rtc) {
   return rtc.message();
 }
+
+
+/// Create RTCOfferAnswerOptions
+std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options() {
+  return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions());
+}
+
+/// Call CreateOffer
+void create_offer(PeerConnectionInterface* peer_connection_interface,
+  const RTCOfferAnswerOptions& options) {
+    peer_connection_interface->ptr()->CreateOffer(nullptr, options);
+  }
+
+/// Call CreateAnswer
+void create_answer(PeerConnectionInterface* peer_connection_interface,
+  const RTCOfferAnswerOptions& options) {
+  peer_connection_interface->ptr()->CreateAnswer(nullptr, options);
+}
+
+/// Call setLocalDescription
+void set_local_description(PeerConnectionInterface& peer_connection_interface,
+  std::unique_ptr<SessionDescriptionInterface> desc) {
+    peer_connection_interface.ptr()->SetLocalDescription(nullptr, desc.get());
+  }
+
+/// Call setRemoteDescription
+void set_remote_description(PeerConnectionInterface& peer_connection_interface,
+  std::unique_ptr<SessionDescriptionInterface> desc) {
+    peer_connection_interface.ptr()->SetRemoteDescription(nullptr, desc.get());
+  }
 }
