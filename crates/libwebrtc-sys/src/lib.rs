@@ -291,12 +291,14 @@ mod test {
 
         pcf.pin_mut();
 
-        let pc = {
+        let mut pc = {
             create_peer_connection_or_error(
                 pcf.pin_mut(),
                 &rtc_config,
                 pcd
             )
         };
+
+        assert!(rtc_error_or_is_ok(pc.pin_mut()))
     }
 }

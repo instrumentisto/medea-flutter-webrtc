@@ -74,7 +74,7 @@ using AudioProcessing = rc<webrtc::AudioProcessing>;
 using VideoEncoderFactory = webrtc::VideoEncoderFactory;
 using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using AudioFrameProcessor = webrtc::AudioFrameProcessor;
-using RTCErrorOr = webrtc::RTCErrorOr<PeerConnectionInterface>;
+using RTCErrorOr = webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::PeerConnectionInterface>>;
 using RTCError = webrtc::RTCError;
 using MyObserver = my_stuff::MyObserver;
 
@@ -176,5 +176,7 @@ std::unique_ptr<MyObserver> create_my_observer();
 /// Create PeerConnectionDependencies.      
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
   std::unique_ptr<MyObserver> observer);
+
+bool rtc_error_or_is_ok(RTCErrorOr& rtc);
 
 }

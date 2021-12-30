@@ -163,18 +163,12 @@ pub(crate) mod webrtc {
             dependencies: UniquePtr<PeerConnectionDependencies>,
         ) -> UniquePtr<RTCErrorOr>;
 
-        #[namespace = "webrtc"]
-        #[cxx_name = "ok"]
-        pub fn rtc_error_or_is_ok(self: Pin<&RTCErrorOr>) -> bool;
-
-        #[namespace = "webrtc"]
-        #[cxx_name = "message"]
-        pub fn rtc_error_message(self: Pin<&RTCError>) -> *const c_char;
-
         pub fn create_my_observer() -> UniquePtr<MyObserver>;
 
         pub fn create_peer_connection_dependencies(
             observer: UniquePtr<MyObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
+
+        pub fn rtc_error_or_is_ok(rtc: Pin<&mut RTCErrorOr>) -> bool;
     }
 }
