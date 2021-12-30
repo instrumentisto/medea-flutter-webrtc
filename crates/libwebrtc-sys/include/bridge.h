@@ -77,6 +77,11 @@ using AudioFrameProcessor = webrtc::AudioFrameProcessor;
 using RTCErrorOr = webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::PeerConnectionInterface>>;
 using RTCError = webrtc::RTCError;
 using MyObserver = my_stuff::MyObserver;
+using CreateSessionDescriptionObserver = webrtc::CreateSessionDescriptionObserver;
+using RTCOfferAnswerOptions = webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
+using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
+using SetLocalDescriptionObserverInterface = rc<webrtc::SetLocalDescriptionObserverInterface>;
+
 
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -177,6 +182,9 @@ std::unique_ptr<MyObserver> create_my_observer();
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
   std::unique_ptr<MyObserver> observer);
 
+/// Check RTCErrorOr. 
 bool rtc_error_or_is_ok(RTCErrorOr& rtc);
 
+/// Get RTCError message. 
+const char* rtc_error_or_message(RTCError& rtc);
 }

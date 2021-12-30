@@ -212,9 +212,15 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
   std::unique_ptr<MyObserver> observer) {
   PeerConnectionDependencies pcd(observer.release());
     return std::make_unique<PeerConnectionDependencies>(std::move(pcd));
-  }
+}
 
+/// Check RTCErrorOr. 
 bool rtc_error_or_is_ok(RTCErrorOr& rtc) {
   return rtc.ok();
+}
+
+/// Get RTCError message. 
+const char* rtc_error_or_message(RTCError& rtc) {
+  return rtc.message();
 }
 }

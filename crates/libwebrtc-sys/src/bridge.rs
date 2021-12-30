@@ -170,5 +170,9 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<PeerConnectionDependencies>;
 
         pub fn rtc_error_or_is_ok(rtc: Pin<&mut RTCErrorOr>) -> bool;
+
+        pub fn move_error(rtc_error_or: Pin<&mut RTCErrorOr>) -> UniquePtr<RTCError>;
+
+        pub fn rtc_error_or_message(rtc_error: Pin<&mut RTCError>) -> *const c_char;
     }
 }
