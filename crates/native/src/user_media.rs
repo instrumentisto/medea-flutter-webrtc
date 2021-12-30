@@ -1,15 +1,32 @@
-use std::rc::Rc;
+use std::{ops::Add, rc::Rc, sync::atomic::Ordering};
 
 use libwebrtc_sys as sys;
 
 use crate::{api, Webrtc};
 
+use std::sync::atomic::AtomicU64;
+
+static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+fn generate_id() -> u64 {
+    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
+}
+
 // TODO: use new-types, dont hardcode IDs
-pub type MediaStreamId = u64;
-pub type VideoSourceId = u64;
-pub type AudioSourceId = u64;
-pub type VideoTrackId = u64;
-pub type AudioTrackId = u64;
+#[derive(Hash, Clone, Copy, PartialEq, Eq)]
+pub struct MediaStreamId(u64);
+
+#[derive(Hash, Clone, Copy, PartialEq, Eq)]
+pub struct VideoSourceId(u64);
+
+#[derive(Hash, Clone, Copy, PartialEq, Eq)]
+pub struct AudioSourceId(u64);
+
+#[derive(Hash, Clone, Copy, PartialEq, Eq)]
+pub struct VideoTrackId(u64);
+
+#[derive(Hash, Clone, Copy, PartialEq, Eq)]
+pub struct AudioTrackId(u64);
 
 pub struct MediaStream {
     id: MediaStreamId,
@@ -21,7 +38,7 @@ pub struct MediaStream {
 impl MediaStream {
     fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
         Ok(Self {
-            id: 0,
+            id: MediaStreamId(generate_id()),
             inner: pc.create_local_media_stream()?,
             video_tracks: Vec::new(),
             audio_tracks: Vec::new(),
@@ -42,7 +59,7 @@ impl VideoTrack {
         src: Rc<VideoSource>,
     ) -> anyhow::Result<Self> {
         Ok(Self {
-            id: 0,
+            id: VideoTrackId(generate_id()),
             inner: pc.create_video_track(&src.inner)?,
             src,
             kind: api::TrackKind::kVideo,
@@ -61,7 +78,7 @@ impl VideoSource {
         caps: &api::VideoConstraints,
     ) -> anyhow::Result<Self> {
         Ok(Self {
-            id: 0,
+            id: VideoSourceId(generate_id()),
             inner: pc.create_video_source(
                 caps.min_width,
                 caps.min_height,
@@ -84,7 +101,7 @@ impl AudioTrack {
         src: &AudioSource,
     ) -> anyhow::Result<Self> {
         Ok(Self {
-            id: 0,
+            id: AudioTrackId(generate_id()),
             inner: pc.create_audio_track(&src.inner)?,
             src: src.id,
             kind: api::TrackKind::kAudio,
@@ -100,7 +117,7 @@ pub struct AudioSource {
 impl AudioSource {
     fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
         Ok(Self {
-            id: 0,
+            id: AudioSourceId(generate_id()),
             inner: pc.create_audio_source()?,
         })
     }
@@ -132,7 +149,7 @@ impl Webrtc {
         };
 
         let mut result = api::MediaStream {
-            stream_id: stream.id,
+            stream_id: stream.id.0,
             video_tracks: Vec::new(),
             audio_tracks: Vec::new(),
         };
@@ -162,8 +179,8 @@ impl Webrtc {
             stream.video_tracks.push(track.id);
 
             result.video_tracks.push(api::MediaStreamTrack {
-                id: track.id,
-                label: track.id.to_string(), // TODO: source device label
+                id: track.id.0,
+                label: track.id.0.to_string(), // TODO: source device label
                 kind: track.kind,
                 enabled: true,
             });
@@ -189,8 +206,8 @@ impl Webrtc {
             stream.audio_tracks.push(track.id);
 
             result.audio_tracks.push(api::MediaStreamTrack {
-                id: track.id,
-                label: track.id.to_string(), // TODO: source device label
+                id: track.id.0,
+                label: track.id.0.to_string(), // TODO: source device label
                 kind: track.kind,
                 enabled: true,
             });
@@ -207,8 +224,10 @@ impl Webrtc {
     ///
     /// Panics if tracks from the provided stream are not found in the context.
     /// It is an invariant violation.
-    pub fn dispose_stream(self: &mut Webrtc, id: MediaStreamId) {
-        if let Some(stream) = self.0.local_media_streams.remove(&id) {
+    pub fn dispose_stream(self: &mut Webrtc, id: u64) {
+        if let Some(stream) =
+            self.0.local_media_streams.remove(&MediaStreamId(id))
+        {
             let video_tracks = stream.video_tracks;
             let audio_tracks = stream.audio_tracks;
 
