@@ -104,6 +104,9 @@ pub(crate) mod webrtc {
         type AudioMixer;
         type AudioProcessing;
         type AudioFrameProcessor;
+        type RTCErrorOr;
+        type PeerConnectionDependencies;
+        type RTCConfiguration;
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
@@ -135,7 +138,7 @@ pub(crate) mod webrtc {
         pub fn create_audio_frame_processor_null(
         ) -> UniquePtr<AudioFrameProcessor>;
 
-        pub unsafe fn create_peer_connection_factory_null(
+        pub unsafe fn create_peer_connection_factory(
             network_thread: *mut Thread,
             worker_thread: *mut Thread,
             signaling_thread: *mut Thread,
@@ -148,5 +151,11 @@ pub(crate) mod webrtc {
             audio_processing: *mut AudioProcessing,
             audio_frame_processor: *mut AudioFrameProcessor,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
+
+        pub fn create_peer_connection_or_error(
+            peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
+            configuration: Pin<&RTCConfiguration>,
+            dependencies: UniquePtr<PeerConnectionDependencies>,
+        ) -> UniquePtr<RTCErrorOr>;
     }
 }

@@ -73,6 +73,7 @@ using AudioProcessing = rc<webrtc::AudioProcessing>;
 using VideoEncoderFactory = webrtc::VideoEncoderFactory;
 using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using AudioFrameProcessor = webrtc::AudioFrameProcessor;
+using RTCErrorOr = webrtc::RTCErrorOr<PeerConnectionInterface>;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -137,7 +138,7 @@ std::unique_ptr<AudioProcessing> create_audio_processing_null();
 std::unique_ptr<AudioFrameProcessor> create_audio_frame_processor_null();
 
 /// Creates a new Peer Connection Factory.
-std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_null(
+std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread* network_thread,
     Thread* worker_thread,
     Thread* signaling_thread,
@@ -149,4 +150,10 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_n
     AudioMixer* audio_mixer,
     AudioProcessing* audio_processing,
     AudioFrameProcessor* audio_frame_processor); 
+
+/// Creates a new Peer Connection.
+std::unique_ptr<RTCErrorOr> create_peer_connection_or_error(
+      PeerConnectionFactoryInterface& peer_connection_factory,
+      const RTCConfiguration& configuration,
+      PeerConnectionDependencies dependencies);
 }

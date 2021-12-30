@@ -151,7 +151,7 @@ std::unique_ptr<AudioFrameProcessor> create_audio_frame_processor_null() {
 }
 
 /// Calls `CreatePeerConnectionFactory()`.
-std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_null(
+std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread* network_thread,
     Thread* worker_thread,
     Thread* signaling_thread,
@@ -173,4 +173,13 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory_n
           nullptr, nullptr,
           audio_frame_processor));
 }
+
+/// Creates a new Peer Connection.
+std::unique_ptr<RTCErrorOr> create_peer_connection_or_error(
+      PeerConnectionFactoryInterface& peer_connection_factory,
+      const RTCConfiguration& configuration,
+      PeerConnectionDependencies dependencies) {
+        RTCErrorOr peer_connection = peer_connection_factory->CreatePeerConnection(configuration, std::move(dependencies));
+        return std::make_unique<RTCErrorOr>(peer_connection);
+      }
 }
