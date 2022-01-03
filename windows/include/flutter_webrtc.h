@@ -19,6 +19,8 @@
 #include <map>
 #include <memory>
 
+#include "flutter_webrtc_native.h"
+
 using namespace flutter;
 
 namespace flutter_webrtc_plugin {
@@ -33,6 +35,8 @@ class FlutterWebRTC {
  public:
   FlutterWebRTC(FlutterWebRTCPlugin *plugin);
   virtual ~FlutterWebRTC();
+
+    rust::cxxbridge1::Box<Webrtc> webrtc = Init();
 
   void HandleMethodCall(
       const flutter::MethodCall<EncodableValue> &method_call,
