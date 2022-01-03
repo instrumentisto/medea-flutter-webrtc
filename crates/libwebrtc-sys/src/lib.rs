@@ -19,7 +19,7 @@ pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 impl TaskQueueFactory {
     /// Creates a default [`TaskQueueFactory`] based on the current platform.
     #[must_use]
-    pub fn create_default_task_queue_factory() -> Self {
+    pub fn create() -> Self {
         Self(webrtc::create_default_task_queue_factory())
     }
 }
@@ -155,6 +155,11 @@ impl VideoDeviceInfo {
         self.0.pin_mut().number_of_video_devices()
     }
 
+    /// Returns the video device `index` for the given `id`.
+    pub fn device_index(&mut self, device_id: String) -> u32 {
+        webrtc::get_device_index(self.0.pin_mut(), device_id)
+    }
+
     /// Returns the `(label, id)` tuple for the given video device `index`.
     pub fn device_name(
         &mut self,
@@ -273,6 +278,7 @@ impl PeerConnectionFactory {
         width: usize,
         height: usize,
         fps: usize,
+        device_id: String,
     ) -> anyhow::Result<VideoSource> {
         let ptr = unsafe {
             webrtc::create_video_source(
@@ -281,6 +287,7 @@ impl PeerConnectionFactory {
                 width,
                 height,
                 fps,
+                device_id,
             )
         };
 
@@ -431,5 +438,16 @@ impl LocalMediaStream {
             );
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::bridge::webrtc;
+
+    #[test]
+    fn kek() {
+        webrtc::test();
+        assert!(true);
     }
 }

@@ -5,7 +5,10 @@ mod user_media;
 
 use std::{collections::HashMap, rc::Rc};
 
-use libwebrtc_sys::{PeerConnectionFactory, TaskQueueFactory};
+use libwebrtc_sys::{
+    AudioDeviceModule, AudioLayer, PeerConnectionFactory, TaskQueueFactory,
+    VideoDeviceInfo,
+};
 
 use crate::user_media::{
     AudioSource, AudioSourceId, AudioTrack, AudioTrackId, MediaStream,
@@ -51,6 +54,8 @@ pub mod api {
         pub min_width: usize,
         pub min_height: usize,
         pub min_fps: usize,
+        pub device_id: String,
+        pub video_required: bool,
     }
 
     /// The [MediaStream] represents a stream of media content. A stream
@@ -124,6 +129,8 @@ pub mod api {
 /// [`libWebrtc`]: https://tinyurl.com/54y935zz
 pub struct Inner {
     task_queue_factory: TaskQueueFactory,
+    audio_device_module: AudioDeviceModule,
+    video_device_info: VideoDeviceInfo,
     peer_connection_factory: PeerConnectionFactory,
     video_sources: HashMap<VideoSourceId, Rc<VideoSource>>,
     video_tracks: HashMap<VideoTrackId, VideoTrack>,
@@ -143,12 +150,21 @@ pub struct Webrtc(Box<Inner>);
 /// May panic if `PeerconnectionFactory` is not valiable to be created.
 #[must_use]
 pub fn init() -> Box<Webrtc> {
-    let task_queue_factory =
-        TaskQueueFactory::create_default_task_queue_factory();
+    let mut task_queue_factory = TaskQueueFactory::create();
     let peer_connection_factory = PeerConnectionFactory::create().unwrap();
+    let audio_device_module = AudioDeviceModule::create(
+        AudioLayer::kPlatformDefaultAudio,
+        &mut task_queue_factory,
+    )
+    .unwrap();
+    audio_device_module.init().unwrap();
+
+    let video_device_info = VideoDeviceInfo::create().unwrap();
 
     Box::new(Webrtc(Box::new(Inner {
         task_queue_factory,
+        audio_device_module,
+        video_device_info,
         peer_connection_factory,
         video_sources: HashMap::new(),
         video_tracks: HashMap::new(),

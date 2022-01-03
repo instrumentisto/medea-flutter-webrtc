@@ -55,6 +55,7 @@ pub(crate) mod webrtc {
             width: usize,
             height: usize,
             fps: usize,
+            device_id: String,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
         #[allow(clippy::missing_safety_doc)]
@@ -165,5 +166,12 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
+
+        pub fn get_device_index(
+            device_info: Pin<&mut VideoDeviceInfo>,
+            device: String,
+        ) -> u32;
+
+        pub fn test();
     }
 }

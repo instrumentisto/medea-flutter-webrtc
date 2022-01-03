@@ -1,4 +1,4 @@
-use std::{ops::Add, rc::Rc, sync::atomic::Ordering};
+use std::{rc::Rc, sync::atomic::Ordering};
 
 use libwebrtc_sys as sys;
 
@@ -15,6 +15,9 @@ fn generate_id() -> u64 {
 // TODO: use new-types, dont hardcode IDs
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct MediaStreamId(u64);
+
+#[derive(Hash, Clone, PartialEq, Eq)]
+pub struct VideoDeviceId(String);
 
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct VideoSourceId(u64);
@@ -70,6 +73,7 @@ impl VideoTrack {
 pub struct VideoSource {
     id: VideoSourceId,
     inner: sys::VideoSource,
+    device_id: VideoDeviceId,
 }
 
 impl VideoSource {
@@ -83,7 +87,9 @@ impl VideoSource {
                 caps.min_width,
                 caps.min_height,
                 caps.min_width,
+                caps.device_id.to_string(),
             )?,
+            device_id: VideoDeviceId(caps.device_id.to_string()),
         })
     }
 }
@@ -154,7 +160,7 @@ impl Webrtc {
             audio_tracks: Vec::new(),
         };
 
-        {
+        if constraints.video.video_required {
             // TODO: if let Some(constraints) = constraints.video
             let source = {
                 // TODO: reuse existing video source?
@@ -178,9 +184,19 @@ impl Webrtc {
             stream.inner.add_video_track(&track.inner).unwrap();
             stream.video_tracks.push(track.id);
 
+            let video_device_index = self
+                .0
+                .video_device_info
+                .device_index(constraints.video.device_id.to_string());
+
             result.video_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
-                label: track.id.0.to_string(), // TODO: source device label
+                label: self
+                    .0
+                    .video_device_info
+                    .device_name(video_device_index)
+                    .unwrap()
+                    .0,
                 kind: track.kind,
                 enabled: true,
             });

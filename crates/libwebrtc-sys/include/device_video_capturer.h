@@ -26,10 +26,12 @@ class DeviceVideoCapturer : public CustomVideoTrackSource,
       size_t width,
       size_t height,
       size_t target_fps,
-      size_t capture_device_index);
+      const std::string& device_id);
 
   DeviceVideoCapturer();
   virtual ~DeviceVideoCapturer();
+
+  static int GetDeviceIndex(const std::string& device);
 
  private:
   bool Init(size_t width,
@@ -38,7 +40,7 @@ class DeviceVideoCapturer : public CustomVideoTrackSource,
             size_t capture_device_index);
   void Destroy();
 
-  void OnFrame(const webrtc::VideoFrame &frame) override;
+  void OnFrame(const webrtc::VideoFrame& frame) override;
 
   rtc::scoped_refptr<webrtc::VideoCaptureModule> vcm_;
   webrtc::VideoCaptureCapability capability_;

@@ -12,38 +12,38 @@
 
 namespace flutter_webrtc_plugin {
 
-template<typename T>
+template <typename T>
 inline bool TypeIs(const EncodableValue val) {
   return std::holds_alternative<T>(val);
 }
 
-template<typename T>
+template <typename T>
 inline const T GetValue(EncodableValue val) {
   return std::get<T>(val);
 }
 
-inline EncodableMap findMap(const EncodableMap &map, const std::string &key) {
+inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<EncodableMap>(it->second))
     return GetValue<EncodableMap>(it->second);
   return EncodableMap();
 }
 
-inline std::string findString(const EncodableMap &map, const std::string &key) {
+inline std::string findString(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<std::string>(it->second))
     return GetValue<std::string>(it->second);
   return std::string();
 }
 
-FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin *plugin) {}
+FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 
 void FlutterWebRTC::HandleMethodCall(
-    const flutter::MethodCall<EncodableValue> &method_call,
+    const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-  const std::string &method = method_call.method_name();
+  const std::string& method = method_call.method_name();
 
   if (method.compare("createPeerConnection") == 0) {
   } else if (method.compare("getSources") == 0) {
@@ -54,16 +54,20 @@ void FlutterWebRTC::HandleMethodCall(
     for (size_t i = 0; i < devices.size(); ++i) {
       std::string kind;
       switch (devices[i].kind) {
-        case MediaDeviceKind::kAudioInput:kind = "audioinput";
+        case MediaDeviceKind::kAudioInput:
+          kind = "audioinput";
           break;
 
-        case MediaDeviceKind::kAudioOutput:kind = "audiooutput";
+        case MediaDeviceKind::kAudioOutput:
+          kind = "audiooutput";
           break;
 
-        case MediaDeviceKind::kVideoInput:kind = "videoinput";
+        case MediaDeviceKind::kVideoInput:
+          kind = "videoinput";
           break;
 
-        default:throw std::exception("Invalid MediaDeviceKind");
+        default:
+          throw std::exception("Invalid MediaDeviceKind");
       }
 
       EncodableMap info;
@@ -94,37 +98,75 @@ void FlutterWebRTC::HandleMethodCall(
 
     EncodableMap video_mandatory;
 
-    EncodableMap video_map = GetValue<EncodableMap>(video_arg->second);
-    video_mandatory = GetValue<EncodableMap>(
-        video_map.find(EncodableValue("mandatory"))->second);
-    EncodableValue
-        width = video_mandatory.find(EncodableValue("minWidth"))->second;
-    EncodableValue height =
-        video_mandatory.find(EncodableValue("minHeight"))->second;
-    EncodableValue
-        fps = video_mandatory.find(EncodableValue("minFrameRate"))->second;
+    EncodableValue width;
+    EncodableValue height;
+    EncodableValue fps;
+    EncodableValue device_id;
+    bool video_required;
+
+    if (TypeIs<bool>(video_arg->second)) {
+      if (GetValue<bool>(video_arg->second)) {
+        width = DEFAULT_WIDTH;
+        height = DEFAULT_HEIGHT;
+        fps = DEFAULT_FPS;
+        video_required = true;
+      } else {
+        width = 0;
+        height = 0;
+        fps = 0;
+        video_required = false;
+      }
+      device_id = std::string();
+    } else {
+      EncodableMap video_map = GetValue<EncodableMap>(video_arg->second);
+      video_mandatory = GetValue<EncodableMap>(
+          video_map.find(EncodableValue("mandatory"))->second);
+      width = video_mandatory.find(EncodableValue("minWidth"))->second;
+      height = video_mandatory.find(EncodableValue("minHeight"))->second;
+      fps = video_mandatory.find(EncodableValue("minFrameRate"))->second;
+      video_required = true;
+
+      device_id = findString(video_map, "device_id");
+
+      if (GetValue<std::string>(width) == "0") {
+        result->Error("Bad Arguments", "Null width recieved.");
+        return;
+      }
+
+      if (GetValue<std::string>(height) == "0") {
+        result->Error("Bad Arguments", "Null height recieved.");
+        return;
+      }
+
+      if (GetValue<std::string>(fps) == "0") {
+        result->Error("Bad Arguments", "Null FPS recieved.");
+        return;
+      }
+    }
 
     MediaStreamConstraints constraints;
     VideoConstraints video_constraints;
 
-    if ((TypeIs<bool>(audio_arg) &&
-        GetValue<bool>(audio_arg)) ||
+    if ((TypeIs<bool>(audio_arg) && GetValue<bool>(audio_arg)) ||
         TypeIs<EncodableMap>(audio_arg)) {
       constraints.audio = true;
     } else {
       constraints.audio = false;
     }
 
-    video_constraints.min_width = rust::String(GetValue<std::string>(width));
-    video_constraints.min_height = rust::String(GetValue<std::string>(height));
-    video_constraints.min_fps = rust::String(GetValue<std::string>(fps));
+    video_constraints.min_width = std::stoi(GetValue<std::string>(width));
+    video_constraints.min_height = std::stoi(GetValue<std::string>(height));
+    video_constraints.min_fps = std::stoi(GetValue<std::string>(fps));
+    video_constraints.device_id =
+        rust::String(GetValue<std::string>(device_id));
+    video_constraints.video_required = video_required;
     constraints.video = video_constraints;
 
     MediaStream user_media = webrtc->GetUserMedia(constraints);
 
     EncodableMap params;
     params[EncodableValue("streamId")] =
-        EncodableValue(user_media.stream_id.c_str());
+        EncodableValue(std::to_string(user_media.stream_id).c_str());
 
     EncodableList video_tracks;
     if (user_media.video_tracks.size() == 0) {
@@ -132,13 +174,13 @@ void FlutterWebRTC::HandleMethodCall(
     } else {
       for (size_t i = 0; i < user_media.video_tracks.size(); ++i) {
         EncodableMap info;
-        info[EncodableValue("id")] =
-            EncodableValue(user_media.video_tracks[i].id.c_str());
+        info[EncodableValue("id")] = EncodableValue(
+            std::to_string(user_media.video_tracks[i].id).c_str());
         info[EncodableValue("label")] =
             EncodableValue(user_media.video_tracks[i].label.c_str());
         info[EncodableValue("kind")] = EncodableValue(
-            user_media.video_tracks[i].kind == TrackKind::Video ? "video"
-                                                                : "audio");
+            user_media.video_tracks[i].kind == TrackKind::kVideo ? "video"
+                                                                 : "audio");
         info[EncodableValue("enabled")] =
             EncodableValue(user_media.video_tracks[i].enabled);
 
@@ -153,13 +195,13 @@ void FlutterWebRTC::HandleMethodCall(
     } else {
       for (size_t i = 0; i < user_media.audio_tracks.size(); ++i) {
         EncodableMap info;
-        info[EncodableValue("id")] =
-            EncodableValue(user_media.audio_tracks[i].id.c_str());
+        info[EncodableValue("id")] = EncodableValue(
+            std::to_string(user_media.audio_tracks[i].id).c_str());
         info[EncodableValue("label")] =
             EncodableValue(user_media.audio_tracks[i].label.c_str());
         info[EncodableValue("kind")] = EncodableValue(
-            user_media.audio_tracks[i].kind == TrackKind::Video ? "video"
-                                                                : "audio");
+            user_media.audio_tracks[i].kind == TrackKind::kVideo ? "video"
+                                                                 : "audio");
         info[EncodableValue("enabled")] =
             EncodableValue(user_media.audio_tracks[i].enabled);
 
@@ -183,10 +225,10 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("dataChannelSend") == 0) {
   } else if (method.compare("dataChannelClose") == 0) {
   } else if (method.compare("streamDispose") == 0) {
-    const EncodableMap
-        params = GetValue<EncodableMap>(*method_call.arguments());
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
     const std::string stream_id = findString(params, "streamId");
-    webrtc->DisposeStream(rust::String(stream_id));
+    webrtc->DisposeStream(std::stoi(stream_id));
     result->Success();
   } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
   } else if (method.compare("trackDispose") == 0) {

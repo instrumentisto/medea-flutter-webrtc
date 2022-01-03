@@ -93,6 +93,26 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
   return size;
 };
 
+uint32_t get_device_index(VideoDeviceInfo& device_info, rust::String device) {
+  uint32_t num_devices = device_info.NumberOfDevices();
+  for (uint32_t i = 0; i < num_devices; ++i) {
+    const uint32_t kSize = 256;
+    char name[kSize] = {0};
+    char mid[kSize] = {0};
+
+    if (device.empty() && num_devices > 0)
+      return 0;
+
+    if (device_info.GetDeviceName(static_cast<uint32_t>(i), name, kSize, mid,
+                                  kSize) != -1) {
+      if (std::string(mid) == std::string(device)) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
 /// Calls `Thread->Create()`.
 std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
@@ -122,11 +142,13 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     Thread& signaling_thread,
     size_t width,
     size_t height,
-    size_t fps) {
+    size_t fps,
+    rust::String device_id) {
   return std::make_unique<VideoTrackSourceInterface>(
       webrtc::CreateVideoTrackSourceProxy(
           &signaling_thread, &worker_thread,
-          DeviceVideoCapturer::Create(width, height, fps, 0)));
+          DeviceVideoCapturer::Create(width, height, fps,
+                                      std::string(device_id))));
 }
 
 /// Calls `PeerConnectionFactoryInterface->CreateAudioSource()`.
@@ -183,6 +205,33 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
+}
+
+void test() {
+  // auto worker = rtc::Thread::Create();
+  // worker.get()->Start();
+
+  // auto signal = rtc::Thread::Create();
+  // signal.get()->Start();
+
+  // auto pcf = webrtc::CreatePeerConnectionFactory(
+  //     worker.get(), worker.get(), signal.get(), nullptr,
+  //     webrtc::CreateBuiltinAudioEncoderFactory(),
+  //     webrtc::CreateBuiltinAudioDecoderFactory(),
+  //     webrtc::CreateBuiltinVideoEncoderFactory(),
+  //     webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
+
+  // auto asrc = pcf.get()->CreateAudioSource(cricket::AudioOptions());
+
+  // auto atrack1 = pcf.get()->CreateAudioTrack("pupa", asrc.get());
+  // auto atrack2 = pcf.get()->CreateAudioTrack("lupa", asrc.get());
+
+  // atrack1.get()->set_enabled(true);
+  // atrack2.get()->set_enabled(true);
+
+  // system("PAUSE");
+
+  DeviceVideoCapturer::Create(640, 480, 30, "2");
 }
 
 }  // namespace bridge
