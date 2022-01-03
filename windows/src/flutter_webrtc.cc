@@ -1,4 +1,5 @@
 #include <sstream>
+#include <string> 
 
 #include "flutter_webrtc.h"
 
@@ -15,7 +16,10 @@ void FlutterWebRTC::HandleMethodCall(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
-    // TODO: impl
+    std::string id = std::to_string(webrtc->CreatePeerConnection());
+    EncodableMap params;
+    params[EncodableValue("peerConnectionId")] = id;
+    result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("getSources") == 0) {
     rust::Vec<MediaDeviceInfo> devices = EnumerateDevices();
 
