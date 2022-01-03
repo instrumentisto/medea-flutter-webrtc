@@ -3,8 +3,10 @@
 
 mod bridge;
 
+use std::os::raw::c_char;
+
 use anyhow::bail;
-use cxx::UniquePtr;
+use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
 
@@ -131,6 +133,10 @@ impl AudioDeviceModule {
 
         Ok((name, guid))
     }
+
+    pub fn create_null() -> Self {
+        Self(webrtc::create_audio_device_module_null())
+    }
 }
 
 /// Interface for receiving information about available camera devices.
@@ -181,10 +187,210 @@ impl VideoDeviceInfo {
     }
 }
 
+pub struct AudioEncoderFactory(UniquePtr<webrtc::AudioEncoderFactory>);
+
+impl Default for AudioEncoderFactory {
+    fn default() -> Self {
+        AudioEncoderFactory(webrtc::create_builtin_audio_encoder_factory())
+    }
+}
+
+pub struct AudioDecoderFactory(UniquePtr<webrtc::AudioDecoderFactory>);
+
+impl Default for AudioDecoderFactory {
+    fn default() -> Self {
+        AudioDecoderFactory(webrtc::create_builtin_audio_decoder_factory())
+    }
+}
+
+pub struct VideoEncoderFactory(UniquePtr<webrtc::VideoEncoderFactory>);
+
+impl Default for VideoEncoderFactory {
+    fn default() -> Self {
+        VideoEncoderFactory(webrtc::create_builtin_video_encoder_factory())
+    }
+}
+
+pub struct VideoDecoderFactory(UniquePtr<webrtc::VideoDecoderFactory>);
+
+impl Default for VideoDecoderFactory {
+    fn default() -> Self {
+        VideoDecoderFactory(webrtc::create_builtin_video_decoder_factory())
+    }
+}
+
+pub struct Thread(UniquePtr<webrtc::Thread>);
+
+impl Thread {
+    pub fn create() -> Self {
+        Thread(webrtc::create_thread())
+    }
+
+    pub fn start(&mut self) {
+        webrtc::start_thread(self.0.pin_mut());
+    }
+}
+
+pub struct AudioMixer(UniquePtr<webrtc::AudioMixer>);
+
+impl AudioMixer {
+    pub fn create_null() -> Self {
+        Self(webrtc::create_audio_mixer_null())
+    }
+}
+
+pub struct AudioProcessing(UniquePtr<webrtc::AudioProcessing>);
+
+impl AudioProcessing {
+    pub fn create_null() -> Self {
+        Self(webrtc::create_audio_processing_null())
+    }
+}
+
+pub struct AudioFrameProcessor(UniquePtr<webrtc::AudioFrameProcessor>);
+
+impl AudioFrameProcessor {
+    pub fn create_null() -> Self {
+        Self(webrtc::create_audio_frame_processor_null())
+    }
+}
+
+pub struct RTCConfiguration(UniquePtr<webrtc::RTCConfiguration>);
+
+impl Default for RTCConfiguration {
+    fn default() -> Self {
+        Self(webrtc::create_default_rtc_configuration())
+    }
+}
+
+pub struct RTCError(UniquePtr<webrtc::RTCError>);
+
+impl RTCError {
+    pub fn message(&mut self) -> *const c_char {
+        webrtc::rtc_error_or_message(self.0.pin_mut())
+    }
+}
+
+pub struct MyObserver(UniquePtr<webrtc::MyObserver>);
+
+impl Default for MyObserver {
+    fn default() -> Self {
+        Self(webrtc::create_my_observer())
+    }
+}
+
+pub struct PeerConnectionDependencies(
+    UniquePtr<webrtc::PeerConnectionDependencies>,
+);
+
+impl Default for PeerConnectionDependencies {
+    fn default() -> Self {
+        Self(webrtc::create_peer_connection_dependencies(
+            MyObserver::default().0,
+        ))
+    }
+}
+
+pub struct RTCOfferAnswerOptions(UniquePtr<webrtc::RTCOfferAnswerOptions>);
+
+impl Default for RTCOfferAnswerOptions {
+    fn default() -> Self {
+        RTCOfferAnswerOptions(webrtc::create_default_rtc_offer_answer_options())
+    }
+}
+
+pub struct SessionDescriptionInterface(
+    UniquePtr<webrtc::SessionDescriptionInterface>,
+);
+
+impl SessionDescriptionInterface {
+    pub fn new(type_: webrtc::SdpType, sdp: &str) -> Self {
+        let_cxx_string!(n_sdp = sdp);
+        SessionDescriptionInterface(unsafe {
+            webrtc::create_session_description(type_, &n_sdp)
+        })
+    }
+}
+
+pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
+
+impl PeerConnectionInterface {
+    pub fn create_offer(self, options: RTCOfferAnswerOptions) {
+        unsafe { webrtc::create_offer(self.0.into_raw(), &options.0) }
+    }
+
+    pub fn create_answer(self, options: RTCOfferAnswerOptions) {
+        unsafe { webrtc::create_answer(self.0.into_raw(), &options.0) }
+    }
+
+    pub fn set_local_description(self, desc: SessionDescriptionInterface) {
+        unsafe { webrtc::set_local_description(self.0.into_raw(), desc.0) }
+    }
+
+    pub fn set_remote_description(self, desc: SessionDescriptionInterface) {
+        unsafe { webrtc::set_remote_description(self.0.into_raw(), desc.0) }
+    }
+}
+
+pub struct RTCErrorOr(UniquePtr<webrtc::RTCErrorOr>);
+
+impl RTCErrorOr {
+    pub fn ok(&mut self) -> bool {
+        webrtc::rtc_error_or_is_ok(self.0.pin_mut())
+    }
+
+    pub fn error(&mut self) -> RTCError {
+        RTCError(webrtc::move_error(self.0.pin_mut()))
+    }
+
+    pub fn value(&mut self) -> PeerConnectionInterface {
+        PeerConnectionInterface(webrtc::move_value(self.0.pin_mut()))
+    }
+}
+
+pub struct PeerConnectionFactoryInterface(
+    UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+);
+
+impl PeerConnectionFactoryInterface {
+    pub fn create_whith_null() -> Self {
+        let mut thread = Thread::create();
+        thread.start();
+        let thread_ptr = thread.0.into_raw();
+        Self(unsafe {
+            webrtc::create_peer_connection_factory(
+                thread_ptr.clone(),
+                thread_ptr.clone(),
+                thread_ptr,
+                AudioDeviceModule::create_null().0.into_raw(),
+                AudioEncoderFactory::default().0.pin_mut(),
+                AudioDecoderFactory::default().0.pin_mut(),
+                VideoEncoderFactory::default().0,
+                VideoDecoderFactory::default().0,
+                AudioMixer::create_null().0.into_raw(),
+                AudioProcessing::create_null().0.into_raw(),
+                AudioFrameProcessor::create_null().0.into_raw(),
+            )
+        })
+    }
+
+    pub fn create_peer_connection_or_error(
+        &mut self,
+        configuration: RTCConfiguration,
+        dependencies: PeerConnectionDependencies,
+    ) -> RTCErrorOr {
+        RTCErrorOr(webrtc::create_peer_connection_or_error(
+            self.0.pin_mut(),
+            &configuration.0,
+            dependencies.0,
+        ))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::bridge::webrtc::*;
-    use cxx::{UniquePtr, CxxString, let_cxx_string};
+    use cxx::{let_cxx_string, CxxString, UniquePtr};
     use std::ffi::CStr;
 
     #[test]
@@ -319,24 +525,28 @@ mod test {
     fn create_session_description_test() {
         let type_ = SdpType::kAnswer;
         let_cxx_string!(sdp = "test");
-        let des = unsafe{create_session_description(type_, &sdp)};
+        let des = unsafe { create_session_description(type_, &sdp) };
     }
 
     #[test]
     fn set_local_description_test() {
         let type_ = SdpType::kAnswer;
         let_cxx_string!(sdp = "test");
-        let des = unsafe{create_session_description(type_, &sdp)};
+        let des = unsafe { create_session_description(type_, &sdp) };
         let pc = pc();
-        unsafe{set_local_description(pc.into_raw(), des);}
+        unsafe {
+            set_local_description(pc.into_raw(), des);
+        }
     }
 
     #[test]
     fn set_remote_description_test() {
         let type_ = SdpType::kAnswer;
         let_cxx_string!(sdp = "test");
-        let des = unsafe{create_session_description(type_, &sdp)};
+        let des = unsafe { create_session_description(type_, &sdp) };
         let pc = pc();
-        unsafe{set_remote_description(pc.into_raw(), des);}
+        unsafe {
+            set_remote_description(pc.into_raw(), des);
+        }
     }
 }

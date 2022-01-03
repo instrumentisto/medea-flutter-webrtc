@@ -1,8 +1,15 @@
 #![warn(clippy::pedantic)]
 
+mod peer_connection;
+
+use std::{collections::HashMap, rc::Rc};
+
 use libwebrtc_sys::{
-    AudioDeviceModule, AudioLayer, TaskQueueFactory, VideoDeviceInfo,
+    AudioDeviceModule, AudioLayer, PeerConnectionFactoryInterface,
+    TaskQueueFactory, VideoDeviceInfo,
 };
+
+use peer_connection::{PeerConnection, PeerConnectionId, PeerConnection_};
 
 use self::ffi::{MediaDeviceInfo, MediaDeviceKind};
 
@@ -32,10 +39,27 @@ pub mod ffi {
     }
 
     extern "Rust" {
+        type Webrtc;
+        type PeerConnection_;
+
+        /// Creates an instance of [Webrtc].
+        #[cxx_name = "Init"]
+        fn init() -> Box<Webrtc>;
+
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
         fn enumerate_devices() -> Vec<MediaDeviceInfo>;
+
+        #[cxx_name = "CreatePeerConnection"]
+        fn create_default_peer_connection(self: &mut Webrtc) -> u64;
+
+        #[cxx_name = "GetPeerConnectionFromId"]
+        fn get_peer_connection_from_id(
+            self: &Webrtc,
+            id: u64,
+        ) -> Box<PeerConnection_>;
+
     }
 }
 
@@ -113,4 +137,36 @@ fn video_devices_info() -> Vec<MediaDeviceInfo> {
     }
 
     result
+}
+
+/// Contains all necessary tools for interoperate with [`libWebRTC`].
+///
+/// [`libWebrtc`]: https://tinyurl.com/54y935zz
+pub struct Inner {
+    task_queue_factory: TaskQueueFactory,
+    peer_connection_factory: PeerConnectionFactoryInterface,
+    peer_connections: HashMap<u64, Rc<PeerConnection>>,
+}
+
+/// Wraps the [`Inner`] instanse.
+/// This struct is intended to be extern and managed outside of the Rust app.
+pub struct Webrtc(Box<Inner>);
+
+/// Creates an instanse of [`Webrtc`].
+///
+/// # Panics
+///
+/// May panic if `PeerconnectionFactory` is not valiable to be created.
+#[must_use]
+pub fn init() -> Box<Webrtc> {
+    let task_queue_factory =
+        TaskQueueFactory::create_default_task_queue_factory();
+    let peer_connection_factory =
+        PeerConnectionFactoryInterface::create_whith_null();
+
+    Box::new(Webrtc(Box::new(Inner {
+        task_queue_factory,
+        peer_connection_factory,
+        peer_connections: HashMap::new(),
+    })))
 }

@@ -19,13 +19,12 @@ pub(crate) mod webrtc {
         kDummyAudio,
     }
 
-    
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SdpType {
         kOffer = 0,
         kPrAnswer,
-        kAnswer,  
+        kAnswer,
         kRollback,
     }
 
