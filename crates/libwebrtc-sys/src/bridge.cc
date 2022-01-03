@@ -185,6 +185,20 @@ std::unique_ptr<RTCErrorOr> create_peer_connection_or_error(
         return std::make_unique<RTCErrorOr>(std::move(peer_connection));
       }
 
+/// Creates a new Peer Connection.
+std::unique_ptr<RTCErrorOr2> create_peer_connection_or_error2(      
+      PeerConnectionFactoryInterface& peer_connection_factory,
+      const RTCConfiguration& configuration,
+      std::unique_ptr<PeerConnectionDependencies> dependencies) {
+        PeerConnectionDependencies pcd = std::move(*(dependencies.get()));
+        webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::PeerConnectionInterface>> peer_connection = 
+          peer_connection_factory.ptr()->CreatePeerConnectionOrError(configuration, std::move(pcd));
+
+        rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc = peer_connection.MoveValue();
+        RTCErrorOr2 res = webrtc::RTCErrorOr<PeerConnectionInterface>(rc(pc));
+        return std::make_unique<RTCErrorOr2>(res);
+      }
+
 /// Creates default RTCConfiguration.      
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   RTCConfiguration config;

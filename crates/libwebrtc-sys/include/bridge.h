@@ -75,6 +75,7 @@ using VideoEncoderFactory = webrtc::VideoEncoderFactory;
 using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using AudioFrameProcessor = webrtc::AudioFrameProcessor;
 using RTCErrorOr = webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::PeerConnectionInterface>>;
+using RTCErrorOr2 = webrtc::RTCErrorOr<PeerConnectionInterface>;
 using RTCError = webrtc::RTCError;
 using MyObserver = my_stuff::MyObserver;
 using CreateSessionDescriptionObserver = webrtc::CreateSessionDescriptionObserver;
@@ -164,6 +165,12 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
 
 /// Creates a new Peer Connection.
 std::unique_ptr<RTCErrorOr> create_peer_connection_or_error(
+      PeerConnectionFactoryInterface& peer_connection_factory,
+      const RTCConfiguration& configuration,
+      std::unique_ptr<PeerConnectionDependencies> dependencies);
+
+/// Creates a new Peer Connection.
+std::unique_ptr<RTCErrorOr2> create_peer_connection_or_error2(
       PeerConnectionFactoryInterface& peer_connection_factory,
       const RTCConfiguration& configuration,
       std::unique_ptr<PeerConnectionDependencies> dependencies);
