@@ -243,14 +243,15 @@ void create_answer(PeerConnectionInterface* peer_connection_interface,
 }
 
 /// Call setLocalDescription
-void set_local_description(PeerConnectionInterface& peer_connection_interface,
+void set_local_description(PeerConnectionInterface* peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc) {
-    peer_connection_interface.ptr()->SetLocalDescription(nullptr, desc.get());
+    peer_connection_interface->ptr()->SetLocalDescription(nullptr, desc.get());
   }
 
 /// Call setRemoteDescription
-void set_remote_description(PeerConnectionInterface& peer_connection_interface,
+void set_remote_description(PeerConnectionInterface* peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc) {
-    peer_connection_interface.ptr()->SetRemoteDescription(nullptr, desc.get());
+    peer_connection_interface->ptr()->SetRemoteDescription(nullptr, desc.get());
+    webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, "test");
   }
 }

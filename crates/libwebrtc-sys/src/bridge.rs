@@ -19,6 +19,16 @@ pub(crate) mod webrtc {
         kDummyAudio,
     }
 
+    
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    pub enum SdpType {
+        kOffer = 0,
+        kPrAnswer,
+        kAnswer,  
+        kRollback,
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -114,6 +124,7 @@ pub(crate) mod webrtc {
         type CreateSessionDescriptionObserver;
         type RTCOfferAnswerOptions;
         type SessionDescriptionInterface;
+        type SdpType;
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
@@ -200,15 +211,21 @@ pub(crate) mod webrtc {
             options: &RTCOfferAnswerOptions,
         );
 
-        /*pub fn set_local_description(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+        pub unsafe fn set_local_description(
+            peer_connection_interface: *mut PeerConnectionInterface,
             desc: UniquePtr<SessionDescriptionInterface>,
         );
 
-        pub fn set_remote_description(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+        pub unsafe fn set_remote_description(
+            peer_connection_interface: *mut PeerConnectionInterface,
             desc: UniquePtr<SessionDescriptionInterface>,
-        );*/
+        );
 
+        #[namespace = "webrtc"]
+        #[cxx_name = "CreateSessionDescription"]
+        pub unsafe fn create_session_description(
+            type_: SdpType,
+            sdp: &CxxString,
+        ) -> UniquePtr<SessionDescriptionInterface>;
     }
 }

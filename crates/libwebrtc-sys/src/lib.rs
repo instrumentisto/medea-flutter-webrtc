@@ -184,7 +184,7 @@ impl VideoDeviceInfo {
 #[cfg(test)]
 mod test {
     use crate::bridge::webrtc::*;
-    use cxx::UniquePtr;
+    use cxx::{UniquePtr, CxxString, let_cxx_string};
     use std::ffi::CStr;
 
     #[test]
@@ -313,5 +313,30 @@ mod test {
         let mut pc = pc();
 
         unsafe { create_answer(pc.into_raw(), &options) };
+    }
+
+    #[test]
+    fn create_session_description_test() {
+        let type_ = SdpType::kAnswer;
+        let_cxx_string!(sdp = "test");
+        let des = unsafe{create_session_description(type_, &sdp)};
+    }
+
+    #[test]
+    fn set_local_description_test() {
+        let type_ = SdpType::kAnswer;
+        let_cxx_string!(sdp = "test");
+        let des = unsafe{create_session_description(type_, &sdp)};
+        let pc = pc();
+        unsafe{set_local_description(pc.into_raw(), des);}
+    }
+
+    #[test]
+    fn set_remote_description_test() {
+        let type_ = SdpType::kAnswer;
+        let_cxx_string!(sdp = "test");
+        let des = unsafe{create_session_description(type_, &sdp)};
+        let pc = pc();
+        unsafe{set_remote_description(pc.into_raw(), des);}
     }
 }

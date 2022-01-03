@@ -82,6 +82,7 @@ using RTCOfferAnswerOptions = webrtc::PeerConnectionInterface::RTCOfferAnswerOpt
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
 using SetLocalDescriptionObserverInterface = rc<webrtc::SetLocalDescriptionObserverInterface>;
 using SetRemoteDescriptionObserverInterface = rc<webrtc::SetRemoteDescriptionObserverInterface>;
+using SdpType = webrtc::SdpType;
 
 
 
@@ -201,10 +202,10 @@ void create_answer(PeerConnectionInterface* peer_connection_interface,
   const RTCOfferAnswerOptions& options);
 
 /// Call setLocalDescription
-void set_local_description(PeerConnectionInterface& peer_connection_interface,
-      std::unique_ptr<SessionDescriptionInterface> desc);
+void set_local_description(PeerConnectionInterface* peer_connection_interface,
+  std::unique_ptr<SessionDescriptionInterface> desc);
 
 /// Call setRemoteDescription
-void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-      std::unique_ptr<SessionDescriptionInterface> desc);
+void set_remote_description(PeerConnectionInterface* peer_connection_interface,
+  std::unique_ptr<SessionDescriptionInterface> desc);
 }
