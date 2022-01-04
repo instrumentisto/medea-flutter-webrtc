@@ -19,11 +19,30 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
     super.initState();
   }
 
+  var configuration = <String, dynamic>{
+    'iceServers': [
+      {'url': 'stun:stun.l.google.com:19302'},
+    ]
+  };
+
+  final loopbackConstraints = <String, dynamic>{
+    'mandatory': {},
+    'optional': [
+      {'DtlsSrtpKeyAgreement': true},
+    ],
+  };
+
   void _create_peer() async {
-    
-    var mediaDeviceInfos = await navigator.createPeerConnection();
+    final response = await WebRTC.invokeMethod(
+      'createPeerConnection',
+      <String, dynamic>{
+        'configuration': configuration,
+        'constraints': loopbackConstraints
+      },
+    );
+    String peerConnectionId = response['peerConnectionId'];
     setState(() {
-      text = "42";
+      text = peerConnectionId;
     });
   }
 
