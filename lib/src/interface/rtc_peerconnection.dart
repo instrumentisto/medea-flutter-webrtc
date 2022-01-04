@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'enums.dart';
-import 'media_stream.dart';
 import 'media_stream_track.dart';
 import 'rtc_ice_candidate.dart';
 import 'rtc_rtp_receiver.dart';
@@ -68,8 +67,6 @@ abstract class RTCPeerConnection {
   Future<List<RTCRtpTransceiver>> getTransceivers();
 
   Future<List<RTCRtpTransceiver>> get transceivers => getTransceivers();
-
-  Future<RTCRtpSender> addTrack(MediaStreamTrack track, [MediaStream stream]);
 
   Future<bool> removeTrack(RTCRtpSender sender);
 

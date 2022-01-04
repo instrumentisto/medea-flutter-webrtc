@@ -3,14 +3,14 @@ import '../flutter_webrtc.dart';
 class MediaDevices {
   @Deprecated(
       'Use the navigator.mediaDevices.getUserMedia(Map<String, dynamic>) provide from the facrory instead')
-  static Future<MediaStream> getUserMedia(
+  static Future<List<MediaStreamTrack>> getUserMedia(
       Map<String, dynamic> mediaConstraints) async {
     return navigator.mediaDevices.getUserMedia(mediaConstraints);
   }
 
   @Deprecated(
       'Use the navigator.mediaDevices.getDisplayMedia(Map<String, dynamic>) provide from the facrory instead')
-  static Future<MediaStream> getDisplayMedia(
+  static Future<List<MediaStreamTrack>> getDisplayMedia(
       Map<String, dynamic> mediaConstraints) async {
     return navigator.mediaDevices.getDisplayMedia(mediaConstraints);
   }

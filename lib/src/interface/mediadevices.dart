@@ -1,4 +1,5 @@
-import 'media_stream.dart';
+
+import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
 
 class MediaStreamConstraints {
   MediaStreamConstraints({this.audio, this.video});
@@ -95,13 +96,13 @@ abstract class MediaDevices {
   /// to capture the contents of a display or portion thereof (such as a window)
   /// as a MediaStream. The resulting stream can then be recorded using the
   /// MediaStream Recording API or transmitted as part of a WebRTC session.
-  Future<MediaStream> getUserMedia(Map<String, dynamic> mediaConstraints);
+  Future<List<MediaStreamTrack>> getUserMedia(Map<String, dynamic> mediaConstraints);
 
   /// Calling this method will prompts the user to select and grant permission
   /// to capture the contents of a display or portion thereof (such as a window)
   /// as a MediaStream. The resulting stream can then be recorded using the
   ///  MediaStream Recording API or transmitted as part of a WebRTC session.
-  Future<MediaStream> getDisplayMedia(Map<String, dynamic> mediaConstraints);
+  Future<List<MediaStreamTrack>> getDisplayMedia(Map<String, dynamic> mediaConstraints);
 
   @Deprecated('use enumerateDevices() instead')
   Future<List<dynamic>> getSources();

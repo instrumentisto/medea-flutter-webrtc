@@ -1,16 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
 
-import '../helper.dart';
-import '../interface/media_stream.dart';
 import '../interface/rtc_video_renderer.dart';
 import 'utils.dart';
 
 class RTCVideoRendererNative extends VideoRenderer {
   RTCVideoRendererNative();
   int? _textureId;
-  MediaStream? _srcObject;
+  MediaStreamTrack? _srcObject;
   StreamSubscription<dynamic>? _eventSubscription;
 
   @override
@@ -32,7 +31,7 @@ class RTCVideoRendererNative extends VideoRenderer {
   int? get textureId => _textureId;
 
   @override
-  MediaStream? get srcObject => _srcObject;
+  MediaStreamTrack? get srcObject => _srcObject;
 
   @override
   set mirror(bool mirror) {
@@ -40,7 +39,7 @@ class RTCVideoRendererNative extends VideoRenderer {
   }
 
   @override
-  set srcObject(MediaStream? stream) {
+  set srcObject(MediaStreamTrack? stream) {
     if (textureId == null) throw 'Call initialize before setting the stream';
 
     _srcObject = stream;
@@ -96,23 +95,14 @@ class RTCVideoRendererNative extends VideoRenderer {
   bool get renderVideo => srcObject != null;
 
   @override
-  bool get muted => _srcObject?.getAudioTracks()[0].muted ?? true;
+  bool get muted => _srcObject?.muted ?? true;
 
   @override
   set muted(bool mute) {
     if (_srcObject == null) {
       throw Exception('Can\'t be muted: The MediaStream is null');
     }
-    if (_srcObject!.ownerTag != 'local') {
-      return;
-      // throw Exception(
-      //     'You\'re trying to mute a remote track, this is not supported');
-    }
-    if (_srcObject!.getAudioTracks().isEmpty) {
-      throw Exception('Can\'t be muted: The MediaStreamTrack(audio) is empty');
-    }
-
-    Helper.setMicrophoneMute(mute, _srcObject!.getAudioTracks()[0]);
+    throw UnimplementedError('VideoRenderer muting is unimplemented atm');
   }
 
   @override

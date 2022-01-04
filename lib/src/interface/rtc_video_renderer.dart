@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-import 'media_stream.dart';
+import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
 
 @immutable
 class RTCVideoValue {
@@ -65,8 +64,8 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
 
   Future<void> initialize();
 
-  MediaStream? get srcObject;
-  set srcObject(MediaStream? stream);
+  MediaStreamTrack? get srcObject;
+  set srcObject(MediaStreamTrack? stream);
 
   @override
   @mustCallSuper

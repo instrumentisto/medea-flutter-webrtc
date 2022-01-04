@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'dart:js_util' as jsutil;
 
-import '../interface/media_stream.dart';
+import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
+import 'package:flutter_webrtc/src/web/media_stream_track_impl.dart';
+
 import '../interface/mediadevices.dart';
-import 'media_stream_impl.dart';
 
 class MediaDevicesWeb extends MediaDevices {
   @override
-  Future<MediaStream> getUserMedia(
+  Future<List<MediaStreamTrack>> getUserMedia(
       Map<String, dynamic> mediaConstraints) async {
     try {
       if (mediaConstraints['video'] is Map) {
@@ -23,42 +24,45 @@ class MediaDevicesWeb extends MediaDevices {
       final mediaDevices = html.window.navigator.mediaDevices;
       if (mediaDevices == null) throw Exception('MediaDevices is null');
 
+      List<html.MediaStreamTrack> tracks;
       if (jsutil.hasProperty(mediaDevices, 'getUserMedia')) {
         var args = jsutil.jsify(mediaConstraints);
         final jsStream = await jsutil.promiseToFuture<html.MediaStream>(
             jsutil.callMethod(mediaDevices, 'getUserMedia', [args]));
-
-        return MediaStreamWeb(jsStream, 'local');
+        tracks = jsStream.getTracks();
       } else {
         final jsStream = await html.window.navigator.getUserMedia(
           audio: mediaConstraints['audio'],
           video: mediaConstraints['video'],
         );
-        return MediaStreamWeb(jsStream, 'local');
+        tracks = jsStream.getTracks();
       }
+      return tracks.map((t) => MediaStreamTrackWeb(t)).toList();
     } catch (e) {
       throw 'Unable to getUserMedia: ${e.toString()}';
     }
   }
 
   @override
-  Future<MediaStream> getDisplayMedia(
+  Future<List<MediaStreamTrack>> getDisplayMedia(
       Map<String, dynamic> mediaConstraints) async {
     try {
       final mediaDevices = html.window.navigator.mediaDevices;
       if (mediaDevices == null) throw Exception('MediaDevices is null');
 
+      List<html.MediaStreamTrack> tracks;
       if (jsutil.hasProperty(mediaDevices, 'getDisplayMedia')) {
         final arg = jsutil.jsify(mediaConstraints);
         final jsStream = await jsutil.promiseToFuture<html.MediaStream>(
             jsutil.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
-        return MediaStreamWeb(jsStream, 'local');
+        tracks = jsStream.getTracks();
       } else {
         final jsStream = await html.window.navigator.getUserMedia(
             video: {'mediaSource': 'screen'},
             audio: mediaConstraints['audio'] ?? false);
-        return MediaStreamWeb(jsStream, 'local');
+        tracks = jsStream.getTracks();
       }
+      return tracks.map((t) => MediaStreamTrackWeb(t)).toList();
     } catch (e) {
       throw 'Unable to getDisplayMedia: ${e.toString()}';
     }

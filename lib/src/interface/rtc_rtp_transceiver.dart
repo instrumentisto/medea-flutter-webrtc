@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'enums.dart';
-import 'media_stream.dart';
 import 'rtc_rtp_parameters.dart';
 import 'rtc_rtp_receiver.dart';
 import 'rtc_rtp_sender.dart';
@@ -13,11 +12,9 @@ List<RTCRtpEncoding> listToRtpEncodings(List<Map<String, dynamic>> list) {
 class RTCRtpTransceiverInit {
   RTCRtpTransceiverInit({
     this.direction,
-    this.streams,
     this.sendEncodings,
   });
   TransceiverDirection? direction;
-  List<MediaStream>? streams;
   List<RTCRtpEncoding>? sendEncodings;
 }
 

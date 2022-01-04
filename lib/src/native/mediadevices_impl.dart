@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
+import 'package:flutter_webrtc/src/native/media_stream_track_impl.dart';
 
-import '../interface/media_stream.dart';
 import '../interface/mediadevices.dart';
-import 'media_stream_impl.dart';
 import 'utils.dart';
 
 class MediaDeviceNative extends MediaDevices {
   @override
-  Future<MediaStream> getUserMedia(
+  Future<List<MediaStreamTrack>> getUserMedia(
       Map<String, dynamic> mediaConstraints) async {
     try {
       final response = await WebRTC.invokeMethod(
@@ -20,18 +20,15 @@ class MediaDeviceNative extends MediaDevices {
         throw Exception('getUserMedia return null, something wrong');
       }
 
-      String streamId = response['streamId'];
-      var stream = MediaStreamNative(streamId, 'local');
-      stream.setMediaTracks(
-          response['audioTracks'] ?? [], response['videoTracks'] ?? []);
-      return stream;
+      List<Map> tracks = response['tracks'];
+      return tracks.map((t) => MediaStreamTrackNative.fromMap(t)).toList();
     } on PlatformException catch (e) {
       throw 'Unable to getUserMedia: ${e.message}';
     }
   }
 
   @override
-  Future<MediaStream> getDisplayMedia(
+  Future<List<MediaStreamTrack>> getDisplayMedia(
       Map<String, dynamic> mediaConstraints) async {
     throw UnsupportedError(
         'getDisplayMedia is not supported on Android platform');

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import '../interface/media_stream.dart';
 import '../interface/navigator.dart';
 import '../interface/rtc_peerconnection.dart';
 import '../interface/rtc_video_renderer.dart';
@@ -11,10 +10,6 @@ Future<RTCPeerConnection> createPeerConnection(
     [Map<String, dynamic>? constraints]) {
   return RTCFactoryWeb.instance
       .createPeerConnection(configuration, constraints);
-}
-
-Future<MediaStream> createLocalMediaStream(String label) {
-  return RTCFactoryWeb.instance.createLocalMediaStream(label);
 }
 
 VideoRenderer videoRenderer() {

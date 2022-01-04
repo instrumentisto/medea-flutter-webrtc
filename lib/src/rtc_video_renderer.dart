@@ -20,7 +20,7 @@ class RTCVideoRenderer {
 
   bool get muted => _delegate.muted;
 
-  MediaStream? get srcObject => _delegate.srcObject;
+  MediaStreamTrack? get srcObject => _delegate.srcObject;
 
   set mirror(bool mirror) => _delegate.mirror = mirror;
 
@@ -28,7 +28,7 @@ class RTCVideoRenderer {
 
   set audioOutput(String deviceId) => _delegate.audioOutput(deviceId);
 
-  set srcObject(MediaStream? stream) => _delegate.srcObject = stream;
+  set srcObject(MediaStreamTrack? stream) => _delegate.srcObject = stream;
 
   int? get textureId => _delegate.textureId;
 

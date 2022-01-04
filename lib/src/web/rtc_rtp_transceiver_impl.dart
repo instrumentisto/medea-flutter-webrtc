@@ -4,12 +4,10 @@ import 'dart:js_util' as jsutil;
 import 'package:flutter/services.dart';
 
 import '../interface/enums.dart';
-import '../interface/media_stream.dart';
 import '../interface/rtc_rtp_parameters.dart';
 import '../interface/rtc_rtp_receiver.dart';
 import '../interface/rtc_rtp_sender.dart';
 import '../interface/rtc_rtp_transceiver.dart';
-import 'media_stream_impl.dart';
 import 'rtc_rtp_receiver_impl.dart';
 import 'rtc_rtp_sender_impl.dart';
 
@@ -19,11 +17,9 @@ List<RTCRtpEncoding> listToRtpEncodings(List<Map<String, dynamic>> list) {
 
 @Deprecated('RTCRtpTransceiverInitWeb isn\'t referenced from anywhere.')
 class RTCRtpTransceiverInitWeb extends RTCRtpTransceiverInit {
-  RTCRtpTransceiverInitWeb(TransceiverDirection direction,
-      List<MediaStream> streams, List<RTCRtpEncoding> sendEncodings)
+  RTCRtpTransceiverInitWeb(TransceiverDirection direction, List<RTCRtpEncoding> sendEncodings)
       : super(
             direction: direction,
-            streams: streams,
             sendEncodings: sendEncodings);
 
   factory RTCRtpTransceiverInitWeb.fromMap(Map<dynamic, dynamic> map) {
@@ -36,13 +32,11 @@ class RTCRtpTransceiverInitWeb extends RTCRtpTransceiverInit {
 
     return RTCRtpTransceiverInitWeb(
         typeStringToRtpTransceiverDirection[map['direction']]!,
-        (map['streams'] as List<MediaStream>).map((e) => e).toList(),
         listToRtpEncodings(map['sendEncodings']));
   }
 
   Map<String, dynamic> toMap() => {
         'direction': typeRtpTransceiverDirectionToString[direction],
-        if (streams != null) 'streamIds': streams!.map((e) => e.id).toList(),
         if (sendEncodings != null)
           'sendEncodings': sendEncodings!.map((e) => e.toMap()).toList(),
       };
@@ -51,9 +45,6 @@ class RTCRtpTransceiverInitWeb extends RTCRtpTransceiverInit {
 extension RTCRtpTransceiverInitWebExt on RTCRtpTransceiverInit {
   dynamic toJsObject() => jsutil.jsify({
         'direction': typeRtpTransceiverDirectionToString[direction],
-        if (streams != null)
-          'streams':
-              streams!.map((e) => (e as MediaStreamWeb).jsStream).toList(),
         if (sendEncodings != null)
           'sendEncodings': sendEncodings!.map((e) => e.toMap()).toList(),
       });

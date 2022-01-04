@@ -72,9 +72,6 @@ class MediaStreamTrackNative extends MediaStreamTrack {
       );
 
   @override
-  Future<bool> switchCamera() => Helper.switchCamera(this);
-
-  @override
   void enableSpeakerphone(bool enable) async {
     print('MediaStreamTrack:enableSpeakerphone $enable');
     await WebRTC.invokeMethod(

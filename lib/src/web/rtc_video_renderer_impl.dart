@@ -4,10 +4,10 @@ import 'dart:js_util' as jsutil;
 import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
+import 'package:flutter_webrtc/src/web/media_stream_track_impl.dart';
 
-import '../interface/media_stream.dart';
 import '../interface/rtc_video_renderer.dart';
-import 'media_stream_impl.dart';
 
 // An error code value to error name Map.
 // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaError/code
@@ -43,9 +43,7 @@ class RTCVideoRendererWeb extends VideoRenderer {
 
   html.MediaStream? _videoStream;
 
-  html.MediaStream? _audioStream;
-
-  MediaStreamWeb? _srcObject;
+  MediaStreamTrackWeb? _srcObject;
 
   final int _textureId;
 
@@ -83,7 +81,6 @@ class RTCVideoRendererWeb extends VideoRenderer {
   @override
   bool get renderVideo => _srcObject != null;
 
-  String get _elementIdForAudio => 'audio_RTCVideoRenderer-$textureId';
   String get _elementIdForVideo => 'video_RTCVideoRenderer-$textureId';
 
   void _updateAllValues() {
@@ -97,62 +94,29 @@ class RTCVideoRendererWeb extends VideoRenderer {
   }
 
   @override
-  MediaStream? get srcObject => _srcObject;
+  MediaStreamTrack? get srcObject => _srcObject;
 
   @override
-  set srcObject(MediaStream? stream) {
-    if (stream == null) {
+  set srcObject(MediaStreamTrack? track) {
+    if (track == null) {
       findHtmlView()?.srcObject = null;
       _audioElement?.srcObject = null;
       _srcObject = null;
       return;
     }
 
-    _srcObject = stream as MediaStreamWeb;
+    _srcObject = track as MediaStreamTrackWeb;
 
     if (null != _srcObject) {
-      if (stream.getVideoTracks().isNotEmpty) {
-        _videoStream = html.MediaStream();
-        for (final track in _srcObject!.jsStream.getVideoTracks()) {
-          _videoStream!.addTrack(track);
-        }
-      }
-      if (stream.getAudioTracks().isNotEmpty) {
-        _audioStream = html.MediaStream();
-        for (final track in _srcObject!.jsStream.getAudioTracks()) {
-          _audioStream!.addTrack(track);
-        }
-      }
+      _videoStream = html.MediaStream();
+      _videoStream!.addTrack(track.jsTrack);
     } else {
       _videoStream = null;
-      _audioStream = null;
-    }
-
-    if (null != _audioStream) {
-      if (null == _audioElement) {
-        _audioElement = html.AudioElement()
-          ..id = _elementIdForAudio
-          ..muted = stream.ownerTag == 'local'
-          ..autoplay = true;
-        _ensureAudioManagerDiv().append(_audioElement!);
-      }
-      _audioElement?.srcObject = _audioStream;
     }
 
     findHtmlView()?.srcObject = _videoStream;
 
     value = value.copyWith(renderVideo: renderVideo);
-  }
-
-  html.DivElement _ensureAudioManagerDiv() {
-    var div = html.document.getElementById(_elementIdForAudioManager);
-    if (null != div) return div as html.DivElement;
-
-    div = html.DivElement()
-      ..id = _elementIdForAudioManager
-      ..style.display = 'none';
-    html.document.body?.append(div);
-    return div as html.DivElement;
   }
 
   html.VideoElement? findHtmlView() {

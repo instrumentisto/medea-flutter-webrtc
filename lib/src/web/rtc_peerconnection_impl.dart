@@ -4,7 +4,6 @@ import 'dart:js' as js;
 import 'dart:js_util' as jsutil;
 
 import '../interface/enums.dart';
-import '../interface/media_stream.dart';
 import '../interface/media_stream_track.dart';
 import '../interface/rtc_ice_candidate.dart';
 import '../interface/rtc_peerconnection.dart';
@@ -14,7 +13,6 @@ import '../interface/rtc_rtp_transceiver.dart';
 import '../interface/rtc_session_description.dart';
 import '../interface/rtc_stats_report.dart';
 import '../interface/rtc_track_event.dart';
-import 'media_stream_impl.dart';
 import 'media_stream_track_impl.dart';
 import 'rtc_rtp_receiver_impl.dart';
 import 'rtc_rtp_sender_impl.dart';
@@ -64,11 +62,6 @@ class RTCPeerConnectionWeb extends RTCPeerConnection {
             receiver: RTCRtpReceiverWeb(trackEvent.receiver!),
             transceiver: RTCRtpTransceiverWeb.fromJsObject(
                 jsutil.getProperty(trackEvent, 'transceiver')),
-            streams: (trackEvent.streams != null)
-                ? trackEvent.streams!
-                    .map((e) => MediaStreamWeb(e, _peerConnectionId))
-                    .toList()
-                : [],
           ),
         );
       }
@@ -214,15 +207,6 @@ class RTCPeerConnectionWeb extends RTCPeerConnection {
 
   RTCSessionDescription _sessionFromJs(html.RtcSessionDescription? sd) =>
       RTCSessionDescription(sd?.sdp, sd?.type);
-
-  @override
-  Future<RTCRtpSender> addTrack(MediaStreamTrack track,
-      [MediaStream? stream]) async {
-    var jStream = (stream as MediaStreamWeb).jsStream;
-    var jsTrack = (track as MediaStreamTrackWeb).jsTrack;
-    var sender = _jsPc.addTrack(jsTrack, jStream);
-    return RTCRtpSenderWeb.fromJsSender(sender);
-  }
 
   @override
   Future<bool> removeTrack(RTCRtpSender sender) async {

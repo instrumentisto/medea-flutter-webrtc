@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import '../interface/enums.dart';
-import '../interface/media_stream.dart';
 import '../interface/media_stream_track.dart';
 import '../interface/rtc_ice_candidate.dart';
 import '../interface/rtc_peerconnection.dart';
@@ -13,7 +12,6 @@ import '../interface/rtc_rtp_transceiver.dart';
 import '../interface/rtc_session_description.dart';
 import '../interface/rtc_stats_report.dart';
 import '../interface/rtc_track_event.dart';
-import 'media_stream_impl.dart';
 import 'media_stream_track_impl.dart';
 import 'rtc_rtp_receiver_impl.dart';
 import 'rtc_rtp_sender_impl.dart';
@@ -98,8 +96,6 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
         onRenegotiationNeeded?.call();
         break;
       case 'onTrack':
-        var params = map['streams'] as List<dynamic>;
-        var streams = params.map((e) => MediaStreamNative.fromMap(e)).toList();
         var transceiver = map['transceiver'] != null
             ? RTCRtpTransceiverNative.fromMap(map['transceiver'],
                 peerConnectionId: _peerConnectionId)
@@ -107,7 +103,6 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
         onTrack?.call(RTCTrackEvent(
             receiver: RTCRtpReceiverNative.fromMap(map['receiver'],
                 peerConnectionId: _peerConnectionId),
-            streams: streams,
             track: MediaStreamTrackNative.fromMap(map['track']),
             transceiver: transceiver));
         break;
@@ -326,22 +321,6 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
           peerConnectionId: _peerConnectionId);
       _transceivers.addAll(transceivers);
       return transceivers;
-    } on PlatformException catch (e) {
-      throw 'Unable to RTCPeerConnection::addTrack: ${e.message}';
-    }
-  }
-
-  @override
-  Future<RTCRtpSender> addTrack(MediaStreamTrack track,
-      [MediaStream? stream]) async {
-    try {
-      final response = await WebRTC.invokeMethod('addTrack', <String, dynamic>{
-        'peerConnectionId': _peerConnectionId,
-        'trackId': track.id,
-        'streamIds': [stream?.id]
-      });
-      return RTCRtpSenderNative.fromMap(response,
-          peerConnectionId: _peerConnectionId);
     } on PlatformException catch (e) {
       throw 'Unable to RTCPeerConnection::addTrack: ${e.message}';
     }

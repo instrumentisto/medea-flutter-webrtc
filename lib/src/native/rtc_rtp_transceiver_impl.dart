@@ -3,12 +3,10 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import '../interface/enums.dart';
-import '../interface/media_stream.dart';
 import '../interface/rtc_rtp_parameters.dart';
 import '../interface/rtc_rtp_receiver.dart';
 import '../interface/rtc_rtp_sender.dart';
 import '../interface/rtc_rtp_transceiver.dart';
-import 'media_stream_impl.dart';
 import 'rtc_rtp_receiver_impl.dart';
 import 'rtc_rtp_sender_impl.dart';
 import 'utils.dart';
@@ -18,26 +16,20 @@ List<RTCRtpEncoding> listToRtpEncodings(List<Map<String, dynamic>> list) {
 }
 
 class RTCRtpTransceiverInitNative extends RTCRtpTransceiverInit {
-  RTCRtpTransceiverInitNative(TransceiverDirection direction,
-      List<MediaStream> streams, List<RTCRtpEncoding> sendEncodings)
+  RTCRtpTransceiverInitNative(TransceiverDirection direction, List<RTCRtpEncoding> sendEncodings)
       : super(
             direction: direction,
-            streams: streams,
             sendEncodings: sendEncodings);
 
   factory RTCRtpTransceiverInitNative.fromMap(Map<dynamic, dynamic> map) {
     return RTCRtpTransceiverInitNative(
         typeStringToRtpTransceiverDirection[map['direction']]!,
-        (map['streams'] as List<dynamic>)
-            .map((e) => MediaStreamNative.fromMap(map))
-            .toList(),
         listToRtpEncodings(map['sendEncodings']));
   }
 
   Map<String, dynamic> toMap() {
     return {
       'direction': typeRtpTransceiverDirectionToString[direction],
-      if (streams != null) 'streamIds': streams!.map((e) => e.id).toList(),
       if (sendEncodings != null)
         'sendEncodings': sendEncodings!.map((e) => e.toMap()).toList(),
     };
@@ -46,8 +38,6 @@ class RTCRtpTransceiverInitNative extends RTCRtpTransceiverInit {
   static Map<String, dynamic> initToMap(RTCRtpTransceiverInit init) {
     return {
       'direction': typeRtpTransceiverDirectionToString[init.direction],
-      if (init.streams != null)
-        'streamIds': init.streams!.map((e) => e.id).toList(),
       if (init.sendEncodings != null)
         'sendEncodings': init.sendEncodings!.map((e) => e.toMap()).toList(),
     };
