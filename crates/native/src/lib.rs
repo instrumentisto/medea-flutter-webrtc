@@ -6,7 +6,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
     AudioDeviceModule, AudioLayer, PeerConnectionFactoryInterface,
-    TaskQueueFactory, VideoDeviceInfo,
+    TaskQueueFactory, VideoDeviceInfo, RTCOfferAnswerOptions
 };
 
 use peer_connection::{PeerConnection, PeerConnectionId};
@@ -41,6 +41,7 @@ pub mod ffi {
     extern "Rust" {
         type Webrtc;
         type PeerConnection_;
+        type RTCOfferAnswerOptions;
 
         /// Creates an instance of [Webrtc].
         #[cxx_name = "Init"]
@@ -71,6 +72,9 @@ pub mod ffi {
 
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(self: &mut PeerConnection_);
+
+        #[cxx_name = "RTCOfferAnswerOptions"]
+        fn offer_answer_options(video:bool, audio: bool) -> Box<RTCOfferAnswerOptions>;
 
     }
 }

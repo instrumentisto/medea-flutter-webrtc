@@ -22,6 +22,14 @@ pub struct PeerConnectionId(u64);
 
 impl PeerConnection_ {
     
+    pub fn create_offer2(&mut self, options: Box<sys::RTCOfferAnswerOptions>) {
+        self.0
+            .as_ref()
+            .borrow_mut()
+            .peer_connection_interface
+            .create_offer(sys::RTCOfferAnswerOptions::default())
+    }
+
     pub fn create_offer(&mut self) {
         self.0
             .as_ref()
