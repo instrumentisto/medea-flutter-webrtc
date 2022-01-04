@@ -89,6 +89,7 @@ namespace bridge {
     rust::String &name,
     rust::String &guid);
 
+  /// Returns index of `Audio Device` in `ADM` by entered `Audio Device ID`.
   uint32_t get_audio_device_index(const AudioDeviceModule &audio_device_module,
     rust::String &device);
 
@@ -101,6 +102,7 @@ namespace bridge {
     rust::String &name,
     rust::String &guid);
 
+  /// Returns index of `Video Device` in `VDI` by entered `Video Device ID`.
   uint32_t get_video_device_index(VideoDeviceInfo &device_info,
     rust::String &device);
 
@@ -154,6 +156,4 @@ namespace bridge {
   /// Removes the audio track from media stream.
   bool remove_audio_track(const MediaStreamInterface &media_stream,
     const AudioTrackInterface &track);
-
-  void test();
 }  // namespace bridge

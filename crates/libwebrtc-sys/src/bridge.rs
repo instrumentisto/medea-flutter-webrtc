@@ -20,6 +20,8 @@ pub(crate) mod webrtc {
 
     #[rustfmt::skip]
     unsafe extern "C++" {
+        /// This extern block describes basic tools to begin using `libWebRTC`.
+
         include!("libwebrtc-sys/include/bridge.h");
 
         type TaskQueueFactory;
@@ -32,11 +34,14 @@ pub(crate) mod webrtc {
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
 
+        /// Creates a new [`Thead`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
+        /// Starts the created [`Thread`].
         #[cxx_name = "Start"]
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
 
+        /// Creates a new [`PeerConnectionFactory`].
         pub fn create_peer_connection_factory(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
@@ -44,6 +49,8 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
+        /// This extern block describes tools
+        /// for interacting with native audio devices.
         type AudioDeviceModule;
         type AudioLayer;
 
@@ -84,6 +91,7 @@ pub(crate) mod webrtc {
             id: &mut String,
         ) -> i32;
 
+        /// Returns `index` of audio recording device by entered device's `id`.
         pub fn get_audio_device_index(
             device_info: &AudioDeviceModule,
             device: &mut String,
@@ -91,6 +99,8 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
+        /// This extern block describes tools
+        /// for interacting with native video devices.
         type VideoDeviceInfo;
 
         /// Creates a new [`VideoDeviceInfo`].
@@ -110,6 +120,7 @@ pub(crate) mod webrtc {
             id: &mut String,
         ) -> i32;
 
+        /// Returns `index` of video device by entered device's `id`.
         pub fn get_video_device_index(
             device_info: Pin<&mut VideoDeviceInfo>,
             device: &mut String,
@@ -117,12 +128,18 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
+        /// This extern block describes tools for creating and managing
+        /// [`MediaStream`] and all necessary structs, such as
+        /// [`VideoSource`], [`VideoTrack`],
+        /// [`AudioSource`] and [`AudioTrack`].
         type VideoTrackSourceInterface;
         type AudioSourceInterface;
         type VideoTrackInterface;
         type AudioTrackInterface;
         type MediaStreamInterface;
 
+        /// Creates a new [`VideoSource`].
+        /// The [`Thread`]s must be used from the [`PeerConnectionFactory`].
         pub fn create_video_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
@@ -132,39 +149,47 @@ pub(crate) mod webrtc {
             device_id: String,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
+        /// Creates a new [`AudioSource`].
         pub fn create_audio_source(
             peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
+        /// Creates a new [`VideoTrack`].
         pub fn create_video_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             video_source: &VideoTrackSourceInterface,
         ) -> UniquePtr<VideoTrackInterface>;
 
+        /// Creates a new [`AudioTrack`].
         pub fn create_audio_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             audio_source: &AudioSourceInterface,
         ) -> UniquePtr<AudioTrackInterface>;
 
+        /// Creates a new local [`MediaStream`].
         pub fn create_local_media_stream(
             peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<MediaStreamInterface>;
 
+        /// Adds the [`VideoTrack`] to the [`MediaStream`].
         pub fn add_video_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
 
+        /// Adds the [`AudioTrack`] to the [`MediaStream`].
         pub fn add_audio_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
 
+        /// Removes the [`VideoTrack`] from the [`MediaStream`].
         pub fn remove_video_track(
             media_stream: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
 
+        /// Removes the [`AudioTrack`] from the [`MediaStream`].
         pub fn remove_audio_track(
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,

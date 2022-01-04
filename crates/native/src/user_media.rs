@@ -6,33 +6,44 @@ use crate::{api, Webrtc};
 
 use std::sync::atomic::AtomicU64;
 
+/// This counter provides global resource for generating `unique id`.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
+/// Returns an `unique id`.
 fn generate_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
+/// Struct for `id` of [`MediaStream`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct MediaStreamId(u64);
 
+/// Struct for `id` of `VideoDevice`.
 #[derive(Hash, Clone, PartialEq, Eq)]
 pub struct VideoDeviceId(String);
 
+/// Struct for `id` of [`VideoSource`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct VideoSourceId(u64);
 
+/// Struct for `id` of `AudioDevice`.
 #[derive(Hash, Clone, PartialEq, Eq)]
 pub struct AudioDeviceId(String);
 
+/// Struct for `id` of [`AudioSource`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct AudioSourceId(u64);
 
+/// Struct for `id` of [`VideoTrack`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct VideoTrackId(u64);
 
+/// Struct for `id` of [`AudioTrack`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct AudioTrackId(u64);
 
+/// Is used to manage [`sys::LocalMediaStream`]
+/// and all included [`VideoTrack`] and [`AudioTrack`].
 pub struct MediaStream {
     id: MediaStreamId,
     inner: sys::LocalMediaStream,
@@ -41,6 +52,7 @@ pub struct MediaStream {
 }
 
 impl MediaStream {
+    /// Creates a new [`MediaStream`].
     fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
         Ok(Self {
             id: MediaStreamId(generate_id()),
@@ -51,6 +63,7 @@ impl MediaStream {
     }
 }
 
+/// Is used to manage [`sys::VideoTrack`].
 pub struct VideoTrack {
     id: VideoTrackId,
     inner: sys::VideoTrack,
@@ -59,6 +72,7 @@ pub struct VideoTrack {
 }
 
 impl VideoTrack {
+    /// Creates a new [`VideoTrack`].
     fn new(
         pc: &sys::PeerConnectionFactory,
         src: Rc<VideoSource>,
@@ -72,6 +86,7 @@ impl VideoTrack {
     }
 }
 
+/// Is used to manage [`sys::VideoSource`].
 pub struct VideoSource {
     id: VideoSourceId,
     inner: sys::VideoSource,
@@ -79,6 +94,7 @@ pub struct VideoSource {
 }
 
 impl VideoSource {
+    /// Creates a new [`VideoSource`].
     fn new(
         pc: &mut sys::PeerConnectionFactory,
         caps: &api::VideoConstraints,
@@ -98,6 +114,7 @@ impl VideoSource {
     }
 }
 
+/// Is used to manage [`sys::VideoSource`].
 pub struct AudioTrack {
     id: AudioTrackId,
     inner: sys::AudioTrack,
@@ -106,6 +123,7 @@ pub struct AudioTrack {
 }
 
 impl AudioTrack {
+    /// Creates a new [`AudioTrack`].
     fn new(
         pc: &sys::PeerConnectionFactory,
         src: Rc<AudioSource>,
@@ -119,6 +137,7 @@ impl AudioTrack {
     }
 }
 
+/// Is used to manage [`sys::VideoSource`].
 pub struct AudioSource {
     id: AudioSourceId,
     inner: sys::AudioSource,
@@ -126,6 +145,7 @@ pub struct AudioSource {
 }
 
 impl AudioSource {
+    /// Creates a new [`AudioSource`].
     fn new(
         pc: &sys::PeerConnectionFactory,
         caps: &api::AudioConstraints,
@@ -139,20 +159,19 @@ impl AudioSource {
 }
 
 impl Webrtc {
-    /// Creates a local [Media Stream] with [Track]s according to accepted
-    /// [`Constraints`].
-    ///
-    /// [Media Stream]: https://tinyurl.com/2k2376z9
-    /// [Track]: https://tinyurl.com/yc79x5s8
-    /// [`Constraints`]: ffi::Constraints
+    /// Creates a new local [`MediaStream`]
+    /// with [`VideoTrack`]s and/or [`AudioTrack`]s
+    /// according to accepted [`api::MediaStreamConstraints`].
     ///
     /// # Panics
     ///
     /// TODO: Don't panic.
+    #[allow(clippy::too_many_lines)]
     pub fn get_users_media(
         self: &mut Webrtc,
         constraints: &api::MediaStreamConstraints,
     ) -> api::MediaStream {
+        // Creating a [`MediaStream`].
         let stream = {
             let stream =
                 MediaStream::new(&self.0.peer_connection_factory).unwrap();
@@ -169,8 +188,9 @@ impl Webrtc {
             audio_tracks: Vec::new(),
         };
 
+        // Creating [`VideoTrack`]s.
         if constraints.video.required {
-            let device_id = match constraints.video.device_id.as_str() {
+            let mut device_id = match constraints.video.device_id.as_str() {
                 "" => self.0.video_device_info.device_name(0).unwrap().1,
                 other => other.to_string(),
             };
@@ -209,10 +229,8 @@ impl Webrtc {
             stream.inner.add_video_track(&track.inner).unwrap();
             stream.video_tracks.push(track.id);
 
-            let video_device_index = self
-                .0
-                .video_device_info
-                .device_index(&mut device_id.to_string());
+            let video_device_index =
+                self.0.video_device_info.device_index(&mut device_id);
 
             result.video_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
@@ -227,8 +245,9 @@ impl Webrtc {
             });
         }
 
+        // Creating [`AudioTrack`]s.
         if constraints.audio.required {
-            let device_id = match constraints.audio.device_id.as_str() {
+            let mut device_id = match constraints.audio.device_id.as_str() {
                 "" => {
                     self.0
                         .audio_device_module
@@ -276,10 +295,8 @@ impl Webrtc {
             stream.inner.add_audio_track(&track.inner).unwrap();
             stream.audio_tracks.push(track.id);
 
-            let audio_device_index = self
-                .0
-                .audio_device_module
-                .device_index(&mut device_id.to_string());
+            let audio_device_index =
+                self.0.audio_device_module.device_index(&mut device_id);
 
             result.audio_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
@@ -299,9 +316,9 @@ impl Webrtc {
         result
     }
 
-    /// Disposes the [`MediaStreamNative`] and all involved
-    /// [`AudioTrackNative`]s/[`VideoTrackNative`]s and
-    /// [`AudioSource`]s/[`VideoSourceNative`]s.
+    /// Disposes the [`MediaStream`] and all involved
+    /// [`AudioTrack`]s/[`VideoTrack`]s and
+    /// [`AudioSource`]s/[`VideoSource`]s.
     ///
     /// # Panics
     ///

@@ -41,8 +41,8 @@ pub mod api {
     }
 
     /// The [MediaStreamConstraints] is used to instruct what sort of
-    /// [MediaStreamTracks] to include in the [MediaStream] returned by
-    /// [get_users_media()].
+    /// [`MediaStreamTracks`] to include in the [`MediaStream`] returned by
+    /// [`get_users_media()`].
     pub struct MediaStreamConstraints {
         pub audio: AudioConstraints,
         pub video: VideoConstraints,
@@ -104,7 +104,7 @@ pub mod api {
     extern "Rust" {
         type Webrtc;
 
-        /// Creates an instance of [Webrtc].
+        /// Creates an instance of [`Webrtc`].
         #[cxx_name = "Init"]
         fn init() -> Box<Webrtc>;
 
@@ -113,17 +113,19 @@ pub mod api {
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a local Media Stream with Tracks according to
+        /// Creates a [`LocalMediaStream`] with Tracks according to
         /// accepted Constraints.
+        ///
+        /// [`LocalMediaStream`]:LocalMediaStream
         #[cxx_name = "GetUserMedia"]
         pub fn get_users_media(
             self: &mut Webrtc,
             constraints: &MediaStreamConstraints,
         ) -> MediaStream;
 
-        /// Disposes the MediaStreamNative and all involved
-        /// AudioTrackNatives/VideoTrackNatives and
-        /// AudioSources/VideoSourceNatives.
+        /// Disposes the [`MediaStream`] and all involved
+        /// [`AudioTrack`]s/[`VideoTrack`]s and
+        /// [`AudioSource`]s/[`VideoSource`]s.
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
     }
@@ -132,6 +134,7 @@ pub mod api {
 /// Contains all necessary tools for interoperate with [`libWebRTC`].
 ///
 /// [`libWebrtc`]: https://tinyurl.com/54y935zz
+#[allow(dead_code)]
 pub struct Inner {
     task_queue_factory: TaskQueueFactory,
     audio_device_module: AudioDeviceModule,

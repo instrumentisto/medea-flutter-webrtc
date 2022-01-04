@@ -70,6 +70,7 @@ namespace bridge {
     return result;
   };
 
+  /// Returns index of `Audio Device` in `ADM` by entered `Audio Device ID`.
   uint32_t get_audio_device_index(const AudioDeviceModule &audio_device_module,
     rust::String &device) {
     uint32_t num_devices = audio_device_module.ptr()->RecordingDevices();
@@ -116,6 +117,7 @@ namespace bridge {
     return size;
   };
 
+  /// Returns index of `Video Device` in `VDI` by entered `Video Device ID`.
   uint32_t get_video_device_index(VideoDeviceInfo &device_info,
     rust::String &device) {
     uint32_t num_devices = device_info.NumberOfDevices();
@@ -147,13 +149,17 @@ namespace bridge {
   std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread &worker_thread,
     Thread &signaling_thread) {
-    return std::make_unique<PeerConnectionFactoryInterface>(
+    auto ptr = std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
         &worker_thread, &worker_thread, &signaling_thread, nullptr,
         webrtc::CreateBuiltinAudioEncoderFactory(),
         webrtc::CreateBuiltinAudioDecoderFactory(),
         webrtc::CreateBuiltinVideoEncoderFactory(),
         webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr));
+
+    if (ptr.get()->ptr() == nullptr) return nullptr;
+
+    return ptr;
   }
 
   /// Calls `CreateVideoTrackSourceProxy()`.
@@ -226,35 +232,4 @@ namespace bridge {
     const AudioTrackInterface &track) {
     return media_stream->RemoveTrack(track.ptr());
   }
-
-  void test() {
-    // auto worker = rtc::Thread::Create();
-    // worker.get()->Start();
-
-    // auto signal = rtc::Thread::Create();
-    // signal.get()->Start();
-
-    // auto pcf = webrtc::CreatePeerConnectionFactory(
-    //     worker.get(), worker.get(), signal.get(), nullptr,
-    //     webrtc::CreateBuiltinAudioEncoderFactory(),
-    //     webrtc::CreateBuiltinAudioDecoderFactory(),
-    //     webrtc::CreateBuiltinVideoEncoderFactory(),
-    //     webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
-
-    // auto asrc = pcf.get()->CreateAudioSource(cricket::AudioOptions());
-
-    // auto atrack1 = pcf.get()->CreateAudioTrack("pupa", asrc.get());
-    // auto atrack2 = pcf.get()->CreateAudioTrack("lupa", asrc.get());
-
-    // atrack1.get()->set_enabled(true);
-    // atrack2.get()->set_enabled(true);
-
-    // auto src_one = DeviceVideoCapturer::Create(640, 480, 30, "");
-    // auto src_two = DeviceVideoCapturer::Create(640, 480, 30, "");
-
-    // auto vtrack_one = pcf.get()->CreateVideoTrack("one", src_one.get());
-    // auto vtrack_two = pcf.get()->CreateVideoTrack("two", src_two.get());
-    // system("PAUSE");
-  }
-
 }  // namespace bridge

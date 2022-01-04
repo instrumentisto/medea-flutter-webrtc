@@ -191,9 +191,9 @@ impl VideoDeviceInfo {
     }
 }
 
-/// Interface for using a [Thread].
+/// Interface for using a [`Thread`].
 ///
-/// [Thread]: https://tinyurl.com/yhtrryye
+/// [`Thread`]: https://tinyurl.com/yhtrryye
 pub struct Thread(UniquePtr<webrtc::Thread>);
 
 impl Thread {
@@ -211,10 +211,6 @@ impl Thread {
     }
 
     /// Starts the [`Thread`].
-    ///
-    /// # Panics
-    ///
-    /// Panics if thread is not valiable to be started.
     pub fn start(&mut self) -> anyhow::Result<()> {
         if !self.0.pin_mut().start_thread() {
             bail!(
@@ -226,9 +222,9 @@ impl Thread {
     }
 }
 
-/// Interface for using [Peer Connection Factory].
+/// Interface for using [`Peer Connection Factory`].
 ///
-/// [Peer Connection Factory]: https://tinyurl.com/44wywepd
+/// [`Peer Connection Factory`]: https://tinyurl.com/44wywepd
 pub struct PeerConnectionFactory {
     pointer: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
     pub worker_thread: Thread,
@@ -243,7 +239,7 @@ impl PeerConnectionFactory {
     ///
     /// # Panics
     ///
-    /// Panics if thread is not valiable to be started.
+    /// May panic because of any [`Thread`] has failed to start.
     pub fn create() -> anyhow::Result<Self> {
         let mut worker_thread = Thread::create().unwrap();
         worker_thread.start().unwrap();
@@ -330,18 +326,14 @@ impl PeerConnectionFactory {
     }
 }
 
-/// Interface for [Video Source].
+/// Interface for [`Video Source`], which provides source of frames from
+/// native platform.
 ///
-/// [Video Source]: https://tinyurl.com/52fwxnan
+/// [`Video Source`]: https://tinyurl.com/52fwxnan
 pub struct VideoSource(UniquePtr<webrtc::VideoTrackSourceInterface>);
 
 impl VideoSource {
-    /// Creates a new [`VideoSource`], which provides source of frames from
-    /// native platform.
-    ///
-    /// # Panics
-    ///
-    /// Panics if thread is not valiable to be started.
+    /// Creates a new [`VideoSource`].
     pub fn create(
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
@@ -369,22 +361,23 @@ impl VideoSource {
     }
 }
 
-/// Interface for Audio Source.
+/// Interface for [`Audio Source`].
 pub struct AudioSource(UniquePtr<webrtc::AudioSourceInterface>);
 
-/// Interface for Video [Track]
+/// Interface for Video [`Track`], an object represents a video media source.
 ///
-/// [Track]: https://tinyurl.com/yc79x5s8
+/// [`Track`]: https://tinyurl.com/yc79x5s8
 pub struct VideoTrack(UniquePtr<webrtc::VideoTrackInterface>);
 
-/// Interface for Audio [Track]
+/// Interface for Audio [`Track`], an object represents an audio media source.
 ///
-/// [Track]: https://tinyurl.com/yc79x5s8
+/// [`Track`]: https://tinyurl.com/yc79x5s8
 pub struct AudioTrack(UniquePtr<webrtc::AudioTrackInterface>);
 
-/// Interface for local [Media Stream].
+/// Interface for local [`Media Stream`]. A [`Media Stream`] is used to
+/// group several [`VideoTrack`]s and/or [`AudioTrack`]s into one unit.
 ///
-/// [Media Stream]: https://tinyurl.com/2k2376z9
+/// [`Media Stream`]: https://tinyurl.com/2k2376z9
 pub struct LocalMediaStream(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl LocalMediaStream {

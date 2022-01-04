@@ -3,9 +3,14 @@ use crate::{api, Webrtc};
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
 impl Webrtc {
+    /// Returns a list of all available audio input and output devices.
+    ///
+    /// # Panics
+    ///
+    /// May panic because of `libWebRTC` inner errors.
     #[must_use]
     pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
-        // Returns a list of all available audio input and output devices.
+        // Returns a list of all available audio devices.
         let mut audio = {
             let count_playout =
                 self.0.audio_device_module.playout_devices().unwrap();
