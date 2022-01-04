@@ -68,8 +68,6 @@ abstract class RTCPeerConnection {
 
   Future<List<RTCRtpTransceiver>> get transceivers => getTransceivers();
 
-  Future<bool> removeTrack(RTCRtpSender sender);
-
   /// 'audio|video', { 'direction': 'recvonly|sendonly|sendrecv' }
   Future<RTCRtpTransceiver> addTransceiver(
       {MediaStreamTrack track,

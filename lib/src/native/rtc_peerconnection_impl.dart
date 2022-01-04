@@ -327,21 +327,6 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
   }
 
   @override
-  Future<bool> removeTrack(RTCRtpSender sender) async {
-    try {
-      final response = await WebRTC.invokeMethod(
-          'removeTrack', <String, dynamic>{
-        'peerConnectionId': _peerConnectionId,
-        'senderId': sender.senderId
-      });
-      bool result = response['result'];
-      return result;
-    } on PlatformException catch (e) {
-      throw 'Unable to RTCPeerConnection::removeTrack: ${e.message}';
-    }
-  }
-
-  @override
   Future<RTCRtpTransceiver> addTransceiver(
       {MediaStreamTrack? track,
       RTCRtpMediaType? kind,

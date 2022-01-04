@@ -1,6 +1,5 @@
 library flutter_webrtc;
 
-export 'src/helper.dart';
 export 'src/interface/enums.dart';
 export 'src/interface/media_stream_track.dart';
 export 'src/interface/mediadevices.dart' hide MediaDevices;

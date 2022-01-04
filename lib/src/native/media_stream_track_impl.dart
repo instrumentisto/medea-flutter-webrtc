@@ -56,40 +56,6 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   }
 
   @override
-  Future<bool> hasTorch() => WebRTC.invokeMethod(
-        'mediaStreamTrackHasTorch',
-        <String, dynamic>{'trackId': _trackId},
-      ).then((value) => value ?? false);
-
-  @override
-  Future<void> setTorch(bool torch) => WebRTC.invokeMethod(
-        'mediaStreamTrackSetTorch',
-        <String, dynamic>{'trackId': _trackId, 'torch': torch},
-      );
-
-  @override
-  void enableSpeakerphone(bool enable) async {
-    print('MediaStreamTrack:enableSpeakerphone $enable');
-    await WebRTC.invokeMethod(
-      'enableSpeakerphone',
-      <String, dynamic>{'trackId': _trackId, 'enable': enable},
-    );
-  }
-
-  @override
-  Future<void> applyConstraints([Map<String, dynamic>? constraints]) {
-    if (constraints == null) return Future.value();
-
-    var _current = getConstraints();
-    if (constraints.containsKey('volume') &&
-        _current['volume'] != constraints['volume']) {
-      setVolume(constraints['volume']);
-    }
-
-    return Future.value();
-  }
-
-  @override
   Future<MediaStreamTrackReadyState> readyState() async {
     final response = await WebRTC.invokeMethod(
       'mediaStreamTrackReadyState',
