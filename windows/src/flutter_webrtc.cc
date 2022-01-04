@@ -100,6 +100,8 @@ void FlutterWebRTC::HandleMethodCall(
     const EncodableMap constraints = findMap(params, "constraints");
     peerconnection->CreateOffer();
 
+    result->Success(nullptr);
+
   } else if (method_call.method_name().compare("createAnswer") == 0) {
 
     if (!method_call.arguments()) {
@@ -112,6 +114,8 @@ void FlutterWebRTC::HandleMethodCall(
     const EncodableMap constraints = findMap(params, "constraints");
     peerconnection->CreateAnswer();
 
+    result->Success(nullptr);
+
   } else if (method_call.method_name().compare("addStream") == 0) {
   } else if (method_call.method_name().compare("removeStream") == 0) {
   } else if (method_call.method_name().compare("setLocalDescription") == 0) {
@@ -123,17 +127,19 @@ void FlutterWebRTC::HandleMethodCall(
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
     peerconnection->SetLocalDescription();
+    result->Success(nullptr);
   } else if (method_call.method_name().compare("setRemoteDescription") == 0) {
 
     if (!method_call.arguments()) {
       result->Error("Bad Arguments", "Null constraints arguments received");
       return;
     }
+    
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
     peerconnection->SetRemoteDescription();
-
+    result->Success(nullptr);
   } else if (method_call.method_name().compare("addCandidate") == 0) {
   } else if (method_call.method_name().compare("getStats") == 0) {
   } else if (method_call.method_name().compare("createDataChannel") == 0) {
