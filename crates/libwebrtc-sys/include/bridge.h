@@ -180,8 +180,15 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
 /// Get RTCError message. 
 const char* rtc_error_or_message(RTCError& rtc);
 
-/// Create RTCOfferAnswerOptions
+/// Create default RTCOfferAnswerOptions
 std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
+
+/// Create RTCOfferAnswerOptions
+std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(int32_t offer_to_receive_video,
+  int32_t offer_to_receive_audio,
+  bool voice_activity_detection,
+  bool ice_restart,
+  bool use_rtp_mux);
 
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,

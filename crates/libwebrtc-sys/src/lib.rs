@@ -284,11 +284,29 @@ impl Default for PeerConnectionDependencies {
     }
 }
 
-pub struct RTCOfferAnswerOptions(UniquePtr<webrtc::RTCOfferAnswerOptions>);
+pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
     fn default() -> Self {
         RTCOfferAnswerOptions(webrtc::create_default_rtc_offer_answer_options())
+    }
+}
+
+impl RTCOfferAnswerOptions {
+    pub fn new(
+        offer_to_receive_video: i32,
+        offer_to_receive_audio: i32,
+        voice_activity_detection: bool,
+        ice_restart: bool,
+        use_rtp_mux: bool,
+    ) -> Self {
+        RTCOfferAnswerOptions(webrtc::create_rtc_offer_answer_options(
+            offer_to_receive_video,
+            offer_to_receive_audio,
+            voice_activity_detection,
+            ice_restart,
+            use_rtp_mux,
+        ))
     }
 }
 
@@ -308,8 +326,8 @@ impl SessionDescriptionInterface {
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
-    pub fn create_offer(&mut self, options: RTCOfferAnswerOptions) {
-        webrtc::create_offer(self.0.pin_mut(), &options.0) 
+    pub fn create_offer(&mut self, options: &RTCOfferAnswerOptions) {
+        webrtc::create_offer(self.0.pin_mut(), &options.0)
     }
 
     pub fn create_answer(&mut self, options: RTCOfferAnswerOptions) {

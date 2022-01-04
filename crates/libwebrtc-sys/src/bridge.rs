@@ -198,6 +198,14 @@ pub(crate) mod webrtc {
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
+        pub fn create_rtc_offer_answer_options(
+            offer_to_receive_video: i32,
+            offer_to_receive_audio: i32,
+            voice_activity_detection: bool,
+            ice_restart: bool,
+            use_rtp_mux: bool,
+        ) -> UniquePtr<RTCOfferAnswerOptions>;
+
         pub fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,

@@ -6,7 +6,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
     AudioDeviceModule, AudioLayer, PeerConnectionFactoryInterface,
-    TaskQueueFactory, VideoDeviceInfo, RTCOfferAnswerOptions
+    RTCOfferAnswerOptions, TaskQueueFactory, VideoDeviceInfo,
 };
 
 use peer_connection::{PeerConnection, PeerConnectionId};
@@ -41,7 +41,7 @@ pub mod ffi {
     extern "Rust" {
         type Webrtc;
         type PeerConnection_;
-        type RTCOfferAnswerOptions;
+        type RustRTCOfferAnswerOptions;
 
         /// Creates an instance of [Webrtc].
         #[cxx_name = "Init"]
@@ -61,8 +61,8 @@ pub mod ffi {
             id: u64,
         ) -> Box<PeerConnection_>;
 
-        #[cxx_name = "CreateOffer"]
-        fn create_offer(self: &mut PeerConnection_);
+        /*#[cxx_name = "CreateOffer"]
+        fn create_offer(self: &mut PeerConnection_);*/
 
         #[cxx_name = "CreateAnswer"]
         fn create_answer(self: &mut PeerConnection_);
@@ -73,10 +73,32 @@ pub mod ffi {
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(self: &mut PeerConnection_);
 
-        #[cxx_name = "RTCOfferAnswerOptions"]
-        fn offer_answer_options(video:bool, audio: bool) -> Box<RTCOfferAnswerOptions>;
+        #[cxx_name = "Rust_RTCOfferAnswerOptions"]
+        fn create_rtc_offer_answer_options(
+            offer_to_receive_video: i32,
+            offer_to_receive_audio: i32,
+            voice_activity_detection: bool,
+            ice_restart: bool,
+            use_rtp_mux: bool,
+        ) -> Box<RustRTCOfferAnswerOptions>;
 
     }
+}
+
+pub fn create_rtc_offer_answer_options(
+    offer_to_receive_video: i32,
+    offer_to_receive_audio: i32,
+    voice_activity_detection: bool,
+    ice_restart: bool,
+    use_rtp_mux: bool,
+) -> Box<RustRTCOfferAnswerOptions> {
+    Box::new(RustRTCOfferAnswerOptions(Box::new(RTCOfferAnswerOptions::new(
+        offer_to_receive_video,
+        offer_to_receive_audio,
+        voice_activity_detection,
+        ice_restart,
+        use_rtp_mux,
+    ))))
 }
 
 /// Returns a list of all available media input and output devices, such as
@@ -163,6 +185,8 @@ pub struct Inner {
     peer_connection_factory: PeerConnectionFactoryInterface,
     peer_connections: HashMap<u64, Rc<RefCell<PeerConnection>>>,
 }
+
+pub struct RustRTCOfferAnswerOptions(Box<RTCOfferAnswerOptions>);
 
 pub struct PeerConnection_(Rc<RefCell<PeerConnection>>);
 

@@ -8,8 +8,9 @@ use std::sync::atomic::Ordering;
 
 use std::sync::atomic::AtomicU64;
 
-use crate::Webrtc;
 use crate::PeerConnection_;
+use crate::Webrtc;
+use crate::RustRTCOfferAnswerOptions;
 
 static ID_COUNTER: AtomicU64 = AtomicU64::new(1);
 
@@ -21,21 +22,14 @@ fn generate_id() -> u64 {
 pub struct PeerConnectionId(u64);
 
 impl PeerConnection_ {
-    
-    pub fn create_offer2(&mut self, options: Box<sys::RTCOfferAnswerOptions>) {
+    pub fn create_offer(&mut self, options: Box<RustRTCOfferAnswerOptions>) {
+        let temp = options.0;
+        let temp = temp.as_ref();
         self.0
             .as_ref()
             .borrow_mut()
             .peer_connection_interface
-            .create_offer(sys::RTCOfferAnswerOptions::default())
-    }
-
-    pub fn create_offer(&mut self) {
-        self.0
-            .as_ref()
-            .borrow_mut()
-            .peer_connection_interface
-            .create_offer(sys::RTCOfferAnswerOptions::default())
+            .create_offer(temp)
     }
 
     pub fn create_answer(&mut self) {
@@ -47,7 +41,6 @@ impl PeerConnection_ {
     }
 
     pub fn set_local_description(&mut self) {
-
         let type_ = sys::SdpType::kAnswer;
         let desc = sys::SessionDescriptionInterface::new(type_, "test");
 
@@ -57,7 +50,7 @@ impl PeerConnection_ {
             .peer_connection_interface
             .set_local_description(desc)
     }
-    
+
     pub fn set_remote_description(&mut self) {
         let type_ = sys::SdpType::kAnswer;
         let desc = sys::SessionDescriptionInterface::new(type_, "test");
@@ -74,7 +67,6 @@ pub struct PeerConnection {
     id: PeerConnectionId,
     peer_connection_interface: sys::PeerConnectionInterface,
 }
-
 
 impl Webrtc {
     pub fn create_default_peer_connection(self: &mut Webrtc) -> u64 {

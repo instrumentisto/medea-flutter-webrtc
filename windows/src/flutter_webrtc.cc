@@ -109,7 +109,8 @@ void FlutterWebRTC::HandleMethodCall(
     const bool f2 = findBool(mandatory, "OfferToReceiveVideo");
 
     // config for createOffer (rust box config)
-    rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+    rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
+      webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
 
     peerconnection->CreateOffer();
 

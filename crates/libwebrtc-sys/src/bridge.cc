@@ -215,6 +215,19 @@ std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options()
   return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions());
 }
 
+/// Create RTCOfferAnswerOptions
+std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(int32_t offer_to_receive_video,
+  int32_t offer_to_receive_audio,
+  bool voice_activity_detection,
+  bool ice_restart,
+  bool use_rtp_mux) {
+    return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions(offer_to_receive_video,
+      offer_to_receive_audio,
+      voice_activity_detection,
+      ice_restart,
+      use_rtp_mux));
+  }
+
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options) {
