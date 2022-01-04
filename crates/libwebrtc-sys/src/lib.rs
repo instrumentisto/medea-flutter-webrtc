@@ -131,6 +131,11 @@ impl AudioDeviceModule {
 
         Ok((name, guid))
     }
+
+    /// Returns the recording audio device `index` for the given `id`.
+    pub fn device_index(&self, device_id: &mut String) -> u32 {
+        webrtc::get_audio_device_index(&self.0, device_id)
+    }
 }
 
 /// Interface for receiving information about available camera devices.
@@ -156,8 +161,8 @@ impl VideoDeviceInfo {
     }
 
     /// Returns the video device `index` for the given `id`.
-    pub fn device_index(&mut self, device_id: String) -> u32 {
-        webrtc::get_device_index(self.0.pin_mut(), device_id)
+    pub fn device_index(&mut self, device_id: &mut String) -> u32 {
+        webrtc::get_video_device_index(self.0.pin_mut(), device_id)
     }
 
     /// Returns the `(label, id)` tuple for the given video device `index`.

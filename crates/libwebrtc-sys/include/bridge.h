@@ -89,6 +89,9 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
                               rust::String& name,
                               rust::String& guid);
 
+uint32_t get_audio_device_index(const AudioDeviceModule& audio_device_module,
+                                rust::String& device);
+
 // Creates a new `VideoDeviceInfo`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info();
 
@@ -98,7 +101,8 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
                           rust::String& name,
                           rust::String& guid);
 
-uint32_t get_device_index(VideoDeviceInfo& device_info, rust::String device);
+uint32_t get_video_device_index(VideoDeviceInfo& device_info,
+                                rust::String& device);
 
 /// Creates a new thread.
 std::unique_ptr<rtc::Thread> create_thread();

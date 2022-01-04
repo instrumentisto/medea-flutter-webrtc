@@ -145,6 +145,11 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
+
+        pub fn get_audio_device_index(
+            device_info: &AudioDeviceModule,
+            device: &mut String,
+        ) -> u32;
     }
 
     unsafe extern "C++" {
@@ -167,9 +172,9 @@ pub(crate) mod webrtc {
             id: &mut String,
         ) -> i32;
 
-        pub fn get_device_index(
+        pub fn get_video_device_index(
             device_info: Pin<&mut VideoDeviceInfo>,
-            device: String,
+            device: &mut String,
         ) -> u32;
 
         pub fn test();

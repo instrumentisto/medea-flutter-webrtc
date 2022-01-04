@@ -44,18 +44,23 @@ pub mod api {
     /// [MediaStreamTracks] to include in the [MediaStream] returned by
     /// [get_users_media()].
     pub struct MediaStreamConstraints {
-        pub audio: bool,             // TODO: device_id?
+        pub audio: AudioConstraints, // TODO: device_id?
         pub video: VideoConstraints, // TODO: supposed to be optional
     }
 
     /// Constraints for video capturer.
     pub struct VideoConstraints {
-        // TODO: device_id?
         pub min_width: usize,
         pub min_height: usize,
         pub min_fps: usize,
         pub device_id: String,
-        pub video_required: bool,
+        pub required: bool,
+    }
+
+    /// Constraints for audio device module.
+    pub struct AudioConstraints {
+        pub device_id: String,
+        pub required: bool,
     }
 
     /// The [MediaStream] represents a stream of media content. A stream

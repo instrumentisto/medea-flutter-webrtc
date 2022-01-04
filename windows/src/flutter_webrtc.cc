@@ -93,7 +93,7 @@ void FlutterWebRTC::HandleMethodCall(
 
     auto args = GetValue<EncodableMap>(*method_call.arguments());
     auto constraints_arg = findMap(args, "constraints");
-    auto audio_arg = constraints_arg.find(EncodableValue("audio"))->second;
+    auto audio_arg = constraints_arg.find(EncodableValue("audio"));
     auto video_arg = constraints_arg.find(EncodableValue("video"));
 
     EncodableMap video_mandatory;
@@ -101,7 +101,7 @@ void FlutterWebRTC::HandleMethodCall(
     EncodableValue width;
     EncodableValue height;
     EncodableValue fps;
-    EncodableValue device_id;
+    EncodableValue video_device_id;
     bool video_required;
 
     if (TypeIs<bool>(video_arg->second)) {
@@ -116,7 +116,7 @@ void FlutterWebRTC::HandleMethodCall(
         fps = 0;
         video_required = false;
       }
-      device_id = std::string();
+      video_device_id = std::string();
     } else {
       EncodableMap video_map = GetValue<EncodableMap>(video_arg->second);
       video_mandatory = GetValue<EncodableMap>(
@@ -126,41 +126,57 @@ void FlutterWebRTC::HandleMethodCall(
       fps = video_mandatory.find(EncodableValue("minFrameRate"))->second;
       video_required = true;
 
-      device_id = findString(video_map, "device_id");
+      video_device_id = findString(video_map, "device_id");
 
-      if (GetValue<std::string>(width) == "0") {
+      if (std::stoi(GetValue<std::string>(width)) < 1) {
         result->Error("Bad Arguments", "Null width recieved.");
         return;
       }
 
-      if (GetValue<std::string>(height) == "0") {
+      if (std::stoi(GetValue<std::string>(height)) < 1) {
         result->Error("Bad Arguments", "Null height recieved.");
         return;
       }
 
-      if (GetValue<std::string>(fps) == "0") {
+      if (std::stoi(GetValue<std::string>(fps)) < 1) {
         result->Error("Bad Arguments", "Null FPS recieved.");
         return;
       }
     }
 
+    EncodableValue audio_device_id;
+    bool audio_required;
+
+    if (TypeIs<bool>(audio_arg->second)) {
+      if (GetValue<bool>(audio_arg->second)) {
+        audio_required = true;
+      } else {
+        audio_required = false;
+      }
+      audio_device_id = std::string();
+    } else {
+      EncodableMap audio_map = GetValue<EncodableMap>(audio_arg->second);
+      audio_device_id = findString(audio_map, "device_id");
+      audio_required = true;
+    }
+
     MediaStreamConstraints constraints;
     VideoConstraints video_constraints;
-
-    if ((TypeIs<bool>(audio_arg) && GetValue<bool>(audio_arg)) ||
-        TypeIs<EncodableMap>(audio_arg)) {
-      constraints.audio = true;
-    } else {
-      constraints.audio = false;
-    }
+    AudioConstraints audio_constraints;
 
     video_constraints.min_width = std::stoi(GetValue<std::string>(width));
     video_constraints.min_height = std::stoi(GetValue<std::string>(height));
     video_constraints.min_fps = std::stoi(GetValue<std::string>(fps));
     video_constraints.device_id =
-        rust::String(GetValue<std::string>(device_id));
-    video_constraints.video_required = video_required;
+        rust::String(GetValue<std::string>(video_device_id));
+    video_constraints.required = video_required;
+
+    audio_constraints.required = audio_required;
+    audio_constraints.device_id =
+        rust::String(GetValue<std::string>(audio_device_id));
+
     constraints.video = video_constraints;
+    constraints.audio = audio_constraints;
 
     MediaStream user_media = webrtc->GetUserMedia(constraints);
 

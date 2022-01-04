@@ -160,7 +160,7 @@ impl Webrtc {
             audio_tracks: Vec::new(),
         };
 
-        if constraints.video.video_required {
+        if constraints.video.required {
             // TODO: if let Some(constraints) = constraints.video
             let source = {
                 // TODO: reuse existing video source?
@@ -187,7 +187,7 @@ impl Webrtc {
             let video_device_index = self
                 .0
                 .video_device_info
-                .device_index(constraints.video.device_id.to_string());
+                .device_index(&mut constraints.video.device_id.to_string());
 
             result.video_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
@@ -202,7 +202,7 @@ impl Webrtc {
             });
         }
 
-        if constraints.audio {
+        if constraints.audio.required {
             let source = {
                 // TODO: reuse existing audio source?
                 let source =
@@ -221,9 +221,21 @@ impl Webrtc {
             stream.inner.add_audio_track(&track.inner).unwrap();
             stream.audio_tracks.push(track.id);
 
+            let audio_device_index = self
+                .0
+                .audio_device_module
+                .device_index(&mut constraints.audio.device_id.to_string());
+
             result.audio_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
-                label: track.id.0.to_string(), // TODO: source device label
+                label: self
+                    .0
+                    .audio_device_module
+                    .recording_device_name(
+                        audio_device_index.try_into().unwrap(),
+                    )
+                    .unwrap()
+                    .0,
                 kind: track.kind,
                 enabled: true,
             });
