@@ -1,6 +1,7 @@
+use cxx::let_cxx_string;
 use libwebrtc_sys as sys;
+use sys::SessionDescriptionInterface;
 
-use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::atomic::Ordering;
@@ -8,6 +9,7 @@ use std::sync::atomic::Ordering;
 use std::sync::atomic::AtomicU64;
 
 use crate::Webrtc;
+use crate::PeerConnection_;
 
 static ID_COUNTER: AtomicU64 = AtomicU64::new(1);
 
@@ -18,15 +20,45 @@ fn generate_id() -> u64 {
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct PeerConnectionId(u64);
 
-pub struct PeerConnection_(Rc<RefCell<PeerConnection>>);
-
 impl PeerConnection_ {
-    fn create_offer(&mut self, options: sys::RTCOfferAnswerOptions) {
+    
+    pub fn create_offer(&mut self) {
         self.0
             .as_ref()
             .borrow_mut()
             .peer_connection_interface
-            .create_offer(options)
+            .create_offer(sys::RTCOfferAnswerOptions::default())
+    }
+
+    pub fn create_answer(&mut self) {
+        self.0
+            .as_ref()
+            .borrow_mut()
+            .peer_connection_interface
+            .create_answer(sys::RTCOfferAnswerOptions::default())
+    }
+
+    pub fn set_local_description(&mut self) {
+
+        let type_ = sys::SdpType::kAnswer;
+        let desc = sys::SessionDescriptionInterface::new(type_, "test");
+
+        self.0
+            .as_ref()
+            .borrow_mut()
+            .peer_connection_interface
+            .set_local_description(desc)
+    }
+    
+    pub fn set_remote_description(&mut self) {
+        let type_ = sys::SdpType::kAnswer;
+        let desc = sys::SessionDescriptionInterface::new(type_, "test");
+
+        self.0
+            .as_ref()
+            .borrow_mut()
+            .peer_connection_interface
+            .set_remote_description(desc)
     }
 }
 

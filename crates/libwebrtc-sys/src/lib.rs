@@ -11,6 +11,7 @@ use cxx::{let_cxx_string, UniquePtr};
 use self::bridge::webrtc;
 
 pub use webrtc::AudioLayer;
+pub use webrtc::SdpType;
 
 /// Thread safe task queue factory internally used in [`webrtc`] that is
 /// capable of creating [Task Queue]s.
@@ -308,22 +309,22 @@ pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
     pub fn create_offer(&mut self, options: RTCOfferAnswerOptions) {
-        unsafe { webrtc::create_offer(self.0.pin_mut(), &options.0) }
+        webrtc::create_offer(self.0.pin_mut(), &options.0) 
     }
 
     pub fn create_answer(&mut self, options: RTCOfferAnswerOptions) {
-        unsafe { webrtc::create_answer(self.0.pin_mut(), &options.0) }
+        webrtc::create_answer(self.0.pin_mut(), &options.0)
     }
 
     pub fn set_local_description(&mut self, desc: SessionDescriptionInterface) {
-        unsafe { webrtc::set_local_description(self.0.pin_mut(), desc.0) }
+        webrtc::set_local_description(self.0.pin_mut(), desc.0)
     }
 
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
     ) {
-        unsafe { webrtc::set_remote_description(self.0.pin_mut(), desc.0) }
+        webrtc::set_remote_description(self.0.pin_mut(), desc.0)
     }
 }
 
@@ -479,7 +480,7 @@ mod test {
         let options = create_default_rtc_offer_answer_options();
         let mut pc = pc();
 
-        unsafe { create_offer(pc.pin_mut(), &options) };
+        create_offer(pc.pin_mut(), &options);
     }
 
     #[test]
@@ -487,7 +488,7 @@ mod test {
         let options = create_default_rtc_offer_answer_options();
         let mut pc = pc();
 
-        unsafe { create_answer(pc.pin_mut(), &options) };
+        create_answer(pc.pin_mut(), &options);
     }
 
     #[test]
@@ -503,9 +504,7 @@ mod test {
         let_cxx_string!(sdp = "test");
         let des = unsafe { create_session_description(type_, &sdp) };
         let mut pc = pc();
-        unsafe {
-            set_local_description(pc.pin_mut(), des);
-        }
+        set_local_description(pc.pin_mut(), des);
     }
 
     #[test]
@@ -514,8 +513,6 @@ mod test {
         let_cxx_string!(sdp = "test");
         let des = unsafe { create_session_description(type_, &sdp) };
         let mut pc = pc();
-        unsafe {
-            set_remote_description(pc.pin_mut(), des);
-        }
+        set_remote_description(pc.pin_mut(), des);
     }
 }

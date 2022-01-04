@@ -9,7 +9,7 @@ use libwebrtc_sys::{
     TaskQueueFactory, VideoDeviceInfo,
 };
 
-use peer_connection::{PeerConnection, PeerConnectionId, PeerConnection_};
+use peer_connection::{PeerConnection, PeerConnectionId};
 
 use self::ffi::{MediaDeviceInfo, MediaDeviceKind};
 
@@ -59,6 +59,18 @@ pub mod ffi {
             self: &Webrtc,
             id: u64,
         ) -> Box<PeerConnection_>;
+
+        #[cxx_name = "CreateOffer"]
+        fn create_offer(self: &mut PeerConnection_);
+
+        #[cxx_name = "CreateAnswer"]
+        fn create_answer(self: &mut PeerConnection_);
+
+        #[cxx_name = "SetLocalDescription"]
+        fn set_local_description(self: &mut PeerConnection_);
+
+        #[cxx_name = "SetRemoteDescription"]
+        fn set_remote_description(self: &mut PeerConnection_);
 
     }
 }
@@ -147,6 +159,8 @@ pub struct Inner {
     peer_connection_factory: PeerConnectionFactoryInterface,
     peer_connections: HashMap<u64, Rc<RefCell<PeerConnection>>>,
 }
+
+pub struct PeerConnection_(Rc<RefCell<PeerConnection>>);
 
 /// Wraps the [`Inner`] instanse.
 /// This struct is intended to be extern and managed outside of the Rust app.
