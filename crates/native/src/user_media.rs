@@ -21,6 +21,9 @@ pub struct VideoDeviceId(String);
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct VideoSourceId(u64);
 
+#[derive(Hash, Clone, PartialEq, Eq)]
+pub struct AudioDeviceId(String);
+
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct AudioSourceId(u64);
 
@@ -117,13 +120,18 @@ impl AudioTrack {
 pub struct AudioSource {
     id: AudioSourceId,
     inner: sys::AudioSource,
+    device_id: AudioDeviceId,
 }
 
 impl AudioSource {
-    fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
+    fn new(
+        pc: &sys::PeerConnectionFactory,
+        caps: &api::AudioConstraints,
+    ) -> anyhow::Result<Self> {
         Ok(Self {
             id: AudioSourceId(generate_id()),
             inner: pc.create_audio_source()?,
+            device_id: AudioDeviceId(caps.device_id.to_string()),
         })
     }
 }
@@ -203,8 +211,11 @@ impl Webrtc {
         if constraints.audio.required {
             let source = {
                 // TODO: reuse existing audio source?
-                let source =
-                    AudioSource::new(&self.0.peer_connection_factory).unwrap();
+                let source = AudioSource::new(
+                    &self.0.peer_connection_factory,
+                    &constraints.audio,
+                )
+                .unwrap();
 
                 self.0
                     .audio_sources
