@@ -169,16 +169,28 @@ impl Webrtc {
 
         if constraints.video.required {
             let source = {
-                // TODO: reuse existing video source?
-                let source = Rc::new(
-                    VideoSource::new(
-                        &mut self.0.peer_connection_factory,
-                        &constraints.video,
-                    )
-                    .unwrap(),
-                );
-                self.0.video_sources.insert(source.id, Rc::clone(&source));
-                source
+                let mut existing_source: Option<Rc<VideoSource>> = None;
+
+                for src in &self.0.video_sources {
+                    if src.1.device_id.0 == constraints.video.device_id {
+                        existing_source = Some(Rc::clone(src.1));
+                        break;
+                    }
+                }
+
+                if let Some(src) = existing_source {
+                    src
+                } else {
+                    let source = Rc::new(
+                        VideoSource::new(
+                            &mut self.0.peer_connection_factory,
+                            &constraints.video,
+                        )
+                        .unwrap(),
+                    );
+                    self.0.video_sources.insert(source.id, Rc::clone(&source));
+                    source
+                }
             };
             let track = {
                 let track =
@@ -210,22 +222,44 @@ impl Webrtc {
 
         if constraints.audio.required {
             let source = {
-                // TODO: reuse existing audio source?
-                let source = AudioSource::new(
-                    &self.0.peer_connection_factory,
-                    &constraints.audio,
-                )
-                .unwrap();
+                let mut existing_source: Option<Rc<AudioSource>> = None;
 
-                self.0
-                    .audio_sources
-                    .entry(source.id)
-                    .or_insert(Rc::new(source))
+                for src in &self.0.audio_sources {
+                    if src.1.device_id.0 == constraints.audio.device_id {
+                        existing_source = Some(Rc::clone(src.1));
+                        break;
+                    }
+                }
+
+                if let Some(src) = existing_source {
+                    src
+                } else {
+                    let source = Rc::new(
+                        AudioSource::new(
+                            &self.0.peer_connection_factory,
+                            &constraints.audio,
+                        )
+                        .unwrap(),
+                    );
+                    self.0.audio_sources.insert(source.id, Rc::clone(&source));
+                    source
+
+                    // let source = AudioSource::new(
+                    //     &self.0.peer_connection_factory,
+                    //     &constraints.audio,
+                    // )
+                    // .unwrap();
+
+                    // self.0
+                    //     .audio_sources
+                    //     .entry(source.id)
+                    //     .or_insert(Rc::new(source))
+                }
             };
             let track = {
                 let track = AudioTrack::new(
                     &self.0.peer_connection_factory,
-                    Rc::clone(source),
+                    Rc::clone(&source),
                 )
                 .unwrap();
 

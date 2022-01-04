@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -33,6 +32,8 @@ class _TestState extends State<Test> {
         },
         'facingMode': 'user',
         'optional': [],
+        'device_id':
+            '\\\\?\\usb#vid_5986&pid_211b&mi_00#6&1485db48&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global',
       }
     };
 
