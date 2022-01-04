@@ -233,8 +233,8 @@ impl Thread {
 /// [Peer Connection Factory]: https://tinyurl.com/44wywepd
 pub struct PeerConnectionFactory {
     pointer: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
-    worker_thread: Thread,
-    signaling_thread: Thread,
+    pub worker_thread: Thread,
+    pub signaling_thread: Thread,
 }
 
 impl PeerConnectionFactory {
@@ -270,39 +270,6 @@ impl PeerConnectionFactory {
             worker_thread,
             signaling_thread,
         })
-    }
-
-    /// Creates a new [`VideoSource`], which provides source of frames from
-    /// native platform.
-    ///
-    /// # Panics
-    ///
-    /// Panics if thread is not valiable to be started.
-    pub fn create_video_source(
-        &mut self,
-        width: usize,
-        height: usize,
-        fps: usize,
-        device_id: String,
-    ) -> anyhow::Result<VideoSource> {
-        let ptr = unsafe {
-            webrtc::create_video_source(
-                self.worker_thread.0.as_mut().unwrap(),
-                self.signaling_thread.0.as_mut().unwrap(),
-                width,
-                height,
-                fps,
-                device_id,
-            )
-        };
-
-        if ptr.is_null() {
-            bail!(
-                "Null pointer returned from \
-                webrtc::CreateVideoTrackSourceProxy()"
-            );
-        }
-        Ok(VideoSource(ptr))
     }
 
     /// Creates a new [`AudioSource`], which provides sound recording from
@@ -373,6 +340,42 @@ impl PeerConnectionFactory {
 ///
 /// [Video Source]: https://tinyurl.com/52fwxnan
 pub struct VideoSource(UniquePtr<webrtc::VideoTrackSourceInterface>);
+
+impl VideoSource {
+    /// Creates a new [`VideoSource`], which provides source of frames from
+    /// native platform.
+    ///
+    /// # Panics
+    ///
+    /// Panics if thread is not valiable to be started.
+    pub fn create(
+        worker_thread: &mut Thread,
+        signaling_thread: &mut Thread,
+        width: usize,
+        height: usize,
+        fps: usize,
+        device_id: String,
+    ) -> anyhow::Result<Self> {
+        let ptr = unsafe {
+            webrtc::create_video_source(
+                worker_thread.0.pin_mut(),
+                signaling_thread.0.pin_mut(),
+                width,
+                height,
+                fps,
+                device_id,
+            )
+        };
+
+        if ptr.is_null() {
+            bail!(
+                "Null pointer returned from \
+                webrtc::CreateVideoTrackSourceProxy()"
+            );
+        }
+        Ok(VideoSource(ptr))
+    }
+}
 
 /// Interface for Audio Source.
 pub struct AudioSource(UniquePtr<webrtc::AudioSourceInterface>);

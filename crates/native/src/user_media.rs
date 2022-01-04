@@ -85,10 +85,12 @@ impl VideoSource {
     ) -> anyhow::Result<Self> {
         Ok(Self {
             id: VideoSourceId(generate_id()),
-            inner: pc.create_video_source(
+            inner: sys::VideoSource::create(
+                &mut pc.worker_thread,
+                &mut pc.signaling_thread,
                 caps.min_width,
                 caps.min_height,
-                caps.min_width,
+                caps.min_fps,
                 caps.device_id.to_string(),
             )?,
             device_id: VideoDeviceId(caps.device_id.to_string()),
@@ -168,11 +170,16 @@ impl Webrtc {
         };
 
         if constraints.video.required {
+            let device_id = match constraints.video.device_id.as_str() {
+                "" => self.0.video_device_info.device_name(0).unwrap().1,
+                other => other.to_string(),
+            };
+
             let source = {
                 let mut existing_source: Option<Rc<VideoSource>> = None;
 
                 for src in &self.0.video_sources {
-                    if src.1.device_id.0 == constraints.video.device_id {
+                    if src.1.device_id.0 == device_id {
                         existing_source = Some(Rc::clone(src.1));
                         break;
                     }
@@ -205,7 +212,7 @@ impl Webrtc {
             let video_device_index = self
                 .0
                 .video_device_info
-                .device_index(&mut constraints.video.device_id.to_string());
+                .device_index(&mut device_id.to_string());
 
             result.video_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
@@ -221,11 +228,22 @@ impl Webrtc {
         }
 
         if constraints.audio.required {
+            let device_id = match constraints.audio.device_id.as_str() {
+                "" => {
+                    self.0
+                        .audio_device_module
+                        .recording_device_name(0)
+                        .unwrap()
+                        .1
+                }
+                other => other.to_string(),
+            };
+
             let source = {
                 let mut existing_source: Option<Rc<AudioSource>> = None;
 
                 for src in &self.0.audio_sources {
-                    if src.1.device_id.0 == constraints.audio.device_id {
+                    if src.1.device_id.0 == device_id {
                         existing_source = Some(Rc::clone(src.1));
                         break;
                     }
@@ -243,17 +261,6 @@ impl Webrtc {
                     );
                     self.0.audio_sources.insert(source.id, Rc::clone(&source));
                     source
-
-                    // let source = AudioSource::new(
-                    //     &self.0.peer_connection_factory,
-                    //     &constraints.audio,
-                    // )
-                    // .unwrap();
-
-                    // self.0
-                    //     .audio_sources
-                    //     .entry(source.id)
-                    //     .or_insert(Rc::new(source))
                 }
             };
             let track = {
@@ -272,7 +279,7 @@ impl Webrtc {
             let audio_device_index = self
                 .0
                 .audio_device_module
-                .device_index(&mut constraints.audio.device_id.to_string());
+                .device_index(&mut device_id.to_string());
 
             result.audio_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,

@@ -39,17 +39,14 @@ pub(crate) mod webrtc {
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn start_thread(thread: Pin<&mut Thread>) -> bool;
+        pub fn start_thread(thread: Pin<&mut Thread>) -> bool;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn create_peer_connection_factory(
+        pub fn create_peer_connection_factory(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn create_video_source(
+        pub fn create_video_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
             width: usize,
@@ -58,48 +55,40 @@ pub(crate) mod webrtc {
             device_id: String,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn create_audio_source(
+        pub fn create_audio_source(
             peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn create_video_track(
+        pub fn create_video_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             video_source: &VideoTrackSourceInterface,
         ) -> UniquePtr<VideoTrackInterface>;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn create_audio_track(
+        pub fn create_audio_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             audio_source: &AudioSourceInterface,
         ) -> UniquePtr<AudioTrackInterface>;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn create_local_media_stream(
+        pub fn create_local_media_stream(
             peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<MediaStreamInterface>;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn add_video_track(
+        pub fn add_video_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn add_audio_track(
+        pub fn add_audio_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn remove_video_track(
+        pub fn remove_video_track(
             media_stream: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
 
-        #[allow(clippy::missing_safety_doc)]
-        pub unsafe fn remove_audio_track(
+        pub fn remove_audio_track(
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
@@ -176,7 +165,5 @@ pub(crate) mod webrtc {
             device_info: Pin<&mut VideoDeviceInfo>,
             device: &mut String,
         ) -> u32;
-
-        pub fn test();
     }
 }
