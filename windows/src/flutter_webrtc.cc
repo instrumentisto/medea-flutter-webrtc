@@ -125,6 +125,10 @@ void FlutterWebRTC::HandleMethodCall(
     }
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
+    const EncodableMap constraints = findMap(params, "description"); 
+    findString(constraints, "type");
+    findString(constraints, "sdp");
+    
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
     peerconnection->SetLocalDescription();
     result->Success(nullptr);
