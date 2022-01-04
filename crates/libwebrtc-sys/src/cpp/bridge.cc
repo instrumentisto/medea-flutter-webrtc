@@ -143,11 +143,6 @@ namespace bridge {
     return rtc::Thread::Create();
   }
 
-  /// Calls `Thread->Start()`.
-  bool start_thread(Thread &thread) {
-    return thread.Start();
-  }
-
   /// Calls `CreatePeerConnectionFactory()`.
   std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread &worker_thread,

@@ -25,11 +25,6 @@ pub(crate) mod webrtc {
         type TaskQueueFactory;
         type Thread;
         type PeerConnectionFactoryInterface;
-        type VideoTrackSourceInterface;
-        type AudioSourceInterface;
-        type VideoTrackInterface;
-        type AudioTrackInterface;
-        type MediaStreamInterface;
 
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform.
@@ -39,59 +34,13 @@ pub(crate) mod webrtc {
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
-        pub fn start_thread(thread: Pin<&mut Thread>) -> bool;
+        #[cxx_name = "Start"]
+        pub fn start_thread(self: Pin<&mut Thread>) -> bool;
 
         pub fn create_peer_connection_factory(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
-
-        pub fn create_video_source(
-            worker_thread: Pin<&mut Thread>,
-            signaling_thread: Pin<&mut Thread>,
-            width: usize,
-            height: usize,
-            fps: usize,
-            device_id: String,
-        ) -> UniquePtr<VideoTrackSourceInterface>;
-
-        pub fn create_audio_source(
-            peer_connection_factory: &PeerConnectionFactoryInterface,
-        ) -> UniquePtr<AudioSourceInterface>;
-
-        pub fn create_video_track(
-            peer_connection_factory: &PeerConnectionFactoryInterface,
-            video_source: &VideoTrackSourceInterface,
-        ) -> UniquePtr<VideoTrackInterface>;
-
-        pub fn create_audio_track(
-            peer_connection_factory: &PeerConnectionFactoryInterface,
-            audio_source: &AudioSourceInterface,
-        ) -> UniquePtr<AudioTrackInterface>;
-
-        pub fn create_local_media_stream(
-            peer_connection_factory: &PeerConnectionFactoryInterface,
-        ) -> UniquePtr<MediaStreamInterface>;
-
-        pub fn add_video_track(
-            peer_connection_factory: &MediaStreamInterface,
-            track: &VideoTrackInterface,
-        ) -> bool;
-
-        pub fn add_audio_track(
-            peer_connection_factory: &MediaStreamInterface,
-            track: &AudioTrackInterface,
-        ) -> bool;
-
-        pub fn remove_video_track(
-            media_stream: &MediaStreamInterface,
-            track: &VideoTrackInterface,
-        ) -> bool;
-
-        pub fn remove_audio_track(
-            media_stream: &MediaStreamInterface,
-            track: &AudioTrackInterface,
-        ) -> bool;
     }
 
     unsafe extern "C++" {
@@ -165,5 +114,60 @@ pub(crate) mod webrtc {
             device_info: Pin<&mut VideoDeviceInfo>,
             device: &mut String,
         ) -> u32;
+    }
+
+    unsafe extern "C++" {
+        type VideoTrackSourceInterface;
+        type AudioSourceInterface;
+        type VideoTrackInterface;
+        type AudioTrackInterface;
+        type MediaStreamInterface;
+
+        pub fn create_video_source(
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
+            width: usize,
+            height: usize,
+            fps: usize,
+            device_id: String,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
+
+        pub fn create_audio_source(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+        ) -> UniquePtr<AudioSourceInterface>;
+
+        pub fn create_video_track(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            video_source: &VideoTrackSourceInterface,
+        ) -> UniquePtr<VideoTrackInterface>;
+
+        pub fn create_audio_track(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            audio_source: &AudioSourceInterface,
+        ) -> UniquePtr<AudioTrackInterface>;
+
+        pub fn create_local_media_stream(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+        ) -> UniquePtr<MediaStreamInterface>;
+
+        pub fn add_video_track(
+            peer_connection_factory: &MediaStreamInterface,
+            track: &VideoTrackInterface,
+        ) -> bool;
+
+        pub fn add_audio_track(
+            peer_connection_factory: &MediaStreamInterface,
+            track: &AudioTrackInterface,
+        ) -> bool;
+
+        pub fn remove_video_track(
+            media_stream: &MediaStreamInterface,
+            track: &VideoTrackInterface,
+        ) -> bool;
+
+        pub fn remove_audio_track(
+            media_stream: &MediaStreamInterface,
+            track: &AudioTrackInterface,
+        ) -> bool;
     }
 }

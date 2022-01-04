@@ -216,9 +216,7 @@ impl Thread {
     ///
     /// Panics if thread is not valiable to be started.
     pub fn start(&mut self) -> anyhow::Result<()> {
-        let result = unsafe { webrtc::start_thread(self.0.as_mut().unwrap()) };
-
-        if !result {
+        if !self.0.pin_mut().start_thread() {
             bail!(
                 "Thread is running or failed calling \
                 rtc::Thread::Start()"
@@ -252,12 +250,10 @@ impl PeerConnectionFactory {
         let mut signaling_thread = Thread::create().unwrap();
         signaling_thread.start().unwrap();
 
-        let pointer = unsafe {
-            webrtc::create_peer_connection_factory(
-                worker_thread.0.as_mut().unwrap(),
-                signaling_thread.0.as_mut().unwrap(),
-            )
-        };
+        let pointer = webrtc::create_peer_connection_factory(
+            worker_thread.0.as_mut().unwrap(),
+            signaling_thread.0.as_mut().unwrap(),
+        );
 
         if pointer.is_null() {
             bail!(
@@ -275,7 +271,7 @@ impl PeerConnectionFactory {
     /// Creates a new [`AudioSource`], which provides sound recording from
     /// native platform.
     pub fn create_audio_source(&self) -> anyhow::Result<AudioSource> {
-        let ptr = unsafe { webrtc::create_audio_source(&self.pointer) };
+        let ptr = webrtc::create_audio_source(&self.pointer);
 
         if ptr.is_null() {
             bail!(
@@ -291,8 +287,7 @@ impl PeerConnectionFactory {
         &self,
         video_src: &VideoSource,
     ) -> anyhow::Result<VideoTrack> {
-        let ptr =
-            unsafe { webrtc::create_video_track(&self.pointer, &video_src.0) };
+        let ptr = webrtc::create_video_track(&self.pointer, &video_src.0);
 
         if ptr.is_null() {
             bail!(
@@ -308,8 +303,7 @@ impl PeerConnectionFactory {
         &self,
         audio_src: &AudioSource,
     ) -> anyhow::Result<AudioTrack> {
-        let ptr =
-            unsafe { webrtc::create_audio_track(&self.pointer, &audio_src.0) };
+        let ptr = webrtc::create_audio_track(&self.pointer, &audio_src.0);
 
         if ptr.is_null() {
             bail!(
@@ -324,7 +318,7 @@ impl PeerConnectionFactory {
     pub fn create_local_media_stream(
         &self,
     ) -> anyhow::Result<LocalMediaStream> {
-        let ptr = unsafe { webrtc::create_local_media_stream(&self.pointer) };
+        let ptr = webrtc::create_local_media_stream(&self.pointer);
 
         if ptr.is_null() {
             bail!(
@@ -356,16 +350,14 @@ impl VideoSource {
         fps: usize,
         device_id: String,
     ) -> anyhow::Result<Self> {
-        let ptr = unsafe {
-            webrtc::create_video_source(
-                worker_thread.0.pin_mut(),
-                signaling_thread.0.pin_mut(),
-                width,
-                height,
-                fps,
-                device_id,
-            )
-        };
+        let ptr = webrtc::create_video_source(
+            worker_thread.0.pin_mut(),
+            signaling_thread.0.pin_mut(),
+            width,
+            height,
+            fps,
+            device_id,
+        );
 
         if ptr.is_null() {
             bail!(
@@ -398,7 +390,7 @@ pub struct LocalMediaStream(UniquePtr<webrtc::MediaStreamInterface>);
 impl LocalMediaStream {
     /// Adds [`VideoTrack`] to [`LocalMediaStream`].
     pub fn add_video_track(&self, track: &VideoTrack) -> anyhow::Result<()> {
-        let result = unsafe { webrtc::add_video_track(&self.0, &track.0) };
+        let result = webrtc::add_video_track(&self.0, &track.0);
 
         if !result {
             bail!(
@@ -411,7 +403,7 @@ impl LocalMediaStream {
 
     /// Adds [`AudioTrack`] to [`LocalMediaStream`].
     pub fn add_audio_track(&self, track: &AudioTrack) -> anyhow::Result<()> {
-        let result = unsafe { webrtc::add_audio_track(&self.0, &track.0) };
+        let result = webrtc::add_audio_track(&self.0, &track.0);
 
         if !result {
             bail!(
@@ -424,7 +416,7 @@ impl LocalMediaStream {
 
     /// Removes [`VideoTrack`] from [`LocalMediaStream`].
     pub fn remove_video_track(&self, track: &VideoTrack) -> anyhow::Result<()> {
-        let result = unsafe { webrtc::remove_video_track(&self.0, &track.0) };
+        let result = webrtc::remove_video_track(&self.0, &track.0);
 
         if !result {
             bail!(
@@ -437,7 +429,7 @@ impl LocalMediaStream {
 
     /// Removes [`AudioTrack`] from [`LocalMediaStream`].
     pub fn remove_audio_track(&self, track: &AudioTrack) -> anyhow::Result<()> {
-        let result = unsafe { webrtc::remove_audio_track(&self.0, &track.0) };
+        let result = webrtc::remove_audio_track(&self.0, &track.0);
 
         if !result {
             bail!(
@@ -446,16 +438,5 @@ impl LocalMediaStream {
             );
         }
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::bridge::webrtc;
-
-    #[test]
-    fn kek() {
-        webrtc::test();
-        assert!(true);
     }
 }
