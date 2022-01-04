@@ -39,15 +39,15 @@ class RTCVideoRendererNative extends VideoRenderer {
   }
 
   @override
-  set srcObject(MediaStreamTrack? stream) {
-    if (textureId == null) throw 'Call initialize before setting the stream';
+  set srcObject(MediaStreamTrack? track) {
+    if (textureId == null) throw 'Renderer should be initialize before setting src';
 
-    _srcObject = stream;
+    _srcObject = track;
     WebRTC.invokeMethod('videoRendererSetSrcObject', <String, dynamic>{
       'textureId': textureId,
-      'streamId': stream?.id ?? '',
+      'trackId': track?.id ?? '',
     }).then((_) {
-      value = (stream == null)
+      value = (track == null)
           ? RTCVideoValue.empty
           : value.copyWith(renderVideo: renderVideo);
     });
