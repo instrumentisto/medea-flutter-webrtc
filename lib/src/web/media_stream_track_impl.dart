@@ -5,8 +5,6 @@ import 'dart:typed_data';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-import '../interface/media_stream_track.dart';
-
 class MediaStreamTrackWeb extends MediaStreamTrack {
   MediaStreamTrackWeb(this.jsTrack) {
     jsTrack.onEnded.listen((event) => onEnded?.call());

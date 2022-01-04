@@ -2,10 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-import '../helper.dart';
-import '../interface/media_stream_track.dart';
-import 'utils.dart';
-
 class MediaStreamTrackNative extends MediaStreamTrack {
   MediaStreamTrackNative(this._trackId, this._label, this._kind, this._enabled, this._settings, this._deviceId);
 
@@ -116,7 +112,7 @@ class MediaStreamTrackNative extends MediaStreamTrack {
         <String, dynamic>{'trackId': _trackId},
       );
     } catch (e) {
-
+      print('Tried to stop already stopped MediaStreamTrack');
     }
   }
 }
