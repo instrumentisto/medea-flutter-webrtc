@@ -263,14 +263,6 @@ impl Default for RTCConfiguration {
     }
 }
 
-pub struct RTCError(UniquePtr<webrtc::RTCError>);
-
-impl RTCError {
-    pub fn message(&mut self) -> *const c_char {
-        webrtc::rtc_error_or_message(self.0.pin_mut())
-    }
-}
-
 pub struct MyObserver(UniquePtr<webrtc::MyObserver>);
 
 impl Default for MyObserver {
@@ -315,36 +307,20 @@ impl SessionDescriptionInterface {
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
-    pub fn create_offer(self, options: RTCOfferAnswerOptions) {
-        unsafe { webrtc::create_offer(self.0.into_raw(), &options.0) }
+    pub fn create_offer(&mut self, options: RTCOfferAnswerOptions) {
+        unsafe { webrtc::create_offer(self.0.pin_mut(), &options.0) }
     }
 
-    pub fn create_answer(self, options: RTCOfferAnswerOptions) {
-        unsafe { webrtc::create_answer(self.0.into_raw(), &options.0) }
+    pub fn create_answer(&mut self, options: RTCOfferAnswerOptions) {
+        unsafe { webrtc::create_answer(self.0.pin_mut(), &options.0) }
     }
 
-    pub fn set_local_description(self, desc: SessionDescriptionInterface) {
-        unsafe { webrtc::set_local_description(self.0.into_raw(), desc.0) }
+    pub fn set_local_description(&mut self, desc: SessionDescriptionInterface) {
+        unsafe { webrtc::set_local_description(self.0.pin_mut(), desc.0) }
     }
 
-    pub fn set_remote_description(self, desc: SessionDescriptionInterface) {
-        unsafe { webrtc::set_remote_description(self.0.into_raw(), desc.0) }
-    }
-}
-
-pub struct RTCErrorOr(UniquePtr<webrtc::RTCErrorOr>);
-
-impl RTCErrorOr {
-    pub fn ok(&mut self) -> bool {
-        webrtc::rtc_error_or_is_ok(self.0.pin_mut())
-    }
-
-    pub fn error(&mut self) -> RTCError {
-        RTCError(webrtc::move_error(self.0.pin_mut()))
-    }
-
-    pub fn value(&mut self) -> PeerConnectionInterface {
-        PeerConnectionInterface(webrtc::move_value(self.0.pin_mut()))
+    pub fn set_remote_description(&mut self, desc: SessionDescriptionInterface) {
+        unsafe { webrtc::set_remote_description(self.0.pin_mut(), desc.0) }
     }
 }
 
@@ -378,8 +354,8 @@ impl PeerConnectionFactoryInterface {
         &mut self,
         configuration: RTCConfiguration,
         dependencies: PeerConnectionDependencies,
-    ) -> RTCErrorOr {
-        RTCErrorOr(webrtc::create_peer_connection_or_error(
+    ) -> PeerConnectionInterface {
+        PeerConnectionInterface(webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
             &configuration.0,
             dependencies.0,
@@ -466,7 +442,7 @@ mod test {
         pcf
     }
 
-    fn pcoe() -> UniquePtr<RTCErrorOr> {
+    fn pcoe() -> UniquePtr<PeerConnectionInterface> {
         let mut pcf = pcf();
         let obs = create_my_observer();
         let pcd = create_peer_connection_dependencies(obs);
@@ -478,31 +454,22 @@ mod test {
         pc
     }
 
-    #[test]
-    fn create_peer_connection_or_error_test() {
-        let mut pc = pcoe();
-        assert!(rtc_error_or_is_ok(pc.pin_mut()));
-    }
-
-    //#[test]
-    fn create_peer_connection_error_test() {
-        let mut pc = pcoe();
-
-        let mut err = move_error(pc.pin_mut());
-        let message = rtc_error_or_message(err.pin_mut());
-        let cstr = unsafe { CStr::from_ptr(message) };
-
-        println!("{:?}", cstr);
-    }
 
     fn pc() -> UniquePtr<PeerConnectionInterface> {
         let mut pc = pcoe();
-        move_value(pc.pin_mut())
+        pc
     }
 
     #[test]
     fn get_peer_connection_test() {
-        pc();
+        let mut pcf = pcf();
+        let obs = create_my_observer();
+        let pcd = create_peer_connection_dependencies(obs);
+        let rtc_config = create_default_rtc_configuration();
+
+        let mut pc = {
+            create_peer_connection_or_error(pcf.pin_mut(), &rtc_config, pcd)
+        };
     }
 
     #[test]
@@ -510,7 +477,7 @@ mod test {
         let options = create_default_rtc_offer_answer_options();
         let mut pc = pc();
 
-        unsafe { create_offer(pc.into_raw(), &options) };
+        unsafe { create_offer(pc.pin_mut(), &options) };
     }
 
     #[test]
@@ -518,7 +485,7 @@ mod test {
         let options = create_default_rtc_offer_answer_options();
         let mut pc = pc();
 
-        unsafe { create_answer(pc.into_raw(), &options) };
+        unsafe { create_answer(pc.pin_mut(), &options) };
     }
 
     #[test]
@@ -533,9 +500,9 @@ mod test {
         let type_ = SdpType::kAnswer;
         let_cxx_string!(sdp = "test");
         let des = unsafe { create_session_description(type_, &sdp) };
-        let pc = pc();
+        let mut pc = pc();
         unsafe {
-            set_local_description(pc.into_raw(), des);
+            set_local_description(pc.pin_mut(), des);
         }
     }
 
@@ -544,9 +511,9 @@ mod test {
         let type_ = SdpType::kAnswer;
         let_cxx_string!(sdp = "test");
         let des = unsafe { create_session_description(type_, &sdp) };
-        let pc = pc();
+        let mut pc = pc();
         unsafe {
-            set_remote_description(pc.into_raw(), des);
+            set_remote_description(pc.pin_mut(), des);
         }
     }
 }

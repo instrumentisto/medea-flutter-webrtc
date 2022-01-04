@@ -74,8 +74,6 @@ using AudioProcessing = rc<webrtc::AudioProcessing>;
 using VideoEncoderFactory = webrtc::VideoEncoderFactory;
 using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using AudioFrameProcessor = webrtc::AudioFrameProcessor;
-using RTCErrorOr = webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::PeerConnectionInterface>>;
-using RTCErrorOr2 = webrtc::RTCErrorOr<PeerConnectionInterface>;
 using RTCError = webrtc::RTCError;
 using MyObserver = my_stuff::MyObserver;
 using CreateSessionDescriptionObserver = webrtc::CreateSessionDescriptionObserver;
@@ -164,25 +162,13 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     AudioFrameProcessor* audio_frame_processor); 
 
 /// Creates a new Peer Connection.
-std::unique_ptr<RTCErrorOr> create_peer_connection_or_error(
-      PeerConnectionFactoryInterface& peer_connection_factory,
-      const RTCConfiguration& configuration,
-      std::unique_ptr<PeerConnectionDependencies> dependencies);
-
-/// Creates a new Peer Connection.
-std::unique_ptr<RTCErrorOr2> create_peer_connection_or_error2(
+std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
       PeerConnectionFactoryInterface& peer_connection_factory,
       const RTCConfiguration& configuration,
       std::unique_ptr<PeerConnectionDependencies> dependencies);
 
 /// Creates default RTCConfiguration.      
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
-
-/// Get error from RTCErrorOr.      
-std::unique_ptr<RTCError> move_error(RTCErrorOr& rtc_error_or);
-
-/// Get PeerConnectionInterface from RTCErrorOr.      
-std::unique_ptr<PeerConnectionInterface> move_value(RTCErrorOr& rtc_error_or);
 
 /// Create MyObserver.   
 std::unique_ptr<MyObserver> create_my_observer();
@@ -191,9 +177,6 @@ std::unique_ptr<MyObserver> create_my_observer();
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
   std::unique_ptr<MyObserver> observer);
 
-/// Check RTCErrorOr. 
-bool rtc_error_or_is_ok(RTCErrorOr& rtc);
-
 /// Get RTCError message. 
 const char* rtc_error_or_message(RTCError& rtc);
 
@@ -201,18 +184,18 @@ const char* rtc_error_or_message(RTCError& rtc);
 std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
 
 /// Call CreateOffer
-void create_offer(PeerConnectionInterface* peer_connection_interface,
+void create_offer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options);
 
 /// Call CreateAnswer
-void create_answer(PeerConnectionInterface* peer_connection_interface,
+void create_answer(PeerConnectionInterface&  peer_connection_interface,
   const RTCOfferAnswerOptions& options);
 
 /// Call setLocalDescription
-void set_local_description(PeerConnectionInterface* peer_connection_interface,
+void set_local_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc);
 
 /// Call setRemoteDescription
-void set_remote_description(PeerConnectionInterface* peer_connection_interface,
+void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc);
 }

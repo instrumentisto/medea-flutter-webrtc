@@ -39,17 +39,13 @@ impl Webrtc {
                 sys::RTCConfiguration::default(),
                 sys::PeerConnectionDependencies::default(),
             );
-        if peer_c.ok() {
             let id = generate_id();
             let temp = PeerConnection {
                 id: PeerConnectionId(id),
-                peer_connection_interface: peer_c.value(),
+                peer_connection_interface: peer_c,
             };
             self.0.peer_connections.insert(id, Rc::new(temp));
             id
-        } else {
-            0
-        }
     }
 
     pub fn get_peer_connection_from_id(

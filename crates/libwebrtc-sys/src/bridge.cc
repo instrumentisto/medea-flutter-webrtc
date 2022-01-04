@@ -175,18 +175,23 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
 }
 
 /// Creates a new Peer Connection.
-std::unique_ptr<RTCErrorOr> create_peer_connection_or_error(      
+std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(      
       PeerConnectionFactoryInterface& peer_connection_factory,
       const RTCConfiguration& configuration,
       std::unique_ptr<PeerConnectionDependencies> dependencies) {
         PeerConnectionDependencies pcd = std::move(*(dependencies.get()));
-        RTCErrorOr peer_connection = 
+        auto peer_connection = 
           peer_connection_factory.ptr()->CreatePeerConnectionOrError(configuration, std::move(pcd));
-        return std::make_unique<RTCErrorOr>(std::move(peer_connection));
+        
+        if (peer_connection.ok()) {
+          auto ptr = peer_connection.MoveValue();
+          return std::make_unique<PeerConnectionInterface>(std::move(ptr));
+        }
+        return std::unique_ptr<PeerConnectionInterface>();
       }
 
 /// Creates a new Peer Connection.
-std::unique_ptr<RTCErrorOr2> create_peer_connection_or_error2(      
+/*std::unique_ptr<RTCErrorOr2> create_peer_connection_or_error2(      
       PeerConnectionFactoryInterface& peer_connection_factory,
       const RTCConfiguration& configuration,
       std::unique_ptr<PeerConnectionDependencies> dependencies) {
@@ -194,10 +199,10 @@ std::unique_ptr<RTCErrorOr2> create_peer_connection_or_error2(
         webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::PeerConnectionInterface>> peer_connection = 
           peer_connection_factory.ptr()->CreatePeerConnectionOrError(configuration, std::move(pcd));
 
-        rtc::scoped_refptr<webrtc::PeerConnectionInterface> pc = peer_connection.MoveValue();
+        
         RTCErrorOr2 res = webrtc::RTCErrorOr<PeerConnectionInterface>(rc(pc));
-        return std::make_unique<RTCErrorOr2>(res);
-      }
+        return std::make_unique<RTCErrorOr2>(std::move(res));
+      }*/
 
 /// Creates default RTCConfiguration.      
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
@@ -205,15 +210,6 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   return std::make_unique<RTCConfiguration>(config);
 }
 
-/// Get error from RTCErrorOr.      
-std::unique_ptr<RTCError> move_error(RTCErrorOr& rtc_error_or) {
-  return std::make_unique<RTCError>(rtc_error_or.MoveError());
-}
-
-/// Get PeerConnectionInterface from RTCErrorOr.      
-std::unique_ptr<PeerConnectionInterface> move_value(RTCErrorOr& rtc_error_or) {
-  return std::make_unique<PeerConnectionInterface>(std::move(rtc_error_or.MoveValue()));
-}
 
 /// Create MyObserver.   
 std::unique_ptr<MyObserver> create_my_observer() {
@@ -228,43 +224,33 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
     return std::make_unique<PeerConnectionDependencies>(std::move(pcd));
 }
 
-/// Check RTCErrorOr. 
-bool rtc_error_or_is_ok(RTCErrorOr& rtc) {
-  return rtc.ok();
-}
-
-/// Get RTCError message. 
-const char* rtc_error_or_message(RTCError& rtc) {
-  return rtc.message();
-}
-
-
 /// Create RTCOfferAnswerOptions
 std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options() {
   return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions());
 }
 
 /// Call CreateOffer
-void create_offer(PeerConnectionInterface* peer_connection_interface,
+void create_offer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options) {
-    peer_connection_interface->ptr()->CreateOffer(nullptr, options);
+    //int temp = (int) peer_connection_interface.ptr();
+    peer_connection_interface.ptr()->CreateOffer(nullptr, options);
   }
 
 /// Call CreateAnswer
-void create_answer(PeerConnectionInterface* peer_connection_interface,
+void create_answer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options) {
-  peer_connection_interface->ptr()->CreateAnswer(nullptr, options);
+  peer_connection_interface.ptr()->CreateAnswer(nullptr, options);
 }
 
 /// Call setLocalDescription
-void set_local_description(PeerConnectionInterface* peer_connection_interface,
+void set_local_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc) {
-    peer_connection_interface->ptr()->SetLocalDescription(nullptr, desc.get());
+    peer_connection_interface.ptr()->SetLocalDescription(nullptr, desc.get());
   }
 
 /// Call setRemoteDescription
-void set_remote_description(PeerConnectionInterface* peer_connection_interface,
+void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc) {
-    peer_connection_interface->ptr()->SetRemoteDescription(nullptr, desc.get());
+    peer_connection_interface.ptr()->SetRemoteDescription(nullptr, desc.get());
   }
 }

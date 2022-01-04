@@ -114,8 +114,6 @@ pub(crate) mod webrtc {
         type AudioMixer;
         type AudioProcessing;
         type AudioFrameProcessor;
-        type RTCErrorOr;
-        type RTCError;
         type PeerConnectionDependencies;
         type RTCConfiguration;
         type MyObserver;
@@ -175,7 +173,7 @@ pub(crate) mod webrtc {
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
             configuration: &RTCConfiguration,
             dependencies: UniquePtr<PeerConnectionDependencies>,
-        ) -> UniquePtr<RTCErrorOr>;
+        ) -> UniquePtr<PeerConnectionInterface>;
 
         pub fn create_my_observer() -> UniquePtr<MyObserver>;
 
@@ -183,7 +181,7 @@ pub(crate) mod webrtc {
             observer: UniquePtr<MyObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
 
-        pub fn rtc_error_or_is_ok(rtc: Pin<&mut RTCErrorOr>) -> bool;
+        /*pub fn rtc_error_or_is_ok(rtc: Pin<&mut RTCErrorOr>) -> bool;
 
         pub fn move_error(
             rtc_error_or: Pin<&mut RTCErrorOr>,
@@ -195,28 +193,28 @@ pub(crate) mod webrtc {
 
         pub fn move_value(
             rtc: Pin<&mut RTCErrorOr>,
-        ) -> UniquePtr<PeerConnectionInterface>;
+        ) -> UniquePtr<PeerConnectionInterface>;*/
 
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         pub unsafe fn create_offer(
-            peer_connection_interface: *mut PeerConnectionInterface,
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
         );
 
         pub unsafe fn create_answer(
-            peer_connection_interface: *mut PeerConnectionInterface,
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
         );
 
         pub unsafe fn set_local_description(
-            peer_connection_interface: *mut PeerConnectionInterface,
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
         );
 
         pub unsafe fn set_remote_description(
-            peer_connection_interface: *mut PeerConnectionInterface,
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
         );
 
