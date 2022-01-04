@@ -18,15 +18,9 @@ class RTCVideoRenderer {
 
   bool get renderVideo => _delegate.renderVideo;
 
-  bool get muted => _delegate.muted;
-
   MediaStreamTrack? get srcObject => _delegate.srcObject;
 
   set mirror(bool mirror) => _delegate.mirror = mirror;
-
-  set muted(bool mute) => _delegate.muted = mute;
-
-  set audioOutput(String deviceId) => _delegate.audioOutput(deviceId);
 
   set srcObject(MediaStreamTrack? stream) => _delegate.srcObject = stream;
 

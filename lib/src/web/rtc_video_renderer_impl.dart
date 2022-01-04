@@ -55,8 +55,6 @@ class RTCVideoRendererWeb extends VideoRenderer {
 
   String _objectFit = 'contain';
 
-  bool _muted = false;
-
   set objectFit(String fit) {
     if (_objectFit == fit) return;
     _objectFit = fit;
@@ -71,12 +69,6 @@ class RTCVideoRendererWeb extends VideoRenderer {
 
   @override
   int get textureId => _textureId;
-
-  @override
-  bool get muted => _muted;
-
-  @override
-  set muted(bool mute) => _audioElement?.muted = _muted = mute;
 
   @override
   bool get renderVideo => _srcObject != null;
@@ -139,22 +131,6 @@ class RTCVideoRendererWeb extends VideoRenderer {
       audioManager.remove();
     }
     return super.dispose();
-  }
-
-  @override
-  Future<bool> audioOutput(String deviceId) async {
-    try {
-      final element = _audioElement;
-      if (null != element && jsutil.hasProperty(element, 'setSinkId')) {
-        await jsutil.promiseToFuture<void>(
-            jsutil.callMethod(element, 'setSinkId', [deviceId]));
-
-        return true;
-      }
-    } catch (e) {
-      print('Unable to setSinkId: ${e.toString()}');
-    }
-    return false;
   }
 
   @override

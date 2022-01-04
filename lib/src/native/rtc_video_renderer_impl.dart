@@ -93,21 +93,4 @@ class RTCVideoRendererNative extends VideoRenderer {
 
   @override
   bool get renderVideo => srcObject != null;
-
-  @override
-  bool get muted => _srcObject?.muted ?? true;
-
-  @override
-  set muted(bool mute) {
-    if (_srcObject == null) {
-      throw Exception('Can\'t be muted: The MediaStream is null');
-    }
-    throw UnimplementedError('VideoRenderer muting is unimplemented atm');
-  }
-
-  @override
-  Future<bool> audioOutput(String deviceId) {
-    // TODO(cloudwebrtc): related to https://github.com/flutter-webrtc/flutter-webrtc/issues/395
-    throw UnimplementedError('This is not implement yet');
-  }
 }
