@@ -12,7 +12,6 @@ fn generate_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-// TODO: use new-types, dont hardcode IDs
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct MediaStreamId(u64);
 
@@ -97,19 +96,19 @@ impl VideoSource {
 pub struct AudioTrack {
     id: AudioTrackId,
     inner: sys::AudioTrack,
-    src: AudioSourceId,
+    src: Rc<AudioSource>,
     kind: api::TrackKind,
 }
 
 impl AudioTrack {
     fn new(
         pc: &sys::PeerConnectionFactory,
-        src: &AudioSource,
+        src: Rc<AudioSource>,
     ) -> anyhow::Result<Self> {
         Ok(Self {
             id: AudioTrackId(generate_id()),
             inner: pc.create_audio_track(&src.inner)?,
-            src: src.id,
+            src,
             kind: api::TrackKind::kAudio,
         })
     }
@@ -161,7 +160,6 @@ impl Webrtc {
         };
 
         if constraints.video.required {
-            // TODO: if let Some(constraints) = constraints.video
             let source = {
                 // TODO: reuse existing video source?
                 let source = Rc::new(
@@ -208,12 +206,17 @@ impl Webrtc {
                 let source =
                     AudioSource::new(&self.0.peer_connection_factory).unwrap();
 
-                self.0.audio_sources.entry(source.id).or_insert(source)
+                self.0
+                    .audio_sources
+                    .entry(source.id)
+                    .or_insert(Rc::new(source))
             };
             let track = {
-                let track =
-                    AudioTrack::new(&self.0.peer_connection_factory, source)
-                        .unwrap();
+                let track = AudioTrack::new(
+                    &self.0.peer_connection_factory,
+                    Rc::clone(source),
+                )
+                .unwrap();
 
                 self.0.audio_tracks.entry(track.id).or_insert(track)
             };
@@ -268,10 +271,11 @@ impl Webrtc {
             }
 
             for track in audio_tracks {
-                // TODO: are we sure that single audio source cannot source
-                //       multiple audio tracks?
                 let src = self.0.audio_tracks.remove(&track).unwrap().src;
-                self.0.audio_sources.remove(&src);
+
+                if Rc::strong_count(&src) == 2 {
+                    self.0.audio_sources.remove(&src.id);
+                };
             }
         }
     }

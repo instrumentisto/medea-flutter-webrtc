@@ -44,8 +44,8 @@ pub mod api {
     /// [MediaStreamTracks] to include in the [MediaStream] returned by
     /// [get_users_media()].
     pub struct MediaStreamConstraints {
-        pub audio: AudioConstraints, // TODO: device_id?
-        pub video: VideoConstraints, // TODO: supposed to be optional
+        pub audio: AudioConstraints,
+        pub video: VideoConstraints,
     }
 
     /// Constraints for video capturer.
@@ -139,7 +139,7 @@ pub struct Inner {
     peer_connection_factory: PeerConnectionFactory,
     video_sources: HashMap<VideoSourceId, Rc<VideoSource>>,
     video_tracks: HashMap<VideoTrackId, VideoTrack>,
-    audio_sources: HashMap<AudioSourceId, AudioSource>,
+    audio_sources: HashMap<AudioSourceId, Rc<AudioSource>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
 }
