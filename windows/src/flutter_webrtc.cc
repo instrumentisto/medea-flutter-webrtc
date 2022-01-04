@@ -32,6 +32,14 @@ inline std::string findString(const EncodableMap& map, const std::string& key) {
   return std::string();
 }
 
+// WARNING
+inline bool findBool(const EncodableMap& map, const std::string& key) {
+  auto it = map.find(EncodableValue(key));
+  if (it != map.end() && TypeIs<bool>(it->second))
+    return GetValue<bool>(it->second);
+  return bool();
+}
+
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
@@ -95,9 +103,14 @@ void FlutterWebRTC::HandleMethodCall(
     }
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
+    const EncodableMap constraints = findMap(params, "constraints");
+    const EncodableMap mandatory = findMap(constraints, "mandatory");
+    const bool f1 = findBool(mandatory, "OfferToReceiveAudio");
+    const bool f2 = findBool(mandatory, "OfferToReceiveVideo");
+
+    // config for createOffer (rust box config)
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
 
-    const EncodableMap constraints = findMap(params, "constraints");
     peerconnection->CreateOffer();
 
     result->Success(nullptr);
