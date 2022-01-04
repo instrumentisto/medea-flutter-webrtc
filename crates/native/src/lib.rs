@@ -2,7 +2,7 @@
 
 mod peer_connection;
 
-use std::{collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
     AudioDeviceModule, AudioLayer, PeerConnectionFactoryInterface,
@@ -145,7 +145,7 @@ fn video_devices_info() -> Vec<MediaDeviceInfo> {
 pub struct Inner {
     task_queue_factory: TaskQueueFactory,
     peer_connection_factory: PeerConnectionFactoryInterface,
-    peer_connections: HashMap<u64, Rc<PeerConnection>>,
+    peer_connections: HashMap<u64, Rc<RefCell<PeerConnection>>>,
 }
 
 /// Wraps the [`Inner`] instanse.

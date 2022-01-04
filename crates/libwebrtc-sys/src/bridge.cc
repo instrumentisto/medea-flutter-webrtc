@@ -232,25 +232,28 @@ std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options()
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options) {
-    //int temp = (int) peer_connection_interface.ptr();
-    peer_connection_interface.ptr()->CreateOffer(nullptr, options);
+    my_stuff::MyCreateSessionObserver* obs = new my_stuff::MyCreateSessionObserver();
+    peer_connection_interface.ptr()->CreateOffer(obs, options);
   }
 
 /// Call CreateAnswer
 void create_answer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options) {
-  peer_connection_interface.ptr()->CreateAnswer(nullptr, options);
+  my_stuff::MyCreateSessionObserver* obs = new my_stuff::MyCreateSessionObserver();
+  peer_connection_interface.ptr()->CreateAnswer(obs, options);
 }
 
 /// Call setLocalDescription
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc) {
-    peer_connection_interface.ptr()->SetLocalDescription(nullptr, desc.get());
+    my_stuff::MySessionObserver* obs = new my_stuff::MySessionObserver();
+    peer_connection_interface.ptr()->SetLocalDescription(obs, desc.get());
   }
 
 /// Call setRemoteDescription
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc) {
-    peer_connection_interface.ptr()->SetRemoteDescription(nullptr, desc.get());
+    my_stuff::MySessionObserver* obs = new my_stuff::MySessionObserver();
+    peer_connection_interface.ptr()->SetRemoteDescription(obs, desc.get());
   }
 }

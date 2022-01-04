@@ -319,7 +319,10 @@ impl PeerConnectionInterface {
         unsafe { webrtc::set_local_description(self.0.pin_mut(), desc.0) }
     }
 
-    pub fn set_remote_description(&mut self, desc: SessionDescriptionInterface) {
+    pub fn set_remote_description(
+        &mut self,
+        desc: SessionDescriptionInterface,
+    ) {
         unsafe { webrtc::set_remote_description(self.0.pin_mut(), desc.0) }
     }
 }
@@ -453,7 +456,6 @@ mod test {
         };
         pc
     }
-
 
     fn pc() -> UniquePtr<PeerConnectionInterface> {
         let mut pc = pcoe();

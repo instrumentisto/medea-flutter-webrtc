@@ -21,4 +21,22 @@ class MyObserver: public webrtc::PeerConnectionObserver
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) {};
 };
+
+class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
+{
+  void OnSuccess(webrtc::SessionDescriptionInterface* desc) {};
+  void OnFailure(webrtc::RTCError error) {};
+  void AddRef() const {};
+  rtc::RefCountReleaseStatus Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
+
+};
+
+class MySessionObserver: public webrtc::SetSessionDescriptionObserver
+{
+  void OnSuccess() {};
+  void OnFailure(webrtc::RTCError error) {};
+  void AddRef() const {};
+  rtc::RefCountReleaseStatus Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
+
+};
 }

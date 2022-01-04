@@ -198,22 +198,22 @@ pub(crate) mod webrtc {
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
-        pub unsafe fn create_offer(
+        pub fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
         );
 
-        pub unsafe fn create_answer(
+        pub fn create_answer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
         );
 
-        pub unsafe fn set_local_description(
+        pub fn set_local_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
         );
 
-        pub unsafe fn set_remote_description(
+        pub fn set_remote_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
         );
