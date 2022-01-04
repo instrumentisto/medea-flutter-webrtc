@@ -39,6 +39,7 @@ import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
+import org.webrtc.CapturerObserver;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.MediaStreamTrack;
@@ -385,6 +386,7 @@ public class GetUserMediaImpl {
         String sourceId = getSourceIdConstraint(videoConstraintsMap);
 
         String deviceId = findVideoCapturer(cameraEnumerator, isFacing, sourceId);
+        Log.d(TAG, "Found deviceId for VideoCapturer: " + deviceId);
         VideoCapturer videoCapturer = cameraEnumerator.createCapturer(deviceId, new CameraEventsHandler());
 
         if (videoCapturer == null) {
@@ -396,6 +398,16 @@ public class GetUserMediaImpl {
         String threadName = Thread.currentThread().getName();
         SurfaceTextureHelper surfaceTextureHelper =
                 SurfaceTextureHelper.create(threadName, EglUtils.getRootEglBaseContext());
+        if (surfaceTextureHelper == null) {
+            videoCapturer.dispose();
+            return null;
+        }
+        CapturerObserver capturerObserver = videoSource.getCapturerObserver();
+        if (capturerObserver == null) {
+            videoCapturer.dispose();
+            surfaceTextureHelper.dispose();
+            return null;
+        }
         videoCapturer.initialize(
                 surfaceTextureHelper, applicationContext, videoSource.getCapturerObserver());
 
@@ -413,6 +425,7 @@ public class GetUserMediaImpl {
                         ? videoConstraintsMandatory.getInt("minFrameRate")
                         : DEFAULT_FPS;
         info.capturer = videoCapturer;
+        info.surfaceTextureHelper = surfaceTextureHelper;
         videoCapturer.startCapture(info.width, info.height, info.fps);
 
         String trackId = stateProvider.getNextTrackUUID();
@@ -532,7 +545,13 @@ public class GetUserMediaImpl {
     void disposeSource(String trackId) {
         VideoCapturerInfo capturerInfo = mVideoCapturers.get(trackId);
         if (capturerInfo != null) {
+            try {
+                capturerInfo.capturer.stopCapture();
+            } catch (Exception e) {
+                Log.d(TAG, "I DON'T GIVE A FUCK");
+            }
             capturerInfo.capturer.dispose();
+            capturerInfo.surfaceTextureHelper.dispose();
         }
         VideoSource videoSource = videoSources.get(trackId);
         if (videoSource != null) {
@@ -744,6 +763,7 @@ public class GetUserMediaImpl {
 
     public static class VideoCapturerInfo {
         VideoCapturer capturer;
+        SurfaceTextureHelper surfaceTextureHelper;
         int width;
         int height;
         int fps;

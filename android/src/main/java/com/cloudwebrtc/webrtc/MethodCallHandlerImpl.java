@@ -192,46 +192,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 peerConnectionCreateAnswer(peerConnectionId, new ConstraintsMap(constraints), result);
                 break;
             }
-            case "mediaStreamGetTracks": {
-                String streamId = call.argument("streamId");
-                MediaStream stream = localStreams.get(streamId);
-                Map<String, Object> resultMap = new HashMap<>();
-                List<Object> audioTracks = new ArrayList<>();
-                List<Object> videoTracks = new ArrayList<>();
-                for (AudioTrack track : stream.audioTracks) {
-                    Map<String, Object> trackMap = new HashMap<>();
-                    trackMap.put("enabled", track.enabled());
-                    trackMap.put("id", track.id());
-                    trackMap.put("kind", track.kind());
-                    trackMap.put("label", track.id());
-                    trackMap.put("deviceId", "remote");
-                    trackMap.put("settings", new HashMap<>());
-                    trackMap.put("remote", false);
-                    audioTracks.add(trackMap);
-                }
-                for (VideoTrack track : stream.videoTracks) {
-                    GetUserMediaImpl.MediaStreamTrackSettings settings = getUserMediaImpl.getTrackSettings(track.id());
-                    Map<String, Object> trackSettingsMap = new HashMap<>();
-                    trackSettingsMap.put("width", settings.width);
-                    trackSettingsMap.put("height", settings.height);
-                    trackSettingsMap.put("facingMode", settings.facingMode);
-                    trackSettingsMap.put("isScreen", settings.isScreen);
-
-                    Map<String, Object> trackMap = new HashMap<>();
-                    trackMap.put("enabled", track.enabled());
-                    trackMap.put("id", track.id());
-                    trackMap.put("kind", track.kind());
-                    trackMap.put("label", track.id());
-                    trackMap.put("deviceId", settings.deviceId);
-                    trackMap.put("remote", false);
-                    trackMap.put("settings", trackSettingsMap);
-                    videoTracks.add(trackMap);
-                }
-                resultMap.put("audioTracks", audioTracks);
-                resultMap.put("videoTracks", videoTracks);
-                result.success(resultMap);
-                break;
-            }
             case "setLocalDescription": {
                 String peerConnectionId = call.argument("peerConnectionId");
                 Map<String, Object> description = call.argument("description");
@@ -258,45 +218,11 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 peerConnectionGetStats(trackId, peerConnectionId, result);
                 break;
             }
-            case "streamDispose": {
-                String streamId = call.argument("streamId");
-                mediaStreamRelease(streamId);
-                result.success(null);
-                break;
-            }
             case "mediaStreamTrackSetEnable": {
                 String trackId = call.argument("trackId");
                 Boolean enabled = call.argument("enabled");
                 mediaStreamTrackSetEnabled(trackId, enabled);
                 result.success(null);
-                break;
-            }
-            case "mediaStreamAddTrack": {
-                String streamId = call.argument("streamId");
-                String trackId = call.argument("trackId");
-                mediaStreamAddTrack(streamId, trackId, result);
-                for (int i = 0; i < renderers.size(); i++) {
-                    FlutterRTCVideoRenderer renderer = renderers.get(i);
-                    try {
-                        if (renderer.checkMediaStream(streamId)) {
-                            renderer.setVideoTrack((VideoTrack) getLocalTrack(trackId));
-                        }
-                    } catch (Exception e) {
-
-                    }
-                }
-                break;
-            }
-            case "mediaStreamRemoveTrack": {
-                String streamId = call.argument("streamId");
-                String trackId = call.argument("trackId");
-                mediaStreamRemoveTrack(streamId, trackId, result);
-                for (int i = 0; i < renderers.size(); i++) {
-                    FlutterRTCVideoRenderer renderer = renderers.get(i);
-                    if (renderer.checkVideoTrack(trackId)) {
-                        renderer.setVideoTrack(null);
-                    }
-                }
                 break;
             }
             case "trackDispose": {
