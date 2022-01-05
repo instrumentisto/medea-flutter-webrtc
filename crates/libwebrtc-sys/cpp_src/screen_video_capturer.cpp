@@ -122,11 +122,6 @@ bool ScreenVideoCapturer::CaptureProcess() {
   return true;
 }
 
-void ScreenVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
-  printf("onframe\n");
-  OnCapturedFrame(frame);
-}
-
 void ScreenVideoCapturer::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
     std::unique_ptr<webrtc::DesktopFrame> frame) {

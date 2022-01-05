@@ -270,7 +270,8 @@ pub fn get_display_media(webrtc: &mut Box<Webrtc>) -> ffi::LocalStreamInfo {
             ptr: webrtc
                 .0
                 .peer_connection_factory
-                .create_screen_source(640, 480, 30)
+                .create_screen_source(1920, 1080, 30)
+                // .create_screen_source(1000, 1000, 30)
                 .unwrap(),
             id: video_source_id.to_string(),
         }),

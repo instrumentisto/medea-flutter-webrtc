@@ -32,7 +32,6 @@ void VideoRenderer::SetNoTrack() {
 }
 
 void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
-  printf("on frame renderer\n");
   cb_(std::make_unique<webrtc::VideoFrame>(video_frame), flutter_cb_ptr_);
 }
 
