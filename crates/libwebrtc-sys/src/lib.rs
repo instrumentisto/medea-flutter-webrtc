@@ -281,9 +281,10 @@ impl PeerConnectionFactory {
     /// Creates a new [`VideoTrack`] using [`VideoSource`].
     pub fn create_video_track(
         &self,
+        id: String,
         video_src: &VideoSource,
     ) -> anyhow::Result<VideoTrack> {
-        let ptr = webrtc::create_video_track(&self.pointer, &video_src.0);
+        let ptr = webrtc::create_video_track(&self.pointer, id, &video_src.0);
 
         if ptr.is_null() {
             bail!(
@@ -297,9 +298,10 @@ impl PeerConnectionFactory {
     /// Creates a new [`AudioTrack`] using [`AudioSource`].
     pub fn create_audio_track(
         &self,
+        id: String,
         audio_src: &AudioSource,
     ) -> anyhow::Result<AudioTrack> {
-        let ptr = webrtc::create_audio_track(&self.pointer, &audio_src.0);
+        let ptr = webrtc::create_audio_track(&self.pointer, id, &audio_src.0);
 
         if ptr.is_null() {
             bail!(
@@ -313,8 +315,9 @@ impl PeerConnectionFactory {
     /// Creates an empty [`LocalMediaStream`].
     pub fn create_local_media_stream(
         &self,
+        id: String,
     ) -> anyhow::Result<LocalMediaStream> {
-        let ptr = webrtc::create_local_media_stream(&self.pointer);
+        let ptr = webrtc::create_local_media_stream(&self.pointer, id);
 
         if ptr.is_null() {
             bail!(

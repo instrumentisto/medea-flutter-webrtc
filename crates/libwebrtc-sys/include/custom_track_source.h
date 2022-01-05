@@ -25,7 +25,7 @@ class CustomVideoTrackSource : public rtc::AdaptedVideoTrackSource {
   absl::optional<bool> needs_denoising() const override;
   webrtc::MediaSourceInterface::SourceState state() const override;
   bool remote() const override;
-  void OnCapturedFrame(const webrtc::VideoFrame &frame);
+  void OnCapturedFrame(const webrtc::VideoFrame& frame);
 
  private:
   rtc::TimestampAligner timestamp_aligner_;

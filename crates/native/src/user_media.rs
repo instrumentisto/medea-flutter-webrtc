@@ -1,5 +1,6 @@
 use std::{rc::Rc, sync::atomic::Ordering};
 
+use derive_more::Display;
 use libwebrtc_sys as sys;
 
 use crate::{api, Webrtc};
@@ -12,150 +13,6 @@ static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 /// Returns an `unique id`.
 fn generate_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
-}
-
-/// Struct for `id` of [`MediaStream`].
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct MediaStreamId(u64);
-
-/// Struct for `id` of `VideoDevice`.
-#[derive(Hash, Clone, PartialEq, Eq)]
-pub struct VideoDeviceId(String);
-
-/// Struct for `id` of [`VideoSource`].
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct VideoSourceId(u64);
-
-/// Struct for `id` of `AudioDevice`.
-#[derive(Hash, Clone, PartialEq, Eq)]
-pub struct AudioDeviceId(String);
-
-/// Struct for `id` of [`AudioSource`].
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct AudioSourceId(u64);
-
-/// Struct for `id` of [`VideoTrack`].
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct VideoTrackId(u64);
-
-/// Struct for `id` of [`AudioTrack`].
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct AudioTrackId(u64);
-
-/// Is used to manage [`sys::LocalMediaStream`]
-/// and all included [`VideoTrack`] and [`AudioTrack`].
-pub struct MediaStream {
-    id: MediaStreamId,
-    inner: sys::LocalMediaStream,
-    video_tracks: Vec<VideoTrackId>,
-    audio_tracks: Vec<AudioTrackId>,
-}
-
-impl MediaStream {
-    /// Creates a new [`MediaStream`].
-    fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
-        Ok(Self {
-            id: MediaStreamId(generate_id()),
-            inner: pc.create_local_media_stream()?,
-            video_tracks: Vec::new(),
-            audio_tracks: Vec::new(),
-        })
-    }
-}
-
-/// Is used to manage [`sys::VideoTrack`].
-pub struct VideoTrack {
-    id: VideoTrackId,
-    inner: sys::VideoTrack,
-    src: Rc<VideoSource>,
-    kind: api::TrackKind,
-}
-
-impl VideoTrack {
-    /// Creates a new [`VideoTrack`].
-    fn new(
-        pc: &sys::PeerConnectionFactory,
-        src: Rc<VideoSource>,
-    ) -> anyhow::Result<Self> {
-        Ok(Self {
-            id: VideoTrackId(generate_id()),
-            inner: pc.create_video_track(&src.inner)?,
-            src,
-            kind: api::TrackKind::kVideo,
-        })
-    }
-}
-
-/// Is used to manage [`sys::VideoSource`].
-pub struct VideoSource {
-    id: VideoSourceId,
-    inner: sys::VideoSource,
-    device_id: VideoDeviceId,
-}
-
-impl VideoSource {
-    /// Creates a new [`VideoSource`].
-    fn new(
-        pc: &mut sys::PeerConnectionFactory,
-        caps: &api::VideoConstraints,
-    ) -> anyhow::Result<Self> {
-        Ok(Self {
-            id: VideoSourceId(generate_id()),
-            inner: sys::VideoSource::create(
-                &mut pc.worker_thread,
-                &mut pc.signaling_thread,
-                caps.min_width,
-                caps.min_height,
-                caps.min_fps,
-                caps.device_id.to_string(),
-            )?,
-            device_id: VideoDeviceId(caps.device_id.to_string()),
-        })
-    }
-}
-
-/// Is used to manage [`sys::VideoSource`].
-pub struct AudioTrack {
-    id: AudioTrackId,
-    inner: sys::AudioTrack,
-    src: Rc<AudioSource>,
-    kind: api::TrackKind,
-}
-
-impl AudioTrack {
-    /// Creates a new [`AudioTrack`].
-    fn new(
-        pc: &sys::PeerConnectionFactory,
-        src: Rc<AudioSource>,
-    ) -> anyhow::Result<Self> {
-        Ok(Self {
-            id: AudioTrackId(generate_id()),
-            inner: pc.create_audio_track(&src.inner)?,
-            src,
-            kind: api::TrackKind::kAudio,
-        })
-    }
-}
-
-/// Is used to manage [`sys::VideoSource`].
-pub struct AudioSource {
-    id: AudioSourceId,
-    inner: sys::AudioSource,
-    device_id: AudioDeviceId,
-}
-
-impl AudioSource {
-    /// Creates a new [`AudioSource`].
-    fn new(
-        pc: &sys::PeerConnectionFactory,
-        caps: &api::AudioConstraints,
-    ) -> anyhow::Result<Self> {
-        Ok(Self {
-            id: AudioSourceId(generate_id()),
-            inner: pc.create_audio_source()?,
-            device_id: AudioDeviceId(caps.device_id.to_string()),
-        })
-    }
 }
 
 impl Webrtc {
@@ -343,5 +200,152 @@ impl Webrtc {
                 };
             }
         }
+    }
+}
+
+/// Struct for `id` of [`MediaStream`].
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct MediaStreamId(u64);
+
+/// Struct for `id` of `VideoDevice`.
+#[derive(Clone, Debug, Display, Eq, Hash, PartialEq)]
+pub struct VideoDeviceId(String);
+
+/// Struct for `id` of [`VideoSource`].
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct VideoSourceId(u64);
+
+/// Struct for `id` of `AudioDevice`.
+#[derive(Clone, Debug, Display, Eq, Hash, PartialEq)]
+pub struct AudioDeviceId(String);
+
+/// Struct for `id` of [`AudioSource`].
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct AudioSourceId(u64);
+
+/// Struct for `id` of [`VideoTrack`].
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct VideoTrackId(u64);
+
+/// Struct for `id` of [`AudioTrack`].
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct AudioTrackId(u64);
+
+/// Is used to manage [`sys::LocalMediaStream`]
+/// and all included [`VideoTrack`] and [`AudioTrack`].
+pub struct MediaStream {
+    id: MediaStreamId,
+    inner: sys::LocalMediaStream,
+    video_tracks: Vec<VideoTrackId>,
+    audio_tracks: Vec<AudioTrackId>,
+}
+
+impl MediaStream {
+    /// Creates a new [`MediaStream`].
+    fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
+        let id = MediaStreamId(generate_id());
+        Ok(Self {
+            id,
+            inner: pc.create_local_media_stream(id.to_string())?,
+            video_tracks: Vec::new(),
+            audio_tracks: Vec::new(),
+        })
+    }
+}
+
+/// Is used to manage [`sys::VideoTrack`].
+pub struct VideoTrack {
+    id: VideoTrackId,
+    inner: sys::VideoTrack,
+    src: Rc<VideoSource>,
+    kind: api::TrackKind,
+}
+
+impl VideoTrack {
+    /// Creates a new [`VideoTrack`].
+    fn new(
+        pc: &sys::PeerConnectionFactory,
+        src: Rc<VideoSource>,
+    ) -> anyhow::Result<Self> {
+        let id = VideoTrackId(generate_id());
+        Ok(Self {
+            id,
+            inner: pc.create_video_track(id.to_string(), &src.inner)?,
+            src,
+            kind: api::TrackKind::kVideo,
+        })
+    }
+}
+
+/// Is used to manage [`sys::VideoSource`].
+pub struct VideoSource {
+    id: VideoSourceId,
+    inner: sys::VideoSource,
+    device_id: VideoDeviceId,
+}
+
+impl VideoSource {
+    /// Creates a new [`VideoSource`].
+    fn new(
+        pc: &mut sys::PeerConnectionFactory,
+        caps: &api::VideoConstraints,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: VideoSourceId(generate_id()),
+            inner: sys::VideoSource::create(
+                &mut pc.worker_thread,
+                &mut pc.signaling_thread,
+                caps.min_width,
+                caps.min_height,
+                caps.min_fps,
+                caps.device_id.to_string(),
+            )?,
+            device_id: VideoDeviceId(caps.device_id.to_string()),
+        })
+    }
+}
+
+/// Is used to manage [`sys::VideoSource`].
+pub struct AudioTrack {
+    id: AudioTrackId,
+    inner: sys::AudioTrack,
+    src: Rc<AudioSource>,
+    kind: api::TrackKind,
+}
+
+impl AudioTrack {
+    /// Creates a new [`AudioTrack`].
+    fn new(
+        pc: &sys::PeerConnectionFactory,
+        src: Rc<AudioSource>,
+    ) -> anyhow::Result<Self> {
+        let id = AudioTrackId(generate_id());
+        Ok(Self {
+            id,
+            inner: pc.create_audio_track(id.to_string(), &src.inner)?,
+            src,
+            kind: api::TrackKind::kAudio,
+        })
+    }
+}
+
+/// Is used to manage [`sys::VideoSource`].
+pub struct AudioSource {
+    id: AudioSourceId,
+    inner: sys::AudioSource,
+    device_id: AudioDeviceId,
+}
+
+impl AudioSource {
+    /// Creates a new [`AudioSource`].
+    fn new(
+        pc: &sys::PeerConnectionFactory,
+        caps: &api::AudioConstraints,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            id: AudioSourceId(generate_id()),
+            inner: pc.create_audio_source()?,
+            device_id: AudioDeviceId(caps.device_id.to_string()),
+        })
     }
 }

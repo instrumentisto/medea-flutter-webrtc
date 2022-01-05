@@ -16,7 +16,7 @@ absl::optional<bool> CustomVideoTrackSource::needs_denoising() const {
 }
 
 webrtc::MediaSourceInterface::SourceState CustomVideoTrackSource::state()
-    const {
+const {
   return SourceState::kLive;
 }
 

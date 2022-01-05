@@ -157,18 +157,21 @@ pub(crate) mod webrtc {
         /// Creates a new [`VideoTrack`].
         pub fn create_video_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
             video_source: &VideoTrackSourceInterface,
         ) -> UniquePtr<VideoTrackInterface>;
 
         /// Creates a new [`AudioTrack`].
         pub fn create_audio_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
             audio_source: &AudioSourceInterface,
         ) -> UniquePtr<AudioTrackInterface>;
 
         /// Creates a new local [`MediaStream`].
         pub fn create_local_media_stream(
             peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
         ) -> UniquePtr<MediaStreamInterface>;
 
         /// Adds the [`VideoTrack`] to the [`MediaStream`].

@@ -50,17 +50,17 @@ pub mod api {
 
     /// Constraints for video capturer.
     pub struct VideoConstraints {
+        pub required: bool,
+        pub device_id: String,
         pub min_width: usize,
         pub min_height: usize,
         pub min_fps: usize,
-        pub device_id: String,
-        pub required: bool,
     }
 
     /// Constraints for audio device module.
     pub struct AudioConstraints {
-        pub device_id: String,
         pub required: bool,
+        pub device_id: String,
     }
 
     /// The [MediaStream] represents a stream of media content. A stream
@@ -106,7 +106,7 @@ pub mod api {
 
         /// Creates an instance of [`Webrtc`].
         #[cxx_name = "Init"]
-        fn init() -> Box<Webrtc>;
+        pub fn init() -> Box<Webrtc>;
 
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
@@ -131,6 +131,10 @@ pub mod api {
     }
 }
 
+/// Wraps the [`Inner`] instanse.
+/// This struct is intended to be extern and managed outside of the Rust app.
+pub struct Webrtc(Box<Inner>);
+
 /// Contains all necessary tools for interoperate with [`libWebRTC`].
 ///
 /// [`libWebrtc`]: https://tinyurl.com/54y935zz
@@ -146,10 +150,6 @@ pub struct Inner {
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
 }
-
-/// Wraps the [`Inner`] instanse.
-/// This struct is intended to be extern and managed outside of the Rust app.
-pub struct Webrtc(Box<Inner>);
 
 /// Creates an instanse of [`Webrtc`].
 ///
