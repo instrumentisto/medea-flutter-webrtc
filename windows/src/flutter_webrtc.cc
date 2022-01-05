@@ -111,8 +111,7 @@ void FlutterWebRTC::HandleMethodCall(
     // config for createOffer (rust box config)
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
       webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-
-    peerconnection->CreateOffer();
+    //peerconnection->CreateOffer();
 
     result->Success(nullptr);
 

@@ -7,6 +7,7 @@ use std::rc::Rc;
 use std::sync::atomic::Ordering;
 
 use std::sync::atomic::AtomicU64;
+use std::ffi::c_void;
 
 use crate::PeerConnection_;
 use crate::Webrtc;
@@ -22,14 +23,9 @@ fn generate_id() -> u64 {
 pub struct PeerConnectionId(u64);
 
 impl PeerConnection_ {
-    pub fn create_offer(&mut self, options: Box<RustRTCOfferAnswerOptions>) {
-        let temp = options.0;
-        let temp = temp.as_ref();
-        self.0
-            .as_ref()
-            .borrow_mut()
-            .peer_connection_interface
-            .create_offer(temp)
+
+    pub fn create_offer(&mut self, callback: *const c_void) {
+
     }
 
     pub fn create_answer(&mut self) {
@@ -66,6 +62,7 @@ impl PeerConnection_ {
 pub struct PeerConnection {
     id: PeerConnectionId,
     peer_connection_interface: sys::PeerConnectionInterface,
+    
 }
 
 impl Webrtc {

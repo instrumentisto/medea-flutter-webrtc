@@ -1,6 +1,7 @@
 #pragma once
 
 #include "api\peer_connection_interface.h"
+#include <functional>
 
 namespace my_stuff
 {
@@ -24,7 +25,13 @@ class MyObserver: public webrtc::PeerConnectionObserver
 
 class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
 {
-  void OnSuccess(webrtc::SessionDescriptionInterface* desc) {};
+  
+  void OnSuccess(webrtc::SessionDescriptionInterface* desc) {
+    std::string type = desc->type();
+    std::string sdp;
+    desc->ToString(&sdp);
+
+  };
   void OnFailure(webrtc::RTCError error) {};
   void AddRef() const {};
   rtc::RefCountReleaseStatus Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
