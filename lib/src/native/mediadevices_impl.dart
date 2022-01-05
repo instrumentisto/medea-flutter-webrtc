@@ -20,7 +20,9 @@ class MediaDeviceNative extends MediaDevices {
         throw Exception('getUserMedia return null, something wrong');
       }
 
-      List<Map> tracks = response['tracks'];
+      List<dynamic> tracks = List.empty(growable: true);
+      tracks.addAll(response['audioTracks']);
+      tracks.addAll(response['videoTracks']);
       return tracks.map((t) => MediaStreamTrackNative.fromMap(t)).toList();
     } on PlatformException catch (e) {
       throw 'Unable to getUserMedia: ${e.message}';

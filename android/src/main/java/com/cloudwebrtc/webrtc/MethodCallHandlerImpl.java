@@ -83,6 +83,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     private final BinaryMessenger messenger;
     private final Context context;
     private final TextureRegistry textures;
+    private final Map<String, MediaStreamTrack> localTracks = new HashMap<>();
 
     private PeerConnectionFactory mFactory;
 
@@ -327,7 +328,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 }
                 
                 MediaStreamTrack track = getTrackForId(trackId);
-                if (track == null || !track.kind().equals("videooutput")) {
+                if (track == null || !track.kind().equals("video")) {
                     resultError("videoRendererSetSrcObject", "provided invalid VideoTrack [" + trackId + "]", result);
                     return;
                 }
@@ -776,6 +777,11 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     public Map<String, MediaStream> getLocalStreams() {
         return localStreams;
     }
+    
+    @Override
+    public Map<String, MediaStreamTrack> getLocalTracks() {
+        return localTracks;
+    }
 
     @Override
     public String getNextStreamUUID() {
@@ -838,19 +844,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
 
 
     public void getUserMedia(ConstraintsMap constraints, Result result) {
-        String streamId = getNextStreamUUID();
-        MediaStream mediaStream = mFactory.createLocalMediaStream(streamId);
-
-        if (mediaStream == null) {
-            // XXX The following does not follow the getUserMedia() algorithm
-            // specified by
-            // https://www.w3.org/TR/mediacapture-streams/#dom-mediadevices-getusermedia
-            // with respect to distinguishing the various causes of failure.
-            resultError("getUserMediaFailed", "Failed to create new media stream", result);
-            return;
-        }
-
-        getUserMediaImpl.getUserMedia(constraints, result, mediaStream);
+        getUserMediaImpl.getUserMedia(constraints, result);
     }
 
     public void getSources(Result result) {
@@ -903,20 +897,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
 
     @Override
     public MediaStreamTrack getLocalTrack(final String id) {
-        for (MediaStream s : localStreams.values()) {
-            for (MediaStreamTrack t : s.audioTracks) {
-                if (t.id().equals(id)) {
-                    return t;
-                }
-            }
-            for (MediaStreamTrack t : s.videoTracks) {
-                if (t.id().equals(id)) {
-                    return t;
-                }
-            }
-        }
-
-        return null;
+        return localTracks.get(id);
     }
 
     public ConstraintsMap getCameraInfo(int index) {

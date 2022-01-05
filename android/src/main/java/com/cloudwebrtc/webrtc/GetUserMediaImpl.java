@@ -79,6 +79,8 @@ public class GetUserMediaImpl {
 
     private final Map<String, VideoSource> videoSources = new HashMap<>();
 
+    private final Map<String, MediaStreamTrack> tracks = new HashMap<>();
+
     private final StateProvider stateProvider;
     private final Context applicationContext;
 
@@ -191,7 +193,7 @@ public class GetUserMediaImpl {
      * requested.
      */
     void getUserMedia(
-            final ConstraintsMap constraints, final Result result, final MediaStream mediaStream) {
+            final ConstraintsMap constraints, final Result result) {
 
         // TODO: change getUserMedia constraints format to support new syntax
         //   constraint format seems changed, and there is no mandatory any more.
@@ -244,7 +246,7 @@ public class GetUserMediaImpl {
 
         /// Only systems pre-M, no additional permission request is needed.
         if (VERSION.SDK_INT < VERSION_CODES.M) {
-            getUserMedia(constraints, result, mediaStream, requestPermissions);
+            getUserMedia(constraints, result, requestPermissions);
             return;
         }
 
@@ -253,7 +255,7 @@ public class GetUserMediaImpl {
                 /* successCallback */ args -> {
                     List<String> grantedPermissions = (List<String>) args[0];
 
-                    getUserMedia(constraints, result, mediaStream, grantedPermissions);
+                    getUserMedia(constraints, result, grantedPermissions);
                 },
                 /* errorCallback */ args -> {
                     // According to step 10 Permission Failure of the
@@ -272,7 +274,6 @@ public class GetUserMediaImpl {
     private void getUserMedia(
             ConstraintsMap constraints,
             Result result,
-            MediaStream mediaStream,
             List<String> grantedPermissions) {
         MediaStreamTrack[] tracks = new MediaStreamTrack[2];
 
@@ -306,11 +307,7 @@ public class GetUserMediaImpl {
 
             String id = track.id();
 
-            if (track instanceof AudioTrack) {
-                mediaStream.addTrack((AudioTrack) track);
-            } else {
-                mediaStream.addTrack((VideoTrack) track);
-            }
+            stateProvider.getLocalTracks().put(track.id(), track);
 
             ConstraintsMap track_ = new ConstraintsMap();
             String kind = track.kind();
@@ -339,12 +336,6 @@ public class GetUserMediaImpl {
             }
         }
 
-        String streamId = mediaStream.getId();
-
-        Log.d(TAG, "MediaStream id: " + streamId);
-        stateProvider.getLocalStreams().put(streamId, mediaStream);
-
-        successResult.putString("streamId", streamId);
         successResult.putArray("audioTracks", audioTracks.toArrayList());
         successResult.putArray("videoTracks", videoTracks.toArrayList());
         result.success(successResult.toMap());

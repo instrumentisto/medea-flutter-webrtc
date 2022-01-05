@@ -17,6 +17,8 @@ import org.webrtc.PeerConnectionFactory;
 public interface StateProvider {
 
   Map<String, MediaStream> getLocalStreams();
+  
+  Map<String, MediaStreamTrack> getLocalTracks();
 
   String getNextStreamUUID();
   
