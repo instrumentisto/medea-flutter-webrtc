@@ -17,7 +17,7 @@ class FlutterVideoRenderer {
   virtual const FlutterDesktopPixelBuffer* CopyPixelBuffer(size_t width,
                                                            size_t height) const;
 
-  void OnFrame(Frame* frame);
+  void OnFrame(Frame* frame, uint16_t frame_id);
 
   void ResetRenderer();
 
@@ -28,13 +28,17 @@ class FlutterVideoRenderer {
     size_t width;
     size_t height;
   };
+  struct DBGFrame {
+    uint16_t id;
+    Frame* inner;
+  };
   FrameSize last_frame_size_ = {0, 0};
   bool first_frame_rendered = false;
   TextureRegistrar* registrar_ = nullptr;
   std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
   std::unique_ptr<EventSink<EncodableValue>> event_sink_;
   int64_t texture_id_ = -1;
-  Frame* frame_ = nullptr;
+  DBGFrame frame_ = {0, nullptr};
   std::unique_ptr<flutter::TextureVariant> texture_;
   std::shared_ptr<FlutterDesktopPixelBuffer> pixel_buffer_;
   mutable std::shared_ptr<uint8_t> rgb_buffer_;

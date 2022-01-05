@@ -16,10 +16,11 @@ namespace bridge {
 
 class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
-  VideoRenderer(rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>,
-                                          size_t)> cb,
-                size_t flutter_cb_ptr,
-                webrtc::VideoTrackInterface* track_to_render);
+  VideoRenderer(
+      rust::cxxbridge1::Fn<
+          void(std::unique_ptr<webrtc::VideoFrame>, size_t, uint16_t)> cb,
+      size_t flutter_cb_ptr,
+      webrtc::VideoTrackInterface* track_to_render);
   virtual ~VideoRenderer();
 
   void SetNoTrack();
@@ -28,7 +29,9 @@ class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
   webrtc::VideoTrackInterface* rendered_track_;
-  rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb_;
+  rust::cxxbridge1::Fn<
+      void(std::unique_ptr<webrtc::VideoFrame>, size_t, uint16_t)>
+      cb_;
   size_t flutter_cb_ptr_;
   bool no_track_ = false;
 };

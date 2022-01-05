@@ -1,5 +1,4 @@
-use core::panic;
-use std::mem;
+use std::{mem, time::SystemTime};
 
 use cxx::UniquePtr;
 
@@ -11,14 +10,27 @@ pub struct Renderer {
     callback: extern "C" fn(*mut Frame),
 }
 
-pub fn cb(frame: UniquePtr<webrtc::VideoFrame>, flutter_cb_ptr: usize) {
+pub fn cb(
+    frame: UniquePtr<webrtc::VideoFrame>,
+    flutter_cb_ptr: usize,
+    frame_id: u16,
+) {
     let a = Frame(Box::new(FrameInner(frame)));
 
     unsafe {
-        let flutter_cb: extern "C" fn(*mut Frame) =
+        let flutter_cb: extern "C" fn(*mut Frame, u16) =
             mem::transmute(flutter_cb_ptr);
 
-        flutter_cb(Box::into_raw(Box::new(a)));
+        println!(
+            "Frame '{}' before call CB in Rust at: {} (Rust)",
+            frame_id,
+            SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_millis() as i32
+        );
+
+        flutter_cb(Box::into_raw(Box::new(a)), frame_id);
     }
 }
 
