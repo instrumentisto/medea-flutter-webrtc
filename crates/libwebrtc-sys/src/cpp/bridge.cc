@@ -157,7 +157,7 @@ namespace bridge {
         webrtc::CreateBuiltinVideoEncoderFactory(),
         webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr));
 
-    if (ptr.get()->ptr() == nullptr) return nullptr;
+    if (ptr.get() == nullptr) return nullptr;
 
     return ptr;
   }
@@ -170,43 +170,62 @@ namespace bridge {
     size_t height,
     size_t fps,
     rust::String device_id) {
-    return std::make_unique<VideoTrackSourceInterface>(
+    auto ptr = std::make_unique<VideoTrackSourceInterface>(
       webrtc::CreateVideoTrackSourceProxy(
         &signaling_thread, &worker_thread,
         DeviceVideoCapturer::Create(width, height, fps,
           std::string(device_id))));
+
+    if (ptr.get() == nullptr) return nullptr;
+
+    return ptr;
   }
 
   /// Calls `PeerConnectionFactoryInterface->CreateAudioSource()`.
   std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface &peer_connection_factory) {
-    return std::make_unique<AudioSourceInterface>(
+    auto ptr = std::make_unique<AudioSourceInterface>(
       peer_connection_factory->CreateAudioSource(cricket::AudioOptions()));
+
+    if (ptr.get() == nullptr) return nullptr;
+
+    return ptr;
   }
 
   /// Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.
   std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface &peer_connection_factory,
     const VideoTrackSourceInterface &video_source) {
-    return std::make_unique<VideoTrackInterface>(
+    auto ptr = std::make_unique<VideoTrackInterface>(
       peer_connection_factory->CreateVideoTrack("video_track",
         video_source.ptr()));
+    if (ptr.get() == nullptr) return nullptr;
+
+    return ptr;
   }
 
   /// Calls `PeerConnectionFactoryInterface->CreateAudioTrack`.
   std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface &peer_connection_factory,
     const AudioSourceInterface &audio_source) {
-    return std::make_unique<AudioTrackInterface>(
+    auto ptr = std::make_unique<AudioTrackInterface>(
       peer_connection_factory->CreateAudioTrack("audio_track",
         audio_source.ptr()));
+
+    if (ptr.get() == nullptr) return nullptr;
+
+    return ptr;
   }
 
   /// Calls `MediaStreamInterface->CreateLocalMediaStream`.
   std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface &peer_connection_factory) {
-    return std::make_unique<MediaStreamInterface>(
+    auto ptr = std::make_unique<MediaStreamInterface>(
       peer_connection_factory->CreateLocalMediaStream("local_stream"));
+
+    if (ptr.get() == nullptr) return nullptr;
+
+    return ptr;
   }
 
   /// Calls `MediaStreamInterface->AddTrack`.

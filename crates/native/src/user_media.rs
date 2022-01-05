@@ -162,11 +162,7 @@ impl Webrtc {
     /// Creates a new local [`MediaStream`]
     /// with [`VideoTrack`]s and/or [`AudioTrack`]s
     /// according to accepted [`api::MediaStreamConstraints`].
-    ///
-    /// # Panics
-    ///
-    /// TODO: Don't panic.
-    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::too_many_lines, clippy::missing_panics_doc)]
     pub fn get_users_media(
         self: &mut Webrtc,
         constraints: &api::MediaStreamConstraints,

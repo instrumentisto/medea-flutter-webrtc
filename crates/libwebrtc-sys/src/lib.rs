@@ -203,7 +203,7 @@ impl Thread {
 
         if ptr.is_null() {
             bail!(
-                "Null pointer returned from \
+                "`null` pointer returned from \
                 rtc::Thread::Create()"
             );
         }
