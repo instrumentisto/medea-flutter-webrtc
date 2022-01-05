@@ -10,7 +10,6 @@ import com.cloudwebrtc.webrtc.utils.EglUtils;
 import java.util.List;
 
 import org.webrtc.EglBase;
-import org.webrtc.MediaStream;
 import org.webrtc.RendererCommon.RendererEvents;
 import org.webrtc.VideoTrack;
 
@@ -23,7 +22,6 @@ public class FlutterRTCVideoRenderer implements EventChannel.StreamHandler {
     private final SurfaceTexture texture;
     private TextureRegistry.SurfaceTextureEntry entry;
     private int id = -1;
-    private MediaStream mediaStream;
 
     public void Dispose() {
         //destroy
@@ -134,28 +132,6 @@ public class FlutterRTCVideoRenderer implements EventChannel.StreamHandler {
     }
 
     /**
-     * Sets the {@code MediaStream} to be rendered by this {@code FlutterRTCVideoRenderer}.
-     * The implementation renders the first {@link VideoTrack}, if any, of the
-     * specified {@code mediaStream}.
-     *
-     * @param mediaStream The {@code MediaStream} to be rendered by this
-     *                    {@code FlutterRTCVideoRenderer} or {@code null}.
-     */
-    public void setStream(MediaStream mediaStream) {
-        VideoTrack videoTrack;
-        this.mediaStream = mediaStream;
-        if (mediaStream == null) {
-            videoTrack = null;
-        } else {
-            List<VideoTrack> videoTracks = mediaStream.videoTracks;
-
-            videoTrack = videoTracks.isEmpty() ? null : videoTracks.get(0);
-        }
-
-        setVideoTrack(videoTrack);
-    }
-
-    /**
      * Sets the {@code VideoTrack} to be rendered by this {@code FlutterRTCVideoRenderer}.
      *
      * @param videoTrack The {@code VideoTrack} to be rendered by this
@@ -202,13 +178,6 @@ public class FlutterRTCVideoRenderer implements EventChannel.StreamHandler {
 
             videoTrack.addSink(surfaceTextureRenderer);
         }
-    }
-
-    public boolean checkMediaStream(String id) {
-        if (null == id || null == mediaStream) {
-            return false;
-        }
-        return id.equals(mediaStream.getId());
     }
 
     public boolean checkVideoTrack(String id) {

@@ -318,14 +318,21 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
             }
             case "videoRendererSetSrcObject": {
                 int textureId = call.argument("textureId");
-                String streamId = call.argument("streamId");
+                String trackId = call.argument("trackId");
+                
                 FlutterRTCVideoRenderer render = renderers.get(textureId);
                 if (render == null) {
                     resultError("videoRendererSetSrcObject", "render [" + textureId + "] not found !", result);
                     return;
                 }
+                
+                MediaStreamTrack track = getTrackForId(trackId);
+                if (track == null || !track.kind().equals("videooutput")) {
+                    resultError("videoRendererSetSrcObject", "provided invalid VideoTrack [" + trackId + "]", result);
+                    return;
+                }
 
-                render.setStream(localStreams.get(streamId));
+                render.setVideoTrack((VideoTrack) track);
 
                 result.success(null);
                 break;
