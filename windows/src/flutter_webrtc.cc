@@ -180,7 +180,7 @@ void FlutterWebRTC::HandleMethodCall(
 
     result->Success(EncodableValue(params));
   } else if (method_call.method_name().compare("test") == 0) {
-    testfl();
+    // testfl();
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
     if (!method_call.arguments()) {
       result->Error("Bad Arguments", "Null constraints arguments received");

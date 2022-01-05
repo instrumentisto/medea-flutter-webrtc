@@ -122,10 +122,14 @@ bool ScreenVideoCapturer::CaptureProcess() {
   return true;
 }
 
+void ScreenVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
+  printf("onframe\n");
+  OnCapturedFrame(frame);
+}
+
 void ScreenVideoCapturer::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
     std::unique_ptr<webrtc::DesktopFrame> frame) {
-  printf("onframe\n");
   bool success = result == webrtc::DesktopCapturer::Result::SUCCESS;
 
   if (!success) {
@@ -224,5 +228,5 @@ void ScreenVideoCapturer::OnCaptureResult(
                                         .set_timestamp_ms(rtc::TimeMillis())
                                         .set_rotation(webrtc::kVideoRotation_0)
                                         .build();
-  CustomVideoTrackSource::OnFrame(captureFrame);
+  OnFrame(captureFrame);
 }

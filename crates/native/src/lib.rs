@@ -135,7 +135,7 @@ pub mod ffi {
         unsafe fn delete_frame(frame_ptr: *mut Frame);
         fn dispose_renderer(webrtc: &mut Box<Webrtc>, texture_id: i64);
 
-        fn testfl();
+        // fn testfl();
     }
 }
 
@@ -180,37 +180,37 @@ pub fn init() -> Box<Webrtc> {
     })))
 }
 
-pub fn testfl() {
-    // libwebrtc_sys::testasd();
-}
+// pub fn testfl() {
+//     // libwebrtc_sys::testasd();
+// }
 
-fn cb(frame: UniquePtr<VideoFrame>, cbf: usize) {
-    0;
-}
+// fn cb(frame: UniquePtr<VideoFrame>, cbf: usize) {
+//     0;
+// }
 
-#[cfg(test)]
-mod test {
+// #[cfg(test)]
+// mod test {
 
-    use libwebrtc_sys::webrtc;
+//     use libwebrtc_sys::webrtc;
 
-    use crate::{cb, init};
+//     use crate::{cb, init};
 
-    #[test]
-    fn testik() {
-        let mut webrtc = init();
-        let ptr = webrtc
-            .0
-            .peer_connection_factory
-            .create_screen_source(640, 480, 30)
-            .unwrap();
+//     #[test]
+//     fn testik() {
+//         let mut webrtc = init();
+//         let ptr = webrtc
+//             .0
+//             .peer_connection_factory
+//             .create_screen_source(640, 480, 30)
+//             .unwrap();
 
-        let track_ptr = webrtc
-            .0
-            .peer_connection_factory
-            .create_video_track(&ptr)
-            .unwrap();
-        let a = unsafe { webrtc::get_video_renderer(cb, 0, &track_ptr.0) };
-        loop {}
-        assert!(true);
-    }
-}
+//         let track_ptr = webrtc
+//             .0
+//             .peer_connection_factory
+//             .create_video_track(&ptr)
+//             .unwrap();
+//         let a = unsafe { webrtc::get_video_renderer(cb, 0, &track_ptr.0) };
+//         loop {}
+//         assert!(true);
+//     }
+// }

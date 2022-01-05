@@ -459,17 +459,17 @@ impl LocalMediaStream {
     }
 }
 
-// pub fn testasd() -> bool {
-//     webrtc::test();
-//     true
-// }
+pub fn testasd() -> bool {
+    webrtc::test();
+    true
+}
 
-// #[cfg(test)]
-// mod test {
-//     use super::testasd;
+#[cfg(test)]
+mod test {
+    use super::testasd;
 
-//     #[test]
-//     fn it_works() {
-//         assert!(testasd())
-//     }
-// }
+    #[test]
+    fn it_works() {
+        assert!(testasd())
+    }
+}

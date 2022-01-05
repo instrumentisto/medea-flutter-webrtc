@@ -1,3 +1,4 @@
+use core::panic;
 use std::mem;
 
 use cxx::UniquePtr;
@@ -39,12 +40,11 @@ unsafe extern "C" fn foo(
     let video_track_id =
         this.local_media_streams[&stream_id].video_tracks[0].as_str();
 
-    webrtc::get_video_renderer(
+    current_renderer.pointer = webrtc::get_video_renderer(
         cb,
         mem::transmute_copy(&current_renderer.callback),
         &this.video_tracks[video_track_id].ptr.0,
     );
-    panic!("132123");
 
     this.video_tracks
         .get_mut(video_track_id)

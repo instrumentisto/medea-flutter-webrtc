@@ -13,7 +13,8 @@
 #include "custom_track_source.h"
 
 class ScreenVideoCapturer : public CustomVideoTrackSource,
-                            public webrtc::DesktopCapturer::Callback {
+                            public webrtc::DesktopCapturer::Callback,
+                            public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   static bool GetSourceList(webrtc::DesktopCapturer::SourceList* sources);
   static const std::string GetSourceListString();
@@ -27,6 +28,7 @@ class ScreenVideoCapturer : public CustomVideoTrackSource,
   static void CaptureThread(void* obj);
   bool CaptureProcess();
   static webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions();
+  void OnFrame(const webrtc::VideoFrame& frame) override;
   void OnCaptureResult(webrtc::DesktopCapturer::Result result,
                        std::unique_ptr<webrtc::DesktopFrame> frame) override;
 

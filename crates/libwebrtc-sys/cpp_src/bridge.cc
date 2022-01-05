@@ -254,6 +254,103 @@ std::unique_ptr<VideoTrackSourceInterface> create_screen_source(
                                           capturer));
 }
 
+NativeVideoRenderer* c;
+
+#define RAND_MAX 255
+
+template <typename T>
+class AutoLock {
+ public:
+  explicit AutoLock(T* obj) : obj_(obj) { obj_->Lock(); }
+  ~AutoLock() { obj_->Unlock(); }
+
+ protected:
+  T* obj_;
+};
+
+LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+  LRESULT result = 0;
+
+  if (msg == WM_PAINT) {
+    PAINTSTRUCT ps;
+    ::BeginPaint(hwnd, &ps);
+
+    RECT rc;
+    ::GetClientRect(hwnd, &rc);
+
+    HDC dc_mem = ::CreateCompatibleDC(ps.hdc);
+    ::SetStretchBltMode(dc_mem, HALFTONE);
+
+    HDC all_dc[] = {ps.hdc, dc_mem};
+
+    if (c == nullptr) {
+      printf("no img\n");
+      return LRESULT(0);
+    }
+
+    AutoLock<NativeVideoRenderer> local_lock(c);
+    const BITMAPINFO& bmi = c->bmi();
+    int height = abs(bmi.bmiHeader.biHeight);
+    int width = bmi.bmiHeader.biWidth;
+
+    const uint8_t* image = c->image();
+    if (image != NULL) {
+      HDC dc_mem = ::CreateCompatibleDC(ps.hdc);
+      ::SetStretchBltMode(dc_mem, HALFTONE);
+
+      HDC all_dc[] = {ps.hdc, dc_mem};
+      for (size_t i = 0; i < arraysize(all_dc); ++i) {
+        SetMapMode(all_dc[i], MM_ISOTROPIC);
+        SetWindowExtEx(all_dc[i], width, height, NULL);
+        SetViewportExtEx(all_dc[i], rc.right, rc.bottom, NULL);
+      }
+
+      HBITMAP bmp_mem = ::CreateCompatibleBitmap(ps.hdc, rc.right, rc.bottom);
+      HGDIOBJ bmp_old = ::SelectObject(dc_mem, bmp_mem);
+
+      POINT logical_area = {rc.right, rc.bottom};
+      DPtoLP(ps.hdc, &logical_area, 1);
+
+      HBRUSH brush = ::CreateSolidBrush(RGB(0, 0, 0));
+      RECT logical_rect = {0, 0, logical_area.x, logical_area.y};
+      ::FillRect(dc_mem, &logical_rect, brush);
+      ::DeleteObject(brush);
+
+      int x = (logical_area.x / 2) - (width / 2);
+      int y = (logical_area.y / 2) - (height / 2);
+
+      StretchDIBits(dc_mem, x, y, width, height, 0, 0, width, height, image,
+                    &bmi, DIB_RGB_COLORS, SRCCOPY);
+
+      BitBlt(ps.hdc, 0, 0, logical_area.x, logical_area.y, dc_mem, 0, 0,
+             SRCCOPY);
+
+      // Cleanup.
+      ::SelectObject(dc_mem, bmp_old);
+      ::DeleteObject(bmp_mem);
+      ::DeleteDC(dc_mem);
+    }
+
+    // HBRUSH brush =
+    //     ::CreateSolidBrush(RGB(std::rand(), std::rand(), std::rand()));
+    // ::FillRect(ps.hdc, &rc, brush);
+    // ::DeleteObject(brush);
+
+    ::EndPaint(hwnd, &ps);
+  } else if (msg == WM_CLOSE) {
+    exit(0);
+  } else if (msg == WM_ERASEBKGND) {
+  } else if (msg == WM_SETFOCUS) {
+  } else if (msg == WM_SIZE) {
+  } else if (msg == WM_CTLCOLORSTATIC) {
+  } else if (msg == WM_COMMAND) {
+  } else {
+    result = DefWindowProc(hwnd, msg, wp, lp);
+  }
+
+  return result;
+}
+
 void test() {
   auto work = rtc::Thread::Create();
   work.get()->Start();
@@ -271,15 +368,44 @@ void test() {
   webrtc::DesktopCapturer::SourceList sourceList;
   ScreenVideoCapturer::GetSourceList(&sourceList);
   std::unique_ptr<ScreenVideoCapturer> capturer(
-      new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, 640, 480,
-                                                     30));
+      new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, 1920,
+                                                     1260, 30));
 
   auto asd = pcf.get()->CreateVideoTrack(
       "asd", webrtc::CreateVideoTrackSourceProxy(signal.get(), work.get(),
                                                  capturer.get()));
 
-  // while (true) {
-  // }
+  WNDCLASSEXW wcex = {sizeof(WNDCLASSEX)};
+  wcex.style = CS_DBLCLKS;
+  wcex.hInstance = GetModuleHandle(NULL);
+  // wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+  wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+  // wcex.lpfnWndProc = DefWindowProc;
+  wcex.lpfnWndProc = DWProc;
+  wcex.lpszClassName = L"Test_Class";
+  wcex.hbrBackground = CreateSolidBrush(RGB(0, 0, 0));
+  ATOM wnd_class_ = ::RegisterClassExW(&wcex);
+
+  HWND wnd =
+      CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, L"Test_Class", L"Test",
+                      WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
+                      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                      CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL), NULL);
+
+  c = new NativeVideoRenderer(wnd, 1920, 1260, asd.get());
+
+  ShowWindow(wnd, SW_SHOWNORMAL);
+  UpdateWindow(wnd);
+
+  DWORD d = GetLastError();
+  printf("bridge %d\n", d);
+
+  MSG Msg;
+
+  while (GetMessage(&Msg, NULL, 0, 0) > 0) {
+    TranslateMessage(&Msg);
+    DispatchMessage(&Msg);
+  }
 }
 
 }  // namespace bridge
