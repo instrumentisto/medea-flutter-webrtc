@@ -277,17 +277,6 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
   }
 
   @override
-  Future<void> close() async {
-    try {
-      await WebRTC.invokeMethod('peerConnectionClose', <String, dynamic>{
-        'peerConnectionId': _peerConnectionId,
-      });
-    } on PlatformException catch (e) {
-      throw 'Unable to RTCPeerConnection::close: ${e.message}';
-    }
-  }
-
-  @override
   Future<List<RTCRtpSender>> getSenders() async {
     try {
       final response = await WebRTC.invokeMethod('getSenders',

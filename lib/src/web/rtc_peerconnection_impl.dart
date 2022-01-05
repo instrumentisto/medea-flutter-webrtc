@@ -186,12 +186,6 @@ class RTCPeerConnectionWeb extends RTCPeerConnection {
     return report;
   }
 
-  @override
-  Future<void> close() async {
-    _jsPc.close();
-    return Future.value();
-  }
-
   //
   // utility section
   //

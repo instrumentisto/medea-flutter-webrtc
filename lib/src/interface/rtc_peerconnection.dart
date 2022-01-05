@@ -53,8 +53,6 @@ abstract class RTCPeerConnection {
 
   Future<List<StatsReport>> getStats([MediaStreamTrack? track]);
 
-  Future<void> close();
-
   /// Unified-Plan.
   Future<List<RTCRtpSender>> getSenders();
 

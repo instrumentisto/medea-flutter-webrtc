@@ -75,10 +75,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         void onAudioManagerRequested(boolean requested);
 
         void setMicrophoneMute(boolean mute);
-
-        void setSpeakerphoneOn(boolean on);
-
-
     }
 
     static public final String TAG = "FlutterWebRTCPlugin";
@@ -174,9 +170,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 getUserMedia(constraintsMap, result);
                 break;
             }
-            case "createLocalMediaStream":
-                createLocalMediaStream(result);
-                break;
             case "getSources":
                 getSources(result);
                 break;
@@ -285,12 +278,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 result.success(null);
                 break;
             }
-            case "peerConnectionClose": {
-                String peerConnectionId = call.argument("peerConnectionId");
-                peerConnectionClose(peerConnectionId);
-                result.success(null);
-                break;
-            }
             case "peerConnectionDispose": {
                 String peerConnectionId = call.argument("peerConnectionId");
                 peerConnectionDispose(peerConnectionId);
@@ -343,17 +330,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 result.success(null);
                 break;
             }
-            case "mediaStreamTrackHasTorch": {
-                String trackId = call.argument("trackId");
-                getUserMediaImpl.hasTorch(trackId, result);
-                break;
-            }
-            case "mediaStreamTrackSetTorch": {
-                String trackId = call.argument("trackId");
-                boolean torch = call.argument("torch");
-                getUserMediaImpl.setTorch(trackId, torch, result);
-                break;
-            }
             case "mediaStreamTrackReadyState": {
                 String trackId = call.argument("trackId");
                 MediaStreamTrack.State state = getTrackForId(trackId).state();
@@ -364,28 +340,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
 
                 break;
             }
-            case "mediaStreamTrackSwitchCamera": {
-                String trackId = call.argument("trackId");
-                getUserMediaImpl.switchCamera(trackId, result);
-                break;
-            }
-            case "setVolume": {
-                String trackId = call.argument("trackId");
-                double volume = call.argument("volume");
-                mediaStreamTrackSetVolume(trackId, volume);
-                result.success(null);
-                break;
-            }
-            case "setMicrophoneMute":
-                boolean mute = call.argument("mute");
-                audioManager.setMicrophoneMute(mute);
-                result.success(null);
-                break;
-            case "enableSpeakerphone":
-                boolean enable = call.argument("enable");
-                audioManager.setSpeakerphoneOn(enable);
-                result.success(null);
-                break;
             case "getLocalDescription": {
                 String peerConnectionId = call.argument("peerConnectionId");
                 PeerConnection peerConnection = getPeerConnection(peerConnectionId);
@@ -428,19 +382,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
                 } else {
                     resultError("setConfiguration", "peerConnection is null", result);
                 }
-                break;
-            }
-            case "addTrack": {
-                String peerConnectionId = call.argument("peerConnectionId");
-                String trackId = call.argument("trackId");
-                List<String> streamIds = call.argument("streamIds");
-                addTrack(peerConnectionId, trackId, streamIds, result);
-                break;
-            }
-            case "removeTrack": {
-                String peerConnectionId = call.argument("peerConnectionId");
-                String senderId = call.argument("senderId");
-                removeTrack(peerConnectionId, senderId, result);
                 break;
             }
             case "addTransceiver": {
@@ -941,20 +882,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         result.success(map.toMap());
     }
 
-    private void createLocalMediaStream(Result result) {
-        String streamId = getNextStreamUUID();
-        MediaStream mediaStream = mFactory.createLocalMediaStream(streamId);
-        localStreams.put(streamId, mediaStream);
-
-        if (mediaStream == null) {
-            resultError("createLocalMediaStream", "Failed to create new media stream", result);
-            return;
-        }
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("streamId", mediaStream.getId());
-        result.success(resultMap);
-    }
-
     public void mediaStreamTrackSetEnabled(final String id, final boolean enabled) {
         MediaStreamTrack track = getTrackForId(id);
 
@@ -983,61 +910,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         }
 
         return null;
-    }
-
-    public void mediaStreamTrackSetVolume(final String id, final double volume) {
-        MediaStreamTrack track = getLocalTrack(id);
-        if (track instanceof AudioTrack) {
-            Log.d(TAG, "setVolume(): " + id + "," + volume);
-            try {
-                ((AudioTrack) track).setVolume(volume);
-            } catch (Exception e) {
-                Log.e(TAG, "setVolume(): error", e);
-            }
-        } else {
-            Log.w(TAG, "setVolume(): track not found: " + id);
-        }
-    }
-
-    public void mediaStreamAddTrack(final String streamId, final String trackId, Result result) {
-        MediaStream mediaStream = localStreams.get(streamId);
-        if (mediaStream != null) {
-            MediaStreamTrack track = getTrackForId(trackId);
-            if (track != null) {
-                MediaStreamTrack clonedTrack = RTCUtils.cloneMediaStreamTrack(track);
-                if (clonedTrack instanceof AudioTrack) {
-                    mediaStream.addTrack((AudioTrack) clonedTrack);
-                } else if (clonedTrack instanceof VideoTrack) {
-                    mediaStream.addTrack((VideoTrack) clonedTrack);
-                } else {
-                    resultError("mediaStreamAddTrack", "mediaStreamAddTrack() track [" + trackId + "] is not AudioTrack or VideoTrack", result);
-                }
-            } else {
-                resultError("mediaStreamAddTrack", "mediaStreamAddTrack() track [" + trackId + "] is null", result);
-            }
-        } else {
-            resultError("mediaStreamAddTrack", "mediaStreamAddTrack() stream [" + streamId + "] is null", result);
-        }
-        result.success(null);
-    }
-
-    public void mediaStreamRemoveTrack(final String streamId, final String trackId, Result result) {
-        MediaStream mediaStream = localStreams.get(streamId);
-        if (mediaStream != null) {
-            MediaStreamTrack track = getLocalTrack(trackId);
-            if (track != null) {
-                if (track.kind().equals("audio")) {
-                    mediaStream.removeTrack((AudioTrack) track);
-                } else if (track.kind().equals("video")) {
-                    mediaStream.removeTrack((VideoTrack) track);
-                }
-            } else {
-                resultError("mediaStreamRemoveTrack", "mediaStreamAddTrack() track [" + trackId + "] is null", result);
-            }
-        } else {
-            resultError("mediaStreamRemoveTrack", "mediaStreamAddTrack() stream [" + streamId + "] is null", result);
-        }
-        result.success(null);
     }
 
     public ConstraintsMap getCameraInfo(int index) {
@@ -1228,15 +1100,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         }
     }
 
-    public void peerConnectionClose(final String id) {
-        PeerConnectionObserver pco = mPeerConnectionObservers.get(id);
-        if (pco == null || pco.getPeerConnection() == null) {
-            Log.d(TAG, "peerConnectionClose() peerConnection is null");
-        } else {
-            pco.close();
-        }
-    }
-
     public void peerConnectionDispose(final String id) {
         Log.d(TAG, "Disposing PeerConnection");
         PeerConnectionObserver pco = mPeerConnectionObservers.get(id);
@@ -1251,44 +1114,8 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         }
     }
 
-    public void mediaStreamRelease(final String id) {
-        MediaStream mediaStream = localStreams.get(id);
-        if (mediaStream != null) {
-//            for (VideoTrack track : mediaStream.videoTracks) {
-//                getUserMediaImpl.removeVideoCapturer(track.id());
-//            }
-            mediaStream.dispose();
-            localStreams.remove(id);
-        } else {
-            Log.d(TAG, "mediaStreamRelease() mediaStream is null");
-        }
-    }
-
     public void setActivity(Activity activity) {
         this.activity = activity;
-    }
-
-    public void addTrack(String peerConnectionId, String trackId, List<String> streamIds, Result result) {
-        PeerConnectionObserver pco = mPeerConnectionObservers.get(peerConnectionId);
-        MediaStreamTrack track = getLocalTrack(trackId);
-        if (track == null) {
-            resultError("addTrack", "track is null", result);
-            return;
-        }
-        if (pco == null || pco.getPeerConnection() == null) {
-            resultError("addTrack", "peerConnection is null", result);
-        } else {
-            pco.addTrack(track, streamIds, result);
-        }
-    }
-
-    public void removeTrack(String peerConnectionId, String senderId, Result result) {
-        PeerConnectionObserver pco = mPeerConnectionObservers.get(peerConnectionId);
-        if (pco == null || pco.getPeerConnection() == null) {
-            resultError("removeTrack", "peerConnection is null", result);
-        } else {
-            pco.removeTrack(senderId, result);
-        }
     }
 
     public void addTransceiver(String peerConnectionId, String trackId, Map<String, Object> transceiverInit,
