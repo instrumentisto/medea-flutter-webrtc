@@ -61,11 +61,11 @@ pub mod ffi {
             id: u64,
         ) -> Box<PeerConnection_>;
 
-        /*#[cxx_name = "CreateOffer"]
-        fn create_offer(self: &mut PeerConnection_);*/
+        #[cxx_name = "CreateOffer"]
+        fn create_offer(self: &mut PeerConnection_, s: usize, f: usize);
 
-        #[cxx_name = "CreateAnswer"]
-        fn create_answer(self: &mut PeerConnection_);
+        /*#[cxx_name = "CreateAnswer"]
+        fn create_answer(self: &mut PeerConnection_);*/
 
         #[cxx_name = "SetLocalDescription"]
         fn set_local_description(self: &mut PeerConnection_);

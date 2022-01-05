@@ -8,6 +8,34 @@
 
 namespace flutter_webrtc_plugin {
 
+void OnSuccessOffer2(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result, std::string type, std::string sdp) {
+    flutter::EncodableMap params;
+    params[flutter::EncodableValue("sdp")] = sdp;
+    params[flutter::EncodableValue("type")] = type;
+    result->Success(flutter::EncodableValue(params));
+}
+
+void FailAnswer2(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result, std::string error) {
+  result->Error("42", error);
+}
+
+class callback {
+    private:
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
+
+    public:
+    callback(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) : result(std::move(result)) {};
+    void OnSuccessOffer(std::string type, std::string sdp) {
+        flutter::EncodableMap params;
+        params[flutter::EncodableValue("sdp")] = sdp;
+        params[flutter::EncodableValue("type")] = type;
+        result->Success(flutter::EncodableValue(params));
+    }
+    void FailAnswer(std::string error) {
+      result->Error("42", error);
+    }
+};
+
 template <typename T>
 inline bool TypeIs(const EncodableValue val) {
   return std::holds_alternative<T>(val);
@@ -111,7 +139,16 @@ void FlutterWebRTC::HandleMethodCall(
     // config for createOffer (rust box config)
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
       webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-    //peerconnection->CreateOffer();
+
+    callback cb(std::move(result));
+
+    auto su = std::bind(OnSuccessOffer2, std::placeholders::_1, std::move(result));
+    size_t s = (size_t) &su;
+
+    auto fa = std::bind(FailAnswer2, std::placeholders::_1, std::move(result));
+    size_t f = (size_t) &fa;
+
+    peerconnection->CreateOffer(s,f);
 
     result->Success(nullptr);
 
@@ -125,7 +162,8 @@ void FlutterWebRTC::HandleMethodCall(
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
     const EncodableMap constraints = findMap(params, "constraints");
-    peerconnection->CreateAnswer();
+
+    //peerconnection->CreateAnswer();
 
     result->Success(nullptr);
 

@@ -1,7 +1,9 @@
 #[allow(clippy::expl_impl_clone_on_copy)]
 use std::os::raw::c_char;
+use cxx::UniquePtr;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
+
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -122,6 +124,7 @@ pub(crate) mod webrtc {
         type RTCOfferAnswerOptions;
         type SessionDescriptionInterface;
         type SdpType;
+        type MyCreateSessionObserver;
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
@@ -206,14 +209,21 @@ pub(crate) mod webrtc {
             use_rtp_mux: bool,
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
-        pub fn create_offer(
+        pub fn create_my_offer_answer_observer(
+            s: extern "C" fn(&CxxString, &CxxString), 
+            f: extern "C" fn(&CxxString)) 
+        -> UniquePtr<MyCreateSessionObserver>;
+
+        pub unsafe fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
+            obs: *mut MyCreateSessionObserver,
         );
 
-        pub fn create_answer(
+        pub unsafe fn create_answer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
+            obs: *mut MyCreateSessionObserver,
         );
 
         pub fn set_local_description(

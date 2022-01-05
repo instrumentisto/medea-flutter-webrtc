@@ -1,3 +1,4 @@
+use cxx::CxxString;
 use cxx::let_cxx_string;
 use libwebrtc_sys as sys;
 use sys::SessionDescriptionInterface;
@@ -24,17 +25,21 @@ pub struct PeerConnectionId(u64);
 
 impl PeerConnection_ {
 
-    pub fn create_offer(&mut self, callback: *const c_void) {
-
+    pub fn create_offer(&mut self, s: usize, f: usize) {
+        let obs = sys::MyCreateSessionObserver::new(s, f);
+        self.0.as_ref()
+        .borrow_mut()
+        .peer_connection_interface
+        .create_offer(&sys::RTCOfferAnswerOptions::default(), obs)
     }
 
-    pub fn create_answer(&mut self) {
-        self.0
+    /*pub fn create_answer(&mut self) {
+        /*self.0
             .as_ref()
             .borrow_mut()
             .peer_connection_interface
-            .create_answer(sys::RTCOfferAnswerOptions::default())
-    }
+            .create_answer(sys::RTCOfferAnswerOptions::default())*/
+    }*/
 
     pub fn set_local_description(&mut self) {
         let type_ = sys::SdpType::kAnswer;

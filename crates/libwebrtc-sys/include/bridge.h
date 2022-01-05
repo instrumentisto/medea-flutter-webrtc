@@ -75,7 +75,11 @@ using VideoEncoderFactory = webrtc::VideoEncoderFactory;
 using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using AudioFrameProcessor = webrtc::AudioFrameProcessor;
 using RTCError = webrtc::RTCError;
+
 using MyObserver = my_stuff::MyObserver;
+using MyCreateSessionObserver = my_stuff::MyCreateSessionObserver;
+using MySessionObserver = my_stuff::MySessionObserver;
+
 using CreateSessionDescriptionObserver = webrtc::CreateSessionDescriptionObserver;
 using RTCOfferAnswerOptions = webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
@@ -190,13 +194,18 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(int32_t o
   bool ice_restart,
   bool use_rtp_mux);
 
+/// Create MyCreateSessionObserver.   
+std::unique_ptr<MyCreateSessionObserver> create_my_offer_answer_observer(
+  rust::cxxbridge1::Fn<void (const std::string &, const std::string &)> s, 
+  rust::cxxbridge1::Fn<void (const std::string &)> f);
+
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options);
+  const RTCOfferAnswerOptions& options, MyCreateSessionObserver* obs);
 
 /// Call CreateAnswer
 void create_answer(PeerConnectionInterface&  peer_connection_interface,
-  const RTCOfferAnswerOptions& options);
+  const RTCOfferAnswerOptions& options, MyCreateSessionObserver* obs);
 
 /// Call setLocalDescription
 void set_local_description(PeerConnectionInterface& peer_connection_interface,

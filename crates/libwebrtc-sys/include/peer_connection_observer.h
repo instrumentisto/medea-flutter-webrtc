@@ -2,9 +2,14 @@
 
 #include "api\peer_connection_interface.h"
 #include <functional>
+#include "rust/cxx.h"
+
 
 namespace my_stuff
 {
+typedef void (*callback_success)(std::string, std::string);
+typedef void (*callback_fail)(std::string);
+
 class MyObserver: public webrtc::PeerConnectionObserver
 {
   // Called any time the IceGatheringState changes.
@@ -25,14 +30,27 @@ class MyObserver: public webrtc::PeerConnectionObserver
 
 class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
 {
-  
+  public:
+  rust::cxxbridge1::Fn<void (const std::string &, const std::string &)> success;
+  rust::cxxbridge1::Fn<void (const std::string &)> fail;
+
+  MyCreateSessionObserver(
+    rust::cxxbridge1::Fn<void (const std::string &, const std::string &)> s, 
+    rust::cxxbridge1::Fn<void (const std::string &)> f) : success(s), fail(f) {};
+
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) {
     std::string type = desc->type();
     std::string sdp;
     desc->ToString(&sdp);
-
+    printf("TEST CO\n");
+    success(type, sdp);
   };
-  void OnFailure(webrtc::RTCError error) {};
+
+  void OnFailure(webrtc::RTCError error) {
+    std::string err = std::string(error.message());
+    fail(err);
+  };
+
   void AddRef() const {};
   rtc::RefCountReleaseStatus Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
 
