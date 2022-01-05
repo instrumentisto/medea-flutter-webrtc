@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter_webrtc/src/interface/rtc_audio_renderer.dart';
+
 import '../interface/factory.dart';
 import '../interface/navigator.dart';
 import '../interface/rtc_peerconnection.dart';
@@ -40,6 +42,11 @@ class RTCFactoryNative extends RTCFactory {
   @override
   VideoRenderer videoRenderer() {
     return RTCVideoRendererNative();
+  }
+
+  @override
+  AudioRenderer audioRenderer() {
+    throw UnimplementedError();
   }
 
   @override

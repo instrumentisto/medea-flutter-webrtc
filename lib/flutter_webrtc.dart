@@ -19,4 +19,5 @@ export 'src/native/rtc_peerconnection_factory.dart'
 export 'src/native/rtc_video_view_impl.dart'
     if (dart.library.html) 'src/web/rtc_video_view_impl.dart';
 export 'src/native/utils.dart' if (dart.library.html) 'src/web/utils.dart';
+export 'src/rtc_audio_renderer.dart';
 export 'src/rtc_video_renderer.dart';

@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 
+import 'package:flutter_webrtc/src/interface/rtc_audio_renderer.dart';
+import 'package:flutter_webrtc/src/web/rtc_audio_renderer.dart';
+
 import '../interface/factory.dart';
 import '../interface/navigator.dart';
 import '../interface/rtc_peerconnection.dart';
@@ -34,6 +37,11 @@ class RTCFactoryWeb extends RTCFactory {
   @override
   VideoRenderer videoRenderer() {
     return RTCVideoRendererWeb();
+  }
+
+  @override
+  AudioRenderer audioRenderer() {
+    return AudioRendererWeb();
   }
 
   @override
