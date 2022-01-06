@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 
-#include <chrono>
 #include <iostream>
 #include <memory>
 
@@ -224,15 +223,6 @@ void ScreenVideoCapturer::OnCaptureResult(
                                         .set_timestamp_ms(rtc::TimeMillis())
                                         .set_rotation(webrtc::kVideoRotation_0)
                                         .build();
-  captureFrame.set_id(
-      (uint16_t)std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::system_clock::now().time_since_epoch())
-          .count());
-
-  printf("Frame '%d' created at: %d (libWebRTC)\n", captureFrame.id(),
-         std::chrono::duration_cast<std::chrono::milliseconds>(
-             std::chrono::system_clock::now().time_since_epoch())
-             .count());
 
   OnFrame(captureFrame);
 }

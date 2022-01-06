@@ -1,7 +1,5 @@
 #include "custom_video_renderer.h"
 
-#include <chrono>
-
 template <typename T>
 class AutoLock {
  public:
@@ -14,8 +12,7 @@ class AutoLock {
 
 namespace bridge {
 VideoRenderer::VideoRenderer(
-    rust::cxxbridge1::Fn<
-        void(std::unique_ptr<webrtc::VideoFrame>, size_t, uint16_t)> cb,
+    rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
     webrtc::VideoTrackInterface* track_to_render)
     : cb_(cb),
@@ -35,14 +32,7 @@ void VideoRenderer::SetNoTrack() {
 }
 
 void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
-  printf("Frame '%d' before call CB in C++ at: %d (libWebRTC)\n",
-         video_frame.id(),
-         std::chrono::duration_cast<std::chrono::milliseconds>(
-             std::chrono::system_clock::now().time_since_epoch())
-             .count());
-
-  cb_(std::make_unique<webrtc::VideoFrame>(video_frame), flutter_cb_ptr_,
-      video_frame.id());
+  cb_(std::make_unique<webrtc::VideoFrame>(video_frame), flutter_cb_ptr_);
 }
 
 }  // namespace bridge

@@ -1,4 +1,3 @@
-#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -205,33 +204,8 @@ std::unique_ptr<std::vector<uint8_t>> convert_to_argb(
     const std::unique_ptr<VideoFrame>& frame,
     const int32_t buffer_size) {
   auto video_frame = frame.get();
-  // rust::Vec<uint8_t> image;
-
-  printf(
-      "Frame '%d' before creating std::vector<uint8_t> with `0` at: "
-      "%d "
-      "(libWebRTC)\n",
-      frame.get()->id(),
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::system_clock::now().time_since_epoch())
-          .count());
 
   std::vector<uint8_t> image(buffer_size, 0);
-  // image.reserve(buffer_size);
-  // std::fill(image.cbegin(), image.cend(), 0);
-
-  // for (int i = 0; i < buffer_size; i++) {
-  //   image.emplace_back((uint8_t)0);
-  // }
-
-  printf(
-      "Frame '%d' after creating std::vector<uint8_t> with `0` at: "
-      "%d "
-      "(libWebRTC)\n",
-      frame.get()->id(),
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::system_clock::now().time_since_epoch())
-          .count());
 
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       video_frame->video_frame_buffer()->ToI420());
@@ -239,29 +213,17 @@ std::unique_ptr<std::vector<uint8_t>> convert_to_argb(
     buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame->rotation());
   }
 
-  printf("Frame '%d' before converting to ABGR at: %d (libWebRTC)\n",
-         frame.get()->id(),
-         std::chrono::duration_cast<std::chrono::milliseconds>(
-             std::chrono::system_clock::now().time_since_epoch())
-             .count());
-
   libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
                      image.data(), video_frame->width() * 32 / 8,
                      buffer->width(), buffer->height());
-
-  printf("Frame '%d' after converting to ABGR at: %d (libWebRTC)\n",
-         frame.get()->id(),
-         std::chrono::duration_cast<std::chrono::milliseconds>(
-             std::chrono::system_clock::now().time_since_epoch())
-             .count());
 
   return std::make_unique<std::vector<uint8_t>>(image);
 }
 
 /// testasdsassads
 std::unique_ptr<VideoRenderer> get_video_renderer(
-    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t, uint16_t)> cb,
+    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
     const std::unique_ptr<VideoTrackInterface>& track_to_render) {
   return std::make_unique<VideoRenderer>(cb, flutter_cb_ptr,

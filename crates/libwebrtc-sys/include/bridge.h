@@ -166,7 +166,7 @@ std::unique_ptr<std::vector<uint8_t>> convert_to_argb(
     int32_t buffer_size);
 
 std::unique_ptr<VideoRenderer> get_video_renderer(
-    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t, uint16_t)> cb,
+    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
     const std::unique_ptr<VideoTrackInterface>& track_to_render);
 

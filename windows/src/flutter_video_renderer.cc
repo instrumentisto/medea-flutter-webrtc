@@ -2,7 +2,7 @@
 #include "flutter_webrtc_native.h"
 #include "wrapper.h"
 
-#include <chrono>
+// #include <chrono>
 // #include <ctime>
 
 // using std::chrono::duration_cast;
@@ -12,7 +12,7 @@
 
 namespace flutter_webrtc_plugin {
 
-typedef void (*myfunc)(Frame*, uint16_t);
+typedef void (*myfunc)(Frame*);
 
 extern "C" void foo(rust::cxxbridge1::Box<Webrtc>&,
                     int64_t,
@@ -57,39 +57,20 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
     size_t height) const {
   mutex_.lock();
 
-  printf("Frame '%d' after call `CopyPixelBuffer` at: %d (Flutter C++)\n",
-         frame_.id,
-         (int)std::chrono::duration_cast<std::chrono::milliseconds>(
-             std::chrono::system_clock::now().time_since_epoch())
-             .count());
-
-  if (pixel_buffer_.get() && frame_.inner) {
-    if (pixel_buffer_->width != frame_.inner->width() ||
-        pixel_buffer_->height != frame_.inner->height()) {
-      size_t buffer_size = frame_.inner->buffer_size();
+  if (pixel_buffer_.get() && frame_) {
+    if (pixel_buffer_->width != frame_->width() ||
+        pixel_buffer_->height != frame_->height()) {
+      size_t buffer_size = frame_->buffer_size();
       rgb_buffer_.reset(new uint8_t[buffer_size]);
-      pixel_buffer_->width = frame_.inner->width();
-      pixel_buffer_->height = frame_.inner->height();
+      pixel_buffer_->width = frame_->width();
+      pixel_buffer_->height = frame_->height();
     }
 
-    auto buffer = frame_.inner->buffer().release();
-
-    printf(
-        "Frame '%d' before copying to `pixel_buffer_` at: %d (Flutter C++)\n",
-        frame_.id,
-        (int)std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch())
-            .count());
+    auto buffer = frame_->buffer().release();
 
     std::copy(buffer->begin(), buffer->end(), rgb_buffer_.get());
 
     pixel_buffer_->buffer = rgb_buffer_.get();
-
-    printf("Frame '%u' after copying to `pixel_buffer_` at: %d (Flutter C++)\n",
-           frame_.id,
-           (int)std::chrono::duration_cast<std::chrono::milliseconds>(
-               std::chrono::system_clock::now().time_since_epoch())
-               .count());
 
     mutex_.unlock();
     return pixel_buffer_.get();
@@ -98,7 +79,7 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
   return nullptr;
 }
 
-void FlutterVideoRenderer::OnFrame(Frame* frame, uint16_t frame_id) {
+void FlutterVideoRenderer::OnFrame(Frame* frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
       EncodableMap params;
@@ -136,30 +117,22 @@ void FlutterVideoRenderer::OnFrame(Frame* frame, uint16_t frame_id) {
     last_frame_size_ = {(size_t)frame->width(), (size_t)frame->height()};
   }
   mutex_.lock();
-  if (frame_.inner != nullptr) {
-    delete_frame(frame_.inner);
+  if (frame_ != nullptr) {
+    delete_frame(frame_);
   }
-  frame_.inner = frame;
-  frame_.id = frame_id;
+  frame_ = frame;
   mutex_.unlock();
-
-  printf("Frame '%u' before call `MarkTexture...` at: %d (Flutter C++)\n",
-         frame_id,
-         (int)std::chrono::duration_cast<std::chrono::milliseconds>(
-             std::chrono::system_clock::now().time_since_epoch())
-             .count());
 
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
 
 void FlutterVideoRenderer::ResetRenderer() {
   mutex_.lock();
-  if (frame_.inner != nullptr) {
-    delete_frame(frame_.inner);
+  if (frame_ != nullptr) {
+    delete_frame(frame_);
   }
   mutex_.unlock();
-  frame_.inner = nullptr;
-  frame_.id = 0;
+  frame_ = nullptr;
   last_frame_size_ = {0, 0};
   first_frame_rendered = false;
 }
@@ -218,9 +191,8 @@ void FlutterVideoRendererManager::SetMediaStream(
   if (it != renderers_.end()) {
     if (stream_id != "") {
       auto cb = std::bind(&FlutterVideoRenderer::OnFrame,
-                          renderers_[texture_id].get(), std::placeholders::_1,
-                          std::placeholders::_2);
-      myfunc wrapped_cb = Wrapper<0, void(Frame*, uint16_t)>::wrap(cb);
+                          renderers_[texture_id].get(), std::placeholders::_1);
+      myfunc wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
       foo(webrtc, texture_id, rust::String(stream_id), wrapped_cb);
     } else {
       dispose_renderer(webrtc, texture_id);

@@ -1,11 +1,10 @@
 #![warn(clippy::pedantic)]
 use std::{collections::HashMap, rc::Rc};
 
-use cxx::UniquePtr;
 use libwebrtc_sys::{
-    webrtc::VideoFrame, AudioDeviceModule, AudioLayer, AudioSource, AudioTrack,
-    LocalMediaStream, PeerConnectionFactory, TaskQueueFactory, VideoDeviceInfo,
-    VideoSource, VideoTrack, *,
+    AudioDeviceModule, AudioLayer, AudioSource, AudioTrack, LocalMediaStream,
+    PeerConnectionFactory, TaskQueueFactory, VideoDeviceInfo, VideoSource,
+    VideoTrack, *,
 };
 
 mod user_media;
