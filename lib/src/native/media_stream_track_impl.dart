@@ -119,7 +119,8 @@ class MediaStreamTrackNative extends MediaStreamTrack {
         <String, dynamic>{'trackId': _trackId},
       );
     } catch (e) {
-      print('Tried to dispose already disposed MediaStreamTrack [id = $_trackId}]');
+      print(
+          'Tried to dispose already disposed MediaStreamTrack [id = $_trackId}]');
     }
   }
 }
