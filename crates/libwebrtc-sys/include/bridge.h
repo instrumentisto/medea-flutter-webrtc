@@ -196,8 +196,8 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(int32_t o
 
 /// Create MyCreateSessionObserver.   
 std::unique_ptr<MyCreateSessionObserver> create_my_offer_answer_observer(
-  rust::cxxbridge1::Fn<void (const std::string &, const std::string &)> s, 
-  rust::cxxbridge1::Fn<void (const std::string &)> f);
+  size_t s, 
+  size_t f);
 
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,

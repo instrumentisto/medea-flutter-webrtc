@@ -1,1 +1,14 @@
-test
+отсутствуют экземпляры перегруженная функция 
+"std::_Binder<_Ret, _Fx, _Types...>::operator() 
+[с _Ret=std::_Unforced, _Fx=void 
+(&)
+(
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>, 
+    std::default_delete<flutter::MethodResult<flutter::EncodableValue>>> result, 
+    std::string sdp, 
+    std::string type
+), _Types=
+<
+std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>, 
+std::default_delete<flutter::MethodResult<flutter::EncodableValue>>> &, 
+const char (&)[2], const char (&)[2]>]", соответствующие списку аргументов -- тип объекта: std::_Binder<std::_Unforced, void (&)(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>, std::default_delete<flutter::MethodResult<flutter::EncodableValue>>> result, std::string sdp, std::string type), std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>, std::default_delete<flutter::MethodResult<flutter::EncodableValue>>> &, const char (&)[2], const char (&)[2]>C/C++(304)

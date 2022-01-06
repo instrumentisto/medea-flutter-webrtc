@@ -328,11 +328,7 @@ pub struct MyCreateSessionObserver(UniquePtr<webrtc::MyCreateSessionObserver>);
 
 impl MyCreateSessionObserver {
     pub fn new(success: usize,  fail: usize) -> Self {
-        let s: fn(&CxxString, &CxxString) =
-            unsafe {std::mem::transmute(success)};
-        let f: fn(&CxxString) =
-            unsafe {std::mem::transmute(fail)};
-        Self(webrtc::create_my_offer_answer_observer(s,f))
+        Self(webrtc::create_my_offer_answer_observer(success, fail))   
     }
 }
 

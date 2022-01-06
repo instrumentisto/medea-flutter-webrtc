@@ -49,8 +49,9 @@ class _CreateSampleState extends State<CreateSample> {
         'constraints': defaultSdpConstraints,
       },
     );
+    String sdp = response['sdp'];
     setState(() {
-      text = 'Good';
+      text = sdp;
     });
   }
 

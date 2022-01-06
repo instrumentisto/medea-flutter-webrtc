@@ -31,24 +31,30 @@ class MyObserver: public webrtc::PeerConnectionObserver
 class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
 {
   public:
-  rust::cxxbridge1::Fn<void (const std::string &, const std::string &)> success;
-  rust::cxxbridge1::Fn<void (const std::string &)> fail;
+  callback_success success;
+  callback_fail fail;
 
   MyCreateSessionObserver(
-    rust::cxxbridge1::Fn<void (const std::string &, const std::string &)> s, 
-    rust::cxxbridge1::Fn<void (const std::string &)> f) : success(s), fail(f) {};
+    size_t s, 
+    size_t f) {
+      success = (callback_success) s;
+      fail = (callback_fail) f;
+      
+      success("WORK", "2");
+      //fail("3");
+
+    };
 
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) {
-    std::string type = desc->type();
+    /*std::string type = desc->type();
     std::string sdp;
     desc->ToString(&sdp);
-    printf("TEST CO\n");
-    success(type, sdp);
+    //success(type, sdp);*/
   };
 
   void OnFailure(webrtc::RTCError error) {
-    std::string err = std::string(error.message());
-    fail(err);
+    /*std::string err = std::string(error.message());*/
+    //fail(err);
   };
 
   void AddRef() const {};

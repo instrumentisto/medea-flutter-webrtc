@@ -27,10 +27,11 @@ impl PeerConnection_ {
 
     pub fn create_offer(&mut self, s: usize, f: usize) {
         let obs = sys::MyCreateSessionObserver::new(s, f);
-        self.0.as_ref()
+        //
+        /*self.0.as_ref()
         .borrow_mut()
         .peer_connection_interface
-        .create_offer(&sys::RTCOfferAnswerOptions::default(), obs)
+        .create_offer(&sys::RTCOfferAnswerOptions::default(), obs)*/
     }
 
     /*pub fn create_answer(&mut self) {

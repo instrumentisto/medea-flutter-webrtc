@@ -2,20 +2,30 @@
 #include <string> 
 
 #include "flutter_webrtc.h"
-
+#include "wrapper2.h"
 #include <flutter_webrtc_native.h>
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 
 namespace flutter_webrtc_plugin {
 
-void OnSuccessOffer2(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result, std::string type, std::string sdp) {
+typedef void (*callback_success)(std::string, std::string);
+typedef void (*callback_fail)(std::string);
+
+void test(int i, int j) {
+  printf("%i TEST CALL\n", i*j);
+}
+
+void OnSuccessOffer2(
+  flutter::MethodResult<flutter::EncodableValue>* result, 
+  std::string sdp, 
+  std::string type) {
     flutter::EncodableMap params;
     params[flutter::EncodableValue("sdp")] = sdp;
     params[flutter::EncodableValue("type")] = type;
     result->Success(flutter::EncodableValue(params));
 }
 
-void FailAnswer2(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result, std::string error) {
+void FailAnswer2(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
   result->Error("42", error);
 }
 
@@ -140,17 +150,24 @@ void FlutterWebRTC::HandleMethodCall(
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
       webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
 
-    callback cb(std::move(result));
+    //callback *cb = new callback(std::move(result)); 
+    //size_t s = (size_t) &(cb->OnSuccessOffer);
 
-    auto su = std::bind(OnSuccessOffer2, std::placeholders::_1, std::move(result));
-    size_t s = (size_t) &su;
+    auto ptr = result.get();
+    auto bd_su = std::bind(&OnSuccessOffer2, ptr, std::placeholders::_1, std::placeholders::_2);
+    callback_success su = Wrapper<0, void(std::string, std::string)>::wrap(bd_su);
+    size_t s = (size_t) su;
 
-    auto fa = std::bind(FailAnswer2, std::placeholders::_1, std::move(result));
-    size_t f = (size_t) &fa;
+    s+=0;
+
+
+    auto bd_fa = std::bind(&FailAnswer2, ptr, std::placeholders::_1);
+    callback_fail fa = Wrapper<0, void(std::string)>::wrap(bd_fa);
+    size_t f = (size_t) fa;
+    f+=0;
 
     peerconnection->CreateOffer(s,f);
 
-    result->Success(nullptr);
 
   } else if (method_call.method_name().compare("createAnswer") == 0) {
 

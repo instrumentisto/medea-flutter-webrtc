@@ -210,8 +210,8 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         pub fn create_my_offer_answer_observer(
-            s: extern "C" fn(&CxxString, &CxxString), 
-            f: extern "C" fn(&CxxString)) 
+            s: usize, 
+            f: usize) 
         -> UniquePtr<MyCreateSessionObserver>;
 
         pub unsafe fn create_offer(
