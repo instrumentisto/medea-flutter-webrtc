@@ -72,7 +72,7 @@ final typeStringToRTCRtpMediaType = <String, RTCRtpMediaType>{
   'data': RTCRtpMediaType.RTCRtpMediaTypeData,
 };
 
-final typeStringToMediaStreamTrackState = <String, MediaStreamTrackReadyState> {
+final typeStringToMediaStreamTrackState = <String, MediaStreamTrackReadyState>{
   'live': MediaStreamTrackReadyState.Live,
   'ended': MediaStreamTrackReadyState.Ended,
 };
