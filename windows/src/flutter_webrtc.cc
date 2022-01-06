@@ -11,11 +11,9 @@ namespace flutter_webrtc_plugin {
 typedef void (*callback_success)(std::string, std::string);
 typedef void (*callback_fail)(std::string);
 
-void test(int i, int j) {
-  printf("%i TEST CALL\n", i*j);
-}
+typedef void (*callback_success_desc)();
 
-void OnSuccessOffer2(
+void OnSuccessOffer(
   flutter::MethodResult<flutter::EncodableValue>* result, 
   std::string sdp, 
   std::string type) {
@@ -25,26 +23,14 @@ void OnSuccessOffer2(
     result->Success(flutter::EncodableValue(params));
 }
 
-void FailAnswer2(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
-  result->Error("42", error);
+void OnSuccessDescription(
+  flutter::MethodResult<flutter::EncodableValue>* result) {
+    result->Success(nullptr);
 }
 
-class callback {
-    private:
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
-
-    public:
-    callback(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) : result(std::move(result)) {};
-    void OnSuccessOffer(std::string type, std::string sdp) {
-        flutter::EncodableMap params;
-        params[flutter::EncodableValue("sdp")] = sdp;
-        params[flutter::EncodableValue("type")] = type;
-        result->Success(flutter::EncodableValue(params));
-    }
-    void FailAnswer(std::string error) {
-      result->Error("42", error);
-    }
-};
+void Fail(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
+  result->Error("42", error);
+}
 
 template <typename T>
 inline bool TypeIs(const EncodableValue val) {
@@ -70,7 +56,6 @@ inline std::string findString(const EncodableMap& map, const std::string& key) {
   return std::string();
 }
 
-// WARNING
 inline bool findBool(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<bool>(it->second))
@@ -87,10 +72,16 @@ void FlutterWebRTC::HandleMethodCall(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
 
-    std::string id = std::to_string(webrtc->CreatePeerConnection());
-    EncodableMap params;
-    params[EncodableValue("peerConnectionId")] = id;
-    result->Success(EncodableValue(params));
+    try {
+      std::string id = std::to_string(webrtc->CreatePeerConnection());
+      EncodableMap params;
+      params[EncodableValue("peerConnectionId")] = id;
+      result->Success(EncodableValue(params));
+    }
+    catch (const std::exception &e)
+    {
+      result->Error(e.what());
+    }
 
   } else if (method_call.method_name().compare("getSources") == 0) {
     rust::Vec<MediaDeviceInfo> devices = EnumerateDevices();
@@ -146,27 +137,31 @@ void FlutterWebRTC::HandleMethodCall(
     const bool f1 = findBool(mandatory, "OfferToReceiveAudio");
     const bool f2 = findBool(mandatory, "OfferToReceiveVideo");
 
-    // config for createOffer (rust box config)
-    rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
-      webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+    try {
+      rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
+        webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
 
-    //callback *cb = new callback(std::move(result)); 
-    //size_t s = (size_t) &(cb->OnSuccessOffer);
+      auto result_ptr = result.get(); // must free?
 
-    auto ptr = result.get();
-    auto bd_su = std::bind(&OnSuccessOffer2, ptr, std::placeholders::_1, std::placeholders::_2);
-    callback_success su = Wrapper<0, void(std::string, std::string)>::wrap(bd_su);
-    size_t s = (size_t) su;
+      auto bind_success = std::bind(&OnSuccessOffer, result_ptr, std::placeholders::_1, std::placeholders::_2);
+      callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
+      size_t success = (size_t) wrapp_success;
 
-    s+=0;
+      auto bind_fail = std::bind(&Fail, result_ptr, std::placeholders::_1);
+      callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
+      size_t fail = (size_t) wrapp_fail;
 
-
-    auto bd_fa = std::bind(&FailAnswer2, ptr, std::placeholders::_1);
-    callback_fail fa = Wrapper<0, void(std::string)>::wrap(bd_fa);
-    size_t f = (size_t) fa;
-    f+=0;
-
-    peerconnection->CreateOffer(s,f);
+      peerconnection->CreateOffer(f2, f1, true, false, true, success, fail);
+    }
+    catch (const std::exception &e)
+    {
+      flutter::EncodableMap rparams;
+      rparams[flutter::EncodableValue("sdp")] = "TESTTESTTEST";
+      rparams[flutter::EncodableValue("type")] = "TYPE";
+      result->Success(flutter::EncodableValue(rparams));
+      e;
+      //std::string str = e.what();
+    }
 
 
   } else if (method_call.method_name().compare("createAnswer") == 0) {
@@ -175,14 +170,28 @@ void FlutterWebRTC::HandleMethodCall(
       result->Error("Bad Arguments", "Null constraints arguments received");
       return;
     }
+
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
-    rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
     const EncodableMap constraints = findMap(params, "constraints");
+    const EncodableMap mandatory = findMap(constraints, "mandatory");
+    const bool f1 = findBool(mandatory, "OfferToReceiveAudio");
+    const bool f2 = findBool(mandatory, "OfferToReceiveVideo");
 
-    //peerconnection->CreateAnswer();
+    rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
+      webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
 
-    result->Success(nullptr);
+    auto result_ptr = result.release(); // must free?
+
+    auto bind_success = std::bind(&OnSuccessOffer, result_ptr, std::placeholders::_1, std::placeholders::_2);
+    callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
+    size_t success = (size_t) wrapp_success;
+
+    auto bind_fail = std::bind(&Fail, result_ptr, std::placeholders::_1);
+    callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
+    size_t fail = (size_t) wrapp_fail;
+
+    peerconnection->CreateAnswer(f2, f1, true, false, true, success, fail);
 
   } else if (method_call.method_name().compare("addStream") == 0) {
   } else if (method_call.method_name().compare("removeStream") == 0) {
@@ -194,24 +203,47 @@ void FlutterWebRTC::HandleMethodCall(
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     const EncodableMap constraints = findMap(params, "description"); 
-    findString(constraints, "type");
-    findString(constraints, "sdp");
+    rust::String type = findString(constraints, "type");
+    rust::String sdp = findString(constraints, "sdp");
+
+    auto result_ptr = result.release();
+
+    auto bind_fail = std::bind(&Fail, result_ptr, std::placeholders::_1);
+    callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
+    size_t fail = (size_t) wrapp_fail;
+    
+    auto bind_success = std::bind(&OnSuccessDescription, result_ptr);
+    callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
+    size_t success = (size_t) wrapp_success;
     
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-    peerconnection->SetLocalDescription();
-    result->Success(nullptr);
+    peerconnection->SetLocalDescription(type, sdp, success, fail);
+
   } else if (method_call.method_name().compare("setRemoteDescription") == 0) {
 
     if (!method_call.arguments()) {
       result->Error("Bad Arguments", "Null constraints arguments received");
       return;
     }
-    
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
+    const EncodableMap constraints = findMap(params, "description"); 
+    rust::String type = findString(constraints, "type");
+    rust::String sdp = findString(constraints, "sdp");
+
+    auto result_ptr = result.release();
+
+    auto bind_fail = std::bind(&Fail, result_ptr, std::placeholders::_1);
+    callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
+    size_t fail = (size_t) wrapp_fail;
+    
+    auto bind_success = std::bind(&OnSuccessDescription, result_ptr);
+    callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
+    size_t success = (size_t) wrapp_success;
+    
     rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-    peerconnection->SetRemoteDescription();
-    result->Success(nullptr);
+    peerconnection->SetRemoteDescription(type, sdp, success, fail);
+
   } else if (method_call.method_name().compare("addCandidate") == 0) {
   } else if (method_call.method_name().compare("getStats") == 0) {
   } else if (method_call.method_name().compare("createDataChannel") == 0) {

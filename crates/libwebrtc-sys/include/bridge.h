@@ -199,6 +199,11 @@ std::unique_ptr<MyCreateSessionObserver> create_my_offer_answer_observer(
   size_t s, 
   size_t f);
 
+/// Create MySessionObserver.   
+std::unique_ptr<MySessionObserver> create_my_description_observer(
+  size_t s, 
+  size_t f);
+
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options, MyCreateSessionObserver* obs);
@@ -209,9 +214,9 @@ void create_answer(PeerConnectionInterface&  peer_connection_interface,
 
 /// Call setLocalDescription
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc);
+  std::unique_ptr<SessionDescriptionInterface> desc, MySessionObserver* obs);
 
 /// Call setRemoteDescription
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc);
+  std::unique_ptr<SessionDescriptionInterface> desc,  MySessionObserver* obs);
 }

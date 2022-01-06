@@ -236,6 +236,14 @@ std::unique_ptr<MyCreateSessionObserver> create_my_offer_answer_observer(
     return std::make_unique<MyCreateSessionObserver>(obs);
   }
 
+/// Create MySessionObserver.   
+std::unique_ptr<MySessionObserver> create_my_description_observer(
+  size_t s, 
+  size_t f) {
+    MySessionObserver obs = MySessionObserver(s,f);
+    return std::make_unique<MySessionObserver>(obs);
+  }
+
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options, MyCreateSessionObserver* obs) {
@@ -250,15 +258,13 @@ void create_answer(PeerConnectionInterface& peer_connection_interface,
 
 /// Call setLocalDescription
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc) {
-    my_stuff::MySessionObserver* obs = new my_stuff::MySessionObserver();
+  std::unique_ptr<SessionDescriptionInterface> desc, MySessionObserver* obs) {
     peer_connection_interface.ptr()->SetLocalDescription(obs, desc.get());
   }
 
 /// Call setRemoteDescription
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc) {
-    my_stuff::MySessionObserver* obs = new my_stuff::MySessionObserver();
+  std::unique_ptr<SessionDescriptionInterface> desc, MySessionObserver* obs) {
     peer_connection_interface.ptr()->SetRemoteDescription(obs, desc.get());
   }
 }

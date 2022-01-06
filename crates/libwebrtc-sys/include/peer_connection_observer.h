@@ -10,6 +10,8 @@ namespace my_stuff
 typedef void (*callback_success)(std::string, std::string);
 typedef void (*callback_fail)(std::string);
 
+typedef void (*callback_success_desc)();
+
 class MyObserver: public webrtc::PeerConnectionObserver
 {
   // Called any time the IceGatheringState changes.
@@ -39,22 +41,18 @@ class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
     size_t f) {
       success = (callback_success) s;
       fail = (callback_fail) f;
-      
-      success("WORK", "2");
-      //fail("3");
-
     };
 
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) {
-    /*std::string type = desc->type();
+    std::string type = desc->type();
     std::string sdp;
     desc->ToString(&sdp);
-    //success(type, sdp);*/
+    success(sdp, type);
   };
 
   void OnFailure(webrtc::RTCError error) {
-    /*std::string err = std::string(error.message());*/
-    //fail(err);
+    std::string err = std::string(error.message());
+    fail(err);
   };
 
   void AddRef() const {};
@@ -64,8 +62,24 @@ class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
 
 class MySessionObserver: public webrtc::SetSessionDescriptionObserver
 {
-  void OnSuccess() {};
-  void OnFailure(webrtc::RTCError error) {};
+  public: 
+  callback_success_desc success;
+  callback_fail fail;
+
+  MySessionObserver(
+    size_t s, 
+    size_t f) {
+      success = (callback_success_desc) s;
+      fail = (callback_fail) f;
+    }
+
+  void OnSuccess() {
+    success();
+  };
+  void OnFailure(webrtc::RTCError error) {
+    std::string err = std::string(error.message());
+    fail(err);
+  };
   void AddRef() const {};
   rtc::RefCountReleaseStatus Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
 

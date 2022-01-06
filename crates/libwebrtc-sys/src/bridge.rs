@@ -1,6 +1,6 @@
+use cxx::UniquePtr;
 #[allow(clippy::expl_impl_clone_on_copy)]
 use std::os::raw::c_char;
-use cxx::UniquePtr;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
@@ -125,6 +125,7 @@ pub(crate) mod webrtc {
         type SessionDescriptionInterface;
         type SdpType;
         type MyCreateSessionObserver;
+        type MySessionObserver;
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
@@ -176,27 +177,13 @@ pub(crate) mod webrtc {
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
             configuration: &RTCConfiguration,
             dependencies: UniquePtr<PeerConnectionDependencies>,
-        ) -> UniquePtr<PeerConnectionInterface>;
+        ) -> Result<UniquePtr<PeerConnectionInterface>>;
 
         pub fn create_my_observer() -> UniquePtr<MyObserver>;
 
         pub fn create_peer_connection_dependencies(
             observer: UniquePtr<MyObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
-
-        /*pub fn rtc_error_or_is_ok(rtc: Pin<&mut RTCErrorOr>) -> bool;
-
-        pub fn move_error(
-            rtc_error_or: Pin<&mut RTCErrorOr>,
-        ) -> UniquePtr<RTCError>;
-
-        pub fn rtc_error_or_message(
-            rtc_error: Pin<&mut RTCError>,
-        ) -> *const c_char;
-
-        pub fn move_value(
-            rtc: Pin<&mut RTCErrorOr>,
-        ) -> UniquePtr<PeerConnectionInterface>;*/
 
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
@@ -210,9 +197,14 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         pub fn create_my_offer_answer_observer(
-            s: usize, 
-            f: usize) 
-        -> UniquePtr<MyCreateSessionObserver>;
+            s: usize,
+            f: usize,
+        ) -> UniquePtr<MyCreateSessionObserver>;
+
+        pub fn create_my_description_observer(
+            s: usize,
+            f: usize,
+        ) -> UniquePtr<MySessionObserver>;
 
         pub unsafe fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
@@ -226,14 +218,16 @@ pub(crate) mod webrtc {
             obs: *mut MyCreateSessionObserver,
         );
 
-        pub fn set_local_description(
+        pub unsafe fn set_local_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
+            obs: *mut MySessionObserver,
         );
 
-        pub fn set_remote_description(
+        pub unsafe fn set_remote_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
+            obs: *mut MySessionObserver,
         );
 
         #[namespace = "webrtc"]

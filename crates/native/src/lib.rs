@@ -5,8 +5,9 @@ mod peer_connection;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
-    AudioDeviceModule, AudioLayer, PeerConnectionFactoryInterface,
-    RTCOfferAnswerOptions, TaskQueueFactory, VideoDeviceInfo,
+    AudioDeviceModule, AudioLayer, MyCreateSessionObserver,
+    PeerConnectionFactoryInterface, RTCOfferAnswerOptions, TaskQueueFactory,
+    VideoDeviceInfo,
 };
 
 use peer_connection::{PeerConnection, PeerConnectionId};
@@ -53,52 +54,56 @@ pub mod ffi {
         fn enumerate_devices() -> Vec<MediaDeviceInfo>;
 
         #[cxx_name = "CreatePeerConnection"]
-        fn create_default_peer_connection(self: &mut Webrtc) -> u64;
+        fn create_default_peer_connection(self: &mut Webrtc) -> Result<u64>;
 
         #[cxx_name = "GetPeerConnectionFromId"]
         fn get_peer_connection_from_id(
             self: &Webrtc,
             id: u64,
-        ) -> Box<PeerConnection_>;
+        ) -> Result<Box<PeerConnection_>>;
 
         #[cxx_name = "CreateOffer"]
-        fn create_offer(self: &mut PeerConnection_, s: usize, f: usize);
-
-        /*#[cxx_name = "CreateAnswer"]
-        fn create_answer(self: &mut PeerConnection_);*/
-
-        #[cxx_name = "SetLocalDescription"]
-        fn set_local_description(self: &mut PeerConnection_);
-
-        #[cxx_name = "SetRemoteDescription"]
-        fn set_remote_description(self: &mut PeerConnection_);
-
-        #[cxx_name = "Rust_RTCOfferAnswerOptions"]
-        fn create_rtc_offer_answer_options(
+        fn create_offer(
+            self: &mut PeerConnection_,
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-        ) -> Box<RustRTCOfferAnswerOptions>;
+            s: usize,
+            f: usize,
+        );
 
+        #[cxx_name = "CreateAnswer"]
+        fn create_answer(
+            self: &mut PeerConnection_,
+            offer_to_receive_video: i32,
+            offer_to_receive_audio: i32,
+            voice_activity_detection: bool,
+            ice_restart: bool,
+            use_rtp_mux: bool,
+            s: usize,
+            f: usize,
+        );
+
+        #[cxx_name = "SetLocalDescription"]
+        fn set_local_description(
+            self: &mut PeerConnection_,
+            type_: String,
+            sdp: String,
+            s: usize,
+            f: usize,
+        );
+
+        #[cxx_name = "SetRemoteDescription"]
+        fn set_remote_description(
+            self: &mut PeerConnection_,
+            type_: String,
+            sdp: String,
+            s: usize,
+            f: usize,
+        );
     }
-}
-
-pub fn create_rtc_offer_answer_options(
-    offer_to_receive_video: i32,
-    offer_to_receive_audio: i32,
-    voice_activity_detection: bool,
-    ice_restart: bool,
-    use_rtp_mux: bool,
-) -> Box<RustRTCOfferAnswerOptions> {
-    Box::new(RustRTCOfferAnswerOptions(Box::new(RTCOfferAnswerOptions::new(
-        offer_to_receive_video,
-        offer_to_receive_audio,
-        voice_activity_detection,
-        ice_restart,
-        use_rtp_mux,
-    ))))
 }
 
 /// Returns a list of all available media input and output devices, such as

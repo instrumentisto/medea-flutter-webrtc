@@ -40,9 +40,9 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         'constraints': loopbackConstraints
       },
     );
-    String peerConnectionId = response['peerConnectionId'];
+    //String res = response['peerConnectionId'];
     setState(() {
-      text = peerConnectionId;
+      text = "43";
     });
   }
 

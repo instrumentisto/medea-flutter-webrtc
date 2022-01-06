@@ -35,7 +35,7 @@ class _CreateSampleState extends State<CreateSample> {
   final Map<String, dynamic> defaultSdpConstraints = {
     'mandatory': {
       'OfferToReceiveAudio': true,
-      'OfferToReceiveVideo': false,
+      'OfferToReceiveVideo': true,
     },
     'optional': [],
   };
