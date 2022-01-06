@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import '../interface/navigator.dart';
+import '../interface/rtc_audio_renderer.dart';
 import '../interface/rtc_peerconnection.dart';
 import '../interface/rtc_video_renderer.dart';
-import '../interface/rtc_audio_renderer.dart';
 import 'factory_impl.dart';
 
 Future<RTCPeerConnection> createPeerConnection(

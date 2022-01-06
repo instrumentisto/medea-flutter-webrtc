@@ -17,10 +17,9 @@ List<RTCRtpEncoding> listToRtpEncodings(List<Map<String, dynamic>> list) {
 
 @Deprecated('RTCRtpTransceiverInitWeb isn\'t referenced from anywhere.')
 class RTCRtpTransceiverInitWeb extends RTCRtpTransceiverInit {
-  RTCRtpTransceiverInitWeb(TransceiverDirection direction, List<RTCRtpEncoding> sendEncodings)
-      : super(
-            direction: direction,
-            sendEncodings: sendEncodings);
+  RTCRtpTransceiverInitWeb(
+      TransceiverDirection direction, List<RTCRtpEncoding> sendEncodings)
+      : super(direction: direction, sendEncodings: sendEncodings);
 
   factory RTCRtpTransceiverInitWeb.fromMap(Map<dynamic, dynamic> map) {
     if (map['direction'] == null) {

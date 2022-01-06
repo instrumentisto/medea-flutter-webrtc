@@ -46,7 +46,7 @@ class AudioRendererWeb extends AudioRenderer {
     _src = null;
     _element?.srcObject = null;
     final audioManager = html.document.getElementById(_elementIdForAudioManager)
-    as html.DivElement?;
+        as html.DivElement?;
     if (audioManager != null && !audioManager.hasChildNodes()) {
       audioManager.remove();
     }
@@ -66,7 +66,8 @@ class AudioRendererWeb extends AudioRenderer {
       return;
     }
     if (srcObject!.kind != 'audiooutput') {
-      throw Exception("MediaStreamTracks with video kind isn't supported in AudioRenderer");
+      throw Exception(
+          "MediaStreamTracks with video kind isn't supported in AudioRenderer");
     }
 
     _srcObject = srcObject as MediaStreamTrackWeb;

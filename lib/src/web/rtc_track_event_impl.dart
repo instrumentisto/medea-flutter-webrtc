@@ -8,8 +8,5 @@ class RTCTrackEventWeb extends RTCTrackEvent {
       {RTCRtpReceiver? receiver,
       required MediaStreamTrack track,
       RTCRtpTransceiver? transceiver})
-      : super(
-            receiver: receiver,
-            track: track,
-            transceiver: transceiver);
+      : super(receiver: receiver, track: track, transceiver: transceiver);
 }

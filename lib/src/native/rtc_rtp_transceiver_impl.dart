@@ -16,10 +16,9 @@ List<RTCRtpEncoding> listToRtpEncodings(List<Map<String, dynamic>> list) {
 }
 
 class RTCRtpTransceiverInitNative extends RTCRtpTransceiverInit {
-  RTCRtpTransceiverInitNative(TransceiverDirection direction, List<RTCRtpEncoding> sendEncodings)
-      : super(
-            direction: direction,
-            sendEncodings: sendEncodings);
+  RTCRtpTransceiverInitNative(
+      TransceiverDirection direction, List<RTCRtpEncoding> sendEncodings)
+      : super(direction: direction, sendEncodings: sendEncodings);
 
   factory RTCRtpTransceiverInitNative.fromMap(Map<dynamic, dynamic> map) {
     return RTCRtpTransceiverInitNative(
