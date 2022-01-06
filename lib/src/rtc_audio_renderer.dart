@@ -1,5 +1,4 @@
 import 'package:flutter_webrtc/src/interface/rtc_audio_renderer.dart';
-
 import '../flutter_webrtc.dart';
 
 class RTCAudioRenderer {

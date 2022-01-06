@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_webrtc/src/interface/rtc_audio_renderer.dart';
-
 import '../interface/navigator.dart';
 import '../interface/rtc_peerconnection.dart';
 import '../interface/rtc_video_renderer.dart';

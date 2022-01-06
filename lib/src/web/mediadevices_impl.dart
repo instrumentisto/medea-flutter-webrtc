@@ -4,7 +4,6 @@ import 'dart:js_util' as jsutil;
 
 import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
 import 'package:flutter_webrtc/src/web/media_stream_track_impl.dart';
-
 import '../interface/mediadevices.dart';
 
 class MediaDevicesWeb extends MediaDevices {

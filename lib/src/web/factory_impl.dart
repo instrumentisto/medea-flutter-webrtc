@@ -4,7 +4,6 @@ import 'dart:html' as html;
 
 import 'package:flutter_webrtc/src/interface/rtc_audio_renderer.dart';
 import 'package:flutter_webrtc/src/web/rtc_audio_renderer.dart';
-
 import '../interface/factory.dart';
 import '../interface/navigator.dart';
 import '../interface/rtc_peerconnection.dart';

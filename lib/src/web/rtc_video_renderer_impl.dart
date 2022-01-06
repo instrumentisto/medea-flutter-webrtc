@@ -3,9 +3,9 @@ import 'dart:html' as html;
 import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
+
 import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
 import 'package:flutter_webrtc/src/web/media_stream_track_impl.dart';
-
 import '../interface/rtc_video_renderer.dart';
 
 // An error code value to error name Map.

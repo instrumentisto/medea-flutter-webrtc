@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
 
 @immutable

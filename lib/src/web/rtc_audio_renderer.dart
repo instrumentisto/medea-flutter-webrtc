@@ -1,9 +1,10 @@
 import 'dart:html' as html;
 
+import 'package:js/js_util.dart' as jsutil;
+
 import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
 import 'package:flutter_webrtc/src/interface/rtc_audio_renderer.dart';
 import 'package:flutter_webrtc/src/web/media_stream_track_impl.dart';
-import 'package:js/js_util.dart' as jsutil;
 
 class AudioRendererWeb extends AudioRenderer {
   AudioRendererWeb() : _id = _textureCounter++;
