@@ -200,12 +200,9 @@ int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame) {
   return frame.get()->rotation();
 }
 
-std::unique_ptr<std::vector<uint8_t>> convert_to_argb(
-    const std::unique_ptr<VideoFrame>& frame,
-    const int32_t buffer_size) {
+void convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
+                     uint8_t* buffer_ptr) {
   auto video_frame = frame.get();
-
-  std::vector<uint8_t> image(buffer_size, 0);
 
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       video_frame->video_frame_buffer()->ToI420());
@@ -215,10 +212,8 @@ std::unique_ptr<std::vector<uint8_t>> convert_to_argb(
 
   libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     image.data(), video_frame->width() * 32 / 8,
-                     buffer->width(), buffer->height());
-
-  return std::make_unique<std::vector<uint8_t>>(image);
+                     buffer_ptr, video_frame->width() * 32 / 8, buffer->width(),
+                     buffer->height());
 }
 
 /// testasdsassads

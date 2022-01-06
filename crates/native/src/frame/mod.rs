@@ -1,4 +1,4 @@
-use cxx::{CxxVector, UniquePtr};
+use cxx::UniquePtr;
 
 use crate::*;
 pub struct FrameInner(pub UniquePtr<webrtc::VideoFrame>);
@@ -28,8 +28,8 @@ impl Frame {
         self.width() * self.height() * (32 >> 3)
     }
 
-    pub unsafe fn buffer(self: &Frame) -> UniquePtr<CxxVector<u8>> {
-        webrtc::convert_to_argb(&self.0 .0, self.buffer_size())
+    pub unsafe fn buffer(self: &Frame, buffer_ptr: *mut u8) {
+        webrtc::convert_to_argb(&self.0 .0, buffer_ptr);
     }
 }
 

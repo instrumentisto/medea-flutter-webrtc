@@ -66,9 +66,7 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
       pixel_buffer_->height = frame_->height();
     }
 
-    auto buffer = frame_->buffer().release();
-
-    std::copy(buffer->begin(), buffer->end(), rgb_buffer_.get());
+    frame_->buffer(rgb_buffer_.get());
 
     pixel_buffer_->buffer = rgb_buffer_.get();
 

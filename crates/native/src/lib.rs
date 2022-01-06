@@ -130,7 +130,7 @@ pub mod ffi {
         fn height(self: &Frame) -> i32;
         fn rotation(self: &Frame) -> VideoRotation;
         fn buffer_size(self: &Frame) -> i32;
-        unsafe fn buffer(self: &Frame) -> UniquePtr<CxxVector<u8>>;
+        unsafe fn buffer(self: &Frame, bptr: *mut u8);
         unsafe fn delete_frame(frame_ptr: *mut Frame);
         fn dispose_renderer(webrtc: &mut Box<Webrtc>, texture_id: i64);
 

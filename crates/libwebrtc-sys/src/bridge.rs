@@ -113,8 +113,8 @@ pub mod webrtc {
 
         pub unsafe fn convert_to_argb(
             frame: &UniquePtr<VideoFrame>,
-            buffer_size: i32,
-        ) -> UniquePtr<CxxVector<u8>>;
+            buffer_ptr: *mut u8,
+        );
 
         pub unsafe fn get_video_renderer(cb: unsafe fn(UniquePtr<VideoFrame>, usize), flutter_cb_ptr: usize, video_track: &UniquePtr<VideoTrackInterface>) -> UniquePtr<VideoRenderer>;
 

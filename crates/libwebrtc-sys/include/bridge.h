@@ -161,9 +161,9 @@ int32_t frame_height(const std::unique_ptr<VideoFrame>& frame);
 
 int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame);
 
-std::unique_ptr<std::vector<uint8_t>> convert_to_argb(
+void convert_to_argb(
     const std::unique_ptr<VideoFrame>& frame,
-    int32_t buffer_size);
+    uint8_t* buffer_ptr);
 
 std::unique_ptr<VideoRenderer> get_video_renderer(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
