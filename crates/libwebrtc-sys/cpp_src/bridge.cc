@@ -201,13 +201,14 @@ int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame) {
   return frame.get()->rotation();
 }
 
-rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
-                                   const int32_t buffer_size) {
+std::unique_ptr<std::vector<uint8_t>> convert_to_argb(
+    const std::unique_ptr<VideoFrame>& frame,
+    const int32_t buffer_size) {
   auto video_frame = frame.get();
-  rust::Vec<uint8_t> image;
+  // rust::Vec<uint8_t> image;
 
   printf(
-      "Frame '%d' before creating and filling rust::Vec<uint8_t> with `0` at: "
+      "Frame '%d' before creating std::vector<uint8_t> with `0` at: "
       "%d "
       "(libWebRTC)\n",
       frame.get()->id(),
@@ -215,12 +216,16 @@ rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
           std::chrono::system_clock::now().time_since_epoch())
           .count());
 
-  for (int i = 0; i < buffer_size; i++) {
-    image.push_back((uint8_t)0);
-  }
+  std::vector<uint8_t> image(buffer_size, 0);
+  // image.reserve(buffer_size);
+  // std::fill(image.cbegin(), image.cend(), 0);
+
+  // for (int i = 0; i < buffer_size; i++) {
+  //   image.emplace_back((uint8_t)0);
+  // }
 
   printf(
-      "Frame '%d' after creating and filling rust::Vec<uint8_t> with `0` at: "
+      "Frame '%d' after creating std::vector<uint8_t> with `0` at: "
       "%d "
       "(libWebRTC)\n",
       frame.get()->id(),
@@ -251,7 +256,7 @@ rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
              std::chrono::system_clock::now().time_since_epoch())
              .count());
 
-  return image;
+  return std::make_unique<std::vector<uint8_t>>(image);
 }
 
 /// testasdsassads

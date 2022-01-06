@@ -72,7 +72,7 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
       pixel_buffer_->height = frame_.inner->height();
     }
 
-    auto buffer = frame_.inner->buffer();
+    auto buffer = frame_.inner->buffer().release();
 
     printf(
         "Frame '%d' before copying to `pixel_buffer_` at: %d (Flutter C++)\n",
@@ -81,7 +81,7 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
             std::chrono::system_clock::now().time_since_epoch())
             .count());
 
-    std::copy(buffer.begin(), buffer.end(), rgb_buffer_.get());
+    std::copy(buffer->begin(), buffer->end(), rgb_buffer_.get());
 
     pixel_buffer_->buffer = rgb_buffer_.get();
 
