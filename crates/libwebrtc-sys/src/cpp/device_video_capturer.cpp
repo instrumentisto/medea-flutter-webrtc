@@ -54,14 +54,11 @@ rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
     size_t width,
     size_t height,
     size_t target_fps,
-    const std::string& device_id) {
+    uint32_t device_index) {
   rtc::scoped_refptr<DeviceVideoCapturer> vcm_capturer(
       new rtc::RefCountedObject<DeviceVideoCapturer>());
 
-  int capture_device_index =
-      device_id.empty() ? 0 : vcm_capturer.get()->GetDeviceIndex(device_id);
-
-  if (!vcm_capturer->Init(width, height, target_fps, capture_device_index)) {
+  if (!vcm_capturer->Init(width, height, target_fps, device_index)) {
     RTC_LOG(LS_WARNING) << "Failed to create DeviceVideoCapturer(w = " << width
                         << ", h = " << height << ", fps = " << target_fps
                         << ")";
@@ -82,27 +79,4 @@ void DeviceVideoCapturer::Destroy() {
 
 void DeviceVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
   OnCapturedFrame(frame);
-}
-
-int DeviceVideoCapturer::GetDeviceIndex(const std::string& device) {
-  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> info(
-      webrtc::VideoCaptureFactory::CreateDeviceInfo());
-  if (!info) {
-    RTC_LOG(LS_ERROR) << "Failed to CreateDeviceInfo";
-    return -1;
-  }
-
-  int num_devices = info->NumberOfDevices();
-  for (int i = 0; i < num_devices; ++i) {
-    const uint32_t kSize = 256;
-    char name[kSize] = {0};
-    char mid[kSize] = {0};
-    if (info->GetDeviceName(static_cast<uint32_t>(i), name, kSize, mid,
-                            kSize) != -1) {
-      if (std::string(mid) == device) {
-        return i;
-      }
-    }
-  }
-  return -1;
 }

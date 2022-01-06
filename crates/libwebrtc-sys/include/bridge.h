@@ -120,7 +120,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t width,
     size_t height,
     size_t fps,
-    rust::String device_id);
+    uint32_t device_index);
 
 /// Creates a new audio source.
 std::unique_ptr<AudioSourceInterface> create_audio_source(

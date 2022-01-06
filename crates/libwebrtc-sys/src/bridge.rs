@@ -146,7 +146,7 @@ pub(crate) mod webrtc {
             width: usize,
             height: usize,
             fps: usize,
-            device_id: String,
+            device_index: u32,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
         /// Creates a new [`AudioSource`].

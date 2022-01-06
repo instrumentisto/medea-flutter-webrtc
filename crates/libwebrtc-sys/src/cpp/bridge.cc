@@ -170,11 +170,10 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t width,
     size_t height,
     size_t fps,
-    rust::String device_id) {
+    uint32_t device) {
   auto src = webrtc::CreateVideoTrackSourceProxy(
       &signaling_thread, &worker_thread,
-      DeviceVideoCapturer::Create(width, height, fps,
-                                  std::string(device_id)));
+      DeviceVideoCapturer::Create(width, height, fps, device));
 
   if (src == nullptr) {
     return nullptr;

@@ -26,12 +26,10 @@ class DeviceVideoCapturer : public CustomVideoTrackSource,
       size_t width,
       size_t height,
       size_t target_fps,
-      const std::string& device_id);
+      uint32_t device_index);
 
   DeviceVideoCapturer();
   virtual ~DeviceVideoCapturer();
-
-  static int GetDeviceIndex(const std::string& device);
 
  private:
   bool Init(size_t width,

@@ -343,7 +343,7 @@ impl VideoSource {
         width: usize,
         height: usize,
         fps: usize,
-        device_id: String,
+        device_index: u32,
     ) -> anyhow::Result<Self> {
         let ptr = webrtc::create_video_source(
             worker_thread.0.pin_mut(),
@@ -351,7 +351,7 @@ impl VideoSource {
             width,
             height,
             fps,
-            device_id,
+            device_index,
         );
 
         if ptr.is_null() {
