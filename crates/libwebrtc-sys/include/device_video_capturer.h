@@ -40,14 +40,14 @@ class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
   DeviceVideoCapturer();
   ~DeviceVideoCapturer();
 
+  void OnFrame(const webrtc::VideoFrame& frame) override;
+
  private:
   bool Init(size_t width,
             size_t height,
             size_t target_fps,
             size_t capture_device_index);
   void Destroy();
-
-  void OnFrame(const webrtc::VideoFrame& frame) override;
 
   rtc::scoped_refptr<webrtc::VideoCaptureModule> vcm_;
   webrtc::VideoCaptureCapability capability_;
