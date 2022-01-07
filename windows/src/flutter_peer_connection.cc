@@ -14,7 +14,9 @@ void OnSuccessOffer(
 
 void OnSuccessDescription(
   flutter::MethodResult<flutter::EncodableValue>* result) {
-    result->Success(nullptr);
+    flutter::EncodableMap params;
+    params[flutter::EncodableValue("test")] = "TEST";
+    result->Success(params);
 }
 
 void Fail(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
@@ -92,8 +94,7 @@ using namespace flutter;
                 success, 
                 fail
             );
-        } catch (const std::exception &e) {
-            //fail here
+        } catch (std::exception &e) {
             res->Error("createAnswerOffer", e.what());
         }
     };
@@ -145,11 +146,13 @@ using namespace flutter;
         auto bind_fail = std::bind(&my_stuff::Fail, result_ptr, std::placeholders::_1);
         callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
         size_t fail = (size_t) wrapp_fail;
+        fail;
         
         auto bind_success = std::bind(&my_stuff::OnSuccessDescription, result_ptr);
         callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
         size_t success = (size_t) wrapp_success;
-        
+        success;
+
         try {
             rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
             webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));

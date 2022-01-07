@@ -259,12 +259,12 @@ void create_answer(PeerConnectionInterface& peer_connection_interface,
 /// Call setLocalDescription
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc, MySessionObserver* obs) {
-    peer_connection_interface.ptr()->SetLocalDescription(obs, desc.get());
+    peer_connection_interface.ptr()->SetLocalDescription(obs, desc.release());
   }
 
 /// Call setRemoteDescription
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc, MySessionObserver* obs) {
-    peer_connection_interface.ptr()->SetRemoteDescription(obs, desc.get());
+    peer_connection_interface.ptr()->SetRemoteDescription(obs, desc.release());
   }
 }

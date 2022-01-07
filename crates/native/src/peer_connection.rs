@@ -75,7 +75,7 @@ impl PeerConnection_ {
         s: usize,
         f: usize,
     ) -> anyhow::Result<()> {
-        let type_ = match type_.as_str() {
+        let type_: sys::SdpType = match type_.as_str() {
             "offer" => sys::SdpType::kOffer,
             "answer" => sys::SdpType::kAnswer,
             "pranswer" => sys::SdpType::kPrAnswer,
