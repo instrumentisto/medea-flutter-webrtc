@@ -30,6 +30,7 @@ fn main() -> anyhow::Result<()> {
 
     cxx_build::bridge("src/bridge.rs")
         .file("src/bridge.cc")
+        .file("src/peer_connection_observer.cc")
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .flag("-DWEBRTC_WIN")

@@ -16,18 +16,18 @@ class MyObserver: public webrtc::PeerConnectionObserver
 {
   // Called any time the IceGatheringState changes.
   void OnIceGatheringChange(
-      webrtc::PeerConnectionInterface::IceGatheringState new_state) {};
+      webrtc::PeerConnectionInterface::IceGatheringState new_state);
 
   // A new ICE candidate has been gathered.
-  void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {};
+  void OnIceCandidate(const webrtc::IceCandidateInterface* candidate);
 
   // Triggered when a remote peer opens a data channel.
   void OnDataChannel(
-      rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
+      rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel);
 
   // Triggered when the SignalingState changed.
   void OnSignalingChange(
-      webrtc::PeerConnectionInterface::SignalingState new_state) {};
+      webrtc::PeerConnectionInterface::SignalingState new_state);
 };
 
 class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
@@ -38,25 +38,14 @@ class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
 
   MyCreateSessionObserver(
     size_t s, 
-    size_t f) {
-      success = (callback_success) s;
-      fail = (callback_fail) f;
-    };
+    size_t f);
 
-  void OnSuccess(webrtc::SessionDescriptionInterface* desc) {
-    std::string type = desc->type();
-    std::string sdp;
-    desc->ToString(&sdp);
-    success(sdp, type);
-  };
+  void OnSuccess(webrtc::SessionDescriptionInterface* desc);
 
-  void OnFailure(webrtc::RTCError error) {
-    std::string err = std::string(error.message());
-    fail(err);
-  };
+  void OnFailure(webrtc::RTCError error);
 
-  void AddRef() const {};
-  rtc::RefCountReleaseStatus Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
+  void AddRef() const;
+  rtc::RefCountReleaseStatus Release() const;
 
 };
 
@@ -68,20 +57,12 @@ class MySessionObserver: public webrtc::SetSessionDescriptionObserver
 
   MySessionObserver(
     size_t s, 
-    size_t f) {
-      success = (callback_success_desc) s;
-      fail = (callback_fail) f;
-    }
+    size_t f);
 
-  void OnSuccess() {
-    success();
-  };
-  void OnFailure(webrtc::RTCError error) {
-    std::string err = std::string(error.message());
-    fail(err);
-  };
-  void AddRef() const {};
-  rtc::RefCountReleaseStatus Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
+  void OnSuccess();
+  void OnFailure(webrtc::RTCError error);
+  void AddRef() const;
+  rtc::RefCountReleaseStatus Release() const;
 
 };
 }
