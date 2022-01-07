@@ -12,9 +12,12 @@
 #include <rtc_base/ref_counted_object.h>
 #include <rtc_base/timestamp_aligner.h>
 
+/// `VideoTrackSourceInterface` that captures frames from a local video input
+/// device.
 class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
+  /// Creates a new `DeviceVideoCapturer`.
   static rtc::scoped_refptr<DeviceVideoCapturer> Create(
       size_t width,
       size_t height,
@@ -33,25 +36,33 @@ class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
   /// Returns state of this `DeviceVideoCapturer`.
   webrtc::MediaSourceInterface::SourceState state() const override;
 
-  /// Returns true since `DeviceVideoCapturer` is meant to source local devices.
+  /// Returns `false` since `DeviceVideoCapturer` is meant to source local
+  /// devices only.
   bool remote() const override;
 
  protected:
   DeviceVideoCapturer();
   ~DeviceVideoCapturer();
 
+  /// `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
  private:
+  /// Initializes `DeviceVideoCapturer` and starts capturing media.
   bool Init(size_t width,
             size_t height,
             size_t target_fps,
             size_t capture_device_index);
+
+  /// Frees underlying resources.
   void Destroy();
 
+  /// `VideoCaptureModule` responsible for capturing track from the local video
+  /// input device.
   rtc::scoped_refptr<webrtc::VideoCaptureModule> vcm_;
+
+  /// `VideoCaptureCapability` used to capture media.
   webrtc::VideoCaptureCapability capability_;
-  rtc::TimestampAligner timestamp_aligner_;
 };
 
 #endif
