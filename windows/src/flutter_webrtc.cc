@@ -2,7 +2,7 @@
 #include <string> 
 
 #include "flutter_webrtc.h"
-#include "wrapper2.h"
+#include "wrapper.h"
 #include <flutter_webrtc_native.h>
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 
@@ -29,7 +29,7 @@ void OnSuccessDescription(
 }
 
 void Fail(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
-  result->Error("42", error);
+  result->Error(error);
 }
 
 template <typename T>
@@ -63,6 +63,13 @@ inline bool findBool(const EncodableMap& map, const std::string& key) {
   return bool();
 }
 
+inline EncodableList findList(const EncodableMap& map, const std::string& key) {
+  auto it = map.find(EncodableValue(key));
+  if (it != map.end() && TypeIs<EncodableList>(it->second))
+    return GetValue<EncodableList>(it->second);
+  return EncodableList();
+}
+
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
@@ -80,7 +87,7 @@ void FlutterWebRTC::HandleMethodCall(
     }
     catch (const std::exception &e)
     {
-      result->Error(e.what());
+      result->Error("createPeerConnectionFailed",e.what());
     }
 
   } else if (method_call.method_name().compare("getSources") == 0) {
@@ -134,14 +141,34 @@ void FlutterWebRTC::HandleMethodCall(
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     const EncodableMap constraints = findMap(params, "constraints");
     const EncodableMap mandatory = findMap(constraints, "mandatory");
-    const bool f1 = findBool(mandatory, "OfferToReceiveAudio");
-    const bool f2 = findBool(mandatory, "OfferToReceiveVideo");
+
+    const EncodableList list = findList(constraints, "optional");
+    bool voice_activity_detection = true;
+    bool ice_restart = false;
+    bool use_rtp_mux = true;
+
+    auto iter = list.begin();
+    if (iter != list.end()) {
+      voice_activity_detection = GetValue<bool>((*iter));
+      ++iter;
+    }
+    if (iter != list.end()) {
+      ice_restart = GetValue<bool>((*iter));
+      ++iter;
+    }
+    if (iter != list.end()) {
+      use_rtp_mux = GetValue<bool>((*iter));
+      ++iter;
+    }
+
+    const bool receive_audio = findBool(mandatory, "OfferToReceiveAudio");
+    const bool receive_video = findBool(mandatory, "OfferToReceiveVideo");
+
+    auto result_ptr = result.release();
 
     try {
       rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
-        webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-
-      auto result_ptr = result.get(); // must free?
+      webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
 
       auto bind_success = std::bind(&OnSuccessOffer, result_ptr, std::placeholders::_1, std::placeholders::_2);
       callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
@@ -151,16 +178,18 @@ void FlutterWebRTC::HandleMethodCall(
       callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
       size_t fail = (size_t) wrapp_fail;
 
-      peerconnection->CreateOffer(f2, f1, true, false, true, success, fail);
-    }
-    catch (const std::exception &e)
-    {
-      flutter::EncodableMap rparams;
-      rparams[flutter::EncodableValue("sdp")] = "TESTTESTTEST";
-      rparams[flutter::EncodableValue("type")] = "TYPE";
-      result->Success(flutter::EncodableValue(rparams));
-      e;
-      //std::string str = e.what();
+      peerconnection->CreateOffer(
+        receive_video, 
+        receive_audio, 
+        voice_activity_detection, 
+        ice_restart, 
+        use_rtp_mux, 
+        success, 
+        fail
+      );
+    } catch (const std::exception &e) {
+      //fail here
+      result_ptr->Error("createAnswerOffer", e.what());
     }
 
 
@@ -175,23 +204,54 @@ void FlutterWebRTC::HandleMethodCall(
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     const EncodableMap constraints = findMap(params, "constraints");
     const EncodableMap mandatory = findMap(constraints, "mandatory");
-    const bool f1 = findBool(mandatory, "OfferToReceiveAudio");
-    const bool f2 = findBool(mandatory, "OfferToReceiveVideo");
-
-    rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
-      webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+    const bool receive_audio = findBool(mandatory, "OfferToReceiveAudio");
+    const bool receive_video = findBool(mandatory, "OfferToReceiveVideo");
 
     auto result_ptr = result.release(); // must free?
 
-    auto bind_success = std::bind(&OnSuccessOffer, result_ptr, std::placeholders::_1, std::placeholders::_2);
-    callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
-    size_t success = (size_t) wrapp_success;
+    const EncodableList list = findList(constraints, "optional");
+    bool voice_activity_detection = true;
+    bool ice_restart = false;
+    bool use_rtp_mux = true;
 
-    auto bind_fail = std::bind(&Fail, result_ptr, std::placeholders::_1);
-    callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
-    size_t fail = (size_t) wrapp_fail;
+    auto iter = list.begin();
+    if (iter != list.end()) {
+      voice_activity_detection = GetValue<bool>((*iter));
+      ++iter;
+    }
+    if (iter != list.end()) {
+      ice_restart = GetValue<bool>((*iter));
+      ++iter;
+    }
+    if (iter != list.end()) {
+      use_rtp_mux = GetValue<bool>((*iter));
+      ++iter;
+    }
 
-    peerconnection->CreateAnswer(f2, f1, true, false, true, success, fail);
+    try {
+      rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
+        webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+
+      auto bind_success = std::bind(&OnSuccessOffer, result_ptr, std::placeholders::_1, std::placeholders::_2);
+      callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
+      size_t success = (size_t) wrapp_success;
+
+      auto bind_fail = std::bind(&Fail, result_ptr, std::placeholders::_1);
+      callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
+      size_t fail = (size_t) wrapp_fail;
+
+      peerconnection->CreateAnswer(
+        receive_video, 
+        receive_audio, 
+        voice_activity_detection, 
+        ice_restart, 
+        use_rtp_mux, 
+        success, 
+        fail
+      );
+    } catch (const std::exception &e) {
+      result_ptr->Error("createAnswerFailed", e.what());
+    } 
 
   } else if (method_call.method_name().compare("addStream") == 0) {
   } else if (method_call.method_name().compare("removeStream") == 0) {
@@ -216,8 +276,14 @@ void FlutterWebRTC::HandleMethodCall(
     callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
     
-    rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-    peerconnection->SetLocalDescription(type, sdp, success, fail);
+    try {
+      rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
+        webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+      peerconnection->SetLocalDescription(type, sdp, success, fail);
+    } catch (const std::exception &e) {
+      result_ptr->Error("setLocalDescriptionFailed", e.what());
+    } 
+
 
   } else if (method_call.method_name().compare("setRemoteDescription") == 0) {
 
@@ -241,8 +307,13 @@ void FlutterWebRTC::HandleMethodCall(
     callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
     
-    rust::cxxbridge1::Box<PeerConnection_> peerconnection = webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-    peerconnection->SetRemoteDescription(type, sdp, success, fail);
+    try {
+      rust::cxxbridge1::Box<PeerConnection_> peerconnection = 
+        webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+      peerconnection->SetRemoteDescription(type, sdp, success, fail);
+    } catch (const std::exception &e) {
+      result_ptr->Error("setRemoteDescriptionFailed", e.what());
+    } 
 
   } else if (method_call.method_name().compare("addCandidate") == 0) {
   } else if (method_call.method_name().compare("getStats") == 0) {

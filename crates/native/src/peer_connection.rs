@@ -1,22 +1,14 @@
-use cxx::let_cxx_string;
-use cxx::CxxString;
+use cxx::{let_cxx_string, CxxString};
 use libwebrtc_sys as sys;
-use sys::PeerConnectionInterface;
-use sys::SessionDescriptionInterface;
+use sys::{PeerConnectionInterface, SessionDescriptionInterface};
 
-use std::cell::RefCell;
-use std::error::Error;
-use std::rc::Rc;
-use std::sync::atomic::Ordering;
+use std::{cell::RefCell, error::Error, rc::Rc, sync::atomic::Ordering};
 
-use std::ffi::c_void;
-use std::sync::atomic::AtomicU64;
+use std::{ffi::c_void, sync::atomic::AtomicU64};
 
-use crate::PeerConnection_;
-use crate::RustRTCOfferAnswerOptions;
-use crate::Webrtc;
+use crate::{PeerConnection_, RustRTCOfferAnswerOptions, Webrtc};
 
-static ID_COUNTER: AtomicU64 = AtomicU64::new(1);
+static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 fn generate_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
@@ -82,13 +74,13 @@ impl PeerConnection_ {
         sdp: String,
         s: usize,
         f: usize,
-    ) {
+    ) -> anyhow::Result<()> {
         let type_ = match type_.as_str() {
             "offer" => sys::SdpType::kOffer,
             "answer" => sys::SdpType::kAnswer,
             "pranswer" => sys::SdpType::kPrAnswer,
-            "rollback" => sys::SdpType::kRollback,
-            _ => sys::SdpType::kOffer, // warning
+    //"rollback" => sys::SdpType::kRollback, //not found in jsep.cc (webrtc)
+            _ => return Err(anyhow::Error::msg("Invalid type")),
         };
         let obs = sys::MySessionObserver::new(s, f);
         let desc = sys::SessionDescriptionInterface::new(type_, &sdp);
@@ -96,7 +88,8 @@ impl PeerConnection_ {
             .as_ref()
             .borrow_mut()
             .peer_connection_interface
-            .set_local_description(desc, obs)
+            .set_local_description(desc, obs);
+        Ok(())
     }
 
     pub fn set_remote_description(
@@ -105,13 +98,13 @@ impl PeerConnection_ {
         sdp: String,
         s: usize,
         f: usize,
-    ) {
+    ) -> anyhow::Result<()> {
         let type_ = match type_.as_str() {
             "offer" => sys::SdpType::kOffer,
             "answer" => sys::SdpType::kAnswer,
             "pranswer" => sys::SdpType::kPrAnswer,
-            "rollback" => sys::SdpType::kRollback,
-            _ => sys::SdpType::kOffer, // warning
+    //"rollback" => sys::SdpType::kRollback, //not found in jsep.cc (webrtc)
+            _ => return Err(anyhow::Error::msg("Invalid type")),
         };
 
         let obs = sys::MySessionObserver::new(s, f);
@@ -121,7 +114,8 @@ impl PeerConnection_ {
             .as_ref()
             .borrow_mut()
             .peer_connection_interface
-            .set_remote_description(desc, obs)
+            .set_remote_description(desc, obs);
+        Ok(())
     }
 }
 

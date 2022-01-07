@@ -6,13 +6,11 @@ mod bridge;
 use std::os::raw::c_char;
 
 use anyhow::bail;
-use cxx::CxxString;
-use cxx::{let_cxx_string, UniquePtr};
+use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
 
-pub use webrtc::AudioLayer;
-pub use webrtc::SdpType;
+pub use webrtc::{AudioLayer, SdpType};
 
 /// Thread safe task queue factory internally used in [`webrtc`] that is
 /// capable of creating [Task Queue]s.

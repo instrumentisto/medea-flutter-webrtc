@@ -93,7 +93,7 @@ pub mod ffi {
             sdp: String,
             s: usize,
             f: usize,
-        );
+        ) -> Result<()>;
 
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(
@@ -102,7 +102,7 @@ pub mod ffi {
             sdp: String,
             s: usize,
             f: usize,
-        );
+        ) -> Result<()>;
     }
 }
 
