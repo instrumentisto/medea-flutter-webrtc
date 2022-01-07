@@ -1,25 +1,18 @@
-/*
- *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
- *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree. An additional intellectual property rights grant can be found
- *  in the file PATENTS.  All contributing project authors may
- *  be found in the AUTHORS file in the root of the source tree.
- */
 #ifndef DEVICE_VIDEO_CAPTURER_H_
 #define DEVICE_VIDEO_CAPTURER_H_
 
 #include <memory>
+#include <stddef.h>
 #include <vector>
 
 #include <api/scoped_refptr.h>
+#include <media/base/adapted_video_track_source.h>
+#include <media/base/video_adapter.h>
 #include <modules/video_capture/video_capture.h>
 #include <rtc_base/ref_counted_object.h>
+#include <rtc_base/timestamp_aligner.h>
 
-#include "custom_track_source.h"
-
-class DeviceVideoCapturer : public CustomVideoTrackSource,
+class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   static rtc::scoped_refptr<DeviceVideoCapturer> Create(
@@ -28,8 +21,24 @@ class DeviceVideoCapturer : public CustomVideoTrackSource,
       size_t target_fps,
       uint32_t device_index);
 
+  /// Indicates that parameters suitable for screencasts should be automatically
+  /// applied to RtpSenders.
+  bool is_screencast() const override;
+
+  /// Indicates that the encoder should denoise video before encoding it.
+  /// If it is not set, the default configuration is used which is different
+  /// depending on video codec.
+  absl::optional<bool> needs_denoising() const override;
+
+  /// Returns state of this `DeviceVideoCapturer`.
+  webrtc::MediaSourceInterface::SourceState state() const override;
+
+  /// Returns true since `DeviceVideoCapturer` is meant to source local devices.
+  bool remote() const override;
+
+ protected:
   DeviceVideoCapturer();
-  virtual ~DeviceVideoCapturer();
+  ~DeviceVideoCapturer();
 
  private:
   bool Init(size_t width,
@@ -42,6 +51,7 @@ class DeviceVideoCapturer : public CustomVideoTrackSource,
 
   rtc::scoped_refptr<webrtc::VideoCaptureModule> vcm_;
   webrtc::VideoCaptureCapability capability_;
+  rtc::TimestampAligner timestamp_aligner_;
 };
 
 #endif

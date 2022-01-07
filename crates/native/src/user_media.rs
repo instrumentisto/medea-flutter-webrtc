@@ -298,7 +298,7 @@ impl VideoSource {
                 caps.min_width,
                 caps.min_height,
                 caps.min_fps,
-                caps.device_id.to_string(),
+                0,
             )?,
             device_id: VideoDeviceId(caps.device_id.to_string()),
         })

@@ -229,7 +229,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id) {
-  auto stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
+  auto
+      stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
 
   if (stream == nullptr) {
     return nullptr;

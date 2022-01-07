@@ -50,17 +50,19 @@ class rc {
   T* ptr_;
 };
 
-using TaskQueueFactory = webrtc::TaskQueueFactory;
-using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
-using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
-using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 using Thread = rtc::Thread;
-using PeerConnectionFactoryInterface = rc<webrtc::PeerConnectionFactoryInterface>;
-using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
+
+using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
+using TaskQueueFactory = webrtc::TaskQueueFactory;
+using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+
+using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
 using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
-using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
 using AudioTrackInterface = rc<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = rc<webrtc::MediaStreamInterface>;
+using PeerConnectionFactoryInterface = rc<webrtc::PeerConnectionFactoryInterface>;
+using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
+using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -113,7 +115,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread& worker_thread,
     Thread& signaling_thread);
 
-/// Creates a new video source.
+/// Creates a new video source according to the specified constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
