@@ -23,6 +23,9 @@ public interface StateProvider {
   Map<String, MediaStream> getLocalStreams();
 
   String getNextStreamUUID();
+  
+  @Nullable
+  MediaStreamTrack getLocalTrack(String id);
 
   @Nullable
   MediaStreamTrack getLocalTrack(String id);
