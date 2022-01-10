@@ -199,5 +199,4 @@ internal class SimulcastVideoEncoderFactoryWrapper(
     override fun getSupportedCodecs(): Array<VideoCodecInfo> {
         return native.supportedCodecs
     }
-
 }
