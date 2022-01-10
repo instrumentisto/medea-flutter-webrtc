@@ -1,6 +1,5 @@
-use cxx::UniquePtr;
+
 #[allow(clippy::expl_impl_clone_on_copy)]
-use std::os::raw::c_char;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
@@ -28,14 +27,14 @@ pub(crate) mod webrtc {
         kPrAnswer,
         kAnswer,
         kRollback,
-    }
+    } 
 
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
 
         type TaskQueueFactory;
-
+   
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform.
         #[namespace = "webrtc"]
@@ -74,10 +73,10 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
-      
+
         /// Writes device info to the provided `name` and `id` for the given
         /// audio recording device `index`.
-        pub fn recording_device_name( 
+        pub fn recording_device_name(
             audio_device_module: &AudioDeviceModule,
             index: i16,
             name: &mut String,
@@ -92,8 +91,8 @@ pub(crate) mod webrtc {
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
         /// Returns count of a video recording devices.
-        #[namespace = "webrtc"]  
-        #[cxx_name = "NumberOfDevices"]  
+        #[namespace = "webrtc"]
+        #[cxx_name = "NumberOfDevices"]
         pub fn number_of_video_devices(self: Pin<&mut VideoDeviceInfo>) -> u32;
 
         /// Writes device info to the provided `name` and `id` for the given
@@ -131,31 +130,44 @@ pub(crate) mod webrtc {
         #[allow(clippy::missing_safety_doc)]
         pub fn start_thread(thread: Pin<&mut Thread>) -> bool;
 
+        /// Creates a new [`VideoEncoderFactory`].
         #[namespace = "webrtc"]
         #[cxx_name = "CreateBuiltinVideoEncoderFactory"]
         pub fn create_builtin_video_encoder_factory(
         ) -> UniquePtr<VideoEncoderFactory>;
 
+        /// Creates a new [`VideoDecoderFactory`].
         #[namespace = "webrtc"]
         #[cxx_name = "CreateBuiltinVideoDecoderFactory"]
         pub fn create_builtin_video_decoder_factory(
         ) -> UniquePtr<VideoDecoderFactory>;
 
+        /// Creates a new [`AudioEncoderFactory`].
         pub fn create_builtin_audio_encoder_factory(
         ) -> UniquePtr<AudioEncoderFactory>;
 
+        /// Creates a new [`AudioDecoderFactory`].
         pub fn create_builtin_audio_decoder_factory(
         ) -> UniquePtr<AudioDecoderFactory>;
 
+        /// Creates a NULL [`AudioDecoderFactory`].
         pub fn create_audio_device_module_null() -> UniquePtr<AudioDeviceModule>;
 
+        /// Creates a NULL [`AudioMixer`].
         pub fn create_audio_mixer_null() -> UniquePtr<AudioMixer>;
 
+        /// Creates a NULL [`AudioProcessing`].
         pub fn create_audio_processing_null() -> UniquePtr<AudioProcessing>;
 
+        /// Creates a NULL [`AudioFrameProcessor`].
         pub fn create_audio_frame_processor_null(
         ) -> UniquePtr<AudioFrameProcessor>;
 
+        /// Creates a new [`PeerConnectionFactoryInterface`].
+        /// Where `default_adm` - can be?? NULL,
+        /// `audio_mixer` - can be?? NULL,
+        /// `audio_processing` - can be?? NULL,
+        /// `audio_frame_processor` - default NULL,
         pub unsafe fn create_peer_connection_factory(
             network_thread: *mut Thread,
             worker_thread: *mut Thread,
@@ -170,23 +182,32 @@ pub(crate) mod webrtc {
             audio_frame_processor: *mut AudioFrameProcessor,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
 
+        /// Creates default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration() -> UniquePtr<RTCConfiguration>;
 
+        /// Creates a [`PeerConnectionInterface`].
+        /// Where `error` for error handle without c++ exception.
         pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
+            error: &mut String,
             configuration: &RTCConfiguration,
             dependencies: UniquePtr<PeerConnectionDependencies>,
-        ) -> Result<UniquePtr<PeerConnectionInterface>>;
+        ) -> UniquePtr<PeerConnectionInterface>;
 
-        pub fn create_my_observer() -> UniquePtr<PeerConnectionObserver>;
+        /// Creates a [`PeerConnectionObserver`].
+        pub fn create_peer_connection_observer(
+        ) -> UniquePtr<PeerConnectionObserver>;
 
+        /// Creates a [`PeerConnectionDependencies`].
         pub fn create_peer_connection_dependencies(
             observer: UniquePtr<PeerConnectionObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
 
+        /// Creates default [`RTCOfferAnswerOptions`].
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
+        /// Creates a [`RTCOfferAnswerOptions`].
         pub fn create_rtc_offer_answer_options(
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
@@ -195,40 +216,53 @@ pub(crate) mod webrtc {
             use_rtp_mux: bool,
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
-        pub fn create_my_offer_answer_observer(
+        /// Creates a [`CreateSessionDescriptionObserver`].
+        /// Where 
+        /// `s` - void (*callback_success)(std::string, std::string) for callback when 'CreateOffer\Answer' is OnSuccess,
+        /// `f` - void (*callback_fail)(std::string) for callback when 'CreateOffer\Answer' is OnFailure.
+        pub fn create_create_session_observer(
             s: usize,
             f: usize,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
-        pub fn create_my_description_observer(
+        /// Creates a [`SetSessionDescriptionObserver`].
+        /// Where 
+        /// `s` - void (*callback_success_desc)() for callback when 'SetLocal\RemoteDescription' is OnSuccess,
+        /// `f` - void (*callback_fail)(std::string) for callback when 'SetLocal\RemoteDescription' is OnFailure.
+        pub fn create_set_session_description_observer(
             s: usize,
             f: usize,
         ) -> UniquePtr<SetSessionDescriptionObserver>;
 
+        /// Calls `peer_connection_interface`->CreateOffer.
         pub unsafe fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: *mut CreateSessionDescriptionObserver,
         );
 
+        /// Calls `peer_connection_interface`->CreateAnswer.
         pub unsafe fn create_answer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: *mut CreateSessionDescriptionObserver,
         );
 
+        /// Calls `peer_connection_interface`->SetLocalDescription.
         pub unsafe fn set_local_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: *mut SetSessionDescriptionObserver,
         );
-
+  
+        /// Calls `peer_connection_interface`->SetRemoteDescription.
         pub unsafe fn set_remote_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: *mut SetSessionDescriptionObserver,
         );
-
+  
+        /// Creates [`SessionDescriptionInterface`]
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]
         pub unsafe fn create_session_description(

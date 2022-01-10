@@ -3,10 +3,8 @@
 
 mod bridge;
 
-use std::os::raw::c_char;
-
 use anyhow::bail;
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
 
@@ -267,7 +265,7 @@ pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl Default for PeerConnectionObserver {
     fn default() -> Self {
-        Self(webrtc::create_my_observer())
+        Self(webrtc::create_peer_connection_observer())
     }
 }
 
@@ -282,10 +280,16 @@ impl Default for PeerConnectionDependencies {
         ))
     }
 }
- 
+
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
+    /// Creates a [`RTCOfferAnswerOptions`]
+    /// whith `voice_activity_detection` = true,
+    /// `ice_restart` = false,
+    /// `use_rtp_mux` = true,
+    /// `receive_audio` = true,
+    /// `receive_video` = true,
     fn default() -> Self {
         RTCOfferAnswerOptions(webrtc::create_default_rtc_offer_answer_options())
     }
@@ -322,35 +326,51 @@ impl SessionDescriptionInterface {
     }
 }
 
-pub struct CreateSessionDescriptionObserver(UniquePtr<webrtc::CreateSessionDescriptionObserver>);
+pub struct CreateSessionDescriptionObserver(
+    UniquePtr<webrtc::CreateSessionDescriptionObserver>,
+);
 
 impl CreateSessionDescriptionObserver {
+    /// Creates a [`CreateSessionDescriptionObserver`].
+    /// Where 
+    /// `success` - void (*callback_success)(std::string, std::string) for callback when 'CreateOffer\Answer' is OnSuccess,
+    /// `fail` - void (*callback_fail)(std::string) for callback when 'CreateOffer\Answer' is OnFailure.
     pub fn new(success: usize, fail: usize) -> Self {
-        Self(webrtc::create_my_offer_answer_observer(success, fail))
+        Self(webrtc::create_create_session_observer(success, fail))
     }
 }
 
-pub struct SetSessionDescriptionObserver(UniquePtr<webrtc::SetSessionDescriptionObserver>);
+pub struct SetSessionDescriptionObserver(
+    UniquePtr<webrtc::SetSessionDescriptionObserver>,
+);
 
 impl SetSessionDescriptionObserver {
+    /// Creates a [`SetSessionDescriptionObserver`].
+    /// Where 
+    /// `success` - void (*callback_success_desc)() for callback when 'SetLocal\RemoteDescription' is OnSuccess,
+    /// `fail` - void (*callback_fail)(std::string) for callback when 'SetLocal\RemoteDescription' is OnFailure.
     pub fn new(success: usize, fail: usize) -> Self {
-        Self(webrtc::create_my_description_observer(success, fail))
+        Self(webrtc::create_set_session_description_observer(
+            success, fail,
+        ))
     }
 }
 
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
+    /// Calls `peer_connection_interface`->CreateOffer.
     pub fn create_offer(
         &mut self,
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
         unsafe {
-            webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0.into_raw())
+            webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0.into_raw());
         }
     }
 
+    /// Calls `peer_connection_interface`->CreateAnswer.
     pub fn create_answer(
         &mut self,
         options: &RTCOfferAnswerOptions,
@@ -361,10 +381,11 @@ impl PeerConnectionInterface {
                 self.0.pin_mut(),
                 &options.0,
                 obs.0.into_raw(),
-            )
+            );
         }
     }
 
+    /// Calls `peer_connection_interface`->SetLocalDescription.
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
@@ -375,21 +396,22 @@ impl PeerConnectionInterface {
                 self.0.pin_mut(),
                 desc.0,
                 obs.0.into_raw(),
-            )
+            );
         }
     }
 
+    /// Calls `peer_connection_interface`->SetRemoteDescription.
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
         obs: SetSessionDescriptionObserver,
     ) {
         unsafe {
-            webrtc::set_local_description(
+            webrtc::set_remote_description(
                 self.0.pin_mut(),
                 desc.0,
                 obs.0.into_raw(),
-            )
+            );
         }
     }
 }
@@ -405,8 +427,8 @@ impl PeerConnectionFactoryInterface {
         let thread_ptr = thread.0.into_raw();
         Self(unsafe {
             webrtc::create_peer_connection_factory(
-                thread_ptr.clone(),
-                thread_ptr.clone(),
+                thread_ptr,
+                thread_ptr,
                 thread_ptr,
                 AudioDeviceModule::create_null().0.into_raw(),
                 AudioEncoderFactory::default().0.pin_mut(),
@@ -420,166 +442,24 @@ impl PeerConnectionFactoryInterface {
         })
     }
 
+    /// Creates a [`PeerConnectionInterface`].
+    /// Where `error` for error handle without c++ exception.
     pub fn create_peer_connection_or_error(
         &mut self,
-        configuration: RTCConfiguration,
+        error: &mut String,
+        configuration: &RTCConfiguration,
         dependencies: PeerConnectionDependencies,
-    ) -> anyhow::Result<PeerConnectionInterface> {
+    ) -> PeerConnectionInterface {
         let res = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
+            error,
             &configuration.0,
             dependencies.0,
-        )?;
-        Ok(PeerConnectionInterface(res))
+        );
+        if error.is_empty() {
+            PeerConnectionInterface(res)
+        } else {
+            PeerConnectionInterface(UniquePtr::null())
+        }
     }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::bridge::webrtc::*;
-    use cxx::{let_cxx_string, CxxString, UniquePtr};
-    use std::ffi::CStr;
-
-    #[test]
-    fn video_encode_decode_factory() {
-        let ve = create_builtin_video_encoder_factory();
-        let vd = create_builtin_video_decoder_factory();
-    }
-
-    #[test]
-    fn audio_encode_decode_factory() {
-        let ae = create_builtin_audio_decoder_factory();
-        let ad = create_builtin_audio_encoder_factory();
-    }
-
-    #[test]
-    fn thread() {
-        let mut thread = create_thread();
-        let run = start_thread(thread.pin_mut());
-        assert!(run)
-    }
-
-    #[test]
-    fn create_peer_connection_factory_test() {
-        pcf();
-    }
-
-    #[test]
-    fn create_default_rtc() {
-        let rtc_config = create_default_rtc_configuration();
-    }
-
-    #[test]
-    fn create_myobserver() {
-        let obs = create_my_observer();
-    }
-
-    #[test]
-    fn create_peer_connection_dependencies_test() {
-        let obs = create_my_observer();
-        let pcd = create_peer_connection_dependencies(obs);
-    }
-
-    fn pcf() -> UniquePtr<PeerConnectionFactoryInterface> {
-        let mut thread = create_thread();
-        start_thread(thread.pin_mut());
-        let thread = thread.into_raw();
-
-        let ve = create_builtin_video_encoder_factory();
-        let vd = create_builtin_video_decoder_factory();
-        let mut ae = create_builtin_audio_encoder_factory();
-        let mut ad = create_builtin_audio_decoder_factory();
-
-        let afp = create_audio_frame_processor_null();
-        let default_adm = create_audio_device_module_null();
-        let am = create_audio_mixer_null();
-        let ap = create_audio_processing_null();
-
-        let mut pcf = unsafe {
-            create_peer_connection_factory(
-                thread.clone(),
-                thread.clone(),
-                thread,
-                default_adm.into_raw(),
-                ae.pin_mut(),
-                ad.pin_mut(),
-                ve,
-                vd,
-                am.into_raw(),
-                ap.into_raw(),
-                afp.into_raw(),
-            )
-        };
-        pcf
-    }
-
-    fn pcoe() -> UniquePtr<PeerConnectionInterface> {
-        let mut pcf = pcf();
-        let obs = create_my_observer();
-        let pcd = create_peer_connection_dependencies(obs);
-        let rtc_config = create_default_rtc_configuration();
-
-        let mut pc = {
-            create_peer_connection_or_error(pcf.pin_mut(), &rtc_config, pcd)
-        };
-        pc.unwrap()
-    }
-
-    fn pc() -> UniquePtr<PeerConnectionInterface> {
-        let mut pc = pcoe();
-        pc
-    }
-
-    #[test]
-    fn get_peer_connection_test() {
-        let mut pcf = pcf();
-        let obs = create_my_observer();
-        let pcd = create_peer_connection_dependencies(obs);
-        let rtc_config = create_default_rtc_configuration();
-
-        let mut pc = {
-            create_peer_connection_or_error(pcf.pin_mut(), &rtc_config, pcd)
-        };
-    }
-
-    /*#[test]
-    fn create_offer_test() {
-        let options = create_default_rtc_offer_answer_options();
-        let mut pc = pc();
-
-        create_offer(pc.pin_mut(), &options);
-    }*/
-
-    /*#[test]
-    fn create_answer_test() {
-        let options = create_default_rtc_offer_answer_options();
-        let mut pc = pc();
-
-        create_answer(pc.pin_mut(), &options);
-    }*/
-
-    #[test]
-    fn create_session_description_test() {
-        let type_ = SdpType::kAnswer;
-        let_cxx_string!(sdp = "test");
-        let des = unsafe { create_session_description(type_, &sdp) };
-    }
-
-    /*#[test]
-    fn set_local_description_test() {
-        let type_ = SdpType::kAnswer;
-        let_cxx_string!(sdp = "test");
-        let des = unsafe { create_session_description(type_, &sdp) };
-        let mut pc = pc();
-        set_local_description(pc.pin_mut(), des);
-    }
-
-    #[test]
-    fn set_remote_description_test() {
-        let type_ = SdpType::kAnswer;
-        let_cxx_string!(sdp = "test");
-        let des = unsafe { create_session_description(type_, &sdp) };
-        let mut pc = pc();
-        set_remote_description(pc.pin_mut(), des);
-    }*/
 }

@@ -22,15 +22,18 @@ void FlutterWebRTC::HandleMethodCall(
       return;
     }
 
-    try {
-      std::string id = std::to_string(webrtc->CreatePeerConnection());
+    rust::String error;
+    std::string id = std::to_string(webrtc->CreatePeerConnection(error));
+    if(error == "")
+    {
       EncodableMap params;
       params[EncodableValue("peerConnectionId")] = id;
       result->Success(EncodableValue(params));
     }
-    catch (const std::exception &e)
+    else
     {
-      result->Error("createPeerConnectionFailed",e.what());
+      std::string err(error);
+      result->Error("createPeerConnectionFailed", err);
     }
 
   } else if (method_call.method_name().compare("getSources") == 0) {

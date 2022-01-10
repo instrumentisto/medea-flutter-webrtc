@@ -53,11 +53,15 @@ pub mod ffi {
         fn enumerate_devices() -> Vec<MediaDeviceInfo>;
 
         #[cxx_name = "CreatePeerConnection"]
-        fn create_default_peer_connection(self: &mut Webrtc) -> Result<u64>;
+        fn create_default_peer_connection(
+            self: &mut Webrtc,
+            error: &mut String,
+        ) -> u64;
 
         #[cxx_name = "CreateOffer"]
         fn create_offer(
             self: &mut Webrtc,
+            error: &mut String,
             peer_connection_id: u64,
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
@@ -66,11 +70,12 @@ pub mod ffi {
             use_rtp_mux: bool,
             s: usize,
             f: usize,
-        ) -> Result<()>;
+        );
 
         #[cxx_name = "CreateAnswer"]
         fn create_answer(
             self: &mut Webrtc,
+            error: &mut String,
             peer_connection_id: u64,
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
@@ -79,30 +84,34 @@ pub mod ffi {
             use_rtp_mux: bool,
             s: usize,
             f: usize,
-        ) -> Result<()>;
+        );
 
         #[cxx_name = "SetLocalDescription"]
         fn set_local_description(
             self: &mut Webrtc,
+            error: &mut String,
             peer_connection_id: u64,
             type_: String,
             sdp: String,
             s: usize,
             f: usize,
-        ) -> Result<()>;
+        );
 
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(
             self: &mut Webrtc,
+            error: &mut String,
             peer_connection_id: u64,
             type_: String,
             sdp: String,
             s: usize,
             f: usize,
-        ) -> Result<()>;
-        
+        );
+
     }
 }
+
+struct FlutterResult();
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.

@@ -36,17 +36,17 @@ class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionO
   callback_success success;
   callback_fail fail;
 
-  // Construct 'CreateOffer\Answer Observer' where 
-  //s - void (*callback_success)(std::string, std::string);.
-  //f - void (*callback_fail)(std::string);
+  // Construct `CreateOffer\Answer Observer` where 
+  // s - void (*callback_success)(std::string, std::string),
+  // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver(
     size_t s, 
     size_t f);
 
-  // Call when a 'CreateOffer\Answer' is success.
+  // Calls when a `CreateOffer\Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
 
-  // Call when a 'CreateOffer\Answer' is fail.
+  // Calls when a `CreateOffer\Answer` is fail.
   void OnFailure(webrtc::RTCError error);
 
   void AddRef() const;
@@ -60,17 +60,17 @@ class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserve
   callback_success_desc success;
   callback_fail fail;
 
-  // Construct 'SetLocal\RemoteDescription Observer' where 
-  //s - void (*callback_success_desc)();.
-  //f - void (*callback_fail)(std::string);
+  // Construct `SetLocal\RemoteDescription Observer` where 
+  // s - void (*callback_success)(std::string, std::string),
+  // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver(
     size_t s, 
     size_t f);
 
-  // Call when a 'SetLocal\RemoteDescription' is success.
+  // Calls when a `SetLocal\RemoteDescription` is success.
   void OnSuccess();
 
-  // Call when a 'SetLocal\RemoteDescription' is fail.
+  // Calls when a `SetLocal\RemoteDescription` is fail.
   void OnFailure(webrtc::RTCError error);
 
   void AddRef() const;
