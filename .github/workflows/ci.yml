@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  FLUTTER_VERSION: '2.2.3'
+  FLUTTER_CHANNEL: 'stable'
+
 jobs:
   test:
     name: Flutter unit tests
@@ -17,8 +21,8 @@ jobs:
           java-version: '12.x'
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '2.2.3'
-          channel: 'stable'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
       - run: flutter packages get
       - run: flutter test
 
@@ -28,6 +32,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
       - run: flutter pub run import_sorter:main --no-comments --exit-if-changed
 
   dartfmt:
@@ -36,6 +43,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
       - run: flutter format lib/ test/ --set-exit-if-changed
 
   dartanalyze:
@@ -44,6 +54,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
       - run: flutter analyze
 
   android-formatting:
@@ -55,3 +68,4 @@ jobs:
         with:
           args: "--set-exit-if-changed"
           files: "android/src/main/java/com/cloudwebrtc/webrtc/**/*.java"
+          version: 1.13
