@@ -19,7 +19,7 @@ import java.util.Map;
 public final class ObjectExporter {
   @Nullable
   public static Map<String, Object> exportMediaStream(
-          String ownerTag, @NonNull MediaStream stream) {
+      String ownerTag, @NonNull MediaStream stream) {
     ConstraintsMap params = new ConstraintsMap();
     params.putString("streamId", stream.getId());
     params.putString("ownerTag", ownerTag);
@@ -69,12 +69,12 @@ public final class ObjectExporter {
     return info.toMap();
   }
 
-  public static Map<String, Object> exportTransceiver(
-          int id, @NonNull RtpTransceiver transceiver) {
+  public static Map<String, Object> exportTransceiver(int id, @NonNull RtpTransceiver transceiver) {
     ConstraintsMap info = new ConstraintsMap();
     info.putInt("transceiverId", id);
     info.putString("mid", transceiver.getMid());
-    info.putString("direction", EnumStringifier.transceiverDirectionString(transceiver.getDirection()));
+    info.putString(
+        "direction", EnumStringifier.transceiverDirectionString(transceiver.getDirection()));
     info.putMap("sender", exportRtpSender(transceiver.getSender()));
     info.putMap("receiver", exportRtpReceiver(transceiver.getReceiver()));
     return info.toMap();
@@ -152,9 +152,9 @@ public final class ObjectExporter {
           map.putString("kind", "video");
         }
       } catch (@NonNull
-              NoSuchFieldException
-                      | IllegalArgumentException
-                      | IllegalAccessException e) {
+          NoSuchFieldException
+          | IllegalArgumentException
+          | IllegalAccessException e) {
         e.printStackTrace();
       }
       codecs.pushMap(map);

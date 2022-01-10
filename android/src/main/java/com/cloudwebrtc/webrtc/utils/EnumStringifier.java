@@ -7,8 +7,7 @@ import org.webrtc.RtpTransceiver;
 
 public final class EnumStringifier {
   @NonNull
-  public static String iceConnectionStateString(
-          @NonNull PeerConnection.IceConnectionState state) {
+  public static String iceConnectionStateString(@NonNull PeerConnection.IceConnectionState state) {
     switch (state) {
       case NEW:
         return "new";
@@ -85,7 +84,7 @@ public final class EnumStringifier {
 
   @NonNull
   public static String transceiverDirectionString(
-          @NonNull RtpTransceiver.RtpTransceiverDirection direction) {
+      @NonNull RtpTransceiver.RtpTransceiverDirection direction) {
     switch (direction) {
       case SEND_RECV:
         return "sendrecv";
@@ -102,7 +101,7 @@ public final class EnumStringifier {
 
   @NonNull
   public static RtpTransceiver.RtpTransceiverDirection stringToTransceiverDirection(
-          @NonNull String direction) {
+      @NonNull String direction) {
     switch (direction) {
       case "sendrecv":
         return RtpTransceiver.RtpTransceiverDirection.SEND_RECV;

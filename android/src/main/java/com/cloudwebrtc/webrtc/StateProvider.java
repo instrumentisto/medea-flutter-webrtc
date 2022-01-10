@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Provides interested components with access to the current application state.
  *
- * It is encouraged to use this class instead of a component directly.
+ * <p>It is encouraged to use this class instead of a component directly.
  */
 public interface StateProvider {
 
@@ -23,7 +23,7 @@ public interface StateProvider {
   Map<String, MediaStream> getLocalStreams();
 
   String getNextStreamUUID();
-  
+
   @Nullable
   MediaStreamTrack getLocalTrack(String id);
 
