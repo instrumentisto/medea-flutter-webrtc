@@ -111,26 +111,10 @@ public class GetUserMediaImpl {
                 new MediaConstraints.KeyValuePair("googDAEchoCancellation", "true"));
     }
 
+    @Nullable
     private String findVideoCapturer(
             CameraEnumerator enumerator, boolean isFacing, String sourceId
     ) {
-
-    /**
-     * Create video capturer via given facing mode
-     *
-     * @param enumerator a <tt>CameraEnumerator</tt> provided by webrtc it can be Camera1Enumerator or
-     *                   Camera2Enumerator
-     * @param isFacing   'user' mapped with 'front' is true (default) 'environment' mapped with 'back'
-     *                   is false
-     * @param sourceId   (String) use this sourceId and ignore facing mode if specified.
-     * @return VideoCapturer can invoke with <tt>startCapture</tt>/<tt>stopCapture</tt> <tt>null</tt>
-     * if not matched camera with specified facing mode.
-     */
-    @Nullable
-    private VideoCapturer createVideoCapturer(
-            @NonNull CameraEnumerator enumerator, boolean isFacing, @Nullable String sourceId) {
-        VideoCapturer videoCapturer = null;
-
         // if sourceId given, use specified sourceId first
         final String[] deviceNames = enumerator.getDeviceNames();
         if (sourceId != null) {
