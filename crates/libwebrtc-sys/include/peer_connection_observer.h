@@ -5,14 +5,14 @@
 #include "rust/cxx.h"
 
 
-namespace my_stuff
+namespace observer
 {
 typedef void (*callback_success)(std::string, std::string);
 typedef void (*callback_fail)(std::string);
 
 typedef void (*callback_success_desc)();
 
-class MyObserver: public webrtc::PeerConnectionObserver
+class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 {
   // Called any time the IceGatheringState changes.
   void OnIceGatheringChange(
@@ -30,18 +30,23 @@ class MyObserver: public webrtc::PeerConnectionObserver
       webrtc::PeerConnectionInterface::SignalingState new_state);
 };
 
-class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
+class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionObserver
 {
   public:
   callback_success success;
   callback_fail fail;
 
-  MyCreateSessionObserver(
+  // Construct 'CreateOffer\Answer Observer' where 
+  //s - void (*callback_success)(std::string, std::string);.
+  //f - void (*callback_fail)(std::string);
+  CreateSessionDescriptionObserver(
     size_t s, 
     size_t f);
 
+  // Call when a 'CreateOffer\Answer' is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
 
+  // Call when a 'CreateOffer\Answer' is fail.
   void OnFailure(webrtc::RTCError error);
 
   void AddRef() const;
@@ -49,18 +54,25 @@ class MyCreateSessionObserver: public webrtc::CreateSessionDescriptionObserver
 
 };
 
-class MySessionObserver: public webrtc::SetSessionDescriptionObserver
+class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserver
 {
   public: 
   callback_success_desc success;
   callback_fail fail;
 
-  MySessionObserver(
+  // Construct 'SetLocal\RemoteDescription Observer' where 
+  //s - void (*callback_success_desc)();.
+  //f - void (*callback_fail)(std::string);
+  SetSessionDescriptionObserver(
     size_t s, 
     size_t f);
 
+  // Call when a 'SetLocal\RemoteDescription' is success.
   void OnSuccess();
+
+  // Call when a 'SetLocal\RemoteDescription' is fail.
   void OnFailure(webrtc::RTCError error);
+
   void AddRef() const;
   rtc::RefCountReleaseStatus Release() const;
 

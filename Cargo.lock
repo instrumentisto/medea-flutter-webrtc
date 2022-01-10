@@ -821,6 +821,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "test_catch"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "cxx",
+ "cxx-build",
+]
+
+[[package]]
 name = "tinyvec"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

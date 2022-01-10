@@ -129,7 +129,7 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
   rtc::scoped_refptr<webrtc::AudioDecoderFactory> builtin_audio_encoder_factory = webrtc::CreateBuiltinAudioDecoderFactory();
   return std::make_unique<AudioDecoderFactory>(builtin_audio_encoder_factory);
 }
-
+  
 /// Creates 'NULL AudioDeviceModule'
 std::unique_ptr<AudioDeviceModule> create_audio_device_module_null() {
   return std::unique_ptr<AudioDeviceModule>(nullptr);
@@ -197,15 +197,15 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
 }
 
 
-/// Create MyObserver.   
-std::unique_ptr<MyObserver> create_my_observer() {
-  MyObserver obs;
-  return std::make_unique<MyObserver>(obs);
+/// Create PeerConnectionObserver.   
+std::unique_ptr<PeerConnectionObserver> create_my_observer() {
+  PeerConnectionObserver obs;
+  return std::make_unique<PeerConnectionObserver>(obs);
 }
 
 /// Create PeerConnectionDependencies.      
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
-  std::unique_ptr<MyObserver> observer) {
+  std::unique_ptr<PeerConnectionObserver> observer) {
   PeerConnectionDependencies pcd(observer.release());
     return std::make_unique<PeerConnectionDependencies>(std::move(pcd));
 }
@@ -228,43 +228,43 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(int32_t o
       use_rtp_mux));
   }
 
-/// Create MyCreateSessionObserver.   
-std::unique_ptr<MyCreateSessionObserver> create_my_offer_answer_observer(
+/// Create CreateSessionDescriptionObserver.   
+std::unique_ptr<CreateSessionDescriptionObserver> create_my_offer_answer_observer(
   size_t s, 
   size_t f) {
-    MyCreateSessionObserver obs = MyCreateSessionObserver(s,f);
-    return std::make_unique<MyCreateSessionObserver>(obs);
+    CreateSessionDescriptionObserver obs = CreateSessionDescriptionObserver(s,f);
+    return std::make_unique<CreateSessionDescriptionObserver>(obs);
   }
 
-/// Create MySessionObserver.   
-std::unique_ptr<MySessionObserver> create_my_description_observer(
+/// Create SetSessionDescriptionObserver.   
+std::unique_ptr<SetSessionDescriptionObserver> create_my_description_observer(
   size_t s, 
   size_t f) {
-    MySessionObserver obs = MySessionObserver(s,f);
-    return std::make_unique<MySessionObserver>(obs);
+    SetSessionDescriptionObserver obs = SetSessionDescriptionObserver(s,f);
+    return std::make_unique<SetSessionDescriptionObserver>(obs);
   }
 
 /// Call CreateOffer
 void create_offer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, MyCreateSessionObserver* obs) {
+  const RTCOfferAnswerOptions& options, CreateSessionDescriptionObserver* obs) {
     peer_connection_interface.ptr()->CreateOffer(obs, options);
   }
 
 /// Call CreateAnswer
 void create_answer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, MyCreateSessionObserver* obs) {
+  const RTCOfferAnswerOptions& options, CreateSessionDescriptionObserver* obs) {
   peer_connection_interface.ptr()->CreateAnswer(obs, options);
 }
 
 /// Call setLocalDescription
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, MySessionObserver* obs) {
+  std::unique_ptr<SessionDescriptionInterface> desc, SetSessionDescriptionObserver* obs) {
     peer_connection_interface.ptr()->SetLocalDescription(obs, desc.release());
   }
 
 /// Call setRemoteDescription
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, MySessionObserver* obs) {
+  std::unique_ptr<SessionDescriptionInterface> desc, SetSessionDescriptionObserver* obs) {
     peer_connection_interface.ptr()->SetRemoteDescription(obs, desc.release());
   }
 }

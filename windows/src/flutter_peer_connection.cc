@@ -14,9 +14,7 @@ void OnSuccessOffer(
 
 void OnSuccessDescription(
   flutter::MethodResult<flutter::EncodableValue>* result) {
-    flutter::EncodableMap params;
-    params[flutter::EncodableValue("test")] = "TEST";
-    result->Success(params);
+    result->Success(nullptr);
 }
 
 void Fail(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
@@ -70,38 +68,32 @@ using namespace flutter;
         const std::string peerConnectionId = findString(params, "peerConnectionId");
 
         auto res = result.release();
+        try
+        {
+            auto bind_success = std::bind(&my_stuff::OnSuccessOffer, res, std::placeholders::_1, std::placeholders::_2);
+            callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
+            size_t success = (size_t) wrapp_success;
 
-            rust::cxxbridge1::Box<ErrOkPeerConnection> peerconnection_err = 
-            webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+            auto bind_fail = std::bind(&my_stuff::Fail, res, std::placeholders::_1);
+            callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
+            size_t fail = (size_t) wrapp_fail;
 
-            if(peerconnection_err->Ok())
-            {
-                auto peerconnection = peerconnection_err->Value();
-                auto bind_success = std::bind(&my_stuff::OnSuccessOffer, res, std::placeholders::_1, std::placeholders::_2);
-                callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
-                size_t success = (size_t) wrapp_success;
-
-                auto bind_fail = std::bind(&my_stuff::Fail, res, std::placeholders::_1);
-                callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
-                size_t fail = (size_t) wrapp_fail;
-
-                RTCConf conf = RTCConf(method_call);
-
-                peerconnection->CreateOffer(
-                    conf.receive_video, 
-                    conf.receive_audio, 
-                    conf.voice_activity_detection, 
-                    conf.ice_restart, 
-                    conf.use_rtp_mux, 
-                    success, 
-                    fail
-                );
-            }
-            else 
-            {
-                std::string e(peerconnection_err->Error());
-                res->Error("createAnswerOffer", e);
-            }
+            RTCConf conf = RTCConf(method_call);
+            webrtc->CreateOffer(
+                std::stoi(peerConnectionId),
+                conf.receive_video, 
+                conf.receive_audio, 
+                conf.voice_activity_detection, 
+                conf.ice_restart, 
+                conf.use_rtp_mux, 
+                success, 
+                fail
+            );
+        }
+        catch(const std::exception& e)
+        {
+            res->Error("createAnswerOffer", e.what());
+        }
     };
     void FlutterPeerConnection::CreateAnswer() {
         const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
@@ -109,37 +101,32 @@ using namespace flutter;
 
         auto res = result.release();
 
-            rust::cxxbridge1::Box<ErrOkPeerConnection> peerconnection_err = 
-            webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+        try
+        {
+            auto bind_success = std::bind(&my_stuff::OnSuccessOffer, res, std::placeholders::_1, std::placeholders::_2);
+            callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
+            size_t success = (size_t) wrapp_success;
 
-            if(peerconnection_err->Ok())
-            {
-                auto peerconnection = peerconnection_err->Value();
-                auto bind_success = std::bind(&my_stuff::OnSuccessOffer, res, std::placeholders::_1, std::placeholders::_2);
-                callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
-                size_t success = (size_t) wrapp_success;
+            auto bind_fail = std::bind(&my_stuff::Fail, res, std::placeholders::_1);
+            callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
+            size_t fail = (size_t) wrapp_fail;
 
-                auto bind_fail = std::bind(&my_stuff::Fail, res, std::placeholders::_1);
-                callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
-                size_t fail = (size_t) wrapp_fail;
-
-                RTCConf conf = RTCConf(method_call);
-
-                peerconnection->CreateAnswer(
-                    conf.receive_video, 
-                    conf.receive_audio, 
-                    conf.voice_activity_detection, 
-                    conf.ice_restart, 
-                    conf.use_rtp_mux, 
-                    success, 
-                    fail
-                );
-            }
-            else 
-            {
-                std::string e(peerconnection_err->Error());
-                res->Error("createAnswerOffer", e);
-            }
+            RTCConf conf = RTCConf(method_call);
+            webrtc->CreateAnswer(
+                std::stoi(peerConnectionId),
+                conf.receive_video, 
+                conf.receive_audio, 
+                conf.voice_activity_detection, 
+                conf.ice_restart, 
+                conf.use_rtp_mux, 
+                success, 
+                fail
+            );
+        }
+        catch(const std::exception& e)
+        {
+            res->Error("createAnswerOffer", e.what());
+        }
     };
 
     void FlutterPeerConnection::SetLocalDescription() {
@@ -162,25 +149,23 @@ using namespace flutter;
         size_t success = (size_t) wrapp_success;
         success;
 
-
-        rust::cxxbridge1::Box<ErrOkPeerConnection> peerconnection_err = 
-        webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
-
-        if(peerconnection_err->Ok()) {
-            auto peerconnection = peerconnection_err->Value();
-            auto err_ok = peerconnection->SetLocalDescription(type, sdp, success, fail);
-            if (err_ok->Ok())
-            {
-                std::string e(err_ok->Error());
-                result_ptr->Error("setLocalDescriptionFailed", e);
-            }
-        } else {
-            std::string e(peerconnection_err->Error());
-            result_ptr->Error("setLocalDescriptionFailed", e);
-        } 
+        try {
+            webrtc->SetLocalDescription(
+                std::stoi(peerConnectionId),
+                type, 
+                sdp, 
+                success, 
+                fail
+            );
+        }
+        catch(const std::exception& e)
+        {
+            result_ptr->Error("SetLocalDescriptionFailed", e.what());
+        }
     };
 
     void FlutterPeerConnection::SetRemoteDescription() {
+
         const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
         const std::string peerConnectionId = findString(params, "peerConnectionId");
         const EncodableMap constraints = findMap(params, "description"); 
@@ -192,27 +177,26 @@ using namespace flutter;
         auto bind_fail = std::bind(&my_stuff::Fail, result_ptr, std::placeholders::_1);
         callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
         size_t fail = (size_t) wrapp_fail;
+        fail;
         
         auto bind_success = std::bind(&my_stuff::OnSuccessDescription, result_ptr);
         callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
         size_t success = (size_t) wrapp_success;
-        
-        rust::cxxbridge1::Box<ErrOkPeerConnection> peerconnection_err = 
-        webrtc->GetPeerConnectionFromId(std::stoi(peerConnectionId));
+        success;
 
-        if(peerconnection_err->Ok()) {
-            auto peerconnection = peerconnection_err->Value();
-            auto err_ok = peerconnection->SetRemoteDescription(type, sdp, success, fail);
-            if (err_ok->Ok())
-            {
-                std::string e(err_ok->Error());
-                result_ptr->Error("SetRemoteDescriptionFailed", e);
-            }
-
-        } else {
-            std::string e(peerconnection_err->Error());
-            result_ptr->Error("SetRemoteDescriptionFailed", e);
-        } 
+        try {
+            webrtc->SetLocalDescription(
+                std::stoi(peerConnectionId),
+                type, 
+                sdp, 
+                success, 
+                fail
+            );
+        }
+        catch(const std::exception& e)
+        {
+            result_ptr->Error("SetRemoteDescriptionFailed", e.what());
+        }
     };
 
 }

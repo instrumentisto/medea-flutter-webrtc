@@ -263,9 +263,9 @@ impl Default for RTCConfiguration {
     }
 }
 
-pub struct MyObserver(UniquePtr<webrtc::MyObserver>);
+pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
-impl Default for MyObserver {
+impl Default for PeerConnectionObserver {
     fn default() -> Self {
         Self(webrtc::create_my_observer())
     }
@@ -278,11 +278,11 @@ pub struct PeerConnectionDependencies(
 impl Default for PeerConnectionDependencies {
     fn default() -> Self {
         Self(webrtc::create_peer_connection_dependencies(
-            MyObserver::default().0,
+            PeerConnectionObserver::default().0,
         ))
     }
 }
-
+ 
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
@@ -322,17 +322,17 @@ impl SessionDescriptionInterface {
     }
 }
 
-pub struct MyCreateSessionObserver(UniquePtr<webrtc::MyCreateSessionObserver>);
+pub struct CreateSessionDescriptionObserver(UniquePtr<webrtc::CreateSessionDescriptionObserver>);
 
-impl MyCreateSessionObserver {
+impl CreateSessionDescriptionObserver {
     pub fn new(success: usize, fail: usize) -> Self {
         Self(webrtc::create_my_offer_answer_observer(success, fail))
     }
 }
 
-pub struct MySessionObserver(UniquePtr<webrtc::MySessionObserver>);
+pub struct SetSessionDescriptionObserver(UniquePtr<webrtc::SetSessionDescriptionObserver>);
 
-impl MySessionObserver {
+impl SetSessionDescriptionObserver {
     pub fn new(success: usize, fail: usize) -> Self {
         Self(webrtc::create_my_description_observer(success, fail))
     }
@@ -344,7 +344,7 @@ impl PeerConnectionInterface {
     pub fn create_offer(
         &mut self,
         options: &RTCOfferAnswerOptions,
-        obs: MyCreateSessionObserver,
+        obs: CreateSessionDescriptionObserver,
     ) {
         unsafe {
             webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0.into_raw())
@@ -354,7 +354,7 @@ impl PeerConnectionInterface {
     pub fn create_answer(
         &mut self,
         options: &RTCOfferAnswerOptions,
-        obs: MyCreateSessionObserver,
+        obs: CreateSessionDescriptionObserver,
     ) {
         unsafe {
             webrtc::create_answer(
@@ -368,7 +368,7 @@ impl PeerConnectionInterface {
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
-        obs: MySessionObserver,
+        obs: SetSessionDescriptionObserver,
     ) {
         unsafe {
             webrtc::set_local_description(
@@ -382,7 +382,7 @@ impl PeerConnectionInterface {
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
-        obs: MySessionObserver,
+        obs: SetSessionDescriptionObserver,
     ) {
         unsafe {
             webrtc::set_local_description(

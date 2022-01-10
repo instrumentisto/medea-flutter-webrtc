@@ -74,10 +74,10 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
-
+      
         /// Writes device info to the provided `name` and `id` for the given
         /// audio recording device `index`.
-        pub fn recording_device_name(
+        pub fn recording_device_name( 
             audio_device_module: &AudioDeviceModule,
             index: i16,
             name: &mut String,
@@ -92,8 +92,8 @@ pub(crate) mod webrtc {
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
         /// Returns count of a video recording devices.
-        #[namespace = "webrtc"]
-        #[cxx_name = "NumberOfDevices"]
+        #[namespace = "webrtc"]  
+        #[cxx_name = "NumberOfDevices"]  
         pub fn number_of_video_devices(self: Pin<&mut VideoDeviceInfo>) -> u32;
 
         /// Writes device info to the provided `name` and `id` for the given
@@ -118,14 +118,13 @@ pub(crate) mod webrtc {
         type AudioFrameProcessor;
         type PeerConnectionDependencies;
         type RTCConfiguration;
-        type MyObserver;
+        type PeerConnectionObserver;
         type PeerConnectionInterface;
-        type CreateSessionDescriptionObserver;
         type RTCOfferAnswerOptions;
         type SessionDescriptionInterface;
         type SdpType;
-        type MyCreateSessionObserver;
-        type MySessionObserver;
+        type CreateSessionDescriptionObserver;
+        type SetSessionDescriptionObserver;
 
         pub fn create_thread() -> UniquePtr<Thread>;
 
@@ -179,10 +178,10 @@ pub(crate) mod webrtc {
             dependencies: UniquePtr<PeerConnectionDependencies>,
         ) -> Result<UniquePtr<PeerConnectionInterface>>;
 
-        pub fn create_my_observer() -> UniquePtr<MyObserver>;
+        pub fn create_my_observer() -> UniquePtr<PeerConnectionObserver>;
 
         pub fn create_peer_connection_dependencies(
-            observer: UniquePtr<MyObserver>,
+            observer: UniquePtr<PeerConnectionObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
 
         pub fn create_default_rtc_offer_answer_options(
@@ -199,35 +198,35 @@ pub(crate) mod webrtc {
         pub fn create_my_offer_answer_observer(
             s: usize,
             f: usize,
-        ) -> UniquePtr<MyCreateSessionObserver>;
+        ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         pub fn create_my_description_observer(
             s: usize,
             f: usize,
-        ) -> UniquePtr<MySessionObserver>;
+        ) -> UniquePtr<SetSessionDescriptionObserver>;
 
         pub unsafe fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
-            obs: *mut MyCreateSessionObserver,
+            obs: *mut CreateSessionDescriptionObserver,
         );
 
         pub unsafe fn create_answer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
-            obs: *mut MyCreateSessionObserver,
+            obs: *mut CreateSessionDescriptionObserver,
         );
 
         pub unsafe fn set_local_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
-            obs: *mut MySessionObserver,
+            obs: *mut SetSessionDescriptionObserver,
         );
 
         pub unsafe fn set_remote_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
-            obs: *mut MySessionObserver,
+            obs: *mut SetSessionDescriptionObserver,
         );
 
         #[namespace = "webrtc"]

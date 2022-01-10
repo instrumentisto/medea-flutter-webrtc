@@ -59,7 +59,7 @@ class _CreateSampleState extends State<CreateSample> {
     });
 
     setState(() {
-      text = response2['test'];
+      text = 'GOOd';
     });
     } catch (e) {
       setState(() {

@@ -1,2 +1,2 @@
 [workspace]
-members = ["crates/libwebrtc-sys", "crates/native"]
+members = ["crates/libwebrtc-sys", "crates/native", "crates/test_catch"]

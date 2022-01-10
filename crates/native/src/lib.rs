@@ -5,7 +5,7 @@ mod peer_connection;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
-    AudioDeviceModule, AudioLayer, MyCreateSessionObserver,
+    AudioDeviceModule, AudioLayer, CreateSessionDescriptionObserver,
     PeerConnectionFactoryInterface, RTCOfferAnswerOptions, TaskQueueFactory,
     VideoDeviceInfo,
 };
@@ -42,9 +42,6 @@ pub mod ffi {
 
     extern "Rust" {
         type Webrtc;
-        type PeerConnection_;
-        type ErrOk;
-        type ErrOkPeerConnection;
 
         /// Creates an instance of [Webrtc].
         #[cxx_name = "Init"]
@@ -58,15 +55,10 @@ pub mod ffi {
         #[cxx_name = "CreatePeerConnection"]
         fn create_default_peer_connection(self: &mut Webrtc) -> Result<u64>;
 
-        #[cxx_name = "GetPeerConnectionFromId"]
-        fn get_peer_connection_from_id(
-            self: &Webrtc,
-            id: u64,
-        ) -> Box<ErrOkPeerConnection>;
-
         #[cxx_name = "CreateOffer"]
         fn create_offer(
-            self: &mut PeerConnection_,
+            self: &mut Webrtc,
+            peer_connection_id: u64,
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
             voice_activity_detection: bool,
@@ -74,11 +66,12 @@ pub mod ffi {
             use_rtp_mux: bool,
             s: usize,
             f: usize,
-        );
+        ) -> Result<()>;
 
         #[cxx_name = "CreateAnswer"]
         fn create_answer(
-            self: &mut PeerConnection_,
+            self: &mut Webrtc,
+            peer_connection_id: u64,
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
             voice_activity_detection: bool,
@@ -86,50 +79,27 @@ pub mod ffi {
             use_rtp_mux: bool,
             s: usize,
             f: usize,
-        );
+        ) -> Result<()>;
 
         #[cxx_name = "SetLocalDescription"]
         fn set_local_description(
-            self: &mut PeerConnection_,
+            self: &mut Webrtc,
+            peer_connection_id: u64,
             type_: String,
             sdp: String,
             s: usize,
             f: usize,
-        ) -> Box<ErrOk>;
+        ) -> Result<()>;
 
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(
-            self: &mut PeerConnection_,
+            self: &mut Webrtc,
+            peer_connection_id: u64,
             type_: String,
             sdp: String,
             s: usize,
             f: usize,
-        ) -> Box<ErrOk>;
-
-        #[cxx_name = "Ok"]
-        fn ok(
-            self: &ErrOk
-        ) -> bool;
-
-        #[cxx_name = "Error"]
-        fn error(
-            self: &mut ErrOk
-        ) -> String;
-
-        #[cxx_name = "Ok"]
-        fn ok(
-            self: &ErrOkPeerConnection
-        ) -> bool;
-
-        #[cxx_name = "Error"]
-        fn error(
-            self: &mut ErrOkPeerConnection
-        ) -> String;
-
-        #[cxx_name = "Value"]
-        fn value(
-            self: &mut ErrOkPeerConnection
-        ) -> Box<PeerConnection_>;
+        ) -> Result<()>;
         
     }
 }
@@ -216,18 +186,8 @@ fn video_devices_info() -> Vec<MediaDeviceInfo> {
 pub struct Inner {
     task_queue_factory: TaskQueueFactory,
     peer_connection_factory: PeerConnectionFactoryInterface,
-    peer_connections: HashMap<u64, Rc<RefCell<PeerConnection>>>,
+    peer_connections: HashMap<u64, PeerConnection>,
 }
-
-pub struct RustRTCOfferAnswerOptions(Box<RTCOfferAnswerOptions>);
-
-pub struct ErrOk(Result<(), String>);
-
-
-pub struct ErrOkPeerConnection(Result<Box<PeerConnection_>, String>);
-
-#[derive(Clone)]
-pub struct PeerConnection_(Rc<RefCell<PeerConnection>>);
 
 /// Wraps the [`Inner`] instanse.
 /// This struct is intended to be extern and managed outside of the Rust app.
