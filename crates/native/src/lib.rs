@@ -18,6 +18,7 @@ use self::ffi::{MediaDeviceInfo, MediaDeviceKind};
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod ffi {
+
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -42,7 +43,8 @@ pub mod ffi {
     extern "Rust" {
         type Webrtc;
         type PeerConnection_;
-        type RustRTCOfferAnswerOptions;
+        type ErrOk;
+        type ErrOkPeerConnection;
 
         /// Creates an instance of [Webrtc].
         #[cxx_name = "Init"]
@@ -60,7 +62,7 @@ pub mod ffi {
         fn get_peer_connection_from_id(
             self: &Webrtc,
             id: u64,
-        ) -> Result<Box<PeerConnection_>>;
+        ) -> Box<ErrOkPeerConnection>;
 
         #[cxx_name = "CreateOffer"]
         fn create_offer(
@@ -93,7 +95,7 @@ pub mod ffi {
             sdp: String,
             s: usize,
             f: usize,
-        ) -> Result<()>;
+        ) -> Box<ErrOk>;
 
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(
@@ -102,7 +104,33 @@ pub mod ffi {
             sdp: String,
             s: usize,
             f: usize,
-        ) -> Result<()>;
+        ) -> Box<ErrOk>;
+
+        #[cxx_name = "Ok"]
+        fn ok(
+            self: &ErrOk
+        ) -> bool;
+
+        #[cxx_name = "Error"]
+        fn error(
+            self: &mut ErrOk
+        ) -> String;
+
+        #[cxx_name = "Ok"]
+        fn ok(
+            self: &ErrOkPeerConnection
+        ) -> bool;
+
+        #[cxx_name = "Error"]
+        fn error(
+            self: &mut ErrOkPeerConnection
+        ) -> String;
+
+        #[cxx_name = "Value"]
+        fn value(
+            self: &mut ErrOkPeerConnection
+        ) -> Box<PeerConnection_>;
+        
     }
 }
 
@@ -193,6 +221,12 @@ pub struct Inner {
 
 pub struct RustRTCOfferAnswerOptions(Box<RTCOfferAnswerOptions>);
 
+pub struct ErrOk(Result<(), String>);
+
+
+pub struct ErrOkPeerConnection(Result<Box<PeerConnection_>, String>);
+
+#[derive(Clone)]
 pub struct PeerConnection_(Rc<RefCell<PeerConnection>>);
 
 /// Wraps the [`Inner`] instanse.

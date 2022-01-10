@@ -6,7 +6,7 @@ use std::{cell::RefCell, error::Error, rc::Rc, sync::atomic::Ordering};
 
 use std::{ffi::c_void, sync::atomic::AtomicU64};
 
-use crate::{PeerConnection_, RustRTCOfferAnswerOptions, Webrtc};
+use crate::{PeerConnection_, ErrOk, Webrtc, ErrOkPeerConnection};
 
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -74,13 +74,13 @@ impl PeerConnection_ {
         sdp: String,
         s: usize,
         f: usize,
-    ) -> anyhow::Result<()> {
+    ) -> Box<ErrOk> {
         let type_: sys::SdpType = match type_.as_str() {
             "offer" => sys::SdpType::kOffer,
             "answer" => sys::SdpType::kAnswer,
             "pranswer" => sys::SdpType::kPrAnswer,
     //"rollback" => sys::SdpType::kRollback, //not found in jsep.cc (webrtc)
-            _ => return Err(anyhow::Error::msg("Invalid type")),
+            _ => return Box::new(ErrOk(Err("Invalid type".to_owned()))),
         };
         let obs = sys::MySessionObserver::new(s, f);
         let desc = sys::SessionDescriptionInterface::new(type_, &sdp);
@@ -89,7 +89,7 @@ impl PeerConnection_ {
             .borrow_mut()
             .peer_connection_interface
             .set_local_description(desc, obs);
-        Ok(())
+        Box::new(ErrOk(Ok(())))
     }
 
     pub fn set_remote_description(
@@ -98,13 +98,13 @@ impl PeerConnection_ {
         sdp: String,
         s: usize,
         f: usize,
-    ) -> anyhow::Result<()> {
+    ) -> Box<ErrOk> {
         let type_ = match type_.as_str() {
             "offer" => sys::SdpType::kOffer,
             "answer" => sys::SdpType::kAnswer,
             "pranswer" => sys::SdpType::kPrAnswer,
     //"rollback" => sys::SdpType::kRollback, //not found in jsep.cc (webrtc)
-            _ => return Err(anyhow::Error::msg("Invalid type")),
+            _ => return Box::new(ErrOk(Err("Invalid type".to_owned()))),
         };
 
         let obs = sys::MySessionObserver::new(s, f);
@@ -115,9 +115,38 @@ impl PeerConnection_ {
             .borrow_mut()
             .peer_connection_interface
             .set_remote_description(desc, obs);
-        Ok(())
+        Box::new(ErrOk(Ok(())))
     }
 }
+
+impl ErrOk {
+
+    pub fn ok(&self) -> bool {
+        self.0.is_ok()
+    }
+    
+    pub fn error(&mut self) -> String {
+        self.0.as_ref().err().unwrap().clone()
+    }
+
+}
+
+impl ErrOkPeerConnection {
+
+    pub fn ok(&self) -> bool {
+        self.0.is_ok()
+    }
+    
+    pub fn error(&mut self) -> String {
+        self.0.as_ref().err().unwrap().clone()
+    }
+
+    pub fn value(&mut self) -> Box<PeerConnection_> {
+        self.0.as_ref().unwrap().clone()
+    }
+}
+
+
 
 pub struct PeerConnection {
     id: PeerConnectionId,
@@ -150,11 +179,12 @@ impl Webrtc {
     pub fn get_peer_connection_from_id(
         self: &Webrtc,
         id: u64,
-    ) -> anyhow::Result<Box<PeerConnection_>> {
+    ) -> Box<ErrOkPeerConnection> {
         let rf = self.0.peer_connections.get(&id);
-        Ok(Box::new(PeerConnection_(
-            rf.ok_or(anyhow::Error::msg("Peer Connection not found"))?
-                .clone(),
-        )))
+        let pc = rf
+            .ok_or("Peer Connection not found".to_owned())
+            .map(|a| Box::new(PeerConnection_(a.clone())));
+
+        Box::new(ErrOkPeerConnection(pc))
     }
 }
