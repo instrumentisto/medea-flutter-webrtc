@@ -117,8 +117,7 @@ public class RTCAudioManager {
           TAG,
           "WiredHeadsetReceiver.onReceive"
               + RTCUtils.getThreadInfo()
-              + ": "
-              + "a="
+              + ": a="
               + intent.getAction()
               + ", s="
               + (state == STATE_UNPLUGGED ? "unplugged" : "plugged")
@@ -140,7 +139,7 @@ public class RTCAudioManager {
   }
 
   private RTCAudioManager(@NonNull Context context) {
-    Log.d(TAG, "ctor");
+    Log.d(TAG, "RTCAudioManager create.");
     ThreadUtils.checkIsOnMainThread();
     appContext = context;
     audioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
@@ -163,7 +162,7 @@ public class RTCAudioManager {
 
   @SuppressWarnings("deprecation") // TODO(henrika): audioManager.requestAudioFocus() is deprecated.
   public void start(AudioManagerEvents audioManagerEvents) {
-    Log.d(TAG, "start");
+    Log.d(TAG, "RTCAudioManager start.");
     ThreadUtils.checkIsOnMainThread();
     if (amState == AudioManagerState.RUNNING) {
       Log.e(TAG, "AudioManager is already active");
@@ -260,7 +259,7 @@ public class RTCAudioManager {
   }
 
   public void stop() {
-    Log.d(TAG, "stop");
+    Log.d(TAG, "RTCAudioManager stop.");
     ThreadUtils.checkIsOnMainThread();
     if (amState != AudioManagerState.RUNNING) {
       Log.e(TAG, "Trying to stop AudioManager in incorrect state: " + amState);
@@ -381,22 +380,17 @@ public class RTCAudioManager {
     ThreadUtils.checkIsOnMainThread();
     Log.d(
         TAG,
-        "--- updateAudioDeviceState: "
-            + "wired headset="
+        "--- updateAudioDeviceState: wired headset="
             + hasWiredHeadset
-            + ", "
-            + "BT state="
+            + ", BT state="
             + bluetoothManager.getState());
     Log.d(
         TAG,
-        "Device status: "
-            + "available="
+        "Device status: available="
             + audioDevices
-            + ", "
-            + "selected="
+            + ", selected="
             + selectedAudioDevice
-            + ", "
-            + "user selected="
+            + ", user selected="
             + userSelectedAudioDevice);
 
     // Check if any Bluetooth headset is connected. The internal BT state will
@@ -471,11 +465,9 @@ public class RTCAudioManager {
           TAG,
           "Need BT audio: start="
               + needBluetoothAudioStart
-              + ", "
-              + "stop="
+              + ", stop="
               + needBluetoothAudioStop
-              + ", "
-              + "BT state="
+              + ", BT state="
               + bluetoothManager.getState());
     }
 
@@ -517,14 +509,7 @@ public class RTCAudioManager {
     if (newAudioDevice != selectedAudioDevice || audioDeviceSetUpdated) {
       // Do the required device switch.
       setAudioDeviceInternal(newAudioDevice);
-      Log.d(
-          TAG,
-          "New device status: "
-              + "available="
-              + audioDevices
-              + ", "
-              + "selected="
-              + newAudioDevice);
+      Log.d(TAG, "New device status: available=" + audioDevices + ", selected=" + newAudioDevice);
       if (audioManagerEvents != null) {
         // Notify a listening client that audio device has been changed.
         audioManagerEvents.onAudioDeviceChanged(selectedAudioDevice, audioDevices);

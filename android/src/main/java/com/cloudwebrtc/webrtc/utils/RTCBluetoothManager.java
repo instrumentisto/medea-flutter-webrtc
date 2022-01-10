@@ -138,14 +138,11 @@ public class RTCBluetoothManager {
         Log.d(
             TAG,
             "BluetoothHeadsetBroadcastReceiver.onReceive: "
-                + "a=ACTION_CONNECTION_STATE_CHANGED, "
-                + "s="
+                + "a=ACTION_CONNECTION_STATE_CHANGED, s="
                 + stateToString(state)
-                + ", "
-                + "sb="
+                + ", sb="
                 + isInitialStickyBroadcast()
-                + ", "
-                + "BT state: "
+                + ", BT state: "
                 + bluetoothState);
 
         if (state == BluetoothHeadset.STATE_CONNECTED) {
@@ -168,15 +165,11 @@ public class RTCBluetoothManager {
                 BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
         Log.d(
             TAG,
-            "BluetoothHeadsetBroadcastReceiver.onReceive: "
-                + "a=ACTION_AUDIO_STATE_CHANGED, "
-                + "s="
+            "BluetoothHeadsetBroadcastReceiver.onReceive: a=ACTION_AUDIO_STATE_CHANGED, s="
                 + stateToString(state)
-                + ", "
-                + "sb="
+                + ", sb="
                 + isInitialStickyBroadcast()
-                + ", "
-                + "BT state: "
+                + ", BT state: "
                 + bluetoothState);
         if (state == BluetoothHeadset.STATE_AUDIO_CONNECTED) {
           cancelTimer();
@@ -211,7 +204,7 @@ public class RTCBluetoothManager {
   }
 
   private RTCBluetoothManager(@NonNull Context context, RTCAudioManager audioManager) {
-    Log.d(TAG, "ctor");
+    Log.d(TAG, "RTCBluetoothManager create.");
     ThreadUtils.checkIsOnMainThread();
     apprtcContext = context;
     apprtcAudioManager = audioManager;
@@ -239,7 +232,7 @@ public class RTCBluetoothManager {
    */
   public void start() {
     ThreadUtils.checkIsOnMainThread();
-    Log.d(TAG, "start");
+    Log.d(TAG, "RTCBluetoothManager start.");
     if (!hasPermission()) {
       Log.w(TAG, "Process (pid=" + Process.myPid() + ") lacks BLUETOOTH permission");
       return;
@@ -328,11 +321,9 @@ public class RTCBluetoothManager {
         TAG,
         "startSco: BT state="
             + bluetoothState
-            + ", "
-            + "attempts: "
+            + ", attempts: "
             + scoConnectionAttempts
-            + ", "
-            + "SCO is on: "
+            + ", SCO is on: "
             + isScoOn());
     if (scoConnectionAttempts >= MAX_SCO_CONNECTION_ATTEMPTS) {
       Log.e(TAG, "BT SCO connection fails - no more attempts");

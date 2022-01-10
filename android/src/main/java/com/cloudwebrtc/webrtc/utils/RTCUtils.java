@@ -80,29 +80,21 @@ public final class RTCUtils {
         tag,
         "Android SDK: "
             + Build.VERSION.SDK_INT
-            + ", "
-            + "Release: "
+            + ", Release: "
             + Build.VERSION.RELEASE
-            + ", "
-            + "Brand: "
+            + ", Brand: "
             + Build.BRAND
-            + ", "
-            + "Device: "
+            + ", Device: "
             + Build.DEVICE
-            + ", "
-            + "Id: "
+            + ", Id: "
             + Build.ID
-            + ", "
-            + "Hardware: "
+            + ", Hardware: "
             + Build.HARDWARE
-            + ", "
-            + "Manufacturer: "
+            + ", Manufacturer: "
             + Build.MANUFACTURER
-            + ", "
-            + "Model: "
+            + ", Model: "
             + Build.MODEL
-            + ", "
-            + "Product: "
+            + ", Product: "
             + Build.PRODUCT);
   }
 }
