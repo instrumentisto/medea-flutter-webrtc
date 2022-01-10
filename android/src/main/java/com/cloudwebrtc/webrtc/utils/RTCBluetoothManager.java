@@ -307,12 +307,12 @@ public class RTCBluetoothManager {
    * application is using the SCO connection, the connection will be lost for the application and
    * NOT returned automatically when the call ends. Also note that: up to and including API version
    * JELLY_BEAN_MR1, this method initiates a virtual voice call to the Bluetooth headset. After API
-   * version JELLY_BEAN_MR2 only a raw SCO audio connection is established. TODO(henrika): should we
-   * add support for virtual voice call to BT headset also for JBMR2 and higher. It might be
-   * required to initiates a virtual voice call since many devices do not accept SCO audio without a
-   * "call".
+   * version JELLY_BEAN_MR2 only a raw SCO audio connection is established.
    */
   public boolean startScoAudio() {
+    // TODO(henrika): should we add support for virtual voice call to BT headset also for JBMR2 and
+    //                higher. It might be required to initiates a virtual voice call since many
+    //                devices do not accept SCO audio without a "call".
     ThreadUtils.checkIsOnMainThread();
     Log.d(
         TAG,
