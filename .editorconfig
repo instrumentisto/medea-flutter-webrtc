@@ -22,6 +22,7 @@ indent_style = space
 indent_size = 2
 cpp_space_pointer_reference_alignment = left
 cpp_new_line_before_else = false
+cpp_indent_namespace_contents = false
 
 [*.toml]
 indent_style = space

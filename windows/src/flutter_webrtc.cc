@@ -9,99 +9,99 @@
 
 namespace flutter_webrtc_plugin {
 
-  template<typename T>
-  inline bool TypeIs(const EncodableValue val) {
-    return std::holds_alternative<T>(val);
-  }
+template<typename T>
+inline bool TypeIs(const EncodableValue val) {
+  return std::holds_alternative<T>(val);
+}
 
-  template<typename T>
-  inline const T GetValue(EncodableValue val) {
-    return std::get<T>(val);
-  }
+template<typename T>
+inline const T GetValue(EncodableValue val) {
+  return std::get<T>(val);
+}
 
-  inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
-    auto it = map.find(EncodableValue(key));
-    if (it != map.end() && TypeIs<EncodableMap>(it->second))
-      return GetValue<EncodableMap>(it->second);
-    return EncodableMap();
-  }
+inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
+  auto it = map.find(EncodableValue(key));
+  if (it != map.end() && TypeIs<EncodableMap>(it->second))
+    return GetValue<EncodableMap>(it->second);
+  return EncodableMap();
+}
 
-  inline std::string findString(const EncodableMap& map, const std::string& key) {
-    auto it = map.find(EncodableValue(key));
-    if (it != map.end() && TypeIs<std::string>(it->second))
-      return GetValue<std::string>(it->second);
-    return std::string();
-  }
+inline std::string findString(const EncodableMap& map, const std::string& key) {
+  auto it = map.find(EncodableValue(key));
+  if (it != map.end() && TypeIs<std::string>(it->second))
+    return GetValue<std::string>(it->second);
+  return std::string();
+}
 
-  FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
+FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
 
-  FlutterWebRTC::~FlutterWebRTC() {}
+FlutterWebRTC::~FlutterWebRTC() {}
 
-  void FlutterWebRTC::HandleMethodCall(
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-    const std::string& method = method_call.method_name();
+void FlutterWebRTC::HandleMethodCall(
+  const flutter::MethodCall<EncodableValue>& method_call,
+  std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  const std::string& method = method_call.method_name();
 
-    if (method.compare("createPeerConnection") == 0) {
-    } else if (method.compare("getSources") == 0) {
-      enumerate_device(webrtc, std::move(result));
-    } else if (method.compare("getUserMedia") == 0) {
-      if (!method_call.arguments()) {
-        result->Error("Bad Arguments", "Null constraints arguments received");
-        return;
-      }
-
-      auto args = GetValue<EncodableMap>(*method_call.arguments());
-      auto constraints_arg = findMap(args, "constraints");
-
-      get_user_media(constraints_arg, webrtc, std::move(result));
-    } else if (method.compare("getDisplayMedia") == 0) {
-    } else if (method.compare("mediaStreamGetTracks") == 0) {
-    } else if (method.compare("createOffer") == 0) {
-    } else if (method.compare("createAnswer") == 0) {
-    } else if (method.compare("addStream") == 0) {
-    } else if (method.compare("removeStream") == 0) {
-    } else if (method.compare("setLocalDescription") == 0) {
-    } else if (method.compare("setRemoteDescription") == 0) {
-    } else if (method.compare("addCandidate") == 0) {
-    } else if (method.compare("getStats") == 0) {
-    } else if (method.compare("createDataChannel") == 0) {
-    } else if (method.compare("dataChannelSend") == 0) {
-    } else if (method.compare("dataChannelClose") == 0) {
-    } else if (method.compare("streamDispose") == 0) {
-      const EncodableMap params =
-        GetValue<EncodableMap>(*method_call.arguments());
-      const std::string stream_id = findString(params, "streamId");
-      dispose_stream(stream_id, webrtc, std::move(result));
-    } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
-    } else if (method.compare("trackDispose") == 0) {
-    } else if (method.compare("peerConnectionClose") == 0) {
-    } else if (method.compare("peerConnectionDispose") == 0) {
-    } else if (method.compare("createVideoRenderer") == 0) {
-    } else if (method.compare("videoRendererDispose") == 0) {
-    } else if (method.compare("videoRendererSetSrcObject") == 0) {
-    } else if (method.compare("setVolume") == 0) {
-    } else if (method.compare("getLocalDescription") == 0) {
-    } else if (method.compare("getRemoteDescription") == 0) {
-    } else if (method.compare("mediaStreamAddTrack") == 0) {
-    } else if (method.compare("mediaStreamRemoveTrack") == 0) {
-    } else if (method.compare("addTrack") == 0) {
-    } else if (method.compare("removeTrack") == 0) {
-    } else if (method.compare("addTransceiver") == 0) {
-    } else if (method.compare("getTransceivers") == 0) {
-    } else if (method.compare("getReceivers") == 0) {
-    } else if (method.compare("getSenders") == 0) {
-    } else if (method.compare("rtpSenderDispose") == 0) {
-    } else if (method.compare("rtpSenderSetTrack") == 0) {
-    } else if (method.compare("rtpSenderReplaceTrack") == 0) {
-    } else if (method.compare("rtpSenderSetParameters") == 0) {
-    } else if (method.compare("rtpTransceiverStop") == 0) {
-    } else if (method.compare("rtpTransceiverSetDirection") == 0) {
-    } else if (method.compare("setConfiguration") == 0) {
-    } else if (method.compare("captureFrame") == 0) {
-    } else {
-      result->NotImplemented();
+  if (method.compare("createPeerConnection") == 0) {
+  } else if (method.compare("getSources") == 0) {
+    enumerate_device(webrtc, std::move(result));
+  } else if (method.compare("getUserMedia") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
     }
+
+    auto args = GetValue<EncodableMap>(*method_call.arguments());
+    auto constraints_arg = findMap(args, "constraints");
+
+    get_user_media(constraints_arg, webrtc, std::move(result));
+  } else if (method.compare("getDisplayMedia") == 0) {
+  } else if (method.compare("mediaStreamGetTracks") == 0) {
+  } else if (method.compare("createOffer") == 0) {
+  } else if (method.compare("createAnswer") == 0) {
+  } else if (method.compare("addStream") == 0) {
+  } else if (method.compare("removeStream") == 0) {
+  } else if (method.compare("setLocalDescription") == 0) {
+  } else if (method.compare("setRemoteDescription") == 0) {
+  } else if (method.compare("addCandidate") == 0) {
+  } else if (method.compare("getStats") == 0) {
+  } else if (method.compare("createDataChannel") == 0) {
+  } else if (method.compare("dataChannelSend") == 0) {
+  } else if (method.compare("dataChannelClose") == 0) {
+  } else if (method.compare("streamDispose") == 0) {
+    const EncodableMap params =
+      GetValue<EncodableMap>(*method_call.arguments());
+    const std::string stream_id = findString(params, "streamId");
+    dispose_stream(stream_id, webrtc, std::move(result));
+  } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
+  } else if (method.compare("trackDispose") == 0) {
+  } else if (method.compare("peerConnectionClose") == 0) {
+  } else if (method.compare("peerConnectionDispose") == 0) {
+  } else if (method.compare("createVideoRenderer") == 0) {
+  } else if (method.compare("videoRendererDispose") == 0) {
+  } else if (method.compare("videoRendererSetSrcObject") == 0) {
+  } else if (method.compare("setVolume") == 0) {
+  } else if (method.compare("getLocalDescription") == 0) {
+  } else if (method.compare("getRemoteDescription") == 0) {
+  } else if (method.compare("mediaStreamAddTrack") == 0) {
+  } else if (method.compare("mediaStreamRemoveTrack") == 0) {
+  } else if (method.compare("addTrack") == 0) {
+  } else if (method.compare("removeTrack") == 0) {
+  } else if (method.compare("addTransceiver") == 0) {
+  } else if (method.compare("getTransceivers") == 0) {
+  } else if (method.compare("getReceivers") == 0) {
+  } else if (method.compare("getSenders") == 0) {
+  } else if (method.compare("rtpSenderDispose") == 0) {
+  } else if (method.compare("rtpSenderSetTrack") == 0) {
+  } else if (method.compare("rtpSenderReplaceTrack") == 0) {
+  } else if (method.compare("rtpSenderSetParameters") == 0) {
+  } else if (method.compare("rtpTransceiverStop") == 0) {
+  } else if (method.compare("rtpTransceiverSetDirection") == 0) {
+  } else if (method.compare("setConfiguration") == 0) {
+  } else if (method.compare("captureFrame") == 0) {
+  } else {
+    result->NotImplemented();
   }
+}
 
 }  // namespace flutter_webrtc_plugin

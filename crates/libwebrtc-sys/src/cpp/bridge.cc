@@ -10,10 +10,10 @@ namespace bridge {
 
 // Calls `AudioDeviceModule->Create()`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
-    AudioLayer audio_layer,
-    TaskQueueFactory& task_queue_factory) {
+  AudioLayer audio_layer,
+  TaskQueueFactory& task_queue_factory) {
   auto adm =
-      webrtc::AudioDeviceModule::Create(audio_layer, &task_queue_factory);
+    webrtc::AudioDeviceModule::Create(audio_layer, &task_queue_factory);
 
   if (adm == nullptr) {
     return nullptr;
@@ -39,14 +39,14 @@ int16_t recording_devices(const AudioDeviceModule& audio_device_module) {
 
 // Calls `AudioDeviceModule->PlayoutDeviceName()` with the provided arguments.
 int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
-                            int16_t index,
-                            rust::String& name,
-                            rust::String& guid) {
+  int16_t index,
+  rust::String& name,
+  rust::String& guid) {
   char name_buff[webrtc::kAdmMaxDeviceNameSize];
   char guid_buff[webrtc::kAdmMaxGuidSize];
 
   const int32_t result =
-      audio_device_module->PlayoutDeviceName(index, name_buff, guid_buff);
+    audio_device_module->PlayoutDeviceName(index, name_buff, guid_buff);
   name = name_buff;
   guid = guid_buff;
 
@@ -55,14 +55,14 @@ int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
 
 // Calls `AudioDeviceModule->RecordingDeviceName()` with the provided arguments.
 int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
-                              int16_t index,
-                              rust::String& name,
-                              rust::String& guid) {
+  int16_t index,
+  rust::String& name,
+  rust::String& guid) {
   char name_buff[webrtc::kAdmMaxDeviceNameSize];
   char guid_buff[webrtc::kAdmMaxGuidSize];
 
   const int32_t result =
-      audio_device_module->RecordingDeviceName(index, name_buff, guid_buff);
+    audio_device_module->RecordingDeviceName(index, name_buff, guid_buff);
 
   name = name_buff;
   guid = guid_buff;
@@ -72,7 +72,7 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
 
 /// Returns index of `Audio Device` in `ADM` by entered `Audio Device ID`.
 uint32_t get_audio_device_index(const AudioDeviceModule& audio_device_module,
-                                rust::String& device) {
+  rust::String& device) {
   uint32_t num_devices = audio_device_module.ptr()->RecordingDevices();
 
   if (device.empty() && num_devices > 0)
@@ -80,8 +80,8 @@ uint32_t get_audio_device_index(const AudioDeviceModule& audio_device_module,
 
   for (uint32_t i = 0; i < num_devices; ++i) {
     const uint32_t kSize = 256;
-    char name[kSize] = {0};
-    char id[kSize] = {0};
+    char name[kSize] = { 0 };
+    char id[kSize] = { 0 };
 
     if (audio_device_module.ptr()->RecordingDeviceName(i, name, id) != -1) {
       if (std::string(id) == std::string(device)) {
@@ -95,21 +95,21 @@ uint32_t get_audio_device_index(const AudioDeviceModule& audio_device_module,
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
   std::unique_ptr<VideoDeviceInfo> ptr(
-      webrtc::VideoCaptureFactory::CreateDeviceInfo());
+    webrtc::VideoCaptureFactory::CreateDeviceInfo());
 
   return ptr;
 };
 
 // Calls `VideoDeviceInfo->GetDeviceName()` with the provided arguments.
 int32_t video_device_name(VideoDeviceInfo& device_info,
-                          uint32_t index,
-                          rust::String& name,
-                          rust::String& guid) {
+  uint32_t index,
+  rust::String& name,
+  rust::String& guid) {
   char name_buff[256];
   char guid_buff[256];
 
   const int32_t size =
-      device_info.GetDeviceName(index, name_buff, 256, guid_buff, 256);
+    device_info.GetDeviceName(index, name_buff, 256, guid_buff, 256);
 
   name = name_buff;
   guid = guid_buff;
@@ -119,7 +119,7 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 
 /// Returns index of `Video Device` in `VDI` by entered `Video Device ID`.
 uint32_t get_video_device_index(VideoDeviceInfo& device_info,
-                                rust::String& device) {
+  rust::String& device) {
   uint32_t num_devices = device_info.NumberOfDevices();
 
   if (device.empty() && num_devices > 0)
@@ -127,11 +127,11 @@ uint32_t get_video_device_index(VideoDeviceInfo& device_info,
 
   for (uint32_t i = 0; i < num_devices; ++i) {
     const uint32_t kSize = 256;
-    char name[kSize] = {0};
-    char id[kSize] = {0};
+    char name[kSize] = { 0 };
+    char id[kSize] = { 0 };
 
     if (device_info.GetDeviceName(static_cast<uint32_t>(i), name, kSize, id,
-                                  kSize) != -1) {
+      kSize) != -1) {
       if (std::string(id) == std::string(device)) {
         return i;
       }
@@ -147,14 +147,14 @@ std::unique_ptr<rtc::Thread> create_thread() {
 
 /// Calls `CreatePeerConnectionFactory()`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    Thread& worker_thread,
-    Thread& signaling_thread) {
+  Thread& worker_thread,
+  Thread& signaling_thread) {
   auto factory = webrtc::CreatePeerConnectionFactory(
-      &worker_thread, &worker_thread, &signaling_thread, nullptr,
-      webrtc::CreateBuiltinAudioEncoderFactory(),
-      webrtc::CreateBuiltinAudioDecoderFactory(),
-      webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
+    &worker_thread, &worker_thread, &signaling_thread, nullptr,
+    webrtc::CreateBuiltinAudioEncoderFactory(),
+    webrtc::CreateBuiltinAudioDecoderFactory(),
+    webrtc::CreateBuiltinVideoEncoderFactory(),
+    webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -165,15 +165,15 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
 
 /// Calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
-    Thread& worker_thread,
-    Thread& signaling_thread,
-    size_t width,
-    size_t height,
-    size_t fps,
-    uint32_t device) {
+  Thread& worker_thread,
+  Thread& signaling_thread,
+  size_t width,
+  size_t height,
+  size_t fps,
+  uint32_t device) {
   auto src = webrtc::CreateVideoTrackSourceProxy(
-      &signaling_thread, &worker_thread,
-      DeviceVideoCapturer::Create(width, height, fps, device));
+    &signaling_thread, &worker_thread,
+    DeviceVideoCapturer::Create(width, height, fps, device));
 
   if (src == nullptr) {
     return nullptr;
@@ -184,9 +184,9 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 
 /// Calls `PeerConnectionFactoryInterface->CreateAudioSource()`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
-    const PeerConnectionFactoryInterface& peer_connection_factory) {
+  const PeerConnectionFactoryInterface& peer_connection_factory) {
   auto src = peer_connection_factory->CreateAudioSource(
-      cricket::AudioOptions());
+    cricket::AudioOptions());
 
   if (src == nullptr) {
     return nullptr;
@@ -197,11 +197,11 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
 
 /// Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.
 std::unique_ptr<VideoTrackInterface> create_video_track(
-    const PeerConnectionFactoryInterface& peer_connection_factory,
-    rust::String id,
-    const VideoTrackSourceInterface& video_source) {
+  const PeerConnectionFactoryInterface& peer_connection_factory,
+  rust::String id,
+  const VideoTrackSourceInterface& video_source) {
   auto track = peer_connection_factory->CreateVideoTrack(
-      std::string(id), video_source.ptr());
+    std::string(id), video_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -212,11 +212,11 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
 
 /// Calls `PeerConnectionFactoryInterface->CreateAudioTrack`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
-    const PeerConnectionFactoryInterface& peer_connection_factory,
-    rust::String id,
-    const AudioSourceInterface& audio_source) {
+  const PeerConnectionFactoryInterface& peer_connection_factory,
+  rust::String id,
+  const AudioSourceInterface& audio_source) {
   auto track = peer_connection_factory->CreateAudioTrack(
-      std::string(id), audio_source.ptr());
+    std::string(id), audio_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -227,10 +227,10 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 
 /// Calls `MediaStreamInterface->CreateLocalMediaStream`.
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
-    const PeerConnectionFactoryInterface& peer_connection_factory,
-    rust::String id) {
+  const PeerConnectionFactoryInterface& peer_connection_factory,
+  rust::String id) {
   auto
-      stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
+    stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
 
   if (stream == nullptr) {
     return nullptr;
@@ -241,25 +241,25 @@ std::unique_ptr<MediaStreamInterface> create_local_media_stream(
 
 /// Calls `MediaStreamInterface->AddTrack`.
 bool add_video_track(const MediaStreamInterface& media_stream,
-                     const VideoTrackInterface& track) {
+  const VideoTrackInterface& track) {
   return media_stream->AddTrack(track.ptr());
 }
 
 /// Calls `MediaStreamInterface->AddTrack`.
 bool add_audio_track(const MediaStreamInterface& media_stream,
-                     const AudioTrackInterface& track) {
+  const AudioTrackInterface& track) {
   return media_stream->AddTrack(track.ptr());
 }
 
 /// Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_video_track(const MediaStreamInterface& media_stream,
-                        const VideoTrackInterface& track) {
+  const VideoTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
 }
 
 /// Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
-                        const AudioTrackInterface& track) {
+  const AudioTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
 }
 }  // namespace bridge
