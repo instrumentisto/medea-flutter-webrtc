@@ -1,7 +1,6 @@
 package com.cloudwebrtc.webrtc;
 
 import android.util.Log;
-
 import org.webrtc.CameraVideoCapturer;
 
 class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {

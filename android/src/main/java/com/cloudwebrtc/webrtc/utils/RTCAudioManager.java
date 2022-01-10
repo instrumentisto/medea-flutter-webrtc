@@ -19,14 +19,11 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Build;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import org.webrtc.ThreadUtils;
-
 import java.util.HashSet;
 import java.util.Set;
+import org.webrtc.ThreadUtils;
 
 /** RTCAudioManager manages all audio related parts of the plugin. */
 public class RTCAudioManager {

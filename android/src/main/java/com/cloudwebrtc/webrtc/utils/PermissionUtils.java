@@ -11,12 +11,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-
 import java.util.ArrayList;
 
 /** Helper module for dealing with dynamic permissions, introduced in Android M (API level 23). */

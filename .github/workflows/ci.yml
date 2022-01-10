@@ -35,6 +35,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
+      - run: flutter packages get
       - run: flutter pub run import_sorter:main --no-comments --exit-if-changed
 
   dartfmt:
@@ -46,6 +47,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
+      - run: flutter packages get
       - run: flutter format lib/ test/ --set-exit-if-changed
 
   dartanalyze:
@@ -57,6 +59,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
+      - run: flutter packages get
       - run: flutter analyze
 
   android-formatting:

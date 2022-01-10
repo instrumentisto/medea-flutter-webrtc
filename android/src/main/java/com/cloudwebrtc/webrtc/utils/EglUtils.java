@@ -1,9 +1,7 @@
 package com.cloudwebrtc.webrtc.utils;
 
 import android.os.Build;
-
 import androidx.annotation.Nullable;
-
 import org.webrtc.EglBase;
 
 public final class EglUtils {

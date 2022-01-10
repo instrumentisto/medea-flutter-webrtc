@@ -12,14 +12,11 @@ package com.cloudwebrtc.webrtc.utils;
 
 import android.os.Build;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
+import java.lang.reflect.Field;
 import org.webrtc.AudioTrack;
 import org.webrtc.MediaStreamTrack;
 import org.webrtc.VideoTrack;
-
-import java.lang.reflect.Field;
 
 /** RTCUtils provides helper functions for managing thread safety. */
 public final class RTCUtils {

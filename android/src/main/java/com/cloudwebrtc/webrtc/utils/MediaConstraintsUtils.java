@@ -1,15 +1,12 @@
 package com.cloudwebrtc.webrtc.utils;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import org.webrtc.MediaConstraints;
-import org.webrtc.MediaConstraints.KeyValuePair;
-
 import java.util.List;
 import java.util.Map.Entry;
+import org.webrtc.MediaConstraints;
+import org.webrtc.MediaConstraints.KeyValuePair;
 
 public final class MediaConstraintsUtils {
 

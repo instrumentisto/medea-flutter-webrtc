@@ -25,14 +25,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import org.webrtc.ThreadUtils;
-
 import java.util.List;
 import java.util.Set;
+import org.webrtc.ThreadUtils;
 
 /** RTCProximitySensor manages functions related to Bluetoth devices in the RTC demo. */
 public class RTCBluetoothManager {

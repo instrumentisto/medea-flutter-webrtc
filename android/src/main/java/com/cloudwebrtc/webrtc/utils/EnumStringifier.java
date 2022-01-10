@@ -1,7 +1,6 @@
 package com.cloudwebrtc.webrtc.utils;
 
 import androidx.annotation.NonNull;
-
 import org.webrtc.PeerConnection;
 import org.webrtc.RtpTransceiver;
 

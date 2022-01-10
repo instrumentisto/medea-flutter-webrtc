@@ -2,7 +2,9 @@ package com.cloudwebrtc.webrtc.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
 import org.webrtc.MediaStreamTrack;
@@ -11,10 +13,6 @@ import org.webrtc.RtpReceiver;
 import org.webrtc.RtpSender;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.VideoTrack;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class ObjectExporter {
   @Nullable
