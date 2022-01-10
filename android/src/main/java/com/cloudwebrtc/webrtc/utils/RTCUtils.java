@@ -52,7 +52,8 @@ public final class RTCUtils {
       Class<?> trackClass = track.getClass().getSuperclass();
       if (trackClass != MediaStreamTrack.class) {
         throw new IllegalArgumentException(
-            "You're trying to clone MediaStreamTrack, but provided object is not child of MediaStreamTrack");
+            "You're trying to clone MediaStreamTrack, but provided object is not child of"
+                + " MediaStreamTrack");
       }
 
       Field nativeTrackField = trackClass.getDeclaredField("nativeTrack");
