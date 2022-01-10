@@ -1,6 +1,5 @@
 package com.cloudwebrtc.webrtc
 
-import android.util.Log
 import org.webrtc.*
 import java.util.concurrent.*
 
@@ -170,12 +169,9 @@ internal class SimulcastVideoEncoderFactoryWrapper(
     private class StreamEncoderWrapperFactory(private val factory: VideoEncoderFactory) :
         VideoEncoderFactory {
         override fun createEncoder(videoCodecInfo: VideoCodecInfo?): VideoEncoder? {
-            val encoder = factory.createEncoder(videoCodecInfo)
-            if (encoder == null) {
-                return null
-            }
+            val encoder = factory.createEncoder(videoCodecInfo) ?: return null
             if (encoder is WrappedNativeVideoEncoder) {
-              return encoder
+                return encoder
             }
             return StreamEncoderWrapper(encoder)
         }
