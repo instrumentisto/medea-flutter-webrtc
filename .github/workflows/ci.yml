@@ -57,6 +57,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
+      - run: flutter pub get
       - run: flutter analyze
 
   android-formatting:
