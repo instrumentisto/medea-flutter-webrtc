@@ -20,6 +20,12 @@ class _TestState extends State<Test> {
     super.initState();
   }
 
+  @override
+  void deactivate() {
+    if (on) _dropStream();
+    super.deactivate();
+  }
+
   void _upStream() async {
     final mediaConstraints = <String, dynamic>{
       'audio': true,

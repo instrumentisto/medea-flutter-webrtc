@@ -72,8 +72,7 @@ namespace flutter_webrtc_plugin {
       const EncodableMap params =
         GetValue<EncodableMap>(*method_call.arguments());
       const std::string stream_id = findString(params, "streamId");
-      webrtc->DisposeStream(std::stoi(stream_id));
-      result->Success();
+      dispose_stream(stream_id, webrtc, std::move(result));
     } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
     } else if (method.compare("trackDispose") == 0) {
     } else if (method.compare("peerConnectionClose") == 0) {

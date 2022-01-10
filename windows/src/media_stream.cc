@@ -1,5 +1,7 @@
 #include "media_stream.h"
 
+/// Calls Rust `EnumerateDevices()` and converts the recieved
+/// Rust vector of `MediaDeviceInfo` info for Dart.
 void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
@@ -17,7 +19,9 @@ void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<Encodabl
     case MediaDeviceKind::kVideoInput:kind = "videoinput";
       break;
 
-    default:throw std::exception("Invalid MediaDeviceKind");
+    default:
+      result->Error("Invalid MediaDeviceKind");
+      return;
     }
 
     EncodableMap info;
@@ -37,69 +41,34 @@ void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<Encodabl
   result->Success(EncodableValue(params));
 }
 
+/// Parses the recieved constraints from Dart and passes them
+/// to Rust `GetUserMedia()`, then converts the backed `MediaStream`
+/// info for Dart.
 void get_user_media(EncodableMap constraints_arg, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
   auto video_arg = constraints_arg.find(EncodableValue("video"));
   auto audio_arg = constraints_arg.find(EncodableValue("audio"));
 
   MediaStreamConstraints constraints;
 
-  auto video_constraints = parse_video_constraints(video_arg->second, result.get());
+  auto video_constraints = parse_video_constraints(video_arg->second, *result);
   if (!video_constraints.has_value()) return;
+
   constraints.video = video_constraints.value();
   constraints.audio = parse_audio_constraints(audio_arg->second);
 
   MediaStream user_media = webrtc->GetUserMedia(constraints);
-
   EncodableMap params;
+
   params[EncodableValue("streamId")] =
     EncodableValue(std::to_string(user_media.stream_id).c_str());
-
-  EncodableList video_tracks;
-  if (user_media.video_tracks.size() == 0) {
-    params[EncodableValue("videoTracks")] = EncodableValue(EncodableList());
-  } else {
-    for (size_t i = 0; i < user_media.video_tracks.size(); ++i) {
-      EncodableMap info;
-      info[EncodableValue("id")] = EncodableValue(
-        std::to_string(user_media.video_tracks[i].id).c_str());
-      info[EncodableValue("label")] =
-        EncodableValue(user_media.video_tracks[i].label.c_str());
-      info[EncodableValue("kind")] = EncodableValue(
-        user_media.video_tracks[i].kind == TrackKind::kVideo ? "video"
-        : "audio");
-      info[EncodableValue("enabled")] =
-        EncodableValue(user_media.video_tracks[i].enabled);
-
-      video_tracks.push_back(EncodableValue(info));
-    }
-  }
-  params[EncodableValue("videoTracks")] = EncodableValue(video_tracks);
-
-  EncodableList audio_tracks;
-  if (user_media.audio_tracks.size() == 0) {
-    params[EncodableValue("audioTracks")] = EncodableValue(EncodableList());
-  } else {
-    for (size_t i = 0; i < user_media.audio_tracks.size(); ++i) {
-      EncodableMap info;
-      info[EncodableValue("id")] = EncodableValue(
-        std::to_string(user_media.audio_tracks[i].id).c_str());
-      info[EncodableValue("label")] =
-        EncodableValue(user_media.audio_tracks[i].label.c_str());
-      info[EncodableValue("kind")] = EncodableValue(
-        user_media.audio_tracks[i].kind == TrackKind::kVideo ? "video"
-        : "audio");
-      info[EncodableValue("enabled")] =
-        EncodableValue(user_media.audio_tracks[i].enabled);
-
-      audio_tracks.push_back(EncodableValue(info));
-    }
-  }
-  params[EncodableValue("audioTracks")] = EncodableValue(audio_tracks);
+  params[EncodableValue("videoTracks")] = EncodableValue(get_params(TrackKind::kVideo, user_media));
+  params[EncodableValue("audioTracks")] = EncodableValue(get_params(TrackKind::kAudio, user_media));
 
   result->Success(EncodableValue(params));
 }
 
-std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg, MethodResult<EncodableValue>* result) {
+/// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
+std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg, MethodResult<EncodableValue>& result) {
   EncodableMap video_mandatory;
 
   EncodableValue width;
@@ -133,17 +102,17 @@ std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg
     video_device_id = findString(video_map, "device_id");
 
     if (std::stoi(GetValue<std::string>(width)) < 1) {
-      result->Error("Bad Arguments", "Null width recieved.");
+      result.Error("Bad Arguments", "Null width recieved.");
       return std::nullopt;
     }
 
     if (std::stoi(GetValue<std::string>(height)) < 1) {
-      result->Error("Bad Arguments", "Null height recieved.");
+      result.Error("Bad Arguments", "Null height recieved.");
       return std::nullopt;
     }
 
     if (std::stoi(GetValue<std::string>(fps)) < 1) {
-      result->Error("Bad Arguments", "Null FPS recieved.");
+      result.Error("Bad Arguments", "Null FPS recieved.");
       return std::nullopt;
     }
   }
@@ -160,6 +129,7 @@ std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg
   return video_constraints;
 }
 
+/// Parses audio constraints recieved from Dart to Rust `AudioConstraints`.
 AudioConstraints parse_audio_constraints(EncodableValue audio_arg) {
   EncodableValue audio_device_id;
   bool audio_required;
@@ -184,4 +154,44 @@ AudioConstraints parse_audio_constraints(EncodableValue audio_arg) {
     rust::String(GetValue<std::string>(audio_device_id));
 
   return audio_constraints;
+}
+
+/// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList` for passing to Dart according to `TrackKind`.
+EncodableList get_params(TrackKind type, MediaStream& user_media) {
+  auto rust_tracks = type == TrackKind::kVideo ? user_media.video_tracks : user_media.audio_tracks;
+
+  EncodableList tracks;
+
+  if (rust_tracks.size() == 0) {
+    tracks = EncodableList();
+  } else {
+    for (size_t i = 0; i < rust_tracks.size(); ++i) {
+      EncodableMap info;
+      info[EncodableValue("id")] = EncodableValue(
+        std::to_string(rust_tracks[i].id).c_str());
+      info[EncodableValue("label")] =
+        EncodableValue(rust_tracks[i].label.c_str());
+      info[EncodableValue("kind")] = EncodableValue(
+        rust_tracks[i].kind == TrackKind::kVideo ? "video"
+        : "audio");
+      info[EncodableValue("enabled")] =
+        EncodableValue(rust_tracks[i].enabled);
+
+      tracks.push_back(EncodableValue(info));
+    }
+  }
+
+  return tracks;
+}
+
+/// Disposes some media stream calling Rust `DisposeStream`.
+void dispose_stream(std::string stream_id, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
+  auto converted_id = std::stoi(stream_id);
+  if (converted_id < 0) {
+    result->Error("Stream id can`t be less then 0.");
+    return;
+  }
+
+  webrtc->DisposeStream(converted_id);
+  result->Success();
 }
