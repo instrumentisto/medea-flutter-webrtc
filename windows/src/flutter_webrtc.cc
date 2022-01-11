@@ -1,5 +1,5 @@
 #include <sstream>
-#include <string> 
+#include <string>
 
 #include "flutter_webrtc.h"
 #include "wrapper.h"
@@ -17,24 +17,9 @@ void FlutterWebRTC::HandleMethodCall(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
 
-    rust::String error;
-    std::string id = std::to_string(webrtc->CreatePeerConnection(error));
-    if(error == "")
-    {
-      EncodableMap params;
-      params[EncodableValue("peerConnectionId")] = id;
-      result->Success(EncodableValue(params));
-    }
-    else
-    {
-      std::string err(error);
-      result->Error("createPeerConnectionFailed", err);
-    }
+    // TODO: impl like this
+    CreateRTCPeerConnection(webrtc, *method_call, std::move(result));
 
   } else if (method_call.method_name().compare("getSources") == 0) {
     rust::Vec<MediaDeviceInfo> devices = EnumerateDevices();
@@ -108,7 +93,7 @@ void FlutterWebRTC::HandleMethodCall(
 
     FlutterPeerConnection pc(std::move(result), method_call, webrtc);
     pc.SetLocalDescription();
-    
+
   } else if (method_call.method_name().compare("setRemoteDescription") == 0) {
 
     if (!method_call.arguments()) {

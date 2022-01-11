@@ -181,6 +181,7 @@ impl Webrtc {
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
             let type_: sys::SdpType = match type_.as_str() {
+                // TODO: impl TryFrom<&str>
                 "offer" => sys::SdpType::kOffer,
                 "answer" => sys::SdpType::kAnswer,
                 "pranswer" => sys::SdpType::kPrAnswer,

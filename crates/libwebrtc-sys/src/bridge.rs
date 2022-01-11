@@ -19,6 +19,7 @@ pub(crate) mod webrtc {
         kDummyAudio,
     }
 
+    // TODO: docs
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SdpType {
@@ -33,7 +34,7 @@ pub(crate) mod webrtc {
         include!("libwebrtc-sys/include/bridge.h");
 
         type TaskQueueFactory;
-   
+
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform.
         #[namespace = "webrtc"]
@@ -104,6 +105,7 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
+    #[rustfmt::skip]
     unsafe extern "C++" {
         type Thread;
         type VideoEncoderFactory;
@@ -124,8 +126,12 @@ pub(crate) mod webrtc {
         type CreateSessionDescriptionObserver;
         type SetSessionDescriptionObserver;
 
+        // TODO: docs
         pub fn create_thread() -> UniquePtr<Thread>;
 
+        // TODO: try to call member function
+        // #[namespace = "webrtc"]
+        // #[cxx_name = "CreateBuiltinVideoEncoderFactory"]
         #[allow(clippy::missing_safety_doc)]
         pub fn start_thread(thread: Pin<&mut Thread>) -> bool;
 
@@ -182,7 +188,8 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
 
         /// Creates default [`RTCConfiguration`].
-        pub fn create_default_rtc_configuration() -> UniquePtr<RTCConfiguration>;
+        pub fn create_default_rtc_configuration()
+            -> UniquePtr<RTCConfiguration>;
 
         /// Creates a [`PeerConnectionInterface`].
         /// # Warning
@@ -225,7 +232,7 @@ pub(crate) mod webrtc {
         /// `f` - void (*callback_fail)(std::string)
         /// for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            s: usize,
+            s: usize, // TODO: try to pass fn() instead of usize
             f: usize,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 

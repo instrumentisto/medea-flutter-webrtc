@@ -2,15 +2,14 @@
 
 mod peer_connection;
 
-use std::{collections::HashMap,};
+use std::collections::HashMap;
 
 use libwebrtc_sys::{
-    AudioDeviceModule, AudioLayer,
-    PeerConnectionFactoryInterface, TaskQueueFactory,
-    VideoDeviceInfo,
+    AudioDeviceModule, AudioLayer, PeerConnectionFactoryInterface,
+    TaskQueueFactory, VideoDeviceInfo,
 };
 
-use peer_connection::{PeerConnection};
+use peer_connection::PeerConnection;
 
 use self::ffi::{MediaDeviceInfo, MediaDeviceKind};
 
@@ -18,7 +17,6 @@ use self::ffi::{MediaDeviceInfo, MediaDeviceKind};
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod ffi {
-
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {

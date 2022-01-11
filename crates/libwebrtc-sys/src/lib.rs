@@ -243,7 +243,6 @@ impl Thread {
     }
 }
 
-/// WORK IN PROGRESS
 /// This class is under development and is not yet intended for for use outside
 /// of WebRtc/Libjingle.
 pub struct AudioMixer(UniquePtr<webrtc::AudioMixer>);

@@ -12,6 +12,7 @@ typedef void (*callback_fail)(std::string);
 
 typedef void (*callback_success_desc)();
 
+// TODO: docs
 class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 {
   // Called any time the IceGatheringState changes.
@@ -30,17 +31,18 @@ class PeerConnectionObserver: public webrtc::PeerConnectionObserver
       webrtc::PeerConnectionInterface::SignalingState new_state);
 };
 
+// TODO: docs
 class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionObserver
 {
   public:
   callback_success success;
   callback_fail fail;
 
-  // Construct `CreateOffer\Answer Observer` where 
+  // Construct `CreateOffer\Answer Observer` where
   // s - void (*callback_success)(std::string, std::string),
   // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver(
-    size_t s, 
+    size_t s,
     size_t f);
 
   // Calls when a `CreateOffer\Answer` is success.
@@ -54,17 +56,18 @@ class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionO
 
 };
 
+// TODO: docs
 class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserver
 {
-  public: 
+  public:
   callback_success_desc success;
   callback_fail fail;
 
-  // Construct `SetLocal\RemoteDescription Observer` where 
+  // Construct `SetLocal\RemoteDescription Observer` where
   // s - void (*callback_success)(std::string, std::string),
   // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver(
-    size_t s, 
+    size_t s,
     size_t f);
 
   // Calls when a `SetLocal\RemoteDescription` is success.

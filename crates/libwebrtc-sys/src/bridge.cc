@@ -7,7 +7,6 @@
 
 namespace bridge {
 
-
 // Calls `AudioDeviceModule->Create()`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
@@ -129,7 +128,7 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
   rtc::scoped_refptr<webrtc::AudioDecoderFactory> builtin_audio_encoder_factory = webrtc::CreateBuiltinAudioDecoderFactory();
   return std::make_unique<AudioDecoderFactory>(builtin_audio_encoder_factory);
 }
-  
+
 // Creates NULL `AudioDeviceModule`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module_null() {
   return std::unique_ptr<AudioDeviceModule>(nullptr);
@@ -169,21 +168,21 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
           audio_encoder_factory.ptr(),
           audio_decoder_factory.ptr(),
           std::move(video_encoder_factory),
-          std::move(video_decoder_factory), 
+          std::move(video_decoder_factory),
           nullptr, nullptr,
           audio_frame_processor));
 }
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
-std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(      
+std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
       PeerConnectionFactoryInterface& peer_connection_factory,
       rust::String& error,
       const RTCConfiguration& configuration,
       std::unique_ptr<PeerConnectionDependencies> dependencies) {
         PeerConnectionDependencies pcd = std::move(*(dependencies.get()));
-        auto peer_connection = 
+        auto peer_connection =
           peer_connection_factory.ptr()->CreatePeerConnectionOrError(configuration, std::move(pcd));
-        
+
         if (peer_connection.ok()) {
           auto ptr = peer_connection.MoveValue();
           return std::make_unique<PeerConnectionInterface>(std::move(ptr));
@@ -192,20 +191,20 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
         return std::unique_ptr<PeerConnectionInterface>();
       }
 
-// Creates default `RTCConfiguration`.      
+// Creates default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   RTCConfiguration config;
   return std::make_unique<RTCConfiguration>(config);
 }
 
 
-// Creates `PeerConnectionObserver`.   
+// Creates `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer() {
   PeerConnectionObserver obs;
   return std::make_unique<PeerConnectionObserver>(obs);
 }
 
-// Creates `PeerConnectionDependencies`.      
+// Creates `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
   std::unique_ptr<PeerConnectionObserver> observer) {
   PeerConnectionDependencies pcd(observer.release());
@@ -231,17 +230,17 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
       use_rtp_mux));
   }
 
-// Creates `CreateSessionDescriptionObserver`.   
+// Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-  size_t s, 
+  size_t s,
   size_t f) {
     CreateSessionDescriptionObserver obs = CreateSessionDescriptionObserver(s,f);
     return std::make_unique<CreateSessionDescriptionObserver>(obs);
   }
 
-// Creates `SetSessionDescriptionObserver`.   
+// Creates `SetSessionDescriptionObserver`.
 std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_observer(
-  size_t s, 
+  size_t s,
   size_t f) {
     SetSessionDescriptionObserver obs = SetSessionDescriptionObserver(s,f);
     return std::make_unique<SetSessionDescriptionObserver>(obs);

@@ -1,6 +1,6 @@
 
 #include "libwebrtc-sys\include\peer_connection_observer.h"
-
+// TODO: docs
 namespace observer
 {
 
@@ -19,9 +19,8 @@ namespace observer
   void PeerConnectionObserver::OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) {};
 
-
   CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
-    size_t s, 
+    size_t s,
     size_t f) {
       success = (callback_success) s;
       fail = (callback_fail) f;
@@ -43,7 +42,7 @@ namespace observer
   rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
 
   SetSessionDescriptionObserver::SetSessionDescriptionObserver(
-    size_t s, 
+    size_t s,
     size_t f) {
       success = (callback_success_desc) s;
       fail = (callback_fail) f;
