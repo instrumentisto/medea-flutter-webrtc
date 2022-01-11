@@ -1,10 +1,8 @@
-
 use libwebrtc_sys as sys;
 
+use std::sync::atomic::Ordering;
 
-use std::{sync::atomic::Ordering};
-
-use std::{sync::atomic::AtomicU64};
+use std::sync::atomic::AtomicU64;
 
 use crate::Webrtc;
 
@@ -15,7 +13,6 @@ static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 fn generate_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
-
 
 /// Struct for `id` of [`PeerConnection`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
@@ -31,7 +28,8 @@ impl Webrtc {
     /// Creates a new [`PeerConnection`] and return id.
     /// # Warning
     /// `error` for error handle without c++ exception.
-    /// If `error` != "" after the call, then the result will be NULL or default.
+    /// If `error` != "" after the call,
+    /// then the result will be NULL or default.
     pub fn create_default_peer_connection(
         self: &mut Webrtc,
         error: &mut String,
@@ -60,7 +58,8 @@ impl Webrtc {
     /// Creates a new [Offer].
     /// # Warning
     /// `error` for error handle without c++ exception.
-    /// If `error` != "" after the call, then the result will be NULL or default.
+    /// If `error` != "" after the call,
+    /// then the result will be NULL or default.
     pub fn create_offer(
         &mut self,
         error: &mut String,
@@ -95,7 +94,8 @@ impl Webrtc {
     /// Creates a new [Answer].
     /// # Warning
     /// `error` for error handle without c++ exception.
-    /// If `error` != "" after the call, then the result will be NULL or default.
+    /// If `error` != "" after the call,
+    /// then the result will be NULL or default.
     pub fn create_answer(
         &mut self,
         error: &mut String,
@@ -130,7 +130,8 @@ impl Webrtc {
     /// Set Local Description.
     /// # Warning
     /// `error` for error handle without c++ exception.
-    /// If `error` != "" after the call, then the result will be NULL or default.
+    /// If `error` != "" after the call,
+    /// then the result will be NULL or default.
     pub fn set_local_description(
         &mut self,
         error: &mut String,
@@ -165,7 +166,8 @@ impl Webrtc {
     /// Set Remote Description.
     /// # Warning
     /// `error` for error handle without c++ exception.
-    /// If `error` != "" after the call, then the result will be NULL or default.
+    /// If `error` != "" after the call,
+    /// then the result will be NULL or default.
     pub fn set_remote_description(
         &mut self,
         error: &mut String,

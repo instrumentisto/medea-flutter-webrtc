@@ -310,7 +310,6 @@ impl Default for RTCConfiguration {
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl Default for PeerConnectionObserver {
-
     /// Creates default [`PeerConnectionObserver`] without handle events
     fn default() -> Self {
         Self(webrtc::create_peer_connection_observer())
@@ -325,7 +324,8 @@ pub struct PeerConnectionDependencies(
 );
 
 impl Default for PeerConnectionDependencies {
-    /// Creates a [`PeerConnectionDependencies`] whith default [`PeerConnectionObserver`]
+    /// Creates a [`PeerConnectionDependencies`]
+    /// whith default [`PeerConnectionObserver`]
     fn default() -> Self {
         Self(webrtc::create_peer_connection_dependencies(
             PeerConnectionObserver::default().0,
@@ -367,11 +367,11 @@ impl RTCOfferAnswerOptions {
     }
 }
 
-/// Session Description used for set [Remote] or [Local] peer connection descripton.
+/// Session Description used for set [Remote]
+/// or [Local] peer connection descripton.
 pub struct SessionDescriptionInterface(
     UniquePtr<webrtc::SessionDescriptionInterface>,
 );
-
 
 impl SessionDescriptionInterface {
     /// Create new [`SessionDescriptionInterface`]
@@ -383,7 +383,8 @@ impl SessionDescriptionInterface {
     }
 }
 
-/// Create Session Description Observer used for calling callback when create [Offer] or [Answer] 
+/// Create Session Description Observer used
+/// for calling callback when create [Offer] or [Answer]
 /// success or fail.
 pub struct CreateSessionDescriptionObserver(
     UniquePtr<webrtc::CreateSessionDescriptionObserver>,
@@ -391,15 +392,17 @@ pub struct CreateSessionDescriptionObserver(
 
 impl CreateSessionDescriptionObserver {
     /// Creates a [`CreateSessionDescriptionObserver`].
-    /// Where 
-    /// `success` - void (*callback_success)(std::string, std::string) for callback when 'CreateOffer\Answer' is OnSuccess,
-    /// `fail` - void (*callback_fail)(std::string) for callback when 'CreateOffer\Answer' is OnFailure.
+    /// Where
+    /// `success` - void (*callback_success)(std::string, std::string)
+    /// for callback when 'CreateOffer\Answer' is OnSuccess,
+    /// `fail` - void (*callback_fail)(std::string)
+    /// for callback when 'CreateOffer\Answer' is OnFailure.
     pub fn new(success: usize, fail: usize) -> Self {
         Self(webrtc::create_create_session_observer(success, fail))
     }
 }
 
-/// Session Description Observer used for calling callback when set description 
+/// Session Description Observer used for calling callback when set description
 /// success or fail.
 pub struct SetSessionDescriptionObserver(
     UniquePtr<webrtc::SetSessionDescriptionObserver>,
@@ -407,9 +410,11 @@ pub struct SetSessionDescriptionObserver(
 
 impl SetSessionDescriptionObserver {
     /// Creates a [`SetSessionDescriptionObserver`].
-    /// Where 
-    /// `success` - void (*callback_success_desc)() for callback when 'SetLocal\RemoteDescription' is OnSuccess,
-    /// `fail` - void (*callback_fail)(std::string) for callback when 'SetLocal\RemoteDescription' is OnFailure.
+    /// Where
+    /// `success` - void (*callback_success_desc)()
+    /// for callback when 'SetLocal\RemoteDescription' is OnSuccess,
+    /// `fail` - void (*callback_fail)(std::string)
+    /// for callback when 'SetLocal\RemoteDescription' is OnFailure.
     pub fn new(success: usize, fail: usize) -> Self {
         Self(webrtc::create_set_session_description_observer(
             success, fail,
@@ -418,12 +423,14 @@ impl SetSessionDescriptionObserver {
 }
 
 /// Peer Connection Interface internally used in [`webrtc`] that is
-/// capable of creating [Offer]s, [Answer]s and setting [Remote], [Local] Description.
+/// capable of creating [Offer]s, [Answer]s
+/// and setting [Remote], [Local] Description.
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
     /// Create a new offer.
-    /// The [`CreateSessionDescriptionObserver`] callback will be called when done.
+    /// The [`CreateSessionDescriptionObserver`]
+    /// callback will be called when done.
     /// # Panic
     /// Panic if `self` - PeerConnectionInterface(null)
     pub fn create_offer(
@@ -432,12 +439,17 @@ impl PeerConnectionInterface {
         obs: CreateSessionDescriptionObserver,
     ) {
         unsafe {
-            webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0.into_raw());
+            webrtc::create_offer(
+                self.0.pin_mut(),
+                &options.0,
+                obs.0.into_raw(),
+            );
         }
     }
 
     /// Create a new answer.
-    /// The [`CreateSessionDescriptionObserver`] callback will be called when done.
+    /// The [`CreateSessionDescriptionObserver`]
+    /// callback will be called when done.
     /// # Warning
     /// Can't be create before offer.
     /// # Panic
@@ -459,7 +471,8 @@ impl PeerConnectionInterface {
     /// Sets the local session description.
     /// According to spec, the local session description MUST be the same as was
     /// returned by CreateOffer() or CreateAnswer() or else the operation should
-    /// fail. The observer is invoked as soon as the operation completes, which could be
+    /// fail. The observer is invoked as soon as
+    /// the operation completes, which could be
     /// before or after the SetLocalDescription() method has exited.
     /// # Panic
     /// Panic if `self` - PeerConnectionInterface(null)
@@ -477,9 +490,10 @@ impl PeerConnectionInterface {
         }
     }
 
-    ///Sets the remote session description.
-    ///The observer is invoked as soon as the operation completes, which could be
-    ///before or after the SetRemoteDescription() method has exited.
+    /// Sets the remote session description.
+    /// The observer is invoked as soon as
+    /// the operation completes, which could be
+    /// before or after the SetRemoteDescription() method has exited.
     /// # Panic
     /// Panic if `self` - PeerConnectionInterface(null)
     pub fn set_remote_description(
@@ -504,11 +518,12 @@ pub struct PeerConnectionFactoryInterface(
 );
 
 impl PeerConnectionFactoryInterface {
-    /// Creates a [`PeerConnectionFactoryInterface`] whith default 
-    /// [`AudioEncoderFactory`], [`AudioDecoderFactory`], 
+    /// Creates a [`PeerConnectionFactoryInterface`] whith default
+    /// [`AudioEncoderFactory`], [`AudioDecoderFactory`],
     /// [`VideoEncoderFactory`], [`VideoDecoderFactory`],
-    /// one new [`Thread`] for `network_thread`, `worker_thread`, `signaling_thread`.
-    /// `default_adm` - NULL, `audio_mixer` - NULL, `audio_processing` - NULL, 
+    /// one new [`Thread`] for `network_thread`, `worker_thread`,
+    /// `signaling_thread`.
+    /// `default_adm` - NULL, `audio_mixer` - NULL, `audio_processing` - NULL,
     /// `audio_frame_processor` - NULL.
     pub fn create_whith_null() -> Self {
         let mut thread = Thread::create();
@@ -533,9 +548,10 @@ impl PeerConnectionFactoryInterface {
 
     /// Creates a [`PeerConnectionInterface`].
     /// Where `error` for error handle without c++ exception.
-    /// 
+    ///
     /// `error` for error handle without c++ exception.
-    /// If 'error` != "" after the call, then the result will be default or NULL.
+    /// If 'error` != "" after the call,
+    /// then the result will be default or NULL.
     pub fn create_peer_connection_or_error(
         &mut self,
         error: &mut String,

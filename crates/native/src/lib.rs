@@ -2,15 +2,15 @@
 
 mod peer_connection;
 
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{collections::HashMap,};
 
 use libwebrtc_sys::{
-    AudioDeviceModule, AudioLayer, CreateSessionDescriptionObserver,
-    PeerConnectionFactoryInterface, RTCOfferAnswerOptions, TaskQueueFactory,
+    AudioDeviceModule, AudioLayer,
+    PeerConnectionFactoryInterface, TaskQueueFactory,
     VideoDeviceInfo,
 };
 
-use peer_connection::{PeerConnection, PeerConnectionId};
+use peer_connection::{PeerConnection};
 
 use self::ffi::{MediaDeviceInfo, MediaDeviceKind};
 
@@ -55,7 +55,8 @@ pub mod ffi {
         /// Creates a new [`PeerConnection`] and return id.
         /// # Warning
         /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call, then the result will be default or NULL.
+        /// If `error` != "" after the call,
+        /// then the result will be default or NULL.
         #[cxx_name = "CreatePeerConnection"]
         fn create_default_peer_connection(
             self: &mut Webrtc,
@@ -65,7 +66,8 @@ pub mod ffi {
         /// Creates a new [Offer].
         /// # Warning
         /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call, then the result will be default or NULL.
+        /// If `error` != "" after the call,
+        /// then the result will be default or NULL.
         #[cxx_name = "CreateOffer"]
         fn create_offer(
             self: &mut Webrtc,
@@ -83,7 +85,8 @@ pub mod ffi {
         /// Creates a new [Answer].
         /// # Warning
         /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call, then the result will be default or NULL.
+        /// If `error` != "" after the call,
+        /// then the result will be default or NULL.
         #[cxx_name = "CreateAnswer"]
         fn create_answer(
             self: &mut Webrtc,
@@ -101,7 +104,8 @@ pub mod ffi {
         /// Set Local Description.
         /// # Warning
         /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call, then the result will be default or NULL.
+        /// If `error` != "" after the call,
+        /// then the result will be default or NULL.
         #[cxx_name = "SetLocalDescription"]
         fn set_local_description(
             self: &mut Webrtc,
@@ -116,7 +120,8 @@ pub mod ffi {
         /// Set Remote Description.
         /// # Warning
         /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call, then the result will be default or NULL.
+        /// If `error` != "" after the call,
+        /// then the result will be default or NULL.
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(
             self: &mut Webrtc,

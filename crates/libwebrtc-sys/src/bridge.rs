@@ -1,4 +1,3 @@
-
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
@@ -27,7 +26,7 @@ pub(crate) mod webrtc {
         kPrAnswer,
         kAnswer,
         kRollback,
-    } 
+    }
 
     #[rustfmt::skip]
     unsafe extern "C++" {
@@ -188,7 +187,8 @@ pub(crate) mod webrtc {
         /// Creates a [`PeerConnectionInterface`].
         /// # Warning
         /// `error` for error handle without c++ exception.
-        /// If 'error` != "" after the call, then the result will be default or NULL.
+        /// If 'error` != "" after the call,
+        /// then the result will be default or NULL.
         pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
             error: &mut String,
@@ -219,18 +219,22 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         /// Creates a [`CreateSessionDescriptionObserver`].
-        /// Where 
-        /// `s` - void (*callback_success)(std::string, std::string) for callback when 'CreateOffer\Answer' is OnSuccess,
-        /// `f` - void (*callback_fail)(std::string) for callback when 'CreateOffer\Answer' is OnFailure.
+        /// Where
+        /// `s` - void (*callback_success)(std::string, std::string)
+        /// for callback when 'CreateOffer\Answer' is OnSuccess,
+        /// `f` - void (*callback_fail)(std::string)
+        /// for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
             s: usize,
             f: usize,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetSessionDescriptionObserver`].
-        /// Where 
-        /// `s` - void (*callback_success_desc)() for callback when 'SetLocal\RemoteDescription' is OnSuccess,
-        /// `f` - void (*callback_fail)(std::string) for callback when 'SetLocal\RemoteDescription' is OnFailure.
+        /// Where
+        /// `s` - void (*callback_success_desc)()
+        /// for callback when 'SetLocal\RemoteDescription' is OnSuccess,
+        /// `f` - void (*callback_fail)(std::string)
+        /// for callback when 'SetLocal\RemoteDescription' is OnFailure.
         pub fn create_set_session_description_observer(
             s: usize,
             f: usize,
@@ -256,14 +260,14 @@ pub(crate) mod webrtc {
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: *mut SetSessionDescriptionObserver,
         );
-  
+
         /// Calls `peer_connection_interface`->SetRemoteDescription.
         pub unsafe fn set_remote_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: *mut SetSessionDescriptionObserver,
         );
-  
+
         /// Creates [`SessionDescriptionInterface`]
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]

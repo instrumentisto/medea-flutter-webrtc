@@ -51,7 +51,7 @@ class _CreateSampleState extends State<CreateSample> {
     });
 
     final response2 =
-          await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
+          await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
         'peerConnectionId': '1',
         'description' : {
         'sdp': response['sdp'],
