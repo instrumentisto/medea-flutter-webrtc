@@ -24,7 +24,7 @@ public class ConstraintsMap {
     }
 
     public boolean hasKey(String name){
-        return mMap.containsKey(name);
+        return mMap.get(name) != null;
     }
 
     public boolean getBoolean(String name){

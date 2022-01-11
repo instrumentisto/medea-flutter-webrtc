@@ -200,16 +200,27 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
           trackMap.put("id", track.id());
           trackMap.put("kind", track.kind());
           trackMap.put("label", track.id());
+          trackMap.put("deviceId", "remote");
+          trackMap.put("settings", new HashMap<>());
           trackMap.put("remote", false);
           audioTracks.add(trackMap);
         }
         for (VideoTrack track : stream.videoTracks) {
+          GetUserMediaImpl.MediaStreamTrackSettings settings = getUserMediaImpl.getTrackSettings(track.id());
+          Map<String, Object> trackSettingsMap = new HashMap<>();
+          trackSettingsMap.put("width", settings.width);
+          trackSettingsMap.put("height", settings.height);
+          trackSettingsMap.put("facingMode", settings.facingMode);
+          trackSettingsMap.put("isScreen", settings.isScreen);
+
           Map<String, Object> trackMap = new HashMap<>();
           trackMap.put("enabled", track.enabled());
           trackMap.put("id", track.id());
           trackMap.put("kind", track.kind());
           trackMap.put("label", track.id());
+          trackMap.put("deviceId", settings.deviceId);
           trackMap.put("remote", false);
+          trackMap.put("settings", trackSettingsMap);
           videoTracks.add(trackMap);
         }
         resultMap.put("audioTracks", audioTracks);
