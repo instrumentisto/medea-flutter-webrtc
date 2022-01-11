@@ -56,6 +56,11 @@ impl Webrtc {
     }
 
     /// Creates a new [Offer].
+    /// Where
+    /// `s` - void (*callback_success)(std::string, std::string)
+    /// for callback when 'CreateOffer' is OnSuccess,
+    /// `f` - void (*callback_fail)(std::string)
+    /// for callback when 'CreateOffer' is OnFailure.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -75,7 +80,12 @@ impl Webrtc {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
-            let obs = sys::CreateSessionDescriptionObserver::new(s, f);
+            let success: fn(&cxx::CxxString, &cxx::CxxString) 
+                = unsafe {std::mem::transmute(s)};
+            let fail: fn(&cxx::CxxString) 
+                = unsafe {std::mem::transmute(f)};
+            let obs 
+                = sys::CreateSessionDescriptionObserver::new(success, fail);
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
                 offer_to_receive_audio,
@@ -92,6 +102,11 @@ impl Webrtc {
     }
 
     /// Creates a new [Answer].
+    ///  Where
+    /// `s` - void (*callback_success)(std::string, std::string)
+    /// for callback when 'CreateAnswer' is OnSuccess,
+    /// `f` - void (*callback_fail)(std::string)
+    /// for callback when 'CreateAnswer' is OnFailure.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -111,7 +126,12 @@ impl Webrtc {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
-            let obs = sys::CreateSessionDescriptionObserver::new(s, f);
+            let success: fn(&cxx::CxxString, &cxx::CxxString) 
+                = unsafe {std::mem::transmute(s)};
+            let fail: fn(&cxx::CxxString) 
+                = unsafe {std::mem::transmute(f)};
+            let obs 
+                = sys::CreateSessionDescriptionObserver::new(success, fail);
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
                 offer_to_receive_audio,
@@ -128,8 +148,11 @@ impl Webrtc {
     }
 
     /// Set Local Description.
-    /// # Warning
-    /// `error` for error handle without c++ exception.
+    /// Where
+    /// `s` - void (*callback_success_desc)()
+    /// for callback when 'SetLocalDescription' is OnSuccess,
+    /// `f` - void (*callback_fail)(std::string)
+    /// for callback when 'SetLocalDescription' is OnFailure.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
     pub fn set_local_description(
@@ -146,7 +169,13 @@ impl Webrtc {
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
-                    let obs = sys::SetSessionDescriptionObserver::new(s, f);
+                    
+                    let success: fn() 
+                        = unsafe {std::mem::transmute(s)};
+                    let fail: fn(&cxx::CxxString) 
+                        = unsafe {std::mem::transmute(f)};
+                    let obs 
+                        = sys::SetSessionDescriptionObserver::new(success, fail);
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
@@ -162,6 +191,11 @@ impl Webrtc {
     }
 
     /// Set Remote Description.
+    /// Where
+    /// `s` - void (*callback_success_desc)()
+    /// for callback when 'SetRemoteDescription' is OnSuccess,
+    /// `f` - void (*callback_fail)(std::string)
+    /// for callback when 'SetRemoteDescription' is OnFailure.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -180,7 +214,12 @@ impl Webrtc {
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
-                    let obs = sys::SetSessionDescriptionObserver::new(s, f);
+                    let success: fn() 
+                        = unsafe {std::mem::transmute(s)};
+                    let fail: fn(&cxx::CxxString) 
+                        = unsafe {std::mem::transmute(f)};
+                    let obs 
+                        = sys::SetSessionDescriptionObserver::new(success, fail);
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 

@@ -22,10 +22,10 @@ namespace observer
   // s - void (*callback_success)(std::string, std::string),
   // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
-    size_t s,
-    size_t f) {
-      success = (callback_success) s;
-      fail = (callback_fail) f;
+    rust::Fn<void (const std::string &, const std::string &)> s,
+    rust::Fn<void (const std::string &)> f) {
+      success = s;
+      fail = f;
     };
 
   // Calls when a `CreateOffer\Answer` is success.
@@ -33,13 +33,13 @@ namespace observer
     std::string type = desc->type();
     std::string sdp;
     desc->ToString(&sdp);
-    success(sdp, type);
+    (*success)(sdp, type);
   };
 
   // Calls when a `CreateOffer\Answer` is fail.
   void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
     std::string err = std::string(error.message());
-    fail(err);
+    (*fail)(err);
   };
 
   void CreateSessionDescriptionObserver::AddRef() const {};
@@ -49,22 +49,23 @@ namespace observer
   // s - void (*callback_success_desc)(),
   // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver::SetSessionDescriptionObserver(
-    size_t s,
-    size_t f) {
-      success = (callback_success_desc) s;
-      fail = (callback_fail) f;
+    rust::Fn<void ()> s,
+    rust::Fn<void (const std::string &)> f) {
+      success = s;
+      fail = f;
     }
 
   // Calls when a `SetLocal\RemoteDescription` is success.
   void SetSessionDescriptionObserver::OnSuccess() {
-    success();
+    (*success)();
   };
-  
+
   // Calls when a `SetLocal\RemoteDescription` is fail.
   void SetSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
     std::string err = std::string(error.message());
-    fail(err);
+    (*fail)(err);
   };
   void SetSessionDescriptionObserver::AddRef() const {};
-  rtc::RefCountReleaseStatus SetSessionDescriptionObserver::Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
+  rtc::RefCountReleaseStatus SetSessionDescriptionObserver::Release() const {
+    return rtc::RefCountReleaseStatus::kDroppedLastRef;};
 }

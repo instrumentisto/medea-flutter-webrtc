@@ -55,11 +55,11 @@ class _CreateSampleState extends State<CreateSample> {
         'peerConnectionId': '1',
         'description' : {
         'sdp': response['sdp'],
-        'type': 'offer'}
+        'type': response['type']}
     });
 
     setState(() {
-      text = 'GOOd';
+      text = 'Good';
     });
     } catch (e) {
       setState(() {

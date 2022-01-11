@@ -203,11 +203,11 @@ void SetLocalDescription(
     auto bind_fail = std::bind(&callbacks::Fail, result_ptr, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
-    fail;
-    
+
     auto bind_success = std::bind(&callbacks::OnSuccessDescription, result_ptr);
     callbacks::callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
+
 
     rust::String error;
     webrtc->SetLocalDescription(

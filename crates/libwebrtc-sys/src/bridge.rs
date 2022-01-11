@@ -1,10 +1,10 @@
 #[allow(clippy::expl_impl_clone_on_copy)]
+use cxx::CxxString;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
-
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
-    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[derive(Debug, Eq, Hash, PartialEq)]   
     pub enum AudioLayer {
         kPlatformDefaultAudio = 0,
         kWindowsCoreAudio,
@@ -59,13 +59,14 @@ pub(crate) mod webrtc {
         include!("libwebrtc-sys/include/bridge.h");
 
         type TaskQueueFactory;
-
+   
         /// Creates a default [`TaskQueueFactory`] based on the current
-        /// platform.
+        /// platform. 
         #[namespace = "webrtc"]
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
     }
+
 
     unsafe extern "C++" {
         type AudioDeviceModule;
@@ -247,27 +248,23 @@ pub(crate) mod webrtc {
             ice_restart: bool,
             use_rtp_mux: bool,
         ) -> UniquePtr<RTCOfferAnswerOptions>;
-
+  
         /// Creates a [`CreateSessionDescriptionObserver`].
         /// Where
-        /// `s` - void (*callback_success)(std::string, std::string)
-        /// for callback when 'CreateOffer\Answer' is OnSuccess,
-        /// `f` - void (*callback_fail)(std::string)
-        /// for callback when 'CreateOffer\Answer' is OnFailure.
+        /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
+        /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            s: usize, // TODO: try to pass fn() instead of usize
-            f: usize,
+            s: fn(&CxxString, &CxxString), // TODO: try to pass fn() instead of usize
+            f: fn(&CxxString),
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetSessionDescriptionObserver`].
         /// Where
-        /// `s` - void (*callback_success_desc)()
-        /// for callback when 'SetLocal\RemoteDescription' is OnSuccess,
-        /// `f` - void (*callback_fail)(std::string)
-        /// for callback when 'SetLocal\RemoteDescription' is OnFailure.
+        /// `s` for callback when 'SetLocal\RemoteDescription' is OnSuccess,
+        /// `f` for callback when 'SetLocal\RemoteDescription' is OnFailure.
         pub fn create_set_session_description_observer(
-            s: usize,
-            f: usize,
+            s: fn(),
+            f: fn(&CxxString),
         ) -> UniquePtr<SetSessionDescriptionObserver>;
 
         /// Calls `peer_connection_interface`->CreateOffer.

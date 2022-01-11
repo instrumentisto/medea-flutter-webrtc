@@ -4,7 +4,7 @@
 mod bridge;
 
 use anyhow::bail;
-use cxx::{let_cxx_string, UniquePtr};
+use cxx::{let_cxx_string, UniquePtr, CxxString};
 
 use self::bridge::webrtc;
 
@@ -392,11 +392,9 @@ pub struct CreateSessionDescriptionObserver(
 impl CreateSessionDescriptionObserver {
     /// Creates a [`CreateSessionDescriptionObserver`].
     /// Where
-    /// `success` - void (*callback_success)(std::string, std::string)
-    /// for callback when 'CreateOffer\Answer' is OnSuccess,
-    /// `fail` - void (*callback_fail)(std::string)
-    /// for callback when 'CreateOffer\Answer' is OnFailure.
-    pub fn new(success: usize, fail: usize) -> Self {
+    /// `success` for callback when 'CreateOffer\Answer' is OnSuccess,
+    /// `fail` for callback when 'CreateOffer\Answer' is OnFailure.
+    pub fn new(success: fn(&CxxString, &CxxString), fail: fn(&CxxString)) -> Self {
         Self(webrtc::create_create_session_observer(success, fail))
     }
 }
@@ -410,15 +408,13 @@ pub struct SetSessionDescriptionObserver(
 impl SetSessionDescriptionObserver {
     /// Creates a [`SetSessionDescriptionObserver`].
     /// Where
-    /// `success` - void (*callback_success_desc)()
-    /// for callback when 'SetLocal\RemoteDescription' is OnSuccess,
-    /// `fail` - void (*callback_fail)(std::string)
-    /// for callback when 'SetLocal\RemoteDescription' is OnFailure.
-    pub fn new(success: usize, fail: usize) -> Self {
+    /// `success` for callback when 'SetLocal\RemoteDescription' is OnSuccess,
+    /// `fail` for callback when 'SetLocal\RemoteDescription' is OnFailure.
+    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
         Self(webrtc::create_set_session_description_observer(
             success, fail,
         ))
-    }
+    }  
 }
 
 /// Peer Connection Interface internally used in [`webrtc`] that is

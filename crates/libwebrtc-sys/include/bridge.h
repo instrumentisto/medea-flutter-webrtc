@@ -194,13 +194,13 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 
 // Creates `CreateSessionDescriptionObserver`.   
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-  size_t s, 
-  size_t f);
+  rust::Fn<void (const std::string &, const std::string &)> s, 
+  rust::Fn<void (const std::string &)> f);
 
 // Creates `SetSessionDescriptionObserver`.   
 std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_observer(
-  size_t s, 
-  size_t f);
+  rust::Fn<void ()> s, 
+  rust::Fn<void (const std::string &)> f);
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,

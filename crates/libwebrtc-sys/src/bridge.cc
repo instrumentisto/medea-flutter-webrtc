@@ -227,18 +227,19 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
       use_rtp_mux));
   }
 
-// Creates `CreateSessionDescriptionObserver`.
+
+// Creates `CreateSessionDescriptionObserver`.   
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-  size_t s,
-  size_t f) {
+  rust::Fn<void (const std::string &, const std::string &)> s, 
+  rust::Fn<void (const std::string &)> f) {
     CreateSessionDescriptionObserver obs = CreateSessionDescriptionObserver(s,f);
     return std::make_unique<CreateSessionDescriptionObserver>(obs);
   }
 
-// Creates `SetSessionDescriptionObserver`.
+// Creates `SetSessionDescriptionObserver`.   
 std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_observer(
-  size_t s,
-  size_t f) {
+  rust::Fn<void ()> s, 
+  rust::Fn<void (const std::string &)> f) {
     SetSessionDescriptionObserver obs = SetSessionDescriptionObserver(s,f);
     return std::make_unique<SetSessionDescriptionObserver>(obs);
   }

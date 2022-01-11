@@ -7,11 +7,6 @@
 
 namespace observer
 {
-typedef void (*callback_success)(std::string, std::string);
-typedef void (*callback_fail)(std::string);
-
-typedef void (*callback_success_desc)();
-
 // `PeerConnectionObserver` used for calling callback RTCPeerConnection events.
 class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 {
@@ -37,15 +32,15 @@ class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionObserver
 {
   public:
-  callback_success success;
-  callback_fail fail;
+  rust::Fn<void (const std::string &, const std::string &)> success;
+  rust::Fn<void (const std::string &)> fail;
 
   // Construct `CreateOffer\Answer Observer` where
   // s - void (*callback_success)(std::string, std::string),
   // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver(
-    size_t s,
-    size_t f);
+    rust::Fn<void (const std::string &, const std::string &)> s,
+    rust::Fn<void (const std::string &)> f);
 
   // Calls when a `CreateOffer\Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
@@ -63,15 +58,15 @@ class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionO
 class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserver
 {
   public:
-  callback_success_desc success;
-  callback_fail fail;
+  rust::Fn<void ()> success;
+  rust::Fn<void (const std::string &)> fail;
 
   // Construct `SetLocal\RemoteDescription Observer` where
   // s - void (*callback_success_desc)(),
   // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver(
-    size_t s,
-    size_t f);
+    rust::Fn<void ()> s,
+    rust::Fn<void (const std::string &)> f);
 
   // Calls when a `SetLocal\RemoteDescription` is success.
   void OnSuccess();
