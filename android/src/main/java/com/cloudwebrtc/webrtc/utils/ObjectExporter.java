@@ -2,9 +2,10 @@ package com.cloudwebrtc.webrtc.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.cloudwebrtc.webrtc.GetUserMediaImpl;
-
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
 import org.webrtc.MediaStreamTrack;
@@ -14,14 +15,10 @@ import org.webrtc.RtpSender;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.VideoTrack;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 public final class ObjectExporter {
   @Nullable
   public static Map<String, Object> exportMediaStream(
-          String ownerTag, @NonNull MediaStream stream) {
+      String ownerTag, @NonNull MediaStream stream) {
     ConstraintsMap params = new ConstraintsMap();
     params.putString("streamId", stream.getId());
     params.putString("ownerTag", ownerTag);
@@ -42,7 +39,9 @@ public final class ObjectExporter {
   }
 
   @Nullable
-  public static Map<String, Object> exportMediaStreamTrack(@Nullable MediaStreamTrack track, @Nullable  GetUserMediaImpl.MediaStreamTrackSettings settings) {
+  public static Map<String, Object> exportMediaStreamTrack(
+      @Nullable MediaStreamTrack track,
+      @Nullable GetUserMediaImpl.MediaStreamTrackSettings settings) {
     ConstraintsMap info = new ConstraintsMap();
     if (track != null) {
       info.putString("id", track.id());
@@ -66,7 +65,8 @@ public final class ObjectExporter {
     return info.toMap();
   }
 
-  public static Map<String, Object> exportRtpSender(@NonNull RtpSender sender, GetUserMediaImpl.MediaStreamTrackSettings settings) {
+  public static Map<String, Object> exportRtpSender(
+      @NonNull RtpSender sender, GetUserMediaImpl.MediaStreamTrackSettings settings) {
     ConstraintsMap info = new ConstraintsMap();
     info.putString("senderId", sender.id());
     info.putBoolean("ownsTrack", true);
@@ -75,7 +75,8 @@ public final class ObjectExporter {
     return info.toMap();
   }
 
-  public static Map<String, Object> exportRtpReceiver(@NonNull RtpReceiver receiver, GetUserMediaImpl.MediaStreamTrackSettings settings) {
+  public static Map<String, Object> exportRtpReceiver(
+      @NonNull RtpReceiver receiver, GetUserMediaImpl.MediaStreamTrackSettings settings) {
     ConstraintsMap info = new ConstraintsMap();
     info.putString("receiverId", receiver.id());
     info.putMap("rtpParameters", exportRtpParameters(receiver.getParameters()));
@@ -84,11 +85,12 @@ public final class ObjectExporter {
   }
 
   public static Map<String, Object> exportTransceiver(
-          int id, @NonNull RtpTransceiver transceiver, GetUserMediaImpl gUMImpl) {
+      int id, @NonNull RtpTransceiver transceiver, GetUserMediaImpl gUMImpl) {
     ConstraintsMap info = new ConstraintsMap();
     info.putInt("transceiverId", id);
     info.putString("mid", transceiver.getMid());
-    info.putString("direction", EnumStringifier.transceiverDirectionString(transceiver.getDirection()));
+    info.putString(
+        "direction", EnumStringifier.transceiverDirectionString(transceiver.getDirection()));
     RtpSender sender = transceiver.getSender();
     info.putMap("sender", exportRtpSender(sender, gUMImpl.getTrackSettings(sender.id())));
     RtpReceiver receiver = transceiver.getReceiver();
@@ -168,9 +170,9 @@ public final class ObjectExporter {
           map.putString("kind", "video");
         }
       } catch (@NonNull
-              NoSuchFieldException
-                      | IllegalArgumentException
-                      | IllegalAccessException e) {
+          NoSuchFieldException
+          | IllegalArgumentException
+          | IllegalAccessException e) {
         e.printStackTrace();
       }
       codecs.pushMap(map);
