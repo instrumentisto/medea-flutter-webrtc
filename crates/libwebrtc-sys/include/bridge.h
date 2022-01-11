@@ -74,7 +74,6 @@ using AudioProcessing = rc<webrtc::AudioProcessing>;
 using VideoEncoderFactory = webrtc::VideoEncoderFactory;
 using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using AudioFrameProcessor = webrtc::AudioFrameProcessor;
-using RTCError = webrtc::RTCError;
 
 using PeerConnectionObserver = observer::PeerConnectionObserver;
 using CreateSessionDescriptionObserver = observer::CreateSessionDescriptionObserver;

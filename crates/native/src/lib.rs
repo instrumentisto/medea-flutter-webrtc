@@ -52,12 +52,20 @@ pub mod ffi {
         #[cxx_name = "EnumerateDevices"]
         fn enumerate_devices() -> Vec<MediaDeviceInfo>;
 
+        /// Creates a new [`PeerConnection`] and return id.
+        /// # Warning
+        /// `error` for error handle without c++ exception.
+        /// If `error` != "" after the call, then the result will be default or NULL.
         #[cxx_name = "CreatePeerConnection"]
         fn create_default_peer_connection(
             self: &mut Webrtc,
             error: &mut String,
         ) -> u64;
 
+        /// Creates a new [Offer].
+        /// # Warning
+        /// `error` for error handle without c++ exception.
+        /// If `error` != "" after the call, then the result will be default or NULL.
         #[cxx_name = "CreateOffer"]
         fn create_offer(
             self: &mut Webrtc,
@@ -72,6 +80,10 @@ pub mod ffi {
             f: usize,
         );
 
+        /// Creates a new [Answer].
+        /// # Warning
+        /// `error` for error handle without c++ exception.
+        /// If `error` != "" after the call, then the result will be default or NULL.
         #[cxx_name = "CreateAnswer"]
         fn create_answer(
             self: &mut Webrtc,
@@ -86,6 +98,10 @@ pub mod ffi {
             f: usize,
         );
 
+        /// Set Local Description.
+        /// # Warning
+        /// `error` for error handle without c++ exception.
+        /// If `error` != "" after the call, then the result will be default or NULL.
         #[cxx_name = "SetLocalDescription"]
         fn set_local_description(
             self: &mut Webrtc,
@@ -97,6 +113,10 @@ pub mod ffi {
             f: usize,
         );
 
+        /// Set Remote Description.
+        /// # Warning
+        /// `error` for error handle without c++ exception.
+        /// If `error` != "" after the call, then the result will be default or NULL.
         #[cxx_name = "SetRemoteDescription"]
         fn set_remote_description(
             self: &mut Webrtc,
@@ -110,8 +130,6 @@ pub mod ffi {
 
     }
 }
-
-struct FlutterResult();
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.

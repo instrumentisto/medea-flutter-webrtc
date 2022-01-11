@@ -8,21 +8,30 @@ use std::{sync::atomic::AtomicU64};
 
 use crate::Webrtc;
 
+/// This counter provides global resource for generating `unique id`.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
+/// Returns an `unique id`.
 fn generate_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
+
+/// Struct for `id` of [`PeerConnection`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct PeerConnectionId(u64);
 
+/// Is used to manage [`sys::PeerConnectionInterface`].
 pub struct PeerConnection {
     id: PeerConnectionId,
     pub peer_connection_interface: sys::PeerConnectionInterface,
 }
 
 impl Webrtc {
+    /// Creates a new [`PeerConnection`] and return id.
+    /// # Warning
+    /// `error` for error handle without c++ exception.
+    /// If `error` != "" after the call, then the result will be NULL or default.
     pub fn create_default_peer_connection(
         self: &mut Webrtc,
         error: &mut String,
@@ -48,6 +57,10 @@ impl Webrtc {
         }
     }
 
+    /// Creates a new [Offer].
+    /// # Warning
+    /// `error` for error handle without c++ exception.
+    /// If `error` != "" after the call, then the result will be NULL or default.
     pub fn create_offer(
         &mut self,
         error: &mut String,
@@ -75,10 +88,14 @@ impl Webrtc {
                 .peer_connection_interface
                 .create_offer(&options, obs);
         } else {
-            std::mem::swap(error, &mut "Peer Connection not found".to_owned());
+            error.push_str("Peer Connection not found");
         }
     }
 
+    /// Creates a new [Answer].
+    /// # Warning
+    /// `error` for error handle without c++ exception.
+    /// If `error` != "" after the call, then the result will be NULL or default.
     pub fn create_answer(
         &mut self,
         error: &mut String,
@@ -106,10 +123,14 @@ impl Webrtc {
                 .peer_connection_interface
                 .create_answer(&options, obs);
         } else {
-            std::mem::swap(error, &mut "Peer Connection not found".to_owned());
+            error.push_str("Peer Connection not found");
         }
     }
 
+    /// Set Local Description.
+    /// # Warning
+    /// `error` for error handle without c++ exception.
+    /// If `error` != "" after the call, then the result will be NULL or default.
     pub fn set_local_description(
         &mut self,
         error: &mut String,
@@ -127,10 +148,7 @@ impl Webrtc {
                 "answer" => sys::SdpType::kAnswer,
                 "pranswer" => sys::SdpType::kPrAnswer,
                 _ => {
-                    return std::mem::swap(
-                        error,
-                        &mut "Invalid type".to_owned(),
-                    )
+                    return error.push_str("Invalid type");
                 }
             };
             let obs = sys::SetSessionDescriptionObserver::new(s, f);
@@ -140,10 +158,14 @@ impl Webrtc {
                 .peer_connection_interface
                 .set_local_description(desc, obs);
         } else {
-            std::mem::swap(error, &mut "Peer Connection not found".to_owned());
+            error.push_str("Peer Connection not found");
         }
     }
 
+    /// Set Remote Description.
+    /// # Warning
+    /// `error` for error handle without c++ exception.
+    /// If `error` != "" after the call, then the result will be NULL or default.
     pub fn set_remote_description(
         &mut self,
         error: &mut String,
@@ -161,10 +183,7 @@ impl Webrtc {
                 "answer" => sys::SdpType::kAnswer,
                 "pranswer" => sys::SdpType::kPrAnswer,
                 _ => {
-                    return std::mem::swap(
-                        error,
-                        &mut "Invalid type".to_owned(),
-                    )
+                    return error.push_str("Invalid type");
                 }
             };
             let obs = sys::SetSessionDescriptionObserver::new(s, f);
@@ -174,7 +193,7 @@ impl Webrtc {
                 .peer_connection_interface
                 .set_remote_description(desc, obs);
         } else {
-            std::mem::swap(error, &mut "Peer Connection not found".to_owned());
+            error.push_str("Peer Connection not found");
         }
     }
 }

@@ -150,22 +150,22 @@ pub(crate) mod webrtc {
         pub fn create_builtin_audio_decoder_factory(
         ) -> UniquePtr<AudioDecoderFactory>;
 
-        /// Creates a NULL [`AudioDecoderFactory`].
+        /// Creates NULL [`AudioDecoderFactory`].
         pub fn create_audio_device_module_null() -> UniquePtr<AudioDeviceModule>;
 
-        /// Creates a NULL [`AudioMixer`].
+        /// Creates NULL [`AudioMixer`].
         pub fn create_audio_mixer_null() -> UniquePtr<AudioMixer>;
 
-        /// Creates a NULL [`AudioProcessing`].
+        /// Creates NULL [`AudioProcessing`].
         pub fn create_audio_processing_null() -> UniquePtr<AudioProcessing>;
 
-        /// Creates a NULL [`AudioFrameProcessor`].
+        /// Creates NULL [`AudioFrameProcessor`].
         pub fn create_audio_frame_processor_null(
         ) -> UniquePtr<AudioFrameProcessor>;
 
         /// Creates a new [`PeerConnectionFactoryInterface`].
         /// Where `default_adm` - can be?? NULL,
-        /// `audio_mixer` - can be?? NULL,
+        /// `audio_mixer` - can be NULL,
         /// `audio_processing` - can be?? NULL,
         /// `audio_frame_processor` - default NULL,
         pub unsafe fn create_peer_connection_factory(
@@ -186,7 +186,9 @@ pub(crate) mod webrtc {
         pub fn create_default_rtc_configuration() -> UniquePtr<RTCConfiguration>;
 
         /// Creates a [`PeerConnectionInterface`].
-        /// Where `error` for error handle without c++ exception.
+        /// # Warning
+        /// `error` for error handle without c++ exception.
+        /// If 'error` != "" after the call, then the result will be default or NULL.
         pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
             error: &mut String,
