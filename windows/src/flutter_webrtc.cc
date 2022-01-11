@@ -17,10 +17,7 @@ void FlutterWebRTC::HandleMethodCall(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (method_call.method_name().compare("createPeerConnection") == 0) {
-
-    // TODO: impl like this
-    CreateRTCPeerConnection(webrtc, *method_call, std::move(result));
-
+    CreateRTCPeerConnection(webrtc, method_call, std::move(result));
   } else if (method_call.method_name().compare("getSources") == 0) {
     rust::Vec<MediaDeviceInfo> devices = EnumerateDevices();
 
@@ -63,47 +60,15 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("getDisplayMedia") == 0) {
   } else if (method_call.method_name().compare("mediaStreamGetTracks") == 0) {
   } else if (method_call.method_name().compare("createOffer") == 0) {
-
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-
-    FlutterPeerConnection pc(std::move(result), method_call, webrtc);
-    pc.CreateOffer();
-
-
+    CreateOffer(webrtc, method_call, std::move(result));
   } else if (method_call.method_name().compare("createAnswer") == 0) {
-
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-
-    FlutterPeerConnection pc(std::move(result), method_call, webrtc);
-    pc.CreateAnswer();
-
+    CreateAnswer(webrtc, method_call, std::move(result));
   } else if (method_call.method_name().compare("addStream") == 0) {
   } else if (method_call.method_name().compare("removeStream") == 0) {
   } else if (method_call.method_name().compare("setLocalDescription") == 0) {
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-
-    FlutterPeerConnection pc(std::move(result), method_call, webrtc);
-    pc.SetLocalDescription();
-
+    SetLocalDescription(webrtc, method_call, std::move(result));
   } else if (method_call.method_name().compare("setRemoteDescription") == 0) {
-
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-
-    FlutterPeerConnection pc(std::move(result), method_call, webrtc);
-    pc.SetLocalDescription();
-
+    SetRemoteDescription(webrtc, method_call, std::move(result));
   } else if (method_call.method_name().compare("addCandidate") == 0) {
   } else if (method_call.method_name().compare("getStats") == 0) {
   } else if (method_call.method_name().compare("createDataChannel") == 0) {

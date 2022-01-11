@@ -1,9 +1,8 @@
 
 #include "libwebrtc-sys\include\peer_connection_observer.h"
-// TODO: docs
+
 namespace observer
 {
-
   // Called any time the IceGatheringState changes.
   void PeerConnectionObserver::OnIceGatheringChange(
       webrtc::PeerConnectionInterface::IceGatheringState new_state) {};
@@ -19,6 +18,9 @@ namespace observer
   void PeerConnectionObserver::OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) {};
 
+  // Construct `CreateOffer\Answer Observer` where
+  // s - void (*callback_success)(std::string, std::string),
+  // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     size_t s,
     size_t f) {
@@ -26,6 +28,7 @@ namespace observer
       fail = (callback_fail) f;
     };
 
+  // Calls when a `CreateOffer\Answer` is success.
   void CreateSessionDescriptionObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
     std::string type = desc->type();
     std::string sdp;
@@ -33,6 +36,7 @@ namespace observer
     success(sdp, type);
   };
 
+  // Calls when a `CreateOffer\Answer` is fail.
   void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
     std::string err = std::string(error.message());
     fail(err);
@@ -41,6 +45,9 @@ namespace observer
   void CreateSessionDescriptionObserver::AddRef() const {};
   rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
 
+  // Construct `SetLocal\RemoteDescription Observer` where
+  // s - void (*callback_success_desc)(),
+  // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver::SetSessionDescriptionObserver(
     size_t s,
     size_t f) {
@@ -48,9 +55,12 @@ namespace observer
       fail = (callback_fail) f;
     }
 
+  // Calls when a `SetLocal\RemoteDescription` is success.
   void SetSessionDescriptionObserver::OnSuccess() {
     success();
   };
+  
+  // Calls when a `SetLocal\RemoteDescription` is fail.
   void SetSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
     std::string err = std::string(error.message());
     fail(err);

@@ -107,25 +107,22 @@ int32_t video_device_name(
   return size;
 };
 
-// Calls `Thread->Create()`.
+// Creates a new `Thread`.
 std::unique_ptr<Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
-// Calls `Thread->Start()`.
-bool start_thread(Thread& thread) {
-  return thread.Start();
-}
-
 // Creates `CreateBuiltinAudioEncoderFactory`.
 std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory() {
-  rtc::scoped_refptr<webrtc::AudioEncoderFactory> builtin_audio_encoder_factory = webrtc::CreateBuiltinAudioEncoderFactory();
+  rtc::scoped_refptr<webrtc::AudioEncoderFactory> builtin_audio_encoder_factory 
+    = webrtc::CreateBuiltinAudioEncoderFactory();
   return std::make_unique<AudioEncoderFactory>(builtin_audio_encoder_factory);
 }
 
 // Creates `CreateBuiltinAudioDecoderFactory`.
 std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
-  rtc::scoped_refptr<webrtc::AudioDecoderFactory> builtin_audio_encoder_factory = webrtc::CreateBuiltinAudioDecoderFactory();
+  rtc::scoped_refptr<webrtc::AudioDecoderFactory> builtin_audio_encoder_factory 
+    = webrtc::CreateBuiltinAudioDecoderFactory();
   return std::make_unique<AudioDecoderFactory>(builtin_audio_encoder_factory);
 }
 

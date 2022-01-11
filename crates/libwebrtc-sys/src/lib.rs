@@ -239,7 +239,7 @@ impl Thread {
     /// # Panic
     /// Panic if Thread(NULL);
     pub fn start(&mut self) {
-        webrtc::start_thread(self.0.pin_mut());
+        self.0.pin_mut().start_thread();
     }
 }
 

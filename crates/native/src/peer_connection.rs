@@ -144,20 +144,18 @@ impl Webrtc {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
-            let type_: sys::SdpType = match type_.as_str() {
-                "offer" => sys::SdpType::kOffer,
-                "answer" => sys::SdpType::kAnswer,
-                "pranswer" => sys::SdpType::kPrAnswer,
-                _ => {
-                    return error.push_str("Invalid type");
-                }
-            };
-            let obs = sys::SetSessionDescriptionObserver::new(s, f);
-            let desc = sys::SessionDescriptionInterface::new(type_, &sdp);
+            match sys::SdpType::try_from(type_.as_str()) {
+                Ok(type_) => {
+                    let obs = sys::SetSessionDescriptionObserver::new(s, f);
+                    let desc =
+                        sys::SessionDescriptionInterface::new(type_, &sdp);
 
-            peer_connection
-                .peer_connection_interface
-                .set_local_description(desc, obs);
+                    peer_connection
+                        .peer_connection_interface
+                        .set_local_description(desc, obs);
+                }
+                Err(e) => error.push_str(&e.to_string()),
+            }
         } else {
             error.push_str("Peer Connection not found");
         }
@@ -180,21 +178,18 @@ impl Webrtc {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
-            let type_: sys::SdpType = match type_.as_str() {
-                // TODO: impl TryFrom<&str>
-                "offer" => sys::SdpType::kOffer,
-                "answer" => sys::SdpType::kAnswer,
-                "pranswer" => sys::SdpType::kPrAnswer,
-                _ => {
-                    return error.push_str("Invalid type");
-                }
-            };
-            let obs = sys::SetSessionDescriptionObserver::new(s, f);
-            let desc = sys::SessionDescriptionInterface::new(type_, &sdp);
+            match sys::SdpType::try_from(type_.as_str()) {
+                Ok(type_) => {
+                    let obs = sys::SetSessionDescriptionObserver::new(s, f);
+                    let desc =
+                        sys::SessionDescriptionInterface::new(type_, &sdp);
 
-            peer_connection
-                .peer_connection_interface
-                .set_remote_description(desc, obs);
+                    peer_connection
+                        .peer_connection_interface
+                        .set_remote_description(desc, obs);
+                }
+                Err(e) => error.push_str(&e.to_string()),
+            }
         } else {
             error.push_str("Peer Connection not found");
         }

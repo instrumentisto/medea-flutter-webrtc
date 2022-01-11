@@ -43,36 +43,29 @@ inline EncodableList findList(const EncodableMap& map, const std::string& key) {
 
 using namespace flutter;
 
-typedef void (*callback_success)(std::string, std::string);
-typedef void (*callback_fail)(std::string);
+  void CreateRTCPeerConnection(
+        rust::cxxbridge1::Box<Webrtc>& webrtc, 
+        const flutter::MethodCall<EncodableValue>& method_call, 
+        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-typedef void (*callback_success_desc)();
+  void CreateOffer(
+        rust::cxxbridge1::Box<Webrtc>& webrtc, 
+        const flutter::MethodCall<EncodableValue>& method_call, 
+        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-struct RTCConf {
-    bool voice_activity_detection = true;
-    bool ice_restart = false;
-    bool use_rtp_mux = true;
-    bool receive_audio = true;
-    bool receive_video = true;
-    RTCConf(const flutter::MethodCall<EncodableValue>& method_call);
-};
+  void CreateAnswer(
+        rust::cxxbridge1::Box<Webrtc>& webrtc, 
+        const flutter::MethodCall<EncodableValue>& method_call, 
+        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-class FlutterPeerConnection {
-    private:
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result;
-    const flutter::MethodCall<EncodableValue>& method_call;
-    rust::cxxbridge1::Box<Webrtc>& webrtc;
-    
-    public:
-    FlutterPeerConnection(
-        std::unique_ptr<flutter::MethodResult<EncodableValue>> result,
-        const flutter::MethodCall<EncodableValue>& method_call,
-        rust::cxxbridge1::Box<Webrtc>& webrtc);
-
-    void CreateOffer();
-    void CreateAnswer();
-    void SetLocalDescription();
-    void SetRemoteDescription();
-};
+  void SetLocalDescription(
+        rust::cxxbridge1::Box<Webrtc>& webrtc, 
+        const flutter::MethodCall<EncodableValue>& method_call, 
+        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+        
+  void SetRemoteDescription(
+        rust::cxxbridge1::Box<Webrtc>& webrtc, 
+        const flutter::MethodCall<EncodableValue>& method_call, 
+        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 }

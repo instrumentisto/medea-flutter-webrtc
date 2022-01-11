@@ -12,7 +12,7 @@ typedef void (*callback_fail)(std::string);
 
 typedef void (*callback_success_desc)();
 
-// TODO: docs
+// `PeerConnectionObserver` used for calling callback RTCPeerConnection events.
 class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 {
   // Called any time the IceGatheringState changes.
@@ -31,7 +31,9 @@ class PeerConnectionObserver: public webrtc::PeerConnectionObserver
       webrtc::PeerConnectionInterface::SignalingState new_state);
 };
 
-// TODO: docs
+// Create Session Description Observer used
+// for calling callback when create [Offer] or [Answer]
+// success or fail.
 class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionObserver
 {
   public:
@@ -56,7 +58,8 @@ class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionO
 
 };
 
-// TODO: docs
+// Session Description Observer used for calling callback when set description
+// success or fail.
 class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserver
 {
   public:
@@ -64,7 +67,7 @@ class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserve
   callback_fail fail;
 
   // Construct `SetLocal\RemoteDescription Observer` where
-  // s - void (*callback_success)(std::string, std::string),
+  // s - void (*callback_success_desc)(),
   // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver(
     size_t s,
