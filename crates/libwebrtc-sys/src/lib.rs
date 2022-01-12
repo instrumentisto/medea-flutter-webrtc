@@ -136,6 +136,17 @@ impl AudioDeviceModule {
     pub fn device_index(&self, device_id: &mut String) -> u32 {
         webrtc::get_audio_device_index(&self.0, device_id)
     }
+
+    /// Sets the recording audio device according to the given `index`.
+    pub fn set_recording_device(&self, index: u16) -> anyhow::Result<()> {
+        let result = webrtc::set_audio_recording_device(&self.0, index);
+
+        if result != 0 {
+            bail!("`AudioDeviceModule::SetRecordingDevice()` failed.");
+        }
+
+        Ok(())
+    }
 }
 
 /// Interface for receiving information about available camera devices.

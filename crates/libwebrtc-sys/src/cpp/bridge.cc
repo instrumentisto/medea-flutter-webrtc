@@ -92,6 +92,11 @@ uint32_t get_audio_device_index(const AudioDeviceModule& audio_device_module,
   return -1;
 }
 
+/// Calls `AudioDeviceModule->SetRecordingDevice()` with the provided arguments.
+int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module, uint16_t index) {
+  return audio_device_module.ptr()->SetRecordingDevice(index);
+}
+
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
   std::unique_ptr<VideoDeviceInfo> ptr(

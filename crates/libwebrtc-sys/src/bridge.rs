@@ -96,6 +96,13 @@ pub(crate) mod webrtc {
             device_info: &AudioDeviceModule,
             device: &mut String,
         ) -> u32;
+
+        /// Chooses the audio recording device in the [`AudioDeviceModule`]
+        /// by passed `index`.
+        pub fn set_audio_recording_device(
+            audio_device_module: &AudioDeviceModule,
+            index: u16,
+        ) -> i32;
     }
 
     unsafe extern "C++" {
