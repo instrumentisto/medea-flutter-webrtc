@@ -69,36 +69,6 @@ impl Webrtc {
                 kind: track.kind,
                 enabled: true,
             });
-
-            // let track = {
-            //     let track = AudioTrack::new(
-            //         &self.0.peer_connection_factory,
-            //         Rc::clone(&source),
-            //     )
-            //     .unwrap();
-
-            //     self.0.audio_tracks.entry(track.id).or_insert(track)
-            // };
-
-            // stream.inner.add_audio_track(&track.inner).unwrap();
-            // stream.audio_tracks.push(track.id);
-
-            // let audio_device_index =
-            //     self.0.audio_device_module.device_index(&mut device_id);
-
-            // result.audio_tracks.push(api::MediaStreamTrack {
-            //     id: track.id.0,
-            //     label: self
-            //         .0
-            //         .audio_device_module
-            //         .recording_device_name(
-            //             audio_device_index.try_into().unwrap(),
-            //         )
-            //         .unwrap()
-            //         .0,
-            //     kind: track.kind,
-            //     enabled: true,
-            // });
         };
 
         self.0
@@ -142,6 +112,7 @@ impl Webrtc {
         }
     }
 
+    /// Creates a new [`VideoTrack`] based on given [`VideoSource`].
     fn create_video_track(
         &mut self,
         source: Rc<VideoSource>,
@@ -174,12 +145,17 @@ impl Webrtc {
         Ok(track)
     }
 
+    /// Creates a new [`VideoSource`] based on given [`VideoConstraints`].
     fn get_or_create_video_source(
         &mut self,
         caps: &VideoConstraints,
     ) -> anyhow::Result<Rc<VideoSource>> {
         let (index, device_id) = if caps.device_id.is_empty() {
             // No device ID is provided so just pick the first available device
+            if self.0.video_device_info.number_of_devices() < 1 {
+                bail!("0 video device is available.");
+            }
+
             let device_id =
                 VideoDeviceId(self.0.video_device_info.device_name(0)?.1);
             (0, device_id)
@@ -212,6 +188,7 @@ impl Webrtc {
         Ok(source)
     }
 
+    /// Creates a new [`AudioTrack`] based on given [`AudioSource`].
     fn create_audio_track(
         &mut self,
         source: Rc<AudioSource>,
@@ -246,6 +223,7 @@ impl Webrtc {
         Ok(track)
     }
 
+    /// Creates a new [`AudioSource`] based on given [`AudioConstraints`].
     fn get_or_create_audio_source(
         &mut self,
         caps: &AudioConstraints,
@@ -289,10 +267,11 @@ impl Webrtc {
 }
 
 impl AudioDeviceModule {
+    /// Creates a new [`AudioDeviceModule`] according to the passed [`AudioLayer`].
     pub fn new(
         audio_layer: AudioLayer,
         task_queue_factory: &mut TaskQueueFactory,
-    ) -> Self {
+    ) -> anyhow::Result<Self> {
         let inner =
             SysAudioDeviceModule::create(audio_layer, task_queue_factory)
                 .unwrap();
@@ -301,16 +280,16 @@ impl AudioDeviceModule {
 
         // Temporary till ondevicechange() implemented.
         if inner.recording_devices().unwrap() < 1 {
-            panic!("0 audio devices available.")
+            bail!("0 audio device is available.")
         }
 
         let current_device_id =
             AudioDeviceId(inner.recording_device_name(0).unwrap().1);
 
-        Self {
+        Ok(Self {
             inner,
             current_device_id,
-        }
+        })
     }
 }
 

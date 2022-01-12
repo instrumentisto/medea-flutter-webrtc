@@ -202,7 +202,8 @@ pub fn init() -> Box<Webrtc> {
     let audio_device_module = AudioDeviceModule::new(
         AudioLayer::kPlatformDefaultAudio,
         &mut task_queue_factory,
-    );
+    )
+    .unwrap();
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 
