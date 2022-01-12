@@ -243,8 +243,7 @@ impl Thread {
     }
 }
 
-/// This class is under development and is not yet intended for for use outside
-/// of WebRtc/Libjingle.
+/// Webrtc audio mixer.
 pub struct AudioMixer(UniquePtr<webrtc::AudioMixer>);
 
 impl AudioMixer {
@@ -283,8 +282,10 @@ impl AudioProcessing {
     }
 }
 
-/// If passed into PeerConnectionFactory, will be used for additional
+/// Audio frame processor. If passed into PeerConnectionFactory, 
+/// will be used for additional
 /// processing of captured audio frames, performed before encoding.
+/// # Warning
 /// Implementations must be thread-safe.
 pub struct AudioFrameProcessor(UniquePtr<webrtc::AudioFrameProcessor>);
 
@@ -366,8 +367,13 @@ impl RTCOfferAnswerOptions {
     }
 }
 
-/// Session Description used for set [Remote]
-/// or [Local] peer connection descripton.
+/// SessionDescription interface describes one 
+/// end of a connection—or potential connection—and 
+/// how it's configured. 
+/// Each SessionDescription consists of a description type
+/// indicating which part of the offer/answer 
+/// negotiation process it describes and of 
+/// the SDP descriptor of the session.
 pub struct SessionDescriptionInterface(
     UniquePtr<webrtc::SessionDescriptionInterface>,
 );

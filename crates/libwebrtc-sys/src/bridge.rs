@@ -152,7 +152,7 @@ pub(crate) mod webrtc {
         type CreateSessionDescriptionObserver;
         type SetSessionDescriptionObserver;
 
-        /// Creates a new [`Thead`].
+        /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
         /// Starts the created [`Thread`].
@@ -179,7 +179,7 @@ pub(crate) mod webrtc {
         pub fn create_builtin_audio_decoder_factory(
         ) -> UniquePtr<AudioDecoderFactory>;
 
-        /// Creates NULL [`AudioDecoderFactory`].
+        /// Creates NULL [`AudioDeviceModule`].
         pub fn create_audio_device_module_null() -> UniquePtr<AudioDeviceModule>;
 
         /// Creates NULL [`AudioMixer`].
@@ -308,11 +308,13 @@ pub(crate) mod webrtc {
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
+    /// Try conver &str to [`webrtc::SdpType`].
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),
             "answer" => Ok(webrtc::SdpType::kAnswer),
             "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
+            "rollback" => Ok(webrtc::SdpType::kRollback),
             _ => Err(anyhow::Error::msg("Invalid type")),
         }
     }

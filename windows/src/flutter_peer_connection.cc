@@ -22,7 +22,7 @@ void OnSuccessDescription(
     result->Success(nullptr);
 }
 
-void Fail(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
+void OnFail(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
   result->Error(error);
 }
 }
@@ -94,7 +94,7 @@ void CreateOffer(
     callbacks::callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
 
-    auto bind_fail = std::bind(&callbacks::Fail, res, std::placeholders::_1);
+    auto bind_fail = std::bind(&callbacks::OnFail, res, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
 
@@ -160,7 +160,7 @@ void CreateAnswer(
     callbacks::callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
 
-    auto bind_fail = std::bind(&callbacks::Fail, res, std::placeholders::_1);
+    auto bind_fail = std::bind(&callbacks::OnFail, res, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
 
@@ -200,7 +200,7 @@ void SetLocalDescription(
     rust::String sdp = findString(constraints, "sdp");
 
     auto result_ptr = result.release();
-    auto bind_fail = std::bind(&callbacks::Fail, result_ptr, std::placeholders::_1);
+    auto bind_fail = std::bind(&callbacks::OnFail, result_ptr, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
 
@@ -243,7 +243,7 @@ void SetRemoteDescription(
     rust::String sdp = findString(constraints, "sdp");
 
     auto result_ptr = result.release();
-    auto bind_fail = std::bind(&callbacks::Fail, result_ptr, std::placeholders::_1);
+    auto bind_fail = std::bind(&callbacks::OnFail, result_ptr, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
     fail;
