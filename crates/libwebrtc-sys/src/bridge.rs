@@ -184,9 +184,9 @@ pub(crate) mod webrtc {
         /// `audio_processing` - can be?? NULL,
         /// `audio_frame_processor` - default NULL,
         pub unsafe fn create_peer_connection_factory(
-            network_thread: *mut Thread,
-            worker_thread: *mut Thread,
-            signaling_thread: *mut Thread,
+            network_thread: &UniquePtr<Thread>,
+            worker_thread: &UniquePtr<Thread>,
+            signaling_thread: &UniquePtr<Thread>,
             default_adm: UniquePtr<AudioDeviceModule>,
             audio_encoder_factory: Pin<&mut AudioEncoderFactory>,
             audio_decoder_factory: Pin<&mut AudioDecoderFactory>,

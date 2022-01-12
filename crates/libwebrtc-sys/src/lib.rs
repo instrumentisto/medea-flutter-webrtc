@@ -500,15 +500,16 @@ impl PeerConnectionFactoryInterface {
     /// `signaling_thread`.
     /// `default_adm` - NULL, `audio_mixer` - NULL, `audio_processing` - NULL,
     /// `audio_frame_processor` - NULL.
-    pub fn create_whith_null() -> Self {
-        let mut thread = Thread::create();
-        thread.start();
-        let thread_ptr = thread.0.into_raw();
+    pub fn create_whith_null(
+        network_thread: Option<&Thread>,
+        worker_thread: Option<&Thread>,
+        signaling_thread: Option<&Thread>,
+    ) -> Self {
         Self(unsafe {
             webrtc::create_peer_connection_factory(
-                thread_ptr,
-                thread_ptr,
-                thread_ptr,
+                network_thread.map(|t| &t.0).unwrap_or(&UniquePtr::null()),
+                worker_thread.map(|t| &t.0).unwrap_or(&UniquePtr::null()),
+                signaling_thread.map(|t| &t.0).unwrap_or(&UniquePtr::null()),
                 UniquePtr::null(),
                 AudioEncoderFactory::default().0.pin_mut(),
                 AudioDecoderFactory::default().0.pin_mut(),

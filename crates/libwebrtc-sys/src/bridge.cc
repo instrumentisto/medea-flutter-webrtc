@@ -128,9 +128,9 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
 
 // Creates `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    Thread* network_thread,
-    Thread* worker_thread,
-    Thread* signaling_thread,
+    const std::unique_ptr<Thread>& network_thread,
+    const std::unique_ptr<Thread>& worker_thread,
+    const std::unique_ptr<Thread>& signaling_thread,
     std::unique_ptr<AudioDeviceModule> default_adm,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
@@ -142,7 +142,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   
   auto factory = std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
-          network_thread, worker_thread, signaling_thread, 
+          network_thread.get(), worker_thread.get(), signaling_thread.get(), 
           default_adm.get() == nullptr ? nullptr : default_adm.release()->ptr(),
           audio_encoder_factory.ptr(),
           audio_decoder_factory.ptr(),

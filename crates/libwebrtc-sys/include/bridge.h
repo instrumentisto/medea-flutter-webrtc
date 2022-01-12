@@ -140,9 +140,9 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory();
 
 // Creates `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    Thread* network_thread,
-    Thread* worker_thread,
-    Thread* signaling_thread,
+    const std::unique_ptr<Thread>& network_thread,
+    const std::unique_ptr<Thread>& worker_thread,
+    const std::unique_ptr<Thread>& signaling_thread,
     std::unique_ptr<AudioDeviceModule> default_adm,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
@@ -150,7 +150,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
     std::unique_ptr<AudioMixer> audio_mixer,
     std::unique_ptr<AudioProcessing> audio_processing,
-    std::unique_ptr<AudioFrameProcessor> audio_frame_processor);
+    std::unique_ptr<AudioFrameProcessor> audio_frame_processor) ;
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
 std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(      
