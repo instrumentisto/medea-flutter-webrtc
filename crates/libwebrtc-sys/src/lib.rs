@@ -131,11 +131,6 @@ impl AudioDeviceModule {
 
         Ok((name, guid))
     }
-
-    /// Creates a NULL [`AudioDeviceModule`].
-    pub fn create_null() -> Self {
-        Self(webrtc::create_audio_device_module_null())
-    }
 }
 
 /// Interface for receiving information about available camera devices.
@@ -246,13 +241,6 @@ impl Thread {
 /// Webrtc audio mixer.
 pub struct AudioMixer(UniquePtr<webrtc::AudioMixer>);
 
-impl AudioMixer {
-    /// Creates NULL [`AudioMixer`]
-    pub fn create_null() -> Self {
-        Self(webrtc::create_audio_mixer_null())
-    }
-}
-
 /// The Audio Processing Module (APM) provides a collection of voice processing
 /// components designed for real-time communications software.
 ///
@@ -275,26 +263,12 @@ impl AudioMixer {
 /// streams.
 pub struct AudioProcessing(UniquePtr<webrtc::AudioProcessing>);
 
-impl AudioProcessing {
-    /// Creates NULL [`AudioProcessing`]
-    pub fn create_null() -> Self {
-        Self(webrtc::create_audio_processing_null())
-    }
-}
-
 /// Audio frame processor. If passed into PeerConnectionFactory, 
 /// will be used for additional
 /// processing of captured audio frames, performed before encoding.
 /// # Warning
 /// Implementations must be thread-safe.
 pub struct AudioFrameProcessor(UniquePtr<webrtc::AudioFrameProcessor>);
-
-impl AudioFrameProcessor {
-    /// Creates NULL [`AudioFrameProcessor`]
-    pub fn create_null() -> Self {
-        Self(webrtc::create_audio_frame_processor_null())
-    }
-}
 
 /// RTCConfiguration used for creating [`PeerConnectionInterface`]
 pub struct RTCConfiguration(UniquePtr<webrtc::RTCConfiguration>);
@@ -443,7 +417,7 @@ impl PeerConnectionInterface {
             webrtc::create_offer(
                 self.0.pin_mut(),
                 &options.0,
-                obs.0.into_raw(),
+                obs.0,
             );
         }
     }
@@ -464,7 +438,7 @@ impl PeerConnectionInterface {
             webrtc::create_answer(
                 self.0.pin_mut(),
                 &options.0,
-                obs.0.into_raw(),
+                obs.0,
             );
         }
     }
@@ -486,7 +460,7 @@ impl PeerConnectionInterface {
             webrtc::set_local_description(
                 self.0.pin_mut(),
                 desc.0,
-                obs.0.into_raw(),
+                obs.0,
             );
         }
     }
@@ -506,7 +480,7 @@ impl PeerConnectionInterface {
             webrtc::set_remote_description(
                 self.0.pin_mut(),
                 desc.0,
-                obs.0.into_raw(),
+                obs.0,
             );
         }
     }
@@ -535,14 +509,14 @@ impl PeerConnectionFactoryInterface {
                 thread_ptr,
                 thread_ptr,
                 thread_ptr,
-                AudioDeviceModule::create_null().0.into_raw(),
+                UniquePtr::null(),
                 AudioEncoderFactory::default().0.pin_mut(),
                 AudioDecoderFactory::default().0.pin_mut(),
                 VideoEncoderFactory::default().0,
                 VideoDecoderFactory::default().0,
-                AudioMixer::create_null().0.into_raw(),
-                AudioProcessing::create_null().0.into_raw(),
-                AudioFrameProcessor::create_null().0.into_raw(),
+                UniquePtr::null(),
+                UniquePtr::null(),
+                UniquePtr::null(),
             )
         })
     }

@@ -126,48 +126,36 @@ std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
   return std::make_unique<AudioDecoderFactory>(builtin_audio_encoder_factory);
 }
 
-// Creates NULL `AudioDeviceModule`.
-std::unique_ptr<AudioDeviceModule> create_audio_device_module_null() {
-  return std::unique_ptr<AudioDeviceModule>(nullptr);
-}
-
-// Creates NULL `AudioMixer`.
-std::unique_ptr<AudioMixer> create_audio_mixer_null() {
-  return std::unique_ptr<AudioMixer>(nullptr);
-}
-
-// Creates NULL `AudioProcessing`.
-std::unique_ptr<AudioProcessing> create_audio_processing_null() {
-  return std::unique_ptr<AudioProcessing>(nullptr);
-}
-
-// Creates NULL `AudioFrameProcessor`.
-std::unique_ptr<AudioFrameProcessor> create_audio_frame_processor_null() {
-  return std::unique_ptr<AudioFrameProcessor>(nullptr);
-}
-
 // Creates `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread* network_thread,
     Thread* worker_thread,
     Thread* signaling_thread,
-    AudioDeviceModule* default_adm,
+    std::unique_ptr<AudioDeviceModule> default_adm,
     AudioEncoderFactory& audio_encoder_factory,
     AudioDecoderFactory& audio_decoder_factory,
     std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
     std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
-    AudioMixer* audio_mixer,
-    AudioProcessing* audio_processing,
-    AudioFrameProcessor* audio_frame_processor) {
-  return std::make_unique<PeerConnectionFactoryInterface>(
+    std::unique_ptr<AudioMixer> audio_mixer,
+    std::unique_ptr<AudioProcessing> audio_processing,
+    std::unique_ptr<AudioFrameProcessor> audio_frame_processor) {
+  
+  auto factory = std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
-          network_thread, worker_thread, signaling_thread, nullptr,
+          network_thread, worker_thread, signaling_thread, 
+          default_adm.get() == nullptr ? nullptr : default_adm.release()->ptr(),
           audio_encoder_factory.ptr(),
           audio_decoder_factory.ptr(),
           std::move(video_encoder_factory),
           std::move(video_decoder_factory),
-          nullptr, nullptr,
-          audio_frame_processor));
+          audio_mixer.get() == nullptr ? nullptr : audio_mixer.release()->ptr(), 
+          audio_processing.get() == nullptr ? nullptr : audio_processing.release()->ptr(),
+          audio_frame_processor.release()));
+
+  if (factory == nullptr) {
+    return nullptr;
+  }
+  return factory;
 }
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
@@ -176,7 +164,7 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
       rust::String& error,
       const RTCConfiguration& configuration,
       std::unique_ptr<PeerConnectionDependencies> dependencies) {
-        PeerConnectionDependencies pcd = std::move(*(dependencies.get()));
+        PeerConnectionDependencies pcd = std::move(*(dependencies.release()));
         auto peer_connection =
           peer_connection_factory.ptr()->CreatePeerConnectionOrError(configuration, std::move(pcd));
 
@@ -246,25 +234,25 @@ std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_ob
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, CreateSessionDescriptionObserver* obs) {
-    peer_connection_interface.ptr()->CreateOffer(obs, options);
+  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs) {
+    peer_connection_interface.ptr()->CreateOffer(obs.release(), options);
   }
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
 void create_answer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, CreateSessionDescriptionObserver* obs) {
-  peer_connection_interface.ptr()->CreateAnswer(obs, options);
+  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs) {
+  peer_connection_interface.ptr()->CreateAnswer(obs.release(), options);
 }
 
 // Calls `PeerConnectionInterface->SetLocalDescription`.
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, SetSessionDescriptionObserver* obs) {
-    peer_connection_interface.ptr()->SetLocalDescription(obs, desc.release());
+  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetSessionDescriptionObserver> obs) {
+    peer_connection_interface.ptr()->SetLocalDescription(obs.release(), desc.release());
   }
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, SetSessionDescriptionObserver* obs) {
-    peer_connection_interface.ptr()->SetRemoteDescription(obs, desc.release());
+  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetSessionDescriptionObserver> obs) {
+    peer_connection_interface.ptr()->SetRemoteDescription(obs.release(), desc.release());
   }
 }
