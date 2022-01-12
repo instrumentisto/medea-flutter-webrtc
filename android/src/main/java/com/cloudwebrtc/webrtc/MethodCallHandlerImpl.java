@@ -155,11 +155,8 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     switch (call.method) {
       case "createPeerConnection":
         {
-          Map<String, Object> constraints = call.argument("constraints");
           Map<String, Object> configuration = call.argument("configuration");
-          String peerConnectionId =
-              peerConnectionInit(
-                  new ConstraintsMap(configuration), new ConstraintsMap(constraints));
+          String peerConnectionId = peerConnectionInit(new ConstraintsMap(configuration));
           ConstraintsMap res = new ConstraintsMap();
           res.putString("peerConnectionId", peerConnectionId);
           result.success(res.toMap());
@@ -924,8 +921,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     return conf;
   }
 
-  private String peerConnectionInit(
-      ConstraintsMap configuration, @NonNull ConstraintsMap constraints) {
+  private String peerConnectionInit(ConstraintsMap configuration) {
     String peerConnectionId = getNextStreamUUID();
     RTCConfiguration conf = parseRTCConfiguration(configuration);
     PeerConnectionObserver observer =
@@ -1395,9 +1391,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
   private void mediaStreamRelease(@NonNull final String id) {
     MediaStream mediaStream = localStreams.get(id);
     if (mediaStream != null) {
-      //      for (VideoTrack track : mediaStream.videoTracks) {
-      //        getUserMediaImpl.removeVideoCapturer(track.id());
-      //      }
       mediaStream.dispose();
       localStreams.remove(id);
     } else {
