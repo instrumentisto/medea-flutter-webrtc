@@ -14,33 +14,31 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import com.cloudwebrtc.webrtc.utils.RTCUtils;
 import org.webrtc.ThreadUtils;
 
-/**
- * RTCAudioManager manages all audio related parts of the plugin.
- */
+/** RTCAudioManager manages all audio related parts of the plugin. */
 public class RTCAudioManager {
   private static final String TAG = "RTCAudioManager";
   private static final String SPEAKERPHONE_AUTO = "auto";
   private static final String SPEAKERPHONE_TRUE = "true";
   private static final String SPEAKERPHONE_FALSE = "false";
 
-  /**
-   * AudioDevice is the names of possible audio devices that we currently
-   * support.
-   */
-  public enum AudioDevice { SPEAKER_PHONE, WIRED_HEADSET, EARPIECE, BLUETOOTH, NONE }
+  /** AudioDevice is the names of possible audio devices that we currently support. */
+  public enum AudioDevice {
+    SPEAKER_PHONE,
+    WIRED_HEADSET,
+    EARPIECE,
+    BLUETOOTH,
+    NONE
+  }
 
   /** AudioManager state. */
   public enum AudioManagerState {
@@ -107,8 +105,8 @@ public class RTCAudioManager {
   private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener;
 
   /**
-   * This method is called when the proximity sensor reports a state change,
-   * e.g. from "NEAR to FAR" or from "FAR to NEAR".
+   * This method is called when the proximity sensor reports a state change, e.g. from "NEAR to FAR"
+   * or from "FAR to NEAR".
    */
   private void onProximitySensorChangedState() {
     if (!useSpeakerphone.equals(SPEAKERPHONE_AUTO)) {
@@ -117,7 +115,8 @@ public class RTCAudioManager {
 
     // The proximity sensor should only be activated when there are exactly two
     // available audio devices.
-    if (audioDevices.size() == 2 && audioDevices.contains(RTCAudioManager.AudioDevice.EARPIECE)
+    if (audioDevices.size() == 2
+        && audioDevices.contains(RTCAudioManager.AudioDevice.EARPIECE)
         && audioDevices.contains(RTCAudioManager.AudioDevice.SPEAKER_PHONE)) {
       if (proximitySensor.sensorReportsNearState()) {
         // Sensor reports that a "handset is being held up to a person's ear",
@@ -143,10 +142,20 @@ public class RTCAudioManager {
       int state = intent.getIntExtra("state", STATE_UNPLUGGED);
       int microphone = intent.getIntExtra("microphone", HAS_NO_MIC);
       String name = intent.getStringExtra("name");
-      Log.d(TAG, "WiredHeadsetReceiver.onReceive" + RTCUtils.getThreadInfo() + ": "
-              + "a=" + intent.getAction() + ", s="
-              + (state == STATE_UNPLUGGED ? "unplugged" : "plugged") + ", m="
-              + (microphone == HAS_MIC ? "mic" : "no mic") + ", n=" + name + ", sb="
+      Log.d(
+          TAG,
+          "WiredHeadsetReceiver.onReceive"
+              + RTCUtils.getThreadInfo()
+              + ": "
+              + "a="
+              + intent.getAction()
+              + ", s="
+              + (state == STATE_UNPLUGGED ? "unplugged" : "plugged")
+              + ", m="
+              + (microphone == HAS_MIC ? "mic" : "no mic")
+              + ", n="
+              + name
+              + ", sb="
               + isInitialStickyBroadcast());
       hasWiredHeadset = (state == STATE_PLUGGED);
       updateAudioDeviceState();
@@ -179,11 +188,13 @@ public class RTCAudioManager {
     // Create and initialize the proximity sensor.
     // Tablet devices (e.g. Nexus 7) does not support proximity sensors.
     // Note that, the sensor will not be active until start() has been called.
-    proximitySensor = RTCProximitySensor.create(context,
-        // This method will be called each time a state change is detected.
-        // Example: user holds his hand over the device (closer than ~5 cm),
-        // or removes his hand from the device.
-        this ::onProximitySensorChangedState);
+    proximitySensor =
+        RTCProximitySensor.create(
+            context,
+            // This method will be called each time a state change is detected.
+            // Example: user holds his hand over the device (closer than ~5 cm),
+            // or removes his hand from the device.
+            this::onProximitySensorChangedState);
 
     Log.d(TAG, "defaultAudioDevice: " + defaultAudioDevice);
     RTCUtils.logDeviceInfo(TAG);
@@ -210,49 +221,54 @@ public class RTCAudioManager {
     hasWiredHeadset = hasWiredHeadset();
 
     // Create an AudioManager.OnAudioFocusChangeListener instance.
-    audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-      // Called on the listener to notify if the audio focus for this listener has been changed.
-      // The |focusChange| value indicates whether the focus was gained, whether the focus was lost,
-      // and whether that loss is transient, or whether the new focus holder will hold it for an
-      // unknown amount of time.
-      // TODO(henrika): possibly extend support of handling audio-focus changes. Only contains
-      // logging for now.
-      @Override
-      public void onAudioFocusChange(int focusChange) {
-        final String typeOfChange;
-        switch (focusChange) {
-          case AudioManager.AUDIOFOCUS_GAIN:
-            typeOfChange = "AUDIOFOCUS_GAIN";
-            break;
-          case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
-            typeOfChange = "AUDIOFOCUS_GAIN_TRANSIENT";
-            break;
-          case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
-            typeOfChange = "AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE";
-            break;
-          case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
-            typeOfChange = "AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK";
-            break;
-          case AudioManager.AUDIOFOCUS_LOSS:
-            typeOfChange = "AUDIOFOCUS_LOSS";
-            break;
-          case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-            typeOfChange = "AUDIOFOCUS_LOSS_TRANSIENT";
-            break;
-          case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-            typeOfChange = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
-            break;
-          default:
-            typeOfChange = "AUDIOFOCUS_INVALID";
-            break;
-        }
-        Log.d(TAG, "onAudioFocusChange: " + typeOfChange);
-      }
-    };
+    audioFocusChangeListener =
+        new AudioManager.OnAudioFocusChangeListener() {
+          // Called on the listener to notify if the audio focus for this listener has been changed.
+          // The |focusChange| value indicates whether the focus was gained, whether the focus was
+          // lost,
+          // and whether that loss is transient, or whether the new focus holder will hold it for an
+          // unknown amount of time.
+          // TODO(henrika): possibly extend support of handling audio-focus changes. Only contains
+          // logging for now.
+          @Override
+          public void onAudioFocusChange(int focusChange) {
+            final String typeOfChange;
+            switch (focusChange) {
+              case AudioManager.AUDIOFOCUS_GAIN:
+                typeOfChange = "AUDIOFOCUS_GAIN";
+                break;
+              case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
+                typeOfChange = "AUDIOFOCUS_GAIN_TRANSIENT";
+                break;
+              case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
+                typeOfChange = "AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE";
+                break;
+              case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
+                typeOfChange = "AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK";
+                break;
+              case AudioManager.AUDIOFOCUS_LOSS:
+                typeOfChange = "AUDIOFOCUS_LOSS";
+                break;
+              case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                typeOfChange = "AUDIOFOCUS_LOSS_TRANSIENT";
+                break;
+              case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                typeOfChange = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
+                break;
+              default:
+                typeOfChange = "AUDIOFOCUS_INVALID";
+                break;
+            }
+            Log.d(TAG, "onAudioFocusChange: " + typeOfChange);
+          }
+        };
 
     // Request audio playout focus (without ducking) and install listener for changes in focus.
-    int result = audioManager.requestAudioFocus(audioFocusChangeListener,
-        AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+    int result =
+        audioManager.requestAudioFocus(
+            audioFocusChangeListener,
+            AudioManager.STREAM_VOICE_CALL,
+            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
     if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
       Log.d(TAG, "Audio focus request granted for VOICE_CALL streams");
     } else {
@@ -346,19 +362,18 @@ public class RTCAudioManager {
   }
 
   /**
-   * Changes default audio device.
-   * TODO(henrika): add usage of this method in the RTCMobile client.
+   * Changes default audio device. TODO(henrika): add usage of this method in the RTCMobile client.
    */
   public void setDefaultAudioDevice(AudioDevice defaultDevice) {
     ThreadUtils.checkIsOnMainThread();
     switch (defaultDevice) {
       case EARPIECE:
-      if (hasEarpiece()) {
-        defaultAudioDevice = defaultDevice;
-      } else {
-        defaultAudioDevice = AudioDevice.SPEAKER_PHONE;
-      }
-      break;
+        if (hasEarpiece()) {
+          defaultAudioDevice = defaultDevice;
+        } else {
+          defaultAudioDevice = AudioDevice.SPEAKER_PHONE;
+        }
+        break;
       case SPEAKER_PHONE:
         defaultAudioDevice = defaultDevice;
         break;
@@ -409,12 +424,12 @@ public class RTCAudioManager {
       return;
     }
     final RTCBluetoothManager.State btManagerState = bluetoothManager.getState();
-    final boolean isBTAvailable =  
-    btManagerState == RTCBluetoothManager.State.SCO_CONNECTED
-        || btManagerState == RTCBluetoothManager.State.SCO_CONNECTING
-        || btManagerState == RTCBluetoothManager.State.HEADSET_AVAILABLE;
-    if(!on && isBTAvailable){
-        bluetoothManager.startScoAudio();
+    final boolean isBTAvailable =
+        btManagerState == RTCBluetoothManager.State.SCO_CONNECTED
+            || btManagerState == RTCBluetoothManager.State.SCO_CONNECTING
+            || btManagerState == RTCBluetoothManager.State.HEADSET_AVAILABLE;
+    if (!on && isBTAvailable) {
+      bluetoothManager.startScoAudio();
     }
     audioManager.setSpeakerphoneOn(on);
   }
@@ -434,11 +449,9 @@ public class RTCAudioManager {
   }
 
   /**
-   * Checks whether a wired headset is connected or not.
-   * This is not a valid indication that audio playback is actually over
-   * the wired headset as audio routing depends on other conditions. We
-   * only use it as an early indicator (during initialization) of an attached
-   * wired headset.
+   * Checks whether a wired headset is connected or not. This is not a valid indication that audio
+   * playback is actually over the wired headset as audio routing depends on other conditions. We
+   * only use it as an early indicator (during initialization) of an attached wired headset.
    */
   @Deprecated
   private boolean hasWiredHeadset() {
@@ -461,18 +474,30 @@ public class RTCAudioManager {
   }
 
   /**
-   * Updates list of possible audio devices and make new device selection.
-   * TODO(henrika): add unit test to verify all state transitions.
+   * Updates list of possible audio devices and make new device selection. TODO(henrika): add unit
+   * test to verify all state transitions.
    */
   public void updateAudioDeviceState() {
     ThreadUtils.checkIsOnMainThread();
-    Log.d(TAG, "--- updateAudioDeviceState: "
-            + "wired headset=" + hasWiredHeadset + ", "
-            + "BT state=" + bluetoothManager.getState());
-    Log.d(TAG, "Device status: "
-            + "available=" + audioDevices + ", "
-            + "selected=" + selectedAudioDevice + ", "
-            + "user selected=" + userSelectedAudioDevice);
+    Log.d(
+        TAG,
+        "--- updateAudioDeviceState: "
+            + "wired headset="
+            + hasWiredHeadset
+            + ", "
+            + "BT state="
+            + bluetoothManager.getState());
+    Log.d(
+        TAG,
+        "Device status: "
+            + "available="
+            + audioDevices
+            + ", "
+            + "selected="
+            + selectedAudioDevice
+            + ", "
+            + "user selected="
+            + userSelectedAudioDevice);
 
     // Check if any Bluetooth headset is connected. The internal BT state will
     // change accordingly.
@@ -528,23 +553,30 @@ public class RTCAudioManager {
     // user did not select any output device.
     boolean needBluetoothAudioStart =
         bluetoothManager.getState() == RTCBluetoothManager.State.HEADSET_AVAILABLE
-        && (userSelectedAudioDevice == AudioDevice.NONE
-               || userSelectedAudioDevice == AudioDevice.BLUETOOTH);
+            && (userSelectedAudioDevice == AudioDevice.NONE
+                || userSelectedAudioDevice == AudioDevice.BLUETOOTH);
 
     // Need to stop Bluetooth audio if user selected different device and
     // Bluetooth SCO connection is established or in the process.
     boolean needBluetoothAudioStop =
         (bluetoothManager.getState() == RTCBluetoothManager.State.SCO_CONNECTED
-            || bluetoothManager.getState() == RTCBluetoothManager.State.SCO_CONNECTING)
-        && (userSelectedAudioDevice != AudioDevice.NONE
-               && userSelectedAudioDevice != AudioDevice.BLUETOOTH);
+                || bluetoothManager.getState() == RTCBluetoothManager.State.SCO_CONNECTING)
+            && (userSelectedAudioDevice != AudioDevice.NONE
+                && userSelectedAudioDevice != AudioDevice.BLUETOOTH);
 
     if (bluetoothManager.getState() == RTCBluetoothManager.State.HEADSET_AVAILABLE
         || bluetoothManager.getState() == RTCBluetoothManager.State.SCO_CONNECTING
         || bluetoothManager.getState() == RTCBluetoothManager.State.SCO_CONNECTED) {
-      Log.d(TAG, "Need BT audio: start=" + needBluetoothAudioStart + ", "
-              + "stop=" + needBluetoothAudioStop + ", "
-              + "BT state=" + bluetoothManager.getState());
+      Log.d(
+          TAG,
+          "Need BT audio: start="
+              + needBluetoothAudioStart
+              + ", "
+              + "stop="
+              + needBluetoothAudioStop
+              + ", "
+              + "BT state="
+              + bluetoothManager.getState());
     }
 
     // Start or stop Bluetooth SCO connection given states set earlier.
@@ -585,9 +617,14 @@ public class RTCAudioManager {
     if (newAudioDevice != selectedAudioDevice || audioDeviceSetUpdated) {
       // Do the required device switch.
       setAudioDeviceInternal(newAudioDevice);
-      Log.d(TAG, "New device status: "
-              + "available=" + audioDevices + ", "
-              + "selected=" + newAudioDevice);
+      Log.d(
+          TAG,
+          "New device status: "
+              + "available="
+              + audioDevices
+              + ", "
+              + "selected="
+              + newAudioDevice);
       if (audioManagerEvents != null) {
         // Notify a listening client that audio device has been changed.
         audioManagerEvents.onAudioDeviceChanged(selectedAudioDevice, audioDevices);

@@ -27,13 +27,9 @@ import android.os.Process;
 import android.util.Log;
 import java.util.List;
 import java.util.Set;
-import com.cloudwebrtc.webrtc.utils.RTCUtils;
 import org.webrtc.ThreadUtils;
 
-/**
- * RTCProximitySensor manages functions related to Bluetoth devices in the
- * RTC demo.
- */
+/** RTCProximitySensor manages functions related to Bluetoth devices in the RTC demo. */
 public class RTCBluetoothManager {
   private static final String TAG = "RTCBluetoothManager";
 
@@ -64,30 +60,31 @@ public class RTCBluetoothManager {
 
   private final Context apprtcContext;
   private final RTCAudioManager apprtcAudioManager;
-  
+
   private final AudioManager audioManager;
   private final Handler handler;
 
   int scoConnectionAttempts;
   private State bluetoothState;
   private final BluetoothProfile.ServiceListener bluetoothServiceListener;
-  
+
   private BluetoothAdapter bluetoothAdapter;
-  
+
   private BluetoothHeadset bluetoothHeadset;
-  
+
   private BluetoothDevice bluetoothDevice;
   private final BroadcastReceiver bluetoothHeadsetReceiver;
 
   // Runs when the Bluetooth timeout expires. We use that timeout after calling
   // startScoAudio() or stopScoAudio() because we're not guaranteed to get a
   // callback after those calls.
-  private final Runnable bluetoothTimeoutRunnable = new Runnable() {
-    @Override
-    public void run() {
-      bluetoothTimeout();
-    }
-  };
+  private final Runnable bluetoothTimeoutRunnable =
+      new Runnable() {
+        @Override
+        public void run() {
+          bluetoothTimeout();
+        }
+      };
 
   /**
    * Implementation of an interface that notifies BluetoothProfile IPC clients when they have been
@@ -141,11 +138,18 @@ public class RTCBluetoothManager {
       if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
         final int state =
             intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED);
-        Log.d(TAG, "BluetoothHeadsetBroadcastReceiver.onReceive: "
+        Log.d(
+            TAG,
+            "BluetoothHeadsetBroadcastReceiver.onReceive: "
                 + "a=ACTION_CONNECTION_STATE_CHANGED, "
-                + "s=" + stateToString(state) + ", "
-                + "sb=" + isInitialStickyBroadcast() + ", "
-                + "BT state: " + bluetoothState);
+                + "s="
+                + stateToString(state)
+                + ", "
+                + "sb="
+                + isInitialStickyBroadcast()
+                + ", "
+                + "BT state: "
+                + bluetoothState);
         if (state == BluetoothHeadset.STATE_CONNECTED) {
           scoConnectionAttempts = 0;
           updateAudioDeviceState();
@@ -161,13 +165,21 @@ public class RTCBluetoothManager {
         // Change in the audio (SCO) connection state of the Headset profile.
         // Typically received after call to startScoAudio() has finalized.
       } else if (action.equals(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)) {
-        final int state = intent.getIntExtra(
-            BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
-        Log.d(TAG, "BluetoothHeadsetBroadcastReceiver.onReceive: "
+        final int state =
+            intent.getIntExtra(
+                BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
+        Log.d(
+            TAG,
+            "BluetoothHeadsetBroadcastReceiver.onReceive: "
                 + "a=ACTION_AUDIO_STATE_CHANGED, "
-                + "s=" + stateToString(state) + ", "
-                + "sb=" + isInitialStickyBroadcast() + ", "
-                + "BT state: " + bluetoothState);
+                + "s="
+                + stateToString(state)
+                + ", "
+                + "sb="
+                + isInitialStickyBroadcast()
+                + ", "
+                + "BT state: "
+                + bluetoothState);
         if (state == BluetoothHeadset.STATE_AUDIO_CONNECTED) {
           cancelTimer();
           if (bluetoothState == State.SCO_CONNECTING) {
@@ -218,17 +230,13 @@ public class RTCBluetoothManager {
   }
 
   /**
-   * Activates components required to detect Bluetooth devices and to enable
-   * BT SCO (audio is routed via BT SCO) for the headset profile. The end
-   * state will be HEADSET_UNAVAILABLE but a state machine has started which
-   * will start a state change sequence where the final outcome depends on
-   * if/when the BT headset is enabled.
-   * Example of state change sequence when start() is called while BT device
-   * is connected and enabled:
-   *   UNINITIALIZED --> HEADSET_UNAVAILABLE --> HEADSET_AVAILABLE -->
-   *   SCO_CONNECTING --> SCO_CONNECTED <==> audio is now routed via BT SCO.
-   * Note that the RTCAudioManager is also involved in driving this state
-   * change.
+   * Activates components required to detect Bluetooth devices and to enable BT SCO (audio is routed
+   * via BT SCO) for the headset profile. The end state will be HEADSET_UNAVAILABLE but a state
+   * machine has started which will start a state change sequence where the final outcome depends on
+   * if/when the BT headset is enabled. Example of state change sequence when start() is called
+   * while BT device is connected and enabled: UNINITIALIZED --> HEADSET_UNAVAILABLE -->
+   * HEADSET_AVAILABLE --> SCO_CONNECTING --> SCO_CONNECTED <==> audio is now routed via BT SCO.
+   * Note that the RTCAudioManager is also involved in driving this state change.
    */
   public void start() {
     ThreadUtils.checkIsOnMainThread();
@@ -259,7 +267,7 @@ public class RTCBluetoothManager {
     // Establish a connection to the HEADSET profile (includes both Bluetooth Headset and
     // Hands-Free) proxy object and install a listener.
     if (!getBluetoothProfileProxy(
-            apprtcContext, bluetoothServiceListener, BluetoothProfile.HEADSET)) {
+        apprtcContext, bluetoothServiceListener, BluetoothProfile.HEADSET)) {
       Log.e(TAG, "BluetoothAdapter.getProfileProxy(HEADSET) failed");
       return;
     }
@@ -270,7 +278,9 @@ public class RTCBluetoothManager {
     // Register receiver for change in audio connection state of the Headset profile.
     bluetoothHeadsetFilter.addAction(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED);
     registerReceiver(bluetoothHeadsetReceiver, bluetoothHeadsetFilter);
-    Log.d(TAG, "HEADSET profile state: "
+    Log.d(
+        TAG,
+        "HEADSET profile state: "
             + stateToString(bluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET)));
     Log.d(TAG, "Bluetooth proxy for headset profile has started");
     bluetoothState = State.HEADSET_UNAVAILABLE;
@@ -303,23 +313,29 @@ public class RTCBluetoothManager {
   }
 
   /**
-   * Starts Bluetooth SCO connection with remote device.
-   * Note that the phone application always has the priority on the usage of the SCO connection
-   * for telephony. If this method is called while the phone is in call it will be ignored.
-   * Similarly, if a call is received or sent while an application is using the SCO connection,
-   * the connection will be lost for the application and NOT returned automatically when the call
-   * ends. Also note that: up to and including API version JELLY_BEAN_MR1, this method initiates a
-   * virtual voice call to the Bluetooth headset. After API version JELLY_BEAN_MR2 only a raw SCO
-   * audio connection is established.
-   * TODO(henrika): should we add support for virtual voice call to BT headset also for JBMR2 and
-   * higher. It might be required to initiates a virtual voice call since many devices do not
-   * accept SCO audio without a "call".
+   * Starts Bluetooth SCO connection with remote device. Note that the phone application always has
+   * the priority on the usage of the SCO connection for telephony. If this method is called while
+   * the phone is in call it will be ignored. Similarly, if a call is received or sent while an
+   * application is using the SCO connection, the connection will be lost for the application and
+   * NOT returned automatically when the call ends. Also note that: up to and including API version
+   * JELLY_BEAN_MR1, this method initiates a virtual voice call to the Bluetooth headset. After API
+   * version JELLY_BEAN_MR2 only a raw SCO audio connection is established. TODO(henrika): should we
+   * add support for virtual voice call to BT headset also for JBMR2 and higher. It might be
+   * required to initiates a virtual voice call since many devices do not accept SCO audio without a
+   * "call".
    */
   public boolean startScoAudio() {
     ThreadUtils.checkIsOnMainThread();
-    Log.d(TAG, "startSco: BT state=" + bluetoothState + ", "
-            + "attempts: " + scoConnectionAttempts + ", "
-            + "SCO is on: " + isScoOn());
+    Log.d(
+        TAG,
+        "startSco: BT state="
+            + bluetoothState
+            + ", "
+            + "attempts: "
+            + scoConnectionAttempts
+            + ", "
+            + "SCO is on: "
+            + isScoOn());
     if (scoConnectionAttempts >= MAX_SCO_CONNECTION_ATTEMPTS) {
       Log.e(TAG, "BT SCO connection fails - no more attempts");
       return false;
@@ -328,8 +344,8 @@ public class RTCBluetoothManager {
     if (!devices.isEmpty()) {
       bluetoothDevice = devices.get(0);
       bluetoothState = State.HEADSET_AVAILABLE;
-    } 
-    
+    }
+
     if (bluetoothState != State.HEADSET_AVAILABLE) {
       Log.e(TAG, "BT SCO connection fails - no headset available");
       return false;
@@ -344,16 +360,14 @@ public class RTCBluetoothManager {
     audioManager.setBluetoothScoOn(true);
     scoConnectionAttempts++;
     startTimer();
-    Log.d(TAG, "startScoAudio done: BT state=" + bluetoothState + ", "
-            + "SCO is on: " + isScoOn());
+    Log.d(TAG, "startScoAudio done: BT state=" + bluetoothState + ", " + "SCO is on: " + isScoOn());
     return true;
   }
 
   /** Stops Bluetooth SCO connection with remote device. */
   public void stopScoAudio() {
     ThreadUtils.checkIsOnMainThread();
-    Log.d(TAG, "stopScoAudio: BT state=" + bluetoothState + ", "
-            + "SCO is on: " + isScoOn());
+    Log.d(TAG, "stopScoAudio: BT state=" + bluetoothState + ", " + "SCO is on: " + isScoOn());
     if (bluetoothState != State.SCO_CONNECTING && bluetoothState != State.SCO_CONNECTED) {
       return;
     }
@@ -361,16 +375,14 @@ public class RTCBluetoothManager {
     audioManager.stopBluetoothSco();
     audioManager.setBluetoothScoOn(false);
     bluetoothState = State.SCO_DISCONNECTING;
-    Log.d(TAG, "stopScoAudio done: BT state=" + bluetoothState + ", "
-            + "SCO is on: " + isScoOn());
+    Log.d(TAG, "stopScoAudio done: BT state=" + bluetoothState + ", " + "SCO is on: " + isScoOn());
   }
 
   /**
-   * Use the BluetoothHeadset proxy object (controls the Bluetooth Headset
-   * Service via IPC) to update the list of connected devices for the HEADSET
-   * profile. The internal state will change to HEADSET_UNAVAILABLE or to
-   * HEADSET_AVAILABLE and |bluetoothDevice| will be mapped to the connected
-   * device if available.
+   * Use the BluetoothHeadset proxy object (controls the Bluetooth Headset Service via IPC) to
+   * update the list of connected devices for the HEADSET profile. The internal state will change to
+   * HEADSET_UNAVAILABLE or to HEADSET_AVAILABLE and |bluetoothDevice| will be mapped to the
+   * connected device if available.
    */
   public void updateDevice() {
     if (bluetoothState == State.UNINITIALIZED || bluetoothHeadset == null) {
@@ -389,18 +401,21 @@ public class RTCBluetoothManager {
       // Always use first device in list. Android only supports one device.
       bluetoothDevice = devices.get(0);
       bluetoothState = State.HEADSET_AVAILABLE;
-      Log.d(TAG, "Connected bluetooth headset: "
-              + "name=" + bluetoothDevice.getName() + ", "
-              + "state=" + stateToString(bluetoothHeadset.getConnectionState(bluetoothDevice))
-              + ", SCO audio=" + bluetoothHeadset.isAudioConnected(bluetoothDevice));
+      Log.d(
+          TAG,
+          "Connected bluetooth headset: "
+              + "name="
+              + bluetoothDevice.getName()
+              + ", "
+              + "state="
+              + stateToString(bluetoothHeadset.getConnectionState(bluetoothDevice))
+              + ", SCO audio="
+              + bluetoothHeadset.isAudioConnected(bluetoothDevice));
     }
     Log.d(TAG, "updateDevice done: BT state=" + bluetoothState);
   }
 
-  /**
-   * Stubs for test mocks.
-   */
-  
+  /** Stubs for test mocks. */
   protected AudioManager getAudioManager(Context context) {
     return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
   }
@@ -426,11 +441,20 @@ public class RTCBluetoothManager {
   /** Logs the state of the local Bluetooth adapter. */
   @SuppressLint("HardwareIds")
   protected void logBluetoothAdapterInfo(BluetoothAdapter localAdapter) {
-    Log.d(TAG, "BluetoothAdapter: "
-            + "enabled=" + localAdapter.isEnabled() + ", "
-            + "state=" + stateToString(localAdapter.getState()) + ", "
-            + "name=" + localAdapter.getName() + ", "
-            + "address=" + localAdapter.getAddress());
+    Log.d(
+        TAG,
+        "BluetoothAdapter: "
+            + "enabled="
+            + localAdapter.isEnabled()
+            + ", "
+            + "state="
+            + stateToString(localAdapter.getState())
+            + ", "
+            + "name="
+            + localAdapter.getName()
+            + ", "
+            + "address="
+            + localAdapter.getAddress());
     // Log the set of BluetoothDevice objects that are bonded (paired) to the local adapter.
     Set<BluetoothDevice> pairedDevices = localAdapter.getBondedDevices();
     if (!pairedDevices.isEmpty()) {
@@ -463,17 +487,24 @@ public class RTCBluetoothManager {
   }
 
   /**
-   * Called when start of the BT SCO channel takes too long time. Usually
-   * happens when the BT device has been turned on during an ongoing call.
+   * Called when start of the BT SCO channel takes too long time. Usually happens when the BT device
+   * has been turned on during an ongoing call.
    */
   private void bluetoothTimeout() {
     ThreadUtils.checkIsOnMainThread();
     if (bluetoothState == State.UNINITIALIZED || bluetoothHeadset == null) {
       return;
     }
-    Log.d(TAG, "bluetoothTimeout: BT state=" + bluetoothState + ", "
-            + "attempts: " + scoConnectionAttempts + ", "
-            + "SCO is on: " + isScoOn());
+    Log.d(
+        TAG,
+        "bluetoothTimeout: BT state="
+            + bluetoothState
+            + ", "
+            + "attempts: "
+            + scoConnectionAttempts
+            + ", "
+            + "SCO is on: "
+            + isScoOn());
     if (bluetoothState != State.SCO_CONNECTING) {
       return;
     }
@@ -529,7 +560,7 @@ public class RTCBluetoothManager {
       case BluetoothAdapter.STATE_TURNING_ON:
         // Indicates the local Bluetooth adapter is turning on. However local clients should wait
         // for STATE_ON before attempting to use the adapter.
-        return  "TURNING_ON";
+        return "TURNING_ON";
       default:
         return "INVALID";
     }

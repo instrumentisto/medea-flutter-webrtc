@@ -17,17 +17,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.util.Log;
-import com.cloudwebrtc.webrtc.utils.RTCUtils;
 import org.webrtc.ThreadUtils;
 
 /**
- * RTCProximitySensor manages functions related to the proximity sensor in
- * the RTC demo.
- * On most device, the proximity sensor is implemented as a boolean-sensor.
- * It returns just two values "NEAR" or "FAR". Thresholding is done on the LUX
- * value i.e. the LUX value of the light sensor is compared with a threshold.
- * A LUX-value more than the threshold means the proximity sensor returns "FAR".
- * Anything less than the threshold value and the sensor  returns "NEAR".
+ * RTCProximitySensor manages functions related to the proximity sensor in the RTC demo. On most
+ * device, the proximity sensor is implemented as a boolean-sensor. It returns just two values
+ * "NEAR" or "FAR". Thresholding is done on the LUX value i.e. the LUX value of the light sensor is
+ * compared with a threshold. A LUX-value more than the threshold means the proximity sensor returns
+ * "FAR". Anything less than the threshold value and the sensor returns "NEAR".
  */
 public class RTCProximitySensor implements SensorEventListener {
   private static final String TAG = "RTCProximitySensor";
@@ -53,10 +50,7 @@ public class RTCProximitySensor implements SensorEventListener {
     sensorManager = ((SensorManager) context.getSystemService(Context.SENSOR_SERVICE));
   }
 
-  /**
-   * Activate the proximity sensor. Also do initialization if called for the
-   * first time.
-   */
+  /** Activate the proximity sensor. Also do initialization if called for the first time. */
   public boolean start() {
     threadChecker.checkIsOnValidThread();
     Log.d(TAG, "start" + RTCUtils.getThreadInfo());
@@ -114,15 +108,22 @@ public class RTCProximitySensor implements SensorEventListener {
       onSensorStateListener.run();
     }
 
-    Log.d(TAG, "onSensorChanged" + RTCUtils.getThreadInfo() + ": "
-            + "accuracy=" + event.accuracy + ", timestamp=" + event.timestamp + ", distance="
+    Log.d(
+        TAG,
+        "onSensorChanged"
+            + RTCUtils.getThreadInfo()
+            + ": "
+            + "accuracy="
+            + event.accuracy
+            + ", timestamp="
+            + event.timestamp
+            + ", distance="
             + event.values[0]);
   }
 
   /**
-   * Get default proximity sensor if it exists. Tablet devices (e.g. Nexus 7)
-   * does not support this type of sensor and false will be returned in such
-   * cases.
+   * Get default proximity sensor if it exists. Tablet devices (e.g. Nexus 7) does not support this
+   * type of sensor and false will be returned in such cases.
    */
   private boolean initDefaultSensor() {
     if (proximitySensor != null) {
