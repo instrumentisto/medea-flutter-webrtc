@@ -1,7 +1,7 @@
 #include "media_stream.h"
 
-/// Calls Rust `EnumerateDevices()` and converts the recieved
-/// Rust vector of `MediaDeviceInfo` info for Dart.
+/// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
+/// `MediaDeviceInfo` info for Dart.
 void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
@@ -41,9 +41,8 @@ void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<Encodabl
   result->Success(EncodableValue(params));
 }
 
-/// Parses the recieved constraints from Dart and passes them
-/// to Rust `GetUserMedia()`, then converts the backed `MediaStream`
-/// info for Dart.
+/// Parses the recieved constraints from Dart and passes them to Rust
+/// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
 void get_user_media(EncodableMap constraints_arg, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
   auto video_arg = constraints_arg.find(EncodableValue("video"));
   auto audio_arg = constraints_arg.find(EncodableValue("audio"));
@@ -119,17 +118,17 @@ std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg
 
   VideoConstraints video_constraints;
 
-  video_constraints.min_width = std::stoi(GetValue<std::string>(width));
-  video_constraints.min_height = std::stoi(GetValue<std::string>(height));
-  video_constraints.min_fps = std::stoi(GetValue<std::string>(fps));
+  video_constraints.required = video_required;
+  video_constraints.width = std::stoi(GetValue<std::string>(width));
+  video_constraints.height = std::stoi(GetValue<std::string>(height));
+  video_constraints.frame_rate = std::stoi(GetValue<std::string>(fps));
   video_constraints.device_id =
     rust::String(GetValue<std::string>(video_device_id));
-  video_constraints.required = video_required;
 
   return video_constraints;
 }
 
-/// Parses audio constraints recieved from Dart to Rust `AudioConstraints`.
+/// Parses audio constraints received from Dart to Rust `AudioConstraints`.
 AudioConstraints parse_audio_constraints(EncodableValue audio_arg) {
   EncodableValue audio_device_id;
   bool audio_required;

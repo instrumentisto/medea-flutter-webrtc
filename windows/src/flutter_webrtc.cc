@@ -9,30 +9,6 @@
 
 namespace flutter_webrtc_plugin {
 
-template<typename T>
-inline bool TypeIs(const EncodableValue val) {
-  return std::holds_alternative<T>(val);
-}
-
-template<typename T>
-inline const T GetValue(EncodableValue val) {
-  return std::get<T>(val);
-}
-
-inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<EncodableMap>(it->second))
-    return GetValue<EncodableMap>(it->second);
-  return EncodableMap();
-}
-
-inline std::string findString(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<std::string>(it->second))
-    return GetValue<std::string>(it->second);
-  return std::string();
-}
-
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
@@ -46,15 +22,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getSources") == 0) {
     enumerate_device(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-
-    auto args = GetValue<EncodableMap>(*method_call.arguments());
-    auto constraints_arg = findMap(args, "constraints");
-
-    get_user_media(constraints_arg, webrtc, std::move(result));
+    get_user_media(webrtc, std::move(result));
   } else if (method.compare("getDisplayMedia") == 0) {
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
@@ -69,10 +37,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("dataChannelSend") == 0) {
   } else if (method.compare("dataChannelClose") == 0) {
   } else if (method.compare("streamDispose") == 0) {
-    const EncodableMap params =
-      GetValue<EncodableMap>(*method_call.arguments());
-    const std::string stream_id = findString(params, "streamId");
-    dispose_stream(stream_id, webrtc, std::move(result));
+    dispose_stream(webrtc, std::move(result));
   } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
   } else if (method.compare("trackDispose") == 0) {
   } else if (method.compare("peerConnectionClose") == 0) {

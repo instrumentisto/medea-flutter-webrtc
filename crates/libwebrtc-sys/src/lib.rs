@@ -171,11 +171,6 @@ impl VideoDeviceInfo {
         self.0.pin_mut().number_of_video_devices()
     }
 
-    /// Returns the video device `index` for the given `id`.
-    pub fn device_index(&mut self, device_id: &mut String) -> u32 {
-        webrtc::get_video_device_index(self.0.pin_mut(), device_id)
-    }
-
     /// Returns the `(label, id)` tuple for the given video device `index`.
     pub fn device_name(
         &mut self,

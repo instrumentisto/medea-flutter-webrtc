@@ -123,29 +123,6 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
   return size;
 };
 
-/// Returns index of `Video Device` in `VDI` by entered `Video Device ID`.
-uint32_t get_video_device_index(VideoDeviceInfo& device_info,
-                                rust::String& device) {
-  uint32_t num_devices = device_info.NumberOfDevices();
-
-  if (device.empty() && num_devices > 0)
-    return 0;
-
-  for (uint32_t i = 0; i < num_devices; ++i) {
-    const uint32_t kSize = 256;
-    char name[kSize] = {0};
-    char id[kSize] = {0};
-
-    if (device_info.GetDeviceName(static_cast<uint32_t>(i), name, kSize, id,
-                                  kSize) != -1) {
-      if (std::string(id) == std::string(device)) {
-        return i;
-      }
-    }
-  }
-  return -1;
-}
-
 /// Calls `Thread->Create()`.
 std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();

@@ -31,8 +31,7 @@ class _TestState extends State<Test> {
       'audio': true,
       'video': {
         'mandatory': {
-          'minWidth':
-              '640', // Provide your own width, height and frame rate here
+          'minWidth': '640',
           'minHeight': '480',
           'minFrameRate': '30',
         },

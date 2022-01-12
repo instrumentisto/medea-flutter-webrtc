@@ -1,4 +1,4 @@
-use crate::{api, Webrtc};
+use crate::{api, user_media::VideoDeviceId, Webrtc};
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
@@ -78,5 +78,33 @@ impl Webrtc {
         audio.append(&mut video);
 
         audio
+    }
+
+    pub fn get_index_of_video_device(
+        &mut self,
+        device_id: &VideoDeviceId,
+    ) -> anyhow::Result<Option<u32>> {
+        let count = self.0.video_device_info.number_of_devices();
+        for i in 0..count {
+            let (_, id) = self.0.video_device_info.device_name(i)?;
+            if id == device_id.as_ref() {
+                return Ok(Some(i));
+            }
+        }
+        Ok(None)
+    }
+
+    pub fn get_index_of_audio_device(
+        &mut self,
+        device_id: &VideoDeviceId,
+    ) -> anyhow::Result<Option<u16>> {
+        let count = self.0.video_device_info.number_of_devices();
+        for i in 0..count {
+            let (_, id) = self.0.video_device_info.device_name(i)?;
+            if id == device_id.as_ref() {
+                return Ok(Some(i));
+            }
+        }
+        Ok(None)
     }
 }

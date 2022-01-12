@@ -20,13 +20,11 @@ pub(crate) mod webrtc {
 
     #[rustfmt::skip]
     unsafe extern "C++" {
-        /// This extern block describes basic tools to begin using `libWebRTC`.
-
         include!("libwebrtc-sys/include/bridge.h");
 
+        type PeerConnectionFactoryInterface;
         type TaskQueueFactory;
         type Thread;
-        type PeerConnectionFactoryInterface;
 
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform.
@@ -49,8 +47,6 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
-        /// This extern block describes tools
-        /// for interacting with native audio devices.
         type AudioDeviceModule;
         type AudioLayer;
 
@@ -106,8 +102,6 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
-        /// This extern block describes tools
-        /// for interacting with native video devices.
         type VideoDeviceInfo;
 
         /// Creates a new [`VideoDeviceInfo`].
@@ -126,24 +120,14 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
-
-        /// Returns `index` of video device by entered device's `id`.
-        pub fn get_video_device_index(
-            device_info: Pin<&mut VideoDeviceInfo>,
-            device: &mut String,
-        ) -> u32;
     }
 
     unsafe extern "C++" {
-        /// This extern block describes tools for creating and managing
-        /// [`MediaStream`] and all necessary structs, such as
-        /// [`VideoSource`], [`VideoTrack`],
-        /// [`AudioSource`] and [`AudioTrack`].
-        type VideoTrackSourceInterface;
         type AudioSourceInterface;
-        type VideoTrackInterface;
         type AudioTrackInterface;
         type MediaStreamInterface;
+        type VideoTrackInterface;
+        type VideoTrackSourceInterface;
 
         /// Creates a new [`VideoSource`].
         /// The [`Thread`]s must be used from the [`PeerConnectionFactory`].

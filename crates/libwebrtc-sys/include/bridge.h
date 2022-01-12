@@ -107,11 +107,7 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
                           rust::String& name,
                           rust::String& guid);
 
-/// Returns index of `Video Device` in `VDI` by entered `Video Device ID`.
-uint32_t get_video_device_index(VideoDeviceInfo& device_info,
-                                rust::String& device);
-
-/// Creates a new thread.
+/// Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
 /// Creates a new Peer Connection Factory.
