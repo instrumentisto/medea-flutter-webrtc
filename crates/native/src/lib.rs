@@ -190,10 +190,6 @@ struct AudioDeviceModule {
     current_device_id: AudioDeviceId,
 }
 
-impl AudioDeviceModule {
-    fn new() -> Self {}
-}
-
 /// Creates an instanse of [`Webrtc`].
 ///
 /// # Panics
@@ -203,12 +199,10 @@ impl AudioDeviceModule {
 pub fn init() -> Box<Webrtc> {
     let mut task_queue_factory = TaskQueueFactory::create();
     let peer_connection_factory = PeerConnectionFactory::create().unwrap();
-    let audio_device_module = AudioDeviceModule::create(
+    let audio_device_module = AudioDeviceModule::new(
         AudioLayer::kPlatformDefaultAudio,
         &mut task_queue_factory,
-    )
-    .unwrap();
-    audio_device_module.init().unwrap();
+    );
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 

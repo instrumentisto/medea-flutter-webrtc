@@ -12,17 +12,27 @@ using namespace rust::cxxbridge1;
 #define DEFAULT_HEIGHT 480
 #define DEFAULT_FPS 30
 
+template<typename T>
+inline bool TypeIs(const EncodableValue val) {
+  return std::holds_alternative<T>(val);
+}
+
+template<typename T>
+inline const T GetValue(EncodableValue val) {
+  return std::get<T>(val);
+}
+
 inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
-  if (it != map.end() && std::holds_alternative<EncodableMap>(it->second))
-    return std::get<EncodableMap>(it->second);
+  if (it != map.end() && TypeIs<EncodableMap>(it->second))
+    return GetValue<EncodableMap>(it->second);
   return EncodableMap();
 }
 
 inline std::string findString(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
-  if (it != map.end() && std::holds_alternative<std::string>(it->second))
-    return std::get<std::string>(it->second);
+  if (it != map.end() && TypeIs<std::string>(it->second))
+    return GetValue<std::string>(it->second);
   return std::string();
 }
 
@@ -33,7 +43,7 @@ void enumerate_device(rust::Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<En
 /// Parses the recieved constraints from Dart and passes them
 /// to Rust `GetUserMedia()`, then converts the backed `MediaStream`
 /// info for Dart.
-void get_user_media(EncodableMap constraints_arg, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
+void get_user_media(const flutter::MethodCall<EncodableValue>& method_call, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
 
 /// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
 std::optional<VideoConstraints> parse_video_constraints(const EncodableValue video_arg, MethodResult<EncodableValue>& result);
@@ -45,4 +55,4 @@ AudioConstraints parse_audio_constraints(const EncodableValue audio_arg);
 EncodableList get_params(TrackKind type, MediaStream& user_media);
 
 /// Disposes some media stream calling Rust `DisposeStream`.
-void dispose_stream(std::string stream_id, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
+void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);

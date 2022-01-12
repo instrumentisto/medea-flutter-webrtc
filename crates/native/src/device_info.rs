@@ -1,4 +1,8 @@
-use crate::{api, user_media::VideoDeviceId, Webrtc};
+use crate::{
+    api,
+    user_media::{AudioDeviceId, VideoDeviceId},
+    Webrtc,
+};
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
@@ -13,9 +17,13 @@ impl Webrtc {
         // Returns a list of all available audio devices.
         let mut audio = {
             let count_playout =
-                self.0.audio_device_module.playout_devices().unwrap();
-            let count_recording =
-                self.0.audio_device_module.recording_devices().unwrap();
+                self.0.audio_device_module.inner.playout_devices().unwrap();
+            let count_recording = self
+                .0
+                .audio_device_module
+                .inner
+                .recording_devices()
+                .unwrap();
 
             #[allow(clippy::cast_sign_loss)]
             let mut result =
@@ -36,11 +44,13 @@ impl Webrtc {
                         if let api::MediaDeviceKind::kAudioOutput = kind {
                             self.0
                                 .audio_device_module
+                                .inner
                                 .playout_device_name(i)
                                 .unwrap()
                         } else {
                             self.0
                                 .audio_device_module
+                                .inner
                                 .recording_device_name(i)
                                 .unwrap()
                         };
@@ -96,13 +106,19 @@ impl Webrtc {
 
     pub fn get_index_of_audio_device(
         &mut self,
-        device_id: &VideoDeviceId,
+        device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.0.video_device_info.number_of_devices();
+        let count = self
+            .0
+            .audio_device_module
+            .inner
+            .recording_devices()
+            .unwrap();
         for i in 0..count {
-            let (_, id) = self.0.video_device_info.device_name(i)?;
+            let (_, id) =
+                self.0.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.as_ref() {
-                return Ok(Some(i));
+                return Ok(Some(i.try_into().unwrap()));
             }
         }
         Ok(None)

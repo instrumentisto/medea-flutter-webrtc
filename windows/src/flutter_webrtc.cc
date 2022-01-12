@@ -22,7 +22,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getSources") == 0) {
     enumerate_device(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
-    get_user_media(webrtc, std::move(result));
+    get_user_media(method_call, webrtc, std::move(result));
   } else if (method.compare("getDisplayMedia") == 0) {
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
@@ -37,7 +37,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("dataChannelSend") == 0) {
   } else if (method.compare("dataChannelClose") == 0) {
   } else if (method.compare("streamDispose") == 0) {
-    dispose_stream(webrtc, std::move(result));
+    dispose_stream(method_call, webrtc, std::move(result));
   } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
   } else if (method.compare("trackDispose") == 0) {
   } else if (method.compare("peerConnectionClose") == 0) {

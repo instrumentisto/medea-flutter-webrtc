@@ -43,7 +43,15 @@ void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<Encodabl
 
 /// Parses the recieved constraints from Dart and passes them to Rust
 /// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
-void get_user_media(EncodableMap constraints_arg, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
+void get_user_media(const flutter::MethodCall<EncodableValue>& method_call, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  auto args = GetValue<EncodableMap>(*method_call.arguments());
+  auto constraints_arg = findMap(args, "constraints");
+
   auto video_arg = constraints_arg.find(EncodableValue("video"));
   auto audio_arg = constraints_arg.find(EncodableValue("audio"));
 
@@ -184,8 +192,11 @@ EncodableList get_params(TrackKind type, MediaStream& user_media) {
 }
 
 /// Disposes some media stream calling Rust `DisposeStream`.
-void dispose_stream(std::string stream_id, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
-  auto converted_id = std::stoi(stream_id);
+void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
+  const EncodableMap params =
+    GetValue<EncodableMap>(*method_call.arguments());
+
+  auto converted_id = std::stoi(findString(params, "streamId"));
   if (converted_id < 0) {
     result->Error("Stream id can`t be less then 0.");
     return;
