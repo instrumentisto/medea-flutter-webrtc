@@ -143,14 +143,14 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   auto factory = std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
           network_thread.get(), worker_thread.get(), signaling_thread.get(), 
-          default_adm.get() == nullptr ? nullptr : default_adm.release()->ptr(),
+          default_adm.get() == nullptr ? nullptr : default_adm.get()->ptr(),
           audio_encoder_factory.ptr(),
           audio_decoder_factory.ptr(),
           std::move(video_encoder_factory),
           std::move(video_decoder_factory),
-          audio_mixer.get() == nullptr ? nullptr : audio_mixer.release()->ptr(), 
-          audio_processing.get() == nullptr ? nullptr : audio_processing.release()->ptr(),
-          audio_frame_processor.release()));
+          audio_mixer.get() == nullptr ? nullptr : audio_mixer.get()->ptr(), 
+          audio_processing.get() == nullptr ? nullptr : audio_processing.get()->ptr(),
+          audio_frame_processor.get()));
 
   if (factory == nullptr) {
     return nullptr;
