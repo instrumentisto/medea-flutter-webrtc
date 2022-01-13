@@ -100,6 +100,8 @@ impl Webrtc {
 
                 if Rc::strong_count(&src) == 2 {
                     self.0.audio_source.take();
+                    // TODO: We should make `AudioDeviceModule` to stop
+                    //       recording.
                 };
             }
         }
