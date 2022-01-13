@@ -232,7 +232,7 @@ pub struct PeerConnectionFactoryInterface(
 );
 
 impl PeerConnectionFactoryInterface {
-    // TODO: This is a simplified ctor that will be removed in  #19.
+    // TODO: This is a simplified ctor that will be refactored in #19.
     /// Creates a new [`PeerConnectionFactoryInterface`].
     #[allow(clippy::missing_panics_doc)]
     pub fn create(

@@ -106,27 +106,13 @@ std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg
     EncodableMap video_map = GetValue<EncodableMap>(video_arg);
     video_mandatory = GetValue<EncodableMap>(
         video_map.find(EncodableValue("mandatory"))->second);
+    // TODO: use the default value if not provided. if !end()
     width = video_mandatory.find(EncodableValue("minWidth"))->second;
     height = video_mandatory.find(EncodableValue("minHeight"))->second;
     fps = video_mandatory.find(EncodableValue("minFrameRate"))->second;
     video_required = true;
 
     video_device_id = findString(video_map, "device_id");
-
-    if (std::stoi(GetValue<std::string>(width)) < 1) {
-      result.Error("Bad Arguments", "Null width recieved.");
-      return std::nullopt;
-    }
-
-    if (std::stoi(GetValue<std::string>(height)) < 1) {
-      result.Error("Bad Arguments", "Null height recieved.");
-      return std::nullopt;
-    }
-
-    if (std::stoi(GetValue<std::string>(fps)) < 1) {
-      result.Error("Bad Arguments", "Null FPS recieved.");
-      return std::nullopt;
-    }
   }
 
   VideoConstraints video_constraints;

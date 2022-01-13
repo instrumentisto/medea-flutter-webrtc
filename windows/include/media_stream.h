@@ -22,6 +22,8 @@ inline const T GetValue(EncodableValue val) {
   return std::get<T>(val);
 }
 
+// Returns an `EncodableMap` value from the given `EncodableMap` by the given
+// `key` if any, or an empty `EncodableMap` otherwise.
 inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<EncodableMap>(it->second))
@@ -29,6 +31,8 @@ inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
   return EncodableMap();
 }
 
+// Returns an `std::string` value from the given `EncodableMap` by the given
+// `key` if any, or an empty `std::string` otherwise.
 inline std::string findString(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<std::string>(it->second))
