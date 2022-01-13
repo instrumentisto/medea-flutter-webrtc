@@ -10,7 +10,8 @@ use libwebrtc_sys::{
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
-use crate::user_media::{
+#[doc(inline)]
+pub use crate::user_media::{
     AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
     MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
 };

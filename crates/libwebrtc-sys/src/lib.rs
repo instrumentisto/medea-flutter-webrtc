@@ -10,9 +10,10 @@ use self::bridge::webrtc;
 
 pub use webrtc::AudioLayer;
 
-/// Thread safe task queue factory internally used in [`webrtc`] that is
+/// Thread safe task queue factory internally used in [`WebRTC`] that is
 /// capable of creating [Task Queue]s.
 ///
+/// [`WebRTC`]: https://webrtc.googlesource.com/src/
 /// [Task Queue]: https://tinyurl.com/doc-threads
 pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
@@ -221,24 +222,28 @@ impl Thread {
     }
 }
 
-/// [`PeerConnectionFactory`] is the main entry point to the PeerConnection API
-/// for clients it is responsible for creating [`AudioSourceInterface`], tracks
-/// ([`VideoTrackInterface`], [`AudioTrackInterface`]), [`MediaStreamInterface`]
-/// and the `PeerConnection`s.
+/// [`PeerConnectionFactoryInterface`] is the main entry point to the
+/// `PeerConnection API` for clients it is responsible for creating
+/// [`AudioSourceInterface`], tracks ([`VideoTrackInterface`],
+/// [`AudioTrackInterface`]), [`MediaStreamInterface`] and the
+/// `PeerConnection`s.
 pub struct PeerConnectionFactoryInterface(
     UniquePtr<webrtc::PeerConnectionFactoryInterface>,
 );
 
 impl PeerConnectionFactoryInterface {
     // TODO: This is a simplified ctor that will be removed in  #19.
-    /// Creates a new [`PeerConnectionFactory`].
+    /// Creates a new [`PeerConnectionFactoryInterface`].
+    #[allow(clippy::missing_panics_doc)]
     pub fn create(
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
     ) -> anyhow::Result<Self> {
+        // Wont panic since we guarantee that Thread cannot contain null
+        // pointer.
         let inner = webrtc::create_peer_connection_factory(
             worker_thread.0.as_mut().unwrap(),
-            signaling_thread.as_mut().unwrap(),
+            signaling_thread.0.as_mut().unwrap(),
         );
 
         if inner.is_null() {
@@ -253,7 +258,7 @@ impl PeerConnectionFactoryInterface {
     /// Creates a new [`AudioSourceInterface`], which provides sound recording
     /// from native platform.
     pub fn create_audio_source(&self) -> anyhow::Result<AudioSourceInterface> {
-        let ptr = webrtc::create_audio_source(&self.inner);
+        let ptr = webrtc::create_audio_source(&self.0);
 
         if ptr.is_null() {
             bail!(
@@ -264,13 +269,14 @@ impl PeerConnectionFactoryInterface {
         Ok(AudioSourceInterface(ptr))
     }
 
-    /// Creates a new [`VideoTrackInterface`] using [`VideoSourceInterface`].
+    /// Creates a new [`VideoTrackInterface`] sourced by the provided
+    /// [`VideoTrackSourceInterface`].
     pub fn create_video_track(
         &self,
         id: String,
         video_src: &VideoTrackSourceInterface,
     ) -> anyhow::Result<VideoTrackInterface> {
-        let ptr = webrtc::create_video_track(&self.inner, id, &video_src.0);
+        let ptr = webrtc::create_video_track(&self.0, id, &video_src.0);
 
         if ptr.is_null() {
             bail!(
@@ -281,13 +287,14 @@ impl PeerConnectionFactoryInterface {
         Ok(VideoTrackInterface(ptr))
     }
 
-    /// Creates a new [`AudioTrackInterface`] using [`AudioSourceInterface`].
+    /// Creates a new [`AudioTrackInterface`] sourced by the provided
+    /// [`AudioSourceInterface`].
     pub fn create_audio_track(
         &self,
         id: String,
         audio_src: &AudioSourceInterface,
     ) -> anyhow::Result<AudioTrackInterface> {
-        let ptr = webrtc::create_audio_track(&self.inner, id, &audio_src.0);
+        let ptr = webrtc::create_audio_track(&self.0, id, &audio_src.0);
 
         if ptr.is_null() {
             bail!(
@@ -303,7 +310,7 @@ impl PeerConnectionFactoryInterface {
         &self,
         id: String,
     ) -> anyhow::Result<MediaStreamInterface> {
-        let ptr = webrtc::create_local_media_stream(&self.inner, id);
+        let ptr = webrtc::create_local_media_stream(&self.0, id);
 
         if ptr.is_null() {
             bail!(
@@ -316,16 +323,18 @@ impl PeerConnectionFactoryInterface {
     }
 }
 
-/// [`VideoSourceInterface`] captures data from the specific video input device.
+/// [`VideoTrackSourceInterface`] captures data from the specific video input
+/// device.
 ///
 /// It can be later used to create a [`VideoTrackInterface`] with
-/// [`PeerConnectionFactory::create_video_track()`].
+/// [`PeerConnectionFactoryInterface::create_video_track()`].
 pub struct VideoTrackSourceInterface(
     UniquePtr<webrtc::VideoTrackSourceInterface>,
 );
 
 impl VideoTrackSourceInterface {
-    /// Creates a new [`VideoSourceInterface`] with the specified constraints.
+    /// Creates a new [`VideoTrackSourceInterface`] with the specified
+    /// constraints.
     ///
     /// The created capturer is wrapped in the `VideoTrackSourceProxy` that
     /// makes sure the real [`VideoTrackSourceInterface`] implementation is
@@ -358,10 +367,11 @@ impl VideoTrackSourceInterface {
     }
 }
 
-/// [`VideoSourceInterface`] captures data from the specific audio input device.
+/// [`VideoTrackSourceInterface`] captures data from the specific audio input
+/// device.
 ///
 /// It can be later used to create a [`AudioTrackInterface`] with
-/// [`PeerConnectionFactory::create_audio_track()`].
+/// [`PeerConnectionFactoryInterface::create_audio_track()`].
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
 /// Video [`MediaStreamTrack`][1].

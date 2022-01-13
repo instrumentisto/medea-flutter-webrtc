@@ -93,6 +93,12 @@ impl Webrtc {
 
     /// Returns an index of a specific video device by the provided
     /// [`VideoDeviceId`].
+    ///
+    /// # Errors
+    ///
+    /// Errors if [`VideoDeviceInfo::device_name()`][1] returns error.
+    ///
+    /// [1]: [`libwebrtc_sys::VideoDeviceInfo::device_name()`]
     pub fn get_index_of_video_device(
         &mut self,
         device_id: &VideoDeviceId,
@@ -109,6 +115,15 @@ impl Webrtc {
 
     /// Returns an index of a specific audio input device by the provided
     /// [`AudioDeviceId`].
+    ///
+    /// # Errors
+    ///
+    /// Errors if [`AudioDeviceModule::recording_devices()`][1] or
+    /// [`AudioDeviceModule::recording_device_name()`][2]
+    /// returns error.
+    ///
+    /// [1]: [`libwebrtc_sys::AudioDeviceModule::recording_devices()`]
+    /// [2]: [`libwebrtc_sys::AudioDeviceModule::recording_device_name()`]
     pub fn get_index_of_audio_recording_device(
         &mut self,
         device_id: &AudioDeviceId,
@@ -118,6 +133,7 @@ impl Webrtc {
             let (_, id) =
                 self.0.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.as_ref() {
+                #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
             }
         }
