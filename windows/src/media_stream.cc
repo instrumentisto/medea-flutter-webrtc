@@ -11,16 +11,20 @@ void enumerate_device(Box<Webrtc>& webrtc,
   for (size_t i = 0; i < devices.size(); ++i) {
     std::string kind;
     switch (devices[i].kind) {
-      case MediaDeviceKind::kAudioInput:kind = "audioinput";
+      case MediaDeviceKind::kAudioInput:
+        kind = "audioinput";
         break;
 
-      case MediaDeviceKind::kAudioOutput:kind = "audiooutput";
+      case MediaDeviceKind::kAudioOutput:
+        kind = "audiooutput";
         break;
 
-      case MediaDeviceKind::kVideoInput:kind = "videoinput";
+      case MediaDeviceKind::kVideoInput:
+        kind = "videoinput";
         break;
 
-      default:result->Error("Invalid MediaDeviceKind");
+      default:
+        result->Error("Invalid MediaDeviceKind");
         return;
     }
 
@@ -41,7 +45,7 @@ void enumerate_device(Box<Webrtc>& webrtc,
   result->Success(EncodableValue(params));
 }
 
-/// Parses the received constraints from Dart and passes them to Rust
+/// Parses the recieved constraints from Dart and passes them to Rust
 /// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
 void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
                     Box<Webrtc>& webrtc,
@@ -59,10 +63,7 @@ void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
 
   MediaStreamConstraints constraints;
 
-  auto video_constraints = parse_video_constraints(video_arg->second, *result);
-  if (!video_constraints.has_value()) return;
-
-  constraints.video = video_constraints.value();
+  constraints.video = parse_video_constraints(video_arg->second);
   constraints.audio = parse_audio_constraints(audio_arg->second);
 
   MediaStream user_media = webrtc->GetUserMedia(constraints);
@@ -78,22 +79,18 @@ void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
   result->Success(EncodableValue(params));
 }
 
-/// Parses video constraints received from Dart to Rust `VideoConstraints`.
-std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg,
-                                                        MethodResult<EncodableValue>& result) {
+/// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
+VideoConstraints parse_video_constraints(EncodableValue video_arg) {
   EncodableMap video_mandatory;
 
-  EncodableValue width;
-  EncodableValue height;
-  EncodableValue fps;
-  EncodableValue video_device_id;
+  size_t width = DEFAULT_WIDTH;
+  size_t height = DEFAULT_HEIGHT;
+  size_t fps = DEFAULT_FPS;
+  std::string video_device_id;
   bool video_required;
 
   if (TypeIs<bool>(video_arg)) {
     if (GetValue<bool>(video_arg)) {
-      width = DEFAULT_WIDTH;
-      height = DEFAULT_HEIGHT;
-      fps = DEFAULT_FPS;
       video_required = true;
     } else {
       width = 0;
@@ -104,25 +101,43 @@ std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg
     video_device_id = std::string();
   } else {
     EncodableMap video_map = GetValue<EncodableMap>(video_arg);
-    video_mandatory = GetValue<EncodableMap>(
-        video_map.find(EncodableValue("mandatory"))->second);
-    // TODO: use the default value if not provided. if !end()
-    width = video_mandatory.find(EncodableValue("minWidth"))->second;
-    height = video_mandatory.find(EncodableValue("minHeight"))->second;
-    fps = video_mandatory.find(EncodableValue("minFrameRate"))->second;
-    video_required = true;
+    auto it = video_map.find(EncodableValue("mandatory"));
+    if (it != video_map.end()) {
+      video_mandatory = GetValue<EncodableMap>(it->second);
+      std::string width_s = findString(video_mandatory, "minWidth");
+      std::string height_s = findString(video_mandatory, "minHeight");
+      std::string fps_s = findString(video_mandatory, "minFrameRate");
+      if (!width_s.empty()) {
+        int width_n = std::stoi(width_s);
+        if (width_n > 0) {
+          width = width_n;
+        }
+      }
+      if (!height_s.empty()) {
+        int height_n = std::stoi(height_s);
+        if (height_n > 0) {
+          height = height_n;
+        }
+      }
+      if (!fps_s.empty()) {
+        int fps_n = std::stoi(fps_s);
+        if (fps_n > 0) {
+          fps = fps_n;
+        }
+      }
+    }
 
+    video_required = true;
     video_device_id = findString(video_map, "device_id");
   }
 
   VideoConstraints video_constraints;
 
   video_constraints.required = video_required;
-  video_constraints.width = std::stoi(GetValue<std::string>(width));
-  video_constraints.height = std::stoi(GetValue<std::string>(height));
-  video_constraints.frame_rate = std::stoi(GetValue<std::string>(fps));
-  video_constraints.device_id =
-      rust::String(GetValue<std::string>(video_device_id));
+  video_constraints.width = width;
+  video_constraints.height = height;
+  video_constraints.frame_rate = fps;
+  video_constraints.device_id = video_device_id;
 
   return video_constraints;
 }
@@ -167,15 +182,13 @@ EncodableList get_params(TrackKind type, MediaStream& user_media) {
   } else {
     for (size_t i = 0; i < rust_tracks.size(); ++i) {
       EncodableMap info;
-      info[EncodableValue("id")] = EncodableValue(
-          std::to_string(rust_tracks[i].id).c_str());
+      info[EncodableValue("id")] =
+          EncodableValue(std::to_string(rust_tracks[i].id).c_str());
       info[EncodableValue("label")] =
           EncodableValue(rust_tracks[i].label.c_str());
       info[EncodableValue("kind")] = EncodableValue(
-          rust_tracks[i].kind == TrackKind::kVideo ? "video"
-                                                   : "audio");
-      info[EncodableValue("enabled")] =
-          EncodableValue(rust_tracks[i].enabled);
+          rust_tracks[i].kind == TrackKind::kVideo ? "video" : "audio");
+      info[EncodableValue("enabled")] = EncodableValue(rust_tracks[i].enabled);
 
       tracks.push_back(EncodableValue(info));
     }
@@ -188,8 +201,7 @@ EncodableList get_params(TrackKind type, MediaStream& user_media) {
 void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call,
                     Box<Webrtc>& webrtc,
                     std::unique_ptr<MethodResult<EncodableValue>> result) {
-  const EncodableMap params =
-      GetValue<EncodableMap>(*method_call.arguments());
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
   auto converted_id = std::stoi(findString(params, "streamId"));
   if (converted_id < 0) {

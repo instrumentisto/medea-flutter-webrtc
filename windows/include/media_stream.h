@@ -1,10 +1,9 @@
 #include <memory>
-#include <optional>
 
 #include <flutter_webrtc_native.h>
+#include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include "flutter_webrtc/flutter_webrtc_plugin.h"
-#include "flutter_webrtc.h"
 
 using namespace rust::cxxbridge1;
 
@@ -12,12 +11,12 @@ using namespace rust::cxxbridge1;
 #define DEFAULT_HEIGHT 480
 #define DEFAULT_FPS 30
 
-template<typename T>
+template <typename T>
 inline bool TypeIs(const EncodableValue val) {
   return std::holds_alternative<T>(val);
 }
 
-template<typename T>
+template <typename T>
 inline const T GetValue(EncodableValue val) {
   return std::get<T>(val);
 }
@@ -52,8 +51,7 @@ void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
                     std::unique_ptr<MethodResult<EncodableValue>> result);
 
 /// Parses video constraints received from Dart to Rust `VideoConstraints`.
-std::optional<VideoConstraints> parse_video_constraints(const EncodableValue video_arg,
-                                                        MethodResult<EncodableValue>& result);
+VideoConstraints parse_video_constraints(const EncodableValue video_arg);
 
 /// Parses audio constraints received from Dart to Rust `AudioConstraints`.
 AudioConstraints parse_audio_constraints(const EncodableValue audio_arg);
