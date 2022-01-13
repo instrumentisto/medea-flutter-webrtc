@@ -41,7 +41,7 @@ void enumerate_device(Box<Webrtc>& webrtc,
   result->Success(EncodableValue(params));
 }
 
-/// Parses the recieved constraints from Dart and passes them to Rust
+/// Parses the received constraints from Dart and passes them to Rust
 /// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
 void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
                     Box<Webrtc>& webrtc,
@@ -78,7 +78,7 @@ void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
   result->Success(EncodableValue(params));
 }
 
-/// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
+/// Parses video constraints received from Dart to Rust `VideoConstraints`.
 std::optional<VideoConstraints> parse_video_constraints(EncodableValue video_arg,
                                                         MethodResult<EncodableValue>& result) {
   EncodableMap video_mandatory;
@@ -168,7 +168,8 @@ AudioConstraints parse_audio_constraints(EncodableValue audio_arg) {
   return audio_constraints;
 }
 
-/// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList` for passing to Dart according to `TrackKind`.
+/// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
+/// for passing to Dart according to `TrackKind`.
 EncodableList get_params(TrackKind type, MediaStream& user_media) {
   auto rust_tracks = type == TrackKind::kVideo ? user_media.video_tracks
                                                : user_media.audio_tracks;

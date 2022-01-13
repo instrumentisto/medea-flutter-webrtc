@@ -347,16 +347,9 @@ impl AudioDeviceModule {
             sys::AudioDeviceModule::create(audio_layer, task_queue_factory)?;
         inner.init()?;
 
-        if inner.recording_devices()? < 1 {
-            bail!("Could not find any available audio recording device");
-        }
-
-        let current_device_id =
-            Some(AudioDeviceId(inner.recording_device_name(0)?.1));
-
         Ok(Self {
             inner,
-            current_device_id,
+            current_device_id: None,
         })
     }
 
