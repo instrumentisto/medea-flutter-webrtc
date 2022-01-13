@@ -14,8 +14,8 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {}
 FlutterWebRTC::~FlutterWebRTC() {}
 
 void FlutterWebRTC::HandleMethodCall(
-  const flutter::MethodCall<EncodableValue>& method_call,
-  std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   const std::string& method = method_call.method_name();
 
   if (method.compare("createPeerConnection") == 0) {

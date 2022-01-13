@@ -90,11 +90,9 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
                               rust::String& name,
                               rust::String& guid);
 
-/// Returns index of `Audio Device` in `ADM` by entered `Audio Device ID`.
-uint32_t get_audio_device_index(const AudioDeviceModule& audio_device_module,
-                                rust::String& device);
-
-/// Sets the recording `Audio Device` by the given `index`.
+// Specifies which microphone to use for recording audio using an index
+// retrieved by the corresponding enumeration method which is
+// `AudiDeviceModule::RecordingDeviceName`.
 int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
                                    uint16_t index);
 
@@ -110,12 +108,13 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 /// Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-/// Creates a new Peer Connection Factory.
+/// Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread& worker_thread,
     Thread& signaling_thread);
 
-/// Creates a new video source according to the specified constraints.
+/// Creates a new `VideoTrackSourceInterface` according to the specified
+/// constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
@@ -124,40 +123,44 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t fps,
     uint32_t device_index);
 
-/// Creates a new audio source.
+/// Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory);
 
-/// Creates a new video track.
+/// Creates a new `VideoTrackInterface`.
 std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source);
 
-/// Creates a new audio track.
+/// Creates a new `AudioTrackInterface`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source);
 
-/// Creates a new Local Media Stream.
+/// Creates a new `MediaStreamInterface`.
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id);
 
-/// Adds the video track to media stream.
+/// Adds the provided `VideoTrackInterface` to the specified
+/// `MediaStreamInterface`.
 bool add_video_track(const MediaStreamInterface& media_stream,
                      const VideoTrackInterface& track);
 
-/// Adds the audio track to media stream.
+/// Adds the provided `AudioTrackInterface` to the specified
+/// `MediaStreamInterface`.
 bool add_audio_track(const MediaStreamInterface& media_stream,
                      const AudioTrackInterface& track);
 
-/// Removes the video track from media stream.
+/// Removes the provided `VideoTrackInterface` to the specified
+/// `MediaStreamInterface`.
 bool remove_video_track(const MediaStreamInterface& media_stream,
                         const VideoTrackInterface& track);
 
-/// Removes the audio track from media stream.
+/// Removes the provided `AudioTrackInterface` to the specified
+/// `MediaStreamInterface`.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 }  // namespace bridge

@@ -38,15 +38,19 @@ inline std::string findString(const EncodableMap& map, const std::string& key) {
 
 /// Calls Rust `EnumerateDevices()` and converts the recieved
 /// Rust vector of `MediaDeviceInfo` info for Dart.
-void enumerate_device(rust::Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
+void enumerate_device(rust::Box<Webrtc>& webrtc,
+                      std::unique_ptr<MethodResult<EncodableValue>> result);
 
 /// Parses the recieved constraints from Dart and passes them
 /// to Rust `GetUserMedia()`, then converts the backed `MediaStream`
 /// info for Dart.
-void get_user_media(const flutter::MethodCall<EncodableValue>& method_call, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
+void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
+                    Box<Webrtc>& webrtc,
+                    std::unique_ptr<MethodResult<EncodableValue>> result);
 
 /// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
-std::optional<VideoConstraints> parse_video_constraints(const EncodableValue video_arg, MethodResult<EncodableValue>& result);
+std::optional<VideoConstraints> parse_video_constraints(const EncodableValue video_arg,
+                                                        MethodResult<EncodableValue>& result);
 
 /// Parses audio constraints recieved from Dart to Rust `AudioConstraints`.
 AudioConstraints parse_audio_constraints(const EncodableValue audio_arg);
@@ -55,4 +59,6 @@ AudioConstraints parse_audio_constraints(const EncodableValue audio_arg);
 EncodableList get_params(TrackKind type, MediaStream& user_media);
 
 /// Disposes some media stream calling Rust `DisposeStream`.
-void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call, Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
+void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call,
+                    Box<Webrtc>& webrtc,
+                    std::unique_ptr<MethodResult<EncodableValue>> result);

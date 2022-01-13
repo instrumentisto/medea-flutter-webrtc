@@ -11,9 +11,10 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// May panic because of `libWebRTC` inner errors.
+    /// Panics on any error returned from the `libWebRTC`.
     #[must_use]
     pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
+        // TODO: Dont panic but propagate errors to API users.
         // Returns a list of all available audio devices.
         let mut audio = {
             let count_playout =
@@ -90,6 +91,8 @@ impl Webrtc {
         audio
     }
 
+    /// Returns an index of a specific video device by the provided
+    /// [`VideoDeviceId`].
     pub fn get_index_of_video_device(
         &mut self,
         device_id: &VideoDeviceId,
@@ -104,21 +107,18 @@ impl Webrtc {
         Ok(None)
     }
 
-    pub fn get_index_of_audio_device(
+    /// Returns an index of a specific audio input device by the provided
+    /// [`AudioDeviceId`].
+    pub fn get_index_of_audio_recording_device(
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self
-            .0
-            .audio_device_module
-            .inner
-            .recording_devices()
-            .unwrap();
+        let count = self.0.audio_device_module.inner.recording_devices()?;
         for i in 0..count {
             let (_, id) =
                 self.0.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.as_ref() {
-                return Ok(Some(i.try_into().unwrap()));
+                return Ok(Some(i as u16));
             }
         }
         Ok(None)

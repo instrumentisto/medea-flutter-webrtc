@@ -6,19 +6,16 @@ use std::{
 use anyhow::bail;
 use derive_more::{AsRef, Display};
 use libwebrtc_sys as sys;
-use sys::{
-    AudioDeviceModule as SysAudioDeviceModule, AudioLayer, TaskQueueFactory,
-};
 
 use crate::{
     api::{self, AudioConstraints, VideoConstraints},
-    AudioDeviceModule, Webrtc,
+    Webrtc,
 };
 
-/// This counter provides global resource for generating `unique id`.
+/// Atomic counter usd to generate unique ID's.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
-/// Returns an `unique id`.
+/// Returns a `u64` that can be used as a unique ID.
 fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
@@ -41,7 +38,6 @@ impl Webrtc {
             audio_tracks: Vec::new(),
         };
 
-        // Creating [`VideoTrack`]s.
         if constraints.video.required {
             let source =
                 self.get_or_create_video_source(&constraints.video).unwrap();
@@ -56,7 +52,6 @@ impl Webrtc {
             });
         }
 
-        // Creating [`AudioTrack`]s.
         if constraints.audio.required {
             let source =
                 self.get_or_create_audio_source(&constraints.audio).unwrap();
@@ -79,9 +74,7 @@ impl Webrtc {
         result
     }
 
-    /// Disposes the [`MediaStream`] and all involved
-    /// [`AudioTrack`]s/[`VideoTrack`]s and
-    /// [`AudioSource`]s/[`VideoSource`]s.
+    /// Disposes the [`MediaStream`] and all contained tracks.
     ///
     /// # Panics
     ///
@@ -112,13 +105,13 @@ impl Webrtc {
         }
     }
 
-    /// Creates a new [`VideoTrack`] based on given [`VideoSource`].
+    /// Creates a new [`VideoTrack`] from the given [`VideoSource`].
     fn create_video_track(
         &mut self,
         source: Rc<VideoSource>,
     ) -> anyhow::Result<&mut VideoTrack> {
         let device_index = if let Some(index) =
-            self.get_index_of_video_device(&source.device_id).unwrap()
+            self.get_index_of_video_device(&source.device_id)?
         {
             index
         } else {
@@ -131,13 +124,7 @@ impl Webrtc {
         let track = VideoTrack::new(
             &self.0.peer_connection_factory,
             source,
-            VideoLabel(
-                self.0
-                    .video_device_info
-                    .device_name(device_index)
-                    .unwrap()
-                    .0,
-            ),
+            VideoLabel(self.0.video_device_info.device_name(device_index)?.0),
         )?;
 
         let track = self.0.video_tracks.entry(track.id).or_insert(track);
@@ -145,7 +132,7 @@ impl Webrtc {
         Ok(track)
     }
 
-    /// Creates a new [`VideoSource`] based on given [`VideoConstraints`].
+    /// Creates a new [`VideoSource`] based on the given [`VideoConstraints`].
     fn get_or_create_video_source(
         &mut self,
         caps: &VideoConstraints,
@@ -153,7 +140,7 @@ impl Webrtc {
         let (index, device_id) = if caps.device_id.is_empty() {
             // No device ID is provided so just pick the first available device
             if self.0.video_device_info.number_of_devices() < 1 {
-                bail!("0 video device is available.");
+                bail!("Could not find any available video input device");
             }
 
             let device_id =
@@ -171,10 +158,8 @@ impl Webrtc {
             }
         };
 
-        for (_, src) in &self.0.video_sources {
-            if src.device_id == device_id {
-                return Ok(Rc::clone(src));
-            }
+        if let Some(src) = self.0.video_sources.get(&src.device_id) {
+            return Ok(Rc::clone(src));
         }
 
         let source = Rc::new(VideoSource::new(
@@ -188,14 +173,15 @@ impl Webrtc {
         Ok(source)
     }
 
-    /// Creates a new [`AudioTrack`] based on given [`AudioSource`].
+    /// Creates a new [`AudioTrack`] from the given
+    /// [`sys::AudioSourceInterface`].
     fn create_audio_track(
         &mut self,
-        source: Rc<AudioSource>,
+        source: Rc<sys::AudioSourceInterface>,
     ) -> anyhow::Result<&mut AudioTrack> {
         let device_id = &self.0.audio_device_module.current_device_id.clone();
         let device_index = if let Some(index) =
-            self.get_index_of_audio_device(&device_id).unwrap()
+            self.get_index_of_audio_recording_device(&device_id)?
         {
             index
         } else {
@@ -212,8 +198,7 @@ impl Webrtc {
                 self.0
                     .audio_device_module
                     .inner
-                    .recording_device_name(device_index as i16)
-                    .unwrap()
+                    .recording_device_name(device_index as i16)?
                     .0,
             ),
         )?;
@@ -223,11 +208,12 @@ impl Webrtc {
         Ok(track)
     }
 
-    /// Creates a new [`AudioSource`] based on given [`AudioConstraints`].
+    /// Creates a new [`sys::AudioSourceInterface`] based on the given
+    /// [`AudioConstraints`].
     fn get_or_create_audio_source(
         &mut self,
         caps: &AudioConstraints,
-    ) -> anyhow::Result<Rc<AudioSource>> {
+    ) -> anyhow::Result<Rc<sys::AudioSourceInterface>> {
         let device_id = if caps.device_id.is_empty() {
             // No device ID is provided so just pick the currently used.
             self.0.audio_device_module.current_device_id.clone()
@@ -235,15 +221,16 @@ impl Webrtc {
             AudioDeviceId(caps.device_id.clone())
         };
 
-        let device_index =
-            if let Some(index) = self.get_index_of_audio_device(&device_id)? {
-                index
-            } else {
-                bail!(
-                    "Could not find audio device with the specified ID `{}`",
-                    device_id
-                );
-            };
+        let device_index = if let Some(index) =
+            self.get_index_of_audio_recording_device(&device_id)?
+        {
+            index
+        } else {
+            bail!(
+                "Could not find audio device with the specified ID `{}`",
+                device_id
+            );
+        };
 
         if device_id != self.0.audio_device_module.current_device_id {
             self.0
@@ -256,7 +243,7 @@ impl Webrtc {
             Rc::clone(src)
         } else {
             let src =
-                Rc::new(AudioSource::new(&mut self.0.peer_connection_factory)?);
+                Rc::new(self.0.peer_connection_factory.create_audio_source()?);
             self.0.audio_source.replace(Rc::clone(&src));
 
             src
@@ -266,25 +253,68 @@ impl Webrtc {
     }
 }
 
+/// [`MediaStream`] ID.
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct MediaStreamId(u64);
+
+/// ID of an video input device that provides data to some [`VideoSource`].
+#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq)]
+#[as_ref(forward)]
+pub struct VideoDeviceId(String);
+
+/// Struct for `id` of `AudioDevice`.
+#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq, Default)]
+#[as_ref(forward)]
+pub struct AudioDeviceId(String);
+
+/// [`VideoTrack`] ID.
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct VideoTrackId(u64);
+
+/// [`AudioTrack`] ID.
+#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+pub struct AudioTrackId(u64);
+
+/// Label that identifies the video track source, as in
+/// "HD Webcam Analog Stereo".
+#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq, Default)]
+#[as_ref(forward)]
+pub struct VideoLabel(String);
+
+/// Label that identifies the audio track source, as in "internal microphone".
+#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq, Default)]
+#[as_ref(forward)]
+pub struct AudioLabel(String);
+
+/// [`sys::AudioDeviceModule`] wrapper that tracks currently used audio input
+/// device.
+pub struct AudioDeviceModule {
+    /// [`sys::AudioDeviceModule`] that backs this [`AudioDeviceModule`].
+    pub(crate) inner: sys::AudioDeviceModule,
+
+    /// ID of an audio input device currently used by this
+    /// [`sys::AudioDeviceModule`].
+    current_device_id: AudioDeviceId,
+}
+
 impl AudioDeviceModule {
-    /// Creates a new [`AudioDeviceModule`] according to the passed [`AudioLayer`].
+    /// Creates a new [`AudioDeviceModule`] according to the passed
+    /// [`sys::AudioLayer`].
     pub fn new(
-        audio_layer: AudioLayer,
-        task_queue_factory: &mut TaskQueueFactory,
+        audio_layer: sys::AudioLayer,
+        task_queue_factory: &mut sys::TaskQueueFactory,
     ) -> anyhow::Result<Self> {
         let inner =
-            SysAudioDeviceModule::create(audio_layer, task_queue_factory)
-                .unwrap();
-
-        inner.init().unwrap();
+            sys::AudioDeviceModule::create(audio_layer, task_queue_factory)?;
+        inner.init()?;
 
         // Temporary till ondevicechange() implemented.
-        if inner.recording_devices().unwrap() < 1 {
-            bail!("0 audio device is available.")
+        if inner.recording_devices()? < 1 {
+            bail!("Could not find any available audio recording device");
         }
 
         let current_device_id =
-            AudioDeviceId(inner.recording_device_name(0).unwrap().1);
+            AudioDeviceId(inner.recording_device_name(0)?.1);
 
         Ok(Self {
             inner,
@@ -293,50 +323,25 @@ impl AudioDeviceModule {
     }
 }
 
-/// Struct for `id` of [`MediaStream`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct MediaStreamId(u64);
-
-/// Struct for `id` of `VideoDevice`.
-#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq)]
-#[as_ref(forward)]
-pub struct VideoDeviceId(String);
-
-/// Struct for `id` of [`VideoSource`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct VideoSourceId(u64);
-
-/// Struct for `id` of `AudioDevice`.
-#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq, Default)]
-#[as_ref(forward)]
-pub struct AudioDeviceId(String);
-
-/// Struct for `id` of [`VideoTrack`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct VideoTrackId(u64);
-
-/// Struct for `id` of [`AudioTrack`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct AudioTrackId(u64);
-
-/// Struct for `label` of [`VideoTrack`].
-pub struct VideoLabel(String);
-
-/// Struct for `label` of [`AudioTrack`].
-pub struct AudioLabel(String);
-
-/// Is used to manage [`sys::LocalMediaStream`]
-/// and all included [`VideoTrack`] and [`AudioTrack`].
+/// [`sys::MediaStreamInterface`] that tracks all [`VideoTrack`]s and
+/// [`AudioTrack`]s that were added.
 pub struct MediaStream {
+    /// ID of this [`MediaStream`].
     id: MediaStreamId,
-    inner: sys::LocalMediaStream,
+
+    /// Underlying [`sys::MediaStreamInterface`].
+    inner: sys::MediaStreamInterface,
+
+    /// List of [`VideoTrack`] IDs contained in this [`MediaStream`].
     video_tracks: Vec<VideoTrackId>,
+
+    /// List of [`AudioTrack`] IDs contained in this [`MediaStream`].
     audio_tracks: Vec<AudioTrackId>,
 }
 
 impl MediaStream {
     /// Creates a new [`MediaStream`].
-    fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
+    fn new(pc: &sys::PeerConnectionFactoryInterface) -> anyhow::Result<Self> {
         let id = MediaStreamId(next_id());
         Ok(Self {
             id,
@@ -346,6 +351,7 @@ impl MediaStream {
         })
     }
 
+    /// Adds the provided [`VideoTrack`] to this [`MediaStream`].
     fn add_video_track(&mut self, track: &VideoTrack) -> anyhow::Result<()> {
         self.inner.add_video_track(&track.inner)?;
         self.video_tracks.push(track.id);
@@ -353,6 +359,7 @@ impl MediaStream {
         Ok(())
     }
 
+    /// Adds the provided [`AudioTrack`] to this [`MediaStream`].
     fn add_audio_track(&mut self, track: &AudioTrack) -> anyhow::Result<()> {
         self.inner.add_audio_track(&track.inner)?;
         self.audio_tracks.push(track.id);
@@ -361,19 +368,29 @@ impl MediaStream {
     }
 }
 
-/// Is used to manage [`sys::VideoTrack`].
+/// Is used to manage [`sys::VideoTrackInterface`].
 pub struct VideoTrack {
+    /// ID of this [`VideoTrack`].
     id: VideoTrackId,
-    inner: sys::VideoTrack,
+
+    /// Underlying [`sys::VideoTrackInterface`].
+    inner: sys::VideoTrackInterface,
+
+    /// [`VideoSource`] that is used by this [`VideoTrack`].
     src: Rc<VideoSource>,
+
+    /// [`api::TrackKind::kVideo`].
     kind: api::TrackKind,
+
+    /// [`VideoLabel`] that identifies the track source, as in
+    /// "HD Webcam Analog Stereo".
     label: VideoLabel,
 }
 
 impl VideoTrack {
     /// Creates a new [`VideoTrack`].
     fn new(
-        pc: &sys::PeerConnectionFactory,
+        pc: &sys::PeerConnectionFactoryInterface,
         src: Rc<VideoSource>,
         label: VideoLabel,
     ) -> anyhow::Result<Self> {
@@ -388,24 +405,63 @@ impl VideoTrack {
     }
 }
 
-/// Is used to manage [`sys::VideoSource`].
+/// Is used to manage [`sys::AudioSourceInterface`].
+pub struct AudioTrack {
+    /// ID of this [`AudioTrack`].
+    id: AudioTrackId,
+
+    /// Underlying [`sys::AudioTrackInterface`].
+    inner: sys::AudioTrackInterface,
+
+    /// [`sys::AudioSourceInterface`] that is used by this [`AudioTrack`].
+    src: Rc<sys::AudioSourceInterface>,
+
+    /// [`api::TrackKind::kAudio`].
+    kind: api::TrackKind,
+
+    /// [`AudioLabel`] that identifies the track source, as in
+    /// "internal microphone".
+    label: AudioLabel,
+}
+
+impl AudioTrack {
+    /// Creates a new [`AudioTrack`].
+    fn new(
+        pc: &sys::PeerConnectionFactoryInterface,
+        src: Rc<sys::AudioSourceInterface>,
+        label: AudioLabel,
+    ) -> anyhow::Result<Self> {
+        let id = AudioTrackId(next_id());
+        Ok(Self {
+            id,
+            inner: pc.create_audio_track(id.to_string(), &src.0)?,
+            src,
+            kind: api::TrackKind::kAudio,
+            label,
+        })
+    }
+}
+
+/// [`sys::VideoSourceInterface`] wrapper.
 pub struct VideoSource {
-    id: VideoSourceId,
-    inner: sys::VideoSource,
+    /// Underlying [`sys::VideoTrackSourceInterface`].
+    inner: sys::VideoTrackSourceInterface,
+
+    /// [`VideoDeviceId`] of an video input device that provides data to this
+    /// [`VideoSource`].
     device_id: VideoDeviceId,
 }
 
 impl VideoSource {
     /// Creates a new [`VideoSource`].
     fn new(
-        pc: &mut sys::PeerConnectionFactory,
+        pc: &mut sys::PeerConnectionFactoryInterface,
         caps: &api::VideoConstraints,
         device_index: u32,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
         Ok(Self {
-            id: VideoSourceId(next_id()),
-            inner: sys::VideoSource::create(
+            inner: sys::VideoTrackSourceInterface::create_proxy(
                 &mut pc.worker_thread,
                 &mut pc.signaling_thread,
                 caps.width,
@@ -414,47 +470,6 @@ impl VideoSource {
                 device_index,
             )?,
             device_id,
-        })
-    }
-}
-
-/// Is used to manage [`sys::VideoSource`].
-pub struct AudioTrack {
-    id: AudioTrackId,
-    inner: sys::AudioTrack,
-    src: Rc<AudioSource>,
-    kind: api::TrackKind,
-    label: AudioLabel,
-}
-
-impl AudioTrack {
-    /// Creates a new [`AudioTrack`].
-    fn new(
-        pc: &sys::PeerConnectionFactory,
-        src: Rc<AudioSource>,
-        label: AudioLabel,
-    ) -> anyhow::Result<Self> {
-        let id = AudioTrackId(next_id());
-        Ok(Self {
-            id,
-            inner: pc.create_audio_track(id.to_string(), &src.inner)?,
-            src,
-            kind: api::TrackKind::kAudio,
-            label,
-        })
-    }
-}
-
-/// Is used to manage [`sys::VideoSource`].
-pub struct AudioSource {
-    inner: sys::AudioSource,
-}
-
-impl AudioSource {
-    /// Creates a new [`AudioSource`].
-    fn new(pc: &sys::PeerConnectionFactory) -> anyhow::Result<Self> {
-        Ok(Self {
-            inner: pc.create_audio_source()?,
         })
     }
 }
