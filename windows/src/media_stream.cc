@@ -126,9 +126,8 @@ VideoConstraints parse_video_constraints(EncodableValue video_arg) {
         }
       }
     }
-
+    video_device_id = findString(video_map, "deviceId");
     video_required = true;
-    video_device_id = findString(video_map, "device_id");
   }
 
   VideoConstraints video_constraints;
@@ -156,7 +155,7 @@ AudioConstraints parse_audio_constraints(EncodableValue audio_arg) {
     audio_device_id = std::string();
   } else {
     EncodableMap audio_map = GetValue<EncodableMap>(audio_arg);
-    audio_device_id = findString(audio_map, "device_id");
+    audio_device_id = findString(audio_map, "deviceId");
     audio_required = true;
   }
 

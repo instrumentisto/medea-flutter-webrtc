@@ -11,12 +11,12 @@ using namespace rust::cxxbridge1;
 #define DEFAULT_HEIGHT 480
 #define DEFAULT_FPS 30
 
-template <typename T>
+template<typename T>
 inline bool TypeIs(const EncodableValue val) {
   return std::holds_alternative<T>(val);
 }
 
-template <typename T>
+template<typename T>
 inline const T GetValue(EncodableValue val) {
   return std::get<T>(val);
 }
