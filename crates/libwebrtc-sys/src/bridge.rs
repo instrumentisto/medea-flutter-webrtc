@@ -11,9 +11,9 @@ pub(crate) mod webrtc {
         kWindowsCoreAudio2,
         kLinuxAlsaAudio,
         kLinuxPulseAudio,
-        kAndroidJavaAudio,
+        kAndroidJavaAudio,  
         kAndroidOpenSLESAudio,
-        kAndroidJavaInputAndOpenSLESOutputAudio,
+        kAndroidJavaInputAndOpenSLESOutputAudio,   
         kAndroidAAudioAudio,
         kAndroidJavaInputAndAAudioOutputAudio,
         kDummyAudio,
@@ -128,12 +128,16 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
-    }
+    }      
 
-    #[rustfmt::skip]
-    unsafe extern "C++" {
-        type Thread;
-        type VideoEncoderFactory;
+    extern "Rust" {  
+        type RcRefCellObs;      
+    }           
+     
+    #[rustfmt::skip]       
+    unsafe extern "C++" {          
+        type Thread;  
+        type VideoEncoderFactory;        
         type VideoDecoderFactory;
         type PeerConnectionFactoryInterface;
         type AudioEncoderFactory;
@@ -251,11 +255,12 @@ pub(crate) mod webrtc {
         pub fn create_set_session_description_observer(
             s: fn(),
             f: fn(&CxxString),
+            //lifetime: Box<RcRefCellObs>, 
         ) -> UniquePtr<SetSessionDescriptionObserver>;
 
         /// Calls `peer_connection_interface`->CreateOffer.
         pub unsafe fn create_offer(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,   
             options: &RTCOfferAnswerOptions,
             obs: &UniquePtr<CreateSessionDescriptionObserver>,
         );
@@ -291,11 +296,17 @@ pub(crate) mod webrtc {
     }
 }
 
-impl TryFrom<&str> for webrtc::SdpType {
+
+use std::rc::Rc;
+use std::cell::RefCell;  
+    
+pub struct RcRefCellObs(Rc<RefCell<webrtc::SetSessionDescriptionObserver>>);    
+  
+impl TryFrom<&str> for webrtc::SdpType {     
     type Error = anyhow::Error;
 
-    /// Try conver &str to [`webrtc::SdpType`].
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    /// Try conver &str to [`webrtc::SdpType`].  
+    fn try_from(value: &str) -> Result<Self, Self::Error> {  
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),
             "answer" => Ok(webrtc::SdpType::kAnswer),

@@ -62,24 +62,6 @@ pub mod ffi {
             error: &mut String,
         ) -> u64;
 
-        #[cxx_name = "InitCreateObs"]
-        fn init_create_session_obs(
-            self: &mut Webrtc,
-            error: &mut String,
-            peer_connection_id: u64,
-            s: usize,
-            f: usize,
-        );
-
-        #[cxx_name = "InitSetObs"]
-        fn init_set_session_obs(
-            self: &mut Webrtc,
-            error: &mut String,
-            peer_connection_id: u64,
-            s: usize,
-            f: usize,
-        );
-
         /// Creates a new [Offer].
         /// # Warning
         /// `error` for error handle without c++ exception.
@@ -95,6 +77,8 @@ pub mod ffi {
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
+            s: usize,
+            f: usize,
         );
 
         /// Creates a new [Answer].
@@ -112,6 +96,8 @@ pub mod ffi {
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
+            s: usize,
+            f: usize,
         );
 
         /// Set Local Description.
@@ -126,6 +112,8 @@ pub mod ffi {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
+            s: usize,
+            f: usize,
         );
 
         /// Set Remote Description.
@@ -140,6 +128,8 @@ pub mod ffi {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
+            s: usize,
+            f: usize,
         );
 
     }

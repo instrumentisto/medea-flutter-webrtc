@@ -3,7 +3,10 @@
 
 mod bridge;
 
+use std::{rc::Rc, cell::RefCell};
+
 use anyhow::bail;
+use bridge::RcRefCellObs;
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
@@ -395,7 +398,7 @@ impl SetSessionDescriptionObserver {
     /// `fail` for callback when 'SetLocal\RemoteDescription' is OnFailure.
     pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
         Self(webrtc::create_set_session_description_observer(
-            success, fail,
+            success, fail, //lifetime
         ))
     }
 }
@@ -467,7 +470,16 @@ impl PeerConnectionInterface {
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
+        success: fn(),
+        fail: fn(&cxx::CxxString),
     ) {
+        
+        /*let temp = Rc::new(RefCell::new(SetSessionDescriptionObserver(UniquePtr::null())));
+        let obs = SetSessionDescriptionObserver::new(success, fail, temp);
+        let mut rc_obs = Rc::new(RefCell::new(obs));
+        let rc_cl = rc_obs.clone();
+        rc_obs.as_ref().borrow_mut().set_lifetime(rc_cl);*/
+
         unsafe {
             webrtc::set_local_description(
                 self.peer_connection.pin_mut(),
