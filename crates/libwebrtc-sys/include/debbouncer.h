@@ -32,8 +32,15 @@ public:
     t.detach();
   };
 
+  void kek() {
+    printf("sersd\n");
+  }
+
+  bool is_active() {
+    return active.load();
+  };
+
   void stop() {
     active = false;
   };
-
 };

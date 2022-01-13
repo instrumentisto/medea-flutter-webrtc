@@ -8,10 +8,8 @@
 
 class CustomNotifier {
 public:
-  CustomNotifier(std::function<void()> cb) : cb_(cb) {
-    // CustomNotifier() {
-    std::this_thread::get_id;
-
+  // CustomNotifier(std::function<void()> cb) : cb_(cb) {
+  CustomNotifier() {
     std::thread t([=]() {
       const wchar_t winClass[] = L"MyNotifyWindow";
       const wchar_t winTitle[] = L"WindowTitle";
@@ -24,6 +22,7 @@ public:
       HINSTANCE hInstance = GetModuleHandle(NULL);
       hwnd_ = CreateWindowW(winClass, winTitle, WS_ICONIC, 0, 0,
         CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+      SetWindowLongPtr(hwnd_, GWLP_USERDATA, (LONG_PTR)this);
       ShowWindow(hwnd_, SW_HIDE);
 
       MSG Msg;
@@ -36,8 +35,23 @@ public:
     t.detach();
   }
 
+  void kek() {
+    printf("lol\n");
+    timer_.kek();
+    printf("kek\n");
+
+    // timer_.setTimeout([&]() {
+    //   printf("lol\n");
+    //   timer_.stop();
+    //   }, 500);
+  }
+
+private:
   static LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     LRESULT result = 0;
+
+    auto asdasd = (CustomNotifier*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    asdasd->kek();
 
     if (msg == WM_CLOSE) {
       exit(0);
@@ -61,8 +75,7 @@ public:
     return result;
   };
 
-private:
   std::function<void()> cb_;
   HWND hwnd_;
-  CustomTimer* timer_ = new CustomTimer();
+  CustomTimer timer_;
 };

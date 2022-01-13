@@ -277,11 +277,11 @@ LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 void test() {
-  // auto asd = CustomNotifier();
+  CustomNotifier asd;
 
-  // while (true);
+  while (true);
 
-  // const wchar_t winClass[] = L"MyNotifyWindow";a
+  // const wchar_t winClass[] = L"MyNotifyWindow";
   // const wchar_t winTitle[] = L"WindowTitle";
 
   // WNDCLASSEXW wcex = { sizeof(WNDCLASSEX) };
