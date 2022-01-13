@@ -12,10 +12,10 @@ use crate::{
     Webrtc,
 };
 
-/// Atomic counter usd to generate unique ID's.
+/// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
-/// Returns a `u64` that can be used as a unique ID.
+/// Returns a next unique ID.
 fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
@@ -74,12 +74,12 @@ impl Webrtc {
         result
     }
 
-    /// Disposes the [`MediaStream`] and all contained tracks.
+    /// Disposes the [`MediaStream`] and all the contained tracks in it.
     ///
     /// # Panics
     ///
-    /// Panics if tracks from the provided stream are not found in the context.
-    /// It is an invariant violation.
+    /// Panics if tracks from the provided [`MediaStream`] are not found in the
+    /// context, as it's an invariant violation.
     pub fn dispose_stream(self: &mut Webrtc, id: u64) {
         if let Some(stream) =
             self.0.local_media_streams.remove(&MediaStreamId(id))
@@ -119,8 +119,8 @@ impl Webrtc {
         } else {
             bail!(
                 "Could not find video device with the specified ID `{}`",
-                &source.device_id
-            )
+                &source.device_id,
+            );
         };
 
         let track = VideoTrack::new(
@@ -155,7 +155,7 @@ impl Webrtc {
             } else {
                 bail!(
                     "Could not find video device with the specified ID `{}`",
-                    device_id
+                    device_id,
                 );
             }
         };
@@ -184,8 +184,8 @@ impl Webrtc {
         &mut self,
         source: Rc<sys::AudioSourceInterface>,
     ) -> anyhow::Result<&mut AudioTrack> {
-        // If there is an `sys::AudioSourceInterface` then we are sure that
-        // `current_device_id` is set in the `AudioDeviceModule`.
+        // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
+        //        that `current_device_id` is set in the `AudioDeviceModule`.
         let device_id = self
             .0
             .audio_device_module
@@ -199,7 +199,7 @@ impl Webrtc {
         } else {
             bail!(
                 "Could not find video device with the specified ID `{}`",
-                device_id
+                device_id,
             )
         };
 
@@ -261,7 +261,7 @@ impl Webrtc {
         } else {
             bail!(
                 "Could not find audio device with the specified ID `{}`",
-                device_id
+                device_id,
             );
         };
 
@@ -287,7 +287,7 @@ impl Webrtc {
     }
 }
 
-/// [`MediaStream`] ID.
+/// ID of a [`MediaStream`].
 #[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
 pub struct MediaStreamId(u64);
 
@@ -296,41 +296,40 @@ pub struct MediaStreamId(u64);
 #[as_ref(forward)]
 pub struct VideoDeviceId(String);
 
-/// Struct for `id` of `AudioDevice`.
-#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq, Default)]
+/// ID of an `AudioDevice`.
+#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq)]
 #[as_ref(forward)]
 pub struct AudioDeviceId(String);
 
-/// [`VideoTrack`] ID.
+/// ID of a [`VideoTrack`].
 #[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
 pub struct VideoTrackId(u64);
 
-/// [`AudioTrack`] ID.
+/// ID of an [`AudioTrack`].
 #[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
 pub struct AudioTrackId(u64);
 
-/// Label that identifies the video track source, as in
-/// "HD Webcam Analog Stereo".
-#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq, Default)]
+/// Label identifying a video track source.
+#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq)]
 #[as_ref(forward)]
 pub struct VideoLabel(String);
 
-/// Label that identifies the audio track source, as in "internal microphone".
-#[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq, Default)]
+/// Label identifying an audio track source.
+#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq)]
 #[as_ref(forward)]
 pub struct AudioLabel(String);
 
-/// [`sys::AudioDeviceModule`] wrapper that tracks currently used audio input
+/// [`sys::AudioDeviceModule`] wrapper tracking the currently used audio input
 /// device.
 pub struct AudioDeviceModule {
-    /// [`sys::AudioDeviceModule`] that backs this [`AudioDeviceModule`].
+    /// [`sys::AudioDeviceModule`] backing this [`AudioDeviceModule`].
     pub(crate) inner: sys::AudioDeviceModule,
 
-    /// ID of an audio input device currently used by this
+    /// ID of the audio input device currently used by this
     /// [`sys::AudioDeviceModule`].
     ///
-    /// `None` if [`AudioDeviceModule`] was not used yet to record data from
-    /// audio input device.
+    /// [`None`] if the [`AudioDeviceModule`] was not used yet to record data
+    /// from the audio input device.
     current_device_id: Option<AudioDeviceId>,
 }
 
@@ -340,7 +339,7 @@ impl AudioDeviceModule {
     ///
     /// # Errors
     ///
-    /// Errors if could not find any available recording device.
+    /// If could not find any available recording device.
     pub fn new(
         audio_layer: sys::AudioLayer,
         task_queue_factory: &mut sys::TaskQueueFactory,
@@ -359,7 +358,7 @@ impl AudioDeviceModule {
     ///
     /// # Errors
     ///
-    /// Errors [`sys::AudioDeviceModule::set_recording_device()`] call fails.
+    /// If [`sys::AudioDeviceModule::set_recording_device()`] fails.
     pub fn set_recording_device(
         &mut self,
         id: AudioDeviceId,
@@ -372,8 +371,8 @@ impl AudioDeviceModule {
     }
 }
 
-/// [`sys::MediaStreamInterface`] that tracks all [`VideoTrack`]s and
-/// [`AudioTrack`]s that were added.
+/// [`sys::MediaStreamInterface`] tracking all the added [`VideoTrack`]s and
+/// [`AudioTrack`]s.
 pub struct MediaStream {
     /// ID of this [`MediaStream`].
     id: MediaStreamId,
@@ -417,7 +416,7 @@ impl MediaStream {
     }
 }
 
-/// Is used to manage [`sys::VideoTrackInterface`].
+/// Representation of a [`sys::VideoTrackInterface`].
 pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
     id: VideoTrackId,
@@ -431,8 +430,8 @@ pub struct VideoTrack {
     /// [`api::TrackKind::kVideo`].
     kind: api::TrackKind,
 
-    /// [`VideoLabel`] that identifies the track source, as in
-    /// "HD Webcam Analog Stereo".
+    /// [`VideoLabel`] identifying the track source, as in "HD Webcam Analog
+    /// Stereo".
     label: VideoLabel,
 }
 
@@ -454,7 +453,7 @@ impl VideoTrack {
     }
 }
 
-/// Is used to manage [`sys::AudioSourceInterface`].
+/// Representation of a [`sys::AudioSourceInterface`].
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
     id: AudioTrackId,
@@ -468,8 +467,8 @@ pub struct AudioTrack {
     /// [`api::TrackKind::kAudio`].
     kind: api::TrackKind,
 
-    /// [`AudioLabel`] that identifies the track source, as in
-    /// "internal microphone".
+    /// [`AudioLabel`] identifying the track source, as in "internal
+    /// microphone".
     label: AudioLabel,
 }
 
@@ -496,8 +495,7 @@ pub struct VideoSource {
     /// Underlying [`sys::VideoTrackSourceInterface`].
     inner: sys::VideoTrackSourceInterface,
 
-    /// [`VideoDeviceId`] of an video input device that provides data to this
-    /// [`VideoSource`].
+    /// ID of an video input device that provides data to this [`VideoSource`].
     device_id: VideoDeviceId,
 }
 

@@ -10,10 +10,10 @@ use self::bridge::webrtc;
 
 pub use webrtc::AudioLayer;
 
-/// Thread safe task queue factory internally used in [`WebRTC`] that is
-/// capable of creating [Task Queue]s.
+/// Thread safe task queue factory internally used in [`WebRTC`] that is capable
+/// of creating [Task Queue]s.
 ///
-/// [`WebRTC`]: https://webrtc.googlesource.com/src/
+/// [`WebRTC`]: https://webrtc.googlesource.com/src
 /// [Task Queue]: https://tinyurl.com/doc-threads
 pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
@@ -140,8 +140,8 @@ impl AudioDeviceModule {
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::SetRecordingDevice()` failed with \
-            `{}` code.",
-                result
+                 `{}` code.",
+                result,
             );
         }
 
@@ -239,8 +239,8 @@ impl PeerConnectionFactoryInterface {
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
     ) -> anyhow::Result<Self> {
-        // Wont panic since we guarantee that Thread cannot contain null
-        // pointer.
+        // PANIC: Won't panic since we guarantee that the `Thread` cannot
+        //        contain a null pointer.
         let inner = webrtc::create_peer_connection_factory(
             worker_thread.0.as_mut().unwrap(),
             signaling_thread.0.as_mut().unwrap(),
@@ -249,7 +249,7 @@ impl PeerConnectionFactoryInterface {
         if inner.is_null() {
             bail!(
                 "`null` pointer returned from \
-                `webrtc::CreatePeerConnectionFactory()`"
+                 `webrtc::CreatePeerConnectionFactory()`",
             );
         }
         Ok(Self(inner))
@@ -263,7 +263,7 @@ impl PeerConnectionFactoryInterface {
         if ptr.is_null() {
             bail!(
                 "`null` pointer returned from \
-                `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`"
+                 `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`",
             );
         }
         Ok(AudioSourceInterface(ptr))
@@ -281,7 +281,7 @@ impl PeerConnectionFactoryInterface {
         if ptr.is_null() {
             bail!(
                 "`null` pointer returned from \
-                `webrtc::PeerConnectionFactoryInterface::CreateVideoTrack()`"
+                 `webrtc::PeerConnectionFactoryInterface::CreateVideoTrack()`",
             );
         }
         Ok(VideoTrackInterface(ptr))
@@ -299,7 +299,7 @@ impl PeerConnectionFactoryInterface {
         if ptr.is_null() {
             bail!(
                 "`null` pointer returned from \
-                `webrtc::PeerConnectionFactoryInterface::CreateAudioTrack()`"
+                 `webrtc::PeerConnectionFactoryInterface::CreateAudioTrack()`",
             );
         }
         Ok(AudioTrackInterface(ptr))
@@ -315,8 +315,8 @@ impl PeerConnectionFactoryInterface {
         if ptr.is_null() {
             bail!(
                 "`null` pointer returned from \
-                `webrtc::PeerConnectionFactoryInterface::\
-                CreateLocalMediaStream()`"
+                 `webrtc::PeerConnectionFactoryInterface::\
+                 CreateLocalMediaStream()`",
             );
         }
         Ok(MediaStreamInterface(ptr))
@@ -360,7 +360,7 @@ impl VideoTrackSourceInterface {
         if ptr.is_null() {
             bail!(
                 "`null` pointer returned from \
-                `webrtc::CreateVideoTrackSourceProxy()`"
+                 `webrtc::CreateVideoTrackSourceProxy()`",
             );
         }
         Ok(VideoTrackSourceInterface(ptr))
@@ -386,7 +386,7 @@ pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
 
 /// [`MediaStreamInterface`][1] representation.
 ///
-/// [1]: https://www.w3.org/TR/mediacapture-streams/#mediastream
+/// [1]: https://w3.org/TR/mediacapture-streams#mediastream
 pub struct MediaStreamInterface(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl MediaStreamInterface {

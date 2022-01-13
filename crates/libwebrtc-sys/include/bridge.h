@@ -105,16 +105,16 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
                           rust::String& name,
                           rust::String& guid);
 
-/// Creates a new `Thread`.
+// Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-/// Creates a new `PeerConnectionFactoryInterface`.
+// Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     Thread& worker_thread,
     Thread& signaling_thread);
 
-/// Creates a new `VideoTrackSourceInterface` according to the specified
-/// constraints.
+// Creates a new `VideoTrackSourceInterface` according to the specified
+// constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
@@ -123,44 +123,45 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t fps,
     uint32_t device_index);
 
-/// Creates a new `AudioSourceInterface`.
+// Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory);
 
-/// Creates a new `VideoTrackInterface`.
+// Creates a new `VideoTrackInterface`.
 std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source);
 
-/// Creates a new `AudioTrackInterface`.
+// Creates a new `AudioTrackInterface`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source);
 
-/// Creates a new `MediaStreamInterface`.
+// Creates a new `MediaStreamInterface`.
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id);
 
-/// Adds the provided `VideoTrackInterface` to the specified
-/// `MediaStreamInterface`.
+// Adds the provided `VideoTrackInterface` to the specified
+// `MediaStreamInterface`.
 bool add_video_track(const MediaStreamInterface& media_stream,
                      const VideoTrackInterface& track);
 
-/// Adds the provided `AudioTrackInterface` to the specified
-/// `MediaStreamInterface`.
+// Adds the provided `AudioTrackInterface` to the specified
+// `MediaStreamInterface`.
 bool add_audio_track(const MediaStreamInterface& media_stream,
                      const AudioTrackInterface& track);
 
-/// Removes the provided `VideoTrackInterface` to the specified
-/// `MediaStreamInterface`.
+// Removes the provided `VideoTrackInterface` to the specified
+// `MediaStreamInterface`.
 bool remove_video_track(const MediaStreamInterface& media_stream,
                         const VideoTrackInterface& track);
 
-/// Removes the provided `AudioTrackInterface` to the specified
-/// `MediaStreamInterface`.
+// Removes the provided `AudioTrackInterface` to the specified
+// `MediaStreamInterface`.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
+
 }  // namespace bridge

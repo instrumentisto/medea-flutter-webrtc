@@ -125,7 +125,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Returns a ist of all C++ sources that should be compiled.
+/// Returns a list of all C++ sources that should be compiled.
 fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
     let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?)
         .join("src")
@@ -134,14 +134,14 @@ fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
     Ok(get_files_from_dir(dir))
 }
 
-/// Returns a list of all headed files that should be included.
+/// Returns a list of all header files that should be included.
 fn get_header_files() -> anyhow::Result<Vec<PathBuf>> {
     let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("include");
 
     Ok(get_files_from_dir(dir))
 }
 
-/// Performs recursive directory traversal returning all found files.
+/// Performs recursive directory traversal returning all the found files.
 fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
     WalkDir::new(dir)
         .into_iter()

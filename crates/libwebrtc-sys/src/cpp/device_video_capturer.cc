@@ -16,7 +16,7 @@ DeviceVideoCapturer::~DeviceVideoCapturer() {
   Destroy();
 }
 
-/// Creates a new `DeviceVideoCapturer`.
+// Creates a new `DeviceVideoCapturer`.
 rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
     size_t width,
     size_t height,
@@ -35,10 +35,10 @@ rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
   return capturer;
 }
 
-/// Initializes current `DeviceVideoCapturer`.
-///
-/// Creates an underlying `VideoCaptureModule` and starts capturing media with
-/// specified constraints.
+// Initializes current `DeviceVideoCapturer`.
+//
+// Creates an underlying `VideoCaptureModule` and starts capturing media with
+// specified constraints.
 bool DeviceVideoCapturer::Init(size_t width,
                                size_t height,
                                size_t max_fps,
@@ -77,7 +77,7 @@ bool DeviceVideoCapturer::Init(size_t width,
   return true;
 }
 
-/// Frees an underlying `VideoCaptureModule`.
+// Frees an underlying `VideoCaptureModule`.
 void DeviceVideoCapturer::Destroy() {
   if (!vcm_)
     return;
@@ -87,28 +87,28 @@ void DeviceVideoCapturer::Destroy() {
   vcm_ = nullptr;
 }
 
-/// Propagates a `VideoFrame` to the `AdaptedVideoTrackSource::OnFrame()`.
+// Propagates a `VideoFrame` to the `AdaptedVideoTrackSource::OnFrame()`.
 void DeviceVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
   AdaptedVideoTrackSource::OnFrame(frame);
 }
 
-/// Returns `false`.
+// Returns `false`.
 bool DeviceVideoCapturer::is_screencast() const {
   return false;
 }
 
-/// Returns `false`.
+// Returns `false`.
 absl::optional<bool> DeviceVideoCapturer::needs_denoising() const {
   return false;
 }
 
-/// Returns `SourceState::kLive`.
+// Returns `SourceState::kLive`.
 webrtc::MediaSourceInterface::SourceState DeviceVideoCapturer::state()
 const {
   return SourceState::kLive;
 }
 
-/// Returns `false`.
+// Returns `false`.
 bool DeviceVideoCapturer::remote() const {
   return false;
 }

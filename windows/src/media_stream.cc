@@ -45,7 +45,7 @@ void enumerate_device(Box<Webrtc>& webrtc,
   result->Success(EncodableValue(params));
 }
 
-/// Parses the recieved constraints from Dart and passes them to Rust
+/// Parses the received constraints from Dart and passes them to Rust
 /// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
 void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
                     Box<Webrtc>& webrtc,

@@ -4,8 +4,6 @@ use crate::{
     Webrtc,
 };
 
-/// Returns a list of all available media input and output devices, such as
-/// microphones, cameras, headsets, and so forth.
 impl Webrtc {
     /// Returns a list of all available audio input and output devices.
     ///
@@ -91,7 +89,7 @@ impl Webrtc {
         audio
     }
 
-    /// Returns an index of a specific video device by the provided
+    /// Returns an index of a specific video device identified by the provided
     /// [`VideoDeviceId`].
     ///
     /// # Errors
@@ -113,8 +111,8 @@ impl Webrtc {
         Ok(None)
     }
 
-    /// Returns an index of a specific audio input device by the provided
-    /// [`AudioDeviceId`].
+    /// Returns an index of a specific audio input device identified by the
+    /// provided [`AudioDeviceId`].
     ///
     /// # Errors
     ///
@@ -122,8 +120,8 @@ impl Webrtc {
     /// [`AudioDeviceModule::recording_device_name()`][2]
     /// returns error.
     ///
-    /// [1]: [`libwebrtc_sys::AudioDeviceModule::recording_devices()`]
-    /// [2]: [`libwebrtc_sys::AudioDeviceModule::recording_device_name()`]
+    /// [1]: libwebrtc_sys::AudioDeviceModule::recording_devices
+    /// [2]: libwebrtc_sys::AudioDeviceModule::recording_device_name
     pub fn get_index_of_audio_recording_device(
         &mut self,
         device_id: &AudioDeviceId,
