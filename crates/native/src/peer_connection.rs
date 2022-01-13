@@ -1,3 +1,4 @@
+use cxx::UniquePtr;
 use libwebrtc_sys as sys;
 
 use std::sync::atomic::Ordering;
@@ -55,6 +56,48 @@ impl Webrtc {
         }
     }
 
+    pub fn init_create_session_obs(
+        &mut self,
+        error: &mut String,
+        peer_connection_id: u64,
+        s: usize,
+        f: usize,
+    ) {
+        if let Some(peer_connection) =
+        self.0.peer_connections.get_mut(&peer_connection_id)
+        {
+            let success: fn(&cxx::CxxString, &cxx::CxxString) =
+            unsafe { std::mem::transmute(s) };
+            let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
+            let obs = sys::CreateSessionDescriptionObserver::new(success, fail);
+    
+            peer_connection.peer_connection_interface.create_session_observer = Some(obs);
+        } else {
+            error.push_str("Peer Connection not found");
+        }
+    }
+
+    pub fn init_set_session_obs(
+        &mut self,
+        error: &mut String,
+        peer_connection_id: u64,
+        s: usize,
+        f: usize,
+    ) {
+        if let Some(peer_connection) =
+        self.0.peer_connections.get_mut(&peer_connection_id)
+        {
+            let success: fn() =
+            unsafe { std::mem::transmute(s) };
+            let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
+            let obs = sys::SetSessionDescriptionObserver::new(success, fail);
+    
+            peer_connection.peer_connection_interface.set_session_observer = Some(obs);
+        } else {
+            error.push_str("Peer Connection not found");
+        }
+    }
+
     /// Creates a new [Offer].
     /// Where
     /// `s` - void (*callback_success)(std::string, std::string)
@@ -74,18 +117,10 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        s: usize,
-        f: usize,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
-            let success: fn(&cxx::CxxString, &cxx::CxxString) 
-                = unsafe {std::mem::transmute(s)};
-            let fail: fn(&cxx::CxxString) 
-                = unsafe {std::mem::transmute(f)};
-            let obs 
-                = sys::CreateSessionDescriptionObserver::new(success, fail);
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
                 offer_to_receive_audio,
@@ -95,7 +130,7 @@ impl Webrtc {
             );
             peer_connection
                 .peer_connection_interface
-                .create_offer(&options, obs);
+                .create_offer(&options);
         } else {
             error.push_str("Peer Connection not found");
         }
@@ -120,18 +155,10 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        s: usize,
-        f: usize,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
-            let success: fn(&cxx::CxxString, &cxx::CxxString) 
-                = unsafe {std::mem::transmute(s)};
-            let fail: fn(&cxx::CxxString) 
-                = unsafe {std::mem::transmute(f)};
-            let obs 
-                = sys::CreateSessionDescriptionObserver::new(success, fail);
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
                 offer_to_receive_audio,
@@ -141,7 +168,7 @@ impl Webrtc {
             );
             peer_connection
                 .peer_connection_interface
-                .create_answer(&options, obs);
+                .create_answer(&options);
         } else {
             error.push_str("Peer Connection not found");
         }
@@ -161,27 +188,18 @@ impl Webrtc {
         peer_connection_id: u64,
         type_: String,
         sdp: String,
-        s: usize,
-        f: usize,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
-                    
-                    let success: fn() 
-                        = unsafe {std::mem::transmute(s)};
-                    let fail: fn(&cxx::CxxString) 
-                        = unsafe {std::mem::transmute(f)};
-                    let obs 
-                        = sys::SetSessionDescriptionObserver::new(success, fail);
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
                     peer_connection
                         .peer_connection_interface
-                        .set_local_description(desc, obs);
+                        .set_local_description(desc);
                 }
                 Err(e) => error.push_str(&e.to_string()),
             }
@@ -206,26 +224,18 @@ impl Webrtc {
         peer_connection_id: u64,
         type_: String,
         sdp: String,
-        s: usize,
-        f: usize,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id)
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
-                    let success: fn() 
-                        = unsafe {std::mem::transmute(s)};
-                    let fail: fn(&cxx::CxxString) 
-                        = unsafe {std::mem::transmute(f)};
-                    let obs 
-                        = sys::SetSessionDescriptionObserver::new(success, fail);
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
                     peer_connection
                         .peer_connection_interface
-                        .set_remote_description(desc, obs);
+                        .set_remote_description(desc);
                 }
                 Err(e) => error.push_str(&e.to_string()),
             }

@@ -193,17 +193,17 @@ std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_ob
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs);
+  const RTCOfferAnswerOptions& options, const std::unique_ptr<CreateSessionDescriptionObserver>& obs);
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
 void create_answer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs);
+  const RTCOfferAnswerOptions& options, const std::unique_ptr<CreateSessionDescriptionObserver>& obs);
 
 // Calls `PeerConnectionInterface->SetLocalDescription`.
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetSessionDescriptionObserver> obs);
+  std::unique_ptr<SessionDescriptionInterface> desc, const std::unique_ptr<SetSessionDescriptionObserver>& obs);
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetSessionDescriptionObserver> obs);
+  std::unique_ptr<SessionDescriptionInterface> desc, const std::unique_ptr<SetSessionDescriptionObserver>& obs);
 }

@@ -220,39 +220,37 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
   rust::Fn<void (const std::string &, const std::string &)> s, 
   rust::Fn<void (const std::string &)> f) {
-    CreateSessionDescriptionObserver obs = CreateSessionDescriptionObserver(s,f);
-    return std::make_unique<CreateSessionDescriptionObserver>(obs);
+    return std::make_unique<CreateSessionDescriptionObserver>(CreateSessionDescriptionObserver(s,f));
   }
 
 // Creates `SetSessionDescriptionObserver`.   
 std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_observer(
   rust::Fn<void ()> s, 
   rust::Fn<void (const std::string &)> f) {
-    SetSessionDescriptionObserver obs = SetSessionDescriptionObserver(s,f);
-    return std::make_unique<SetSessionDescriptionObserver>(obs);
+    return std::make_unique<SetSessionDescriptionObserver>(SetSessionDescriptionObserver(s,f));
   }
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs) {
-    peer_connection_interface.ptr()->CreateOffer(obs.release(), options);
+  const RTCOfferAnswerOptions& options, const std::unique_ptr<CreateSessionDescriptionObserver>& obs) {
+    peer_connection_interface.ptr()->CreateOffer(obs.get(), options);
   }
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
 void create_answer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs) {
-  peer_connection_interface.ptr()->CreateAnswer(obs.release(), options);
+  const RTCOfferAnswerOptions& options, const std::unique_ptr<CreateSessionDescriptionObserver>& obs) {
+  peer_connection_interface.ptr()->CreateAnswer(obs.get(), options);
 }
 
 // Calls `PeerConnectionInterface->SetLocalDescription`.
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetSessionDescriptionObserver> obs) {
-    peer_connection_interface.ptr()->SetLocalDescription(obs.release(), desc.release());
+  std::unique_ptr<SessionDescriptionInterface> desc, const std::unique_ptr<SetSessionDescriptionObserver>& obs) {
+    peer_connection_interface.ptr()->SetLocalDescription(obs.get(), desc.release());
   }
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetSessionDescriptionObserver> obs) {
-    peer_connection_interface.ptr()->SetRemoteDescription(obs.release(), desc.release());
+  std::unique_ptr<SessionDescriptionInterface> desc, const std::unique_ptr<SetSessionDescriptionObserver>& obs) {
+    peer_connection_interface.ptr()->SetRemoteDescription(obs.get(), desc.release());
   }
 }

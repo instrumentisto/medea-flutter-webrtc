@@ -99,6 +99,13 @@ void CreateOffer(
     size_t fail = (size_t) wrapp_fail;
 
     rust::String error;
+    webrtc->InitCreateObs(error, std::stoi(peerConnectionId), success, fail);
+    if (error != "")
+    {
+        std::string err(error);
+        res->Error("createAnswerOffer", err);
+    }
+    
     webrtc->CreateOffer(
         error,
         std::stoi(peerConnectionId),
@@ -106,15 +113,8 @@ void CreateOffer(
         receive_audio, 
         voice_activity_detection, 
         ice_restart, 
-        use_rtp_mux, 
-        success, 
-        fail
+        use_rtp_mux
     );
-    if (error != "")
-    {
-        std::string err(error);
-        res->Error("createAnswerOffer", err);
-    }
 };
 void CreateAnswer(
     rust::cxxbridge1::Box<Webrtc>& webrtc, 
@@ -165,22 +165,22 @@ void CreateAnswer(
     size_t fail = (size_t) wrapp_fail;
 
     rust::String error;
-    webrtc->CreateOffer(
+    webrtc->InitCreateObs(error, std::stoi(peerConnectionId), success, fail);
+    if (error != "")
+    {
+        std::string err(error);
+        res->Error("createAnswerOffer", err);
+    }
+
+    webrtc->CreateAnswer(
         error,
         std::stoi(peerConnectionId),
         receive_video, 
         receive_audio, 
         voice_activity_detection, 
         ice_restart, 
-        use_rtp_mux, 
-        success, 
-        fail
+        use_rtp_mux
     );
-    if (error != "")
-    {
-        std::string err(error);
-        res->Error("createAnswerOffer", err);
-    }
 };
 void SetLocalDescription(
     rust::cxxbridge1::Box<Webrtc>& webrtc, 
@@ -210,19 +210,19 @@ void SetLocalDescription(
 
 
     rust::String error;
+    webrtc->InitSetObs(error, std::stoi(peerConnectionId), success, fail);
+    if (error != "")
+    {
+        std::string err(error);
+        result_ptr->Error("createAnswerOffer", err);
+    }
+
     webrtc->SetLocalDescription(
         error,
         std::stoi(peerConnectionId),
         type, 
-        sdp, 
-        success, 
-        fail
+        sdp
     );
-    if (error != "")
-    {
-        std::string err(error);
-        result_ptr->Error("SetLocalDescriptionFailed", err);
-    }
 };
 
 void SetRemoteDescription(
@@ -253,19 +253,19 @@ void SetRemoteDescription(
     size_t success = (size_t) wrapp_success;
 
     rust::String error;
+    webrtc->InitSetObs(error, std::stoi(peerConnectionId), success, fail);
+    if (error != "")
+    {
+        std::string err(error);
+        result_ptr->Error("createAnswerOffer", err);
+    }
+
     webrtc->SetRemoteDescription(
         error,
         std::stoi(peerConnectionId),
         type, 
-        sdp, 
-        success, 
-        fail
+        sdp
     );
-    if (error != "")
-    {
-        std::string err(error);
-        result_ptr->Error("SetLocalDescriptionFailed", err);
-    }
 };
 
 }

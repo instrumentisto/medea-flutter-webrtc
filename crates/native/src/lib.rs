@@ -5,9 +5,9 @@ mod peer_connection;
 use std::collections::HashMap;
 
 use libwebrtc_sys::{
-    AudioDeviceModule, AudioLayer, PeerConnectionFactoryInterface,
-    TaskQueueFactory, VideoDeviceInfo, Thread, CreateSessionDescriptionObserver,
-    SetSessionDescriptionObserver
+    AudioDeviceModule, AudioLayer, CreateSessionDescriptionObserver,
+    PeerConnectionFactoryInterface, SetSessionDescriptionObserver,
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
 use peer_connection::PeerConnection;
@@ -62,6 +62,24 @@ pub mod ffi {
             error: &mut String,
         ) -> u64;
 
+        #[cxx_name = "InitCreateObs"]
+        fn init_create_session_obs(
+            self: &mut Webrtc,
+            error: &mut String,
+            peer_connection_id: u64,
+            s: usize,
+            f: usize,
+        );
+
+        #[cxx_name = "InitSetObs"]
+        fn init_set_session_obs(
+            self: &mut Webrtc,
+            error: &mut String,
+            peer_connection_id: u64,
+            s: usize,
+            f: usize,
+        );
+
         /// Creates a new [Offer].
         /// # Warning
         /// `error` for error handle without c++ exception.
@@ -77,8 +95,6 @@ pub mod ffi {
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            s: usize,
-            f: usize,
         );
 
         /// Creates a new [Answer].
@@ -96,8 +112,6 @@ pub mod ffi {
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            s: usize,
-            f: usize,
         );
 
         /// Set Local Description.
@@ -112,8 +126,6 @@ pub mod ffi {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
-            s: usize,
-            f: usize,
         );
 
         /// Set Remote Description.
@@ -128,8 +140,6 @@ pub mod ffi {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
-            s: usize,
-            f: usize,
         );
 
     }
@@ -221,8 +231,6 @@ pub struct Inner {
     network_thread: Option<Thread>,
     worker_thread: Option<Thread>,
     signaling_thread: Option<Thread>,
-    create_session_observer: Option<CreateSessionDescriptionObserver>,
-    set_session_observer: Option<SetSessionDescriptionObserver>,
 }
 
 /// Wraps the [`Inner`] instanse.
@@ -261,7 +269,17 @@ pub fn init() -> Box<Webrtc> {
         network_thread: Some(network_thread),
         worker_thread: Some(worker_thread),
         signaling_thread: Some(signaling_thread),
-        create_session_observer: None,
-        set_session_observer: None,
     })))
+}
+
+#[cfg(test)]
+mod test {
+    use crate::*;
+
+    #[test]
+    fn test1() {
+        let mut w = init();
+        let mut error = String::new();
+        let id = w.create_default_peer_connection(&mut error);
+    }
 }

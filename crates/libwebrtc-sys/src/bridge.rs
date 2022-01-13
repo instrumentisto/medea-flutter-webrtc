@@ -1,9 +1,10 @@
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
+
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
-    #[derive(Debug, Eq, Hash, PartialEq)]   
+    #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum AudioLayer {
         kPlatformDefaultAudio = 0,
         kWindowsCoreAudio,
@@ -65,7 +66,6 @@ pub(crate) mod webrtc {
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
     }
-
 
     unsafe extern "C++" {
         type AudioDeviceModule;
@@ -257,28 +257,28 @@ pub(crate) mod webrtc {
         pub unsafe fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
-            obs: UniquePtr<CreateSessionDescriptionObserver>,
+            obs: &UniquePtr<CreateSessionDescriptionObserver>,
         );
 
         /// Calls `peer_connection_interface`->CreateAnswer.
         pub unsafe fn create_answer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
-            obs: UniquePtr<CreateSessionDescriptionObserver>,
+            obs: &UniquePtr<CreateSessionDescriptionObserver>,
         );
 
         /// Calls `peer_connection_interface`->SetLocalDescription.
         pub unsafe fn set_local_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
-            obs: UniquePtr<SetSessionDescriptionObserver>,
+            obs: &UniquePtr<SetSessionDescriptionObserver>,
         );
 
         /// Calls `peer_connection_interface`->SetRemoteDescription.
         pub unsafe fn set_remote_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
-            obs: UniquePtr<SetSessionDescriptionObserver>,
+            obs: &UniquePtr<SetSessionDescriptionObserver>,
         );
 
         /// Creates [`SessionDescriptionInterface`]
