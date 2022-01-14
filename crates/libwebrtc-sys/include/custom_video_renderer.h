@@ -12,7 +12,7 @@
 
 #include "rust/cxx.h"
 
-namespace WEBRTC {
+namespace bridge {
 
 class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
@@ -32,4 +32,4 @@ class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
   size_t flutter_cb_ptr_;
   bool no_track_ = false;
 };
-}  // namespace WEBRTC
+}  // namespace bridge

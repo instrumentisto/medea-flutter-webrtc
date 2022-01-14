@@ -10,7 +10,7 @@ class AutoLock {
   T* obj_;
 };
 
-namespace WEBRTC {
+namespace bridge {
 
 VideoRenderer::VideoRenderer(
     rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
@@ -36,4 +36,4 @@ void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
   cb_(std::make_unique<webrtc::VideoFrame>(video_frame), flutter_cb_ptr_);
 }
 
-}  // namespace WEBRTC
+}  // namespace bridge

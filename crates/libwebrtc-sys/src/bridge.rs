@@ -1,124 +1,226 @@
-#[cxx::bridge(namespace = "WEBRTC")]
-pub mod webrtc {
-    // C++ types and signatures exposed to Rust.
+#[allow(clippy::expl_impl_clone_on_copy)]
+#[cxx::bridge(namespace = "bridge")]
+pub(crate) mod webrtc {
+    /// Possible kinds of audio devices implementation.
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    pub enum AudioLayer {
+        kPlatformDefaultAudio = 0,
+        kWindowsCoreAudio,
+        kWindowsCoreAudio2,
+        kLinuxAlsaAudio,
+        kLinuxPulseAudio,
+        kAndroidJavaAudio,
+        kAndroidOpenSLESAudio,
+        kAndroidJavaInputAndOpenSLESOutputAudio,
+        kAndroidAAudioAudio,
+        kAndroidJavaInputAndAAudioOutputAudio,
+        kDummyAudio,
+    }
+
+    #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
 
-        type TaskQueueFactory;
-        type AudioDeviceModule;
-        type VideoDeviceInfo;
-        type Thread;
         type PeerConnectionFactoryInterface;
-        type VideoTrackSourceInterface;
-        type AudioSourceInterface;
-        type VideoTrackInterface;
-        type AudioTrackInterface;
-        type MediaStreamInterface;
-        type VideoFrame;
-        type VideoRenderer;
+        type TaskQueueFactory;
+        type Thread;
 
+        /// Creates a default [`TaskQueueFactory`] based on the current
+        /// platform.
+        #[namespace = "webrtc"]
+        #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
 
-        pub fn create_audio_device_module(
-            task_queue_factory: UniquePtr<TaskQueueFactory>,
-        ) -> UniquePtr<AudioDeviceModule>;
-        pub fn init_audio_device_module(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
-        );
-        pub fn playout_devices(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
-        ) -> i16;
-        pub fn recording_devices(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
-        ) -> i16;
-        pub fn get_playout_audio_info(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
-            index: i16,
-        ) -> Vec<String>;
-        pub fn get_recording_audio_info(
-            audio_device_module: &UniquePtr<AudioDeviceModule>,
-            index: i16,
-        ) -> Vec<String>;
-
-        pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
-        pub fn number_of_video_devices(
-            device_info: &UniquePtr<VideoDeviceInfo>,
-        ) -> u32;
-        pub fn get_video_device_name(
-            device_info: &UniquePtr<VideoDeviceInfo>,
-            index: u32,
-        ) -> Vec<String>;
-
+        /// Creates a new [`Thead`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
-        pub fn start_thread(thread: &UniquePtr<Thread>);
+        /// Starts the current [`Thread`].
+        #[cxx_name = "Start"]
+        pub fn start_thread(self: Pin<&mut Thread>) -> bool;
 
+        /// Creates a new [`PeerConnectionFactory`].
         pub fn create_peer_connection_factory(
-            worker_thread: &UniquePtr<Thread>,
-            signaling_thread: &UniquePtr<Thread>,
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
+    }
 
+    unsafe extern "C++" {
+        type AudioDeviceModule;
+        type AudioLayer;
+
+        /// Creates a new [`AudioDeviceModule`] for the given [`AudioLayer`].
+        pub fn create_audio_device_module(
+            audio_layer: AudioLayer,
+            task_queue_factory: Pin<&mut TaskQueueFactory>,
+        ) -> UniquePtr<AudioDeviceModule>;
+
+        /// Initializes the given [`AudioDeviceModule`].
+        pub fn init_audio_device_module(
+            audio_device_module: &AudioDeviceModule,
+        ) -> i32;
+
+        /// Returns count of available audio playout devices.
+        pub fn playout_devices(audio_device_module: &AudioDeviceModule) -> i16;
+
+        /// Returns count of available audio recording devices.
+        pub fn recording_devices(
+            audio_device_module: &AudioDeviceModule,
+        ) -> i16;
+
+        /// Writes device info to the provided `name` and `id` for the given
+        /// audio playout device `index`.
+        pub fn playout_device_name(
+            audio_device_module: &AudioDeviceModule,
+            index: i16,
+            name: &mut String,
+            id: &mut String,
+        ) -> i32;
+
+        /// Writes device info to the provided `name` and `id` for the given
+        /// audio recording device `index`.
+        pub fn recording_device_name(
+            audio_device_module: &AudioDeviceModule,
+            index: i16,
+            name: &mut String,
+            id: &mut String,
+        ) -> i32;
+
+        /// Specifies which microphone to use for recording audio using an
+        /// index retrieved by the corresponding enumeration method which is
+        /// [`AudiDeviceModule::RecordingDeviceName`].
+        pub fn set_audio_recording_device(
+            audio_device_module: &AudioDeviceModule,
+            index: u16,
+        ) -> i32;
+    }
+
+    unsafe extern "C++" {
+        type VideoDeviceInfo;
+
+        /// Creates a new [`VideoDeviceInfo`].
+        pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
+
+        /// Returns count of a video recording devices.
+        #[namespace = "webrtc"]
+        #[cxx_name = "NumberOfDevices"]
+        pub fn number_of_video_devices(self: Pin<&mut VideoDeviceInfo>) -> u32;
+
+        /// Writes device info to the provided `name` and `id` for the given
+        /// video device `index`.
+        pub fn video_device_name(
+            device_info: Pin<&mut VideoDeviceInfo>,
+            index: u32,
+            name: &mut String,
+            id: &mut String,
+        ) -> i32;
+    }
+
+    unsafe extern "C++" {
+        type AudioSourceInterface;
+        type AudioTrackInterface;
+        type MediaStreamInterface;
+        type VideoTrackInterface;
+        type VideoTrackSourceInterface;
+
+        /// Creates a new [`VideoTrackSourceInterface`].
         pub fn create_video_source(
-            worker_thread: &UniquePtr<Thread>,
-            signaling_thread: &UniquePtr<Thread>,
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
             width: usize,
             height: usize,
             fps: usize,
+            device_index: u32,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
+        /// Creates a new [`AudioSourceInterface`].
         pub fn create_audio_source(
-            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
+            peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
+        /// Creates a new [`VideoTrackInterface`].
         pub fn create_video_track(
-            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
-            video_source: &UniquePtr<VideoTrackSourceInterface>,
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
+            video_source: &VideoTrackSourceInterface,
         ) -> UniquePtr<VideoTrackInterface>;
 
+        /// Creates a new [`AudioTrackInterface`].
         pub fn create_audio_track(
-            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
-            audio_source: &UniquePtr<AudioSourceInterface>,
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
+            audio_source: &AudioSourceInterface,
         ) -> UniquePtr<AudioTrackInterface>;
 
+        /// Creates a new [`MediaStreamInterface`].
         pub fn create_local_media_stream(
-            peer_connection_factory: &UniquePtr<PeerConnectionFactoryInterface>,
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
         ) -> UniquePtr<MediaStreamInterface>;
 
+        /// Adds the [`VideoTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_video_track(
-            peer_connection_factory: &UniquePtr<MediaStreamInterface>,
-            track: &UniquePtr<VideoTrackInterface>,
+            peer_connection_factory: &MediaStreamInterface,
+            track: &VideoTrackInterface,
         ) -> bool;
 
+        /// Adds the [`AudioTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_audio_track(
-            peer_connection_factory: &UniquePtr<MediaStreamInterface>,
-            track: &UniquePtr<AudioTrackInterface>,
+            peer_connection_factory: &MediaStreamInterface,
+            track: &AudioTrackInterface,
         ) -> bool;
 
+        /// Removes the [`VideoTrackInterface`] from the
+        /// [`MediaStreamInterface`].
         pub fn remove_video_track(
-            media_stream: &UniquePtr<MediaStreamInterface>,
-            track: &UniquePtr<VideoTrackInterface>,
+            media_stream: &MediaStreamInterface,
+            track: &VideoTrackInterface,
         ) -> bool;
 
+        /// Removes the [`AudioTrackInterface`] from the
+        /// [`MediaStreamInterface`].
         pub fn remove_audio_track(
-            media_stream: &UniquePtr<MediaStreamInterface>,
-            track: &UniquePtr<AudioTrackInterface>,
+            media_stream: &MediaStreamInterface,
+            track: &AudioTrackInterface,
         ) -> bool;
+    }
 
-        pub fn frame_width(frame: &UniquePtr<VideoFrame>) -> i32;
+    #[repr(i32)]
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum VideoRotation {
+        kVideoRotation_0 = 0,
+        kVideoRotation_90 = 90,
+        kVideoRotation_180 = 180,
+        kVideoRotation_270 = 270,
+    }
 
-        pub fn frame_height(frame: &UniquePtr<VideoFrame>) -> i32;
+    unsafe extern "C++" {
+        type VideoFrame;
+        type VideoRenderer;
+        type VideoRotation;
 
-        pub fn frame_rotation(frame: &UniquePtr<VideoFrame>) -> i32;
+        #[cxx_name = "width"]
+        pub fn width(self: &VideoFrame) -> i32;
+
+        #[cxx_name = "height"]
+        pub fn height(self: &VideoFrame) -> i32;
+
+        #[cxx_name = "rotation"]
+        pub fn rotation(self: &VideoFrame) -> VideoRotation;
 
         pub unsafe fn convert_to_argb(
-            frame: &UniquePtr<VideoFrame>,
+            frame: &VideoFrame,
             buffer_size: i32,
         ) -> Vec<u8>;
 
-        pub unsafe fn get_video_renderer(cb: unsafe fn(UniquePtr<VideoFrame>, usize), flutter_cb_ptr: usize, video_track: &UniquePtr<VideoTrackInterface>) -> UniquePtr<VideoRenderer>;
+        pub unsafe fn get_video_renderer(
+            cb: unsafe fn(UniquePtr<VideoFrame>, usize),
+            flutter_cb_ptr: usize,
+            video_track: &VideoTrackInterface,
+        ) -> UniquePtr<VideoRenderer>;
 
-        pub fn set_renderer_no_track(video_renderer: &UniquePtr<VideoRenderer>);
-
-        // pub fn test(cb: fn(UniquePtr<VideoFrame>));
+        #[cxx_name = "SetNoTrack"]
+        pub fn set_no_track(self: Pin<&mut VideoRenderer>);
     }
 }

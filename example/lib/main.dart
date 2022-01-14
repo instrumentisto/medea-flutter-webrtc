@@ -14,7 +14,6 @@ import 'src/get_user_media_sample.dart'
 import 'src/loopback_sample.dart';
 import 'src/renderer_test.dart';
 import 'src/route_item.dart';
-import 'src/test.dart';
 
 void main() {
   if (WebRTC.platformIsDesktop) {
@@ -122,6 +121,7 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => GetSourcesSample()));
+<<<<<<< HEAD
           }),
       RouteItem(
           title: 'test',
@@ -138,6 +138,8 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => RendererTest()));
+=======
+>>>>>>> windows-rework
           }),
     ];
   }

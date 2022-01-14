@@ -1,71 +1,144 @@
-use cxx::UniquePtr;
-use std::{collections::HashMap, mem, rc::Rc};
-
-use libwebrtc_sys::*;
-
-mod user_media;
-use user_media::*;
+#![warn(clippy::pedantic)]
 
 mod device_info;
-use device_info::*;
-
 mod frame;
-use frame::*;
-
 mod renderer;
-use renderer::*;
+mod user_media;
+
+use std::{collections::HashMap, rc::Rc};
+
+use libwebrtc_sys::{
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
+    TaskQueueFactory, Thread, VideoDeviceInfo,
+};
+
+#[doc(inline)]
+pub use crate::user_media::{
+    AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
+    MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+};
+
+pub use crate::frame::{delete_frame, Frame};
+
+pub use crate::renderer::{Renderer, TextureId};
 
 /// The module which describes the bridge to call Rust from C++.
+#[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
-pub mod ffi {
-    /// Information about a physical device instance.
-    struct DeviceInfo {
-        deviceId: String,
-        kind: String,
-        label: String,
+pub mod api {
+    /// Possible kinds of media devices.
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum MediaDeviceKind {
+        kAudioInput,
+        kAudioOutput,
+        kVideoInput,
     }
 
-    /// Media Stream constrants.
-    struct Constraints {
-        audio: bool,
-        video: VideoConstraints,
+    /// Information describing a single media input or output device.
+    #[derive(Debug)]
+    pub struct MediaDeviceInfo {
+        /// Unique identifier for the represented device.
+        pub device_id: String,
+
+        /// Kind of the represented device.
+        pub kind: MediaDeviceKind,
+
+        /// Label describing the represented device.
+        pub label: String,
     }
 
-    /// Constraints for video capturer.
-    struct VideoConstraints {
-        min_width: String,
-        min_height: String,
-        min_fps: String,
+    /// The [MediaStreamConstraints] is used to instruct what sort of
+    /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
+    /// [`Webrtc::get_users_media()`].
+    pub struct MediaStreamConstraints {
+        /// Specifies the nature and settings of the video [`MediaStreamTrack`].
+        pub audio: AudioConstraints,
+        /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
+        pub video: VideoConstraints,
     }
 
-    /// Information about local [Media Stream].
-    ///
-    /// [Media Stream]: https://www.w3.org/TR/mediacapture-streams/#mediastream
-    struct LocalStreamInfo {
-        stream_id: String,
-        video_tracks: Vec<TrackInfo>,
-        audio_tracks: Vec<TrackInfo>,
+    /// Specifies the nature and settings of the video [`MediaStreamTrack`]
+    /// returned by [`Webrtc::get_users_media()`].
+    pub struct VideoConstraints {
+        /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
+        /// track. All other args will be ignored if `required` is set to
+        /// `false`.
+        pub required: bool,
+
+        /// The identifier of the device generating the content of the
+        /// [`MediaStreamTrack`]. First device will be chosen if empty
+        /// [`String`] is provided.
+        pub device_id: String,
+
+        /// The width, in pixels.
+        pub width: usize,
+
+        /// The height, in pixels.
+        pub height: usize,
+
+        /// The exact frame rate (frames per second).
+        pub frame_rate: usize,
     }
 
-    /// Information about [Track].
-    ///
-    /// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
-    struct TrackInfo {
-        id: String,
-        label: String,
-        kind: TrackKind,
-        enabled: bool,
+    /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
+    /// returned by [`Webrtc::get_users_media()`].
+    pub struct AudioConstraints {
+        /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
+        /// track. All other args will be ignored if `required` is set to
+        /// `false`.
+        pub required: bool,
+
+        /// The identifier of the device generating the content of the
+        /// [`MediaStreamTrack`]. First device will be chosen if empty
+        /// [`String`] is provided.
+        ///
+        /// __NOTE__: There can be only one active recording device at a time,
+        /// so changing device will affect all previously obtained audio tracks.
+        pub device_id: String,
     }
 
-    /// Kind of [Track].
-    ///
-    /// [Track]: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
-    enum TrackKind {
-        Audio,
-        Video,
+    /// The [`MediaStream`] represents a stream of media content. A stream
+    /// consists of several [`MediaStreamTrack`], such as video or audio tracks.
+    pub struct MediaStream {
+        /// Unique ID of this [`MediaStream`];
+        pub stream_id: u64,
+
+        /// [`MediaStreamTrack`]s with [`TrackKind::kVideo`].
+        pub video_tracks: Vec<MediaStreamTrack>,
+
+        /// [`MediaStreamTrack`]s with [`TrackKind::kAudio`].
+        pub audio_tracks: Vec<MediaStreamTrack>,
     }
 
-    enum VideoRotation {
+    /// The [MediaStreamTrack] interface represents a single media track within
+    /// a stream; typically, these are audio or video tracks, but other track
+    /// types may exist as well.
+    pub struct MediaStreamTrack {
+        /// Unique identifier (GUID) for the track
+        pub id: u64,
+
+        /// Label that identifies the track source, as in "internal microphone".
+        pub label: String,
+
+        /// [`TrackKind`] of the current [`MediaStreamTrack`].
+        pub kind: TrackKind,
+
+        /// The `enabled` property on the [`MediaStreamTrack`] interface is a
+        /// `enabled` value which is `true` if the track is allowed to render
+        /// the source stream or `false` if it is not. This can be used to
+        /// intentionally mute a track.
+        pub enabled: bool,
+    }
+
+    /// Nature of the [`MediaStreamTrack`].
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum TrackKind {
+        kAudio,
+        kVideo,
+    }
+
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum VideoRotation {
         kVideoRotation_0 = 0,
         kVideoRotation_90 = 90,
         kVideoRotation_180 = 180,
@@ -76,42 +149,97 @@ pub mod ffi {
         type Webrtc;
         type Frame;
 
-        fn enumerate_devices() -> Vec<DeviceInfo>;
-        fn init() -> Box<Webrtc>;
-        fn get_user_media(
-            webrtc: &mut Box<Webrtc>,
-            constraints: Constraints,
-        ) -> LocalStreamInfo;
-        fn dispose_stream(webrtc: &mut Box<Webrtc>, id: String);
+        /// Creates an instance of [`Webrtc`].
+        #[cxx_name = "Init"]
+        pub fn init() -> Box<Webrtc>;
+
+        /// Returns a list of all available media input and output devices, such
+        /// as microphones, cameras, headsets, and so forth.
+        #[cxx_name = "EnumerateDevices"]
+        pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
+
+        /// Creates a [`MediaStream`] with tracks according to provided
+        /// [`MediaStreamConstraints`].
+        #[cxx_name = "GetUserMedia"]
+        pub fn get_users_media(
+            self: &mut Webrtc,
+            constraints: &MediaStreamConstraints,
+        ) -> MediaStream;
+
+        /// Disposes the [`MediaStream`] and all contained tracks.
+        #[cxx_name = "DisposeStream"]
+        pub fn dispose_stream(self: &mut Webrtc, id: u64);
+
         fn width(self: &Frame) -> i32;
         fn height(self: &Frame) -> i32;
         fn rotation(self: &Frame) -> VideoRotation;
         fn buffer_size(self: &Frame) -> i32;
         unsafe fn buffer(self: &Frame) -> Vec<u8>;
         unsafe fn delete_frame(frame_ptr: *mut Frame);
-        fn dispose_renderer(webrtc: &mut Box<Webrtc>, texture_id: i64);
+        fn dispose_renderer(self: &mut Webrtc, texture_id: i64);
     }
 }
 
-/// Contains all necessary tools for interoperate with [libWebRTC].
-///
-/// [libWebrtc]: https://webrtc.googlesource.com/src/
-pub struct Inner {
-    task_queue_factory: UniquePtr<webrtc::TaskQueueFactory>,
-    worker_thread: UniquePtr<webrtc::Thread>,
-    signaling_thread: UniquePtr<webrtc::Thread>,
-    peer_connection_factory: UniquePtr<webrtc::PeerConnectionFactoryInterface>,
-    video_sources: HashMap<VideoSouceId, Rc<VideoSource>>,
+/// [`Context`] wrapper that is exposed to the C++ API clients.
+pub struct Webrtc(Box<Context>);
+
+/// Application context that manages all dependencies.
+#[allow(dead_code)]
+pub struct Context {
+    task_queue_factory: TaskQueueFactory,
+    worker_thread: Thread,
+    signaling_thread: Thread,
+    audio_device_module: AudioDeviceModule,
+    video_device_info: VideoDeviceInfo,
+    peer_connection_factory: PeerConnectionFactoryInterface,
+    video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
     video_tracks: HashMap<VideoTrackId, VideoTrack>,
-    audio_sources:
-        HashMap<AudioSourceId, UniquePtr<webrtc::AudioSourceInterface>>,
+    audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
-    local_media_streams: HashMap<StreamId, MediaStream>,
+    local_media_streams: HashMap<MediaStreamId, MediaStream>,
     renderers: HashMap<TextureId, Renderer>,
 }
 
-/// Wraps the [Inner] instanse.
-/// This struct is intended to be extern and managed outside of the Rust app.
+/// Creates an instanse of [`Webrtc`].
 ///
-/// [Inner](Inner)
-pub struct Webrtc(Box<Inner>);
+/// # Panics
+///
+/// Panics on any error returned from the `libWebRTC`.
+#[must_use]
+pub fn init() -> Box<Webrtc> {
+    // TODO: Dont panic but propagate errors to API users.
+    let mut task_queue_factory =
+        TaskQueueFactory::create_default_task_queue_factory();
+    let mut worker_thread = Thread::create().unwrap();
+    worker_thread.start().unwrap();
+    let mut signaling_thread = Thread::create().unwrap();
+    signaling_thread.start().unwrap();
+
+    let peer_connection_factory = PeerConnectionFactoryInterface::create(
+        &mut worker_thread,
+        &mut signaling_thread,
+    )
+    .unwrap();
+    let audio_device_module = AudioDeviceModule::new(
+        AudioLayer::kPlatformDefaultAudio,
+        &mut task_queue_factory,
+    )
+    .unwrap();
+
+    let video_device_info = VideoDeviceInfo::create().unwrap();
+
+    Box::new(Webrtc(Box::new(Context {
+        task_queue_factory,
+        worker_thread,
+        signaling_thread,
+        audio_device_module,
+        video_device_info,
+        peer_connection_factory,
+        video_sources: HashMap::new(),
+        video_tracks: HashMap::new(),
+        audio_source: None,
+        audio_tracks: HashMap::new(),
+        local_media_streams: HashMap::new(),
+        renderers: HashMap::new(),
+    })))
+}

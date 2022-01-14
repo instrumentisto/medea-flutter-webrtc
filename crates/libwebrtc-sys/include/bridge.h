@@ -21,118 +21,165 @@
 #include "pc/video_track_source.h"
 #include "rust/cxx.h"
 
-namespace WEBRTC {
+namespace bridge {
+
+// Smart pointer designed to wrap WebRTC's `rtc::scoped_refptr`.
+//
+// `rtc::scoped_refptr` can't be used with `std::uniqueptr` since it has private
+// destructor. `rc` unwraps raw pointer from the provided `rtc::scoped_refptr`
+// and calls `Release()` in its destructor therefore this allows wrapping `rc`
+// into a `std::uniqueptr`.
 template <class T>
-class RefCounted {
+class rc {
  public:
   typedef T element_type;
-  RefCounted(rtc::scoped_refptr<T> p) : ptr_(p.release()) {}
-  ~RefCounted() { ptr_->Release(); }
-  auto getptr() { return ptr_; }
+
+  // Unwraps the actual pointer from the provided `rtc::scoped_refptr`.
+  rc(rtc::scoped_refptr<T> p) : ptr_(p.release()) {}
+
+  // Calls `RefCountInterface::Release()` on the underlying pointer.
+  ~rc() { ptr_->Release(); }
+
+  // Returns a pointer to the managed object.
+  T* ptr() const { return ptr_; }
+
+  // Returns a pointer to the managed object.
+  T* operator->() const { return ptr_; }
 
  protected:
+  // Pointer to the managed object.
   T* ptr_;
 };
 
-using TaskQueueFactory = webrtc::TaskQueueFactory;
-using AudioDeviceModule = RefCounted<webrtc::AudioDeviceModule>;
-using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using Thread = rtc::Thread;
+
+using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
+using TaskQueueFactory = webrtc::TaskQueueFactory;
+using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+
+using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
+using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
+using AudioTrackInterface = rc<webrtc::AudioTrackInterface>;
+using MediaStreamInterface = rc<webrtc::MediaStreamInterface>;
 using PeerConnectionFactoryInterface =
-    RefCounted<webrtc::PeerConnectionFactoryInterface>;
-using VideoTrackSourceInterface = RefCounted<webrtc::VideoTrackSourceInterface>;
-using AudioSourceInterface = RefCounted<webrtc::AudioSourceInterface>;
-using VideoTrackInterface = RefCounted<webrtc::VideoTrackInterface>;
-using AudioTrackInterface = RefCounted<webrtc::AudioTrackInterface>;
-using MediaStreamInterface = RefCounted<webrtc::MediaStreamInterface>;
+    rc<webrtc::PeerConnectionFactoryInterface>;
+using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
+using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
 using VideoFrame = webrtc::VideoFrame;
+using VideoRotation = webrtc::VideoRotation;
 
-std::unique_ptr<webrtc::TaskQueueFactory> create_default_task_queue_factory();
-
+// Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
-    std::unique_ptr<webrtc::TaskQueueFactory> task_queue_factory);
-void init_audio_device_module(
-    const std::unique_ptr<AudioDeviceModule>& audio_device_module);
-int16_t playout_devices(
-    const std::unique_ptr<AudioDeviceModule>& audio_device_module);
-int16_t recording_devices(
-    const std::unique_ptr<AudioDeviceModule>& audio_device_module);
-rust::Vec<rust::String> get_playout_audio_info(
-    const std::unique_ptr<AudioDeviceModule>& audio_device_module,
-    int16_t index);
-rust::Vec<rust::String> get_recording_audio_info(
-    const std::unique_ptr<AudioDeviceModule>& audio_device_module,
-    int16_t index);
+    AudioLayer audio_layer,
+    TaskQueueFactory& task_queue_factory);
 
-std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>
-create_video_device_info();
-uint32_t number_of_video_devices(
-    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info);
-rust::Vec<rust::String> get_video_device_name(
-    const std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>& device_info,
-    uint32_t index);
+// Initializes the native audio parts required for each platform.
+int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module);
 
+// Returns count of the available playout audio devices.
+int16_t playout_devices(const AudioDeviceModule& audio_device_module);
+
+// Returns count of the available recording audio devices.
+int16_t recording_devices(const AudioDeviceModule& audio_device_module);
+
+// Obtains information regarding the specified audio playout device.
+int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
+                            int16_t index,
+                            rust::String& name,
+                            rust::String& guid);
+
+// Obtains information regarding the specified audio recording device.
+int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
+                              int16_t index,
+                              rust::String& name,
+                              rust::String& guid);
+
+// Specifies which microphone to use for recording audio using an index
+// retrieved by the corresponding enumeration method which is
+// `AudiDeviceModule::RecordingDeviceName`.
+int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
+                                   uint16_t index);
+
+// Creates a new `VideoDeviceInfo`.
+std::unique_ptr<VideoDeviceInfo> create_video_device_info();
+
+// Obtains information regarding the specified video recording device.
+int32_t video_device_name(VideoDeviceInfo& device_info,
+                          uint32_t index,
+                          rust::String& name,
+                          rust::String& guid);
+
+// Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-void start_thread(const std::unique_ptr<rtc::Thread>& thread);
-
+// Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    const std::unique_ptr<rtc::Thread>& worker_thread,
-    const std::unique_ptr<rtc::Thread>& signaling_thread);
+    Thread& worker_thread,
+    Thread& signaling_thread);
 
+// Creates a new `VideoTrackSourceInterface` according to the specified
+// constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
-    const std::unique_ptr<rtc::Thread>& worker_thread,
-    const std::unique_ptr<rtc::Thread>& signaling_thread,
+    Thread& worker_thread,
+    Thread& signaling_thread,
     size_t width,
     size_t height,
-    size_t fps);
+    size_t fps,
+    uint32_t device_index);
 
+// Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory);
+    const PeerConnectionFactoryInterface& peer_connection_factory);
 
+// Creates a new `VideoTrackInterface`.
 std::unique_ptr<VideoTrackInterface> create_video_track(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory,
-    const std::unique_ptr<VideoTrackSourceInterface>& video_source);
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    rust::String id,
+    const VideoTrackSourceInterface& video_source);
 
+// Creates a new `AudioTrackInterface`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory,
-    const std::unique_ptr<AudioSourceInterface>& audio_source);
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    rust::String id,
+    const AudioSourceInterface& audio_source);
 
+// Creates a new `MediaStreamInterface`.
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
-    const std::unique_ptr<PeerConnectionFactoryInterface>&
-        peer_connection_factory);
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    rust::String id);
 
-bool add_video_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-                     const std::unique_ptr<VideoTrackInterface>& track);
+// Adds the provided `VideoTrackInterface` to the specified
+// `MediaStreamInterface`.
+bool add_video_track(const MediaStreamInterface& media_stream,
+                     const VideoTrackInterface& track);
 
-bool add_audio_track(const std::unique_ptr<MediaStreamInterface>& media_stream,
-                     const std::unique_ptr<AudioTrackInterface>& track);
+// Adds the provided `AudioTrackInterface` to the specified
+// `MediaStreamInterface`.
+bool add_audio_track(const MediaStreamInterface& media_stream,
+                     const AudioTrackInterface& track);
 
-bool remove_video_track(
-    const std::unique_ptr<MediaStreamInterface>& media_stream,
-    const std::unique_ptr<VideoTrackInterface>& track);
+// Removes the provided `VideoTrackInterface` to the specified
+// `MediaStreamInterface`.
+bool remove_video_track(const MediaStreamInterface& media_stream,
+                        const VideoTrackInterface& track);
 
-bool remove_audio_track(
-    const std::unique_ptr<MediaStreamInterface>& media_stream,
-    const std::unique_ptr<AudioTrackInterface>& track);
+// Removes the provided `AudioTrackInterface` to the specified
+// `MediaStreamInterface`.
+bool remove_audio_track(const MediaStreamInterface& media_stream,
+                        const AudioTrackInterface& track);
 
-int32_t frame_width(const std::unique_ptr<VideoFrame>& frame);
+// int32_t frame_width(const VideoFrame& frame);
 
-int32_t frame_height(const std::unique_ptr<VideoFrame>& frame);
+// int32_t frame_height(const VideoFrame& frame);
 
-int32_t frame_rotation(const std::unique_ptr<VideoFrame>& frame);
+// int32_t frame_rotation(const VideoFrame& frame);
 
-rust::Vec<uint8_t> convert_to_argb(const std::unique_ptr<VideoFrame>& frame,
+rust::Vec<uint8_t> convert_to_argb(const VideoFrame& frame,
                                    int32_t buffer_size);
 
 std::unique_ptr<VideoRenderer> get_video_renderer(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
-    const std::unique_ptr<VideoTrackInterface>& track_to_render);
+    const VideoTrackInterface& track_to_render);
 
-void set_renderer_no_track(
-    const std::unique_ptr<VideoRenderer>& video_renderer);
-}  // namespace WEBRTC
+}  // namespace bridge
