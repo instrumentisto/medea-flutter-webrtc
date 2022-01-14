@@ -86,7 +86,7 @@ impl Webrtc {
             let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
             let obs = sys::CreateSessionDescriptionObserver::new(success, fail);
     
-            peer_connection.peer_connection_interface.create_session_observer = Some(obs);
+            //peer_connection.peer_connection_interface.create_session_observer = Some(obs);
 
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
@@ -97,7 +97,7 @@ impl Webrtc {
             );
             peer_connection
                 .peer_connection_interface
-                .create_offer(&options);
+                .create_offer(&options, obs);
         } else {
             error.push_str("Peer Connection not found");
         }
@@ -140,11 +140,11 @@ impl Webrtc {
             let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
             let obs = sys::CreateSessionDescriptionObserver::new(success, fail);
 
-            peer_connection.peer_connection_interface.create_session_observer = Some(obs);
+            //peer_connection.peer_connection_interface.create_session_observer = Some(obs);
 
             peer_connection
                 .peer_connection_interface
-                .create_answer(&options);
+                .create_answer(&options, obs);
         } else {
             error.push_str("Peer Connection not found");
         }
@@ -179,9 +179,11 @@ impl Webrtc {
                         unsafe { std::mem::transmute(s) };
                     let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
 
+                    let obs = sys::SetLocalDescriptionObserverInterface::new(success, fail);
+
                     peer_connection
                         .peer_connection_interface
-                        .set_local_description(desc, success, fail);
+                        .set_local_description(desc, obs);
                 }
                 Err(e) => error.push_str(&e.to_string()),
             }
@@ -220,12 +222,11 @@ impl Webrtc {
                     let success: fn() =
                         unsafe { std::mem::transmute(s) };
                     let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
-                    //let obs = sys::SetSessionDescriptionObserver::new(success, fail);
-                    //peer_connection.peer_connection_interface.set_session_observer = Some(obs);
+                    let obs = sys::SetRemoteDescriptionObserverInterface::new(success, fail);
 
                     peer_connection
                         .peer_connection_interface
-                        .set_remote_description(desc);
+                        .set_remote_description(desc, obs);
                 }
                 Err(e) => error.push_str(&e.to_string()),
             }

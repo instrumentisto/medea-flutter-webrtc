@@ -35,7 +35,7 @@ namespace observer
     std::string type = desc->type();
     std::string sdp;
     desc->ToString(&sdp);
-    (*success)(sdp, type);
+    (*success)(sdp, type); 
   };
 
   // Calls when a `CreateOffer\Answer` is fail.
@@ -44,40 +44,57 @@ namespace observer
     (*fail)(err);
   };
 
-  void CreateSessionDescriptionObserver::AddRef() const {};
+  void CreateSessionDescriptionObserver::AddRef() const {}; 
   rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
 
-  // Construct `SetLocal\RemoteDescription Observer` where
-  // s - void (*callback_success_desc)(),
-  // f - void (*callback_fail)(std::string).
-  SetSessionDescriptionObserver::SetSessionDescriptionObserver(
-    rust::Fn<void ()> s,
-    rust::Fn<void (const std::string &)> f,
-    rust::Box<bridge::RcRefCellObs> lt) : lt(std::move(lt)) {
-      success = s;
-      fail = f;
+  // SetLocalDescriptionObserverInterface
+  void SetLocalDescriptionObserverInterface::OnSetLocalDescriptionComplete(webrtc::RTCError error) {
+    if(error.ok()) {
+      (*success)();
+    } else {
+      printf("C++2\n");
+      std::string error(error.message());
+      (*fail)(error);
     }
-
-  // Calls when a `SetLocal\RemoteDescription` is success.
-  void SetSessionDescriptionObserver::OnSuccess() {
-    (*success)();
   };
 
-  // Calls when a `SetLocal\RemoteDescription` is fail.
-  void SetSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
-    std::string err = std::string(error.message());
-    (*fail)(err);
-    printf("TEST1 C\n");
+  SetLocalDescriptionObserverInterface::SetLocalDescriptionObserverInterface(
+    rust::Fn<void ()> s, 
+    rust::Fn<void (const std::string &)> f
+  ) {
+    success = s;
+    fail = f;
   };
-  void SetSessionDescriptionObserver::AddRef() const {
-    printf("TEST1 A\n");
+
+  void SetLocalDescriptionObserverInterface::AddRef() const {};
+
+  rtc::RefCountReleaseStatus SetLocalDescriptionObserverInterface::Release() const {
+    return rtc::RefCountReleaseStatus::kDroppedLastRef;
   };
-  rtc::RefCountReleaseStatus SetSessionDescriptionObserver::Release() const {
-    printf("TEST1 R\n");
-    return rtc::RefCountReleaseStatus::kDroppedLastRef;};
 
-  void SetSessionDescriptionObserver::set_lifetime(rust::Box<bridge::RcRefCellObs> n_lt) {
-    lt = std::move(n_lt);
-  }
+  // SetRemoteDescriptionObserverInterface
 
-}
+  void SetRemoteDescriptionObserverInterface::OnSetRemoteDescriptionComplete(webrtc::RTCError error) {
+    if(error.ok()) {
+      (*success)();
+    } else {
+      std::string error(error.message());
+      (*fail)(error);
+    }
+  };
+
+  SetRemoteDescriptionObserverInterface::SetRemoteDescriptionObserverInterface(
+    rust::Fn<void ()> s, 
+    rust::Fn<void (const std::string &)> f
+  ) {
+    success = s;
+    fail = f;
+  };
+
+  void SetRemoteDescriptionObserverInterface::AddRef() const {};
+
+  rtc::RefCountReleaseStatus SetRemoteDescriptionObserverInterface::Release() const {
+    return rtc::RefCountReleaseStatus::kDroppedLastRef;
+  };
+
+};

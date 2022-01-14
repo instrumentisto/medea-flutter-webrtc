@@ -8,7 +8,7 @@ typedef void (*callback_fail)(std::string);
 typedef void (*callback_success_desc)();
 
 void OnSuccessOffer(
-  flutter::MethodResult<flutter::EncodableValue>* result, 
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result, 
   std::string sdp, 
   std::string type) {
     flutter::EncodableMap params;
@@ -18,11 +18,11 @@ void OnSuccessOffer(
 }
 
 void OnSuccessDescription(
-  flutter::MethodResult<flutter::EncodableValue>* result) {
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
     result->Success(nullptr);
 }
 
-void OnFail(flutter::MethodResult<flutter::EncodableValue> *result, std::string error) {
+void OnFail(std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result, std::string error) {
   result->Error(error);
 }
 }
@@ -88,15 +88,17 @@ void CreateOffer(
     receive_audio = findBool(mandatory, "OfferToReceiveAudio");
     receive_video = findBool(mandatory, "OfferToReceiveVideo");
 
-    auto res = result.release();
+    std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
 
-    auto bind_success = std::bind(&callbacks::OnSuccessOffer, res, std::placeholders::_1, std::placeholders::_2);
+    auto bind_success = std::bind(&callbacks::OnSuccessOffer, rs, std::placeholders::_1, std::placeholders::_2);
     callbacks::callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
+    success;
 
-    auto bind_fail = std::bind(&callbacks::OnFail, res, std::placeholders::_1);
+    auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
+    fail;
 
     rust::String error;
     webrtc->CreateOffer(
@@ -113,7 +115,7 @@ void CreateOffer(
     if (error != "")
     {
         std::string err(error);
-        res->Error("createAnswerOffer", err);
+        rs->Error("createAnswerOffer", err);
     }
 };
 void CreateAnswer(
@@ -154,13 +156,13 @@ void CreateAnswer(
     receive_audio = findBool(mandatory, "OfferToReceiveAudio");
     receive_video = findBool(mandatory, "OfferToReceiveVideo");
 
-    auto res = result.release();
+    std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
 
-    auto bind_success = std::bind(&callbacks::OnSuccessOffer, res, std::placeholders::_1, std::placeholders::_2);
+    auto bind_success = std::bind(&callbacks::OnSuccessOffer, rs, std::placeholders::_1, std::placeholders::_2);
     callbacks::callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
 
-    auto bind_fail = std::bind(&callbacks::OnFail, res, std::placeholders::_1);
+    auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
 
@@ -179,7 +181,7 @@ void CreateAnswer(
     if (error != "")
     {
         std::string err(error);
-        res->Error("createAnswerOffer", err);
+        rs->Error("createAnswerOffer", err);
     }
 };
 void SetLocalDescription(
@@ -199,14 +201,17 @@ void SetLocalDescription(
     rust::String type = findString(constraints, "type");
     rust::String sdp = findString(constraints, "sdp");
 
-    auto result_ptr = result.release();
-    auto bind_fail = std::bind(&callbacks::OnFail, result_ptr, std::placeholders::_1);
+    std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
+
+    auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
+    fail;
 
-    auto bind_success = std::bind(&callbacks::OnSuccessDescription, result_ptr);
+    auto bind_success = std::bind(&callbacks::OnSuccessDescription, rs);
     callbacks::callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
+    success;
 
 
     rust::String error;
@@ -222,7 +227,7 @@ void SetLocalDescription(
     if (error != "")
     {
         std::string err(error);
-        result_ptr->Error("createAnswerOffer", err);
+        rs->Error("createAnswerOffer", err);
     }
 };
 
@@ -243,13 +248,14 @@ void SetRemoteDescription(
     rust::String type = findString(constraints, "type");
     rust::String sdp = findString(constraints, "sdp");
 
-    auto result_ptr = result.release();
-    auto bind_fail = std::bind(&callbacks::OnFail, result_ptr, std::placeholders::_1);
+    std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
+
+    auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
     fail;
     
-    auto bind_success = std::bind(&callbacks::OnSuccessDescription, result_ptr);
+    auto bind_success = std::bind(&callbacks::OnSuccessDescription, rs);
     callbacks::callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
 
@@ -266,7 +272,7 @@ void SetRemoteDescription(
     if (error != "")
     {
         std::string err(error);
-        result_ptr->Error("createAnswerOffer", err);
+        rs->Error("createAnswerOffer", err);
     }
 };
 

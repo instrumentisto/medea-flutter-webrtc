@@ -77,12 +77,11 @@ using AudioFrameProcessor = webrtc::AudioFrameProcessor;
 
 using PeerConnectionObserver = observer::PeerConnectionObserver;
 using CreateSessionDescriptionObserver = observer::CreateSessionDescriptionObserver;
-using SetSessionDescriptionObserver = observer::SetSessionDescriptionObserver;
 
 using RTCOfferAnswerOptions = webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
-using SetLocalDescriptionObserverInterface = rc<webrtc::SetLocalDescriptionObserverInterface>;
-using SetRemoteDescriptionObserverInterface = rc<webrtc::SetRemoteDescriptionObserverInterface>;
+using SetLocalDescriptionObserverInterface = observer::SetLocalDescriptionObserverInterface;
+using SetRemoteDescriptionObserverInterface = observer::SetRemoteDescriptionObserverInterface;
 using SdpType = webrtc::SdpType;
 
 
@@ -186,29 +185,29 @@ std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer
   rust::Fn<void (const std::string &, const std::string &)> s, 
   rust::Fn<void (const std::string &)> f);
 
-// Creates `SetSessionDescriptionObserver`.   
-std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_observer(
+// Creates `SetLocalDescriptionObserverInterface`.   
+std::unique_ptr<SetLocalDescriptionObserverInterface> create_set_local_description_observer_interface(
     rust::Fn<void ()> s,
-    rust::Fn<void (const std::string &)> f,
-    rust::Box<bridge::RcRefCellObs> lt);
+    rust::Fn<void (const std::string &)> f);
+
+// Creates `SetRemoteDescriptionObserverInterface`.   
+std::unique_ptr<SetRemoteDescriptionObserverInterface> create_set_remote_description_observer_interface(
+    rust::Fn<void ()> s,
+    rust::Fn<void (const std::string &)> f);
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, const std::unique_ptr<CreateSessionDescriptionObserver>& obs);
+  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
 void create_answer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, const std::unique_ptr<CreateSessionDescriptionObserver>& obs);
+  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->SetLocalDescription`.
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, const std::unique_ptr<SetSessionDescriptionObserver>& obs);
+  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetLocalDescriptionObserverInterface> obs);
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, const std::unique_ptr<SetSessionDescriptionObserver>& obs);
-
-void set_lifetime(
-  SetSessionDescriptionObserver& obs,
-  rust::Box<bridge::RcRefCellObs> lt);
+  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetRemoteDescriptionObserverInterface> obs);
 }

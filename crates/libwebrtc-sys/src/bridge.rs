@@ -129,14 +129,6 @@ pub(crate) mod webrtc {
             id: &mut String,
         ) -> i32;
     }      
-          
-    extern "Rust" {  
-        type RcRefCellObs;   
-        #[cxx_name = "Delete"]
-        pub fn delete(
-            self: &mut RcRefCellObs, 
-        );     
-    }  
      
     #[rustfmt::skip]          
     unsafe extern "C++" {          
@@ -157,13 +149,14 @@ pub(crate) mod webrtc {
         type SessionDescriptionInterface;
         type SdpType;
         type CreateSessionDescriptionObserver;
-        type SetSessionDescriptionObserver;
+        type SetLocalDescriptionObserverInterface;
+        type SetRemoteDescriptionObserverInterface;
 
         /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
         /// Starts the created [`Thread`].
-        #[cxx_name = "Start"]
+        #[cxx_name = "Start"]   
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
  
         /// Creates a new [`VideoEncoderFactory`].
@@ -252,54 +245,48 @@ pub(crate) mod webrtc {
             f: fn(&CxxString),
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
-        /// Creates a [`SetSessionDescriptionObserver`].
-        /// Where
-        /// `s` for callback when 'SetLocal\RemoteDescription' is OnSuccess,
-        /// `f` for callback when 'SetLocal\RemoteDescription' is OnFailure.
-        pub fn create_set_session_description_observer(
+        pub fn create_set_local_description_observer_interface(
             s: fn(),
             f: fn(&CxxString),
-            lt: Box<RcRefCellObs>
-            //lifetime: Box<RcRefCellObs>, 
-        ) -> UniquePtr<SetSessionDescriptionObserver>;
+        ) -> UniquePtr<SetLocalDescriptionObserverInterface>;
+
+        pub fn create_set_remote_description_observer_interface(
+            s: fn(),
+            f: fn(&CxxString),
+        ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
 
         /// Calls `peer_connection_interface`->CreateOffer.
         pub unsafe fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,   
-            options: &RTCOfferAnswerOptions,
-            obs: &UniquePtr<CreateSessionDescriptionObserver>,
+            options: &RTCOfferAnswerOptions,   
+            obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
         /// Calls `peer_connection_interface`->CreateAnswer.
-        pub unsafe fn create_answer(
+        pub unsafe fn create_answer(   
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
-            options: &RTCOfferAnswerOptions,
-            obs: &UniquePtr<CreateSessionDescriptionObserver>,
-        );
+            options: &RTCOfferAnswerOptions,   
+            obs: UniquePtr<CreateSessionDescriptionObserver>,
+        );    
 
         /// Calls `peer_connection_interface`->SetLocalDescription.
         pub unsafe fn set_local_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
-            desc: UniquePtr<SessionDescriptionInterface>,
-            obs: &UniquePtr<SetSessionDescriptionObserver>,
+            desc: UniquePtr<SessionDescriptionInterface>,    
+            obs: UniquePtr<SetLocalDescriptionObserverInterface>,
         );   
-
+  
         /// Calls `peer_connection_interface`->SetRemoteDescription.
-        pub unsafe fn set_remote_description(
+        pub unsafe fn set_remote_description(  
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,  
             desc: UniquePtr<SessionDescriptionInterface>,   
-            obs: &UniquePtr<SetSessionDescriptionObserver>,  
-        );
-
-        pub fn set_lifetime(
-            obs: Pin<&mut SetSessionDescriptionObserver>,
-            lt: Box<RcRefCellObs>,
-        );
+            obs: UniquePtr<SetRemoteDescriptionObserverInterface>,  
+        );   
 
         /// Creates [`SessionDescriptionInterface`]
         #[namespace = "webrtc"]
-        #[cxx_name = "CreateSessionDescription"]
-        pub unsafe fn create_session_description(
+        #[cxx_name = "CreateSessionDescription"]          
+        pub unsafe fn create_session_description(        
             type_: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
@@ -310,21 +297,6 @@ pub(crate) mod webrtc {
 use std::rc::Rc;  
 use std::cell::RefCell; 
 use cxx::UniquePtr; 
-    
-#[derive(Clone)]   
-pub struct RcRefCellObs(pub Option<Rc<RefCell<UniquePtr<webrtc::SetSessionDescriptionObserver>>>>);    
-
-impl RcRefCellObs {   
-    pub fn delete(&mut self) {   
-        self.0 = None;
-    }   
-}
-      
-impl Drop for RcRefCellObs {
-    fn drop(&mut self) {
-        println!("rust drop");
-    }
-}
          
 impl TryFrom<&str> for webrtc::SdpType {          
     type Error = anyhow::Error;

@@ -58,6 +58,7 @@ class _CreateSampleState extends State<CreateSample> {
         'type': response['type']}
     });
 
+
     setState(() {
       text = 'Good';
     });

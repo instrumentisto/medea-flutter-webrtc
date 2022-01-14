@@ -6,7 +6,6 @@ mod bridge;
 use std::{rc::Rc, cell::RefCell};
 
 use anyhow::bail;
-use bridge::RcRefCellObs;
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
@@ -385,32 +384,37 @@ impl CreateSessionDescriptionObserver {
     }
 }
 
-/// Session Description Observer used for calling callback when set description
-/// success or fail.
-pub struct SetSessionDescriptionObserver(
-    UniquePtr<webrtc::SetSessionDescriptionObserver>,
+
+pub struct SetLocalDescriptionObserverInterface(
+    UniquePtr<webrtc::SetLocalDescriptionObserverInterface>,
 );
 
-impl SetSessionDescriptionObserver {
-    /// Creates a [`SetSessionDescriptionObserver`].
-    /// Where
-    /// `success` for callback when 'SetLocal\RemoteDescription' is OnSuccess,
-    /// `fail` for callback when 'SetLocal\RemoteDescription' is OnFailure.
-    pub fn new(success: fn(), fail: fn(&CxxString), lt: Box<RcRefCellObs>) -> Self {
-        Self(unsafe {webrtc::create_set_session_description_observer(
-            success,fail, lt
+impl SetLocalDescriptionObserverInterface {
+    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
+        Self(unsafe {webrtc::create_set_local_description_observer_interface(
+            success,fail
         )})
     }
 }
 
+pub struct SetRemoteDescriptionObserverInterface(
+    UniquePtr<webrtc::SetRemoteDescriptionObserverInterface>,
+);
+
+impl SetRemoteDescriptionObserverInterface {
+    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
+        Self(unsafe {webrtc::create_set_remote_description_observer_interface(
+            success,fail
+        )})
+    }
+}
+
+
+
 /// Peer Connection Interface internally used in [`webrtc`] that is
 /// capable of creating [Offer]s, [Answer]s
 /// and setting [Remote], [Local] Description.
-pub struct PeerConnectionInterface {
-    peer_connection: UniquePtr<webrtc::PeerConnectionInterface>,
-    pub create_session_observer: Option<CreateSessionDescriptionObserver>,
-    pub set_session_observer: Option<SetSessionDescriptionObserver>,
-}
+pub struct PeerConnectionInterface (UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
     /// Create a new offer.
@@ -422,16 +426,14 @@ impl PeerConnectionInterface {
     pub fn create_offer(
         &mut self,
         options: &RTCOfferAnswerOptions,
+        obs: CreateSessionDescriptionObserver,
     ) {
 
         unsafe {
             webrtc::create_offer(
-                self.peer_connection.pin_mut(),
+                self.0.pin_mut(),
                 &options.0,
-                self.create_session_observer
-                    .as_ref()
-                    .map(|a| &a.0)
-                    .unwrap()
+                obs.0,
             );
         }
     }
@@ -446,15 +448,13 @@ impl PeerConnectionInterface {
     pub fn create_answer(
         &mut self,
         options: &RTCOfferAnswerOptions,
+        obs: CreateSessionDescriptionObserver,
     ) {
         unsafe {
             webrtc::create_answer(
-                self.peer_connection.pin_mut(),
+                self.0.pin_mut(),
                 &options.0,
-                self.create_session_observer
-                    .as_ref()
-                    .map(|a| &a.0)
-                    .unwrap()
+                obs.0,
             );
         }
     }
@@ -470,24 +470,13 @@ impl PeerConnectionInterface {
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
-        success: fn(),
-        fail: fn(&cxx::CxxString),
+        obs: SetLocalDescriptionObserverInterface,
     ) {
-        
-        let temp = RcRefCellObs(None);
-        let obs = SetSessionDescriptionObserver::new(success, fail, Box::new(temp));
-        let rc_obs = RcRefCellObs(Some(Rc::new(RefCell::new(obs.0))));
-        let rc_cl = rc_obs.clone();
-
-        webrtc::set_lifetime(rc_obs.0.as_ref().unwrap().borrow_mut().pin_mut(), Box::new(rc_cl)); // obs own self for lifetime
-
-        let t = rc_obs.0.as_ref().unwrap().borrow();
-
         unsafe {
             webrtc::set_local_description(
-                self.peer_connection.pin_mut(),
+                self.0.pin_mut(),
                 desc.0,
-                &t,
+                obs.0,
             );
         }
     }
@@ -501,15 +490,13 @@ impl PeerConnectionInterface {
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
+        obs: SetRemoteDescriptionObserverInterface,
     ) {
         unsafe {
             webrtc::set_remote_description(
-                self.peer_connection.pin_mut(),
+                self.0.pin_mut(),
                 desc.0,
-                self.set_session_observer
-                    .as_ref()
-                    .map(|a| &a.0)
-                    .unwrap()
+                obs.0,
             );
         }
     }
@@ -570,17 +557,9 @@ impl PeerConnectionFactoryInterface {
             dependencies.0,
         );
         if error.is_empty() {
-            PeerConnectionInterface {
-                peer_connection: res,
-                set_session_observer: None,
-                create_session_observer: None,
-            }
+            PeerConnectionInterface(res)
         } else {
-            PeerConnectionInterface {
-                peer_connection: UniquePtr::null(),
-                set_session_observer: None,
-                create_session_observer: None,
-            }
+            PeerConnectionInterface(UniquePtr::null())
         }
     }
 }

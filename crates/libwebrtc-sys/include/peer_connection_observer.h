@@ -38,6 +38,7 @@ class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionO
   rust::Fn<void (const std::string &, const std::string &)> success;
   rust::Fn<void (const std::string &)> fail;
 
+
   // Construct `CreateOffer\Answer Observer` where
   // s - void (*callback_success)(std::string, std::string),
   // f - void (*callback_fail)(std::string).
@@ -56,34 +57,24 @@ class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionO
 
 };
 
-// Session Description Observer used for calling callback when set description
-// success or fail.
-class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserver
-{
+class SetLocalDescriptionObserverInterface : public webrtc::SetLocalDescriptionObserverInterface {
   public:
   rust::Fn<void ()> success;
   rust::Fn<void (const std::string &)> fail;
-  rust::Box<bridge::RcRefCellObs> lt;
-  rtc::RefCountReleaseStatus state = rtc::RefCountReleaseStatus::kOtherRefsRemained;
-
-  // Construct `SetLocal\RemoteDescription Observer` where
-  // s - void (*callback_success_desc)(),
-  // f - void (*callback_fail)(std::string).
-  SetSessionDescriptionObserver(
-    rust::Fn<void ()> s,
-    rust::Fn<void (const std::string &)> f,
-    rust::Box<bridge::RcRefCellObs> lt);
-
-  // Calls when a `SetLocal\RemoteDescription` is success.
-  void OnSuccess();
-
-  // Calls when a `SetLocal\RemoteDescription` is fail.
-  void OnFailure(webrtc::RTCError error);
-
+  void OnSetLocalDescriptionComplete(webrtc::RTCError error);
+  SetLocalDescriptionObserverInterface(rust::Fn<void ()> s, rust::Fn<void (const std::string &)> f);
   void AddRef() const;
   rtc::RefCountReleaseStatus Release() const;
 
-  void set_lifetime(rust::Box<bridge::RcRefCellObs> lt);
+};
 
+class SetRemoteDescriptionObserverInterface : public webrtc::SetRemoteDescriptionObserverInterface {
+  public:
+  rust::Fn<void ()> success;
+  rust::Fn<void (const std::string &)> fail;
+  void OnSetRemoteDescriptionComplete(webrtc::RTCError error);
+  SetRemoteDescriptionObserverInterface(rust::Fn<void ()> s, rust::Fn<void (const std::string &)> f);
+  void AddRef() const;
+  rtc::RefCountReleaseStatus Release() const;
 };
 }

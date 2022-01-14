@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 use libwebrtc_sys::{
     AudioDeviceModule, AudioLayer, CreateSessionDescriptionObserver,
-    PeerConnectionFactoryInterface, SetSessionDescriptionObserver,
+    PeerConnectionFactoryInterface, SetLocalDescriptionObserverInterface, SetRemoteDescriptionObserverInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
@@ -272,9 +272,18 @@ mod test {
         let mut error = String::new();
         let id = w.create_default_peer_connection(&mut error);
         let pc = w.0.peer_connections.get_mut(&id).unwrap();
-        pc.peer_connection_interface.set_local_description(
-            libwebrtc_sys::SessionDescriptionInterface::new(libwebrtc_sys::SdpType::kOffer, "test"),
-             || {}, |a|{});
+        loop {
+
+            /*let obs 
+                = CreateSessionDescriptionObserver::new(|a,b| {}, |a| {});
+            pc.peer_connection_interface.create_offer(&libwebrtc_sys::RTCOfferAnswerOptions::default(), obs);
+            //break;*/
+            let obs = SetLocalDescriptionObserverInterface::new(
+                || {}, |a|{println!("RUST")});
+            pc.peer_connection_interface.set_local_description(
+                libwebrtc_sys::SessionDescriptionInterface::new(libwebrtc_sys::SdpType::kOffer, "test"), obs);
+        }
+
 
     }
 }
