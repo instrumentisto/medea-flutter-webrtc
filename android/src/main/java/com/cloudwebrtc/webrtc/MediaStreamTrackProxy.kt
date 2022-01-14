@@ -5,10 +5,16 @@ import org.webrtc.MediaStreamTrack
 class MediaStreamTrackProxy(track: MediaStreamTrack) : IWebRTCProxy<MediaStreamTrack> {
     override var obj: MediaStreamTrack = track;
 
+    private var onStopSubscribers: MutableList<() -> Unit> = mutableListOf()
+
     override fun syncWithObject() {}
 
     override fun dispose() {
-        TODO("Not yet implemented")
+        obj.dispose()
+    }
+
+    fun stop() {
+        onStopSubscribers.forEach { sub -> sub() }
     }
 
     fun state() : MediaStreamTrackState {
@@ -17,5 +23,9 @@ class MediaStreamTrackProxy(track: MediaStreamTrack) : IWebRTCProxy<MediaStreamT
 
     fun setEnabled(enabled: Boolean) {
         obj.setEnabled(enabled);
+    }
+
+    fun onStop(f: () -> Unit) {
+        onStopSubscribers.add(f)
     }
 }

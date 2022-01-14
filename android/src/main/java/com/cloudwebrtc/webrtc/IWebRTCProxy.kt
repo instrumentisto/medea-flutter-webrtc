@@ -1,14 +1,14 @@
 package com.cloudwebrtc.webrtc
 
 interface IWebRTCProxy<T> {
-    var obj: T;
+    var obj: T
 
-    fun syncWithObject();
+    fun syncWithObject()
 
     fun updateObject(newObj: T) {
-        obj = newObj;
-        syncWithObject();
+        obj = newObj
+        syncWithObject()
     }
 
-    fun dispose();
+    fun dispose()
 }
