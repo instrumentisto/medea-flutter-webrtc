@@ -1,8 +1,8 @@
 #ifndef DEVICE_VIDEO_CAPTURER_H_
 #define DEVICE_VIDEO_CAPTURER_H_
 
-#include <memory>
 #include <stddef.h>
+#include <memory>
 #include <vector>
 
 #include <api/scoped_refptr.h>
@@ -18,18 +18,17 @@ class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   // Creates a new `DeviceVideoCapturer`.
-  static rtc::scoped_refptr<DeviceVideoCapturer> Create(
-      size_t width,
-      size_t height,
-      size_t target_fps,
-      uint32_t device_index);
+  static rtc::scoped_refptr<DeviceVideoCapturer> Create(size_t width,
+                                                        size_t height,
+                                                        size_t target_fps,
+                                                        uint32_t device_index);
 
   // Indicates that parameters suitable for screencast should be automatically
   // applied to RtpSenders.
   bool is_screencast() const override;
 
   // Indicates that the encoder should denoise video before encoding it.
-  // If itэs not set, the default configuration is used which is different
+  // If it's not set, the default configuration is used which is different
   // depending on a video codec.
   absl::optional<bool> needs_denoising() const override;
 
