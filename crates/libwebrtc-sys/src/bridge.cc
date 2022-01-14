@@ -225,9 +225,10 @@ std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer
 
 // Creates `SetSessionDescriptionObserver`.   
 std::unique_ptr<SetSessionDescriptionObserver> create_set_session_description_observer(
-  rust::Fn<void ()> s, 
-  rust::Fn<void (const std::string &)> f) {
-    return std::make_unique<SetSessionDescriptionObserver>(SetSessionDescriptionObserver(s,f));
+    rust::Fn<void ()> s,
+    rust::Fn<void (const std::string &)> f,
+    rust::Box<bridge::RcRefCellObs> lt) {
+    return std::make_unique<SetSessionDescriptionObserver>(SetSessionDescriptionObserver(s, f,std::move(lt)));
   }
 
 // Calls `PeerConnectionInterface->CreateOffer`.
@@ -252,5 +253,11 @@ void set_local_description(PeerConnectionInterface& peer_connection_interface,
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc, const std::unique_ptr<SetSessionDescriptionObserver>& obs) {
     peer_connection_interface.ptr()->SetRemoteDescription(obs.get(), desc.release());
+  }
+
+void set_lifetime(
+  SetSessionDescriptionObserver& obs,
+  rust::Box<bridge::RcRefCellObs> lt) {
+    obs.set_lifetime(std::move(lt));
   }
 }

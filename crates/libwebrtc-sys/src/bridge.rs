@@ -125,25 +125,29 @@ pub(crate) mod webrtc {
         pub fn video_device_name(
             device_info: Pin<&mut VideoDeviceInfo>,
             index: u32,
-            name: &mut String,
+            name: &mut String,  
             id: &mut String,
         ) -> i32;
     }      
-
+          
     extern "Rust" {  
-        type RcRefCellObs;      
-    }           
+        type RcRefCellObs;   
+        #[cxx_name = "Delete"]
+        pub fn delete(
+            self: &mut RcRefCellObs, 
+        );     
+    }  
      
-    #[rustfmt::skip]       
+    #[rustfmt::skip]          
     unsafe extern "C++" {          
         type Thread;  
-        type VideoEncoderFactory;        
+        type VideoEncoderFactory;          
         type VideoDecoderFactory;
         type PeerConnectionFactoryInterface;
         type AudioEncoderFactory;
         type AudioDecoderFactory;
         type AudioMixer;
-        type AudioProcessing;
+        type AudioProcessing;  
         type AudioFrameProcessor;
         type PeerConnectionDependencies;
         type RTCConfiguration;
@@ -255,6 +259,7 @@ pub(crate) mod webrtc {
         pub fn create_set_session_description_observer(
             s: fn(),
             f: fn(&CxxString),
+            lt: Box<RcRefCellObs>
             //lifetime: Box<RcRefCellObs>, 
         ) -> UniquePtr<SetSessionDescriptionObserver>;
 
@@ -277,13 +282,18 @@ pub(crate) mod webrtc {
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: &UniquePtr<SetSessionDescriptionObserver>,
-        );
+        );   
 
         /// Calls `peer_connection_interface`->SetRemoteDescription.
         pub unsafe fn set_remote_description(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
-            desc: UniquePtr<SessionDescriptionInterface>,
-            obs: &UniquePtr<SetSessionDescriptionObserver>,
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,  
+            desc: UniquePtr<SessionDescriptionInterface>,   
+            obs: &UniquePtr<SetSessionDescriptionObserver>,  
+        );
+
+        pub fn set_lifetime(
+            obs: Pin<&mut SetSessionDescriptionObserver>,
+            lt: Box<RcRefCellObs>,
         );
 
         /// Creates [`SessionDescriptionInterface`]
@@ -297,18 +307,32 @@ pub(crate) mod webrtc {
 }
 
 
-use std::rc::Rc;
-use std::cell::RefCell;  
+use std::rc::Rc;  
+use std::cell::RefCell; 
+use cxx::UniquePtr; 
     
-pub struct RcRefCellObs(Rc<RefCell<webrtc::SetSessionDescriptionObserver>>);    
-  
-impl TryFrom<&str> for webrtc::SdpType {     
-    type Error = anyhow::Error;
+#[derive(Clone)]   
+pub struct RcRefCellObs(pub Option<Rc<RefCell<UniquePtr<webrtc::SetSessionDescriptionObserver>>>>);    
 
-    /// Try conver &str to [`webrtc::SdpType`].  
-    fn try_from(value: &str) -> Result<Self, Self::Error> {  
-        match value {
-            "offer" => Ok(webrtc::SdpType::kOffer),
+impl RcRefCellObs {   
+    pub fn delete(&mut self) {   
+        self.0 = None;
+    }   
+}
+      
+impl Drop for RcRefCellObs {
+    fn drop(&mut self) {
+        println!("rust drop");
+    }
+}
+         
+impl TryFrom<&str> for webrtc::SdpType {          
+    type Error = anyhow::Error;
+    
+    /// Try conver &str to [`webrtc::SdpType`].      
+    fn try_from(value: &str) -> Result<Self, Self::Error> {           
+        match value {  
+            "offer" => Ok(webrtc::SdpType::kOffer),  
             "answer" => Ok(webrtc::SdpType::kAnswer),
             "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
             "rollback" => Ok(webrtc::SdpType::kRollback),

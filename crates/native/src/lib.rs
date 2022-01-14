@@ -271,5 +271,10 @@ mod test {
         let mut w = init();
         let mut error = String::new();
         let id = w.create_default_peer_connection(&mut error);
+        let pc = w.0.peer_connections.get_mut(&id).unwrap();
+        pc.peer_connection_interface.set_local_description(
+            libwebrtc_sys::SessionDescriptionInterface::new(libwebrtc_sys::SdpType::kOffer, "test"),
+             || {}, |a|{});
+
     }
 }

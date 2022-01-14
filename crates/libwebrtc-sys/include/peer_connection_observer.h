@@ -4,6 +4,9 @@
 #include <functional>
 #include "rust/cxx.h"
 
+namespace bridge {
+  struct RcRefCellObs;
+}
 
 namespace observer
 {
@@ -60,13 +63,16 @@ class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserve
   public:
   rust::Fn<void ()> success;
   rust::Fn<void (const std::string &)> fail;
+  rust::Box<bridge::RcRefCellObs> lt;
+  rtc::RefCountReleaseStatus state = rtc::RefCountReleaseStatus::kOtherRefsRemained;
 
   // Construct `SetLocal\RemoteDescription Observer` where
   // s - void (*callback_success_desc)(),
   // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver(
     rust::Fn<void ()> s,
-    rust::Fn<void (const std::string &)> f);
+    rust::Fn<void (const std::string &)> f,
+    rust::Box<bridge::RcRefCellObs> lt);
 
   // Calls when a `SetLocal\RemoteDescription` is success.
   void OnSuccess();
@@ -76,6 +82,8 @@ class SetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserve
 
   void AddRef() const;
   rtc::RefCountReleaseStatus Release() const;
+
+  void set_lifetime(rust::Box<bridge::RcRefCellObs> lt);
 
 };
 }

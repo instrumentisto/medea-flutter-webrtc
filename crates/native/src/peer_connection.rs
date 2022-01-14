@@ -178,8 +178,6 @@ impl Webrtc {
                     let success: fn() =
                         unsafe { std::mem::transmute(s) };
                     let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
-                    //let obs = sys::SetSessionDescriptionObserver::new(success, fail);
-                    //peer_connection.peer_connection_interface.set_session_observer = Some(obs);
 
                     peer_connection
                         .peer_connection_interface

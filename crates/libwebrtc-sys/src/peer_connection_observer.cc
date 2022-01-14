@@ -1,5 +1,7 @@
 
 #include "libwebrtc-sys\include\peer_connection_observer.h"
+#include "libwebrtc-sys/src/bridge.rs.h"
+#include <cstdio>
 
 namespace observer
 {
@@ -50,7 +52,8 @@ namespace observer
   // f - void (*callback_fail)(std::string).
   SetSessionDescriptionObserver::SetSessionDescriptionObserver(
     rust::Fn<void ()> s,
-    rust::Fn<void (const std::string &)> f) {
+    rust::Fn<void (const std::string &)> f,
+    rust::Box<bridge::RcRefCellObs> lt) : lt(std::move(lt)) {
       success = s;
       fail = f;
     }
@@ -64,8 +67,17 @@ namespace observer
   void SetSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
     std::string err = std::string(error.message());
     (*fail)(err);
+    printf("TEST1 C\n");
   };
-  void SetSessionDescriptionObserver::AddRef() const {};
+  void SetSessionDescriptionObserver::AddRef() const {
+    printf("TEST1 A\n");
+  };
   rtc::RefCountReleaseStatus SetSessionDescriptionObserver::Release() const {
+    printf("TEST1 R\n");
     return rtc::RefCountReleaseStatus::kDroppedLastRef;};
+
+  void SetSessionDescriptionObserver::set_lifetime(rust::Box<bridge::RcRefCellObs> n_lt) {
+    lt = std::move(n_lt);
+  }
+
 }

@@ -396,10 +396,10 @@ impl SetSessionDescriptionObserver {
     /// Where
     /// `success` for callback when 'SetLocal\RemoteDescription' is OnSuccess,
     /// `fail` for callback when 'SetLocal\RemoteDescription' is OnFailure.
-    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
-        Self(webrtc::create_set_session_description_observer(
-            success, fail, //lifetime
-        ))
+    pub fn new(success: fn(), fail: fn(&CxxString), lt: Box<RcRefCellObs>) -> Self {
+        Self(unsafe {webrtc::create_set_session_description_observer(
+            success,fail, lt
+        )})
     }
 }
 
@@ -474,20 +474,20 @@ impl PeerConnectionInterface {
         fail: fn(&cxx::CxxString),
     ) {
         
-        /*let temp = Rc::new(RefCell::new(SetSessionDescriptionObserver(UniquePtr::null())));
-        let obs = SetSessionDescriptionObserver::new(success, fail, temp);
-        let mut rc_obs = Rc::new(RefCell::new(obs));
+        let temp = RcRefCellObs(None);
+        let obs = SetSessionDescriptionObserver::new(success, fail, Box::new(temp));
+        let rc_obs = RcRefCellObs(Some(Rc::new(RefCell::new(obs.0))));
         let rc_cl = rc_obs.clone();
-        rc_obs.as_ref().borrow_mut().set_lifetime(rc_cl);*/
+
+        webrtc::set_lifetime(rc_obs.0.as_ref().unwrap().borrow_mut().pin_mut(), Box::new(rc_cl)); // obs own self for lifetime
+
+        let t = rc_obs.0.as_ref().unwrap().borrow();
 
         unsafe {
             webrtc::set_local_description(
                 self.peer_connection.pin_mut(),
                 desc.0,
-                self.set_session_observer
-                    .as_ref()
-                    .map(|a| &a.0)
-                    .unwrap()
+                &t,
             );
         }
     }
