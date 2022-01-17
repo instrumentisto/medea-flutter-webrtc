@@ -1,5 +1,6 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.proxy
 
+import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
 import org.webrtc.DataChannel
 import org.webrtc.IceCandidate
 import org.webrtc.MediaStream

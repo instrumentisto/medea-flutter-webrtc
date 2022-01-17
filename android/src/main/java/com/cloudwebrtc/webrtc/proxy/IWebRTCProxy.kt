@@ -1,4 +1,4 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.proxy
 
 interface IWebRTCProxy<T> {
     var obj: T

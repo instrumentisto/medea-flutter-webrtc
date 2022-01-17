@@ -1,5 +1,6 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.proxy
 
+import com.cloudwebrtc.webrtc.model.RtpTransceiverDirection
 import org.webrtc.RtpTransceiver
 
 class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTransceiver> {

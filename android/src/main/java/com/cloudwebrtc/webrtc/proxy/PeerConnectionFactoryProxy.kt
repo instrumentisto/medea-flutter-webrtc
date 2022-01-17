@@ -1,13 +1,7 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.proxy
 
-import android.content.Context
-import com.cloudwebrtc.webrtc.utils.EglUtils
-import org.webrtc.DefaultVideoDecoderFactory
-import org.webrtc.EglBase
-import org.webrtc.PeerConnectionFactory
-import org.webrtc.PeerConnectionFactory.InitializationOptions
-import org.webrtc.VideoSource
-import org.webrtc.audio.JavaAudioDeviceModule
+import com.cloudwebrtc.webrtc.model.PeerConnectionConfiguration
+import com.cloudwebrtc.webrtc.State
 
 class PeerConnectionFactoryProxy(val state: State) {
     private var lastPeerConnectionId: Int = 0;

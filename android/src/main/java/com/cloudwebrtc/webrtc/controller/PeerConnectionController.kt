@@ -1,5 +1,6 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.controller
 
+import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel

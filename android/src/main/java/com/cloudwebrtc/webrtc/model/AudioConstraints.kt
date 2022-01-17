@@ -1,4 +1,4 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.model
 
 import org.webrtc.MediaConstraints
 

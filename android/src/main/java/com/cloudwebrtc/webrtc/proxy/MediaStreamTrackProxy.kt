@@ -1,5 +1,6 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.proxy
 
+import com.cloudwebrtc.webrtc.model.MediaStreamTrackState
 import org.webrtc.MediaStreamTrack
 
 class MediaStreamTrackProxy(track: MediaStreamTrack) : IWebRTCProxy<MediaStreamTrack> {

@@ -1,6 +1,7 @@
 package com.cloudwebrtc.webrtc
 
 import android.graphics.SurfaceTexture
+import com.cloudwebrtc.webrtc.proxy.VideoTrackProxy
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import io.flutter.view.TextureRegistry
 import org.webrtc.RendererCommon
@@ -12,7 +13,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     private var rendererEventsListener: RendererCommon.RendererEvents = rendererEventsListener()
     private var eventListener: EventListener? = null
     private val surfaceTextureRenderer: SurfaceTextureRenderer = SurfaceTextureRenderer("flutter-video-renderer-$id")
-    private var videoTrack: VideoTrack? = null
+    private var videoTrack: VideoTrackProxy? = null
 
     companion object {
         interface EventListener {
@@ -33,7 +34,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
         eventListener = listener
     }
 
-    fun setVideoTrack(newVideoTrack: VideoTrack?) {
+    fun setVideoTrack(newVideoTrack: VideoTrackProxy?) {
         if (videoTrack != newVideoTrack && newVideoTrack != null) {
             removeRendererFromVideoTrack()
 

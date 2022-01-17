@@ -1,4 +1,4 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.proxy
 
 import org.webrtc.RtpReceiver
 

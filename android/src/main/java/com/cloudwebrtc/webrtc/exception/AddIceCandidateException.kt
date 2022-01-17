@@ -1,4 +1,4 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.exception
 
 import java.lang.Exception
 

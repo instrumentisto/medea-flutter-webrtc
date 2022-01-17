@@ -1,6 +1,5 @@
-package com.cloudwebrtc.webrtc
+package com.cloudwebrtc.webrtc.model
 
-import io.flutter.plugin.common.MethodCall
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnection.RTCConfiguration as WRTCConfiguration;
 import org.webrtc.PeerConnection.IceServer as WIceServer;
