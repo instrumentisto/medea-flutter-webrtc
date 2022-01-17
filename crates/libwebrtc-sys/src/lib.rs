@@ -8,7 +8,7 @@ use cxx::UniquePtr;
 
 use self::bridge::webrtc;
 
-pub use webrtc::{AudioLayer, VideoFrame, VideoRotation};
+pub use webrtc::{convert_to_argb, AudioLayer, VideoFrame, VideoRotation};
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.
@@ -447,36 +447,18 @@ impl MediaStreamInterface {
     }
 }
 
-// pub struct VideoFrame(UniquePtr<webrtc::VideoFrame>);
-
-// impl VideoFrame {
-//     pub fn create(frame: UniquePtr<webrtc::VideoFrame>) -> Self {
-//         Self(frame)
-//     }
-
-//     pub fn width(&self) -> i32 {
-//         webrtc::frame_width(&self.0)
-//     }
-
-//     pub fn height(&self) -> i32 {
-//         webrtc::frame_height(&self.0)
-//     }
-
-//     pub fn rotation(&self) -> i32 {
-//         webrtc::frame_rotation(&self.0)
-//     }
-// }
-
+/// Representation of the [`webrtc::VideoRenderer`].
 pub struct Renderer(UniquePtr<webrtc::VideoRenderer>);
 
 impl Renderer {
+    /// Creates a new [`Renderer`].
     pub fn create(
         cb: fn(UniquePtr<VideoFrame>, usize),
         flutter_cb_ptr: usize,
         video_track: &VideoTrackInterface,
     ) -> Self {
         unsafe {
-            Self(webrtc::get_video_renderer(
+            Self(webrtc::create_video_renderer(
                 cb,
                 flutter_cb_ptr,
                 video_track.0.as_ref().unwrap(),
@@ -484,11 +466,8 @@ impl Renderer {
         }
     }
 
+    /// Notifies the [`Renderer`] that passed [`VideoTrackInterface`] does not exist.
     pub fn set_no_track(&mut self) {
         self.0.as_mut().unwrap().set_no_track();
     }
-}
-
-pub fn convert_to_argb(frame: &VideoFrame, buffer_size: i32) -> Vec<u8> {
-    unsafe { webrtc::convert_to_argb(&frame, buffer_size) }
 }

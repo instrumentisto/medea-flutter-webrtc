@@ -290,7 +290,7 @@ impl Webrtc {
 
 /// ID of a [`MediaStream`].
 #[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct MediaStreamId(u64);
+pub struct MediaStreamId(pub u64);
 
 /// ID of an video input device that provides data to some [`VideoSource`].
 #[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq)]
@@ -439,6 +439,9 @@ pub struct VideoTrack {
     /// Stereo".
     label: VideoLabel,
 
+    /// [`TextureId`]s of the [`Renderer`]'s which uses this [`VideoTrack`].
+    ///
+    /// [`Renderer`]:crate::Renderer
     renderers: Vec<Rc<TextureId>>,
 }
 
@@ -460,6 +463,9 @@ impl VideoTrack {
         })
     }
 
+    /// Adds the [`Renderer`] which uses this [`VideoTrack`].
+    ///
+    /// [`Renderer`]:crate::Renderer
     pub fn add_renderer(&mut self, renderer: Rc<TextureId>) {
         self.renderers.push(renderer);
     }

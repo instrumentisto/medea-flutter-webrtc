@@ -11,7 +11,8 @@ class AutoLock {
 };
 
 namespace bridge {
-
+// Creates a new `VideoRenderer` and calls
+// `VideoTrackInterface->AddOrUpdateSink()`.
 VideoRenderer::VideoRenderer(
     rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
@@ -22,16 +23,20 @@ VideoRenderer::VideoRenderer(
   rendered_track_->AddOrUpdateSink(this, rtc::VideoSinkWants());
 }
 
+// Calls `VideoTrackInterface->RemoveSink()` if `VideoTrackInterface` exists and
+// disposes the `VideoRenderer.`
 VideoRenderer::~VideoRenderer() {
   if (!no_track_) {
     rendered_track_->RemoveSink(this);
   }
 }
 
+// Sets `no_track_` to `false`.
 void VideoRenderer::SetNoTrack() {
   no_track_ = true;
 }
 
+// Calls the `cb_` on every incoming `VideoFrame`.
 void VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
   cb_(std::make_unique<webrtc::VideoFrame>(video_frame), flutter_cb_ptr_);
 }

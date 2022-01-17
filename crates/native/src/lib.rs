@@ -137,6 +137,7 @@ pub mod api {
         kVideo,
     }
 
+    /// Possible kinds of [`Frame`]'s `rotation`.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum VideoRotation {
         kVideoRotation_0 = 0,
@@ -170,12 +171,26 @@ pub mod api {
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
 
+        /// Returns the [`Frame`]'s `width`.
         fn width(self: &Frame) -> i32;
+
+        /// Returns the [`Frame`]'s `height`.
         fn height(self: &Frame) -> i32;
+
+        /// Returns the [`Frame`]'s [`VideoRotation`].
         fn rotation(self: &Frame) -> VideoRotation;
+
+        /// Returns the [`Frame`]'s `buffer size`.
         fn buffer_size(self: &Frame) -> i32;
-        unsafe fn buffer(self: &Frame) -> Vec<u8>;
+
+        /// Writes the [`Frame`]'s bytes to the given `buffer`
+        /// as `ABGR buffer`.
+        unsafe fn buffer(self: &Frame, bptr: *mut u8);
+
+        /// Deletes the given [`Frame`].
         unsafe fn delete_frame(frame_ptr: *mut Frame);
+
+        /// Drops the [`Renderer`] according to the given [`TextureId`].
         fn dispose_renderer(self: &mut Webrtc, texture_id: i64);
     }
 }

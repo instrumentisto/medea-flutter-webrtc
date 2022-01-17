@@ -61,7 +61,7 @@ class RTCVideoView extends StatelessWidget {
                         textureId: videoRenderer.textureId!,
                         filterQuality: filterQuality,
                       )
-                    : Container(color: Color.fromRGBO(231, 12, 12, 1.0)),
+                    : Container(),
               ),
             ),
           ),

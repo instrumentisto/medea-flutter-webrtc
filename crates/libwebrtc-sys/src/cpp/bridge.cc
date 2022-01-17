@@ -226,40 +226,22 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
   return media_stream->RemoveTrack(track.ptr());
 }
 
-// int32_t frame_width(const VideoFrame& frame) {
-//   return frame.width();
-// }
-
-// int32_t frame_height(const VideoFrame& frame) {
-//   return frame.height();
-// }
-
-// int32_t frame_rotation(const VideoFrame& frame) {
-//   return frame.rotation();
-// }
-
-rust::Vec<uint8_t> convert_to_argb(const VideoFrame& frame,
-                                   const int32_t buffer_size) {
-  rust::Vec<uint8_t> image;
-  for (int i = 0; i < buffer_size; i++) {
-    image.push_back((uint8_t)0);
-  }
-
+// Calls `libyuv::I420ToABGR`.
+void convert_to_argb(const VideoFrame& video_frame, uint8_t* buffer_ptr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
-      frame.video_frame_buffer()->ToI420());
-  if (frame.rotation() != webrtc::kVideoRotation_0) {
-    buffer = webrtc::I420Buffer::Rotate(*buffer, frame.rotation());
+      video_frame.video_frame_buffer()->ToI420());
+  if (video_frame.rotation() != webrtc::kVideoRotation_0) {
+    buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame.rotation());
   }
 
   libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     image.data(), frame.width() * 32 / 8, buffer->width(),
+                     buffer_ptr, video_frame.width() * 32 / 8, buffer->width(),
                      buffer->height());
-
-  return image;
 }
 
-std::unique_ptr<VideoRenderer> get_video_renderer(
+// Returns a new `VideoRenderer`.
+std::unique_ptr<VideoRenderer> create_video_renderer(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
     const VideoTrackInterface& track_to_render) {

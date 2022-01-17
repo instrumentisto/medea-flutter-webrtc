@@ -1,9 +1,11 @@
 #include "media_stream.h"
 
+namespace flutter_webrtc_plugin {
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 /// `MediaDeviceInfo` info for Dart.
-void enumerate_device(Box<Webrtc>& webrtc,
-                      std::unique_ptr<MethodResult<EncodableValue>> result) {
+void MediaStreamMethods::EnumerateDevice(
+    Box<Webrtc>& webrtc,
+    std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
   EncodableList sources;
@@ -47,9 +49,10 @@ void enumerate_device(Box<Webrtc>& webrtc,
 
 /// Parses the received constraints from Dart and passes them to Rust
 /// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
-void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
-                    Box<Webrtc>& webrtc,
-                    std::unique_ptr<MethodResult<EncodableValue>> result) {
+void MediaStreamMethods::GetUserMedia(
+    const flutter::MethodCall<EncodableValue>& method_call,
+    Box<Webrtc>& webrtc,
+    std::unique_ptr<MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -58,13 +61,13 @@ void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
   auto args = GetValue<EncodableMap>(*method_call.arguments());
   auto constraints_arg = findMap(args, "constraints");
 
-  auto video_arg = constraints_arg.find(EncodableValue("video"));
-  auto audio_arg = constraints_arg.find(EncodableValue("audio"));
+  auto video_arg = findMap(constraints_arg, "video");
+  auto audio_arg = findMap(constraints_arg, "audio");
 
   MediaStreamConstraints constraints;
 
-  constraints.video = parse_video_constraints(video_arg->second);
-  constraints.audio = parse_audio_constraints(audio_arg->second);
+  constraints.video = ParseVideoConstraints(video_arg);
+  constraints.audio = ParseAudioConstraints(audio_arg);
 
   MediaStream user_media = webrtc->GetUserMedia(constraints);
   EncodableMap params;
@@ -72,15 +75,16 @@ void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
   params[EncodableValue("streamId")] =
       EncodableValue(std::to_string(user_media.stream_id).c_str());
   params[EncodableValue("videoTracks")] =
-      EncodableValue(get_params(TrackKind::kVideo, user_media));
+      EncodableValue(GetParams(TrackKind::kVideo, user_media));
   params[EncodableValue("audioTracks")] =
-      EncodableValue(get_params(TrackKind::kAudio, user_media));
+      EncodableValue(GetParams(TrackKind::kAudio, user_media));
 
   result->Success(EncodableValue(params));
 }
 
 /// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
-VideoConstraints parse_video_constraints(EncodableValue video_arg) {
+VideoConstraints MediaStreamMethods::ParseVideoConstraints(
+    EncodableValue video_arg) {
   EncodableMap video_mandatory;
 
   size_t width = DEFAULT_WIDTH;
@@ -101,29 +105,22 @@ VideoConstraints parse_video_constraints(EncodableValue video_arg) {
     video_device_id = std::string();
   } else {
     EncodableMap video_map = GetValue<EncodableMap>(video_arg);
-    auto it = video_map.find(EncodableValue("mandatory"));
-    if (it != video_map.end()) {
-      video_mandatory = GetValue<EncodableMap>(it->second);
-      std::string width_s = findString(video_mandatory, "minWidth");
-      std::string height_s = findString(video_mandatory, "minHeight");
-      std::string fps_s = findString(video_mandatory, "minFrameRate");
-      if (!width_s.empty()) {
-        int width_n = std::stoi(width_s);
-        if (width_n > 0) {
-          width = width_n;
-        }
+    EncodableMap video_mandatory = findMap(video_map, "mandatory");
+    if (!video_mandatory.empty()) {
+      int not_validated_width = findInt(video_mandatory, "minWidth");
+      int not_validated_height = findInt(video_mandatory, "minHeight");
+      int not_validated_fps = findInt(video_mandatory, "minFrameRate");
+
+      if (not_validated_width > 0) {
+        width = not_validated_width;
       }
-      if (!height_s.empty()) {
-        int height_n = std::stoi(height_s);
-        if (height_n > 0) {
-          height = height_n;
-        }
+
+      if (not_validated_height > 0) {
+        height = not_validated_height;
       }
-      if (!fps_s.empty()) {
-        int fps_n = std::stoi(fps_s);
-        if (fps_n > 0) {
-          fps = fps_n;
-        }
+
+      if (not_validated_fps > 0) {
+        fps = not_validated_fps;
       }
     }
     video_device_id = findString(video_map, "deviceId");
@@ -142,7 +139,8 @@ VideoConstraints parse_video_constraints(EncodableValue video_arg) {
 }
 
 /// Parses audio constraints received from Dart to Rust `AudioConstraints`.
-AudioConstraints parse_audio_constraints(EncodableValue audio_arg) {
+AudioConstraints MediaStreamMethods::ParseAudioConstraints(
+    EncodableValue audio_arg) {
   EncodableValue audio_device_id;
   bool audio_required;
 
@@ -170,7 +168,8 @@ AudioConstraints parse_audio_constraints(EncodableValue audio_arg) {
 
 /// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
 /// for passing to Dart according to `TrackKind`.
-EncodableList get_params(TrackKind type, MediaStream& user_media) {
+EncodableList MediaStreamMethods::GetParams(TrackKind type,
+                                            MediaStream& user_media) {
   auto rust_tracks = type == TrackKind::kVideo ? user_media.video_tracks
                                                : user_media.audio_tracks;
 
@@ -197,12 +196,13 @@ EncodableList get_params(TrackKind type, MediaStream& user_media) {
 }
 
 /// Disposes some media stream calling Rust `DisposeStream`.
-void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call,
-                    Box<Webrtc>& webrtc,
-                    std::unique_ptr<MethodResult<EncodableValue>> result) {
+void MediaStreamMethods::DisposeStream(
+    const flutter::MethodCall<EncodableValue>& method_call,
+    Box<Webrtc>& webrtc,
+    std::unique_ptr<MethodResult<EncodableValue>> result) {
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  auto converted_id = std::stoi(findString(params, "streamId"));
+  auto converted_id = findLongInt(params, "streamId");
   if (converted_id < 0) {
     result->Error("Stream id can`t be less then 0.");
     return;
@@ -211,3 +211,4 @@ void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call,
   webrtc->DisposeStream(converted_id);
   result->Success();
 }
+}  // namespace flutter_webrtc_plugin

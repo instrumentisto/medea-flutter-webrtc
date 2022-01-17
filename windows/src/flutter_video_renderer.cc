@@ -2,23 +2,19 @@
 #include "flutter_webrtc_native.h"
 #include "wrapper.h"
 
-#include <chrono>
-#include <ctime>
-
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::chrono::seconds;
-using std::chrono::system_clock;
-
 namespace flutter_webrtc_plugin {
 
-typedef void (*myfunc)(Frame*);
+typedef void (*frame_handler)(Frame*);
 
-extern "C" void foo(rust::cxxbridge1::Box<Webrtc>&,
-                    int64_t,
-                    rust::String,
-                    myfunc);
+// Rust FFI function that registers `VideoRenderer` in Rust and set the callback
+// on `libWebRTC`'s `Frame` handling.
+extern "C" void register_renderer(rust::cxxbridge1::Box<Webrtc>&,
+                                  int64_t,
+                                  uint64_t,
+                                  frame_handler);
 
+// `VideoRendere` costructor. Creates a new `texture` and `EventChannel`,
+// register them.
 FlutterVideoRenderer::FlutterVideoRenderer(TextureRegistrar* registrar,
                                            BinaryMessenger* messenger)
     : registrar_(registrar) {
@@ -52,6 +48,7 @@ FlutterVideoRenderer::FlutterVideoRenderer(TextureRegistrar* registrar,
   event_channel_->SetStreamHandler(std::move(handler));
 }
 
+// Copies `PixelBuffer` from `libWebRTC` `Frame` to Dart's buffer.
 const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
     size_t width,
     size_t height) const {
@@ -66,11 +63,10 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
       pixel_buffer_->height = frame_->height();
     }
 
-    auto buffer = frame_->buffer();
-
-    std::copy(buffer.begin(), buffer.end(), rgb_buffer_.get());
+    frame_->buffer(rgb_buffer_.get());
 
     pixel_buffer_->buffer = rgb_buffer_.get();
+
     mutex_.unlock();
     return pixel_buffer_.get();
   }
@@ -78,6 +74,7 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
   return nullptr;
 }
 
+// `Frame` handler. Sends events to Dart when receives the `Frame`.
 void FlutterVideoRenderer::OnFrame(Frame* frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
@@ -124,6 +121,7 @@ void FlutterVideoRenderer::OnFrame(Frame* frame) {
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
 
+// Set `Renderer`'s default state.
 void FlutterVideoRenderer::ResetRenderer() {
   mutex_.lock();
   if (frame_ != nullptr) {
@@ -135,38 +133,11 @@ void FlutterVideoRenderer::ResetRenderer() {
   first_frame_rendered = false;
 }
 
-// void FlutterVideoRenderer::SetVideoTrack(scoped_refptr<RTCVideoTrack>
-// track)
-// {
-//   if (track_ != track) {
-//     if (track_)
-//       track_->RemoveRenderer(this);
-//     track_ = track;
-//     last_frame_size_ = {0, 0};
-//     first_frame_rendered = false;
-//     if (track_)
-//       track_->AddRenderer(this);
-//   }
-// }
-
-// bool FlutterVideoRenderer::CheckMediaStream(std::string mediaId) {
-//   if (0 == mediaId.size() || 0 == media_stream_id.size()) {
-//     return false;
-//   }
-//   return mediaId == media_stream_id;
-// }
-
-// bool FlutterVideoRenderer::CheckVideoTrack(std::string mediaId) {
-//   if (0 == mediaId.size() || !track_) {
-//     return false;
-//   }
-//   return mediaId == track_->id().std_string();
-// }
-
 FlutterVideoRendererManager::FlutterVideoRendererManager(
     FlutterWebRTCBase* base)
     : base_(base) {}
 
+// Creates a new `VideoRenderer`.
 void FlutterVideoRendererManager::CreateVideoRendererTexture(
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   std::unique_ptr<FlutterVideoRenderer> texture(
@@ -179,41 +150,48 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
   result->Success(EncodableValue(params));
 }
 
+// Sets a new `source` to the cerntain `VideoRenderer`.
 void FlutterVideoRendererManager::SetMediaStream(
+    const flutter::MethodCall<EncodableValue>& method_call,
     rust::cxxbridge1::Box<Webrtc>& webrtc,
-    int64_t texture_id,
-    const std::string& stream_id) {
-  // scoped_refptr<RTCMediaStream> stream =
-  // base_->MediaStreamForId(stream_id);
+    std::unique_ptr<MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+  const std::string stream_id = findString(params, "streamId");
+  int64_t texture_id = findLongInt(params, "textureId");
+
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
     if (stream_id != "") {
       auto cb = std::bind(&FlutterVideoRenderer::OnFrame,
                           renderers_[texture_id].get(), std::placeholders::_1);
-      myfunc wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
-      foo(webrtc, texture_id, rust::String(stream_id), wrapped_cb);
+      frame_handler wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
+      register_renderer(webrtc, texture_id, (uint64_t)std::stoi(stream_id),
+                        wrapped_cb);
     } else {
-      dispose_renderer(webrtc, texture_id);
+      webrtc->dispose_renderer(texture_id);
       it->second.get()->ResetRenderer();
     }
-
-    // FlutterVideoRenderer* renderer = it->second.get();
-    // if (stream.get()) {
-    //   auto video_tracks = stream->video_tracks();
-    //   if (video_tracks.size() > 0) {
-    //     renderer->SetVideoTrack(video_tracks[0]);
-    //     renderer->media_stream_id = stream_id;
-    //   }
-    // } else {
-    // renderer->SetVideoTrack(nullptr);
-    // }
   }
+
+  result->Success();
 }
 
+// Disposes the `VideoRenderer`.
 void FlutterVideoRendererManager::VideoRendererDispose(
+    const flutter::MethodCall<EncodableValue>& method_call,
     rust::cxxbridge1::Box<Webrtc>& webrtc,
-    int64_t texture_id,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+  int64_t texture_id = findLongInt(params, "textureId");
+
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
     base_->textures_->UnregisterTexture(texture_id);

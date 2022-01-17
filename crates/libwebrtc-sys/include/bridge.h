@@ -168,16 +168,11 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 
-// int32_t frame_width(const VideoFrame& frame);
+// Converts `i420 buffer` from received `VideoFrame` to `ABGR buffer`.
+void convert_to_argb(const VideoFrame& frame, uint8_t* buffer_ptr);
 
-// int32_t frame_height(const VideoFrame& frame);
-
-// int32_t frame_rotation(const VideoFrame& frame);
-
-rust::Vec<uint8_t> convert_to_argb(const VideoFrame& frame,
-                                   int32_t buffer_size);
-
-std::unique_ptr<VideoRenderer> get_video_renderer(
+// Returns a new `VideoRenderer`.
+std::unique_ptr<VideoRenderer> create_video_renderer(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
     const VideoTrackInterface& track_to_render);

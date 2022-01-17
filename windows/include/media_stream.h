@@ -1,9 +1,13 @@
+#ifndef MEDIA_STREAM_METHODS
+#define MEDIA_STREAM_METHODS
+
 #include <memory>
 
 #include <flutter_webrtc_native.h>
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include "flutter_webrtc/flutter_webrtc_plugin.h"
+#include "flutter_webrtc_base.h"
 
 using namespace rust::cxxbridge1;
 
@@ -11,56 +15,41 @@ using namespace rust::cxxbridge1;
 #define DEFAULT_HEIGHT 480
 #define DEFAULT_FPS 30
 
-template<typename T>
-inline bool TypeIs(const EncodableValue val) {
-  return std::holds_alternative<T>(val);
-}
+namespace flutter_webrtc_plugin {
 
-template<typename T>
-inline const T GetValue(EncodableValue val) {
-  return std::get<T>(val);
-}
+// Class with the methods related to `MediaStream`.
+class MediaStreamMethods {
+ public:
+  // Calls Rust `EnumerateDevices()` and converts the received Rust vector of
+  // `MediaDeviceInfo` info for Dart.
+  static void EnumerateDevice(
+      rust::Box<Webrtc>& webrtc,
+      std::unique_ptr<MethodResult<EncodableValue>> result);
 
-// Returns an `EncodableMap` value from the given `EncodableMap` by the given
-// `key` if any, or an empty `EncodableMap` otherwise.
-inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<EncodableMap>(it->second))
-    return GetValue<EncodableMap>(it->second);
-  return EncodableMap();
-}
+  // Parses the received constraints from Dart and passes them to Rust
+  // `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
+  static void GetUserMedia(
+      const flutter::MethodCall<EncodableValue>& method_call,
+      Box<Webrtc>& webrtc,
+      std::unique_ptr<MethodResult<EncodableValue>> result);
 
-// Returns an `std::string` value from the given `EncodableMap` by the given
-// `key` if any, or an empty `std::string` otherwise.
-inline std::string findString(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<std::string>(it->second))
-    return GetValue<std::string>(it->second);
-  return std::string();
-}
+  // Disposes some media stream calling Rust `DisposeStream`.
+  static void DisposeStream(
+      const flutter::MethodCall<EncodableValue>& method_call,
+      Box<Webrtc>& webrtc,
+      std::unique_ptr<MethodResult<EncodableValue>> result);
 
-// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
-// `MediaDeviceInfo` info for Dart.
-void enumerate_device(rust::Box<Webrtc>& webrtc,
-                      std::unique_ptr<MethodResult<EncodableValue>> result);
+ private:
+  // Parses video constraints received from Dart to Rust `VideoConstraints`.
+  static VideoConstraints ParseVideoConstraints(const EncodableValue video_arg);
 
-// Parses the received constraints from Dart and passes them to Rust
-// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
-void get_user_media(const flutter::MethodCall<EncodableValue>& method_call,
-                    Box<Webrtc>& webrtc,
-                    std::unique_ptr<MethodResult<EncodableValue>> result);
+  // Parses audio constraints received from Dart to Rust `AudioConstraints`.
+  static AudioConstraints ParseAudioConstraints(const EncodableValue audio_arg);
 
-// Parses video constraints received from Dart to Rust `VideoConstraints`.
-VideoConstraints parse_video_constraints(const EncodableValue video_arg);
+  // Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
+  // for passing to Dart according to `TrackKind`.
+  static EncodableList GetParams(TrackKind type, MediaStream& user_media);
+};
+}  // namespace flutter_webrtc_plugin
 
-// Parses audio constraints received from Dart to Rust `AudioConstraints`.
-AudioConstraints parse_audio_constraints(const EncodableValue audio_arg);
-
-// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
-// for passing to Dart according to `TrackKind`.
-EncodableList get_params(TrackKind type, MediaStream& user_media);
-
-// Disposes some media stream calling Rust `DisposeStream`.
-void dispose_stream(const flutter::MethodCall<EncodableValue>& method_call,
-                    Box<Webrtc>& webrtc,
-                    std::unique_ptr<MethodResult<EncodableValue>> result);
+#endif

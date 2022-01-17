@@ -21,8 +21,10 @@
 #include <memory>
 
 #include "flutter_video_renderer.h"
+#include "media_stream.h"
 
 #include <flutter_webrtc_native.h>
+#include "flutter_webrtc_base.h"
 
 using namespace flutter;
 using namespace rust::cxxbridge1;

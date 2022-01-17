@@ -1,12 +1,8 @@
 #ifndef FLUTTER_WEBRTC_BASE_HXX
 #define FLUTTER_WEBRTC_BASE_HXX
 
-#include <flutter/encodable_value.h>
 #include <flutter/event_channel.h>
 #include <flutter/event_stream_handler_functions.h>
-#include <flutter/method_channel.h>
-#include <flutter/plugin_registrar.h>
-#include <flutter/standard_message_codec.h>
 #include <flutter/standard_method_codec.h>
 #include <flutter/texture_registrar.h>
 
@@ -21,11 +17,6 @@ namespace flutter_webrtc_plugin {
 using namespace flutter;
 
 class FlutterVideoRenderer;
-class FlutterRTCDataChannelObserver;
-class FlutterPeerConnectionObserver;
-
-// foo.StringValue() becomes std::get<std::string>(foo)
-// foo.IsString() becomes std::holds_alternative<std::string>(foo)
 
 template <typename T>
 inline bool TypeIs(const EncodableValue val) {
@@ -50,13 +41,6 @@ inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
   if (it != map.end() && TypeIs<EncodableMap>(it->second))
     return GetValue<EncodableMap>(it->second);
   return EncodableMap();
-}
-
-inline EncodableList findList(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<EncodableList>(it->second))
-    return GetValue<EncodableList>(it->second);
-  return EncodableList();
 }
 
 inline std::string findString(const EncodableMap& map, const std::string& key) {
@@ -97,22 +81,16 @@ inline int toInt(EncodableValue inputVal, int defaultVal) {
 
 class FlutterWebRTCBase {
  public:
-  friend class FlutterMediaStream;
   friend class FlutterPeerConnection;
   friend class FlutterVideoRendererManager;
-  friend class FlutterDataChannel;
-  friend class FlutterPeerConnectionObserver;
-  enum ParseConstraintType { kMandatory, kOptional };
 
  public:
-  FlutterWebRTCBase(BinaryMessenger* messenger, TextureRegistrar* textures);
-  ~FlutterWebRTCBase();
+  FlutterWebRTCBase(BinaryMessenger* messenger, TextureRegistrar* textures)
+      : messenger_(messenger), textures_(textures) {}
+
+  ~FlutterWebRTCBase() {}
 
   std::map<int64_t, std::shared_ptr<FlutterVideoRenderer>> renders_;
-  std::map<int, std::shared_ptr<FlutterRTCDataChannelObserver>>
-      data_channel_observers_;
-  std::map<std::string, std::shared_ptr<FlutterPeerConnectionObserver>>
-      peerconnection_observers_;
   mutable std::mutex mutex_;
 
   void lock() { mutex_.lock(); }

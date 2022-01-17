@@ -121,15 +121,6 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => GetSourcesSample()));
-<<<<<<< HEAD
-          }),
-      RouteItem(
-          title: 'test',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => Test()));
           }),
       RouteItem(
           title: 'renderer_test',
@@ -138,8 +129,6 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => RendererTest()));
-=======
->>>>>>> windows-rework
           }),
     ];
   }

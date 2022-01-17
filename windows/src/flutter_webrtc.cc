@@ -2,9 +2,7 @@
 #include <sstream>
 
 #include "flutter_webrtc.h"
-#include "media_stream.h"
 
-#include <flutter_webrtc_native.h>
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 
 namespace flutter_webrtc_plugin {
@@ -23,9 +21,9 @@ void FlutterWebRTC::HandleMethodCall(
 
   if (method.compare("createPeerConnection") == 0) {
   } else if (method.compare("getSources") == 0) {
-    enumerate_device(webrtc, std::move(result));
+    MediaStreamMethods::EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
-    get_user_media(method_call, webrtc, std::move(result));
+    MediaStreamMethods::GetUserMedia(method_call, webrtc, std::move(result));
   } else if (method.compare("getDisplayMedia") == 0) {
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
@@ -40,7 +38,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("dataChannelSend") == 0) {
   } else if (method.compare("dataChannelClose") == 0) {
   } else if (method.compare("streamDispose") == 0) {
-    dispose_stream(method_call, webrtc, std::move(result));
+    MediaStreamMethods::DisposeStream(method_call, webrtc, std::move(result));
   } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
   } else if (method.compare("trackDispose") == 0) {
   } else if (method.compare("peerConnectionClose") == 0) {
@@ -48,27 +46,10 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
     CreateVideoRendererTexture(std::move(result));
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-    const EncodableMap params =
-        GetValue<EncodableMap>(*method_call.arguments());
-    int64_t texture_id = findLongInt(params, "textureId");
-    VideoRendererDispose(webrtc, texture_id, std::move(result));
+    VideoRendererDispose(method_call, webrtc, std::move(result));
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
              0) {
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-    const EncodableMap params =
-        GetValue<EncodableMap>(*method_call.arguments());
-    const std::string stream_id = findString(params, "streamId");
-    int64_t texture_id = findLongInt(params, "textureId");
-
-    SetMediaStream(webrtc, texture_id, stream_id);
-    result->Success();
+    SetMediaStream(method_call, webrtc, std::move(result));
   } else if (method.compare("setVolume") == 0) {
   } else if (method.compare("getLocalDescription") == 0) {
   } else if (method.compare("getRemoteDescription") == 0) {

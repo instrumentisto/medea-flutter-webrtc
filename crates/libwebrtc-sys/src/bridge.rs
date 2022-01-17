@@ -186,6 +186,7 @@ pub(crate) mod webrtc {
         ) -> bool;
     }
 
+    /// Possible variants of [`VideoFrame`]'s rotation.
     #[repr(i32)]
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum VideoRotation {
@@ -200,26 +201,30 @@ pub(crate) mod webrtc {
         type VideoRenderer;
         type VideoRotation;
 
+        /// Returns width of the [`VideoFrame`].
         #[cxx_name = "width"]
         pub fn width(self: &VideoFrame) -> i32;
 
+        /// Returns height of the [`VideoFrame`].
         #[cxx_name = "height"]
         pub fn height(self: &VideoFrame) -> i32;
 
+        /// Returns [`VideoRotation`] of the [`VideoFrame`].
         #[cxx_name = "rotation"]
         pub fn rotation(self: &VideoFrame) -> VideoRotation;
 
-        pub unsafe fn convert_to_argb(
-            frame: &VideoFrame,
-            buffer_size: i32,
-        ) -> Vec<u8>;
+        /// Converts [`VideoFrame`]'s `i420 buffer` to `ABGR buffer`.
+        pub unsafe fn convert_to_argb(frame: &VideoFrame, buffer_ptr: *mut u8);
 
-        pub unsafe fn get_video_renderer(
+        /// Creates a new [`VideoRenderer`] for the given [`VideoTrackInterface`]
+        /// and the `callbacks`.
+        pub unsafe fn create_video_renderer(
             cb: unsafe fn(UniquePtr<VideoFrame>, usize),
             flutter_cb_ptr: usize,
             video_track: &VideoTrackInterface,
         ) -> UniquePtr<VideoRenderer>;
 
+        /// Notifies the [`VideoRenderer`] that passed [`VideoTrackInterface`] does not exist.
         #[cxx_name = "SetNoTrack"]
         pub fn set_no_track(self: Pin<&mut VideoRenderer>);
     }
