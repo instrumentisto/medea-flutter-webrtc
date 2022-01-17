@@ -344,36 +344,3 @@ pub fn init() -> Box<Webrtc> {
         signaling_thread: Some(signaling_thread),
     })))
 }
-
-#[cfg(test)]
-mod test {
-    use libwebrtc_sys::{
-        CreateSessionDescriptionObserver, SetLocalDescriptionObserverInterface,
-    };
-
-    use crate::*;
-
-    #[test]
-    fn test1() {
-        let mut w = init();
-        let mut error = String::new();
-        let id = w.create_default_peer_connection(&mut error);
-        let pc = w.0.peer_connections.get_mut(&PeerConnectionId(id)).unwrap();
-
-        for _ in 0..1000000 {
-            println!("test");
-            let obs = CreateSessionDescriptionObserver::new(|_, _| {}, |_| {});
-            let conf = libwebrtc_sys::RTCOfferAnswerOptions::default();
-            pc.peer_connection_interface.create_offer(&conf, obs);
-
-            let obs = SetLocalDescriptionObserverInterface::new(|| {}, |a| {});
-            pc.peer_connection_interface.set_local_description(
-                libwebrtc_sys::SessionDescriptionInterface::new(
-                    libwebrtc_sys::SdpType::kOffer,
-                    "test",
-                ),
-                obs,
-            );
-        }
-    }
-}
