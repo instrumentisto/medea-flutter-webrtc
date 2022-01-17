@@ -35,9 +35,8 @@ class MediaStreamTrackController(
                 result.success(null)
             }
             "dispose" -> {
-                track.dispose()
+                dispose()
                 result.success(null)
-                methodChannel.setMethodCallHandler(null)
             }
         }
     }

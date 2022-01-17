@@ -16,7 +16,12 @@ class PeerConnectionController(messenger: BinaryMessenger, val peer: PeerConnect
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        TODO()
+        when (call.method) {
+            "dispose" -> {
+                dispose()
+                result.success(null)
+            }
+        }
     }
 
     fun intoFlutterResult(): Map<String, Any> {

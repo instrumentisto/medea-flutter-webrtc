@@ -38,6 +38,10 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
                 val peerController = PeerConnectionController(binaryMessenger, newPeer)
                 result.success(peerController.intoFlutterResult())
             }
+            "dispose" -> {
+                dispose()
+                result.success(null)
+            }
         }
     }
 
