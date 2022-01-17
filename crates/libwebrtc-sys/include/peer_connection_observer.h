@@ -36,48 +36,78 @@ class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionObserver
 {
   public:
+  // Callback for `CreateOffer/Answer` is success.
   rust::Fn<void (const std::string &, const std::string &)> success;
+
+  // Callback for `CreateOffer/Answer` is fail.
   rust::Fn<void (const std::string &)> fail;
+
+  // RefCount for lifetime observer.
   mutable volatile int ref_count = 0;
 
 
-  // Construct `CreateOffer\Answer Observer` where
+  // Construct `CreateOffer/Answer Observer` where
   // s - void (*callback_success)(std::string, std::string),
   // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver(
     rust::Fn<void (const std::string &, const std::string &)> s,
     rust::Fn<void (const std::string &)> f);
 
-  // Calls when a `CreateOffer\Answer` is success.
+  // Calls when a `CreateOffer/Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
 
-  // Calls when a `CreateOffer\Answer` is fail.
+  // Calls when a `CreateOffer/Answer` is fail.
   void OnFailure(webrtc::RTCError error);
 
+  // Interface rtc::RefCountInterface. 
   void AddRef() const;
+  // Interface rtc::RefCountInterface.
   rtc::RefCountReleaseStatus Release() const;
 
 };
 
 class SetLocalDescriptionObserverInterface : public webrtc::SetLocalDescriptionObserverInterface {
   public:
+  // Callback for `SetLocalDescription` is success.
   rust::Fn<void ()> success;
+  // Callback for `SetLocalDescription` is fail.
   rust::Fn<void (const std::string &)> fail;
+
+  // RefCount for lifetime observer.
   mutable volatile int ref_count = 0;
+
+  // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetLocalDescriptionComplete(webrtc::RTCError error);
+
+  // Construct SetLocalDescriptionObserverInterface.
   SetLocalDescriptionObserverInterface(rust::Fn<void ()> s, rust::Fn<void (const std::string &)> f);
+
+  // Interface rtc::RefCountInterface.
   void AddRef() const;
+  // Interface rtc::RefCountInterface.
   rtc::RefCountReleaseStatus Release() const;
 };
 
 class SetRemoteDescriptionObserverInterface : public webrtc::SetRemoteDescriptionObserverInterface {
   public:
+  // Callback for `SetRemoteDescription` is success.
   rust::Fn<void ()> success;
+
+  // Callback for `SetRemoteDescription` is fail.
   rust::Fn<void (const std::string &)> fail;
+
+  // RefCount for lifetime observer.
   mutable volatile int ref_count = 0;
+
+  // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetRemoteDescriptionComplete(webrtc::RTCError error);
+
+  // Construct SetRemoteDescriptionObserverInterface.
   SetRemoteDescriptionObserverInterface(rust::Fn<void ()> s, rust::Fn<void (const std::string &)> f);
+
+  // Interface rtc::RefCountInterface.
   void AddRef() const;
+  // Interface rtc::RefCountInterface.
   rtc::RefCountReleaseStatus Release() const;
 };
 }

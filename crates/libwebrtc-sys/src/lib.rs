@@ -3,8 +3,6 @@
 
 mod bridge;
 
-use std::{rc::Rc, cell::RefCell};
-
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 
@@ -358,9 +356,9 @@ impl SessionDescriptionInterface {
     /// Create new [`SessionDescriptionInterface`]
     pub fn new(type_: webrtc::SdpType, sdp: &str) -> Self {
         let_cxx_string!(n_sdp = sdp);
-        SessionDescriptionInterface(unsafe {
+        SessionDescriptionInterface(
             webrtc::create_session_description(type_, &n_sdp)
-        })
+        )
     }
 }
 
@@ -384,16 +382,17 @@ impl CreateSessionDescriptionObserver {
     }
 }
 
-
 pub struct SetLocalDescriptionObserverInterface(
     UniquePtr<webrtc::SetLocalDescriptionObserverInterface>,
 );
 
 impl SetLocalDescriptionObserverInterface {
     pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
-        Self(unsafe {webrtc::create_set_local_description_observer_interface(
-            success,fail
-        )})
+        Self(
+            webrtc::create_set_local_description_observer_interface(
+                success, fail,
+            )
+        )
     }
 }
 
@@ -403,18 +402,18 @@ pub struct SetRemoteDescriptionObserverInterface(
 
 impl SetRemoteDescriptionObserverInterface {
     pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
-        Self(unsafe {webrtc::create_set_remote_description_observer_interface(
-            success,fail
-        )})
+        Self(
+            webrtc::create_set_remote_description_observer_interface(
+                success, fail,
+            )
+        )
     }
 }
-
-
 
 /// Peer Connection Interface internally used in [`webrtc`] that is
 /// capable of creating [Offer]s, [Answer]s
 /// and setting [Remote], [Local] Description.
-pub struct PeerConnectionInterface (UniquePtr<webrtc::PeerConnectionInterface>);
+pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
     /// Create a new offer.
@@ -428,14 +427,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-
-        unsafe {
-            webrtc::create_offer(
-                self.0.pin_mut(),
-                &options.0,
-                obs.0,
-            );
-        }
+        webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0);
     }
 
     /// Create a new answer.
@@ -450,13 +442,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        unsafe {
-            webrtc::create_answer(
-                self.0.pin_mut(),
-                &options.0,
-                obs.0,
-            );
-        }
+        webrtc::create_answer(self.0.pin_mut(), &options.0, obs.0);
     }
 
     /// Sets the local session description.
@@ -472,13 +458,7 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetLocalDescriptionObserverInterface,
     ) {
-        unsafe {
-            webrtc::set_local_description(
-                self.0.pin_mut(),
-                desc.0,
-                obs.0,
-            );
-        }
+        webrtc::set_local_description(self.0.pin_mut(), desc.0, obs.0);
     }
 
     /// Sets the remote session description.
@@ -492,13 +472,7 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetRemoteDescriptionObserverInterface,
     ) {
-        unsafe {
-            webrtc::set_remote_description(
-                self.0.pin_mut(),
-                desc.0,
-                obs.0,
-            );
-        }
+        webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
     }
 }
 
@@ -521,11 +495,11 @@ impl PeerConnectionFactoryInterface {
         worker_thread: Option<&Thread>,
         signaling_thread: Option<&Thread>,
     ) -> Self {
-        Self(unsafe {
+        Self(
             webrtc::create_peer_connection_factory(
-                network_thread.map(|t| &t.0).unwrap_or(&UniquePtr::null()),
-                worker_thread.map(|t| &t.0).unwrap_or(&UniquePtr::null()),
-                signaling_thread.map(|t| &t.0).unwrap_or(&UniquePtr::null()),
+                network_thread.map_or(&UniquePtr::null(), |t| &t.0),
+                worker_thread.map_or(&UniquePtr::null(), |t| &t.0),
+                signaling_thread.map_or(&UniquePtr::null(), |t| &t.0),
                 UniquePtr::null(),
                 AudioEncoderFactory::default().0.pin_mut(),
                 AudioDecoderFactory::default().0.pin_mut(),
@@ -535,7 +509,7 @@ impl PeerConnectionFactoryInterface {
                 UniquePtr::null(),
                 UniquePtr::null(),
             )
-        })
+        )
     }
 
     /// Creates a [`PeerConnectionInterface`].

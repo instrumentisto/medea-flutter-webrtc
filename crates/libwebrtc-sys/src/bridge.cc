@@ -140,16 +140,29 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     std::unique_ptr<AudioProcessing> audio_processing,
     std::unique_ptr<AudioFrameProcessor> audio_frame_processor) {
   
+  auto default_adm_ = default_adm.get() == nullptr ? nullptr : default_adm.get()->ptr();
+  if (default_adm_ != nullptr) {
+    default_adm_->AddRef();
+  }
+  auto audio_mixer_ = audio_mixer.get() == nullptr ? nullptr : audio_mixer.get()->ptr();
+  if (audio_mixer_ != nullptr) {
+    audio_mixer_->AddRef();
+  }
+  auto audio_processing_ = audio_processing.get() == nullptr ? nullptr : audio_processing.get()->ptr();
+  if (audio_processing_ != nullptr) {
+    audio_processing_->AddRef();
+  }
+  
   auto factory = std::make_unique<PeerConnectionFactoryInterface>(
       webrtc::CreatePeerConnectionFactory(
           network_thread.get(), worker_thread.get(), signaling_thread.get(), 
-          default_adm.get() == nullptr ? nullptr : default_adm.get()->ptr(),
+          default_adm_,
           audio_encoder_factory.ptr(),
           audio_decoder_factory.ptr(),
           std::move(video_encoder_factory),
           std::move(video_decoder_factory),
-          audio_mixer.get() == nullptr ? nullptr : audio_mixer.get()->ptr(), 
-          audio_processing.get() == nullptr ? nullptr : audio_processing.get()->ptr(),
+          audio_mixer_, 
+          audio_processing_,
           audio_frame_processor.get()));
 
   if (factory == nullptr) {

@@ -9,11 +9,11 @@ pub(crate) mod webrtc {
         kPlatformDefaultAudio = 0,
         kWindowsCoreAudio,
         kWindowsCoreAudio2,
-        kLinuxAlsaAudio,     
+        kLinuxAlsaAudio,
         kLinuxPulseAudio,
-        kAndroidJavaAudio,     
+        kAndroidJavaAudio,
         kAndroidOpenSLESAudio,
-        kAndroidJavaInputAndOpenSLESOutputAudio,   
+        kAndroidJavaInputAndOpenSLESOutputAudio,
         kAndroidAAudioAudio,
         kAndroidJavaInputAndAAudioOutputAudio,
         kDummyAudio,
@@ -125,11 +125,11 @@ pub(crate) mod webrtc {
         pub fn video_device_name(
             device_info: Pin<&mut VideoDeviceInfo>,
             index: u32,
-            name: &mut String,  
+            name: &mut String,
             id: &mut String,
         ) -> i32;
-    }      
-     
+    }
+
     #[rustfmt::skip]          
     unsafe extern "C++" {          
         type Thread;  
@@ -184,7 +184,7 @@ pub(crate) mod webrtc {
         /// `audio_mixer` - can be NULL,
         /// `audio_processing` - can be?? NULL,
         /// `audio_frame_processor` - default NULL,
-        pub unsafe fn create_peer_connection_factory(
+        pub fn create_peer_connection_factory(
             network_thread: &UniquePtr<Thread>,
             worker_thread: &UniquePtr<Thread>,
             signaling_thread: &UniquePtr<Thread>,
@@ -241,43 +241,45 @@ pub(crate) mod webrtc {
         /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
         /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            s: fn(&CxxString, &CxxString), // TODO: try to pass fn() instead of usize
+            s: fn(&CxxString, &CxxString),
             f: fn(&CxxString),
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
+        /// Creates a [`SetLocalDescriptionObserverInterface`].
         pub fn create_set_local_description_observer_interface(
             s: fn(),
             f: fn(&CxxString),
         ) -> UniquePtr<SetLocalDescriptionObserverInterface>;
 
+        /// Creates a [`SetRemoteDescriptionObserverInterface`].
         pub fn create_set_remote_description_observer_interface(
             s: fn(),
             f: fn(&CxxString),
         ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;    
        
         /// Calls `peer_connection_interface`->CreateOffer.       
-        pub unsafe fn create_offer(
+        pub fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,   
             options: &RTCOfferAnswerOptions,   
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );  
   
         /// Calls `peer_connection_interface`->CreateAnswer.     
-        pub unsafe fn create_answer(   
+        pub fn create_answer(   
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,      
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );    
 
         /// Calls `peer_connection_interface`->SetLocalDescription.
-        pub unsafe fn set_local_description(   
+        pub fn set_local_description(   
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,    
             obs: UniquePtr<SetLocalDescriptionObserverInterface>,
         );   
   
         /// Calls `peer_connection_interface`->SetRemoteDescription.
-        pub unsafe fn set_remote_description(  
+        pub fn set_remote_description(  
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,  
             desc: UniquePtr<SessionDescriptionInterface>,   
             obs: UniquePtr<SetRemoteDescriptionObserverInterface>,  
@@ -286,24 +288,24 @@ pub(crate) mod webrtc {
         /// Creates [`SessionDescriptionInterface`]
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]          
-        pub unsafe fn create_session_description(        
+        pub fn create_session_description(        
             type_: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
     }
 }
-         
-impl TryFrom<&str> for webrtc::SdpType {             
-    type Error = anyhow::Error;  
-    
-    /// Try conver &str to [`webrtc::SdpType`].      
-    fn try_from(value: &str) -> Result<Self, Self::Error> {             
-        match value {        
-            "offer" => Ok(webrtc::SdpType::kOffer),     
-            "answer" => Ok(webrtc::SdpType::kAnswer),           
-            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),                    
-            "rollback" => Ok(webrtc::SdpType::kRollback),                
-            _ => Err(anyhow::Error::msg("Invalid type")),                      
+
+impl TryFrom<&str> for webrtc::SdpType {
+    type Error = anyhow::Error;
+
+    /// Try conver &str to [`webrtc::SdpType`].
+    fn try_from(value: &str) -> Result<Self, Self::Error> {  
+        match value {
+            "offer" => Ok(webrtc::SdpType::kOffer),
+            "answer" => Ok(webrtc::SdpType::kAnswer),
+            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
+            "rollback" => Ok(webrtc::SdpType::kRollback),
+            _ => Err(anyhow::Error::msg("Invalid type")),
         }
     }
 }

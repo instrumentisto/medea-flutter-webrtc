@@ -58,7 +58,7 @@ namespace observer
     return rtc::RefCountReleaseStatus::kOtherRefsRemained;
   };
 
-  // Calls when a `SetLocalDescription` is Complete.
+  // Calls when a `SetLocalDescription` is complete or fail.
   void SetLocalDescriptionObserverInterface::OnSetLocalDescriptionComplete(webrtc::RTCError error) {
     if(error.ok()) {
       (*success)();
@@ -91,7 +91,7 @@ namespace observer
     return rtc::RefCountReleaseStatus::kOtherRefsRemained;
   };
 
-  // Calls when a `SetRemoteDescription` is Complete.
+  // Calls when a `SetRemoteDescription` is complete or fail.
   void SetRemoteDescriptionObserverInterface::OnSetRemoteDescriptionComplete(webrtc::RTCError error) {
     if(error.ok()) {
       (*success)();

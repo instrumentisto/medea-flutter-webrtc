@@ -6,8 +6,9 @@ use std::collections::HashMap;
 
 use libwebrtc_sys::{
     AudioDeviceModule, AudioLayer, CreateSessionDescriptionObserver,
-    PeerConnectionFactoryInterface, SetLocalDescriptionObserverInterface, SetRemoteDescriptionObserverInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo,
+    PeerConnectionFactoryInterface, SetLocalDescriptionObserverInterface,
+    SetRemoteDescriptionObserverInterface, TaskQueueFactory, Thread,
+    VideoDeviceInfo,
 };
 
 use peer_connection::PeerConnection;
@@ -275,19 +276,18 @@ mod test {
 
         for _ in 0..1000000 {
             println!("test");
-            let obs 
-                = CreateSessionDescriptionObserver::new(|_,_| {}, |_| {});
-            let conf = 
-                //libwebrtc_sys::RTCOfferAnswerOptions::new(42,42,false,false,false);
-                libwebrtc_sys::RTCOfferAnswerOptions::default();
+            let obs = CreateSessionDescriptionObserver::new(|_, _| {}, |_| {});
+            let conf = libwebrtc_sys::RTCOfferAnswerOptions::default();
             pc.peer_connection_interface.create_offer(&conf, obs);
 
-            let obs = SetLocalDescriptionObserverInterface::new(
-                || {}, |a| {});
+            let obs = SetLocalDescriptionObserverInterface::new(|| {}, |a| {});
             pc.peer_connection_interface.set_local_description(
-                libwebrtc_sys::SessionDescriptionInterface::new(libwebrtc_sys::SdpType::kOffer, "test"), obs);
-            }
-            
-
+                libwebrtc_sys::SessionDescriptionInterface::new(
+                    libwebrtc_sys::SdpType::kOffer,
+                    "test",
+                ),
+                obs,
+            );
+        }
     }
 }

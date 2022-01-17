@@ -1,4 +1,3 @@
-use cxx::UniquePtr;
 use libwebrtc_sys as sys;
 
 use std::sync::atomic::Ordering;
@@ -85,8 +84,6 @@ impl Webrtc {
                 unsafe { std::mem::transmute(s) };
             let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
             let obs = sys::CreateSessionDescriptionObserver::new(success, fail);
-    
-            //peer_connection.peer_connection_interface.create_session_observer = Some(obs);
 
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
@@ -140,8 +137,6 @@ impl Webrtc {
             let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
             let obs = sys::CreateSessionDescriptionObserver::new(success, fail);
 
-            //peer_connection.peer_connection_interface.create_session_observer = Some(obs);
-
             peer_connection
                 .peer_connection_interface
                 .create_answer(&options, obs);
@@ -175,11 +170,13 @@ impl Webrtc {
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
-                    let success: fn() =
-                        unsafe { std::mem::transmute(s) };
-                    let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
+                    let success: fn() = unsafe { std::mem::transmute(s) };
+                    let fail: fn(&cxx::CxxString) =
+                        unsafe { std::mem::transmute(f) };
 
-                    let obs = sys::SetLocalDescriptionObserverInterface::new(success, fail);
+                    let obs = sys::SetLocalDescriptionObserverInterface::new(
+                        success, fail,
+                    );
 
                     peer_connection
                         .peer_connection_interface
@@ -219,10 +216,12 @@ impl Webrtc {
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
-                    let success: fn() =
-                        unsafe { std::mem::transmute(s) };
-                    let fail: fn(&cxx::CxxString) = unsafe { std::mem::transmute(f) };
-                    let obs = sys::SetRemoteDescriptionObserverInterface::new(success, fail);
+                    let success: fn() = unsafe { std::mem::transmute(s) };
+                    let fail: fn(&cxx::CxxString) =
+                        unsafe { std::mem::transmute(f) };
+                    let obs = sys::SetRemoteDescriptionObserverInterface::new(
+                        success, fail,
+                    );
 
                     peer_connection
                         .peer_connection_interface
