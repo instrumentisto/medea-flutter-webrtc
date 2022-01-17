@@ -2,9 +2,9 @@ package com.cloudwebrtc.webrtc
 
 import org.webrtc.MediaStreamTrack
 
-enum class MediaStreamTrackState {
-    ENDED,
-    LIVE;
+enum class MediaStreamTrackState(val value: Int) {
+    ENDED(0),
+    LIVE(1);
 
     companion object {
         fun fromWebRtcState(state : MediaStreamTrack.State) : MediaStreamTrackState {
@@ -13,5 +13,9 @@ enum class MediaStreamTrackState {
                 MediaStreamTrack.State.LIVE -> LIVE
             }
         }
+    }
+
+    fun intoFlutterResult(): Int {
+        return value
     }
 }
