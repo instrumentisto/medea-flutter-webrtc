@@ -9,6 +9,4 @@ interface IWebRTCProxy<T> {
         obj = newObj
         syncWithObject()
     }
-
-    fun dispose()
 }

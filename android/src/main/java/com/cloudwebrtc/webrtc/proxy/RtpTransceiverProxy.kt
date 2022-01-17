@@ -16,10 +16,6 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
         syncReceiver()
     }
 
-    override fun dispose() {
-        TODO("Not yet implemented")
-    }
-
     fun getSender(): RtpSenderProxy {
         return sender
     }

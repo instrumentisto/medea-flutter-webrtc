@@ -10,10 +10,6 @@ class MediaStreamTrackProxy(track: MediaStreamTrack) : IWebRTCProxy<MediaStreamT
 
     override fun syncWithObject() {}
 
-    override fun dispose() {
-        obj.dispose()
-    }
-
     fun stop() {
         onStopSubscribers.forEach { sub -> sub() }
     }

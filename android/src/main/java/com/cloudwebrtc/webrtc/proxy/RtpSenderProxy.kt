@@ -14,10 +14,6 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
         syncMediaStreamTrack();
     }
 
-    override fun dispose() {
-        TODO("Not yet implemented")
-    }
-
     fun setTrack(track: MediaStreamTrackProxy?) {
         obj.setTrack(track?.obj, false);
     }

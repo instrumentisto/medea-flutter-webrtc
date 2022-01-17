@@ -14,10 +14,6 @@ class RtpReceiverProxy(receiver: RtpReceiver) : IWebRTCProxy<RtpReceiver> {
         syncMediaStreamTrack();
     }
 
-    override fun dispose() {
-        TODO("Not yet implemented")
-    }
-
     private fun syncMediaStreamTrack() {
         val newReceiverTrack = obj.track();
         if (newReceiverTrack == null) {

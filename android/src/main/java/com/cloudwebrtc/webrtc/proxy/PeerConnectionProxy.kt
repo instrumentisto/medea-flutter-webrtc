@@ -84,7 +84,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
         syncTransceivers();
     }
 
-    override fun dispose() {
+    fun dispose() {
         obj.dispose();
         senders = HashMap();
         receivers = HashMap();
@@ -194,10 +194,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
             }
         }
 
-        val removedSenders = oldSenders.values;
-        for (oldSender in removedSenders) {
-            oldSender.dispose();
-        }
+        // TODO(evdokimovs): Maybe we should do something with them?
+//        val removedSenders = oldSenders.values;
     }
 
     private fun syncReceivers() {
@@ -217,10 +215,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
             }
         }
 
-        val removedReceivers = oldReceivers.values;
-        for (oldReceiver in removedReceivers) {
-            oldReceiver.dispose();
-        }
+        // TODO(evdokimovs): Maybe we should do something with them?
+//        val removedReceivers = oldReceivers.values;
     }
 
     private fun syncTransceivers() {
