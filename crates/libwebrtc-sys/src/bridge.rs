@@ -55,14 +55,14 @@ pub(crate) mod webrtc {
     }
 
     #[rustfmt::skip]
-    unsafe extern "C++" {
+    unsafe extern "C++" {   
         include!("libwebrtc-sys/include/bridge.h");
         type TaskQueueFactory;
-        type Thread;
+        type Thread;   
 
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform. 
-        #[namespace = "webrtc"]
+        #[namespace = "webrtc"]   
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
 

@@ -44,7 +44,6 @@ class _CreateSampleState extends State<CreateSample> {
 
   void _create_sample() async {
     try {
-    while (true){
     final response =
           await WebRTC.invokeMethod('createOffer', <String, dynamic>{
         'peerConnectionId': '1',
@@ -58,7 +57,6 @@ class _CreateSampleState extends State<CreateSample> {
         'sdp': response['sdp'],
         'type': response['type']}
     });
-    }
 
 
 

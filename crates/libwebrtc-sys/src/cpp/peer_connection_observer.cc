@@ -1,7 +1,6 @@
 
 #include "libwebrtc-sys\include\peer_connection_observer.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
-#include <cstdio>
 
 namespace observer
 {
@@ -45,13 +44,12 @@ namespace observer
 
   // Implementation rtc::RefCountInterface::AddRef.
   void CreateSessionDescriptionObserver::AddRef() const {
-     libwebrtc::AtomicOps::Increment(&ref_count);
+    ++ref_count;
   }; 
 
   // Implementation rtc::RefCountInterface::Release.
   rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {
-    int count = libwebrtc::AtomicOps::Decrement(&ref_count);
-    if (!count) { 
+    if (--ref_count == 0) { 
       delete this;
       return rtc::RefCountReleaseStatus::kDroppedLastRef;
     }
@@ -79,12 +77,11 @@ namespace observer
 
   // Implementation rtc::RefCountInterface::AddRef. 
   void SetLocalDescriptionObserverInterface::AddRef() const {
-    libwebrtc::AtomicOps::Increment(&ref_count);
+    ++ref_count;
   };
   // Implementation rtc::RefCountInterface::Release. 
   rtc::RefCountReleaseStatus SetLocalDescriptionObserverInterface::Release() const {
-    int count = libwebrtc::AtomicOps::Decrement(&ref_count);
-    if (!count) { 
+    if (--ref_count == 0) { 
       delete this;
       return rtc::RefCountReleaseStatus::kDroppedLastRef;
     }
@@ -112,13 +109,12 @@ namespace observer
 
   // Implementation rtc::RefCountInterface::AddRef. 
   void SetRemoteDescriptionObserverInterface::AddRef() const {
-    libwebrtc::AtomicOps::Increment(&ref_count);
+    ++ref_count;
   };
 
   // Implementation rtc::RefCountInterface::Release. 
   rtc::RefCountReleaseStatus SetRemoteDescriptionObserverInterface::Release() const {
-    int count = libwebrtc::AtomicOps::Decrement(&ref_count);
-    if (!count) { 
+    if (--ref_count == 0) { 
       delete this;
       return rtc::RefCountReleaseStatus::kDroppedLastRef;
     }
