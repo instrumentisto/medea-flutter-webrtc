@@ -5,7 +5,7 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-class RtpSender(messenger: BinaryMessenger, val sender: RtpSenderProxy) : MethodChannel.MethodCallHandler, IdentifiableController{
+class RtpSenderController(messenger: BinaryMessenger, val sender: RtpSenderProxy) : MethodChannel.MethodCallHandler, IdentifiableController{
     private val channelId = nextChannelId()
     private val methodChannel = MethodChannel(messenger, ChannelNameGenerator.withId("RtpSender", channelId))
 

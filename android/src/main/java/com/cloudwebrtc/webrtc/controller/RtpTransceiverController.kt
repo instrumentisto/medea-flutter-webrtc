@@ -6,7 +6,7 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-class RtpTransceiver(binaryMessenger: BinaryMessenger, private val transceiver: RtpTransceiverProxy) : MethodChannel.MethodCallHandler, IdentifiableController {
+class RtpTransceiverController(binaryMessenger: BinaryMessenger, private val transceiver: RtpTransceiverProxy) : MethodChannel.MethodCallHandler, IdentifiableController {
     private val channelId = nextChannelId()
     private val methodChannel = MethodChannel(binaryMessenger, ChannelNameGenerator.withId("RtpTransceiver", channelId))
 
