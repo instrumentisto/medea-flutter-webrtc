@@ -262,10 +262,10 @@ pub(crate) mod webrtc {
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );  
   
-        /// Calls `peer_connection_interface`->CreateAnswer.  
+        /// Calls `peer_connection_interface`->CreateAnswer.     
         pub unsafe fn create_answer(   
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
-            options: &RTCOfferAnswerOptions,   
+            options: &RTCOfferAnswerOptions,      
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );    
 
@@ -292,11 +292,6 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<SessionDescriptionInterface>;
     }
 }
-
-
-use std::rc::Rc;  
-use std::cell::RefCell; 
-use cxx::UniquePtr; 
          
 impl TryFrom<&str> for webrtc::SdpType {             
     type Error = anyhow::Error;  
@@ -305,10 +300,10 @@ impl TryFrom<&str> for webrtc::SdpType {
     fn try_from(value: &str) -> Result<Self, Self::Error> {             
         match value {        
             "offer" => Ok(webrtc::SdpType::kOffer),     
-            "answer" => Ok(webrtc::SdpType::kAnswer),          
-            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),                
+            "answer" => Ok(webrtc::SdpType::kAnswer),           
+            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),                    
             "rollback" => Ok(webrtc::SdpType::kRollback),                
-            _ => Err(anyhow::Error::msg("Invalid type")),            
+            _ => Err(anyhow::Error::msg("Invalid type")),                      
         }
     }
 }

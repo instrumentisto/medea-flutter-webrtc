@@ -20,9 +20,7 @@ namespace observer
   void PeerConnectionObserver::OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) {};
 
-  // Construct `CreateOffer\Answer Observer` where
-  // s - void (*callback_success)(std::string, std::string),
-  // f - void (*callback_fail)(std::string).
+  // Construct `CreateOffer\Answer Observer`.
   CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     rust::Fn<void (const std::string &, const std::string &)> s,
     rust::Fn<void (const std::string &)> f) {
@@ -36,6 +34,7 @@ namespace observer
     std::string sdp;
     desc->ToString(&sdp);
     (*success)(sdp, type); 
+    delete desc;
   };
 
   // Calls when a `CreateOffer\Answer` is fail.
@@ -44,10 +43,12 @@ namespace observer
     (*fail)(err);
   };
 
+  // Implementation rtc::RefCountInterface::AddRef.
   void CreateSessionDescriptionObserver::AddRef() const {
      libwebrtc::AtomicOps::Increment(&ref_count);
   }; 
 
+  // Implementation rtc::RefCountInterface::Release.
   rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {
     int count = libwebrtc::AtomicOps::Decrement(&ref_count);
     if (!count) { 
@@ -57,7 +58,7 @@ namespace observer
     return rtc::RefCountReleaseStatus::kOtherRefsRemained;
   };
 
-  // SetLocalDescriptionObserverInterface
+  // Calls when a `SetLocalDescription` is Complete.
   void SetLocalDescriptionObserverInterface::OnSetLocalDescriptionComplete(webrtc::RTCError error) {
     if(error.ok()) {
       (*success)();
@@ -67,6 +68,7 @@ namespace observer
     }
   };
 
+  // Construct SetRemoteDescriptionObserverInterface.
   SetLocalDescriptionObserverInterface::SetLocalDescriptionObserverInterface(
     rust::Fn<void ()> s, 
     rust::Fn<void (const std::string &)> f
@@ -75,12 +77,12 @@ namespace observer
     fail = f;
   };
 
+  // Implementation rtc::RefCountInterface::AddRef. 
   void SetLocalDescriptionObserverInterface::AddRef() const {
     libwebrtc::AtomicOps::Increment(&ref_count);
   };
-
+  // Implementation rtc::RefCountInterface::Release. 
   rtc::RefCountReleaseStatus SetLocalDescriptionObserverInterface::Release() const {
-    
     int count = libwebrtc::AtomicOps::Decrement(&ref_count);
     if (!count) { 
       delete this;
@@ -89,8 +91,7 @@ namespace observer
     return rtc::RefCountReleaseStatus::kOtherRefsRemained;
   };
 
-  // SetRemoteDescriptionObserverInterface
-
+  // Calls when a `SetRemoteDescription` is Complete.
   void SetRemoteDescriptionObserverInterface::OnSetRemoteDescriptionComplete(webrtc::RTCError error) {
     if(error.ok()) {
       (*success)();
@@ -100,6 +101,7 @@ namespace observer
     }
   };
 
+  // Construct SetRemoteDescriptionObserverInterface.
   SetRemoteDescriptionObserverInterface::SetRemoteDescriptionObserverInterface(
     rust::Fn<void ()> s, 
     rust::Fn<void (const std::string &)> f
@@ -108,10 +110,12 @@ namespace observer
     fail = f;
   };
 
+  // Implementation rtc::RefCountInterface::AddRef. 
   void SetRemoteDescriptionObserverInterface::AddRef() const {
     libwebrtc::AtomicOps::Increment(&ref_count);
   };
 
+  // Implementation rtc::RefCountInterface::Release. 
   rtc::RefCountReleaseStatus SetRemoteDescriptionObserverInterface::Release() const {
     int count = libwebrtc::AtomicOps::Decrement(&ref_count);
     if (!count) { 
