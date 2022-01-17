@@ -165,8 +165,8 @@ impl Webrtc {
         }
 
         let source = Rc::new(VideoSource::new(
-            &mut self.0.worker_thread,
-            &mut self.0.signaling_thread,
+            &mut self.0.worker_thread.as_mut().unwrap(),
+            &mut self.0.signaling_thread.as_mut().unwrap(),
             caps,
             index,
             device_id,

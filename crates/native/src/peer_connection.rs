@@ -16,7 +16,7 @@ fn generate_id() -> u64 {
 
 /// Struct for `id` of [`PeerConnection`].
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct PeerConnectionId(u64);
+pub struct PeerConnectionId(pub u64);
 
 /// Is used to manage [`sys::PeerConnectionInterface`].
 pub struct PeerConnection {
@@ -48,7 +48,7 @@ impl Webrtc {
                 id: PeerConnectionId(id),
                 peer_connection_interface: peer_c,
             };
-            self.0.peer_connections.insert(id, temp);
+            self.0.peer_connections.insert(PeerConnectionId(id), temp);
             id
         } else {
             0
@@ -78,7 +78,7 @@ impl Webrtc {
         f: usize,
     ) {
         if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&peer_connection_id)
+            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
         {
             let success: fn(&cxx::CxxString, &cxx::CxxString) =
                 unsafe { std::mem::transmute(s) };
@@ -123,7 +123,7 @@ impl Webrtc {
         f: usize,
     ) {
         if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&peer_connection_id)
+            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
         {
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
@@ -163,7 +163,7 @@ impl Webrtc {
         f: usize,
     ) {
         if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&peer_connection_id)
+            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
@@ -209,7 +209,7 @@ impl Webrtc {
         f: usize,
     ) {
         if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&peer_connection_id)
+            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
