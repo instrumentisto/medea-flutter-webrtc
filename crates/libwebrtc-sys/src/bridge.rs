@@ -57,14 +57,21 @@ pub(crate) mod webrtc {
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
-
         type TaskQueueFactory;
-   
+        type Thread;
+
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform. 
         #[namespace = "webrtc"]
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
+
+        /// Creates a new [`Thead`].
+        pub fn create_thread() -> UniquePtr<Thread>;
+
+        /// Starts the current [`Thread`].
+        #[cxx_name = "Start"]
+        pub fn start_thread(self: Pin<&mut Thread>) -> bool;
     }
 
     unsafe extern "C++" {
@@ -107,6 +114,14 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
+
+        /// Specifies which microphone to use for recording audio using an
+        /// index retrieved by the corresponding enumeration method which is
+        /// [`AudiDeviceModule::RecordingDeviceName`].
+        pub fn set_audio_recording_device(
+            audio_device_module: &AudioDeviceModule,
+            index: u16,
+        ) -> i32;
     }
 
     unsafe extern "C++" {
@@ -131,8 +146,7 @@ pub(crate) mod webrtc {
     }
 
     #[rustfmt::skip]          
-    unsafe extern "C++" {          
-        type Thread;  
+    unsafe extern "C++" {            
         type VideoEncoderFactory;          
         type VideoDecoderFactory;
         type PeerConnectionFactoryInterface;
@@ -151,13 +165,6 @@ pub(crate) mod webrtc {
         type CreateSessionDescriptionObserver;
         type SetLocalDescriptionObserverInterface;
         type SetRemoteDescriptionObserverInterface;
-
-        /// Creates a new [`Thread`].
-        pub fn create_thread() -> UniquePtr<Thread>;
-
-        /// Starts the created [`Thread`].
-        #[cxx_name = "Start"]   
-        pub fn start_thread(self: Pin<&mut Thread>) -> bool;
  
         /// Creates a new [`VideoEncoderFactory`].
         #[namespace = "webrtc"]
@@ -293,11 +300,79 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
     }
+    unsafe extern "C++" {
+        type AudioSourceInterface;
+        type AudioTrackInterface;
+        type MediaStreamInterface;
+        type VideoTrackInterface;
+        type VideoTrackSourceInterface;
+
+        /// Creates a new [`VideoTrackSourceInterface`].
+        pub fn create_video_source(
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
+            width: usize,
+            height: usize,
+            fps: usize,
+            device_index: u32,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
+
+        /// Creates a new [`AudioSourceInterface`].
+        pub fn create_audio_source(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+        ) -> UniquePtr<AudioSourceInterface>;
+
+        /// Creates a new [`VideoTrackInterface`].
+        pub fn create_video_track(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
+            video_source: &VideoTrackSourceInterface,
+        ) -> UniquePtr<VideoTrackInterface>;
+
+        /// Creates a new [`AudioTrackInterface`].
+        pub fn create_audio_track(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
+            audio_source: &AudioSourceInterface,
+        ) -> UniquePtr<AudioTrackInterface>;
+
+        /// Creates a new [`MediaStreamInterface`].
+        pub fn create_local_media_stream(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
+        ) -> UniquePtr<MediaStreamInterface>;
+
+        /// Adds the [`VideoTrackInterface`] to the [`MediaStreamInterface`].
+        pub fn add_video_track(
+            peer_connection_factory: &MediaStreamInterface,
+            track: &VideoTrackInterface,
+        ) -> bool;
+
+        /// Adds the [`AudioTrackInterface`] to the [`MediaStreamInterface`].
+        pub fn add_audio_track(
+            peer_connection_factory: &MediaStreamInterface,
+            track: &AudioTrackInterface,
+        ) -> bool;
+
+        /// Removes the [`VideoTrackInterface`] from the
+        /// [`MediaStreamInterface`].
+        pub fn remove_video_track(
+            media_stream: &MediaStreamInterface,
+            track: &VideoTrackInterface,
+        ) -> bool;
+
+        /// Removes the [`AudioTrackInterface`] from the
+        /// [`MediaStreamInterface`].
+        pub fn remove_audio_track(
+            media_stream: &MediaStreamInterface,
+            track: &AudioTrackInterface,
+        ) -> bool;
+    }
 }
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
-
+    
     /// Try conver &str to [`webrtc::SdpType`].
     fn try_from(value: &str) -> Result<Self, Self::Error> {  
         match value {

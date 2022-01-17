@@ -13,6 +13,7 @@
 #include <flutter/standard_message_codec.h>
 #include <flutter/standard_method_codec.h>
 #include <flutter/texture_registrar.h>
+#include <flutter_webrtc_native.h>
 
 #include <string.h>
 #include <list>
@@ -22,6 +23,7 @@
 #include "flutter_webrtc_native.h"
 
 using namespace flutter;
+using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
 class FlutterWebRTCPlugin : public flutter::Plugin {
