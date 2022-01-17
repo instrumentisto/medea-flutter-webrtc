@@ -53,4 +53,5 @@ dependencies {
     implementation 'com.github.webrtc-sdk:android:92.4515.03'
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 }

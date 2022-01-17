@@ -2,11 +2,11 @@ package com.cloudwebrtc.webrtc.model
 
 import org.webrtc.SessionDescription as WSessionDescription;
 
-enum class SessionDescriptionType {
-    OFFER,
-    PRANSWER,
-    ANSWER,
-    ROLLBACK;
+enum class SessionDescriptionType(val value: Int) {
+    OFFER(0),
+    PRANSWER(1),
+    ANSWER(2),
+    ROLLBACK(3);
 
     companion object {
         fun fromWebRtc(type: WSessionDescription.Type): SessionDescriptionType {
@@ -17,6 +17,8 @@ enum class SessionDescriptionType {
                 WSessionDescription.Type.ROLLBACK -> ROLLBACK
             }
         }
+
+        fun fromInt(value: Int) = values().first { it.value == value }
     }
 
     fun intoWebRtc(): WSessionDescription.Type {
@@ -37,9 +39,22 @@ data class SessionDescription(val type: SessionDescriptionType, val description:
                 sdp.description
             );
         }
+
+        fun fromMap(map: Map<String, Any>): SessionDescription {
+            val type = SessionDescriptionType.fromInt(map["type"] as Int)
+            val description = map["description"] as String
+            return SessionDescription(type, description)
+        }
     }
 
     fun intoWebRtc(): WSessionDescription {
         return WSessionDescription(type.intoWebRtc(), description)
+    }
+
+    fun intoMap(): Map<String, Any> {
+        return mapOf(
+            "type" to type.value,
+            "description" to description
+        )
     }
 }

@@ -2,11 +2,11 @@ package com.cloudwebrtc.webrtc.model
 
 import org.webrtc.RtpTransceiver
 
-enum class RtpTransceiverDirection {
-    SEND_RECV,
-    SEND_ONLY,
-    RECV_ONLY,
-    INACTIVE;
+enum class RtpTransceiverDirection(val value: Int) {
+    SEND_RECV(0),
+    SEND_ONLY(1),
+    RECV_ONLY(2),
+    INACTIVE(3);
 
     companion object {
         fun fromWebRtc(direction: RtpTransceiver.RtpTransceiverDirection): RtpTransceiverDirection {
@@ -17,6 +17,8 @@ enum class RtpTransceiverDirection {
                 RtpTransceiver.RtpTransceiverDirection.INACTIVE -> INACTIVE
             }
         }
+
+        fun fromInt(value: Int) = values().first { it.value == value }
     }
 
     fun intoWebRtc(): RtpTransceiver.RtpTransceiverDirection {
