@@ -44,13 +44,13 @@ class _CreateSampleState extends State<CreateSample> {
 
   void _create_sample() async {
     try {
+    while (true){
     final response =
           await WebRTC.invokeMethod('createOffer', <String, dynamic>{
         'peerConnectionId': '1',
         'constraints': defaultSdpConstraints
     });
 
-    while (true){
     final response2 =
           await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
         'peerConnectionId': '1',
