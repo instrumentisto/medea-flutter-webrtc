@@ -44,15 +44,24 @@ namespace observer
     (*fail)(err);
   };
 
-  void CreateSessionDescriptionObserver::AddRef() const {}; 
-  rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {return rtc::RefCountReleaseStatus::kDroppedLastRef;};
+  void CreateSessionDescriptionObserver::AddRef() const {
+     libwebrtc::AtomicOps::Increment(&ref_count);
+  }; 
+
+  rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {
+    int count = libwebrtc::AtomicOps::Decrement(&ref_count);
+    if (!count) { 
+      delete this;
+      return rtc::RefCountReleaseStatus::kDroppedLastRef;
+    }
+    return rtc::RefCountReleaseStatus::kOtherRefsRemained;
+  };
 
   // SetLocalDescriptionObserverInterface
   void SetLocalDescriptionObserverInterface::OnSetLocalDescriptionComplete(webrtc::RTCError error) {
     if(error.ok()) {
       (*success)();
     } else {
-      printf("C++2\n");
       std::string error(error.message());
       (*fail)(error);
     }
@@ -66,10 +75,18 @@ namespace observer
     fail = f;
   };
 
-  void SetLocalDescriptionObserverInterface::AddRef() const {};
+  void SetLocalDescriptionObserverInterface::AddRef() const {
+    libwebrtc::AtomicOps::Increment(&ref_count);
+  };
 
   rtc::RefCountReleaseStatus SetLocalDescriptionObserverInterface::Release() const {
-    return rtc::RefCountReleaseStatus::kDroppedLastRef;
+    
+    int count = libwebrtc::AtomicOps::Decrement(&ref_count);
+    if (!count) { 
+      delete this;
+      return rtc::RefCountReleaseStatus::kDroppedLastRef;
+    }
+    return rtc::RefCountReleaseStatus::kOtherRefsRemained;
   };
 
   // SetRemoteDescriptionObserverInterface
@@ -91,10 +108,17 @@ namespace observer
     fail = f;
   };
 
-  void SetRemoteDescriptionObserverInterface::AddRef() const {};
+  void SetRemoteDescriptionObserverInterface::AddRef() const {
+    libwebrtc::AtomicOps::Increment(&ref_count);
+  };
 
   rtc::RefCountReleaseStatus SetRemoteDescriptionObserverInterface::Release() const {
-    return rtc::RefCountReleaseStatus::kDroppedLastRef;
+    int count = libwebrtc::AtomicOps::Decrement(&ref_count);
+    if (!count) { 
+      delete this;
+      return rtc::RefCountReleaseStatus::kDroppedLastRef;
+    }
+    return rtc::RefCountReleaseStatus::kOtherRefsRemained;
   };
 
 };

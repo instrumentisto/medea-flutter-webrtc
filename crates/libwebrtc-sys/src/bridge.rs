@@ -9,9 +9,9 @@ pub(crate) mod webrtc {
         kPlatformDefaultAudio = 0,
         kWindowsCoreAudio,
         kWindowsCoreAudio2,
-        kLinuxAlsaAudio,
+        kLinuxAlsaAudio,     
         kLinuxPulseAudio,
-        kAndroidJavaAudio,  
+        kAndroidJavaAudio,     
         kAndroidOpenSLESAudio,
         kAndroidJavaInputAndOpenSLESOutputAudio,   
         kAndroidAAudioAudio,
@@ -253,16 +253,16 @@ pub(crate) mod webrtc {
         pub fn create_set_remote_description_observer_interface(
             s: fn(),
             f: fn(&CxxString),
-        ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
-
-        /// Calls `peer_connection_interface`->CreateOffer.
+        ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;    
+       
+        /// Calls `peer_connection_interface`->CreateOffer.       
         pub unsafe fn create_offer(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,   
             options: &RTCOfferAnswerOptions,   
             obs: UniquePtr<CreateSessionDescriptionObserver>,
-        );
-
-        /// Calls `peer_connection_interface`->CreateAnswer.
+        );  
+  
+        /// Calls `peer_connection_interface`->CreateAnswer.  
         pub unsafe fn create_answer(   
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,   
@@ -270,7 +270,7 @@ pub(crate) mod webrtc {
         );    
 
         /// Calls `peer_connection_interface`->SetLocalDescription.
-        pub unsafe fn set_local_description(
+        pub unsafe fn set_local_description(   
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,    
             obs: UniquePtr<SetLocalDescriptionObserverInterface>,
@@ -281,8 +281,8 @@ pub(crate) mod webrtc {
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,  
             desc: UniquePtr<SessionDescriptionInterface>,   
             obs: UniquePtr<SetRemoteDescriptionObserverInterface>,  
-        );   
-
+        );      
+   
         /// Creates [`SessionDescriptionInterface`]
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]          
@@ -298,17 +298,17 @@ use std::rc::Rc;
 use std::cell::RefCell; 
 use cxx::UniquePtr; 
          
-impl TryFrom<&str> for webrtc::SdpType {          
-    type Error = anyhow::Error;
+impl TryFrom<&str> for webrtc::SdpType {             
+    type Error = anyhow::Error;  
     
     /// Try conver &str to [`webrtc::SdpType`].      
-    fn try_from(value: &str) -> Result<Self, Self::Error> {           
-        match value {  
-            "offer" => Ok(webrtc::SdpType::kOffer),  
-            "answer" => Ok(webrtc::SdpType::kAnswer),
-            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
-            "rollback" => Ok(webrtc::SdpType::kRollback),
-            _ => Err(anyhow::Error::msg("Invalid type")),
+    fn try_from(value: &str) -> Result<Self, Self::Error> {             
+        match value {        
+            "offer" => Ok(webrtc::SdpType::kOffer),     
+            "answer" => Ok(webrtc::SdpType::kAnswer),          
+            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),                
+            "rollback" => Ok(webrtc::SdpType::kRollback),                
+            _ => Err(anyhow::Error::msg("Invalid type")),            
         }
     }
 }

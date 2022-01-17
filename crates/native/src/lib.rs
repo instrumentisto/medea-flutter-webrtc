@@ -272,18 +272,19 @@ mod test {
         let mut error = String::new();
         let id = w.create_default_peer_connection(&mut error);
         let pc = w.0.peer_connections.get_mut(&id).unwrap();
-        loop {
 
-            /*let obs 
-                = CreateSessionDescriptionObserver::new(|a,b| {}, |a| {});
-            pc.peer_connection_interface.create_offer(&libwebrtc_sys::RTCOfferAnswerOptions::default(), obs);
-            //break;*/
-            let obs = SetLocalDescriptionObserverInterface::new(
-                || {}, |a|{println!("RUST")});
-            pc.peer_connection_interface.set_local_description(
-                libwebrtc_sys::SessionDescriptionInterface::new(libwebrtc_sys::SdpType::kOffer, "test"), obs);
-        }
-
+        for _ in 0..10000 {
+            println!("test");
+            let obs 
+                = CreateSessionDescriptionObserver::new(|_,_| {}, |_| {});
+            let conf = libwebrtc_sys::RTCOfferAnswerOptions::default();
+            pc.peer_connection_interface.create_offer(&conf, obs);
+            //let obs = SetLocalDescriptionObserverInterface::new(
+            //    || {}, |a| {});
+            //pc.peer_connection_interface.set_local_description(
+            //    libwebrtc_sys::SessionDescriptionInterface::new(libwebrtc_sys::SdpType::kOffer, "test"), obs);
+            }
+            
 
     }
 }

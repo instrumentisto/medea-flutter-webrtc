@@ -3,6 +3,7 @@
 #include "api\peer_connection_interface.h"
 #include <functional>
 #include "rust/cxx.h"
+#include "third_party\libwebrtc\include\base\atomicops.h"
 
 namespace bridge {
   struct RcRefCellObs;
@@ -37,6 +38,7 @@ class CreateSessionDescriptionObserver: public webrtc::CreateSessionDescriptionO
   public:
   rust::Fn<void (const std::string &, const std::string &)> success;
   rust::Fn<void (const std::string &)> fail;
+  mutable volatile int ref_count = 0;
 
 
   // Construct `CreateOffer\Answer Observer` where
@@ -61,17 +63,18 @@ class SetLocalDescriptionObserverInterface : public webrtc::SetLocalDescriptionO
   public:
   rust::Fn<void ()> success;
   rust::Fn<void (const std::string &)> fail;
+  mutable volatile int ref_count = 0;
   void OnSetLocalDescriptionComplete(webrtc::RTCError error);
   SetLocalDescriptionObserverInterface(rust::Fn<void ()> s, rust::Fn<void (const std::string &)> f);
   void AddRef() const;
   rtc::RefCountReleaseStatus Release() const;
-
 };
 
 class SetRemoteDescriptionObserverInterface : public webrtc::SetRemoteDescriptionObserverInterface {
   public:
   rust::Fn<void ()> success;
   rust::Fn<void (const std::string &)> fail;
+  mutable volatile int ref_count = 0;
   void OnSetRemoteDescriptionComplete(webrtc::RTCError error);
   SetRemoteDescriptionObserverInterface(rust::Fn<void ()> s, rust::Fn<void (const std::string &)> f);
   void AddRef() const;

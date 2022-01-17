@@ -240,8 +240,8 @@ std::unique_ptr<SetRemoteDescriptionObserverInterface> create_set_remote_descrip
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
   const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs) {
-    peer_connection_interface.ptr()->CreateOffer(obs.release(), options);
-  }
+  peer_connection_interface.ptr()->CreateOffer(obs.release(), options);
+}
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
 void create_answer(PeerConnectionInterface& peer_connection_interface,
@@ -254,7 +254,7 @@ void set_local_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetLocalDescriptionObserverInterface> obs) {
 
     rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface> observer 
-      = rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(obs.get());
+      = rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(obs.release());
     peer_connection_interface.ptr()->SetLocalDescription(std::move(desc), observer);
   }
 
@@ -263,7 +263,7 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetRemoteDescriptionObserverInterface> obs) {
 
     rtc::scoped_refptr<SetRemoteDescriptionObserverInterface> observer 
-      = rtc::scoped_refptr<SetRemoteDescriptionObserverInterface>(obs.get());
+      = rtc::scoped_refptr<SetRemoteDescriptionObserverInterface>(obs.release());
     peer_connection_interface.ptr()->SetRemoteDescription(std::move(desc), observer);
   }
 }

@@ -50,6 +50,7 @@ class _CreateSampleState extends State<CreateSample> {
         'constraints': defaultSdpConstraints
     });
 
+    while (true){
     final response2 =
           await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
         'peerConnectionId': '1',
@@ -57,6 +58,8 @@ class _CreateSampleState extends State<CreateSample> {
         'sdp': response['sdp'],
         'type': response['type']}
     });
+    }
+
 
 
     setState(() {
