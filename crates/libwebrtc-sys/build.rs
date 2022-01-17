@@ -35,7 +35,6 @@ fn main() -> anyhow::Result<()> {
 
     cxx_build::bridge("src/bridge.rs")
         .files(&cpp_files)
-        .file("src/cpp/peer_connection_observer.cc")
         .include(path.join("include"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))

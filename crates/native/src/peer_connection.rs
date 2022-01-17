@@ -15,10 +15,12 @@ fn generate_id() -> u64 {
 }
 
 /// Struct for `id` of [`PeerConnection`].
+#[allow(clippy::module_name_repetitions)]
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct PeerConnectionId(pub u64);
 
 /// Is used to manage [`sys::PeerConnectionInterface`].
+#[allow(dead_code)]
 pub struct PeerConnection {
     id: PeerConnectionId,
     pub peer_connection_interface: sys::PeerConnectionInterface,
@@ -57,14 +59,15 @@ impl Webrtc {
 
     /// Creates a new [Offer].
     /// Where
-    /// `s` - void (*callback_success)(std::string, std::string)
-    /// for callback when 'CreateOffer' is OnSuccess,
-    /// `f` - void (*callback_fail)(std::string)
-    /// for callback when 'CreateOffer' is OnFailure.
+    /// `s` - void `(*callback_success)(std::string, std::string)`
+    /// for callback when `CreateOffer` is success,
+    /// `f` - void `(*callback_fail)(std::string)`
+    /// for callback when `CreateOffer` is fail.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
+    #[allow(clippy::too_many_arguments)]
     pub fn create_offer(
         &mut self,
         error: &mut String,
@@ -77,8 +80,10 @@ impl Webrtc {
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_connection_id))
         {
             let success: fn(&cxx::CxxString, &cxx::CxxString) =
                 unsafe { std::mem::transmute(s) };
@@ -102,14 +107,15 @@ impl Webrtc {
 
     /// Creates a new [Answer].
     ///  Where
-    /// `s` - void (*callback_success)(std::string, std::string)
-    /// for callback when 'CreateAnswer' is OnSuccess,
-    /// `f` - void (*callback_fail)(std::string)
-    /// for callback when 'CreateAnswer' is OnFailure.
+    /// `s` - void `(*callback_success)(std::string, std::string)`
+    /// for callback when `CreateAnswer` is success,
+    /// `f` - void `(*callback_fail)(std::string)`
+    /// for callback when `CreateAnswer` is fail.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
+    #[allow(clippy::too_many_arguments)]
     pub fn create_answer(
         &mut self,
         error: &mut String,
@@ -122,8 +128,10 @@ impl Webrtc {
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_connection_id))
         {
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
@@ -147,12 +155,13 @@ impl Webrtc {
 
     /// Set Local Description.
     /// Where
-    /// `s` - void (*callback_success_desc)()
-    /// for callback when 'SetLocalDescription' is OnSuccess,
-    /// `f` - void (*callback_fail)(std::string)
-    /// for callback when 'SetLocalDescription' is OnFailure.
+    /// `s` - void `(*callback_success_desc)()`
+    /// for callback when `SetLocalDescription` is success,
+    /// `f` - void `(*callback_fail)(std::string)`
+    /// for callback when `SetLocalDescription` is fail.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
+    #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
         &mut self,
         error: &mut String,
@@ -162,8 +171,10 @@ impl Webrtc {
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_connection_id))
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
@@ -191,14 +202,15 @@ impl Webrtc {
 
     /// Set Remote Description.
     /// Where
-    /// `s` - void (*callback_success_desc)()
-    /// for callback when 'SetRemoteDescription' is OnSuccess,
-    /// `f` - void (*callback_fail)(std::string)
-    /// for callback when 'SetRemoteDescription' is OnFailure.
+    /// `s` - void `(*callback_success_desc)()`
+    /// for callback when `SetRemoteDescription` is `success`,
+    /// `f` - void `(*callback_fail)(std::string)`
+    /// for callback when `SetRemoteDescription` is `fail`.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
+    #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
         &mut self,
         error: &mut String,
@@ -208,8 +220,10 @@ impl Webrtc {
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_connection_id))
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {

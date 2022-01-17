@@ -191,6 +191,7 @@ pub(crate) mod webrtc {
         /// `audio_mixer` - can be NULL,
         /// `audio_processing` - can be?? NULL,
         /// `audio_frame_processor` - default NULL,
+        #[allow(clippy::too_many_arguments)]
         pub fn create_peer_connection_factory(
             network_thread: &UniquePtr<Thread>,
             worker_thread: &UniquePtr<Thread>,
@@ -372,9 +373,9 @@ pub(crate) mod webrtc {
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
-    
+
     /// Try conver &str to [`webrtc::SdpType`].
-    fn try_from(value: &str) -> Result<Self, Self::Error> {  
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),
             "answer" => Ok(webrtc::SdpType::kAnswer),
