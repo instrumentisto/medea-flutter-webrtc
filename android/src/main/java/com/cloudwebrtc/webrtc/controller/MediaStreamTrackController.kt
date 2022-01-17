@@ -5,22 +5,14 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-object MediaStreamTrackChannelIdGenerator {
-    private var lastId: Int = 0;
-
-    fun nextId(): Int {
-        return lastId++
-    }
-}
-
 class MediaStreamTrackController(
     binaryMessenger: BinaryMessenger,
     val track: MediaStreamTrackProxy
-) : MethodChannel.MethodCallHandler {
-    private val channelId: Int = MediaStreamTrackChannelIdGenerator.nextId();
+) : MethodChannel.MethodCallHandler, IdentifiableController {
+    private val channelId: Int = nextChannelId();
     private val methodChannel: MethodChannel = MethodChannel(
         binaryMessenger,
-        "com.instrumentisto.flutter_webrtc/MediaStreamTrack/$channelId"
+        ChannelNameGenerator.withId("MediaStreamTrack", channelId)
     )
 
     init {
@@ -50,7 +42,7 @@ class MediaStreamTrackController(
         }
     }
 
-    fun channelId(): Int {
-        return channelId
+    private fun dispose() {
+        methodChannel.setMethodCallHandler(null)
     }
 }

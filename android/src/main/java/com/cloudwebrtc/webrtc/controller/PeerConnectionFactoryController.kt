@@ -13,7 +13,7 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
     MethodChannel.MethodCallHandler {
     private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
     private val methodChannel =
-        MethodChannel(binaryMessenger, "com.instrumentisto.flutter_webrtc/PeerConnectionFactory")
+        MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("PeerConnectionFactory"))
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -39,6 +39,9 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
                 result.success(peerController.intoFlutterResult())
             }
         }
-        TODO("Not yet implemented")
+    }
+
+    private fun dispose() {
+        methodChannel.setMethodCallHandler(null)
     }
 }
