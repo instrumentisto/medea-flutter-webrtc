@@ -9,7 +9,7 @@ enum class RtpTransceiverDirection {
     INACTIVE;
 
     companion object {
-        fun fromWebRtc(direction : RtpTransceiver.RtpTransceiverDirection) : RtpTransceiverDirection {
+        fun fromWebRtc(direction: RtpTransceiver.RtpTransceiverDirection): RtpTransceiverDirection {
             return when (direction) {
                 RtpTransceiver.RtpTransceiverDirection.SEND_RECV -> SEND_RECV
                 RtpTransceiver.RtpTransceiverDirection.SEND_ONLY -> SEND_ONLY
@@ -19,7 +19,7 @@ enum class RtpTransceiverDirection {
         }
     }
 
-    fun intoWebRtc() : RtpTransceiver.RtpTransceiverDirection {
+    fun intoWebRtc(): RtpTransceiver.RtpTransceiverDirection {
         return when (this) {
             SEND_RECV -> RtpTransceiver.RtpTransceiverDirection.SEND_RECV
             SEND_ONLY -> RtpTransceiver.RtpTransceiverDirection.SEND_ONLY

@@ -1,17 +1,19 @@
 package com.cloudwebrtc.webrtc.controller
 
+import com.cloudwebrtc.webrtc.State
 import com.cloudwebrtc.webrtc.model.IceServer
 import com.cloudwebrtc.webrtc.model.IceTransportType
 import com.cloudwebrtc.webrtc.model.PeerConnectionConfiguration
-import com.cloudwebrtc.webrtc.State
 import com.cloudwebrtc.webrtc.proxy.PeerConnectionFactoryProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-class PeerConnectionFactoryController(private val binaryMessenger: BinaryMessenger, state: State) : MethodChannel.MethodCallHandler {
+class PeerConnectionFactoryController(private val binaryMessenger: BinaryMessenger, state: State) :
+    MethodChannel.MethodCallHandler {
     private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
-    private val methodChannel = MethodChannel(binaryMessenger, "com.instrumentisto.flutter_webrtc/PeerConnectionFactory")
+    private val methodChannel =
+        MethodChannel(binaryMessenger, "com.instrumentisto.flutter_webrtc/PeerConnectionFactory")
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -31,7 +33,8 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
                     IceServer(urls ?: listOf(), username, password)
                 }
 
-                val newPeer = factory.create(PeerConnectionConfiguration(iceServers, iceTransportType))
+                val newPeer =
+                    factory.create(PeerConnectionConfiguration(iceServers, iceTransportType))
                 val peerController = PeerConnectionController(binaryMessenger, newPeer)
                 result.success(peerController.intoFlutterResult())
             }

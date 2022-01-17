@@ -49,13 +49,15 @@ interface ConstraintChecker {
     fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean
 }
 
-data class DeviceIdConstraint(val id: String, override val isMandatory: Boolean) : ConstraintChecker {
+data class DeviceIdConstraint(val id: String, override val isMandatory: Boolean) :
+    ConstraintChecker {
     override fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean {
         return deviceId == id
     }
 }
 
-data class FacingModeConstraint(val facingMode: FacingMode, override val isMandatory: Boolean) : ConstraintChecker {
+data class FacingModeConstraint(val facingMode: FacingMode, override val isMandatory: Boolean) :
+    ConstraintChecker {
     override fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean {
         return when (facingMode) {
             FacingMode.USER -> enumerator.isFrontFacing(deviceId)
@@ -66,7 +68,7 @@ data class FacingModeConstraint(val facingMode: FacingMode, override val isManda
 }
 
 data class VideoConstraints(
-        val constraints: List<ConstraintChecker>
+    val constraints: List<ConstraintChecker>
 ) {
     fun calculateScoreForDeviceId(enumerator: CameraEnumerator, deviceId: String): Int? {
         val scores = mutableListOf<ConstraintScore>();

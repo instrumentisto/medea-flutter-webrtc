@@ -11,24 +11,30 @@ class State(val context: Context) {
     private var eglContext: EglBase.Context = EglUtils.getRootEglBaseContext();
 
     private var audioDeviceModule: JavaAudioDeviceModule =
-            JavaAudioDeviceModule.builder(context)
-                    .setUseHardwareAcousticEchoCanceler(true)
-                    .setUseHardwareNoiseSuppressor(true)
-                    .createAudioDeviceModule()
+        JavaAudioDeviceModule.builder(context)
+            .setUseHardwareAcousticEchoCanceler(true)
+            .setUseHardwareNoiseSuppressor(true)
+            .createAudioDeviceModule()
 
     private var factory: PeerConnectionFactory = PeerConnectionFactory.builder()
-            .setOptions(PeerConnectionFactory.Options())
-            .setVideoEncoderFactory(
-                    SimulcastVideoEncoderFactoryWrapper(eglContext, enableIntelVp8Encoder = true, enableH264HighProfile = false))
-            .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
-            .setAudioDeviceModule(audioDeviceModule)
-            .createPeerConnectionFactory()
+        .setOptions(PeerConnectionFactory.Options())
+        .setVideoEncoderFactory(
+            SimulcastVideoEncoderFactoryWrapper(
+                eglContext,
+                enableIntelVp8Encoder = true,
+                enableH264HighProfile = false
+            )
+        )
+        .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
+        .setAudioDeviceModule(audioDeviceModule)
+        .createPeerConnectionFactory()
 
     init {
         PeerConnectionFactory.initialize(
-                PeerConnectionFactory.InitializationOptions.builder(context)
-                        .setEnableInternalTracer(true)
-                        .createInitializationOptions())
+            PeerConnectionFactory.InitializationOptions.builder(context)
+                .setEnableInternalTracer(true)
+                .createInitializationOptions()
+        )
     }
 
     fun getPeerConnectionFactory(): PeerConnectionFactory {

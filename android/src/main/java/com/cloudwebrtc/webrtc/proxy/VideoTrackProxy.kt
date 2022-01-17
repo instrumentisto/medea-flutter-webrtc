@@ -1,7 +1,6 @@
 package com.cloudwebrtc.webrtc.proxy
 
 import com.cloudwebrtc.webrtc.SurfaceTextureRenderer
-import java.lang.Exception
 import org.webrtc.VideoTrack as WVideoTrack
 
 class VideoTrackProxy(private val track: MediaStreamTrackProxy) {

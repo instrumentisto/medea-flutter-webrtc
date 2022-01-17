@@ -13,9 +13,15 @@ object MediaStreamTrackChannelIdGenerator {
     }
 }
 
-class MediaStreamTrackController(binaryMessenger: BinaryMessenger, val track: MediaStreamTrackProxy) : MethodChannel.MethodCallHandler {
+class MediaStreamTrackController(
+    binaryMessenger: BinaryMessenger,
+    val track: MediaStreamTrackProxy
+) : MethodChannel.MethodCallHandler {
     private val channelId: Int = MediaStreamTrackChannelIdGenerator.nextId();
-    private val methodChannel: MethodChannel = MethodChannel(binaryMessenger, "com.instrumentisto.flutter_webrtc/MediaStreamTrack/$channelId")
+    private val methodChannel: MethodChannel = MethodChannel(
+        binaryMessenger,
+        "com.instrumentisto.flutter_webrtc/MediaStreamTrack/$channelId"
+    )
 
     init {
         methodChannel.setMethodCallHandler(this)

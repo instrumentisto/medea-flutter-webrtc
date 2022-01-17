@@ -1,6 +1,5 @@
 package com.cloudwebrtc.webrtc
 
-import android.util.Log
 import org.webrtc.*
 import java.util.concurrent.*
 
@@ -91,19 +90,19 @@ internal class SimulcastVideoEncoderFactoryWrapper(
         ): VideoCodecStatus {
             streamSettings = settings
             val future = executor.submit(Callable {
-            //     LKLog.i {
-            //         """initEncode() thread=${Thread.currentThread().name} [${Thread.currentThread().id}]
-            //     |  streamSettings:
-            //     |    numberOfCores=${settings.numberOfCores}
-            //     |    width=${settings.width}
-            //     |    height=${settings.height}
-            //     |    startBitrate=${settings.startBitrate}
-            //     |    maxFramerate=${settings.maxFramerate}
-            //     |    automaticResizeOn=${settings.automaticResizeOn}
-            //     |    numberOfSimulcastStreams=${settings.numberOfSimulcastStreams}
-            //     |    lossNotification=${settings.capabilities.lossNotification}
-            // """.trimMargin()
-            //     }
+                //     LKLog.i {
+                //         """initEncode() thread=${Thread.currentThread().name} [${Thread.currentThread().id}]
+                //     |  streamSettings:
+                //     |    numberOfCores=${settings.numberOfCores}
+                //     |    width=${settings.width}
+                //     |    height=${settings.height}
+                //     |    startBitrate=${settings.startBitrate}
+                //     |    maxFramerate=${settings.maxFramerate}
+                //     |    automaticResizeOn=${settings.automaticResizeOn}
+                //     |    numberOfSimulcastStreams=${settings.numberOfSimulcastStreams}
+                //     |    lossNotification=${settings.capabilities.lossNotification}
+                // """.trimMargin()
+                //     }
                 return@Callable encoder.initEncode(settings, callback)
             })
             return future.get()
@@ -175,7 +174,7 @@ internal class SimulcastVideoEncoderFactoryWrapper(
                 return null
             }
             if (encoder is WrappedNativeVideoEncoder) {
-              return encoder
+                return encoder
             }
             return StreamEncoderWrapper(encoder)
         }

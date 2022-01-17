@@ -20,7 +20,7 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
         TODO("Not yet implemented")
     }
 
-    fun getSender() : RtpSenderProxy {
+    fun getSender(): RtpSenderProxy {
         return sender
     }
 
@@ -28,19 +28,19 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
         return receiver
     }
 
-    fun setDirection(direction : RtpTransceiverDirection) {
+    fun setDirection(direction: RtpTransceiverDirection) {
         obj.direction = direction.intoWebRtc()
     }
 
-    fun getMid() : String? {
+    fun getMid(): String? {
         return obj.mid
     }
 
-    fun getDirection() : RtpTransceiverDirection {
+    fun getDirection(): RtpTransceiverDirection {
         return RtpTransceiverDirection.fromWebRtc(obj.direction)
     }
 
-    fun getCurrentDirection() : RtpTransceiverDirection? {
+    fun getCurrentDirection(): RtpTransceiverDirection? {
         val direction = obj.currentDirection
         return if (direction == null) {
             null

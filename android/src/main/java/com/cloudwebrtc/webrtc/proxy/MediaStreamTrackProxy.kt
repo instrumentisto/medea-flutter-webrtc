@@ -18,7 +18,7 @@ class MediaStreamTrackProxy(track: MediaStreamTrack) : IWebRTCProxy<MediaStreamT
         onStopSubscribers.forEach { sub -> sub() }
     }
 
-    fun state() : MediaStreamTrackState {
+    fun state(): MediaStreamTrackState {
         return MediaStreamTrackState.fromWebRtcState(obj.state());
     }
 

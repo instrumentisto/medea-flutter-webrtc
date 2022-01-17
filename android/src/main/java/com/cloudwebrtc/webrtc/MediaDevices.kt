@@ -77,25 +77,25 @@ class MediaDevices(val state: State) {
         videoSource.adaptOutputFormat(1280, 720, 30)
 
         val surfaceTextureRenderer = SurfaceTextureHelper.create(
-                Thread.currentThread().name,
-                EglUtils.getRootEglBaseContext()
+            Thread.currentThread().name,
+            EglUtils.getRootEglBaseContext()
         )
         // TODO(evdokimovs): Maybe we need some implementation in CameraEventsHandler?
         val videoCapturer = cameraEnumerator.createCapturer(
-                deviceId,
-                object : CameraVideoCapturer.CameraEventsHandler {
-                    override fun onCameraError(p0: String?) {}
-                    override fun onCameraDisconnected() {}
-                    override fun onCameraFreezed(p0: String?) {}
-                    override fun onCameraOpening(p0: String?) {}
-                    override fun onFirstFrameAvailable() {}
-                    override fun onCameraClosed() {}
-                }
+            deviceId,
+            object : CameraVideoCapturer.CameraEventsHandler {
+                override fun onCameraError(p0: String?) {}
+                override fun onCameraDisconnected() {}
+                override fun onCameraFreezed(p0: String?) {}
+                override fun onCameraOpening(p0: String?) {}
+                override fun onFirstFrameAvailable() {}
+                override fun onCameraClosed() {}
+            }
         )
         videoCapturer.initialize(
-                surfaceTextureRenderer,
-                state.getAppContext(),
-                videoSource.capturerObserver
+            surfaceTextureRenderer,
+            state.getAppContext(),
+            videoSource.capturerObserver
         )
         // TODO(evdokimovs): Experiment with this parameters, maybe we can don't provide
         //                   this parameters if no constraints provided?
@@ -103,7 +103,7 @@ class MediaDevices(val state: State) {
         videoCapturer.startCapture(1280, 720, 30)
 
         val videoTrack = MediaStreamTrackProxy(
-                state.getPeerConnectionFactory().createVideoTrack(getNextTrackId(), videoSource)
+            state.getPeerConnectionFactory().createVideoTrack(getNextTrackId(), videoSource)
         )
         videoTrack.onStop {
             videoCapturer.stopCapture()
@@ -118,7 +118,9 @@ class MediaDevices(val state: State) {
     private fun getUserAudioTrack(constraints: AudioConstraints): MediaStreamTrackProxy {
         val trackId = getNextTrackId()
         val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
-        val track = MediaStreamTrackProxy(state.getPeerConnectionFactory().createAudioTrack(trackId, source))
+        val track = MediaStreamTrackProxy(
+            state.getPeerConnectionFactory().createAudioTrack(trackId, source)
+        )
         track.onStop {
             source.dispose()
         }

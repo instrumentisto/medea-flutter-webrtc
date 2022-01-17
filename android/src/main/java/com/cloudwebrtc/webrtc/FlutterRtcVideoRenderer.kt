@@ -7,12 +7,14 @@ import io.flutter.view.TextureRegistry
 import org.webrtc.RendererCommon
 
 class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
-    private val surfaceTextureEntry: TextureRegistry.SurfaceTextureEntry = textureRegistry.createSurfaceTexture()
+    private val surfaceTextureEntry: TextureRegistry.SurfaceTextureEntry =
+        textureRegistry.createSurfaceTexture()
     private val surfaceTexture: SurfaceTexture = surfaceTextureEntry.surfaceTexture()
     private val id: Long = surfaceTextureEntry.id()
     private var rendererEventsListener: RendererCommon.RendererEvents = rendererEventsListener()
     private var eventListener: EventListener? = null
-    private val surfaceTextureRenderer: SurfaceTextureRenderer = SurfaceTextureRenderer("flutter-video-renderer-$id")
+    private val surfaceTextureRenderer: SurfaceTextureRenderer =
+        SurfaceTextureRenderer("flutter-video-renderer-$id")
     private var videoTrack: VideoTrackProxy? = null
 
     companion object {

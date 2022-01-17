@@ -7,7 +7,7 @@ enum class MediaStreamTrackState(val value: Int) {
     LIVE(1);
 
     companion object {
-        fun fromWebRtcState(state : MediaStreamTrack.State) : MediaStreamTrackState {
+        fun fromWebRtcState(state: MediaStreamTrack.State): MediaStreamTrackState {
             return when (state) {
                 MediaStreamTrack.State.ENDED -> ENDED
                 MediaStreamTrack.State.LIVE -> LIVE

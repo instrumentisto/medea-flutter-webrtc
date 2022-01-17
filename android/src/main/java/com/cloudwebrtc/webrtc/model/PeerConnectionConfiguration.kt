@@ -1,9 +1,9 @@
 package com.cloudwebrtc.webrtc.model
 
 import org.webrtc.PeerConnection
-import org.webrtc.PeerConnection.RTCConfiguration as WRTCConfiguration;
-import org.webrtc.PeerConnection.IceServer as WIceServer;
-import org.webrtc.PeerConnection.IceTransportsType as WIceTransportType;
+import org.webrtc.PeerConnection.IceServer as WIceServer
+import org.webrtc.PeerConnection.IceTransportsType as WIceTransportType
+import org.webrtc.PeerConnection.RTCConfiguration as WRTCConfiguration
 
 enum class IceTransportType(val value: Int) {
     ALL(0),
@@ -38,7 +38,10 @@ data class IceServer(val urls: List<String>, val username: String?, val password
     }
 }
 
-data class PeerConnectionConfiguration(val iceServers: List<IceServer>, val iceTransportType: IceTransportType) {
+data class PeerConnectionConfiguration(
+    val iceServers: List<IceServer>,
+    val iceTransportType: IceTransportType
+) {
     fun intoWebRtc(): WRTCConfiguration {
         val conf = WRTCConfiguration(iceServers.map { server -> server.intoWebRtc() }.toList())
         conf.iceTransportsType = iceTransportType.intoWebRtc()

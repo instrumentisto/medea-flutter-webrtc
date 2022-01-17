@@ -13,9 +13,11 @@ private object ChannelIdGenerator {
     }
 }
 
-class PeerConnectionController(messenger: BinaryMessenger, val peer: PeerConnectionProxy) : MethodChannel.MethodCallHandler {
+class PeerConnectionController(messenger: BinaryMessenger, val peer: PeerConnectionProxy) :
+    MethodChannel.MethodCallHandler {
     private val channelId = ChannelIdGenerator.nextId()
-    private val methodChannel: MethodChannel = MethodChannel(messenger, "com.instrumentisto.flutter_webrtc/PeerConnection/$channelId")
+    private val methodChannel: MethodChannel =
+        MethodChannel(messenger, "com.instrumentisto.flutter_webrtc/PeerConnection/$channelId")
 
     init {
         methodChannel.setMethodCallHandler(this)
@@ -31,8 +33,8 @@ class PeerConnectionController(messenger: BinaryMessenger, val peer: PeerConnect
 
     fun intoFlutterResult(): Map<String, Any> {
         return mapOf<String, Any>(
-                "channelId" to channelId,
-                "id" to peer.id
+            "channelId" to channelId,
+            "id" to peer.id
         )
     }
 }
