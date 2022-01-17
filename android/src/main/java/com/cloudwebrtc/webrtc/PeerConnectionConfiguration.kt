@@ -1,15 +1,20 @@
 package com.cloudwebrtc.webrtc
 
+import io.flutter.plugin.common.MethodCall
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnection.RTCConfiguration as WRTCConfiguration;
 import org.webrtc.PeerConnection.IceServer as WIceServer;
 import org.webrtc.PeerConnection.IceTransportsType as WIceTransportType;
 
-enum class IceTransportType {
-    ALL,
-    RELAY,
-    NOHOST,
-    NONE;
+enum class IceTransportType(val value: Int) {
+    ALL(0),
+    RELAY(1),
+    NOHOST(2),
+    NONE(3);
+
+    companion object {
+        fun fromInt(value: Int) = values().first { it.value == value }
+    }
 
     fun intoWebRtc(): WIceTransportType {
         return when (this) {
