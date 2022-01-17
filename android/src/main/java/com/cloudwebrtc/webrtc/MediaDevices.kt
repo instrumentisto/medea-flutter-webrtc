@@ -102,7 +102,6 @@ class MediaDevices(val state: State) {
         )
         videoTrack.onStop {
             videoCapturer.stopCapture()
-            videoTrack.dispose()
             videoSource.dispose()
             videoCapturer.dispose()
             surfaceTextureRenderer.dispose()
