@@ -416,8 +416,14 @@ impl MediaStream {
         Ok(())
     }
 
+    /// Returns the first [`VideoTrack`]'s `id`.
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`VideoTrack`].
+    #[must_use]
     pub fn get_first_track_id(&self) -> &VideoTrackId {
-        &self.video_tracks.get(0).unwrap()
+        self.video_tracks.get(0).unwrap()
     }
 }
 

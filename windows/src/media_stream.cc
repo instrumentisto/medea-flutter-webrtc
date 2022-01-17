@@ -105,22 +105,28 @@ VideoConstraints MediaStreamMethods::ParseVideoConstraints(
     video_device_id = std::string();
   } else {
     EncodableMap video_map = GetValue<EncodableMap>(video_arg);
-    EncodableMap video_mandatory = findMap(video_map, "mandatory");
+    video_mandatory = findMap(video_map, "mandatory");
     if (!video_mandatory.empty()) {
-      int not_validated_width = findInt(video_mandatory, "minWidth");
-      int not_validated_height = findInt(video_mandatory, "minHeight");
-      int not_validated_fps = findInt(video_mandatory, "minFrameRate");
-
-      if (not_validated_width > 0) {
-        width = not_validated_width;
+      std::string width_s = findString(video_mandatory, "minWidth");
+      std::string height_s = findString(video_mandatory, "minHeight");
+      std::string fps_s = findString(video_mandatory, "minFrameRate");
+      if (!width_s.empty()) {
+        int width_n = std::stoi(width_s);
+        if (width_n > 0) {
+          width = width_n;
+        }
       }
-
-      if (not_validated_height > 0) {
-        height = not_validated_height;
+      if (!height_s.empty()) {
+        int height_n = std::stoi(height_s);
+        if (height_n > 0) {
+          height = height_n;
+        }
       }
-
-      if (not_validated_fps > 0) {
-        fps = not_validated_fps;
+      if (!fps_s.empty()) {
+        int fps_n = std::stoi(fps_s);
+        if (fps_n > 0) {
+          fps = fps_n;
+        }
       }
     }
     video_device_id = findString(video_map, "deviceId");
@@ -202,7 +208,7 @@ void MediaStreamMethods::DisposeStream(
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  auto converted_id = findLongInt(params, "streamId");
+  auto converted_id = std::stoi(findString(params, "streamId"));
   if (converted_id < 0) {
     result->Error("Stream id can`t be less then 0.");
     return;

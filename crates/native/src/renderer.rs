@@ -1,4 +1,4 @@
-use std::{mem, ops::Deref, rc::Rc};
+use std::{mem, rc::Rc};
 
 use crate::{Frame, MediaStreamId, Webrtc};
 
@@ -58,7 +58,7 @@ unsafe extern "C" fn register_renderer(
         inner: sys::Renderer::create(
             cb,
             mem::transmute_copy(&cpp_cb),
-            &this.video_tracks.get(video_track_id).unwrap().deref(),
+            &**this.video_tracks.get(video_track_id).unwrap(),
         ),
     };
 
@@ -73,6 +73,10 @@ unsafe extern "C" fn register_renderer(
 
 impl Webrtc {
     /// Drops the [`Renderer`] according to the given [`TextureId`].
+    ///
+    /// # Panics
+    ///
+    /// May panic on taking [`Renderer`] as mut.
     pub fn dispose_renderer(&mut self, texture_id: i64) {
         let renderer =
             self.0.renderers.get_mut(&TextureId(texture_id)).unwrap();

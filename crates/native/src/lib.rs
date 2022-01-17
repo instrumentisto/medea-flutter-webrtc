@@ -18,7 +18,7 @@ pub use crate::user_media::{
     MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
 };
 
-pub use crate::frame::{delete_frame, Frame};
+pub use crate::frame::{delete as delete_frame, Frame};
 
 pub use crate::renderer::{Renderer, TextureId};
 

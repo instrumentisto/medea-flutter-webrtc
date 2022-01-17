@@ -452,6 +452,10 @@ pub struct Renderer(UniquePtr<webrtc::VideoRenderer>);
 
 impl Renderer {
     /// Creates a new [`Renderer`].
+    ///
+    /// # Panics
+    ///
+    /// May panic on taking [`VideoTrackInterface`] as ref.
     pub fn create(
         cb: fn(UniquePtr<VideoFrame>, usize),
         flutter_cb_ptr: usize,
@@ -466,7 +470,12 @@ impl Renderer {
         }
     }
 
-    /// Notifies the [`Renderer`] that passed [`VideoTrackInterface`] does not exist.
+    /// Notifies the [`Renderer`] that passed [`VideoTrackInterface`] does
+    /// not exist.
+    ///
+    /// # Panics
+    ///
+    /// May panic on taking [`VideoTrackInterface`] as mut.
     pub fn set_no_track(&mut self) {
         self.0.as_mut().unwrap().set_no_track();
     }
