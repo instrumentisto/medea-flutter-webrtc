@@ -54,16 +54,17 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
     size_t height) const {
   mutex_.lock();
 
-  if (pixel_buffer_.get() && frame_) {
-    if (pixel_buffer_->width != frame_->width() ||
-        pixel_buffer_->height != frame_->height()) {
-      size_t buffer_size = frame_->buffer_size();
+  if (pixel_buffer_.get() && frame_.has_value()) {
+    Frame* frame = frame_.value();
+    if (pixel_buffer_->width != frame->width() ||
+        pixel_buffer_->height != frame->height()) {
+      size_t buffer_size = frame->buffer_size();
       rgb_buffer_.reset(new uint8_t[buffer_size]);
-      pixel_buffer_->width = frame_->width();
-      pixel_buffer_->height = frame_->height();
+      pixel_buffer_->width = frame->width();
+      pixel_buffer_->height = frame->height();
     }
 
-    frame_->buffer(rgb_buffer_.get());
+    frame->buffer(rgb_buffer_.get());
 
     pixel_buffer_->buffer = rgb_buffer_.get();
 
@@ -113,10 +114,10 @@ void FlutterVideoRenderer::OnFrame(Frame* frame) {
     last_frame_size_ = {(size_t)frame->width(), (size_t)frame->height()};
   }
   mutex_.lock();
-  if (frame_ != nullptr) {
-    delete_frame(frame_);
+  if (frame_.has_value()) {
+    delete_frame(frame_.value());
   }
-  frame_ = frame;
+  frame_ = std::optional(frame);
   mutex_.unlock();
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
@@ -124,11 +125,11 @@ void FlutterVideoRenderer::OnFrame(Frame* frame) {
 // Set `Renderer`'s default state.
 void FlutterVideoRenderer::ResetRenderer() {
   mutex_.lock();
-  if (frame_ != nullptr) {
-    delete_frame(frame_);
+  if (frame_.has_value()) {
+    delete_frame(frame_.value());
   }
   mutex_.unlock();
-  frame_ = nullptr;
+  frame_ = std::nullopt;
   last_frame_size_ = {0, 0};
   first_frame_rendered = false;
 }

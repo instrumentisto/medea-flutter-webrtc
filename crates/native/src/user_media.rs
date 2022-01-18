@@ -290,7 +290,15 @@ impl Webrtc {
 
 /// ID of a [`MediaStream`].
 #[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct MediaStreamId(pub u64);
+pub struct MediaStreamId(u64);
+
+impl MediaStreamId {
+    /// Creates a new [`MediaStreamId`].
+    #[must_use]
+    pub fn new(id: u64) -> Self {
+        Self(id)
+    }
+}
 
 /// ID of an video input device that provides data to some [`VideoSource`].
 #[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq)]

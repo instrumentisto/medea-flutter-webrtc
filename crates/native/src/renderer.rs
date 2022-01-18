@@ -49,7 +49,7 @@ unsafe extern "C" fn register_renderer(
 
     let video_track_id = this
         .local_media_streams
-        .get(&MediaStreamId(stream_id))
+        .get(&MediaStreamId::new(stream_id))
         .unwrap()
         .get_first_track_id();
 

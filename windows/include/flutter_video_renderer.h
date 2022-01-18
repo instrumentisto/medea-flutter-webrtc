@@ -2,6 +2,7 @@
 #define FLUTTER_WEBRTC_RTC_VIDEO_RENDERER_HXX
 
 #include <mutex>
+#include <optional>
 
 #include "flutter_webrtc_base.h"
 #include "flutter_webrtc_native.h"
@@ -49,7 +50,7 @@ class FlutterVideoRenderer {
   // `Id` of Flutter `texture`.
   int64_t texture_id_ = -1;
   // `Frame` from `libWebRTC`.
-  Frame* frame_ = nullptr;
+  std::optional<Frame*> frame_ = std::nullopt;
   // A `pixel buffer` Flutter `texture`.
   std::unique_ptr<flutter::TextureVariant> texture_;
   // An image buffer `texture` object.

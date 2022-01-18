@@ -38,7 +38,6 @@ impl Frame {
     /// Returns the [`Frame`]'s size.
     #[must_use]
     pub fn buffer_size(&self) -> i32 {
-        // TODO: what is 32???
         self.width() * self.height() * (32 >> 3)
     }
 

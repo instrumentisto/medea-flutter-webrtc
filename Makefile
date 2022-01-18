@@ -85,7 +85,7 @@ flutter.run:
 # platform-specific directories.
 #
 # Usage:
-#	make cargo.build [debug=(yes|no)] [no-cache=(no|yes)]
+#	make cargo.build [debug=(yes|no)]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
@@ -109,13 +109,13 @@ cargo.build:
 # Generate documentation for project crates.
 #
 # Usage:
-#	make cargo.doc [open=(yes|no)] [clean=(no|yes)] [dev=(no|yes)] [no-cache=(no|yes)]
+#	make cargo.doc [open=(yes|no)] [clean=(no|yes)] [dev=(no|yes)]
 
 cargo.doc:
 ifeq ($(clean),yes)
 	@rm -rf target/doc/
 endif
-	$(if $(call eq,$(no-cache),yes),INSTALL_WEBRTC=1,) cargo doc --workspace --no-deps \
+	cargo doc --workspace --no-deps \
 		$(if $(call eq,$(dev),yes),--document-private-items,) \
 		$(if $(call eq,$(open),no),,--open)
 
@@ -140,7 +140,7 @@ endif
 # Lint Rust sources with Clippy.
 #
 # Usage:
-#	make cargo.lint [dockerized=(no|yes)] [no-cache=(no|yes)]
+#	make cargo.lint [dockerized=(no|yes)]
 
 cargo.lint:
 ifeq ($(dockerized),yes)
@@ -150,17 +150,17 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/rust:$(RUST_VER) \
 			make cargo.lint dockerized=no
 else
-	$(if $(call eq,$(no-cache),yes),INSTALL_WEBRTC=1,) cargo clippy --workspace -- -D warnings
+	cargo clippy --workspace -- -D warnings
 endif
 
 
 # Run Rust tests of project.
 #
 # Usage:
-#	make cargo.test [no-cache=(no|yes)]
+#	make cargo.test
 
 cargo.test:
-	$(if $(call eq,$(no-cache),yes),INSTALL_WEBRTC=1,) cargo test --workspace
+	cargo test --workspace
 
 
 
