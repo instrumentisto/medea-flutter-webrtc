@@ -49,16 +49,53 @@ class _CreateSampleState extends State<CreateSample> {
         'peerConnectionId': '1',
         'constraints': defaultSdpConstraints
     });
-
     final response2 =
-          await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
+          await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
         'peerConnectionId': '1',
         'description' : {
         'sdp': response['sdp'],
         'type': response['type']}
     });
 
+    /*final response_ =
+          await WebRTC.invokeMethod('createAnswer', <String, dynamic>{
+        'peerConnectionId': '10',
+        'constraints': defaultSdpConstraints
+    });*/
 
+
+
+
+
+
+    /*final response_ =
+          await WebRTC.invokeMethod('createOffer', <String, dynamic>{
+        'peerConnectionId': '2',
+        'constraints': defaultSdpConstraints
+    });
+
+    final response2_ =
+          await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
+        'peerConnectionId': '2',
+        'description' : {
+        'sdp': response_['sdp'],
+        'type': response_['type']}
+    });
+
+
+    final response3 =
+          await WebRTC.invokeMethod('createAnswer', <String, dynamic>{
+        'peerConnectionId': '1',
+        'constraints': defaultSdpConstraints
+    });
+
+    final response4 =
+          await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
+        'peerConnectionId': '1',
+        'description' : {
+        'sdp': response3['sdp'],
+        'type': response3['type']}
+    });*/
 
     setState(() {
       text = 'Good';

@@ -61,7 +61,7 @@ pub(crate) mod webrtc {
         type Thread;   
 
         /// Creates a default [`TaskQueueFactory`] based on the current
-        /// platform. 
+        /// platform.
         #[namespace = "webrtc"]   
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
         pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
