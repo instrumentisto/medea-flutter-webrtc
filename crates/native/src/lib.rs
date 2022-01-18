@@ -1,7 +1,7 @@
 #![warn(clippy::pedantic)]
 
-mod peer_connection;
 mod device_info;
+mod peer_connection;
 mod user_media;
 
 use std::{collections::HashMap, rc::Rc};
@@ -246,41 +246,13 @@ pub mod api {
 /// [`Context`] wrapper that is exposed to the C++ API clients.
 pub struct Webrtc(Box<Context>);
 
-/* // TODO(#19): ??
-let mut network_thread = Thread::create();
-network_thread.start();
-
-let mut worker_thread = Thread::create();
-worker_thread.start();
-
-let mut signaling_thread = Thread::create();
-signaling_thread.start();
-
-let task_queue_factory =
-    TaskQueueFactory::create_default_task_queue_factory();
-let peer_connection_factory =
-    PeerConnectionFactoryInterface::create_whith_null(
-        Some(&network_thread),
-        Some(&network_thread),
-        Some(&network_thread),
-    );
-
-Box::new(Webrtc(Box::new(Inner {
-    task_queue_factory,
-    peer_connection_factory,
-    peer_connections: HashMap::new(),
-    network_thread: Some(network_thread),
-    worker_thread: Some(worker_thread),
-    signaling_thread: Some(signaling_thread),
-}))) */
-
 /// Application context that manages all dependencies.
 #[allow(dead_code)]
 pub struct Context {
     task_queue_factory: TaskQueueFactory,
-    worker_thread: Option<Thread>, // TODO(#19): why optional?
-    network_thread: Option<Thread>,
-    signaling_thread: Option<Thread>,
+    worker_thread: Thread,
+    network_thread: Thread,
+    signaling_thread: Thread,
     audio_device_module: AudioDeviceModule,
     video_device_info: VideoDeviceInfo,
     peer_connection_factory: PeerConnectionFactoryInterface,
@@ -329,9 +301,9 @@ pub fn init() -> Box<Webrtc> {
 
     Box::new(Webrtc(Box::new(Context {
         task_queue_factory,
-        network_thread: Some(network_thread),
-        worker_thread: Some(worker_thread),
-        signaling_thread: Some(signaling_thread),
+        network_thread,
+        worker_thread,
+        signaling_thread,
         audio_device_module,
         video_device_info,
         peer_connection_factory,

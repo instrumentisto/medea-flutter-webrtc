@@ -53,8 +53,6 @@ class rc {
   // Pointer to the managed object.
   T* ptr_;
 };
-// TODO(#19): remove duplicate usings
-using Thread = rtc::Thread;
 
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
@@ -139,10 +137,6 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 
 // Calls `Thread->Create()`.
 std::unique_ptr<Thread> create_thread();
-
-// TODO(#19): it doesnt seems that this function is used anywhere
-// Calls `Thread->Start()`.
-bool start_thread(Thread& thread);
 
 // Creates `CreateBuiltinAudioEncoderFactory`.
 std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory();

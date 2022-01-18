@@ -3,67 +3,37 @@
 
 namespace flutter_webrtc_plugin {
 
-// TODO(#19): These functions are already declared in media_stream.h
-template <typename T>
-inline bool TypeIs(const EncodableValue val) {
-  return std::holds_alternative<T>(val);
-}
-
-template <typename T>
-inline const T GetValue(EncodableValue val) {
-  return std::get<T>(val);
-}
-
-inline EncodableMap findMap(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<EncodableMap>(it->second))
-    return GetValue<EncodableMap>(it->second);
-  return EncodableMap();
-}
-
-inline std::string findString(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<std::string>(it->second))
-    return GetValue<std::string>(it->second);
-  return std::string();
-}
-
-inline bool findBool(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<bool>(it->second))
-    return GetValue<bool>(it->second);
-  return bool();
-}
-
-inline EncodableList findList(const EncodableMap& map, const std::string& key) {
-  auto it = map.find(EncodableValue(key));
-  if (it != map.end() && TypeIs<EncodableList>(it->second))
-    return GetValue<EncodableList>(it->second);
-  return EncodableList();
-}
-// TODO(#19): add docs
 using namespace flutter;
 
+  // Calls Rust `create_default_peer_connection()` and write `PeerConnectionId` in result.
   void CreateRTCPeerConnection(
         rust::cxxbridge1::Box<Webrtc>& webrtc,
         const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
+  // Calls Rust `create_offer()`. 
+  // success or fail will be write in result in `CreateSessionDescriptionObserver` callbacks.
   void CreateOffer(
         rust::cxxbridge1::Box<Webrtc>& webrtc,
         const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
+  // Calls Rust `create_answer()`. 
+  // success or fail will be write in result in `CreateSessionDescriptionObserver` callbacks.
   void CreateAnswer(
         rust::cxxbridge1::Box<Webrtc>& webrtc,
         const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
+  // Calls Rust `set_local_description()`. 
+  // success or fail will be write in result in `SetLocalDescriptionObserverInterface` callbacks.
   void SetLocalDescription(
         rust::cxxbridge1::Box<Webrtc>& webrtc,
         const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
+  // Calls Rust `set_remote_description()`. 
+  // success or fail will be write in result in `SetRemoteDescriptionObserverInterface` callbacks.
   void SetRemoteDescription(
         rust::cxxbridge1::Box<Webrtc>& webrtc,
         const flutter::MethodCall<EncodableValue>& method_call,

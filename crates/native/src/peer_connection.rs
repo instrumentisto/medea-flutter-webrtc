@@ -1,3 +1,5 @@
+extern crate derive_more;
+use derive_more::{From, Into};
 use libwebrtc_sys as sys;
 
 use std::sync::atomic::Ordering;
@@ -16,8 +18,8 @@ fn generate_id() -> u64 {
 
 /// Struct for `id` of [`PeerConnection`].
 #[allow(clippy::module_name_repetitions)]
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct PeerConnectionId(pub u64); // TODO(#19): dont pub but derive From/Into
+#[derive(Hash, Clone, Copy, PartialEq, Eq, From, Into)]
+pub struct PeerConnectionId(u64);
 
 /// Is used to manage [`sys::PeerConnectionInterface`].
 #[allow(dead_code)]
@@ -47,10 +49,10 @@ impl Webrtc {
         if error.is_empty() {
             let id = generate_id();
             let temp = PeerConnection {
-                id: PeerConnectionId(id),
+                id: id.into(),
                 peer_connection_interface: peer_c,
             };
-            self.0.peer_connections.insert(PeerConnectionId(id), temp);
+            self.0.peer_connections.insert(id.into(), temp);
             id
         } else {
             0
@@ -71,7 +73,7 @@ impl Webrtc {
     pub fn create_offer(
         &mut self,
         error: &mut String,
-        peer_connection_id: u64,
+        peer_connection_id: impl Into<PeerConnectionId>,
         offer_to_receive_video: i32,
         offer_to_receive_audio: i32,
         voice_activity_detection: bool,
@@ -80,10 +82,8 @@ impl Webrtc {
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) = self
-            .0
-            .peer_connections
-            .get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) =
+            self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
             let success: fn(&cxx::CxxString, &cxx::CxxString) =
                 unsafe { std::mem::transmute(s) };
@@ -119,7 +119,7 @@ impl Webrtc {
     pub fn create_answer(
         &mut self,
         error: &mut String,
-        peer_connection_id: u64,
+        peer_connection_id: impl Into<PeerConnectionId>,
         offer_to_receive_video: i32,
         offer_to_receive_audio: i32,
         voice_activity_detection: bool,
@@ -128,10 +128,8 @@ impl Webrtc {
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) = self
-            .0
-            .peer_connections
-            .get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) =
+            self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
@@ -165,16 +163,14 @@ impl Webrtc {
     pub fn set_local_description(
         &mut self,
         error: &mut String,
-        peer_connection_id: u64,
+        peer_connection_id: impl Into<PeerConnectionId>,
         type_: String,
         sdp: String,
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) = self
-            .0
-            .peer_connections
-            .get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) =
+            self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
@@ -214,16 +210,14 @@ impl Webrtc {
     pub fn set_remote_description(
         &mut self,
         error: &mut String,
-        peer_connection_id: u64,
+        peer_connection_id: impl Into<PeerConnectionId>,
         type_: String,
         sdp: String,
         s: usize,
         f: usize,
     ) {
-        if let Some(peer_connection) = self
-            .0
-            .peer_connections
-            .get_mut(&PeerConnectionId(peer_connection_id))
+        if let Some(peer_connection) =
+            self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
             match sys::SdpType::try_from(type_.as_str()) {
                 Ok(type_) => {
