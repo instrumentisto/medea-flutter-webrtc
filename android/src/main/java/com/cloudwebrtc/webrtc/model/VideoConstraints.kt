@@ -18,7 +18,7 @@ enum class ConstraintScore {
 
     companion object {
         fun totalScore(scores: List<ConstraintScore>): Int? {
-            var total = 1;
+            var total = 1
             for (score in scores) {
                 when (score) {
                     NO -> return null

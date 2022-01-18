@@ -11,9 +11,19 @@ data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: Str
                 map["sdp"] as String
             )
         }
+
+        fun fromWebRtc(from: WIceCandidate): IceCandidate =
+            IceCandidate(from.sdpMid, from.sdpMLineIndex, from.sdp)
+
     }
 
     fun intoWebRtc(): WIceCandidate {
         return WIceCandidate(sdpMid, sdpMLineIndex, sdp)
     }
+
+    fun intoMap(): Map<String, Any> = mapOf(
+        "sdpMid" to sdpMid,
+        "sdpMLineIndex" to sdpMLineIndex,
+        "sdp" to sdp
+    )
 }

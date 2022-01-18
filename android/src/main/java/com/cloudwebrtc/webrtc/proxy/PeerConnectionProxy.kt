@@ -3,16 +3,14 @@ package com.cloudwebrtc.webrtc.proxy
 import com.cloudwebrtc.webrtc.exception.AddIceCandidateException
 import com.cloudwebrtc.webrtc.exception.CreateSdpException
 import com.cloudwebrtc.webrtc.exception.SetSdpException
-import com.cloudwebrtc.webrtc.model.IceCandidate
-import com.cloudwebrtc.webrtc.model.MediaType
-import com.cloudwebrtc.webrtc.model.RtpTransceiverInit
-import com.cloudwebrtc.webrtc.model.SessionDescription
+import com.cloudwebrtc.webrtc.model.*
 import org.webrtc.AddIceObserver
 import org.webrtc.MediaConstraints
 import org.webrtc.PeerConnection
 import org.webrtc.SdpObserver
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -25,12 +23,27 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     private var receivers: HashMap<String, RtpReceiverProxy> = HashMap()
     private var transceivers: TreeMap<Int, RtpTransceiverProxy> = TreeMap()
     private var onDisposeSubscribers: MutableList<(Int) -> Unit> = mutableListOf()
+    private var eventObservers: HashSet<EventObserver> = HashSet()
 
     init {
         syncWithObject();
     }
 
     companion object {
+        interface EventObserver {
+            fun onAddTrack(track: MediaStreamTrackProxy)
+
+            fun onIceConnectionStateChange(iceConnectionState: IceConnectionState)
+
+            fun onSignalingStateChange(signalingState: SignalingState)
+
+            fun onConnectionStateChange(peerConnectionState: PeerConnectionState)
+
+            fun onIceGatheringStateChange(iceGatheringState: IceGatheringState)
+
+            fun onIceCandidate(candidate: IceCandidate)
+        }
+
         private fun createSdpObserver(continuation: Continuation<SessionDescription>): SdpObserver {
             return object : SdpObserver {
                 override fun onCreateSuccess(sdp: WSessionDescription) {
@@ -84,6 +97,42 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
         syncSenders();
         syncReceivers();
         syncTransceivers();
+    }
+
+    fun addEventObserver(eventObserver: EventObserver) {
+        eventObservers.add(eventObserver)
+    }
+
+    fun removeEventObserver(eventObserver: EventObserver) {
+        eventObservers.remove(eventObserver)
+    }
+
+    internal fun observableEventBroadcaster(): EventObserver {
+        return object : EventObserver {
+            override fun onAddTrack(track: MediaStreamTrackProxy) {
+                eventObservers.forEach { it.onAddTrack(track) }
+            }
+
+            override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
+                eventObservers.forEach { it.onIceConnectionStateChange(iceConnectionState) }
+            }
+
+            override fun onSignalingStateChange(signalingState: SignalingState) {
+                eventObservers.forEach { it.onSignalingStateChange(signalingState) }
+            }
+
+            override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
+                eventObservers.forEach { it.onConnectionStateChange(peerConnectionState) }
+            }
+
+            override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
+                eventObservers.forEach { it.onIceGatheringStateChange(iceGatheringState) }
+            }
+
+            override fun onIceCandidate(candidate: IceCandidate) {
+                eventObservers.forEach { it.onIceCandidate(candidate) }
+            }
+        }
     }
 
     fun dispose() {

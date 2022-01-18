@@ -1,26 +1,86 @@
 package com.cloudwebrtc.webrtc.controller
 
-import com.cloudwebrtc.webrtc.model.IceCandidate
-import com.cloudwebrtc.webrtc.model.MediaType
-import com.cloudwebrtc.webrtc.model.RtpTransceiverInit
-import com.cloudwebrtc.webrtc.model.SessionDescription
+import com.cloudwebrtc.webrtc.model.*
+import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
+import com.cloudwebrtc.webrtc.utils.AnyThreadSink
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.runBlocking
 
 class PeerConnectionController(
     private val messenger: BinaryMessenger,
-    val peer: PeerConnectionProxy
+    private val peer: PeerConnectionProxy
 ) :
-    MethodChannel.MethodCallHandler, IdentifiableController {
+    MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
     private val channelId = nextChannelId()
     private val methodChannel: MethodChannel =
         MethodChannel(messenger, ChannelNameGenerator.withId("PeerConnection", channelId))
+    private val eventChannel: EventChannel =
+        EventChannel(messenger, ChannelNameGenerator.withId("PeerConnectionEvent", channelId))
+    private var eventSink: AnyThreadSink? = null
+    private val eventObserver = object : PeerConnectionProxy.Companion.EventObserver {
+        override fun onAddTrack(track: MediaStreamTrackProxy) {
+            eventSink?.success(
+                mapOf(
+                    "event" to "onAddTrack",
+                    "track" to MediaStreamTrackController(messenger, track).asFlutterResult()
+                )
+            )
+        }
+
+        override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
+            eventSink?.success(
+                mapOf(
+                    "event" to "onIceConnectionStateChange",
+                    "iceConnectionState" to iceConnectionState.value
+                )
+            )
+        }
+
+        override fun onSignalingStateChange(signalingState: SignalingState) {
+            eventSink?.success(
+                mapOf(
+                    "event" to "onSignalingStateChange",
+                    "signalingState" to signalingState.value
+                )
+            )
+        }
+
+        override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
+            eventSink?.success(
+                mapOf(
+                    "event" to "onConnectionStateChange",
+                    "peerConnectionState" to peerConnectionState.value
+                )
+            )
+        }
+
+        override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
+            eventSink?.success(
+                mapOf(
+                    "event" to "onIceGatheringStateChange",
+                    "iceGatheringState" to iceGatheringState.value
+                )
+            )
+        }
+
+        override fun onIceCandidate(candidate: IceCandidate) {
+            eventSink?.success(
+                mapOf(
+                    "event" to "onIceCandidate",
+                    "candidate" to candidate.intoMap()
+                )
+            )
+        }
+    }
 
     init {
         methodChannel.setMethodCallHandler(this)
+        eventChannel.setStreamHandler(this)
+        peer.addEventObserver(eventObserver)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -94,6 +154,14 @@ class PeerConnectionController(
         }
     }
 
+    override fun onListen(obj: Any?, sink: EventChannel.EventSink?) {
+        eventSink = AnyThreadSink(sink)
+    }
+
+    override fun onCancel(obj: Any?) {
+        eventSink = null
+    }
+
     fun asFlutterResult(): Map<String, Any> = mapOf<String, Any>(
         "channelId" to channelId,
         "id" to peer.id
@@ -101,5 +169,8 @@ class PeerConnectionController(
 
     private fun dispose() {
         methodChannel.setMethodCallHandler(null)
+        peer.removeEventObserver(eventObserver)
+        eventChannel.setStreamHandler(null)
+        eventSink?.endOfStream()
     }
 }
