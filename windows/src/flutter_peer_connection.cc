@@ -273,7 +273,7 @@ void SetRemoteDescription(
     size_t success = (size_t) wrapp_success;
 
     rust::String error;
-    webrtc->SetLocalDescription(
+    webrtc->SetRemoteDescription(
         error,
         std::stoi(peerConnectionId),
         type,
