@@ -1,5 +1,6 @@
 package com.cloudwebrtc.webrtc.controller
 
+import com.cloudwebrtc.webrtc.TrackRepository
 import com.cloudwebrtc.webrtc.proxy.RtpSenderProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -13,6 +14,12 @@ class RtpSenderController(messenger: BinaryMessenger, val sender: RtpSenderProxy
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
+            "setTrack" -> {
+                val trackId: String = call.argument("trackId")!!
+                val track = TrackRepository.getTrack(trackId)!!
+                sender.setTrack(track)
+                result.success(null)
+            }
             "dispose" -> {
                 dispose()
                 result.success(null)
