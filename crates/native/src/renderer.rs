@@ -47,6 +47,7 @@ unsafe extern "C" fn register_renderer(
 ) {
     let this = webrtc.as_mut().0.as_mut();
 
+    // TODO: remove MediaStream, call the certain VideoTrack.
     let video_track_id = this
         .local_media_streams
         .get(&MediaStreamId::new(stream_id))
