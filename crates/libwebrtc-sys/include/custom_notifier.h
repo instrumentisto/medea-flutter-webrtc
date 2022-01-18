@@ -3,8 +3,10 @@
 #include <dbt.h>
 #include <strsafe.h>
 #include <functional>
-
-#include "debbouncer.h"
+#include <memory>
+#include <vector>
+#include <chrono>
+#include <atomic>
 
 class CustomNotifier {
 public:
@@ -36,9 +38,12 @@ public:
   }
 
   void kek() {
-    printf("lol\n");
-    timer_.kek();
-    printf("kek\n");
+    // timer_ = new CustomTimer();
+    // timer_->kek();
+    // timer_->setTimeout([&]() {
+    //   printf("lol\n");
+    //   timer_->stop();
+    //   }, 500);
 
     // timer_.setTimeout([&]() {
     //   printf("lol\n");
@@ -51,7 +56,6 @@ private:
     LRESULT result = 0;
 
     auto asdasd = (CustomNotifier*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    asdasd->kek();
 
     if (msg == WM_CLOSE) {
       exit(0);
@@ -61,7 +65,11 @@ private:
       } else if (DBT_DEVICEREMOVECOMPLETE == wp) {
         printf("lupa\n");
       } else if (DBT_DEVNODES_CHANGED == wp) {
+        // if (DBT_DEVNODES_CHANGED == wp) {
+          // printf("%lld\n", asdasd->timer_.load());
         printf("zupa\n");
+        asdasd->timer_.store(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+        // printf("%lld\n", asdasd->timer_.load());
       }
     } else if (msg == WM_ERASEBKGND) {
     } else if (msg == WM_SETFOCUS) {
@@ -77,5 +85,5 @@ private:
 
   std::function<void()> cb_;
   HWND hwnd_;
-  CustomTimer timer_;
+  std::atomic<long long> timer_{ 0 };
 };
