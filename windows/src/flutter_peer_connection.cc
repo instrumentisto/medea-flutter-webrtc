@@ -1,6 +1,6 @@
 
 #include "flutter_peer_connection.h"
-
+// TODO(#19): add docs
 namespace callbacks {
 typedef void (*callback_success)(std::string, std::string);
 typedef void (*callback_fail)(std::string);
@@ -8,8 +8,8 @@ typedef void (*callback_fail)(std::string);
 typedef void (*callback_success_desc)();
 
 void OnSuccessOffer(
-  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result, 
-  std::string sdp, 
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result,
+  std::string sdp,
   std::string type) {
     flutter::EncodableMap params;
     params[flutter::EncodableValue("sdp")] = sdp;
@@ -33,8 +33,8 @@ namespace flutter_webrtc_plugin {
 using namespace flutter;
 
 void CreateRTCPeerConnection(
-    rust::cxxbridge1::Box<Webrtc>& webrtc, 
-    const flutter::MethodCall<EncodableValue>& method_call, 
+    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result)
     {
         rust::String error;
@@ -51,15 +51,15 @@ void CreateRTCPeerConnection(
     }
 
 void CreateOffer(
-    rust::cxxbridge1::Box<Webrtc>& webrtc, 
-    const flutter::MethodCall<EncodableValue>& method_call, 
+    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
 
     if (!method_call.arguments()) {
         result->Error("Bad Arguments", "Null constraints arguments received");
         return;
     }
-    
+
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     const EncodableMap constraints = findMap(params, "constraints");
@@ -67,9 +67,9 @@ void CreateOffer(
     const EncodableList list = findList(constraints, "optional");
 
     bool receive_video = true;
-    bool receive_audio = true; 
-    bool voice_activity_detection = true; 
-    bool ice_restart = false; 
+    bool receive_audio = true;
+    bool voice_activity_detection = true;
+    bool ice_restart = false;
     bool use_rtp_mux = true;
 
     auto iter = list.begin();
@@ -93,7 +93,7 @@ void CreateOffer(
     auto bind_success = std::bind(&callbacks::OnSuccessOffer, rs, std::placeholders::_1, std::placeholders::_2);
     callbacks::callback_success wrapp_success = Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
-    success;
+    success; // TODO(#19): what is this?
 
     auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
@@ -104,10 +104,10 @@ void CreateOffer(
     webrtc->CreateOffer(
         error,
         std::stoi(peerConnectionId),
-        receive_video, 
-        receive_audio, 
-        voice_activity_detection, 
-        ice_restart, 
+        receive_video,
+        receive_audio,
+        voice_activity_detection,
+        ice_restart,
         use_rtp_mux,
         success,
         fail
@@ -119,15 +119,15 @@ void CreateOffer(
     }
 };
 void CreateAnswer(
-    rust::cxxbridge1::Box<Webrtc>& webrtc, 
-    const flutter::MethodCall<EncodableValue>& method_call, 
+    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
 
     if (!method_call.arguments()) {
         result->Error("Bad Arguments", "Null constraints arguments received");
         return;
     }
-    
+
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
     const EncodableMap constraints = findMap(params, "constraints");
@@ -135,9 +135,9 @@ void CreateAnswer(
     const EncodableList list = findList(constraints, "optional");
 
     bool receive_video = true;
-    bool receive_audio = true; 
-    bool voice_activity_detection = true; 
-    bool ice_restart = false; 
+    bool receive_audio = true;
+    bool voice_activity_detection = true;
+    bool ice_restart = false;
     bool use_rtp_mux = true;
 
     auto iter = list.begin();
@@ -170,10 +170,10 @@ void CreateAnswer(
     webrtc->CreateAnswer(
         error,
         std::stoi(peerConnectionId),
-        receive_video, 
-        receive_audio, 
-        voice_activity_detection, 
-        ice_restart, 
+        receive_video,
+        receive_audio,
+        voice_activity_detection,
+        ice_restart,
         use_rtp_mux,
         success,
         fail
@@ -185,19 +185,19 @@ void CreateAnswer(
     }
 };
 void SetLocalDescription(
-    rust::cxxbridge1::Box<Webrtc>& webrtc, 
-    const flutter::MethodCall<EncodableValue>& method_call, 
+    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
 
     if (!method_call.arguments()) {
         result->Error("Bad Arguments", "Null constraints arguments received");
         return;
     }
-    
+
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
 
-    const EncodableMap constraints = findMap(params, "description"); 
+    const EncodableMap constraints = findMap(params, "description");
     rust::String type = findString(constraints, "type");
     rust::String sdp = findString(constraints, "sdp");
 
@@ -218,7 +218,7 @@ void SetLocalDescription(
     webrtc->SetLocalDescription(
         error,
         std::stoi(peerConnectionId),
-        type, 
+        type,
         sdp,
         success,
         fail
@@ -232,19 +232,19 @@ void SetLocalDescription(
 };
 
 void SetRemoteDescription(
-    rust::cxxbridge1::Box<Webrtc>& webrtc, 
-    const flutter::MethodCall<EncodableValue>& method_call, 
+    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-    
+
     if (!method_call.arguments()) {
         result->Error("Bad Arguments", "Null constraints arguments received");
         return;
     }
-    
+
     const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
     const std::string peerConnectionId = findString(params, "peerConnectionId");
 
-    const EncodableMap constraints = findMap(params, "description"); 
+    const EncodableMap constraints = findMap(params, "description");
     rust::String type = findString(constraints, "type");
     rust::String sdp = findString(constraints, "sdp");
 
@@ -254,7 +254,7 @@ void SetRemoteDescription(
     callbacks::callback_fail wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
     size_t fail = (size_t) wrapp_fail;
     fail;
-    
+
     auto bind_success = std::bind(&callbacks::OnSuccessDescription, rs);
     callbacks::callback_success_desc wrapp_success = Wrapper<0, void()>::wrap(bind_success);
     size_t success = (size_t) wrapp_success;
@@ -263,7 +263,7 @@ void SetRemoteDescription(
     webrtc->SetLocalDescription(
         error,
         std::stoi(peerConnectionId),
-        type, 
+        type,
         sdp,
         success,
         fail

@@ -1,10 +1,7 @@
 #![warn(clippy::pedantic)]
 
 mod peer_connection;
-
-use peer_connection::{PeerConnection, PeerConnectionId};
 mod device_info;
-
 mod user_media;
 
 use std::{collections::HashMap, rc::Rc};
@@ -13,6 +10,8 @@ use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
+
+use peer_connection::{PeerConnection, PeerConnectionId};
 
 #[doc(inline)]
 pub use crate::user_media::{
@@ -247,7 +246,7 @@ pub mod api {
 /// [`Context`] wrapper that is exposed to the C++ API clients.
 pub struct Webrtc(Box<Context>);
 
-/*
+/* // TODO(#19): ??
 let mut network_thread = Thread::create();
 network_thread.start();
 
@@ -279,6 +278,9 @@ Box::new(Webrtc(Box::new(Inner {
 #[allow(dead_code)]
 pub struct Context {
     task_queue_factory: TaskQueueFactory,
+    worker_thread: Option<Thread>, // TODO(#19): why optional?
+    network_thread: Option<Thread>,
+    signaling_thread: Option<Thread>,
     audio_device_module: AudioDeviceModule,
     video_device_info: VideoDeviceInfo,
     peer_connection_factory: PeerConnectionFactoryInterface,
@@ -288,10 +290,6 @@ pub struct Context {
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
-
-    worker_thread: Option<Thread>,
-    network_thread: Option<Thread>,
-    signaling_thread: Option<Thread>,
 }
 
 /// Creates an instanse of [`Webrtc`].
@@ -313,6 +311,7 @@ pub fn init() -> Box<Webrtc> {
 
     let mut signaling_thread = Thread::create().unwrap();
     signaling_thread.start().unwrap();
+
     let peer_connection_factory =
         PeerConnectionFactoryInterface::create_whith_null(
             Some(&network_thread),
@@ -330,6 +329,9 @@ pub fn init() -> Box<Webrtc> {
 
     Box::new(Webrtc(Box::new(Context {
         task_queue_factory,
+        network_thread: Some(network_thread),
+        worker_thread: Some(worker_thread),
+        signaling_thread: Some(signaling_thread),
         audio_device_module,
         video_device_info,
         peer_connection_factory,
@@ -339,8 +341,5 @@ pub fn init() -> Box<Webrtc> {
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
-        network_thread: Some(network_thread),
-        worker_thread: Some(worker_thread),
-        signaling_thread: Some(signaling_thread),
     })))
 }

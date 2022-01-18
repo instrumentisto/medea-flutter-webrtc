@@ -3,6 +3,7 @@
 
 namespace flutter_webrtc_plugin {
 
+// TODO(#19): These functions are already declared in media_stream.h
 template <typename T>
 inline bool TypeIs(const EncodableValue val) {
   return std::holds_alternative<T>(val);
@@ -40,32 +41,32 @@ inline EncodableList findList(const EncodableMap& map, const std::string& key) {
     return GetValue<EncodableList>(it->second);
   return EncodableList();
 }
-
+// TODO(#19): add docs
 using namespace flutter;
 
   void CreateRTCPeerConnection(
-        rust::cxxbridge1::Box<Webrtc>& webrtc, 
-        const flutter::MethodCall<EncodableValue>& method_call, 
+        rust::cxxbridge1::Box<Webrtc>& webrtc,
+        const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
   void CreateOffer(
-        rust::cxxbridge1::Box<Webrtc>& webrtc, 
-        const flutter::MethodCall<EncodableValue>& method_call, 
+        rust::cxxbridge1::Box<Webrtc>& webrtc,
+        const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
   void CreateAnswer(
-        rust::cxxbridge1::Box<Webrtc>& webrtc, 
-        const flutter::MethodCall<EncodableValue>& method_call, 
+        rust::cxxbridge1::Box<Webrtc>& webrtc,
+        const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
   void SetLocalDescription(
-        rust::cxxbridge1::Box<Webrtc>& webrtc, 
-        const flutter::MethodCall<EncodableValue>& method_call, 
+        rust::cxxbridge1::Box<Webrtc>& webrtc,
+        const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
-        
+
   void SetRemoteDescription(
-        rust::cxxbridge1::Box<Webrtc>& webrtc, 
-        const flutter::MethodCall<EncodableValue>& method_call, 
+        rust::cxxbridge1::Box<Webrtc>& webrtc,
+        const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 }

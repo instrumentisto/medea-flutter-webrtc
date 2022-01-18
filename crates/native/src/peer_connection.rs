@@ -17,7 +17,7 @@ fn generate_id() -> u64 {
 /// Struct for `id` of [`PeerConnection`].
 #[allow(clippy::module_name_repetitions)]
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
-pub struct PeerConnectionId(pub u64);
+pub struct PeerConnectionId(pub u64); // TODO(#19): dont pub but derive From/Into
 
 /// Is used to manage [`sys::PeerConnectionInterface`].
 #[allow(dead_code)]

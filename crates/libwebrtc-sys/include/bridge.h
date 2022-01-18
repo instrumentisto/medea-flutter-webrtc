@@ -53,7 +53,7 @@ class rc {
   // Pointer to the managed object.
   T* ptr_;
 };
-
+// TODO(#19): remove duplicate usings
 using Thread = rtc::Thread;
 
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
@@ -140,6 +140,7 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Calls `Thread->Create()`.
 std::unique_ptr<Thread> create_thread();
 
+// TODO(#19): it doesnt seems that this function is used anywhere
 // Calls `Thread->Start()`.
 bool start_thread(Thread& thread);
 
@@ -148,7 +149,7 @@ std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory();
 
 // Creates `CreateBuiltinAudioDecoderFactory`.
 std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory();
-  
+
 
 // Creates `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
@@ -165,20 +166,20 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     std::unique_ptr<AudioFrameProcessor> audio_frame_processor) ;
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
-std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(      
+std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
       PeerConnectionFactoryInterface& peer_connection_factory,
       rust::String& error,
       const RTCConfiguration& configuration,
       std::unique_ptr<PeerConnectionDependencies> dependencies);
 
-// Creates default `RTCConfiguration`.      
+// Creates default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
 
-// Creates `PeerConnectionObserver`.   
+// Creates `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer();
 
-// Creates `PeerConnectionDependencies`.      
+// Creates `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
   std::unique_ptr<PeerConnectionObserver> observer);
 
@@ -193,17 +194,17 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
   bool ice_restart,
   bool use_rtp_mux);
 
-// Creates `CreateSessionDescriptionObserver`.   
+// Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-  rust::Fn<void (const std::string &, const std::string &)> s, 
+  rust::Fn<void (const std::string &, const std::string &)> s,
   rust::Fn<void (const std::string &)> f);
 
-// Creates `SetLocalDescriptionObserverInterface`.   
+// Creates `SetLocalDescriptionObserverInterface`.
 std::unique_ptr<SetLocalDescriptionObserverInterface> create_set_local_description_observer_interface(
     rust::Fn<void ()> s,
     rust::Fn<void (const std::string &)> f);
 
-// Creates `SetRemoteDescriptionObserverInterface`.   
+// Creates `SetRemoteDescriptionObserverInterface`.
 std::unique_ptr<SetRemoteDescriptionObserverInterface> create_set_remote_description_observer_interface(
     rust::Fn<void ()> s,
     rust::Fn<void (const std::string &)> f);
