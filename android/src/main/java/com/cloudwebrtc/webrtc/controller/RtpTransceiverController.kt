@@ -6,9 +6,13 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-class RtpTransceiverController(binaryMessenger: BinaryMessenger, private val transceiver: RtpTransceiverProxy) : MethodChannel.MethodCallHandler, IdentifiableController {
+class RtpTransceiverController(
+    private val binaryMessenger: BinaryMessenger,
+    private val transceiver: RtpTransceiverProxy
+) : MethodChannel.MethodCallHandler, IdentifiableController {
     private val channelId = nextChannelId()
-    private val methodChannel = MethodChannel(binaryMessenger, ChannelNameGenerator.withId("RtpTransceiver", channelId))
+    private val methodChannel =
+        MethodChannel(binaryMessenger, ChannelNameGenerator.withId("RtpTransceiver", channelId))
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -27,7 +31,12 @@ class RtpTransceiverController(binaryMessenger: BinaryMessenger, private val tra
                 result.success(transceiver.getCurrentDirection()?.value)
             }
             "getSender" -> {
-                TODO("")
+                result.success(
+                    RtpSenderController(
+                        binaryMessenger,
+                        transceiver.getSender()
+                    ).asFlutterResult()
+                )
             }
             "stop" -> {
                 transceiver.stop()
@@ -38,6 +47,12 @@ class RtpTransceiverController(binaryMessenger: BinaryMessenger, private val tra
                 result.success(null)
             }
         }
+    }
+
+    fun asFlutterResult(): Map<String, Any> {
+        return mapOf(
+            "channelId" to channelId
+        )
     }
 
     private fun dispose() {

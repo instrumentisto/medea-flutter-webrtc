@@ -36,7 +36,7 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
                 val newPeer =
                     factory.create(PeerConnectionConfiguration(iceServers, iceTransportType))
                 val peerController = PeerConnectionController(binaryMessenger, newPeer)
-                result.success(peerController.intoFlutterResult())
+                result.success(peerController.asFlutterResult())
             }
             "dispose" -> {
                 dispose()

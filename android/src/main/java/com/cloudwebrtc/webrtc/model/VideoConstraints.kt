@@ -2,9 +2,13 @@ package com.cloudwebrtc.webrtc.model
 
 import org.webrtc.CameraEnumerator
 
-enum class FacingMode {
-    USER,
-    ENVIRONMENT;
+enum class FacingMode(val value: Int) {
+    USER(0),
+    ENVIRONMENT(1);
+
+    companion object {
+        fun fromInt(value: Int) = values().first { it.value == value }
+    }
 }
 
 enum class ConstraintScore {

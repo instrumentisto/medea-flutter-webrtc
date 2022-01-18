@@ -3,8 +3,8 @@ package com.cloudwebrtc.webrtc.model
 import org.webrtc.MediaConstraints
 
 data class AudioConstraints(
-    val mandatory: HashMap<String, String>,
-    val optional: HashMap<String, String>
+    val mandatory: Map<String, String>,
+    val optional: Map<String, String>
 ) {
     // TODO(evdokimovs): Maybe add some default constraints
     fun intoWebRtc(): MediaConstraints {

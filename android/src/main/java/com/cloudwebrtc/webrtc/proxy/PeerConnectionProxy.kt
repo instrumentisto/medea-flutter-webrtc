@@ -11,6 +11,8 @@ import org.webrtc.AddIceObserver
 import org.webrtc.MediaConstraints
 import org.webrtc.PeerConnection
 import org.webrtc.SdpObserver
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -21,7 +23,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     override var obj: PeerConnection = peer
     private var senders: HashMap<String, RtpSenderProxy> = HashMap()
     private var receivers: HashMap<String, RtpReceiverProxy> = HashMap()
-    private var transceivers: HashMap<Int, RtpTransceiverProxy> = HashMap()
+    private var transceivers: TreeMap<Int, RtpTransceiverProxy> = TreeMap()
     private var onDisposeSubscribers: MutableList<(Int) -> Unit> = mutableListOf()
 
     init {
@@ -170,11 +172,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     }
 
     fun addTransceiver(mediaType: MediaType, init: RtpTransceiverInit?): RtpTransceiverProxy {
-        return RtpTransceiverProxy(obj.addTransceiver(mediaType.intoWebRtc(), init?.intoWebRtc()))
-    }
-
-    fun addTransceiver(mediaType: MediaType): RtpTransceiverProxy {
-        return RtpTransceiverProxy(obj.addTransceiver(mediaType.intoWebRtc()))
+        obj.addTransceiver(mediaType.intoWebRtc(), init?.intoWebRtc())
+        syncTransceivers()
+        return transceivers.lastEntry()!!.value
     }
 
     private fun syncSenders() {

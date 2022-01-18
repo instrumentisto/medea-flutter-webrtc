@@ -10,7 +10,10 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.runBlocking
 
-class PeerConnectionController(messenger: BinaryMessenger, val peer: PeerConnectionProxy) :
+class PeerConnectionController(
+    private val messenger: BinaryMessenger,
+    val peer: PeerConnectionProxy
+) :
     MethodChannel.MethodCallHandler, IdentifiableController {
     private val channelId = nextChannelId()
     private val methodChannel: MethodChannel =
@@ -68,11 +71,21 @@ class PeerConnectionController(messenger: BinaryMessenger, val peer: PeerConnect
                 val mediaType = MediaType.fromInt(call.argument("mediaType")!!)
                 val transceiverInitArg: Map<String, Any>? = call.argument("init")
                 val transceiver = if (transceiverInitArg == null) {
-                    peer.addTransceiver(mediaType)
+                    peer.addTransceiver(mediaType, null)
                 } else {
                     peer.addTransceiver(mediaType, RtpTransceiverInit.fromMap(transceiverInitArg))
                 }
-                TODO("Return RtpTransceiverController")
+                val transceiverController = RtpTransceiverController(messenger, transceiver)
+                result.success(transceiverController.asFlutterResult())
+            }
+            "getSenders" -> {
+                result.success(
+                    peer.getSenders().map { RtpSenderController(messenger, it).asFlutterResult() })
+            }
+            "getTransceivers" -> {
+                result.success(
+                    peer.getTransceivers()
+                        .map { RtpTransceiverController(messenger, it).asFlutterResult() })
             }
             "dispose" -> {
                 dispose()
@@ -81,12 +94,10 @@ class PeerConnectionController(messenger: BinaryMessenger, val peer: PeerConnect
         }
     }
 
-    fun intoFlutterResult(): Map<String, Any> {
-        return mapOf<String, Any>(
-            "channelId" to channelId,
-            "id" to peer.id
-        )
-    }
+    fun asFlutterResult(): Map<String, Any> = mapOf<String, Any>(
+        "channelId" to channelId,
+        "id" to peer.id
+    )
 
     private fun dispose() {
         methodChannel.setMethodCallHandler(null)
