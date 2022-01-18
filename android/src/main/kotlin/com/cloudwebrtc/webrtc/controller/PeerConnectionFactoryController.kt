@@ -15,6 +15,10 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
     private val methodChannel =
         MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("PeerConnectionFactory"))
 
+    init {
+        methodChannel.setMethodCallHandler(this)
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "create" -> {

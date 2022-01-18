@@ -22,7 +22,7 @@ import io.flutter.view.TextureRegistry;
 import java.util.Set;
 
 /** FlutterWebRTCPlugin */
-public class FlutterWebRTCPlugin implements FlutterPlugin, ActivityAware {
+public class OldFlutterWebRTCPlugin implements FlutterPlugin, ActivityAware {
 
   public static final String TAG = "FlutterWebRTCPlugin";
   private static Application application;
@@ -33,11 +33,11 @@ public class FlutterWebRTCPlugin implements FlutterPlugin, ActivityAware {
   private LifeCycleObserver observer;
   private Lifecycle lifecycle;
 
-  public FlutterWebRTCPlugin() {}
+  public OldFlutterWebRTCPlugin() {}
 
   /** Plugin registration. */
   public static void registerWith(Registrar registrar) {
-    final FlutterWebRTCPlugin plugin = new FlutterWebRTCPlugin();
+    final OldFlutterWebRTCPlugin plugin = new OldFlutterWebRTCPlugin();
 
     plugin.startListening(registrar.context(), registrar.messenger(), registrar.textures());
 
@@ -111,7 +111,7 @@ public class FlutterWebRTCPlugin implements FlutterPlugin, ActivityAware {
                   if (rtcAudioManager == null) {
                     rtcAudioManager = RTCAudioManager.create(context);
                   }
-                  rtcAudioManager.start(FlutterWebRTCPlugin.this::onAudioManagerDevicesChanged);
+                  rtcAudioManager.start(OldFlutterWebRTCPlugin.this::onAudioManagerDevicesChanged);
                 } else {
                   if (rtcAudioManager != null) {
                     rtcAudioManager.stop();

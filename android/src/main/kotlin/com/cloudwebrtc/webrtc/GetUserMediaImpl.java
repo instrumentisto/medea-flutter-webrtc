@@ -50,7 +50,7 @@ public class GetUserMediaImpl {
   private static final String PERMISSION_AUDIO = Manifest.permission.RECORD_AUDIO;
   private static final String PERMISSION_VIDEO = Manifest.permission.CAMERA;
 
-  static final String TAG = FlutterWebRTCPlugin.TAG;
+  static final String TAG = OldFlutterWebRTCPlugin.TAG;
 
   private final Map<String, VideoCapturerInfo> mVideoCapturers = new HashMap<>();
 

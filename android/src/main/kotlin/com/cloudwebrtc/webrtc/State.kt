@@ -8,26 +8,13 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.audio.JavaAudioDeviceModule
 
 class State(val context: Context) {
-    private var eglContext: EglBase.Context = EglUtils.getRootEglBaseContext();
-
     private var audioDeviceModule: JavaAudioDeviceModule =
         JavaAudioDeviceModule.builder(context)
             .setUseHardwareAcousticEchoCanceler(true)
             .setUseHardwareNoiseSuppressor(true)
             .createAudioDeviceModule()
 
-    private var factory: PeerConnectionFactory = PeerConnectionFactory.builder()
-        .setOptions(PeerConnectionFactory.Options())
-        .setVideoEncoderFactory(
-            SimulcastVideoEncoderFactoryWrapper(
-                eglContext,
-                enableIntelVp8Encoder = true,
-                enableH264HighProfile = false
-            )
-        )
-        .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
-        .setAudioDeviceModule(audioDeviceModule)
-        .createPeerConnectionFactory()
+    private var factory: PeerConnectionFactory? = null
 
     init {
         PeerConnectionFactory.initialize(
@@ -37,8 +24,27 @@ class State(val context: Context) {
         )
     }
 
+    private fun initPeerConnectionFactory() {
+        val eglContext: EglBase.Context = EglUtils.getRootEglBaseContext()
+        PeerConnectionFactory.builder()
+            .setOptions(PeerConnectionFactory.Options())
+            .setVideoEncoderFactory(
+                SimulcastVideoEncoderFactoryWrapper(
+                    eglContext,
+                    enableIntelVp8Encoder = true,
+                    enableH264HighProfile = false
+                )
+            )
+            .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
+            .setAudioDeviceModule(audioDeviceModule)
+            .createPeerConnectionFactory()
+    }
+
     fun getPeerConnectionFactory(): PeerConnectionFactory {
-        return factory;
+        if (factory == null) {
+            initPeerConnectionFactory()
+        }
+        return factory!!
     }
 
     fun getAppContext(): Context {

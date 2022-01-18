@@ -34,7 +34,7 @@ import org.webrtc.RtpTransceiver;
 import org.webrtc.StatsReport;
 
 class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.StreamHandler {
-  private static final String TAG = FlutterWebRTCPlugin.TAG;
+  private static final String TAG = OldFlutterWebRTCPlugin.TAG;
   private final SparseArray<DataChannel> dataChannels = new SparseArray<>();
   private final String id;
   public PeerConnection peerConnection;

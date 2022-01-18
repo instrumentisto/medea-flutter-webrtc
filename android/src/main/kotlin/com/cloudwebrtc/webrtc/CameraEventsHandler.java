@@ -4,7 +4,7 @@ import android.util.Log;
 import org.webrtc.CameraVideoCapturer;
 
 class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
-  private static final String TAG = FlutterWebRTCPlugin.TAG;
+  private static final String TAG = OldFlutterWebRTCPlugin.TAG;
 
   // Camera error handler - invoked when camera can not be opened
   // or any camera exception happens on camera thread.
