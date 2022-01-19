@@ -315,3 +315,18 @@ pub fn init() -> Box<Webrtc> {
         peer_connections: HashMap::new(),
     })))
 }
+
+#[cfg(test)]
+mod test {
+    use crate::*;
+    #[test]
+    fn test1() {
+        let mut w = init();
+        let mut error = String::new();
+        let p = w.create_default_peer_connection(&mut error);
+        let pc = w.0.peer_connections.get_mut(&p.into()).unwrap();
+        let obs = libwebrtc_sys::CreateSessionDescriptionObserver::new(success, |_| {});
+        pc.peer_connection_interface.create_offer(
+            &libwebrtc_sys::RTCOfferAnswerOptions::default(), obs);
+    }
+}

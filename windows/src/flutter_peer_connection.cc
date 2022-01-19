@@ -5,6 +5,19 @@ using namespace rust::cxxbridge1;
 
 namespace callbacks {
 
+template<typename... Args>
+class Call {
+  public:
+  ~Call() {printf("delete");}
+  void(*call)(std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>>, Args...);
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
+  std::shared_ptr<Call<Args...>> lt;
+  void operator()(Args... args) {
+    (*call)(std::move(result), args...);
+    //lt.reset();
+  }
+};
+
 // Callback type for `CreateOffer/Answer` is success.
 typedef void (* callback_success)(std::string, std::string);
 
@@ -107,11 +120,26 @@ void CreateOffer(
                                 rs,
                                 std::placeholders::_1,
                                 std::placeholders::_2);
-  callbacks::callback_success wrapp_success =
-      Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
-  size_t success = (size_t) wrapp_success;
 
-  auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
+  auto test = [&] (std::string a, std::string b) { 
+    bind_success(a,b);
+  };
+
+  callbacks::Call<std::string, std::string> ccc = callbacks::Call<std::string, std::string>();
+  auto lt = std::move(std::shared_ptr<callbacks::Call<std::string, std::string>>(&ccc));
+  ccc.lt = std::move(lt);
+  ccc.result = std::move(result);
+
+  
+  ccc.call = &callbacks::OnSuccessCreate;
+  ccc("1","2");
+  //size_t success = (size_t) ccc;
+
+  //std::function<void(std::string, std::string)>* sss = (std::function<void(std::string, std::string)>*) success;
+
+  //(*sss)("1","2");
+
+  /*auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
   callbacks::callback_fail
       wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
   size_t fail = (size_t) wrapp_fail;
@@ -131,7 +159,7 @@ void CreateOffer(
   if (error != "") {
     std::string err(error);
     rs->Error("createAnswerOffer", err);
-  }
+  }*/
 };
 
 // Calls Rust `CreateAnswer()`and writes the returned session description to the

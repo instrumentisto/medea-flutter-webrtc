@@ -1,4 +1,5 @@
 extern crate derive_more;
+use cxx::let_cxx_string;
 use derive_more::{From, Into};
 use libwebrtc_sys as sys;
 
@@ -97,9 +98,12 @@ impl Webrtc {
                 ice_restart,
                 use_rtp_mux,
             );
-            peer_connection
-                .peer_connection_interface
-                .create_offer(&options, obs);
+            let_cxx_string!(a1 = "test");
+            let_cxx_string!(a2 = "test");
+            success(&a1,&a2);
+            //peer_connection
+            //    .peer_connection_interface
+            //    .create_offer(&options, obs);
         } else {
             error.push_str("Peer Connection not found");
         }
