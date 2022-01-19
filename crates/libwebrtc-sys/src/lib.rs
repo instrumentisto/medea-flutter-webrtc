@@ -282,10 +282,10 @@ impl Default for RTCConfiguration {
 /// `PeerConnectionObserver` used for calling callback RTCPeerConnection events.
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
-impl Default for PeerConnectionObserver {
+impl PeerConnectionObserver {
     /// Creates default [`PeerConnectionObserver`] without handle events
-    fn default() -> Self {
-        Self(webrtc::create_peer_connection_observer())
+    fn new(e: fn(&CxxString)) -> Self {
+        Self(webrtc::create_peer_connection_observer(e))
     }
 }
 
@@ -296,12 +296,12 @@ pub struct PeerConnectionDependencies(
     UniquePtr<webrtc::PeerConnectionDependencies>,
 );
 
-impl Default for PeerConnectionDependencies {
+impl PeerConnectionDependencies {
     /// Creates a [`PeerConnectionDependencies`]
     /// whith default [`PeerConnectionObserver`]
-    fn default() -> Self {
+    pub fn new(e: fn(&CxxString)) -> Self {
         Self(webrtc::create_peer_connection_dependencies(
-            PeerConnectionObserver::default().0,
+            PeerConnectionObserver::new(e).0,
         ))
     }
 }

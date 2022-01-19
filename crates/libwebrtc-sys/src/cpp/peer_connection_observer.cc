@@ -2,12 +2,28 @@
 #include "libwebrtc-sys\include\peer_connection_observer.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 
+
+/*
+    EncodableMap params;
+    params[EncodableValue("event")] = "signalingState";
+    params[EncodableValue("state")] = signalingStateString(state);
+    event_sink_->Success(EncodableValue(params));
+*/
+
 namespace observer
 {
+
+  PeerConnectionObserver::PeerConnectionObserver(
+    rust::Fn<void (const std::string &)> e
+  ) {
+    event_handler = e;
+  }
+
   // Triggered when the SignalingState changed.
   void PeerConnectionObserver::OnSignalingChange(
        webrtc::PeerConnectionInterface::SignalingState new_state) {
-         printf("OnSignalingChange %i\n", new_state);
+         printf("FALL HERE %s\n", webrtc::PeerConnectionInterface::AsString(new_state).data());
+         (*event_handler)(webrtc::PeerConnectionInterface::AsString(new_state).data());
        }
 
   // Triggered when media is received on a new stream from remote peer.
@@ -54,46 +70,36 @@ namespace observer
   // TODO(jonasolsson): deprecate and remove this.
   void PeerConnectionObserver::OnIceConnectionChange(
       webrtc::PeerConnectionInterface::IceConnectionState new_state) {
-        printf("deprecate OnIceConnectionChange\n");
+        printf("deprecate OnIceConnectionChange %s\n", webrtc::PeerConnectionInterface::AsString(new_state).data());
       }
 
   // Called any time the standards-compliant IceConnectionState changes.
   void PeerConnectionObserver::OnStandardizedIceConnectionChange(
       webrtc::PeerConnectionInterface::IceConnectionState new_state) {
-        printf("OnStandardizedIceConnectionChange\n");
+        printf("OnStandardizedIceConnectionChange %s\n", webrtc::PeerConnectionInterface::AsString(new_state).data());
       }
 
   // Called any time the PeerConnectionState changes.
   void PeerConnectionObserver::OnConnectionChange(
       webrtc::PeerConnectionInterface::PeerConnectionState new_state) {
-        printf("OnConnectionChange\n");
+        printf("OnConnectionChange %s\n", webrtc::PeerConnectionInterface::AsString(new_state).data());
       }
 
   // Called any time the IceGatheringState changes.
   void PeerConnectionObserver::OnIceGatheringChange(
       webrtc::PeerConnectionInterface::IceGatheringState new_state) {
-        printf("OnIceGatheringChange\n");
+        printf("OnIceGatheringChange %s\n", webrtc::PeerConnectionInterface::AsString(new_state).data());
       }
 
   // A new ICE candidate has been gathered.
   void PeerConnectionObserver::OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
-    printf("OnIceCandidate\n");
+    printf("|OnIceCandidate %s|\n", candidate->server_url());
   }
 
   // Gathering of an ICE candidate failed.
   // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
   // `host_candidate` is a stringified socket address.
   void PeerConnectionObserver::OnIceCandidateError(const std::string& host_candidate,
-                                   const std::string& url,
-                                   int error_code,
-                                   const std::string& error_text) {
-                                     printf("OnIceCandidateError\n");
-                                   }
-
-  // Gathering of an ICE candidate failed.
-  // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
-  void PeerConnectionObserver::OnIceCandidateError(const std::string& address,
-                                   int port,
                                    const std::string& url,
                                    int error_code,
                                    const std::string& error_text) {

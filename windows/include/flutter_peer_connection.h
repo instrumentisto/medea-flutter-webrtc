@@ -7,6 +7,7 @@ using namespace flutter;
 
   // Calls Rust `create_default_peer_connection()` and write `PeerConnectionId` in result.
   void CreateRTCPeerConnection(
+        flutter::BinaryMessenger* messenger,
         rust::cxxbridge1::Box<Webrtc>& webrtc,
         const flutter::MethodCall<EncodableValue>& method_call,
         std::unique_ptr<flutter::MethodResult<EncodableValue>> result);

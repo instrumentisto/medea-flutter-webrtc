@@ -26,6 +26,7 @@ fn main() -> anyhow::Result<()> {
     );
     println!("cargo:rustc-link-lib=webrtc");
 
+
     println!("cargo:rustc-link-lib=dylib=dmoguids");
     println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
     println!("cargo:rustc-link-lib=dylib=amstrmid");
@@ -40,6 +41,7 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .flag("-DWEBRTC_WIN")
         .flag("-DNOMINMAX")
+        .define("NDEBUG", "1")
         .compile("libwebrtc-sys");
 
     for file in cpp_files {

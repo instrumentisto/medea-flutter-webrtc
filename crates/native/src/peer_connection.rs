@@ -36,15 +36,19 @@ impl Webrtc {
     /// then the result will be NULL or default.
     pub fn create_default_peer_connection(
         self: &mut Webrtc,
+        e: usize,
         error: &mut String,
     ) -> u64 {
+
+        let event: fn(&cxx::CxxString) = 
+                unsafe { std::mem::transmute(e) };
         let peer_c = self
             .0
             .peer_connection_factory
             .create_peer_connection_or_error(
                 error,
                 &sys::RTCConfiguration::default(),
-                sys::PeerConnectionDependencies::default(),
+                sys::PeerConnectionDependencies::new(event),
             );
         if error.is_empty() {
             let id = generate_id();

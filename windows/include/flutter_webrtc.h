@@ -39,6 +39,7 @@ class FlutterWebRTC {
   virtual ~FlutterWebRTC();
 
   Box<Webrtc> webrtc = Init();
+  flutter::BinaryMessenger* messenger_ = nullptr;
 
   void HandleMethodCall(
       const flutter::MethodCall<EncodableValue> &method_call,

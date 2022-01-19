@@ -9,6 +9,10 @@ namespace observer
 // `PeerConnectionObserver` used for calling callback RTCPeerConnection events.
 class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 {
+  public:
+  rust::Fn<void (const std::string &)> event_handler;
+  PeerConnectionObserver(rust::Fn<void (const std::string &)> e);
+
   // Triggered when the SignalingState changed.
   void OnSignalingChange(
        webrtc::PeerConnectionInterface::SignalingState new_state);
@@ -67,14 +71,6 @@ class PeerConnectionObserver: public webrtc::PeerConnectionObserver
   // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
   // `host_candidate` is a stringified socket address.
   void OnIceCandidateError(const std::string& host_candidate,
-                                   const std::string& url,
-                                   int error_code,
-                                   const std::string& error_text);
-
-  // Gathering of an ICE candidate failed.
-  // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
-  void OnIceCandidateError(const std::string& address,
-                                   int port,
                                    const std::string& url,
                                    int error_code,
                                    const std::string& error_text);

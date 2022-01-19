@@ -5,6 +5,7 @@
 #include "modules/audio_device/include/audio_device_factory.h"
 
 #include "libwebrtc-sys/include/bridge.h"
+#include "absl/strings/string_view.h"
 
 namespace bridge {
 
@@ -311,8 +312,10 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
 
 
 // Creates `PeerConnectionObserver`.
-std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer() {
-  PeerConnectionObserver obs;
+std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
+  rust::Fn<void (const std::string &)> e
+) {
+  PeerConnectionObserver obs = PeerConnectionObserver(e);
   return std::make_unique<PeerConnectionObserver>(obs);
 }
 
@@ -393,5 +396,4 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
       = rtc::scoped_refptr<SetRemoteDescriptionObserverInterface>(obs.release());
     peer_connection_interface.ptr()->SetRemoteDescription(std::move(desc), observer);
   }
-
 }  // namespace bridge

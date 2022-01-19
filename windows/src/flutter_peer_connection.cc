@@ -1,6 +1,11 @@
 
 #include "flutter_peer_connection.h"
 #include "media_stream.h"
+
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
 namespace callbacks {
 
 // Callback type for `CreateOffer/Answer` is success.
@@ -11,6 +16,9 @@ typedef void (*callback_fail)(std::string);
 
 // Callback type for `SetLocal/RemoteDescription` is success.
 typedef void (*callback_success_desc)();
+
+// Event State chng #todo(DOC).
+typedef void (*event)(std::string);
 
 // Callback for write `CreateOffer/Answer` success result in flutter.
 void OnSuccessCreate(
@@ -33,6 +41,24 @@ void OnSuccessDescription(
 void OnFail(std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result, std::string error) {
   result->Error(error);
 }
+
+// Event #todo(DOC).
+void OnEvent(
+    EventChannel<EncodableValue>* channel,
+    EventSink<EncodableValue>* result, 
+    std::string event) {
+    if (result != nullptr) {
+        printf("OK\n");
+        //EncodableMap params;
+        //params[EncodableValue("event")] = "signalingState";
+        //params[EncodableValue("state")] = event;
+        //result->Success("EncodableValue(params)");
+    }
+    else {
+        printf("NULL\n");
+    }
+
+}
 }
 
 
@@ -42,12 +68,53 @@ using namespace flutter;
 
 // Calls Rust `create_default_peer_connection()` and write `PeerConnectionId` in result.
 void CreateRTCPeerConnection(
+    flutter::BinaryMessenger* messenger,
     rust::cxxbridge1::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result)
     {
+        if (!method_call.arguments()) {
+            result->Error("Bad Arguments", "Null constraints arguments received");
+            return;
+        }
+
+        std::shared_ptr<EventChannel<EncodableValue>> event_channel_ 
+            = std::make_shared<EventChannel<EncodableValue>>(EventChannel<EncodableValue>(
+                messenger,
+                "test",
+                &StandardMethodCodec::GetInstance()));
+        std::shared_ptr<EventSink<EncodableValue>> event_sink_ = nullptr;
+
+        auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
+            [&](const flutter::EncodableValue* arguments,
+                std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+                -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+                    event_sink_ = std::make_shared<EventChannel<EncodableValue>>(events);
+                    return nullptr;
+            },
+            [&](const flutter::EncodableValue* arguments)
+                -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+                    event_sink_ = nullptr;
+                    return nullptr;
+            }
+        );
+
+        event_channel_->SetStreamHandler(std::move(handler));
+
+        auto bind_event 
+            = std::bind(
+                &callbacks::OnEvent, 
+                event_channel_, 
+                event_sink_, 
+                std::placeholders::_1
+            );
+
+        callbacks::event wrapp_event = Wrapper<0, void(std::string)>::wrap(bind_event);
+        size_t event = (size_t) wrapp_event;
+        
+        //std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events
         rust::String error;
-        uint64_t id = webrtc->CreatePeerConnection(error);
+        uint64_t id = webrtc->CreatePeerConnection(event, error);
         std::string peer_connection_id = std::to_string(id);
         if(error == ""){
             EncodableMap params;

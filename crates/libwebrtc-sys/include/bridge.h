@@ -92,8 +92,6 @@ using SetLocalDescriptionObserverInterface = observer::SetLocalDescriptionObserv
 using SetRemoteDescriptionObserverInterface = observer::SetRemoteDescriptionObserverInterface;
 using SdpType = webrtc::SdpType;
 
-
-
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
@@ -171,7 +169,9 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
 
 // Creates `PeerConnectionObserver`.
-std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer();
+std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
+  rust::Fn<void (const std::string &)> e
+);
 
 // Creates `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
