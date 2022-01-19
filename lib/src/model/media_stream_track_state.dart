@@ -1,0 +1,4 @@
+enum MediaStreamTrackState {
+  ended,
+  live,
+}

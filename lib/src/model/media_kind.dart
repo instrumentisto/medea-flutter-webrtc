@@ -1,0 +1,1 @@
+enum MediaKind { Audio, Video }
