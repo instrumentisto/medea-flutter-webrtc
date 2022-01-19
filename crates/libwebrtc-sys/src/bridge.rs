@@ -1,7 +1,6 @@
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
-
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -64,7 +63,8 @@ pub(crate) mod webrtc {
         /// platform.
         #[namespace = "webrtc"]
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
-        pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
+        pub fn create_default_task_queue_factory()
+            -> UniquePtr<TaskQueueFactory>;
 
         /// Creates a new [`Thead`].
         pub fn create_thread() -> UniquePtr<Thread>;
@@ -147,24 +147,24 @@ pub(crate) mod webrtc {
 
     #[rustfmt::skip]
     unsafe extern "C++" {
-        type VideoEncoderFactory;
-        type VideoDecoderFactory;
-        type PeerConnectionFactoryInterface;
-        type AudioEncoderFactory;
         type AudioDecoderFactory;
+        type AudioEncoderFactory;
+        type AudioFrameProcessor;
         type AudioMixer;
         type AudioProcessing;
-        type AudioFrameProcessor;
-        type PeerConnectionDependencies;
-        type RTCConfiguration;
-        type PeerConnectionObserver;
-        type PeerConnectionInterface;
-        type RTCOfferAnswerOptions;
-        type SessionDescriptionInterface;
-        type SdpType;
         type CreateSessionDescriptionObserver;
+        type PeerConnectionDependencies;
+        type PeerConnectionFactoryInterface;
+        type PeerConnectionInterface;
+        type PeerConnectionObserver;
+        type RTCConfiguration;
+        type RTCOfferAnswerOptions;
+        type SdpType;
+        type SessionDescriptionInterface;
         type SetLocalDescriptionObserverInterface;
         type SetRemoteDescriptionObserverInterface;
+        type VideoDecoderFactory;
+        type VideoEncoderFactory;
 
         /// Creates a new [`VideoEncoderFactory`].
         #[namespace = "webrtc"]
@@ -301,6 +301,7 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
     }
+
     unsafe extern "C++" {
         type AudioSourceInterface;
         type AudioTrackInterface;
@@ -374,7 +375,6 @@ pub(crate) mod webrtc {
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
-    /// Try conver &str to [`webrtc::SdpType`].
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),

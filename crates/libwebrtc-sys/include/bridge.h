@@ -54,45 +54,42 @@ class rc {
   T* ptr_;
 };
 
-using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
-using TaskQueueFactory = webrtc::TaskQueueFactory;
-using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+using Thread = rtc::Thread;
 
+using AudioFrameProcessor = webrtc::AudioFrameProcessor;
+using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
+using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
+using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
+using RTCOfferAnswerOptions =
+    webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
+using SdpType = webrtc::SdpType;
+using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
+using TaskQueueFactory = webrtc::TaskQueueFactory;
+using VideoDecoderFactory = webrtc::VideoDecoderFactory;
+using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+using VideoEncoderFactory = webrtc::VideoEncoderFactory;
+
+using AudioDecoderFactory = rc<webrtc::AudioDecoderFactory>;
 using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
+using AudioEncoderFactory = rc<webrtc::AudioEncoderFactory>;
+using AudioMixer = rc<webrtc::AudioMixer>;
+using AudioProcessing = rc<webrtc::AudioProcessing>;
 using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
 using AudioTrackInterface = rc<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = rc<webrtc::MediaStreamInterface>;
-using PeerConnectionFactoryInterface = rc<webrtc::PeerConnectionFactoryInterface>;
+using PeerConnectionFactoryInterface =
+    rc<webrtc::PeerConnectionFactoryInterface>;
+using PeerConnectionInterface = rc<webrtc::PeerConnectionInterface>;
 using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
 
-using Thread = rtc::Thread;
-using PeerConnectionFactoryInterface =
-    rc<webrtc::PeerConnectionFactoryInterface>;
-
-using PeerConnectionInterface = rc<webrtc::PeerConnectionInterface>;
-using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
-using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
-
-using AudioEncoderFactory = rc<webrtc::AudioEncoderFactory>;
-using AudioDecoderFactory = rc<webrtc::AudioDecoderFactory>;
-
-using AudioMixer = rc<webrtc::AudioMixer>;
-using AudioProcessing = rc<webrtc::AudioProcessing>;
-using VideoEncoderFactory = webrtc::VideoEncoderFactory;
-using VideoDecoderFactory = webrtc::VideoDecoderFactory;
-using AudioFrameProcessor = webrtc::AudioFrameProcessor;
-
+using CreateSessionDescriptionObserver =
+    observer::CreateSessionDescriptionObserver;
 using PeerConnectionObserver = observer::PeerConnectionObserver;
-using CreateSessionDescriptionObserver = observer::CreateSessionDescriptionObserver;
-
-using RTCOfferAnswerOptions = webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
-using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
-using SetLocalDescriptionObserverInterface = observer::SetLocalDescriptionObserverInterface;
-using SetRemoteDescriptionObserverInterface = observer::SetRemoteDescriptionObserverInterface;
-using SdpType = webrtc::SdpType;
-
-
+using SetLocalDescriptionObserverInterface =
+    observer::SetLocalDescriptionObserverInterface;
+using SetRemoteDescriptionObserverInterface =
+    observer::SetRemoteDescriptionObserverInterface;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -132,8 +129,8 @@ std::unique_ptr<VideoDeviceInfo> create_video_device_info();
 // Obtains information regarding the specified video recording device.
 int32_t video_device_name(VideoDeviceInfo& device_info,
                           uint32_t index,
-                          rust::String &name,
-                          rust::String &guid);
+                          rust::String& name,
+                          rust::String& guid);
 
 // Calls `Thread->Create()`.
 std::unique_ptr<Thread> create_thread();
@@ -143,7 +140,6 @@ std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory();
 
 // Creates `CreateBuiltinAudioDecoderFactory`.
 std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory();
-
 
 // Creates `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
@@ -157,67 +153,70 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
     std::unique_ptr<AudioMixer> audio_mixer,
     std::unique_ptr<AudioProcessing> audio_processing,
-    std::unique_ptr<AudioFrameProcessor> audio_frame_processor) ;
+    std::unique_ptr<AudioFrameProcessor> audio_frame_processor);
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
 std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
-      PeerConnectionFactoryInterface& peer_connection_factory,
-      rust::String& error,
-      const RTCConfiguration& configuration,
-      std::unique_ptr<PeerConnectionDependencies> dependencies);
+    PeerConnectionFactoryInterface& peer_connection_factory,
+    rust::String& error,
+    const RTCConfiguration& configuration,
+    std::unique_ptr<PeerConnectionDependencies> dependencies);
 
 // Creates default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
-
 
 // Creates `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer();
 
 // Creates `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
-  std::unique_ptr<PeerConnectionObserver> observer);
+    std::unique_ptr<PeerConnectionObserver> observer);
 
 // Creates `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
 
 // Creates `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
-  int32_t offer_to_receive_video,
-  int32_t offer_to_receive_audio,
-  bool voice_activity_detection,
-  bool ice_restart,
-  bool use_rtp_mux);
+    int32_t offer_to_receive_video,
+    int32_t offer_to_receive_audio,
+    bool voice_activity_detection,
+    bool ice_restart,
+    bool use_rtp_mux);
 
 // Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-  rust::Fn<void (const std::string &, const std::string &)> s,
-  rust::Fn<void (const std::string &)> f);
+    rust::Fn<void(const std::string&, const std::string&)> s,
+    rust::Fn<void(const std::string&)> f);
 
 // Creates `SetLocalDescriptionObserverInterface`.
 std::unique_ptr<SetLocalDescriptionObserverInterface> create_set_local_description_observer_interface(
-    rust::Fn<void ()> s,
-    rust::Fn<void (const std::string &)> f);
+    rust::Fn<void()> s,
+    rust::Fn<void(const std::string&)> f);
 
 // Creates `SetRemoteDescriptionObserverInterface`.
 std::unique_ptr<SetRemoteDescriptionObserverInterface> create_set_remote_description_observer_interface(
-    rust::Fn<void ()> s,
-    rust::Fn<void (const std::string &)> f);
+    rust::Fn<void()> s,
+    rust::Fn<void(const std::string&)> f);
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs);
+                  const RTCOfferAnswerOptions& options,
+                  std::unique_ptr<CreateSessionDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
 void create_answer(PeerConnectionInterface& peer_connection_interface,
-  const RTCOfferAnswerOptions& options, std::unique_ptr<CreateSessionDescriptionObserver> obs);
+                   const RTCOfferAnswerOptions& options,
+                   std::unique_ptr<CreateSessionDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->SetLocalDescription`.
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetLocalDescriptionObserverInterface> obs);
+                           std::unique_ptr<SessionDescriptionInterface> desc,
+                           std::unique_ptr<SetLocalDescriptionObserverInterface> obs);
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-  std::unique_ptr<SessionDescriptionInterface> desc, std::unique_ptr<SetRemoteDescriptionObserverInterface> obs);
+                            std::unique_ptr<SessionDescriptionInterface> desc,
+                            std::unique_ptr<SetRemoteDescriptionObserverInterface> obs);
 
 // Creates a new `VideoTrackSourceInterface` according to the specified
 // constraints.

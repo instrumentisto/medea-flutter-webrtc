@@ -1,42 +1,42 @@
 #include "flutter_webrtc.h"
 #include "wrapper.h"
 
+using namespace flutter;
+using namespace rust::cxxbridge1;
+
 namespace flutter_webrtc_plugin {
 
-using namespace flutter;
+// Calls Rust `CreatePeerConnection()` and writes newly created Peer ID to the
+// provided `MethodResult`.
+void CreateRTCPeerConnection(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-  // Calls Rust `create_default_peer_connection()` and write `PeerConnectionId` in result.
-  void CreateRTCPeerConnection(
-        rust::cxxbridge1::Box<Webrtc>& webrtc,
-        const flutter::MethodCall<EncodableValue>& method_call,
-        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+// Calls Rust `CreateOffer()` and writes the returned session description to the
+// provided `MethodResult`.
+void CreateOffer(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-  // Calls Rust `create_offer()`. 
-  // success or fail will be write in result in `CreateSessionDescriptionObserver` callbacks.
-  void CreateOffer(
-        rust::cxxbridge1::Box<Webrtc>& webrtc,
-        const flutter::MethodCall<EncodableValue>& method_call,
-        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+// Calls Rust `CreateAnswer()`and writes the returned session description to the
+// provided `MethodResult`.
+void CreateAnswer(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-  // Calls Rust `create_answer()`. 
-  // success or fail will be write in result in `CreateSessionDescriptionObserver` callbacks.
-  void CreateAnswer(
-        rust::cxxbridge1::Box<Webrtc>& webrtc,
-        const flutter::MethodCall<EncodableValue>& method_call,
-        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+// Calls Rust `SetLocalDescription()`.
+void SetLocalDescription(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-  // Calls Rust `set_local_description()`. 
-  // success or fail will be write in result in `SetLocalDescriptionObserverInterface` callbacks.
-  void SetLocalDescription(
-        rust::cxxbridge1::Box<Webrtc>& webrtc,
-        const flutter::MethodCall<EncodableValue>& method_call,
-        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
-
-  // Calls Rust `set_remote_description()`. 
-  // success or fail will be write in result in `SetRemoteDescriptionObserverInterface` callbacks.
-  void SetRemoteDescription(
-        rust::cxxbridge1::Box<Webrtc>& webrtc,
-        const flutter::MethodCall<EncodableValue>& method_call,
-        std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+// Calls Rust `SetRemoteDescription()`.
+void SetRemoteDescription(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 }
