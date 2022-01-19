@@ -2,10 +2,7 @@ package com.cloudwebrtc.webrtc
 
 import android.content.Context
 import com.cloudwebrtc.webrtc.exception.OverconstrainedException
-import com.cloudwebrtc.webrtc.model.AudioConstraints
-import com.cloudwebrtc.webrtc.model.Constraints
-import com.cloudwebrtc.webrtc.model.MediaDeviceInfo
-import com.cloudwebrtc.webrtc.model.VideoConstraints
+import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import org.webrtc.*
@@ -42,12 +39,12 @@ class MediaDevices(val state: State) {
     }
 
     private fun enumerateAudioDevices(): List<MediaDeviceInfo> {
-        return listOf(MediaDeviceInfo("default"))
+        return listOf(MediaDeviceInfo("default", "default", MediaDeviceKind.AUDIO_INPUT))
     }
 
     private fun enumerateVideoDevices(): List<MediaDeviceInfo> {
         return cameraEnumerator.deviceNames.map { deviceId ->
-            MediaDeviceInfo(deviceId)
+            MediaDeviceInfo(deviceId, deviceId, MediaDeviceKind.VIDEO_INPUT)
         }.toList()
     }
 
