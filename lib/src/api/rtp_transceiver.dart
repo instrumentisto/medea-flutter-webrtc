@@ -8,6 +8,8 @@ class RtpTransceiver {
   }
 
   late MethodChannel _methodChannel;
+  String? _mid;
+  bool _isStopped = false;
 
   Future<void> setDirection(TransceiverDirection direction) async {
     await _methodChannel
@@ -19,11 +21,20 @@ class RtpTransceiver {
     return TransceiverDirection.values[res];
   }
 
+  Future<void> syncMid() async {
+    _mid = await _methodChannel.invokeMethod('getMid');
+  }
+
   String? mid() {
-    throw UnimplementedError();
+    return _mid;
+  }
+
+  Future<void> stop() async {
+    _isStopped = true;
+    await _methodChannel.invokeMethod('stop');
   }
 
   bool isStopped() {
-    throw UnimplementedError();
+    return _isStopped;
   }
 }

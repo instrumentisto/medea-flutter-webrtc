@@ -65,6 +65,8 @@ class PeerConnection {
   IceConnectionState _iceConnectionState = IceConnectionState.new_;
   PeerConnectionState _connectionState = PeerConnectionState.new_;
 
+  List<RtpTransceiver> _transceivers = [];
+
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
     Map<String, dynamic> res =
@@ -92,28 +94,41 @@ class PeerConnection {
     _onConnectionStateChange = f;
   }
 
+  Future<void> _syncTransceiversMids() async {
+    for (var transceiver in _transceivers) {
+      await transceiver.syncMid();
+    }
+  }
+
   Future<RtpTransceiver> addTransceiver(
       MediaType mediaType, RtpTransceiverInit init) async {
     Map<String, dynamic> res = await _methodChannel.invokeMethod(
         'addTransceiver', {'mediaType': mediaType.index, 'init': init.toMap()});
+    var transceiver = RtpTransceiver.fromMap(res);
+    _transceivers.add(transceiver);
 
-    return RtpTransceiver.fromMap(res);
+    return transceiver;
   }
 
   Future<List<RtpTransceiver>> getTransceivers() async {
-    List<Map<String, dynamic>> transceivers =
+    List<Map<String, dynamic>> res =
         await _methodChannel.invokeMethod('getTransceivers');
-    return transceivers.map((t) => RtpTransceiver.fromMap(t)).toList();
+    var transceivers = res.map((t) => RtpTransceiver.fromMap(t)).toList();
+    _transceivers = transceivers;
+
+    return transceivers;
   }
 
   Future<void> setRemoteDescription(SessionDescription description) async {
     await _methodChannel.invokeMethod(
         'setRemoteDescription', {'description': description.toMap()});
+    await _syncTransceiversMids();
   }
 
   Future<void> setLocalDescription(SessionDescription description) async {
     await _methodChannel.invokeMethod(
         'setLocalDescription', {'description': description.toMap()});
+    await _syncTransceiversMids();
   }
 
   Future<SessionDescription> createOffer() async {
