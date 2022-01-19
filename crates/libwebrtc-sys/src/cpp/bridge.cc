@@ -277,7 +277,9 @@ LRESULT CALLBACK DWProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 void test() {
-  CustomNotifier asd;
+  CustomNotifier asd([]() {
+    printf("asdsadsad\n");
+    });
 
   system("PAUSE");
   // while (true);
