@@ -3,8 +3,10 @@ import 'package:flutter_webrtc/src/api/media_stream_track.dart';
 import 'package:flutter_webrtc/src/api/rtp_transceiver.dart';
 import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
 import 'package:flutter_webrtc/src/model/ice_candidate.dart';
+import 'package:flutter_webrtc/src/model/media_type.dart';
 import 'package:flutter_webrtc/src/model/peer_connection_config.dart';
 import 'package:flutter_webrtc/src/model/peer_connections_states.dart';
+import 'package:flutter_webrtc/src/model/rtp_transceiver_init.dart';
 import 'package:flutter_webrtc/src/model/session_description.dart';
 
 const _peerConnectionFactoryMethodChannel =
@@ -88,6 +90,14 @@ class PeerConnection {
 
   void onConnectionStateChange(OnConnectionStateChangeCallback f) {
     _onConnectionStateChange = f;
+  }
+
+  Future<RtpTransceiver> addTransceiver(
+      MediaType mediaType, RtpTransceiverInit init) async {
+    Map<String, dynamic> res = await _methodChannel.invokeMethod(
+        'addTransceiver', {'mediaType': mediaType.index, 'init': init.toMap()});
+
+    return RtpTransceiver.fromMap(res);
   }
 
   Future<List<RtpTransceiver>> getTransceivers() async {
