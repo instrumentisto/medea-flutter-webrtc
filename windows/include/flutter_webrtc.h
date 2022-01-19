@@ -38,7 +38,7 @@ class FlutterWebRTC {
   FlutterWebRTC(FlutterWebRTCPlugin *plugin);
   virtual ~FlutterWebRTC();
 
-  rust::cxxbridge1::Box<Webrtc> webrtc = Init();
+  Box<Webrtc> webrtc = Init();
 
   void HandleMethodCall(
       const flutter::MethodCall<EncodableValue> &method_call,

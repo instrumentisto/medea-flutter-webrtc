@@ -11,8 +11,6 @@
 #include "flutter_video_renderer.h"
 #include "libwebrtc.h"
 
-#include <flutter_webrtc_native.h>
-
 namespace flutter_webrtc_plugin {
 using namespace libwebrtc;
 
@@ -31,8 +29,6 @@ class FlutterWebRTC : public FlutterWebRTCBase,
  public:
   FlutterWebRTC(FlutterWebRTCPlugin *plugin);
   virtual ~FlutterWebRTC();
-
-  rust::cxxbridge1::Box<Webrtc> webrtc = Init();
 
   void HandleMethodCall(
       const flutter::MethodCall<EncodableValue> &method_call,

@@ -39,6 +39,24 @@ inline std::string findString(const EncodableMap& map, const std::string& key) {
   return std::string();
 }
 
+// Returns an `bool` value from the given `EncodableMap` by the given
+// `key` if any, or false otherwise.
+inline bool findBool(const EncodableMap& map, const std::string& key) {
+  auto it = map.find(EncodableValue(key));
+  if (it != map.end() && TypeIs<bool>(it->second))
+    return GetValue<bool>(it->second);
+  return bool();
+}
+
+// Returns an `EncodableList` value from the given `EncodableMap` by the given
+// `key` if any, or an empty `EncodableList` otherwise.
+inline EncodableList findList(const EncodableMap& map, const std::string& key) {
+  auto it = map.find(EncodableValue(key));
+  if (it != map.end() && TypeIs<EncodableList>(it->second))
+    return GetValue<EncodableList>(it->second);
+  return EncodableList();
+}
+
 // Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 // `MediaDeviceInfo` info for Dart.
 void enumerate_device(rust::Box<Webrtc>& webrtc,

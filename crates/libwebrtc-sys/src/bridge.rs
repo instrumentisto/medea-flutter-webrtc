@@ -55,10 +55,10 @@ pub(crate) mod webrtc {
     }
 
     #[rustfmt::skip]
-    unsafe extern "C++" {   
+    unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
         type TaskQueueFactory;
-        type Thread;   
+        type Thread;
 
         /// Creates a default [`TaskQueueFactory`] based on the current
         /// platform.
@@ -145,15 +145,15 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
-    #[rustfmt::skip]          
-    unsafe extern "C++" {            
-        type VideoEncoderFactory;          
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        type VideoEncoderFactory;
         type VideoDecoderFactory;
         type PeerConnectionFactoryInterface;
         type AudioEncoderFactory;
         type AudioDecoderFactory;
         type AudioMixer;
-        type AudioProcessing;  
+        type AudioProcessing;
         type AudioFrameProcessor;
         type PeerConnectionDependencies;
         type RTCConfiguration;
@@ -165,7 +165,7 @@ pub(crate) mod webrtc {
         type CreateSessionDescriptionObserver;
         type SetLocalDescriptionObserverInterface;
         type SetRemoteDescriptionObserverInterface;
- 
+
         /// Creates a new [`VideoEncoderFactory`].
         #[namespace = "webrtc"]
         #[cxx_name = "CreateBuiltinVideoEncoderFactory"]
@@ -224,6 +224,7 @@ pub(crate) mod webrtc {
 
         /// Creates a [`PeerConnectionObserver`].
         pub fn create_peer_connection_observer(
+            e: fn(&CxxString),
         ) -> UniquePtr<PeerConnectionObserver>;
 
         /// Creates a [`PeerConnectionDependencies`].
@@ -243,7 +244,7 @@ pub(crate) mod webrtc {
             ice_restart: bool,
             use_rtp_mux: bool,
         ) -> UniquePtr<RTCOfferAnswerOptions>;
-  
+
         /// Creates a [`CreateSessionDescriptionObserver`].
         /// Where
         /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
@@ -263,40 +264,40 @@ pub(crate) mod webrtc {
         pub fn create_set_remote_description_observer_interface(
             s: fn(),
             f: fn(&CxxString),
-        ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;    
-       
-        /// Calls `peer_connection_interface`->CreateOffer.       
+        ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
+
+        /// Calls `peer_connection_interface`->CreateOffer.
         pub fn create_offer(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,   
-            options: &RTCOfferAnswerOptions,   
-            obs: UniquePtr<CreateSessionDescriptionObserver>,
-        );  
-  
-        /// Calls `peer_connection_interface`->CreateAnswer.     
-        pub fn create_answer(   
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
-            options: &RTCOfferAnswerOptions,      
+            options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
-        );    
+        );
+
+        /// Calls `peer_connection_interface`->CreateAnswer.
+        pub fn create_answer(
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            options: &RTCOfferAnswerOptions,
+            obs: UniquePtr<CreateSessionDescriptionObserver>,
+        );
 
         /// Calls `peer_connection_interface`->SetLocalDescription.
-        pub fn set_local_description(   
+        pub fn set_local_description(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
-            desc: UniquePtr<SessionDescriptionInterface>,    
+            desc: UniquePtr<SessionDescriptionInterface>,
             obs: UniquePtr<SetLocalDescriptionObserverInterface>,
-        );   
-  
+        );
+
         /// Calls `peer_connection_interface`->SetRemoteDescription.
-        pub fn set_remote_description(  
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,  
-            desc: UniquePtr<SessionDescriptionInterface>,   
-            obs: UniquePtr<SetRemoteDescriptionObserverInterface>,  
-        );      
-   
+        pub fn set_remote_description(
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            desc: UniquePtr<SessionDescriptionInterface>,
+            obs: UniquePtr<SetRemoteDescriptionObserverInterface>,
+        );
+
         /// Creates [`SessionDescriptionInterface`]
         #[namespace = "webrtc"]
-        #[cxx_name = "CreateSessionDescription"]          
-        pub fn create_session_description(        
+        #[cxx_name = "CreateSessionDescription"]
+        pub fn create_session_description(
             type_: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;

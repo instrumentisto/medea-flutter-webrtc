@@ -20,6 +20,7 @@ void FlutterWebRTC::HandleMethodCall(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   const std::string& method = method_call.method_name();
+
   if (method.compare("createPeerConnection") == 0) {
     CreateRTCPeerConnection(webrtc, method_call, std::move(result));
   } else if (method.compare("getSources") == 0) {

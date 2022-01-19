@@ -125,20 +125,12 @@ class _MyAppState extends State<MyApp> {
                     builder: (BuildContext context) => GetSourcesSample()));
           }),
       RouteItem(
-          title: 'PeerConnection',
+          title: 'Basic RtcPeerConnection',
           push: (BuildContext context) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => PeerConnectionSample()));
-          }),
-      RouteItem(
-          title: 'CreateAnswer',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => CreateSample()));
           }),
     ];
   }
