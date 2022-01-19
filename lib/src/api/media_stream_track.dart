@@ -6,22 +6,29 @@ class MediaStreamTrack {
   MediaStreamTrack.fromMap(Map<String, dynamic> map) {
     _methodChannel =
         MethodChannel(channelNameWithId('MediaStreamTrack', map['channelId']));
+    _id = map['id'];
+    _deviceId = map['deviceId'];
+    _kind = MediaKind.values[map['kind']];
   }
 
   bool _enabled = true;
 
+  late String _id;
+  late MediaKind _kind;
+  late String _deviceId;
+
   late MethodChannel _methodChannel;
 
   String id() {
-    throw UnimplementedError();
+    return _id;
   }
 
   MediaKind kind() {
-    throw UnimplementedError();
+    return _kind;
   }
 
   String deviceId() {
-    throw UnimplementedError();
+    return _deviceId;
   }
 
   bool isEnabled() {

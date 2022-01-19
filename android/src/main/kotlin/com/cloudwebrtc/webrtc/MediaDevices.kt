@@ -1,6 +1,7 @@
 package com.cloudwebrtc.webrtc
 
 import android.content.Context
+import com.cloudwebrtc.webrtc.exception.OverconstrainedException
 import com.cloudwebrtc.webrtc.model.AudioConstraints
 import com.cloudwebrtc.webrtc.model.Constraints
 import com.cloudwebrtc.webrtc.model.MediaDeviceInfo
@@ -68,7 +69,7 @@ class MediaDevices(val state: State) {
 
     // TODO(evdokimovs): Adapt width, height and fps based on constraints
     private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
-        val deviceId = findDeviceMatchingConstraints(constraints)
+        val deviceId = findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
 
         val videoSource = state.getPeerConnectionFactory().createVideoSource(false)
         // TODO(evdokimovs): This is optional function call as I know, so
@@ -103,7 +104,8 @@ class MediaDevices(val state: State) {
         videoCapturer.startCapture(1280, 720, 30)
 
         val videoTrack = MediaStreamTrackProxy(
-            state.getPeerConnectionFactory().createVideoTrack(getNextTrackId(), videoSource)
+            state.getPeerConnectionFactory().createVideoTrack(getNextTrackId(), videoSource),
+            deviceId
         )
         videoTrack.onStop {
             videoCapturer.stopCapture()
@@ -118,8 +120,10 @@ class MediaDevices(val state: State) {
     private fun getUserAudioTrack(constraints: AudioConstraints): MediaStreamTrackProxy {
         val trackId = getNextTrackId()
         val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
+        // TODO(evdokimovs): Provide real deviceId when this mechanism will be implemented.
         val track = MediaStreamTrackProxy(
-            state.getPeerConnectionFactory().createAudioTrack(trackId, source)
+            state.getPeerConnectionFactory().createAudioTrack(trackId, source),
+            "audio-1"
         )
         track.onStop {
             source.dispose()

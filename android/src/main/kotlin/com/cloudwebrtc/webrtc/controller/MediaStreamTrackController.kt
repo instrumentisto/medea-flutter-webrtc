@@ -41,7 +41,12 @@ class MediaStreamTrackController(
         }
     }
 
-    fun asFlutterResult(): Map<String, Any> = mapOf("channelId" to channelId)
+    fun asFlutterResult(): Map<String, Any> = mapOf(
+        "channelId" to channelId,
+        "id" to track.id(),
+        "kind" to track.kind().value,
+        "deviceId" to track.deviceId()
+    )
 
     private fun dispose() {
         methodChannel.setMethodCallHandler(null)
