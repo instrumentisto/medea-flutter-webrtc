@@ -145,6 +145,29 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
+
+    extern  "Rust" {
+        type RustCreateOfferAnswerCB;
+        fn create_RustCreateOfferAnswerCB(            
+            ok_   :usize,
+            err_  :usize,
+            drop_ :usize,
+            data_ :usize,
+        ) -> Box<RustCreateOfferAnswerCB>;
+
+        fn ok(
+            self: &mut RustCreateOfferAnswerCB, a: &CxxString, b:&CxxString
+        );
+
+        fn err(
+            self: &mut RustCreateOfferAnswerCB, a: &CxxString
+        );
+
+        fn data_drop(
+            self: &mut RustCreateOfferAnswerCB
+        );
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         type AudioDecoderFactory;
@@ -165,6 +188,18 @@ pub(crate) mod webrtc {
         type SetRemoteDescriptionObserverInterface;
         type VideoDecoderFactory;
         type VideoEncoderFactory;
+        type CreateOfferAnswerCB;
+
+        fn create_OfferAnswerCB(
+            ok_   :usize,
+            err_  :usize,
+            drop_ :usize,
+            data_ :usize,
+        ) -> UniquePtr<CreateOfferAnswerCB>;   
+
+        fn call_ok_(cb: Pin<&mut CreateOfferAnswerCB>, sdp: &CxxString, type_:&CxxString);
+        fn call_err_(cb: Pin<&mut CreateOfferAnswerCB>, error: &CxxString);
+        fn call_drop_(cb: Pin<&mut CreateOfferAnswerCB>);
 
         /// Creates a new [`VideoEncoderFactory`].
         #[namespace = "webrtc"]
@@ -376,6 +411,32 @@ pub(crate) mod webrtc {
             track: &AudioTrackInterface,
         ) -> bool;
     }
+}
+
+use cxx::{CxxString, UniquePtr};
+
+pub struct RustCreateOfferAnswerCB(Box<UniquePtr<webrtc::CreateOfferAnswerCB>>);
+
+impl RustCreateOfferAnswerCB {
+    pub fn ok(&mut self, sdp: &CxxString, type_:&CxxString) {
+        webrtc::call_ok_(self.0.pin_mut(), sdp, type_);
+    }
+    pub fn err(&mut self, error: &CxxString) {
+        webrtc::call_err_(self.0.pin_mut(), error);
+    }
+    pub fn data_drop(&mut self) {
+        webrtc::call_drop_(self.0.pin_mut());
+    }
+}
+
+pub fn create_RustCreateOfferAnswerCB(
+    ok_   :usize,
+    err_  :usize,
+    drop_ :usize,
+    data_ :usize,
+) -> Box<RustCreateOfferAnswerCB>
+{
+    Box::new(RustCreateOfferAnswerCB(Box::new(webrtc::create_OfferAnswerCB(ok_, err_, drop_, data_))))
 }
 
 impl TryFrom<&str> for webrtc::SdpType {

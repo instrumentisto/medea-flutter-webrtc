@@ -8,6 +8,20 @@
 
 namespace bridge {
 
+std::unique_ptr<CreateOfferAnswerCB> create_OfferAnswerCB(size_t ok_, size_t err_, size_t drop_, size_t data_) {
+    return std::make_unique<CreateOfferAnswerCB>(CreateOfferAnswerCB(ok_, err_, drop_, data_));
+}
+
+void call_ok_(CreateOfferAnswerCB& cb, const std::string& sdp, const std::string& type_) {
+    cb.Success(sdp,type_);
+}
+void call_err_(CreateOfferAnswerCB& cb, const std::string& error) {
+    cb.Error(error);
+}
+void call_drop_(CreateOfferAnswerCB& cb) {
+    cb.Drop();
+}
+
 // Calls `AudioDeviceModule->Create()`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
