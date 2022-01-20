@@ -377,10 +377,12 @@ impl CreateSessionDescriptionObserver {
     /// `fail` for callback when 'CreateOffer\Answer' is fail.
     #[must_use]
     pub fn new(
-        success: fn(&CxxString, &CxxString),
-        fail: fn(&CxxString),
+        success: fn(&CxxString, &CxxString, usize),
+        success_functor: usize,
+        fail: fn(&CxxString, usize),
+        fail_functor: usize,
     ) -> Self {
-        Self(webrtc::create_create_session_observer(success, fail))
+        Self(webrtc::create_create_session_observer(success, success_functor,fail, fail_functor))
     }
 }
 
@@ -390,9 +392,9 @@ pub struct SetLocalDescriptionObserverInterface(
 
 impl SetLocalDescriptionObserverInterface {
     #[must_use]
-    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
+    pub fn new(success: fn(usize),success_functor: usize, fail: fn(&CxxString, usize), fail_functor: usize) -> Self {
         Self(webrtc::create_set_local_description_observer_interface(
-            success, fail,
+            success, success_functor, fail, fail_functor
         ))
     }
 }
@@ -402,9 +404,9 @@ pub struct SetRemoteDescriptionObserverInterface(
 );
 
 impl SetRemoteDescriptionObserverInterface {
-    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
+    pub fn new(success: fn(usize), success_functor: usize, fail: fn(&CxxString, usize), fail_functor: usize) -> Self {
         Self(webrtc::create_set_remote_description_observer_interface(
-            success, fail,
+            success, success_functor, fail, fail_functor,
         ))
     }
 }

@@ -249,20 +249,26 @@ pub(crate) mod webrtc {
         /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
         /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            s: fn(&CxxString, &CxxString),
-            f: fn(&CxxString),
+            s: fn(&CxxString, &CxxString, usize),
+            sf: usize,
+            f: fn(&CxxString, usize),
+            ff: usize,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetLocalDescriptionObserverInterface`].
         pub fn create_set_local_description_observer_interface(
-            s: fn(),
-            f: fn(&CxxString),
+            s: fn(usize),
+            sf: usize,
+            f: fn(&CxxString,usize),
+            ff: usize,
         ) -> UniquePtr<SetLocalDescriptionObserverInterface>;
 
         /// Creates a [`SetRemoteDescriptionObserverInterface`].
         pub fn create_set_remote_description_observer_interface(
-            s: fn(),
-            f: fn(&CxxString),
+            s: fn(usize),
+            sf: usize,
+            f: fn(&CxxString,usize),
+            ff: usize,
         ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
 
         /// Calls `peer_connection_interface`->CreateOffer.

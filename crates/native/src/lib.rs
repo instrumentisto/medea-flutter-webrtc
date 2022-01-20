@@ -174,7 +174,9 @@ pub mod api {
             ice_restart: bool,
             use_rtp_mux: bool,
             s: usize,
+            sf: usize,
             f: usize,
+            ff: usize,
         );
 
         /// Creates a new [Answer].
@@ -194,7 +196,9 @@ pub mod api {
             ice_restart: bool,
             use_rtp_mux: bool,
             s: usize,
+            sf: usize,
             f: usize,
+            ff: usize,
         );
 
         /// Set Local Description.
@@ -210,7 +214,9 @@ pub mod api {
             type_: String,
             sdp: String,
             s: usize,
+            sf: usize,
             f: usize,
+            ff: usize,
         );
 
         /// Set Remote Description.
@@ -226,7 +232,9 @@ pub mod api {
             type_: String,
             sdp: String,
             s: usize,
+            sf: usize,
             f: usize,
+            ff: usize,
         );
 
         /// Creates a [`MediaStream`] with tracks according to provided
@@ -325,8 +333,8 @@ mod test {
         let mut error = String::new();
         let p = w.create_default_peer_connection(&mut error);
         let pc = w.0.peer_connections.get_mut(&p.into()).unwrap();
-        let obs = libwebrtc_sys::CreateSessionDescriptionObserver::new(success, |_| {});
-        pc.peer_connection_interface.create_offer(
-            &libwebrtc_sys::RTCOfferAnswerOptions::default(), obs);
+        //let obs = libwebrtc_sys::CreateSessionDescriptionObserver::new(success, |_| {});
+        //pc.peer_connection_interface.create_offer(
+        //    &libwebrtc_sys::RTCOfferAnswerOptions::default(), obs);
     }
 }

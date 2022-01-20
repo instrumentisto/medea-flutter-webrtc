@@ -42,6 +42,8 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
     try {
+
+      while (true) {
       final createPeerConnection1 = await WebRTC.invokeMethod(
         'createPeerConnection', null
       );
@@ -95,8 +97,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           'sdp': createAnswer2['sdp'],
           'type': createAnswer2['type']}
       });
-
-
+      }
 
       setState(() {
         text = 'test is success';

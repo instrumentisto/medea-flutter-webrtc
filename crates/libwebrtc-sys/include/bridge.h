@@ -185,18 +185,24 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 
 // Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-    rust::Fn<void(const std::string&, const std::string&)> s,
-    rust::Fn<void(const std::string&)> f);
+    rust::Fn<void(const std::string&, const std::string&, size_t)> s,
+    size_t sf,
+    rust::Fn<void(const std::string&, size_t)> f,
+    size_t ff);
 
 // Creates `SetLocalDescriptionObserverInterface`.
 std::unique_ptr<SetLocalDescriptionObserverInterface> create_set_local_description_observer_interface(
-    rust::Fn<void()> s,
-    rust::Fn<void(const std::string&)> f);
+    rust::Fn<void(size_t)> s,
+    size_t sf,
+    rust::Fn<void(const std::string&, size_t)> f,
+    size_t ff);
 
 // Creates `SetRemoteDescriptionObserverInterface`.
 std::unique_ptr<SetRemoteDescriptionObserverInterface> create_set_remote_description_observer_interface(
-    rust::Fn<void()> s,
-    rust::Fn<void(const std::string&)> f);
+    rust::Fn<void(size_t)> s,
+    size_t sf,
+    rust::Fn<void(const std::string&, size_t)> f,
+    size_t ff);
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,

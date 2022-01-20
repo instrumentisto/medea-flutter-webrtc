@@ -20,10 +20,14 @@ void PeerConnectionObserver::OnSignalingChange(
 
 // Construct `CreateOffer\Answer Observer`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
-    rust::Fn<void(const std::string&, const std::string&)> s,
-    rust::Fn<void(const std::string&)> f) {
+      rust::Fn<void(const std::string&, const std::string&, size_t)> s,
+      size_t sf,
+      rust::Fn<void(const std::string&, size_t)> f,
+      size_t ff) {
   success = s;
+  success_functor = sf;
   fail = f;
+  fail_functor = ff;
 };
 
 // Calls when a `CreateOffer\Answer` is success.
@@ -31,14 +35,14 @@ void CreateSessionDescriptionObserver::OnSuccess(webrtc::SessionDescriptionInter
   std::string type = desc->type();
   std::string sdp;
   desc->ToString(&sdp);
-  (*success)(sdp, type);
+  (*success)(sdp, type, success_functor);
   delete desc;
 };
 
 // Calls when a `CreateOffer\Answer` is fail.
 void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
   std::string err = std::string(error.message());
-  (*fail)(err);
+  (*fail)(err, fail_functor);
 };
 
 // Implementation rtc::RefCountInterface::AddRef.
@@ -58,20 +62,24 @@ rtc::RefCountReleaseStatus CreateSessionDescriptionObserver::Release() const {
 // Calls when a `SetLocalDescription` is complete or fail.
 void SetLocalDescriptionObserverInterface::OnSetLocalDescriptionComplete(webrtc::RTCError error) {
   if (error.ok()) {
-    (*success)();
+    (*success)(success_functor);
   } else {
     std::string error(error.message());
-    (*fail)(error);
+    (*fail)(error, fail_functor);
   }
 };
 
 // Construct SetRemoteDescriptionObserverInterface.
 SetLocalDescriptionObserverInterface::SetLocalDescriptionObserverInterface(
-    rust::Fn<void()> s,
-    rust::Fn<void(const std::string&)> f
+    rust::Fn<void(size_t)> s,
+    size_t sf,
+    rust::Fn<void(const std::string&, size_t)> f,
+    size_t ff
 ) {
   success = s;
+  success_functor = sf;
   fail = f;
+  fail_functor = ff;
 };
 
 // Implementation rtc::RefCountInterface::AddRef.
@@ -91,20 +99,24 @@ rtc::RefCountReleaseStatus SetLocalDescriptionObserverInterface::Release() const
 void SetRemoteDescriptionObserverInterface::OnSetRemoteDescriptionComplete(
     webrtc::RTCError error) {
   if (error.ok()) {
-    (*success)();
+    (*success)(success_functor);
   } else {
     std::string error(error.message());
-    (*fail)(error);
+    (*fail)(error, fail_functor);
   }
 };
 
 // Construct SetRemoteDescriptionObserverInterface.
 SetRemoteDescriptionObserverInterface::SetRemoteDescriptionObserverInterface(
-    rust::Fn<void()> s,
-    rust::Fn<void(const std::string&)> f
+    rust::Fn<void(size_t)> s,
+    size_t sf,
+    rust::Fn<void(const std::string&, size_t)> f,
+    size_t ff
 ) {
   success = s;
+  success_functor = sf;
   fail = f;
+  fail_functor = ff;
 };
 
 // Implementation rtc::RefCountInterface::AddRef.

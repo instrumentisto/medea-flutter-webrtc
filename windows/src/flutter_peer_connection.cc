@@ -8,13 +8,14 @@ namespace callbacks {
 template<typename... Args>
 class Call {
   public:
-  ~Call() {printf("delete");}
   void(*call)(std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>>, Args...);
   std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
-  std::shared_ptr<Call<Args...>> lt;
+  Call(
+    std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> res) 
+    : result(res){}
   void operator()(Args... args) {
-    (*call)(std::move(result), args...);
-    //lt.reset();
+    (*call)(result, args...);
+    delete this;
   }
 };
 
@@ -38,10 +39,20 @@ void OnSuccessCreate(
   result->Success(flutter::EncodableValue(params));
 }
 
+void export_OnSuccessCreate(std::string sdp, std::string type, size_t fnctr) {
+  auto call = (Call<std::string, std::string>*) fnctr;
+  (*call)(sdp, type);
+}
+
 // Callback for write `SetLocalDescription` success result in flutter.
 void OnSuccessDescription(
     std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
   result->Success(nullptr);
+}
+
+void export_OnSuccessDescription(size_t fnctr) {
+  auto call = (Call<>*) fnctr;
+  (*call)();
 }
 
 // Callback for write error in flutter.
@@ -49,6 +60,12 @@ void OnFail(std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> resu
             std::string error) {
   result->Error(error);
 }
+
+void export_OnFail(std::string error, size_t fnctr) {
+  auto call = (Call<std::string>*) fnctr;
+  (*call)(error);
+}
+
 }
 
 namespace flutter_webrtc_plugin {
@@ -116,33 +133,19 @@ void CreateOffer(
 
   std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
 
-  auto bind_success = std::bind(&callbacks::OnSuccessCreate,
-                                rs,
-                                std::placeholders::_1,
-                                std::placeholders::_2);
+  callbacks::Call<std::string, std::string>* success_functor 
+    = new callbacks::Call<std::string, std::string>(rs);
+  success_functor->call = &callbacks::OnSuccessCreate;
 
-  auto test = [&] (std::string a, std::string b) { 
-    bind_success(a,b);
-  };
+  size_t success_funct = (size_t) success_functor;
+  size_t success_fn = (size_t) callbacks::export_OnSuccessCreate;
 
-  callbacks::Call<std::string, std::string> ccc = callbacks::Call<std::string, std::string>();
-  auto lt = std::move(std::shared_ptr<callbacks::Call<std::string, std::string>>(&ccc));
-  ccc.lt = std::move(lt);
-  ccc.result = std::move(result);
+  callbacks::Call<std::string>* fail_functor 
+    = new callbacks::Call<std::string>(rs);
+  fail_functor->call = callbacks::OnFail;
 
-  
-  ccc.call = &callbacks::OnSuccessCreate;
-  ccc("1","2");
-  //size_t success = (size_t) ccc;
-
-  //std::function<void(std::string, std::string)>* sss = (std::function<void(std::string, std::string)>*) success;
-
-  //(*sss)("1","2");
-
-  /*auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
-  callbacks::callback_fail
-      wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
-  size_t fail = (size_t) wrapp_fail;
+  size_t fail_funct = (size_t) fail_functor;
+  size_t fail_fn = (size_t) callbacks::export_OnFail;
 
   rust::String error;
   webrtc->CreateOffer(
@@ -153,13 +156,15 @@ void CreateOffer(
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
-      success,
-      fail
+      success_fn,
+      success_funct,
+      fail_fn,
+      fail_funct
   );
   if (error != "") {
     std::string err(error);
     rs->Error("createAnswerOffer", err);
-  }*/
+  }
 };
 
 // Calls Rust `CreateAnswer()`and writes the returned session description to the
@@ -204,18 +209,19 @@ void CreateAnswer(
 
   std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
 
-  auto bind_success = std::bind(&callbacks::OnSuccessCreate,
-                                rs,
-                                std::placeholders::_1,
-                                std::placeholders::_2);
-  callbacks::callback_success wrapp_success =
-      Wrapper<0, void(std::string, std::string)>::wrap(bind_success);
-  size_t success = (size_t) wrapp_success;
+  callbacks::Call<std::string, std::string>* success_functor 
+    = new callbacks::Call<std::string, std::string>(rs);
+  success_functor->call = &callbacks::OnSuccessCreate;
 
-  auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
-  callbacks::callback_fail
-      wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
-  size_t fail = (size_t) wrapp_fail;
+  size_t success_funct = (size_t) success_functor;
+  size_t success_fn = (size_t) callbacks::export_OnSuccessCreate;
+
+  callbacks::Call<std::string>* fail_functor 
+    = new callbacks::Call<std::string>(rs);
+  fail_functor->call = callbacks::OnFail;
+
+  size_t fail_funct = (size_t) fail_functor;
+  size_t fail_fn = (size_t) callbacks::export_OnFail;
 
   rust::String error;
   webrtc->CreateAnswer(
@@ -226,8 +232,10 @@ void CreateAnswer(
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
-      success,
-      fail
+      success_fn,
+      success_funct,
+      fail_fn,
+      fail_funct
   );
   if (error != "") {
     std::string err(error);
@@ -255,15 +263,19 @@ void SetLocalDescription(
 
   std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
 
-  auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
-  callbacks::callback_fail
-      wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
-  size_t fail = (size_t) wrapp_fail;
+  callbacks::Call<>* success_functor 
+    = new callbacks::Call<>(rs);
+  success_functor->call = &callbacks::OnSuccessDescription;
 
-  auto bind_success = std::bind(&callbacks::OnSuccessDescription, rs);
-  callbacks::callback_success_desc
-      wrapp_success = Wrapper<0, void()>::wrap(bind_success);
-  size_t success = (size_t) wrapp_success;
+  size_t success_funct = (size_t) success_functor;
+  size_t success_fn = (size_t) callbacks::export_OnSuccessDescription;
+
+  callbacks::Call<std::string>* fail_functor 
+    = new callbacks::Call<std::string>(rs);
+  fail_functor->call = callbacks::OnFail;
+
+  size_t fail_funct = (size_t) fail_functor;
+  size_t fail_fn = (size_t) callbacks::export_OnFail;
 
   rust::String error;
   webrtc->SetLocalDescription(
@@ -271,8 +283,10 @@ void SetLocalDescription(
       std::stoi(peerConnectionId),
       type,
       sdp,
-      success,
-      fail
+      success_fn,
+      success_funct,
+      fail_fn,
+      fail_funct
   );
 
   if (error != "") {
@@ -301,15 +315,19 @@ void SetRemoteDescription(
 
   std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
 
-  auto bind_fail = std::bind(&callbacks::OnFail, rs, std::placeholders::_1);
-  callbacks::callback_fail
-      wrapp_fail = Wrapper<0, void(std::string)>::wrap(bind_fail);
-  size_t fail = (size_t) wrapp_fail;
+  callbacks::Call<>* success_functor 
+    = new callbacks::Call<>(rs);
+  success_functor->call = &callbacks::OnSuccessDescription;
 
-  auto bind_success = std::bind(&callbacks::OnSuccessDescription, rs);
-  callbacks::callback_success_desc
-      wrapp_success = Wrapper<0, void()>::wrap(bind_success);
-  size_t success = (size_t) wrapp_success;
+  size_t success_funct = (size_t) success_functor;
+  size_t success_fn = (size_t) callbacks::export_OnSuccessDescription;
+
+  callbacks::Call<std::string>* fail_functor 
+    = new callbacks::Call<std::string>(rs);
+  fail_functor->call = callbacks::OnFail;
+
+  size_t fail_funct = (size_t) fail_functor;
+  size_t fail_fn = (size_t) callbacks::export_OnFail;
 
   rust::String error;
   webrtc->SetRemoteDescription(
@@ -317,8 +335,10 @@ void SetRemoteDescription(
       std::stoi(peerConnectionId),
       type,
       sdp,
-      success,
-      fail
+      success_fn,
+      success_funct,
+      fail_fn,
+      fail_funct
   );
 
   if (error != "") {
