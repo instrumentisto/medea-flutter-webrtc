@@ -1,16 +1,16 @@
-#include <memory>
 #include <stdint.h>
+#include <memory>
 
-#include "device_video_capturer.h"
 #include <modules/video_capture/video_capture_factory.h>
 #include <rtc_base/checks.h>
 #include <rtc_base/logging.h>
+#include "device_video_capturer.h"
 
 // MediaCodec wants resolution to be divisible by 2.
 const int kRequiredResolutionAlignment = 2;
 
 DeviceVideoCapturer::DeviceVideoCapturer()
-  : AdaptedVideoTrackSource(kRequiredResolutionAlignment) {}
+    : AdaptedVideoTrackSource(kRequiredResolutionAlignment) {}
 
 DeviceVideoCapturer::~DeviceVideoCapturer() {
   Destroy();
@@ -18,17 +18,16 @@ DeviceVideoCapturer::~DeviceVideoCapturer() {
 
 // Creates a new `DeviceVideoCapturer`.
 rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
-  size_t width,
-  size_t height,
-  size_t max_fps,
-  uint32_t device_index) {
+    size_t width,
+    size_t height,
+    size_t max_fps,
+    uint32_t device_index) {
   rtc::scoped_refptr<DeviceVideoCapturer> capturer(
-    new rtc::RefCountedObject<DeviceVideoCapturer>());
+      new rtc::RefCountedObject<DeviceVideoCapturer>());
 
   if (!capturer->Init(width, height, max_fps, device_index)) {
     RTC_LOG(LS_ERROR) << "Failed to create DeviceVideoCapturer(w = " << width
-      << ", h = " << height << ", fps = " << max_fps
-      << ")";
+                      << ", h = " << height << ", fps = " << max_fps << ")";
     return nullptr;
   }
 
@@ -40,17 +39,17 @@ rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
 // Creates an underlying `VideoCaptureModule` and starts capturing media with
 // specified constraints.
 bool DeviceVideoCapturer::Init(size_t width,
-  size_t height,
-  size_t max_fps,
-  size_t capture_device_index) {
+                               size_t height,
+                               size_t max_fps,
+                               size_t capture_device_index) {
   std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> device_info(
-    webrtc::VideoCaptureFactory::CreateDeviceInfo());
+      webrtc::VideoCaptureFactory::CreateDeviceInfo());
 
   char device_name[256];
   char unique_name[256];
   if (device_info->GetDeviceName(static_cast<uint32_t>(capture_device_index),
-    device_name, sizeof(device_name), unique_name,
-    sizeof(unique_name)) != 0) {
+                                 device_name, sizeof(device_name), unique_name,
+                                 sizeof(unique_name)) != 0) {
     Destroy();
     return false;
   }
@@ -103,8 +102,7 @@ absl::optional<bool> DeviceVideoCapturer::needs_denoising() const {
 }
 
 // Returns `SourceState::kLive`.
-webrtc::MediaSourceInterface::SourceState DeviceVideoCapturer::state()
-const {
+webrtc::MediaSourceInterface::SourceState DeviceVideoCapturer::state() const {
   return SourceState::kLive;
 }
 

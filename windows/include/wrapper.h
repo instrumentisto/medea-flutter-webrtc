@@ -21,7 +21,7 @@ struct CallableStorage {
     return (*callable)(args...);
   }
 
-private:
+ private:
   static std::unique_ptr<Callable> callable;
 };
 
@@ -30,7 +30,7 @@ std::unique_ptr<Callable> CallableStorage<Ind, Callable>::callable;
 
 template <int Ind, typename R, typename... Args>
 struct Wrapper<Ind, R(Args...)> {
-  using RawType = R(*)(Args...);
+  using RawType = R (*)(Args...);
 
   template <typename Callable>
   static RawType wrap(Callable callable) {

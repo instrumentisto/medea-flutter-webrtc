@@ -15,42 +15,44 @@ extern "C" void register_notifier(notifier_handler);
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
   media_device_count_ = webrtc->EnumerateDevices().size();
 
-  // Creates a new `EventChannel` with name "FlutterWebRTC/OnMediaChangeNotifier".
-  std::string event_channel =
-    "FlutterWebRTC/OnMediaChangeNotifier";
+  // Creates a new `EventChannel` with name
+  // "FlutterWebRTC/OnMediaChangeNotifier".
+  std::string event_channel = "FlutterWebRTC/OnMediaChangeNotifier";
   event_channel_.reset(new EventChannel<EncodableValue>(
-    plugin->messenger(), event_channel, &StandardMethodCodec::GetInstance()));
+      plugin->messenger(), event_channel, &StandardMethodCodec::GetInstance()));
 
   // Creates a handler for the `EventChannel`.
   auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-    // An `on_listen` callback.
-    [&](const flutter::EncodableValue* arguments,
-      std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
-    -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-      event_sink_ = std::move(events);
-      return nullptr;
-    },
-    // An `on_cancel` callback.
+      // An `on_listen` callback.
+      [&](const flutter::EncodableValue* arguments,
+          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        event_sink_ = std::move(events);
+        return nullptr;
+      },
+      // An `on_cancel` callback.
       [&](const flutter::EncodableValue* arguments)
-      -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-      event_sink_ = nullptr;
-      return nullptr;
-    });
+          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        event_sink_ = nullptr;
+        return nullptr;
+      });
 
   event_channel_->SetStreamHandler(std::move(handler));
 
   // Binds a `Flutter` notifier callback.
-  auto bind = std::bind([](FlutterWebRTC* context) {
-    size_t new_count = context->webrtc->EnumerateDevices().size();
-    if (new_count != context->media_device_count_) {
-      context->media_device_count_ = new_count;
-      if (context->event_sink_) {
-        EncodableMap params;
-        params[EncodableValue("event")] = "mediaDeviceChanged";
-        context->event_sink_->Success(EncodableValue(params));
-      }
-    }
-    }, this);
+  auto bind = std::bind(
+      [](FlutterWebRTC* context) {
+        size_t new_count = context->webrtc->EnumerateDevices().size();
+        if (new_count != context->media_device_count_) {
+          context->media_device_count_ = new_count;
+          if (context->event_sink_) {
+            EncodableMap params;
+            params[EncodableValue("event")] = "mediaDeviceChanged";
+            context->event_sink_->Success(EncodableValue(params));
+          }
+        }
+      },
+      this);
   // Converts `std::function` to `function pointer`.
   register_notifier(Wrapper<0, void()>::wrap(bind));
 }
@@ -58,8 +60,8 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
 FlutterWebRTC::~FlutterWebRTC() {}
 
 void FlutterWebRTC::HandleMethodCall(
-  const flutter::MethodCall<EncodableValue>& method_call,
-  std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   const std::string& method = method_call.method_name();
 
   if (method.compare("createPeerConnection") == 0) {

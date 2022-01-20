@@ -15,13 +15,13 @@
 // `VideoTrackSourceInterface` that captures frames from a local video input
 // device.
 class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
-  public rtc::VideoSinkInterface<webrtc::VideoFrame> {
-public:
+                            public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+ public:
   // Creates a new `DeviceVideoCapturer`.
   static rtc::scoped_refptr<DeviceVideoCapturer> Create(size_t width,
-    size_t height,
-    size_t target_fps,
-    uint32_t device_index);
+                                                        size_t height,
+                                                        size_t target_fps,
+                                                        uint32_t device_index);
 
   // Indicates that parameters suitable for screencast should be automatically
   // applied to RtpSenders.
@@ -39,19 +39,19 @@ public:
   // devices only.
   bool remote() const override;
 
-protected:
+ protected:
   DeviceVideoCapturer();
   ~DeviceVideoCapturer();
 
   // `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
-private:
+ private:
   // Initializes `DeviceVideoCapturer` and starts capturing media.
   bool Init(size_t width,
-    size_t height,
-    size_t target_fps,
-    size_t capture_device_index);
+            size_t height,
+            size_t target_fps,
+            size_t capture_device_index);
 
   // Frees underlying resources.
   void Destroy();
