@@ -1,4 +1,10 @@
-use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, ptr::{self}, sync::atomic::{AtomicPtr, Ordering}};
+use std::{
+    ffi::OsStr,
+    mem,
+    os::windows::prelude::OsStrExt,
+    ptr::{self},
+    sync::atomic::{AtomicPtr, Ordering},
+};
 
 use winapi::{
     shared::{
@@ -21,7 +27,7 @@ static mut CB: AtomicPtr<extern "C" fn()> = AtomicPtr::new(ptr::null_mut());
 /// Sets the `Flutter` notifier callback and initiates a `System Notifier`.
 #[no_mangle]
 unsafe extern "C" fn register_notifier(cb: extern "C" fn()) {
-    CB.store(Box::into_raw(Box::new(cb)),  Ordering::SeqCst);
+    CB.store(Box::into_raw(Box::new(cb)), Ordering::SeqCst);
     init();
 }
 
@@ -39,7 +45,8 @@ unsafe extern "system" fn wndproc(
         // The message that notifies an application of a change to the hardware
         // configuration of a device or the computer.
     } else if msg == WM_DEVICECHANGE {
-        // The device event when a device has been added to or removed from the system.
+        // The device event when a device has been added to or removed from the
+        // system.
         if DBT_DEVNODES_CHANGED == wp {
             let cb = CB.load(Ordering::SeqCst);
 
@@ -58,6 +65,7 @@ unsafe extern "system" fn wndproc(
 /// system message window - [`HWND`].
 pub unsafe fn init() {
     std::thread::spawn(|| {
+        #[allow(clippy::cast_possible_truncation)]
         let class = WNDCLASSEXW {
             cbSize: mem::size_of::<WNDCLASSEXW>() as u32,
             style: Default::default(),

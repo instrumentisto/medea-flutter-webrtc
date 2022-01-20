@@ -1,4 +1,3 @@
-#![feature(exact_size_is_empty)]
 #![warn(clippy::pedantic)]
 
 mod device_info;
@@ -8,13 +7,14 @@ mod user_media;
 use std::{collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
-    AudioDeviceModule as SysAudioDeviceModule, AudioLayer,
-    PeerConnectionFactory, TaskQueueFactory, VideoDeviceInfo,
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
-use crate::user_media::{
-    AudioDeviceId, AudioSource, AudioTrack, AudioTrackId, MediaStream,
-    MediaStreamId, VideoSource, VideoSourceId, VideoTrack, VideoTrackId,
+#[doc(inline)]
+pub use crate::user_media::{
+    AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
+    MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
 };
 
 /// The module which describes the bridge to call Rust from C++.
@@ -128,10 +128,7 @@ pub mod api {
     /// Nature of the [`MediaStreamTrack`].
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum TrackKind {
-        /// Audio media track.
         kAudio,
-
-        /// Video media track.
         kVideo,
     }
 
@@ -147,60 +144,58 @@ pub mod api {
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a [`LocalMediaStream`] with Tracks according to
-        /// accepted Constraints.
-        ///
-        /// [`LocalMediaStream`]:LocalMediaStream
+        /// Creates a [`MediaStream`] with tracks according to provided
+        /// [`MediaStreamConstraints`].
         #[cxx_name = "GetUserMedia"]
         pub fn get_users_media(
             self: &mut Webrtc,
             constraints: &MediaStreamConstraints,
         ) -> MediaStream;
 
-        /// Disposes the [`MediaStream`] and all involved
-        /// [`AudioTrack`]s/[`VideoTrack`]s and
-        /// [`AudioSource`]s/[`VideoSource`]s.
+        /// Disposes the [`MediaStream`] and all contained tracks.
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
     }
 }
 
-/// Wraps the [`Inner`] instanse.
-/// This struct is intended to be extern and managed outside of the Rust app.
-pub struct Webrtc(Box<Inner>);
+/// [`Context`] wrapper that is exposed to the C++ API clients.
+pub struct Webrtc(Box<Context>);
 
-/// Contains all necessary tools for interoperate with [`libWebRTC`].
-///
-/// [`libWebrtc`]: https://tinyurl.com/54y935zz
+/// Application context that manages all dependencies.
 #[allow(dead_code)]
-pub struct Inner {
+pub struct Context {
     task_queue_factory: TaskQueueFactory,
+    worker_thread: Thread,
+    signaling_thread: Thread,
     audio_device_module: AudioDeviceModule,
     video_device_info: VideoDeviceInfo,
-    peer_connection_factory: PeerConnectionFactory,
-    video_sources: HashMap<VideoSourceId, Rc<VideoSource>>,
+    peer_connection_factory: PeerConnectionFactoryInterface,
+    video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
     video_tracks: HashMap<VideoTrackId, VideoTrack>,
-    audio_source: Option<Rc<AudioSource>>,
+    audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
-}
-
-// TODO: move to user_media.rs
-struct AudioDeviceModule {
-    inner: SysAudioDeviceModule,
-    // TODO: index 0 at creation
-    current_device_id: AudioDeviceId,
 }
 
 /// Creates an instanse of [`Webrtc`].
 ///
 /// # Panics
 ///
-/// May panic if `PeerconnectionFactory` is not valiable to be created.
+/// Panics on any error returned from the `libWebRTC`.
 #[must_use]
 pub fn init() -> Box<Webrtc> {
+    // TODO: Dont panic but propagate errors to API users.
     let mut task_queue_factory = TaskQueueFactory::create();
-    let peer_connection_factory = PeerConnectionFactory::create().unwrap();
+    let mut worker_thread = Thread::create().unwrap();
+    worker_thread.start().unwrap();
+    let mut signaling_thread = Thread::create().unwrap();
+    signaling_thread.start().unwrap();
+
+    let peer_connection_factory = PeerConnectionFactoryInterface::create(
+        &mut worker_thread,
+        &mut signaling_thread,
+    )
+    .unwrap();
     let audio_device_module = AudioDeviceModule::new(
         AudioLayer::kPlatformDefaultAudio,
         &mut task_queue_factory,
@@ -209,8 +204,10 @@ pub fn init() -> Box<Webrtc> {
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 
-    Box::new(Webrtc(Box::new(Inner {
+    Box::new(Webrtc(Box::new(Context {
         task_queue_factory,
+        worker_thread,
+        signaling_thread,
         audio_device_module,
         video_device_info,
         peer_connection_factory,

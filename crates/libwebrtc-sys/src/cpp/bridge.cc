@@ -2,11 +2,6 @@
 #include <memory>
 #include <string>
 
-#include <winsock2.h>
-#include <windows.h>
-#include <dbt.h>
-#include <strsafe.h>
-
 #include "modules/audio_device/include/audio_device_factory.h"
 
 #include "libwebrtc-sys/include/bridge.h"
@@ -75,29 +70,7 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
   return result;
 };
 
-/// Returns index of `Audio Device` in `ADM` by entered `Audio Device ID`.
-uint32_t get_audio_device_index(const AudioDeviceModule& audio_device_module,
-  rust::String& device) {
-  uint32_t num_devices = audio_device_module.ptr()->RecordingDevices();
-
-  if (device.empty() && num_devices > 0)
-    return 0;
-
-  for (uint32_t i = 0; i < num_devices; ++i) {
-    const uint32_t kSize = 256;
-    char name[kSize] = { 0 };
-    char id[kSize] = { 0 };
-
-    if (audio_device_module.ptr()->RecordingDeviceName(i, name, id) != -1) {
-      if (std::string(id) == std::string(device)) {
-        return i;
-      }
-    }
-  }
-  return -1;
-}
-
-/// Calls `AudioDeviceModule->SetRecordingDevice()` with the provided arguments.
+// Calls `AudioDeviceModule->SetRecordingDevice()` with the provided arguments.
 int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
   uint16_t index) {
   return audio_device_module.ptr()->SetRecordingDevice(index);
@@ -128,12 +101,12 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
   return size;
 };
 
-/// Calls `Thread->Create()`.
+// Calls `Thread->Create()`.
 std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
-/// Calls `CreatePeerConnectionFactory()`.
+// Calls `CreatePeerConnectionFactory()`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   Thread& worker_thread,
   Thread& signaling_thread) {
@@ -151,7 +124,8 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   return std::make_unique<PeerConnectionFactoryInterface>(factory);
 }
 
-/// Calls `CreateVideoTrackSourceProxy()`.
+// Creates a new `DeviceVideoCapturer` with the specified constraints and
+// calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
   Thread& worker_thread,
   Thread& signaling_thread,
@@ -170,7 +144,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
   return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
-/// Calls `PeerConnectionFactoryInterface->CreateAudioSource()`.
+// Calls `PeerConnectionFactoryInterface->CreateAudioSource()` with empty
+// `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
   const PeerConnectionFactoryInterface& peer_connection_factory) {
   auto src = peer_connection_factory->CreateAudioSource(
@@ -183,7 +158,7 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
   return std::make_unique<AudioSourceInterface>(src);
 }
 
-/// Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.
+// Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.
 std::unique_ptr<VideoTrackInterface> create_video_track(
   const PeerConnectionFactoryInterface& peer_connection_factory,
   rust::String id,
@@ -198,7 +173,7 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
   return std::make_unique<VideoTrackInterface>(track);
 }
 
-/// Calls `PeerConnectionFactoryInterface->CreateAudioTrack`.
+// Calls `PeerConnectionFactoryInterface->CreateAudioTrack`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
   const PeerConnectionFactoryInterface& peer_connection_factory,
   rust::String id,
@@ -213,7 +188,7 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
   return std::make_unique<AudioTrackInterface>(track);
 }
 
-/// Calls `MediaStreamInterface->CreateLocalMediaStream`.
+// Calls `MediaStreamInterface->CreateLocalMediaStream`.
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
   const PeerConnectionFactoryInterface& peer_connection_factory,
   rust::String id) {
@@ -227,27 +202,28 @@ std::unique_ptr<MediaStreamInterface> create_local_media_stream(
   return std::make_unique<MediaStreamInterface>(stream);
 }
 
-/// Calls `MediaStreamInterface->AddTrack`.
+// Calls `MediaStreamInterface->AddTrack`.
 bool add_video_track(const MediaStreamInterface& media_stream,
   const VideoTrackInterface& track) {
   return media_stream->AddTrack(track.ptr());
 }
 
-/// Calls `MediaStreamInterface->AddTrack`.
+// Calls `MediaStreamInterface->AddTrack`.
 bool add_audio_track(const MediaStreamInterface& media_stream,
   const AudioTrackInterface& track) {
   return media_stream->AddTrack(track.ptr());
 }
 
-/// Calls `MediaStreamInterface->RemoveTrack`.
+// Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_video_track(const MediaStreamInterface& media_stream,
   const VideoTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
 }
 
-/// Calls `MediaStreamInterface->RemoveTrack`.
+// Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
   const AudioTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
 }
+
 }  // namespace bridge

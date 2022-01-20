@@ -4,16 +4,15 @@ use crate::{
     Webrtc,
 };
 
-/// Returns a list of all available media input and output devices, such as
-/// microphones, cameras, headsets, and so forth.
 impl Webrtc {
     /// Returns a list of all available audio input and output devices.
     ///
     /// # Panics
     ///
-    /// May panic because of `libWebRTC` inner errors.
+    /// Panics on any error returned from the `libWebRTC`.
     #[must_use]
     pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
+        // TODO: Dont panic but propagate errors to API users.
         // Returns a list of all available audio devices.
         let mut audio = {
             let count_playout =
@@ -90,6 +89,14 @@ impl Webrtc {
         audio
     }
 
+    /// Returns an index of a specific video device identified by the provided
+    /// [`VideoDeviceId`].
+    ///
+    /// # Errors
+    ///
+    /// Errors if [`VideoDeviceInfo::device_name()`][1] returns error.
+    ///
+    /// [1]: [`libwebrtc_sys::VideoDeviceInfo::device_name()`]
     pub fn get_index_of_video_device(
         &mut self,
         device_id: &VideoDeviceId,
@@ -104,21 +111,28 @@ impl Webrtc {
         Ok(None)
     }
 
-    pub fn get_index_of_audio_device(
+    /// Returns an index of a specific audio input device identified by the
+    /// provided [`AudioDeviceId`].
+    ///
+    /// # Errors
+    ///
+    /// Errors if [`AudioDeviceModule::recording_devices()`][1] or
+    /// [`AudioDeviceModule::recording_device_name()`][2]
+    /// returns error.
+    ///
+    /// [1]: libwebrtc_sys::AudioDeviceModule::recording_devices
+    /// [2]: libwebrtc_sys::AudioDeviceModule::recording_device_name
+    pub fn get_index_of_audio_recording_device(
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self
-            .0
-            .audio_device_module
-            .inner
-            .recording_devices()
-            .unwrap();
+        let count = self.0.audio_device_module.inner.recording_devices()?;
         for i in 0..count {
             let (_, id) =
                 self.0.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.as_ref() {
-                return Ok(Some(i.try_into().unwrap()));
+                #[allow(clippy::cast_sign_loss)]
+                return Ok(Some(i as u16));
             }
         }
         Ok(None)

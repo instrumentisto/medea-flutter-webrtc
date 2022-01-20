@@ -35,7 +35,7 @@ pub(crate) mod webrtc {
         /// Creates a new [`Thead`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
-        /// Starts the created [`Thread`].
+        /// Starts the current [`Thread`].
         #[cxx_name = "Start"]
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
 
@@ -87,14 +87,9 @@ pub(crate) mod webrtc {
             id: &mut String,
         ) -> i32;
 
-        /// Returns `index` of audio recording device by entered device's `id`.
-        pub fn get_audio_device_index(
-            device_info: &AudioDeviceModule,
-            device: &mut String,
-        ) -> u32;
-
-        /// Chooses the audio recording device in the [`AudioDeviceModule`]
-        /// by passed `index`.
+        /// Specifies which microphone to use for recording audio using an
+        /// index retrieved by the corresponding enumeration method which is
+        /// [`AudiDeviceModule::RecordingDeviceName`].
         pub fn set_audio_recording_device(
             audio_device_module: &AudioDeviceModule,
             index: u16,
@@ -129,8 +124,7 @@ pub(crate) mod webrtc {
         type VideoTrackInterface;
         type VideoTrackSourceInterface;
 
-        /// Creates a new [`VideoSource`].
-        /// The [`Thread`]s must be used from the [`PeerConnectionFactory`].
+        /// Creates a new [`VideoTrackSourceInterface`].
         pub fn create_video_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
@@ -140,50 +134,52 @@ pub(crate) mod webrtc {
             device_index: u32,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
-        /// Creates a new [`AudioSource`].
+        /// Creates a new [`AudioSourceInterface`].
         pub fn create_audio_source(
             peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
-        /// Creates a new [`VideoTrack`].
+        /// Creates a new [`VideoTrackInterface`].
         pub fn create_video_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             id: String,
             video_source: &VideoTrackSourceInterface,
         ) -> UniquePtr<VideoTrackInterface>;
 
-        /// Creates a new [`AudioTrack`].
+        /// Creates a new [`AudioTrackInterface`].
         pub fn create_audio_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             id: String,
             audio_source: &AudioSourceInterface,
         ) -> UniquePtr<AudioTrackInterface>;
 
-        /// Creates a new local [`MediaStream`].
+        /// Creates a new [`MediaStreamInterface`].
         pub fn create_local_media_stream(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             id: String,
         ) -> UniquePtr<MediaStreamInterface>;
 
-        /// Adds the [`VideoTrack`] to the [`MediaStream`].
+        /// Adds the [`VideoTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_video_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
 
-        /// Adds the [`AudioTrack`] to the [`MediaStream`].
+        /// Adds the [`AudioTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_audio_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
 
-        /// Removes the [`VideoTrack`] from the [`MediaStream`].
+        /// Removes the [`VideoTrackInterface`] from the
+        /// [`MediaStreamInterface`].
         pub fn remove_video_track(
             media_stream: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
 
-        /// Removes the [`AudioTrack`] from the [`MediaStream`].
+        /// Removes the [`AudioTrackInterface`] from the
+        /// [`MediaStreamInterface`].
         pub fn remove_audio_track(
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
