@@ -10,8 +10,7 @@ use winapi::{
         winuser::{
             CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
             RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT, MSG,
-            SW_HIDE, WM_CLOSE, WM_COMMAND, WM_CTLCOLORSTATIC, WM_DEVICECHANGE,
-            WM_ERASEBKGND, WM_SETFOCUS, WM_SIZE, WNDCLASSEXW, WS_ICONIC,
+            SW_HIDE, WM_CLOSE, WM_DEVICECHANGE, WNDCLASSEXW, WS_ICONIC,
         },
     },
 };
