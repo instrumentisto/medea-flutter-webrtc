@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, ptr};
+use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, ptr::{self}, sync::atomic::{AtomicPtr, Ordering}};
 
 use winapi::{
     shared::{
@@ -16,31 +16,13 @@ use winapi::{
     },
 };
 
-/// The global variable that keeps a [`Callback`].
-static mut CB: Callback = Callback(None);
-
-/// A struct that contains a `Flutter` notifier callback.
-struct Callback(Option<extern "C" fn()>);
-
-impl Callback {
-    /// Calls the `Flutter` notifier callback, if it is not [`None`].
-    pub fn call(&self) {
-        match self.0 {
-            Some(cb) => cb(),
-            None => (),
-        };
-    }
-
-    /// Sets the `Flutter` notifier callback.
-    pub fn set_cb(&mut self, cb: extern "C" fn()) {
-        self.0 = Some(cb);
-    }
-}
+/// The global variable that keeps a `Flutter` notifier callback.
+static mut CB: AtomicPtr<extern "C" fn()> = AtomicPtr::new(ptr::null_mut());
 
 /// Sets the `Flutter` notifier callback and initiates a `System Notifier`.
 #[no_mangle]
 unsafe extern "C" fn register_notifier(cb: extern "C" fn()) {
-    CB.set_cb(cb);
+    CB.store(Box::into_raw(Box::new(cb)),  Ordering::SeqCst);
     init();
 }
 
@@ -60,7 +42,11 @@ unsafe extern "system" fn wndproc(
     } else if msg == WM_DEVICECHANGE {
         // The device event when a device has been added to or removed from the system.
         if DBT_DEVNODES_CHANGED == wp {
-            CB.call();
+            let cb = CB.load(Ordering::SeqCst);
+
+            if !cb.is_null() {
+                (*cb)();
+            }
         }
     } else if msg == WM_ERASEBKGND {
     } else if msg == WM_SETFOCUS {

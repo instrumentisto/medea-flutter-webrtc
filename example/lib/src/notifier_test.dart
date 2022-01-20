@@ -19,7 +19,7 @@ class _NotifierTestState extends State<NotifierTest> {
   @override
   void initState() {
     super.initState();
-    _eventSubscription = EventChannel('FlutterWebRTC/Notifier')
+    _eventSubscription = EventChannel('FlutterWebRTC/OnMediaChangeNotifier')
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
   }

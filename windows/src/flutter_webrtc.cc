@@ -15,9 +15,9 @@ extern "C" void register_notifier(notifier_handler);
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
   media_device_count_ = webrtc->EnumerateDevices().size();
 
-  // Creates a new `EventChannel` with name "FlutterWebRTC/Notifier".
+  // Creates a new `EventChannel` with name "FlutterWebRTC/OnMediaChangeNotifier".
   std::string event_channel =
-    "FlutterWebRTC/Notifier";
+    "FlutterWebRTC/OnMediaChangeNotifier";
   event_channel_.reset(new EventChannel<EncodableValue>(
     plugin->messenger(), event_channel, &StandardMethodCodec::GetInstance()));
 
@@ -39,6 +39,7 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
 
   event_channel_->SetStreamHandler(std::move(handler));
 
+  // Binds a `Flutter` notifier callback.
   auto bind = std::bind([](FlutterWebRTC* context) {
     size_t new_count = context->webrtc->EnumerateDevices().size();
     if (new_count != context->media_device_count_) {
@@ -50,6 +51,7 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
       }
     }
     }, this);
+  // Converts `std::function` to `function pointer`.
   register_notifier(Wrapper<0, void()>::wrap(bind));
 }
 
