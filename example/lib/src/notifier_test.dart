@@ -1,7 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class NotifierTest extends StatefulWidget {
   const NotifierTest({Key? key}) : super(key: key);
@@ -14,39 +12,26 @@ class NotifierTest extends StatefulWidget {
 class _NotifierTestState extends State<NotifierTest> {
   int count = 0;
   String text = 'Notifications here.';
-  StreamSubscription<dynamic>? _eventSubscription;
+  MediaDevices? mediaDevices;
 
   @override
   void initState() {
     super.initState();
-    _eventSubscription = EventChannel('FlutterWebRTC/OnMediaChangeNotifier')
-        .receiveBroadcastStream()
-        .listen(eventListener, onError: errorListener);
+
+    mediaDevices = navigator.mediaDevices;
+    mediaDevices?.onDeviceChange = () => {
+          setState(() {
+            text = 'Event number $count.';
+            count++;
+          })
+        };
   }
 
   @override
-  Future<void> dispose() async {
-    await _eventSubscription?.cancel();
+  void dispose() {
+    mediaDevices?.onDeviceChange = null;
 
-    return super.dispose();
-  }
-
-  void eventListener(dynamic event) {
-    final Map<dynamic, dynamic> map = event;
-    switch (map['event']) {
-      case 'test':
-        setState(() {
-          text = 'opa test $count';
-          count++;
-        });
-        break;
-    }
-  }
-
-  void errorListener(Object obj) {
-    if (obj is Exception) {
-      throw obj;
-    }
+    super.dispose();
   }
 
   @override

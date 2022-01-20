@@ -48,11 +48,6 @@ unsafe extern "system" fn wndproc(
                 (*cb)();
             }
         }
-    } else if msg == WM_ERASEBKGND {
-    } else if msg == WM_SETFOCUS {
-    } else if msg == WM_SIZE {
-    } else if msg == WM_CTLCOLORSTATIC {
-    } else if msg == WM_COMMAND {
     } else {
         result = DefWindowProcW(hwnd, msg, wp, lp);
     }

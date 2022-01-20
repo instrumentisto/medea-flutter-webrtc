@@ -46,7 +46,7 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
       context->media_device_count_ = new_count;
       if (context->event_sink_) {
         EncodableMap params;
-        params[EncodableValue("event")] = "test";
+        params[EncodableValue("event")] = "mediaDeviceChanged";
         context->event_sink_->Success(EncodableValue(params));
       }
     }
