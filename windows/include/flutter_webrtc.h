@@ -20,27 +20,32 @@
 #include <map>
 #include <memory>
 
+#include "wrapper.h"
+
 using namespace flutter;
 using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
 class FlutterWebRTCPlugin : public flutter::Plugin {
- public:
-  virtual flutter::BinaryMessenger *messenger() = 0;
+public:
+  virtual flutter::BinaryMessenger* messenger() = 0;
 
-  virtual flutter::TextureRegistrar *textures() = 0;
+  virtual flutter::TextureRegistrar* textures() = 0;
 };
 
 class FlutterWebRTC {
- public:
-  FlutterWebRTC(FlutterWebRTCPlugin *plugin);
+public:
+  FlutterWebRTC(FlutterWebRTCPlugin* plugin);
   virtual ~FlutterWebRTC();
+
+  void HandleMethodCall(
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
   Box<Webrtc> webrtc = Init();
 
-  void HandleMethodCall(
-      const flutter::MethodCall<EncodableValue> &method_call,
-      std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+  std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
+  std::unique_ptr<EventSink<EncodableValue>> event_sink_;
 };
 
 }  // namespace flutter_webrtc_plugin

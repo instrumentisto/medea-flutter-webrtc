@@ -15,16 +15,28 @@ use winapi::{
     },
 };
 
-static mut ASD: Exampl = Exampl { pupa: 322 };
+static mut ASD: Exampl = Exampl { pupa: None };
 
 struct Exampl {
-    pub pupa: u64,
+    pub pupa: Option<extern "C" fn()>,
 }
 
 impl Exampl {
     pub fn kek(&self) {
-        println!("lol {:?}", self.pupa);
+        println!("l;m;mmomo");
+        match self.pupa {
+            Some(cb) => cb(),
+            None => (),
+        };
     }
+}
+
+#[no_mangle]
+unsafe extern "C" fn register_notifier_cb(cb: extern "C" fn()) {
+    println!("123123wqe");
+
+    ASD.pupa = Some(cb);
+    asd();
 }
 
 unsafe extern "system" fn wndproc(
@@ -77,7 +89,7 @@ pub unsafe fn asd() -> JoinHandle<()> {
         };
         RegisterClassExW(&class);
 
-        let mut hwnd = CreateWindowExW(
+        let hwnd = CreateWindowExW(
             0,
             class.lpszClassName,
             OsStr::new("dsa")
