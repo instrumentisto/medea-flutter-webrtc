@@ -1,44 +1,50 @@
-use std::{
-    ffi::OsStr, mem, os::windows::prelude::OsStrExt, ptr, thread::JoinHandle,
-};
+use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, ptr};
 
 use winapi::{
     shared::{
         minwindef::{HINSTANCE, LPARAM, LRESULT, UINT, WPARAM},
         windef::HWND,
     },
-    um::winuser::{
-        CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
-        RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT, MSG,
-        SW_HIDE, WM_CLOSE, WM_COMMAND, WM_CTLCOLORSTATIC, WM_DEVICECHANGE,
-        WM_ERASEBKGND, WM_SETFOCUS, WM_SIZE, WNDCLASSEXW, WS_ICONIC,
+    um::{
+        dbt::DBT_DEVNODES_CHANGED,
+        winuser::{
+            CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
+            RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT, MSG,
+            SW_HIDE, WM_CLOSE, WM_COMMAND, WM_CTLCOLORSTATIC, WM_DEVICECHANGE,
+            WM_ERASEBKGND, WM_SETFOCUS, WM_SIZE, WNDCLASSEXW, WS_ICONIC,
+        },
     },
 };
 
-static mut ASD: Exampl = Exampl { pupa: None };
+/// The global variable that keeps a [`Callback`].
+static mut CB: Callback = Callback(None);
 
-struct Exampl {
-    pub pupa: Option<extern "C" fn()>,
-}
+/// A struct that contains a `Flutter` notifier callback.
+struct Callback(Option<extern "C" fn()>);
 
-impl Exampl {
-    pub fn kek(&self) {
-        println!("l;m;mmomo");
-        match self.pupa {
+impl Callback {
+    /// Calls the `Flutter` notifier callback, if it is not [`None`].
+    pub fn call(&self) {
+        match self.0 {
             Some(cb) => cb(),
             None => (),
         };
     }
+
+    /// Sets the `Flutter` notifier callback.
+    pub fn set_cb(&mut self, cb: extern "C" fn()) {
+        self.0 = Some(cb);
+    }
 }
 
+/// Sets the `Flutter` notifier callback and initiates a `System Notifier`.
 #[no_mangle]
-unsafe extern "C" fn register_notifier_cb(cb: extern "C" fn()) {
-    println!("123123wqe");
-
-    ASD.pupa = Some(cb);
-    asd();
+unsafe extern "C" fn register_notifier(cb: extern "C" fn()) {
+    CB.set_cb(cb);
+    init();
 }
 
+/// The message handler for the [`HWND`].
 unsafe extern "system" fn wndproc(
     hwnd: HWND,
     msg: UINT,
@@ -47,12 +53,15 @@ unsafe extern "system" fn wndproc(
 ) -> LRESULT {
     let mut result: LRESULT = 0;
 
-    println!("kl");
-
     if msg == WM_CLOSE {
         std::process::exit(0);
+        // The message that notifies an application of a change to the hardware
+        // configuration of a device or the computer.
     } else if msg == WM_DEVICECHANGE {
-        ASD.kek();
+        // The device event when a device has been added to or removed from the system.
+        if DBT_DEVNODES_CHANGED == wp {
+            CB.call();
+        }
     } else if msg == WM_ERASEBKGND {
     } else if msg == WM_SETFOCUS {
     } else if msg == WM_SIZE {
@@ -65,8 +74,10 @@ unsafe extern "system" fn wndproc(
     result
 }
 
-pub unsafe fn asd() -> JoinHandle<()> {
-    let a = std::thread::spawn(move || {
+/// Creates a detached [`std::thread::Thread`] that creates and register
+/// system message window - [`HWND`].
+pub unsafe fn init() {
+    std::thread::spawn(|| {
         let class = WNDCLASSEXW {
             cbSize: mem::size_of::<WNDCLASSEXW>() as u32,
             style: Default::default(),
@@ -92,7 +103,7 @@ pub unsafe fn asd() -> JoinHandle<()> {
         let hwnd = CreateWindowExW(
             0,
             class.lpszClassName,
-            OsStr::new("dsa")
+            OsStr::new("Notifier")
                 .encode_wide()
                 .chain(Some(0).into_iter())
                 .collect::<Vec<u16>>()
@@ -117,5 +128,4 @@ pub unsafe fn asd() -> JoinHandle<()> {
             DispatchMessageW(&msg);
         }
     });
-    a
 }

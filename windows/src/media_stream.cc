@@ -2,7 +2,7 @@
 
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 /// `MediaDeviceInfo` info for Dart.
-void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
+size_t enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
   EncodableList sources;
@@ -21,7 +21,7 @@ void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<Encodabl
 
     default:
       result->Error("Invalid MediaDeviceKind");
-      return;
+      return devices.size();
     }
 
     EncodableMap info;
@@ -39,6 +39,8 @@ void enumerate_device(Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<Encodabl
   params[EncodableValue("sources")] = EncodableValue(sources);
 
   result->Success(EncodableValue(params));
+
+  return devices.size();
 }
 
 /// Parses the recieved constraints from Dart and passes them to Rust

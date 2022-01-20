@@ -19,7 +19,6 @@
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
 #include "rust/cxx.h"
-#include "custom_notifier.h"
 
 namespace bridge {
 
@@ -161,6 +160,4 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 /// Removes the audio track from media stream.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
   const AudioTrackInterface& track);
-
-void test();
 }  // namespace bridge

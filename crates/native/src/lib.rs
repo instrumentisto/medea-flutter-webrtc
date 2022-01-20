@@ -1,4 +1,4 @@
-#![feature(available_parallelism)]
+#![feature(exact_size_is_empty)]
 #![warn(clippy::pedantic)]
 
 mod device_info;
@@ -220,16 +220,4 @@ pub fn init() -> Box<Webrtc> {
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
     })))
-}
-
-#[cfg(test)]
-mod asdasd {
-    use super::notifier::asd;
-
-    #[test]
-    fn name() {
-        unsafe { asd() };
-        println!("after join");
-        loop {}
-    }
 }

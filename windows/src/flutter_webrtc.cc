@@ -10,22 +10,28 @@
 namespace flutter_webrtc_plugin {
 
 typedef void (*notifier_handler)();
-extern "C" void register_notifier_cb(notifier_handler);
+extern "C" void register_notifier(notifier_handler);
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
+  media_device_count_ = webrtc->EnumerateDevices().size();
+
+  // Creates a new `EventChannel` with name "FlutterWebRTC/Notifier".
   std::string event_channel =
     "FlutterWebRTC/Notifier";
   event_channel_.reset(new EventChannel<EncodableValue>(
     plugin->messenger(), event_channel, &StandardMethodCodec::GetInstance()));
 
+  // Creates a handler for the `EventChannel`.
   auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
+    // An `on_listen` callback.
     [&](const flutter::EncodableValue* arguments,
       std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
     -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
       event_sink_ = std::move(events);
       return nullptr;
     },
-    [&](const flutter::EncodableValue* arguments)
+    // An `on_cancel` callback.
+      [&](const flutter::EncodableValue* arguments)
       -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
       event_sink_ = nullptr;
       return nullptr;
@@ -33,17 +39,18 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin) {
 
   event_channel_->SetStreamHandler(std::move(handler));
 
-  printf("registering\n");
   auto bind = std::bind([](FlutterWebRTC* context) {
-    printf("123123\n");
-
-    if (context->event_sink_) {
-      EncodableMap params;
-      params[EncodableValue("event")] = "test";
-      context->event_sink_->Success(EncodableValue(params));
+    size_t new_count = context->webrtc->EnumerateDevices().size();
+    if (new_count != context->media_device_count_) {
+      context->media_device_count_ = new_count;
+      if (context->event_sink_) {
+        EncodableMap params;
+        params[EncodableValue("event")] = "test";
+        context->event_sink_->Success(EncodableValue(params));
+      }
     }
     }, this);
-  register_notifier_cb(Wrapper<0, void()>::wrap(bind));
+  register_notifier(Wrapper<0, void()>::wrap(bind));
 }
 
 FlutterWebRTC::~FlutterWebRTC() {}

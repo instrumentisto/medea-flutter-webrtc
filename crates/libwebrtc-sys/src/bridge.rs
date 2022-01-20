@@ -188,7 +188,5 @@ pub(crate) mod webrtc {
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
-
-        pub fn test();
     }
 }

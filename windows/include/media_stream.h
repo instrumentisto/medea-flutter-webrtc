@@ -38,7 +38,7 @@ inline std::string findString(const EncodableMap& map, const std::string& key) {
 
 /// Calls Rust `EnumerateDevices()` and converts the recieved
 /// Rust vector of `MediaDeviceInfo` info for Dart.
-void enumerate_device(rust::Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
+size_t enumerate_device(rust::Box<Webrtc>& webrtc, std::unique_ptr<MethodResult<EncodableValue>> result);
 
 /// Parses the recieved constraints from Dart and passes them
 /// to Rust `GetUserMedia()`, then converts the backed `MediaStream`
