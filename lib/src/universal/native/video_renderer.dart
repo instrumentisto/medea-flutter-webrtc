@@ -1,24 +1,28 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
 
-import 'package:flutter_webrtc/src/interface/media_stream_track.dart';
-import '../interface/rtc_video_renderer.dart';
-import 'utils.dart';
+import '../media_stream_track.dart';
+import '../video_renderer.dart';
 
-class RTCVideoRendererNative extends VideoRenderer {
-  RTCVideoRendererNative();
+const videoRendererFactoryMethodChannel = MethodChannel('$CHANNEL_TAG/VideoRendererFactory');
+
+class NativeVideoRenderer extends VideoRenderer {
+  NativeVideoRenderer();
   int? _textureId;
   MediaStreamTrack? _srcObject;
   StreamSubscription<dynamic>? _eventSubscription;
+  late MethodChannel _methodChannel;
 
   @override
   Future<void> initialize() async {
-    final response = await WebRTC.invokeMethod('createVideoRenderer', {});
-    _textureId = response['textureId'];
-    _eventSubscription = EventChannel('FlutterWebRTC/Texture$textureId')
+    final response = await videoRendererFactoryMethodChannel.invokeMethod('create');
+    _textureId = response['channelId'];
+    _eventSubscription = EventChannel('$CHANNEL_TAG/VideoRendererEvent/$_textureId')
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
+    _methodChannel = MethodChannel('$CHANNEL_TAG/VideoRenderer/$_textureId');
   }
 
   @override
@@ -45,9 +49,8 @@ class RTCVideoRendererNative extends VideoRenderer {
     }
 
     _srcObject = track;
-    WebRTC.invokeMethod('videoRendererSetSrcObject', <String, dynamic>{
-      'textureId': textureId,
-      'trackId': track?.id ?? '',
+    _methodChannel.invokeMethod('setSrcObject', {
+      'trackId': track?.id(),
     }).then((_) {
       value = (track == null)
           ? RTCVideoValue.empty
@@ -58,10 +61,11 @@ class RTCVideoRendererNative extends VideoRenderer {
   @override
   Future<void> dispose() async {
     await _eventSubscription?.cancel();
-    await WebRTC.invokeMethod(
-      'videoRendererDispose',
-      <String, dynamic>{'textureId': _textureId},
-    );
+    // TODO(evdokimovs): Dispose VideoRenderer on native side.
+    // await WebRTC.invokeMethod(
+    //   'videoRendererDispose',
+    //   <String, dynamic>{'textureId': _textureId},
+    // );
 
     return super.dispose();
   }

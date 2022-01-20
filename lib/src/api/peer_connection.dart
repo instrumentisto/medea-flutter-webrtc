@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_webrtc/src/api/media_stream_track.dart';
+import 'package:flutter_webrtc/src/universal/native/media_stream_track.dart';
 import 'package:flutter_webrtc/src/api/rtp_transceiver.dart';
 import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
 import 'package:flutter_webrtc/src/model/ice_candidate.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_webrtc/src/model/session_description.dart';
 const _peerConnectionFactoryMethodChannel =
     MethodChannel('$CHANNEL_TAG/PeerConnectionFactory');
 
-typedef OnTrackCallback = void Function(MediaStreamTrack, RtpTransceiver);
+typedef OnTrackCallback = void Function(NativeMediaStreamTrack, RtpTransceiver);
 typedef OnIceCandidateCallback = void Function(IceCandidate);
 typedef OnIceConnectionStateChangeCallback = void Function(IceConnectionState);
 typedef OnConnectionStateChangeCallback = void Function(PeerConnectionState);
@@ -48,7 +48,7 @@ class PeerConnection {
       case 'onAddTrack':
         Map<String, dynamic> track = e['track'];
         Map<String, dynamic> transceiver = e['transceiver'];
-        _onTrack?.call(MediaStreamTrack.fromMap(track),
+        _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
             RtpTransceiver.fromMap(transceiver));
         break;
     }

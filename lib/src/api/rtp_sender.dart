@@ -1,21 +1,20 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_webrtc/src/api/media_stream_track.dart';
+import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
+import 'package:flutter_webrtc/src/universal/media_stream_track.dart';
 
 class RtpSender {
-  RtpSender(String channelId) {
-    _methodChannel = MethodChannel(channelId);
+  RtpSender(int channelId) {
+    _methodChannel = MethodChannel(channelNameWithId('RtpSender', channelId));
   }
 
-  MediaStreamTrack? track;
+  MediaStreamTrack? _track;
 
   late MethodChannel _methodChannel;
 
-  MediaStreamTrack? getTrack() {
-    return track;
-  }
+  MediaStreamTrack? get track => _track;
 
   Future<void> setTrack(MediaStreamTrack? t) async {
-    track = t;
+    _track = t;
     await _methodChannel.invokeMethod('setTrack', {'trackId': t?.id()});
   }
 }

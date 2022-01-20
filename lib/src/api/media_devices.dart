@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_webrtc/src/api/media_stream_track.dart';
+import 'package:flutter_webrtc/src/universal/native/media_stream_track.dart';
 import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
 import 'package:flutter_webrtc/src/model/constraints.dart';
 import 'package:flutter_webrtc/src/model/media_device_info.dart';
@@ -12,8 +12,8 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
   return res.map((i) => MediaDeviceInfo.fromMap(i)).toList();
 }
 
-Future<List<MediaStreamTrack>> getUserMedia(Constraints constraints) async {
+Future<List<NativeMediaStreamTrack>> getUserMedia(Constraints constraints) async {
   List<Map<String, dynamic>> res = await _mediaDevicesMethodChannel
       .invokeMethod('getUserMedia', {'constraints': constraints.toMap()});
-  return res.map((t) => MediaStreamTrack.fromMap(t)).toList();
+  return res.map((t) => NativeMediaStreamTrack.fromMap(t)).toList();
 }

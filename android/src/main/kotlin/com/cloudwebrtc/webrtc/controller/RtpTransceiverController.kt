@@ -51,7 +51,11 @@ class RtpTransceiverController(
 
     fun asFlutterResult(): Map<String, Any> {
         return mapOf(
-            "channelId" to channelId
+            "channelId" to channelId,
+            "senderChannelId" to RtpSenderController(
+                binaryMessenger,
+                transceiver.getSender()
+            ).asFlutterResult()
         )
     }
 

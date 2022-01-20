@@ -1,0 +1,52 @@
+import 'dart:async';
+import 'dart:html' as html;
+
+import 'package:flutter_webrtc/src/model/media_kind.dart';
+
+import '../media_stream_track.dart';
+
+class WebMediaStreamTrack extends MediaStreamTrack {
+  WebMediaStreamTrack(this.jsTrack);
+
+  final html.MediaStreamTrack jsTrack;
+
+  // TODO(evdokimovs): Fix deviceId functional for Web
+  @override
+  String deviceId() {
+    return jsTrack.id!;
+  }
+
+  @override
+  String id() {
+    return jsTrack.id!;
+  }
+
+  @override
+  bool isEnabled() {
+    return jsTrack.enabled ?? false;
+  }
+
+  @override
+  MediaKind kind() {
+    var jsKind = jsTrack.kind;
+    if (jsKind == 'audio') {
+      return MediaKind.Audio;
+    } else {
+      return MediaKind.Video;
+    }
+  }
+
+  @override
+  Future<void> setEnabled(bool enabled) async {
+    jsTrack.enabled = enabled;
+  }
+
+  @override
+  Future<void> stop() async {
+     jsTrack.stop();
+  }
+
+  // TODO(evdokimovs): I think that in Web implementation MediaStreamTrack disposing is not needed.
+  @override
+  Future<void> dispose() async {}
+}

@@ -2,29 +2,27 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../interface/enums.dart';
-import '../interface/rtc_video_renderer.dart';
-import '../rtc_video_renderer.dart';
-import 'rtc_video_renderer_impl.dart';
+import '../video_renderer.dart';
+import '../video_view_object_fit.dart';
+import 'video_renderer.dart';
 
-class RTCVideoView extends StatelessWidget {
-  RTCVideoView(
-    this._renderer, {
-    Key? key,
-    this.objectFit = RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
-    this.mirror = false,
-    this.enableContextMenu = true,
-    this.filterQuality = FilterQuality.low,
-  }) : super(key: key);
+class VideoView extends StatelessWidget {
+  VideoView(
+      this._renderer, {
+        Key? key,
+        this.objectFit = VideoViewObjectFit.contain,
+        this.mirror = false,
+        this.enableContextMenu = true,
+        this.filterQuality = FilterQuality.low,
+      }) : super(key: key);
 
-  final RTCVideoRenderer _renderer;
-  final RTCVideoViewObjectFit objectFit;
+  final VideoRenderer _renderer;
+  final VideoViewObjectFit objectFit;
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
 
-  RTCVideoRendererNative get videoRenderer =>
-      _renderer.delegate as RTCVideoRendererNative;
+  NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +38,7 @@ class RTCVideoView extends StatelessWidget {
         height: constraints.maxHeight,
         child: FittedBox(
           clipBehavior: Clip.hardEdge,
-          fit: objectFit == RTCVideoViewObjectFit.RTCVideoViewObjectFitContain
+          fit: objectFit == VideoViewObjectFit.contain
               ? BoxFit.contain
               : BoxFit.cover,
           child: Center(
@@ -58,11 +56,11 @@ class RTCVideoView extends StatelessWidget {
                 transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
                 alignment: FractionalOffset.center,
                 child: videoRenderer.textureId != null &&
-                        videoRenderer.srcObject != null
+                    videoRenderer.srcObject != null
                     ? Texture(
-                        textureId: videoRenderer.textureId!,
-                        filterQuality: filterQuality,
-                      )
+                  textureId: videoRenderer.textureId!,
+                  filterQuality: filterQuality,
+                )
                     : Container(),
               ),
             ),

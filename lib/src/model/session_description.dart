@@ -11,6 +11,8 @@ class SessionDescription {
     description = map['description'];
   }
 
+  SessionDescription(this.type, this.description);
+
   late SessionDescriptionType type;
   late String description;
 

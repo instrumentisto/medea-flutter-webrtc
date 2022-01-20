@@ -5,6 +5,8 @@ class IceCandidate {
     sdp = map['sdp'];
   }
 
+  IceCandidate(this.sdpMid, this.sdpMLineIndex, this.sdp);
+
   late String sdpMid;
   late int sdpMLineIndex;
   late String sdp;

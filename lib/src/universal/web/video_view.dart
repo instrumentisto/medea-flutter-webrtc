@@ -2,46 +2,46 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../interface/enums.dart';
-import '../rtc_video_renderer.dart';
-import '../web/rtc_video_renderer_impl.dart';
+import '../video_view_object_fit.dart';
+import '../video_renderer.dart';
+import 'video_renderer.dart';
 
-class RTCVideoView extends StatefulWidget {
-  RTCVideoView(
-    this._renderer, {
-    Key? key,
-    this.objectFit = RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
-    this.mirror = false,
-    this.enableContextMenu = true,
-    this.filterQuality = FilterQuality.low,
-  }) : super(key: key);
+class VideoView extends StatefulWidget {
+  VideoView(
+      this._renderer, {
+        Key? key,
+        this.objectFit = VideoViewObjectFit.contain,
+        this.mirror = false,
+        this.enableContextMenu = true,
+        this.filterQuality = FilterQuality.low,
+      }) : super(key: key);
 
-  final RTCVideoRenderer _renderer;
-  final RTCVideoViewObjectFit objectFit;
+  final VideoRenderer _renderer;
+  final VideoViewObjectFit objectFit;
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
 
   @override
-  _RTCVideoViewState createState() => _RTCVideoViewState();
+  _VideoViewState createState() => _VideoViewState();
 }
 
-class _RTCVideoViewState extends State<RTCVideoView> {
-  _RTCVideoViewState();
+class _VideoViewState extends State<VideoView> {
+  _VideoViewState();
 
-  RTCVideoRendererWeb get videoRenderer =>
-      widget._renderer.delegate as RTCVideoRendererWeb;
+  WebVideoRenderer get videoRenderer =>
+      widget._renderer as WebVideoRenderer;
 
   @override
   void initState() {
     super.initState();
-    widget._renderer.delegate.addListener(_onRendererListener);
+    widget._renderer.addListener(_onRendererListener);
     videoRenderer.mirror = widget.mirror;
     videoRenderer.enableContextMenu = widget.enableContextMenu;
     videoRenderer.objectFit =
-        widget.objectFit == RTCVideoViewObjectFit.RTCVideoViewObjectFitContain
-            ? 'contain'
-            : 'cover';
+    widget.objectFit == VideoViewObjectFit.contain
+        ? 'contain'
+        : 'cover';
   }
 
   void _onRendererListener() {
@@ -50,21 +50,21 @@ class _RTCVideoViewState extends State<RTCVideoView> {
 
   @override
   void dispose() {
-    widget._renderer.delegate.removeListener(_onRendererListener);
+    widget._renderer.removeListener(_onRendererListener);
     super.dispose();
   }
 
   @override
-  void didUpdateWidget(RTCVideoView oldWidget) {
+  void didUpdateWidget(VideoView oldWidget) {
     super.didUpdateWidget(oldWidget);
     videoRenderer.mirror = widget.mirror;
     Timer(
         Duration(milliseconds: 10), () => videoRenderer.mirror = widget.mirror);
     videoRenderer.enableContextMenu = widget.enableContextMenu;
     videoRenderer.objectFit =
-        widget.objectFit == RTCVideoViewObjectFit.RTCVideoViewObjectFitContain
-            ? 'contain'
-            : 'cover';
+    widget.objectFit == VideoViewObjectFit.contain
+        ? 'contain'
+        : 'cover';
   }
 
   Widget buildVideoElementView() {
