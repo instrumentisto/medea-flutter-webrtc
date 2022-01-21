@@ -39,6 +39,12 @@ class MediaStreamMethods {
       Box<Webrtc>& webrtc,
       std::unique_ptr<MethodResult<EncodableValue>> result);
 
+  // Sets the `Track`'s state to `enabled` or `disabled`.
+  static void SetTrackEnabled(
+      const flutter::MethodCall<EncodableValue>& method_call,
+      Box<Webrtc>& webrtc,
+      std::unique_ptr<MethodResult<EncodableValue>> result);
+
  private:
   // Parses video constraints received from Dart to Rust `VideoConstraints`.
   static VideoConstraints ParseVideoConstraints(const EncodableValue video_arg);

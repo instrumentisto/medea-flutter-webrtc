@@ -40,6 +40,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("streamDispose") == 0) {
     MediaStreamMethods::DisposeStream(method_call, webrtc, std::move(result));
   } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
+    MediaStreamMethods::SetTrackEnabled(method_call, webrtc, std::move(result));
   } else if (method.compare("trackDispose") == 0) {
   } else if (method.compare("peerConnectionClose") == 0) {
   } else if (method.compare("peerConnectionDispose") == 0) {

@@ -184,6 +184,22 @@ pub(crate) mod webrtc {
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
+
+        /// Sets [`VideoTrackInterface`]  `enabled` or `disabled` according
+        /// to passed `bool`. If the [`VideoTrackInterface`] is `disabled`,
+        /// it will generate black [`VideoFrame`]s.
+        pub fn set_video_track_enabled(
+            track: &VideoTrackInterface,
+            enabled: bool,
+        );
+
+        /// Sets [`AudioTrackInterface`]  `enabled` or `disabled` according
+        /// to passed `bool`. If the [`AudioTrackInterface`] is `disabled`,
+        /// it will generate silence.
+        pub fn set_audio_track_enabled(
+            track: &AudioTrackInterface,
+            enabled: bool,
+        );
     }
 
     /// Possible variants of [`VideoFrame`]'s rotation.

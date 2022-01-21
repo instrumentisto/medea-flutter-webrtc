@@ -226,6 +226,16 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
   return media_stream->RemoveTrack(track.ptr());
 }
 
+// Calls `VideoTrackInterface->set_enabled()`.
+void set_video_track_enabled(const VideoTrackInterface& track, bool enabled) {
+  track.ptr()->set_enabled(enabled);
+}
+
+// Calls `AudioTrackInterface->set_enabled()`.
+void set_audio_track_enabled(const AudioTrackInterface& track, bool enabled) {
+  track.ptr()->set_enabled(enabled);
+}
+
 // Calls `libyuv::I420ToABGR`.
 void convert_to_argb(const VideoFrame& video_frame, uint8_t* buffer_ptr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(

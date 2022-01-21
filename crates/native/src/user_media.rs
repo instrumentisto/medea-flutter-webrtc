@@ -286,6 +286,28 @@ impl Webrtc {
 
         Ok(src)
     }
+
+    /// Set the [`VideoTrack`]'s/[`AudioTrack`]'s `enabled`/`disabled` state.
+    ///
+    /// # Panics
+    ///
+    /// It can't panic because of `is_none()` checks.
+    pub fn set_track_enabled(&mut self, id: u64, enabled: bool) {
+        let track = self.0.video_tracks.get(&VideoTrackId(id));
+
+        if track.is_none() {
+            let track = self.0.audio_tracks.get(&AudioTrackId(id));
+
+            if track.is_none() {
+                return;
+            }
+
+            track.unwrap().inner.set_enabled(enabled);
+            return;
+        }
+
+        track.unwrap().inner.set_enabled(enabled);
+    }
 }
 
 /// ID of a [`MediaStream`].

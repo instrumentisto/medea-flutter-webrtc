@@ -171,6 +171,11 @@ pub mod api {
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
 
+        /// Set the [`VideoTrack`]'s/[`AudioTrack`]'s `enabled`/`disabled`
+        /// state.
+        #[cxx_name = "SetTrackEnabled"]
+        pub fn set_track_enabled(self: &mut Webrtc, id: u64, enabled: bool);
+
         /// Returns the [`Frame`]'s `width`.
         fn width(self: &Frame) -> i32;
 

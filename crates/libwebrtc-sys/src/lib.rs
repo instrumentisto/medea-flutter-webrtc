@@ -379,10 +379,28 @@ pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct VideoTrackInterface(UniquePtr<webrtc::VideoTrackInterface>);
 
+impl VideoTrackInterface {
+    /// Sets [`VideoTrackInterface`]  `enabled` or `disabled` according
+    /// to passed `bool`. If the [`VideoTrackInterface`] is `disabled`,
+    /// it will generate black [`webrtc::VideoFrame`]s.
+    pub fn set_enabled(&self, enabled: bool) {
+        webrtc::set_video_track_enabled(&self.0, enabled);
+    }
+}
+
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
+
+impl AudioTrackInterface {
+    /// Sets [`AudioTrackInterface`]  `enabled` or `disabled` according
+    /// to passed `bool`. If the [`AudioTrackInterface`] is `disabled`,
+    /// it will generate silence.
+    pub fn set_enabled(&self, enabled: bool) {
+        webrtc::set_audio_track_enabled(&self.0, enabled);
+    }
+}
 
 /// [`MediaStreamInterface`][1] representation.
 ///

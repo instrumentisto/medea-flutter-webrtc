@@ -168,6 +168,14 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 
+// Sets `VideoTrackInterface` `enabled` or `disabled` according to passed
+// `bool`.
+void set_video_track_enabled(const VideoTrackInterface& track, bool enabled);
+
+// Sets `AudioTrackInterface` `enabled` or `disabled` according to passed
+// `bool`.
+void set_audio_track_enabled(const AudioTrackInterface& track, bool enabled);
+
 // Converts `i420 buffer` from received `VideoFrame` to `ABGR buffer`.
 void convert_to_argb(const VideoFrame& frame, uint8_t* buffer_ptr);
 
@@ -176,5 +184,4 @@ std::unique_ptr<VideoRenderer> create_video_renderer(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
     size_t flutter_cb_ptr,
     const VideoTrackInterface& track_to_render);
-
 }  // namespace bridge
