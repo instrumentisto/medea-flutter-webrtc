@@ -19,10 +19,15 @@ pub use crate::user_media::{
     MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
 };
 
+
+use cxx::{UniquePtr, CxxString};
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod api {
+    
+
+
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -134,6 +139,19 @@ pub mod api {
         kVideo,
     }
 
+    unsafe extern "C++" {
+        include!("C:/Users/Human/Documents/GitHub/flutter-webrtc/crates/native/include/observer.h");
+        type MyObserver;
+    }
+
+    unsafe extern "C++" {
+        include!("C:/Users/Human/Documents/GitHub/flutter-webrtc/crates/native/include/call_observer.h");
+
+        pub fn call_success(obs: UniquePtr<MyObserver>, sdp: &CxxString, type_: &CxxString);
+        pub fn call_fail(obs: UniquePtr<MyObserver>, error: &CxxString);
+    }
+
+
     #[allow(clippy::too_many_arguments)]
     extern "Rust" {
         type Webrtc;
@@ -173,10 +191,7 @@ pub mod api {
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            s: usize,
-            sf: usize,
-            f: usize,
-            ff: usize,
+            obs_: UniquePtr<MyObserver>,
         );
 
         /// Creates a new [Answer].
@@ -196,9 +211,9 @@ pub mod api {
             ice_restart: bool,
             use_rtp_mux: bool,
             s: usize,
-            sf: usize,
             f: usize,
-            ff: usize,
+            d: usize,
+            context: usize,
         );
 
         /// Set Local Description.
@@ -214,9 +229,8 @@ pub mod api {
             type_: String,
             sdp: String,
             s: usize,
-            sf: usize,
             f: usize,
-            ff: usize,
+            context: usize,
         );
 
         /// Set Remote Description.
@@ -232,9 +246,8 @@ pub mod api {
             type_: String,
             sdp: String,
             s: usize,
-            sf: usize,
             f: usize,
-            ff: usize,
+            context: usize,
         );
 
         /// Creates a [`MediaStream`] with tracks according to provided

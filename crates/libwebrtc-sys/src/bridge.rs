@@ -145,29 +145,6 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
-
-    extern  "Rust" {
-        type RustCreateOfferAnswerCB;
-        fn create_RustCreateOfferAnswerCB(            
-            ok_   :usize,
-            err_  :usize,
-            drop_ :usize,
-            data_ :usize,
-        ) -> Box<RustCreateOfferAnswerCB>;
-
-        fn ok(
-            self: &mut RustCreateOfferAnswerCB, a: &CxxString, b:&CxxString
-        );
-
-        fn err(
-            self: &mut RustCreateOfferAnswerCB, a: &CxxString
-        );
-
-        fn data_drop(
-            self: &mut RustCreateOfferAnswerCB
-        );
-    }
-
     #[rustfmt::skip]
     unsafe extern "C++" {
         type AudioDecoderFactory;
@@ -188,18 +165,6 @@ pub(crate) mod webrtc {
         type SetRemoteDescriptionObserverInterface;
         type VideoDecoderFactory;
         type VideoEncoderFactory;
-        type CreateOfferAnswerCB;
-
-        fn create_OfferAnswerCB(
-            ok_   :usize,
-            err_  :usize,
-            drop_ :usize,
-            data_ :usize,
-        ) -> UniquePtr<CreateOfferAnswerCB>;   
-
-        fn call_ok_(cb: Pin<&mut CreateOfferAnswerCB>, sdp: &CxxString, type_:&CxxString);
-        fn call_err_(cb: Pin<&mut CreateOfferAnswerCB>, error: &CxxString);
-        fn call_drop_(cb: Pin<&mut CreateOfferAnswerCB>);
 
         /// Creates a new [`VideoEncoderFactory`].
         #[namespace = "webrtc"]
@@ -285,25 +250,23 @@ pub(crate) mod webrtc {
         /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
             s: fn(&CxxString, &CxxString, usize),
-            sf: usize,
             f: fn(&CxxString, usize),
-            ff: usize,
+            d: fn(usize),
+            context_: usize,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetLocalDescriptionObserverInterface`].
         pub fn create_set_local_description_observer_interface(
             s: fn(usize),
-            sf: usize,
             f: fn(&CxxString,usize),
-            ff: usize,
+            context_: usize,
         ) -> UniquePtr<SetLocalDescriptionObserverInterface>;
 
         /// Creates a [`SetRemoteDescriptionObserverInterface`].
         pub fn create_set_remote_description_observer_interface(
             s: fn(usize),
-            sf: usize,
             f: fn(&CxxString,usize),
-            ff: usize,
+            context_: usize,
         ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
 
         /// Calls `peer_connection_interface`->CreateOffer.
@@ -413,30 +376,22 @@ pub(crate) mod webrtc {
     }
 }
 
-use cxx::{CxxString, UniquePtr};
-
-pub struct RustCreateOfferAnswerCB(Box<UniquePtr<webrtc::CreateOfferAnswerCB>>);
-
-impl RustCreateOfferAnswerCB {
-    pub fn ok(&mut self, sdp: &CxxString, type_:&CxxString) {
-        webrtc::call_ok_(self.0.pin_mut(), sdp, type_);
-    }
-    pub fn err(&mut self, error: &CxxString) {
-        webrtc::call_err_(self.0.pin_mut(), error);
-    }
-    pub fn data_drop(&mut self) {
-        webrtc::call_drop_(self.0.pin_mut());
-    }
+struct CallBack {
+    success: extern "C" fn(&cxx::CxxString, &cxx::CxxString, usize),
+    fail: extern "C" fn(&cxx::CxxString, usize),
+    drop: extern "C" fn(usize),
+    context: usize,
 }
 
-pub fn create_RustCreateOfferAnswerCB(
-    ok_   :usize,
-    err_  :usize,
-    drop_ :usize,
-    data_ :usize,
-) -> Box<RustCreateOfferAnswerCB>
-{
-    Box::new(RustCreateOfferAnswerCB(Box::new(webrtc::create_OfferAnswerCB(ok_, err_, drop_, data_))))
+impl CallBack {
+    fn new(s: usize, f: usize, d: usize, cntx: usize) -> Self{
+        CallBack {
+            success: unsafe { std::mem::transmute(s) },
+            fail: unsafe { std::mem::transmute(f) },
+            drop: unsafe { std::mem::transmute(d) },
+            context: cntx
+        }
+    }
 }
 
 impl TryFrom<&str> for webrtc::SdpType {

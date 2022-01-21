@@ -8,20 +8,6 @@
 
 namespace bridge {
 
-std::unique_ptr<CreateOfferAnswerCB> create_OfferAnswerCB(size_t ok_, size_t err_, size_t drop_, size_t data_) {
-    return std::make_unique<CreateOfferAnswerCB>(CreateOfferAnswerCB(ok_, err_, drop_, data_));
-}
-
-void call_ok_(CreateOfferAnswerCB& cb, const std::string& sdp, const std::string& type_) {
-    cb.Success(sdp,type_);
-}
-void call_err_(CreateOfferAnswerCB& cb, const std::string& error) {
-    cb.Error(error);
-}
-void call_drop_(CreateOfferAnswerCB& cb) {
-    cb.Drop();
-}
-
 // Calls `AudioDeviceModule->Create()`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
@@ -360,28 +346,26 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 // Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
     rust::Fn<void(const std::string&, const std::string&, size_t)> s,
-    size_t sf,
     rust::Fn<void(const std::string&, size_t)> f,
-    size_t ff) {
-    return std::make_unique<CreateSessionDescriptionObserver>(CreateSessionDescriptionObserver(s,sf,f,ff));
+    rust::Fn<void(size_t)> d,
+    size_t context_) {
+    return std::make_unique<CreateSessionDescriptionObserver>(CreateSessionDescriptionObserver(s,f,d,context_));
   }
 
 // Creates `SetLocalDescriptionObserverInterface`.
 std::unique_ptr<SetLocalDescriptionObserverInterface> create_set_local_description_observer_interface(
     rust::Fn<void(size_t)> s,
-    size_t sf,
     rust::Fn<void(const std::string&, size_t)> f,
-    size_t ff) {
-      return std::make_unique<SetLocalDescriptionObserverInterface>(SetLocalDescriptionObserverInterface(s,sf,f,ff));
+    size_t context_) {
+      return std::make_unique<SetLocalDescriptionObserverInterface>(SetLocalDescriptionObserverInterface(s,f,context_));
     }
 
 // Creates `SetRemoteDescriptionObserverInterface`.
 std::unique_ptr<SetRemoteDescriptionObserverInterface> create_set_remote_description_observer_interface(
     rust::Fn<void(size_t)> s,
-    size_t sf,
     rust::Fn<void(const std::string&, size_t)> f,
-    size_t ff) {
-      return std::make_unique<SetRemoteDescriptionObserverInterface>(SetRemoteDescriptionObserverInterface(s,sf,f,ff));
+    size_t context_) {
+      return std::make_unique<SetRemoteDescriptionObserverInterface>(SetRemoteDescriptionObserverInterface(s,f,context_));
     }
 
 // Calls `PeerConnectionInterface->CreateOffer`.

@@ -3,7 +3,6 @@
 #include "api\peer_connection_interface.h"
 #include <functional>
 #include "rust/cxx.h"
-//#include "libwebrtc-sys/src/bridge.rs.h" BROKE ALL
 
 namespace observer {
 
@@ -31,13 +30,13 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 class CreateSessionDescriptionObserver
     : public webrtc::CreateSessionDescriptionObserver {
  public:
+
   // Callback for `CreateOffer/Answer` is success.
   rust::Fn<void(const std::string&, const std::string&, size_t)> success;
-  size_t success_functor;
-
   // Callback for `CreateOffer/Answer` is fail.
   rust::Fn<void(const std::string&, size_t)> fail;
-  size_t fail_functor;
+  rust::Fn<void(size_t)> drop;
+  void* context;
 
   // RefCount for lifetime observer.
   mutable int ref_count;
@@ -47,9 +46,9 @@ class CreateSessionDescriptionObserver
   // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver(
       rust::Fn<void(const std::string&, const std::string&, size_t)> s,
-      size_t sf,
       rust::Fn<void(const std::string&, size_t)> f,
-      size_t ff);
+      rust::Fn<void(size_t)> d,
+      size_t context_);
 
   // Calls when a `CreateOffer/Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
@@ -69,10 +68,9 @@ class SetLocalDescriptionObserverInterface
  public:
   // Callback for `SetLocalDescription` is success.
   rust::Fn<void(size_t)> success;
-  size_t success_functor;
   // Callback for `SetLocalDescription` is fail.
   rust::Fn<void(const std::string&, size_t)> fail;
-  size_t fail_functor;
+  void* context;
 
   // RefCount for lifetime observer.
   mutable int ref_count;
@@ -83,9 +81,8 @@ class SetLocalDescriptionObserverInterface
   // Construct SetLocalDescriptionObserverInterface.
   SetLocalDescriptionObserverInterface(
     rust::Fn<void(size_t)> s,
-    size_t sf,
     rust::Fn<void(const std::string&, size_t)> f,
-    size_t ff);
+    size_t context_);
 
   // Interface rtc::RefCountInterface.
   void AddRef() const;
@@ -98,10 +95,10 @@ class SetRemoteDescriptionObserverInterface
  public:
   // Callback for `SetRemoteDescription` is success.
   rust::Fn<void(size_t)> success;
-  size_t success_functor;
   // Callback for `SetRemoteDescription` is fail.
   rust::Fn<void(const std::string&, size_t)> fail;
-  size_t fail_functor;
+
+  void* context;
 
   // RefCount for lifetime observer.
   mutable int ref_count;
@@ -112,9 +109,8 @@ class SetRemoteDescriptionObserverInterface
   // Construct SetRemoteDescriptionObserverInterface.
   SetRemoteDescriptionObserverInterface(
     rust::Fn<void(size_t)> s,
-    size_t sf,
     rust::Fn<void(const std::string&, size_t)> f,
-    size_t ff);
+    size_t context_);
 
   // Interface rtc::RefCountInterface.
   void AddRef() const;
