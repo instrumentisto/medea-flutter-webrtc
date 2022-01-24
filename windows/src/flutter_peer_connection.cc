@@ -171,18 +171,21 @@ void CreateAnswer(
     use_rtp_mux = GetValue<bool>((*iter));
     ++iter;
   }
+  // TODO: Option<true>
+  //        None => -1
+  //        true => 1
+  //        false => 0
+  //        we are passing None
   receive_audio = findBool(mandatory, "OfferToReceiveAudio");
   receive_video = findBool(mandatory, "OfferToReceiveVideo");
 
   auto res = result.release();
-  size_t context = (size_t) res;
-  size_t success = (size_t) &callbacks::OnSuccessCreate;
-  size_t fail = (size_t) &callbacks::OnFail;
 
   auto sdp_callback = create_sdp_callback(
-      success,
-      fail,
-      context);
+      (size_t) callbacks::OnSuccessCreate,
+      (size_t) callbacks::OnFail,
+      (size_t) callbacks::drop,
+      (size_t) res);
 
   rust::String error;
   webrtc->CreateAnswer(

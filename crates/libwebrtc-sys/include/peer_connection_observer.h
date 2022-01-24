@@ -36,8 +36,6 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 class CreateSessionDescriptionObserver
     : public webrtc::CreateSessionDescriptionObserver {
  public:
-
-  absl::optional<rust::cxxbridge1::Box<bridge::DynCreateOfferCallback>> cb;
   // RefCount for lifetime observer.
   mutable int ref_count;
 
@@ -58,6 +56,8 @@ class CreateSessionDescriptionObserver
   // Interface rtc::RefCountInterface.
   rtc::RefCountReleaseStatus Release() const;
 
+ private:
+  absl::optional<rust::cxxbridge1::Box<bridge::DynCreateOfferCallback>> cb;
 };
 
 class SetLocalDescriptionObserverInterface

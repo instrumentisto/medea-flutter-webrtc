@@ -26,12 +26,15 @@ CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
 
 // Calls when a `CreateOffer\Answer` is success.
 void CreateSessionDescriptionObserver::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
-  std::string type = desc->type();
-  std::string sdp;
-  desc->ToString(&sdp);
-  delete desc;
-  bridge::success(*cb.value(), sdp, type);
+  if (cb) {
+    std::string type = desc->type();
+    std::string sdp;
+    desc->ToString(&sdp);
 
+    bridge::success(*cb.value(), sdp, type);
+  }
+
+  delete desc;
 };
 
 // Calls when a `CreateOffer\Answer` is fail.
