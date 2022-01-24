@@ -74,6 +74,49 @@ data class FacingModeConstraint(val facingMode: FacingMode, override val isManda
 data class VideoConstraints(
     val constraints: List<ConstraintChecker>
 ) {
+    companion object {
+        fun fromMap(map: Map<*, *>): VideoConstraints {
+            val constraintCheckers = mutableListOf<ConstraintChecker>()
+
+            val mandatoryArg =
+                map["mandatory"] as Map<*, *>?
+            for ((key, value) in mandatoryArg ?: mapOf<Any, Any>()) {
+                when (key as String) {
+                    "deviceId" -> {
+                        constraintCheckers.add(DeviceIdConstraint(value as String, true))
+                    }
+                    "facingMode" -> {
+                        constraintCheckers.add(
+                            FacingModeConstraint(
+                                FacingMode.fromInt(value as Int),
+                                true
+                            )
+                        )
+                    }
+                }
+            }
+
+            val optionalArg = map["optional"] as Map<*, *>?
+            for ((key, value) in optionalArg ?: mapOf<Any, Any>()) {
+                when (key as String) {
+                    "deviceId" -> {
+                        constraintCheckers.add(DeviceIdConstraint(value as String, false))
+                    }
+                    "facingMode" -> {
+                        constraintCheckers.add(
+                            FacingModeConstraint(
+                                FacingMode.fromInt(value as Int),
+                                false
+                            )
+                        )
+                    }
+                }
+            }
+
+            return VideoConstraints(constraintCheckers)
+        }
+    }
+
     fun calculateScoreForDeviceId(enumerator: CameraEnumerator, deviceId: String): Int? {
         val scores = mutableListOf<ConstraintScore>();
         for (constraint in constraints) {
