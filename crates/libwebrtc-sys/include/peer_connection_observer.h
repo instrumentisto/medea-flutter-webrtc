@@ -6,7 +6,6 @@
 #include "third_party\abseil-cpp\absl\types\optional.h"
 
 namespace bridge {
-  struct CallBackCreateOfferAnswer;
   struct CallBackDescription;
   struct DynCreateOfferCallback;
 }

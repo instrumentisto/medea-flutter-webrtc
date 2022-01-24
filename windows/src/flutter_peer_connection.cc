@@ -110,6 +110,12 @@ void CreateOffer(
   size_t fail = (size_t) &callbacks::OnFail;
   size_t drop = (size_t) &callbacks::drop;
 
+  auto sdp_callback = create_sdp_callback(
+      success,
+      fail,
+      drop,
+      context);
+
   rust::String error;
   webrtc->CreateOffer(
       error,
@@ -119,10 +125,7 @@ void CreateOffer(
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
-      success,
-      fail,
-      drop,
-      context
+      std::move(sdp_callback)
   );
   if (error != "") {
     std::string err(error);
@@ -177,6 +180,12 @@ void CreateAnswer(
   size_t fail = (size_t) &callbacks::OnFail;
   size_t drop = (size_t) &callbacks::drop;
 
+  auto sdp_callback = create_sdp_callback(
+      success,
+      fail,
+      drop,
+      context);
+
   rust::String error;
   webrtc->CreateAnswer(
       error,
@@ -186,10 +195,7 @@ void CreateAnswer(
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
-      success,
-      fail,
-      drop,
-      context
+      std::move(sdp_callback)
   );
   if (error != "") {
     std::string err(error);

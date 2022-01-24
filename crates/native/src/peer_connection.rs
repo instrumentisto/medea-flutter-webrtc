@@ -6,8 +6,7 @@ use std::sync::atomic::Ordering;
 
 use std::sync::atomic::AtomicU64;
 
-use crate::CallBackCreateOfferAnswer;
-use crate::Webrtc;
+use crate::{CallBackCreateOfferAnswer, Webrtc};
 
 /// This counter provides global resource for generating `unique id`.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -80,18 +79,14 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
+        sdp_callback: Box<CallBackCreateOfferAnswer>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
-            let cb = CallBackCreateOfferAnswer::new(success, fail, drop, context);
-            let obs = sys::CreateSessionDescriptionObserver::new(
-                Box::new(Box::new(cb))
-            );
+            let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
+                sdp_callback,
+            ));
 
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,
@@ -128,19 +123,14 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
+        sdp_callback: Box<CallBackCreateOfferAnswer>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
-
-            let cb = CallBackCreateOfferAnswer::new(success, fail, drop, context);
-            let obs = sys::CreateSessionDescriptionObserver::new(
-                Box::new(Box::new(cb))
-            );
+            let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
+                sdp_callback,
+            ));
 
             let options = sys::RTCOfferAnswerOptions::new(
                 offer_to_receive_video,

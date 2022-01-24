@@ -6,7 +6,6 @@ use cxx::CxxString;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
-
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -155,7 +154,11 @@ pub(crate) mod webrtc {
         type CallBackDescription;
         type DynCreateOfferCallback;
 
-        pub fn success(cb: &DynCreateOfferCallback, sdp: &CxxString, type_: &CxxString);
+        pub fn success(
+            cb: &DynCreateOfferCallback,
+            sdp: &CxxString,
+            type_: &CxxString,
+        );
         pub fn fail(cb: &DynCreateOfferCallback, error: &CxxString);
 
         pub fn success_set_descr(self: &mut CallBackDescription);
@@ -455,13 +458,16 @@ pub trait ICreateOfferCallback {
     fn error(&self, error: &CxxString);
 }
 type DynCreateOfferCallback = Box<dyn ICreateOfferCallback>;
-pub fn success(cb: &DynCreateOfferCallback, sdp: &CxxString, type_: &CxxString) {
+pub fn success(
+    cb: &DynCreateOfferCallback,
+    sdp: &CxxString,
+    type_: &CxxString,
+) {
     cb.success(sdp, type_);
 }
 pub fn fail(cb: &DynCreateOfferCallback, error: &CxxString) {
     cb.error(error);
 }
-
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;

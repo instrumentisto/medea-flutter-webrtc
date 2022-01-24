@@ -4,13 +4,13 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::{CallBackDescription};
-use cxx::{let_cxx_string, UniquePtr, CxxString};
+use bridge::CallBackDescription;
+use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
 
-pub use webrtc::{AudioLayer, SdpType};
 pub use bridge::ICreateOfferCallback;
+pub use webrtc::{AudioLayer, SdpType};
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.
@@ -378,9 +378,7 @@ impl CreateSessionDescriptionObserver {
     /// `success` for callback when 'CreateOffer\Answer' is success,
     /// `fail` for callback when 'CreateOffer\Answer' is fail.
     #[must_use]
-    pub fn new(
-        cb: Box<Box<dyn ICreateOfferCallback>>
-    ) -> Self {
+    pub fn new(cb: Box<Box<dyn ICreateOfferCallback>>) -> Self {
         Self(webrtc::create_create_session_observer(cb))
     }
 }
@@ -703,7 +701,6 @@ pub struct VideoTrackInterface(UniquePtr<webrtc::VideoTrackInterface>);
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
-
 
 /// [`MediaStreamInterface`][1] representation.
 ///
