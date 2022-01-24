@@ -46,6 +46,8 @@ class VideoConstraints implements MediaConstraints {
   String? deviceId;
   FacingMode? facingMode;
 
+  VideoConstraints(this.deviceId, this.facingMode);
+
   @override
   dynamic toMap() {
     return {

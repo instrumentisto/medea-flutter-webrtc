@@ -105,15 +105,11 @@ class MediaDevices(val state: State) {
             state.getPeerConnectionFactory().createVideoTrack(getNextTrackId(), videoSource),
             deviceId
         )
-        var isStopped = false;
         videoTrack.onStop {
-            if (!isStopped) {
-                videoCapturer.stopCapture()
-                videoSource.dispose()
-                videoCapturer.dispose()
-                surfaceTextureRenderer.dispose()
-                isStopped = true;
-            }
+            videoCapturer.stopCapture()
+            videoSource.dispose()
+            videoCapturer.dispose()
+            surfaceTextureRenderer.dispose()
         }
 
         return videoTrack

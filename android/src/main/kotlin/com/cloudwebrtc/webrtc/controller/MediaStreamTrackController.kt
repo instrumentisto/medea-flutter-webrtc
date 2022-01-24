@@ -7,7 +7,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class MediaStreamTrackController(
     binaryMessenger: BinaryMessenger,
-    val track: MediaStreamTrackProxy
+    private val track: MediaStreamTrackProxy
 ) : MethodChannel.MethodCallHandler, IdentifiableController {
     private val channelId: Int = nextChannelId();
     private val methodChannel: MethodChannel = MethodChannel(

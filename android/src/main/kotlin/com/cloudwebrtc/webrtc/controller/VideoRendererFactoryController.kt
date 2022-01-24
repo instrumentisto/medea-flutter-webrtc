@@ -6,7 +6,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.TextureRegistry
 
-class VideoRendererFactoryController(private val binaryMessenger: BinaryMessenger, val textureRegistry: TextureRegistry) :
+class VideoRendererFactoryController(private val binaryMessenger: BinaryMessenger, private val textureRegistry: TextureRegistry) :
     MethodChannel.MethodCallHandler {
     private val methodChannel =
         MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("VideoRendererFactory"))

@@ -13,6 +13,8 @@ class MediaStreamTrackProxy(track: MediaStreamTrack, private val deviceId: Strin
 
     private var onStopSubscribers: MutableList<() -> Unit> = mutableListOf()
 
+    private var isStopped: Boolean = false;
+
     override fun syncWithObject() {}
 
     init {
@@ -36,7 +38,10 @@ class MediaStreamTrackProxy(track: MediaStreamTrack, private val deviceId: Strin
     }
 
     fun stop() {
-        onStopSubscribers.forEach { sub -> sub() }
+        if (!isStopped) {
+            isStopped = true
+            onStopSubscribers.forEach { sub -> sub() }
+        }
     }
 
     fun state(): MediaStreamTrackState {

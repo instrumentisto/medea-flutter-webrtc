@@ -10,7 +10,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 class VideoRendererController(
-    val binaryMessenger: BinaryMessenger,
+    binaryMessenger: BinaryMessenger,
     private val videoRenderer: FlutterRtcVideoRenderer
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
     private val channelId: Int = nextChannelId();

@@ -98,17 +98,19 @@ data class VideoConstraints(
 
             val optionalArg = map["optional"] as Map<*, *>?
             for ((key, value) in optionalArg ?: mapOf<Any, Any>()) {
-                when (key as String) {
-                    "deviceId" -> {
-                        constraintCheckers.add(DeviceIdConstraint(value as String, false))
-                    }
-                    "facingMode" -> {
-                        constraintCheckers.add(
-                            FacingModeConstraint(
-                                FacingMode.fromInt(value as Int),
-                                false
+                if (value != null) {
+                    when (key as String) {
+                        "deviceId" -> {
+                            constraintCheckers.add(DeviceIdConstraint(value as String, false))
+                        }
+                        "facingMode" -> {
+                            constraintCheckers.add(
+                                FacingModeConstraint(
+                                    FacingMode.fromInt(value as Int),
+                                    false
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
