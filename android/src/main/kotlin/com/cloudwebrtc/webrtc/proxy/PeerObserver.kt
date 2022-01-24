@@ -7,6 +7,7 @@ import com.cloudwebrtc.webrtc.model.SignalingState
 import org.webrtc.DataChannel
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
+import org.webrtc.RtpReceiver
 import org.webrtc.IceCandidate as WIceCandidate
 
 class PeerObserver : PeerConnection.Observer {
@@ -38,6 +39,22 @@ class PeerObserver : PeerConnection.Observer {
         if (candidate != null) {
             peer?.observableEventBroadcaster()?.onIceCandidate(IceCandidate.fromWebRtc(candidate))
         }
+    }
+
+    override fun onAddTrack(receiver: RtpReceiver?, mediaStreams: Array<out MediaStream>?) {
+        if (receiver != null) {
+            val track = receiver.track();
+            if (track != null) {
+                val transceivers = peer?.getTransceivers()!!;
+                for (trans in transceivers) {
+                    if (trans.getReceiver().id() == receiver.id()) {
+                        peer?.observableEventBroadcaster()
+                            ?.onAddTrack(MediaStreamTrackProxy(track), trans)
+                    }
+                }
+            }
+        }
+        super.onAddTrack(receiver, mediaStreams)
     }
 
     override fun onIceConnectionReceivingChange(p0: Boolean) {}

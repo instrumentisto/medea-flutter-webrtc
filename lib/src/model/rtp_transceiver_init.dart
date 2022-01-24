@@ -7,7 +7,7 @@ class RtpTransceiverInit {
 
   late TransceiverDirection direction;
 
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'direction': direction.index
     };

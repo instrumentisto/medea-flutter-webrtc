@@ -1,5 +1,5 @@
 class IceCandidate {
-  IceCandidate.fromMap(Map<String, dynamic> map) {
+  IceCandidate.fromMap(dynamic map) {
     sdpMid = map['sdpMid'];
     sdpMLineIndex = map['sdpMLineIndex'];
     sdp = map['sdp'];
@@ -11,7 +11,7 @@ class IceCandidate {
   late int sdpMLineIndex;
   late String sdp;
 
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'sdpMid': sdpMid,
       'sdpMLineIndex': sdpMLineIndex,

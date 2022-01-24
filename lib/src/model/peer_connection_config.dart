@@ -16,7 +16,7 @@ class IceServer {
   String? username;
   String? password;
 
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'urls': urls,
       'username': username,

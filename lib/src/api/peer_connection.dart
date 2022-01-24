@@ -18,7 +18,7 @@ typedef OnIceConnectionStateChangeCallback = void Function(IceConnectionState);
 typedef OnConnectionStateChangeCallback = void Function(PeerConnectionState);
 
 class PeerConnection {
-  PeerConnection._fromMap(Map<String, dynamic> map) {
+  PeerConnection._fromMap(dynamic map) {
     int channelId = map['channelId'];
     _methodChannel =
         MethodChannel(channelNameWithId('PeerConnection', channelId));
@@ -29,10 +29,10 @@ class PeerConnection {
   }
 
   void eventListener(dynamic event) {
-    final Map<String, dynamic> e = event;
+    final dynamic e = event;
     switch (e['event']) {
       case 'onIceCandidate':
-        Map<String, dynamic> iceCandidate = e['candidate'];
+        dynamic iceCandidate = e['candidate'];
         _onIceCandidate?.call(IceCandidate.fromMap(iceCandidate));
         break;
       case 'onIceConnectionStateChange':
@@ -46,8 +46,8 @@ class PeerConnection {
         _onConnectionStateChange?.call(state);
         break;
       case 'onAddTrack':
-        Map<String, dynamic> track = e['track'];
-        Map<String, dynamic> transceiver = e['transceiver'];
+        dynamic track = e['track'];
+        dynamic transceiver = e['transceiver'];
         _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
             RtpTransceiver.fromMap(transceiver));
         break;
@@ -69,7 +69,7 @@ class PeerConnection {
 
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
-    Map<String, dynamic> res =
+    dynamic res =
         await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
       'iceTransportType': iceTransportType.index,
       'iceServers': iceServers.map((s) => s.toMap()).toList(),
@@ -102,7 +102,7 @@ class PeerConnection {
 
   Future<RtpTransceiver> addTransceiver(
       MediaType mediaType, RtpTransceiverInit init) async {
-    Map<String, dynamic> res = await _methodChannel.invokeMethod(
+    dynamic res = await _methodChannel.invokeMethod(
         'addTransceiver', {'mediaType': mediaType.index, 'init': init.toMap()});
     var transceiver = RtpTransceiver.fromMap(res);
     _transceivers.add(transceiver);
@@ -111,7 +111,7 @@ class PeerConnection {
   }
 
   Future<List<RtpTransceiver>> getTransceivers() async {
-    List<Map<String, dynamic>> res =
+    List<dynamic> res =
         await _methodChannel.invokeMethod('getTransceivers');
     var transceivers = res.map((t) => RtpTransceiver.fromMap(t)).toList();
     _transceivers = transceivers;
@@ -132,12 +132,12 @@ class PeerConnection {
   }
 
   Future<SessionDescription> createOffer() async {
-    Map<String, dynamic> res = await _methodChannel.invokeMethod('createOffer');
+    dynamic res = await _methodChannel.invokeMethod('createOffer');
     return SessionDescription.fromMap(res);
   }
 
   Future<SessionDescription> createAnswer() async {
-    Map<String, dynamic> res =
+    dynamic res =
         await _methodChannel.invokeMethod('createAnswer');
     return SessionDescription.fromMap(res);
   }

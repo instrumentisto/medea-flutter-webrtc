@@ -6,7 +6,7 @@ enum SessionDescriptionType {
 }
 
 class SessionDescription {
-  SessionDescription.fromMap(Map<String, dynamic> map) {
+  SessionDescription.fromMap(dynamic map) {
     type = SessionDescriptionType.values[map['type']];
     description = map['description'];
   }
@@ -16,7 +16,7 @@ class SessionDescription {
   late SessionDescriptionType type;
   late String description;
 
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'type': type.index,
       'description': description,

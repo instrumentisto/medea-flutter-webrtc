@@ -28,8 +28,12 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     }
 
     init {
-        surfaceTextureRenderer.init(EglUtils.getRootEglBaseContext(), rendererEventsListener)
+        surfaceTextureRenderer.init(EglUtils.rootEglBaseContext, rendererEventsListener)
         surfaceTextureRenderer.surfaceCreated(surfaceTexture)
+    }
+
+    fun textureId(): Long {
+        return surfaceTextureEntry.id();
     }
 
     fun setEventListener(listener: EventListener) {
@@ -41,7 +45,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
             removeRendererFromVideoTrack()
 
             // TODO(evdokimovs): if sharedContext will be null, then app will crash on `init()`, but I don't give a fuck
-            val sharedContext = EglUtils.getRootEglBaseContext()
+            val sharedContext = EglUtils.rootEglBaseContext!!
             surfaceTextureRenderer.release()
             rendererEventsListener = rendererEventsListener()
             surfaceTextureRenderer.init(sharedContext, rendererEventsListener)

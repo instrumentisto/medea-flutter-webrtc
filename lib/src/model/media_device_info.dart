@@ -6,10 +6,10 @@ enum MediaDeviceKind {
 }
 
 class MediaDeviceInfo {
-  MediaDeviceInfo.fromMap(Map<String, dynamic> map) {
+  MediaDeviceInfo.fromMap(dynamic map) {
     deviceId = map['deviceId'];
     label = map['label'];
-    kind = map['kind'];
+    kind = MediaDeviceKind.values[map['kind']];
   }
 
   late String deviceId;

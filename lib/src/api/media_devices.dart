@@ -7,13 +7,13 @@ import 'package:flutter_webrtc/src/model/media_device_info.dart';
 const _mediaDevicesMethodChannel = MethodChannel('$CHANNEL_TAG/MediaDevices');
 
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
-  List<Map<String, dynamic>> res =
+  List<dynamic> res =
       await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices');
   return res.map((i) => MediaDeviceInfo.fromMap(i)).toList();
 }
 
 Future<List<NativeMediaStreamTrack>> getUserMedia(Constraints constraints) async {
-  List<Map<String, dynamic>> res = await _mediaDevicesMethodChannel
+  List<dynamic> res = await _mediaDevicesMethodChannel
       .invokeMethod('getUserMedia', {'constraints': constraints.toMap()});
   return res.map((t) => NativeMediaStreamTrack.fromMap(t)).toList();
 }

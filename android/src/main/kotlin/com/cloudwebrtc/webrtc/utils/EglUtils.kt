@@ -1,32 +1,35 @@
-package com.cloudwebrtc.webrtc.utils;
+package com.cloudwebrtc.webrtc.utils
 
-import android.os.Build;
-import org.webrtc.EglBase;
+import org.webrtc.EglBase
+import kotlin.jvm.Synchronized
+import com.cloudwebrtc.webrtc.utils.EglUtils
+import android.os.Build
 
-public class EglUtils {
-  /**
-   * The root {@link EglBase} instance shared by the entire application for the sake of reducing the
-   * utilization of system resources (such as EGL contexts).
-   */
-  private static EglBase rootEglBase;
-
-  /**
-   * Lazily creates and returns the one and only {@link EglBase} which will serve as the root for
-   * all contexts that are needed.
-   */
-  public static synchronized EglBase getRootEglBase() {
-    if (rootEglBase == null) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-        rootEglBase = EglBase.createEgl10(EglBase.CONFIG_PLAIN);
-      else rootEglBase = EglBase.create();
-    }
-
-    return rootEglBase;
-  }
-
-  public static EglBase.Context getRootEglBaseContext() {
-    EglBase eglBase = getRootEglBase();
-
-    return eglBase == null ? null : eglBase.getEglBaseContext();
-  }
+object EglUtils {
+    /**
+     * Lazily creates and returns the one and only [EglBase] which will serve as the root for
+     * all contexts that are needed.
+     */
+    /**
+     * The root [EglBase] instance shared by the entire application for the sake of reducing the
+     * utilization of system resources (such as EGL contexts).
+     */
+    @get:Synchronized
+    var rootEglBase: EglBase? = null
+        get() {
+            if (field == null) {
+                field =
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) EglBase.createEgl10(
+                        EglBase.CONFIG_PLAIN
+                    ) else EglBase.create()
+            }
+            return field
+        }
+        private set
+    @JvmStatic
+    val rootEglBaseContext: EglBase.Context?
+        get() {
+            val eglBase = rootEglBase
+            return eglBase?.eglBaseContext
+        }
 }

@@ -3,6 +3,7 @@ package com.cloudwebrtc.webrtc.controller
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
+import com.cloudwebrtc.webrtc.proxy.RtpTransceiverProxy
 import com.cloudwebrtc.webrtc.utils.AnyThreadSink
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
@@ -22,11 +23,15 @@ class PeerConnectionController(
         EventChannel(messenger, ChannelNameGenerator.withId("PeerConnectionEvent", channelId))
     private var eventSink: AnyThreadSink? = null
     private val eventObserver = object : PeerConnectionProxy.Companion.EventObserver {
-        override fun onAddTrack(track: MediaStreamTrackProxy) {
+        override fun onAddTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
             eventSink?.success(
                 mapOf(
                     "event" to "onAddTrack",
-                    "track" to MediaStreamTrackController(messenger, track).asFlutterResult()
+                    "track" to MediaStreamTrackController(messenger, track).asFlutterResult(),
+                    "transceiver" to RtpTransceiverController(
+                        messenger,
+                        transceiver
+                    ).asFlutterResult()
                 )
             )
         }
@@ -35,7 +40,7 @@ class PeerConnectionController(
             eventSink?.success(
                 mapOf(
                     "event" to "onIceConnectionStateChange",
-                    "iceConnectionState" to iceConnectionState.value
+                    "state" to iceConnectionState.value
                 )
             )
         }
@@ -44,7 +49,7 @@ class PeerConnectionController(
             eventSink?.success(
                 mapOf(
                     "event" to "onSignalingStateChange",
-                    "signalingState" to signalingState.value
+                    "state" to signalingState.value
                 )
             )
         }
@@ -53,7 +58,7 @@ class PeerConnectionController(
             eventSink?.success(
                 mapOf(
                     "event" to "onConnectionStateChange",
-                    "peerConnectionState" to peerConnectionState.value
+                    "state" to peerConnectionState.value
                 )
             )
         }
@@ -62,7 +67,7 @@ class PeerConnectionController(
             eventSink?.success(
                 mapOf(
                     "event" to "onIceGatheringStateChange",
-                    "iceGatheringState" to iceGatheringState.value
+                    "state" to iceGatheringState.value
                 )
             )
         }
@@ -155,7 +160,9 @@ class PeerConnectionController(
     }
 
     override fun onListen(obj: Any?, sink: EventChannel.EventSink?) {
-        eventSink = AnyThreadSink(sink)
+        if (sink != null) {
+            eventSink = AnyThreadSink(sink)
+        }
     }
 
     override fun onCancel(obj: Any?) {

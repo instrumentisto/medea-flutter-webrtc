@@ -25,8 +25,8 @@ class State(val context: Context) {
     }
 
     private fun initPeerConnectionFactory() {
-        val eglContext: EglBase.Context = EglUtils.getRootEglBaseContext()
-        PeerConnectionFactory.builder()
+        val eglContext: EglBase.Context = EglUtils.rootEglBaseContext!!
+        factory = PeerConnectionFactory.builder()
             .setOptions(PeerConnectionFactory.Options())
             .setVideoEncoderFactory(
                 SimulcastVideoEncoderFactoryWrapper(

@@ -14,6 +14,10 @@ class RtpTransceiverController(
     private val methodChannel =
         MethodChannel(binaryMessenger, ChannelNameGenerator.withId("RtpTransceiver", channelId))
 
+    init {
+        methodChannel.setMethodCallHandler(this)
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "setDirection" -> {
@@ -25,7 +29,7 @@ class RtpTransceiverController(
                 result.success(transceiver.getMid())
             }
             "getDirection" -> {
-                result.success(transceiver.getDirection())
+                result.success(transceiver.getDirection().value)
             }
             "getCurrentDirection" -> {
                 result.success(transceiver.getCurrentDirection()?.value)
@@ -52,10 +56,11 @@ class RtpTransceiverController(
     fun asFlutterResult(): Map<String, Any> {
         return mapOf(
             "channelId" to channelId,
-            "senderChannelId" to RtpSenderController(
+            "sender" to RtpSenderController(
                 binaryMessenger,
                 transceiver.getSender()
-            ).asFlutterResult()
+            ).asFlutterResult(),
+            "mid" to transceiver.getMid() as Any
         )
     }
 

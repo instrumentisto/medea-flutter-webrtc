@@ -2,7 +2,7 @@ class Constraints {
   ConstraintMap<AudioConstraints> audio = ConstraintMap();
   ConstraintMap<VideoConstraints> video = ConstraintMap();
 
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'audio': audio.toMap(),
       'video': video.toMap(),
@@ -14,7 +14,7 @@ class ConstraintMap<T extends MediaConstraints> {
   T? mandatory;
   T? optional;
 
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'mandatory': mandatory?.toMap(),
       'optional': optional?.toMap(),
@@ -23,14 +23,14 @@ class ConstraintMap<T extends MediaConstraints> {
 }
 
 abstract class MediaConstraints {
-  Map<String, dynamic> toMap();
+  dynamic toMap();
 }
 
 class AudioConstraints implements MediaConstraints {
   String? deviceId;
 
   @override
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'deviceId': deviceId,
     };
@@ -47,7 +47,7 @@ class VideoConstraints implements MediaConstraints {
   FacingMode? facingMode;
 
   @override
-  Map<String, dynamic> toMap() {
+  dynamic toMap() {
     return {
       'deviceId': deviceId,
       'facingMode': facingMode?.index,

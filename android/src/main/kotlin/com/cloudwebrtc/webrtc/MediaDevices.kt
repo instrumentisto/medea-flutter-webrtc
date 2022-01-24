@@ -66,7 +66,8 @@ class MediaDevices(val state: State) {
 
     // TODO(evdokimovs): Adapt width, height and fps based on constraints
     private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
-        val deviceId = findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
+        val deviceId =
+            findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
 
         val videoSource = state.getPeerConnectionFactory().createVideoSource(false)
         // TODO(evdokimovs): This is optional function call as I know, so
@@ -76,7 +77,7 @@ class MediaDevices(val state: State) {
 
         val surfaceTextureRenderer = SurfaceTextureHelper.create(
             Thread.currentThread().name,
-            EglUtils.getRootEglBaseContext()
+            EglUtils.rootEglBaseContext
         )
         // TODO(evdokimovs): Maybe we need some implementation in CameraEventsHandler?
         val videoCapturer = cameraEnumerator.createCapturer(

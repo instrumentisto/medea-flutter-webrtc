@@ -12,6 +12,10 @@ class RtpSenderController(messenger: BinaryMessenger, val sender: RtpSenderProxy
     private val methodChannel =
         MethodChannel(messenger, ChannelNameGenerator.withId("RtpSender", channelId))
 
+    init {
+        methodChannel.setMethodCallHandler(this);
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "setTrack" -> {

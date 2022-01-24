@@ -4,7 +4,7 @@ import 'package:flutter_webrtc/src/model/media_kind.dart';
 import '../media_stream_track.dart';
 
 class NativeMediaStreamTrack extends MediaStreamTrack {
-  NativeMediaStreamTrack.fromMap(Map<String, dynamic> map) {
+  NativeMediaStreamTrack.fromMap(dynamic map) {
     _methodChannel =
         MethodChannel(channelNameWithId('MediaStreamTrack', map['channelId']));
     _id = map['id'];

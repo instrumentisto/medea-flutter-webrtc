@@ -11,6 +11,7 @@ const videoRendererFactoryMethodChannel = MethodChannel('$CHANNEL_TAG/VideoRende
 class NativeVideoRenderer extends VideoRenderer {
   NativeVideoRenderer();
   int? _textureId;
+  late int _channelId;
   MediaStreamTrack? _srcObject;
   StreamSubscription<dynamic>? _eventSubscription;
   late MethodChannel _methodChannel;
@@ -18,11 +19,12 @@ class NativeVideoRenderer extends VideoRenderer {
   @override
   Future<void> initialize() async {
     final response = await videoRendererFactoryMethodChannel.invokeMethod('create');
-    _textureId = response['channelId'];
-    _eventSubscription = EventChannel('$CHANNEL_TAG/VideoRendererEvent/$_textureId')
+    _textureId = response['textureId'];
+    _channelId = response['channelId'];
+    _eventSubscription = EventChannel('$CHANNEL_TAG/VideoRendererEvent/$_channelId')
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
-    _methodChannel = MethodChannel('$CHANNEL_TAG/VideoRenderer/$_textureId');
+    _methodChannel = MethodChannel('$CHANNEL_TAG/VideoRenderer/$_channelId');
   }
 
   @override
@@ -73,19 +75,19 @@ class NativeVideoRenderer extends VideoRenderer {
   void eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
     switch (map['event']) {
-      case 'didTextureChangeRotation':
+      case 'onTextureChangeRotation':
         value =
             value.copyWith(rotation: map['rotation'], renderVideo: renderVideo);
         onResize?.call();
         break;
-      case 'didTextureChangeVideoSize':
+      case 'onTextureChangeVideoSize':
         value = value.copyWith(
             width: 0.0 + map['width'],
             height: 0.0 + map['height'],
             renderVideo: renderVideo);
         onResize?.call();
         break;
-      case 'didFirstFrameRendered':
+      case 'onFirstFrameRendered':
         value = value.copyWith(renderVideo: renderVideo);
         break;
     }

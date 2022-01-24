@@ -3,8 +3,8 @@ import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
 import 'package:flutter_webrtc/src/universal/media_stream_track.dart';
 
 class RtpSender {
-  RtpSender(int channelId) {
-    _methodChannel = MethodChannel(channelNameWithId('RtpSender', channelId));
+  RtpSender.fromMap(dynamic map) {
+    _methodChannel = MethodChannel(channelNameWithId('RtpSender', map['channelId']));
   }
 
   MediaStreamTrack? _track;

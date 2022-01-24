@@ -75,11 +75,14 @@ class VideoRendererController(
     }
 
     fun asFlutterResult(): Map<String, Any> = mapOf(
-        "channelId" to channelId
+        "channelId" to channelId,
+        "textureId" to videoRenderer.textureId()
     )
 
     override fun onListen(obj: Any?, sink: EventChannel.EventSink?) {
-        eventSink = AnyThreadSink(sink)
+        if (sink != null) {
+            eventSink = AnyThreadSink(sink)
+        }
     }
 
     override fun onCancel(obj: Any?) {

@@ -31,7 +31,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
 
     companion object {
         interface EventObserver {
-            fun onAddTrack(track: MediaStreamTrackProxy)
+            fun onAddTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy)
 
             fun onIceConnectionStateChange(iceConnectionState: IceConnectionState)
 
@@ -109,8 +109,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
 
     internal fun observableEventBroadcaster(): EventObserver {
         return object : EventObserver {
-            override fun onAddTrack(track: MediaStreamTrackProxy) {
-                eventObservers.forEach { it.onAddTrack(track) }
+            override fun onAddTrack(
+                track: MediaStreamTrackProxy,
+                transceiver: RtpTransceiverProxy
+            ) {
+                eventObservers.forEach { it.onAddTrack(track, transceiver) }
             }
 
             override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
