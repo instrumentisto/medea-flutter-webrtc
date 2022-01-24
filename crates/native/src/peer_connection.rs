@@ -118,8 +118,8 @@ impl Webrtc {
         &mut self,
         error: &mut String,
         peer_connection_id: impl Into<PeerConnectionId>,
-        offer_to_receive_video: i32,
-        offer_to_receive_audio: i32,
+        // offer_to_receive_video: i32,
+        // offer_to_receive_audio: i32,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
@@ -128,13 +128,11 @@ impl Webrtc {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
-            let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
-                sdp_callback,
-            ));
+            let obs = sys::CreateSessionDescriptionObserver::new(sdp_callback);
 
             let options = sys::RTCOfferAnswerOptions::new(
-                offer_to_receive_video,
-                offer_to_receive_audio,
+                None,
+                None,
                 voice_activity_detection,
                 ice_restart,
                 use_rtp_mux,

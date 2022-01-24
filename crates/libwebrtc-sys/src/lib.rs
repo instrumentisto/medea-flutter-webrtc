@@ -9,7 +9,7 @@ use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
 
-pub use bridge::ICreateOfferCallback;
+pub use bridge::CreateOfferAnswerCallback;
 pub use webrtc::{AudioLayer, SdpType};
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -378,7 +378,7 @@ impl CreateSessionDescriptionObserver {
     /// `success` for callback when 'CreateOffer\Answer' is success,
     /// `fail` for callback when 'CreateOffer\Answer' is fail.
     #[must_use]
-    pub fn new(cb: Box<Box<dyn ICreateOfferCallback>>) -> Self {
+    pub fn new(cb: Box<dyn CreateOfferAnswerCallback>) -> Self {
         Self(webrtc::create_create_session_observer(cb))
     }
 }

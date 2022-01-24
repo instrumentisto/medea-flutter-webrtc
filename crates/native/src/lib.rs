@@ -202,8 +202,8 @@ pub mod api {
             self: &mut Webrtc,
             error: &mut String,
             peer_connection_id: u64,
-            offer_to_receive_video: i32,
-            offer_to_receive_audio: i32,
+            // offer_to_receive_video: i32,
+            // offer_to_receive_audio: i32,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
@@ -270,10 +270,10 @@ pub fn create_sdp_callback(
 }
 
 pub struct CallBackCreateOfferAnswer {
-    fn_success: extern "C" fn(&CxxString, &CxxString, usize),
-    fn_fail: extern "C" fn(&CxxString, usize),
-    fn_drop: extern "C" fn(usize),
-    context: usize,
+    fn_success: extern "C" fn(&CxxString, &CxxString, *mut ()),
+    fn_fail: extern "C" fn(&CxxString, *mut ()),
+    fn_drop: extern "C" fn(*mut ()),
+    context: *mut (),
 }
 
 impl CallBackCreateOfferAnswer {
@@ -283,19 +283,11 @@ impl CallBackCreateOfferAnswer {
         drop: usize,
         context: usize,
     ) -> Self {
-        let fn_success: extern "C" fn(&CxxString, &CxxString, usize) =
-            unsafe { std::mem::transmute(success) };
-
-        let fn_fail: extern "C" fn(&CxxString, usize) =
-            unsafe { std::mem::transmute(fail) };
-
-        let fn_drop: extern "C" fn(usize) =
-            unsafe { std::mem::transmute(drop) };
         Self {
-            fn_success,
-            fn_fail,
-            fn_drop,
-            context,
+            fn_success: unsafe { std::mem::transmute(success) },
+            fn_fail: unsafe { std::mem::transmute(fail) },
+            fn_drop: unsafe { std::mem::transmute(drop) },
+            context: context as *mut _,
         }
     }
 }
@@ -307,7 +299,7 @@ impl Drop for CallBackCreateOfferAnswer {
     }
 }
 
-impl libwebrtc_sys::ICreateOfferCallback for CallBackCreateOfferAnswer {
+impl libwebrtc_sys::CreateOfferAnswerCallback for CallBackCreateOfferAnswer {
     fn success(&self, sdp: &CxxString, type_: &CxxString) {
         let fn_s = self.fn_success;
         fn_s(sdp, type_, self.context);

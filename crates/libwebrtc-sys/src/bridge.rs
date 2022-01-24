@@ -453,19 +453,20 @@ impl Drop for CallBackDescription {
     }
 }
 
-pub trait ICreateOfferCallback {
+pub trait CreateOfferAnswerCallback {
     fn success(&self, sdp: &CxxString, type_: &CxxString);
     fn error(&self, error: &CxxString);
 }
-type DynCreateOfferCallback = Box<dyn ICreateOfferCallback>;
+type DynCreateOfferAnswerCallback = Box<dyn CreateOfferAnswerCallback>;
+
 pub fn success(
-    cb: &DynCreateOfferCallback,
+    cb: &DynCreateOfferAnswerCallback,
     sdp: &CxxString,
     type_: &CxxString,
 ) {
     cb.success(sdp, type_);
 }
-pub fn fail(cb: &DynCreateOfferCallback, error: &CxxString) {
+pub fn fail(cb: &DynCreateOfferAnswerCallback, error: &CxxString) {
     cb.error(error);
 }
 
