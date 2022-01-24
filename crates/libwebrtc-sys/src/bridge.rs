@@ -1,6 +1,9 @@
+use cxx::CxxString;
+
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
+
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -145,6 +148,27 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
+    extern "Rust" {
+        type CallBackCreateOfferAnswer;
+        type CallBackDescription;
+
+        pub fn success_set_descr(self: &mut CallBackDescription);
+        pub fn fail_set_descr(
+            self: &mut CallBackDescription,
+            error: &CxxString,
+        );
+
+        pub fn success_create(
+            self: &mut CallBackCreateOfferAnswer,
+            sdp: &CxxString,
+            type_: &CxxString,
+        );
+        pub fn fail_create(
+            self: &mut CallBackCreateOfferAnswer,
+            error: &CxxString,
+        );
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         type AudioDecoderFactory;
@@ -249,24 +273,17 @@ pub(crate) mod webrtc {
         /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
         /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            s: fn(&CxxString, &CxxString, usize),
-            f: fn(&CxxString, usize),
-            d: fn(usize),
-            context_: usize,
+            cb: Box<CallBackCreateOfferAnswer>,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetLocalDescriptionObserverInterface`].
         pub fn create_set_local_description_observer_interface(
-            s: fn(usize),
-            f: fn(&CxxString,usize),
-            context_: usize,
+            cb: Box<CallBackDescription>,
         ) -> UniquePtr<SetLocalDescriptionObserverInterface>;
 
         /// Creates a [`SetRemoteDescriptionObserverInterface`].
         pub fn create_set_remote_description_observer_interface(
-            s: fn(usize),
-            f: fn(&CxxString,usize),
-            context_: usize,
+            cb: Box<CallBackDescription>,
         ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
 
         /// Calls `peer_connection_interface`->CreateOffer.
@@ -376,21 +393,125 @@ pub(crate) mod webrtc {
     }
 }
 
-struct CallBack {
-    success: extern "C" fn(&cxx::CxxString, &cxx::CxxString, usize),
-    fail: extern "C" fn(&cxx::CxxString, usize),
-    drop: extern "C" fn(usize),
+pub struct CallBackDescription {
+    fn_success: fn(usize, usize),
+    success: usize,
+    fn_fail: fn(usize, &CxxString, usize),
+    fail: usize,
+    fn_drop: fn(usize, usize),
+    drop: usize,
     context: usize,
 }
 
-impl CallBack {
-    fn new(s: usize, f: usize, d: usize, cntx: usize) -> Self{
-        CallBack {
-            success: unsafe { std::mem::transmute(s) },
-            fail: unsafe { std::mem::transmute(f) },
-            drop: unsafe { std::mem::transmute(d) },
-            context: cntx
+impl CallBackDescription {
+    pub fn new(
+        success: usize,
+        fail: usize,
+        drop: usize,
+        context: usize,
+    ) -> Self {
+        let fn_success = |f: usize, cntx: usize| {
+            let f_: extern "C" fn(usize) = unsafe { std::mem::transmute(f) };
+            f_(cntx);
+        };
+
+        let fn_fail = |f: usize, error: &CxxString, cntx: usize| {
+            let f_: extern "C" fn(&CxxString, usize) =
+                unsafe { std::mem::transmute(f) };
+            f_(error, cntx);
+        };
+
+        let fn_drop = |f: usize, cntx: usize| {
+            let f_: extern "C" fn(usize) = unsafe { std::mem::transmute(f) };
+            f_(cntx);
+        };
+        Self {
+            fn_success,
+            success,
+            fn_fail,
+            fail,
+            fn_drop,
+            drop,
+            context,
         }
+    }
+
+    pub fn success_set_descr(&mut self) {
+        let fn_s = self.fn_success;
+        fn_s(self.success, self.context);
+    }
+    pub fn fail_set_descr(&mut self, error: &CxxString) {
+        let fn_f = self.fn_fail;
+        fn_f(self.fail, error, self.context);
+    }
+}
+
+impl Drop for CallBackDescription {
+    fn drop(&mut self) {
+        let fn_d = self.fn_drop;
+        fn_d(self.drop, self.context);
+    }
+}
+
+pub struct CallBackCreateOfferAnswer {
+    fn_success: fn(usize, &CxxString, &CxxString, usize),
+    success: usize,
+    fn_fail: fn(usize, &CxxString, usize),
+    fail: usize,
+    fn_drop: fn(usize, usize),
+    drop: usize,
+    context: usize,
+}
+
+impl CallBackCreateOfferAnswer {
+    pub fn new(
+        success: usize,
+        fail: usize,
+        drop: usize,
+        context: usize,
+    ) -> Self {
+        let fn_success =
+            |f: usize, sdp: &CxxString, type_: &CxxString, cntx: usize| {
+                let f_: extern "C" fn(&CxxString, &CxxString, usize) =
+                    unsafe { std::mem::transmute(f) };
+                f_(sdp, type_, cntx);
+            };
+
+        let fn_fail = |f: usize, error: &CxxString, cntx: usize| {
+            let f_: extern "C" fn(&CxxString, usize) =
+                unsafe { std::mem::transmute(f) };
+            f_(error, cntx);
+        };
+
+        let fn_drop = |f: usize, cntx: usize| {
+            let f_: extern "C" fn(usize) = unsafe { std::mem::transmute(f) };
+            f_(cntx);
+        };
+        Self {
+            fn_success,
+            success,
+            fn_fail,
+            fail,
+            fn_drop,
+            drop,
+            context,
+        }
+    }
+
+    pub fn success_create(&mut self, sdp: &CxxString, type_: &CxxString) {
+        let fn_s = self.fn_success;
+        fn_s(self.success, sdp, type_, self.context);
+    }
+    pub fn fail_create(&mut self, error: &CxxString) {
+        let fn_f = self.fn_fail;
+        fn_f(self.fail, error, self.context);
+    }
+}
+
+impl Drop for CallBackCreateOfferAnswer {
+    fn drop(&mut self) {
+        let fn_d = self.fn_drop;
+        fn_d(self.drop, self.context);
     }
 }
 

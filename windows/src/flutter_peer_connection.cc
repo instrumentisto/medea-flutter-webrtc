@@ -3,28 +3,11 @@
 
 using namespace rust::cxxbridge1;
 
-class MyObs : public MyObserver {
-  public:
-    void success(const std::string& sdp, const std::string& type) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("sdp")] = sdp;
-      params[flutter::EncodableValue("type")] = type;
-      result->Success(flutter::EncodableValue(params));
-    };
-
-    void fail(const std::string& error) {
-      result->Error(error);
-    };
-    MyObs(std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> res) : result(res) {}
-  private:
-  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
-};
-
 namespace callbacks {
 
 
 // Callback for write `CreateOffer/Answer` success result in flutter.
-void OnSuccessCreate(
+extern "C" void  OnSuccessCreate(
     std::string sdp,
     std::string type,
     size_t context) {
@@ -36,21 +19,21 @@ void OnSuccessCreate(
 }
 
 // Callback for write `SetLocalDescription` success result in flutter.
-void OnSuccessDescription(
+extern "C" void OnSuccessDescription(
     size_t context) {
   auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
   result->Success(nullptr);
 }
 
 // Callback for write error in flutter.
-void OnFail(
+extern "C" void OnFail(
   std::string error,
   size_t context) {
   auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
   result->Error(error);
 }
 
-void drop(size_t context) {
+extern "C" void drop(size_t context) {
   auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
   delete result;
 }
@@ -121,9 +104,11 @@ void CreateOffer(
   receive_audio = findBool(mandatory, "OfferToReceiveAudio");
   receive_video = findBool(mandatory, "OfferToReceiveVideo");
 
-  auto res = std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>>(result.release());
-
-  std::unique_ptr<MyObserver> obs = std::unique_ptr<MyObserver>(new MyObs(res));
+  auto res = result.release();
+  size_t context = (size_t) res;
+  size_t success = (size_t) &callbacks::OnSuccessCreate;
+  size_t fail = (size_t) &callbacks::OnFail;
+  size_t drop = (size_t) &callbacks::drop;
 
   rust::String error;
   webrtc->CreateOffer(
@@ -134,9 +119,15 @@ void CreateOffer(
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
-      std::move(obs)
+      success,
+      fail,
+      drop,
+      context
   );
   if (error != "") {
+    std::string err(error);
+    res->Error("createAnswerOffer", err);
+    delete res;
   }
 };
 
@@ -180,23 +171,11 @@ void CreateAnswer(
   receive_audio = findBool(mandatory, "OfferToReceiveAudio");
   receive_video = findBool(mandatory, "OfferToReceiveVideo");
 
-  /*std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
-
-  callbacks::Call<std::string, std::string>* success_functor 
-    = new callbacks::Call<std::string, std::string>(rs);
-  success_functor->call = &callbacks::OnSuccessCreate;
-
-  size_t success_funct = (size_t) success_functor;
-  size_t success_fn = (size_t) callbacks::export_OnSuccessCreate;
-
-  callbacks::Call<std::string>* fail_functor 
-    = new callbacks::Call<std::string>(rs);
-  fail_functor->call = callbacks::OnFail;
-
-  size_t fail_funct = (size_t) fail_functor;
-  size_t fail_fn = (size_t) callbacks::export_OnFail;
-
-  size_t df = (size_t) callbacks::export_drop;
+  auto res = result.release();
+  size_t context = (size_t) res;
+  size_t success = (size_t) &callbacks::OnSuccessCreate;
+  size_t fail = (size_t) &callbacks::OnFail;
+  size_t drop = (size_t) &callbacks::drop;
 
   rust::String error;
   webrtc->CreateAnswer(
@@ -207,16 +186,16 @@ void CreateAnswer(
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
-      success_fn,
-      success_funct,
-      fail_fn,
-      fail_funct,
-      df
+      success,
+      fail,
+      drop,
+      context
   );
   if (error != "") {
     std::string err(error);
-    rs->Error("createAnswerOffer", err);
-  }*/
+    res->Error("createAnswerOffer", err);
+    delete res;
+  }
 };
 
 // Calls Rust `SetLocalDescription()`.
@@ -237,21 +216,11 @@ void SetLocalDescription(
   rust::String type = findString(constraints, "type");
   rust::String sdp = findString(constraints, "sdp");
 
-  /*std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
-
-  callbacks::Call<>* success_functor 
-    = new callbacks::Call<>(rs);
-  success_functor->call = &callbacks::OnSuccessDescription;
-
-  size_t success_funct = (size_t) success_functor;
-  size_t success_fn = (size_t) callbacks::export_OnSuccessDescription;
-
-  callbacks::Call<std::string>* fail_functor 
-    = new callbacks::Call<std::string>(rs);
-  fail_functor->call = callbacks::OnFail;
-
-  size_t fail_funct = (size_t) fail_functor;
-  size_t fail_fn = (size_t) callbacks::export_OnFail;
+  auto res = result.release();
+  size_t context = (size_t) res;
+  size_t success = (size_t) &callbacks::OnSuccessDescription;
+  size_t fail = (size_t) &callbacks::OnFail;
+  size_t drop = (size_t) &callbacks::drop;
 
   rust::String error;
   webrtc->SetLocalDescription(
@@ -259,16 +228,17 @@ void SetLocalDescription(
       std::stoi(peerConnectionId),
       type,
       sdp,
-      success_fn,
-      success_funct,
-      fail_fn,
-      fail_funct
+      success,
+      fail,
+      drop,
+      context
   );
 
   if (error != "") {
     std::string err(error);
-    rs->Error("createAnswerOffer", err);
-  }*/
+    res->Error("SetLocalDescription", err);
+    delete res;
+  }
 };
 
 // Calls Rust `SetRemoteDescription()`.
@@ -289,21 +259,11 @@ void SetRemoteDescription(
   rust::String type = findString(constraints, "type");
   rust::String sdp = findString(constraints, "sdp");
 
-  /*std::shared_ptr<flutter::MethodResult<EncodableValue>> rs(result.release());
-
-  callbacks::Call<>* success_functor 
-    = new callbacks::Call<>(rs);
-  success_functor->call = &callbacks::OnSuccessDescription;
-
-  size_t success_funct = (size_t) success_functor;
-  size_t success_fn = (size_t) callbacks::export_OnSuccessDescription;
-
-  callbacks::Call<std::string>* fail_functor 
-    = new callbacks::Call<std::string>(rs);
-  fail_functor->call = callbacks::OnFail;
-
-  size_t fail_funct = (size_t) fail_functor;
-  size_t fail_fn = (size_t) callbacks::export_OnFail;
+  auto res = result.release();
+  size_t context = (size_t) res;
+  size_t success = (size_t) &callbacks::OnSuccessDescription;
+  size_t fail = (size_t) &callbacks::OnFail;
+  size_t drop = (size_t) &callbacks::drop;
 
   rust::String error;
   webrtc->SetRemoteDescription(
@@ -311,16 +271,17 @@ void SetRemoteDescription(
       std::stoi(peerConnectionId),
       type,
       sdp,
-      success_fn,
-      success_funct,
-      fail_fn,
-      fail_funct
+      success,
+      fail,
+      drop,
+      context
   );
 
   if (error != "") {
     std::string err(error);
-    rs->Error("createAnswerOffer", err);
-  }*/
+    res->Error("SetLocalDescription", err);
+    delete res;
+  }
 };
 
 }

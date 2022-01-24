@@ -7,10 +7,9 @@ use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
     let package_name = env::var("CARGO_PKG_NAME")?.replace('-', "_");
-    cxx_build::bridge("src/lib.rs")
-    .file("C:/Users/Human/Documents/GitHub/flutter-webrtc/crates/native/src/call_observer.cc")
-    .compile(&package_name);
+    cxx_build::bridge("src/lib.rs").compile(&package_name);
 
+    println!("cargo:rustc-link-search=call_observer");
 
     copy_cxxbridge1_lib()?;
     Ok(())

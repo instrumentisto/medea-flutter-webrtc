@@ -4,6 +4,7 @@
 mod bridge;
 
 use anyhow::bail;
+use bridge::{CallBackCreateOfferAnswer, CallBackDescription};
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
@@ -377,12 +378,15 @@ impl CreateSessionDescriptionObserver {
     /// `fail` for callback when 'CreateOffer\Answer' is fail.
     #[must_use]
     pub fn new(
-        success: fn(&CxxString, &CxxString, usize),
-        fail: fn(&CxxString, usize),
-        drop: fn(usize),
+        success: usize,
+        fail: usize,
+        drop: usize,
         context: usize,
     ) -> Self {
-        Self(webrtc::create_create_session_observer(success, fail, drop, context))
+        let cb = Box::new(CallBackCreateOfferAnswer::new(
+            success, fail, drop, context,
+        ));
+        Self(webrtc::create_create_session_observer(cb))
     }
 }
 
@@ -392,10 +396,15 @@ pub struct SetLocalDescriptionObserverInterface(
 
 impl SetLocalDescriptionObserverInterface {
     #[must_use]
-    pub fn new(success: fn(usize), fail: fn(&CxxString, usize), context: usize) -> Self {
-        Self(webrtc::create_set_local_description_observer_interface(
-            success, fail, context
-        ))
+    pub fn new(
+        success: usize,
+        fail: usize,
+        drop: usize,
+        context: usize,
+    ) -> Self {
+        let cb =
+            Box::new(CallBackDescription::new(success, fail, drop, context));
+        Self(webrtc::create_set_local_description_observer_interface(cb))
     }
 }
 
@@ -404,10 +413,15 @@ pub struct SetRemoteDescriptionObserverInterface(
 );
 
 impl SetRemoteDescriptionObserverInterface {
-    pub fn new(success: fn(usize), fail: fn(&CxxString, usize), context: usize) -> Self {
-        Self(webrtc::create_set_remote_description_observer_interface(
-            success, fail, context
-        ))
+    pub fn new(
+        success: usize,
+        fail: usize,
+        drop: usize,
+        context: usize,
+    ) -> Self {
+        let cb =
+            Box::new(CallBackDescription::new(success, fail, drop, context));
+        Self(webrtc::create_set_remote_description_observer_interface(cb))
     }
 }
 
