@@ -8,6 +8,7 @@
 namespace bridge {
   struct CallBackCreateOfferAnswer;
   struct CallBackDescription;
+  struct DynCreateOfferCallback;
 }
 
 namespace observer {
@@ -37,8 +38,7 @@ class CreateSessionDescriptionObserver
     : public webrtc::CreateSessionDescriptionObserver {
  public:
 
-  absl::optional<rust::cxxbridge1::Box<bridge::CallBackCreateOfferAnswer>> cb;
-
+  absl::optional<rust::cxxbridge1::Box<bridge::DynCreateOfferCallback>> cb;
   // RefCount for lifetime observer.
   mutable int ref_count;
 
@@ -46,7 +46,7 @@ class CreateSessionDescriptionObserver
   // s - void (*callback_success)(std::string, std::string),
   // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver(
-    rust::cxxbridge1::Box<bridge::CallBackCreateOfferAnswer> cb);
+    rust::cxxbridge1::Box<bridge::DynCreateOfferCallback> cb);
 
   // Calls when a `CreateOffer/Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);

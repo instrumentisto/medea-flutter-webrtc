@@ -20,7 +20,7 @@ void PeerConnectionObserver::OnSignalingChange(
 
 // Construct `CreateOffer\Answer Observer`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
-  rust::cxxbridge1::Box<bridge::CallBackCreateOfferAnswer> cb) {
+    rust::cxxbridge1::Box<bridge::DynCreateOfferCallback> cb) {
     this->cb = std::move(cb);
 };
 
@@ -30,14 +30,14 @@ void CreateSessionDescriptionObserver::OnSuccess(webrtc::SessionDescriptionInter
   std::string sdp;
   desc->ToString(&sdp);
   delete desc;
-  cb.value()->success_create(sdp, type);
+  bridge::success(*cb.value(), sdp, type);
 
 };
 
 // Calls when a `CreateOffer\Answer` is fail.
 void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
   std::string err = std::string(error.message());
-  cb.value()->fail_create(err);
+  bridge::fail(*cb.value(), err);
 };
 
 // Implementation rtc::RefCountInterface::AddRef.

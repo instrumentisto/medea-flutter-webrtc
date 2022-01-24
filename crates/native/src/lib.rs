@@ -6,6 +6,7 @@ mod user_media;
 
 use std::{collections::HashMap, rc::Rc};
 
+use cxx::CxxString;
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
@@ -19,9 +20,12 @@ pub use crate::user_media::{
     MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
 };
 
-use cxx::{CxxString, UniquePtr};
 /// The module which describes the bridge to call Rust from C++.
-#[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
+#[allow(
+    clippy::items_after_statements,
+    clippy::expl_impl_clone_on_copy,
+    clippy::too_many_arguments
+)]
 #[cxx::bridge]
 pub mod api {
 
@@ -136,7 +140,6 @@ pub mod api {
         kVideo,
     }
 
-    #[allow(clippy::too_many_arguments)]
     extern "Rust" {
         type Webrtc;
 
@@ -252,6 +255,73 @@ pub mod api {
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
     }
 }
+
+pub struct CallBackCreateOfferAnswer {
+    fn_success: fn(usize, &CxxString, &CxxString, usize),
+    success: usize,
+    fn_fail: fn(usize, &CxxString, usize),
+    fail: usize,
+    fn_drop: fn(usize, usize),
+    drop: usize,
+    context: usize,
+}
+
+impl CallBackCreateOfferAnswer {
+    pub fn new(
+        success: usize,
+        fail: usize,
+        drop: usize,
+        context: usize,
+    ) -> Self {
+        let fn_success =
+            |f: usize, sdp: &CxxString, type_: &CxxString, cntx: usize| {
+                let f_: extern "C" fn(&CxxString, &CxxString, usize) =
+                    unsafe { std::mem::transmute(f) };
+                f_(sdp, type_, cntx);
+            };
+
+        let fn_fail = |f: usize, error: &CxxString, cntx: usize| {
+            let f_: extern "C" fn(&CxxString, usize) =
+                unsafe { std::mem::transmute(f) };
+            f_(error, cntx);
+        };
+
+        let fn_drop = |f: usize, cntx: usize| {
+            let f_: extern "C" fn(usize) = unsafe { std::mem::transmute(f) };
+            f_(cntx);
+        };
+        Self {
+            fn_success,
+            success,
+            fn_fail,
+            fail,
+            fn_drop,
+            drop,
+            context,
+        }
+    }
+}
+
+impl Drop for CallBackCreateOfferAnswer {
+    fn drop(&mut self) {
+        let fn_d = self.fn_drop;
+        fn_d(self.drop, self.context);
+    }
+}
+
+
+impl libwebrtc_sys::ICreateOfferCallback for CallBackCreateOfferAnswer {
+    fn success(&self, sdp: &CxxString, type_: &CxxString) {
+        let fn_s = self.fn_success;
+        fn_s(self.success, sdp, type_, self.context);
+    }
+
+    fn error(&self, error: &CxxString) {
+        let fn_f = self.fn_fail;
+        fn_f(self.fail, error, self.context);
+    }
+}
+
 
 /// [`Context`] wrapper that is exposed to the C++ API clients.
 pub struct Webrtc(Box<Context>);

@@ -184,7 +184,7 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 
 // Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-    rust::cxxbridge1::Box<bridge::CallBackCreateOfferAnswer> cb);
+    rust::cxxbridge1::Box<bridge::DynCreateOfferCallback> cb);
 
 // Creates `SetLocalDescriptionObserverInterface`.
 std::unique_ptr<SetLocalDescriptionObserverInterface> create_set_local_description_observer_interface(

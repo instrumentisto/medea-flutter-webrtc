@@ -1,8 +1,11 @@
+use std::error;
+
 use cxx::CxxString;
 
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
+
 
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
@@ -149,8 +152,11 @@ pub(crate) mod webrtc {
     }
 
     extern "Rust" {
-        type CallBackCreateOfferAnswer;
         type CallBackDescription;
+        type DynCreateOfferCallback;
+
+        pub fn success(cb: &DynCreateOfferCallback, sdp: &CxxString, type_: &CxxString);
+        pub fn fail(cb: &DynCreateOfferCallback, error: &CxxString);
 
         pub fn success_set_descr(self: &mut CallBackDescription);
         pub fn fail_set_descr(
@@ -158,15 +164,6 @@ pub(crate) mod webrtc {
             error: &CxxString,
         );
 
-        pub fn success_create(
-            self: &mut CallBackCreateOfferAnswer,
-            sdp: &CxxString,
-            type_: &CxxString,
-        );
-        pub fn fail_create(
-            self: &mut CallBackCreateOfferAnswer,
-            error: &CxxString,
-        );
     }
 
     #[rustfmt::skip]
@@ -273,7 +270,7 @@ pub(crate) mod webrtc {
         /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
         /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            cb: Box<CallBackCreateOfferAnswer>,
+            cb: Box<DynCreateOfferCallback>,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetLocalDescriptionObserverInterface`].
@@ -453,67 +450,18 @@ impl Drop for CallBackDescription {
     }
 }
 
-pub struct CallBackCreateOfferAnswer {
-    fn_success: fn(usize, &CxxString, &CxxString, usize),
-    success: usize,
-    fn_fail: fn(usize, &CxxString, usize),
-    fail: usize,
-    fn_drop: fn(usize, usize),
-    drop: usize,
-    context: usize,
+pub trait ICreateOfferCallback {
+    fn success(&self, sdp: &CxxString, type_: &CxxString);
+    fn error(&self, error: &CxxString);
+}
+type DynCreateOfferCallback = Box<dyn ICreateOfferCallback>;
+pub fn success(cb: &DynCreateOfferCallback, sdp: &CxxString, type_: &CxxString) {
+    cb.success(sdp, type_);
+}
+pub fn fail(cb: &DynCreateOfferCallback, error: &CxxString) {
+    cb.error(error);
 }
 
-impl CallBackCreateOfferAnswer {
-    pub fn new(
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
-    ) -> Self {
-        let fn_success =
-            |f: usize, sdp: &CxxString, type_: &CxxString, cntx: usize| {
-                let f_: extern "C" fn(&CxxString, &CxxString, usize) =
-                    unsafe { std::mem::transmute(f) };
-                f_(sdp, type_, cntx);
-            };
-
-        let fn_fail = |f: usize, error: &CxxString, cntx: usize| {
-            let f_: extern "C" fn(&CxxString, usize) =
-                unsafe { std::mem::transmute(f) };
-            f_(error, cntx);
-        };
-
-        let fn_drop = |f: usize, cntx: usize| {
-            let f_: extern "C" fn(usize) = unsafe { std::mem::transmute(f) };
-            f_(cntx);
-        };
-        Self {
-            fn_success,
-            success,
-            fn_fail,
-            fail,
-            fn_drop,
-            drop,
-            context,
-        }
-    }
-
-    pub fn success_create(&mut self, sdp: &CxxString, type_: &CxxString) {
-        let fn_s = self.fn_success;
-        fn_s(self.success, sdp, type_, self.context);
-    }
-    pub fn fail_create(&mut self, error: &CxxString) {
-        let fn_f = self.fn_fail;
-        fn_f(self.fail, error, self.context);
-    }
-}
-
-impl Drop for CallBackCreateOfferAnswer {
-    fn drop(&mut self) {
-        let fn_d = self.fn_drop;
-        fn_d(self.drop, self.context);
-    }
-}
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;

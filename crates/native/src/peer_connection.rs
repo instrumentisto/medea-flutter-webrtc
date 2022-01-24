@@ -1,5 +1,4 @@
 extern crate derive_more;
-use cxx::{let_cxx_string, CxxString, UniquePtr};
 use derive_more::{From, Into};
 use libwebrtc_sys as sys;
 
@@ -7,6 +6,7 @@ use std::sync::atomic::Ordering;
 
 use std::sync::atomic::AtomicU64;
 
+use crate::CallBackCreateOfferAnswer;
 use crate::Webrtc;
 
 /// This counter provides global resource for generating `unique id`.
@@ -29,6 +29,7 @@ pub struct PeerConnection {
     pub peer_connection_interface: sys::PeerConnectionInterface,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and return id.
     /// # Warning
@@ -70,7 +71,6 @@ impl Webrtc {
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
-    #[allow(clippy::too_many_arguments)]
     pub fn create_offer(
         &mut self,
         error: &mut String,
@@ -88,8 +88,9 @@ impl Webrtc {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
+            let cb = CallBackCreateOfferAnswer::new(success, fail, drop, context);
             let obs = sys::CreateSessionDescriptionObserver::new(
-                success, fail, drop, context,
+                Box::new(Box::new(cb))
             );
 
             let options = sys::RTCOfferAnswerOptions::new(
@@ -118,7 +119,6 @@ impl Webrtc {
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
-    #[allow(clippy::too_many_arguments)]
     pub fn create_answer(
         &mut self,
         error: &mut String,
@@ -137,8 +137,9 @@ impl Webrtc {
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
 
+            let cb = CallBackCreateOfferAnswer::new(success, fail, drop, context);
             let obs = sys::CreateSessionDescriptionObserver::new(
-                success, fail, drop, context,
+                Box::new(Box::new(cb))
             );
 
             let options = sys::RTCOfferAnswerOptions::new(
