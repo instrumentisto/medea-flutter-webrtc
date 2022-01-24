@@ -12,7 +12,6 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-#include "custom_video_renderer.h"
 #include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
@@ -20,6 +19,7 @@
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
 #include "rust/cxx.h"
+#include "video_renderer_sink.h"
 
 namespace bridge {
 
@@ -137,6 +137,12 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     rust::String id,
     const VideoTrackSourceInterface& video_source);
 
+void add_or_update_video_sink(const VideoTrackInterface& track,
+                              VideoRendererSink& sink);
+
+void remove_video_sink(const VideoTrackInterface& track,
+                       VideoRendererSink& sink);
+
 // Creates a new `AudioTrackInterface`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
@@ -171,10 +177,9 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
 // Converts `i420 buffer` from received `VideoFrame` to `ABGR buffer`.
 void convert_to_argb(const VideoFrame& frame, uint8_t* buffer_ptr);
 
-// Returns a new `VideoRenderer`.
-std::unique_ptr<VideoRenderer> create_video_renderer(
+// Returns a new `VideoRendererSink`.
+std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
-    size_t flutter_cb_ptr,
-    const VideoTrackInterface& track_to_render);
+    size_t ctx);
 
 }  // namespace bridge

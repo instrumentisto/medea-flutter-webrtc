@@ -10,7 +10,7 @@ use libwebrtc_sys as sys;
 
 use crate::{
     api::{self, AudioConstraints, VideoConstraints},
-    TextureId, Webrtc,
+    Renderer, TextureId, Webrtc,
 };
 
 /// Counter used to generate unique IDs.
@@ -456,7 +456,7 @@ pub struct VideoTrack {
     /// [`TextureId`]s of the [`Renderer`]'s which uses this [`VideoTrack`].
     ///
     /// [`Renderer`]:crate::Renderer
-    renderers: Vec<Rc<TextureId>>,
+    renderers: Vec<TextureId>,
 }
 
 impl VideoTrack {
@@ -473,15 +473,32 @@ impl VideoTrack {
             src,
             kind: api::TrackKind::kVideo,
             label,
-            renderers: vec![],
+            renderers: Vec::new(),
         })
     }
 
     /// Adds the [`Renderer`] which uses this [`VideoTrack`].
     ///
     /// [`Renderer`]:crate::Renderer
-    pub fn add_renderer(&mut self, renderer: Rc<TextureId>) {
-        self.renderers.push(renderer);
+    ///
+    /// # Panics
+    ///
+    /// Unwraping of Rc.
+    pub fn add_renderer(&mut self, renderer: &mut Renderer) {
+        self.inner.add_or_update_sink(renderer.as_mut());
+        self.renderers.push(*renderer.get_texture_id());
+    }
+
+    /// # Panics
+    ///
+    /// Unwraping of Rc.
+    pub fn remove_renderer(&mut self, renderer: Renderer) {
+        let mut renderer = renderer;
+
+        self.renderers
+            .retain(|texture| texture != renderer.get_texture_id());
+
+        self.remove_sink(renderer.as_mut());
     }
 }
 

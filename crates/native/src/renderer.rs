@@ -1,6 +1,6 @@
-use std::{mem, rc::Rc};
+use std::mem;
 
-use crate::{Frame, MediaStreamId, Webrtc};
+use crate::{Frame, MediaStreamId, VideoTrackId, Webrtc};
 
 use cxx::UniquePtr;
 use libwebrtc_sys as sys;
@@ -11,16 +11,21 @@ pub struct TextureId(i64);
 
 /// [`sys::Renderer`] wrapper.
 pub struct Renderer {
-    texture_id: Rc<TextureId>,
-    inner: sys::Renderer,
+    texture_id: TextureId,
+    inner: sys::RendererSink,
+    video_track_id: VideoTrackId,
 }
 
 impl Renderer {
-    /// Notifies that [`VideoTrack`] used in this [`Renderer`] does not exist.
-    ///
-    /// [`VideoTrack`]:crate::VideoTrack
-    fn set_no_track(&mut self) {
-        self.inner.set_no_track();
+    #[must_use]
+    pub fn get_texture_id(&self) -> &TextureId {
+        &self.texture_id
+    }
+}
+
+impl AsMut<sys::RendererSink> for Renderer {
+    fn as_mut(&mut self) -> &mut sys::RendererSink {
+        &mut self.inner
     }
 }
 
@@ -54,19 +59,16 @@ unsafe extern "C" fn register_renderer(
         .unwrap()
         .get_first_track_id();
 
-    let current_renderer = Renderer {
-        texture_id: Rc::new(TextureId(texture_id)),
-        inner: sys::Renderer::create(
-            cb,
-            mem::transmute_copy(&cpp_cb),
-            &**this.video_tracks.get(video_track_id).unwrap(),
-        ),
+    let mut current_renderer = Renderer {
+        texture_id: TextureId(texture_id),
+        inner: sys::RendererSink::create(cb, mem::transmute_copy(&cpp_cb)),
+        video_track_id: *video_track_id,
     };
 
     this.video_tracks
         .get_mut(video_track_id)
         .unwrap()
-        .add_renderer(Rc::clone(&current_renderer.texture_id));
+        .add_renderer(&mut current_renderer);
 
     this.renderers
         .insert(TextureId(texture_id), current_renderer);
@@ -79,15 +81,12 @@ impl Webrtc {
     ///
     /// May panic on taking [`Renderer`] as mut.
     pub fn dispose_renderer(&mut self, texture_id: i64) {
-        let renderer =
-            self.0.renderers.get_mut(&TextureId(texture_id)).unwrap();
+        let renderer = self.0.renderers.remove(&TextureId(texture_id)).unwrap();
 
-        let no_track = Rc::strong_count(&renderer.texture_id) < 2;
+        let video_track = self.0.video_tracks.get_mut(&renderer.video_track_id);
 
-        if no_track {
-            renderer.set_no_track();
+        if let Some(track) = video_track {
+            track.remove_renderer(renderer);
         }
-
-        self.0.renderers.remove(&TextureId(texture_id)).unwrap();
     }
 }

@@ -379,6 +379,16 @@ pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct VideoTrackInterface(UniquePtr<webrtc::VideoTrackInterface>);
 
+impl VideoTrackInterface {
+    pub fn add_or_update_sink(&self, sink: &mut RendererSink) {
+        webrtc::add_or_update_video_sink(&self.0, sink.0.pin_mut());
+    }
+
+    pub fn remove_sink(&self, sink: &mut RendererSink) {
+        webrtc::remove_video_sink(&self.0, sink.0.pin_mut());
+    }
+}
+
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
@@ -447,36 +457,16 @@ impl MediaStreamInterface {
     }
 }
 
-/// Representation of the [`webrtc::VideoRenderer`].
-pub struct Renderer(UniquePtr<webrtc::VideoRenderer>);
+/// Representation of the [`webrtc::VideoRendererSink`].
+pub struct RendererSink(UniquePtr<webrtc::VideoRendererSink>);
 
-impl Renderer {
-    /// Creates a new [`Renderer`].
+impl RendererSink {
+    /// Creates a new [`RendererSink`].
     ///
     /// # Panics
     ///
     /// May panic on taking [`VideoTrackInterface`] as ref.
-    pub fn create(
-        cb: fn(UniquePtr<VideoFrame>, usize),
-        flutter_cb_ptr: usize,
-        video_track: &VideoTrackInterface,
-    ) -> Self {
-        unsafe {
-            Self(webrtc::create_video_renderer(
-                cb,
-                flutter_cb_ptr,
-                video_track.0.as_ref().unwrap(),
-            ))
-        }
-    }
-
-    /// Notifies the [`Renderer`] that passed [`VideoTrackInterface`] does
-    /// not exist.
-    ///
-    /// # Panics
-    ///
-    /// May panic on taking [`VideoTrackInterface`] as mut.
-    pub fn set_no_track(&mut self) {
-        self.0.as_mut().unwrap().set_no_track();
+    pub fn create(cb: fn(UniquePtr<VideoFrame>, usize), ctx: usize) -> Self {
+        Self(webrtc::create_video_renderer_sink(cb, ctx))
     }
 }

@@ -198,7 +198,7 @@ pub(crate) mod webrtc {
 
     unsafe extern "C++" {
         type VideoFrame;
-        type VideoRenderer;
+        type VideoRendererSink;
         type VideoRotation;
 
         /// Returns width of the [`VideoFrame`].
@@ -219,17 +219,21 @@ pub(crate) mod webrtc {
         /// Converts [`VideoFrame`]'s `i420 buffer` to `ABGR buffer`.
         pub unsafe fn convert_to_argb(frame: &VideoFrame, buffer_ptr: *mut u8);
 
-        /// Creates a new [`VideoRenderer`] for
-        /// the given [`VideoTrackInterface`] and the `callbacks`.
-        pub unsafe fn create_video_renderer(
-            cb: unsafe fn(UniquePtr<VideoFrame>, usize),
-            flutter_cb_ptr: usize,
-            video_track: &VideoTrackInterface,
-        ) -> UniquePtr<VideoRenderer>;
+        pub fn add_or_update_video_sink(
+            track: &VideoTrackInterface,
+            sink: Pin<&mut VideoRendererSink>,
+        );
 
-        /// Notifies the [`VideoRenderer`] that
-        /// passed [`VideoTrackInterface`] does not exist.
-        #[cxx_name = "SetNoTrack"]
-        pub fn set_no_track(self: Pin<&mut VideoRenderer>);
+        pub fn remove_video_sink(
+            track: &VideoTrackInterface,
+            sink: Pin<&mut VideoRendererSink>,
+        );
+
+        /// Creates a new [`VideoRendererSink`] for
+        /// the given `callbacks`.
+        pub fn create_video_renderer_sink(
+            cb: unsafe fn(UniquePtr<VideoFrame>, usize),
+            ctx: usize,
+        ) -> UniquePtr<VideoRendererSink>;
     }
 }

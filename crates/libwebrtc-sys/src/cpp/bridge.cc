@@ -173,6 +173,16 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
   return std::make_unique<VideoTrackInterface>(track);
 }
 
+void add_or_update_video_sink(const VideoTrackInterface& track,
+                              VideoRendererSink& sink) {
+  track.ptr()->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
+}
+
+void remove_video_sink(const VideoTrackInterface& track,
+                       VideoRendererSink& sink) {
+  track.ptr()->RemoveSink(&sink);
+}
+
 // Calls `PeerConnectionFactoryInterface->CreateAudioTrack`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
@@ -240,12 +250,10 @@ void convert_to_argb(const VideoFrame& video_frame, uint8_t* buffer_ptr) {
                      buffer->height());
 }
 
-// Returns a new `VideoRenderer`.
-std::unique_ptr<VideoRenderer> create_video_renderer(
+// Returns a new `VideoRendererSink`.
+std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
     rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
-    size_t flutter_cb_ptr,
-    const VideoTrackInterface& track_to_render) {
-  return std::make_unique<VideoRenderer>(
-      cb, flutter_cb_ptr, (webrtc::VideoTrackInterface*)track_to_render.ptr());
+    size_t ctx) {
+  return std::make_unique<VideoRendererSink>(cb, ctx);
 }
 }  // namespace bridge
