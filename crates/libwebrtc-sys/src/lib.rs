@@ -4,12 +4,11 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::CallBackDescription;
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
+use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack};
+use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
-
-pub use bridge::CreateOfferAnswerCallback;
 pub use webrtc::{AudioLayer, SdpType};
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -378,7 +377,7 @@ impl CreateSessionDescriptionObserver {
     /// `success` for callback when 'CreateOffer\Answer' is success,
     /// `fail` for callback when 'CreateOffer\Answer' is fail.
     #[must_use]
-    pub fn new(cb: Box<dyn CreateOfferAnswerCallback>) -> Self {
+    pub fn new(cb: Box<CreateOfferAnswerCallback>) -> Self {
         Self(webrtc::create_create_session_observer(cb))
     }
 }
@@ -390,13 +389,8 @@ pub struct SetLocalDescriptionObserverInterface(
 impl SetLocalDescriptionObserverInterface {
     #[must_use]
     pub fn new(
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
+        cb: Box<SetLocalRemoteDescriptionCallBack>
     ) -> Self {
-        let cb =
-            Box::new(CallBackDescription::new(success, fail, drop, context));
         Self(webrtc::create_set_local_description_observer_interface(cb))
     }
 }
@@ -408,13 +402,8 @@ pub struct SetRemoteDescriptionObserverInterface(
 impl SetRemoteDescriptionObserverInterface {
     #[must_use]
     pub fn new(
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
+        cb: Box<SetLocalRemoteDescriptionCallBack>
     ) -> Self {
-        let cb =
-            Box::new(CallBackDescription::new(success, fail, drop, context));
         Self(webrtc::create_set_remote_description_observer_interface(cb))
     }
 }

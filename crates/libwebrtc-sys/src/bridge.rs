@@ -151,21 +151,20 @@ pub(crate) mod webrtc {
     }
 
     extern "Rust" {
-        type CallBackDescription;
-        type DynCreateOfferCallback;
+        type SetLocalRemoteDescriptionCallBack;
+        type CreateOfferAnswerCallback;
 
-        pub fn success(
-            cb: &DynCreateOfferCallback,
+        pub fn success_sdp(
+            cb: &CreateOfferAnswerCallback,
             sdp: &CxxString,
             type_: &CxxString,
         );
-        pub fn fail(cb: &DynCreateOfferCallback, error: &CxxString);
+        pub fn fail_sdp(cb: &CreateOfferAnswerCallback, error: &CxxString);
 
-        pub fn success_set_descr(self: &mut CallBackDescription);
-        pub fn fail_set_descr(
-            self: &mut CallBackDescription,
-            error: &CxxString,
+        pub fn success_set_description(
+            cb: &SetLocalRemoteDescriptionCallBack,
         );
+        pub fn fail_set_description(cb: &SetLocalRemoteDescriptionCallBack, error: &CxxString);
 
     }
 
@@ -269,21 +268,18 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         /// Creates a [`CreateSessionDescriptionObserver`].
-        /// Where
-        /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
-        /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            cb: Box<DynCreateOfferCallback>,
+            cb: Box<CreateOfferAnswerCallback>,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetLocalDescriptionObserverInterface`].
         pub fn create_set_local_description_observer_interface(
-            cb: Box<CallBackDescription>,
+            cb: Box<SetLocalRemoteDescriptionCallBack>,
         ) -> UniquePtr<SetLocalDescriptionObserverInterface>;
 
         /// Creates a [`SetRemoteDescriptionObserverInterface`].
         pub fn create_set_remote_description_observer_interface(
-            cb: Box<CallBackDescription>,
+            cb: Box<SetLocalRemoteDescriptionCallBack>,
         ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
 
         /// Calls `peer_connection_interface`->CreateOffer.
@@ -393,82 +389,41 @@ pub(crate) mod webrtc {
     }
 }
 
-pub struct CallBackDescription {
-    fn_success: fn(usize, usize),
-    success: usize,
-    fn_fail: fn(usize, &CxxString, usize),
-    fail: usize,
-    fn_drop: fn(usize, usize),
-    drop: usize,
-    context: usize,
-}
 
-impl CallBackDescription {
-    pub fn new(
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
-    ) -> Self {
-        let fn_success = |f: usize, cntx: usize| {
-            let f_: extern "C" fn(usize) = unsafe { std::mem::transmute(f) };
-            f_(cntx);
-        };
 
-        let fn_fail = |f: usize, error: &CxxString, cntx: usize| {
-            let f_: extern "C" fn(&CxxString, usize) =
-                unsafe { std::mem::transmute(f) };
-            f_(error, cntx);
-        };
-
-        let fn_drop = |f: usize, cntx: usize| {
-            let f_: extern "C" fn(usize) = unsafe { std::mem::transmute(f) };
-            f_(cntx);
-        };
-        Self {
-            fn_success,
-            success,
-            fn_fail,
-            fail,
-            fn_drop,
-            drop,
-            context,
-        }
-    }
-
-    pub fn success_set_descr(&mut self) {
-        let fn_s = self.fn_success;
-        fn_s(self.success, self.context);
-    }
-    pub fn fail_set_descr(&mut self, error: &CxxString) {
-        let fn_f = self.fn_fail;
-        fn_f(self.fail, error, self.context);
-    }
-}
-
-impl Drop for CallBackDescription {
-    fn drop(&mut self) {
-        let fn_d = self.fn_drop;
-        fn_d(self.drop, self.context);
-    }
-}
-
-pub trait CreateOfferAnswerCallback {
+pub trait CreateSdpCallback {
     fn success(&self, sdp: &CxxString, type_: &CxxString);
-    fn error(&self, error: &CxxString);
+    fn fail(&self, error: &CxxString);
 }
-type DynCreateOfferAnswerCallback = Box<dyn CreateOfferAnswerCallback>;
-
-pub fn success(
-    cb: &DynCreateOfferAnswerCallback,
+pub type CreateOfferAnswerCallback = Box<dyn CreateSdpCallback>;
+pub fn success_sdp(
+    cb: &CreateOfferAnswerCallback,
     sdp: &CxxString,
     type_: &CxxString,
 ) {
     cb.success(sdp, type_);
 }
-pub fn fail(cb: &DynCreateOfferAnswerCallback, error: &CxxString) {
-    cb.error(error);
+pub fn fail_sdp(cb: &CreateOfferAnswerCallback, error: &CxxString) {
+    cb.fail(error);
 }
+
+
+
+pub trait SetDescriptionCallback {
+    fn success(&self);
+    fn fail(&self, error: &CxxString);
+}
+pub type SetLocalRemoteDescriptionCallBack = Box<dyn SetDescriptionCallback>;
+pub fn success_set_description(
+    cb: &SetLocalRemoteDescriptionCallBack
+) {
+    cb.success();
+}
+pub fn fail_set_description(cb: &SetLocalRemoteDescriptionCallBack, error: &CxxString) {
+    cb.fail(error);
+}
+
+
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;

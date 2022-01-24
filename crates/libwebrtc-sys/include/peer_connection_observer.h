@@ -6,8 +6,8 @@
 #include "third_party\abseil-cpp\absl\types\optional.h"
 
 namespace bridge {
-  struct CallBackDescription;
-  struct DynCreateOfferCallback;
+  struct SetLocalRemoteDescriptionCallBack;
+  struct CreateOfferAnswerCallback;
 }
 
 namespace observer {
@@ -34,16 +34,11 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 // for calling callback when create [Offer] or [Answer]
 // success or fail.
 class CreateSessionDescriptionObserver
-    : public webrtc::CreateSessionDescriptionObserver {
+    : public webrtc::CreateSessionDescriptionObserver, 
+    rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
  public:
-  // RefCount for lifetime observer.
-  mutable int ref_count;
-
-  // Construct `CreateOffer/Answer Observer` where
-  // s - void (*callback_success)(std::string, std::string),
-  // f - void (*callback_fail)(std::string).
   CreateSessionDescriptionObserver(
-    rust::cxxbridge1::Box<bridge::DynCreateOfferCallback> cb);
+    rust::Box<bridge::CreateOfferAnswerCallback> cb);
 
   // Calls when a `CreateOffer/Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
@@ -57,49 +52,48 @@ class CreateSessionDescriptionObserver
   rtc::RefCountReleaseStatus Release() const;
 
  private:
-  absl::optional<rust::cxxbridge1::Box<bridge::DynCreateOfferCallback>> cb;
+  absl::optional<rust::Box<bridge::CreateOfferAnswerCallback>> cb;
 };
 
 class SetLocalDescriptionObserverInterface
-    : public webrtc::SetLocalDescriptionObserverInterface {
+    : public webrtc::SetLocalDescriptionObserverInterface, 
+    rtc::RefCountedObject<webrtc::SetLocalDescriptionObserverInterface> {
  public:
-  absl::optional<rust::cxxbridge1::Box<bridge::CallBackDescription>> cb;
-
-  // RefCount for lifetime observer.
-  mutable int ref_count;
 
   // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetLocalDescriptionComplete(webrtc::RTCError error);
 
   // Construct SetLocalDescriptionObserverInterface.
   SetLocalDescriptionObserverInterface(
-    rust::cxxbridge1::Box<bridge::CallBackDescription> cb);
+    rust::Box<bridge::SetLocalRemoteDescriptionCallBack> cb);
 
   // Interface rtc::RefCountInterface.
   void AddRef() const;
   // Interface rtc::RefCountInterface.
   rtc::RefCountReleaseStatus Release() const;
+
+  private:
+    absl::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb;
 };
 
 class SetRemoteDescriptionObserverInterface
-    : public webrtc::SetRemoteDescriptionObserverInterface {
+    : public webrtc::SetRemoteDescriptionObserverInterface, 
+    rtc::RefCountedObject<webrtc::SetRemoteDescriptionObserverInterface>  {
  public:
-  absl::optional<rust::cxxbridge1::Box<bridge::CallBackDescription>> cb;
-
-  // RefCount for lifetime observer.
-  mutable int ref_count;
 
   // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetRemoteDescriptionComplete(webrtc::RTCError error);
 
   // Construct SetRemoteDescriptionObserverInterface.
   SetRemoteDescriptionObserverInterface(
-    rust::cxxbridge1::Box<bridge::CallBackDescription> cb
+    rust::Box<bridge::SetLocalRemoteDescriptionCallBack> cb
   );
 
   // Interface rtc::RefCountInterface.
   void AddRef() const;
   // Interface rtc::RefCountInterface.
   rtc::RefCountReleaseStatus Release() const;
+  private:
+    absl::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb; 
 };
 }

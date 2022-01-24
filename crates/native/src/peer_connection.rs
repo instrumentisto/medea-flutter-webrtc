@@ -6,7 +6,7 @@ use std::sync::atomic::Ordering;
 
 use std::sync::atomic::AtomicU64;
 
-use crate::{CallBackCreateOfferAnswer, Webrtc};
+use crate::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack, Webrtc};
 
 /// This counter provides global resource for generating `unique id`.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -74,12 +74,10 @@ impl Webrtc {
         &mut self,
         error: &mut String,
         peer_connection_id: impl Into<PeerConnectionId>,
-        offer_to_receive_video: i32,
-        offer_to_receive_audio: i32,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        sdp_callback: Box<CallBackCreateOfferAnswer>,
+        sdp_callback: Box<CreateOfferAnswerCallback>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
@@ -89,8 +87,8 @@ impl Webrtc {
             ));
 
             let options = sys::RTCOfferAnswerOptions::new(
-                offer_to_receive_video,
-                offer_to_receive_audio,
+                None,
+                None,
                 voice_activity_detection,
                 ice_restart,
                 use_rtp_mux,
@@ -118,17 +116,15 @@ impl Webrtc {
         &mut self,
         error: &mut String,
         peer_connection_id: impl Into<PeerConnectionId>,
-        // offer_to_receive_video: i32,
-        // offer_to_receive_audio: i32,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        sdp_callback: Box<CallBackCreateOfferAnswer>,
+        sdp_callback: Box<CreateOfferAnswerCallback>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
-            let obs = sys::CreateSessionDescriptionObserver::new(sdp_callback);
+            let obs = sys::CreateSessionDescriptionObserver::new(Box::new(sdp_callback));
 
             let options = sys::RTCOfferAnswerOptions::new(
                 None,
@@ -161,10 +157,7 @@ impl Webrtc {
         peer_connection_id: impl Into<PeerConnectionId>,
         type_: String,
         sdp: String,
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
+        set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
@@ -175,7 +168,7 @@ impl Webrtc {
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
                     let obs = sys::SetLocalDescriptionObserverInterface::new(
-                        success, fail, drop, context,
+                        Box::new(set_description_callback)
                     );
 
                     peer_connection
@@ -206,10 +199,7 @@ impl Webrtc {
         peer_connection_id: impl Into<PeerConnectionId>,
         type_: String,
         sdp: String,
-        success: usize,
-        fail: usize,
-        drop: usize,
-        context: usize,
+        set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
@@ -220,7 +210,7 @@ impl Webrtc {
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
                     let obs = sys::SetRemoteDescriptionObserverInterface::new(
-                        success, fail, drop, context,
+                        Box::new(set_description_callback)
                     );
 
                     peer_connection
