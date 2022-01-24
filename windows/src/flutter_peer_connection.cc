@@ -16,6 +16,7 @@ extern "C" void  OnSuccessCreate(
   params[flutter::EncodableValue("sdp")] = sdp;
   params[flutter::EncodableValue("type")] = type;
   result->Success(flutter::EncodableValue(params));
+  delete result;
 }
 
 // Callback for write `SetLocalDescription` success result in flutter.
@@ -31,6 +32,7 @@ extern "C" void OnFail(
   size_t context) {
   auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
   result->Error(error);
+  delete result;
 }
 
 extern "C" void drop(size_t context) {
@@ -108,12 +110,10 @@ void CreateOffer(
   size_t context = (size_t) res;
   size_t success = (size_t) &callbacks::OnSuccessCreate;
   size_t fail = (size_t) &callbacks::OnFail;
-  size_t drop = (size_t) &callbacks::drop;
 
   auto sdp_callback = create_sdp_callback(
       success,
       fail,
-      drop,
       context);
 
   rust::String error;
@@ -178,12 +178,10 @@ void CreateAnswer(
   size_t context = (size_t) res;
   size_t success = (size_t) &callbacks::OnSuccessCreate;
   size_t fail = (size_t) &callbacks::OnFail;
-  size_t drop = (size_t) &callbacks::drop;
 
   auto sdp_callback = create_sdp_callback(
       success,
       fail,
-      drop,
       context);
 
   rust::String error;

@@ -145,7 +145,6 @@ pub mod api {
         pub fn create_sdp_callback(
             success: usize,
             fail: usize,
-            drop: usize,
             context: usize,
         ) -> Box<CallBackCreateOfferAnswer>;
     }
@@ -263,16 +262,14 @@ pub mod api {
 pub fn create_sdp_callback(
     success: usize,
     fail: usize,
-    drop: usize,
     context: usize,
 ) -> Box<CallBackCreateOfferAnswer> {
-    Box::new(CallBackCreateOfferAnswer::new(success, fail, drop, context))
+    Box::new(CallBackCreateOfferAnswer::new(success, fail, context))
 }
 
 pub struct CallBackCreateOfferAnswer {
     fn_success: extern "C" fn(&CxxString, &CxxString, usize),
     fn_fail: extern "C" fn(&CxxString, usize),
-    fn_drop: extern "C" fn(usize),
     context: usize,
 }
 
@@ -280,7 +277,6 @@ impl CallBackCreateOfferAnswer {
     pub fn new(
         success: usize,
         fail: usize,
-        drop: usize,
         context: usize,
     ) -> Self {
         let fn_success: extern "C" fn(&CxxString, &CxxString, usize) =
@@ -289,23 +285,14 @@ impl CallBackCreateOfferAnswer {
         let fn_fail: extern "C" fn(&CxxString, usize) =
             unsafe { std::mem::transmute(fail) };
 
-        let fn_drop: extern "C" fn(usize) =
-            unsafe { std::mem::transmute(drop) };
         Self {
             fn_success,
             fn_fail,
-            fn_drop,
             context,
         }
     }
 }
 
-impl Drop for CallBackCreateOfferAnswer {
-    fn drop(&mut self) {
-        let fn_d = self.fn_drop;
-        fn_d(self.context);
-    }
-}
 
 impl libwebrtc_sys::ICreateOfferCallback for CallBackCreateOfferAnswer {
     fn success(&self, sdp: &CxxString, type_: &CxxString) {
