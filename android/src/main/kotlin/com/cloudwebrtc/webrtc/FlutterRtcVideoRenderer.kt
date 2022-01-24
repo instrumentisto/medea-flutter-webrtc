@@ -77,7 +77,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
                 if (newWidth != width || newHeight != height) {
                     width = newWidth
                     height = newHeight
-                    eventListener?.onTextureChangeVideoSize(id, width, height)
+                    eventListener?.onTextureChangeVideoSize(id, height, width)
                 }
 
                 if (newRotation != rotation) {
