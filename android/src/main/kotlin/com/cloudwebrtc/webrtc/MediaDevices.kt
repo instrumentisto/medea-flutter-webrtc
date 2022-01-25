@@ -96,8 +96,6 @@ class MediaDevices(val state: State) {
             state.getAppContext(),
             videoSource.capturerObserver
         )
-        // TODO(evdokimovs): Experiment with this parameters, maybe we can don't provide
-        //                   this parameters if no constraints provided?
         // Just use width and height of the selected device here
         videoCapturer.startCapture(1280, 720, 30)
 
