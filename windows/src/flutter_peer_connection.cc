@@ -1,25 +1,23 @@
 #include "flutter_peer_connection.h"
 #include "media_stream.h"
 
-#include <thread>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <thread>
 #include "flutter_webrtc.h"
 
 using namespace rust::cxxbridge1;
 
 namespace callbacks {
 
-
 // Event State chng #todo(DOC).
 typedef void (*event)(std::string);
 
 // Callback for write `CreateOffer/Answer` success result in flutter.
-extern "C" void  OnSuccessCreate(
-    std::string sdp,
-    std::string type,
-    size_t context) {
-  auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
+extern "C" void OnSuccessCreate(std::string sdp,
+                                std::string type,
+                                size_t context) {
+  auto result = (flutter::MethodResult<flutter::EncodableValue>*)context;
   flutter::EncodableMap params;
   params[flutter::EncodableValue("sdp")] = sdp;
   params[flutter::EncodableValue("type")] = type;
@@ -28,55 +26,106 @@ extern "C" void  OnSuccessCreate(
 }
 
 // Callback for write `SetLocalDescription` success result in flutter.
-extern "C" void OnSuccessDescription(
-    size_t context) {
-  auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
+extern "C" void OnSuccessDescription(size_t context) {
+  auto result = (flutter::MethodResult<flutter::EncodableValue>*)context;
   result->Success(nullptr);
   delete result;
 }
 
 // Callback for write error in flutter.
-extern "C" void OnFail(
-  std::string error,
-  size_t context) {
-  auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
+extern "C" void OnFail(std::string error, size_t context) {
+  auto result = (flutter::MethodResult<flutter::EncodableValue>*)context;
   result->Error(error);
   delete result;
 }
 
-// Event #todo(DOC).
-void OnEvent(
-    EventChannel<EncodableValue>* channel,
-    EventSink<EncodableValue>* result, 
-    std::string event) {
-    if (result != nullptr) {
-        printf("OK\n");
-        //EncodableMap params;
-        //params[EncodableValue("event")] = "signalingState";
-        //params[EncodableValue("state")] = event;
-        //result->Success("EncodableValue(params)");
-    }
-    else {
-        printf("NULL\n");
-    }
-
+// todo.
+class EventContext {
+ public:
+  flutter::EventSink<flutter::EncodableValue>** result;
+  flutter::EventChannel<flutter::EncodableValue>** lt_channel;
+  EventContext(flutter::EventSink<flutter::EncodableValue>** rs,
+               flutter::EventChannel<flutter::EncodableValue>** lt_ch) : result(rs), lt_channel(lt_ch) {}
+  ~EventContext() {
+    delete *result;
+    delete result;
+    delete *lt_channel;
+    delete lt_channel;
+  } 
 }
 
+// todo.
+extern "C" void
+OnEvent(std::string event, size_t context) {
+  auto result = (flutter::EventSink<flutter::EncodableValue>**)context;
+  result;
+  if ((*result) != nullptr) {
+    printf("OK %s\n", event.c_str());
+    (*result)->Success(EncodableValue(event));
+
+  } else {
+    printf("NULL\n");
+  }
 }
+
+// todo. must drop event_channel_ and event_sink_
+extern "C" void DropEventContext(size_t context) {
+  auto result = (flutter::EventSink<flutter::EncodableValue>**)context;
+  delete *result;
+  delete result;
+}
+
+}  // namespace callbacks
 
 namespace flutter_webrtc_plugin {
 
 using namespace flutter;
-
 // Calls Rust `CreatePeerConnection()` and writes newly created Peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
+    flutter::BinaryMessenger* messenger,
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  flutter::EventSink<flutter::EncodableValue>** event_sink_ =
+      new flutter::EventSink<flutter::EncodableValue>*(nullptr);
+
+  auto event_call_back = create_peer_connection_events_call_back(
+      (size_t)callbacks::OnEvent, (size_t)callbacks::DropEventContext,
+      (size_t)event_sink_);
+
+  // create id
   rust::String error;
-  uint64_t id = webrtc->CreatePeerConnection(error);
+  uint64_t id = webrtc->CreatePeerConnection(error, std::move(event_call_back));
+
+  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
+      [=](const flutter::EncodableValue* arguments,
+          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        printf("SET\n");
+        // data race?
+        (*event_sink_) = events.release();
+        // temp_event_sink_->Success("test");
+        return nullptr;
+      },
+
+      [=](const flutter::EncodableValue* arguments)
+          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        printf("Drop\n");
+        // WARNING MB DATA RACE!!!.
+        // auto temp = temp_event_sink_;
+        // // reset callback
+        // temp_event_sink_ = nullptr;
+        // delete temp;
+        return nullptr;
+      });
+
   std::string peer_connection_id = std::to_string(id);
+  auto event_channel_ = new EventChannel<EncodableValue>(
+      messenger, "test_peer_conn" + peer_connection_id,
+      &StandardMethodCodec::GetInstance());
+  event_channel_->SetStreamHandler(std::move(handler));
+
   if (error == "") {
     EncodableMap params;
     params[EncodableValue("peerConnectionId")] = peer_connection_id;
@@ -93,7 +142,6 @@ void CreateOffer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -125,20 +173,14 @@ void CreateOffer(
 
   auto res = result.release();
 
-  auto sdp_callback = create_sdp_callback(
-      (size_t) callbacks::OnSuccessCreate,
-      (size_t) callbacks::OnFail,
-      (size_t) res);
+  auto sdp_callback =
+      create_sdp_callback((size_t)callbacks::OnSuccessCreate,
+                          (size_t)callbacks::OnFail, (size_t)res);
 
   rust::String error;
-  webrtc->CreateOffer(
-      error,
-      std::stoi(peerConnectionId),
-      voice_activity_detection,
-      ice_restart,
-      use_rtp_mux,
-      std::move(sdp_callback)
-  );
+  webrtc->CreateOffer(error, std::stoi(peerConnectionId),
+                      voice_activity_detection, ice_restart, use_rtp_mux,
+                      std::move(sdp_callback));
   if (error != "") {
     std::string err(error);
     res->Error("createAnswerOffer", err);
@@ -152,7 +194,6 @@ void CreateAnswer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -181,23 +222,17 @@ void CreateAnswer(
     use_rtp_mux = GetValue<bool>((*iter));
     ++iter;
   }
-  
+
   auto res = result.release();
 
-  auto sdp_callback = create_sdp_callback(
-      (size_t) callbacks::OnSuccessCreate,
-      (size_t) callbacks::OnFail,
-      (size_t) res);
+  auto sdp_callback =
+      create_sdp_callback((size_t)callbacks::OnSuccessCreate,
+                          (size_t)callbacks::OnFail, (size_t)res);
 
   rust::String error;
-  webrtc->CreateAnswer(
-      error,
-      std::stoi(peerConnectionId),
-      voice_activity_detection,
-      ice_restart,
-      use_rtp_mux,
-      std::move(sdp_callback)
-  );
+  webrtc->CreateAnswer(error, std::stoi(peerConnectionId),
+                       voice_activity_detection, ice_restart, use_rtp_mux,
+                       std::move(sdp_callback));
   if (error != "") {
     std::string err(error);
     res->Error("createAnswerOffer", err);
@@ -210,7 +245,6 @@ void SetLocalDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -225,20 +259,13 @@ void SetLocalDescription(
 
   auto res = result.release();
 
-  auto set_description_callback = create_set_description_callback(
-    (size_t) callbacks::OnSuccessDescription,
-    (size_t) callbacks::OnFail,
-    (size_t) res
-  );
+  auto set_description_callback =
+      create_set_description_callback((size_t)callbacks::OnSuccessDescription,
+                                      (size_t)callbacks::OnFail, (size_t)res);
 
   rust::String error;
-  webrtc->SetLocalDescription(
-      error,
-      std::stoi(peerConnectionId),
-      type,
-      sdp,
-      std::move(set_description_callback)
-  );
+  webrtc->SetLocalDescription(error, std::stoi(peerConnectionId), type, sdp,
+                              std::move(set_description_callback));
 
   if (error != "") {
     std::string err(error);
@@ -252,7 +279,6 @@ void SetRemoteDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -266,20 +292,13 @@ void SetRemoteDescription(
   rust::String sdp = findString(constraints, "sdp");
 
   auto res = result.release();
-  auto set_description_callback = create_set_description_callback(
-    (size_t) callbacks::OnSuccessDescription,
-    (size_t) callbacks::OnFail,
-    (size_t) res
-  );
+  auto set_description_callback =
+      create_set_description_callback((size_t)callbacks::OnSuccessDescription,
+                                      (size_t)callbacks::OnFail, (size_t)res);
 
   rust::String error;
-  webrtc->SetRemoteDescription(
-      error,
-      std::stoi(peerConnectionId),
-      type,
-      sdp,
-      std::move(set_description_callback)
-  );
+  webrtc->SetRemoteDescription(error, std::stoi(peerConnectionId), type, sdp,
+                               std::move(set_description_callback));
 
   if (error != "") {
     std::string err(error);
@@ -288,4 +307,4 @@ void SetRemoteDescription(
   }
 };
 
-}
+}  // namespace flutter_webrtc_plugin

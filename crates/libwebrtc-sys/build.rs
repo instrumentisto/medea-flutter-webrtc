@@ -26,7 +26,6 @@ fn main() -> anyhow::Result<()> {
     );
     println!("cargo:rustc-link-lib=webrtc");
 
-
     println!("cargo:rustc-link-lib=dylib=dmoguids");
     println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
     println!("cargo:rustc-link-lib=dylib=amstrmid");

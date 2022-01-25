@@ -2,8 +2,9 @@ extern crate derive_more;
 use cxx::CxxString;
 use derive_more::{From, Into};
 use libwebrtc_sys as sys;
-use sys::{CreateSdpCallback, SetDescriptionCallback};
+use sys::{CreateSdpCallback, PeerEventCallBack, SetDescriptionCallback};
 
+use std::borrow::BorrowMut;
 use std::{ffi::c_void, sync::atomic::Ordering};
 
 use std::sync::atomic::AtomicU64;
@@ -128,6 +129,51 @@ impl SetDescriptionCallback for SetLocalRemoteDescriptionCallBack {
     }
 }
 
+// todo
+pub struct PeerConnectionEventsCallBack {
+    fn_event: extern "C" fn(&CxxString, *mut c_void),
+    fn_drop: extern "C" fn(*mut c_void),
+    context: *mut c_void,
+}
+
+// todo
+#[must_use]
+pub fn create_peer_connection_events_call_back(
+    event: usize,
+    drop: usize,
+    context: usize,
+) -> Box<PeerConnectionEventsCallBack> {
+    Box::new(PeerConnectionEventsCallBack::new(event, drop, context))
+}
+
+impl PeerConnectionEventsCallBack {
+    // todo
+    #[must_use]
+    pub fn new(event: usize, drop: usize, context: usize) -> Self {
+        Self {
+            fn_event: unsafe { std::mem::transmute(event) },
+            fn_drop: unsafe { std::mem::transmute(drop) },
+            context: context as *mut c_void,
+        }
+    }
+}
+
+impl PeerEventCallBack for PeerConnectionEventsCallBack {
+    //todo
+    fn on_event(&self, event: &CxxString) {
+        let fn_e = self.fn_event;
+        fn_e(event, self.context);
+    }
+}
+
+impl Drop for PeerConnectionEventsCallBack {
+    //todo
+    fn drop(&mut self) {
+        let fn_e = self.fn_drop;
+        fn_e(self.context);
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 impl Webrtc {
     /// Creates a new `PeerConnection` and return id.
@@ -137,19 +183,17 @@ impl Webrtc {
     /// then the result will be NULL or default.
     pub fn create_default_peer_connection(
         self: &mut Webrtc,
-        e: usize,
         error: &mut String,
+        event_callback: Box<PeerConnectionEventsCallBack>,
     ) -> u64 {
-
-        let event: fn(&cxx::CxxString) = 
-                unsafe { std::mem::transmute(e) };
+        let obs = sys::PeerConnectionObserver::new(Box::new(event_callback));
         let peer_c = self
             .0
             .peer_connection_factory
             .create_peer_connection_or_error(
                 error,
                 &sys::RTCConfiguration::default(),
-                sys::PeerConnectionDependencies::new(event),
+                sys::PeerConnectionDependencies::new(obs),
             );
         if error.is_empty() {
             let id = generate_id();
@@ -161,6 +205,23 @@ impl Webrtc {
             id
         } else {
             0
+        }
+    }
+
+    // todo
+    pub fn reset_callback(
+        self: &mut Webrtc,
+        error: &mut String,
+        peer_connection_id: impl Into<PeerConnectionId>,
+        event_callback: Box<PeerConnectionEventsCallBack>,
+    ) {
+        if let Some(peer_connection) =
+            self.0.peer_connections.get_mut(&peer_connection_id.into())
+        {
+            let obs = sys::PeerConnectionObserver::new(Box::new(event_callback));
+            //peer_connection.borrow_mut().peer_connection_interface
+        } else {
+            error.push_str("Peer Connection not found");
         }
     }
 

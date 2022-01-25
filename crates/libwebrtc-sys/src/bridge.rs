@@ -1,5 +1,4 @@
 use cxx::CxxString;
-
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
@@ -151,6 +150,12 @@ pub(crate) mod webrtc {
     extern "Rust" {
         type SetLocalRemoteDescriptionCallBack;
         type CreateOfferAnswerCallback;
+        type PeerConnectionEventsCallBack;
+
+        pub fn peer_connection_events_call_back_on_event(
+            cb: &PeerConnectionEventsCallBack,
+            event: &CxxString,
+        );
 
         /// Calling in `CreateSessionDescriptionObserver`,
         /// when `CreateOffer/Answer` is success.
@@ -256,7 +261,7 @@ pub(crate) mod webrtc {
 
         /// Creates a [`PeerConnectionObserver`].
         pub fn create_peer_connection_observer(
-            e: fn(&CxxString),
+            cb: Box<PeerConnectionEventsCallBack>,
         ) -> UniquePtr<PeerConnectionObserver>;
 
         /// Creates a [`PeerConnectionDependencies`].
@@ -439,6 +444,17 @@ pub fn fail_set_description(
     error: &CxxString,
 ) {
     cb.fail(error);
+}
+
+pub trait PeerEventCallBack {
+    fn on_event(&self, event: &CxxString);
+}
+pub type PeerConnectionEventsCallBack = Box<dyn PeerEventCallBack>;
+pub fn peer_connection_events_call_back_on_event(
+    cb: &PeerConnectionEventsCallBack,
+    event: &CxxString,
+) {
+    cb.on_event(event);
 }
 
 impl TryFrom<&str> for webrtc::SdpType {

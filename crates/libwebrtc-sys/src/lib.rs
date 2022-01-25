@@ -4,9 +4,14 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack};
-pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
-use cxx::{let_cxx_string, UniquePtr, CxxString};
+use bridge::{
+    CreateOfferAnswerCallback, PeerConnectionEventsCallBack,
+    SetLocalRemoteDescriptionCallBack,
+};
+pub use bridge::{
+    CreateSdpCallback, PeerEventCallBack, SetDescriptionCallback,
+};
+use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
 pub use webrtc::{AudioLayer, SdpType};
@@ -285,8 +290,8 @@ pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl PeerConnectionObserver {
     /// Creates default [`PeerConnectionObserver`] without handle events
-    fn new(e: fn(&CxxString)) -> Self {
-        Self(webrtc::create_peer_connection_observer(e))
+    pub fn new(cb: Box<PeerConnectionEventsCallBack>) -> Self {
+        Self(webrtc::create_peer_connection_observer(cb))
     }
 }
 
@@ -300,10 +305,8 @@ pub struct PeerConnectionDependencies(
 impl PeerConnectionDependencies {
     /// Creates a [`PeerConnectionDependencies`]
     /// whith default [`PeerConnectionObserver`]
-    pub fn new(e: fn(&CxxString)) -> Self {
-        Self(webrtc::create_peer_connection_dependencies(
-            PeerConnectionObserver::new(e).0,
-        ))
+    pub fn new(observer: PeerConnectionObserver) -> Self {
+        Self(webrtc::create_peer_connection_dependencies(observer.0))
     }
 }
 

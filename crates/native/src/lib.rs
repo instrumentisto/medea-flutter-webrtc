@@ -12,8 +12,9 @@ use libwebrtc_sys::{
 };
 
 use peer_connection::{
-    create_sdp_callback, create_set_description_callback,
-    CreateOfferAnswerCallback, PeerConnection, PeerConnectionId,
+    create_peer_connection_events_call_back, create_sdp_callback,
+    create_set_description_callback, CreateOfferAnswerCallback, PeerConnection,
+    PeerConnectionEventsCallBack, PeerConnectionId,
     SetLocalRemoteDescriptionCallBack,
 };
 
@@ -157,6 +158,13 @@ pub mod api {
             fail: usize,
             context: usize,
         ) -> Box<SetLocalRemoteDescriptionCallBack>;
+
+        type PeerConnectionEventsCallBack;
+        pub fn create_peer_connection_events_call_back(
+            event: usize,
+            drop: usize,
+            context: usize,
+        ) -> Box<PeerConnectionEventsCallBack>;
     }
 
     extern "Rust" {
@@ -179,8 +187,8 @@ pub mod api {
         #[cxx_name = "CreatePeerConnection"]
         fn create_default_peer_connection(
             self: &mut Webrtc,
-            e: usize,
             error: &mut String,
+            event_callback: Box<PeerConnectionEventsCallBack>,
         ) -> u64;
 
         /// Creates a new [Offer].
@@ -331,32 +339,4 @@ pub fn init() -> Box<Webrtc> {
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
     })))
-}
-
-
-#[cfg(test)]
-mod test {
-    use crate::*;
-    #[test]
-    fn test1() {
-        /*let mut w = init();
-        let mut error = String::new();
-        let id = w.create_default_peer_connection(&mut error);
-        let mut pc = w.0.peer_connections.get_mut(&PeerConnectionId(id)).unwrap();
-
-        let obs 
-            = libwebrtc_sys::CreateSessionDescriptionObserver::new(
-                |sdp,_| {}, 
-                |_| {});
-        pc.peer_connection_interface.create_offer(&libwebrtc_sys::RTCOfferAnswerOptions::default(), obs);
-
-        let obs2 
-                = libwebrtc_sys::SetLocalDescriptionObserverInterface::new(|| {}, |a|{println!("|{}|", a)});
-        pc.peer_connection_interface.set_local_description(
-            libwebrtc_sys::SessionDescriptionInterface::new(
-                libwebrtc_sys::SdpType::try_from("offer").unwrap(), 
-                unsafe {&String::from_utf8_unchecked([118, 61, 48, 13, 10, 111, 61, 45, 32, 50, 56, 52, 49, 52, 54, 53, 53, 48, 57, 57, 52, 54, 54, 56, 53, 55, 55, 57, 32, 50, 32, 73, 78, 32, 73, 80, 52, 32, 49, 50, 55, 46, 48, 46, 48, 46, 49, 13, 10, 115, 61, 45, 13, 10, 116, 61, 48, 32, 48, 13, 10, 97, 61, 101, 120, 116, 109, 97, 112, 45, 97, 108, 108, 111, 119, 45, 109, 105, 120, 101, 100, 13, 10, 97, 61, 109, 115, 105, 100, 45, 115, 101, 109, 97, 110, 116, 105, 99, 58, 32, 87, 77, 83, 13, 10].to_vec())}), obs2);
-
-                */
-    }
 }
