@@ -326,15 +326,13 @@ impl RTCOfferAnswerOptions {
     /// Creates a new [`RTCOfferAnswerOptions`]
     #[must_use]
     pub fn new(
-        offer_to_receive_video: i32,
-        offer_to_receive_audio: i32,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
     ) -> Self {
         RTCOfferAnswerOptions(webrtc::create_rtc_offer_answer_options(
-            offer_to_receive_video,
-            offer_to_receive_audio,
+            -1, // RTCOfferAnswerOptions::kUndefined
+            -1, // RTCOfferAnswerOptions::kUndefined
             voice_activity_detection,
             ice_restart,
             use_rtp_mux,
@@ -364,8 +362,8 @@ impl SessionDescriptionInterface {
     }
 }
 
-/// Create Session Description Observer used
-/// for calling callback when create [Offer] or [Answer]
+/// `CreateSessionDescriptionObserver` used
+/// for calling callback when create [`Offer`] or [`Answer`]
 /// success or fail.
 pub struct CreateSessionDescriptionObserver(
     pub UniquePtr<webrtc::CreateSessionDescriptionObserver>,
@@ -373,15 +371,16 @@ pub struct CreateSessionDescriptionObserver(
 
 impl CreateSessionDescriptionObserver {
     /// Creates a [`CreateSessionDescriptionObserver`].
-    /// Where
-    /// `success` for callback when 'CreateOffer\Answer' is success,
-    /// `fail` for callback when 'CreateOffer\Answer' is fail.
     #[must_use]
     pub fn new(cb: Box<CreateOfferAnswerCallback>) -> Self {
         Self(webrtc::create_create_session_observer(cb))
     }
 }
 
+
+/// `SetLocalDescriptionObserverInterface` used
+/// for calling callback when set local description or
+/// success or fail.
 pub struct SetLocalDescriptionObserverInterface(
     UniquePtr<webrtc::SetLocalDescriptionObserverInterface>,
 );

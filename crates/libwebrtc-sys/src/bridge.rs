@@ -1,4 +1,3 @@
-use std::error;
 
 use cxx::CxxString;
 
@@ -154,16 +153,26 @@ pub(crate) mod webrtc {
         type SetLocalRemoteDescriptionCallBack;
         type CreateOfferAnswerCallback;
 
+        /// Calling in `CreateSessionDescriptionObserver`,
+        /// when `CreateOffer/Answer` is success.
         pub fn success_sdp(
             cb: &CreateOfferAnswerCallback,
             sdp: &CxxString,
             type_: &CxxString,
         );
+
+        /// Calling in `CreateSessionDescriptionObserver`,
+        /// when `CreateOffer/Answer` is fail.
         pub fn fail_sdp(cb: &CreateOfferAnswerCallback, error: &CxxString);
 
+        /// Calling in `SetLocalDescriptionObserverInterface`,
+        /// when SetLocalRemoteDescription` is success.
         pub fn success_set_description(
             cb: &SetLocalRemoteDescriptionCallBack,
         );
+
+        /// Calling in `SetRemoteDescriptionObserverInterface`,
+        /// when SetLocalRemoteDescription` is success.
         pub fn fail_set_description(cb: &SetLocalRemoteDescriptionCallBack, error: &CxxString);
 
     }

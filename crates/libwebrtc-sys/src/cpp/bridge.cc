@@ -335,7 +335,8 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
   bool voice_activity_detection,
   bool ice_restart,
   bool use_rtp_mux) {
-    return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions(offer_to_receive_video,
+    return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions(
+      offer_to_receive_video,
       offer_to_receive_audio,
       voice_activity_detection,
       ice_restart,

@@ -42,7 +42,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
     try {
-
       
       final createPeerConnection1 = await WebRTC.invokeMethod(
         'createPeerConnection', null
@@ -53,55 +52,50 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       );
       String pc2_id = createPeerConnection2['peerConnectionId'];
 
-      while (true) {
       final createOffer1 =
             await WebRTC.invokeMethod('createOffer', <String, dynamic>{
           'peerConnectionId': pc1_id,
           'constraints': defaultSdpConstraints
       });
-      }
+     
 
-      
+      final setLocalDescription1 =
+            await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
+          'peerConnectionId': pc1_id,
+          'description' : {
+          'sdp': createOffer1['sdp'],
+          'type': createOffer1['type']}
+      });
 
-      //final setLocalDescription1 =
-      //      await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
-      //    'peerConnectionId': pc1_id,
-      //    'description' : {
-      //    'sdp': createOffer1['sdp'],
-      //    'type': createOffer1['type']}
-      //});
-//
-//
-//
-      //final setRemoteDescription2 =
-      //      await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
-      //    'peerConnectionId': pc2_id,
-      //    'description' : {
-      //    'sdp': createOffer1['sdp'],
-      //    'type': 'offer'}
-      //});
-//
-      //final createAnswer2 =
-      //      await WebRTC.invokeMethod('createAnswer', <String, dynamic>{
-      //    'peerConnectionId': pc2_id,
-      //    'constraints': defaultSdpConstraints
-      //});
-//
-      //final setLocalDescription2 =
-      //      await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
-      //    'peerConnectionId': pc2_id,
-      //    'description' : {
-      //    'sdp': createAnswer2['sdp'],
-      //    'type': createAnswer2['type']}
-      //});
-//
-      //final setRemoteDescription1 =
-      //      await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
-      //    'peerConnectionId': pc1_id,
-      //    'description' : {
-      //    'sdp': createAnswer2['sdp'],
-      //    'type': createAnswer2['type']}
-      //});
+      final setRemoteDescription2 =
+            await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
+          'peerConnectionId': pc2_id,
+          'description' : {
+          'sdp': createOffer1['sdp'],
+          'type': 'offer'}
+      });
+
+      final createAnswer2 =
+            await WebRTC.invokeMethod('createAnswer', <String, dynamic>{
+          'peerConnectionId': pc2_id,
+          'constraints': defaultSdpConstraints
+      });
+
+      final setLocalDescription2 =
+            await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
+          'peerConnectionId': pc2_id,
+          'description' : {
+          'sdp': createAnswer2['sdp'],
+          'type': createAnswer2['type']}
+      });
+
+      final setRemoteDescription1 =
+            await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
+          'peerConnectionId': pc1_id,
+          'description' : {
+          'sdp': createAnswer2['sdp'],
+          'type': createAnswer2['type']}
+      });
 
 
       setState(() {

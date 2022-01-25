@@ -102,8 +102,6 @@ cargo.build:
 		windows/rust/lib/cxxbridge1.lib
 	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
-	cp -f crates/native/include/observer.h \
-		windows/rust/include/observer.h
 	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 

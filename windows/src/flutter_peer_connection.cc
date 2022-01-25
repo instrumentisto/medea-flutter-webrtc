@@ -84,8 +84,6 @@ void CreateOffer(
   const EncodableMap mandatory = findMap(constraints, "mandatory");
   const EncodableList list = findList(constraints, "optional");
 
-  bool receive_video = true;
-  bool receive_audio = true;
   bool voice_activity_detection = true;
   bool ice_restart = false;
   bool use_rtp_mux = true;
@@ -103,25 +101,18 @@ void CreateOffer(
     use_rtp_mux = GetValue<bool>((*iter));
     ++iter;
   }
-  receive_audio = findBool(mandatory, "OfferToReceiveAudio");
-  receive_video = findBool(mandatory, "OfferToReceiveVideo");
 
   auto res = result.release();
-  size_t context = (size_t) res;
-  size_t success = (size_t) &callbacks::OnSuccessCreate;
-  size_t fail = (size_t) &callbacks::OnFail;
 
   auto sdp_callback = create_sdp_callback(
-      success,
-      fail,
-      context);
+      (size_t) callbacks::OnSuccessCreate,
+      (size_t) callbacks::OnFail,
+      (size_t) res);
 
   rust::String error;
   webrtc->CreateOffer(
       error,
       std::stoi(peerConnectionId),
-      receive_video,
-      receive_audio,
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
@@ -184,15 +175,12 @@ void CreateAnswer(
   auto sdp_callback = create_sdp_callback(
       (size_t) callbacks::OnSuccessCreate,
       (size_t) callbacks::OnFail,
-      (size_t) callbacks::drop,
       (size_t) res);
 
   rust::String error;
   webrtc->CreateAnswer(
       error,
       std::stoi(peerConnectionId),
-      receive_video,
-      receive_audio,
       voice_activity_detection,
       ice_restart,
       use_rtp_mux,
@@ -224,10 +212,12 @@ void SetLocalDescription(
   rust::String sdp = findString(constraints, "sdp");
 
   auto res = result.release();
-  size_t context = (size_t) res;
-  size_t success = (size_t) &callbacks::OnSuccessDescription;
-  size_t fail = (size_t) &callbacks::OnFail;
-  size_t drop = (size_t) &callbacks::drop;
+
+  auto set_description_callback = create_set_description_callback(
+    (size_t) callbacks::OnSuccessDescription,
+    (size_t) callbacks::OnFail,
+    (size_t) res
+  );
 
   rust::String error;
   webrtc->SetLocalDescription(
@@ -235,10 +225,7 @@ void SetLocalDescription(
       std::stoi(peerConnectionId),
       type,
       sdp,
-      success,
-      fail,
-      drop,
-      context
+      std::move(set_description_callback)
   );
 
   if (error != "") {
@@ -267,10 +254,11 @@ void SetRemoteDescription(
   rust::String sdp = findString(constraints, "sdp");
 
   auto res = result.release();
-  size_t context = (size_t) res;
-  size_t success = (size_t) &callbacks::OnSuccessDescription;
-  size_t fail = (size_t) &callbacks::OnFail;
-  size_t drop = (size_t) &callbacks::drop;
+  auto set_description_callback = create_set_description_callback(
+    (size_t) callbacks::OnSuccessDescription,
+    (size_t) callbacks::OnFail,
+    (size_t) res
+  );
 
   rust::String error;
   webrtc->SetRemoteDescription(
@@ -278,10 +266,7 @@ void SetRemoteDescription(
       std::stoi(peerConnectionId),
       type,
       sdp,
-      success,
-      fail,
-      drop,
-      context
+      std::move(set_description_callback)
   );
 
   if (error != "") {

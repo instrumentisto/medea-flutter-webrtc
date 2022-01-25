@@ -87,8 +87,6 @@ impl Webrtc {
             ));
 
             let options = sys::RTCOfferAnswerOptions::new(
-                None,
-                None,
                 voice_activity_detection,
                 ice_restart,
                 use_rtp_mux,
@@ -127,8 +125,6 @@ impl Webrtc {
             let obs = sys::CreateSessionDescriptionObserver::new(Box::new(sdp_callback));
 
             let options = sys::RTCOfferAnswerOptions::new(
-                None,
-                None,
                 voice_activity_detection,
                 ice_restart,
                 use_rtp_mux,

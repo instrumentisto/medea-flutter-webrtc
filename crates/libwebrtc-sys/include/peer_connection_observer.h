@@ -3,7 +3,7 @@
 #include "api\peer_connection_interface.h"
 #include <functional>
 #include "rust/cxx.h"
-#include "third_party\abseil-cpp\absl\types\optional.h"
+#include <optional>
 
 namespace bridge {
   struct SetLocalRemoteDescriptionCallBack;
@@ -33,10 +33,9 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 // Create Session Description Observer used
 // for calling callback when create [Offer] or [Answer]
 // success or fail.
-class CreateSessionDescriptionObserver
-    : public webrtc::CreateSessionDescriptionObserver, 
+class CreateSessionDescriptionObserver : public
     rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
- public:
+  public:
   CreateSessionDescriptionObserver(
     rust::Box<bridge::CreateOfferAnswerCallback> cb);
 
@@ -46,19 +45,15 @@ class CreateSessionDescriptionObserver
   // Calls when a `CreateOffer/Answer` is fail.
   void OnFailure(webrtc::RTCError error);
 
-  // Interface rtc::RefCountInterface.
-  void AddRef() const;
-  // Interface rtc::RefCountInterface.
-  rtc::RefCountReleaseStatus Release() const;
-
- private:
-  absl::optional<rust::Box<bridge::CreateOfferAnswerCallback>> cb;
+  private:
+  // Has Rust fn for `OnSuccess` and `OnFailure`.
+  // Optional for no init `rust::Box`.
+  std::optional<rust::Box<bridge::CreateOfferAnswerCallback>> cb;
 };
 
-class SetLocalDescriptionObserverInterface
-    : public webrtc::SetLocalDescriptionObserverInterface, 
+class SetLocalDescriptionObserverInterface : public
     rtc::RefCountedObject<webrtc::SetLocalDescriptionObserverInterface> {
- public:
+  public:
 
   // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetLocalDescriptionComplete(webrtc::RTCError error);
@@ -67,19 +62,15 @@ class SetLocalDescriptionObserverInterface
   SetLocalDescriptionObserverInterface(
     rust::Box<bridge::SetLocalRemoteDescriptionCallBack> cb);
 
-  // Interface rtc::RefCountInterface.
-  void AddRef() const;
-  // Interface rtc::RefCountInterface.
-  rtc::RefCountReleaseStatus Release() const;
-
   private:
-    absl::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb;
+  // Has Rust fn for `OnSetLocalDescriptionComplete`.
+  // Optional for no init `rust::Box`.
+  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb;
 };
 
-class SetRemoteDescriptionObserverInterface
-    : public webrtc::SetRemoteDescriptionObserverInterface, 
-    rtc::RefCountedObject<webrtc::SetRemoteDescriptionObserverInterface>  {
- public:
+class SetRemoteDescriptionObserverInterface : public
+    rtc::RefCountedObject<webrtc::SetRemoteDescriptionObserverInterface> {
+  public:
 
   // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetRemoteDescriptionComplete(webrtc::RTCError error);
@@ -89,11 +80,9 @@ class SetRemoteDescriptionObserverInterface
     rust::Box<bridge::SetLocalRemoteDescriptionCallBack> cb
   );
 
-  // Interface rtc::RefCountInterface.
-  void AddRef() const;
-  // Interface rtc::RefCountInterface.
-  rtc::RefCountReleaseStatus Release() const;
   private:
-    absl::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb; 
+  // Has Rust fn for `SetLocalRemoteDescriptionCallBack`.
+  // Optional for no init `rust::Box`.
+  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb; 
 };
 }

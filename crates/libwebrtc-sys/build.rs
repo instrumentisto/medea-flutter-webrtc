@@ -34,6 +34,7 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rustc-link-lib=dylib=Secur32");
 
     cxx_build::bridge("src/bridge.rs")
+        .flag("/std:c++17")
         .files(&cpp_files)
         .include(path.join("include"))
         .include(path.join("lib/include"))

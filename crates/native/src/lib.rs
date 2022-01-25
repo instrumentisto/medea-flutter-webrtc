@@ -4,7 +4,7 @@ mod device_info;
 mod peer_connection;
 mod user_media;
 
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, rc::Rc, ffi::c_void};
 
 use cxx::CxxString;
 use libwebrtc_sys::{
@@ -189,8 +189,6 @@ pub mod api {
             self: &mut Webrtc,
             error: &mut String,
             peer_connection_id: u64,
-            offer_to_receive_video: i32,
-            offer_to_receive_audio: i32,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
@@ -208,8 +206,6 @@ pub mod api {
             self: &mut Webrtc,
             error: &mut String,
             peer_connection_id: u64,
-            // offer_to_receive_video: i32,
-            // offer_to_receive_audio: i32,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
@@ -262,9 +258,9 @@ pub mod api {
 
 
 pub struct CreateOfferAnswerCallback {
-    fn_success: extern "C" fn(&CxxString, &CxxString, *mut ()),
-    fn_fail: extern "C" fn(&CxxString, *mut ()),
-    context: *mut (),
+    fn_success: extern "C" fn(&CxxString, &CxxString, *mut c_void),
+    fn_fail: extern "C" fn(&CxxString, *mut c_void),
+    context: *mut c_void,
 }
 
 pub fn create_sdp_callback(
@@ -284,7 +280,7 @@ impl CreateOfferAnswerCallback {
         Self {
             fn_success: unsafe { std::mem::transmute(success) },
             fn_fail: unsafe { std::mem::transmute(fail) },
-            context: context as *mut _,
+            context: context as *mut c_void,
         }
     }
 }
@@ -303,9 +299,9 @@ impl CreateSdpCallback for CreateOfferAnswerCallback {
 
 
 pub struct SetLocalRemoteDescriptionCallBack {
-    fn_success: extern "C" fn(*mut ()),
-    fn_fail: extern "C" fn(&CxxString, *mut ()),
-    context: *mut (),
+    fn_success: extern "C" fn(*mut c_void),
+    fn_fail: extern "C" fn(&CxxString, *mut c_void),
+    context: *mut c_void,
 }
 
 pub fn create_set_description_callback(
@@ -325,7 +321,7 @@ impl SetLocalRemoteDescriptionCallBack {
         Self {
             fn_success: unsafe { std::mem::transmute(success) },
             fn_fail: unsafe { std::mem::transmute(fail) },
-            context: context as *mut _,
+            context: context as *mut c_void,
         }
     }
 }
