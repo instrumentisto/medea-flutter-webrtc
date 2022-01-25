@@ -46,9 +46,6 @@ class TextureVideoRenderer {
   virtual const FlutterDesktopPixelBuffer* CopyPixelBuffer(size_t width,
                                                            size_t height) const;
 
-  // `Frame` handler. Sends events to Dart when receives the `Frame`.
-  void OnFrame(Frame* frame);
-
   // Set `Renderer`'s default state.
   void ResetRenderer();
 

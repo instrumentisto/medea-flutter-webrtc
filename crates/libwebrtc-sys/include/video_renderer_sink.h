@@ -26,7 +26,7 @@ class VideoRendererSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
   // Rust callback which is calling in `OnFrame`.
-  rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb_;
+  rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb_;
   // `context` which is passed to `cb_`.
   size_t ctx_;
 };

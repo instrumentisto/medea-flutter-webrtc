@@ -4,7 +4,7 @@ namespace bridge {
 // Creates a new `VideoRendererSink` and calls
 // `VideoTrackInterface->AddOrUpdateSink()`.
 VideoRendererSink::VideoRendererSink(
-    rust::cxxbridge1::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
+    rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
     size_t ctx)
     : cb_(cb), ctx_(ctx) {}
 
