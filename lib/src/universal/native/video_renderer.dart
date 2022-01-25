@@ -66,10 +66,10 @@ class NativeVideoRenderer extends VideoRenderer {
 
   @override
   Future<void> dispose() async {
+    await _eventSubscription?.cancel();
     await _methodChannel.invokeMethod('dispose');
-    // await _eventSubscription?.cancel();
 
-    // await super.dispose();
+    await super.dispose();
   }
 
   void eventListener(dynamic event) {
