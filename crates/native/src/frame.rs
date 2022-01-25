@@ -38,7 +38,7 @@ impl Frame {
     /// Returns the [`Frame`]'s size.
     #[must_use]
     pub fn buffer_size(&self) -> i32 {
-        self.width() * self.height() * (32 >> 3)
+        self.width() * self.height() * 4
     }
 
     /// Writes the [`Frame`]'s bytes to the given `buffer` as `ABGR buffer`.
@@ -47,7 +47,7 @@ impl Frame {
     ///
     /// Must be given u8 buffer.
     pub unsafe fn buffer(self: &Frame, bptr: *mut u8) {
-        sys::convert_to_argb(self.0.as_ref(), bptr);
+        sys::i420_to_abgr(self.0.as_ref(), bptr);
     }
 }
 

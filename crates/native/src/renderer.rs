@@ -7,7 +7,7 @@ use libwebrtc_sys as sys;
 
 /// Identifier of the `Flutter Texture`, used as [`Renderer`] `id`.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct TextureId(i64);
+pub struct TextureId(i64); // TODO: RendererId asdasd
 
 /// [`sys::Renderer`] wrapper.
 pub struct Renderer {
@@ -29,18 +29,6 @@ impl AsMut<sys::RendererSink> for Renderer {
     }
 }
 
-/// Callback which passed to `libWebRTC`.
-pub fn cb(frame_ptr: UniquePtr<sys::VideoFrame>, flutter_cb_ptr: usize) {
-    let frame = Frame::create(frame_ptr);
-
-    unsafe {
-        let flutter_cb: extern "C" fn(*mut Frame) =
-            mem::transmute(flutter_cb_ptr);
-
-        flutter_cb(Box::into_raw(Box::new(frame)));
-    }
-}
-
 /// Registers `FlutterRenderer` according to the given [`TextureId`],
 /// [`MediaStreamId`] and `FlutterVideoRenderer::OnFrame()`.
 #[no_mangle]
@@ -48,14 +36,14 @@ unsafe extern "C" fn register_renderer(
     webrtc: &mut Box<Webrtc>,
     texture_id: i64,
     stream_id: u64,
-    cpp_cb: extern "C" fn(*mut Frame),
+    cpp_cb: OnFrameCallback,
 ) {
     let this = webrtc.as_mut().0.as_mut();
 
     // TODO: remove MediaStream, call the certain VideoTrack.
     let video_track_id = this
         .local_media_streams
-        .get(&MediaStreamId::new(stream_id))
+        .get(&MediaStreamId::from(stream_id))
         .unwrap()
         .get_first_track_id();
 
@@ -72,6 +60,15 @@ unsafe extern "C" fn register_renderer(
 
     this.renderers
         .insert(TextureId(texture_id), current_renderer);
+}
+
+/// Callback which passed to `libWebRTC`.
+unsafe fn cb(frame: UniquePtr<sys::VideoFrame>, on_frame_cb: usize) {
+    let frame = Frame::create(frame);
+
+    let on_frame_cb: OnFrameCallback = mem::transmute(on_frame_cb);
+
+    on_frame_cb(Box::into_raw(Box::new(frame)));
 }
 
 impl Webrtc {

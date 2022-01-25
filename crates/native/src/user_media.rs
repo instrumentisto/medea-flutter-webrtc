@@ -289,7 +289,7 @@ impl Webrtc {
 }
 
 /// ID of a [`MediaStream`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, PartialEq)]
 pub struct MediaStreamId(u64);
 
 impl MediaStreamId {

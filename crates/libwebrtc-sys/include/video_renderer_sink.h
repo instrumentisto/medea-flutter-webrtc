@@ -17,7 +17,7 @@ namespace bridge {
 // external callback on every incoming `VideoFrame`.
 class VideoRendererSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
-  // Cretes a new `VideoRendererSink`.
+  // Creates a new `VideoRendererSink`.
   VideoRendererSink(rust::cxxbridge1::Fn<
                         void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
                     size_t flutter_cb_ptr);

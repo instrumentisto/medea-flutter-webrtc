@@ -3,7 +3,7 @@
 namespace flutter_webrtc_plugin {
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 /// `MediaDeviceInfo` info for Dart.
-void MediaStreamMethods::EnumerateDevice(
+void MediaManager::EnumerateDevice(
     Box<Webrtc>& webrtc,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
@@ -49,7 +49,7 @@ void MediaStreamMethods::EnumerateDevice(
 
 /// Parses the received constraints from Dart and passes them to Rust
 /// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
-void MediaStreamMethods::GetUserMedia(
+void MediaManager::GetUserMedia(
     const flutter::MethodCall<EncodableValue>& method_call,
     Box<Webrtc>& webrtc,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
@@ -83,7 +83,7 @@ void MediaStreamMethods::GetUserMedia(
 }
 
 /// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
-VideoConstraints MediaStreamMethods::ParseVideoConstraints(
+VideoConstraints MediaManager::ParseVideoConstraints(
     EncodableValue video_arg) {
   EncodableMap video_mandatory;
 
@@ -145,7 +145,7 @@ VideoConstraints MediaStreamMethods::ParseVideoConstraints(
 }
 
 /// Parses audio constraints received from Dart to Rust `AudioConstraints`.
-AudioConstraints MediaStreamMethods::ParseAudioConstraints(
+AudioConstraints MediaManager::ParseAudioConstraints(
     EncodableValue audio_arg) {
   EncodableValue audio_device_id;
   bool audio_required;
@@ -174,7 +174,7 @@ AudioConstraints MediaStreamMethods::ParseAudioConstraints(
 
 /// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
 /// for passing to Dart according to `TrackKind`.
-EncodableList MediaStreamMethods::GetParams(TrackKind type,
+EncodableList MediaManager::GetParams(TrackKind type,
                                             MediaStream& user_media) {
   auto rust_tracks = type == TrackKind::kVideo ? user_media.video_tracks
                                                : user_media.audio_tracks;
@@ -202,7 +202,7 @@ EncodableList MediaStreamMethods::GetParams(TrackKind type,
 }
 
 /// Disposes some media stream calling Rust `DisposeStream`.
-void MediaStreamMethods::DisposeStream(
+void MediaManager::DisposeStream(
     const flutter::MethodCall<EncodableValue>& method_call,
     Box<Webrtc>& webrtc,
     std::unique_ptr<MethodResult<EncodableValue>> result) {

@@ -197,8 +197,10 @@ pub(crate) mod webrtc {
     }
 
     unsafe extern "C++" {
+        #[namespace = "webrtc"]
         type VideoFrame;
         type VideoRendererSink;
+        #[namespace = "webrtc"]
         type VideoRotation;
 
         /// Returns width of the [`VideoFrame`].
@@ -217,7 +219,7 @@ pub(crate) mod webrtc {
         pub fn rotation(self: &VideoFrame) -> VideoRotation;
 
         /// Converts [`VideoFrame`]'s `i420 buffer` to `ABGR buffer`.
-        pub unsafe fn convert_to_argb(frame: &VideoFrame, buffer_ptr: *mut u8);
+        pub unsafe fn i420_to_abgr(frame: &VideoFrame, buffer_ptr: *mut u8);
 
         pub fn add_or_update_video_sink(
             track: &VideoTrackInterface,

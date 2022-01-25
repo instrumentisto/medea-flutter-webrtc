@@ -1,5 +1,4 @@
-#ifndef PLUGINS_FLUTTER_WEBRTC_HXX
-#define PLUGINS_FLUTTER_WEBRTC_HXX
+#pragma once
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar.h>
@@ -20,7 +19,7 @@
 #include <map>
 #include <memory>
 
-#include "flutter_video_renderer.h"
+#include "texture_video_renderer.h"
 #include "media_stream.h"
 
 #include <flutter_webrtc_native.h>
@@ -51,5 +50,3 @@ class FlutterWebRTC : public FlutterWebRTCBase,
 };
 
 }  // namespace flutter_webrtc_plugin
-
-#endif  // PLUGINS_FLUTTER_WEBRTC_HXX

@@ -1,5 +1,4 @@
-#ifndef FLUTTER_WEBRTC_BASE_HXX
-#define FLUTTER_WEBRTC_BASE_HXX
+#pragma once
 
 #include <flutter/event_channel.h>
 #include <flutter/event_stream_handler_functions.h>
@@ -16,7 +15,7 @@ namespace flutter_webrtc_plugin {
 
 using namespace flutter;
 
-class FlutterVideoRenderer;
+class TextureVideoRenderer;
 
 template <typename T>
 inline bool TypeIs(const EncodableValue val) {
@@ -90,7 +89,7 @@ class FlutterWebRTCBase {
 
   ~FlutterWebRTCBase() {}
 
-  std::map<int64_t, std::shared_ptr<FlutterVideoRenderer>> renders_;
+  std::map<int64_t, std::shared_ptr<TextureVideoRenderer>> renders_;
   mutable std::mutex mutex_;
 
   void lock() { mutex_.lock(); }
@@ -102,5 +101,3 @@ class FlutterWebRTCBase {
 };
 
 }  // namespace flutter_webrtc_plugin
-
-#endif  // !FLUTTER_WEBRTC_BASE_HXX

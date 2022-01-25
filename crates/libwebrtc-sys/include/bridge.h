@@ -29,7 +29,7 @@ namespace bridge {
 // destructor. `rc` unwraps raw pointer from the provided `rtc::scoped_refptr`
 // and calls `Release()` in its destructor therefore this allows wrapping `rc`
 // into a `std::uniqueptr`.
-template <class T>
+template<class T>
 class rc {
  public:
   typedef T element_type;
@@ -65,8 +65,6 @@ using PeerConnectionFactoryInterface =
     rc<webrtc::PeerConnectionFactoryInterface>;
 using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
-using VideoFrame = webrtc::VideoFrame;
-using VideoRotation = webrtc::VideoRotation;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -174,12 +172,12 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 
-// Converts `i420 buffer` from received `VideoFrame` to `ABGR buffer`.
-void convert_to_argb(const VideoFrame& frame, uint8_t* buffer_ptr);
+// Converts `i420 buffer` from received `webrtc::VideoFrame` to `ABGR buffer`.
+void i420_to_abgr(const webrtc::VideoFrame& frame, uint8_t* buffer_ptr);
 
 // Returns a new `VideoRendererSink`.
 std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
-    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
+    rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
     size_t ctx);
 
 }  // namespace bridge

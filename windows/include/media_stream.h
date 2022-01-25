@@ -1,5 +1,4 @@
-#ifndef MEDIA_STREAM_METHODS
-#define MEDIA_STREAM_METHODS
+#pragma once
 
 #include <memory>
 
@@ -17,8 +16,8 @@ using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
 
-// Class with the methods related to `MediaStream`.
-class MediaStreamMethods {
+// Class with the methods related to media tracks, streams and devices.
+class MediaManager {
  public:
   // Calls Rust `EnumerateDevices()` and converts the received Rust vector of
   // `MediaDeviceInfo` info for Dart.
@@ -51,5 +50,3 @@ class MediaStreamMethods {
   static EncodableList GetParams(TrackKind type, MediaStream& user_media);
 };
 }  // namespace flutter_webrtc_plugin
-
-#endif

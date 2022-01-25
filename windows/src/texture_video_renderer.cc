@@ -1,6 +1,5 @@
-#include "flutter_video_renderer.h"
+#include "texture_video_renderer.h"
 #include "flutter_webrtc_native.h"
-#include "wrapper.h"
 
 namespace flutter_webrtc_plugin {
 
@@ -8,14 +7,14 @@ typedef void (*frame_handler)(Frame*);
 
 // Rust FFI function that registers `VideoRenderer` in Rust and set the callback
 // on `libWebRTC`'s `Frame` handling.
-extern "C" void register_renderer(rust::cxxbridge1::Box<Webrtc>&,
+extern "C" void register_renderer(rust::Box<Webrtc>&,
                                   int64_t,
                                   uint64_t,
                                   frame_handler);
 
 // `VideoRendere` costructor. Creates a new `texture` and `EventChannel`,
 // register them.
-FlutterVideoRenderer::FlutterVideoRenderer(TextureRegistrar* registrar,
+TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
                                            BinaryMessenger* messenger)
     : registrar_(registrar) {
   texture_ =
@@ -49,12 +48,12 @@ FlutterVideoRenderer::FlutterVideoRenderer(TextureRegistrar* registrar,
 }
 
 // Copies `PixelBuffer` from `libWebRTC` `Frame` to Dart's buffer.
-const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
+const FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
     size_t width,
     size_t height) const {
   mutex_.lock();
 
-  if (pixel_buffer_.get() && frame_.has_value()) {
+  if (pixel_buffer_.get() && frame_) {
     Frame* frame = frame_.value();
     if (pixel_buffer_->width != frame->width() ||
         pixel_buffer_->height != frame->height()) {
@@ -76,7 +75,7 @@ const FlutterDesktopPixelBuffer* FlutterVideoRenderer::CopyPixelBuffer(
 }
 
 // `Frame` handler. Sends events to Dart when receives the `Frame`.
-void FlutterVideoRenderer::OnFrame(Frame* frame) {
+void TextureVideoRenderer::OnFrame(Frame* frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
       EncodableMap params;
@@ -114,7 +113,7 @@ void FlutterVideoRenderer::OnFrame(Frame* frame) {
     last_frame_size_ = {(size_t)frame->width(), (size_t)frame->height()};
   }
   mutex_.lock();
-  if (frame_.has_value()) {
+  if (frame_) {
     delete_frame(frame_.value());
   }
   frame_ = std::optional(frame);
@@ -123,9 +122,9 @@ void FlutterVideoRenderer::OnFrame(Frame* frame) {
 }
 
 // Set `Renderer`'s default state.
-void FlutterVideoRenderer::ResetRenderer() {
+void TextureVideoRenderer::ResetRenderer() {
   mutex_.lock();
-  if (frame_.has_value()) {
+  if (frame_) {
     delete_frame(frame_.value());
   }
   mutex_.unlock();
@@ -141,8 +140,8 @@ FlutterVideoRendererManager::FlutterVideoRendererManager(
 // Creates a new `VideoRenderer`.
 void FlutterVideoRendererManager::CreateVideoRendererTexture(
     std::unique_ptr<MethodResult<EncodableValue>> result) {
-  std::unique_ptr<FlutterVideoRenderer> texture(
-      new FlutterVideoRenderer(base_->textures_, base_->messenger_));
+  std::unique_ptr<TextureVideoRenderer> texture(
+      new TextureVideoRenderer(base_->textures_, base_->messenger_));
   int64_t texture_id = texture->texture_id();
   renderers_[texture_id] = std::move(texture);
   EncodableMap params;
@@ -154,7 +153,7 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
 // Sets a new `source` to the cerntain `VideoRenderer`.
 void FlutterVideoRendererManager::SetMediaStream(
     const flutter::MethodCall<EncodableValue>& method_call,
-    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    rust::Box<Webrtc>& webrtc,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
@@ -167,7 +166,8 @@ void FlutterVideoRendererManager::SetMediaStream(
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
     if (stream_id != "") {
-      auto cb = std::bind(&FlutterVideoRenderer::OnFrame,
+      // TODO: callback here asdasd
+      auto cb = std::bind(&TextureVideoRenderer::OnFrame,
                           renderers_[texture_id].get(), std::placeholders::_1);
       frame_handler wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
       register_renderer(webrtc, texture_id, (uint64_t)std::stoi(stream_id),
@@ -184,7 +184,7 @@ void FlutterVideoRendererManager::SetMediaStream(
 // Disposes the `VideoRenderer`.
 void FlutterVideoRendererManager::VideoRendererDispose(
     const flutter::MethodCall<EncodableValue>& method_call,
-    rust::cxxbridge1::Box<Webrtc>& webrtc,
+    rust::Box<Webrtc>& webrtc,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
