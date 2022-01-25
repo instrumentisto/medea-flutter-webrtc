@@ -1,7 +1,6 @@
-
 use cxx::CxxString;
 
-#[allow(clippy::expl_impl_clone_on_copy)]
+#[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
@@ -167,13 +166,14 @@ pub(crate) mod webrtc {
 
         /// Calling in `SetLocalDescriptionObserverInterface`,
         /// when SetLocalRemoteDescription` is success.
-        pub fn success_set_description(
-            cb: &SetLocalRemoteDescriptionCallBack,
-        );
+        pub fn success_set_description(cb: &SetLocalRemoteDescriptionCallBack);
 
         /// Calling in `SetRemoteDescriptionObserverInterface`,
         /// when SetLocalRemoteDescription` is success.
-        pub fn fail_set_description(cb: &SetLocalRemoteDescriptionCallBack, error: &CxxString);
+        pub fn fail_set_description(
+            cb: &SetLocalRemoteDescriptionCallBack,
+            error: &CxxString,
+        );
 
     }
 
@@ -398,13 +398,15 @@ pub(crate) mod webrtc {
     }
 }
 
-
-
+/// Trait for `CreateSessionDescriptionObserver` callbacks.
 pub trait CreateSdpCallback {
     fn success(&self, sdp: &CxxString, type_: &CxxString);
     fn fail(&self, error: &CxxString);
 }
+/// `CreateOfferAnswerCallback` used for double box, for extern Rust.
 pub type CreateOfferAnswerCallback = Box<dyn CreateSdpCallback>;
+
+/// Calls when `CreateOffer/Answer` is success.
 pub fn success_sdp(
     cb: &CreateOfferAnswerCallback,
     sdp: &CxxString,
@@ -412,31 +414,36 @@ pub fn success_sdp(
 ) {
     cb.success(sdp, type_);
 }
+/// Calls when `CreateOffer/Answer` is fail.
 pub fn fail_sdp(cb: &CreateOfferAnswerCallback, error: &CxxString) {
     cb.fail(error);
 }
 
-
-
+/// Trait for `SetLocalDescriptionObserverInterface` callbacks.
 pub trait SetDescriptionCallback {
     fn success(&self);
     fn fail(&self, error: &CxxString);
 }
+/// `SetLocalRemoteDescriptionCallBack` used for double box, for extern Rust.
 pub type SetLocalRemoteDescriptionCallBack = Box<dyn SetDescriptionCallback>;
-pub fn success_set_description(
-    cb: &SetLocalRemoteDescriptionCallBack
-) {
+/// Calls in `OnSetLocalDescriptionComplete`
+/// when `SetLocalRemoteDescription` is success.
+pub fn success_set_description(cb: &SetLocalRemoteDescriptionCallBack) {
     cb.success();
 }
-pub fn fail_set_description(cb: &SetLocalRemoteDescriptionCallBack, error: &CxxString) {
+/// Calls in `OnSetLocalDescriptionComplete`
+/// when `SetLocalRemoteDescription` is fail.
+pub fn fail_set_description(
+    cb: &SetLocalRemoteDescriptionCallBack,
+    error: &CxxString,
+) {
     cb.fail(error);
 }
-
-
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
+    /// Implement TryFrom<&str>.
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),

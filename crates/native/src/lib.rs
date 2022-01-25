@@ -4,15 +4,18 @@ mod device_info;
 mod peer_connection;
 mod user_media;
 
-use std::{collections::HashMap, rc::Rc, ffi::c_void};
+use std::{collections::HashMap, rc::Rc};
 
-use cxx::CxxString;
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo, CreateSdpCallback, SetDescriptionCallback
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
-use peer_connection::{PeerConnection, PeerConnectionId};
+use peer_connection::{
+    create_sdp_callback, create_set_description_callback,
+    CreateOfferAnswerCallback, PeerConnection, PeerConnectionId,
+    SetLocalRemoteDescriptionCallBack,
+};
 
 #[doc(inline)]
 pub use crate::user_media::{
@@ -255,88 +258,6 @@ pub mod api {
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
     }
 }
-
-
-pub struct CreateOfferAnswerCallback {
-    fn_success: extern "C" fn(&CxxString, &CxxString, *mut c_void),
-    fn_fail: extern "C" fn(&CxxString, *mut c_void),
-    context: *mut c_void,
-}
-
-pub fn create_sdp_callback(
-    success: usize,
-    fail: usize,
-    context: usize,
-) -> Box<CreateOfferAnswerCallback> {
-    Box::new(CreateOfferAnswerCallback::new(success, fail, context))
-}
-
-impl CreateOfferAnswerCallback {
-    pub fn new(
-        success: usize,
-        fail: usize,
-        context: usize,
-    ) -> Self {
-        Self {
-            fn_success: unsafe { std::mem::transmute(success) },
-            fn_fail: unsafe { std::mem::transmute(fail) },
-            context: context as *mut c_void,
-        }
-    }
-}
-
-impl CreateSdpCallback for CreateOfferAnswerCallback {
-    fn success(&self, sdp: &CxxString, type_: &CxxString) {
-        let fn_s = self.fn_success;
-        fn_s(sdp, type_, self.context);
-    }
-
-    fn fail(&self, error: &CxxString) {
-        let fn_f = self.fn_fail;
-        fn_f(error, self.context);
-    }
-}
-
-
-pub struct SetLocalRemoteDescriptionCallBack {
-    fn_success: extern "C" fn(*mut c_void),
-    fn_fail: extern "C" fn(&CxxString, *mut c_void),
-    context: *mut c_void,
-}
-
-pub fn create_set_description_callback(
-    success: usize,
-    fail: usize,
-    context: usize,
-) -> Box<SetLocalRemoteDescriptionCallBack> {
-    Box::new(SetLocalRemoteDescriptionCallBack::new(success, fail, context))
-}
-
-impl SetLocalRemoteDescriptionCallBack {
-    pub fn new(
-        success: usize,
-        fail: usize,
-        context: usize,
-    ) -> Self {
-        Self {
-            fn_success: unsafe { std::mem::transmute(success) },
-            fn_fail: unsafe { std::mem::transmute(fail) },
-            context: context as *mut c_void,
-        }
-    }
-}
-
-impl SetDescriptionCallback for SetLocalRemoteDescriptionCallBack {
-    fn success(&self) {
-        let fn_s = self.fn_success;
-        fn_s(self.context);
-    }
-    fn fail(&self, error: &CxxString) {
-        let fn_f = self.fn_fail;
-        fn_f(error, self.context);
-    }
-}
-
 
 /// [`Context`] wrapper that is exposed to the C++ API clients.
 pub struct Webrtc(Box<Context>);

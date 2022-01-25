@@ -4,8 +4,8 @@
 mod bridge;
 
 use anyhow::bail;
-pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
 use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack};
+pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
 use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
@@ -326,13 +326,15 @@ impl RTCOfferAnswerOptions {
     /// Creates a new [`RTCOfferAnswerOptions`]
     #[must_use]
     pub fn new(
+        offer_to_receive_video: Option<bool>,
+        offer_to_receive_audio: Option<bool>,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
     ) -> Self {
         RTCOfferAnswerOptions(webrtc::create_rtc_offer_answer_options(
-            -1, // RTCOfferAnswerOptions::kUndefined
-            -1, // RTCOfferAnswerOptions::kUndefined
+            offer_to_receive_video.map_or(-1, |f| if f { 1 } else { 0 }),
+            offer_to_receive_audio.map_or(-1, |f| if f { 1 } else { 0 }),
             voice_activity_detection,
             ice_restart,
             use_rtp_mux,
@@ -377,32 +379,32 @@ impl CreateSessionDescriptionObserver {
     }
 }
 
-
 /// `SetLocalDescriptionObserverInterface` used
-/// for calling callback when set local description or
+/// for calling callback when set local description is
 /// success or fail.
 pub struct SetLocalDescriptionObserverInterface(
     UniquePtr<webrtc::SetLocalDescriptionObserverInterface>,
 );
 
 impl SetLocalDescriptionObserverInterface {
+    /// Creates a [`SetLocalDescriptionObserverInterface`].
     #[must_use]
-    pub fn new(
-        cb: Box<SetLocalRemoteDescriptionCallBack>
-    ) -> Self {
+    pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
         Self(webrtc::create_set_local_description_observer_interface(cb))
     }
 }
 
+/// `SetLocalDescriptionObserverInterface` used
+/// for calling callback when set remote description is
+/// success or fail.
 pub struct SetRemoteDescriptionObserverInterface(
     UniquePtr<webrtc::SetRemoteDescriptionObserverInterface>,
 );
 
 impl SetRemoteDescriptionObserverInterface {
+    /// Creates a [`SetRemoteDescriptionObserverInterface`].
     #[must_use]
-    pub fn new(
-        cb: Box<SetLocalRemoteDescriptionCallBack>
-    ) -> Self {
+    pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
         Self(webrtc::create_set_remote_description_observer_interface(cb))
     }
 }

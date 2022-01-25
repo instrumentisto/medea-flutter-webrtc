@@ -24,6 +24,7 @@ extern "C" void OnSuccessDescription(
     size_t context) {
   auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
   result->Success(nullptr);
+  delete result;
 }
 
 // Callback for write error in flutter.
@@ -34,12 +35,6 @@ extern "C" void OnFail(
   result->Error(error);
   delete result;
 }
-
-extern "C" void drop(size_t context) {
-  auto result = (flutter::MethodResult<flutter::EncodableValue>*) context;
-  delete result;
-}
-
 
 }
 
@@ -143,8 +138,6 @@ void CreateAnswer(
   const EncodableMap mandatory = findMap(constraints, "mandatory");
   const EncodableList list = findList(constraints, "optional");
 
-  bool receive_video = true;
-  bool receive_audio = true;
   bool voice_activity_detection = true;
   bool ice_restart = false;
   bool use_rtp_mux = true;
@@ -162,14 +155,7 @@ void CreateAnswer(
     use_rtp_mux = GetValue<bool>((*iter));
     ++iter;
   }
-  // TODO: Option<true>
-  //        None => -1
-  //        true => 1
-  //        false => 0
-  //        we are passing None
-  receive_audio = findBool(mandatory, "OfferToReceiveAudio");
-  receive_video = findBool(mandatory, "OfferToReceiveVideo");
-
+  
   auto res = result.release();
 
   auto sdp_callback = create_sdp_callback(

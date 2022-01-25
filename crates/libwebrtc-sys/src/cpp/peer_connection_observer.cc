@@ -31,7 +31,7 @@ CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
 // Calls when a `CreateOffer/Answer` is success.
 void CreateSessionDescriptionObserver::OnSuccess(
   webrtc::SessionDescriptionInterface* desc) {
-    
+
   if (cb.has_value()) {
     std::string type = desc->type();
     std::string sdp;
@@ -83,7 +83,7 @@ void SetRemoteDescriptionObserverInterface::OnSetRemoteDescriptionComplete(
   }
 };
 
-// Construct SetRemoteDescriptionObserverInterface.
+// Construct `SetRemoteDescriptionObserverInterface`.
 SetRemoteDescriptionObserverInterface::SetRemoteDescriptionObserverInterface(
   rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> cb) {
 

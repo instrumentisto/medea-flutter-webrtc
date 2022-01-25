@@ -42,7 +42,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
     try {
-      
+
       final createPeerConnection1 = await WebRTC.invokeMethod(
         'createPeerConnection', null
       );
@@ -51,6 +51,8 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         'createPeerConnection', null
       );
       String pc2_id = createPeerConnection2['peerConnectionId'];
+
+      while(true) {
 
       final createOffer1 =
             await WebRTC.invokeMethod('createOffer', <String, dynamic>{
@@ -96,6 +98,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           'sdp': createAnswer2['sdp'],
           'type': createAnswer2['type']}
       });
+      }
 
 
       setState(() {

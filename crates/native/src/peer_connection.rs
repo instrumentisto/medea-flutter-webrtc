@@ -1,12 +1,14 @@
 extern crate derive_more;
+use cxx::CxxString;
 use derive_more::{From, Into};
 use libwebrtc_sys as sys;
+use sys::{CreateSdpCallback, SetDescriptionCallback};
 
-use std::sync::atomic::Ordering;
+use std::{ffi::c_void, sync::atomic::Ordering};
 
 use std::sync::atomic::AtomicU64;
 
-use crate::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack, Webrtc};
+use crate::Webrtc;
 
 /// This counter provides global resource for generating `unique id`.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -26,6 +28,104 @@ pub struct PeerConnectionId(u64);
 pub struct PeerConnection {
     id: PeerConnectionId,
     pub peer_connection_interface: sys::PeerConnectionInterface,
+}
+
+/// Struct for forwarding flutter context and functions in webrtc.
+/// Used in [`CreateSessionDescriptionObserver`].
+pub struct CreateOfferAnswerCallback {
+    fn_success: extern "C" fn(&CxxString, &CxxString, *mut c_void),
+    fn_fail: extern "C" fn(&CxxString, *mut c_void),
+    context: *mut c_void,
+}
+
+/// Creates `Box` [`CreateOfferAnswerCallback`].
+#[must_use]
+pub fn create_sdp_callback(
+    success: usize,
+    fail: usize,
+    context: usize,
+) -> Box<CreateOfferAnswerCallback> {
+    Box::new(CreateOfferAnswerCallback::new(success, fail, context))
+}
+
+impl CreateOfferAnswerCallback {
+    /// Creates [`CreateOfferAnswerCallback`].
+    /// Where
+    /// success - `extern "C" fn(&CxxString, &CxxString, *mut c_void)`,
+    /// fail - `extern "C" fn(&CxxString, *mut c_void)`,
+    /// context - `c++ flutter::MethodResult<flutter::EncodableValue>*`.
+    #[must_use]
+    pub fn new(success: usize, fail: usize, context: usize) -> Self {
+        Self {
+            fn_success: unsafe { std::mem::transmute(success) },
+            fn_fail: unsafe { std::mem::transmute(fail) },
+            context: context as *mut c_void,
+        }
+    }
+}
+
+impl CreateSdpCallback for CreateOfferAnswerCallback {
+    /// Calls flutter function `OnSuccessCreate`.
+    fn success(&self, sdp: &CxxString, type_: &CxxString) {
+        let fn_s = self.fn_success;
+        fn_s(sdp, type_, self.context);
+    }
+
+    /// Calls flutter function `OnFail`.
+    fn fail(&self, error: &CxxString) {
+        let fn_f = self.fn_fail;
+        fn_f(error, self.context);
+    }
+}
+
+/// Struct for forwarding flutter context and functions in webrtc.
+/// Used in [`SetLocalDescriptionObserverInterface`] and
+/// [`SetRemoteDescriptionObserverInterface`].
+pub struct SetLocalRemoteDescriptionCallBack {
+    fn_success: extern "C" fn(*mut c_void),
+    fn_fail: extern "C" fn(&CxxString, *mut c_void),
+    context: *mut c_void,
+}
+
+/// Creates `Box` [`SetLocalRemoteDescriptionCallBack`].
+#[must_use]
+pub fn create_set_description_callback(
+    success: usize,
+    fail: usize,
+    context: usize,
+) -> Box<SetLocalRemoteDescriptionCallBack> {
+    Box::new(SetLocalRemoteDescriptionCallBack::new(
+        success, fail, context,
+    ))
+}
+
+impl SetLocalRemoteDescriptionCallBack {
+    /// Creates [`SetLocalRemoteDescriptionCallBack`].
+    /// Where
+    /// success - `extern "C" fn(*mut c_void)`,
+    /// fail - `extern "C" fn(&CxxString, *mut c_void)`,
+    /// context - `c++ flutter::MethodResult<flutter::EncodableValue>*`.
+    #[must_use]
+    pub fn new(success: usize, fail: usize, context: usize) -> Self {
+        Self {
+            fn_success: unsafe { std::mem::transmute(success) },
+            fn_fail: unsafe { std::mem::transmute(fail) },
+            context: context as *mut c_void,
+        }
+    }
+}
+
+impl SetDescriptionCallback for SetLocalRemoteDescriptionCallBack {
+    /// Calls flutter function `OnSuccessDescription`.
+    fn success(&self) {
+        let fn_s = self.fn_success;
+        fn_s(self.context);
+    }
+    /// Calls flutter function `OnFail`.
+    fn fail(&self, error: &CxxString) {
+        let fn_f = self.fn_fail;
+        fn_f(error, self.context);
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -61,11 +161,6 @@ impl Webrtc {
     }
 
     /// Creates a new [Offer].
-    /// Where
-    /// `s` - void `(*callback_success)(std::string, std::string)`
-    /// for callback when `CreateOffer` is success,
-    /// `f` - void `(*callback_fail)(std::string)`
-    /// for callback when `CreateOffer` is fail.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -87,6 +182,8 @@ impl Webrtc {
             ));
 
             let options = sys::RTCOfferAnswerOptions::new(
+                None,
+                None,
                 voice_activity_detection,
                 ice_restart,
                 use_rtp_mux,
@@ -101,11 +198,6 @@ impl Webrtc {
     }
 
     /// Creates a new [Answer].
-    ///  Where
-    /// `s` - void `(*callback_success)(std::string, std::string)`
-    /// for callback when `CreateAnswer` is success,
-    /// `f` - void `(*callback_fail)(std::string)`
-    /// for callback when `CreateAnswer` is fail.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -122,9 +214,13 @@ impl Webrtc {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
-            let obs = sys::CreateSessionDescriptionObserver::new(Box::new(sdp_callback));
+            let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
+                sdp_callback,
+            ));
 
             let options = sys::RTCOfferAnswerOptions::new(
+                None,
+                None,
                 voice_activity_detection,
                 ice_restart,
                 use_rtp_mux,
@@ -139,11 +235,8 @@ impl Webrtc {
     }
 
     /// Set Local Description.
-    /// Where
-    /// `s` - void `(*callback_success_desc)()`
-    /// for callback when `SetLocalDescription` is success,
-    /// `f` - void `(*callback_fail)(std::string)`
-    /// for callback when `SetLocalDescription` is fail.
+    /// # Warning
+    /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be NULL or default.
     #[allow(clippy::needless_pass_by_value)]
@@ -164,7 +257,7 @@ impl Webrtc {
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
                     let obs = sys::SetLocalDescriptionObserverInterface::new(
-                        Box::new(set_description_callback)
+                        Box::new(set_description_callback),
                     );
 
                     peer_connection
@@ -179,11 +272,6 @@ impl Webrtc {
     }
 
     /// Set Remote Description.
-    /// Where
-    /// `s` - void `(*callback_success_desc)()`
-    /// for callback when `SetRemoteDescription` is `success`,
-    /// `f` - void `(*callback_fail)(std::string)`
-    /// for callback when `SetRemoteDescription` is `fail`.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -206,7 +294,7 @@ impl Webrtc {
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
                     let obs = sys::SetRemoteDescriptionObserverInterface::new(
-                        Box::new(set_description_callback)
+                        Box::new(set_description_callback),
                     );
 
                     peer_connection

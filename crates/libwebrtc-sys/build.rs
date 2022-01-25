@@ -34,13 +34,13 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rustc-link-lib=dylib=Secur32");
 
     cxx_build::bridge("src/bridge.rs")
-        .flag("/std:c++17")
         .files(&cpp_files)
         .include(path.join("include"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .flag("-DWEBRTC_WIN")
         .flag("-DNOMINMAX")
+        .flag("/std:c++17")
         .compile("libwebrtc-sys");
 
     for file in cpp_files {

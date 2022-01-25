@@ -6,7 +6,9 @@
 #include <optional>
 
 namespace bridge {
+  // implement Rust trait `SetDescriptionCallback`.
   struct SetLocalRemoteDescriptionCallBack;
+  // implement Rust trait `CreateSdpCallback`.
   struct CreateOfferAnswerCallback;
 }
 
@@ -30,9 +32,7 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
       webrtc::PeerConnectionInterface::SignalingState new_state);
 };
 
-// Create Session Description Observer used
-// for calling callback when create [Offer] or [Answer]
-// success or fail.
+// `CreateSessionDescriptionObserver` used for calling callback `CreateOffer/Answer`.
 class CreateSessionDescriptionObserver : public
     rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
   public:
@@ -51,6 +51,8 @@ class CreateSessionDescriptionObserver : public
   std::optional<rust::Box<bridge::CreateOfferAnswerCallback>> cb;
 };
 
+
+// `SetLocalDescriptionObserverInterface` used for calling callback `SetLocalDescription`.
 class SetLocalDescriptionObserverInterface : public
     rtc::RefCountedObject<webrtc::SetLocalDescriptionObserverInterface> {
   public:
@@ -68,6 +70,7 @@ class SetLocalDescriptionObserverInterface : public
   std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb;
 };
 
+// `SetRemoteDescriptionObserverInterface` used for calling callback `SetRemoteDescription`.
 class SetRemoteDescriptionObserverInterface : public
     rtc::RefCountedObject<webrtc::SetRemoteDescriptionObserverInterface> {
   public:
