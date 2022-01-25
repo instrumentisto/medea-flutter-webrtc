@@ -49,4 +49,9 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   // TODO(evdokimovs): I think that in Web implementation MediaStreamTrack disposing is not needed.
   @override
   Future<void> dispose() async {}
+
+  @override
+  Future<MediaStreamTrack> clone() async {
+    return WebMediaStreamTrack(jsTrack.clone());
+  }
 }

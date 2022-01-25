@@ -13,5 +13,7 @@ abstract class MediaStreamTrack {
 
   Future<void> stop();
 
+  Future<MediaStreamTrack> clone();
+
   Future<void> dispose();
 }

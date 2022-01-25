@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
+import 'package:flutter_webrtc/src/model/media_kind.dart';
 
 import '../media_stream_track.dart';
 import '../video_renderer.dart';
@@ -49,6 +50,9 @@ class NativeVideoRenderer extends VideoRenderer {
     if (textureId == null) {
       throw 'Renderer should be initialize before setting src';
     }
+    if (track?.kind() != MediaKind.Video) {
+      throw 'VideoRenderer do not supports MediaStreamTrack with video kind!';
+    }
 
     _srcObject = track;
     _methodChannel.invokeMethod('setSrcObject', {
@@ -63,13 +67,9 @@ class NativeVideoRenderer extends VideoRenderer {
   @override
   Future<void> dispose() async {
     await _eventSubscription?.cancel();
-    // TODO(evdokimovs): Dispose VideoRenderer on native side.
-    // await WebRTC.invokeMethod(
-    //   'videoRendererDispose',
-    //   <String, dynamic>{'textureId': _textureId},
-    // );
+    await _methodChannel.invokeMethod('dispose');
 
-    return super.dispose();
+    await super.dispose();
   }
 
   void eventListener(dynamic event) {

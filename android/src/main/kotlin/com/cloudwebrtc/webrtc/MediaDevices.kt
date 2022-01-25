@@ -3,14 +3,15 @@ package com.cloudwebrtc.webrtc
 import android.content.Context
 import com.cloudwebrtc.webrtc.exception.OverconstrainedException
 import com.cloudwebrtc.webrtc.model.*
+import com.cloudwebrtc.webrtc.proxy.AudioMediaTrackSource
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
+import com.cloudwebrtc.webrtc.proxy.VideoMediaTrackSource
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import org.webrtc.*
 import java.util.*
 
 class MediaDevices(val state: State) {
     private val cameraEnumerator: CameraEnumerator = getCameraEnumerator(state.getAppContext())
-    private var lastLocalTrackId: Int = 0;
 
     companion object {
         private fun getCameraEnumerator(context: Context): CameraEnumerator {
@@ -60,10 +61,6 @@ class MediaDevices(val state: State) {
         return scoreTable.lastEntry()?.value
     }
 
-    private fun getNextTrackId(): String {
-        return "local-" + lastLocalTrackId++.toString()
-    }
-
     // TODO(evdokimovs): Adapt width, height and fps based on constraints
     private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
         val deviceId =
@@ -99,32 +96,19 @@ class MediaDevices(val state: State) {
         // Just use width and height of the selected device here
         videoCapturer.startCapture(1280, 720, 30)
 
-        val videoTrack = MediaStreamTrackProxy(
-            state.getPeerConnectionFactory().createVideoTrack(getNextTrackId(), videoSource),
+        val videoTrackSource = VideoMediaTrackSource(
+            videoCapturer,
+            videoSource,
+            surfaceTextureRenderer,
+            state.getPeerConnectionFactory(),
             deviceId
-        )
-        videoTrack.onStop {
-            videoCapturer.stopCapture()
-            videoSource.dispose()
-            videoCapturer.dispose()
-            surfaceTextureRenderer.dispose()
-        }
-
-        return videoTrack
+        );
+        return videoTrackSource.newTrack();
     }
 
     private fun getUserAudioTrack(constraints: AudioConstraints): MediaStreamTrackProxy {
-        val trackId = getNextTrackId()
         val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
-        // TODO(evdokimovs): Provide real deviceId when this mechanism will be implemented.
-        val track = MediaStreamTrackProxy(
-            state.getPeerConnectionFactory().createAudioTrack(trackId, source),
-            "audio-1"
-        )
-        track.onStop {
-            source.dispose()
-        }
-
-        return track
+        val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
+        return audioTrackSource.newTrack()
     }
 }

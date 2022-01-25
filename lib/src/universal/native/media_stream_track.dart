@@ -53,6 +53,10 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
 
   // TODO(evdokimovs): implement disposing for native side
   @override
-  Future<void> dispose() async {
+  Future<void> dispose() async {}
+
+  @override
+  Future<MediaStreamTrack> clone() async {
+    return NativeMediaStreamTrack.fromMap(await _methodChannel.invokeMethod('clone'));
   }
 }

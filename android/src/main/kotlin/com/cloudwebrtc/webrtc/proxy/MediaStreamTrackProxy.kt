@@ -5,7 +5,11 @@ import com.cloudwebrtc.webrtc.model.MediaKind
 import com.cloudwebrtc.webrtc.model.MediaStreamTrackState
 import org.webrtc.MediaStreamTrack
 
-class MediaStreamTrackProxy(track: MediaStreamTrack, private val deviceId: String = "remote") :
+class MediaStreamTrackProxy(
+    track: MediaStreamTrack,
+    private val deviceId: String = "remote",
+    private val source: MediaTrackSource? = null
+) :
     IWebRTCProxy<MediaStreamTrack> {
     override var obj: MediaStreamTrack = track;
 
@@ -35,6 +39,14 @@ class MediaStreamTrackProxy(track: MediaStreamTrack, private val deviceId: Strin
 
     fun deviceId(): String {
         return deviceId;
+    }
+
+    fun clone(): MediaStreamTrackProxy {
+        if (this.source == null) {
+            throw Exception("Remote MediaStreamTracks can't be cloned")
+        } else {
+            return source.newTrack()
+        }
     }
 
     fun stop() {

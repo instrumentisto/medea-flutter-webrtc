@@ -71,13 +71,12 @@ class VideoRendererController(
 
                 result.success(null)
             }
+            "dispose" -> {
+                dispose()
+                result.success(null)
+            }
         }
     }
-
-    fun asFlutterResult(): Map<String, Any> = mapOf(
-        "channelId" to channelId,
-        "textureId" to videoRenderer.textureId()
-    )
 
     override fun onListen(obj: Any?, sink: EventChannel.EventSink?) {
         if (sink != null) {
@@ -87,5 +86,14 @@ class VideoRendererController(
 
     override fun onCancel(obj: Any?) {
         eventSink = null
+    }
+
+    fun asFlutterResult(): Map<String, Any> = mapOf(
+        "channelId" to channelId,
+        "textureId" to videoRenderer.textureId()
+    )
+
+    private fun dispose() {
+        videoRenderer.dispose()
     }
 }

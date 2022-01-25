@@ -6,7 +6,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 class MediaStreamTrackController(
-    binaryMessenger: BinaryMessenger,
+    private val binaryMessenger: BinaryMessenger,
     private val track: MediaStreamTrackProxy
 ) : MethodChannel.MethodCallHandler, IdentifiableController {
     private val channelId: Int = nextChannelId();
@@ -33,6 +33,14 @@ class MediaStreamTrackController(
             "stop" -> {
                 track.stop()
                 result.success(null)
+            }
+            "clone" -> {
+                result.success(
+                    MediaStreamTrackController(
+                        binaryMessenger,
+                        track.clone()
+                    ).asFlutterResult()
+                )
             }
             "dispose" -> {
                 dispose()

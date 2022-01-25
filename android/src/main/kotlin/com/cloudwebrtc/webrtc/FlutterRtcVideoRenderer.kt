@@ -1,6 +1,7 @@
 package com.cloudwebrtc.webrtc
 
 import android.graphics.SurfaceTexture
+import android.util.Log
 import com.cloudwebrtc.webrtc.proxy.VideoTrackProxy
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import io.flutter.view.TextureRegistry
@@ -44,12 +45,14 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
         if (videoTrack != newVideoTrack && newVideoTrack != null) {
             removeRendererFromVideoTrack()
 
-            // TODO(evdokimovs): if sharedContext will be null, then app will crash on `init()`, but I don't give a fuck
-            val sharedContext = EglUtils.rootEglBaseContext!!
-            surfaceTextureRenderer.release()
-            rendererEventsListener = rendererEventsListener()
-            surfaceTextureRenderer.init(sharedContext, rendererEventsListener)
-            surfaceTextureRenderer.surfaceCreated(surfaceTexture)
+            if (videoTrack == null) {
+                // TODO(evdokimovs): if sharedContext will be null, then app will crash on `init()`, but I don't give a fuck
+                val sharedContext = EglUtils.rootEglBaseContext!!
+                surfaceTextureRenderer.release()
+                rendererEventsListener = rendererEventsListener()
+                surfaceTextureRenderer.init(sharedContext, rendererEventsListener)
+                surfaceTextureRenderer.surfaceCreated(surfaceTexture)
+            }
 
             newVideoTrack.addSink(surfaceTextureRenderer)
         }
@@ -60,6 +63,8 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     fun dispose() {
         removeRendererFromVideoTrack()
         surfaceTexture.release()
+        surfaceTextureRenderer.surfaceDestroyed()
+        surfaceTextureRenderer.release()
         surfaceTextureEntry.release()
     }
 

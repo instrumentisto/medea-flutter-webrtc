@@ -1,7 +1,12 @@
 package com.cloudwebrtc.webrtc
 
+import android.annotation.TargetApi
 import android.content.Context
+import android.media.AudioManager
+import android.os.Build
 import com.cloudwebrtc.webrtc.utils.EglUtils
+import com.twilio.audioswitch.AudioDevice
+import com.twilio.audioswitch.AudioSwitch
 import org.webrtc.DefaultVideoDecoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnectionFactory
@@ -15,6 +20,7 @@ class State(val context: Context) {
             .createAudioDeviceModule()
 
     private var factory: PeerConnectionFactory? = null
+    private val audioSwitch: AudioSwitch = AudioSwitch(context)
 
     init {
         PeerConnectionFactory.initialize(
@@ -24,8 +30,11 @@ class State(val context: Context) {
         )
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
     private fun initPeerConnectionFactory() {
         val eglContext: EglBase.Context = EglUtils.rootEglBaseContext!!
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.isSpeakerphoneOn = true
         factory = PeerConnectionFactory.builder()
             .setOptions(PeerConnectionFactory.Options())
             .setVideoEncoderFactory(
@@ -38,6 +47,7 @@ class State(val context: Context) {
             .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
             .setAudioDeviceModule(audioDeviceModule)
             .createPeerConnectionFactory()
+        audioDeviceModule.setSpeakerMute(false)
     }
 
     fun getPeerConnectionFactory(): PeerConnectionFactory {
