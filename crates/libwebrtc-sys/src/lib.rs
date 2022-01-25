@@ -4,10 +4,11 @@
 mod bridge;
 
 use anyhow::bail;
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack};
+pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
+use cxx::{let_cxx_string, UniquePtr, CxxString};
 
 use self::bridge::webrtc;
-
 pub use webrtc::{AudioLayer, SdpType};
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -197,41 +198,41 @@ impl VideoDeviceInfo {
     }
 }
 
-/// A factory that creates [`AudioEncoder`]s.
+/// A factory that creates `AudioEncoder`s.
 pub struct AudioEncoderFactory(UniquePtr<webrtc::AudioEncoderFactory>);
 
 impl Default for AudioEncoderFactory {
-    /// Creates a new [Builtin] [`AudioEncoderFactory`]
+    /// Creates a new `Builtin` [`AudioEncoderFactory`]
     fn default() -> Self {
         AudioEncoderFactory(webrtc::create_builtin_audio_encoder_factory())
     }
 }
 
-/// A factory that creates [`AudioDecoder`]s.
+/// A factory that creates `AudioDecoder`s.
 pub struct AudioDecoderFactory(UniquePtr<webrtc::AudioDecoderFactory>);
 
 impl Default for AudioDecoderFactory {
-    /// Creates a new [Builtin] [`AudioDecoderFactory`]
+    /// Creates a new `Builtin` [`AudioDecoderFactory`]
     fn default() -> Self {
         AudioDecoderFactory(webrtc::create_builtin_audio_decoder_factory())
     }
 }
 
-/// A factory that creates [`VideoEncoder`]s.
+/// A factory that creates `VideoEncoder`s.
 pub struct VideoEncoderFactory(UniquePtr<webrtc::VideoEncoderFactory>);
 
 impl Default for VideoEncoderFactory {
-    /// Creates a new [Builtin] [`VideoEncoderFactory`]
+    /// Creates a new `Builtin` [`VideoEncoderFactory`]
     fn default() -> Self {
         VideoEncoderFactory(webrtc::create_builtin_video_encoder_factory())
     }
 }
 
-/// A factory that creates [`VideoDecoder`]s.
+/// A factory that creates `VideoDecoder`s.
 pub struct VideoDecoderFactory(UniquePtr<webrtc::VideoDecoderFactory>);
 
 impl Default for VideoDecoderFactory {
-    /// Creates a new [Builtin] [`VideoDecoderFactory`]
+    /// Creates a new `Builtin` [`VideoDecoderFactory`]
     fn default() -> Self {
         VideoDecoderFactory(webrtc::create_builtin_video_decoder_factory())
     }
@@ -306,7 +307,7 @@ impl PeerConnectionDependencies {
     }
 }
 
-/// `RTCOfferAnswerOptions` used for create [Offer]s, [Answer]s.
+/// `RTCOfferAnswerOptions` used for create `Offer`s, `Answer`s.
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
@@ -325,15 +326,15 @@ impl RTCOfferAnswerOptions {
     /// Creates a new [`RTCOfferAnswerOptions`]
     #[must_use]
     pub fn new(
-        offer_to_receive_video: i32,
-        offer_to_receive_audio: i32,
+        offer_to_receive_video: Option<bool>,
+        offer_to_receive_audio: Option<bool>,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
     ) -> Self {
         RTCOfferAnswerOptions(webrtc::create_rtc_offer_answer_options(
-            offer_to_receive_video,
-            offer_to_receive_audio,
+            offer_to_receive_video.map_or(-1, |f| if f { 1 } else { 0 }),
+            offer_to_receive_audio.map_or(-1, |f| if f { 1 } else { 0 }),
             voice_activity_detection,
             ice_restart,
             use_rtp_mux,
@@ -363,8 +364,8 @@ impl SessionDescriptionInterface {
     }
 }
 
-/// Create Session Description Observer used
-/// for calling callback when create [Offer] or [Answer]
+/// `CreateSessionDescriptionObserver` used
+/// for calling callback when create `Offer` or `Answer`
 /// success or fail.
 pub struct CreateSessionDescriptionObserver(
     pub UniquePtr<webrtc::CreateSessionDescriptionObserver>,
@@ -372,46 +373,45 @@ pub struct CreateSessionDescriptionObserver(
 
 impl CreateSessionDescriptionObserver {
     /// Creates a [`CreateSessionDescriptionObserver`].
-    /// Where
-    /// `success` for callback when 'CreateOffer\Answer' is success,
-    /// `fail` for callback when 'CreateOffer\Answer' is fail.
     #[must_use]
-    pub fn new(
-        success: fn(&CxxString, &CxxString),
-        fail: fn(&CxxString),
-    ) -> Self {
-        Self(webrtc::create_create_session_observer(success, fail))
+    pub fn new(cb: Box<CreateOfferAnswerCallback>) -> Self {
+        Self(webrtc::create_create_session_observer(cb))
     }
 }
 
+/// `SetLocalDescriptionObserverInterface` used
+/// for calling callback when set local description is
+/// success or fail.
 pub struct SetLocalDescriptionObserverInterface(
     UniquePtr<webrtc::SetLocalDescriptionObserverInterface>,
 );
 
 impl SetLocalDescriptionObserverInterface {
+    /// Creates a [`SetLocalDescriptionObserverInterface`].
     #[must_use]
-    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
-        Self(webrtc::create_set_local_description_observer_interface(
-            success, fail,
-        ))
+    pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
+        Self(webrtc::create_set_local_description_observer_interface(cb))
     }
 }
 
+/// `SetLocalDescriptionObserverInterface` used
+/// for calling callback when set remote description is
+/// success or fail.
 pub struct SetRemoteDescriptionObserverInterface(
     UniquePtr<webrtc::SetRemoteDescriptionObserverInterface>,
 );
 
 impl SetRemoteDescriptionObserverInterface {
-    pub fn new(success: fn(), fail: fn(&CxxString)) -> Self {
-        Self(webrtc::create_set_remote_description_observer_interface(
-            success, fail,
-        ))
+    /// Creates a [`SetRemoteDescriptionObserverInterface`].
+    #[must_use]
+    pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
+        Self(webrtc::create_set_remote_description_observer_interface(cb))
     }
 }
 
-/// Peer Connection Interface internally used in [`webrtc`] that is
-/// capable of creating [Offer]s, [Answer]s
-/// and setting [Remote], [Local] Description.
+/// Peer Connection Interface internally used in `Webrtc` that is
+/// capable of creating `Offer`s, `Answer`s
+/// and setting `Remote`, `Local` Description.
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {

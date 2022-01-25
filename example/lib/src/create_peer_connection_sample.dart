@@ -66,15 +66,19 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         'createPeerConnection', null
       );
       String pc1_id = createPeerConnection1['peerConnectionId'];
-      StreamSubscription<dynamic> _eventSubscription = EventChannel('test')
-        .receiveBroadcastStream()
-        .listen(eventListener, onError: errorListener);
+            final createPeerConnection2 = await WebRTC.invokeMethod(
+        'createPeerConnection', null
+      );
+      String pc2_id = createPeerConnection2['peerConnectionId'];
+
+      while(true) {
 
       final createOffer1 =
             await WebRTC.invokeMethod('createOffer', <String, dynamic>{
           'peerConnectionId': pc1_id,
           'constraints': defaultSdpConstraints
       });
+     
 
       final setLocalDescription1 =
             await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
@@ -83,11 +87,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           'sdp': createOffer1['sdp'],
           'type': createOffer1['type']}
       });
-
-      final createPeerConnection2 = await WebRTC.invokeMethod(
-        'createPeerConnection', null
-      );
-      String pc2_id = createPeerConnection2['peerConnectionId'];
 
       final setRemoteDescription2 =
             await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
@@ -118,8 +117,8 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           'sdp': createAnswer2['sdp'],
           'type': createAnswer2['type']}
       });
+      }
 
-      
 
       setState(() {
         text = 'test is success';

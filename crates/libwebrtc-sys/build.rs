@@ -42,6 +42,7 @@ fn main() -> anyhow::Result<()> {
         .flag("-DWEBRTC_WIN")
         .flag("-DNOMINMAX")
         .define("NDEBUG", "1")
+        .flag("/std:c++17")
         .compile("libwebrtc-sys");
 
     for file in cpp_files {

@@ -11,7 +11,11 @@ use libwebrtc_sys::{
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
-use peer_connection::{PeerConnection, PeerConnectionId};
+use peer_connection::{
+    create_sdp_callback, create_set_description_callback,
+    CreateOfferAnswerCallback, PeerConnection, PeerConnectionId,
+    SetLocalRemoteDescriptionCallBack,
+};
 
 #[doc(inline)]
 pub use crate::user_media::{
@@ -20,9 +24,14 @@ pub use crate::user_media::{
 };
 
 /// The module which describes the bridge to call Rust from C++.
-#[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
+#[allow(
+    clippy::items_after_statements,
+    clippy::expl_impl_clone_on_copy,
+    clippy::too_many_arguments
+)]
 #[cxx::bridge]
 pub mod api {
+
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -134,7 +143,22 @@ pub mod api {
         kVideo,
     }
 
-    #[allow(clippy::too_many_arguments)]
+    extern "Rust" {
+        type CreateOfferAnswerCallback;
+        pub fn create_sdp_callback(
+            success: usize,
+            fail: usize,
+            context: usize,
+        ) -> Box<CreateOfferAnswerCallback>;
+
+        type SetLocalRemoteDescriptionCallBack;
+        pub fn create_set_description_callback(
+            success: usize,
+            fail: usize,
+            context: usize,
+        ) -> Box<SetLocalRemoteDescriptionCallBack>;
+    }
+
     extern "Rust" {
         type Webrtc;
 
@@ -169,13 +193,10 @@ pub mod api {
             self: &mut Webrtc,
             error: &mut String,
             peer_connection_id: u64,
-            offer_to_receive_video: i32,
-            offer_to_receive_audio: i32,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            s: usize,
-            f: usize,
+            sdp_callback: Box<CreateOfferAnswerCallback>,
         );
 
         /// Creates a new [Answer].
@@ -189,13 +210,10 @@ pub mod api {
             self: &mut Webrtc,
             error: &mut String,
             peer_connection_id: u64,
-            offer_to_receive_video: i32,
-            offer_to_receive_audio: i32,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            s: usize,
-            f: usize,
+            sdp_callback: Box<CreateOfferAnswerCallback>,
         );
 
         /// Set Local Description.
@@ -210,8 +228,7 @@ pub mod api {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
-            s: usize,
-            f: usize,
+            set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
         );
 
         /// Set Remote Description.
@@ -226,8 +243,7 @@ pub mod api {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
-            s: usize,
-            f: usize,
+            set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
         );
 
         /// Creates a [`MediaStream`] with tracks according to provided

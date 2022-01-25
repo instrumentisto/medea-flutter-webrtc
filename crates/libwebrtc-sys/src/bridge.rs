@@ -1,4 +1,6 @@
-#[allow(clippy::expl_impl_clone_on_copy)]
+use cxx::CxxString;
+
+#[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
@@ -64,9 +66,10 @@ pub(crate) mod webrtc {
         /// platform.
         #[namespace = "webrtc"]   
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
-        pub fn create_default_task_queue_factory() -> UniquePtr<TaskQueueFactory>;
+        pub fn create_default_task_queue_factory()
+            -> UniquePtr<TaskQueueFactory>;
 
-        /// Creates a new [`Thead`].
+        /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
         /// Starts the current [`Thread`].
@@ -145,26 +148,55 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
+    extern "Rust" {
+        type SetLocalRemoteDescriptionCallBack;
+        type CreateOfferAnswerCallback;
+
+        /// Calling in `CreateSessionDescriptionObserver`,
+        /// when `CreateOffer/Answer` is success.
+        pub fn success_sdp(
+            cb: &CreateOfferAnswerCallback,
+            sdp: &CxxString,
+            type_: &CxxString,
+        );
+
+        /// Calling in `CreateSessionDescriptionObserver`,
+        /// when `CreateOffer/Answer` is fail.
+        pub fn fail_sdp(cb: &CreateOfferAnswerCallback, error: &CxxString);
+
+        /// Calling in `SetLocalDescriptionObserverInterface`,
+        /// when SetLocalRemoteDescription` is success.
+        pub fn success_set_description(cb: &SetLocalRemoteDescriptionCallBack);
+
+        /// Calling in `SetRemoteDescriptionObserverInterface`,
+        /// when SetLocalRemoteDescription` is success.
+        pub fn fail_set_description(
+            cb: &SetLocalRemoteDescriptionCallBack,
+            error: &CxxString,
+        );
+
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
-        type VideoEncoderFactory;
-        type VideoDecoderFactory;
-        type PeerConnectionFactoryInterface;
-        type AudioEncoderFactory;
         type AudioDecoderFactory;
+        type AudioEncoderFactory;
+        type AudioFrameProcessor;
         type AudioMixer;
         type AudioProcessing;
-        type AudioFrameProcessor;
-        type PeerConnectionDependencies;
-        type RTCConfiguration;
-        type PeerConnectionObserver;
-        type PeerConnectionInterface;
-        type RTCOfferAnswerOptions;
-        type SessionDescriptionInterface;
-        type SdpType;
         type CreateSessionDescriptionObserver;
+        type PeerConnectionDependencies;
+        type PeerConnectionFactoryInterface;
+        type PeerConnectionInterface;
+        type PeerConnectionObserver;
+        type RTCConfiguration;
+        type RTCOfferAnswerOptions;
+        type SdpType;
+        type SessionDescriptionInterface;
         type SetLocalDescriptionObserverInterface;
         type SetRemoteDescriptionObserverInterface;
+        type VideoDecoderFactory;
+        type VideoEncoderFactory;
 
         /// Creates a new [`VideoEncoderFactory`].
         #[namespace = "webrtc"]
@@ -246,24 +278,18 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         /// Creates a [`CreateSessionDescriptionObserver`].
-        /// Where
-        /// `s` for callback when 'CreateOffer\Answer' is OnSuccess,
-        /// `f` for callback when 'CreateOffer\Answer' is OnFailure.
         pub fn create_create_session_observer(
-            s: fn(&CxxString, &CxxString),
-            f: fn(&CxxString),
+            cb: Box<CreateOfferAnswerCallback>,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a [`SetLocalDescriptionObserverInterface`].
         pub fn create_set_local_description_observer_interface(
-            s: fn(),
-            f: fn(&CxxString),
+            cb: Box<SetLocalRemoteDescriptionCallBack>,
         ) -> UniquePtr<SetLocalDescriptionObserverInterface>;
 
         /// Creates a [`SetRemoteDescriptionObserverInterface`].
         pub fn create_set_remote_description_observer_interface(
-            s: fn(),
-            f: fn(&CxxString),
+            cb: Box<SetLocalRemoteDescriptionCallBack>,
         ) -> UniquePtr<SetRemoteDescriptionObserverInterface>;
 
         /// Calls `peer_connection_interface`->CreateOffer.
@@ -302,6 +328,7 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
     }
+
     unsafe extern "C++" {
         type AudioSourceInterface;
         type AudioTrackInterface;
@@ -372,10 +399,52 @@ pub(crate) mod webrtc {
     }
 }
 
+/// Trait for `CreateSessionDescriptionObserver` callbacks.
+pub trait CreateSdpCallback {
+    fn success(&self, sdp: &CxxString, type_: &CxxString);
+    fn fail(&self, error: &CxxString);
+}
+/// `CreateOfferAnswerCallback` used for double box, for extern Rust.
+pub type CreateOfferAnswerCallback = Box<dyn CreateSdpCallback>;
+
+/// Calls when `CreateOffer/Answer` is success.
+pub fn success_sdp(
+    cb: &CreateOfferAnswerCallback,
+    sdp: &CxxString,
+    type_: &CxxString,
+) {
+    cb.success(sdp, type_);
+}
+/// Calls when `CreateOffer/Answer` is fail.
+pub fn fail_sdp(cb: &CreateOfferAnswerCallback, error: &CxxString) {
+    cb.fail(error);
+}
+
+/// Trait for `SetLocalDescriptionObserverInterface` callbacks.
+pub trait SetDescriptionCallback {
+    fn success(&self);
+    fn fail(&self, error: &CxxString);
+}
+/// `SetLocalRemoteDescriptionCallBack` used for double box, for extern Rust.
+pub type SetLocalRemoteDescriptionCallBack = Box<dyn SetDescriptionCallback>;
+/// Calls in `OnSetLocalDescriptionComplete`
+/// when `SetLocalRemoteDescription` is success.
+pub fn success_set_description(cb: &SetLocalRemoteDescriptionCallBack) {
+    cb.success();
+}
+/// Calls in `OnSetLocalDescriptionComplete`
+/// when `SetLocalRemoteDescription` is fail.
+pub fn fail_set_description(
+    cb: &SetLocalRemoteDescriptionCallBack,
+    error: &CxxString,
+) {
+    cb.fail(error);
+}
+
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
-    /// Try conver &str to [`webrtc::SdpType`].
+    /// Implement TryFrom<&str>.
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),

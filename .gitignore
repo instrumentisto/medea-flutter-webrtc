@@ -13,7 +13,6 @@ example/ios/Runner/GeneratedPluginRegistrant.m
 example/ios/Runner/GeneratedPluginRegistrant.h
 example/ios/Flutter/Generated.xcconfig
 example/ios/Flutter/flutter_export_environment.sh
-flutter-webrtc.code-workspace
 
 # Miscellaneous
 *.class
@@ -36,6 +35,7 @@ flutter-webrtc.code-workspace
 
 # VSCode
 .vscode/
+*.code-workspace
 
 # Flutter/Dart/Pub related
 **/doc/api/

@@ -10,7 +10,6 @@ fn main() -> anyhow::Result<()> {
     cxx_build::bridge("src/lib.rs").compile(&package_name);
 
     copy_cxxbridge1_lib()?;
-
     Ok(())
 }
 
