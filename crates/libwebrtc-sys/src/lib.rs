@@ -198,41 +198,41 @@ impl VideoDeviceInfo {
     }
 }
 
-/// A factory that creates [`AudioEncoder`]s.
+/// A factory that creates `AudioEncoder`s.
 pub struct AudioEncoderFactory(UniquePtr<webrtc::AudioEncoderFactory>);
 
 impl Default for AudioEncoderFactory {
-    /// Creates a new [Builtin] [`AudioEncoderFactory`]
+    /// Creates a new `Builtin` [`AudioEncoderFactory`]
     fn default() -> Self {
         AudioEncoderFactory(webrtc::create_builtin_audio_encoder_factory())
     }
 }
 
-/// A factory that creates [`AudioDecoder`]s.
+/// A factory that creates `AudioDecoder`s.
 pub struct AudioDecoderFactory(UniquePtr<webrtc::AudioDecoderFactory>);
 
 impl Default for AudioDecoderFactory {
-    /// Creates a new [Builtin] [`AudioDecoderFactory`]
+    /// Creates a new `Builtin` [`AudioDecoderFactory`]
     fn default() -> Self {
         AudioDecoderFactory(webrtc::create_builtin_audio_decoder_factory())
     }
 }
 
-/// A factory that creates [`VideoEncoder`]s.
+/// A factory that creates `VideoEncoder`s.
 pub struct VideoEncoderFactory(UniquePtr<webrtc::VideoEncoderFactory>);
 
 impl Default for VideoEncoderFactory {
-    /// Creates a new [Builtin] [`VideoEncoderFactory`]
+    /// Creates a new `Builtin` [`VideoEncoderFactory`]
     fn default() -> Self {
         VideoEncoderFactory(webrtc::create_builtin_video_encoder_factory())
     }
 }
 
-/// A factory that creates [`VideoDecoder`]s.
+/// A factory that creates `VideoDecoder`s.
 pub struct VideoDecoderFactory(UniquePtr<webrtc::VideoDecoderFactory>);
 
 impl Default for VideoDecoderFactory {
-    /// Creates a new [Builtin] [`VideoDecoderFactory`]
+    /// Creates a new `Builtin` [`VideoDecoderFactory`]
     fn default() -> Self {
         VideoDecoderFactory(webrtc::create_builtin_video_decoder_factory())
     }
@@ -307,7 +307,7 @@ impl Default for PeerConnectionDependencies {
     }
 }
 
-/// `RTCOfferAnswerOptions` used for create [Offer]s, [Answer]s.
+/// `RTCOfferAnswerOptions` used for create `Offer`s, `Answer`s.
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
@@ -365,7 +365,7 @@ impl SessionDescriptionInterface {
 }
 
 /// `CreateSessionDescriptionObserver` used
-/// for calling callback when create [`Offer`] or [`Answer`]
+/// for calling callback when create `Offer` or `Answer`
 /// success or fail.
 pub struct CreateSessionDescriptionObserver(
     pub UniquePtr<webrtc::CreateSessionDescriptionObserver>,
@@ -409,9 +409,9 @@ impl SetRemoteDescriptionObserverInterface {
     }
 }
 
-/// Peer Connection Interface internally used in [`webrtc`] that is
-/// capable of creating [Offer]s, [Answer]s
-/// and setting [Remote], [Local] Description.
+/// Peer Connection Interface internally used in `Webrtc` that is
+/// capable of creating `Offer`s, `Answer`s
+/// and setting `Remote`, `Local` Description.
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {

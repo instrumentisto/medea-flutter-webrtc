@@ -130,7 +130,7 @@ impl SetDescriptionCallback for SetLocalRemoteDescriptionCallBack {
 
 #[allow(clippy::too_many_arguments)]
 impl Webrtc {
-    /// Creates a new [`PeerConnection`] and return id.
+    /// Creates a new `PeerConnection` and return id.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -160,7 +160,7 @@ impl Webrtc {
         }
     }
 
-    /// Creates a new [Offer].
+    /// Creates a new `Offer`.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
@@ -197,7 +197,7 @@ impl Webrtc {
         }
     }
 
-    /// Creates a new [Answer].
+    /// Creates a new `Answer`.
     /// # Warning
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,

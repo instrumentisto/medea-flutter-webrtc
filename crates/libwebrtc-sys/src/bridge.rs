@@ -69,7 +69,7 @@ pub(crate) mod webrtc {
         pub fn create_default_task_queue_factory()
             -> UniquePtr<TaskQueueFactory>;
 
-        /// Creates a new [`Thead`].
+        /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
         /// Starts the current [`Thread`].
