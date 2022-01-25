@@ -156,6 +156,6 @@ class PeerConnection {
   }
 
   Future<void> close() async {
-    await _methodChannel.invokeMethod('close');
+    await _methodChannel.invokeMethod('dispose');
   }
 }

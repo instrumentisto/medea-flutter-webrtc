@@ -30,7 +30,6 @@ class State(val context: Context) {
         )
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     private fun initPeerConnectionFactory() {
         val eglContext: EglBase.Context = EglUtils.rootEglBaseContext!!
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
