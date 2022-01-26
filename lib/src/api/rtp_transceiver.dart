@@ -37,6 +37,10 @@ class RtpTransceiver {
     await _methodChannel.invokeMethod('stop');
   }
 
+  void stoppedByPeer() {
+    _isStopped = true;
+  }
+
   bool isStopped() {
     return _isStopped;
   }

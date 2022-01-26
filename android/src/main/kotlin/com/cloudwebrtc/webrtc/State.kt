@@ -8,19 +8,14 @@ import com.cloudwebrtc.webrtc.utils.EglUtils
 import com.twilio.audioswitch.AudioDevice
 import com.twilio.audioswitch.AudioSwitch
 import org.webrtc.DefaultVideoDecoderFactory
+import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.audio.JavaAudioDeviceModule
 
 class State(val context: Context) {
-    private var audioDeviceModule: JavaAudioDeviceModule =
-        JavaAudioDeviceModule.builder(context)
-            .setUseHardwareAcousticEchoCanceler(true)
-            .setUseHardwareNoiseSuppressor(true)
-            .createAudioDeviceModule()
-
+    private var audioDeviceModule: JavaAudioDeviceModule? = null
     private var factory: PeerConnectionFactory? = null
-    private val audioSwitch: AudioSwitch = AudioSwitch(context)
 
     init {
         PeerConnectionFactory.initialize(
@@ -31,22 +26,28 @@ class State(val context: Context) {
     }
 
     private fun initPeerConnectionFactory() {
+        val audioModule = JavaAudioDeviceModule.builder(context)
+            .setUseHardwareAcousticEchoCanceler(true)
+            .setUseHardwareNoiseSuppressor(true)
+            .createAudioDeviceModule()
         val eglContext: EglBase.Context = EglUtils.rootEglBaseContext!!
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.isSpeakerphoneOn = true
         factory = PeerConnectionFactory.builder()
             .setOptions(PeerConnectionFactory.Options())
             .setVideoEncoderFactory(
-                SimulcastVideoEncoderFactoryWrapper(
-                    eglContext,
-                    enableIntelVp8Encoder = true,
-                    enableH264HighProfile = false
-                )
+                DefaultVideoEncoderFactory(eglContext, true, true)
             )
             .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
-            .setAudioDeviceModule(audioDeviceModule)
+            .setAudioDeviceModule(audioModule)
             .createPeerConnectionFactory()
-        audioDeviceModule.setSpeakerMute(false)
+        audioModule.setSpeakerMute(false)
+        audioDeviceModule = audioModule
+    }
+
+    fun releasePeerConnectionFactory() {
+//        factory?.dispose()
+//        audioDeviceModule?.release()
     }
 
     fun getPeerConnectionFactory(): PeerConnectionFactory {

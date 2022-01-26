@@ -94,6 +94,8 @@ class VideoRendererController(
     )
 
     private fun dispose() {
+        eventChannel.setStreamHandler(null)
+        eventSink = null
         videoRenderer.dispose()
     }
 }

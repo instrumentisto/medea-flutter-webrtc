@@ -26,7 +26,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     private var eventObservers: HashSet<EventObserver> = HashSet()
 
     init {
-        syncWithObject();
+        syncWithObject()
     }
 
     companion object {

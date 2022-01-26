@@ -1,5 +1,6 @@
 package com.cloudwebrtc.webrtc.proxy
 
+import android.util.Log
 import com.cloudwebrtc.webrtc.utils.LocalTrackIdGenerator
 import org.webrtc.AudioSource
 import org.webrtc.PeerConnectionFactory
@@ -14,6 +15,7 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
             this
         )
         track.onStop {
+            Log.d("FOOBAR", "LocalTrack stopped");
             trackStopped()
         }
         aliveTracksCount += 1;
@@ -23,7 +25,9 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
 
     private fun trackStopped() {
         aliveTracksCount--;
+        Log.d("FOOBAR", "Alive Audio tracks count: $aliveTracksCount")
         if (aliveTracksCount == 0) {
+            Log.d("FOOBAR", "Audio source disposed");
             dispose()
         }
     }

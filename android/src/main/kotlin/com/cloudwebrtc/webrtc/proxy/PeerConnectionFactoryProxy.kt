@@ -1,5 +1,6 @@
 package com.cloudwebrtc.webrtc.proxy
 
+import android.util.Log
 import com.cloudwebrtc.webrtc.State
 import com.cloudwebrtc.webrtc.model.PeerConnectionConfiguration
 
@@ -25,6 +26,11 @@ class PeerConnectionFactoryProxy(val state: State) {
 
     private fun removePeerObserver(id: Int) {
         peerObservers.remove(id)
+        Log.d("FOOBAR", "remove PeerObserver");
+        if (peerObservers.isEmpty()) {
+            Log.d("FOOBAR", "release PeerConnectionFactory");
+            state.releasePeerConnectionFactory()
+        }
     }
 
     private fun nextId(): Int {

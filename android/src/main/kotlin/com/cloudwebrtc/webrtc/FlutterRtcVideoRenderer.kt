@@ -31,6 +31,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     init {
         surfaceTextureRenderer.init(EglUtils.rootEglBaseContext, rendererEventsListener)
         surfaceTextureRenderer.surfaceCreated(surfaceTexture)
+        Log.d("FOOBAR", "Surface texture id: $id")
     }
 
     fun textureId(): Long {
@@ -61,11 +62,12 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     }
 
     fun dispose() {
+        eventListener = null
         removeRendererFromVideoTrack()
-        surfaceTexture.release()
-        surfaceTextureRenderer.surfaceDestroyed()
+//        surfaceTextureRenderer.surfaceDestroyed()
         surfaceTextureRenderer.release()
-        surfaceTextureEntry.release()
+//        surfaceTexture.release()
+//        surfaceTextureEntry.release()
     }
 
     private fun rendererEventsListener(): RendererCommon.RendererEvents {

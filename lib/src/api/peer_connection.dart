@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/src/universal/native/media_stream_track.dart';
 import 'package:flutter_webrtc/src/api/rtp_transceiver.dart';
@@ -25,7 +27,7 @@ class PeerConnection {
     _eventChannel =
         EventChannel(channelNameWithId('PeerConnectionEvent', channelId));
     // TODO(evdokimovs): Maybe we need to listen for errorEvents? But I think we don't
-    _eventChannel.receiveBroadcastStream().listen(eventListener);
+    _eventSubscription = _eventChannel.receiveBroadcastStream().listen(eventListener);
   }
 
   void eventListener(dynamic event) {
@@ -56,6 +58,7 @@ class PeerConnection {
 
   late MethodChannel _methodChannel;
   late EventChannel _eventChannel;
+  late StreamSubscription<dynamic>? _eventSubscription;
 
   OnIceConnectionStateChangeCallback? _onIceConnectionStateChange;
   OnIceCandidateCallback? _onIceCandidate;
@@ -114,7 +117,7 @@ class PeerConnection {
     List<dynamic> res =
         await _methodChannel.invokeMethod('getTransceivers');
     var transceivers = res.map((t) => RtpTransceiver.fromMap(t)).toList();
-    _transceivers = transceivers;
+    _transceivers.addAll(transceivers);
 
     return transceivers;
   }
@@ -156,6 +159,8 @@ class PeerConnection {
   }
 
   Future<void> close() async {
+    _transceivers.forEach((e) => e.stoppedByPeer());
+    await _eventSubscription?.cancel();
     await _methodChannel.invokeMethod('dispose');
   }
 }
