@@ -1,15 +1,17 @@
 extern crate derive_more;
-use cxx::CxxString;
+use cxx::{CxxString, UniquePtr};
 use derive_more::{From, Into};
 use libwebrtc_sys as sys;
 use sys::{CreateSdpCallback, PeerEventCallBack, SetDescriptionCallback};
 
-use std::borrow::BorrowMut;
+use std::pin::Pin;
 use std::{ffi::c_void, sync::atomic::Ordering};
 
 use std::sync::atomic::AtomicU64;
 
-use crate::Webrtc;
+use crate::{Webrtc};
+use crate::api::{MyEventCallback, call_on_event};
+
 
 /// This counter provides global resource for generating `unique id`.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -129,6 +131,7 @@ impl SetDescriptionCallback for SetLocalRemoteDescriptionCallBack {
     }
 }
 
+
 // todo
 pub struct PeerConnectionEventsCallBack {
     fn_event: extern "C" fn(&CxxString, *mut c_void),
@@ -160,9 +163,16 @@ impl PeerConnectionEventsCallBack {
 
 impl PeerEventCallBack for PeerConnectionEventsCallBack {
     //todo
-    fn on_event(&self, event: &CxxString) {
+    fn on_event(&mut self, event: &CxxString) {
         let fn_e = self.fn_event;
         fn_e(event, self.context);
+    }
+}
+
+impl PeerEventCallBack for MyEventCallback {
+    //todo
+    fn on_event(&mut self, event: &CxxString) {
+        unsafe {call_on_event(self, event)};
     }
 }
 
@@ -208,21 +218,14 @@ impl Webrtc {
         }
     }
 
-    // todo
-    pub fn reset_callback(
-        self: &mut Webrtc,
-        error: &mut String,
+    // todo not for release PR only test memory leak peer connection.
+    pub fn delete_pc(
+        &mut self,
         peer_connection_id: impl Into<PeerConnectionId>,
-        event_callback: Box<PeerConnectionEventsCallBack>,
     ) {
-        if let Some(peer_connection) =
-            self.0.peer_connections.get_mut(&peer_connection_id.into())
-        {
-            let obs = sys::PeerConnectionObserver::new(Box::new(event_callback));
-            //peer_connection.borrow_mut().peer_connection_interface
-        } else {
-            error.push_str("Peer Connection not found");
-        }
+        let pc = self.0.peer_connections.remove(&peer_connection_id.into()).unwrap();
+        drop(pc);
+        println!("RUST drop pc");
     }
 
     /// Creates a new `Offer`.

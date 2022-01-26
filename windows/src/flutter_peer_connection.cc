@@ -5,13 +5,33 @@
 #include <mutex>
 #include <thread>
 #include "flutter_webrtc.h"
+#include <atomic>
 
 using namespace rust::cxxbridge1;
 
-namespace callbacks {
+template<class T>
+class atomic_unique_ptr
+{
+  using pointer = T *;
+  std::atomic<pointer> ptr;
+public:
+  constexpr atomic_unique_ptr() noexcept : ptr() {}
+  explicit atomic_unique_ptr(pointer p) noexcept : ptr(p) {}
+  atomic_unique_ptr(atomic_unique_ptr&& p) noexcept : ptr(p.release()) {}
+  atomic_unique_ptr& operator=(atomic_unique_ptr&& p) noexcept { reset(p.release()); return *this; }
+  atomic_unique_ptr(std::unique_ptr<T>&& p) noexcept : ptr(p.release()) {}
+  atomic_unique_ptr& operator=(std::unique_ptr<T>&& p) noexcept { reset(p.release()); return *this; }
 
-// Event State chng #todo(DOC).
-typedef void (*event)(std::string);
+  void reset(pointer p = pointer()) { auto old = ptr.exchange(p); if (old) delete old; }
+  operator pointer() const { return ptr; }
+  pointer operator->() const { return ptr; }
+  pointer get() const { return ptr; }
+  explicit operator bool() const { return ptr != pointer(); }
+  pointer release() { return ptr.exchange(pointer()); }
+  ~atomic_unique_ptr() { reset(); }
+};
+
+namespace callbacks {
 
 // Callback for write `CreateOffer/Answer` success result in flutter.
 extern "C" void OnSuccessCreate(std::string sdp,
@@ -42,37 +62,24 @@ extern "C" void OnFail(std::string error, size_t context) {
 // todo.
 class EventContext {
  public:
-  flutter::EventSink<flutter::EncodableValue>** result;
-  flutter::EventChannel<flutter::EncodableValue>** lt_channel;
-  EventContext(flutter::EventSink<flutter::EncodableValue>** rs,
-               flutter::EventChannel<flutter::EncodableValue>** lt_ch) : result(rs), lt_channel(lt_ch) {}
-  ~EventContext() {
-    delete *result;
-    delete result;
-    delete *lt_channel;
-    delete lt_channel;
-  } 
-}
+  atomic_unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink;
+  atomic_unique_ptr<flutter::EventChannel<flutter::EncodableValue>> lt_channel;
+};
 
 // todo.
-extern "C" void
-OnEvent(std::string event, size_t context) {
-  auto result = (flutter::EventSink<flutter::EncodableValue>**)context;
+extern "C" void OnEvent(std::string event, size_t context) {
+  auto result = (EventContext*)context;
   result;
-  if ((*result) != nullptr) {
-    printf("OK %s\n", event.c_str());
-    (*result)->Success(EncodableValue(event));
-
-  } else {
-    printf("NULL\n");
+  if (result->event_sink.get() != nullptr) {
+    result->event_sink->Success(EncodableValue(event));
   }
 }
 
 // todo. must drop event_channel_ and event_sink_
 extern "C" void DropEventContext(size_t context) {
-  auto result = (flutter::EventSink<flutter::EncodableValue>**)context;
-  delete *result;
+  auto result = (EventContext*)context;
   delete result;
+  printf("Drop context\n");
 }
 
 }  // namespace callbacks
@@ -87,12 +94,12 @@ void CreateRTCPeerConnection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-  flutter::EventSink<flutter::EncodableValue>** event_sink_ =
-      new flutter::EventSink<flutter::EncodableValue>*(nullptr);
+
+  callbacks::EventContext* event_context = new callbacks::EventContext();
 
   auto event_call_back = create_peer_connection_events_call_back(
       (size_t)callbacks::OnEvent, (size_t)callbacks::DropEventContext,
-      (size_t)event_sink_);
+      (size_t)event_context);
 
   // create id
   rust::String error;
@@ -102,29 +109,23 @@ void CreateRTCPeerConnection(
       [=](const flutter::EncodableValue* arguments,
           std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        printf("SET\n");
-        // data race?
-        (*event_sink_) = events.release();
-        // temp_event_sink_->Success("test");
+        event_context->event_sink = std::move(events);
         return nullptr;
       },
 
       [=](const flutter::EncodableValue* arguments)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        printf("Drop\n");
-        // WARNING MB DATA RACE!!!.
-        // auto temp = temp_event_sink_;
-        // // reset callback
-        // temp_event_sink_ = nullptr;
-        // delete temp;
+        event_context->event_sink.reset();
         return nullptr;
       });
 
   std::string peer_connection_id = std::to_string(id);
-  auto event_channel_ = new EventChannel<EncodableValue>(
-      messenger, "test_peer_conn" + peer_connection_id,
-      &StandardMethodCodec::GetInstance());
-  event_channel_->SetStreamHandler(std::move(handler));
+  auto event_channel = std::unique_ptr<EventChannel<EncodableValue>>(new EventChannel<EncodableValue>(
+      messenger, "PeerConnection/Event/channel/id/" + peer_connection_id,
+      &StandardMethodCodec::GetInstance()));
+  event_channel->SetStreamHandler(std::move(handler));
+
+  event_context->lt_channel = std::move(event_channel);
 
   if (error == "") {
     EncodableMap params;
@@ -306,5 +307,16 @@ void SetRemoteDescription(
     delete res;
   }
 };
+
+void DeletePC(
+  Box<Webrtc>& webrtc,
+  const flutter::MethodCall<EncodableValue>& method_call,
+  std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+    const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+    const std::string peerConnectionId = findString(params, "peerConnectionId");
+    webrtc->DeletePeerConnection(stoi(peerConnectionId));
+    printf("delete pc%s\n", peerConnectionId.c_str());
+    result->Success(nullptr);
+  }
 
 }  // namespace flutter_webrtc_plugin

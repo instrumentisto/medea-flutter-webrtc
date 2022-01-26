@@ -153,7 +153,7 @@ pub(crate) mod webrtc {
         type PeerConnectionEventsCallBack;
 
         pub fn peer_connection_events_call_back_on_event(
-            cb: &PeerConnectionEventsCallBack,
+            cb: &mut PeerConnectionEventsCallBack,
             event: &CxxString,
         );
 
@@ -447,11 +447,11 @@ pub fn fail_set_description(
 }
 
 pub trait PeerEventCallBack {
-    fn on_event(&self, event: &CxxString);
+    fn on_event(&mut self, event: &CxxString);
 }
 pub type PeerConnectionEventsCallBack = Box<dyn PeerEventCallBack>;
 pub fn peer_connection_events_call_back_on_event(
-    cb: &PeerConnectionEventsCallBack,
+    cb: &mut PeerConnectionEventsCallBack,
     event: &CxxString,
 ) {
     cb.on_event(event);

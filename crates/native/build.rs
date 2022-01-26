@@ -1,13 +1,17 @@
 #![warn(clippy::pedantic)]
 
-use std::{env, fs, path::Path};
+use std::{env, fs, path::{Path, PathBuf}};
 
 use anyhow::{anyhow, Context};
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
+    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let package_name = env::var("CARGO_PKG_NAME")?.replace('-', "_");
-    cxx_build::bridge("src/lib.rs").compile(&package_name);
+    cxx_build::bridge("src/lib.rs")
+    .include(path.join("include"))
+    .file(path.join("src/cpp/rust_call_callback.cc"))
+    .compile(&package_name);
 
     copy_cxxbridge1_lib()?;
     Ok(())

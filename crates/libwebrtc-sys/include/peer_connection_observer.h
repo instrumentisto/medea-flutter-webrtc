@@ -22,7 +22,6 @@ namespace observer {
 class PeerConnectionObserver: public webrtc::PeerConnectionObserver
 {
   public:
-
   // todo
   PeerConnectionObserver(rust::Box<bridge::PeerConnectionEventsCallBack> cb);
 
@@ -140,6 +139,9 @@ class PeerConnectionObserver: public webrtc::PeerConnectionObserver
   // The heuristics for defining what constitutes "interesting" are
   // implementation-defined.
   void OnInterestingUsage(int usage_pattern);
+
+  //~PeerConnectionObserver() {};
+
   private:
   std::optional<rust::Box<bridge::PeerConnectionEventsCallBack>> cb;
 };
