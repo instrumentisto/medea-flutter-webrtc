@@ -42,7 +42,7 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
 
   @override
   Future<void> setEnabled(bool enabled) async {
-    await _methodChannel.invokeMethod('setEnabled', {'enabled': true});
+    await _methodChannel.invokeMethod('setEnabled', {'enabled': enabled});
     _enabled = enabled;
   }
 
