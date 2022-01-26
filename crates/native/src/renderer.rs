@@ -4,6 +4,9 @@ use crate::{Frame, MediaStreamId, VideoTrackId, Webrtc};
 
 use cxx::UniquePtr;
 use libwebrtc_sys as sys;
+use crate::api::OnFrameHandler;
+
+type OnFrameCallback = extern "C" fn(*mut Frame);
 
 /// Identifier of the `Flutter Texture`, used as [`Renderer`] `id`.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -63,15 +66,21 @@ unsafe extern "C" fn register_renderer(
 }
 
 /// Callback which passed to `libWebRTC`.
-unsafe fn cb(frame: UniquePtr<sys::VideoFrame>, on_frame_cb: usize) {
+fn cb(frame: UniquePtr<sys::VideoFrame>, on_frame_cb: usize) {
     let frame = Frame::create(frame);
 
-    let on_frame_cb: OnFrameCallback = mem::transmute(on_frame_cb);
+    let on_frame_cb: OnFrameCallback = unsafe { mem::transmute(on_frame_cb) };
 
     on_frame_cb(Box::into_raw(Box::new(frame)));
 }
 
 impl Webrtc {
+    pub fn create_renderer(&mut self, mut handler: UniquePtr<OnFrameHandler>) {
+        unsafe {
+            handler.pin_mut().on_frame(Box::into_raw(Box::new(())).cast())
+        };
+    }
+
     /// Drops the [`Renderer`] according to the given [`TextureId`].
     ///
     /// # Panics

@@ -1,6 +1,10 @@
 #pragma once
 
+#include "rust/cxx.h"
+
+struct Frame;
+
 class OnFrameHandler {
  public:
-  virtual void onFrame() = 0;
+  virtual void OnFrame(Frame*) = 0;
 };

@@ -5,6 +5,7 @@
 
 #include "flutter_webrtc_base.h"
 #include "flutter_webrtc_native.h"
+#include "api.h"
 
 namespace flutter_webrtc_plugin {
 
@@ -99,4 +100,12 @@ class TextureVideoRenderer {
   // `Frame`'s rotation.
   VideoRotation rotation_ = VideoRotation::kVideoRotation_0;
 };
+
+class FrameRenderer: OnFrameHandler {
+ public:
+  void OnFrame() override;
+ private:
+  void *context;
+};
+
 }  // namespace flutter_webrtc_plugin

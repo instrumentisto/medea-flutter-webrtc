@@ -237,7 +237,7 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
 }
 
 // Calls `libyuv::I420ToABGR`.
-void i420_to_abgr(const VideoFrame& video_frame, uint8_t* buffer_ptr) {
+void i420_to_abgr(const webrtc::VideoFrame& video_frame, uint8_t* buffer_ptr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       video_frame.video_frame_buffer()->ToI420());
   if (video_frame.rotation() != webrtc::kVideoRotation_0) {
@@ -252,7 +252,7 @@ void i420_to_abgr(const VideoFrame& video_frame, uint8_t* buffer_ptr) {
 
 // Returns a new `VideoRendererSink`.
 std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
-    rust::Fn<void(std::unique_ptr<VideoFrame>, size_t)> cb,
+    rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
     size_t ctx) {
   return std::make_unique<VideoRendererSink>(cb, ctx);
 }

@@ -19,6 +19,7 @@ add_library(${PLUGIN_NAME} SHARED
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/include/flutter_webrtc_native/include"
 )
 
 apply_standard_settings(${PLUGIN_NAME})

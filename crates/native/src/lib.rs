@@ -2,9 +2,9 @@
 
 mod device_info;
 mod frame;
+mod internal;
 mod renderer;
 mod user_media;
-mod internal;
 
 use std::{collections::HashMap, rc::Rc};
 
@@ -147,7 +147,13 @@ pub mod api {
         kVideoRotation_270 = 270,
     }
 
+    extern "C++" {
+        type OnFrameHandler = crate::internal::OnFrameHandler;
+    }
+
     extern "Rust" {
+        include!("flutter-webrtc-native/include/api.h");
+
         type Webrtc;
         type Frame;
 
@@ -171,6 +177,8 @@ pub mod api {
         /// Disposes the [`MediaStream`] and all contained tracks.
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
+
+        pub fn create_renderer(self: &mut Webrtc, handler: UniquePtr<OnFrameHandler>);
 
         /// Returns the [`Frame`]'s `width`.
         fn width(self: &Frame) -> i32;

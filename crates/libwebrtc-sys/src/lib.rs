@@ -3,16 +3,12 @@
 
 mod bridge;
 
-use std::mem;
-
 use anyhow::bail;
 use cxx::UniquePtr;
 
 use self::bridge::webrtc;
 
 pub use webrtc::{i420_to_abgr, AudioLayer, VideoFrame, VideoRotation};
-
-type OnFrameCallback = extern "C" fn(*mut Frame);
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.

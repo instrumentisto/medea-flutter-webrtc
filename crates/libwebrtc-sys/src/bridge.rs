@@ -200,7 +200,6 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         type VideoFrame;
         type VideoRendererSink;
-        #[namespace = "webrtc"]
         type VideoRotation;
 
         /// Returns width of the [`VideoFrame`].

@@ -12,6 +12,9 @@ extern "C" void register_renderer(rust::Box<Webrtc>&,
                                   uint64_t,
                                   frame_handler);
 
+void FrameRenderer::OnFrame() {
+}
+
 //// `Frame` handler. Sends events to Dart when receives the `Frame`.
 //void OnFrame(Frame* frame) {
 //  if (!first_frame_rendered) {

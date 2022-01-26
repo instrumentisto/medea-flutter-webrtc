@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::bail;
-use derive_more::{AsRef, Display};
+use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 
 use crate::{

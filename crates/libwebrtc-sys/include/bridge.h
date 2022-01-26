@@ -56,6 +56,7 @@ using Thread = rtc::Thread;
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+using VideoRotation = webrtc::VideoRotation;
 
 using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
 using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
