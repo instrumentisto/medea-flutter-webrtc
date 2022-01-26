@@ -4,6 +4,7 @@ mod device_info;
 mod frame;
 mod renderer;
 mod user_media;
+mod internal;
 
 use std::{collections::HashMap, rc::Rc};
 

@@ -7,7 +7,7 @@ use libwebrtc_sys as sys;
 
 /// Identifier of the `Flutter Texture`, used as [`Renderer`] `id`.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct TextureId(i64); // TODO: RendererId asdasd
+pub struct TextureId(i64); // TODO: RendererId
 
 /// [`sys::Renderer`] wrapper.
 pub struct Renderer {
