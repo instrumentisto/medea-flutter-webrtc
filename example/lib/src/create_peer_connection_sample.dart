@@ -50,12 +50,13 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
 
+      try {
       final createPeerConnection1 = await WebRTC.invokeMethod(
         'createPeerConnection', null
       );
       String pc1_id = createPeerConnection1['peerConnectionId'];
       var ch1 = EventChannel('PeerConnection/Event/channel/id/$pc1_id');
-      var sub1 = ch1
+      var sub1 = await ch1
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
 
@@ -66,7 +67,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       String pc2_id = createPeerConnection2['peerConnectionId'];
 
       var ch2 = EventChannel('PeerConnection/Event/channel/id/$pc2_id');
-      ch2
+      var sub2 = await ch2
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
 
@@ -116,19 +117,26 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           'type': createAnswer2['type']}
       });
 
-      final delete_pc1 =
-            await WebRTC.invokeMethod('deletePC', <String, dynamic>{
-          'peerConnectionId': pc1_id
-      });
-      final delete_pc2 =
-            await WebRTC.invokeMethod('deletePC', <String, dynamic>{
-          'peerConnectionId': pc2_id
-      });
+      await sub1.cancel();
+
+      // final delete_pc1 =
+      //       await WebRTC.invokeMethod('deletePC', <String, dynamic>{
+      //     'peerConnectionId': pc1_id
+      // });
+      
+      // final delete_pc2 =
+      //       await WebRTC.invokeMethod('deletePC', <String, dynamic>{
+      //     'peerConnectionId': pc2_id
+      // });
 
 
       setState(() {
         text = 'test is success';
       });
+      }
+      catch (e) {
+        print(e.toString());
+      }
   }
 
 

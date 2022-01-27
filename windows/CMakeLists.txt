@@ -12,7 +12,6 @@ add_library(${PLUGIN_NAME} SHARED
   "flutter_webrtc_plugin.cc"
   "src/flutter_webrtc.cc"
   "src/flutter_peer_connection.cc"
-  "src/test_obs.cc"
   "src/media_stream.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/src/flutter_webrtc_native.cc"
 )

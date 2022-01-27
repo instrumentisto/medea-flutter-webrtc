@@ -97,7 +97,7 @@ cargo.build:
 	@mkdir -p windows/rust/include/flutter_webrtc_native/include/
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
 		windows/rust/lib/flutter_webrtc_native.dll
-	cp -f $(lib-out-path)/native.dll.lib \
+	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
 		windows/rust/lib/flutter_webrtc_native.dll.lib
 	cp -f target/cxxbridge/cxxbridge1.lib \
 		windows/rust/lib/cxxbridge1.lib
@@ -107,8 +107,6 @@ cargo.build:
 		windows/rust/include/flutter_webrtc_native/include/api.h
 	cp -f target/cxxbridge/flutter_webrtc_native/src/lib.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
-	cp -f crates/native/include/callback.h \
-		windows/rust/include/callback.h
 
 
 # Generate documentation for project crates.

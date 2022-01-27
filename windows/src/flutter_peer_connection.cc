@@ -1,28 +1,38 @@
 #include "flutter_peer_connection.h"
 #include "media_stream.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
 #include "flutter_webrtc.h"
-#include <atomic>
 
 using namespace rust::cxxbridge1;
 
-template<class T>
-class atomic_unique_ptr
-{
-  using pointer = T *;
+template <class T>
+class atomic_unique_ptr {
+  using pointer = T*;
   std::atomic<pointer> ptr;
-public:
+
+ public:
   constexpr atomic_unique_ptr() noexcept : ptr() {}
   explicit atomic_unique_ptr(pointer p) noexcept : ptr(p) {}
   atomic_unique_ptr(atomic_unique_ptr&& p) noexcept : ptr(p.release()) {}
-  atomic_unique_ptr& operator=(atomic_unique_ptr&& p) noexcept { reset(p.release()); return *this; }
+  atomic_unique_ptr& operator=(atomic_unique_ptr&& p) noexcept {
+    reset(p.release());
+    return *this;
+  }
   atomic_unique_ptr(std::unique_ptr<T>&& p) noexcept : ptr(p.release()) {}
-  atomic_unique_ptr& operator=(std::unique_ptr<T>&& p) noexcept { reset(p.release()); return *this; }
+  atomic_unique_ptr& operator=(std::unique_ptr<T>&& p) noexcept {
+    reset(p.release());
+    return *this;
+  }
 
-  void reset(pointer p = pointer()) { auto old = ptr.exchange(p); if (old) delete old; }
+  void reset(pointer p = pointer()) {
+    auto old = ptr.exchange(p);
+    if (old)
+      delete old;
+  }
   operator pointer() const { return ptr; }
   pointer operator->() const { return ptr; }
   pointer get() const { return ptr; }
@@ -73,14 +83,15 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
 };
 
 class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
-  public:
-  PeerConnectionOnEvent(std::shared_ptr<EventContext> context) : context(context) {}; 
+ public:
+  PeerConnectionOnEvent(std::shared_ptr<EventContext> context)
+      : context(context){};
   void OnSignalingChange(const std::string& event) {
     context->event_sink.get()->Success(EncodableValue(event));
   }
-  private:
-  std::shared_ptr<EventContext> context;
 
+ private:
+  std::shared_ptr<EventContext> context;
 };
 
 namespace flutter_webrtc_plugin {
@@ -93,10 +104,11 @@ void CreateRTCPeerConnection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
-  std::shared_ptr<EventContext> event_context = std::make_shared<EventContext>(EventContext());
-  std::unique_ptr<PeerConnectionOnEventInterface> event_callback 
-    = std::unique_ptr<PeerConnectionOnEventInterface>(new PeerConnectionOnEvent(event_context));
+  std::shared_ptr<EventContext> event_context =
+      std::make_shared<EventContext>(EventContext());
+  std::unique_ptr<PeerConnectionOnEventInterface> event_callback =
+      std::unique_ptr<PeerConnectionOnEventInterface>(
+          new PeerConnectionOnEvent(event_context));
 
   // create id
   rust::String error;
@@ -117,9 +129,10 @@ void CreateRTCPeerConnection(
       });
 
   std::string peer_connection_id = std::to_string(id);
-  auto event_channel = std::unique_ptr<EventChannel<EncodableValue>>(new EventChannel<EncodableValue>(
-      messenger, "PeerConnection/Event/channel/id/" + peer_connection_id,
-      &StandardMethodCodec::GetInstance()));
+  auto event_channel = std::unique_ptr<EventChannel<EncodableValue>>(
+      new EventChannel<EncodableValue>(
+          messenger, "PeerConnection/Event/channel/id/" + peer_connection_id,
+          &StandardMethodCodec::GetInstance()));
   event_channel->SetStreamHandler(std::move(handler));
 
   event_context->lt_channel = std::move(event_channel);
@@ -303,11 +316,11 @@ void SetRemoteDescription(
 };
 
 void DeletePC(Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-      const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-      const std::string peerConnectionId = findString(params, "peerConnectionId");
-      webrtc->DeletePeerConnection(stoi(peerConnectionId));
-    };
+              const flutter::MethodCall<EncodableValue>& method_call,
+              std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+  const std::string peerConnectionId = findString(params, "peerConnectionId");
+  webrtc->DeletePeerConnection(stoi(peerConnectionId));
+};
 
 }  // namespace flutter_webrtc_plugin

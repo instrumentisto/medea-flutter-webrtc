@@ -109,12 +109,10 @@ impl Webrtc {
         &mut self,
         peer_connection_id: impl Into<PeerConnectionId>,
     ) {
-        let pc = self
+        self
             .0
             .peer_connections
-            .remove(&peer_connection_id.into())
-            .unwrap();
-        drop(pc);
+            .remove(&peer_connection_id.into());
         println!("RUST drop pc");
     }
 
