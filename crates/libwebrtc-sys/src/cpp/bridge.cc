@@ -106,24 +106,6 @@ std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
-// Calls `CreatePeerConnectionFactory()`.
-std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    Thread& worker_thread,
-    Thread& signaling_thread) {
-  auto factory = webrtc::CreatePeerConnectionFactory(
-      &worker_thread, &worker_thread, &signaling_thread, nullptr,
-      webrtc::CreateBuiltinAudioEncoderFactory(),
-      webrtc::CreateBuiltinAudioDecoderFactory(),
-      webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
-
-  if (factory == nullptr) {
-    return nullptr;
-  }
-
-  return std::make_unique<PeerConnectionFactoryInterface>(factory);
-}
-
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
@@ -148,8 +130,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 // `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
-  auto src =
-      peer_connection_factory->CreateAudioSource(cricket::AudioOptions());
+  auto src = peer_connection_factory->CreateAudioSource(
+      cricket::AudioOptions());
 
   if (src == nullptr) {
     return nullptr;
@@ -163,8 +145,8 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
-  auto track = peer_connection_factory->CreateVideoTrack(std::string(id),
-                                                         video_source.ptr());
+  auto track = peer_connection_factory->CreateVideoTrack(
+      std::string(id), video_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -178,8 +160,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source) {
-  auto track = peer_connection_factory->CreateAudioTrack(std::string(id),
-                                                         audio_source.ptr());
+  auto track = peer_connection_factory->CreateAudioTrack(
+      std::string(id), audio_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -192,8 +174,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id) {
-  auto stream =
-      peer_connection_factory->CreateLocalMediaStream(std::string(id));
+  auto
+      stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
 
   if (stream == nullptr) {
     return nullptr;
@@ -226,62 +208,34 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
   return media_stream->RemoveTrack(track.ptr());
 }
 
-// Creates `CreateBuiltinAudioEncoderFactory`.
-std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory() {
-  rtc::scoped_refptr<webrtc::AudioEncoderFactory> factory =
-      webrtc::CreateBuiltinAudioEncoderFactory();
-  return std::make_unique<AudioEncoderFactory>(factory);
-}
-
-// Creates `CreateBuiltinAudioDecoderFactory`.
-std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory() {
-  rtc::scoped_refptr<webrtc::AudioDecoderFactory> factory =
-      webrtc::CreateBuiltinAudioDecoderFactory();
-  return std::make_unique<AudioDecoderFactory>(factory);
-}
-
 // Creates `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    std::unique_ptr<AudioDeviceModule> default_adm,
-    AudioEncoderFactory& audio_encoder_factory,
-    AudioDecoderFactory& audio_decoder_factory,
-    std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
-    std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
-    std::unique_ptr<AudioMixer> audio_mixer,
-    std::unique_ptr<AudioProcessing> audio_processing,
-    std::unique_ptr<AudioFrameProcessor> audio_frame_processor) {
+    const std::unique_ptr<AudioDeviceModule>& default_adm) {
   auto default_adm_ =
       default_adm.get() == nullptr ? nullptr : default_adm.get()->ptr();
   if (default_adm_ != nullptr) {
     default_adm_->AddRef();
   }
-  auto audio_mixer_ =
-      audio_mixer.get() == nullptr ? nullptr : audio_mixer.get()->ptr();
-  if (audio_mixer_ != nullptr) {
-    audio_mixer_->AddRef();
-  }
-  auto audio_processing_ = audio_processing.get() == nullptr
-                               ? nullptr
-                               : audio_processing.get()->ptr();
-  if (audio_processing_ != nullptr) {
-    audio_processing_->AddRef();
-  }
 
-  auto factory = std::make_unique<PeerConnectionFactoryInterface>(
-      webrtc::CreatePeerConnectionFactory(
-          network_thread.get(), worker_thread.get(), signaling_thread.get(),
-          default_adm_, audio_encoder_factory.ptr(),
-          audio_decoder_factory.ptr(), std::move(video_encoder_factory),
-          std::move(video_decoder_factory), audio_mixer_, audio_processing_,
-          audio_frame_processor.get()));
+  auto factory = webrtc::CreatePeerConnectionFactory(
+      &network_thread,
+      &worker_thread,
+      &signaling_thread,
+      default_adm_,
+      webrtc::CreateBuiltinAudioEncoderFactory(),
+      webrtc::CreateBuiltinAudioDecoderFactory(),
+      webrtc::CreateBuiltinVideoEncoderFactory(),
+      webrtc::CreateBuiltinVideoDecoderFactory(),
+      nullptr,
+      nullptr);
 
   if (factory == nullptr) {
     return nullptr;
   }
-  return factory;
+  return std::make_unique<PeerConnectionFactoryInterface>(factory);
 }
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
@@ -322,8 +276,7 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
 }
 
 // Creates `RTCOfferAnswerOptions`.
-std::unique_ptr<RTCOfferAnswerOptions>
-create_default_rtc_offer_answer_options() {
+std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options() {
   return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions());
 }
 
@@ -381,7 +334,7 @@ void create_answer(PeerConnectionInterface& peer_connection_interface,
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
                            std::unique_ptr<SessionDescriptionInterface> desc,
                            std::unique_ptr<SetLocalDescriptionObserver> obs) {
-  rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface> observer =
+  auto observer =
       rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(
           obs.release());
   peer_connection_interface.ptr()->SetLocalDescription(std::move(desc),
@@ -392,7 +345,7 @@ void set_local_description(PeerConnectionInterface& peer_connection_interface,
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs) {
-  rtc::scoped_refptr<SetRemoteDescriptionObserver> observer =
+  auto observer =
       rtc::scoped_refptr<SetRemoteDescriptionObserver>(obs.release());
   peer_connection_interface.ptr()->SetRemoteDescription(std::move(desc),
                                                         observer);

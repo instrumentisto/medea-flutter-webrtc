@@ -55,7 +55,6 @@ class rc {
 };
 
 using Thread = rtc::Thread;
-using AudioFrameProcessor = webrtc::AudioFrameProcessor;
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
 using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
@@ -64,15 +63,9 @@ using RTCOfferAnswerOptions =
 using SdpType = webrtc::SdpType;
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
-using VideoDecoderFactory = webrtc::VideoDecoderFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
-using VideoEncoderFactory = webrtc::VideoEncoderFactory;
 
-using AudioDecoderFactory = rc<webrtc::AudioDecoderFactory>;
 using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
-using AudioEncoderFactory = rc<webrtc::AudioEncoderFactory>;
-using AudioMixer = rc<webrtc::AudioMixer>;
-using AudioProcessing = rc<webrtc::AudioProcessing>;
 using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
 using AudioTrackInterface = rc<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = rc<webrtc::MediaStreamInterface>;
@@ -139,25 +132,12 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Calls `Thread->Create()`.
 std::unique_ptr<Thread> create_thread();
 
-// Creates `CreateBuiltinAudioEncoderFactory`.
-std::unique_ptr<AudioEncoderFactory> create_builtin_audio_encoder_factory();
-
-// Creates `CreateBuiltinAudioDecoderFactory`.
-std::unique_ptr<AudioDecoderFactory> create_builtin_audio_decoder_factory();
-
 // Creates `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    std::unique_ptr<AudioDeviceModule> default_adm,
-    AudioEncoderFactory& audio_encoder_factory,
-    AudioDecoderFactory& audio_decoder_factory,
-    std::unique_ptr<VideoEncoderFactory> video_encoder_factory,
-    std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
-    std::unique_ptr<AudioMixer> audio_mixer,
-    std::unique_ptr<AudioProcessing> audio_processing,
-    std::unique_ptr<AudioFrameProcessor> audio_frame_processor);
+    std::unique_ptr<AudioDeviceModule> default_adm);
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
 std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(

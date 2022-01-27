@@ -90,7 +90,7 @@ flutter.run:
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
-	cargo build -p flutter_webrtc_native $(if $(call eq,$(debug),no),--release,)
+	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/

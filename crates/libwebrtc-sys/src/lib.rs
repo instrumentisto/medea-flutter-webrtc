@@ -4,8 +4,8 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack};
 pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
+use bridge::{DynCreateSdpCallback, DynSetDescriptionCallback};
 use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
@@ -198,78 +198,6 @@ impl VideoDeviceInfo {
     }
 }
 
-/// A factory that creates `AudioEncoder`s.
-pub struct AudioEncoderFactory(UniquePtr<webrtc::AudioEncoderFactory>);
-
-impl Default for AudioEncoderFactory {
-    /// Creates a new `Builtin` [`AudioEncoderFactory`]
-    fn default() -> Self {
-        AudioEncoderFactory(webrtc::create_builtin_audio_encoder_factory())
-    }
-}
-
-/// A factory that creates `AudioDecoder`s.
-pub struct AudioDecoderFactory(UniquePtr<webrtc::AudioDecoderFactory>);
-
-impl Default for AudioDecoderFactory {
-    /// Creates a new `Builtin` [`AudioDecoderFactory`]
-    fn default() -> Self {
-        AudioDecoderFactory(webrtc::create_builtin_audio_decoder_factory())
-    }
-}
-
-/// A factory that creates `VideoEncoder`s.
-pub struct VideoEncoderFactory(UniquePtr<webrtc::VideoEncoderFactory>);
-
-impl Default for VideoEncoderFactory {
-    /// Creates a new `Builtin` [`VideoEncoderFactory`]
-    fn default() -> Self {
-        VideoEncoderFactory(webrtc::create_builtin_video_encoder_factory())
-    }
-}
-
-/// A factory that creates `VideoDecoder`s.
-pub struct VideoDecoderFactory(UniquePtr<webrtc::VideoDecoderFactory>);
-
-impl Default for VideoDecoderFactory {
-    /// Creates a new `Builtin` [`VideoDecoderFactory`]
-    fn default() -> Self {
-        VideoDecoderFactory(webrtc::create_builtin_video_decoder_factory())
-    }
-}
-
-/// Webrtc audio mixer.
-pub struct AudioMixer(UniquePtr<webrtc::AudioMixer>);
-
-/// The Audio Processing Module (APM) provides a collection of voice processing
-/// components designed for real-time communications software.
-///
-/// APM operates on two audio streams on a frame-by-frame basis. Frames of the
-/// primary stream, on which all processing is applied, are passed to
-/// `ProcessStream()`. Frames of the reverse direction stream are passed to
-/// `ProcessReverseStream()`. On the client-side, this will typically be the
-/// near-end (capture) and far-end (render) streams, respectively. APM should be
-/// placed in the signal chain as close to the audio hardware abstraction layer
-/// (HAL) as possible.
-///
-/// On the server-side, the reverse stream will normally not be used, with
-/// processing occurring on each incoming stream.
-///
-/// Component interfaces follow a similar pattern and are accessed through
-/// corresponding getters in APM. All components are disabled at create-time,
-/// with default settings that are recommended for most situations. New settings
-/// can be applied without enabling a component. Enabling a component triggers
-/// memory allocation and initialization to allow it to start processing the
-/// streams.
-pub struct AudioProcessing(UniquePtr<webrtc::AudioProcessing>);
-
-/// Audio frame processor. If passed into `PeerConnectionFactory`,
-/// will be used for additional
-/// processing of captured audio frames, performed before encoding.
-/// # Warning
-/// Implementations must be thread-safe.
-pub struct AudioFrameProcessor(UniquePtr<webrtc::AudioFrameProcessor>);
-
 /// RTCConfiguration used for creating [`PeerConnectionInterface`]
 pub struct RTCConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 
@@ -368,14 +296,14 @@ impl SessionDescriptionInterface {
 /// for calling callback when create `Offer` or `Answer`
 /// success or fail.
 pub struct CreateSessionDescriptionObserver(
-    pub UniquePtr<webrtc::CreateSessionDescriptionObserver>,
+    UniquePtr<webrtc::CreateSessionDescriptionObserver>,
 );
 
 impl CreateSessionDescriptionObserver {
     /// Creates a [`CreateSessionDescriptionObserver`].
     #[must_use]
-    pub fn new(cb: Box<CreateOfferAnswerCallback>) -> Self {
-        Self(webrtc::create_create_session_observer(cb))
+    pub fn new(cb: Box<dyn CreateSdpCallback>) -> Self {
+        Self(webrtc::create_create_session_observer(Box::new(cb)))
     }
 }
 
@@ -389,8 +317,8 @@ pub struct SetLocalDescriptionObserver(
 impl SetLocalDescriptionObserver {
     /// Creates a [`SetLocalDescriptionObserver`].
     #[must_use]
-    pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
-        Self(webrtc::create_set_local_description_observer(cb))
+    pub fn new(cb: Box<dyn SetDescriptionCallback>) -> Self {
+        Self(webrtc::create_set_local_description_observer(Box::new(cb)))
     }
 }
 
@@ -404,8 +332,8 @@ pub struct SetRemoteDescriptionObserver(
 impl SetRemoteDescriptionObserver {
     /// Creates a [`SetRemoteDescriptionObserver`].
     #[must_use]
-    pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
-        Self(webrtc::create_set_remote_description_observer(cb))
+    pub fn new(cb: Box<dyn SetDescriptionCallback>) -> Self {
+        Self(webrtc::create_set_remote_description_observer(Box::new(cb)))
     }
 }
 
@@ -510,31 +438,18 @@ pub struct PeerConnectionFactoryInterface(
 );
 
 impl PeerConnectionFactoryInterface {
-    /// Creates a [`PeerConnectionFactoryInterface`] whith default
-    /// [`AudioEncoderFactory`], [`AudioDecoderFactory`],
-    /// [`VideoEncoderFactory`], [`VideoDecoderFactory`],
-    /// one new [`Thread`] for `network_thread`, `worker_thread`,
-    /// `signaling_thread`.
-    /// `default_adm` - NULL, `audio_mixer` - NULL, `audio_processing` - NULL,
-    /// `audio_frame_processor` - NULL.
     #[must_use]
-    pub fn create_whith_null(
+    pub fn create(
         network_thread: Option<&Thread>,
         worker_thread: Option<&Thread>,
         signaling_thread: Option<&Thread>,
+        default_adm: Option<&AudioDeviceModule>,
     ) -> Self {
         Self(webrtc::create_peer_connection_factory(
             network_thread.map_or(&UniquePtr::null(), |t| &t.0),
             worker_thread.map_or(&UniquePtr::null(), |t| &t.0),
             signaling_thread.map_or(&UniquePtr::null(), |t| &t.0),
-            UniquePtr::null(),
-            AudioEncoderFactory::default().0.pin_mut(),
-            AudioDecoderFactory::default().0.pin_mut(),
-            VideoEncoderFactory::default().0,
-            VideoDecoderFactory::default().0,
-            UniquePtr::null(),
-            UniquePtr::null(),
-            UniquePtr::null(),
+            default_adm.map_or(&UniquePtr::null(), |t| &t.0),
         ))
     }
 
@@ -544,22 +459,22 @@ impl PeerConnectionFactoryInterface {
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be default or NULL.
-    pub fn create_peer_connection_or_error(
+    pub fn create_peer_connection(
         &mut self,
-        error: &mut String,
         configuration: &RTCConfiguration,
         dependencies: PeerConnectionDependencies,
-    ) -> PeerConnectionInterface {
-        let res = webrtc::create_peer_connection_or_error(
+    ) -> anyhow::Result<PeerConnectionInterface> {
+        let error = String::new();
+        let pc = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
-            error,
             &configuration.0,
             dependencies.0,
+            &mut error,
         );
         if error.is_empty() {
-            PeerConnectionInterface(res)
+            Ok(PeerConnectionInterface(pc))
         } else {
-            PeerConnectionInterface(UniquePtr::null())
+            bail!(error);
         }
     }
 

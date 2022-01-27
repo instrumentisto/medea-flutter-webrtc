@@ -1,9 +1,8 @@
 use cxx::CxxString;
 
-#[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
+#[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
-
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -31,12 +30,14 @@ pub(crate) mod webrtc {
         /// An RTCSdpType of "offer" indicates
         /// that a description MUST be treated as an [SDP] offer.
         kOffer = 0,
+
         /// An RTCSdpType of "pranswer" indicates that a description
         /// MUST be treated as an [SDP] answer, but not a final answer.
         /// A description used as an SDP pranswer may be applied
         /// as a response to an SDP offer, or an update to
         /// a previously sent SDP pranswer.
         kPrAnswer,
+
         /// An RTCSdpType of "answer" indicates that a description
         /// MUST be treated as an [SDP] final answer,
         /// and the offer-answer exchange MUST be considered complete.
@@ -44,6 +45,7 @@ pub(crate) mod webrtc {
         /// as a response to an SDP offer or as an update
         /// to a previously sent SDP pranswer.
         kAnswer,
+
         /// An RTCSdpType of "rollback" indicates that a description
         /// MUST be treated as canceling the current SDP negotiation
         /// and moving the SDP [SDP] offer back to what
@@ -59,6 +61,8 @@ pub(crate) mod webrtc {
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
+
+        type PeerConnectionFactoryInterface;
         type TaskQueueFactory;
         type Thread;
 
@@ -75,7 +79,21 @@ pub(crate) mod webrtc {
         /// Starts the current [`Thread`].
         #[cxx_name = "Start"]
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
+
+        /// Creates a new [`PeerConnectionFactoryInterface`].
+        /// Where `default_adm` - can be?? NULL,
+        /// `audio_mixer` - can be NULL,
+        /// `audio_processing` - can be?? NULL,
+        /// `audio_frame_processor` - default NULL,
+        #[allow(clippy::too_many_arguments)]
+        pub fn create_peer_connection_factory(
+            network_thread: &UniquePtr<Thread>,
+            worker_thread: &UniquePtr<Thread>,
+            signaling_thread: &UniquePtr<Thread>,
+            default_adm: &UniquePtr<AudioDeviceModule>,
+        ) -> UniquePtr<PeerConnectionFactoryInterface>;
     }
+
     unsafe extern "C++" {
         type AudioDeviceModule;
         type AudioLayer;
@@ -180,14 +198,8 @@ pub(crate) mod webrtc {
 
     #[rustfmt::skip]
     unsafe extern "C++" {
-        type AudioDecoderFactory;
-        type AudioEncoderFactory;
-        type AudioFrameProcessor;
-        type AudioMixer;
-        type AudioProcessing;
         type CreateSessionDescriptionObserver;
         type PeerConnectionDependencies;
-        type PeerConnectionFactoryInterface;
         type PeerConnectionInterface;
         type PeerConnectionObserver;
         type RTCConfiguration;
@@ -196,48 +208,6 @@ pub(crate) mod webrtc {
         type SessionDescriptionInterface;
         type SetLocalDescriptionObserver;
         type SetRemoteDescriptionObserver;
-        type VideoDecoderFactory;
-        type VideoEncoderFactory;
-
-        /// Creates a new [`VideoEncoderFactory`].
-        #[namespace = "webrtc"]
-        #[cxx_name = "CreateBuiltinVideoEncoderFactory"]
-        pub fn create_builtin_video_encoder_factory(
-        ) -> UniquePtr<VideoEncoderFactory>;
-
-        /// Creates a new [`VideoDecoderFactory`].
-        #[namespace = "webrtc"]
-        #[cxx_name = "CreateBuiltinVideoDecoderFactory"]
-        pub fn create_builtin_video_decoder_factory(
-        ) -> UniquePtr<VideoDecoderFactory>;
-
-        /// Creates a new [`AudioEncoderFactory`].
-        pub fn create_builtin_audio_encoder_factory(
-        ) -> UniquePtr<AudioEncoderFactory>;
-
-        /// Creates a new [`AudioDecoderFactory`].
-        pub fn create_builtin_audio_decoder_factory(
-        ) -> UniquePtr<AudioDecoderFactory>;
-
-        /// Creates a new [`PeerConnectionFactoryInterface`].
-        /// Where `default_adm` - can be?? NULL,
-        /// `audio_mixer` - can be NULL,
-        /// `audio_processing` - can be?? NULL,
-        /// `audio_frame_processor` - default NULL,
-        #[allow(clippy::too_many_arguments)]
-        pub fn create_peer_connection_factory(
-            network_thread: &UniquePtr<Thread>,
-            worker_thread: &UniquePtr<Thread>,
-            signaling_thread: &UniquePtr<Thread>,
-            default_adm: UniquePtr<AudioDeviceModule>,
-            audio_encoder_factory: Pin<&mut AudioEncoderFactory>,
-            audio_decoder_factory: Pin<&mut AudioDecoderFactory>,
-            video_encoder_factory: UniquePtr<VideoEncoderFactory>,
-            video_decoder_factory: UniquePtr<VideoDecoderFactory>,
-            audio_mixer: UniquePtr<AudioMixer>,
-            audio_processing: UniquePtr<AudioProcessing>,
-            audio_frame_processor: UniquePtr<AudioFrameProcessor>,
-        ) -> UniquePtr<PeerConnectionFactoryInterface>;
 
         /// Creates default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -250,9 +220,9 @@ pub(crate) mod webrtc {
         /// then the result will be default or NULL.
         pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
-            error: &mut String,
             configuration: &RTCConfiguration,
             dependencies: UniquePtr<PeerConnectionDependencies>,
+            error: &mut String,
         ) -> UniquePtr<PeerConnectionInterface>;
 
         /// Creates a [`PeerConnectionObserver`].
@@ -405,18 +375,18 @@ pub trait CreateSdpCallback {
     fn fail(&mut self, error: &CxxString);
 }
 /// `CreateOfferAnswerCallback` used for double box, for extern Rust.
-pub type CreateOfferAnswerCallback = Box<dyn CreateSdpCallback>;
+type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
 
 /// Calls when `CreateOffer/Answer` is success.
 pub fn success_sdp(
-    cb: &mut CreateOfferAnswerCallback,
+    cb: &mut DynCreateSdpCallback,
     sdp: &CxxString,
     type_: &CxxString,
 ) {
     cb.success(sdp, type_);
 }
 /// Calls when `CreateOffer/Answer` is fail.
-pub fn fail_sdp(cb: &mut CreateOfferAnswerCallback, error: &CxxString) {
+pub fn fail_sdp(cb: &mut DynCreateSdpCallback, error: &CxxString) {
     cb.fail(error);
 }
 
@@ -426,16 +396,17 @@ pub trait SetDescriptionCallback {
     fn fail(&mut self, error: &CxxString);
 }
 /// `SetLocalRemoteDescriptionCallBack` used for double box, for extern Rust.
-pub type SetLocalRemoteDescriptionCallBack = Box<dyn SetDescriptionCallback>;
+type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
+
 /// Calls in `OnSetLocalDescriptionComplete`
 /// when `SetLocalRemoteDescription` is success.
-pub fn success_set_description(cb: &mut SetLocalRemoteDescriptionCallBack) {
+pub fn success_set_description(cb: &mut DynSetDescriptionCallback) {
     cb.success();
 }
 /// Calls in `OnSetLocalDescriptionComplete`
 /// when `SetLocalRemoteDescription` is fail.
 pub fn fail_set_description(
-    cb: &mut SetLocalRemoteDescriptionCallBack,
+    cb: &mut DynSetDescriptionCallback,
     error: &CxxString,
 ) {
     cb.fail(error);

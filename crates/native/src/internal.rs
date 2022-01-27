@@ -1,12 +1,12 @@
 pub use internal::*;
 
-#[allow(clippy::items_after_statements, clippy::module_inception)]
 #[cxx::bridge]
 mod internal {
     unsafe extern "C++" {
         include!("flutter_webrtc_native/include/api.h");
 
         pub type CreateSdpCallbackInterface;
+        pub type SetDescriptionCallbackInterface;
 
         /// Calls `OnSuccess` c++ `CreateSdpCallbackInterface`
         ///  abstract class method.
@@ -14,7 +14,7 @@ mod internal {
         pub fn on_success_create(
             self: Pin<&mut CreateSdpCallbackInterface>,
             sdp: &CxxString,
-            type_: &CxxString,
+            kind: &CxxString,
         );
         /// Calls `OnFail` c++ `CreateSdpCallbackInterface`
         ///  abstract class method.
@@ -26,7 +26,6 @@ mod internal {
 
         /// Calls `OnSuccess` c++ `SetDescriptionCallbackInterface`
         ///  abstract class method.
-        pub type SetDescriptionCallbackInterface;
         #[cxx_name = "OnSuccess"]
         pub fn on_success_set_description(
             self: Pin<&mut SetDescriptionCallbackInterface>,
@@ -42,14 +41,14 @@ mod internal {
     }
 
     extern "Rust" {
-        /// This will trigger cxx to generate UniquePtrTarget
-        /// for CreateSdpCallbackInterface.
+        // This will trigger cxx to generate UniquePtrTarget
+        // for CreateSdpCallbackInterface.
         fn _touch_unique_ptr_create_sdp_callback(
             i: UniquePtr<CreateSdpCallbackInterface>,
         );
 
-        /// This will trigger cxx to generate UniquePtrTarget
-        /// for SetDescriptionCallbackInterface.
+        // This will trigger cxx to generate UniquePtrTarget
+        // for SetDescriptionCallbackInterface.
         fn _touch_unique_ptr_set_description_callback(
             i: UniquePtr<SetDescriptionCallbackInterface>,
         );
