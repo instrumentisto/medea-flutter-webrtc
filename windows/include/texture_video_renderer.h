@@ -5,7 +5,7 @@
 
 #include "flutter_webrtc_base.h"
 #include "flutter_webrtc_native.h"
-#include "api.h"
+#include "flutter_webrtc_native/include/api.h"
 
 namespace flutter_webrtc_plugin {
 
