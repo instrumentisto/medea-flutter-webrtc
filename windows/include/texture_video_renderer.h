@@ -3,9 +3,9 @@
 #include <mutex>
 #include <optional>
 
+#include "flutter-webrtc-native/include/api.h"
 #include "flutter_webrtc_base.h"
 #include "flutter_webrtc_native.h"
-#include "flutter_webrtc_native/include/api.h"
 
 namespace flutter_webrtc_plugin {
 
@@ -34,9 +34,8 @@ class FlutterVideoRendererManager {
  private:
   FlutterWebRTCBase* base_;
   // The map that contains `VideoRenderer`s.
-  std::map<int64_t, std::unique_ptr<TextureVideoRenderer>> renderers_;
+  std::map<int64_t, std::shared_ptr<TextureVideoRenderer>> renderers_;
 };
-
 
 // Class with the methods related to `VideoRenderer`.
 class TextureVideoRenderer {
@@ -47,14 +46,16 @@ class TextureVideoRenderer {
   virtual const FlutterDesktopPixelBuffer* CopyPixelBuffer(size_t width,
                                                            size_t height) const;
 
+  // `Frame` handler. Sends events to Dart when receives the `Frame`.
+  virtual void OnFrame(Frame* frame);
+
   // Set `Renderer`'s default state.
-  void ResetRenderer();
+  virtual void ResetRenderer();
 
   // `Id` of related Dart `texture`.
   int64_t texture_id() { return texture_id_; }
 
  private:
-
   // Struct which describes `Frame`'s sizes.
   struct FrameSize {
     size_t width;
@@ -101,11 +102,14 @@ class TextureVideoRenderer {
   VideoRotation rotation_ = VideoRotation::kVideoRotation_0;
 };
 
-class FrameRenderer: OnFrameHandler {
+class TextureVideoRendererShim : public OnFrameHandler {
  public:
-  void OnFrame() override;
+  TextureVideoRendererShim(std::shared_ptr<TextureVideoRenderer> ctx);
+
+  void OnFrame(Frame* frame);
+
  private:
-  void *context;
+  std::shared_ptr<TextureVideoRenderer> ctx_;
 };
 
 }  // namespace flutter_webrtc_plugin

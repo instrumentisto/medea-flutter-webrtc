@@ -5,12 +5,11 @@
 #include "api/media_stream_interface.h"
 #include "api/video/i420_buffer.h"
 #include "api/video/video_frame.h"
+#include "libwebrtc-sys/include/video_renderer_sink_observer.h"
 #include "media/base/media_channel.h"
 #include "media/base/video_common.h"
 #include "rtc_base/win32.h"
 #include "third_party/libyuv/include/libyuv/convert_argb.h"
-
-#include "rust/cxx.h"
 
 namespace bridge {
 // `VideoRendererSink` sinks to `VideoTrackInterface` and provides calling
@@ -18,16 +17,12 @@ namespace bridge {
 class VideoRendererSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   // Creates a new `VideoRendererSink`.
-  VideoRendererSink(rust::cxxbridge1::Fn<
-                        void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
-                    size_t flutter_cb_ptr);
+  VideoRendererSink(std::unique_ptr<observer::VideoRendererSinkObserver> obs_);
 
   // `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
-  // Rust callback which is calling in `OnFrame`.
-  rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb_;
   // `context` which is passed to `cb_`.
-  size_t ctx_;
+  std::unique_ptr<observer::VideoRendererSinkObserver> obs_;
 };
 }  // namespace bridge

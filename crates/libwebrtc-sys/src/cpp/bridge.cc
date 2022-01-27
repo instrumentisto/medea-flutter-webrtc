@@ -148,8 +148,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 // `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
-  auto src = peer_connection_factory->CreateAudioSource(
-      cricket::AudioOptions());
+  auto src =
+      peer_connection_factory->CreateAudioSource(cricket::AudioOptions());
 
   if (src == nullptr) {
     return nullptr;
@@ -163,8 +163,8 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
-  auto track = peer_connection_factory->CreateVideoTrack(
-      std::string(id), video_source.ptr());
+  auto track = peer_connection_factory->CreateVideoTrack(std::string(id),
+                                                         video_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -188,8 +188,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source) {
-  auto track = peer_connection_factory->CreateAudioTrack(
-      std::string(id), audio_source.ptr());
+  auto track = peer_connection_factory->CreateAudioTrack(std::string(id),
+                                                         audio_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -202,8 +202,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id) {
-  auto
-      stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
+  auto stream =
+      peer_connection_factory->CreateLocalMediaStream(std::string(id));
 
   if (stream == nullptr) {
     return nullptr;
@@ -250,10 +250,14 @@ void i420_to_abgr(const webrtc::VideoFrame& video_frame, uint8_t* buffer_ptr) {
                      buffer->height());
 }
 
+std::unique_ptr<VideoRendererSinkObserver> create_video_renderer_sinc_observer(
+    rust::Box<DynCallback> handler) {
+  return std::make_unique<VideoRendererSinkObserver>(std::move(handler));
+}
+
 // Returns a new `VideoRendererSink`.
 std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
-    rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
-    size_t ctx) {
-  return std::make_unique<VideoRendererSink>(cb, ctx);
+    std::unique_ptr<VideoRendererSinkObserver> obs) {
+  return std::make_unique<VideoRendererSink>(VideoRendererSink(std::move(obs)));
 }
 }  // namespace bridge

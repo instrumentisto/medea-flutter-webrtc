@@ -1,12 +1,21 @@
-use std::mem;
-
-use crate::{Frame, MediaStreamId, VideoTrackId, Webrtc};
+use crate::{
+    internal::OnFrameHandler, Frame, MediaStreamId, VideoTrackId, Webrtc,
+};
 
 use cxx::UniquePtr;
 use libwebrtc_sys as sys;
-use crate::api::OnFrameHandler;
 
-type OnFrameCallback = extern "C" fn(*mut Frame);
+struct OnFrameHandlerWrapper(UniquePtr<OnFrameHandler>);
+
+impl libwebrtc_sys::Callback for OnFrameHandlerWrapper {
+    fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
+        let frame = Frame::create(frame);
+
+        unsafe {
+            self.0.pin_mut().on_frame(Box::into_raw(Box::new(frame)));
+        }
+    }
+}
 
 /// Identifier of the `Flutter Texture`, used as [`Renderer`] `id`.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -32,53 +41,42 @@ impl AsMut<sys::RendererSink> for Renderer {
     }
 }
 
-/// Registers `FlutterRenderer` according to the given [`TextureId`],
-/// [`MediaStreamId`] and `FlutterVideoRenderer::OnFrame()`.
-#[no_mangle]
-unsafe extern "C" fn register_renderer(
-    webrtc: &mut Box<Webrtc>,
-    texture_id: i64,
-    stream_id: u64,
-    cpp_cb: OnFrameCallback,
-) {
-    let this = webrtc.as_mut().0.as_mut();
-
-    // TODO: remove MediaStream, call the certain VideoTrack.
-    let video_track_id = this
-        .local_media_streams
-        .get(&MediaStreamId::from(stream_id))
-        .unwrap()
-        .get_first_track_id();
-
-    let mut current_renderer = Renderer {
-        texture_id: TextureId(texture_id),
-        inner: sys::RendererSink::create(cb, mem::transmute_copy(&cpp_cb)),
-        video_track_id: *video_track_id,
-    };
-
-    this.video_tracks
-        .get_mut(video_track_id)
-        .unwrap()
-        .add_renderer(&mut current_renderer);
-
-    this.renderers
-        .insert(TextureId(texture_id), current_renderer);
-}
-
-/// Callback which passed to `libWebRTC`.
-fn cb(frame: UniquePtr<sys::VideoFrame>, on_frame_cb: usize) {
-    let frame = Frame::create(frame);
-
-    let on_frame_cb: OnFrameCallback = unsafe { mem::transmute(on_frame_cb) };
-
-    on_frame_cb(Box::into_raw(Box::new(frame)));
-}
-
 impl Webrtc {
-    pub fn create_renderer(&mut self, mut handler: UniquePtr<OnFrameHandler>) {
-        unsafe {
-            handler.pin_mut().on_frame(Box::into_raw(Box::new(())).cast())
+    pub unsafe fn create_renderer(
+        &mut self,
+        texture_id: i64,
+        stream_id: u64,
+        handler: UniquePtr<OnFrameHandler>,
+    ) {
+        let this = self.0.as_mut();
+
+        let video_track_id = this
+            .local_media_streams
+            .get(&MediaStreamId::from(stream_id))
+            .unwrap()
+            .get_first_track_id();
+
+        let mut current_renderer = Renderer {
+            texture_id: TextureId(texture_id),
+            inner: sys::RendererSink::create(Box::new(OnFrameHandlerWrapper(
+                handler,
+            ))),
+            video_track_id: *video_track_id,
         };
+
+        this.video_tracks
+            .get_mut(video_track_id)
+            .unwrap()
+            .add_renderer(&mut current_renderer);
+
+        this.renderers
+            .insert(TextureId(texture_id), current_renderer);
+
+        // unsafe {
+        //     handler
+        //         .pin_mut()
+        //         .on_frame(Box::into_raw(Box::new(())).cast())
+        // };
     }
 
     /// Drops the [`Renderer`] according to the given [`TextureId`].

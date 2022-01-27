@@ -1,3 +1,5 @@
+use crate::{on_frame_asd, DynCallback};
+
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
@@ -196,9 +198,19 @@ pub(crate) mod webrtc {
         kVideoRotation_270 = 270,
     }
 
+    extern "Rust" {
+        type DynCallback;
+
+        fn on_frame_asd(
+            boxed_dyn: &mut Box<DynCallback>,
+            frame: UniquePtr<VideoFrame>,
+        );
+    }
+
     unsafe extern "C++" {
         #[namespace = "webrtc"]
         type VideoFrame;
+        type VideoRendererSinkObserver;
         type VideoRendererSink;
         type VideoRotation;
 
@@ -230,11 +242,14 @@ pub(crate) mod webrtc {
             sink: Pin<&mut VideoRendererSink>,
         );
 
+        pub fn create_video_renderer_sinc_observer(
+            handler: Box<DynCallback>,
+        ) -> UniquePtr<VideoRendererSinkObserver>;
+
         /// Creates a new [`VideoRendererSink`] for
         /// the given `callbacks`.
         pub fn create_video_renderer_sink(
-            cb: unsafe fn(UniquePtr<VideoFrame>, usize),
-            ctx: usize,
+            obs: UniquePtr<VideoRendererSinkObserver>,
         ) -> UniquePtr<VideoRendererSink>;
     }
 }

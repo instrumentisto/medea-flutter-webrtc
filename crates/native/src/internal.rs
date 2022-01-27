@@ -1,6 +1,6 @@
 // use crate::frame::Frame;
 
-use cxx::{ExternType, type_id};
+use cxx::{type_id, ExternType};
 
 pub use internal::*;
 
@@ -15,7 +15,10 @@ mod internal {
         pub type OnFrameHandler;
 
         #[cxx_name = "OnFrame"]
-        unsafe fn on_frame(self: Pin<&mut OnFrameHandler>, frame: *mut Frame);
+        pub unsafe fn on_frame(
+            self: Pin<&mut OnFrameHandler>,
+            frame: *mut Frame,
+        );
     }
 
     extern "Rust" {
@@ -24,9 +27,7 @@ mod internal {
     }
 }
 
-fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameHandler>) {
-
-}
+fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameHandler>) {}
 
 unsafe impl ExternType for crate::frame::Frame {
     type Id = type_id!("Frame");

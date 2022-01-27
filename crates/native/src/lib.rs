@@ -178,7 +178,12 @@ pub mod api {
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
 
-        pub fn create_renderer(self: &mut Webrtc, handler: UniquePtr<OnFrameHandler>);
+        pub unsafe fn create_renderer(
+            self: &mut Webrtc,
+            texture_id: i64,
+            stream_id: u64,
+            handler: UniquePtr<OnFrameHandler>,
+        );
 
         /// Returns the [`Frame`]'s `width`.
         fn width(self: &Frame) -> i32;

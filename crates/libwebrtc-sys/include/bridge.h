@@ -13,6 +13,7 @@
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
 #include "device_video_capturer.h"
+#include "libwebrtc-sys/include/video_renderer_sink_observer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
@@ -29,7 +30,7 @@ namespace bridge {
 // destructor. `rc` unwraps raw pointer from the provided `rtc::scoped_refptr`
 // and calls `Release()` in its destructor therefore this allows wrapping `rc`
 // into a `std::uniqueptr`.
-template<class T>
+template <class T>
 class rc {
  public:
   typedef T element_type;
@@ -57,7 +58,6 @@ using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using VideoRotation = webrtc::VideoRotation;
-
 using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
 using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
 using AudioTrackInterface = rc<webrtc::AudioTrackInterface>;
@@ -66,6 +66,7 @@ using PeerConnectionFactoryInterface =
     rc<webrtc::PeerConnectionFactoryInterface>;
 using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
+using VideoRendererSinkObserver = observer::VideoRendererSinkObserver;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -176,9 +177,11 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
 // Converts `i420 buffer` from received `webrtc::VideoFrame` to `ABGR buffer`.
 void i420_to_abgr(const webrtc::VideoFrame& frame, uint8_t* buffer_ptr);
 
+std::unique_ptr<VideoRendererSinkObserver> create_video_renderer_sinc_observer(
+    rust::Box<DynCallback> handler);
+
 // Returns a new `VideoRendererSink`.
 std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
-    rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
-    size_t ctx);
+    std::unique_ptr<VideoRendererSinkObserver> obs);
 
 }  // namespace bridge

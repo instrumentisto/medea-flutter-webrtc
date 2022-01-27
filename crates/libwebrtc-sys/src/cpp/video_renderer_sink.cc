@@ -4,13 +4,12 @@ namespace bridge {
 // Creates a new `VideoRendererSink` and calls
 // `VideoTrackInterface->AddOrUpdateSink()`.
 VideoRendererSink::VideoRendererSink(
-    rust::Fn<void(std::unique_ptr<webrtc::VideoFrame>, size_t)> cb,
-    size_t ctx)
-    : cb_(cb), ctx_(ctx) {}
+    std::unique_ptr<observer::VideoRendererSinkObserver> obs)
+    : obs_(std::move(obs)) {}
 
 // Calls the `cb_` on every incoming `VideoFrame`.
 void VideoRendererSink::OnFrame(const webrtc::VideoFrame& video_frame) {
-  cb_(std::make_unique<webrtc::VideoFrame>(video_frame), ctx_);
+  obs_->OnFrame(video_frame);
 }
 
 }  // namespace bridge

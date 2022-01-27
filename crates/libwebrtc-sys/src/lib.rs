@@ -4,11 +4,25 @@
 mod bridge;
 
 use anyhow::bail;
+use bridge::webrtc::create_video_renderer_sinc_observer;
 use cxx::UniquePtr;
 
 use self::bridge::webrtc;
 
 pub use webrtc::{i420_to_abgr, AudioLayer, VideoFrame, VideoRotation};
+
+pub trait Callback {
+    fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
+}
+
+pub type DynCallback = Box<dyn Callback>;
+
+pub fn on_frame_asd(
+    boxed_dyn: &mut Box<DynCallback>,
+    frame: UniquePtr<VideoFrame>,
+) {
+    boxed_dyn.on_frame(frame);
+}
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.
@@ -466,7 +480,9 @@ impl RendererSink {
     /// # Panics
     ///
     /// May panic on taking [`VideoTrackInterface`] as ref.
-    pub fn create(cb: fn(UniquePtr<VideoFrame>, usize), ctx: usize) -> Self {
-        Self(webrtc::create_video_renderer_sink(cb, ctx))
+    pub fn create(ctx: DynCallback) -> Self {
+        Self(webrtc::create_video_renderer_sink(
+            create_video_renderer_sinc_observer(Box::new(ctx)),
+        ))
     }
 }
