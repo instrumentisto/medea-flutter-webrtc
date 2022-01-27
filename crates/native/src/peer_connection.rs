@@ -169,12 +169,6 @@ impl PeerEventCallBack for PeerConnectionEventsCallBack {
     }
 }
 
-impl PeerEventCallBack for MyEventCallback {
-    //todo
-    fn on_event(&mut self, event: &CxxString) {
-        unsafe {call_on_event(self, event)};
-    }
-}
 
 impl Drop for PeerConnectionEventsCallBack {
     //todo
