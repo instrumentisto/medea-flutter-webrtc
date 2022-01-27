@@ -89,6 +89,10 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   void OnSignalingChange(const std::string& event) {
     context->event_sink.get()->Success(EncodableValue(event));
   }
+  ~PeerConnectionOnEvent() {
+    context->event_sink.get()->EndOfStream();
+    printf("drop magic\n");
+  }
 
  private:
   std::shared_ptr<EventContext> context;
@@ -124,7 +128,7 @@ void CreateRTCPeerConnection(
 
       [=](const flutter::EncodableValue* arguments)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        event_context->event_sink.reset();
+      event_context->event_sink.reset();
         return nullptr;
       });
 
@@ -321,6 +325,7 @@ void DeletePC(Box<Webrtc>& webrtc,
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
   const std::string peerConnectionId = findString(params, "peerConnectionId");
   webrtc->DeletePeerConnection(stoi(peerConnectionId));
+  result->Success(nullptr);
 };
 
 }  // namespace flutter_webrtc_plugin

@@ -119,10 +119,10 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
       await sub1.cancel();
 
-      // final delete_pc1 =
-      //       await WebRTC.invokeMethod('deletePC', <String, dynamic>{
-      //     'peerConnectionId': pc1_id
-      // });
+      final delete_pc1 =
+            await WebRTC.invokeMethod('deletePC', <String, dynamic>{
+          'peerConnectionId': pc1_id
+      });
       
       // final delete_pc2 =
       //       await WebRTC.invokeMethod('deletePC', <String, dynamic>{
