@@ -5,19 +5,15 @@ mod internal;
 mod peer_connection;
 mod user_media;
 
-use std::{collections::HashMap, rc::Rc};
-use cxx::CxxString;
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
-use cxx::UniquePtr;
 use peer_connection::{
-    create_sdp_callback, create_peer_connection_events_call_back, PeerConnectionEventsCallBack,
-    create_set_description_callback, CreateOfferAnswerCallback, PeerConnection,
-    PeerConnectionId,
-    SetLocalRemoteDescriptionCallBack,
+    PeerConnection, 
+    PeerConnectionId, 
 };
+use std::{collections::HashMap, rc::Rc};
 
 #[doc(inline)]
 pub use crate::user_media::{
@@ -153,6 +149,9 @@ pub mod api {
 
         pub type SetDescriptionCallbackInterface =
             crate::internal::SetDescriptionCallbackInterface;
+
+        pub type PeerConnectionOnEventInterface =
+            crate::internal::PeerConnectionOnEventInterface;
     }
 
     extern "Rust" {
@@ -177,14 +176,11 @@ pub mod api {
         fn create_default_peer_connection(
             self: &mut Webrtc,
             error: &mut String,
-            event_callback: Box<PeerConnectionEventsCallBack>,
+            event_callback: UniquePtr<PeerConnectionOnEventInterface>,
         ) -> u64;
 
         #[cxx_name = "DeletePeerConnection"]
-        pub fn delete_pc(
-            &mut self,
-            peer_connection_id: u64,
-        );
+        pub fn delete_pc(self: &mut Webrtc, peer_connection_id: u64);
 
         /// Creates a new [Offer].
         /// # Warning
@@ -287,8 +283,6 @@ pub struct Context {
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
 }
-
-
 
 /// Creates an instanse of [`Webrtc`].
 ///

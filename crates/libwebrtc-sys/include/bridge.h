@@ -171,7 +171,7 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
 // Creates `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
-  //rust::Box<bridge::PeerConnectionEventsCallBack> cb
+  rust::Box<bridge::PeerConnectionOnEventCallback> cb
 );
 
 // Creates `PeerConnectionDependencies`.

@@ -150,6 +150,7 @@ pub(crate) mod webrtc {
     extern "Rust" {
         type SetLocalRemoteDescriptionCallBack;
         type CreateOfferAnswerCallback;
+        type PeerConnectionOnEventCallback;
 
         /// Calling in `CreateSessionDescriptionObserver`,
         /// when `CreateOffer/Answer` is success.
@@ -174,6 +175,12 @@ pub(crate) mod webrtc {
         pub fn fail_set_description(
             cb: &mut SetLocalRemoteDescriptionCallBack,
             error: &CxxString,
+        );
+
+        /// todo
+        pub fn call_peer_connection_on_signaling_change(
+            cb: &mut PeerConnectionOnEventCallback,
+            event: &CxxString,
         );
 
     }
@@ -257,6 +264,7 @@ pub(crate) mod webrtc {
 
         /// Creates a [`PeerConnectionObserver`].
         pub fn create_peer_connection_observer(
+            cb: Box<PeerConnectionOnEventCallback>,
         ) -> UniquePtr<PeerConnectionObserver>;
 
         /// Creates a [`PeerConnectionDependencies`].
@@ -439,6 +447,18 @@ pub fn fail_set_description(
     error: &CxxString,
 ) {
     cb.fail(error);
+}
+
+/// todo
+pub trait PeerConnectionOnEvent {
+    fn on_signaling_change(&mut self, event: &CxxString);
+}
+pub type PeerConnectionOnEventCallback = Box<dyn PeerConnectionOnEvent>;
+pub fn call_peer_connection_on_signaling_change(
+    cb: &mut PeerConnectionOnEventCallback,
+    event: &CxxString,
+) {
+    cb.on_signaling_change(event);
 }
 
 impl TryFrom<&str> for webrtc::SdpType {

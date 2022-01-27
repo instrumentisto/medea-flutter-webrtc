@@ -2,13 +2,13 @@ extern crate derive_more;
 use cxx::{CxxString, UniquePtr};
 use derive_more::{From, Into};
 use libwebrtc_sys as sys;
-use sys::{CreateSdpCallback, SetDescriptionCallback};
+use sys::{CreateSdpCallback, SetDescriptionCallback, PeerConnectionOnEvent};
 
-use std::pin::Pin;
-use std::{ffi::c_void, sync::atomic::Ordering};
+use std::{sync::atomic::Ordering};
 
 use std::sync::atomic::AtomicU64;
 
+use crate::api::PeerConnectionOnEventInterface;
 use crate::{
     api::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
     Webrtc,
@@ -63,6 +63,13 @@ impl SetDescriptionCallback
     }
 }
 
+impl PeerConnectionOnEvent for Wrapper<UniquePtr<PeerConnectionOnEventInterface>>
+{
+    fn on_signaling_change(&mut self, event: &CxxString) {
+        self.0.pin_mut().on_signaling_change(event);
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 impl Webrtc {
     /// Creates a new `PeerConnection` and return id.
@@ -73,9 +80,9 @@ impl Webrtc {
     pub fn create_default_peer_connection(
         self: &mut Webrtc,
         error: &mut String,
-        event_callback: Box<PeerConnectionEventsCallBack>,
+        event_callback: UniquePtr<PeerConnectionOnEventInterface>,
     ) -> u64 {
-        let obs = sys::PeerConnectionObserver::new(Box::new(event_callback));
+        let obs = sys::PeerConnectionObserver::new(Box::new(Box::new(Wrapper(event_callback))));
         let peer_c = self
             .0
             .peer_connection_factory
@@ -102,7 +109,11 @@ impl Webrtc {
         &mut self,
         peer_connection_id: impl Into<PeerConnectionId>,
     ) {
-        let pc = self.0.peer_connections.remove(&peer_connection_id.into()).unwrap();
+        let pc = self
+            .0
+            .peer_connections
+            .remove(&peer_connection_id.into())
+            .unwrap();
         drop(pc);
         println!("RUST drop pc");
     }

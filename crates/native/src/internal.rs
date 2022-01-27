@@ -7,7 +7,6 @@ mod internal {
         include!("flutter_webrtc_native/include/api.h");
 
         pub type CreateSdpCallbackInterface;
-
         /// Calls `OnSuccess` c++ `CreateSdpCallbackInterface`
         ///  abstract class method.
         #[cxx_name = "OnSuccess"]
@@ -24,9 +23,9 @@ mod internal {
             error: &CxxString,
         );
 
+        pub type SetDescriptionCallbackInterface;
         /// Calls `OnSuccess` c++ `SetDescriptionCallbackInterface`
         ///  abstract class method.
-        pub type SetDescriptionCallbackInterface;
         #[cxx_name = "OnSuccess"]
         pub fn on_success_set_description(
             self: Pin<&mut SetDescriptionCallbackInterface>,
@@ -37,6 +36,15 @@ mod internal {
         pub fn on_fail_set_description(
             self: Pin<&mut SetDescriptionCallbackInterface>,
             error: &CxxString,
+        );
+
+        type PeerConnectionOnEventInterface;
+        /// Calls `OnFail` c++ `SetDescriptionCallbackInterface`
+        ///  abstract class method.
+        #[cxx_name = "OnSignalingChange"]
+        pub fn on_signaling_change(
+            self: Pin<&mut PeerConnectionOnEventInterface>,
+            event: &CxxString,
         );
 
     }
@@ -53,6 +61,12 @@ mod internal {
         fn _touch_unique_ptr_set_description_callback(
             i: UniquePtr<SetDescriptionCallbackInterface>,
         );
+
+        /// This will trigger cxx to generate UniquePtrTarget
+        /// for SetDescriptionCallbackInterface.
+        fn _touch_unique_ptr_peer_connection_on_event_interface(
+            i: UniquePtr<PeerConnectionOnEventInterface>,
+        );
     }
 }
 
@@ -62,5 +76,9 @@ fn _touch_unique_ptr_create_sdp_callback(
 }
 fn _touch_unique_ptr_set_description_callback(
     _: cxx::UniquePtr<SetDescriptionCallbackInterface>,
+) {
+}
+fn _touch_unique_ptr_peer_connection_on_event_interface(
+    _: cxx::UniquePtr<PeerConnectionOnEventInterface>,
 ) {
 }

@@ -4,8 +4,8 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack};
-pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
+use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack, PeerConnectionOnEventCallback};
+pub use bridge::{CreateSdpCallback, SetDescriptionCallback, PeerConnectionOnEvent};
 use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
@@ -285,8 +285,8 @@ pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl PeerConnectionObserver {
     /// Creates default [`PeerConnectionObserver`] without handle events
-    pub fn new(cb: Box<PeerConnectionEventsCallBack>) -> Self {
-        Self(webrtc::create_peer_connection_observer(cb))
+    pub fn new(callbacks: Box<PeerConnectionOnEventCallback>) -> Self {
+        Self(webrtc::create_peer_connection_observer(callbacks))
     }
 }
 

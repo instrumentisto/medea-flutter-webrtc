@@ -1,23 +1,33 @@
 #pragma once
 
+#include <cstdio>
 #include <functional>
 #include <optional>
 #include "api\peer_connection_interface.h"
 #include "rust/cxx.h"
-#include <optional>
-#include <cstdio>
 
 namespace bridge {
 // Struct implement Rust trait `SetDescriptionCallback`.
 struct SetLocalRemoteDescriptionCallBack;
 // Struct implement Rust trait `CreateSdpCallback`.
 struct CreateOfferAnswerCallback;
+
+// todo
+struct PeerConnectionOnEventCallback;
 }  // namespace bridge
 
 namespace observer {
 
 // `PeerConnectionObserver` used for calling callback RTCPeerConnection events.
 class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
+public:
+  PeerConnectionObserver(
+      rust::Box<bridge::PeerConnectionOnEventCallback> callbacks);
+
+  // Triggered when the SignalingState changed.
+  void OnSignalingChange(
+      webrtc::PeerConnectionInterface::SignalingState new_state);
+
   // Called any time the IceGatheringState changes.
   void OnIceGatheringChange(
       webrtc::PeerConnectionInterface::IceGatheringState new_state);
@@ -25,13 +35,17 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
   // A new ICE candidate has been gathered.
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate);
 
+  // Triggered when a remote peer opens a data channel.
+  void OnDataChannel(
+      rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel);
+
   // Gathering of an ICE candidate failed.
   // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
   // `host_candidate` is a stringified socket address.
   void OnIceCandidateError(const std::string& host_candidate,
-                                   const std::string& url,
-                                   int error_code,
-                                   const std::string& error_text);
+                           const std::string& url,
+                           int error_code,
+                           const std::string& error_text);
 
   // Ice candidates have been removed.
   // TODO(honghaiz): Make this a pure virtual method when all its subclasses
@@ -53,7 +67,8 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
   // compatibility (and is called in the exact same situations as OnTrack).
   void OnAddTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
-      const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams);
+      const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
+          streams);
 
   // This is called when signaling indicates a transceiver will be receiving
   // media from the remote endpoint. This is fired during a call to
@@ -64,8 +79,7 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
   // This behavior is specified in section 2.2.8.2.5 of the "Set the
   // RTCSessionDescription" algorithm:
   // https://w3c.github.io/webrtc-pc/#set-description
-  void OnTrack(
-      rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver);
+  void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver);
 
   // Called when signaling indicates that media will no longer be received on a
   // track.
@@ -75,8 +89,7 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
   // will have changed direction to either sendonly or inactive.
   // https://w3c.github.io/webrtc-pc/#process-remote-track-removal
   // TODO(hbos,deadbeef): Make pure virtual when all subclasses implement it.
-  void OnRemoveTrack(
-      rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver);
+  void OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver);
 
   // Called when an interesting usage is detected by WebRTC.
   // An appropriate action is to add information about the context of the
@@ -86,10 +99,8 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
   // implementation-defined.
   void OnInterestingUsage(int usage_pattern);
 
-  //~PeerConnectionObserver() {};
-
-  private:
-  //std::optional<rust::Box<bridge::PeerConnectionEventsCallBack>> cb;
+ private:
+  std::optional<rust::Box<bridge::PeerConnectionOnEventCallback>> callbacks;
 };
 
 // `CreateSessionDescriptionObserver` used for calling callback
