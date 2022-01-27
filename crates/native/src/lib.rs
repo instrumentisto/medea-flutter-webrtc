@@ -1,6 +1,7 @@
 #![warn(clippy::pedantic)]
 
 mod device_info;
+mod internal;
 mod peer_connection;
 mod user_media;
 
@@ -11,17 +12,15 @@ use libwebrtc_sys::{
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
-use peer_connection::{
-    create_sdp_callback, create_set_description_callback,
-    CreateOfferAnswerCallback, PeerConnection, PeerConnectionId,
-    SetLocalRemoteDescriptionCallBack,
-};
+use peer_connection::{PeerConnection, PeerConnectionId};
 
 #[doc(inline)]
 pub use crate::user_media::{
     AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
     MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
 };
+
+pub use internal::*;
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(
@@ -143,23 +142,16 @@ pub mod api {
         kVideo,
     }
 
-    extern "Rust" {
-        type CreateOfferAnswerCallback;
-        pub fn create_sdp_callback(
-            success: usize,
-            fail: usize,
-            context: usize,
-        ) -> Box<CreateOfferAnswerCallback>;
+    extern "C++" {
+        pub type CreateSdpCallbackInterface =
+            crate::internal::CreateSdpCallbackInterface;
 
-        type SetLocalRemoteDescriptionCallBack;
-        pub fn create_set_description_callback(
-            success: usize,
-            fail: usize,
-            context: usize,
-        ) -> Box<SetLocalRemoteDescriptionCallBack>;
+        pub type SetDescriptionCallbackInterface =
+            crate::internal::SetDescriptionCallbackInterface;
     }
 
     extern "Rust" {
+        include!("flutter_webrtc_native/include/api.h");
         type Webrtc;
 
         /// Creates an instance of [`Webrtc`].
@@ -195,7 +187,7 @@ pub mod api {
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            sdp_callback: Box<CreateOfferAnswerCallback>,
+            sdp_callback: UniquePtr<CreateSdpCallbackInterface>,
         );
 
         /// Creates a new [Answer].
@@ -212,7 +204,7 @@ pub mod api {
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            sdp_callback: Box<CreateOfferAnswerCallback>,
+            sdp_callback: UniquePtr<CreateSdpCallbackInterface>,
         );
 
         /// Set Local Description.
@@ -227,7 +219,9 @@ pub mod api {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
-            set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
+            set_description_callback: UniquePtr<
+                SetDescriptionCallbackInterface,
+            >,
         );
 
         /// Set Remote Description.
@@ -242,7 +236,9 @@ pub mod api {
             peer_connection_id: u64,
             type_: String,
             sdp: String,
-            set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
+            set_description_callback: UniquePtr<
+                SetDescriptionCallbackInterface,
+            >,
         );
 
         /// Creates a [`MediaStream`] with tracks according to provided

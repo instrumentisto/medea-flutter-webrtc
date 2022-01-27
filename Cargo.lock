@@ -164,7 +164,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "flutter-webrtc-native"
+name = "flutter_webrtc_native"
 version = "0.0.0"
 dependencies = [
  "anyhow",

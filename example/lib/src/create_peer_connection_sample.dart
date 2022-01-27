@@ -12,25 +12,12 @@ class PeerConnectionSample extends StatefulWidget {
 }
 
 class _PeerConnectionSampleState extends State<PeerConnectionSample> {
-  String text = 'Press call button to enumerate devices';
+  String text = 'Press call button to test create PeerConnection';
 
   @override
   void initState() {
     super.initState();
   }
-
-  var configuration = <String, dynamic>{
-    'iceServers': [
-      {'url': 'stun:stun.l.google.com:19302'},
-    ]
-  };
-
-  final loopbackConstraints = <String, dynamic>{
-    'mandatory': {},
-    'optional': [
-      {'DtlsSrtpKeyAgreement': true},
-    ],
-  };
 
   final Map<String, dynamic> defaultSdpConstraints = {
     'mandatory': {
@@ -51,8 +38,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         'createPeerConnection', null
       );
       String pc2_id = createPeerConnection2['peerConnectionId'];
-
-      while(true) {
 
       final createOffer1 =
             await WebRTC.invokeMethod('createOffer', <String, dynamic>{
@@ -98,7 +83,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           'sdp': createAnswer2['sdp'],
           'type': createAnswer2['type']}
       });
-      }
 
 
       setState(() {

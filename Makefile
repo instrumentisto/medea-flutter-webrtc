@@ -90,19 +90,22 @@ flutter.run:
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
-	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
+	cargo build -p flutter_webrtc_native $(if $(call eq,$(debug),no),--release,)
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/
+	@mkdir -p windows/rust/include/flutter_webrtc_native/include/
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
 		windows/rust/lib/flutter_webrtc_native.dll.lib
 	cp -f target/cxxbridge/cxxbridge1.lib \
 		windows/rust/lib/cxxbridge1.lib
-	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.h \
+	cp -f target/cxxbridge/flutter_webrtc_native/src/lib.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
-	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.cc \
+	cp -f crates/native/include/api.h \
+		windows/rust/include/flutter_webrtc_native/include/api.h
+	cp -f target/cxxbridge/flutter_webrtc_native/src/lib.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 
 

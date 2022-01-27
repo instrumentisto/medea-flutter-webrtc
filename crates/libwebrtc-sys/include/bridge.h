@@ -4,13 +4,13 @@
 #include <memory>
 #include <string>
 
-#include "libwebrtc-sys/include/peer_connection_observer.h"
-#include "api/create_peerconnection_factory.h"
-#include "api/peer_connection_interface.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
+#include "api/create_peerconnection_factory.h"
+#include "api/peer_connection_interface.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
+#include "libwebrtc-sys/include/peer_connection_observer.h"
 
 #include "api/task_queue/default_task_queue_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
@@ -32,7 +32,7 @@ namespace bridge {
 // destructor. `rc` unwraps raw pointer from the provided `rtc::scoped_refptr`
 // and calls `Release()` in its destructor therefore this allows wrapping `rc`
 // into a `std::uniqueptr`.
-template<class T>
+template <class T>
 class rc {
  public:
   typedef T element_type;
@@ -85,10 +85,15 @@ using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
 using CreateSessionDescriptionObserver =
     observer::CreateSessionDescriptionObserver;
 using PeerConnectionObserver = observer::PeerConnectionObserver;
-using SetLocalDescriptionObserverInterface =
-    observer::SetLocalDescriptionObserverInterface;
-using SetRemoteDescriptionObserverInterface =
-    observer::SetRemoteDescriptionObserverInterface;
+using CreateSessionDescriptionObserver =
+    observer::CreateSessionDescriptionObserver;
+
+using RTCOfferAnswerOptions =
+    webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
+using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
+using SetLocalDescriptionObserver = observer::SetLocalDescriptionObserver;
+using SetRemoteDescriptionObserver = observer::SetRemoteDescriptionObserver;
+using SdpType = webrtc::SdpType;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -172,7 +177,8 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
     std::unique_ptr<PeerConnectionObserver> observer);
 
 // Creates `RTCOfferAnswerOptions`.
-std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
+std::unique_ptr<RTCOfferAnswerOptions>
+create_default_rtc_offer_answer_options();
 
 // Creates `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
@@ -183,16 +189,19 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     bool use_rtp_mux);
 
 // Creates `CreateSessionDescriptionObserver`.
-std::unique_ptr<CreateSessionDescriptionObserver> create_create_session_observer(
-    rust::cxxbridge1::Box<bridge::CreateOfferAnswerCallback> cb);
+std::unique_ptr<CreateSessionDescriptionObserver>
+create_create_session_observer(
+    rust::cxxbridge1::Box<bridge::CreateOfferAnswerCallback> callbacks);
 
 // Creates `SetLocalDescriptionObserverInterface`.
-std::unique_ptr<SetLocalDescriptionObserverInterface> create_set_local_description_observer_interface(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> cb);
+std::unique_ptr<SetLocalDescriptionObserver>
+create_set_local_description_observer(
+    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
 
 // Creates `SetRemoteDescriptionObserverInterface`.
-std::unique_ptr<SetRemoteDescriptionObserverInterface> create_set_remote_description_observer_interface(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> cb);
+std::unique_ptr<SetRemoteDescriptionObserver>
+create_set_remote_description_observer(
+    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
@@ -207,12 +216,12 @@ void create_answer(PeerConnectionInterface& peer_connection_interface,
 // Calls `PeerConnectionInterface->SetLocalDescription`.
 void set_local_description(PeerConnectionInterface& peer_connection_interface,
                            std::unique_ptr<SessionDescriptionInterface> desc,
-                           std::unique_ptr<SetLocalDescriptionObserverInterface> obs);
+                           std::unique_ptr<SetLocalDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                             std::unique_ptr<SessionDescriptionInterface> desc,
-                            std::unique_ptr<SetRemoteDescriptionObserverInterface> obs);
+                            std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
 // Creates a new `VideoTrackSourceInterface` according to the specified
 // constraints.

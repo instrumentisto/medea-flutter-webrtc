@@ -1,16 +1,16 @@
 #pragma once
 
-#include "api\peer_connection_interface.h"
 #include <functional>
-#include "rust/cxx.h"
 #include <optional>
+#include "api\peer_connection_interface.h"
+#include "rust/cxx.h"
 
 namespace bridge {
-  // implement Rust trait `SetDescriptionCallback`.
-  struct SetLocalRemoteDescriptionCallBack;
-  // implement Rust trait `CreateSdpCallback`.
-  struct CreateOfferAnswerCallback;
-}
+// Struct implement Rust trait `SetDescriptionCallback`.
+struct SetLocalRemoteDescriptionCallBack;
+// Struct implement Rust trait `CreateSdpCallback`.
+struct CreateOfferAnswerCallback;
+}  // namespace bridge
 
 namespace observer {
 
@@ -32,12 +32,13 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
       webrtc::PeerConnectionInterface::SignalingState new_state);
 };
 
-// `CreateSessionDescriptionObserver` used for calling callback `CreateOffer/Answer`.
-class CreateSessionDescriptionObserver : public
-    rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
-  public:
+// `CreateSessionDescriptionObserver` used for calling callback
+// `CreateOffer/Answer`.
+class CreateSessionDescriptionObserver
+    : public rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
+ public:
   CreateSessionDescriptionObserver(
-    rust::Box<bridge::CreateOfferAnswerCallback> cb);
+      rust::Box<bridge::CreateOfferAnswerCallback> callbacks);
 
   // Calls when a `CreateOffer/Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
@@ -45,47 +46,47 @@ class CreateSessionDescriptionObserver : public
   // Calls when a `CreateOffer/Answer` is fail.
   void OnFailure(webrtc::RTCError error);
 
-  private:
-  // Has Rust fn for `OnSuccess` and `OnFailure`.
+ private:
+  // Rust struct for callbacks.
   // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::CreateOfferAnswerCallback>> cb;
+  std::optional<rust::Box<bridge::CreateOfferAnswerCallback>> callbacks;
 };
 
-
-// `SetLocalDescriptionObserverInterface` used for calling callback `SetLocalDescription`.
-class SetLocalDescriptionObserverInterface : public
-    rtc::RefCountedObject<webrtc::SetLocalDescriptionObserverInterface> {
-  public:
-
+// `SetLocalDescriptionObserver` used for calling callback
+// `SetLocalDescription`.
+class SetLocalDescriptionObserver
+    : public rtc::RefCountedObject<
+          webrtc::SetLocalDescriptionObserverInterface> {
+ public:
   // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetLocalDescriptionComplete(webrtc::RTCError error);
 
   // Construct SetLocalDescriptionObserverInterface.
-  SetLocalDescriptionObserverInterface(
-    rust::Box<bridge::SetLocalRemoteDescriptionCallBack> cb);
+  SetLocalDescriptionObserver(
+      rust::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
 
-  private:
-  // Has Rust fn for `OnSetLocalDescriptionComplete`.
+ private:
+  // Rust struct for callbacks.
   // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb;
+  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> callbacks;
 };
 
-// `SetRemoteDescriptionObserverInterface` used for calling callback `SetRemoteDescription`.
-class SetRemoteDescriptionObserverInterface : public
-    rtc::RefCountedObject<webrtc::SetRemoteDescriptionObserverInterface> {
-  public:
-
+// `SetRemoteDescriptionObserverInterface` used for calling callback
+// `SetRemoteDescription`.
+class SetRemoteDescriptionObserver
+    : public rtc::RefCountedObject<
+          webrtc::SetRemoteDescriptionObserverInterface> {
+ public:
   // Calls when a `SetRemoteDescription` is complete or fail.
   void OnSetRemoteDescriptionComplete(webrtc::RTCError error);
 
   // Construct SetRemoteDescriptionObserverInterface.
-  SetRemoteDescriptionObserverInterface(
-    rust::Box<bridge::SetLocalRemoteDescriptionCallBack> cb
-  );
+  SetRemoteDescriptionObserver(
+      rust::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
 
-  private:
-  // Has Rust fn for `SetLocalRemoteDescriptionCallBack`.
+ private:
+  // Rust struct for callbacks.
   // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> cb; 
+  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> callbacks;
 };
-}
+}  // namespace observer
