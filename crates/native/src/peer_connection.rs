@@ -2,19 +2,23 @@ extern crate derive_more;
 use cxx::{CxxString, UniquePtr};
 use derive_more::{From, Into};
 use libwebrtc_sys as sys;
-use sys::{CreateSdpCallback, PeerEventCallBack, SetDescriptionCallback};
+use sys::{CreateSdpCallback, SetDescriptionCallback};
 
 use std::pin::Pin;
 use std::{ffi::c_void, sync::atomic::Ordering};
 
 use std::sync::atomic::AtomicU64;
 
-use crate::{Webrtc};
-use crate::api::{MyEventCallback, call_on_event};
-
+use crate::{
+    api::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
+    Webrtc,
+};
 
 /// This counter provides global resource for generating `unique id`.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// Struct for impl callback trait for [`UniquePtr`]<'extern c++ type'>.
+struct Wrapper<T>(T);
 
 /// Returns an `unique id`.
 fn generate_id() -> u64 {
@@ -33,148 +37,29 @@ pub struct PeerConnection {
     pub peer_connection_interface: sys::PeerConnectionInterface,
 }
 
-/// Struct for forwarding flutter context and functions in webrtc.
-/// Used in [`CreateSessionDescriptionObserver`].
-pub struct CreateOfferAnswerCallback {
-    fn_success: extern "C" fn(&CxxString, &CxxString, *mut c_void),
-    fn_fail: extern "C" fn(&CxxString, *mut c_void),
-    context: *mut c_void,
-}
+impl CreateSdpCallback for Wrapper<UniquePtr<CreateSdpCallbackInterface>> {
+    /// Calls `OnSuccess` method of callback c++ class.
+    fn success(&mut self, sdp: &CxxString, type_: &CxxString) {
+        self.0.pin_mut().on_success_create(sdp, type_);
+    }
 
-/// Creates `Box` [`CreateOfferAnswerCallback`].
-#[must_use]
-pub fn create_sdp_callback(
-    success: usize,
-    fail: usize,
-    context: usize,
-) -> Box<CreateOfferAnswerCallback> {
-    Box::new(CreateOfferAnswerCallback::new(success, fail, context))
-}
-
-impl CreateOfferAnswerCallback {
-    /// Creates [`CreateOfferAnswerCallback`].
-    /// Where
-    /// success - `extern "C" fn(&CxxString, &CxxString, *mut c_void)`,
-    /// fail - `extern "C" fn(&CxxString, *mut c_void)`,
-    /// context - `c++ flutter::MethodResult<flutter::EncodableValue>*`.
-    #[must_use]
-    pub fn new(success: usize, fail: usize, context: usize) -> Self {
-        Self {
-            fn_success: unsafe { std::mem::transmute(success) },
-            fn_fail: unsafe { std::mem::transmute(fail) },
-            context: context as *mut c_void,
-        }
+    /// Calls `OnFail` method of callback c++ class.
+    fn fail(&mut self, error: &CxxString) {
+        self.0.pin_mut().on_fail_create(error);
     }
 }
 
-impl CreateSdpCallback for CreateOfferAnswerCallback {
-    /// Calls flutter function `OnSuccessCreate`.
-    fn success(&self, sdp: &CxxString, type_: &CxxString) {
-        let fn_s = self.fn_success;
-        fn_s(sdp, type_, self.context);
+impl SetDescriptionCallback
+    for Wrapper<UniquePtr<SetDescriptionCallbackInterface>>
+{
+    /// Calls `OnSuccess` method of callback c++ class.
+    fn success(&mut self) {
+        self.0.pin_mut().on_success_set_description();
     }
 
-    /// Calls flutter function `OnFail`.
-    fn fail(&self, error: &CxxString) {
-        let fn_f = self.fn_fail;
-        fn_f(error, self.context);
-    }
-}
-
-/// Struct for forwarding flutter context and functions in webrtc.
-/// Used in [`SetLocalDescriptionObserverInterface`] and
-/// [`SetRemoteDescriptionObserverInterface`].
-pub struct SetLocalRemoteDescriptionCallBack {
-    fn_success: extern "C" fn(*mut c_void),
-    fn_fail: extern "C" fn(&CxxString, *mut c_void),
-    context: *mut c_void,
-}
-
-/// Creates `Box` [`SetLocalRemoteDescriptionCallBack`].
-#[must_use]
-pub fn create_set_description_callback(
-    success: usize,
-    fail: usize,
-    context: usize,
-) -> Box<SetLocalRemoteDescriptionCallBack> {
-    Box::new(SetLocalRemoteDescriptionCallBack::new(
-        success, fail, context,
-    ))
-}
-
-impl SetLocalRemoteDescriptionCallBack {
-    /// Creates [`SetLocalRemoteDescriptionCallBack`].
-    /// Where
-    /// success - `extern "C" fn(*mut c_void)`,
-    /// fail - `extern "C" fn(&CxxString, *mut c_void)`,
-    /// context - `c++ flutter::MethodResult<flutter::EncodableValue>*`.
-    #[must_use]
-    pub fn new(success: usize, fail: usize, context: usize) -> Self {
-        Self {
-            fn_success: unsafe { std::mem::transmute(success) },
-            fn_fail: unsafe { std::mem::transmute(fail) },
-            context: context as *mut c_void,
-        }
-    }
-}
-
-impl SetDescriptionCallback for SetLocalRemoteDescriptionCallBack {
-    /// Calls flutter function `OnSuccessDescription`.
-    fn success(&self) {
-        let fn_s = self.fn_success;
-        fn_s(self.context);
-    }
-    /// Calls flutter function `OnFail`.
-    fn fail(&self, error: &CxxString) {
-        let fn_f = self.fn_fail;
-        fn_f(error, self.context);
-    }
-}
-
-
-// todo
-pub struct PeerConnectionEventsCallBack {
-    fn_event: extern "C" fn(&CxxString, *mut c_void),
-    fn_drop: extern "C" fn(*mut c_void),
-    context: *mut c_void,
-}
-
-// todo
-#[must_use]
-pub fn create_peer_connection_events_call_back(
-    event: usize,
-    drop: usize,
-    context: usize,
-) -> Box<PeerConnectionEventsCallBack> {
-    Box::new(PeerConnectionEventsCallBack::new(event, drop, context))
-}
-
-impl PeerConnectionEventsCallBack {
-    // todo
-    #[must_use]
-    pub fn new(event: usize, drop: usize, context: usize) -> Self {
-        Self {
-            fn_event: unsafe { std::mem::transmute(event) },
-            fn_drop: unsafe { std::mem::transmute(drop) },
-            context: context as *mut c_void,
-        }
-    }
-}
-
-impl PeerEventCallBack for PeerConnectionEventsCallBack {
-    //todo
-    fn on_event(&mut self, event: &CxxString) {
-        let fn_e = self.fn_event;
-        fn_e(event, self.context);
-    }
-}
-
-
-impl Drop for PeerConnectionEventsCallBack {
-    //todo
-    fn drop(&mut self) {
-        let fn_e = self.fn_drop;
-        fn_e(self.context);
+    /// Calls `OnFail` method of callback c++ class.
+    fn fail(&mut self, error: &CxxString) {
+        self.0.pin_mut().on_fail_set_description(error);
     }
 }
 
@@ -234,13 +119,14 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        sdp_callback: Box<CreateOfferAnswerCallback>,
+        sdp_callback: UniquePtr<CreateSdpCallbackInterface>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
+            let wrap = Wrapper(sdp_callback);
             let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
-                sdp_callback,
+                Box::new(wrap),
             ));
 
             let options = sys::RTCOfferAnswerOptions::new(
@@ -271,13 +157,13 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        sdp_callback: Box<CreateOfferAnswerCallback>,
+        sdp_callback: UniquePtr<CreateSdpCallbackInterface>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
         {
             let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
-                sdp_callback,
+                Box::new(Wrapper(sdp_callback)),
             ));
 
             let options = sys::RTCOfferAnswerOptions::new(
@@ -308,7 +194,7 @@ impl Webrtc {
         peer_connection_id: impl Into<PeerConnectionId>,
         type_: String,
         sdp: String,
-        set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
+        set_description_callback: UniquePtr<SetDescriptionCallbackInterface>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
@@ -318,9 +204,9 @@ impl Webrtc {
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
-                    let obs = sys::SetLocalDescriptionObserverInterface::new(
-                        Box::new(set_description_callback),
-                    );
+                    let obs = sys::SetLocalDescriptionObserver::new(Box::new(
+                        Box::new(Wrapper(set_description_callback)),
+                    ));
 
                     peer_connection
                         .peer_connection_interface
@@ -345,7 +231,7 @@ impl Webrtc {
         peer_connection_id: impl Into<PeerConnectionId>,
         type_: String,
         sdp: String,
-        set_description_callback: Box<SetLocalRemoteDescriptionCallBack>,
+        set_description_callback: UniquePtr<SetDescriptionCallbackInterface>,
     ) {
         if let Some(peer_connection) =
             self.0.peer_connections.get_mut(&peer_connection_id.into())
@@ -355,9 +241,9 @@ impl Webrtc {
                     let desc =
                         sys::SessionDescriptionInterface::new(type_, &sdp);
 
-                    let obs = sys::SetRemoteDescriptionObserverInterface::new(
-                        Box::new(set_description_callback),
-                    );
+                    let obs = sys::SetRemoteDescriptionObserver::new(Box::new(
+                        Box::new(Wrapper(set_description_callback)),
+                    ));
 
                     peer_connection
                         .peer_connection_interface

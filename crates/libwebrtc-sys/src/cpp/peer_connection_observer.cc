@@ -6,64 +6,6 @@
 
 namespace observer {
 
-PeerConnectionObserver::PeerConnectionObserver(
-    rust::Box<bridge::PeerConnectionEventsCallBack> cb) {
-  this->cb = std::move(cb);
-}
-
-// Triggered when the SignalingState changed.
-void PeerConnectionObserver::OnSignalingChange(
-    webrtc::PeerConnectionInterface::SignalingState new_state) {
-  bridge::peer_connection_events_call_back_on_event(
-    *cb.value(),
-    "OnSignalingChange");
-};
-
-// Triggered when media is received on a new stream from remote peer.
-void PeerConnectionObserver::OnAddStream(
-    rtc::scoped_refptr<webrtc::MediaStreamInterface> stream){};
-
-// Triggered when a remote peer closes a stream.
-void PeerConnectionObserver::OnRemoveStream(
-    rtc::scoped_refptr<webrtc::MediaStreamInterface> stream){};
-
-// Triggered when a remote peer opens a data channel.
-void PeerConnectionObserver::OnDataChannel(
-    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel){};
-
-// Triggered when renegotiation is needed. For example, an ICE restart
-// has begun.
-// TODO(hbos): Delete in favor of OnNegotiationNeededEvent() when downstream
-// projects have migrated.
-void PeerConnectionObserver::OnRenegotiationNeeded(){};
-// Used to fire spec-compliant onnegotiationneeded events, which should only
-// fire when the Operations Chain is empty. The observer is responsible for
-// queuing a task (e.g. Chromium: jump to main thread) to maybe fire the
-// event. The event identified using `event_id` must only fire if
-// PeerConnection::ShouldFireNegotiationNeededEvent() returns true since it is
-// possible for the event to become invalidated by operations subsequently
-// chained.
-void PeerConnectionObserver::OnNegotiationNeededEvent(uint32_t event_id){};
-
-// Called any time the legacy IceConnectionState changes.
-//
-// Note that our ICE states lag behind the standard slightly. The most
-// notable differences include the fact that "failed" occurs after 15
-// seconds, not 30, and this actually represents a combination ICE + DTLS
-// state, so it may be "failed" if DTLS fails while ICE succeeds.
-//
-// TODO(jonasolsson): deprecate and remove this.
-void PeerConnectionObserver::OnIceConnectionChange(
-    webrtc::PeerConnectionInterface::IceConnectionState new_state){};
-
-// Called any time the standards-compliant IceConnectionState changes.
-void PeerConnectionObserver::OnStandardizedIceConnectionChange(
-    webrtc::PeerConnectionInterface::IceConnectionState new_state){};
-
-// Called any time the PeerConnectionState changes.
-void PeerConnectionObserver::OnConnectionChange(
-    webrtc::PeerConnectionInterface::PeerConnectionState new_state){};
-
 // Called any time the IceGatheringState changes.
 void PeerConnectionObserver::OnIceGatheringChange(
     webrtc::PeerConnectionInterface::IceGatheringState new_state){};
@@ -138,18 +80,17 @@ void PeerConnectionObserver::OnInterestingUsage(int usage_pattern){};
 // Construct `CreateOffer/Answer Observer`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     rust::Box<bridge::CreateOfferAnswerCallback> cb) {
-  this->cb = std::move(cb);
+  this->callbacks = std::move(cb);
 };
 
 // Calls when a `CreateOffer/Answer` is success.
 void CreateSessionDescriptionObserver::OnSuccess(
     webrtc::SessionDescriptionInterface* desc) {
-  if (cb.has_value()) {
+  if (callbacks) {
     std::string type = desc->type();
     std::string sdp;
     desc->ToString(&sdp);
-
-    bridge::success_sdp(*cb.value(), sdp, type);
+    bridge::success_sdp(*callbacks.value(), sdp, type);
   }
   delete desc;
 };
@@ -157,41 +98,43 @@ void CreateSessionDescriptionObserver::OnSuccess(
 // Calls when a `CreateOffer\Answer` is fail.
 void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
   std::string err = std::string(error.message());
-  bridge::fail_sdp(*cb.value(), err);
+  bridge::fail_sdp(*callbacks.value(), err);
 };
 
 // Calls when a `SetLocalDescription` is complete or fail.
-void SetLocalDescriptionObserverInterface::OnSetLocalDescriptionComplete(
+void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
     webrtc::RTCError error) {
-  if (error.ok() && cb.has_value()) {
-    bridge::success_set_description(*cb.value());
+  if (error.ok() && callbacks) {
+    bridge::success_set_description(*callbacks.value());
   } else {
     std::string error(error.message());
-    bridge::fail_set_description(*cb.value(), error);
-  }
-};
-
-// Construct SetRemoteDescriptionObserverInterface.
-SetLocalDescriptionObserverInterface::SetLocalDescriptionObserverInterface(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> cb) {
-  this->cb = std::move(cb);
-};
-
-// Calls when a `SetRemoteDescription` is complete or fail.
-void SetRemoteDescriptionObserverInterface::OnSetRemoteDescriptionComplete(
-    webrtc::RTCError error) {
-  if (error.ok() && cb.has_value()) {
-    bridge::success_set_description(*cb.value());
-  } else {
-    std::string error(error.message());
-    bridge::fail_set_description(*cb.value(), error);
+    bridge::fail_set_description(*callbacks.value(), error);
   }
 };
 
 // Construct `SetRemoteDescriptionObserverInterface`.
-SetRemoteDescriptionObserverInterface::SetRemoteDescriptionObserverInterface(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> cb) {
-  this->cb = std::move(cb);
+SetLocalDescriptionObserver::SetLocalDescriptionObserver(
+    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack>
+        callbacks) {
+  this->callbacks = std::move(callbacks);
+};
+
+// Calls when a `SetRemoteDescription` is complete or fail.
+void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
+    webrtc::RTCError error) {
+  if (error.ok() && callbacks.has_value()) {
+    bridge::success_set_description(*callbacks.value());
+  } else {
+    std::string error(error.message());
+    bridge::fail_set_description(*callbacks.value(), error);
+  }
+};
+
+// Construct `SetRemoteDescriptionObserver`.
+SetRemoteDescriptionObserver::SetRemoteDescriptionObserver(
+    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack>
+        callbacks) {
+  this->callbacks = std::move(callbacks);
 };
 
 };  // namespace observer

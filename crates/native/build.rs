@@ -6,12 +6,9 @@ use anyhow::{anyhow, Context};
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
-    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
-    let package_name = env::var("CARGO_PKG_NAME")?.replace('-', "_");
-    cxx_build::bridge("src/lib.rs")
-    .include(path.join("include"))
-    .file(path.join("src/cpp/rust_call_callback.cc"))
-    .compile(&package_name);
+    cxx_build::bridge("src/lib.rs").compile("extern_rust");
+
+    cxx_build::bridge("src/internal.rs").compile("api_bindings");
 
     copy_cxxbridge1_lib()?;
     Ok(())

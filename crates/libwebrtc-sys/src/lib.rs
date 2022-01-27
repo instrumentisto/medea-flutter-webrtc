@@ -4,13 +4,8 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::{
-    CreateOfferAnswerCallback, PeerConnectionEventsCallBack,
-    SetLocalRemoteDescriptionCallBack,
-};
-pub use bridge::{
-    CreateSdpCallback, PeerEventCallBack, SetDescriptionCallback,
-};
+use bridge::{CreateOfferAnswerCallback, SetLocalRemoteDescriptionCallBack};
+pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
 use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
@@ -382,33 +377,33 @@ impl CreateSessionDescriptionObserver {
     }
 }
 
-/// `SetLocalDescriptionObserverInterface` used
+/// `SetLocalDescriptionObserver` used
 /// for calling callback when set local description is
 /// success or fail.
-pub struct SetLocalDescriptionObserverInterface(
-    UniquePtr<webrtc::SetLocalDescriptionObserverInterface>,
+pub struct SetLocalDescriptionObserver(
+    UniquePtr<webrtc::SetLocalDescriptionObserver>,
 );
 
-impl SetLocalDescriptionObserverInterface {
-    /// Creates a [`SetLocalDescriptionObserverInterface`].
+impl SetLocalDescriptionObserver {
+    /// Creates a [`SetLocalDescriptionObserver`].
     #[must_use]
     pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
-        Self(webrtc::create_set_local_description_observer_interface(cb))
+        Self(webrtc::create_set_local_description_observer(cb))
     }
 }
 
-/// `SetLocalDescriptionObserverInterface` used
+/// `SetLocalDescriptionObserver` used
 /// for calling callback when set remote description is
 /// success or fail.
-pub struct SetRemoteDescriptionObserverInterface(
-    UniquePtr<webrtc::SetRemoteDescriptionObserverInterface>,
+pub struct SetRemoteDescriptionObserver(
+    UniquePtr<webrtc::SetRemoteDescriptionObserver>,
 );
 
-impl SetRemoteDescriptionObserverInterface {
-    /// Creates a [`SetRemoteDescriptionObserverInterface`].
+impl SetRemoteDescriptionObserver {
+    /// Creates a [`SetRemoteDescriptionObserver`].
     #[must_use]
     pub fn new(cb: Box<SetLocalRemoteDescriptionCallBack>) -> Self {
-        Self(webrtc::create_set_remote_description_observer_interface(cb))
+        Self(webrtc::create_set_remote_description_observer(cb))
     }
 }
 
@@ -458,7 +453,7 @@ impl PeerConnectionInterface {
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
-        obs: SetLocalDescriptionObserverInterface,
+        obs: SetLocalDescriptionObserver,
     ) {
         webrtc::set_local_description(self.0.pin_mut(), desc.0, obs.0);
     }
@@ -472,7 +467,7 @@ impl PeerConnectionInterface {
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
-        obs: SetRemoteDescriptionObserverInterface,
+        obs: SetRemoteDescriptionObserver,
     ) {
         webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
     }

@@ -15,7 +15,6 @@ import 'src/loopback_sample.dart';
 import 'src/route_item.dart';
 import 'src/get_sources_sample.dart';
 import 'src/create_peer_connection_sample.dart';
-import 'src/create_sample.dart';
 
 void main() {
   if (WebRTC.platformIsDesktop) {
