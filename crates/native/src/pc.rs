@@ -1,7 +1,6 @@
 use cxx::{CxxString, UniquePtr};
-use derive_more::{From, Into};
+use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
-use sys::SetDescriptionCallback;
 
 use crate::{
     api::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
@@ -27,7 +26,7 @@ impl Webrtc {
                 .into(),
             Err(err) => {
                 error.push_str(&err.to_string());
-                -1
+                0
             }
         }
     }
@@ -118,6 +117,7 @@ impl Webrtc {
     ///
     /// Returns an empty [`String`] in operation succeeds or an error
     /// otherwise.
+    #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
         &mut self,
         peer_id: u64,
@@ -158,6 +158,7 @@ impl Webrtc {
     ///
     /// Returns an empty [`String`] in operation succeeds or an error
     /// otherwise.
+    #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
         &mut self,
         peer_id: u64,
@@ -196,7 +197,7 @@ impl Webrtc {
 }
 
 /// ID of a [`PeerConnection`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 pub struct PeerConnectionId(u64);
 
 /// Is used to manage [`sys::PeerConnectionInterface`].
@@ -218,10 +219,10 @@ impl PeerConnection {
             sys::PeerConnectionDependencies::default(),
         )?;
 
-        Self {
+        Ok(Self {
             id: PeerConnectionId::from(next_id()),
             inner,
-        }
+        })
     }
 }
 

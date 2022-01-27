@@ -2,14 +2,14 @@
 
 #include <functional>
 #include <optional>
-#include "api\peer_connection_interface.h"
+#include "api/peer_connection_interface.h"
 #include "rust/cxx.h"
 
 namespace bridge {
 // Struct implement Rust trait `SetDescriptionCallback`.
-struct SetLocalRemoteDescriptionCallBack;
+struct DynSetDescriptionCallback;
 // Struct implement Rust trait `CreateSdpCallback`.
-struct CreateOfferAnswerCallback;
+struct DynCreateSdpCallback;
 }  // namespace bridge
 
 namespace observer {
@@ -38,7 +38,7 @@ class CreateSessionDescriptionObserver
     : public rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
  public:
   CreateSessionDescriptionObserver(
-      rust::Box<bridge::CreateOfferAnswerCallback> callbacks);
+      rust::Box<bridge::DynCreateSdpCallback> callbacks);
 
   // Calls when a `CreateOffer/Answer` is success.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
@@ -49,7 +49,7 @@ class CreateSessionDescriptionObserver
  private:
   // Rust struct for callbacks.
   // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::CreateOfferAnswerCallback>> callbacks;
+  std::optional<rust::Box<bridge::DynCreateSdpCallback>> callbacks;
 };
 
 // `SetLocalDescriptionObserver` used for calling callback
@@ -63,12 +63,12 @@ class SetLocalDescriptionObserver
 
   // Construct SetLocalDescriptionObserverInterface.
   SetLocalDescriptionObserver(
-      rust::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
+      rust::Box<bridge::DynSetDescriptionCallback> callbacks);
 
  private:
   // Rust struct for callbacks.
   // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> callbacks;
+  std::optional<rust::Box<bridge::DynSetDescriptionCallback>> callbacks;
 };
 
 // `SetRemoteDescriptionObserverInterface` used for calling callback
@@ -82,11 +82,11 @@ class SetRemoteDescriptionObserver
 
   // Construct SetRemoteDescriptionObserverInterface.
   SetRemoteDescriptionObserver(
-      rust::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
+      rust::Box<bridge::DynSetDescriptionCallback> callbacks);
 
  private:
   // Rust struct for callbacks.
   // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> callbacks;
+  std::optional<rust::Box<bridge::DynSetDescriptionCallback>> callbacks;
 };
 }  // namespace observer

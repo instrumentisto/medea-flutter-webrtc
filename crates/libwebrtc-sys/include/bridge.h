@@ -137,14 +137,14 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    std::unique_ptr<AudioDeviceModule> default_adm);
+    const std::unique_ptr<AudioDeviceModule>& default_adm);
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
-std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
+std::unique_ptr<PeerConnectionInterface> create_peer_connection(
     PeerConnectionFactoryInterface& peer_connection_factory,
-    rust::String& error,
     const RTCConfiguration& configuration,
-    std::unique_ptr<PeerConnectionDependencies> dependencies);
+    std::unique_ptr<PeerConnectionDependencies> dependencies,
+    rust::String& error);
 
 // Creates default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
@@ -171,17 +171,17 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 // Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver>
 create_create_session_observer(
-    rust::cxxbridge1::Box<bridge::CreateOfferAnswerCallback> callbacks);
+    rust::Box<bridge::DynCreateSdpCallback> callbacks);
 
 // Creates `SetLocalDescriptionObserverInterface`.
 std::unique_ptr<SetLocalDescriptionObserver>
 create_set_local_description_observer(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
+    rust::Box<bridge::DynSetDescriptionCallback> callbacks);
 
 // Creates `SetRemoteDescriptionObserverInterface`.
 std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
+    rust::Box<bridge::DynSetDescriptionCallback> callbacks);
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,

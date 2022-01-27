@@ -1,9 +1,10 @@
-pub use internal::*;
+pub use cpp_api_bindings::*;
 
+#[allow(clippy::items_after_statements)]
 #[cxx::bridge]
-mod internal {
+mod cpp_api_bindings {
     unsafe extern "C++" {
-        include!("flutter_webrtc_native/include/api.h");
+        include!("flutter-webrtc-native/include/api.h");
 
         pub type CreateSdpCallbackInterface;
         pub type SetDescriptionCallbackInterface;

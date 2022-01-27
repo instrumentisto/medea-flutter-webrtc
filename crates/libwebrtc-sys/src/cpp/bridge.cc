@@ -221,10 +221,11 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   }
 
   auto factory = webrtc::CreatePeerConnectionFactory(
-      &network_thread,
-      &worker_thread,
-      &signaling_thread,
-      default_adm_,
+      network_thread.get(),
+      worker_thread.get(),
+      signaling_thread.get(),
+//      default_adm_, TODO: fix
+      nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -239,11 +240,11 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
 }
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
-std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
+std::unique_ptr<PeerConnectionInterface> create_peer_connection(
     PeerConnectionFactoryInterface& peer_connection_factory,
-    rust::String& error,
     const RTCConfiguration& configuration,
-    std::unique_ptr<PeerConnectionDependencies> dependencies) {
+    std::unique_ptr<PeerConnectionDependencies> dependencies,
+    rust::String& error) {
   PeerConnectionDependencies pcd = std::move(*(dependencies.release()));
   auto pc = peer_connection_factory.ptr()->CreatePeerConnectionOrError(
       configuration, std::move(pcd));
@@ -295,7 +296,7 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 // Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver>
 create_create_session_observer(
-    rust::cxxbridge1::Box<bridge::CreateOfferAnswerCallback> cb) {
+    rust::Box<bridge::DynCreateSdpCallback> cb) {
   return std::make_unique<CreateSessionDescriptionObserver>(
       CreateSessionDescriptionObserver(std::move(cb)));
 }
@@ -303,7 +304,7 @@ create_create_session_observer(
 // Creates `SetLocalDescriptionObserver`.
 std::unique_ptr<SetLocalDescriptionObserver>
 create_set_local_description_observer(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> cb) {
+    rust::Box<bridge::DynSetDescriptionCallback> cb) {
   return std::make_unique<SetLocalDescriptionObserver>(
       SetLocalDescriptionObserver(std::move(cb)));
 }
@@ -311,7 +312,7 @@ create_set_local_description_observer(
 // Creates `SetRemoteDescriptionObserver`.
 std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack> cb) {
+    rust::Box<bridge::DynSetDescriptionCallback> cb) {
   return std::make_unique<SetRemoteDescriptionObserver>(
       SetRemoteDescriptionObserver(std::move(cb)));
 }

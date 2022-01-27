@@ -22,7 +22,7 @@ void PeerConnectionObserver::OnSignalingChange(
 
 // Construct `CreateOffer/Answer Observer`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
-    rust::Box<bridge::CreateOfferAnswerCallback> callbacks) {
+    rust::Box<bridge::DynCreateSdpCallback> callbacks) {
   this->callbacks = std::move(callbacks);
 };
 
@@ -57,7 +57,7 @@ void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
 
 // Construct `SetRemoteDescriptionObserverInterface`.
 SetLocalDescriptionObserver::SetLocalDescriptionObserver(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack>
+    rust::cxxbridge1::Box<bridge::DynSetDescriptionCallback>
         callbacks) {
   this->callbacks = std::move(callbacks);
 };
@@ -75,7 +75,7 @@ void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
 
 // Construct `SetRemoteDescriptionObserver`.
 SetRemoteDescriptionObserver::SetRemoteDescriptionObserver(
-    rust::cxxbridge1::Box<bridge::SetLocalRemoteDescriptionCallBack>
+    rust::cxxbridge1::Box<bridge::DynSetDescriptionCallback>
         callbacks) {
   this->callbacks = std::move(callbacks);
 };

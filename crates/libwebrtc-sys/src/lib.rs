@@ -5,7 +5,6 @@ mod bridge;
 
 use anyhow::bail;
 pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
-use bridge::{DynCreateSdpCallback, DynSetDescriptionCallback};
 use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
@@ -464,8 +463,8 @@ impl PeerConnectionFactoryInterface {
         configuration: &RTCConfiguration,
         dependencies: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
-        let error = String::new();
-        let pc = webrtc::create_peer_connection_or_error(
+        let mut error = String::new();
+        let pc = webrtc::create_peer_connection(
             self.0.pin_mut(),
             &configuration.0,
             dependencies.0,

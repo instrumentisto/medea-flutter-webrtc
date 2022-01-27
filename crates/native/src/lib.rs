@@ -158,7 +158,7 @@ pub mod api {
     }
 
     extern "Rust" {
-        include!("flutter_webrtc_native/include/api.h");
+        include!("flutter-webrtc-native/include/api.h");
 
         type Webrtc;
 
