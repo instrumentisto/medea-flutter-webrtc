@@ -66,8 +66,8 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
         removeRendererFromVideoTrack()
 //        surfaceTextureRenderer.surfaceDestroyed()
         surfaceTextureRenderer.release()
-//        surfaceTexture.release()
-//        surfaceTextureEntry.release()
+        surfaceTextureEntry.release()
+        surfaceTexture.release()
     }
 
     private fun rendererEventsListener(): RendererCommon.RendererEvents {

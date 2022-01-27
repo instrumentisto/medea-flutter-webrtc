@@ -153,6 +153,10 @@ class PeerConnectionController(
                     peer.getTransceivers()
                         .map { RtpTransceiverController(messenger, it).asFlutterResult() })
             }
+            "restartIce" -> {
+                peer.restartIce()
+                result.success(null)
+            }
             "dispose" -> {
                 dispose()
                 result.success(null)

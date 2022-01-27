@@ -150,6 +150,10 @@ class PeerConnection {
         .invokeMethod('addIceCandidate', {'candidate': candidate.toMap()});
   }
 
+  Future<void> restartIce() async {
+    await _methodChannel.invokeMethod('restartIce');
+  }
+
   PeerConnectionState connectionState() {
     return _connectionState;
   }

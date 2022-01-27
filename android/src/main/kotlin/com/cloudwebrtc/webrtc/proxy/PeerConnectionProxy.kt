@@ -229,8 +229,12 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
         return transceivers.lastEntry()!!.value
     }
 
+    fun restartIce() {
+        obj.restartIce()
+    }
+
     private fun syncSenders() {
-        val newSenders = mutableMapOf<String, RtpSenderProxy>();
+        val newSenders = mutableMapOf<String, RtpSenderProxy>()
         val oldSenders = senders;
 
         val peerSenders = obj.senders;
@@ -239,10 +243,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
 
             val oldSender = oldSenders.remove(peerSenderId);
             if (oldSender == null) {
-                newSenders[peerSenderId] = RtpSenderProxy(peerSender);
+                newSenders[peerSenderId] = RtpSenderProxy(peerSender)
             } else {
-                oldSender.updateObject(peerSender);
-                newSenders[peerSenderId] = oldSender;
+                oldSender.updateObject(peerSender)
+                newSenders[peerSenderId] = oldSender
             }
         }
 
