@@ -200,36 +200,33 @@ impl VideoDeviceInfo {
     }
 }
 
-/// RTCConfiguration used for creating [`PeerConnectionInterface`]
+/// WebRTC [RTCConfiguration][1].
+///
+/// [1]: https://developer.mozilla.org/en-US/docs/Web/API/RTCConfiguration
 pub struct RTCConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 
 impl Default for RTCConfiguration {
-    /// Create default [`RTCConfiguration`]
     fn default() -> Self {
         Self(webrtc::create_default_rtc_configuration())
     }
 }
 
-/// `PeerConnectionObserver` used for calling callback RTCPeerConnection events.
+/// A member of [`PeerConnectionDependencies`], which contains the functions
+/// that will be called on events in the [`PeerConnectionInterface`]
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl Default for PeerConnectionObserver {
-    /// Creates default [`PeerConnectionObserver`] without handle events
     fn default() -> Self {
         Self(webrtc::create_peer_connection_observer())
     }
 }
 
-/// `PeerConnectionDependencies` holds all of `PeerConnections` dependencies.
-/// A dependency is distinct from a configuration as it defines significant
-/// executable code that can be provided by a user of the API.
+/// Contains all of the [`PeerConnectionInterface`] dependencies.
 pub struct PeerConnectionDependencies(
     UniquePtr<webrtc::PeerConnectionDependencies>,
 );
 
 impl Default for PeerConnectionDependencies {
-    /// Creates a [`PeerConnectionDependencies`]
-    /// whith default [`PeerConnectionObserver`]
     fn default() -> Self {
         Self(webrtc::create_peer_connection_dependencies(
             PeerConnectionObserver::default().0,
@@ -237,18 +234,13 @@ impl Default for PeerConnectionDependencies {
     }
 }
 
-/// `RTCOfferAnswerOptions` used for create `Offer`s, `Answer`s.
+/// Description of the options that can be used to control the offer/answer
+/// creation process
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
-    /// Creates a [`RTCOfferAnswerOptions`]
-    /// whith `voice_activity_detection` = true,
-    /// `ice_restart` = false,
-    /// `use_rtp_mux` = true,
-    /// `receive_audio` = true,
-    /// `receive_video` = true,
     fn default() -> Self {
-        RTCOfferAnswerOptions(webrtc::create_default_rtc_offer_answer_options())
+        Self(webrtc::create_default_rtc_offer_answer_options())
     }
 }
 
@@ -262,7 +254,7 @@ impl RTCOfferAnswerOptions {
         ice_restart: bool,
         use_rtp_mux: bool,
     ) -> Self {
-        RTCOfferAnswerOptions(webrtc::create_rtc_offer_answer_options(
+        Self(webrtc::create_rtc_offer_answer_options(
             offer_to_receive_video.map_or(-1, |f| if f { 1 } else { 0 }),
             offer_to_receive_audio.map_or(-1, |f| if f { 1 } else { 0 }),
             voice_activity_detection,
@@ -272,85 +264,70 @@ impl RTCOfferAnswerOptions {
     }
 }
 
-/// `SessionDescription` interface describes one
-/// end of a connection—or potential connection—and
-/// how it's configured.
-/// Each `SessionDescription` consists of a description type
-/// indicating which part of the offer/answer
-/// negotiation process it describes and of
-/// the SDP descriptor of the session.
+/// The [`SessionDescriptionInterface`] class is used by
+/// [`PeerConnectionInterface`] to expose local and remote session descriptions.
 pub struct SessionDescriptionInterface(
     UniquePtr<webrtc::SessionDescriptionInterface>,
 );
 
 impl SessionDescriptionInterface {
-    /// Create new [`SessionDescriptionInterface`]
+    /// Creates a new [`SessionDescriptionInterface`]
     #[must_use]
-    pub fn new(type_: webrtc::SdpType, sdp: &str) -> Self {
+    pub fn new(kind: webrtc::SdpType, sdp: &str) -> Self {
         let_cxx_string!(cxx_sdp = sdp);
-        SessionDescriptionInterface(webrtc::create_session_description(
-            type_, &cxx_sdp,
-        ))
+        Self(webrtc::create_session_description(kind, &cxx_sdp))
     }
 }
 
-/// `CreateSessionDescriptionObserver` used
-/// for calling callback when create `Offer` or `Answer`
-/// success or fail.
+/// [`PeerConnectionInterface::create_answer()`] and
+/// [`PeerConnectionInterface::create_offer()`] completion callback.
 pub struct CreateSessionDescriptionObserver(
     UniquePtr<webrtc::CreateSessionDescriptionObserver>,
 );
 
 impl CreateSessionDescriptionObserver {
-    /// Creates a [`CreateSessionDescriptionObserver`].
+    /// Creates a new [`CreateSessionDescriptionObserver`].
     #[must_use]
     pub fn new(cb: Box<dyn CreateSdpCallback>) -> Self {
         Self(webrtc::create_create_session_observer(Box::new(cb)))
     }
 }
 
-/// `SetLocalDescriptionObserver` used
-/// for calling callback when set local description is
-/// success or fail.
+/// [`PeerConnectionInterface::set_local_description()`] completion callback.
 pub struct SetLocalDescriptionObserver(
     UniquePtr<webrtc::SetLocalDescriptionObserver>,
 );
 
 impl SetLocalDescriptionObserver {
-    /// Creates a [`SetLocalDescriptionObserver`].
+    /// Creates a new [`SetLocalDescriptionObserver`].
     #[must_use]
     pub fn new(cb: Box<dyn SetDescriptionCallback>) -> Self {
         Self(webrtc::create_set_local_description_observer(Box::new(cb)))
     }
 }
 
-/// `SetLocalDescriptionObserver` used
-/// for calling callback when set remote description is
-/// success or fail.
+/// [`PeerConnectionInterface::set_remote_description()`] completion callback.
 pub struct SetRemoteDescriptionObserver(
     UniquePtr<webrtc::SetRemoteDescriptionObserver>,
 );
 
 impl SetRemoteDescriptionObserver {
-    /// Creates a [`SetRemoteDescriptionObserver`].
+    /// Creates a new [`SetRemoteDescriptionObserver`].
     #[must_use]
     pub fn new(cb: Box<dyn SetDescriptionCallback>) -> Self {
         Self(webrtc::create_set_remote_description_observer(Box::new(cb)))
     }
 }
 
-/// Peer Connection Interface internally used in `Webrtc` that is
-/// capable of creating `Offer`s, `Answer`s
-/// and setting `Remote`, `Local` Description.
+/// [RTCPeerConnection][1] implementation.
+///
+/// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
-    /// Create a new offer.
-    /// The [`CreateSessionDescriptionObserver`]
-    /// callback will be called when done.
-    /// # Panic
-    /// Panic if `self` - PeerConnectionInterface(null)
-    /// Panic if obs is not init
+    /// [RTCPeerConnection::createOffer()][1] implementation.
+    ///
+    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
     pub fn create_offer(
         &mut self,
         options: &RTCOfferAnswerOptions,
@@ -359,13 +336,9 @@ impl PeerConnectionInterface {
         webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0);
     }
 
-    /// Create a new answer.
-    /// The [`CreateSessionDescriptionObserver`]
-    /// callback will be called when done.
-    /// # Warning
-    /// Can't be create before offer.
-    /// # Panic
-    /// Panic if `self` - PeerConnectionInterface(null)
+    /// [RTCPeerConnection::createAnswer()][1] implementation.
+    ///
+    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
     pub fn create_answer(
         &mut self,
         options: &RTCOfferAnswerOptions,
@@ -374,14 +347,9 @@ impl PeerConnectionInterface {
         webrtc::create_answer(self.0.pin_mut(), &options.0, obs.0);
     }
 
-    /// Sets the local session description.
-    /// According to spec, the local session description MUST be the same as was
-    /// returned by `CreateOffer` or `CreateAnswer` or else the operation should
-    /// fail. The observer is invoked as soon as
-    /// the operation completes, which could be
-    /// before or after the `SetLocalDescription` method has exited.
-    /// # Panic
-    /// Panic if `self` - `PeerConnectionInterface`(null)
+    /// [RTCPeerConnection::setLocalDescription()][1] implementation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
@@ -390,12 +358,9 @@ impl PeerConnectionInterface {
         webrtc::set_local_description(self.0.pin_mut(), desc.0, obs.0);
     }
 
-    /// Sets the remote session description.
-    /// The observer is invoked as soon as
-    /// the operation completes, which could be
-    /// before or after the `SetRemoteDescription` method has exited.
-    /// # Panic
-    /// Panic if `self` - `PeerConnectionInterface`(null)
+    /// [RTCPeerConnection::setRemoteDescription()][1] implementation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
@@ -440,44 +405,54 @@ pub struct PeerConnectionFactoryInterface(
 );
 
 impl PeerConnectionFactoryInterface {
-    #[must_use]
+    /// Creates a new [`PeerConnectionFactoryInterface`].
     pub fn create(
         network_thread: Option<&Thread>,
         worker_thread: Option<&Thread>,
         signaling_thread: Option<&Thread>,
         default_adm: Option<&AudioDeviceModule>,
-    ) -> Self {
-        Self(webrtc::create_peer_connection_factory(
+    ) -> anyhow::Result<Self> {
+        let inner = webrtc::create_peer_connection_factory(
             network_thread.map_or(&UniquePtr::null(), |t| &t.0),
             worker_thread.map_or(&UniquePtr::null(), |t| &t.0),
             signaling_thread.map_or(&UniquePtr::null(), |t| &t.0),
             default_adm.map_or(&UniquePtr::null(), |t| &t.0),
-        ))
+        );
+
+        if inner.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `webrtc::CreatePeerConnectionFactory()`",
+            );
+        }
+        Ok(Self(inner))
     }
 
-    /// Creates a [`PeerConnectionInterface`].
-    /// Where `error` for error handle without c++ exception.
-    ///
-    /// `error` for error handle without c++ exception.
-    /// If `error` != "" after the call,
-    /// then the result will be default or NULL.
+    /// Creates a new [`PeerConnectionInterface`].
     pub fn create_peer_connection_or_error(
         &mut self,
         configuration: &RTCConfiguration,
         dependencies: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
         let mut error = String::new();
-        let pc = webrtc::create_peer_connection_or_error(
+        let inner = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
             &configuration.0,
             dependencies.0,
             &mut error,
         );
-        if error.is_empty() {
-            Ok(PeerConnectionInterface(pc))
-        } else {
+
+        if !error.is_empty() {
             bail!(error);
         }
+        if ptr.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `webrtc::PeerConnectionFactoryInterface::\
+                 CreatePeerConnectionOrError()`",
+            );
+        }
+        Ok(Self(inner))
     }
 
     /// Creates a new [`AudioSourceInterface`], which provides sound recording

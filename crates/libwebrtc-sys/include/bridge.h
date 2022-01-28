@@ -183,27 +183,27 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm);
 
-// Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
+// Creates a new `PeerConnectionInterface`.
 std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
     PeerConnectionFactoryInterface& peer_connection_factory,
     const RTCConfiguration& configuration,
     std::unique_ptr<PeerConnectionDependencies> dependencies,
     rust::String& error);
 
-// Creates default `RTCConfiguration`.
+// Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
-// Creates `PeerConnectionObserver`.
+// Creates a new `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer();
 
-// Creates `PeerConnectionDependencies`.
+// Creates a new `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
     std::unique_ptr<PeerConnectionObserver> observer);
 
-// Creates `RTCOfferAnswerOptions`.
+// Creates a new `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
 
-// Creates `RTCOfferAnswerOptions`.
+// Creates a new `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     int32_t offer_to_receive_video,
     int32_t offer_to_receive_audio,
@@ -211,38 +211,40 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     bool ice_restart,
     bool use_rtp_mux);
 
-// Creates `CreateSessionDescriptionObserver`.
+// Creates a new `CreateSessionDescriptionObserver` from the provided
+// `bridge::DynCreateSdpCallback`.
 std::unique_ptr<CreateSessionDescriptionObserver>
-create_create_session_observer(
-    rust::Box<bridge::DynCreateSdpCallback> callbacks);
+create_create_session_observer(rust::Box<bridge::DynCreateSdpCallback> cb);
 
-// Creates `SetLocalDescriptionObserverInterface`.
+// Creates a new `SetLocalDescriptionObserverInterface` from the provided
+// `bridge::DynSetDescriptionCallback`.
 std::unique_ptr<SetLocalDescriptionObserver>
 create_set_local_description_observer(
-    rust::Box<bridge::DynSetDescriptionCallback> callbacks);
+    rust::Box<bridge::DynSetDescriptionCallback> cb);
 
-// Creates `SetRemoteDescriptionObserverInterface`.
+// Creates a new `SetRemoteDescriptionObserverInterface` from the provided
+// `bridge::DynSetDescriptionCallback`.
 std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
-    rust::Box<bridge::DynSetDescriptionCallback> callbacks);
+    rust::Box<bridge::DynSetDescriptionCallback> cb);
 
 // Calls `PeerConnectionInterface->CreateOffer`.
-void create_offer(PeerConnectionInterface& peer_connection_interface,
+void create_offer(PeerConnectionInterface& peer,
                   const RTCOfferAnswerOptions& options,
                   std::unique_ptr<CreateSessionDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
-void create_answer(PeerConnectionInterface& peer_connection_interface,
+void create_answer(PeerConnectionInterface& peer,
                    const RTCOfferAnswerOptions& options,
                    std::unique_ptr<CreateSessionDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->SetLocalDescription`.
-void set_local_description(PeerConnectionInterface& peer_connection_interface,
+void set_local_description(PeerConnectionInterface& peer,
                            std::unique_ptr<SessionDescriptionInterface> desc,
                            std::unique_ptr<SetLocalDescriptionObserver> obs);
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
-void set_remote_description(PeerConnectionInterface& peer_connection_interface,
+void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 

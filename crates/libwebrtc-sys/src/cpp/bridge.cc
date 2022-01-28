@@ -73,7 +73,7 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
 // Calls `AudioDeviceModule->SetRecordingDevice()` with the provided arguments.
 int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
                                    uint16_t index) {
-  return audio_device_module.ptr()->SetRecordingDevice(index);
+  return audio_device_module->SetRecordingDevice(index);
 }
 
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
@@ -208,7 +208,7 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
   return media_stream->RemoveTrack(track.ptr());
 }
 
-// Creates `PeerConnectionFactoryInterface`.
+// Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
@@ -245,89 +245,88 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
     std::unique_ptr<PeerConnectionDependencies> dependencies,
     rust::String& error) {
   PeerConnectionDependencies pcd = std::move(*(dependencies.release()));
-  auto pc = peer_connection_factory.ptr()->CreatePeerConnectionOrError(
+  auto pc = peer_connection_factory->CreatePeerConnectionOrError(
       configuration, std::move(pcd));
 
   if (pc.ok()) {
-    auto ptr = pc.MoveValue();
-    return std::make_unique<PeerConnectionInterface>(std::move(ptr));
+    return std::make_unique<PeerConnectionInterface>(pc.MoveValue());
   }
+
   error = rust::String(pc.MoveError().message());
-  return std::unique_ptr<PeerConnectionInterface>();
+  return nullptr;
 }
 
-// Creates default `RTCConfiguration`.
+// Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
-  RTCConfiguration config;
-  return std::make_unique<RTCConfiguration>(config);
+  return std::make_unique<RTCConfiguration>();
 }
 
-// Creates `PeerConnectionObserver`.
+// Creates a new `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer() {
-  PeerConnectionObserver obs;
-  return std::make_unique<PeerConnectionObserver>(obs);
+  return std::make_unique<PeerConnectionObserver>();
 }
 
-// Creates `PeerConnectionDependencies`.
+// Creates a new `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
     std::unique_ptr<PeerConnectionObserver> observer) {
   PeerConnectionDependencies pcd(observer.release());
   return std::make_unique<PeerConnectionDependencies>(std::move(pcd));
 }
 
-// Creates `RTCOfferAnswerOptions`.
+// Creates a new `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options() {
-  return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions());
+  return std::make_unique<RTCOfferAnswerOptions>();
 }
 
-// Creates `RTCOfferAnswerOptions`.
+// Creates a new `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     int32_t offer_to_receive_video,
     int32_t offer_to_receive_audio,
     bool voice_activity_detection,
     bool ice_restart,
     bool use_rtp_mux) {
-  return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions(
-      offer_to_receive_video, offer_to_receive_audio, voice_activity_detection,
-      ice_restart, use_rtp_mux));
+  return std::make_unique<RTCOfferAnswerOptions>(offer_to_receive_video,
+                                                 offer_to_receive_audio,
+                                                 voice_activity_detection,
+                                                 ice_restart, use_rtp_mux);
 }
 
-// Creates `CreateSessionDescriptionObserver`.
+// Creates a new `CreateSessionDescriptionObserver` from the provided
+// `bridge::DynCreateSdpCallback`.
 std::unique_ptr<CreateSessionDescriptionObserver>
 create_create_session_observer(
     rust::Box<bridge::DynCreateSdpCallback> cb) {
-  return std::make_unique<CreateSessionDescriptionObserver>(
-      CreateSessionDescriptionObserver(std::move(cb)));
+  return std::make_unique<CreateSessionDescriptionObserver>(std::move(cb));
 }
 
-// Creates `SetLocalDescriptionObserver`.
+// Creates a new `SetLocalDescriptionObserverInterface` from the provided
+// `bridge::DynSetDescriptionCallback`.
 std::unique_ptr<SetLocalDescriptionObserver>
 create_set_local_description_observer(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
-  return std::make_unique<SetLocalDescriptionObserver>(
-      SetLocalDescriptionObserver(std::move(cb)));
+  return std::make_unique<SetLocalDescriptionObserver>(std::move(cb));
 }
 
-// Creates `SetRemoteDescriptionObserver`.
+// Creates a new `SetRemoteDescriptionObserverInterface` from the provided
+// `bridge::DynSetDescriptionCallback`.
 std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
-  return std::make_unique<SetRemoteDescriptionObserver>(
-      SetRemoteDescriptionObserver(std::move(cb)));
+  return std::make_unique<SetRemoteDescriptionObserver>(std::move(cb));
 }
 
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
                   const RTCOfferAnswerOptions& options,
                   std::unique_ptr<CreateSessionDescriptionObserver> obs) {
-  peer_connection_interface.ptr()->CreateOffer(obs.release(), options);
+  peer_connection_interface->CreateOffer(obs.release(), options);
 }
 
 // Calls `PeerConnectionInterface->CreateAnswer`.
 void create_answer(PeerConnectionInterface& peer_connection_interface,
                    const RTCOfferAnswerOptions& options,
                    std::unique_ptr<CreateSessionDescriptionObserver> obs) {
-  peer_connection_interface.ptr()->CreateAnswer(obs.release(), options);
+  peer_connection_interface->CreateAnswer(obs.release(), options);
 }
 
 // Calls `PeerConnectionInterface->SetLocalDescription`.
@@ -337,8 +336,8 @@ void set_local_description(PeerConnectionInterface& peer_connection_interface,
   auto observer =
       rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(
           obs.release());
-  peer_connection_interface.ptr()->SetLocalDescription(std::move(desc),
-                                                       observer);
+  peer_connection_interface->SetLocalDescription(std::move(desc),
+                                                 observer);
 }
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
@@ -347,8 +346,8 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs) {
   auto observer =
       rtc::scoped_refptr<SetRemoteDescriptionObserver>(obs.release());
-  peer_connection_interface.ptr()->SetRemoteDescription(std::move(desc),
-                                                        observer);
+  peer_connection_interface->SetRemoteDescription(std::move(desc),
+                                                  observer);
 }
 
 }  // namespace bridge

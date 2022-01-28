@@ -3,7 +3,7 @@ use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 
 use crate::{
-    api::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
+    internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
     next_id, Webrtc,
 };
 

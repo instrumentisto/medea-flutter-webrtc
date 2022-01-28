@@ -20,41 +20,30 @@ pub(crate) mod webrtc {
         kDummyAudio,
     }
 
-    /// The RTCSdpType enum describes
-    /// the type of an RTCSessionDescriptionInit,
-    /// RTCLocalSessionDescriptionInit,
-    /// or RTCSessionDescription instance.
+    /// [RTCSdpType] representation.
+    ///
+    /// [RTCSdpType]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SdpType {
-        /// An RTCSdpType of "offer" indicates
-        /// that a description MUST be treated as an [SDP] offer.
-        kOffer = 0,
+        /// [RTCSdpType.offer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
+        kOffer,
 
-        /// An RTCSdpType of "pranswer" indicates that a description
-        /// MUST be treated as an [SDP] answer, but not a final answer.
-        /// A description used as an SDP pranswer may be applied
-        /// as a response to an SDP offer, or an update to
-        /// a previously sent SDP pranswer.
+        /// [RTCSdpType.pranswer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
         kPrAnswer,
 
-        /// An RTCSdpType of "answer" indicates that a description
-        /// MUST be treated as an [SDP] final answer,
-        /// and the offer-answer exchange MUST be considered complete.
-        /// A description used as an SDP answer may be applied
-        /// as a response to an SDP offer or as an update
-        /// to a previously sent SDP pranswer.
+        /// [RTCSdpType.answer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-answer
         kAnswer,
 
-        /// An RTCSdpType of "rollback" indicates that a description
-        /// MUST be treated as canceling the current SDP negotiation
-        /// and moving the SDP [SDP] offer back to what
-        /// it was in the previous stable state.
-        /// Note the local or remote SDP descriptions
-        /// in the previous stable state could be null
-        /// if there has not yet been a successful
-        /// offer-answer negotiation.
-        /// An "answer" or "pranswer" cannot be rolled back.
+        /// [RTCSdpType.rollback][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-rollback
         kRollback,
     }
 
@@ -81,10 +70,6 @@ pub(crate) mod webrtc {
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
 
         /// Creates a new [`PeerConnectionFactoryInterface`].
-        /// Where `default_adm` - can be?? NULL,
-        /// `audio_mixer` - can be NULL,
-        /// `audio_processing` - can be?? NULL,
-        /// `audio_frame_processor` - default NULL,
         #[allow(clippy::too_many_arguments)]
         pub fn create_peer_connection_factory(
             network_thread: &UniquePtr<Thread>,
