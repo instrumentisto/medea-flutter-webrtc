@@ -1,6 +1,6 @@
 #include "flutter_peer_connection.h"
 #include "flutter_webrtc.h"
-#include "flutter_webrtc_native/include/api.h"
+#include "flutter-webrtc-native/include/api.h"
 
 using namespace rust::cxxbridge1;
 
@@ -115,8 +115,7 @@ void CreateOffer(
                                    voice_activity_detection,
                                    ice_restart,
                                    use_rtp_mux,
-                                   std::move(callback),
-                                   error);
+                                   std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -169,8 +168,7 @@ void CreateAnswer(
                                     voice_activity_detection,
                                     ice_restart,
                                     use_rtp_mux,
-                                    std::move(callback),
-                                    error);
+                                    std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -204,8 +202,7 @@ void SetLocalDescription(
   auto error = webrtc->SetLocalDescription(std::stoi(peerConnectionId),
                                            type,
                                            sdp,
-                                           std::move(callback),
-                                           error);
+                                           std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
@@ -239,8 +236,7 @@ void SetRemoteDescription(
   auto error = webrtc->SetRemoteDescription(std::stoi(peerConnectionId),
                                             type,
                                             sdp,
-                                            std::move(callback),
-                                            error);
+                                            std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));

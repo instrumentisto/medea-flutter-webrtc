@@ -11,6 +11,8 @@ class CreateSdpCallbackInterface {
 
   // Called if an operation fails.
   virtual void OnFail(const std::string& error) = 0;
+
+  virtual ~CreateSdpCallbackInterface() = default;
 };
 
 // Completion callback for the `Webrtc::SetLocalDescription` and
@@ -22,4 +24,6 @@ class SetDescriptionCallbackInterface {
 
   // Called if an operation fails.
   virtual void OnFail(const std::string& error) = 0;
+
+  virtual ~SetDescriptionCallbackInterface() = default;
 };
