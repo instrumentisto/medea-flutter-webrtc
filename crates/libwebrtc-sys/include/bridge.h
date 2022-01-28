@@ -66,7 +66,7 @@ using PeerConnectionFactoryInterface =
     rc<webrtc::PeerConnectionFactoryInterface>;
 using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
-using VideoRendererSinkObserver = observer::VideoRendererSinkObserver;
+using VideoSinkObserver = observer::VideoSinkObserver;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -138,10 +138,9 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     const VideoTrackSourceInterface& video_source);
 
 void add_or_update_video_sink(const VideoTrackInterface& track,
-                              VideoRendererSink& sink);
+                              VideoSink& sink);
 
-void remove_video_sink(const VideoTrackInterface& track,
-                       VideoRendererSink& sink);
+void remove_video_sink(const VideoTrackInterface& track, VideoSink& sink);
 
 // Creates a new `AudioTrackInterface`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
@@ -177,11 +176,8 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
 // Converts `i420 buffer` from received `webrtc::VideoFrame` to `ABGR buffer`.
 void i420_to_abgr(const webrtc::VideoFrame& frame, uint8_t* buffer_ptr);
 
-std::unique_ptr<VideoRendererSinkObserver> create_video_renderer_sinc_observer(
-    rust::Box<DynCallback> handler);
-
-// Returns a new `VideoRendererSink`.
-std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
-    std::unique_ptr<VideoRendererSinkObserver> obs);
+// Returns a new `VideoSink`.
+std::unique_ptr<VideoSink> create_video_sink(
+    rust::Box<DynOnFrameCallback> handler);
 
 }  // namespace bridge

@@ -4,6 +4,8 @@ use cxx::{type_id, ExternType};
 
 pub use internal::*;
 
+#[allow(clippy::items_after_statements)]
+#[allow(clippy::module_inception)]
 #[cxx::bridge]
 mod internal {
     unsafe extern "C++" {

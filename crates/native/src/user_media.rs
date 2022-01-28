@@ -10,7 +10,7 @@ use libwebrtc_sys as sys;
 
 use crate::{
     api::{self, AudioConstraints, VideoConstraints},
-    Renderer, TextureId, Webrtc,
+    VideoSink, VideoSinkId, Webrtc,
 };
 
 /// Counter used to generate unique IDs.
@@ -453,10 +453,10 @@ pub struct VideoTrack {
     /// Stereo".
     label: VideoLabel,
 
-    /// [`TextureId`]s of the [`Renderer`]'s which uses this [`VideoTrack`].
+    /// [`VideoSinkId`]s of the [`VideoSink`]'s which uses this [`VideoTrack`].
     ///
-    /// [`Renderer`]:crate::Renderer
-    renderers: Vec<TextureId>,
+    /// [`VideoSink`]:crate::VideoSink
+    video_sinks: Vec<VideoSinkId>,
 }
 
 impl VideoTrack {
@@ -473,32 +473,32 @@ impl VideoTrack {
             src,
             kind: api::TrackKind::kVideo,
             label,
-            renderers: Vec::new(),
+            video_sinks: Vec::new(),
         })
     }
 
-    /// Adds the [`Renderer`] which uses this [`VideoTrack`].
+    /// Adds the [`VideoSink`] which uses this [`VideoTrack`].
     ///
-    /// [`Renderer`]:crate::Renderer
+    /// [`VideoSink`]:crate::VideoSink
     ///
     /// # Panics
     ///
     /// Unwraping of Rc.
-    pub fn add_renderer(&mut self, renderer: &mut Renderer) {
-        self.inner.add_or_update_sink(renderer.as_mut());
-        self.renderers.push(*renderer.get_texture_id());
+    pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
+        self.inner.add_or_update_sink(video_sink.as_mut());
+        self.video_sinks.push(*video_sink.get_id());
     }
 
     /// # Panics
     ///
     /// Unwraping of Rc.
-    pub fn remove_renderer(&mut self, renderer: Renderer) {
-        let mut renderer = renderer;
+    pub fn remove_video_sink(&mut self, video_sink: VideoSink) {
+        let mut video_sink = video_sink;
 
-        self.renderers
-            .retain(|texture| texture != renderer.get_texture_id());
+        self.video_sinks
+            .retain(|texture| texture != video_sink.get_id());
 
-        self.remove_sink(renderer.as_mut());
+        self.remove_sink(video_sink.as_mut());
     }
 }
 

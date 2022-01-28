@@ -12,17 +12,17 @@
 #include "third_party/libyuv/include/libyuv/convert_argb.h"
 
 namespace bridge {
-// `VideoRendererSink` sinks to `VideoTrackInterface` and provides calling
+// `VideoSink` sinks to `VideoTrackInterface` and provides calling
 // external callback on every incoming `VideoFrame`.
-class VideoRendererSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+class VideoSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
-  // Creates a new `VideoRendererSink`.
-  VideoRendererSink(std::unique_ptr<observer::VideoRendererSinkObserver> obs_);
+  // Creates a new `VideoSink`.
+  VideoSink(std::unique_ptr<observer::VideoSinkObserver> obs_);
 
   // `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
-  // `context` which is passed to `cb_`.
-  std::unique_ptr<observer::VideoRendererSinkObserver> obs_;
+  // `VideoSinkObserver` which contains a `callback`.
+  std::unique_ptr<observer::VideoSinkObserver> obs_;
 };
 }  // namespace bridge

@@ -3,16 +3,6 @@
 
 namespace flutter_webrtc_plugin {
 
-// typedef void (*frame_handler)(Frame*);
-
-// // Rust FFI function that registers `VideoRenderer` in Rust and set the
-// callback
-// // on `libWebRTC`'s `Frame` handling.
-// extern "C" void register_renderer(rust::Box<Webrtc>&,
-//                                   int64_t,
-//                                   uint64_t,
-//                                   frame_handler);
-
 FlutterVideoRendererManager::FlutterVideoRendererManager(
     FlutterWebRTCBase* base)
     : base_(base) {}
@@ -46,20 +36,11 @@ void FlutterVideoRendererManager::SetMediaStream(
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
     if (stream_id != "") {
-      auto asdsad = it->second;
-      webrtc->create_renderer(
+      webrtc->create_video_sink(
           texture_id, (uint64_t)std::stoi(stream_id),
-          std::make_unique<TextureVideoRendererShim>(asdsad));
-      // TODO: Pass callback to Rust.
-      //      auto cb = std::bind(&TextureVideoRenderer::OnFrame,
-      //                          renderers_[texture_id].get(),
-      //                          std::placeholders::_1);
-      //      frame_handler wrapped_cb = Wrapper<0, void(Frame*)>::wrap(cb);
-      //      register_renderer(webrtc, texture_id,
-      //      (uint64_t)std::stoi(stream_id),
-      //                        wrapped_cb);
+          std::make_unique<TextureVideoRendererShim>(it->second));
     } else {
-      webrtc->dispose_renderer(texture_id);
+      webrtc->dispose_video_sink(texture_id);
       it->second.get()->ResetRenderer();
     }
   }
@@ -90,8 +71,8 @@ void FlutterVideoRendererManager::VideoRendererDispose(
                 "VideoRendererDispose() texture not found!");
 }
 
-// `VideoRendere` costructor. Creates a new `texture` and `EventChannel`,
-// register them.
+// `TextureVideoRenderer` costructor. Creates a new `texture` and
+// `EventChannel`, register them.
 TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
                                            BinaryMessenger* messenger)
     : registrar_(registrar) {
@@ -131,17 +112,16 @@ const FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
     size_t height) const {
   mutex_.lock();
 
-  if (pixel_buffer_.get() && frame_) {
-    Frame* frame = frame_.value();
-    if (pixel_buffer_->width != frame->width() ||
-        pixel_buffer_->height != frame->height()) {
-      size_t buffer_size = frame->buffer_size();
+  if (pixel_buffer_.get() && frame_.has_value()) {
+    if (pixel_buffer_->width != frame_.value()->width() ||
+        pixel_buffer_->height != frame_.value()->height()) {
+      size_t buffer_size = frame_.value()->buffer_size();
       rgb_buffer_.reset(new uint8_t[buffer_size]);
-      pixel_buffer_->width = frame->width();
-      pixel_buffer_->height = frame->height();
+      pixel_buffer_->width = frame_.value()->width();
+      pixel_buffer_->height = frame_.value()->height();
     }
 
-    frame->buffer(rgb_buffer_.get());
+    frame_.value()->buffer(rgb_buffer_.get());
 
     pixel_buffer_->buffer = rgb_buffer_.get();
 
@@ -153,7 +133,7 @@ const FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
 }
 
 // `Frame` handler. Sends events to Dart when receives the `Frame`.
-void TextureVideoRenderer::OnFrame(Frame* frame) {
+void TextureVideoRenderer::OnFrame(rust::Box<Frame> frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
       EncodableMap params;
@@ -191,10 +171,7 @@ void TextureVideoRenderer::OnFrame(Frame* frame) {
     last_frame_size_ = {(size_t)frame->width(), (size_t)frame->height()};
   }
   mutex_.lock();
-  if (frame_) {
-    delete_frame(frame_.value());
-  }
-  frame_ = std::optional(frame);
+  frame_.emplace(std::move(frame));
   mutex_.unlock();
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
@@ -202,22 +179,22 @@ void TextureVideoRenderer::OnFrame(Frame* frame) {
 // Set `Renderer`'s default state.
 void TextureVideoRenderer::ResetRenderer() {
   mutex_.lock();
-  if (frame_) {
-    delete_frame(frame_.value());
-  }
+  frame_.reset();
   mutex_.unlock();
   frame_ = std::nullopt;
   last_frame_size_ = {0, 0};
   first_frame_rendered = false;
 }
 
+// A `TextureVideoRendererShim` constructor. Sets income `TextureVideoRenderer`.
 TextureVideoRendererShim::TextureVideoRendererShim(
     std::shared_ptr<TextureVideoRenderer> ctx) {
   ctx_ = std::move(ctx);
 }
 
+// Calls `TextureVideoRenderer->OnFrame`.
 void TextureVideoRendererShim::OnFrame(Frame* frame) {
-  ctx_->OnFrame(frame);
+  ctx_->OnFrame(rust::Box<Frame>::from_raw(frame));
 }
 
 }  // namespace flutter_webrtc_plugin

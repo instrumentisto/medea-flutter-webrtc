@@ -174,12 +174,11 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
 }
 
 void add_or_update_video_sink(const VideoTrackInterface& track,
-                              VideoRendererSink& sink) {
+                              VideoSink& sink) {
   track.ptr()->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
 }
 
-void remove_video_sink(const VideoTrackInterface& track,
-                       VideoRendererSink& sink) {
+void remove_video_sink(const VideoTrackInterface& track, VideoSink& sink) {
   track.ptr()->RemoveSink(&sink);
 }
 
@@ -250,14 +249,10 @@ void i420_to_abgr(const webrtc::VideoFrame& video_frame, uint8_t* buffer_ptr) {
                      buffer->height());
 }
 
-std::unique_ptr<VideoRendererSinkObserver> create_video_renderer_sinc_observer(
-    rust::Box<DynCallback> handler) {
-  return std::make_unique<VideoRendererSinkObserver>(std::move(handler));
-}
-
-// Returns a new `VideoRendererSink`.
-std::unique_ptr<VideoRendererSink> create_video_renderer_sink(
-    std::unique_ptr<VideoRendererSinkObserver> obs) {
-  return std::make_unique<VideoRendererSink>(VideoRendererSink(std::move(obs)));
+// Returns a new `VideoSink`.
+std::unique_ptr<VideoSink> create_video_sink(
+    rust::Box<DynOnFrameCallback> handler) {
+  return std::make_unique<VideoSink>(VideoSink(
+      std::move(std::make_unique<VideoSinkObserver>(std::move(handler)))));
 }
 }  // namespace bridge

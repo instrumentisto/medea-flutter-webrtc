@@ -4,24 +4,25 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::webrtc::create_video_renderer_sinc_observer;
+
 use cxx::UniquePtr;
 
 use self::bridge::webrtc;
 
 pub use webrtc::{i420_to_abgr, AudioLayer, VideoFrame, VideoRotation};
 
-pub trait Callback {
+/// A trait for `OnFrame` `callback`s.
+pub trait OnFrameCallback {
+    /// Directly `OnFrame` `callback`.
     fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
 }
 
-pub type DynCallback = Box<dyn Callback>;
+/// A type used for double box [`OnFrameCallback`], for extern Rust.
+pub type DynOnFrameCallback = Box<dyn OnFrameCallback>;
 
-pub fn on_frame_asd(
-    boxed_dyn: &mut Box<DynCallback>,
-    frame: UniquePtr<VideoFrame>,
-) {
-    boxed_dyn.on_frame(frame);
+/// Calls [`DynOnFrameCallback`]'s `callback`.
+pub fn on_frame(cb: &mut DynOnFrameCallback, frame: UniquePtr<VideoFrame>) {
+    cb.on_frame(frame);
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -394,11 +395,13 @@ pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 pub struct VideoTrackInterface(UniquePtr<webrtc::VideoTrackInterface>);
 
 impl VideoTrackInterface {
-    pub fn add_or_update_sink(&self, sink: &mut RendererSink) {
+    /// Adds a new `VideoSink` to the `VideoTrackInterface`.
+    pub fn add_or_update_sink(&self, sink: &mut VideoSink) {
         webrtc::add_or_update_video_sink(&self.0, sink.0.pin_mut());
     }
 
-    pub fn remove_sink(&self, sink: &mut RendererSink) {
+    /// Removes the `VideoSink` from the `VideoTrackInterface`.
+    pub fn remove_sink(&self, sink: &mut VideoSink) {
         webrtc::remove_video_sink(&self.0, sink.0.pin_mut());
     }
 }
@@ -471,18 +474,13 @@ impl MediaStreamInterface {
     }
 }
 
-/// Representation of the [`webrtc::VideoRendererSink`].
-pub struct RendererSink(UniquePtr<webrtc::VideoRendererSink>);
+/// Representation of the [`webrtc::VideoSink`].
+pub struct VideoSink(UniquePtr<webrtc::VideoSink>);
 
-impl RendererSink {
-    /// Creates a new [`RendererSink`].
-    ///
-    /// # Panics
-    ///
-    /// May panic on taking [`VideoTrackInterface`] as ref.
-    pub fn create(ctx: DynCallback) -> Self {
-        Self(webrtc::create_video_renderer_sink(
-            create_video_renderer_sinc_observer(Box::new(ctx)),
-        ))
+impl VideoSink {
+    /// Creates a new [`VideoSink`].
+    #[must_use]
+    pub fn create(ctx: DynOnFrameCallback) -> Self {
+        Self(webrtc::create_video_sink(Box::new(ctx)))
     }
 }

@@ -6,17 +6,22 @@
 #include "rust/cxx.h"
 
 namespace bridge {
-struct DynCallback;
-}
+// Struct implement Rust trait `DynOnFrameCallback`.
+struct DynOnFrameCallback;
+}  // namespace bridge
 
 namespace observer {
-class VideoRendererSinkObserver {
+// Class used for calling Rust callback.
+class VideoSinkObserver {
  public:
-  VideoRendererSinkObserver(rust::Box<bridge::DynCallback> handler);
+  // Class constructor, accepts `DynOnFrameCallback`.
+  VideoSinkObserver(rust::Box<bridge::DynOnFrameCallback> handler);
 
+  // Calls on every `VideoFrame`.
   void OnFrame(const webrtc::VideoFrame& video_frame);
 
  private:
-  std::optional<rust::Box<bridge::DynCallback>> handler_;
+  // A handler which contains RUst `DynOnFrameCallback`.
+  std::optional<rust::Box<bridge::DynOnFrameCallback>> handler_;
 };
 }  // namespace observer

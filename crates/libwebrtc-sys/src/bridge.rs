@@ -1,6 +1,8 @@
-use crate::{on_frame_asd, DynCallback};
+use crate::{on_frame, DynOnFrameCallback};
 
 #[allow(clippy::expl_impl_clone_on_copy)]
+#[allow(clippy::items_after_statements)]
+// #[allow(clippy::all)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
     /// Possible kinds of audio devices implementation.
@@ -198,20 +200,11 @@ pub(crate) mod webrtc {
         kVideoRotation_270 = 270,
     }
 
-    extern "Rust" {
-        type DynCallback;
-
-        fn on_frame_asd(
-            boxed_dyn: &mut Box<DynCallback>,
-            frame: UniquePtr<VideoFrame>,
-        );
-    }
-
     unsafe extern "C++" {
         #[namespace = "webrtc"]
         type VideoFrame;
-        type VideoRendererSinkObserver;
-        type VideoRendererSink;
+        type VideoSinkObserver;
+        type VideoSink;
         type VideoRotation;
 
         /// Returns width of the [`VideoFrame`].
@@ -232,24 +225,32 @@ pub(crate) mod webrtc {
         /// Converts [`VideoFrame`]'s `i420 buffer` to `ABGR buffer`.
         pub unsafe fn i420_to_abgr(frame: &VideoFrame, buffer_ptr: *mut u8);
 
+        /// Adds a new [`VideoSink`] to the [`VideoTrackInterface`].
         pub fn add_or_update_video_sink(
             track: &VideoTrackInterface,
-            sink: Pin<&mut VideoRendererSink>,
+            sink: Pin<&mut VideoSink>,
         );
 
+        /// Removes the [`VideoSink`] from the [`VideoTrackInterface`].
         pub fn remove_video_sink(
             track: &VideoTrackInterface,
-            sink: Pin<&mut VideoRendererSink>,
+            sink: Pin<&mut VideoSink>,
         );
 
-        pub fn create_video_renderer_sinc_observer(
-            handler: Box<DynCallback>,
-        ) -> UniquePtr<VideoRendererSinkObserver>;
-
-        /// Creates a new [`VideoRendererSink`] for
+        /// Creates a new [`VideoSink`] for
         /// the given `callbacks`.
-        pub fn create_video_renderer_sink(
-            obs: UniquePtr<VideoRendererSinkObserver>,
-        ) -> UniquePtr<VideoRendererSink>;
+        pub fn create_video_sink(
+            handler: Box<DynOnFrameCallback>,
+        ) -> UniquePtr<VideoSink>;
+    }
+
+    extern "Rust" {
+        type DynOnFrameCallback;
+
+        /// Calls [`DynOnFrameCallback`]'s `callback`.
+        pub fn on_frame(
+            cb: &mut DynOnFrameCallback,
+            frame: UniquePtr<VideoFrame>,
+        );
     }
 }

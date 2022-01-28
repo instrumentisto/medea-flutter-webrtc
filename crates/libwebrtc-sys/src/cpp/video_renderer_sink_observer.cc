@@ -3,13 +3,15 @@
 #include "rust/cxx.h"
 
 namespace observer {
-VideoRendererSinkObserver::VideoRendererSinkObserver(
-    rust::Box<bridge::DynCallback> handler) {
+// `VideoSinkObserver` constructor.
+VideoSinkObserver::VideoSinkObserver(
+    rust::Box<bridge::DynOnFrameCallback> handler) {
   this->handler_ = std::move(handler);
 }
 
-void VideoRendererSinkObserver::OnFrame(const webrtc::VideoFrame& video_frame) {
-  bridge::on_frame_asd(handler_.value(),
-                       std::make_unique<webrtc::VideoFrame>(video_frame));
+// A `callback` which is called on `VideoFrame`.
+void VideoSinkObserver::OnFrame(const webrtc::VideoFrame& video_frame) {
+  bridge::on_frame(*handler_.value(),
+                   std::make_unique<webrtc::VideoFrame>(video_frame));
 }
 }  // namespace observer

@@ -3,8 +3,8 @@
 mod device_info;
 mod frame;
 mod internal;
-mod renderer;
 mod user_media;
+mod video_sink;
 
 use std::{collections::HashMap, rc::Rc};
 
@@ -21,7 +21,7 @@ pub use crate::user_media::{
 
 pub use crate::frame::{delete as delete_frame, Frame};
 
-pub use crate::renderer::{Renderer, TextureId};
+pub use crate::video_sink::{Id as VideoSinkId, VideoSink};
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
@@ -178,7 +178,7 @@ pub mod api {
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
 
-        pub unsafe fn create_renderer(
+        pub unsafe fn create_video_sink(
             self: &mut Webrtc,
             texture_id: i64,
             stream_id: u64,
@@ -204,10 +204,16 @@ pub mod api {
         /// Deletes the given [`Frame`].
         unsafe fn delete_frame(frame_ptr: *mut Frame);
 
-        /// Drops the [`Renderer`] according to the given [`TextureId`].
-        fn dispose_renderer(self: &mut Webrtc, texture_id: i64);
+        /// Drops the [`VideoSink`] according to the given [`VideoSinkId`].
+        fn dispose_video_sink(self: &mut Webrtc, texture_id: i64);
+
+        /// This will trigger `cxx` to generate a `destroyer` for [`Frame`].
+        fn _touch_frame_box(i: Box<Frame>);
     }
 }
+
+/// This will trigger `cxx` to generate a `destroyer` for [`Frame`].
+fn _touch_frame_box(_: Box<Frame>) {}
 
 /// [`Context`] wrapper that is exposed to the C++ API clients.
 pub struct Webrtc(Box<Context>);
@@ -226,7 +232,7 @@ pub struct Context {
     audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
-    renderers: HashMap<TextureId, Renderer>,
+    video_sinks: HashMap<VideoSinkId, VideoSink>,
 }
 
 /// Creates an instanse of [`Webrtc`].
@@ -269,6 +275,6 @@ pub fn init() -> Box<Webrtc> {
         audio_source: None,
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
-        renderers: HashMap::new(),
+        video_sinks: HashMap::new(),
     })))
 }
