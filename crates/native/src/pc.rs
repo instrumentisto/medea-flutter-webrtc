@@ -1,4 +1,4 @@
-use cxx::{CxxString, UniquePtr};
+use cxx::{let_cxx_string, CxxString, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 
@@ -226,28 +226,29 @@ impl PeerConnection {
     }
 }
 
-/// Wrapper for [`CreateSdpCallbackInterface`].
+/// [`CreateSdpCallbackInterface`] wrapper.
 struct CreateSdpCallback(UniquePtr<CreateSdpCallbackInterface>);
 
 impl sys::CreateSdpCallback for CreateSdpCallback {
-    fn success(&mut self, sdp: &CxxString, kind: &CxxString) {
-        self.0.pin_mut().on_success_create(sdp, kind);
+    fn success(&mut self, sdp: &CxxString, kind: sys::SdpType) {
+        let_cxx_string!(kind = kind.to_string());
+        self.0.pin_mut().on_create_sdp_success(sdp, &kind.as_ref());
     }
 
     fn fail(&mut self, error: &CxxString) {
-        self.0.pin_mut().on_fail_create(error);
+        self.0.pin_mut().on_create_sdp_fail(error);
     }
 }
 
-/// Wrapper for [`SetDescriptionCallbackInterface`].
+/// [`SetDescriptionCallbackInterface`] wrapper.
 struct SetSdpCallback(UniquePtr<SetDescriptionCallbackInterface>);
 
 impl sys::SetDescriptionCallback for SetSdpCallback {
     fn success(&mut self) {
-        self.0.pin_mut().on_success_set_description();
+        self.0.pin_mut().on_set_description_sucess();
     }
 
     fn fail(&mut self, error: &CxxString) {
-        self.0.pin_mut().on_fail_set_description(error);
+        self.0.pin_mut().on_set_description_fail(error);
     }
 }

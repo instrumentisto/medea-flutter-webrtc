@@ -1,4 +1,14 @@
+use std::fmt;
+
 use cxx::CxxString;
+
+use crate::{CreateSdpCallback, SetDescriptionCallback};
+
+/// [`CreateSdpCallback`] that can be transferred to the CXX side.
+type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
+
+/// [`SetDescriptionCallback`] that can be transferred to the CXX side.
+type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
@@ -70,7 +80,6 @@ pub(crate) mod webrtc {
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
 
         /// Creates a new [`PeerConnectionFactoryInterface`].
-        #[allow(clippy::too_many_arguments)]
         pub fn create_peer_connection_factory(
             network_thread: &UniquePtr<Thread>,
             worker_thread: &UniquePtr<Thread>,
@@ -150,35 +159,6 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
-    extern "Rust" {
-        type DynSetDescriptionCallback;
-        type DynCreateSdpCallback;
-
-        /// Calling in `CreateSessionDescriptionObserver`,
-        /// when `CreateOffer/Answer` is success.
-        pub fn success_sdp(
-            cb: &mut DynCreateSdpCallback,
-            sdp: &CxxString,
-            kind: &CxxString,
-        );
-
-        /// Calling in `CreateSessionDescriptionObserver`,
-        /// when `CreateOffer/Answer` is fail.
-        pub fn fail_sdp(cb: &mut DynCreateSdpCallback, error: &CxxString);
-
-        /// Calling in `SetLocal/RemoteDescriptionObserver`,
-        /// when `SetLocal/RemoteDescription` is success.
-        pub fn success_set_description(cb: &mut DynSetDescriptionCallback);
-
-        /// Calling in `SetLocal/RemoteDescriptionObserver`,
-        /// when `SetLocal/RemoteDescription` is success.
-        pub fn fail_set_description(
-            cb: &mut DynSetDescriptionCallback,
-            error: &CxxString,
-        );
-
-    }
-
     #[rustfmt::skip]
     unsafe extern "C++" {
         type CreateSessionDescriptionObserver;
@@ -192,36 +172,36 @@ pub(crate) mod webrtc {
         type SetLocalDescriptionObserver;
         type SetRemoteDescriptionObserver;
 
-        /// Creates default [`RTCConfiguration`].
+        /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
 
-        /// Creates a [`PeerConnectionInterface`].
-        /// # Warning
-        /// `error` for error handle without c++ exception.
-        /// If 'error` != "" after the call,
-        /// then the result will be default or NULL.
+        /// Creates a new [`PeerConnectionInterface`].
+        ///
+        /// If creation fails then an error will be written to the provided
+        /// `error` and the returned [`UniquePtr`] will be `null`.
         pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
-            configuration: &RTCConfiguration,
-            dependencies: UniquePtr<PeerConnectionDependencies>,
+            conf: &RTCConfiguration,
+            deps: UniquePtr<PeerConnectionDependencies>,
             error: &mut String,
         ) -> UniquePtr<PeerConnectionInterface>;
 
-        /// Creates a [`PeerConnectionObserver`].
+        /// Creates a new [`PeerConnectionObserver`].
         pub fn create_peer_connection_observer(
         ) -> UniquePtr<PeerConnectionObserver>;
 
-        /// Creates a [`PeerConnectionDependencies`].
+        /// Creates a [`PeerConnectionDependencies`] from the provided
+        /// [`PeerConnectionObserver`].
         pub fn create_peer_connection_dependencies(
             observer: UniquePtr<PeerConnectionObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
 
-        /// Creates default [`RTCOfferAnswerOptions`].
+        /// Creates a default [`RTCOfferAnswerOptions`].
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
-        /// Creates a [`RTCOfferAnswerOptions`].
+        /// Creates a new [`RTCOfferAnswerOptions`] from the provided options.
         pub fn create_rtc_offer_answer_options(
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
@@ -230,50 +210,65 @@ pub(crate) mod webrtc {
             use_rtp_mux: bool,
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
-        /// Creates a [`CreateSessionDescriptionObserver`].
+        /// Creates a new [`CreateSessionDescriptionObserver`] from the
+        /// provided [`DynCreateSdpCallback`].
         pub fn create_create_session_observer(
             cb: Box<DynCreateSdpCallback>,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
-        /// Creates a [`SetLocalDescriptionObserver`].
+        /// Creates a new [`SetLocalDescriptionObserver`] from the provided
+        /// [`DynSetDescriptionCallback`].
         pub fn create_set_local_description_observer(
             cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetLocalDescriptionObserver>;
 
-        /// Creates a [`SetRemoteDescriptionObserver`].
+        /// Creates a new [`SetRemoteDescriptionObserver`] from the provided
+        /// [`DynSetDescriptionCallback`].
         pub fn create_set_remote_description_observer(
             cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetRemoteDescriptionObserver>;
 
-        /// Calls `peer_connection_interface`->CreateOffer.
+        /// Calls the [`RTCPeerConnection::createOffer()`][1] on the provided
+        /// [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
         pub fn create_offer(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls `peer_connection_interface`->CreateAnswer.
+        /// Calls the [`RTCPeerConnection::createAnswer()`][1] on the provided
+        /// [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
         pub fn create_answer(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls `peer_connection_interface`->SetLocalDescription.
+        /// Calls the [`RTCPeerConnection::setLocalDescription()`][1] on the
+        /// provided [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
         pub fn set_local_description(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: UniquePtr<SetLocalDescriptionObserver>,
         );
 
-        /// Calls `peer_connection_interface`->SetRemoteDescription.
+        /// Calls the [`RTCPeerConnection::setRemoteDescription()`][1] on the
+        /// provided [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
         pub fn set_remote_description(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: UniquePtr<SetRemoteDescriptionObserver>,
         );
 
-        /// Creates [`SessionDescriptionInterface`]
+        /// Creates a new [`SessionDescriptionInterface`].
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]
         pub fn create_session_description(
@@ -350,46 +345,62 @@ pub(crate) mod webrtc {
             track: &AudioTrackInterface,
         ) -> bool;
     }
+
+    extern "Rust" {
+        type DynSetDescriptionCallback;
+        type DynCreateSdpCallback;
+
+        /// Successfully completes the provided [`DynSetDescriptionCallback`].
+        pub fn create_sdp_success(
+            cb: Box<DynCreateSdpCallback>,
+            sdp: &CxxString,
+            kind: SdpType,
+        );
+
+        /// Completes the provided [`DynCreateSdpCallback`] with an error.
+        pub fn create_sdp_fail(
+            cb: Box<DynCreateSdpCallback>,
+            error: &CxxString,
+        );
+
+        /// Successfully completes the provided [`DynSetDescriptionCallback`].
+        pub fn set_description_success(cb: Box<DynSetDescriptionCallback>);
+
+        /// Completes the provided [`DynSetDescriptionCallback`] with an error.
+        pub fn set_description_fail(
+            cb: Box<DynSetDescriptionCallback>,
+            error: &CxxString,
+        );
+
+    }
 }
 
-/// Trait for `CreateSessionDescriptionObserver` callbacks.
-pub trait CreateSdpCallback {
-    fn success(&mut self, sdp: &CxxString, kind: &CxxString);
-    fn fail(&mut self, error: &CxxString);
-}
-/// `DynCreateSdpCallback` used for double box, for extern Rust.
-type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
-
-/// Calls when `CreateOffer/Answer` is success.
-pub fn success_sdp(
-    cb: &mut DynCreateSdpCallback,
+/// Successfully completes the provided [`DynSetDescriptionCallback`].
+#[allow(clippy::boxed_local)]
+pub fn create_sdp_success(
+    mut cb: Box<DynCreateSdpCallback>,
     sdp: &CxxString,
-    kind: &CxxString,
+    kind: webrtc::SdpType,
 ) {
     cb.success(sdp, kind);
 }
-/// Calls when `CreateOffer/Answer` is fail.
-pub fn fail_sdp(cb: &mut DynCreateSdpCallback, error: &CxxString) {
+
+/// Completes the provided [`DynCreateSdpCallback`] with an error.
+#[allow(clippy::boxed_local)]
+pub fn create_sdp_fail(mut cb: Box<DynCreateSdpCallback>, error: &CxxString) {
     cb.fail(error);
 }
 
-/// Trait for `SetLocalDescriptionObserver` callbacks.
-pub trait SetDescriptionCallback {
-    fn success(&mut self);
-    fn fail(&mut self, error: &CxxString);
-}
-/// `DynSetDescriptionCallback` used for double box, for extern Rust.
-type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
-
-/// Calls in `OnSetLocalDescriptionComplete`
-/// when `SetLocalRemoteDescription` is success.
-pub fn success_set_description(cb: &mut DynSetDescriptionCallback) {
+/// Successfully completes the provided [`DynSetDescriptionCallback`].
+#[allow(clippy::boxed_local)]
+pub fn set_description_success(mut cb: Box<DynSetDescriptionCallback>) {
     cb.success();
 }
-/// Calls in `OnSetLocalDescriptionComplete`
-/// when `SetLocalRemoteDescription` is fail.
-pub fn fail_set_description(
-    cb: &mut DynSetDescriptionCallback,
+
+/// Completes the provided [`DynSetDescriptionCallback`] with an error.
+#[allow(clippy::boxed_local)]
+pub fn set_description_fail(
+    mut cb: Box<DynSetDescriptionCallback>,
     error: &CxxString,
 ) {
     cb.fail(error);
@@ -398,14 +409,25 @@ pub fn fail_set_description(
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
-    /// Implement TryFrom<&str> for `SdpType`.
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),
             "answer" => Ok(webrtc::SdpType::kAnswer),
             "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
             "rollback" => Ok(webrtc::SdpType::kRollback),
-            _ => Err(anyhow::Error::msg("Invalid type")),
+            _ => Err(anyhow!("Invalid SdpType `{}`", value)),
+        }
+    }
+}
+
+impl fmt::Display for webrtc::SdpType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            webrtc::SdpType::kOffer => write!(f, "offer"),
+            webrtc::SdpType::kAnswer => write!(f, "answer"),
+            webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
+            webrtc::SdpType::kRollback => write!(f, "rollback"),
+            _ => unreachable!(),
         }
     }
 }

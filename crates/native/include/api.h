@@ -6,10 +6,10 @@
 // functions.
 class CreateSdpCallbackInterface {
  public:
-  // Called if an operation succeeds.
+  // Called when an operation succeeds.
   virtual void OnSuccess(const std::string& sdp, const std::string& kind) = 0;
 
-  // Called if an operation fails.
+  // Called when an operation fails.
   virtual void OnFail(const std::string& error) = 0;
 
   virtual ~CreateSdpCallbackInterface() = default;
@@ -19,10 +19,10 @@ class CreateSdpCallbackInterface {
 // `Webrtc::SetRemoteDescription` functions.
 class SetDescriptionCallbackInterface {
  public:
-  // Called if an operation succeeds.
+  // Called when an operation succeeds.
   virtual void OnSuccess() = 0;
 
-  // Called if an operation fails.
+  // Called when an operation fails.
   virtual void OnFail(const std::string& error) = 0;
 
   virtual ~SetDescriptionCallbackInterface() = default;

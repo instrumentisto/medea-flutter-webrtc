@@ -304,7 +304,8 @@ pub fn init() -> Box<Webrtc> {
         Some(&worker_thread),
         Some(&signaling_thread),
         Some(&audio_device_module.inner),
-    );
+    )
+    .unwrap();
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 

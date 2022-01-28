@@ -4,81 +4,94 @@
 
 namespace observer {
 
-// Called any time the IceGatheringState changes.
+// Does nothing at the moment.
 void PeerConnectionObserver::OnIceGatheringChange(
     webrtc::PeerConnectionInterface::IceGatheringState new_state) {};
 
-// A new ICE candidate has been gathered.
+// Does nothing at the moment.
 void PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface* candidate) {};
 
-// Triggered when a remote peer opens a data channel.
+// Does nothing at the moment.
 void PeerConnectionObserver::OnDataChannel(
     rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
 
-// Triggered when the SignalingState changed.
+// Does nothing at the moment.
 void PeerConnectionObserver::OnSignalingChange(
     webrtc::PeerConnectionInterface::SignalingState new_state) {};
 
-// Construct `CreateOffer/Answer Observer`.
+// Creates a new `CreateSessionDescriptionObserver` backed by the provided
+// `bridge::DynCreateSdpCallback`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     rust::Box<bridge::DynCreateSdpCallback> cb) {
   this->cb_ = std::move(cb);
 };
 
-// Calls when a `CreateOffer/Answer` is success.
+// Propagates the received SDP to the Rust side.
 void CreateSessionDescriptionObserver::OnSuccess(
     webrtc::SessionDescriptionInterface* desc) {
   if (cb_) {
-    std::string type = desc->type();
+    auto cb = std::move(*cb_);
+
     std::string sdp;
     desc->ToString(&sdp);
-    bridge::success_sdp(*cb_.value(), sdp, type);
+    bridge::create_sdp_success(std::move(cb), sdp, desc->GetType());
   }
   delete desc;
 };
 
-// Calls when a `CreateOffer\Answer` is fail.
+// Propagates the received error to the Rust side.
 void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
-  std::string err = std::string(error.message());
-  // TODO: why not checking cb, we need some consistency here
-  bridge::fail_sdp(*cb_.value(), err);
-};
+  if (cb_) {
+    auto cb = std::move(*cb_);
 
-// Calls when a `SetLocalDescription` is complete or fail.
-void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
-    webrtc::RTCError error) {
-  if (error.ok() && cb_) {
-    bridge::success_set_description(*cb_.value());
-  } else {
-    std::string error(error.message());
-    bridge::fail_set_description(*cb_.value(), error);
+    std::string err = std::string(error.message());
+    bridge::create_sdp_fail(std::move(cb), err);
   }
 };
 
-// Construct `SetRemoteDescriptionObserverInterface`.
+// Creates a new `SetLocalDescriptionObserver` backed by the provided
+// `DynSetDescriptionCallback`.
 SetLocalDescriptionObserver::SetLocalDescriptionObserver(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
   this->cb_ = std::move(cb);
 };
 
-// Calls when a `SetRemoteDescription` is complete or fail.
-void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
+// Propagates the completion result to the Rust side.
+void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
     webrtc::RTCError error) {
-  if (error.ok() && cb_) {
-    bridge::success_set_description(*cb_.value());
-  } else {
-    std::string error(error.message());
-    // TODO: move box out of optional and fail_set_description should take box by value
-    // bad if's, what if error.ok() == true but cb_.has_value() == false?
-    bridge::fail_set_description(*cb_.value(), error);
+  if (cb_) {
+    auto cb = std::move(*cb_);
+
+    if (error.ok()) {
+      bridge::set_description_success(std::move(cb));
+    } else {
+      std::string err = std::string(error.message());
+      bridge::set_description_fail(std::move(cb), err);
+    }
   }
 };
 
-// Construct `SetRemoteDescriptionObserver`.
+// Creates a new `SetRemoteDescriptionObserver` backed by the provided
+// `DynSetDescriptionCallback`.
 SetRemoteDescriptionObserver::SetRemoteDescriptionObserver(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
   this->cb_ = std::move(cb);
+};
+
+// Propagates the completion result to the Rust side.
+void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
+    webrtc::RTCError error) {
+  if (cb_) {
+    auto cb = std::move(*cb_);
+
+    if (error.ok()) {
+      bridge::set_description_success(std::move(cb));
+    } else {
+      std::string err = std::string(error.message());
+      bridge::set_description_fail(std::move(cb), err);
+    }
+  }
 };
 
 };  // namespace observer
