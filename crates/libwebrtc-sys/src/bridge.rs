@@ -174,7 +174,7 @@ pub(crate) mod webrtc {
         pub fn success_sdp(
             cb: &mut DynCreateSdpCallback,
             sdp: &CxxString,
-            type_: &CxxString,
+            kind: &CxxString,
         );
 
         /// Calling in `CreateSessionDescriptionObserver`,
@@ -216,7 +216,7 @@ pub(crate) mod webrtc {
         /// `error` for error handle without c++ exception.
         /// If 'error` != "" after the call,
         /// then the result will be default or NULL.
-        pub fn create_peer_connection(
+        pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
             configuration: &RTCConfiguration,
             dependencies: UniquePtr<PeerConnectionDependencies>,
@@ -292,7 +292,7 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]
         pub fn create_session_description(
-            type_: SdpType,
+            kind: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
     }
@@ -369,7 +369,7 @@ pub(crate) mod webrtc {
 
 /// Trait for `CreateSessionDescriptionObserver` callbacks.
 pub trait CreateSdpCallback {
-    fn success(&mut self, sdp: &CxxString, type_: &CxxString);
+    fn success(&mut self, sdp: &CxxString, kind: &CxxString);
     fn fail(&mut self, error: &CxxString);
 }
 /// `DynCreateSdpCallback` used for double box, for extern Rust.
@@ -379,9 +379,9 @@ type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
 pub fn success_sdp(
     cb: &mut DynCreateSdpCallback,
     sdp: &CxxString,
-    type_: &CxxString,
+    kind: &CxxString,
 ) {
-    cb.success(sdp, type_);
+    cb.success(sdp, kind);
 }
 /// Calls when `CreateOffer/Answer` is fail.
 pub fn fail_sdp(cb: &mut DynCreateSdpCallback, error: &CxxString) {

@@ -214,7 +214,7 @@ impl PeerConnection {
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
     ) -> anyhow::Result<Self> {
-        let inner = factory.create_peer_connection(
+        let inner = factory.create_peer_connection_or_error(
             &sys::RTCConfiguration::default(),
             sys::PeerConnectionDependencies::default(),
         )?;

@@ -239,7 +239,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
 }
 
 // Calls `PeerConnectionFactoryInterface->CreatePeerConnectionOrError`.
-std::unique_ptr<PeerConnectionInterface> create_peer_connection(
+std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
     PeerConnectionFactoryInterface& peer_connection_factory,
     const RTCConfiguration& configuration,
     std::unique_ptr<PeerConnectionDependencies> dependencies,

@@ -7,7 +7,7 @@
 class CreateSdpCallbackInterface {
  public:
   // Called if an operation succeeds.
-  virtual void OnSuccess(const std::string& sdp, const std::string& type_) = 0;
+  virtual void OnSuccess(const std::string& sdp, const std::string& kind) = 0;
 
   // Called if an operation fails.
   virtual void OnFail(const std::string& error) = 0;

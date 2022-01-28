@@ -4,11 +4,14 @@
 mod bridge;
 
 use anyhow::bail;
-pub use bridge::{CreateSdpCallback, SetDescriptionCallback};
 use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
-pub use webrtc::{AudioLayer, SdpType};
+
+pub use crate::{
+    bridge::{CreateSdpCallback, SetDescriptionCallback},
+    webrtc::{AudioLayer, SdpType},
+};
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.
@@ -284,9 +287,9 @@ impl SessionDescriptionInterface {
     /// Create new [`SessionDescriptionInterface`]
     #[must_use]
     pub fn new(type_: webrtc::SdpType, sdp: &str) -> Self {
-        let_cxx_string!(n_sdp = sdp);
+        let_cxx_string!(cxx_sdp = sdp);
         SessionDescriptionInterface(webrtc::create_session_description(
-            type_, &n_sdp,
+            type_, &cxx_sdp,
         ))
     }
 }
@@ -458,13 +461,13 @@ impl PeerConnectionFactoryInterface {
     /// `error` for error handle without c++ exception.
     /// If `error` != "" after the call,
     /// then the result will be default or NULL.
-    pub fn create_peer_connection(
+    pub fn create_peer_connection_or_error(
         &mut self,
         configuration: &RTCConfiguration,
         dependencies: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
         let mut error = String::new();
-        let pc = webrtc::create_peer_connection(
+        let pc = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
             &configuration.0,
             dependencies.0,

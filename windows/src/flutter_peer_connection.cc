@@ -111,11 +111,11 @@ void CreateOffer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  auto error = webrtc->CreateOffer(std::stoi(peerConnectionId),
-                                   voice_activity_detection,
-                                   ice_restart,
-                                   use_rtp_mux,
-                                   std::move(callback));
+  rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
+                                           voice_activity_detection,
+                                           ice_restart,
+                                           use_rtp_mux,
+                                           std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -164,11 +164,11 @@ void CreateAnswer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  auto error = webrtc->CreateAnswer(std::stoi(peerConnectionId),
-                                    voice_activity_detection,
-                                    ice_restart,
-                                    use_rtp_mux,
-                                    std::move(callback));
+  rust::String error = webrtc->CreateAnswer(std::stoi(peerConnectionId),
+                                            voice_activity_detection,
+                                            ice_restart,
+                                            use_rtp_mux,
+                                            std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -199,10 +199,10 @@ void SetLocalDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  auto error = webrtc->SetLocalDescription(std::stoi(peerConnectionId),
-                                           type,
-                                           sdp,
-                                           std::move(callback));
+  rust::String error = webrtc->SetLocalDescription(std::stoi(peerConnectionId),
+                                                   type,
+                                                   sdp,
+                                                   std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
@@ -233,10 +233,10 @@ void SetRemoteDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  auto error = webrtc->SetRemoteDescription(std::stoi(peerConnectionId),
-                                            type,
-                                            sdp,
-                                            std::move(callback));
+  rust::String error = webrtc->SetRemoteDescription(std::stoi(peerConnectionId),
+                                                    type,
+                                                    sdp,
+                                                    std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
