@@ -217,15 +217,14 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   auto default_adm_ =
       default_adm.get() == nullptr ? nullptr : default_adm.get()->ptr();
   if (default_adm_ != nullptr) {
-    default_adm_->AddRef();
+    default_adm_->AddRef(); // TODO: recheck that we really need this
   }
 
   auto factory = webrtc::CreatePeerConnectionFactory(
       network_thread.get(),
       worker_thread.get(),
       signaling_thread.get(),
-//      default_adm_, TODO: fix
-      nullptr,
+      default_adm_,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
