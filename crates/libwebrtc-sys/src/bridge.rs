@@ -2,7 +2,6 @@ use crate::{on_frame, DynOnFrameCallback};
 
 #[allow(clippy::expl_impl_clone_on_copy)]
 #[allow(clippy::items_after_statements)]
-// #[allow(clippy::all)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
     /// Possible kinds of audio devices implementation.
