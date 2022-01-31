@@ -1,5 +1,4 @@
-#ifndef PLUGINS_FLUTTER_WEBRTC_HXX
-#define PLUGINS_FLUTTER_WEBRTC_HXX
+#pragma once
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar.h>
@@ -93,5 +92,3 @@ class FlutterWebRTC {
 };
 
 }  // namespace flutter_webrtc_plugin
-
-#endif  // PLUGINS_FLUTTER_WEBRTC_HXX

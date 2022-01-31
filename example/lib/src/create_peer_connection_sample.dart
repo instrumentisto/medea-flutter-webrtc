@@ -31,109 +31,70 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   final Map<String, dynamic> defaultSdpConstraints = {
     'mandatory': {
-      'OfferToReceiveAudio': true,
-      'OfferToReceiveVideo': true,
     },
-    'optional': [true, false, true],
+    'optional': [],
   };
 
-  void eventListener(dynamic event) {
-    print(event.toString());
-  }
-
-  void errorListener(Object obj) {
-    print('bad\n');
-    if (obj is Exception) throw obj;
-  }
-
-  
-
   void _create_peer() async {
-
-      try {
-      final createPeerConnection1 = await WebRTC.invokeMethod(
-        'createPeerConnection', null
-      );
+    try {
+      final createPeerConnection1 =
+          await WebRTC.invokeMethod('createPeerConnection', null);
       String pc1_id = createPeerConnection1['peerConnectionId'];
-      var ch1 = EventChannel('PeerConnection/Event/channel/id/$pc1_id');
-      var sub1 = await ch1
-        .receiveBroadcastStream()
-        .listen(eventListener, onError: errorListener);
-
-
-            final createPeerConnection2 = await WebRTC.invokeMethod(
-        'createPeerConnection', null
-      );
+      final createPeerConnection2 =
+          await WebRTC.invokeMethod('createPeerConnection', null);
       String pc2_id = createPeerConnection2['peerConnectionId'];
 
-      var ch2 = EventChannel('PeerConnection/Event/channel/id/$pc2_id');
-      var sub2 = await ch2
-        .receiveBroadcastStream()
-        .listen(eventListener, onError: errorListener);
-
-      final createOffer1 =
-            await WebRTC.invokeMethod('createOffer', <String, dynamic>{
-          'peerConnectionId': pc1_id,
-          'constraints': defaultSdpConstraints
+      final createOffer1 = await WebRTC.invokeMethod(
+          'createOffer', <String, dynamic>{
+        'peerConnectionId': pc1_id,
+        'constraints': defaultSdpConstraints
       });
-     
 
       final setLocalDescription1 =
-            await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
-          'peerConnectionId': pc1_id,
-          'description' : {
+          await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
+        'peerConnectionId': pc1_id,
+        'description': {
           'sdp': createOffer1['sdp'],
-          'type': createOffer1['type']}
+          'type': createOffer1['type']
+        }
       });
 
       final setRemoteDescription2 =
-            await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
-          'peerConnectionId': pc2_id,
-          'description' : {
-          'sdp': createOffer1['sdp'],
-          'type': 'offer'}
+          await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
+        'peerConnectionId': pc2_id,
+        'description': {'sdp': createOffer1['sdp'], 'type': 'offer'}
       });
 
-      final createAnswer2 =
-            await WebRTC.invokeMethod('createAnswer', <String, dynamic>{
-          'peerConnectionId': pc2_id,
-          'constraints': defaultSdpConstraints
+      final createAnswer2 = await WebRTC.invokeMethod(
+          'createAnswer', <String, dynamic>{
+        'peerConnectionId': pc2_id,
+        'constraints': defaultSdpConstraints
       });
 
 
       final setLocalDescription2 =
-            await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
-          'peerConnectionId': pc2_id,
-          'description' : {
+          await WebRTC.invokeMethod('setLocalDescription', <String, dynamic>{
+        'peerConnectionId': pc2_id,
+        'description': {
           'sdp': createAnswer2['sdp'],
-          'type': createAnswer2['type']}
+          'type': createAnswer2['type']
+        }
       });
 
       final setRemoteDescription1 =
-            await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
-          'peerConnectionId': pc1_id,
-          'description' : {
+          await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
+        'peerConnectionId': pc1_id,
+        'description': {
           'sdp': createAnswer2['sdp'],
-          'type': createAnswer2['type']}
+          'type': createAnswer2['type']
+        }
       });
-
-      await sub1.cancel();
-
-      final delete_pc1 =
-            await WebRTC.invokeMethod('deletePC', <String, dynamic>{
-          'peerConnectionId': pc1_id
-      });
-      
-      // final delete_pc2 =
-      //       await WebRTC.invokeMethod('deletePC', <String, dynamic>{
-      //     'peerConnectionId': pc2_id
-      // });
-
 
       setState(() {
         text = 'test is success';
       });
       }
+
       catch (e) {
         print(e.toString());
       }

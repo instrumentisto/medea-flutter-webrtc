@@ -1,39 +1,38 @@
-pub use internal::*;
+pub use cpp_api_bindings::*;
 
-#[allow(clippy::items_after_statements, clippy::module_inception)]
+#[allow(clippy::items_after_statements)]
 #[cxx::bridge]
-mod internal {
+mod cpp_api_bindings {
     unsafe extern "C++" {
-        include!("flutter_webrtc_native/include/api.h");
+        include!("flutter-webrtc-native/include/api.h");
 
         pub type CreateSdpCallbackInterface;
-        /// Calls `OnSuccess` c++ `CreateSdpCallbackInterface`
-        ///  abstract class method.
+        pub type SetDescriptionCallbackInterface;
+
+        /// Calls CXX side `CreateSdpCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
-        pub fn on_success_create(
+        pub fn on_create_sdp_success(
             self: Pin<&mut CreateSdpCallbackInterface>,
             sdp: &CxxString,
-            type_: &CxxString,
+            kind: &CxxString,
         );
-        /// Calls `OnFail` c++ `CreateSdpCallbackInterface`
-        ///  abstract class method.
+
+        /// Calls CXX side `CreateSdpCallbackInterface->OnFail`.
         #[cxx_name = "OnFail"]
-        pub fn on_fail_create(
+        pub fn on_create_sdp_fail(
             self: Pin<&mut CreateSdpCallbackInterface>,
             error: &CxxString,
         );
 
-        pub type SetDescriptionCallbackInterface;
-        /// Calls `OnSuccess` c++ `SetDescriptionCallbackInterface`
-        ///  abstract class method.
+        /// Calls CXX side `SetDescriptionCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
-        pub fn on_success_set_description(
+        pub fn on_set_description_sucess(
             self: Pin<&mut SetDescriptionCallbackInterface>,
         );
-        /// Calls `OnFail` c++ `SetDescriptionCallbackInterface`
-        ///  abstract class method.
+
+        /// Calls CXX side `SetDescriptionCallbackInterface->OnFail`.
         #[cxx_name = "OnFail"]
-        pub fn on_fail_set_description(
+        pub fn on_set_description_fail(
             self: Pin<&mut SetDescriptionCallbackInterface>,
             error: &CxxString,
         );
@@ -49,16 +48,11 @@ mod internal {
 
     }
 
+    // This will trigger cxx to generate UniquePtrTarget trait for the
+    // mentioned types.
     extern "Rust" {
-        /// This will trigger cxx to generate UniquePtrTarget
-        /// for CreateSdpCallbackInterface.
-        fn _touch_unique_ptr_create_sdp_callback(
-            i: UniquePtr<CreateSdpCallbackInterface>,
-        );
-
-        /// This will trigger cxx to generate UniquePtrTarget
-        /// for SetDescriptionCallbackInterface.
-        fn _touch_unique_ptr_set_description_callback(
+        fn _touch_create_sdp_callback(i: UniquePtr<CreateSdpCallbackInterface>);
+        fn _touch_set_description_callback(
             i: UniquePtr<SetDescriptionCallbackInterface>,
         );
 
@@ -70,11 +64,9 @@ mod internal {
     }
 }
 
-fn _touch_unique_ptr_create_sdp_callback(
-    _: cxx::UniquePtr<CreateSdpCallbackInterface>,
-) {
-}
-fn _touch_unique_ptr_set_description_callback(
+fn _touch_create_sdp_callback(_: cxx::UniquePtr<CreateSdpCallbackInterface>) {}
+
+fn _touch_set_description_callback(
     _: cxx::UniquePtr<SetDescriptionCallbackInterface>,
 ) {
 }

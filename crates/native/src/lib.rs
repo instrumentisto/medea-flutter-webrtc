@@ -2,36 +2,42 @@
 
 mod device_info;
 mod internal;
-mod peer_connection;
+mod pc;
 mod user_media;
+
+use std::{
+    collections::HashMap,
+    rc::Rc,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
-use peer_connection::{
-    PeerConnection, 
-    PeerConnectionId, 
-};
-use std::{collections::HashMap, rc::Rc};
 
 #[doc(inline)]
-pub use crate::user_media::{
-    AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
-    MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+pub use crate::{
+    pc::{PeerConnection, PeerConnectionId},
+    user_media::{
+        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
+        MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
+        VideoTrackId,
+    },
 };
 
-pub use internal::*;
+/// Counter used to generate unique IDs.
+static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// Returns a next unique ID.
+pub(crate) fn next_id() -> u64 {
+    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
+}
 
 /// The module which describes the bridge to call Rust from C++.
-#[allow(
-    clippy::items_after_statements,
-    clippy::expl_impl_clone_on_copy,
-    clippy::too_many_arguments
-)]
+#[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod api {
-
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -144,10 +150,10 @@ pub mod api {
     }
 
     extern "C++" {
-        pub type CreateSdpCallbackInterface =
+        type CreateSdpCallbackInterface =
             crate::internal::CreateSdpCallbackInterface;
 
-        pub type SetDescriptionCallbackInterface =
+        type SetDescriptionCallbackInterface =
             crate::internal::SetDescriptionCallbackInterface;
 
         pub type PeerConnectionOnEventInterface =
@@ -155,7 +161,8 @@ pub mod api {
     }
 
     extern "Rust" {
-        include!("flutter_webrtc_native/include/api.h");
+        include!("flutter-webrtc-native/include/api.h");
+
         type Webrtc;
 
         /// Creates an instance of [`Webrtc`].
@@ -165,89 +172,79 @@ pub mod api {
         /// Returns a list of all available media input and output devices, such
         /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
-        fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
+        pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a new [`PeerConnection`] and return id.
-        /// # Warning
-        /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call,
-        /// then the result will be default or NULL.
+        /// Creates a new [`PeerConnection`] and returns it's ID.
+        ///
+        /// Writes an error to the provided `err` if any.
         #[cxx_name = "CreatePeerConnection"]
-        fn create_default_peer_connection(
+        pub fn create_peer_connection(
             self: &mut Webrtc,
-            error: &mut String,
-            event_callback: UniquePtr<PeerConnectionOnEventInterface>,
+            cb: UniquePtr<PeerConnectionOnEventInterface>,
+            err: &mut String,
         ) -> u64;
 
+        // todo
         #[cxx_name = "DeletePeerConnection"]
         pub fn delete_pc(self: &mut Webrtc, peer_connection_id: u64);
 
-        /// Creates a new [Offer].
-        /// # Warning
-        /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call,
-        /// then the result will be default or NULL.
+        /// Initiates the creation of an SDP offer for the purpose of starting
+        /// a new WebRTC connection to a remote peer.
+        ///
+        /// Returns an empty [`String`] in operation succeeds or an error
+        /// otherwise.
         #[cxx_name = "CreateOffer"]
-        fn create_offer(
+        pub fn create_offer(
             self: &mut Webrtc,
-            error: &mut String,
-            peer_connection_id: u64,
+            peer_id: u64,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            sdp_callback: UniquePtr<CreateSdpCallbackInterface>,
-        );
+            cb: UniquePtr<CreateSdpCallbackInterface>,
+        ) -> String;
 
-        /// Creates a new [Answer].
-        /// # Warning
-        /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call,
-        /// then the result will be default or NULL.
+        /// Creates an SDP answer to an offer received from a remote peer during
+        /// the offer/answer negotiation of a WebRTC connection.
+        ///
+        /// Returns an empty [`String`] in operation succeeds or an error
+        /// otherwise.
         #[cxx_name = "CreateAnswer"]
         #[allow(clippy::too_many_arguments)]
-        fn create_answer(
+        pub fn create_answer(
             self: &mut Webrtc,
-            error: &mut String,
             peer_connection_id: u64,
             voice_activity_detection: bool,
             ice_restart: bool,
             use_rtp_mux: bool,
-            sdp_callback: UniquePtr<CreateSdpCallbackInterface>,
-        );
+            cb: UniquePtr<CreateSdpCallbackInterface>,
+        ) -> String;
 
-        /// Set Local Description.
-        /// # Warning
-        /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call,
-        /// then the result will be default or NULL.
+        /// Changes the local description associated with the connection.
+        ///
+        /// Returns an empty [`String`] in operation succeeds or an error
+        /// otherwise.
         #[cxx_name = "SetLocalDescription"]
-        fn set_local_description(
+        pub fn set_local_description(
             self: &mut Webrtc,
-            error: &mut String,
             peer_connection_id: u64,
-            type_: String,
+            kind: String,
             sdp: String,
-            set_description_callback: UniquePtr<
-                SetDescriptionCallbackInterface,
-            >,
-        );
+            cb: UniquePtr<SetDescriptionCallbackInterface>,
+        ) -> String;
 
-        /// Set Remote Description.
-        /// # Warning
-        /// `error` for error handle without c++ exception.
-        /// If `error` != "" after the call,
-        /// then the result will be default or NULL.
+        /// Sets the specified session description as the remote peer's current
+        /// offer or answer.
+        ///
+        /// Returns an empty [`String`] in operation succeeds or an error
+        /// otherwise.
         #[cxx_name = "SetRemoteDescription"]
-        fn set_remote_description(
+        pub fn set_remote_description(
             self: &mut Webrtc,
-            error: &mut String,
             peer_connection_id: u64,
-            type_: String,
+            kind: String,
             sdp: String,
-            set_description_callback: UniquePtr<
-                SetDescriptionCallbackInterface,
-            >,
-        );
+            cb: UniquePtr<SetDescriptionCallbackInterface>,
+        ) -> String;
 
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
@@ -304,16 +301,17 @@ pub fn init() -> Box<Webrtc> {
     let mut signaling_thread = Thread::create().unwrap();
     signaling_thread.start().unwrap();
 
-    let peer_connection_factory =
-        PeerConnectionFactoryInterface::create_whith_null(
-            Some(&network_thread),
-            Some(&worker_thread),
-            Some(&signaling_thread),
-        );
-
     let audio_device_module = AudioDeviceModule::new(
         AudioLayer::kPlatformDefaultAudio,
         &mut task_queue_factory,
+    )
+    .unwrap();
+
+    let peer_connection_factory = PeerConnectionFactoryInterface::create(
+        Some(&network_thread),
+        Some(&worker_thread),
+        Some(&signaling_thread),
+        Some(&audio_device_module.inner),
     )
     .unwrap();
 

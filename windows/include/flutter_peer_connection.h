@@ -1,5 +1,4 @@
 #include "flutter_webrtc.h"
-#include "wrapper.h"
 
 using namespace flutter;
 using namespace rust::cxxbridge1;

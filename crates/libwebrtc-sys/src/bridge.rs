@@ -1,9 +1,21 @@
+use std::fmt;
+
+use anyhow::anyhow;
 use cxx::CxxString;
+
+use crate::{CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback};
+
+/// [`CreateSdpCallback`] that can be transferred to the CXX side.
+type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
+
+/// [`SetDescriptionCallback`] that can be transferred to the CXX side.
+type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
+
+pub type DynPeerConnectionOnEvent = Box<dyn PeerConnectionOnEvent>;
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
-
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -21,44 +33,38 @@ pub(crate) mod webrtc {
         kDummyAudio,
     }
 
-    /// The RTCSdpType enum describes
-    /// the type of an RTCSessionDescriptionInit,
-    /// RTCLocalSessionDescriptionInit,
-    /// or RTCSessionDescription instance.
+    /// [RTCSdpType] representation.
+    ///
+    /// [RTCSdpType]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SdpType {
-        /// An RTCSdpType of "offer" indicates
-        /// that a description MUST be treated as an [SDP] offer.
-        kOffer = 0,
-        /// An RTCSdpType of "pranswer" indicates that a description
-        /// MUST be treated as an [SDP] answer, but not a final answer.
-        /// A description used as an SDP pranswer may be applied
-        /// as a response to an SDP offer, or an update to
-        /// a previously sent SDP pranswer.
+        /// [RTCSdpType.offer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
+        kOffer,
+
+        /// [RTCSdpType.pranswer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
         kPrAnswer,
-        /// An RTCSdpType of "answer" indicates that a description
-        /// MUST be treated as an [SDP] final answer,
-        /// and the offer-answer exchange MUST be considered complete.
-        /// A description used as an SDP answer may be applied
-        /// as a response to an SDP offer or as an update
-        /// to a previously sent SDP pranswer.
+
+        /// [RTCSdpType.answer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-answer
         kAnswer,
-        /// An RTCSdpType of "rollback" indicates that a description
-        /// MUST be treated as canceling the current SDP negotiation
-        /// and moving the SDP [SDP] offer back to what
-        /// it was in the previous stable state.
-        /// Note the local or remote SDP descriptions
-        /// in the previous stable state could be null
-        /// if there has not yet been a successful
-        /// offer-answer negotiation.
-        /// An "answer" or "pranswer" cannot be rolled back.
+
+        /// [RTCSdpType.rollback][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-rollback
         kRollback,
     }
 
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
+
+        type PeerConnectionFactoryInterface;
         type TaskQueueFactory;
         type Thread;
 
@@ -75,7 +81,16 @@ pub(crate) mod webrtc {
         /// Starts the current [`Thread`].
         #[cxx_name = "Start"]
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
+
+        /// Creates a new [`PeerConnectionFactoryInterface`].
+        pub fn create_peer_connection_factory(
+            network_thread: &UniquePtr<Thread>,
+            worker_thread: &UniquePtr<Thread>,
+            signaling_thread: &UniquePtr<Thread>,
+            default_adm: &UniquePtr<AudioDeviceModule>,
+        ) -> UniquePtr<PeerConnectionFactoryInterface>;
     }
+
     unsafe extern "C++" {
         type AudioDeviceModule;
         type AudioLayer;
@@ -147,54 +162,10 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
-    extern "Rust" {
-        type SetLocalRemoteDescriptionCallBack;
-        type CreateOfferAnswerCallback;
-        type PeerConnectionOnEventCallback;
-
-        /// Calling in `CreateSessionDescriptionObserver`,
-        /// when `CreateOffer/Answer` is success.
-        pub fn success_sdp(
-            cb: &mut CreateOfferAnswerCallback,
-            sdp: &CxxString,
-            type_: &CxxString,
-        );
-
-        /// Calling in `CreateSessionDescriptionObserver`,
-        /// when `CreateOffer/Answer` is fail.
-        pub fn fail_sdp(cb: &mut CreateOfferAnswerCallback, error: &CxxString);
-
-        /// Calling in `SetLocal/RemoteDescriptionObserver`,
-        /// when `SetLocal/RemoteDescription` is success.
-        pub fn success_set_description(
-            cb: &mut SetLocalRemoteDescriptionCallBack,
-        );
-
-        /// Calling in `SetLocal/RemoteDescriptionObserver`,
-        /// when `SetLocal/RemoteDescription` is success.
-        pub fn fail_set_description(
-            cb: &mut SetLocalRemoteDescriptionCallBack,
-            error: &CxxString,
-        );
-
-        /// todo
-        pub fn call_peer_connection_on_signaling_change(
-            cb: &mut PeerConnectionOnEventCallback,
-            event: &CxxString,
-        );
-
-    }
-
     #[rustfmt::skip]
     unsafe extern "C++" {
-        type AudioDecoderFactory;
-        type AudioEncoderFactory;
-        type AudioFrameProcessor;
-        type AudioMixer;
-        type AudioProcessing;
         type CreateSessionDescriptionObserver;
         type PeerConnectionDependencies;
-        type PeerConnectionFactoryInterface;
         type PeerConnectionInterface;
         type PeerConnectionObserver;
         type RTCConfiguration;
@@ -203,80 +174,38 @@ pub(crate) mod webrtc {
         type SessionDescriptionInterface;
         type SetLocalDescriptionObserver;
         type SetRemoteDescriptionObserver;
-        type VideoDecoderFactory;
-        type VideoEncoderFactory;
 
-        /// Creates a new [`VideoEncoderFactory`].
-        #[namespace = "webrtc"]
-        #[cxx_name = "CreateBuiltinVideoEncoderFactory"]
-        pub fn create_builtin_video_encoder_factory(
-        ) -> UniquePtr<VideoEncoderFactory>;
-
-        /// Creates a new [`VideoDecoderFactory`].
-        #[namespace = "webrtc"]
-        #[cxx_name = "CreateBuiltinVideoDecoderFactory"]
-        pub fn create_builtin_video_decoder_factory(
-        ) -> UniquePtr<VideoDecoderFactory>;
-
-        /// Creates a new [`AudioEncoderFactory`].
-        pub fn create_builtin_audio_encoder_factory(
-        ) -> UniquePtr<AudioEncoderFactory>;
-
-        /// Creates a new [`AudioDecoderFactory`].
-        pub fn create_builtin_audio_decoder_factory(
-        ) -> UniquePtr<AudioDecoderFactory>;
-
-        /// Creates a new [`PeerConnectionFactoryInterface`].
-        /// Where `default_adm` - can be?? NULL,
-        /// `audio_mixer` - can be NULL,
-        /// `audio_processing` - can be?? NULL,
-        /// `audio_frame_processor` - default NULL,
-        #[allow(clippy::too_many_arguments)]
-        pub fn create_peer_connection_factory(
-            network_thread: &UniquePtr<Thread>,
-            worker_thread: &UniquePtr<Thread>,
-            signaling_thread: &UniquePtr<Thread>,
-            default_adm: UniquePtr<AudioDeviceModule>,
-            audio_encoder_factory: Pin<&mut AudioEncoderFactory>,
-            audio_decoder_factory: Pin<&mut AudioDecoderFactory>,
-            video_encoder_factory: UniquePtr<VideoEncoderFactory>,
-            video_decoder_factory: UniquePtr<VideoDecoderFactory>,
-            audio_mixer: UniquePtr<AudioMixer>,
-            audio_processing: UniquePtr<AudioProcessing>,
-            audio_frame_processor: UniquePtr<AudioFrameProcessor>,
-        ) -> UniquePtr<PeerConnectionFactoryInterface>;
-
-        /// Creates default [`RTCConfiguration`].
+        /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
 
-        /// Creates a [`PeerConnectionInterface`].
-        /// # Warning
-        /// `error` for error handle without c++ exception.
-        /// If 'error` != "" after the call,
-        /// then the result will be default or NULL.
+        /// Creates a new [`PeerConnectionInterface`].
+        ///
+        /// If creation fails then an error will be written to the provided
+        /// `error` and the returned [`UniquePtr`] will be `null`.
         pub fn create_peer_connection_or_error(
             peer_connection_factory: Pin<&mut PeerConnectionFactoryInterface>,
+            conf: &RTCConfiguration,
+            deps: UniquePtr<PeerConnectionDependencies>,
             error: &mut String,
-            configuration: &RTCConfiguration,
-            dependencies: UniquePtr<PeerConnectionDependencies>,
         ) -> UniquePtr<PeerConnectionInterface>;
 
-        /// Creates a [`PeerConnectionObserver`].
+        /// Creates a new [`PeerConnectionObserver`].
         pub fn create_peer_connection_observer(
-            cb: Box<PeerConnectionOnEventCallback>,
+            cb: Box<DynPeerConnectionOnEvent>,
         ) -> UniquePtr<PeerConnectionObserver>;
 
-        /// Creates a [`PeerConnectionDependencies`].
+        /// Creates a [`PeerConnectionDependencies`] from the provided
+        /// [`PeerConnectionObserver`].
         pub fn create_peer_connection_dependencies(
             observer: UniquePtr<PeerConnectionObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
 
-        /// Creates default [`RTCOfferAnswerOptions`].
+        /// Creates a default [`RTCOfferAnswerOptions`].
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
-        /// Creates a [`RTCOfferAnswerOptions`].
+        /// Creates a new [`RTCOfferAnswerOptions`] from the provided options.
         pub fn create_rtc_offer_answer_options(
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
@@ -285,54 +214,69 @@ pub(crate) mod webrtc {
             use_rtp_mux: bool,
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
-        /// Creates a [`CreateSessionDescriptionObserver`].
+        /// Creates a new [`CreateSessionDescriptionObserver`] from the
+        /// provided [`DynCreateSdpCallback`].
         pub fn create_create_session_observer(
-            cb: Box<CreateOfferAnswerCallback>,
+            cb: Box<DynCreateSdpCallback>,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
-        /// Creates a [`SetLocalDescriptionObserver`].
+        /// Creates a new [`SetLocalDescriptionObserver`] from the provided
+        /// [`DynSetDescriptionCallback`].
         pub fn create_set_local_description_observer(
-            cb: Box<SetLocalRemoteDescriptionCallBack>,
+            cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetLocalDescriptionObserver>;
 
-        /// Creates a [`SetRemoteDescriptionObserver`].
+        /// Creates a new [`SetRemoteDescriptionObserver`] from the provided
+        /// [`DynSetDescriptionCallback`].
         pub fn create_set_remote_description_observer(
-            cb: Box<SetLocalRemoteDescriptionCallBack>,
+            cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetRemoteDescriptionObserver>;
 
-        /// Calls `peer_connection_interface`->CreateOffer.
+        /// Calls the [`RTCPeerConnection::createOffer()`][1] on the provided
+        /// [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
         pub fn create_offer(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls `peer_connection_interface`->CreateAnswer.
+        /// Calls the [`RTCPeerConnection::createAnswer()`][1] on the provided
+        /// [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
         pub fn create_answer(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls `peer_connection_interface`->SetLocalDescription.
+        /// Calls the [`RTCPeerConnection::setLocalDescription()`][1] on the
+        /// provided [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
         pub fn set_local_description(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: UniquePtr<SetLocalDescriptionObserver>,
         );
 
-        /// Calls `peer_connection_interface`->SetRemoteDescription.
+        /// Calls the [`RTCPeerConnection::setRemoteDescription()`][1] on the
+        /// provided [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
         pub fn set_remote_description(
-            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: UniquePtr<SetRemoteDescriptionObserver>,
         );
 
-        /// Creates [`SessionDescriptionInterface`]
+        /// Creates a new [`SessionDescriptionInterface`].
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]
         pub fn create_session_description(
-            type_: SdpType,
+            kind: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
     }
@@ -405,57 +349,76 @@ pub(crate) mod webrtc {
             track: &AudioTrackInterface,
         ) -> bool;
     }
+
+    extern "Rust" {
+        type DynSetDescriptionCallback;
+        type DynCreateSdpCallback;
+        type DynPeerConnectionOnEvent;
+
+        /// Successfully completes the provided [`DynSetDescriptionCallback`].
+        pub fn create_sdp_success(
+            cb: Box<DynCreateSdpCallback>,
+            sdp: &CxxString,
+            kind: SdpType,
+        );
+
+        /// Completes the provided [`DynCreateSdpCallback`] with an error.
+        pub fn create_sdp_fail(
+            cb: Box<DynCreateSdpCallback>,
+            error: &CxxString,
+        );
+
+        /// Successfully completes the provided [`DynSetDescriptionCallback`].
+        pub fn set_description_success(cb: Box<DynSetDescriptionCallback>);
+
+        /// Completes the provided [`DynSetDescriptionCallback`] with an error.
+        pub fn set_description_fail(
+            cb: Box<DynSetDescriptionCallback>,
+            error: &CxxString,
+        );
+
+        /// todo
+        pub fn call_peer_connection_on_signaling_change(
+            cb: &mut DynPeerConnectionOnEvent,
+            event: &CxxString,
+        );
+
+    }
 }
 
-/// Trait for `CreateSessionDescriptionObserver` callbacks.
-pub trait CreateSdpCallback {
-    fn success(&mut self, sdp: &CxxString, type_: &CxxString);
-    fn fail(&mut self, error: &CxxString);
-}
-/// `CreateOfferAnswerCallback` used for double box, for extern Rust.
-pub type CreateOfferAnswerCallback = Box<dyn CreateSdpCallback>;
-
-/// Calls when `CreateOffer/Answer` is success.
-pub fn success_sdp(
-    cb: &mut CreateOfferAnswerCallback,
+/// Successfully completes the provided [`DynSetDescriptionCallback`].
+#[allow(clippy::boxed_local)]
+pub fn create_sdp_success(
+    mut cb: Box<DynCreateSdpCallback>,
     sdp: &CxxString,
-    type_: &CxxString,
+    kind: webrtc::SdpType,
 ) {
-    cb.success(sdp, type_);
+    cb.success(sdp, kind);
 }
-/// Calls when `CreateOffer/Answer` is fail.
-pub fn fail_sdp(cb: &mut CreateOfferAnswerCallback, error: &CxxString) {
+
+/// Completes the provided [`DynCreateSdpCallback`] with an error.
+#[allow(clippy::boxed_local)]
+pub fn create_sdp_fail(mut cb: Box<DynCreateSdpCallback>, error: &CxxString) {
     cb.fail(error);
 }
 
-/// Trait for `SetLocalDescriptionObserver` callbacks.
-pub trait SetDescriptionCallback {
-    fn success(&mut self);
-    fn fail(&mut self, error: &CxxString);
-}
-/// `SetLocalRemoteDescriptionCallBack` used for double box, for extern Rust.
-pub type SetLocalRemoteDescriptionCallBack = Box<dyn SetDescriptionCallback>;
-/// Calls in `OnSetLocalDescriptionComplete`
-/// when `SetLocalRemoteDescription` is success.
-pub fn success_set_description(cb: &mut SetLocalRemoteDescriptionCallBack) {
+/// Successfully completes the provided [`DynSetDescriptionCallback`].
+#[allow(clippy::boxed_local)]
+pub fn set_description_success(mut cb: Box<DynSetDescriptionCallback>) {
     cb.success();
 }
-/// Calls in `OnSetLocalDescriptionComplete`
-/// when `SetLocalRemoteDescription` is fail.
-pub fn fail_set_description(
-    cb: &mut SetLocalRemoteDescriptionCallBack,
+
+/// Completes the provided [`DynSetDescriptionCallback`] with an error.
+#[allow(clippy::boxed_local)]
+pub fn set_description_fail(
+    mut cb: Box<DynSetDescriptionCallback>,
     error: &CxxString,
 ) {
     cb.fail(error);
 }
 
-/// todo
-pub trait PeerConnectionOnEvent {
-    fn on_signaling_change(&mut self, event: &CxxString);
-}
-pub type PeerConnectionOnEventCallback = Box<dyn PeerConnectionOnEvent>;
 pub fn call_peer_connection_on_signaling_change(
-    cb: &mut PeerConnectionOnEventCallback,
+    cb: &mut DynPeerConnectionOnEvent,
     event: &CxxString,
 ) {
     cb.on_signaling_change(event);
@@ -464,14 +427,25 @@ pub fn call_peer_connection_on_signaling_change(
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
-    /// Implement TryFrom<&str> for `SdpType`.
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "offer" => Ok(webrtc::SdpType::kOffer),
             "answer" => Ok(webrtc::SdpType::kAnswer),
             "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
             "rollback" => Ok(webrtc::SdpType::kRollback),
-            _ => Err(anyhow::Error::msg("Invalid type")),
+            _ => Err(anyhow!("Invalid SdpType `{}`", value)),
+        }
+    }
+}
+
+impl fmt::Display for webrtc::SdpType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            webrtc::SdpType::kOffer => write!(f, "offer"),
+            webrtc::SdpType::kAnswer => write!(f, "answer"),
+            webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
+            webrtc::SdpType::kRollback => write!(f, "rollback"),
+            _ => unreachable!(),
         }
     }
 }

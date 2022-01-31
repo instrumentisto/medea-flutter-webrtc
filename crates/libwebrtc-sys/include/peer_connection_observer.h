@@ -3,39 +3,37 @@
 #include <cstdio>
 #include <functional>
 #include <optional>
-#include "api\peer_connection_interface.h"
+#include "api/peer_connection_interface.h"
 #include "rust/cxx.h"
 
 namespace bridge {
-// Struct implement Rust trait `SetDescriptionCallback`.
-struct SetLocalRemoteDescriptionCallBack;
-// Struct implement Rust trait `CreateSdpCallback`.
-struct CreateOfferAnswerCallback;
 
 // todo
-struct PeerConnectionOnEventCallback;
+struct DynPeerConnectionOnEvent;
+struct DynSetDescriptionCallback;
+struct DynCreateSdpCallback;
 }  // namespace bridge
 
 namespace observer {
 
-// `PeerConnectionObserver` used for calling callback RTCPeerConnection events.
+// `PeerConnectionObserver` that handles RTCPeerConnection events.
 class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 public:
   PeerConnectionObserver(
-      rust::Box<bridge::PeerConnectionOnEventCallback> callbacks);
+      rust::Box<bridge::DynPeerConnectionOnEvent> cb);
 
   // Triggered when the SignalingState changed.
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state);
 
-  // Called any time the IceGatheringState changes.
+  // Called when the `IceGatheringState` changes.
   void OnIceGatheringChange(
       webrtc::PeerConnectionInterface::IceGatheringState new_state);
 
-  // A new ICE candidate has been gathered.
+  // Called when a new ICE candidate has been discovered.
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate);
 
-  // Triggered when a remote peer opens a data channel.
+  // Called when a remote peer opens a data channel.
   void OnDataChannel(
       rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel);
 
@@ -100,64 +98,59 @@ public:
   void OnInterestingUsage(int usage_pattern);
 
  private:
-  std::optional<rust::Box<bridge::PeerConnectionOnEventCallback>> callbacks;
+  std::optional<rust::Box<bridge::DynPeerConnectionOnEvent>> cb_;
 };
 
-// `CreateSessionDescriptionObserver` used for calling callback
-// `CreateOffer/Answer`.
+// `CreateSessionDescriptionObserver` that propagates completion result to the
+// Rust side.
 class CreateSessionDescriptionObserver
     : public rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
  public:
-  CreateSessionDescriptionObserver(
-      rust::Box<bridge::CreateOfferAnswerCallback> callbacks);
+  // Creates a new `CreateSessionDescriptionObserver`.
+  CreateSessionDescriptionObserver(rust::Box<bridge::DynCreateSdpCallback> cb);
 
-  // Calls when a `CreateOffer/Answer` is success.
+  // Called when a `CreateOffer` or a `CreateAnswer` operation succeeds.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc);
 
-  // Calls when a `CreateOffer/Answer` is fail.
+  // Called when a `CreateOffer` or a `CreateAnswer` operation fails.
   void OnFailure(webrtc::RTCError error);
 
  private:
-  // Rust struct for callbacks.
-  // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::CreateOfferAnswerCallback>> callbacks;
+  // Rust side callback.
+  std::optional<rust::Box<bridge::DynCreateSdpCallback>> cb_;
 };
 
-// `SetLocalDescriptionObserver` used for calling callback
-// `SetLocalDescription`.
+// `SetLocalDescriptionObserverInterface` that propagates completion result to
+// the Rust side.
 class SetLocalDescriptionObserver
     : public rtc::RefCountedObject<
-          webrtc::SetLocalDescriptionObserverInterface> {
+        webrtc::SetLocalDescriptionObserverInterface> {
  public:
-  // Calls when a `SetRemoteDescription` is complete or fail.
+  // Creates a new `SetLocalDescriptionObserver`.
+  SetLocalDescriptionObserver(rust::Box<bridge::DynSetDescriptionCallback> cb);
+
+  // Called when a `SetLocalDescription` completes.
   void OnSetLocalDescriptionComplete(webrtc::RTCError error);
 
-  // Construct SetLocalDescriptionObserverInterface.
-  SetLocalDescriptionObserver(
-      rust::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
-
  private:
-  // Rust struct for callbacks.
-  // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> callbacks;
+  // Rust side callback.
+  std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
 };
 
-// `SetRemoteDescriptionObserverInterface` used for calling callback
-// `SetRemoteDescription`.
+// `SetRemoteDescriptionObserver` that propagates completion result to the Rust
+// side.
 class SetRemoteDescriptionObserver
     : public rtc::RefCountedObject<
-          webrtc::SetRemoteDescriptionObserverInterface> {
+        webrtc::SetRemoteDescriptionObserverInterface> {
  public:
-  // Calls when a `SetRemoteDescription` is complete or fail.
+  // Creates a new `SetRemoteDescriptionObserver`.
+  SetRemoteDescriptionObserver(rust::Box<bridge::DynSetDescriptionCallback> cb);
+
+  // Called when a `SetRemoteDescription` completes.
   void OnSetRemoteDescriptionComplete(webrtc::RTCError error);
 
-  // Construct SetRemoteDescriptionObserverInterface.
-  SetRemoteDescriptionObserver(
-      rust::Box<bridge::SetLocalRemoteDescriptionCallBack> callbacks);
-
  private:
-  // Rust struct for callbacks.
-  // Optional for no init `rust::Box`.
-  std::optional<rust::Box<bridge::SetLocalRemoteDescriptionCallBack>> callbacks;
+  // Rust side callback.
+  std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
 };
 }  // namespace observer

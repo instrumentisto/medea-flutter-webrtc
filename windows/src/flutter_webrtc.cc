@@ -3,7 +3,6 @@
 #include <string>
 
 #include "flutter_webrtc.h"
-#include "wrapper.h"
 #include "media_stream.h"
 
 #include <flutter_webrtc_native.h>

@@ -49,37 +49,50 @@ struct EventContext {
 };
 
 #include "flutter_webrtc.h"
-#include "flutter_webrtc_native/include/api.h"
+#include "flutter-webrtc-native/include/api.h"
 
 using namespace rust::cxxbridge1;
 
+// `CreateSdpCallbackInterface` implementation that forwards completion result
+// to the Flutter side via inner `flutter::MethodResult`.
 class CreateSdpCallback : public CreateSdpCallbackInterface {
  public:
+  // Creates a new `CreateSdpCallback`.
   CreateSdpCallback(
       std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> res)
-      : result(std::move(res)) {}
+      : result_(std::move(res)) {}
+
+  // Forwards the provided SDP to the `flutter::MethodResult` success.
   void OnSuccess(const std::string& sdp, const std::string& type_) {
     flutter::EncodableMap params;
     params[flutter::EncodableValue("sdp")] = sdp;
     params[flutter::EncodableValue("type")] = type_;
-    result->Success(flutter::EncodableValue(params));
+    result_->Success(flutter::EncodableValue(params));
   }
-  void OnFail(const std::string& error) { result->Error(error); }
+
+  // Forwards the provided error to the `flutter::MethodResult` error.
+  void OnFail(const std::string& error) { result_->Error(error); }
 
  private:
-  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
+// `SetDescriptionCallbackInterface` implementation that forwards completion
+// result to the Flutter side via inner `flutter::MethodResult`.
 class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
  public:
   SetDescriptionCallBack(
       std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> res)
-      : result(std::move(res)) {}
-  void OnSuccess() { result->Success(nullptr); }
-  void OnFail(const std::string& error) { result->Error(error); }
+      : result_(std::move(res)) {}
+
+  // Successfully completes an inner `flutter::MethodResult`.
+  void OnSuccess() { result_->Success(nullptr); }
+
+  // Forwards the provided error to the `flutter::MethodResult` error.
+  void OnFail(const std::string& error) { result_->Error(error); }
 
  private:
-  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
 class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
@@ -87,11 +100,12 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   PeerConnectionOnEvent(std::shared_ptr<EventContext> context)
       : context(context){};
   void OnSignalingChange(const std::string& event) {
-    context->event_sink.get()->Success(EncodableValue(event));
+    if(context->event_sink.get() != nullptr) {
+      context->event_sink.get()->Success(EncodableValue(event)); 
+    }
   }
   ~PeerConnectionOnEvent() {
     context->event_sink.get()->EndOfStream();
-    printf("drop magic\n");
   }
 
  private:
@@ -114,10 +128,6 @@ void CreateRTCPeerConnection(
       std::unique_ptr<PeerConnectionOnEventInterface>(
           new PeerConnectionOnEvent(event_context));
 
-  // create id
-  rust::String error;
-  uint64_t id = webrtc->CreatePeerConnection(error, std::move(event_callback));
-
   auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
       [=](const flutter::EncodableValue* arguments,
           std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
@@ -132,23 +142,26 @@ void CreateRTCPeerConnection(
         return nullptr;
       });
 
-  std::string peer_connection_id = std::to_string(id);
-  auto event_channel = std::unique_ptr<EventChannel<EncodableValue>>(
-      new EventChannel<EncodableValue>(
-          messenger, "PeerConnection/Event/channel/id/" + peer_connection_id,
-          &StandardMethodCodec::GetInstance()));
-  event_channel->SetStreamHandler(std::move(handler));
-
-  event_context->lt_channel = std::move(event_channel);
+  // create id
+  rust::String error;
+  uint64_t id = webrtc->CreatePeerConnection(std::move(event_callback), error);
 
   if (error == "") {
+    std::string peer_connection_id = std::to_string(id);
+    auto event_channel = std::unique_ptr<EventChannel<EncodableValue>>(
+        new EventChannel<EncodableValue>(
+            messenger, "PeerConnection/Event/channel/id/" + peer_connection_id,
+            &StandardMethodCodec::GetInstance()));
+    event_channel->SetStreamHandler(std::move(handler));
+    event_context->lt_channel = std::move(event_channel);
+
     EncodableMap params;
-    params[EncodableValue("peerConnectionId")] = peer_connection_id;
+    params[EncodableValue("peerConnectionId")] = std::to_string(id);
     result->Success(EncodableValue(params));
   } else {
-    std::string err(error);
-    result->Error(err);
+    result->Error(std::string(error));
   }
+
 }
 
 // Calls Rust `CreateOffer()` and writes the returned session description to the
@@ -157,6 +170,7 @@ void CreateOffer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -186,19 +200,20 @@ void CreateOffer(
     ++iter;
   }
 
-  std::shared_ptr<flutter::MethodResult<EncodableValue>> shared_result =
+  auto shared_result =
       std::shared_ptr<flutter::MethodResult<EncodableValue>>(result.release());
 
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error;
-  webrtc->CreateOffer(error, std::stoi(peerConnectionId),
-                      voice_activity_detection, ice_restart, use_rtp_mux,
-                      std::move(callback));
+  rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
+                                           voice_activity_detection,
+                                           ice_restart,
+                                           use_rtp_mux,
+                                           std::move(callback));
+
   if (error != "") {
-    std::string err(error);
-    shared_result->Error("createAnswerOffer", err);
+    shared_result->Error("createAnswerOffer", std::string(error));
   }
 };
 
@@ -208,6 +223,7 @@ void CreateAnswer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -237,19 +253,20 @@ void CreateAnswer(
     ++iter;
   }
 
-  std::shared_ptr<flutter::MethodResult<EncodableValue>> shared_result =
+  auto shared_result =
       std::shared_ptr<flutter::MethodResult<EncodableValue>>(result.release());
 
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error;
-  webrtc->CreateAnswer(error, std::stoi(peerConnectionId),
-                       voice_activity_detection, ice_restart, use_rtp_mux,
-                       std::move(callback));
+  rust::String error = webrtc->CreateAnswer(std::stoi(peerConnectionId),
+                                            voice_activity_detection,
+                                            ice_restart,
+                                            use_rtp_mux,
+                                            std::move(callback));
+
   if (error != "") {
-    std::string err(error);
-    shared_result->Error("createAnswerOffer", err);
+    shared_result->Error("createAnswerOffer", std::string(error));
   }
 };
 
@@ -258,6 +275,7 @@ void SetLocalDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -270,19 +288,19 @@ void SetLocalDescription(
   rust::String type = findString(constraints, "type");
   rust::String sdp = findString(constraints, "sdp");
 
-  std::shared_ptr<flutter::MethodResult<EncodableValue>> shared_result =
+  auto shared_result =
       std::shared_ptr<flutter::MethodResult<EncodableValue>>(result.release());
 
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error;
-  webrtc->SetLocalDescription(error, std::stoi(peerConnectionId), type, sdp,
-                              std::move(callback));
+  rust::String error = webrtc->SetLocalDescription(std::stoi(peerConnectionId),
+                                                   type,
+                                                   sdp,
+                                                   std::move(callback));
 
   if (error != "") {
-    std::string err(error);
-    shared_result->Error("SetLocalDescription", err);
+    shared_result->Error("SetLocalDescription", std::string(error));
   }
 };
 
@@ -291,6 +309,7 @@ void SetRemoteDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -303,19 +322,19 @@ void SetRemoteDescription(
   rust::String type = findString(constraints, "type");
   rust::String sdp = findString(constraints, "sdp");
 
-  std::shared_ptr<flutter::MethodResult<EncodableValue>> shared_result =
+  auto shared_result =
       std::shared_ptr<flutter::MethodResult<EncodableValue>>(result.release());
 
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error;
-  webrtc->SetRemoteDescription(error, std::stoi(peerConnectionId), type, sdp,
-                               std::move(callback));
+  rust::String error = webrtc->SetRemoteDescription(std::stoi(peerConnectionId),
+                                                    type,
+                                                    sdp,
+                                                    std::move(callback));
 
   if (error != "") {
-    std::string err(error);
-    shared_result->Error("SetLocalDescription", err);
+    shared_result->Error("SetLocalDescription", std::string(error));
   }
 };
 
