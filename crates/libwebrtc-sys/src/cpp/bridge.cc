@@ -270,8 +270,8 @@ std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
 
 // Creates a new `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
-    std::unique_ptr<PeerConnectionObserver> observer) {
-  PeerConnectionDependencies pcd(observer.release());
+    const std::unique_ptr<PeerConnectionObserver>& observer) {
+  PeerConnectionDependencies pcd(observer.get());
   return std::make_unique<PeerConnectionDependencies>(std::move(pcd));
 }
 

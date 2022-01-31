@@ -60,6 +60,53 @@ pub(crate) mod webrtc {
         kRollback,
     }
 
+    // todo.
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    pub enum SignalingState {
+        kStable,
+        kHaveLocalOffer,
+        kHaveLocalPrAnswer,
+        kHaveRemoteOffer,
+        kHaveRemotePrAnswer,
+        kClosed,
+    }
+
+    // todo.
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    pub enum IceGatheringState {
+        kIceGatheringNew,
+        kIceGatheringGathering,
+        kIceGatheringComplete,
+    }
+
+    // todo.
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    enum PeerConnectionState {
+        kNew,
+        kConnecting,
+        kConnected,
+        kDisconnected,
+        kFailed,
+        kClosed,
+    }
+
+    // todo.
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    enum IceConnectionState {
+        kIceConnectionNew,
+        kIceConnectionChecking,
+        kIceConnectionConnected,
+        kIceConnectionCompleted,
+        kIceConnectionFailed,
+        kIceConnectionDisconnected,
+        kIceConnectionClosed,
+        kIceConnectionMax,
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -174,6 +221,10 @@ pub(crate) mod webrtc {
         type SessionDescriptionInterface;
         type SetLocalDescriptionObserver;
         type SetRemoteDescriptionObserver;
+        type SignalingState;
+        type IceGatheringState;
+        type PeerConnectionState;
+        type IceConnectionState;
 
         /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -198,7 +249,7 @@ pub(crate) mod webrtc {
         /// Creates a [`PeerConnectionDependencies`] from the provided
         /// [`PeerConnectionObserver`].
         pub fn create_peer_connection_dependencies(
-            observer: UniquePtr<PeerConnectionObserver>,
+            observer: &UniquePtr<PeerConnectionObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
 
         /// Creates a default [`RTCOfferAnswerOptions`].
@@ -380,7 +431,7 @@ pub(crate) mod webrtc {
         /// todo
         pub fn call_peer_connection_on_signaling_change(
             cb: &mut DynPeerConnectionOnEvent,
-            event: &CxxString,
+            state: SignalingState,
         );
 
     }
@@ -419,9 +470,9 @@ pub fn set_description_fail(
 
 pub fn call_peer_connection_on_signaling_change(
     cb: &mut DynPeerConnectionOnEvent,
-    event: &CxxString,
+    state: webrtc::SignalingState,
 ) {
-    cb.on_signaling_change(event);
+    cb.on_signaling_change(state);
 }
 
 impl TryFrom<&str> for webrtc::SdpType {
@@ -445,6 +496,95 @@ impl fmt::Display for webrtc::SdpType {
             webrtc::SdpType::kAnswer => write!(f, "answer"),
             webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
             webrtc::SdpType::kRollback => write!(f, "rollback"),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl ToString for webrtc::SignalingState {
+    fn to_string(&self) -> String {
+        match *self {
+            webrtc::SignalingState::kStable => "kStable".to_owned(),
+            webrtc::SignalingState::kHaveLocalOffer => {
+                "kHaveLocalOffer".to_owned()
+            }
+            webrtc::SignalingState::kHaveLocalPrAnswer => {
+                "kHaveLocalPrAnswer".to_owned()
+            }
+            webrtc::SignalingState::kHaveRemoteOffer => {
+                "kHaveRemoteOffer".to_owned()
+            }
+            webrtc::SignalingState::kHaveRemotePrAnswer => {
+                "kHaveRemotePrAnswer".to_owned()
+            }
+            webrtc::SignalingState::kClosed => "kClosed".to_owned(),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl ToString for webrtc::IceGatheringState {
+    fn to_string(&self) -> String {
+        match *self {
+            webrtc::IceGatheringState::kIceGatheringNew => {
+                "kIceGatheringNew".to_owned()
+            }
+            webrtc::IceGatheringState::kIceGatheringGathering => {
+                "kIceGatheringGathering".to_owned()
+            }
+            webrtc::IceGatheringState::kIceGatheringComplete => {
+                "kIceGatheringComplete".to_owned()
+            }
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl ToString for webrtc::IceConnectionState {
+    fn to_string(&self) -> String {
+        match *self {
+            webrtc::IceConnectionState::kIceConnectionNew => {
+                "kIceConnectionNew".to_owned()
+            }
+            webrtc::IceConnectionState::kIceConnectionChecking => {
+                "kIceConnectionChecking".to_owned()
+            }
+            webrtc::IceConnectionState::kIceConnectionConnected => {
+                "kIceConnectionConnected".to_owned()
+            }
+            webrtc::IceConnectionState::kIceConnectionCompleted => {
+                "kIceConnectionCompleted".to_owned()
+            }
+            webrtc::IceConnectionState::kIceConnectionFailed => {
+                "kIceConnectionFailed".to_owned()
+            }
+            webrtc::IceConnectionState::kIceConnectionDisconnected => {
+                "kIceConnectionDisconnected".to_owned()
+            }
+            webrtc::IceConnectionState::kIceConnectionClosed => {
+                "kIceConnectionClosed".to_owned()
+            }
+            webrtc::IceConnectionState::kIceConnectionMax => {
+                "kIceConnectionMax".to_owned()
+            }
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl ToString for webrtc::PeerConnectionState {
+    fn to_string(&self) -> String {
+        match *self {
+            webrtc::PeerConnectionState::kNew => "kNew".to_owned(),
+            webrtc::PeerConnectionState::kConnecting => {
+                "kConnecting".to_owned()
+            }
+            webrtc::PeerConnectionState::kConnected => "kConnected".to_owned(),
+            webrtc::PeerConnectionState::kDisconnected => {
+                "kDisconnected".to_owned()
+            }
+            webrtc::PeerConnectionState::kFailed => "kFailed".to_owned(),
+            webrtc::PeerConnectionState::kClosed => "kClosed".to_owned(),
             _ => unreachable!(),
         }
     }

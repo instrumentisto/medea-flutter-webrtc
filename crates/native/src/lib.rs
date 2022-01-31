@@ -18,7 +18,10 @@ use libwebrtc_sys::{
 
 #[doc(inline)]
 pub use crate::{
-    pc::{PeerConnection, PeerConnectionId},
+    pc::{
+        IceConnectionStateWrapper, IceGatheringStateWrapper, PeerConnection,
+        PeerConnectionId, PeerConnectionStateWrapper, SignalingStateWrapper,
+    },
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
         MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
@@ -156,7 +159,7 @@ pub mod api {
         type SetDescriptionCallbackInterface =
             crate::internal::SetDescriptionCallbackInterface;
 
-        pub type PeerConnectionOnEventInterface =
+        type PeerConnectionOnEventInterface =
             crate::internal::PeerConnectionOnEventInterface;
     }
 
@@ -164,6 +167,19 @@ pub mod api {
         include!("flutter-webrtc-native/include/api.h");
 
         type Webrtc;
+        type SignalingStateWrapper;
+        type IceGatheringStateWrapper;
+        type IceConnectionStateWrapper;
+        type PeerConnectionStateWrapper;
+
+        #[cxx_name = "ToString"]
+        pub fn to_string(self: &SignalingStateWrapper) -> String;
+        #[cxx_name = "ToString"]
+        pub fn to_string(self: &IceGatheringStateWrapper) -> String;
+        #[cxx_name = "ToString"]
+        pub fn to_string(self: &IceConnectionStateWrapper) -> String;
+        #[cxx_name = "ToString"]
+        pub fn to_string(self: &PeerConnectionStateWrapper) -> String;
 
         /// Creates an instance of [`Webrtc`].
         #[cxx_name = "Init"]

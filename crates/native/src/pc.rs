@@ -1,8 +1,10 @@
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
+use sys::PeerConnectionObserver;
 
 use crate::{
+    api::PeerConnectionOnEventInterface,
     internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
     next_id, Webrtc,
 };
@@ -13,9 +15,17 @@ impl Webrtc {
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
         self: &mut Webrtc,
+        cb: UniquePtr<PeerConnectionOnEventInterface>,
         error: &mut String,
     ) -> u64 {
-        let peer = PeerConnection::new(&mut self.0.peer_connection_factory);
+        let dependencies =
+            sys::PeerConnectionDependencies::new(PeerConnectionObserver::new(
+                Box::new(HandlerPeerConnectionOnEvent(cb)),
+            ));
+        let peer = PeerConnection::new(
+            &mut self.0.peer_connection_factory,
+            dependencies,
+        );
         match peer {
             Ok(peer) => self
                 .0
@@ -137,19 +147,16 @@ impl Webrtc {
                 peer_id
             );
         };
-
         let sdp_kind = match sys::SdpType::try_from(kind.as_str()) {
             Ok(kind) => kind,
             Err(e) => {
                 return e.to_string();
             }
         };
-
         let desc = sys::SessionDescriptionInterface::new(sdp_kind, &sdp);
         let obs =
             sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
         peer.inner.set_local_description(desc, obs);
-
         String::new()
     }
 
@@ -194,6 +201,15 @@ impl Webrtc {
 
         String::new()
     }
+
+    // todo not for release PR only test memory leak peer connection.
+    pub fn delete_pc(
+        &mut self,
+        peer_connection_id: impl Into<PeerConnectionId>,
+    ) {
+        self.0.peer_connections.remove(&peer_connection_id.into());
+        println!("RUST drop pc");
+    }
 }
 
 /// ID of a [`PeerConnection`].
@@ -213,10 +229,11 @@ impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
+        dependencies: sys::PeerConnectionDependencies,
     ) -> anyhow::Result<Self> {
         let inner = factory.create_peer_connection_or_error(
             &sys::RTCConfiguration::default(),
-            sys::PeerConnectionDependencies::default(),
+            dependencies,
         )?;
 
         Ok(Self {
@@ -250,5 +267,61 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 
     fn fail(&mut self, error: &CxxString) {
         self.0.pin_mut().on_set_description_fail(error);
+    }
+}
+
+//todo
+struct HandlerPeerConnectionOnEvent(UniquePtr<PeerConnectionOnEventInterface>);
+
+impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
+    fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
+        self.0
+            .pin_mut()
+            .on_signaling_change(&SignalingStateWrapper(new_state));
+    }
+
+    fn on_standardized_ice_connection_change(
+        &mut self,
+        new_state: sys::IceConnectionState,
+    ) {
+        self.0.pin_mut().on_standardized_ice_connection_change(
+            &IceConnectionStateWrapper(new_state),
+        );
+    }
+
+    fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
+        self.0
+            .pin_mut()
+            .on_connection_change(&PeerConnectionStateWrapper(new_state));
+    }
+
+    fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
+        self.0
+            .pin_mut()
+            .on_ice_gathering_change(&IceGatheringStateWrapper(new_state));
+    }
+}
+pub struct SignalingStateWrapper(sys::SignalingState);
+impl ToString for SignalingStateWrapper {
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+pub struct IceGatheringStateWrapper(sys::IceGatheringState);
+impl ToString for IceGatheringStateWrapper {
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+pub struct PeerConnectionStateWrapper(sys::PeerConnectionState);
+impl ToString for PeerConnectionStateWrapper {
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+pub struct IceConnectionStateWrapper(sys::IceConnectionState);
+impl ToString for IceConnectionStateWrapper {
+    fn to_string(&self) -> String {
+        self.0.to_string()
     }
 }

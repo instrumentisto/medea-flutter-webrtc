@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 
 // Completion callback for the `Webrtc::CreateOffer` and `Webrtc::CreateAnswer`
@@ -28,8 +27,16 @@ class SetDescriptionCallbackInterface {
   virtual ~SetDescriptionCallbackInterface() = default;
 };
 
+struct SignalingStateWrapper;
+struct IceConnectionStateWrapper;
+struct PeerConnectionStateWrapper;
+struct IceGatheringStateWrapper;
+
 class PeerConnectionOnEventInterface {
  public:
-  virtual void OnSignalingChange(const std::string& event) = 0;
+  virtual void OnSignalingChange(const SignalingStateWrapper& new_state) = 0;
+  virtual void OnStandardizedIceConnectionChange(const IceConnectionStateWrapper& new_state) = 0;
+  virtual void OnConnectionChange(const PeerConnectionStateWrapper& new_state) = 0;
+  virtual void OnIceGatheringChange(const IceGatheringStateWrapper& new_state) = 0;
   virtual ~PeerConnectionOnEventInterface() = default;
 };

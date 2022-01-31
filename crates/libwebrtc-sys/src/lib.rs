@@ -8,7 +8,10 @@ use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
 
-pub use crate::webrtc::{AudioLayer, SdpType};
+pub use crate::webrtc::{
+    AudioLayer, IceConnectionState, IceGatheringState, PeerConnectionState,
+    SdpType, SignalingState,
+};
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
 /// used to call [`PeerConnectionInterface::create_offer()`] and
@@ -35,7 +38,13 @@ pub trait SetDescriptionCallback {
 
 /// todo
 pub trait PeerConnectionOnEvent {
-    fn on_signaling_change(&mut self, event: &CxxString);
+    fn on_signaling_change(&mut self, new_state: SignalingState);
+    fn on_standardized_ice_connection_change(
+        &mut self,
+        new_state: IceConnectionState,
+    );
+    fn on_connection_change(&mut self, new_state: PeerConnectionState);
+    fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -247,13 +256,19 @@ impl PeerConnectionObserver {
 }
 
 /// Contains all of the [`PeerConnectionInterface`] dependencies.
-pub struct PeerConnectionDependencies(
-    UniquePtr<webrtc::PeerConnectionDependencies>,
-);
+pub struct PeerConnectionDependencies {
+    dependencies: UniquePtr<webrtc::PeerConnectionDependencies>,
+    _lt: PeerConnectionObserver,
+}
 
 impl PeerConnectionDependencies {
     pub fn new(observer: PeerConnectionObserver) -> Self {
-        Self(webrtc::create_peer_connection_dependencies(observer.0))
+        Self {
+            dependencies: webrtc::create_peer_connection_dependencies(
+                &observer.0,
+            ),
+            _lt: observer,
+        }
     }
 }
 
@@ -345,7 +360,10 @@ impl SetRemoteDescriptionObserver {
 /// [RTCPeerConnection][1] implementation.
 ///
 /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection
-pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
+pub struct PeerConnectionInterface {
+    pc: UniquePtr<webrtc::PeerConnectionInterface>,
+    _observer_lt: PeerConnectionObserver,
+}
 
 impl PeerConnectionInterface {
     /// [`RTCPeerConnection::createOffer()`][1] implementation.
@@ -356,7 +374,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0);
+        webrtc::create_offer(self.pc.pin_mut(), &options.0, obs.0);
     }
 
     /// [`RTCPeerConnection::createAnswer()`][1] implementation.
@@ -367,7 +385,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_answer(self.0.pin_mut(), &options.0, obs.0);
+        webrtc::create_answer(self.pc.pin_mut(), &options.0, obs.0);
     }
 
     /// [`RTCPeerConnection::setLocalDescription()`][1] implementation.
@@ -378,7 +396,7 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetLocalDescriptionObserver,
     ) {
-        webrtc::set_local_description(self.0.pin_mut(), desc.0, obs.0);
+        webrtc::set_local_description(self.pc.pin_mut(), desc.0, obs.0);
     }
 
     /// [`RTCPeerConnection::setRemoteDescription()`][1] implementation.
@@ -389,7 +407,7 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetRemoteDescriptionObserver,
     ) {
-        webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
+        webrtc::set_remote_description(self.pc.pin_mut(), desc.0, obs.0);
     }
 }
 
@@ -461,7 +479,7 @@ impl PeerConnectionFactoryInterface {
         let inner = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
             &configuration.0,
-            dependencies.0,
+            dependencies.dependencies,
             &mut error,
         );
 
@@ -475,7 +493,10 @@ impl PeerConnectionFactoryInterface {
                  CreatePeerConnectionOrError()`",
             );
         }
-        Ok(PeerConnectionInterface(inner))
+        Ok(PeerConnectionInterface {
+            pc: inner,
+            _observer_lt: dependencies._lt,
+        })
     }
 
     /// Creates a new [`AudioSourceInterface`], which provides sound recording

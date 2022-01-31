@@ -9,43 +9,12 @@
 
 using namespace rust::cxxbridge1;
 
-template <class T>
-class atomic_unique_ptr {
-  using pointer = T*;
-  std::atomic<pointer> ptr;
-
- public:
-  constexpr atomic_unique_ptr() noexcept : ptr() {}
-  explicit atomic_unique_ptr(pointer p) noexcept : ptr(p) {}
-  atomic_unique_ptr(atomic_unique_ptr&& p) noexcept : ptr(p.release()) {}
-  atomic_unique_ptr& operator=(atomic_unique_ptr&& p) noexcept {
-    reset(p.release());
-    return *this;
-  }
-  atomic_unique_ptr(std::unique_ptr<T>&& p) noexcept : ptr(p.release()) {}
-  atomic_unique_ptr& operator=(std::unique_ptr<T>&& p) noexcept {
-    reset(p.release());
-    return *this;
-  }
-
-  void reset(pointer p = pointer()) {
-    auto old = ptr.exchange(p);
-    if (old)
-      delete old;
-  }
-  operator pointer() const { return ptr; }
-  pointer operator->() const { return ptr; }
-  pointer get() const { return ptr; }
-  explicit operator bool() const { return ptr != pointer(); }
-  pointer release() { return ptr.exchange(pointer()); }
-  ~atomic_unique_ptr() { reset(); }
-};
-
 // todo.
 struct EventContext {
  public:
-  atomic_unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink;
-  atomic_unique_ptr<flutter::EventChannel<flutter::EncodableValue>> lt_channel;
+  std::unique_ptr<std::mutex> channel_m = std::make_unique<std::mutex>();
+  std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink;
+  std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> lt_channel;
 };
 
 #include "flutter_webrtc.h"
@@ -98,14 +67,38 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
 class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
  public:
   PeerConnectionOnEvent(std::shared_ptr<EventContext> context)
-      : context(context){};
-  void OnSignalingChange(const std::string& event) {
+      : context(std::move(context)){};
+  void OnSignalingChange(const SignalingStateWrapper& new_state) {
+    const std::lock_guard<std::mutex> lock(*context->channel_m);
     if(context->event_sink.get() != nullptr) {
-      context->event_sink.get()->Success(EncodableValue(event)); 
+      context->event_sink.get()->Success(EncodableValue(new_state.ToString().c_str())); 
     }
   }
+
+  void OnStandardizedIceConnectionChange(const IceConnectionStateWrapper& new_state) {
+        const std::lock_guard<std::mutex> lock(*context->channel_m);
+    if(context->event_sink.get() != nullptr) {
+      context->event_sink.get()->Success(EncodableValue(new_state.ToString().c_str())); 
+    }
+  };
+  void OnConnectionChange(const PeerConnectionStateWrapper& new_state) {
+        const std::lock_guard<std::mutex> lock(*context->channel_m);
+    if(context->event_sink.get() != nullptr) {
+      context->event_sink.get()->Success(EncodableValue(new_state.ToString().c_str())); 
+    }
+  };
+  void OnIceGatheringChange(const IceGatheringStateWrapper& new_state) {
+        const std::lock_guard<std::mutex> lock(*context->channel_m);
+    if(context->event_sink.get() != nullptr) {
+      context->event_sink.get()->Success(EncodableValue(new_state.ToString().c_str())); 
+    }
+  };
+
   ~PeerConnectionOnEvent() {
-    context->event_sink.get()->EndOfStream();
+    const std::lock_guard<std::mutex> lock(*context->channel_m);
+    if(context->event_sink.get() != nullptr) {
+      context->event_sink.get()->EndOfStream();
+    }
   }
 
  private:
@@ -123,7 +116,7 @@ void CreateRTCPeerConnection(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   std::shared_ptr<EventContext> event_context =
-      std::make_shared<EventContext>(EventContext());
+      std::make_shared<EventContext>(std::move(EventContext()));
   std::unique_ptr<PeerConnectionOnEventInterface> event_callback =
       std::unique_ptr<PeerConnectionOnEventInterface>(
           new PeerConnectionOnEvent(event_context));
@@ -132,13 +125,15 @@ void CreateRTCPeerConnection(
       [=](const flutter::EncodableValue* arguments,
           std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        const std::lock_guard<std::mutex> lock(*event_context->channel_m);
         event_context->event_sink = std::move(events);
         return nullptr;
       },
 
       [=](const flutter::EncodableValue* arguments)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-      event_context->event_sink.reset();
+        const std::lock_guard<std::mutex> lock(*event_context->channel_m);
+        event_context->event_sink.reset();
         return nullptr;
       });
 

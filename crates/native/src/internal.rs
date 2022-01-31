@@ -1,10 +1,13 @@
 pub use cpp_api_bindings::*;
 
+use cxx::{type_id, ExternType};
+
 #[allow(clippy::items_after_statements)]
 #[cxx::bridge]
 mod cpp_api_bindings {
     unsafe extern "C++" {
         include!("flutter-webrtc-native/include/api.h");
+        include!("flutter-webrtc-native/src/lib.rs.h");
 
         pub type CreateSdpCallbackInterface;
         pub type SetDescriptionCallbackInterface;
@@ -38,12 +41,34 @@ mod cpp_api_bindings {
         );
 
         type PeerConnectionOnEventInterface;
+        type SignalingStateWrapper = crate::SignalingStateWrapper;
         /// Calls `OnFail` c++ `SetDescriptionCallbackInterface`
         ///  abstract class method.
         #[cxx_name = "OnSignalingChange"]
         pub fn on_signaling_change(
             self: Pin<&mut PeerConnectionOnEventInterface>,
-            event: &CxxString,
+            new_state: &SignalingStateWrapper,
+        );
+
+        type IceConnectionStateWrapper = crate::IceConnectionStateWrapper;
+        #[cxx_name = "OnStandardizedIceConnectionChange"]
+        pub fn on_standardized_ice_connection_change(
+            self: Pin<&mut PeerConnectionOnEventInterface>,
+            new_state: &IceConnectionStateWrapper,
+        );
+
+        type PeerConnectionStateWrapper = crate::PeerConnectionStateWrapper;
+        #[cxx_name = "OnConnectionChange"]
+        pub fn on_connection_change(
+            self: Pin<&mut PeerConnectionOnEventInterface>,
+            new_state: &PeerConnectionStateWrapper,
+        );
+
+        type IceGatheringStateWrapper = crate::IceGatheringStateWrapper;
+        #[cxx_name = "OnIceGatheringChange"]
+        pub fn on_ice_gathering_change(
+            self: Pin<&mut PeerConnectionOnEventInterface>,
+            new_state: &IceGatheringStateWrapper,
         );
 
     }
@@ -51,6 +76,7 @@ mod cpp_api_bindings {
     // This will trigger cxx to generate UniquePtrTarget trait for the
     // mentioned types.
     extern "Rust" {
+
         fn _touch_create_sdp_callback(i: UniquePtr<CreateSdpCallbackInterface>);
         fn _touch_set_description_callback(
             i: UniquePtr<SetDescriptionCallbackInterface>,
@@ -73,4 +99,21 @@ fn _touch_set_description_callback(
 fn _touch_unique_ptr_peer_connection_on_event_interface(
     _: cxx::UniquePtr<PeerConnectionOnEventInterface>,
 ) {
+}
+
+unsafe impl ExternType for crate::SignalingStateWrapper {
+    type Id = type_id!("SignalingStateWrapper");
+    type Kind = cxx::kind::Trivial;
+}
+unsafe impl ExternType for crate::IceConnectionStateWrapper {
+    type Id = type_id!("IceConnectionStateWrapper");
+    type Kind = cxx::kind::Trivial;
+}
+unsafe impl ExternType for crate::PeerConnectionStateWrapper {
+    type Id = type_id!("PeerConnectionStateWrapper");
+    type Kind = cxx::kind::Trivial;
+}
+unsafe impl ExternType for crate::IceGatheringStateWrapper {
+    type Id = type_id!("IceGatheringStateWrapper");
+    type Kind = cxx::kind::Trivial;
 }
