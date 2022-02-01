@@ -15,110 +15,121 @@ using namespace flutter;
 
 namespace flutter_webrtc_plugin {
 
-// Class with the methods related to `VideoRenderer`.
+// Responsible for rendering `VideoFrame`s on the Flutter texture.
 class TextureVideoRenderer {
  public:
+
+  // Creates a new `TextureVideoRenderer`.
   TextureVideoRenderer(TextureRegistrar* registrar, BinaryMessenger* messenger);
 
-  // Copies `PixelBuffer` from `libWebRTC` `Frame` to Dart's buffer.
-  virtual const FlutterDesktopPixelBuffer* CopyPixelBuffer(size_t width,
-                                                           size_t height) const;
+  // Constructs and returns `FlutterDesktopPixelBuffer` from the current
+  // `VideoFrame`.
+  virtual FlutterDesktopPixelBuffer* CopyPixelBuffer(size_t width,
+                                                     size_t height);
 
-  // `Frame` handler. Sends events to Dart when receives the `Frame`.
+  // Called when a new `VideoFrame` is produced by the underlying source.
   virtual void OnFrame(VideoFrame frame);
 
-  // Set `Renderer`'s default state.
+  // Resets `TextureVideoRenderer` to the initial state.
   virtual void ResetRenderer();
 
-  // `Id` of related Dart `texture`.
+  // Returns an ID of the Flutter texture associated with this renderer.
   int64_t texture_id() { return texture_id_; }
 
  private:
-  // Struct which describes `Frame`'s sizes.
+  // Struct which describes `VideoFrame`'s dimensions.
   struct FrameSize {
     size_t width;
     size_t height;
   };
 
-  // Size of the last received `Frame`.
+  // `FrameSize` of the last processed `VideoFrame`.
   FrameSize last_frame_size_ = {0, 0};
 
-  // Indicates if at least one `Frame` has been rendered.
+  // Indicates if at least one `VideoFrame` has been rendered.
   bool first_frame_rendered = false;
 
   // An object keeping track of external textures.
-  TextureRegistrar* registrar_ = nullptr;
+  TextureRegistrar* registrar_;
 
   // A named channel for communicating with the Flutter application using
   // asynchronous event streams.
   std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
 
-  // Event callback. Events to be sent to Flutter application
-  // act as clients of this interface for sending events.
+  // Event callback. Events to be sent to Flutter application act as clients of
+  // this interface for sending events.
   std::unique_ptr<EventSink<EncodableValue>> event_sink_;
 
   // `Id` of Flutter `texture`.
   int64_t texture_id_ = -1;
 
-  // `Frame` from `libWebRTC`.
-  std::optional<VideoFrame> frame_ = std::nullopt;
+  // ID of the Flutter texture associated with this renderer.
+  std::optional<VideoFrame> frame_;
 
-  // A `pixel buffer` Flutter `texture`.
+  // An actual Flutter texture that the incoming frames are rendered on.
   std::unique_ptr<flutter::TextureVariant> texture_;
 
-  // An image buffer `texture` object.
-  std::shared_ptr<FlutterDesktopPixelBuffer> pixel_buffer_;
+  // Pointer to the `FlutterDesktopPixelBuffer` that are passed to the Flutter
+  // texture.
+  std::unique_ptr<FlutterDesktopPixelBuffer> pixel_buffer_;
 
-  // An image buffer.
-  mutable std::shared_ptr<uint8_t> rgb_buffer_;
+  // Raw image buffer.
+  std::unique_ptr<uint8_t> argb_buffer_;
 
-  // A synchronization primitive that can be used to protect shared data
-  // from being simultaneously accessed by multiple threads.
-  mutable std::mutex mutex_;
+  // Protects the `frame_`, `pixel_buffer_` and `argb_buffer_` fields that are
+  // accessed from multiple threads.
+  std::mutex mutex_;
 
-  // `Frame`'s rotation.
+  // Rotation of the current `VideoFrame`.
   int32_t rotation_ = 0;
 };
 
-// Provides managing of the `VideoRenderer`s.
+// Stores and manages all `TextureVideoRenderer`s.
 class FlutterVideoRendererManager {
  public:
   FlutterVideoRendererManager(TextureRegistrar* registrar,
                               BinaryMessenger* messenger);
 
-  // Creates a new `VideoRenderer`.
+  // Creates a new `FlutterVideoRendererManager`.
   void CreateVideoRendererTexture(
       std::unique_ptr<MethodResult<EncodableValue>> result);
 
-  // Sets a new `source` to the cerntain `VideoRenderer`.
+  // Changes a media source of a specific `TextureVideoRenderer`.
   void SetMediaStream(const flutter::MethodCall<EncodableValue>& method_call,
                       rust::Box<Webrtc>& webrtc,
                       std::unique_ptr<MethodResult<EncodableValue>> result);
 
-  // Disposes the `VideoRenderer`.
+  // Disposes the specific `TextureVideoRenderer`.
   void VideoRendererDispose(
       const flutter::MethodCall<EncodableValue>& method_call,
       rust::Box<Webrtc>& webrtc,
       std::unique_ptr<MethodResult<EncodableValue>> result);
 
+ private:
+  // An object keeping track of external textures.
   TextureRegistrar* registrar_;
+
+  // Channel to the Dart side renderers.
   BinaryMessenger* messenger_;
-  // The map that contains `VideoRenderer`s.
+
+  // The map that contains all `TextureVideoRenderer`s.
   std::map<int64_t, std::shared_ptr<TextureVideoRenderer>> renderers_;
 };
 
-// A `TextureVideoRenderer`'s shim between Rust and C++, inherits Rust friendly
-// class `OnFrameCallback`.
-class TextureVideoRendererShim : public OnFrameCallbackInterface {
+// `OnFrameCallbackInterface` that forwards all incoming `VideoFrame`s to the
+// `TextureVideoRenderer`.
+class FrameHandler : public OnFrameCallbackInterface {
  public:
-  TextureVideoRendererShim(std::shared_ptr<TextureVideoRenderer> ctx);
 
-  // A callback for listening to some `VideoTrack` generating `VideoFrame`.
+  // Creates a new `FrameHandler`.
+  FrameHandler(std::shared_ptr<TextureVideoRenderer> renderer);
+
+  // `OnFrameCallbackInterface` implementation
   void OnFrame(VideoFrame frame);
 
  private:
-  // A context for callback - `shared pointer` on `TextureVideoRenderer`.
-  std::shared_ptr<TextureVideoRenderer> ctx_;
+  // `TextureVideoRenderer` that the `VideoFrame`s will be passed to.
+  std::shared_ptr<TextureVideoRenderer> renderer_;
 };
 
 }  // namespace flutter_webrtc_plugin

@@ -11,8 +11,8 @@ namespace flutter_webrtc_plugin {
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
-        plugin->textures(),
-        plugin->messenger()) {}
+    plugin->textures(),
+    plugin->messenger()) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 
@@ -55,7 +55,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
     VideoRendererDispose(method_call, webrtc, std::move(result));
   } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
-             0) {
+      0) {
     SetMediaStream(method_call, webrtc, std::move(result));
   } else if (method.compare("setVolume") == 0) {
   } else if (method.compare("getLocalDescription") == 0) {

@@ -8,7 +8,8 @@ namespace flutter_webrtc_plugin {
 
 FlutterVideoRendererManager::FlutterVideoRendererManager(
     TextureRegistrar* registrar,
-    BinaryMessenger* messenger): registrar_(registrar), messenger_(messenger) {}
+    BinaryMessenger* messenger)
+    : registrar_(registrar), messenger_(messenger) {}
 
 // Creates a new `VideoRenderer`.
 void FlutterVideoRendererManager::CreateVideoRendererTexture(
@@ -41,8 +42,8 @@ void FlutterVideoRendererManager::SetMediaStream(
   if (it != renderers_.end()) {
     if (stream_id != "") {
       webrtc->CreateVideoSink(
-          texture_id, (uint64_t)std::stoi(stream_id),
-          std::make_unique<TextureVideoRendererShim>(it->second));
+          texture_id, (uint64_t) std::stoi(stream_id),
+          std::make_unique<FrameHandler>(it->second));
     } else {
       webrtc->DisposeVideoSink(texture_id);
       it->second.get()->ResetRenderer();
@@ -52,7 +53,7 @@ void FlutterVideoRendererManager::SetMediaStream(
   result->Success();
 }
 
-// Disposes the `VideoRenderer`.
+// Disposes the specific `TextureVideoRenderer`.
 void FlutterVideoRendererManager::VideoRendererDispose(
     const flutter::MethodCall<EncodableValue>& method_call,
     rust::Box<Webrtc>& webrtc,
@@ -75,8 +76,7 @@ void FlutterVideoRendererManager::VideoRendererDispose(
                 "VideoRendererDispose() texture not found!");
 }
 
-// `TextureVideoRenderer` costructor. Creates a new `texture` and
-// `EventChannel`, register them.
+// Creates a new `TextureVideoRenderer`.
 TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
                                            BinaryMessenger* messenger)
     : registrar_(registrar) {
@@ -94,40 +94,39 @@ TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
   event_channel_.reset(new EventChannel<EncodableValue>(
       messenger, event_channel, &StandardMethodCodec::GetInstance()));
 
-  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
+  auto handler = std::make_unique < StreamHandlerFunctions < EncodableValue >> (
       [&](const flutter::EncodableValue* arguments,
           std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
         event_sink_ = std::move(events);
         return nullptr;
       },
-      [&](const flutter::EncodableValue* arguments)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        event_sink_ = nullptr;
-        return nullptr;
-      });
+          [&](const flutter::EncodableValue* arguments)
+              -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+            event_sink_ = nullptr;
+            return nullptr;
+          });
 
   event_channel_->SetStreamHandler(std::move(handler));
 }
 
-// Copies `PixelBuffer` from `libWebRTC` `Frame` to Dart's buffer.
-const FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
-    size_t width,
-    size_t height) const {
+// Constructs and returns `FlutterDesktopPixelBuffer` from the current
+// `VideoFrame`.
+FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(size_t width,
+                                                                 size_t height) {
   mutex_.lock();
-
   if (pixel_buffer_.get() && frame_) {
     if (pixel_buffer_->width != frame_->width ||
         pixel_buffer_->height != frame_->height) {
       size_t buffer_size = frame_->buffer_size;
-      rgb_buffer_.reset(new uint8_t[buffer_size]);
+      argb_buffer_.reset(new uint8_t[buffer_size]);
       pixel_buffer_->width = frame_->width;
       pixel_buffer_->height = frame_->height;
     }
 
-    frame_->GetABGRBytes(rgb_buffer_.get());
+    frame_->GetABGRBytes(argb_buffer_.get());
 
-    pixel_buffer_->buffer = rgb_buffer_.get();
+    pixel_buffer_->buffer = argb_buffer_.get();
 
     mutex_.unlock();
     return pixel_buffer_.get();
@@ -136,7 +135,9 @@ const FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
   return nullptr;
 }
 
-// `Frame` handler. Sends events to Dart when receives the `Frame`.
+// Saves the provided `VideoFrame` and calls
+// `TextureRegistrar->MarkTextureFrameAvailable` to notify flutter that a new
+// frame is ready to be polled.
 void TextureVideoRenderer::OnFrame(VideoFrame frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
@@ -156,7 +157,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       params[EncodableValue("event")] = "didTextureChangeRotation";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       params[EncodableValue("rotation")] =
-          EncodableValue((int32_t)frame.rotation);
+          EncodableValue((int32_t) frame.rotation);
       event_sink_->Success(EncodableValue(params));
     }
     rotation_ = frame.rotation;
@@ -167,9 +168,9 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       EncodableMap params;
       params[EncodableValue("event")] = "didTextureChangeVideoSize";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
-      params[EncodableValue("width")] = EncodableValue((int32_t)frame.width);
+      params[EncodableValue("width")] = EncodableValue((int32_t) frame.width);
       params[EncodableValue("height")] =
-          EncodableValue((int32_t)frame.height);
+          EncodableValue((int32_t) frame.height);
       event_sink_->Success(EncodableValue(params));
     }
     last_frame_size_ = {frame.width, frame.height};
@@ -180,7 +181,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
 
-// Set `Renderer`'s default state.
+// Resets `TextureVideoRenderer` to the initial state.
 void TextureVideoRenderer::ResetRenderer() {
   mutex_.lock();
   frame_.reset();
@@ -190,14 +191,14 @@ void TextureVideoRenderer::ResetRenderer() {
   first_frame_rendered = false;
 }
 
-// A `TextureVideoRendererShim` constructor. Sets income `TextureVideoRenderer`.
-TextureVideoRendererShim::TextureVideoRendererShim(
+// Creates a new `FrameHandler`.
+FrameHandler::FrameHandler(
     std::shared_ptr<TextureVideoRenderer> ctx) {
   ctx_ = std::move(ctx);
 }
 
-// Calls `TextureVideoRenderer->OnFrame`.
-void TextureVideoRendererShim::OnFrame(VideoFrame frame) {
+// Forwards the received `VideoFrame` to the `TextureVideoRenderer->OnFrame`.
+void FrameHandler::OnFrame(VideoFrame frame) {
   ctx_->OnFrame(std::move(frame));
 }
 
