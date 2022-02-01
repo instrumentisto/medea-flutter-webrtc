@@ -8,7 +8,9 @@ use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
 
-pub use crate::webrtc::{AudioLayer, SdpType, video_frame_to_abgr, VideoFrame, VideoRotation};
+pub use crate::webrtc::{
+    video_frame_to_abgr, AudioLayer, SdpType, VideoFrame, VideoRotation,
+};
 
 /// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
 /// [`PeerConnectionInterface::create_offer()`] and

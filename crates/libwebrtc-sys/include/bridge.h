@@ -141,6 +141,12 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory);
 
+// Creates a new `VideoTrackInterface`.
+std::unique_ptr<VideoTrackInterface> create_video_track(
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    rust::String id,
+    const VideoTrackSourceInterface& video_source);
+
 // Creates a new `AudioTrackInterface`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
@@ -151,12 +157,6 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id);
-
-// Creates a new `VideoTrackInterface`.
-std::unique_ptr<VideoTrackInterface> create_video_track(
-    const PeerConnectionFactoryInterface& peer_connection_factory,
-    rust::String id,
-    const VideoTrackSourceInterface& video_source);
 
 // Adds the provided `VideoTrackInterface` to the specified
 // `MediaStreamInterface`.

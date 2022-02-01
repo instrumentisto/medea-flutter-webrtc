@@ -3,7 +3,7 @@ use std::fmt;
 use anyhow::anyhow;
 use cxx::{CxxString, UniquePtr};
 
-use crate::{CreateSdpCallback, SetDescriptionCallback, OnFrameCallback};
+use crate::{CreateSdpCallback, OnFrameCallback, SetDescriptionCallback};
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
@@ -302,12 +302,6 @@ pub(crate) mod webrtc {
         type VideoSinkInterface;
         type VideoRotation;
 
-        /// Creates a new [`MediaStreamInterface`].
-        pub fn create_local_media_stream(
-            peer_connection_factory: &PeerConnectionFactoryInterface,
-            id: String,
-        ) -> UniquePtr<MediaStreamInterface>;
-
         /// Creates a new [`VideoTrackSourceInterface`].
         pub fn create_video_source(
             worker_thread: Pin<&mut Thread>,
@@ -323,6 +317,13 @@ pub(crate) mod webrtc {
             peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
+        /// Creates a new [`VideoTrackInterface`].
+        pub fn create_video_track(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            id: String,
+            video_source: &VideoTrackSourceInterface,
+        ) -> UniquePtr<VideoTrackInterface>;
+
         /// Creates a new [`AudioTrackInterface`].
         pub fn create_audio_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
@@ -330,12 +331,11 @@ pub(crate) mod webrtc {
             audio_source: &AudioSourceInterface,
         ) -> UniquePtr<AudioTrackInterface>;
 
-        /// Creates a new [`VideoTrackInterface`].
-        pub fn create_video_track(
+        /// Creates a new [`MediaStreamInterface`].
+        pub fn create_local_media_stream(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             id: String,
-            video_source: &VideoTrackSourceInterface,
-        ) -> UniquePtr<VideoTrackInterface>;
+        ) -> UniquePtr<MediaStreamInterface>;
 
         /// Adds the [`VideoTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_video_track(
@@ -399,10 +399,7 @@ pub(crate) mod webrtc {
 
         /// Converts the provided [`webrtc::VideoFrame`] pixels to the `ABGR`
         /// scheme and writes the output to the provided `buffer`.
-        pub unsafe fn video_frame_to_abgr(
-            frame: &VideoFrame,
-            buffer: *mut u8,
-        );
+        pub unsafe fn video_frame_to_abgr(frame: &VideoFrame, buffer: *mut u8);
     }
 
     extern "Rust" {
@@ -504,9 +501,6 @@ impl fmt::Display for webrtc::SdpType {
 
 /// Forwards the given [`webrtc::VideoFrame`] the the provided
 /// [`DynOnFrameCallback`].
-fn on_frame(
-    cb: &mut DynOnFrameCallback,
-    frame: UniquePtr<webrtc::VideoFrame>,
-) {
+fn on_frame(cb: &mut DynOnFrameCallback, frame: UniquePtr<webrtc::VideoFrame>) {
     cb.on_frame(frame);
 }

@@ -12,4 +12,5 @@ void ForwardingVideoSink::OnFrame(const webrtc::VideoFrame& video_frame) {
   bridge::on_frame(*cb_.value(),
                    std::make_unique<webrtc::VideoFrame>(video_frame));
 }
+
 }  // namespace video_sink

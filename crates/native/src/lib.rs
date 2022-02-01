@@ -14,10 +14,10 @@ use std::{
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
-use crate::video_sink::{Id as VideoSinkId};
+use crate::video_sink::Id as VideoSinkId;
 
 #[doc(inline)]
 pub use crate::{
@@ -27,7 +27,7 @@ pub use crate::{
         MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
         VideoTrackId,
     },
-    video_sink::{VideoSink, Frame}
+    video_sink::{Frame, VideoSink},
 };
 
 /// Counter used to generate unique IDs.
@@ -153,12 +153,23 @@ pub mod api {
         kVideo,
     }
 
+    /// A single video frame.
     pub struct VideoFrame {
-        pub buffer_size: usize,
-        pub rotation: i32,
+        /// Vertical count of pixels of this [`VideoFrame`].
         pub height: usize,
+
+        /// Horizontal count of pixels of this [`VideoFrame`].
         pub width: usize,
-        pub frame: Box<Frame>
+
+        /// [`VideoFrame`] in degrees.
+        pub rotation: i32,
+
+        /// Size of the bytes buffer that must be allocated for the
+        /// [`VideoFrame::get_abgr_bytes()`] call.
+        pub buffer_size: usize,
+
+        /// Underlying Rust side frame.
+        pub frame: Box<Frame>,
     }
 
     extern "C++" {
@@ -280,8 +291,8 @@ pub mod api {
         #[cxx_name = "DisposeVideoSink"]
         fn dispose_video_sink(self: &mut Webrtc, sink_id: i64);
 
-        /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme and
-        /// outputs the data to the provided `buffer`.
+        /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme
+        /// and outputs the data to the provided `buffer`.
         #[cxx_name = "GetABGRBytes"]
         unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
     }
@@ -309,7 +320,7 @@ pub struct Context {
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 }
 
-/// Creates an instanse of [`Webrtc`].
+/// Creates an instance of [`Webrtc`].
 ///
 /// # Panics
 ///

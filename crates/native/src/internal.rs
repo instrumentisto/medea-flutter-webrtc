@@ -43,7 +43,7 @@ mod cpp_api_bindings {
 
         /// Calls C++ side `OnFrameCallbackInterface->OnFrame`.
         #[cxx_name = "OnFrame"]
-        pub unsafe fn on_frame(
+        pub fn on_frame(
             self: Pin<&mut OnFrameCallbackInterface>,
             frame: VideoFrame,
         );
@@ -56,7 +56,9 @@ mod cpp_api_bindings {
         fn _touch_set_description_callback(
             i: UniquePtr<SetDescriptionCallbackInterface>,
         );
-        fn _touch_unique_ptr_on_frame_handler(i: UniquePtr<OnFrameCallbackInterface>);
+        fn _touch_unique_ptr_on_frame_handler(
+            i: UniquePtr<OnFrameCallbackInterface>,
+        );
     }
 }
 
@@ -67,4 +69,7 @@ fn _touch_set_description_callback(
 ) {
 }
 
-fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameCallbackInterface>) {}
+fn _touch_unique_ptr_on_frame_handler(
+    _: cxx::UniquePtr<OnFrameCallbackInterface>,
+) {
+}

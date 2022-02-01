@@ -221,6 +221,7 @@ void remove_video_sink(const VideoTrackInterface& track,
                        VideoSinkInterface& sink) {
   track->RemoveSink(&sink);
 }
+
 // Creates a new `ForwardingVideoSink`.
 std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
     rust::Box<DynOnFrameCallback> cb) {
@@ -238,6 +239,7 @@ void video_frame_to_abgr(const webrtc::VideoFrame& frame,
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
                      dst_abgr, buffer->width() * 4, buffer->width(),
                      buffer->height());
+}
 
 // Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
@@ -380,5 +382,5 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   peer_connection_interface->SetRemoteDescription(std::move(desc),
                                                   observer);
 }
-}
+
 }  // namespace bridge

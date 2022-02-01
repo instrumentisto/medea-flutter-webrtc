@@ -1,5 +1,4 @@
 use std::{
-    ops::Deref,
     rc::Rc,
     sync::atomic::{AtomicU64, Ordering},
 };
@@ -10,7 +9,7 @@ use libwebrtc_sys as sys;
 
 use crate::{
     api::{self, AudioConstraints, VideoConstraints},
-    VideoSink, VideoSinkId, Webrtc, next_id
+    next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
 impl Webrtc {
@@ -98,6 +97,7 @@ impl Webrtc {
                 };
             }
         }
+        // TODO: what if we drop track that is attached to some sink?
     }
 
     /// Creates a new [`VideoTrack`] from the given [`VideoSource`].
@@ -284,14 +284,6 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, PartialEq)]
 pub struct MediaStreamId(u64);
 
-impl MediaStreamId {
-    /// Creates a new [`MediaStreamId`].
-    #[must_use]
-    pub fn new(id: u64) -> Self {
-        Self(id)
-    }
-}
-
 /// ID of an video input device that provides data to some [`VideoSource`].
 #[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq)]
 #[as_ref(forward)]
@@ -416,14 +408,11 @@ impl MediaStream {
         Ok(())
     }
 
-    /// Returns the first [`VideoTrack`]'s `id`.
-    ///
-    /// # Panics
-    ///
-    /// May panic on getting the [`VideoTrack`].
+    /// Returns [`VideoTrackId`]s of the [`VideoTrack`]s that were added to this
+    /// [`MediaStream`].
     #[must_use]
-    pub fn get_first_track_id(&self) -> &VideoTrackId {
-        self.video_tracks.get(0).unwrap()
+    pub fn video_tracks(&self) -> impl Iterator<Item = &'_ VideoTrackId> {
+        self.video_tracks.iter()
     }
 }
 
@@ -448,7 +437,7 @@ pub struct VideoTrack {
     /// [`VideoSinkId`]s of the [`VideoSink`]'s which uses this [`VideoTrack`].
     ///
     /// [`VideoSink`]:crate::VideoSink
-    video_sinks: Vec<VideoSinkId>,
+    sinks: Vec<VideoSinkId>,
 }
 
 impl VideoTrack {
@@ -465,40 +454,21 @@ impl VideoTrack {
             src,
             kind: api::TrackKind::kVideo,
             label,
-            video_sinks: Vec::new(),
+            sinks: Vec::new(),
         })
     }
 
     /// Adds the [`VideoSink`] which uses this [`VideoTrack`].
     ///
     /// [`VideoSink`]:crate::VideoSink
-    ///
-    /// # Panics
-    ///
-    /// Unwraping of Rc.
     pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
         self.inner.add_or_update_sink(video_sink.as_mut());
-        self.video_sinks.push(*video_sink.get_id());
+        self.sinks.push(*video_sink.id());
     }
 
-    /// # Panics
-    ///
-    /// Unwraping of Rc.
-    pub fn remove_video_sink(&mut self, video_sink: VideoSink) {
-        let mut video_sink = video_sink;
-
-        self.video_sinks
-            .retain(|texture| texture != video_sink.get_id());
-
-        self.remove_sink(video_sink.as_mut());
-    }
-}
-
-impl Deref for VideoTrack {
-    type Target = sys::VideoTrackInterface;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
+    pub fn remove_video_sink(&mut self, mut video_sink: VideoSink) {
+        self.sinks.retain(|sink| sink != video_sink.id());
+        self.inner.remove_sink(video_sink.as_mut());
     }
 }
 
