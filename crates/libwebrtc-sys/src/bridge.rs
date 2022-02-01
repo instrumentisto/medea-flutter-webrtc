@@ -428,6 +428,7 @@ impl fmt::Display for webrtc::SdpType {
             webrtc::SdpType::kAnswer => write!(f, "answer"),
             webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
             webrtc::SdpType::kRollback => write!(f, "rollback"),
+            _ => unreachable!(),
         }
     }
 }
