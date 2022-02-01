@@ -6,6 +6,8 @@
 
 #include "libwebrtc-sys/include/bridge.h"
 
+#include "libwebrtc-sys/src/bridge.rs.h"
+
 namespace bridge {
 
 // Calls `AudioDeviceModule->Create()`.
@@ -366,6 +368,19 @@ std::unique_ptr<std::vector<RtpTransceiverInterface>> get_transceivers(
   }
 
   return std::make_unique<std::vector<RtpTransceiverInterface>>(transceivers);
+}
+
+rust::Box<Transceivers> get_rust_transceivers(
+    const PeerConnectionInterface& peer_connection_interface) {
+  auto rust_trans = create_transceivers();
+
+  for (RtpTransceiverInterface transceiver :
+       peer_connection_interface->GetTransceivers()) {
+    rust_trans->add(transceiver->direction(),
+                    transceiver->mid().value_or("228"));
+  }
+
+  return rust_trans;
 }
 
 bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,

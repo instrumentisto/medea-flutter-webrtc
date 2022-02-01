@@ -81,10 +81,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         }
       });
 
-      await WebRTC.invokeMethod('getTransceivers', <String, dynamic>{
-        'peerConnectionId': pc1_id,
-      });
-
       final setRemoteDescription1 =
           await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{
         'peerConnectionId': pc1_id,
@@ -92,6 +88,10 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           'sdp': createAnswer2['sdp'],
           'type': createAnswer2['type']
         }
+      });
+
+      await WebRTC.invokeMethod('getTransceivers', <String, dynamic>{
+        'peerConnectionId': pc1_id,
       });
 
       setState(() {

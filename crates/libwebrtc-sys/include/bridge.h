@@ -85,6 +85,8 @@ using MediaType = cricket::MediaType;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using RtpTransceiverInterface = rc<webrtc::RtpTransceiverInterface>;
 
+struct Transceivers;
+
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
@@ -256,6 +258,9 @@ void add_transceiver(PeerConnectionInterface& peer_connection_interface,
                      RtpTransceiverDirection direction);
 
 std::unique_ptr<std::vector<RtpTransceiverInterface>> get_transceivers(
+    const PeerConnectionInterface& peer_connection_interface);
+
+rust::Box<Transceivers> get_rust_transceivers(
     const PeerConnectionInterface& peer_connection_interface);
 
 bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,

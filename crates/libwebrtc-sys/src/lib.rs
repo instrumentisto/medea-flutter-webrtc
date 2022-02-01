@@ -4,6 +4,7 @@
 mod bridge;
 
 use anyhow::bail;
+use bridge::Transceivers;
 use cxx::{let_cxx_string, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
@@ -416,6 +417,10 @@ impl PeerConnectionInterface {
         &self,
     ) -> UniquePtr<CxxVector<webrtc::RtpTransceiverInterface>> {
         webrtc::get_transceivers(&self.0)
+    }
+
+    pub fn get_rust_transceivers(&self) -> Box<Transceivers> {
+        webrtc::get_rust_transceivers(&self.0)
     }
 }
 

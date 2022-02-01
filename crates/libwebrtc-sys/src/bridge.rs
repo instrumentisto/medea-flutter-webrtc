@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use cxx::CxxString;
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
@@ -187,6 +189,15 @@ pub(crate) mod webrtc {
     extern "Rust" {
         type DynSetDescriptionCallback;
         type DynCreateSdpCallback;
+        type Transceivers;
+
+        pub fn add(
+            self: &mut Transceivers,
+            direction: RtpTransceiverDirection,
+            mid: String,
+        );
+
+        pub fn create_transceivers() -> Box<Transceivers>;
 
         /// Calling in `CreateSessionDescriptionObserver`,
         /// when `CreateOffer/Answer` is success.
@@ -327,6 +338,8 @@ pub(crate) mod webrtc {
 
         pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> UniquePtr<CxxVector<RtpTransceiverInterface>>;
 
+        pub fn get_rust_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
+
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface,
             mid: &mut String) -> bool;
     }
@@ -401,6 +414,47 @@ pub(crate) mod webrtc {
 
         pub fn ustest(peer_connection_interface: &PeerConnectionInterface);
     }
+}
+
+pub struct Transceiver {
+    direction: webrtc::RtpTransceiverDirection,
+    mid: String,
+}
+
+impl Transceiver {
+    pub fn mid(&self) -> &String {
+        &self.mid
+    }
+}
+
+pub struct Transceivers(Vec<Transceiver>);
+
+impl Transceivers {
+    pub fn add(
+        &mut self,
+        direction: webrtc::RtpTransceiverDirection,
+        mid: String,
+    ) {
+        self.0.push(Transceiver { direction, mid });
+    }
+}
+
+impl Deref for Transceivers {
+    type Target = Vec<Transceiver>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Transceivers {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+pub fn create_transceivers() -> Box<Transceivers> {
+    Box::new(Transceivers(Vec::new()))
 }
 
 /// Trait for `CreateSessionDescriptionObserver` callbacks.
