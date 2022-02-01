@@ -46,6 +46,23 @@ pub mod api {
         kVideoInput,
     }
 
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum MediaType {
+        MEDIA_TYPE_AUDIO,
+        MEDIA_TYPE_VIDEO,
+        MEDIA_TYPE_DATA,
+        MEDIA_TYPE_UNSUPPORTED,
+    }
+
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum RtpTransceiverDirection {
+        kSendRecv,
+        kSendOnly,
+        kRecvOnly,
+        kInactive,
+        kStopped,
+    }
+
     /// Information describing a single media input or output device.
     #[derive(Debug)]
     pub struct MediaDeviceInfo {
@@ -237,6 +254,19 @@ pub mod api {
             sdp: String,
             cb: UniquePtr<SetDescriptionCallbackInterface>,
         ) -> String;
+
+        #[cxx_name = "AddTransceiver"]
+        pub fn add_transceiver(
+            self: &mut Webrtc,
+            peer_id: u64,
+            media_type: MediaType,
+            direction: RtpTransceiverDirection,
+        );
+
+        #[cxx_name = "GetTransceivers"]
+        pub fn get_transceivers(self: &mut Webrtc, peer_id: u64);
+
+        pub fn pupa(self: &mut Webrtc, peer_id: u64);
 
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].

@@ -6,8 +6,8 @@
 #include "media_stream.h"
 
 #include <flutter_webrtc_native.h>
-#include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include "flutter_peer_connection.h"
+#include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 
 namespace flutter_webrtc_plugin {
 
@@ -22,6 +22,13 @@ void FlutterWebRTC::HandleMethodCall(
 
   if (method.compare("createPeerConnection") == 0) {
     CreateRTCPeerConnection(webrtc, method_call, std::move(result));
+  } else if (method.compare("lol") == 0) {
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
+
+    webrtc->pupa(std::stoi(findString(params, "peerConnectionId")));
+
+    result->Success();
   } else if (method.compare("getSources") == 0) {
     enumerate_device(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
@@ -60,7 +67,19 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("addTrack") == 0) {
   } else if (method.compare("removeTrack") == 0) {
   } else if (method.compare("addTransceiver") == 0) {
+    AddTransceiver(webrtc, method_call, std::move(result));
   } else if (method.compare("getTransceivers") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+
+    const EncodableMap params =
+        GetValue<EncodableMap>(*method_call.arguments());
+
+    webrtc->GetTransceivers(std::stoi(findString(params, "peerConnectionId")));
+
+    result->Success();
   } else if (method.compare("getReceivers") == 0) {
   } else if (method.compare("getSenders") == 0) {
   } else if (method.compare("rtpSenderDispose") == 0) {

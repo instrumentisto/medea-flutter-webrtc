@@ -4,13 +4,13 @@
 mod bridge;
 
 use anyhow::bail;
-use cxx::{let_cxx_string, UniquePtr};
+use cxx::{let_cxx_string, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
 
 pub use crate::{
     bridge::{CreateSdpCallback, SetDescriptionCallback},
-    webrtc::{AudioLayer, SdpType},
+    webrtc::{AudioLayer, MediaType, RtpTransceiverDirection, SdpType},
 };
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -403,6 +403,34 @@ impl PeerConnectionInterface {
     ) {
         webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
     }
+
+    pub fn add_transceiver(
+        &mut self,
+        media_type: MediaType,
+        direction: RtpTransceiverDirection,
+    ) {
+        webrtc::add_transceiver(self.0.pin_mut(), media_type, direction);
+    }
+
+    pub fn get_transceivers(
+        &self,
+    ) -> UniquePtr<CxxVector<webrtc::RtpTransceiverInterface>> {
+        webrtc::get_transceivers(&self.0)
+    }
+}
+
+impl webrtc::RtpTransceiverInterface {
+    pub fn mid(&self) -> anyhow::Result<String> {
+        let mut mid = String::new();
+
+        let result = webrtc::get_transceiver_mid(self, &mut mid);
+
+        if !result {
+            bail!("This `Transceiver` has no `mid`.")
+        }
+
+        Ok(mid)
+    }
 }
 
 /// Interface for using an RTC [`Thread`][1].
@@ -670,4 +698,8 @@ impl MediaStreamInterface {
         }
         Ok(())
     }
+}
+
+pub fn testsk(pc: &mut PeerConnectionInterface) {
+    webrtc::ustest(pc.0.as_ref().unwrap());
 }

@@ -58,6 +58,25 @@ pub(crate) mod webrtc {
         kRollback,
     }
 
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    pub enum MediaType {
+        MEDIA_TYPE_AUDIO = 0,
+        MEDIA_TYPE_VIDEO,
+        MEDIA_TYPE_DATA,
+        MEDIA_TYPE_UNSUPPORTED,
+    }
+
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    pub enum RtpTransceiverDirection {
+        kSendRecv = 0,
+        kSendOnly,
+        kRecvOnly,
+        kInactive,
+        kStopped,
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -207,6 +226,10 @@ pub(crate) mod webrtc {
         type SetLocalDescriptionObserver;
         type SetRemoteDescriptionObserver;
 
+        type MediaType;
+        type RtpTransceiverDirection;
+        type RtpTransceiverInterface;
+
         /// Creates default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
@@ -295,6 +318,17 @@ pub(crate) mod webrtc {
             kind: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
+
+        pub fn add_transceiver(
+            peer_connection_interface: Pin<&mut PeerConnectionInterface>,
+            media_type: MediaType,
+            direction: RtpTransceiverDirection
+        );
+
+        pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> UniquePtr<CxxVector<RtpTransceiverInterface>>;
+
+        pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface,
+            mid: &mut String) -> bool;
     }
 
     unsafe extern "C++" {
@@ -364,6 +398,8 @@ pub(crate) mod webrtc {
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
+
+        pub fn ustest(peer_connection_interface: &PeerConnectionInterface);
     }
 }
 

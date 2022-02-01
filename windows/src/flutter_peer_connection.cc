@@ -1,6 +1,6 @@
 #include "flutter_peer_connection.h"
-#include "flutter_webrtc.h"
 #include "flutter-webrtc-native/include/api.h"
+#include "flutter_webrtc.h"
 
 using namespace rust::cxxbridge1;
 
@@ -56,7 +56,6 @@ void CreateRTCPeerConnection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   rust::String error;
   uint64_t id = webrtc->CreatePeerConnection(error);
 
@@ -75,7 +74,6 @@ void CreateOffer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -111,11 +109,9 @@ void CreateOffer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
-                                           voice_activity_detection,
-                                           ice_restart,
-                                           use_rtp_mux,
-                                           std::move(callback));
+  rust::String error =
+      webrtc->CreateOffer(std::stoi(peerConnectionId), voice_activity_detection,
+                          ice_restart, use_rtp_mux, std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -128,7 +124,6 @@ void CreateAnswer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -164,11 +159,9 @@ void CreateAnswer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error = webrtc->CreateAnswer(std::stoi(peerConnectionId),
-                                            voice_activity_detection,
-                                            ice_restart,
-                                            use_rtp_mux,
-                                            std::move(callback));
+  rust::String error = webrtc->CreateAnswer(
+      std::stoi(peerConnectionId), voice_activity_detection, ice_restart,
+      use_rtp_mux, std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -180,7 +173,6 @@ void SetLocalDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -199,10 +191,8 @@ void SetLocalDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error = webrtc->SetLocalDescription(std::stoi(peerConnectionId),
-                                                   type,
-                                                   sdp,
-                                                   std::move(callback));
+  rust::String error = webrtc->SetLocalDescription(
+      std::stoi(peerConnectionId), type, sdp, std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
@@ -214,7 +204,6 @@ void SetRemoteDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -233,14 +222,62 @@ void SetRemoteDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error = webrtc->SetRemoteDescription(std::stoi(peerConnectionId),
-                                                    type,
-                                                    sdp,
-                                                    std::move(callback));
+  rust::String error = webrtc->SetRemoteDescription(
+      std::stoi(peerConnectionId), type, sdp, std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
   }
 };
+
+void AddTransceiver(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  MediaType media_type;
+
+  auto raw_media_type = findString(params, "mediaType");
+
+  if (raw_media_type == "video") {
+    media_type = MediaType::MEDIA_TYPE_VIDEO;
+  } else if (raw_media_type == "audio") {
+    media_type = MediaType::MEDIA_TYPE_AUDIO;
+  } else {
+    result->Error("Invalid MediaType");
+    return;
+  }
+
+  RtpTransceiverDirection direction;
+
+  auto raw_direction =
+      findString(findMap(params, "transceiverInit"), "direction");
+
+  if (raw_direction == "kSendRecv") {
+    direction = RtpTransceiverDirection::kSendRecv;
+  } else if (raw_direction == "kSendOnly") {
+    direction = RtpTransceiverDirection::kSendOnly;
+  } else if (raw_direction == "kRecvOnly") {
+    direction = RtpTransceiverDirection::kRecvOnly;
+  } else if (raw_direction == "kInactive") {
+    direction = RtpTransceiverDirection::kInactive;
+  } else if (raw_direction == "kStopped") {
+    direction = RtpTransceiverDirection::kStopped;
+  } else {
+    result->Error("Invalid RtpTransceiverDirection");
+    return;
+  }
+
+  webrtc->AddTransceiver(std::stoi(findString(params, "peerConnectionId")),
+                         media_type, direction);
+
+  result->Success();
+}
 
 }  // namespace flutter_webrtc_plugin

@@ -130,8 +130,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 // `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
-  auto src = peer_connection_factory->CreateAudioSource(
-      cricket::AudioOptions());
+  auto src =
+      peer_connection_factory->CreateAudioSource(cricket::AudioOptions());
 
   if (src == nullptr) {
     return nullptr;
@@ -145,8 +145,8 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
-  auto track = peer_connection_factory->CreateVideoTrack(
-      std::string(id), video_source.ptr());
+  auto track = peer_connection_factory->CreateVideoTrack(std::string(id),
+                                                         video_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -160,8 +160,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source) {
-  auto track = peer_connection_factory->CreateAudioTrack(
-      std::string(id), audio_source.ptr());
+  auto track = peer_connection_factory->CreateAudioTrack(std::string(id),
+                                                         audio_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -174,8 +174,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id) {
-  auto
-      stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
+  auto stream =
+      peer_connection_factory->CreateLocalMediaStream(std::string(id));
 
   if (stream == nullptr) {
     return nullptr;
@@ -217,20 +217,15 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   auto default_adm_ =
       default_adm.get() == nullptr ? nullptr : default_adm.get()->ptr();
   if (default_adm_ != nullptr) {
-    default_adm_->AddRef(); // TODO: recheck that we really need this
+    default_adm_->AddRef();  // TODO: recheck that we really need this
   }
 
   auto factory = webrtc::CreatePeerConnectionFactory(
-      network_thread.get(),
-      worker_thread.get(),
-      signaling_thread.get(),
-      default_adm_,
-      webrtc::CreateBuiltinAudioEncoderFactory(),
+      network_thread.get(), worker_thread.get(), signaling_thread.get(),
+      default_adm_, webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(),
-      nullptr,
-      nullptr);
+      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -259,6 +254,7 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 // Creates default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   RTCConfiguration config;
+  config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
   return std::make_unique<RTCConfiguration>(config);
 }
 
@@ -276,7 +272,8 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
 }
 
 // Creates `RTCOfferAnswerOptions`.
-std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options() {
+std::unique_ptr<RTCOfferAnswerOptions>
+create_default_rtc_offer_answer_options() {
   return std::make_unique<RTCOfferAnswerOptions>(RTCOfferAnswerOptions());
 }
 
@@ -294,8 +291,7 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 
 // Creates `CreateSessionDescriptionObserver`.
 std::unique_ptr<CreateSessionDescriptionObserver>
-create_create_session_observer(
-    rust::Box<bridge::DynCreateSdpCallback> cb) {
+create_create_session_observer(rust::Box<bridge::DynCreateSdpCallback> cb) {
   return std::make_unique<CreateSessionDescriptionObserver>(
       CreateSessionDescriptionObserver(std::move(cb)));
 }
@@ -349,6 +345,65 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
       rtc::scoped_refptr<SetRemoteDescriptionObserver>(obs.release());
   peer_connection_interface.ptr()->SetRemoteDescription(std::move(desc),
                                                         observer);
+}
+
+void add_transceiver(PeerConnectionInterface& peer_connection_interface,
+                     MediaType media_type,
+                     RtpTransceiverDirection direction) {
+  auto transceiver_init = webrtc::RtpTransceiverInit();
+  transceiver_init.direction = direction;
+
+  peer_connection_interface->AddTransceiver(media_type, transceiver_init);
+}
+
+std::unique_ptr<std::vector<RtpTransceiverInterface>> get_transceivers(
+    const PeerConnectionInterface& peer_connection_interface) {
+  std::vector<RtpTransceiverInterface> transceivers;
+
+  for (RtpTransceiverInterface transceiver :
+       peer_connection_interface->GetTransceivers()) {
+    transceivers.push_back(transceiver);
+  }
+
+  return std::make_unique<std::vector<RtpTransceiverInterface>>(transceivers);
+}
+
+bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,
+                         rust::String& mid) {
+  mid = "322";
+  return true;
+  // auto raw_mid = transceiver->mid();
+
+  // if (raw_mid.has_value()) {
+  //   mid = raw_mid.value();
+
+  //   return true;
+  // }
+  // return false;
+}
+
+void ustest(const PeerConnectionInterface& peer_connection_interface) {
+  // for (RtpTransceiverInterface trans :
+  //      peer_connection_interface->GetTransceivers()) {
+  //   auto direction = trans->direction();
+  //   auto mid = trans->mid();
+
+  //   auto sender = trans->sender();
+  //   auto sid = sender->id();
+  //   auto strack = sender->track();
+  //   auto srtpparams = sender->GetParameters();
+
+  //   auto receiver = trans->receiver();
+  //   auto rid = receiver->id();
+  //   auto rtrack = receiver->track();
+  //   auto rrtpparams = receiver->GetParameters();
+  // }
+
+  auto ddpd = std::string();
+
+  peer_connection_interface->local_description()->ToString(&ddpd);
+
+  printf("testik %s\n=========================\n\n", ddpd.c_str());
 }
 
 }  // namespace bridge

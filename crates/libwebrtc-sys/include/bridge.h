@@ -31,7 +31,7 @@ namespace bridge {
 // destructor. `rc` unwraps raw pointer from the provided `rtc::scoped_refptr`
 // and calls `Release()` in its destructor therefore this allows wrapping `rc`
 // into a `std::uniqueptr`.
-template<class T>
+template <class T>
 class rc {
  public:
   typedef T element_type;
@@ -80,6 +80,10 @@ using CreateSessionDescriptionObserver =
 using PeerConnectionObserver = observer::PeerConnectionObserver;
 using SetLocalDescriptionObserver = observer::SetLocalDescriptionObserver;
 using SetRemoteDescriptionObserver = observer::SetRemoteDescriptionObserver;
+
+using MediaType = cricket::MediaType;
+using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
+using RtpTransceiverInterface = rc<webrtc::RtpTransceiverInterface>;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -201,7 +205,8 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
     std::unique_ptr<PeerConnectionObserver> observer);
 
 // Creates `RTCOfferAnswerOptions`.
-std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
+std::unique_ptr<RTCOfferAnswerOptions>
+create_default_rtc_offer_answer_options();
 
 // Creates `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
@@ -245,5 +250,17 @@ void set_local_description(PeerConnectionInterface& peer_connection_interface,
 void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
+
+void add_transceiver(PeerConnectionInterface& peer_connection_interface,
+                     MediaType media_type,
+                     RtpTransceiverDirection direction);
+
+std::unique_ptr<std::vector<RtpTransceiverInterface>> get_transceivers(
+    const PeerConnectionInterface& peer_connection_interface);
+
+bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,
+                         rust::String& mid);
+
+void ustest(const PeerConnectionInterface& peer_connection_interface);
 
 }  // namespace bridge

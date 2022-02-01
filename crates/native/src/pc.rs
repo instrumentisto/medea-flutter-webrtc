@@ -3,7 +3,10 @@ use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 
 use crate::{
-    api::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
+    api::{
+        CreateSdpCallbackInterface, MediaType, RtpTransceiverDirection,
+        SetDescriptionCallbackInterface,
+    },
     next_id, Webrtc,
 };
 
@@ -194,6 +197,73 @@ impl Webrtc {
 
         String::new()
     }
+
+    pub fn add_transceiver(
+        &mut self,
+        peer_id: u64,
+        media_type: MediaType,
+        direction: RtpTransceiverDirection,
+    ) {
+        let media_type: sys::MediaType = match media_type {
+            MediaType::MEDIA_TYPE_AUDIO => sys::MediaType::MEDIA_TYPE_AUDIO,
+            MediaType::MEDIA_TYPE_VIDEO => sys::MediaType::MEDIA_TYPE_VIDEO,
+            MediaType::MEDIA_TYPE_DATA => sys::MediaType::MEDIA_TYPE_DATA,
+            _ => sys::MediaType::MEDIA_TYPE_UNSUPPORTED,
+        };
+
+        let direction: sys::RtpTransceiverDirection = match direction {
+            RtpTransceiverDirection::kRecvOnly => {
+                sys::RtpTransceiverDirection::kRecvOnly
+            }
+            RtpTransceiverDirection::kSendOnly => {
+                sys::RtpTransceiverDirection::kSendOnly
+            }
+            RtpTransceiverDirection::kSendRecv => {
+                sys::RtpTransceiverDirection::kSendRecv
+            }
+            RtpTransceiverDirection::kStopped => {
+                sys::RtpTransceiverDirection::kStopped
+            }
+            _ => sys::RtpTransceiverDirection::kInactive,
+        };
+
+        self.0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .inner
+            .add_transceiver(media_type, direction);
+    }
+
+    pub fn get_transceivers(&mut self, peer_id: u64) {
+        let transceivers = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .inner
+            .get_transceivers();
+
+        for transceiver in transceivers.iter() {
+            let mid = transceiver.mid().unwrap();
+            println!("mid: {}", mid);
+        }
+    }
+
+    pub fn pupa(&mut self, peer_id: u64) {
+        let a = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
+
+        libwebrtc_sys::testsk(&mut a.inner);
+    }
+}
+
+pub struct Transceiver {
+    direction: String,
+    mid: String,
 }
 
 /// ID of a [`PeerConnection`].
