@@ -358,43 +358,43 @@ void add_transceiver(PeerConnectionInterface& peer_connection_interface,
   peer_connection_interface->AddTransceiver(media_type, transceiver_init);
 }
 
-std::unique_ptr<std::vector<RtpTransceiverInterface>> get_transceivers(
+rust::Box<Transceivers> get_transceivers(
     const PeerConnectionInterface& peer_connection_interface) {
-  std::vector<RtpTransceiverInterface> transceivers;
+  auto transceivers = create_transceivers();
 
   for (RtpTransceiverInterface transceiver :
        peer_connection_interface->GetTransceivers()) {
-    transceivers.push_back(transceiver);
+    transceivers->add(std::make_unique<RtpTransceiverInterface>(transceiver));
   }
 
-  return std::make_unique<std::vector<RtpTransceiverInterface>>(transceivers);
+  return transceivers;
 }
 
-rust::Box<Transceivers> get_rust_transceivers(
-    const PeerConnectionInterface& peer_connection_interface) {
-  auto rust_trans = create_transceivers();
+// rust::Box<Transceivers> get_rust_transceivers(
+//     const PeerConnectionInterface& peer_connection_interface) {
+// auto rust_trans = create_transceivers();
 
-  for (RtpTransceiverInterface transceiver :
-       peer_connection_interface->GetTransceivers()) {
-    rust_trans->add(transceiver->direction(),
-                    transceiver->mid().value_or("228"));
-  }
+// for (RtpTransceiverInterface transceiver :
+//      peer_connection_interface->GetTransceivers()) {
+//   rust_trans->add(transceiver->direction(),
+//                   transceiver->mid().value_or("228"));
+// }
 
-  return rust_trans;
-}
+// return rust_trans;
+// }
 
 bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,
                          rust::String& mid) {
-  mid = "322";
-  return true;
-  // auto raw_mid = transceiver->mid();
+  // mid = "322";
+  // return true;
+  auto raw_mid = transceiver->mid();
 
-  // if (raw_mid.has_value()) {
-  //   mid = raw_mid.value();
+  if (raw_mid.has_value()) {
+    mid = raw_mid.value_or("228");
 
-  //   return true;
-  // }
-  // return false;
+    return true;
+  }
+  return false;
 }
 
 void ustest(const PeerConnectionInterface& peer_connection_interface) {

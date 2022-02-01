@@ -413,30 +413,28 @@ impl PeerConnectionInterface {
         webrtc::add_transceiver(self.0.pin_mut(), media_type, direction);
     }
 
-    pub fn get_transceivers(
-        &self,
-    ) -> UniquePtr<CxxVector<webrtc::RtpTransceiverInterface>> {
+    pub fn get_transceivers(&self) -> Box<Transceivers> {
         webrtc::get_transceivers(&self.0)
     }
 
-    pub fn get_rust_transceivers(&self) -> Box<Transceivers> {
-        webrtc::get_rust_transceivers(&self.0)
-    }
+    // pub fn get_rust_transceivers(&self) -> Box<Transceivers> {
+    //     webrtc::get_rust_transceivers(&self.0)
+    // }
 }
 
-impl webrtc::RtpTransceiverInterface {
-    pub fn mid(&self) -> anyhow::Result<String> {
-        let mut mid = String::new();
+// impl webrtc::RtpTransceiverInterface {
+//     pub fn mid(&self) -> anyhow::Result<String> {
+//         let mut mid = String::new();
 
-        let result = webrtc::get_transceiver_mid(self, &mut mid);
+//         let result = webrtc::get_transceiver_mid(self, &mut mid);
 
-        if !result {
-            bail!("This `Transceiver` has no `mid`.")
-        }
+//         if !result {
+//             bail!("This `Transceiver` has no `mid`.")
+//         }
 
-        Ok(mid)
-    }
-}
+//         Ok(mid)
+//     }
+// }
 
 /// Interface for using an RTC [`Thread`][1].
 ///

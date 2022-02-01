@@ -6,19 +6,19 @@ namespace observer {
 
 // Called any time the IceGatheringState changes.
 void PeerConnectionObserver::OnIceGatheringChange(
-    webrtc::PeerConnectionInterface::IceGatheringState new_state) {};
+    webrtc::PeerConnectionInterface::IceGatheringState new_state){};
 
 // A new ICE candidate has been gathered.
 void PeerConnectionObserver::OnIceCandidate(
-    const webrtc::IceCandidateInterface* candidate) {};
+    const webrtc::IceCandidateInterface* candidate){};
 
 // Triggered when a remote peer opens a data channel.
 void PeerConnectionObserver::OnDataChannel(
-    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
+    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel){};
 
 // Triggered when the SignalingState changed.
 void PeerConnectionObserver::OnSignalingChange(
-    webrtc::PeerConnectionInterface::SignalingState new_state) {};
+    webrtc::PeerConnectionInterface::SignalingState new_state){};
 
 // Construct `CreateOffer/Answer Observer`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
@@ -56,7 +56,7 @@ void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
   }
 };
 
-// Construct `SetRemoteDescriptionObserverInterface`.
+// Construct `SetLocalDescriptionObserverInterface`.
 SetLocalDescriptionObserver::SetLocalDescriptionObserver(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
   this->cb_ = std::move(cb);
@@ -69,8 +69,9 @@ void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
     bridge::success_set_description(*cb_.value());
   } else {
     std::string error(error.message());
-    // TODO: move box out of optional and fail_set_description should take box by value
-    // bad if's, what if error.ok() == true but cb_.has_value() == false?
+    // TODO: move box out of optional and fail_set_description should take box
+    // by value bad if's, what if error.ok() == true but cb_.has_value() ==
+    // false?
     bridge::fail_set_description(*cb_.value(), error);
   }
 };

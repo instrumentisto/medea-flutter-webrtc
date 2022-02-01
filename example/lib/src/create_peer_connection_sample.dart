@@ -52,7 +52,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         'peerConnectionId': pc1_id,
         'description': {
           'sdp': createOffer1['sdp'],
-          'type': createOffer1['type']
+          'type': createOffer1['type'],
         }
       });
 

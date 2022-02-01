@@ -37,7 +37,7 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
       : result_(std::move(res)) {}
 
   // Successfully completes an inner `flutter::MethodResult`.
-  void OnSuccess() { result_->Success(nullptr); }
+  void OnSuccess() { result_->Success(); }
 
   // Forwards the provided error to the `flutter::MethodResult` error.
   void OnFail(const std::string& error) { result_->Error(error); }

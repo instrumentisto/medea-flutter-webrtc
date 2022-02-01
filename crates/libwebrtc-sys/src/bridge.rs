@@ -1,6 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
-use cxx::CxxString;
+use anyhow::bail;
+use cxx::{CxxString, UniquePtr};
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
@@ -193,8 +194,7 @@ pub(crate) mod webrtc {
 
         pub fn add(
             self: &mut Transceivers,
-            direction: RtpTransceiverDirection,
-            mid: String,
+            transceiver: UniquePtr<RtpTransceiverInterface>,
         );
 
         pub fn create_transceivers() -> Box<Transceivers>;
@@ -336,9 +336,9 @@ pub(crate) mod webrtc {
             direction: RtpTransceiverDirection
         );
 
-        pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> UniquePtr<CxxVector<RtpTransceiverInterface>>;
+        pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
 
-        pub fn get_rust_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
+        // pub fn get_rust_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
 
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface,
             mid: &mut String) -> bool;
@@ -416,31 +416,35 @@ pub(crate) mod webrtc {
     }
 }
 
-pub struct Transceiver {
-    direction: webrtc::RtpTransceiverDirection,
-    mid: String,
-}
+pub struct Transceiver(UniquePtr<webrtc::RtpTransceiverInterface>);
 
 impl Transceiver {
-    pub fn mid(&self) -> &String {
-        &self.mid
+    pub fn mid(&self) -> anyhow::Result<String> {
+        let mut mid = String::new();
+
+        let result = webrtc::get_transceiver_mid(&self.0, &mut mid);
+
+        if !result {
+            bail!("This `Transceiver` has no `mid`.")
+        }
+
+        Ok(mid)
     }
 }
 
-pub struct Transceivers(Vec<Transceiver>);
+pub struct Transceivers(Vec<Box<Transceiver>>);
 
 impl Transceivers {
     pub fn add(
         &mut self,
-        direction: webrtc::RtpTransceiverDirection,
-        mid: String,
+        transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
     ) {
-        self.0.push(Transceiver { direction, mid });
+        self.0.push(Box::new(Transceiver(transceiver)));
     }
 }
 
 impl Deref for Transceivers {
-    type Target = Vec<Transceiver>;
+    type Target = Vec<Box<Transceiver>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0

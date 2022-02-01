@@ -242,10 +242,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .inner
-            .get_rust_transceivers();
+            .get_transceivers();
 
         for transceiver in transceivers.iter() {
-            let mid = transceiver.mid();
+            let mid = transceiver.mid().unwrap();
             println!("mid: {}", mid);
         }
     }

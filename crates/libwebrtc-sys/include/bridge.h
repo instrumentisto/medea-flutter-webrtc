@@ -257,11 +257,11 @@ void add_transceiver(PeerConnectionInterface& peer_connection_interface,
                      MediaType media_type,
                      RtpTransceiverDirection direction);
 
-std::unique_ptr<std::vector<RtpTransceiverInterface>> get_transceivers(
+rust::Box<Transceivers> get_transceivers(
     const PeerConnectionInterface& peer_connection_interface);
 
-rust::Box<Transceivers> get_rust_transceivers(
-    const PeerConnectionInterface& peer_connection_interface);
+// rust::Box<Transceivers> get_rust_transceivers(
+//     const PeerConnectionInterface& peer_connection_interface);
 
 bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,
                          rust::String& mid);
