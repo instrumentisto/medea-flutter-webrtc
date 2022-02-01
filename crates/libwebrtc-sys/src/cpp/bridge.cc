@@ -352,4 +352,15 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                                                   observer);
 }
 
+//todo
+std::unique_ptr<std::string> ice_candidate_interface_to_string(const IceCandidateInterface* candidate) {
+    std::string out;
+    candidate->ToString(&out);
+    return std::make_unique<std::string>(out);
+};
+
+std::unique_ptr<std::string> candidate_to_string(const Candidate& candidate) {
+  return std::make_unique<std::string>(candidate.ToString());
+};
+
 }  // namespace bridge

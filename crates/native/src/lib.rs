@@ -13,14 +13,14 @@ use std::{
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo,
+    TaskQueueFactory, Thread, VideoDeviceInfo, Candidate
 };
 
 #[doc(inline)]
 pub use crate::{
     pc::{
-        IceConnectionStateWrapper, IceGatheringStateWrapper, PeerConnection,
-        PeerConnectionId, PeerConnectionStateWrapper, SignalingStateWrapper,
+        PeerConnection,
+        PeerConnectionId,
     },
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
@@ -36,11 +36,16 @@ static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
+use cxx::{UniquePtr, CxxVector};
+
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod api {
+
+
+
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -167,19 +172,7 @@ pub mod api {
         include!("flutter-webrtc-native/include/api.h");
 
         type Webrtc;
-        type SignalingStateWrapper;
-        type IceGatheringStateWrapper;
-        type IceConnectionStateWrapper;
-        type PeerConnectionStateWrapper;
-
-        #[cxx_name = "ToString"]
-        pub fn to_string(self: &SignalingStateWrapper) -> String;
-        #[cxx_name = "ToString"]
-        pub fn to_string(self: &IceGatheringStateWrapper) -> String;
-        #[cxx_name = "ToString"]
-        pub fn to_string(self: &IceConnectionStateWrapper) -> String;
-        #[cxx_name = "ToString"]
-        pub fn to_string(self: &PeerConnectionStateWrapper) -> String;
+        //type CandidateWrapp;
 
         /// Creates an instance of [`Webrtc`].
         #[cxx_name = "Init"]
@@ -349,3 +342,5 @@ pub fn init() -> Box<Webrtc> {
         peer_connections: HashMap::new(),
     })))
 }
+
+pub struct CandidateWrapp(CxxVector<libwebrtc_sys::Candidate>);

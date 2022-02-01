@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <memory>
+#include "rust/cxx.h"
 
 // Completion callback for the `Webrtc::CreateOffer` and `Webrtc::CreateAnswer`
 // functions.
@@ -27,16 +29,31 @@ class SetDescriptionCallbackInterface {
   virtual ~SetDescriptionCallbackInterface() = default;
 };
 
-struct SignalingStateWrapper;
-struct IceConnectionStateWrapper;
-struct PeerConnectionStateWrapper;
-struct IceGatheringStateWrapper;
-
+struct CandidateWrapp;
 class PeerConnectionOnEventInterface {
  public:
-  virtual void OnSignalingChange(const SignalingStateWrapper& new_state) = 0;
-  virtual void OnStandardizedIceConnectionChange(const IceConnectionStateWrapper& new_state) = 0;
-  virtual void OnConnectionChange(const PeerConnectionStateWrapper& new_state) = 0;
-  virtual void OnIceGatheringChange(const IceGatheringStateWrapper& new_state) = 0;
+  virtual void OnSignalingChange(const std::string& new_state) = 0;
+  virtual void OnStandardizedIceConnectionChange(const std::string& new_state) = 0;
+  virtual void OnConnectionChange(const std::string& new_state) = 0;
+  virtual void OnIceGatheringChange(const std::string& new_state) = 0;
+  virtual void OnNegotiationNeededEvent(uint32_t event_id) = 0;
+  virtual void OnIceCandidateError(const std::string& host_candidate,
+                                   const std::string& url,
+                                   int error_code,
+                                   const std::string& error_text) = 0;
+
+  virtual void OnIceCandidateError(const std::string& address,
+                                   int port,
+                                   const std::string& url,
+                                   int error_code,
+                                   const std::string& error_text) = 0;
+
+  virtual void OnIceConnectionReceivingChange(bool receiving) = 0;
+  virtual void OnInterestingUsage(int usage_pattern) = 0;
+
+  virtual void OnIceCandidate(const std::string& candidate) = 0;
+  virtual void OnIceCandidatesRemoved(CandidateWrapp* candidates) = 0;
+  virtual void OnIceCandidatesRemoved_v2(rust::Vec<rust::String> candidates) = 0;
+
   virtual ~PeerConnectionOnEventInterface() = default;
 };

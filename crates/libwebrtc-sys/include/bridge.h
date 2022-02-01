@@ -85,6 +85,8 @@ using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
 using IceConnectionState = webrtc::PeerConnectionInterface::IceConnectionState;
 using IceGatheringState = webrtc::PeerConnectionInterface::IceGatheringState;
 using PeerConnectionState = webrtc::PeerConnectionInterface::PeerConnectionState;
+using IceCandidateInterface = webrtc::IceCandidateInterface;
+using Candidate = cricket::Candidate;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -253,5 +255,10 @@ void set_local_description(PeerConnectionInterface& peer,
 void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
+
+//todo
+std::unique_ptr<std::string> ice_candidate_interface_to_string(const IceCandidateInterface* candidate);
+
+std::unique_ptr<std::string> candidate_to_string(const Candidate& candidate);
 
 }  // namespace bridge

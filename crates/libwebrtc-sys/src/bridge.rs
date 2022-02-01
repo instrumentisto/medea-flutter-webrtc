@@ -1,9 +1,9 @@
 use std::fmt;
 
 use anyhow::anyhow;
-use cxx::CxxString;
+use cxx::{CxxString,CxxVector,UniquePtr};
 
-use crate::{CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback};
+use crate::{CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback, Candidate};
 
 /// [`CreateSdpCallback`] that can be transferred to the CXX side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
@@ -16,6 +16,8 @@ pub type DynPeerConnectionOnEvent = Box<dyn PeerConnectionOnEvent>;
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
+
+
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -226,6 +228,9 @@ pub(crate) mod webrtc {
         type PeerConnectionState;
         type IceConnectionState;
 
+        type IceCandidateInterface;
+        type Candidate;
+
         /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
@@ -330,6 +335,13 @@ pub(crate) mod webrtc {
             kind: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
+
+        //todo
+        pub unsafe fn ice_candidate_interface_to_string(
+            candidate: *const IceCandidateInterface
+        ) -> UniquePtr<CxxString>;
+
+        pub fn candidate_to_string(candidate: &Candidate) -> UniquePtr<CxxString>;
     }
 
     unsafe extern "C++" {
@@ -402,6 +414,10 @@ pub(crate) mod webrtc {
     }
 
     extern "Rust" {
+        fn _touch_candidate(i: UniquePtr<Candidate>);
+    }
+
+    extern "Rust" {
         type DynSetDescriptionCallback;
         type DynCreateSdpCallback;
         type DynPeerConnectionOnEvent;
@@ -432,6 +448,50 @@ pub(crate) mod webrtc {
         pub fn call_peer_connection_on_signaling_change(
             cb: &mut DynPeerConnectionOnEvent,
             state: SignalingState,
+        );
+        pub fn call_peer_connection_on_standardized_ice_connection_change(
+            cb: &mut DynPeerConnectionOnEvent,
+            new_state: IceConnectionState,
+        );
+        pub fn call_peer_connection_on_connection_change(
+            cb: &mut DynPeerConnectionOnEvent,
+            new_state: PeerConnectionState,
+        );
+        pub fn call_peer_connection_on_ice_gathering_change(
+            cb: &mut DynPeerConnectionOnEvent,
+            new_state: IceGatheringState,
+        );
+        pub fn call_peer_connection_on_negotiation_needed_event(
+            cb: &mut DynPeerConnectionOnEvent,
+            event_id: u32,
+        );
+        pub fn call_peer_connection_on_ice_candidate_error(
+            cb: &mut DynPeerConnectionOnEvent,
+            host_candidate: &CxxString,
+            url: &CxxString,
+            error_code: i32,
+            error_text: &CxxString,
+        );
+        pub fn call_peer_connection_on_ice_candidate_address_port_error(
+            cb: &mut DynPeerConnectionOnEvent,
+            address: &CxxString,
+            port: i32,
+            url: &CxxString,
+            error_code: i32,
+            error_text: &CxxString,
+        );
+        pub fn call_peer_connection_on_ice_connection_receiving_change(
+            cb: &mut DynPeerConnectionOnEvent,
+            receiving: bool,
+        );
+        pub fn call_peer_connection_on_interesting_usage(
+            cb: &mut DynPeerConnectionOnEvent,
+            usage_pattern: i32,
+        );
+
+        pub unsafe fn call_peer_connection_on_ice_candidate(
+            cb: &mut DynPeerConnectionOnEvent,
+            candidate: *const IceCandidateInterface,
         );
 
     }
@@ -474,6 +534,81 @@ pub fn call_peer_connection_on_signaling_change(
 ) {
     cb.on_signaling_change(state);
 }
+
+pub fn call_peer_connection_on_standardized_ice_connection_change(
+    cb: &mut DynPeerConnectionOnEvent,
+    new_state: webrtc::IceConnectionState,
+) {
+    cb.on_standardized_ice_connection_change(new_state);
+}
+pub fn call_peer_connection_on_connection_change(
+    cb: &mut DynPeerConnectionOnEvent,
+    new_state: webrtc::PeerConnectionState,
+) {
+    cb.on_connection_change(new_state);
+}
+pub fn call_peer_connection_on_ice_gathering_change(
+    cb: &mut DynPeerConnectionOnEvent,
+    new_state: webrtc::IceGatheringState,
+) {
+    cb.on_ice_gathering_change(new_state);
+}
+pub fn call_peer_connection_on_negotiation_needed_event(
+    cb: &mut DynPeerConnectionOnEvent,
+    event_id: u32,
+) {
+    cb.on_negotiation_needed_event(event_id);
+}
+pub fn call_peer_connection_on_ice_candidate_error(
+    cb: &mut DynPeerConnectionOnEvent,
+    host_candidate: &CxxString,
+    url: &CxxString,
+    error_code: i32,
+    error_text: &CxxString,
+) {
+    cb.on_ice_candidate_error(host_candidate, url, error_code, error_text);
+}
+pub fn call_peer_connection_on_ice_candidate_address_port_error(
+    cb: &mut DynPeerConnectionOnEvent,
+    address: &CxxString,
+    port: i32,
+    url: &CxxString,
+    error_code: i32,
+    error_text: &CxxString,
+) {
+    cb.on_ice_candidate_address_port_error(
+        address, port, url, error_code, error_text,
+    );
+}
+pub fn call_peer_connection_on_ice_connection_receiving_change(
+    cb: &mut DynPeerConnectionOnEvent,
+    receiving: bool,
+) {
+    cb.on_ice_connection_receiving_change(receiving);
+}
+
+pub fn call_peer_connection_on_interesting_usage(
+    cb: &mut DynPeerConnectionOnEvent,
+    usage_pattern: i32,
+) {
+    cb.on_interesting_usage(usage_pattern);
+}
+
+pub fn call_peer_connection_on_ice_candidate(
+    cb: &mut DynPeerConnectionOnEvent,
+    candidate: *const webrtc::IceCandidateInterface,
+) {
+    cb.on_ice_candidate(candidate);
+}
+
+pub fn call_peer_connection_on_ice_candidates_removed(
+    cb: &mut DynPeerConnectionOnEvent,
+    candidates: Vec<UniquePtr<Candidate>>,
+) {
+    cb.on_ice_candidates_removed(candidates);
+}
+
+fn _touch_candidate(_: cxx::UniquePtr<Candidate>) {}
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;

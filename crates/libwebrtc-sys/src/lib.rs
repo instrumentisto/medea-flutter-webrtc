@@ -4,7 +4,8 @@
 mod bridge;
 
 use anyhow::bail;
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use cxx::private::VectorElement;
+use cxx::{let_cxx_string, CxxString, UniquePtr, CxxVector};
 
 use self::bridge::webrtc;
 
@@ -12,6 +13,8 @@ pub use crate::webrtc::{
     AudioLayer, IceConnectionState, IceGatheringState, PeerConnectionState,
     SdpType, SignalingState,
 };
+
+pub use crate::webrtc::{IceCandidateInterface, Candidate, ice_candidate_interface_to_string, candidate_to_string};
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
 /// used to call [`PeerConnectionInterface::create_offer()`] and
@@ -45,6 +48,37 @@ pub trait PeerConnectionOnEvent {
     );
     fn on_connection_change(&mut self, new_state: PeerConnectionState);
     fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
+    fn on_negotiation_needed_event(&mut self, event_id: u32);
+    fn on_ice_candidate_error(
+        &mut self,
+        host_candidate: &CxxString,
+        url: &CxxString,
+        error_code: i32,
+        error_text: &CxxString,
+    );
+    fn on_ice_candidate_address_port_error(
+        &mut self,
+        address: &CxxString,
+        port: i32,
+        url: &CxxString,
+        error_code: i32,
+        error_text: &CxxString,
+    );
+    fn on_ice_connection_receiving_change(&mut self, receiving: bool);
+
+    fn on_interesting_usage(&mut self, usage_pattern: i32);
+
+    fn on_ice_candidate(
+        &mut self,
+        candidate: *const webrtc::IceCandidateInterface,
+    );
+
+    fn on_ice_candidates_removed(
+        &mut self,
+        candidates: Vec<UniquePtr<Candidate>>,
+    );
+
+    
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable

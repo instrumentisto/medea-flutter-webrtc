@@ -60,7 +60,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
        var sub1 = await ch1
          .receiveBroadcastStream()
          .listen(eventListener, onError: errorListener);
-       await sub1.cancel();
+       //await sub1.cancel();
 
              final createPeerConnection2 = await WebRTC.invokeMethod(
          'createPeerConnection', null

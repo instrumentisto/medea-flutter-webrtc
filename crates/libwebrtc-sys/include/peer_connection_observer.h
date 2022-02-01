@@ -22,7 +22,7 @@ public:
   PeerConnectionObserver(
       rust::Box<bridge::DynPeerConnectionOnEvent> cb);
 
-    // Triggered when the SignalingState changed.
+    // Triggered when the SignalingState changed. +
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state);
 
@@ -48,7 +48,7 @@ public:
   // event. The event identified using `event_id` must only fire if
   // PeerConnection::ShouldFireNegotiationNeededEvent() returns true since it is
   // possible for the event to become invalidated by operations subsequently
-  // chained.
+  // chained. +
   void OnNegotiationNeededEvent(uint32_t event_id);
 
   // Called any time the legacy IceConnectionState changes.
@@ -58,26 +58,26 @@ public:
   // seconds, not 30, and this actually represents a combination ICE + DTLS
   // state, so it may be "failed" if DTLS fails while ICE succeeds.
   //
-  // TODO(jonasolsson): deprecate and remove this.
+  // TODO(jonasolsson): deprecate and remove this. +
   void OnIceConnectionChange(
       webrtc::PeerConnectionInterface::IceConnectionState new_state);
 
-  // Called any time the standards-compliant IceConnectionState changes.
+  // Called any time the standards-compliant IceConnectionState changes. +
   void OnStandardizedIceConnectionChange(
       webrtc::PeerConnectionInterface::IceConnectionState new_state);
 
-  // Called any time the PeerConnectionState changes.
+  // Called any time the PeerConnectionState changes. +
   void OnConnectionChange(
       webrtc::PeerConnectionInterface::PeerConnectionState new_state);
 
-  // Called any time the IceGatheringState changes.
+  // Called any time the IceGatheringState changes. +
   void OnIceGatheringChange(
       webrtc::PeerConnectionInterface::IceGatheringState new_state);
 
-  // A new ICE candidate has been gathered.
+  // A new ICE candidate has been gathered. +
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate);
 
-  // Gathering of an ICE candidate failed.
+  // Gathering of an ICE candidate failed. +
   // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
   // `host_candidate` is a stringified socket address.
   void OnIceCandidateError(const std::string& host_candidate,
@@ -85,7 +85,7 @@ public:
                                    int error_code,
                                    const std::string& error_text);
 
-  // Gathering of an ICE candidate failed.
+  // Gathering of an ICE candidate failed. +
   // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
   void OnIceCandidateError(const std::string& address,
                                    int port,
@@ -99,10 +99,10 @@ public:
   void OnIceCandidatesRemoved(
       const std::vector<cricket::Candidate>& candidates);
 
-  // Called when the ICE connection receiving status changes.
+  // Called when the ICE connection receiving status changes. +
   void OnIceConnectionReceivingChange(bool receiving);
 
-  // Called when the selected candidate pair for the ICE connection changes.
+  // Called when the selected candidate pair for the ICE connection changes. 
   void OnIceSelectedCandidatePairChanged(
       const cricket::CandidatePairChangeEvent& event);
 
@@ -110,7 +110,7 @@ public:
   // TODO(zhihuang): Make this pure virtual when all subclasses implement it.
   // Note: This is called with both Plan B and Unified Plan semantics. Unified
   // Plan users should prefer OnTrack, OnAddTrack is only called as backwards
-  // compatibility (and is called in the exact same situations as OnTrack).
+  // compatibility (and is called in the exact same situations as OnTrack). 
   void OnAddTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
       const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams);
@@ -123,7 +123,7 @@ public:
   // Note: This will only be called if Unified Plan semantics are specified.
   // This behavior is specified in section 2.2.8.2.5 of the "Set the
   // RTCSessionDescription" algorithm:
-  // https://w3c.github.io/webrtc-pc/#set-description
+  // https://w3c.github.io/webrtc-pc/#set-description 
   void OnTrack(
       rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver);
 
@@ -143,7 +143,7 @@ public:
   // PeerConnection and write the event to some kind of "interesting events"
   // log function.
   // The heuristics for defining what constitutes "interesting" are
-  // implementation-defined.
+  // implementation-defined. +
   void OnInterestingUsage(int usage_pattern);
 
  private:

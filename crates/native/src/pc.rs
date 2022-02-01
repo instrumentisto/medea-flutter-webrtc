@@ -1,7 +1,9 @@
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use std::vec;
+
+use cxx::{let_cxx_string, CxxString, UniquePtr, CxxVector};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
-use sys::PeerConnectionObserver;
+use sys::{PeerConnectionObserver, Candidate};
 
 use crate::{
     api::PeerConnectionOnEventInterface,
@@ -275,53 +277,95 @@ struct HandlerPeerConnectionOnEvent(UniquePtr<PeerConnectionOnEventInterface>);
 
 impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
+        let_cxx_string!(new_state = new_state.to_string());
         self.0
             .pin_mut()
-            .on_signaling_change(&SignalingStateWrapper(new_state));
+            .on_signaling_change(&new_state);
     }
 
     fn on_standardized_ice_connection_change(
         &mut self,
         new_state: sys::IceConnectionState,
     ) {
-        self.0.pin_mut().on_standardized_ice_connection_change(
-            &IceConnectionStateWrapper(new_state),
-        );
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_standardized_ice_connection_change(&new_state);
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
+        let_cxx_string!(new_state = new_state.to_string());
         self.0
             .pin_mut()
-            .on_connection_change(&PeerConnectionStateWrapper(new_state));
+            .on_connection_change(&new_state);
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
+        let_cxx_string!(new_state = new_state.to_string());
         self.0
             .pin_mut()
-            .on_ice_gathering_change(&IceGatheringStateWrapper(new_state));
+            .on_ice_gathering_change(&new_state);
+    }
+
+    fn on_negotiation_needed_event(&mut self, event_id: u32) {
+        self.0.pin_mut().on_negotiation_needed_event(event_id);
+    }
+
+    fn on_ice_candidate_error(
+        &mut self,
+        host_candidate: &CxxString,
+        url: &CxxString,
+        error_code: i32,
+        error_text: &CxxString,
+    ) {
+        self.0.pin_mut().on_ice_candidate_error(
+            host_candidate,
+            url,
+            error_code,
+            error_text,
+        );
+    }
+
+    fn on_ice_candidate_address_port_error(
+        &mut self,
+        address: &CxxString,
+        port: i32,
+        url: &CxxString,
+        error_code: i32,
+        error_text: &CxxString,
+    ) {
+        self.0.pin_mut().on_ice_candidate_address_port_error(
+            address, port, url, error_code, error_text,
+        );
+    }
+
+    fn on_ice_connection_receiving_change(&mut self, receiving: bool) {
+        self.0
+            .pin_mut()
+            .on_ice_connection_receiving_change(receiving);
+    }
+
+    fn on_interesting_usage(&mut self, usage_pattern: i32) {
+        self.0.pin_mut().on_interesting_usage(usage_pattern);
+    }
+
+    fn on_ice_candidate(
+        &mut self,
+        candidate: *const sys::IceCandidateInterface,
+    ) {
+        let mut str_ice_candidate = unsafe {sys::ice_candidate_interface_to_string(candidate)};
+        self.0.pin_mut().on_ice_candidate(&str_ice_candidate.pin_mut());
+    }
+
+    fn on_ice_candidates_removed(
+        &mut self,
+        candidates: Vec<UniquePtr<sys::Candidate>>,
+    ) {
+        //unsafe {self.0.pin_mut().on_ice_candidates_removed(&mut crate::CandidateWrapp(candidates))};
+        let mut vec_str = vec![];
+        for mut i in candidates
+        {
+            vec_str.push(sys::candidate_to_string(&i.pin_mut()).to_string());
+        }
+        unsafe {self.0.pin_mut().on_ice_candidates_removed_v2(vec_str)};
     }
 }
-pub struct SignalingStateWrapper(sys::SignalingState);
-impl ToString for SignalingStateWrapper {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
-}
-pub struct IceGatheringStateWrapper(sys::IceGatheringState);
-impl ToString for IceGatheringStateWrapper {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
-}
-pub struct PeerConnectionStateWrapper(sys::PeerConnectionState);
-impl ToString for PeerConnectionStateWrapper {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
-}
-pub struct IceConnectionStateWrapper(sys::IceConnectionState);
-impl ToString for IceConnectionStateWrapper {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
-}
+
