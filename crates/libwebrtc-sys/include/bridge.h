@@ -9,12 +9,10 @@
 #include "api/create_peerconnection_factory.h"
 #include "api/peer_connection_interface.h"
 #include "api/task_queue/default_task_queue_factory.h"
-#include "api/video/i420_buffer.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
 #include "device_video_capturer.h"
-#include "libyuv.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
@@ -66,7 +64,7 @@ using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
 using AudioTrackInterface = rc<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = rc<webrtc::MediaStreamInterface>;
 using PeerConnectionFactoryInterface =
-rc<webrtc::PeerConnectionFactoryInterface>;
+    rc<webrtc::PeerConnectionFactoryInterface>;
 using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
 
@@ -184,7 +182,7 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
     rust::Box<DynOnFrameCallback> handler);
 
 // Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
-// writes the output to the provided `buffer`.
+// writes the output to the provided `dst_abgr`.
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr);
 
 }  // namespace bridge

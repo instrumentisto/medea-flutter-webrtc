@@ -1,12 +1,11 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <iostream>
 
-
-#include "modules/audio_device/include/audio_device_factory.h"
-
+#include "api/video/i420_buffer.h"
 #include "libwebrtc-sys/include/bridge.h"
+#include "libyuv.h"
+#include "modules/audio_device/include/audio_device_factory.h"
 
 namespace bridge {
 
@@ -232,29 +231,22 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
 // underlying video engine.
 void add_or_update_video_sink(const VideoTrackInterface& track,
                               VideoSinkInterface& sink) {
-  std::cout << "CPP add_or_update_video_sink\n";
-  std::cout << "CPP kind " << track->kind() << "\n";
-  std::cout << "CPP id " << track->id() << "\n";
-  std::cout << "CPP state " << track->state() << "\n";
-
   track->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
 }
 
 // Detaches the provided `VideoSinkInterface` from the track.
 void remove_video_sink(const VideoTrackInterface& track,
                        VideoSinkInterface& sink) {
-  std::cout << "CPP remove_video_sink\n";
   track->RemoveSink(&sink);
 }
 // Creates a new `ForwardingVideoSink`.
 std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
     rust::Box<DynOnFrameCallback> cb) {
-    std::cout << "CPP create_forwarding_video_sink\n";
   return std::make_unique<video_sink::ForwardingVideoSink>(std::move(cb));
 }
 
 // Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
-// writes the output to the provided `buffer`.
+// writes the output to the provided `dst_abgr`.
 void video_frame_to_abgr(const webrtc::VideoFrame& frame,
                          uint8_t* dst_abgr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
