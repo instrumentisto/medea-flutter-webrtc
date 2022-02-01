@@ -1,6 +1,4 @@
-use std::{
-    rc::Rc,
-};
+use std::rc::Rc;
 
 use anyhow::bail;
 use derive_more::{AsRef, Display, From};
@@ -96,7 +94,6 @@ impl Webrtc {
                 };
             }
         }
-        // TODO: what if we drop track that is attached to some sink?
     }
 
     /// Creates a new [`VideoTrack`] from the given [`VideoSource`].
@@ -432,9 +429,7 @@ pub struct VideoTrack {
     /// Stereo".
     label: VideoLabel,
 
-    /// [`VideoSinkId`]s of the [`VideoSink`]'s which uses this [`VideoTrack`].
-    ///
-    /// [`VideoSink`]:crate::VideoSink
+    /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
 }
 
@@ -456,14 +451,13 @@ impl VideoTrack {
         })
     }
 
-    /// Adds the [`VideoSink`] which uses this [`VideoTrack`].
-    ///
-    /// [`VideoSink`]:crate::VideoSink
+    /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
     pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
         self.inner.add_or_update_sink(video_sink.as_mut());
         self.sinks.push(video_sink.id());
     }
 
+    /// Detaches the provided [`VideoSink`] from this [`VideoTrack`].
     pub fn remove_video_sink(&mut self, mut video_sink: VideoSink) {
         self.sinks.retain(|&sink| sink != video_sink.id());
         self.inner.remove_sink(video_sink.as_mut());

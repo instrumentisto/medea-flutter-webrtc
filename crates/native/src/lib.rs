@@ -287,7 +287,7 @@ pub mod api {
             handler: UniquePtr<OnFrameCallbackInterface>,
         );
 
-        /// Drops the [`VideoSink`] according to the given [`VideoSinkId`].
+        /// Destroys the [`VideoSink`] by the given ID.
         #[cxx_name = "DisposeVideoSink"]
         fn dispose_video_sink(self: &mut Webrtc, sink_id: i64);
 

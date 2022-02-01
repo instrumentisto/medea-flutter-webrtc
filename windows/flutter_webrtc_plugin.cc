@@ -12,10 +12,9 @@ namespace flutter_webrtc_plugin {
 class FlutterWebRTCPluginImpl : public FlutterWebRTCPlugin {
  public:
   static void RegisterWithRegistrar(flutter::PluginRegistrar* registrar) {
-    auto channel =
-        std::make_unique < flutter::MethodChannel < EncodableValue >> (
-            registrar->messenger(), kChannelName,
-                &flutter::StandardMethodCodec::GetInstance());
+    auto channel = std::make_unique<flutter::MethodChannel<EncodableValue>>(
+        registrar->messenger(), kChannelName,
+        &flutter::StandardMethodCodec::GetInstance());
 
     auto* channel_pointer = channel.get();
 

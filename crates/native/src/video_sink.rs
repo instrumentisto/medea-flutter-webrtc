@@ -9,7 +9,8 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// May panic on getting some [`MediaStream`] by the [`MediaStreamId`].
+    /// If the specified [`MediaStream`] could not be found or if its if found
+    /// but does not have any [`VideoTrack`]s.
     pub fn create_video_sink(
         &mut self,
         sink_id: i64,
@@ -22,7 +23,8 @@ impl Webrtc {
             .get(&MediaStreamId::from(stream_id))
             .unwrap()
             .video_tracks()
-            .next().unwrap();
+            .next()
+            .unwrap();
 
         let mut sink = VideoSink {
             id: Id(sink_id),
@@ -41,18 +43,12 @@ impl Webrtc {
         self.0.video_sinks.insert(Id(sink_id), sink);
     }
 
-    /// Drops the [`VideoSink`] according to the given [`Id`].
-    ///
-    /// # Panics
-    ///
-    /// May panic on taking [`VideoSink`] as mut.
+    /// Destroys the [`VideoSink`] by the given ID.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
-        let video_sink = self.0.video_sinks.remove(&Id(sink_id)).unwrap();
-
-        let video_track = self.0.video_tracks.get_mut(&video_sink.track_id);
-
-        if let Some(track) = video_track {
-            track.remove_video_sink(video_sink);
+        if let Some(sink) = self.0.video_sinks.remove(&Id(sink_id)) {
+            if let Some(track) = self.0.video_tracks.get_mut(&sink.track_id) {
+                track.remove_video_sink(video_sink);
+            }
         }
     }
 }
@@ -64,15 +60,20 @@ pub struct Id(i64);
 /// A [`sys::VideoSink`] wrapper.
 #[derive(AsRef, AsMut)]
 pub struct VideoSink {
+    /// ID of this [`VideoSink`].
     id: Id,
+
+    /// Underlying [`sys::VideoSinkInterface`].
     #[as_ref]
     #[as_mut]
     inner: sys::VideoSinkInterface,
+
+    /// ID of the [`VideoTrack`] attached to this [`VideoSink`].
     track_id: VideoTrackId,
 }
 
 impl VideoSink {
-    /// Returns the [`VideoSink`]'s [`Id`].
+    /// Returns an [`Id`] of this [`VideoSink`]'s.
     #[must_use]
     pub fn id(&self) -> Id {
         self.id
@@ -120,7 +121,6 @@ impl From<UniquePtr<sys::VideoFrame>> for api::VideoFrame {
 struct OnFrameCallback(UniquePtr<internal::OnFrameCallbackInterface>);
 
 impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {
-    /// Implementation of the `OnFrame` `callback`.
     fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
         self.0.pin_mut().on_frame(api::VideoFrame::from(frame));
     }

@@ -22,7 +22,7 @@ class TextureVideoRenderer {
   // Creates a new `TextureVideoRenderer`.
   TextureVideoRenderer(TextureRegistrar* registrar, BinaryMessenger* messenger);
 
-  // Constructs and returns `FlutterDesktopPixelBuffer` from the current
+  // Constructs and returns a `FlutterDesktopPixelBuffer` from the current
   // `VideoFrame`.
   virtual FlutterDesktopPixelBuffer* CopyPixelBuffer(size_t width,
                                                      size_t height);

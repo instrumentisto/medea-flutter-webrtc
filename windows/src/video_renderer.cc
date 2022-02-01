@@ -6,12 +6,13 @@
 
 namespace flutter_webrtc_plugin {
 
+// Creates a new `FlutterVideoRendererManager`;
 FlutterVideoRendererManager::FlutterVideoRendererManager(
     TextureRegistrar* registrar,
     BinaryMessenger* messenger)
     : registrar_(registrar), messenger_(messenger) {}
 
-// Creates a new `VideoRenderer`.
+// Creates a new `TextureVideoRenderer`.
 void FlutterVideoRendererManager::CreateVideoRendererTexture(
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   std::shared_ptr<TextureVideoRenderer> texture(
@@ -25,7 +26,7 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
   result->Success(EncodableValue(params));
 }
 
-// Sets a new `source` to the certain `VideoRenderer`.
+// Changes a media source of a specific `TextureVideoRenderer`.
 void FlutterVideoRendererManager::SetMediaStream(
     const flutter::MethodCall<EncodableValue>& method_call,
     rust::Box<Webrtc>& webrtc,
@@ -194,12 +195,12 @@ void TextureVideoRenderer::ResetRenderer() {
 // Creates a new `FrameHandler`.
 FrameHandler::FrameHandler(
     std::shared_ptr<TextureVideoRenderer> ctx) {
-  ctx_ = std::move(ctx);
+  renderer_ = std::move(ctx);
 }
 
 // Forwards the received `VideoFrame` to the `TextureVideoRenderer->OnFrame`.
 void FrameHandler::OnFrame(VideoFrame frame) {
-  ctx_->OnFrame(std::move(frame));
+  renderer_->OnFrame(std::move(frame));
 }
 
 }  // namespace flutter_webrtc_plugin

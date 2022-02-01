@@ -50,12 +50,11 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("trackDispose") == 0) {
   } else if (method.compare("peerConnectionClose") == 0) {
   } else if (method.compare("peerConnectionDispose") == 0) {
-  } else if (method_call.method_name().compare("createVideoRenderer") == 0) {
+  } else if (method.compare("createVideoRenderer") == 0) {
     CreateVideoRendererTexture(std::move(result));
-  } else if (method_call.method_name().compare("videoRendererDispose") == 0) {
+  } else if (method.compare("videoRendererDispose") == 0) {
     VideoRendererDispose(method_call, webrtc, std::move(result));
-  } else if (method_call.method_name().compare("videoRendererSetSrcObject") ==
-      0) {
+  } else if (method.compare("videoRendererSetSrcObject") == 0) {
     SetMediaStream(method_call, webrtc, std::move(result));
   } else if (method.compare("setVolume") == 0) {
   } else if (method.compare("getLocalDescription") == 0) {
