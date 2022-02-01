@@ -1,3 +1,4 @@
+#include "flutter_webrtc.h"
 #include "media_stream.h"
 
 namespace flutter_webrtc_plugin {

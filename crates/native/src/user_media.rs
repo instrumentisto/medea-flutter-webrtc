@@ -10,16 +10,8 @@ use libwebrtc_sys as sys;
 
 use crate::{
     api::{self, AudioConstraints, VideoConstraints},
-    VideoSink, VideoSinkId, Webrtc,
+    VideoSink, VideoSinkId, Webrtc, next_id
 };
-
-/// Counter used to generate unique IDs.
-static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
-
-/// Returns a next unique ID.
-fn next_id() -> u64 {
-    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
-}
 
 impl Webrtc {
     /// Creates a new local [`MediaStream`] with [`VideoTrack`]s and/or

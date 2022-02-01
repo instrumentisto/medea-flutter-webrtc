@@ -6,7 +6,6 @@
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include "flutter_webrtc/flutter_webrtc_plugin.h"
-#include "flutter_webrtc_base.h"
 
 using namespace rust::cxxbridge1;
 
@@ -14,6 +13,10 @@ using namespace rust::cxxbridge1;
 #define DEFAULT_HEIGHT 480
 #define DEFAULT_FPS 30
 
+// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
+// `MediaDeviceInfo` info for Dart.
+void enumerate_device(rust::Box<Webrtc>& webrtc,
+                      std::unique_ptr<MethodResult<EncodableValue>> result);
 namespace flutter_webrtc_plugin {
 
 // Class with the methods related to media tracks, streams and devices.

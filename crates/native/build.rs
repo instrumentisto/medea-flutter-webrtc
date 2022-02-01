@@ -6,9 +6,9 @@ use anyhow::{anyhow, Context};
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
-    cxx_build::bridge("src/lib.rs").compile("extern_rust");
+    cxx_build::bridge("src/lib.rs").compile("extern_rust_api");
 
-    cxx_build::bridge("src/internal.rs").compile("api_bindings");
+    cxx_build::bridge("src/internal.rs").compile("cpp_api_bindings");
 
     copy_cxxbridge1_lib()?;
 

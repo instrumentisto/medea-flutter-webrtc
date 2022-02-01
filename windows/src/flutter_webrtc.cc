@@ -1,9 +1,11 @@
 #include <Windows.h>
 #include <sstream>
+#include <string>
 
 #include "flutter_webrtc.h"
 
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
+#include "flutter_peer_connection.h"
 
 namespace flutter_webrtc_plugin {
 
@@ -20,6 +22,7 @@ void FlutterWebRTC::HandleMethodCall(
   const std::string& method = method_call.method_name();
 
   if (method.compare("createPeerConnection") == 0) {
+    CreateRTCPeerConnection(webrtc, method_call, std::move(result));
   } else if (method.compare("getSources") == 0) {
     MediaManager::EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
@@ -27,11 +30,15 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getDisplayMedia") == 0) {
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
+    CreateOffer(webrtc, method_call, std::move(result));
   } else if (method.compare("createAnswer") == 0) {
+    CreateAnswer(webrtc, method_call, std::move(result));
   } else if (method.compare("addStream") == 0) {
   } else if (method.compare("removeStream") == 0) {
   } else if (method.compare("setLocalDescription") == 0) {
+    SetLocalDescription(webrtc, method_call, std::move(result));
   } else if (method.compare("setRemoteDescription") == 0) {
+    SetRemoteDescription(webrtc, method_call, std::move(result));
   } else if (method.compare("addCandidate") == 0) {
   } else if (method.compare("getStats") == 0) {
   } else if (method.compare("createDataChannel") == 0) {

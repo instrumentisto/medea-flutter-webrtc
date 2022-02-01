@@ -14,6 +14,7 @@ import 'src/get_user_media_sample.dart'
 import 'src/loopback_sample.dart';
 import 'src/renderer.dart';
 import 'src/route_item.dart';
+import 'src/create_peer_connection_sample.dart';
 
 void main() {
   if (WebRTC.platformIsDesktop) {
@@ -121,6 +122,14 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => GetSourcesSample()));
+          }),
+      RouteItem(
+          title: 'Basic RtcPeerConnection',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => PeerConnectionSample()));
           }),
       RouteItem(
           title: 'Renderer sample',
