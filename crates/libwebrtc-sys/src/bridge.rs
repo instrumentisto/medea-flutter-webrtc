@@ -424,10 +424,10 @@ impl TryFrom<&str> for webrtc::SdpType {
 impl fmt::Display for webrtc::SdpType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::kOffer => write!(f, "offer"),
-            Self::kAnswer => write!(f, "answer"),
-            Self::kPrAnswer => write!(f, "pranswer"),
-            Self::kRollback => write!(f, "rollback"),
+            webrtc::SdpType::kOffer => write!(f, "offer"),
+            webrtc::SdpType::kAnswer => write!(f, "answer"),
+            webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
+            webrtc::SdpType::kRollback => write!(f, "rollback"),
         }
     }
 }
