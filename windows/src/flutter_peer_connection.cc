@@ -4,8 +4,8 @@
 
 using namespace rust::cxxbridge1;
 
-// `CreateSdpCallbackInterface` implementation that forwards completion result
-// to the Flutter side via inner `flutter::MethodResult`.
+// `CreateSdpCallbackInterface` implementation forwarding completion result to
+// the Flutter side via inner `flutter::MethodResult`.
 class CreateSdpCallback : public CreateSdpCallbackInterface {
  public:
   // Creates a new `CreateSdpCallback`.
@@ -21,15 +21,15 @@ class CreateSdpCallback : public CreateSdpCallbackInterface {
     result_->Success(flutter::EncodableValue(params));
   }
 
-  // Forwards the provided error to the `flutter::MethodResult` error.
+  // Forwards the provided `error` to the `flutter::MethodResult` error.
   void OnFail(const std::string& error) { result_->Error(error); }
 
  private:
   std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
-// `SetDescriptionCallbackInterface` implementation that forwards completion
-// result to the Flutter side via inner `flutter::MethodResult`.
+// `SetDescriptionCallbackInterface` implementation forwarding completion result
+// to the Flutter side via inner `flutter::MethodResult`.
 class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
  public:
   SetDescriptionCallBack(
@@ -39,7 +39,7 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
   // Successfully completes an inner `flutter::MethodResult`.
   void OnSuccess() { result_->Success(nullptr); }
 
-  // Forwards the provided error to the `flutter::MethodResult` error.
+  // Forwards the provided `error` to the `flutter::MethodResult` error.
   void OnFail(const std::string& error) { result_->Error(error); }
 
  private:
@@ -50,7 +50,7 @@ namespace flutter_webrtc_plugin {
 
 using namespace flutter;
 
-// Calls Rust `CreatePeerConnection()` and writes newly created Peer ID to the
+// Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
     Box<Webrtc>& webrtc,
@@ -120,10 +120,10 @@ void CreateOffer(
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
   }
-};
+}
 
-// Calls Rust `CreateAnswer()`and writes the returned session description to the
-// provided `MethodResult`.
+// Calls Rust `CreateAnswer()` and writes the returned session description to
+// the provided `MethodResult`.
 void CreateAnswer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -173,7 +173,7 @@ void CreateAnswer(
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
   }
-};
+}
 
 // Calls Rust `SetLocalDescription()`.
 void SetLocalDescription(
@@ -207,7 +207,7 @@ void SetLocalDescription(
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
   }
-};
+}
 
 // Calls Rust `SetRemoteDescription()`.
 void SetRemoteDescription(
@@ -241,6 +241,6 @@ void SetRemoteDescription(
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
   }
-};
+}
 
 }  // namespace flutter_webrtc_plugin

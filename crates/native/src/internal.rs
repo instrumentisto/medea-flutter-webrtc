@@ -9,7 +9,7 @@ mod cpp_api_bindings {
         pub type CreateSdpCallbackInterface;
         pub type SetDescriptionCallbackInterface;
 
-        /// Calls CXX side `CreateSdpCallbackInterface->OnSuccess`.
+        /// Calls C++ side `CreateSdpCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
         pub fn on_create_sdp_success(
             self: Pin<&mut CreateSdpCallbackInterface>,
@@ -17,20 +17,20 @@ mod cpp_api_bindings {
             kind: &CxxString,
         );
 
-        /// Calls CXX side `CreateSdpCallbackInterface->OnFail`.
+        /// Calls C++ side `CreateSdpCallbackInterface->OnFail`.
         #[cxx_name = "OnFail"]
         pub fn on_create_sdp_fail(
             self: Pin<&mut CreateSdpCallbackInterface>,
             error: &CxxString,
         );
 
-        /// Calls CXX side `SetDescriptionCallbackInterface->OnSuccess`.
+        /// Calls C++ side `SetDescriptionCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
         pub fn on_set_description_sucess(
             self: Pin<&mut SetDescriptionCallbackInterface>,
         );
 
-        /// Calls CXX side `SetDescriptionCallbackInterface->OnFail`.
+        /// Calls C++ side `SetDescriptionCallbackInterface->OnFail`.
         #[cxx_name = "OnFail"]
         pub fn on_set_description_fail(
             self: Pin<&mut SetDescriptionCallbackInterface>,
@@ -39,7 +39,7 @@ mod cpp_api_bindings {
 
     }
 
-    // This will trigger cxx to generate UniquePtrTarget trait for the
+    // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
     // mentioned types.
     extern "Rust" {
         fn _touch_create_sdp_callback(i: UniquePtr<CreateSdpCallbackInterface>);

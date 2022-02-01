@@ -8,7 +8,7 @@ use crate::{
 };
 
 impl Webrtc {
-    /// Creates a new [`PeerConnection`] and returns it's ID.
+    /// Creates a new [`PeerConnection`] and returns its ID.
     ///
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
@@ -31,11 +31,10 @@ impl Webrtc {
         }
     }
 
-    /// Initiates the creation of an SDP offer for the purpose of starting
-    /// a new WebRTC connection to a remote peer.
+    /// Initiates the creation of a SDP offer for the purpose of starting a new
+    /// WebRTC connection to a remote peer.
     ///
-    /// Returns an empty [`String`] in operation succeeds or an error
-    /// otherwise.
+    /// Returns an empty [`String`] in operation succeeds or an error otherwise.
     pub fn create_offer(
         &mut self,
         peer_id: u64,
@@ -52,8 +51,7 @@ impl Webrtc {
             peer
         } else {
             return format!(
-                "PeerConnection with ID `{}` does not exist",
-                peer_id
+                "`PeerConnection` with ID `{peer_id}` does not exist",
             );
         };
 
@@ -72,11 +70,10 @@ impl Webrtc {
         String::new()
     }
 
-    /// Creates an SDP answer to an offer received from a remote peer during
-    /// the offer/answer negotiation of a WebRTC connection.
+    /// Creates a SDP answer to an offer received from a remote peer during an
+    /// offer/answer negotiation of a WebRTC connection.
     ///
-    /// Returns an empty [`String`] in operation succeeds or an error
-    /// otherwise.
+    /// Returns an empty [`String`] in operation succeeds or an error otherwise.
     pub fn create_answer(
         &mut self,
         peer_id: u64,
@@ -93,8 +90,7 @@ impl Webrtc {
             peer
         } else {
             return format!(
-                "PeerConnection with ID `{}` does not exist",
-                peer_id
+                "`PeerConnection` with ID `{peer_id}` does not exist",
             );
         };
 
@@ -115,8 +111,7 @@ impl Webrtc {
 
     /// Changes the local description associated with the connection.
     ///
-    /// Returns an empty [`String`] in operation succeeds or an error
-    /// otherwise.
+    /// Returns an empty [`String`] in operation succeeds or an error otherwise.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
         &mut self,
@@ -133,8 +128,7 @@ impl Webrtc {
             peer
         } else {
             return format!(
-                "PeerConnection with ID `{}` does not exist",
-                peer_id
+                "`PeerConnection` with ID `{peer_id}` does not exist",
             );
         };
 
@@ -156,8 +150,7 @@ impl Webrtc {
     /// Sets the specified session description as the remote peer's current
     /// offer or answer.
     ///
-    /// Returns an empty [`String`] in operation succeeds or an error
-    /// otherwise.
+    /// Returns an empty [`String`] in operation succeeds or an error otherwise.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
         &mut self,
@@ -174,8 +167,7 @@ impl Webrtc {
             peer
         } else {
             return format!(
-                "PeerConnection with ID `{}` does not exist",
-                peer_id
+                "`PeerConnection` with ID `{peer_id}` does not exist",
             );
         };
 
@@ -200,7 +192,7 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 pub struct PeerConnectionId(u64);
 
-/// Is used to manage [`sys::PeerConnectionInterface`].
+/// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection {
     /// ID of this [`PeerConnection`].
     id: PeerConnectionId,

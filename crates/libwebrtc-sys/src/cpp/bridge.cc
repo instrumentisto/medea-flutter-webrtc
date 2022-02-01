@@ -20,7 +20,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   }
 
   return std::make_unique<AudioDeviceModule>(adm);
-};
+}
 
 // Calls `AudioDeviceModule->Init()`.
 int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module) {
@@ -30,12 +30,12 @@ int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module) {
 // Calls `AudioDeviceModule->PlayoutDevices()`.
 int16_t playout_devices(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->PlayoutDevices();
-};
+}
 
 // Calls `AudioDeviceModule->RecordingDevices()`.
 int16_t recording_devices(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->RecordingDevices();
-};
+}
 
 // Calls `AudioDeviceModule->PlayoutDeviceName()` with the provided arguments.
 int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
@@ -51,7 +51,7 @@ int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
   guid = guid_buff;
 
   return result;
-};
+}
 
 // Calls `AudioDeviceModule->RecordingDeviceName()` with the provided arguments.
 int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
@@ -68,7 +68,7 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
   guid = guid_buff;
 
   return result;
-};
+}
 
 // Calls `AudioDeviceModule->SetRecordingDevice()` with the provided arguments.
 int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
@@ -82,7 +82,7 @@ std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
       webrtc::VideoCaptureFactory::CreateDeviceInfo());
 
   return ptr;
-};
+}
 
 // Calls `VideoDeviceInfo->GetDeviceName()` with the provided arguments.
 int32_t video_device_name(VideoDeviceInfo& device_info,
@@ -99,7 +99,7 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
   guid = guid_buff;
 
   return size;
-};
+}
 
 // Calls `Thread->Create()`.
 std::unique_ptr<rtc::Thread> create_thread() {

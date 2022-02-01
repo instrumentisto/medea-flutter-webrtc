@@ -171,19 +171,19 @@ pub mod api {
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a new [`PeerConnection`] and returns it's ID.
+        /// Creates a new [`PeerConnection`] and returns its ID.
         ///
-        /// Writes an error to the provided `err` if any.
+        /// Writes an error to the provided `err`, if any.
         #[cxx_name = "CreatePeerConnection"]
         pub fn create_peer_connection(
             self: &mut Webrtc,
             err: &mut String,
         ) -> u64;
 
-        /// Initiates the creation of an SDP offer for the purpose of starting
+        /// Initiates the creation of a SDP offer for the purpose of starting
         /// a new WebRTC connection to a remote peer.
         ///
-        /// Returns an empty [`String`] in operation succeeds or an error
+        /// Returns an empty [`String`] if operation succeeds or an error
         /// otherwise.
         #[cxx_name = "CreateOffer"]
         pub fn create_offer(
@@ -195,7 +195,7 @@ pub mod api {
             cb: UniquePtr<CreateSdpCallbackInterface>,
         ) -> String;
 
-        /// Creates an SDP answer to an offer received from a remote peer during
+        /// Creates a SDP answer to an offer received from a remote peer during
         /// the offer/answer negotiation of a WebRTC connection.
         ///
         /// Returns an empty [`String`] in operation succeeds or an error

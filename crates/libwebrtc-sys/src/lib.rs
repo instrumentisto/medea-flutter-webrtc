@@ -10,26 +10,26 @@ use self::bridge::webrtc;
 
 pub use crate::webrtc::{AudioLayer, SdpType};
 
-/// Completion callback for the [`CreateSessionDescriptionObserver`] that is
-/// used to call [`PeerConnectionInterface::create_offer()`] and
+/// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
+/// [`PeerConnectionInterface::create_offer()`] and
 /// [`PeerConnectionInterface::create_answer()`].
 pub trait CreateSdpCallback {
-    /// Called when the related operation was successfully completed.
+    /// Called when the related operation is successfully completed.
     fn success(&mut self, sdp: &CxxString, kind: webrtc::SdpType);
 
-    /// Called when the related operation was completed with an error.
+    /// Called when the related operation is completed with the `error`.
     fn fail(&mut self, error: &CxxString);
 }
 
-/// Completion callback for the [`SetLocalDescriptionObserver`] and
-/// [`SetRemoteDescriptionObserver`] that are used to call
+/// Completion callback for a [`SetLocalDescriptionObserver`] and
+/// [`SetRemoteDescriptionObserver`], used to call
 /// [`PeerConnectionInterface::set_local_description()`] and
 /// [`PeerConnectionInterface::set_remote_description()`].
 pub trait SetDescriptionCallback {
-    /// Called when the related operation was successfully completed.
+    /// Called when the related operation is successfully completed.
     fn success(&mut self);
 
-    /// Called when the related operation was completed with an error.
+    /// Called when the related operation is completed with the `error`.
     fn fail(&mut self, error: &CxxString);
 }
 
@@ -222,7 +222,7 @@ impl VideoDeviceInfo {
 
 /// WebRTC [RTCConfiguration][1].
 ///
-/// [1]: https://developer.mozilla.org/en-US/docs/Web/API/RTCConfiguration
+/// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration
 pub struct RTCConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 
 impl Default for RTCConfiguration {
@@ -231,8 +231,8 @@ impl Default for RTCConfiguration {
     }
 }
 
-/// A member of [`PeerConnectionDependencies`], which contains the functions
-/// that will be called on events in the [`PeerConnectionInterface`]
+/// Member of [`PeerConnectionDependencies`] containing functions called on
+/// events in a [`PeerConnectionInterface`]
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl Default for PeerConnectionObserver {
@@ -241,7 +241,7 @@ impl Default for PeerConnectionObserver {
     }
 }
 
-/// Contains all of the [`PeerConnectionInterface`] dependencies.
+/// Contains all the [`PeerConnectionInterface`] dependencies.
 pub struct PeerConnectionDependencies(
     UniquePtr<webrtc::PeerConnectionDependencies>,
 );
@@ -254,8 +254,7 @@ impl Default for PeerConnectionDependencies {
     }
 }
 
-/// Description of the options that can be used to control the offer/answer
-/// creation process
+/// Description of the options used to control an offer/answer creation process.
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
@@ -265,7 +264,7 @@ impl Default for RTCOfferAnswerOptions {
 }
 
 impl RTCOfferAnswerOptions {
-    /// Creates a new [`RTCOfferAnswerOptions`]
+    /// Creates a new [`RTCOfferAnswerOptions`].
     #[must_use]
     pub fn new(
         offer_to_receive_video: Option<bool>,
@@ -284,14 +283,14 @@ impl RTCOfferAnswerOptions {
     }
 }
 
-/// The [`SessionDescriptionInterface`] class is used by
-/// [`PeerConnectionInterface`] to expose local and remote session descriptions.
+/// [`SessionDescriptionInterface`] class, used by a [`PeerConnectionInterface`]
+/// to expose local and remote session descriptions.
 pub struct SessionDescriptionInterface(
     UniquePtr<webrtc::SessionDescriptionInterface>,
 );
 
 impl SessionDescriptionInterface {
-    /// Creates a new [`SessionDescriptionInterface`]
+    /// Creates a new [`SessionDescriptionInterface`].
     #[must_use]
     pub fn new(kind: webrtc::SdpType, sdp: &str) -> Self {
         let_cxx_string!(cxx_sdp = sdp);
@@ -341,13 +340,13 @@ impl SetRemoteDescriptionObserver {
 
 /// [RTCPeerConnection][1] implementation.
 ///
-/// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection
+/// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
-    /// [`RTCPeerConnection::createOffer()`][1] implementation.
+    /// [RTCPeerConnection.createOffer()][1] implementation.
     ///
-    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createoffer
     pub fn create_offer(
         &mut self,
         options: &RTCOfferAnswerOptions,
@@ -356,9 +355,9 @@ impl PeerConnectionInterface {
         webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0);
     }
 
-    /// [`RTCPeerConnection::createAnswer()`][1] implementation.
+    /// [RTCPeerConnection.createAnswer()][1] implementation.
     ///
-    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createanswer
     pub fn create_answer(
         &mut self,
         options: &RTCOfferAnswerOptions,
@@ -367,9 +366,9 @@ impl PeerConnectionInterface {
         webrtc::create_answer(self.0.pin_mut(), &options.0, obs.0);
     }
 
-    /// [`RTCPeerConnection::setLocalDescription()`][1] implementation.
+    /// [RTCPeerConnection.setLocalDescription()][1] implementation.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
+    /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setlocaldescription
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
@@ -378,9 +377,9 @@ impl PeerConnectionInterface {
         webrtc::set_local_description(self.0.pin_mut(), desc.0, obs.0);
     }
 
-    /// [`RTCPeerConnection::setRemoteDescription()`][1] implementation.
+    /// [RTCPeerConnection.setRemoteDescription()][1] implementation.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
+    /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setremotedescription
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,

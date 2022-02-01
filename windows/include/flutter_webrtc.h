@@ -71,6 +71,7 @@ inline EncodableList findList(const EncodableMap& map, const std::string& key) {
 }
 
 namespace flutter_webrtc_plugin {
+
 class FlutterWebRTCPlugin : public flutter::Plugin {
  public:
   virtual flutter::BinaryMessenger* messenger() = 0;

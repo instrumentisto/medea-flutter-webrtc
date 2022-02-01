@@ -5,10 +5,10 @@ use cxx::CxxString;
 
 use crate::{CreateSdpCallback, SetDescriptionCallback};
 
-/// [`CreateSdpCallback`] that can be transferred to the CXX side.
+/// [`CreateSdpCallback`] transferable to the C++ side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
 
-/// [`SetDescriptionCallback`] that can be transferred to the CXX side.
+/// [`SetDescriptionCallback`] transferable to the C++ side.
 type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
@@ -33,28 +33,28 @@ pub(crate) mod webrtc {
 
     /// [RTCSdpType] representation.
     ///
-    /// [RTCSdpType]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype
+    /// [RTCSdpType]: https://w3.org/TR/webrtc#dom-rtcsdptype
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SdpType {
         /// [RTCSdpType.offer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-offer
         kOffer,
 
         /// [RTCSdpType.pranswer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-pranswer
         kPrAnswer,
 
         /// [RTCSdpType.answer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-answer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-answer
         kAnswer,
 
         /// [RTCSdpType.rollback][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-rollback
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-rollback
         kRollback,
     }
 
@@ -229,40 +229,40 @@ pub(crate) mod webrtc {
             cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetRemoteDescriptionObserver>;
 
-        /// Calls the [`RTCPeerConnection::createOffer()`][1] on the provided
+        /// Calls the [RTCPeerConnection.createOffer()][1] on the provided
         /// [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createoffer
         pub fn create_offer(
             peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls the [`RTCPeerConnection::createAnswer()`][1] on the provided
+        /// Calls the [RTCPeerConnection.createAnswer()][1] on the provided
         /// [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createanswer
         pub fn create_answer(
             peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls the [`RTCPeerConnection::setLocalDescription()`][1] on the
+        /// Calls the [RTCPeerConnection.setLocalDescription()][1] on the
         /// provided [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
+        /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setlocaldescription
         pub fn set_local_description(
             peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: UniquePtr<SetLocalDescriptionObserver>,
         );
 
-        /// Calls the [`RTCPeerConnection::setRemoteDescription()`][1] on the
+        /// Calls the [RTCPeerConnection.setRemoteDescription()][1] on the
         /// provided [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
+        /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setremotedescription
         pub fn set_remote_description(
             peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
@@ -398,7 +398,7 @@ pub fn set_description_success(mut cb: Box<DynSetDescriptionCallback>) {
     cb.success();
 }
 
-/// Completes the provided [`DynSetDescriptionCallback`] with an error.
+/// Completes the provided [`DynSetDescriptionCallback`] with the given `error`.
 #[allow(clippy::boxed_local)]
 pub fn set_description_fail(
     mut cb: Box<DynSetDescriptionCallback>,
@@ -410,25 +410,24 @@ pub fn set_description_fail(
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
-            "offer" => Ok(webrtc::SdpType::kOffer),
-            "answer" => Ok(webrtc::SdpType::kAnswer),
-            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
-            "rollback" => Ok(webrtc::SdpType::kRollback),
-            _ => Err(anyhow!("Invalid SdpType `{}`", value)),
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "offer" => Ok(Self::kOffer),
+            "answer" => Ok(Self::kAnswer),
+            "pranswer" => Ok(Self::kPrAnswer),
+            "rollback" => Ok(Self::kRollback),
+            v => Err(anyhow!("Invalid `SdpType`: {v}")),
         }
     }
 }
 
 impl fmt::Display for webrtc::SdpType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            webrtc::SdpType::kOffer => write!(f, "offer"),
-            webrtc::SdpType::kAnswer => write!(f, "answer"),
-            webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
-            webrtc::SdpType::kRollback => write!(f, "rollback"),
-            _ => unreachable!(),
+        match self {
+            Self::kOffer => write!(f, "offer"),
+            Self::kAnswer => write!(f, "answer"),
+            Self::kPrAnswer => write!(f, "pranswer"),
+            Self::kRollback => write!(f, "rollback"),
         }
     }
 }

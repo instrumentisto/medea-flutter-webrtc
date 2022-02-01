@@ -9,7 +9,7 @@ class CreateSdpCallbackInterface {
   // Called when an operation succeeds.
   virtual void OnSuccess(const std::string& sdp, const std::string& kind) = 0;
 
-  // Called when an operation fails.
+  // Called when an operation fails with the `error`.
   virtual void OnFail(const std::string& error) = 0;
 
   virtual ~CreateSdpCallbackInterface() = default;
@@ -22,7 +22,7 @@ class SetDescriptionCallbackInterface {
   // Called when an operation succeeds.
   virtual void OnSuccess() = 0;
 
-  // Called when an operation fails.
+  // Called when an operation fails with the `error`.
   virtual void OnFail(const std::string& error) = 0;
 
   virtual ~SetDescriptionCallbackInterface() = default;
