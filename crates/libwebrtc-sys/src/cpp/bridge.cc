@@ -1,6 +1,8 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <iostream>
+
 
 #include "modules/audio_device/include/audio_device_factory.h"
 
@@ -148,8 +150,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 // `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
-  auto src =
-      peer_connection_factory->CreateAudioSource(cricket::AudioOptions());
+  auto src = peer_connection_factory->CreateAudioSource(
+      cricket::AudioOptions());
 
   if (src == nullptr) {
     return nullptr;
@@ -163,8 +165,8 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
-  auto track = peer_connection_factory->CreateVideoTrack(std::string(id),
-                                                         video_source.ptr());
+  auto track = peer_connection_factory->CreateVideoTrack(
+      std::string(id), video_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -173,22 +175,13 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
   return std::make_unique<VideoTrackInterface>(track);
 }
 
-void add_or_update_video_sink(const VideoTrackInterface& track,
-                              VideoSink& sink) {
-  track.ptr()->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
-}
-
-void remove_video_sink(const VideoTrackInterface& track, VideoSink& sink) {
-  track.ptr()->RemoveSink(&sink);
-}
-
 // Calls `PeerConnectionFactoryInterface->CreateAudioTrack`.
 std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source) {
-  auto track = peer_connection_factory->CreateAudioTrack(std::string(id),
-                                                         audio_source.ptr());
+  auto track = peer_connection_factory->CreateAudioTrack(
+      std::string(id), audio_source.ptr());
 
   if (track == nullptr) {
     return nullptr;
@@ -201,8 +194,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id) {
-  auto stream =
-      peer_connection_factory->CreateLocalMediaStream(std::string(id));
+  auto
+      stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
 
   if (stream == nullptr) {
     return nullptr;
@@ -235,24 +228,41 @@ bool remove_audio_track(const MediaStreamInterface& media_stream,
   return media_stream->RemoveTrack(track.ptr());
 }
 
-// Calls `libyuv::I420ToABGR`.
-void i420_to_abgr(const webrtc::VideoFrame& video_frame, uint8_t* buffer_ptr) {
+// Register a video sink for this track. Used to connect the track to the
+// underlying video engine.
+void add_or_update_video_sink(const VideoTrackInterface& track,
+                              VideoSinkInterface& sink) {
+  std::cout << "CPP add_or_update_video_sink\n";
+  std::cout << "CPP kind " << track->kind() << "\n";
+  std::cout << "CPP id " << track->id() << "\n";
+  std::cout << "CPP state " << track->state() << "\n";
+
+  track->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
+}
+
+// Detaches the provided `VideoSinkInterface` from the track.
+void remove_video_sink(const VideoTrackInterface& track,
+                       VideoSinkInterface& sink) {
+  std::cout << "CPP remove_video_sink\n";
+  track->RemoveSink(&sink);
+}
+// Creates a new `ForwardingVideoSink`.
+std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
+    rust::Box<DynOnFrameCallback> cb) {
+    std::cout << "CPP create_forwarding_video_sink\n";
+  return std::make_unique<video_sink::ForwardingVideoSink>(std::move(cb));
+}
+
+// Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
+// writes the output to the provided `buffer`.
+void video_frame_to_abgr(const webrtc::VideoFrame& frame,
+                         uint8_t* dst_abgr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
-      video_frame.video_frame_buffer()->ToI420());
-  if (video_frame.rotation() != webrtc::kVideoRotation_0) {
-    buffer = webrtc::I420Buffer::Rotate(*buffer, video_frame.rotation());
-  }
+      frame.video_frame_buffer()->ToI420());
 
   libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     buffer_ptr, video_frame.width() * 32 / 8, buffer->width(),
+                     dst_abgr, buffer->width() * 4, buffer->width(),
                      buffer->height());
-}
-
-// Returns a new `VideoSink`.
-std::unique_ptr<VideoSink> create_video_sink(
-    rust::Box<DynOnFrameCallback> handler) {
-  return std::make_unique<VideoSink>(VideoSink(
-      std::move(std::make_unique<VideoSinkObserver>(std::move(handler)))));
 }
 }  // namespace bridge

@@ -36,11 +36,11 @@ void FlutterVideoRendererManager::SetMediaStream(
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
     if (stream_id != "") {
-      webrtc->create_video_sink(
+      webrtc->CreateVideoSink(
           texture_id, (uint64_t)std::stoi(stream_id),
           std::make_unique<TextureVideoRendererShim>(it->second));
     } else {
-      webrtc->dispose_video_sink(texture_id);
+      webrtc->DisposeVideoSink(texture_id);
       it->second.get()->ResetRenderer();
     }
   }
@@ -112,16 +112,16 @@ const FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
     size_t height) const {
   mutex_.lock();
 
-  if (pixel_buffer_.get() && frame_.has_value()) {
-    if (pixel_buffer_->width != frame_.value()->width() ||
-        pixel_buffer_->height != frame_.value()->height()) {
-      size_t buffer_size = frame_.value()->buffer_size();
+  if (pixel_buffer_.get() && frame_) {
+    if (pixel_buffer_->width != frame_->width ||
+        pixel_buffer_->height != frame_->height) {
+      size_t buffer_size = frame_->buffer_size;
       rgb_buffer_.reset(new uint8_t[buffer_size]);
-      pixel_buffer_->width = frame_.value()->width();
-      pixel_buffer_->height = frame_.value()->height();
+      pixel_buffer_->width = frame_->width;
+      pixel_buffer_->height = frame_->height;
     }
 
-    frame_.value()->buffer(rgb_buffer_.get());
+    frame_->GetABGRBytes(rgb_buffer_.get());
 
     pixel_buffer_->buffer = rgb_buffer_.get();
 
@@ -133,7 +133,7 @@ const FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
 }
 
 // `Frame` handler. Sends events to Dart when receives the `Frame`.
-void TextureVideoRenderer::OnFrame(rust::Box<Frame> frame) {
+void TextureVideoRenderer::OnFrame(VideoFrame frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
       EncodableMap params;
@@ -146,29 +146,29 @@ void TextureVideoRenderer::OnFrame(rust::Box<Frame> frame) {
     pixel_buffer_->height = 0;
     first_frame_rendered = true;
   }
-  if (rotation_ != frame->rotation()) {
+  if (rotation_ != frame.rotation) {
     if (event_sink_) {
       EncodableMap params;
       params[EncodableValue("event")] = "didTextureChangeRotation";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       params[EncodableValue("rotation")] =
-          EncodableValue((int32_t)frame->rotation());
+          EncodableValue((int32_t)frame.rotation);
       event_sink_->Success(EncodableValue(params));
     }
-    rotation_ = frame->rotation();
+    rotation_ = frame.rotation;
   }
-  if (last_frame_size_.width != frame->width() ||
-      last_frame_size_.height != frame->height()) {
+  if (last_frame_size_.width != frame.width ||
+      last_frame_size_.height != frame.height) {
     if (event_sink_) {
       EncodableMap params;
       params[EncodableValue("event")] = "didTextureChangeVideoSize";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
-      params[EncodableValue("width")] = EncodableValue((int32_t)frame->width());
+      params[EncodableValue("width")] = EncodableValue((int32_t)frame.width);
       params[EncodableValue("height")] =
-          EncodableValue((int32_t)frame->height());
+          EncodableValue((int32_t)frame.height);
       event_sink_->Success(EncodableValue(params));
     }
-    last_frame_size_ = {(size_t)frame->width(), (size_t)frame->height()};
+    last_frame_size_ = {frame.width, frame.height};
   }
   mutex_.lock();
   frame_.emplace(std::move(frame));
@@ -193,8 +193,8 @@ TextureVideoRendererShim::TextureVideoRendererShim(
 }
 
 // Calls `TextureVideoRenderer->OnFrame`.
-void TextureVideoRendererShim::OnFrame(Frame* frame) {
-  ctx_->OnFrame(rust::Box<Frame>::from_raw(frame));
+void TextureVideoRendererShim::OnFrame(VideoFrame frame) {
+  ctx_->OnFrame(std::move(frame));
 }
 
 }  // namespace flutter_webrtc_plugin

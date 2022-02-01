@@ -47,7 +47,7 @@ class TextureVideoRenderer {
                                                            size_t height) const;
 
   // `Frame` handler. Sends events to Dart when receives the `Frame`.
-  virtual void OnFrame(rust::Box<Frame> frame);
+  virtual void OnFrame(VideoFrame frame);
 
   // Set `Renderer`'s default state.
   virtual void ResetRenderer();
@@ -83,7 +83,7 @@ class TextureVideoRenderer {
   int64_t texture_id_ = -1;
 
   // `Frame` from `libWebRTC`.
-  std::optional<rust::Box<Frame>> frame_ = std::nullopt;
+  std::optional<VideoFrame> frame_ = std::nullopt;
 
   // A `pixel buffer` Flutter `texture`.
   std::unique_ptr<flutter::TextureVariant> texture_;
@@ -99,17 +99,17 @@ class TextureVideoRenderer {
   mutable std::mutex mutex_;
 
   // `Frame`'s rotation.
-  VideoRotation rotation_ = VideoRotation::kVideoRotation_0;
+  int32_t rotation_ = 0;
 };
 
 // A `TextureVideoRenderer`'s shim between Rust and C++, inherits Rust friendly
-// class `OnFrameHandler`.
-class TextureVideoRendererShim : public OnFrameHandler {
+// class `OnFrameCallback`.
+class TextureVideoRendererShim : public OnFrameCallbackInterface {
  public:
   TextureVideoRendererShim(std::shared_ptr<TextureVideoRenderer> ctx);
 
   // A callback for listening to some `VideoTrack` generating `VideoFrame`.
-  void OnFrame(Frame* frame);
+  void OnFrame(VideoFrame frame);
 
  private:
   // A context for callback - `shared pointer` on `TextureVideoRenderer`.

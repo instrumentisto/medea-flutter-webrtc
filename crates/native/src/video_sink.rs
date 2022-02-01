@@ -1,18 +1,46 @@
-use crate::{internal, Frame, MediaStreamId, VideoTrackId, Webrtc};
+use crate::{internal, MediaStreamId, VideoTrackId, Webrtc, api};
 
 use cxx::UniquePtr;
 use libwebrtc_sys as sys;
 
-/// An [`internal::OnFrameHandler`] wrapper.
-struct OnFrameHandler(UniquePtr<internal::OnFrameHandler>);
+use crate::api::VideoFrame;
 
-impl libwebrtc_sys::OnFrameCallback for OnFrameHandler {
+pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
+
+impl api::VideoFrame {
+    /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme and
+    /// outputs the data to the provided `buffer`.
+    ///
+    /// # Safety
+    ///
+    /// The provided `buffer` must be a valid pointer.
+    #[allow(clippy::unused_self)]
+    pub unsafe fn get_abgr_bytes(self: &api::VideoFrame, buffer: *mut u8) {
+        libwebrtc_sys::video_frame_to_abgr(self.frame.0.as_ref(), buffer);
+    }
+}
+
+/// An [`internal::OnFrameCallbackInterface`] wrapper.
+struct OnFrameCallback(UniquePtr<internal::OnFrameCallbackInterface>);
+
+impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {
     /// Implementation of the `OnFrame` `callback`.
+    #[allow(clippy::cast_sign_loss)]
     fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
-        let frame = Frame::create(frame);
+        let height = frame.height() as usize;
+        let width = frame.width() as usize;
+        let buffer_size = width * height * 4;
+
+        println!("on_frame");
 
         unsafe {
-            self.0.pin_mut().on_frame(Box::into_raw(Box::new(frame)));
+            self.0.pin_mut().on_frame(VideoFrame {
+                height,
+                width,
+                buffer_size,
+                rotation: frame.rotation().repr,
+                frame: Box::new(Frame(Box::new(frame)))
+            });
         }
     }
 }
@@ -24,7 +52,7 @@ pub struct Id(i64);
 /// A [`sys::VideoSink`] wrapper.
 pub struct VideoSink {
     id: Id,
-    inner: sys::VideoSink,
+    inner: sys::VideoSinkInterface,
     video_track_id: VideoTrackId,
 }
 
@@ -36,8 +64,8 @@ impl VideoSink {
     }
 }
 
-impl AsMut<sys::VideoSink> for VideoSink {
-    fn as_mut(&mut self) -> &mut sys::VideoSink {
+impl AsMut<sys::VideoSinkInterface> for VideoSink {
+    fn as_mut(&mut self) -> &mut sys::VideoSinkInterface {
         &mut self.inner
     }
 }
@@ -52,8 +80,9 @@ impl Webrtc {
         &mut self,
         id: i64,
         stream_id: u64,
-        handler: UniquePtr<internal::OnFrameHandler>,
+        handler: UniquePtr<internal::OnFrameCallbackInterface>,
     ) {
+        println!("create_video_sink");
         let this = self.0.as_mut();
 
         let video_track_id = this
@@ -64,7 +93,9 @@ impl Webrtc {
 
         let mut current_video_sink = VideoSink {
             id: Id(id),
-            inner: sys::VideoSink::create(Box::new(OnFrameHandler(handler))),
+            inner: sys::VideoSinkInterface::create_forwarding(Box::new(
+                OnFrameCallback(handler),
+            )),
             video_track_id: *video_track_id,
         };
 
@@ -81,8 +112,8 @@ impl Webrtc {
     /// # Panics
     ///
     /// May panic on taking [`VideoSink`] as mut.
-    pub fn dispose_video_sink(&mut self, texture_id: i64) {
-        let video_sink = self.0.video_sinks.remove(&Id(texture_id)).unwrap();
+    pub fn dispose_video_sink(&mut self, sink_id: i64) {
+        let video_sink = self.0.video_sinks.remove(&Id(sink_id)).unwrap();
 
         let video_track =
             self.0.video_tracks.get_mut(&video_sink.video_track_id);

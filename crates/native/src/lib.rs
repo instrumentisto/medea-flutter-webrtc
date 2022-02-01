@@ -1,7 +1,6 @@
 #![warn(clippy::pedantic)]
 
 mod device_info;
-mod frame;
 mod internal;
 mod user_media;
 mod video_sink;
@@ -10,18 +9,19 @@ use std::{collections::HashMap, rc::Rc};
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo,
+    TaskQueueFactory, Thread, VideoDeviceInfo
 };
+
+use crate::video_sink::{Id as VideoSinkId};
 
 #[doc(inline)]
-pub use crate::user_media::{
-    AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
-    MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+pub use crate::{
+    user_media::{
+        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
+        MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+    },
+    video_sink::{VideoSink, Frame}
 };
-
-pub use crate::frame::{delete as delete_frame, Frame};
-
-pub use crate::video_sink::{Id as VideoSinkId, VideoSink};
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
@@ -138,17 +138,17 @@ pub mod api {
         kVideo,
     }
 
-    /// Possible kinds of [`Frame`]'s `rotation`.
-    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-    pub enum VideoRotation {
-        kVideoRotation_0 = 0,
-        kVideoRotation_90 = 90,
-        kVideoRotation_180 = 180,
-        kVideoRotation_270 = 270,
+    pub struct VideoFrame {
+        pub buffer_size: usize,
+        pub rotation: i32,
+        pub height: usize,
+        pub width: usize,
+        pub frame: Box<Frame>
     }
 
     extern "C++" {
-        type OnFrameHandler = crate::internal::OnFrameHandler;
+        type OnFrameCallbackInterface =
+            crate::internal::OnFrameCallbackInterface;
     }
 
     extern "Rust" {
@@ -178,42 +178,26 @@ pub mod api {
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
 
-        pub unsafe fn create_video_sink(
+        /// Creates a new [`VideoSink`] attached to the specified media stream
+        /// backed by the provided [`OnFrameCallbackInterface`].
+        #[cxx_name = "CreateVideoSink"]
+        pub fn create_video_sink(
             self: &mut Webrtc,
-            texture_id: i64,
+            sink_id: i64,
             stream_id: u64,
-            handler: UniquePtr<OnFrameHandler>,
+            handler: UniquePtr<OnFrameCallbackInterface>,
         );
 
-        /// Returns the [`Frame`]'s `width`.
-        fn width(self: &Frame) -> i32;
-
-        /// Returns the [`Frame`]'s `height`.
-        fn height(self: &Frame) -> i32;
-
-        /// Returns the [`Frame`]'s [`VideoRotation`].
-        fn rotation(self: &Frame) -> VideoRotation;
-
-        /// Returns the [`Frame`]'s `buffer size`.
-        fn buffer_size(self: &Frame) -> i32;
-
-        /// Writes the [`Frame`]'s bytes to the given `buffer`
-        /// as `ABGR buffer`.
-        unsafe fn buffer(self: &Frame, bptr: *mut u8);
-
-        /// Deletes the given [`Frame`].
-        unsafe fn delete_frame(frame_ptr: *mut Frame);
-
         /// Drops the [`VideoSink`] according to the given [`VideoSinkId`].
-        fn dispose_video_sink(self: &mut Webrtc, texture_id: i64);
+        #[cxx_name = "DisposeVideoSink"]
+        fn dispose_video_sink(self: &mut Webrtc, sink_id: i64);
 
-        /// This will trigger `cxx` to generate a `destroyer` for [`Frame`].
-        fn _touch_frame_box(i: Box<Frame>);
+        /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme and
+        /// outputs the data to the provided `buffer`.
+        #[cxx_name = "GetABGRBytes"]
+        unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
     }
 }
-
-/// This will trigger `cxx` to generate a `destroyer` for [`Frame`].
-fn _touch_frame_box(_: Box<Frame>) {}
 
 /// [`Context`] wrapper that is exposed to the C++ API clients.
 pub struct Webrtc(Box<Context>);

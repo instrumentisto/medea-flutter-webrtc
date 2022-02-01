@@ -1,7 +1,3 @@
-// use crate::frame::Frame;
-
-use cxx::{type_id, ExternType};
-
 pub use internal::*;
 
 #[allow(clippy::items_after_statements)]
@@ -12,26 +8,26 @@ mod internal {
         include!("flutter-webrtc-native/include/api.h");
         include!("flutter-webrtc-native/src/lib.rs.h");
 
-        type Frame = crate::frame::Frame;
+        type VideoFrame = crate::api::VideoFrame;
 
-        pub type OnFrameHandler;
+        pub type OnFrameCallbackInterface;
 
         #[cxx_name = "OnFrame"]
         pub unsafe fn on_frame(
-            self: Pin<&mut OnFrameHandler>,
-            frame: *mut Frame,
+            self: Pin<&mut OnFrameCallbackInterface>,
+            frame: VideoFrame,
         );
     }
 
     extern "Rust" {
-        // This will trigger cxx to generate UniquePtrTarget for OnFrameHandler.
-        fn _touch_unique_ptr_on_frame_handler(i: UniquePtr<OnFrameHandler>);
+        // This will trigger cxx to generate UniquePtrTarget for OnFrameCallbackInterface.
+        fn _touch_unique_ptr_on_frame_handler(i: UniquePtr<OnFrameCallbackInterface>);
     }
 }
 
-fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameHandler>) {}
+fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameCallbackInterface>) {}
 
-unsafe impl ExternType for crate::frame::Frame {
-    type Id = type_id!("Frame");
-    type Kind = cxx::kind::Opaque;
-}
+// unsafe impl ExternType for crate::frame::Frame {
+//     type Id = type_id!("Frame");
+//     type Kind = cxx::kind::Opaque;
+// }
