@@ -1,26 +1,42 @@
 #![warn(clippy::pedantic)]
 
 mod device_info;
-mod frame;
-mod renderer;
+mod internal;
+mod pc;
 mod user_media;
+mod video_sink;
 
-use std::{collections::HashMap, rc::Rc};
+use std::{
+    collections::HashMap,
+    rc::Rc,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
+use crate::video_sink::Id as VideoSinkId;
+
 #[doc(inline)]
-pub use crate::user_media::{
-    AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
-    MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+pub use crate::{
+    pc::{PeerConnection, PeerConnectionId},
+    user_media::{
+        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
+        MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
+        VideoTrackId,
+    },
+    video_sink::{Frame, VideoSink},
 };
 
-pub use crate::frame::{delete as delete_frame, Frame};
+/// Counter used to generate unique IDs.
+static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
-pub use crate::renderer::{Renderer, TextureId};
+/// Returns a next unique ID.
+pub(crate) fn next_id() -> u64 {
+    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
+}
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
@@ -137,16 +153,39 @@ pub mod api {
         kVideo,
     }
 
-    /// Possible kinds of [`Frame`]'s `rotation`.
-    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-    pub enum VideoRotation {
-        kVideoRotation_0 = 0,
-        kVideoRotation_90 = 90,
-        kVideoRotation_180 = 180,
-        kVideoRotation_270 = 270,
+    /// Single video frame.
+    pub struct VideoFrame {
+        /// Vertical count of pixels in this [`VideoFrame`].
+        pub height: usize,
+
+        /// Horizontal count of pixels in this [`VideoFrame`].
+        pub width: usize,
+
+        /// Rotation of this [`VideoFrame`] in degrees.
+        pub rotation: i32,
+
+        /// Size of the bytes buffer required for allocation of the
+        /// [`VideoFrame::get_abgr_bytes()`] call.
+        pub buffer_size: usize,
+
+        /// Underlying Rust side frame.
+        pub frame: Box<Frame>,
+    }
+
+    extern "C++" {
+        type CreateSdpCallbackInterface =
+            crate::internal::CreateSdpCallbackInterface;
+
+        type SetDescriptionCallbackInterface =
+            crate::internal::SetDescriptionCallbackInterface;
+
+        type OnFrameCallbackInterface =
+            crate::internal::OnFrameCallbackInterface;
     }
 
     extern "Rust" {
+        include!("flutter-webrtc-native/include/api.h");
+
         type Webrtc;
         type Frame;
 
@@ -158,6 +197,73 @@ pub mod api {
         /// as microphones, cameras, headsets, and so forth.
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
+
+        /// Creates a new [`PeerConnection`] and returns its ID.
+        ///
+        /// Writes an error to the provided `err`, if any.
+        #[cxx_name = "CreatePeerConnection"]
+        pub fn create_peer_connection(
+            self: &mut Webrtc,
+            err: &mut String,
+        ) -> u64;
+
+        /// Initiates the creation of a SDP offer for the purpose of starting
+        /// a new WebRTC connection to a remote peer.
+        ///
+        /// Returns an empty [`String`] if operation succeeds or an error
+        /// otherwise.
+        #[cxx_name = "CreateOffer"]
+        pub fn create_offer(
+            self: &mut Webrtc,
+            peer_id: u64,
+            voice_activity_detection: bool,
+            ice_restart: bool,
+            use_rtp_mux: bool,
+            cb: UniquePtr<CreateSdpCallbackInterface>,
+        ) -> String;
+
+        /// Creates a SDP answer to an offer received from a remote peer during
+        /// the offer/answer negotiation of a WebRTC connection.
+        ///
+        /// Returns an empty [`String`] in operation succeeds or an error
+        /// otherwise.
+        #[cxx_name = "CreateAnswer"]
+        #[allow(clippy::too_many_arguments)]
+        pub fn create_answer(
+            self: &mut Webrtc,
+            peer_connection_id: u64,
+            voice_activity_detection: bool,
+            ice_restart: bool,
+            use_rtp_mux: bool,
+            cb: UniquePtr<CreateSdpCallbackInterface>,
+        ) -> String;
+
+        /// Changes the local description associated with the connection.
+        ///
+        /// Returns an empty [`String`] in operation succeeds or an error
+        /// otherwise.
+        #[cxx_name = "SetLocalDescription"]
+        pub fn set_local_description(
+            self: &mut Webrtc,
+            peer_connection_id: u64,
+            kind: String,
+            sdp: String,
+            cb: UniquePtr<SetDescriptionCallbackInterface>,
+        ) -> String;
+
+        /// Sets the specified session description as the remote peer's current
+        /// offer or answer.
+        ///
+        /// Returns an empty [`String`] in operation succeeds or an error
+        /// otherwise.
+        #[cxx_name = "SetRemoteDescription"]
+        pub fn set_remote_description(
+            self: &mut Webrtc,
+            peer_connection_id: u64,
+            kind: String,
+            sdp: String,
+            cb: UniquePtr<SetDescriptionCallbackInterface>,
+        ) -> String;
 
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
@@ -171,32 +277,29 @@ pub mod api {
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
 
+        /// Creates a new [`VideoSink`] attached to the specified media stream
+        /// backed by the provided [`OnFrameCallbackInterface`].
+        #[cxx_name = "CreateVideoSink"]
+        pub fn create_video_sink(
+            self: &mut Webrtc,
+            sink_id: i64,
+            stream_id: u64,
+            handler: UniquePtr<OnFrameCallbackInterface>,
+        );
+
+        /// Destroys the [`VideoSink`] by the given ID.
+        #[cxx_name = "DisposeVideoSink"]
+        fn dispose_video_sink(self: &mut Webrtc, sink_id: i64);
+
+        /// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
+        /// outputs the result to the provided `buffer`.
+        #[cxx_name = "GetABGRBytes"]
+        unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
+
         /// Set the [`VideoTrack`]'s/[`AudioTrack`]'s `enabled`/`disabled`
         /// state.
         #[cxx_name = "SetTrackEnabled"]
         pub fn set_track_enabled(self: &mut Webrtc, id: u64, enabled: bool);
-
-        /// Returns the [`Frame`]'s `width`.
-        fn width(self: &Frame) -> i32;
-
-        /// Returns the [`Frame`]'s `height`.
-        fn height(self: &Frame) -> i32;
-
-        /// Returns the [`Frame`]'s [`VideoRotation`].
-        fn rotation(self: &Frame) -> VideoRotation;
-
-        /// Returns the [`Frame`]'s `buffer size`.
-        fn buffer_size(self: &Frame) -> i32;
-
-        /// Writes the [`Frame`]'s bytes to the given `buffer`
-        /// as `ABGR buffer`.
-        unsafe fn buffer(self: &Frame, bptr: *mut u8);
-
-        /// Deletes the given [`Frame`].
-        unsafe fn delete_frame(frame_ptr: *mut Frame);
-
-        /// Drops the [`Renderer`] according to the given [`TextureId`].
-        fn dispose_renderer(self: &mut Webrtc, texture_id: i64);
     }
 }
 
@@ -208,6 +311,7 @@ pub struct Webrtc(Box<Context>);
 pub struct Context {
     task_queue_factory: TaskQueueFactory,
     worker_thread: Thread,
+    network_thread: Thread,
     signaling_thread: Thread,
     audio_device_module: AudioDeviceModule,
     video_device_info: VideoDeviceInfo,
@@ -217,10 +321,11 @@ pub struct Context {
     audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
-    renderers: HashMap<TextureId, Renderer>,
+    peer_connections: HashMap<PeerConnectionId, PeerConnection>,
+    video_sinks: HashMap<VideoSinkId, VideoSink>,
 }
 
-/// Creates an instanse of [`Webrtc`].
+/// Creates a new instance of [`Webrtc`].
 ///
 /// # Panics
 ///
@@ -230,19 +335,27 @@ pub fn init() -> Box<Webrtc> {
     // TODO: Dont panic but propagate errors to API users.
     let mut task_queue_factory =
         TaskQueueFactory::create_default_task_queue_factory();
+
+    let mut network_thread = Thread::create().unwrap();
+    network_thread.start().unwrap();
+
     let mut worker_thread = Thread::create().unwrap();
     worker_thread.start().unwrap();
+
     let mut signaling_thread = Thread::create().unwrap();
     signaling_thread.start().unwrap();
 
-    let peer_connection_factory = PeerConnectionFactoryInterface::create(
-        &mut worker_thread,
-        &mut signaling_thread,
-    )
-    .unwrap();
     let audio_device_module = AudioDeviceModule::new(
         AudioLayer::kPlatformDefaultAudio,
         &mut task_queue_factory,
+    )
+    .unwrap();
+
+    let peer_connection_factory = PeerConnectionFactoryInterface::create(
+        Some(&network_thread),
+        Some(&worker_thread),
+        Some(&signaling_thread),
+        Some(&audio_device_module.inner),
     )
     .unwrap();
 
@@ -250,6 +363,7 @@ pub fn init() -> Box<Webrtc> {
 
     Box::new(Webrtc(Box::new(Context {
         task_queue_factory,
+        network_thread,
         worker_thread,
         signaling_thread,
         audio_device_module,
@@ -260,6 +374,7 @@ pub fn init() -> Box<Webrtc> {
         audio_source: None,
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
-        renderers: HashMap::new(),
+        peer_connections: HashMap::new(),
+        video_sinks: HashMap::new(),
     })))
 }

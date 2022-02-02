@@ -1,25 +1,13 @@
-use std::{
-    ops::Deref,
-    rc::Rc,
-    sync::atomic::{AtomicU64, Ordering},
-};
+use std::rc::Rc;
 
 use anyhow::bail;
-use derive_more::{AsRef, Display};
+use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 
 use crate::{
     api::{self, AudioConstraints, VideoConstraints},
-    TextureId, Webrtc,
+    next_id, VideoSink, VideoSinkId, Webrtc,
 };
-
-/// Counter used to generate unique IDs.
-static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
-
-/// Returns a next unique ID.
-fn next_id() -> u64 {
-    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
-}
 
 impl Webrtc {
     /// Creates a new local [`MediaStream`] with [`VideoTrack`]s and/or
@@ -311,16 +299,8 @@ impl Webrtc {
 }
 
 /// ID of a [`MediaStream`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, PartialEq)]
 pub struct MediaStreamId(u64);
-
-impl MediaStreamId {
-    /// Creates a new [`MediaStreamId`].
-    #[must_use]
-    pub fn new(id: u64) -> Self {
-        Self(id)
-    }
-}
 
 /// ID of an video input device that provides data to some [`VideoSource`].
 #[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq)]
@@ -446,14 +426,10 @@ impl MediaStream {
         Ok(())
     }
 
-    /// Returns the first [`VideoTrack`]'s `id`.
-    ///
-    /// # Panics
-    ///
-    /// May panic on getting the [`VideoTrack`].
-    #[must_use]
-    pub fn get_first_track_id(&self) -> &VideoTrackId {
-        self.video_tracks.get(0).unwrap()
+    /// Returns an [`Iterator`] over all the [`VideoTrackId`]s belonging to the
+    /// [`VideoTrack`]s that were added to this [`MediaStream`].
+    pub fn video_tracks(&self) -> impl Iterator<Item = &'_ VideoTrackId> {
+        self.video_tracks.iter()
     }
 }
 
@@ -475,10 +451,8 @@ pub struct VideoTrack {
     /// Stereo".
     label: VideoLabel,
 
-    /// [`TextureId`]s of the [`Renderer`]'s which uses this [`VideoTrack`].
-    ///
-    /// [`Renderer`]:crate::Renderer
-    renderers: Vec<Rc<TextureId>>,
+    /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
+    sinks: Vec<VideoSinkId>,
 }
 
 impl VideoTrack {
@@ -495,23 +469,20 @@ impl VideoTrack {
             src,
             kind: api::TrackKind::kVideo,
             label,
-            renderers: vec![],
+            sinks: Vec::new(),
         })
     }
 
-    /// Adds the [`Renderer`] which uses this [`VideoTrack`].
-    ///
-    /// [`Renderer`]:crate::Renderer
-    pub fn add_renderer(&mut self, renderer: Rc<TextureId>) {
-        self.renderers.push(renderer);
+    /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
+    pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
+        self.inner.add_or_update_sink(video_sink.as_mut());
+        self.sinks.push(video_sink.id());
     }
-}
 
-impl Deref for VideoTrack {
-    type Target = sys::VideoTrackInterface;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
+    /// Detaches the provided [`VideoSink`] from this [`VideoTrack`].
+    pub fn remove_video_sink(&mut self, mut video_sink: VideoSink) {
+        self.sinks.retain(|&sink| sink != video_sink.id());
+        self.inner.remove_sink(video_sink.as_mut());
     }
 }
 
