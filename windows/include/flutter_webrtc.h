@@ -4,7 +4,7 @@
 #include "flutter/method_call.h"
 #include "flutter/texture_registrar.h"
 #include "flutter_webrtc_native.h"
-#include "texture_video_renderer.h"
+#include "video_renderer.h"
 
 using namespace flutter;
 using namespace rust::cxxbridge1;

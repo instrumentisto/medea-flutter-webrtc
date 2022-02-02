@@ -1,5 +1,7 @@
-#include "texture_video_renderer.h"
+#include "flutter/method_channel.h"
+#include "flutter/standard_method_codec.h"
 #include "flutter_webrtc_native.h"
+#include "video_renderer.h"
 #include "parsing.h"
 
 namespace flutter_webrtc_plugin {

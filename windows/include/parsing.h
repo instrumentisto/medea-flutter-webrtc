@@ -1,3 +1,5 @@
+#pragma once
+
 #include "flutter/encodable_value.h"
 
 template<typename T>
