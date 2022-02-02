@@ -1,9 +1,9 @@
 #pragma once
 
-#include "flutter/standard_method_codec.h"
+#include "flutter/encodable_value.h"
+#include "flutter/method_call.h"
 #include "flutter/texture_registrar.h"
 #include "flutter_webrtc_native.h"
-#include "media_stream.h"
 #include "texture_video_renderer.h"
 
 using namespace flutter;

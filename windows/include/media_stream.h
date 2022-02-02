@@ -1,5 +1,7 @@
 #pragma once
 
+#include "flutter/method_result.h"
+
 using namespace rust::cxxbridge1;
 using namespace flutter;
 

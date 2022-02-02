@@ -1,3 +1,5 @@
+#include "flutter/encodable_value.h"
+
 template<typename T>
 inline bool TypeIs(const EncodableValue val) {
   return std::holds_alternative<T>(val);

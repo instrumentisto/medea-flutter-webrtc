@@ -4,6 +4,7 @@
 
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
+#include "media_stream.h"
 #include "peer_connection.h"
 
 namespace flutter_webrtc_plugin {
