@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -20,8 +19,8 @@
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
 #include "peer_connection_observer.h"
-#include "rust/cxx.h"
 #include "video_sink.h"
+#include "rust/cxx.h"
 
 namespace bridge {
 

@@ -3,39 +3,19 @@
 #include <mutex>
 #include <optional>
 
-#include "flutter-webrtc-native/include/api.h"
-#include "flutter_webrtc_base.h"
+#include "flutter/encodable_value.h"
+#include "flutter/event_channel.h"
+#include "flutter/event_stream_handler_functions.h"
+#include "flutter/method_channel.h"
+#include "flutter/plugin_registrar.h"
+#include "flutter/standard_message_codec.h"
+#include "flutter/standard_method_codec.h"
+#include "flutter/texture_registrar.h"
 #include "flutter_webrtc_native.h"
-
-namespace flutter_webrtc_plugin {
 
 using namespace flutter;
 
-// Provides managing of the `VideoRenderer`s.
-class FlutterVideoRendererManager {
- public:
-  FlutterVideoRendererManager(FlutterWebRTCBase* base);
-
-  // Creates a new `VideoRenderer`.
-  void CreateVideoRendererTexture(
-      std::unique_ptr<MethodResult<EncodableValue>> result);
-
-  // Sets a new `source` to the cerntain `VideoRenderer`.
-  void SetMediaStream(const flutter::MethodCall<EncodableValue>& method_call,
-                      rust::Box<Webrtc>& webrtc,
-                      std::unique_ptr<MethodResult<EncodableValue>> result);
-
-  // Disposes the `VideoRenderer`.
-  void VideoRendererDispose(
-      const flutter::MethodCall<EncodableValue>& method_call,
-      rust::Box<Webrtc>& webrtc,
-      std::unique_ptr<MethodResult<EncodableValue>> result);
-
- private:
-  FlutterWebRTCBase* base_;
-  // The map that contains `VideoRenderer`s.
-  std::map<int64_t, std::shared_ptr<TextureVideoRenderer>> renderers_;
-};
+namespace flutter_webrtc_plugin {
 
 // Class with the methods related to `VideoRenderer`.
 class TextureVideoRenderer {
@@ -100,6 +80,33 @@ class TextureVideoRenderer {
 
   // `Frame`'s rotation.
   int32_t rotation_ = 0;
+};
+
+// Provides managing of the `VideoRenderer`s.
+class FlutterVideoRendererManager {
+ public:
+  FlutterVideoRendererManager(TextureRegistrar* registrar,
+                              BinaryMessenger* messenger);
+
+  // Creates a new `VideoRenderer`.
+  void CreateVideoRendererTexture(
+      std::unique_ptr<MethodResult<EncodableValue>> result);
+
+  // Sets a new `source` to the cerntain `VideoRenderer`.
+  void SetMediaStream(const flutter::MethodCall<EncodableValue>& method_call,
+                      rust::Box<Webrtc>& webrtc,
+                      std::unique_ptr<MethodResult<EncodableValue>> result);
+
+  // Disposes the `VideoRenderer`.
+  void VideoRendererDispose(
+      const flutter::MethodCall<EncodableValue>& method_call,
+      rust::Box<Webrtc>& webrtc,
+      std::unique_ptr<MethodResult<EncodableValue>> result);
+
+  TextureRegistrar* registrar_;
+  BinaryMessenger* messenger_;
+  // The map that contains `VideoRenderer`s.
+  std::map<int64_t, std::shared_ptr<TextureVideoRenderer>> renderers_;
 };
 
 // A `TextureVideoRenderer`'s shim between Rust and C++, inherits Rust friendly

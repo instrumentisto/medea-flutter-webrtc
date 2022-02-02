@@ -1,6 +1,5 @@
 use std::{
     rc::Rc,
-    sync::atomic::{AtomicU64, Ordering},
 };
 
 use anyhow::bail;
@@ -410,7 +409,6 @@ impl MediaStream {
 
     /// Returns [`VideoTrackId`]s of the [`VideoTrack`]s that were added to this
     /// [`MediaStream`].
-    #[must_use]
     pub fn video_tracks(&self) -> impl Iterator<Item = &'_ VideoTrackId> {
         self.video_tracks.iter()
     }
@@ -463,11 +461,11 @@ impl VideoTrack {
     /// [`VideoSink`]:crate::VideoSink
     pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
         self.inner.add_or_update_sink(video_sink.as_mut());
-        self.sinks.push(*video_sink.id());
+        self.sinks.push(video_sink.id());
     }
 
     pub fn remove_video_sink(&mut self, mut video_sink: VideoSink) {
-        self.sinks.retain(|sink| sink != video_sink.id());
+        self.sinks.retain(|&sink| sink != video_sink.id());
         self.inner.remove_sink(video_sink.as_mut());
     }
 }

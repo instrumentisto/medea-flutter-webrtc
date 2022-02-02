@@ -1,5 +1,4 @@
-#ifndef FORWARDING_VIDEO_SINK_H
-#define FORWARDING_VIDEO_SINK_H
+#pragma once
 
 #include <map>
 #include <memory>
@@ -28,13 +27,9 @@ class ForwardingVideoSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
   // `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
-  void OnDiscardedFrame() override;
-
  private:
   // Rust side callback that the `VideoFrame`s will be forwarded to.
   std::optional<rust::Box<bridge::DynOnFrameCallback>> cb_;
 };
 
 }  // namespace video_sink
-
-#endif // FORWARDING_VIDEO_SINK_H

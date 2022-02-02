@@ -21,7 +21,8 @@ impl Webrtc {
             .local_media_streams
             .get(&MediaStreamId::from(stream_id))
             .unwrap()
-            .video_tracks();
+            .video_tracks()
+            .next().unwrap();
 
         let mut sink = VideoSink {
             id: Id(sink_id),
@@ -95,6 +96,7 @@ impl api::VideoFrame {
 }
 
 impl From<UniquePtr<sys::VideoFrame>> for api::VideoFrame {
+    #[allow(clippy::cast_sign_loss)]
     fn from(frame: UniquePtr<sys::VideoFrame>) -> Self {
         let height = frame.height();
         let width = frame.width();

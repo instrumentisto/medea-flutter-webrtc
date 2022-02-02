@@ -28,6 +28,7 @@ class SetDescriptionCallbackInterface {
   virtual void OnFail(const std::string& error) = 0;
 
   virtual ~SetDescriptionCallbackInterface() = default;
+};
 
 // Callback for the video frames handlers provided to the
 // `Webrtc::create_video_sink()` function.

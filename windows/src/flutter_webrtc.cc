@@ -3,16 +3,15 @@
 #include <string>
 
 #include "flutter_webrtc.h"
-
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
-#include "flutter_peer_connection.h"
+#include "peer_connection.h"
 
 namespace flutter_webrtc_plugin {
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
-    : FlutterWebRTCBase::FlutterWebRTCBase(plugin->messenger(),
-                                           plugin->textures()),
-      FlutterVideoRendererManager::FlutterVideoRendererManager(this) {}
+    : FlutterVideoRendererManager::FlutterVideoRendererManager(
+        plugin->textures(),
+        plugin->messenger()) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 
@@ -24,9 +23,9 @@ void FlutterWebRTC::HandleMethodCall(
   if (method.compare("createPeerConnection") == 0) {
     CreateRTCPeerConnection(webrtc, method_call, std::move(result));
   } else if (method.compare("getSources") == 0) {
-    MediaManager::EnumerateDevice(webrtc, std::move(result));
+    EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
-    MediaManager::GetUserMedia(method_call, webrtc, std::move(result));
+    GetUserMedia(method_call, webrtc, std::move(result));
   } else if (method.compare("getDisplayMedia") == 0) {
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
@@ -45,7 +44,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("dataChannelSend") == 0) {
   } else if (method.compare("dataChannelClose") == 0) {
   } else if (method.compare("streamDispose") == 0) {
-    MediaManager::DisposeStream(method_call, webrtc, std::move(result));
+    DisposeStream(method_call, webrtc, std::move(result));
   } else if (method.compare("mediaStreamTrackSetEnable") == 0) {
   } else if (method.compare("trackDispose") == 0) {
   } else if (method.compare("peerConnectionClose") == 0) {

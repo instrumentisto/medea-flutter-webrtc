@@ -1,17 +1,19 @@
 #include "texture_video_renderer.h"
 #include "flutter_webrtc_native.h"
+#include "parsing.h"
 
 namespace flutter_webrtc_plugin {
 
 FlutterVideoRendererManager::FlutterVideoRendererManager(
-    FlutterWebRTCBase* base)
-    : base_(base) {}
+    TextureRegistrar* registrar,
+    BinaryMessenger* messenger): registrar_(registrar), messenger_(messenger) {}
 
 // Creates a new `VideoRenderer`.
 void FlutterVideoRendererManager::CreateVideoRendererTexture(
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   std::shared_ptr<TextureVideoRenderer> texture(
-      new TextureVideoRenderer(base_->textures_, base_->messenger_));
+      new TextureVideoRenderer(registrar_, messenger_));
+
   int64_t texture_id = texture->texture_id();
   renderers_[texture_id] = std::move(texture);
   EncodableMap params;
@@ -62,7 +64,7 @@ void FlutterVideoRendererManager::VideoRendererDispose(
 
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
-    base_->textures_->UnregisterTexture(texture_id);
+    registrar_->UnregisterTexture(texture_id);
     renderers_.erase(it);
     result->Success();
     return;
