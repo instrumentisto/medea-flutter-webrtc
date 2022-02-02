@@ -10,13 +10,15 @@
 #include "rust/cxx.h"
 
 namespace bridge {
+
 struct DynOnFrameCallback;
-}
+
+}  // namespace bridge
 
 namespace video_sink {
 
-// `VideoSinkInterface<webrtc::VideoFrame>` that forwards `VideoFrame`s to the
-// Rust side `DynOnFrameCallback`.
+// `VideoSinkInterface<webrtc::VideoFrame>` forwarding `VideoFrame`s to the Rust
+// side via `DynOnFrameCallback`.
 class ForwardingVideoSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
 

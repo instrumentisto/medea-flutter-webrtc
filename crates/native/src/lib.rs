@@ -153,18 +153,18 @@ pub mod api {
         kVideo,
     }
 
-    /// A single video frame.
+    /// Single video frame.
     pub struct VideoFrame {
-        /// Vertical count of pixels of this [`VideoFrame`].
+        /// Vertical count of pixels in this [`VideoFrame`].
         pub height: usize,
 
-        /// Horizontal count of pixels of this [`VideoFrame`].
+        /// Horizontal count of pixels in this [`VideoFrame`].
         pub width: usize,
 
-        /// [`VideoFrame`] in degrees.
+        /// Rotation of this [`VideoFrame`] in degrees.
         pub rotation: i32,
 
-        /// Size of the bytes buffer that must be allocated for the
+        /// Size of the bytes buffer required for allocation of the
         /// [`VideoFrame::get_abgr_bytes()`] call.
         pub buffer_size: usize,
 
@@ -291,8 +291,8 @@ pub mod api {
         #[cxx_name = "DisposeVideoSink"]
         fn dispose_video_sink(self: &mut Webrtc, sink_id: i64);
 
-        /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme
-        /// and outputs the data to the provided `buffer`.
+        /// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
+        /// outputs the result to the provided `buffer`.
         #[cxx_name = "GetABGRBytes"]
         unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
     }
@@ -320,7 +320,7 @@ pub struct Context {
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 }
 
-/// Creates an instance of [`Webrtc`].
+/// Creates a new instance of [`Webrtc`].
 ///
 /// # Panics
 ///

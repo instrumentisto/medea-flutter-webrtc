@@ -35,7 +35,7 @@ pub trait SetDescriptionCallback {
     fn fail(&mut self, error: &CxxString);
 }
 
-/// [`VideoFrame`]s handler.
+/// Handler of [`VideoFrame`]s.
 pub trait OnFrameCallback {
     /// Called when the attached [`VideoTrackInterface`] produces a new
     /// [`VideoFrame`].
@@ -608,9 +608,10 @@ pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 pub struct VideoTrackInterface(UniquePtr<webrtc::VideoTrackInterface>);
 
 impl VideoTrackInterface {
-    /// Register a [`VideoSinkInterface`] for this [`VideoTrackInterface`].
+    /// Register the provided [`VideoSinkInterface`] for this
+    /// [`VideoTrackInterface`].
     ///
-    /// Used to connect the [`VideoTrackInterface`] to the underlying video
+    /// Used to connect this [`VideoTrackInterface`] to the underlying video
     /// engine.
     pub fn add_or_update_sink(&self, sink: &mut VideoSinkInterface) {
         webrtc::add_or_update_video_sink(&self.0, sink.0.pin_mut());
@@ -695,7 +696,7 @@ impl MediaStreamInterface {
 pub struct VideoSinkInterface(UniquePtr<webrtc::VideoSinkInterface>);
 
 impl VideoSinkInterface {
-    /// Creates a new [`VideoSinkInterface`] that forwards [`VideoFrame`]s to
+    /// Creates a new [`VideoSinkInterface`] forwarding [`VideoFrame`]s to
     /// the provided [`OnFrameCallback`].
     #[must_use]
     pub fn create_forwarding(cb: Box<dyn OnFrameCallback>) -> Self {

@@ -13,7 +13,7 @@ inline const T GetValue(EncodableValue val) {
 }
 
 // Returns an `int64_t` value from the given `EncodableMap` by the given `key`
-// if any, or a `-1`.
+// if any, or a `-1` otherwise.
 inline int64_t findLongInt(const EncodableMap& map, const std::string& key) {
   for (auto it : map) {
     if (key == GetValue<std::string>(it.first) &&
@@ -42,8 +42,8 @@ inline std::string findString(const EncodableMap& map, const std::string& key) {
   return std::string();
 }
 
-// Returns an `bool` value from the given `EncodableMap` by the given
-// `key` if any, or false otherwise.
+// Returns a `bool` value from the given `EncodableMap` by the given `key` if
+// any, or `false` otherwise.
 inline bool findBool(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<bool>(it->second))

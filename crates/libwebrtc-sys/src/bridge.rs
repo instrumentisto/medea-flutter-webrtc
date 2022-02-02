@@ -11,7 +11,7 @@ type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
 /// [`SetDescriptionCallback`] transferable to the C++ side.
 type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
 
-/// [`OnFrameCallback`] that can be transferred to the CXX side.
+/// [`OnFrameCallback`] transferable to the C++ side.
 type DynOnFrameCallback = Box<dyn OnFrameCallback>;
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
@@ -363,16 +363,17 @@ pub(crate) mod webrtc {
             track: &AudioTrackInterface,
         ) -> bool;
 
-        /// Register a [`VideoSinkInterface`] for this [`VideoTrackInterface`].
+        /// Registers the provided [`VideoSinkInterface`] for the given
+        /// [`VideoTrackInterface`].
         ///
-        /// Used to connect the [`VideoTrackInterface`] to the underlying video
-        /// engine.
+        /// Used to connect the given [`VideoTrackInterface`] to the underlying
+        /// video engine.
         pub fn add_or_update_video_sink(
             track: &VideoTrackInterface,
             sink: Pin<&mut VideoSinkInterface>,
         );
 
-        /// Detaches the provided [`VideoSinkInterface`] from this
+        /// Detaches the provided [`VideoSinkInterface`] from the given
         /// [`VideoTrackInterface`].
         pub fn remove_video_sink(
             track: &VideoTrackInterface,
@@ -385,20 +386,20 @@ pub(crate) mod webrtc {
             handler: Box<DynOnFrameCallback>,
         ) -> UniquePtr<VideoSinkInterface>;
 
-        /// Returns a width of the given [`VideoFrame`].
+        /// Returns a width of this [`VideoFrame`].
         #[must_use]
         pub fn width(self: &VideoFrame) -> i32;
 
-        /// Returns a height of the given [`VideoFrame`].
+        /// Returns a height of this [`VideoFrame`].
         #[must_use]
         pub fn height(self: &VideoFrame) -> i32;
 
-        /// Returns a [`VideoRotation`] of the given [`VideoFrame`].
+        /// Returns a [`VideoRotation`] of this [`VideoFrame`].
         #[must_use]
         pub fn rotation(self: &VideoFrame) -> VideoRotation;
 
         /// Converts the provided [`webrtc::VideoFrame`] pixels to the `ABGR`
-        /// scheme and writes the output to the provided `buffer`.
+        /// scheme and writes the result to the provided `buffer`.
         pub unsafe fn video_frame_to_abgr(frame: &VideoFrame, buffer: *mut u8);
     }
 

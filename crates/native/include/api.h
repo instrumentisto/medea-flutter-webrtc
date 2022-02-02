@@ -30,11 +30,11 @@ class SetDescriptionCallbackInterface {
   virtual ~SetDescriptionCallbackInterface() = default;
 };
 
-// Callback for the video frames handlers provided to the
+// Callback for video frames handlers provided to the
 // `Webrtc::create_video_sink()` function.
 class OnFrameCallbackInterface {
  public:
-  // Called when underlying video engine produces a new video frame.
+  // Called when the underlying video engine produces a new video frame.
   //
   // The provided frame is a pointer to the `rust::Box<VideoFrame>`. Its
   // ownership can be transferred back to the Rust side using the

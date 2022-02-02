@@ -6,7 +6,7 @@
 
 namespace flutter_webrtc_plugin {
 
-// Creates a new `FlutterVideoRendererManager`;
+// Creates a new `FlutterVideoRendererManager`.
 FlutterVideoRendererManager::FlutterVideoRendererManager(
     TextureRegistrar* registrar,
     BinaryMessenger* messenger)
@@ -26,7 +26,7 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
   result->Success(EncodableValue(params));
 }
 
-// Changes a media source of a specific `TextureVideoRenderer`.
+// Changes a media source of the specific `TextureVideoRenderer`.
 void FlutterVideoRendererManager::SetMediaStream(
     const flutter::MethodCall<EncodableValue>& method_call,
     rust::Box<Webrtc>& webrtc,
@@ -137,8 +137,8 @@ FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(size_t width,
 }
 
 // Saves the provided `VideoFrame` and calls
-// `TextureRegistrar->MarkTextureFrameAvailable` to notify flutter that a new
-// frame is ready to be polled.
+// `TextureRegistrar->MarkTextureFrameAvailable()` to notify the Flutter side
+// about a new frame being ready for polling.
 void TextureVideoRenderer::OnFrame(VideoFrame frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
@@ -182,7 +182,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
   registrar_->MarkTextureFrameAvailable(texture_id_);
 }
 
-// Resets `TextureVideoRenderer` to the initial state.
+// Resets a `TextureVideoRenderer` to the initial state.
 void TextureVideoRenderer::ResetRenderer() {
   mutex_.lock();
   frame_.reset();
@@ -198,7 +198,7 @@ FrameHandler::FrameHandler(
   renderer_ = std::move(ctx);
 }
 
-// Forwards the received `VideoFrame` to the `TextureVideoRenderer->OnFrame`.
+// Forwards the received `VideoFrame` to the `TextureVideoRenderer->OnFrame()`.
 void FrameHandler::OnFrame(VideoFrame frame) {
   renderer_->OnFrame(std::move(frame));
 }

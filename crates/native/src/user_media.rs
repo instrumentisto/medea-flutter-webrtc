@@ -404,8 +404,8 @@ impl MediaStream {
         Ok(())
     }
 
-    /// Returns [`VideoTrackId`]s of the [`VideoTrack`]s that were added to this
-    /// [`MediaStream`].
+    /// Returns an [`Iterator`] over all the [`VideoTrackId`]s belonging to the
+    /// [`VideoTrack`]s that were added to this [`MediaStream`].
     pub fn video_tracks(&self) -> impl Iterator<Item = &'_ VideoTrackId> {
         self.video_tracks.iter()
     }

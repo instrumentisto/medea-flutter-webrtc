@@ -9,8 +9,8 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// If the specified [`MediaStream`] could not be found or if its if found
-    /// but does not have any [`VideoTrack`]s.
+    /// If the specified [`MediaStream`] cannot be found, or if it's found
+    /// without any [`VideoTrack`]s.
     pub fn create_video_sink(
         &mut self,
         sink_id: i64,
@@ -43,7 +43,7 @@ impl Webrtc {
         self.0.video_sinks.insert(Id(sink_id), sink);
     }
 
-    /// Destroys the [`VideoSink`] by the given ID.
+    /// Destroys a [`VideoSink`] by the given ID.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
         if let Some(sink) = self.0.video_sinks.remove(&Id(sink_id)) {
             if let Some(track) = self.0.video_tracks.get_mut(&sink.track_id) {
@@ -57,7 +57,7 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Id(i64);
 
-/// A [`sys::VideoSink`] wrapper.
+/// Wrapper around a [`sys::VideoSink`] attaching a unique ID to it.
 #[derive(AsRef, AsMut)]
 pub struct VideoSink {
     /// ID of this [`VideoSink`].
@@ -73,19 +73,19 @@ pub struct VideoSink {
 }
 
 impl VideoSink {
-    /// Returns an [`Id`] of this [`VideoSink`]'s.
+    /// Returns an [`Id`] of this [`VideoSink`].
     #[must_use]
     pub fn id(&self) -> Id {
         self.id
     }
 }
 
-/// Wrapper for the [`sys::VideoFrame`] that can be transferred via FFI.
+/// Wrapper around a [`sys::VideoFrame`] transferable via FFI.
 pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
 
 impl api::VideoFrame {
     /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme and
-    /// outputs the data to the provided `buffer`.
+    /// outputs the result to the provided `buffer`.
     ///
     /// # Safety
     ///
@@ -117,7 +117,8 @@ impl From<UniquePtr<sys::VideoFrame>> for api::VideoFrame {
     }
 }
 
-/// An [`internal::OnFrameCallbackInterface`] wrapper.
+/// Wrapper around an [`internal::OnFrameCallbackInterface`] implementing the
+/// required interfaces.
 struct OnFrameCallback(UniquePtr<internal::OnFrameCallbackInterface>);
 
 impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {

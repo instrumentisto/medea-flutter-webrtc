@@ -177,12 +177,13 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 
-// Register a video sink for this track. Used to connect the track to the
-// underlying video engine.
+// Registers the provided video `sink` for the given `track`.
+//
+// Used to connect the given `track` to the underlying video engine.
 void add_or_update_video_sink(const VideoTrackInterface& track,
                               VideoSinkInterface& sink);
 
-// Detaches the provided `VideoSinkInterface` from the track.
+// Detaches the provided video `sink` from the given `track`.
 void remove_video_sink(const VideoTrackInterface& track,
                        VideoSinkInterface& sink);
 
@@ -191,7 +192,7 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
     rust::Box<DynOnFrameCallback> handler);
 
 // Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
-// writes the output to the provided `dst_abgr`.
+// writes the result to the provided `dst_abgr`.
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr);
 
 // Creates a new `PeerConnectionFactoryInterface`.
