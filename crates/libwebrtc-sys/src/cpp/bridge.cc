@@ -350,13 +350,16 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
 }
 
 // Calls `PeerConnectionInterface->AddTransceiver`.
-void add_transceiver(PeerConnectionInterface& peer_connection_interface,
-                     MediaType media_type,
-                     RtpTransceiverDirection direction) {
+std::unique_ptr<RtpTransceiverInterface> add_transceiver(
+    PeerConnectionInterface& peer_connection_interface,
+    MediaType media_type,
+    RtpTransceiverDirection direction) {
   auto transceiver_init = webrtc::RtpTransceiverInit();
   transceiver_init.direction = direction;
 
-  peer_connection_interface->AddTransceiver(media_type, transceiver_init);
+  return std::make_unique<RtpTransceiverInterface>(
+      peer_connection_interface->AddTransceiver(media_type, transceiver_init)
+          .MoveValue());
 }
 
 // Calls `PeerConnectionInterface->GetTransceivers`, writes `RtpTransceiver`'s
@@ -366,11 +369,14 @@ rust::Box<Transceivers> get_transceivers(
   auto transceivers = create_transceivers();
 
   for (auto transceiver : peer_connection_interface->GetTransceivers()) {
-    transceiver->transceivers->add(transceiver->direction(),
-                                   transceiver->mid().value_or(""));
+    transceivers->add(std::make_unique<RtpTransceiverInterface>(transceiver));
   }
 
   return transceivers;
+}
+
+rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
+  return rust::String(transceiver->mid().value_or(""));
 }
 
 void ustest(const PeerConnectionInterface& peer_connection_interface) {

@@ -344,34 +344,30 @@ impl SetRemoteDescriptionObserver {
 /// A struct contains [`RTCRtpTransceiver`][1]'s information.
 ///
 /// [1]: https://tinyurl.com/2p88ajym
-pub struct Transceiver {
-    direction: webrtc::RtpTransceiverDirection,
-    mid: String,
-}
+pub struct Transceiver(UniquePtr<webrtc::RtpTransceiverInterface>);
 
 impl Transceiver {
     /// Returns [`Transceiver`]'s `mid`.
-    pub fn mid(&self) -> &String {
-        &self.mid
+    pub fn mid(&self) -> String {
+        webrtc::get_transceiver_mid(&self.0)
     }
 
-    /// Returns [`Transceiver`]'s `direction`.
-    pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
-        self.direction
-    }
+    // /// Returns [`Transceiver`]'s `direction`.
+    // pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
+    //     &self
+    // }
 }
 
 /// A struct contains a [`Vec`] of [`Transceiver`]s.
-pub struct Transceivers(Vec<Transceiver>);
+pub struct Transceivers(Box<Vec<Transceiver>>);
 
 impl Transceivers {
-    /// Adds a new [`Transceiver`] by given [`webrtc::RtpTransceiverDirection`] and `mid`.
+    /// Adds a new [`Transceiver`].
     pub fn add(
         &mut self,
-        direction: webrtc::RtpTransceiverDirection,
-        mid: String,
+        transceiver: UniquePtr<webrtc::RtpTransceiverInterface>
     ) {
-        self.0.push(Transceiver { direction, mid });
+        self.0.push(Transceiver(transceiver));
     }
 }
 
@@ -391,7 +387,7 @@ impl DerefMut for Transceivers {
 
 /// Creates a new `boxed` [`Transceivers`].
 pub fn create_transceivers() -> Box<Transceivers> {
-    Box::new(Transceivers(Vec::new()))
+    Box::new(Transceivers(Box::new(Vec::new())))
 }
 
 /// Peer Connection Interface internally used in `Webrtc` that is
@@ -468,8 +464,8 @@ impl PeerConnectionInterface {
         &mut self,
         media_type: MediaType,
         direction: RtpTransceiverDirection,
-    ) {
-        webrtc::add_transceiver(self.0.pin_mut(), media_type, direction);
+    ) -> Transceiver {
+        Transceiver(webrtc::add_transceiver(self.0.pin_mut(), media_type, direction))
     }
 
     /// Gets information about [`PeerConnectionInterface`]'s [`Transceiver`]s.

@@ -69,17 +69,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("addTransceiver") == 0) {
     AddTransceiver(webrtc, method_call, std::move(result));
   } else if (method.compare("getTransceivers") == 0) {
-    if (!method_call.arguments()) {
-      result->Error("Bad Arguments", "Null constraints arguments received");
-      return;
-    }
-
-    const EncodableMap params =
-        GetValue<EncodableMap>(*method_call.arguments());
-
-    webrtc->GetTransceivers(std::stoi(findString(params, "peerConnectionId")));
-
-    result->Success();
+    GetTransceivers(webrtc, method_call, std::move(result));
   } else if (method.compare("getReceivers") == 0) {
   } else if (method.compare("getSenders") == 0) {
   } else if (method.compare("rtpSenderDispose") == 0) {

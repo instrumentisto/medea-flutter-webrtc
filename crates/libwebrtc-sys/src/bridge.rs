@@ -191,11 +191,10 @@ pub(crate) mod webrtc {
         type DynCreateSdpCallback;
         type Transceivers;
 
-        /// Adds a new [`Transceiver`] by given [`RtpTransceiverDirection`] and `mid`.
+        /// Adds a new [`RtpTransceiverInterface`].
         pub fn add(
             self: &mut Transceivers,
-            direction: RtpTransceiverDirection,
-            mid: String,
+            transceiver: UniquePtr<RtpTransceiverInterface>,
         );
 
         /// Creates a new `boxed` [`Transceivers`].
@@ -241,6 +240,7 @@ pub(crate) mod webrtc {
 
         type MediaType;
         type RtpTransceiverDirection;
+        type RtpTransceiverInterface;
 
         /// Creates default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -338,12 +338,14 @@ pub(crate) mod webrtc {
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             media_type: MediaType,
             direction: RtpTransceiverDirection
-        );
+        ) -> UniquePtr<RtpTransceiverInterface>;
 
         /// Gets information about [`PeerConnectionInterface`]'s [`RTCRtpTransceiver`]s.
         ///
         /// [1]: https://tinyurl.com/2p88ajym
         pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
+
+        pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;
     }
 
     unsafe extern "C++" {

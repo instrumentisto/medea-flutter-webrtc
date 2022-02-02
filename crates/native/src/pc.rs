@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use cxx::{CxxString, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
@@ -227,15 +229,18 @@ impl Webrtc {
             _ => sys::RtpTransceiverDirection::kInactive,
         };
 
-        self.0
+        let peer = self.0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
-            .unwrap()
-            .inner
+            .unwrap();
+
+        let transceiver = peer.inner
             .add_transceiver(media_type, direction);
+
+        peer.transceivers.insert(TransceiverId(next_id()), transceiver);
     }
 
-    pub fn get_transceivers(&mut self, peer_id: u64) {
+    pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<TransceiverInfo> {
         let transceivers = self
             .0
             .peer_connections
@@ -247,9 +252,10 @@ impl Webrtc {
         for transceiver in transceivers.iter() {
             let mid = transceiver.mid();
             println!("{}", mid);
-            let direction = transceiver.direction();
-            println!("{:?}", direction);
+            // let direction = transceiver.direction();
         }
+
+        Vec::new()
     }
 
     pub fn pupa(&mut self, peer_id: u64) {
@@ -263,10 +269,16 @@ impl Webrtc {
     }
 }
 
-// pub struct Transceiver {
-//     direction: String,
-//     mid: String,
-// }
+/// Information about [`sys::Transceiver`].
+pub struct TransceiverInfo {
+    id: u64,
+    mid: String,
+    direction: RtpTransceiverDirection,
+}
+
+/// ID of a [`sys::Transceiver`].
+#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
+pub struct TransceiverId(u64);
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
@@ -278,7 +290,9 @@ pub struct PeerConnection {
     id: PeerConnectionId,
 
     /// Underlying [`sys::PeerConnectionInterface`].
-    pub inner: sys::PeerConnectionInterface,
+    inner: sys::PeerConnectionInterface,
+
+    transceivers: HashMap<TransceiverId, sys::Transceiver>,
 }
 
 impl PeerConnection {
@@ -294,6 +308,7 @@ impl PeerConnection {
         Ok(Self {
             id: PeerConnectionId::from(next_id()),
             inner,
+            transceivers: HashMap::new(),
         })
     }
 }

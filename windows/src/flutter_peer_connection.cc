@@ -259,15 +259,15 @@ void AddTransceiver(
   auto raw_direction =
       findString(findMap(params, "transceiverInit"), "direction");
 
-  if (raw_direction == "kSendRecv") {
+  if (raw_direction == "sendrecv") {
     direction = RtpTransceiverDirection::kSendRecv;
-  } else if (raw_direction == "kSendOnly") {
+  } else if (raw_direction == "sendonly") {
     direction = RtpTransceiverDirection::kSendOnly;
-  } else if (raw_direction == "kRecvOnly") {
+  } else if (raw_direction == "recvonly") {
     direction = RtpTransceiverDirection::kRecvOnly;
-  } else if (raw_direction == "kInactive") {
+  } else if (raw_direction == "inactive") {
     direction = RtpTransceiverDirection::kInactive;
-  } else if (raw_direction == "kStopped") {
+  } else if (raw_direction == "stopped") {
     direction = RtpTransceiverDirection::kStopped;
   } else {
     result->Error("Invalid RtpTransceiverDirection");
@@ -276,6 +276,23 @@ void AddTransceiver(
 
   webrtc->AddTransceiver(std::stoi(findString(params, "peerConnectionId")),
                          media_type, direction);
+
+  result->Success();
+}
+
+void GetTransceivers(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  auto a = webrtc->GetTransceivers(
+      std::stoi(findString(params, "peerConnectionId")));
 
   result->Success();
 }

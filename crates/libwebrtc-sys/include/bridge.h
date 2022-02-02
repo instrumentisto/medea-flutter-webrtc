@@ -83,6 +83,8 @@ using SetRemoteDescriptionObserver = observer::SetRemoteDescriptionObserver;
 
 using MediaType = cricket::MediaType;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
+using RtpTransceiverInterface =
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
 
 struct Transceivers;
 
@@ -253,13 +255,16 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
 // Adds a `RtpTransceiver` to the `PeerConnectionInterface`.
-void add_transceiver(PeerConnectionInterface& peer_connection_interface,
-                     MediaType media_type,
-                     RtpTransceiverDirection direction);
+std::unique_ptr<RtpTransceiverInterface> add_transceiver(
+    PeerConnectionInterface& peer_connection_interface,
+    MediaType media_type,
+    RtpTransceiverDirection direction);
 
 // Gets the `PeerConnection`'s `RtpTransceiver`s info to Rust `Transceivers`.
 rust::Box<Transceivers> get_transceivers(
     const PeerConnectionInterface& peer_connection_interface);
+
+rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
 void ustest(const PeerConnectionInterface& peer_connection_interface);
 

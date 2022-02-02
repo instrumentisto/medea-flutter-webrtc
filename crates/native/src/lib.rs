@@ -18,7 +18,7 @@ use libwebrtc_sys::{
 
 #[doc(inline)]
 pub use crate::{
-    pc::{PeerConnection, PeerConnectionId},
+    pc::{PeerConnection, PeerConnectionId, TransceiverInfo},
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
         MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
@@ -178,6 +178,7 @@ pub mod api {
         include!("flutter-webrtc-native/include/api.h");
 
         type Webrtc;
+        type TransceiverInfo;
 
         /// Creates an instance of [`Webrtc`].
         #[cxx_name = "Init"]
@@ -264,7 +265,10 @@ pub mod api {
         );
 
         #[cxx_name = "GetTransceivers"]
-        pub fn get_transceivers(self: &mut Webrtc, peer_id: u64);
+        pub fn get_transceivers(
+            self: &mut Webrtc,
+            peer_id: u64,
+        ) -> Vec<TransceiverInfo>;
 
         pub fn pupa(self: &mut Webrtc, peer_id: u64);
 
