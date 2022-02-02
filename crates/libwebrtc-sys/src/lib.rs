@@ -3,9 +3,10 @@
 
 mod bridge;
 
+use std::ops::{Deref, DerefMut};
+
 use anyhow::bail;
-use bridge::Transceivers;
-use cxx::{let_cxx_string, CxxVector, UniquePtr};
+use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
 
@@ -239,7 +240,7 @@ impl Default for PeerConnectionDependencies {
 }
 
 /// `RTCOfferAnswerOptions` used for create `Offer`s, `Answer`s.
-pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
+pub struct RTCOfferAnswerOptions(UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
     /// Creates a [`RTCOfferAnswerOptions`]
@@ -340,6 +341,59 @@ impl SetRemoteDescriptionObserver {
     }
 }
 
+/// A struct contains [`RTCRtpTransceiver`][1]'s information.
+///
+/// [1]: https://tinyurl.com/2p88ajym
+pub struct Transceiver {
+    direction: webrtc::RtpTransceiverDirection,
+    mid: String,
+}
+
+impl Transceiver {
+    /// Returns [`Transceiver`]'s `mid`.
+    pub fn mid(&self) -> &String {
+        &self.mid
+    }
+
+    /// Returns [`Transceiver`]'s `direction`.
+    pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
+        self.direction
+    }
+}
+
+/// A struct contains a [`Vec`] of [`Transceiver`]s.
+pub struct Transceivers(Vec<Transceiver>);
+
+impl Transceivers {
+    /// Adds a new [`Transceiver`] by given [`webrtc::RtpTransceiverDirection`] and `mid`.
+    pub fn add(
+        &mut self,
+        direction: webrtc::RtpTransceiverDirection,
+        mid: String,
+    ) {
+        self.0.push(Transceiver { direction, mid });
+    }
+}
+
+impl Deref for Transceivers {
+    type Target = Vec<Transceiver>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Transceivers {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+/// Creates a new `boxed` [`Transceivers`].
+pub fn create_transceivers() -> Box<Transceivers> {
+    Box::new(Transceivers(Vec::new()))
+}
+
 /// Peer Connection Interface internally used in `Webrtc` that is
 /// capable of creating `Offer`s, `Answer`s
 /// and setting `Remote`, `Local` Description.
@@ -405,6 +459,11 @@ impl PeerConnectionInterface {
         webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
     }
 
+    /// Adds a new [`RTCRtpTransceiver`][1] to some
+    /// [`PeerConnectionInterface`]. The [`RTCRtpTransceiver`][1]
+    /// interface represents a combination of an `RTCRtpSender` and an `RTCRtpReceiver`.
+    ///
+    /// [1]: https://tinyurl.com/2p88ajym
     pub fn add_transceiver(
         &mut self,
         media_type: MediaType,
@@ -413,28 +472,12 @@ impl PeerConnectionInterface {
         webrtc::add_transceiver(self.0.pin_mut(), media_type, direction);
     }
 
+    /// Gets information about [`PeerConnectionInterface`]'s [`Transceiver`]s.
+    #[must_use]
     pub fn get_transceivers(&self) -> Box<Transceivers> {
         webrtc::get_transceivers(&self.0)
     }
-
-    // pub fn get_rust_transceivers(&self) -> Box<Transceivers> {
-    //     webrtc::get_rust_transceivers(&self.0)
-    // }
 }
-
-// impl webrtc::RtpTransceiverInterface {
-//     pub fn mid(&self) -> anyhow::Result<String> {
-//         let mut mid = String::new();
-
-//         let result = webrtc::get_transceiver_mid(self, &mut mid);
-
-//         if !result {
-//             bail!("This `Transceiver` has no `mid`.")
-//         }
-
-//         Ok(mid)
-//     }
-// }
 
 /// Interface for using an RTC [`Thread`][1].
 ///

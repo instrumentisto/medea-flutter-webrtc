@@ -41,6 +41,12 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         'transceiverInit': <String, dynamic>{'direction': 'kSendRecv'},
       });
 
+      await WebRTC.invokeMethod('addTransceiver', <String, dynamic>{
+        'peerConnectionId': pc1_id,
+        'mediaType': 'audio',
+        'transceiverInit': <String, dynamic>{'direction': 'kSendRecv'},
+      });
+
       final createOffer1 = await WebRTC.invokeMethod(
           'createOffer', <String, dynamic>{
         'peerConnectionId': pc1_id,
@@ -56,9 +62,9 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         }
       });
 
-      // await WebRTC.invokeMethod('lol', <String, dynamic>{
-      //   'peerConnectionId': pc1_id,
-      // });
+      await WebRTC.invokeMethod('lol', <String, dynamic>{
+        'peerConnectionId': pc1_id,
+      });
 
       final setRemoteDescription2 =
           await WebRTC.invokeMethod('setRemoteDescription', <String, dynamic>{

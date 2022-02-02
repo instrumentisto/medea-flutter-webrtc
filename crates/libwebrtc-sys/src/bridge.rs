@@ -1,7 +1,6 @@
-use std::ops::{Deref, DerefMut};
+use cxx::CxxString;
 
-use anyhow::bail;
-use cxx::{CxxString, UniquePtr};
+use crate::{create_transceivers, Transceivers};
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
@@ -192,11 +191,14 @@ pub(crate) mod webrtc {
         type DynCreateSdpCallback;
         type Transceivers;
 
+        /// Adds a new [`Transceiver`] by given [`RtpTransceiverDirection`] and `mid`.
         pub fn add(
             self: &mut Transceivers,
-            transceiver: UniquePtr<RtpTransceiverInterface>,
+            direction: RtpTransceiverDirection,
+            mid: String,
         );
 
+        /// Creates a new `boxed` [`Transceivers`].
         pub fn create_transceivers() -> Box<Transceivers>;
 
         /// Calling in `CreateSessionDescriptionObserver`,
@@ -239,7 +241,6 @@ pub(crate) mod webrtc {
 
         type MediaType;
         type RtpTransceiverDirection;
-        type RtpTransceiverInterface;
 
         /// Creates default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -330,18 +331,19 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
 
+        /// Adds a new [`RTCRtpTransceiver`][1] to some [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://tinyurl.com/2p88ajym
         pub fn add_transceiver(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             media_type: MediaType,
             direction: RtpTransceiverDirection
         );
 
+        /// Gets information about [`PeerConnectionInterface`]'s [`RTCRtpTransceiver`]s.
+        ///
+        /// [1]: https://tinyurl.com/2p88ajym
         pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
-
-        // pub fn get_rust_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
-
-        pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface,
-            mid: &mut String) -> bool;
     }
 
     unsafe extern "C++" {
@@ -414,51 +416,6 @@ pub(crate) mod webrtc {
 
         pub fn ustest(peer_connection_interface: &PeerConnectionInterface);
     }
-}
-
-pub struct Transceiver(UniquePtr<webrtc::RtpTransceiverInterface>);
-
-impl Transceiver {
-    pub fn mid(&self) -> anyhow::Result<String> {
-        let mut mid = String::new();
-
-        let result = webrtc::get_transceiver_mid(&self.0, &mut mid);
-
-        if !result {
-            bail!("This `Transceiver` has no `mid`.")
-        }
-
-        Ok(mid)
-    }
-}
-
-pub struct Transceivers(Vec<Box<Transceiver>>);
-
-impl Transceivers {
-    pub fn add(
-        &mut self,
-        transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
-    ) {
-        self.0.push(Box::new(Transceiver(transceiver)));
-    }
-}
-
-impl Deref for Transceivers {
-    type Target = Vec<Box<Transceiver>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for Transceivers {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-pub fn create_transceivers() -> Box<Transceivers> {
-    Box::new(Transceivers(Vec::new()))
 }
 
 /// Trait for `CreateSessionDescriptionObserver` callbacks.

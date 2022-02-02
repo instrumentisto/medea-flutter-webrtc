@@ -246,6 +246,9 @@ impl Webrtc {
 
         for transceiver in transceivers.iter() {
             let mid = transceiver.mid();
+            println!("{}", mid);
+            let direction = transceiver.direction();
+            println!("{:?}", direction);
         }
     }
 
@@ -260,14 +263,14 @@ impl Webrtc {
     }
 }
 
-pub struct Transceiver {
-    direction: String,
-    mid: String,
-}
+// pub struct Transceiver {
+//     direction: String,
+//     mid: String,
+// }
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct PeerConnectionId(pub u64);
+pub struct PeerConnectionId(u64);
 
 /// Is used to manage [`sys::PeerConnectionInterface`].
 pub struct PeerConnection {
@@ -321,196 +324,196 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     }
 }
 
-#[cfg(test)]
-mod asd {
-    use libwebrtc_sys::{
-        AudioLayer, CreateSdpCallback, CreateSessionDescriptionObserver,
-        PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
-    };
+// #[cfg(test)]
+// mod asd {
+//     use libwebrtc_sys::{
+//         AudioLayer, CreateSdpCallback, CreateSessionDescriptionObserver,
+//         PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
+//     };
 
-    use crate::{AudioDeviceModule, PeerConnection};
+//     use crate::{AudioDeviceModule, PeerConnection};
 
-    #[test]
-    fn name() {
-        let mut task_queue_factory =
-            TaskQueueFactory::create_default_task_queue_factory();
+//     #[test]
+//     fn name() {
+//         let mut task_queue_factory =
+//             TaskQueueFactory::create_default_task_queue_factory();
 
-        let mut network_thread = Thread::create().unwrap();
-        network_thread.start().unwrap();
+//         let mut network_thread = Thread::create().unwrap();
+//         network_thread.start().unwrap();
 
-        let mut worker_thread = Thread::create().unwrap();
-        worker_thread.start().unwrap();
+//         let mut worker_thread = Thread::create().unwrap();
+//         worker_thread.start().unwrap();
 
-        let mut signaling_thread = Thread::create().unwrap();
-        signaling_thread.start().unwrap();
+//         let mut signaling_thread = Thread::create().unwrap();
+//         signaling_thread.start().unwrap();
 
-        let audio_device_module = AudioDeviceModule::new(
-            AudioLayer::kPlatformDefaultAudio,
-            &mut task_queue_factory,
-        )
-        .unwrap();
+//         let audio_device_module = AudioDeviceModule::new(
+//             AudioLayer::kPlatformDefaultAudio,
+//             &mut task_queue_factory,
+//         )
+//         .unwrap();
 
-        let mut peer_connection_factory =
-            PeerConnectionFactoryInterface::create(
-                Some(&network_thread),
-                Some(&worker_thread),
-                Some(&signaling_thread),
-                Some(&audio_device_module.inner),
-            );
+//         let mut peer_connection_factory =
+//             PeerConnectionFactoryInterface::create(
+//                 Some(&network_thread),
+//                 Some(&worker_thread),
+//                 Some(&signaling_thread),
+//                 Some(&audio_device_module.inner),
+//             );
 
-        let mut peer1 =
-            PeerConnection::new(&mut peer_connection_factory).unwrap();
+//         let mut peer1 =
+//             PeerConnection::new(&mut peer_connection_factory).unwrap();
 
-        let mut peer2 =
-            PeerConnection::new(&mut peer_connection_factory).unwrap();
+//         let mut peer2 =
+//             PeerConnection::new(&mut peer_connection_factory).unwrap();
 
-        let opts = libwebrtc_sys::RTCOfferAnswerOptions::new(
-            None, None, true, false, true,
-        );
+//         let opts = libwebrtc_sys::RTCOfferAnswerOptions::new(
+//             None, None, true, false, true,
+//         );
 
-        static mut SDP1: String = String::new();
-        static mut SDP2: String = String::new();
+//         static mut SDP1: String = String::new();
+//         static mut SDP2: String = String::new();
 
-        struct SessDesc1(String);
+//         struct SessDesc1(String);
 
-        impl CreateSdpCallback for SessDesc1 {
-            fn success(&mut self, sdp: &cxx::CxxString, kind: &cxx::CxxString) {
-                unsafe {
-                    SDP1 = sdp.to_string();
-                }
-                println!("success create sdp");
-            }
+//         impl CreateSdpCallback for SessDesc1 {
+//             fn success(&mut self, sdp: &cxx::CxxString, kind: &cxx::CxxString) {
+//                 unsafe {
+//                     SDP1 = sdp.to_string();
+//                 }
+//                 println!("success create sdp");
+//             }
 
-            fn fail(&mut self, error: &cxx::CxxString) {
-                println!("fail {}", error);
-            }
-        }
+//             fn fail(&mut self, error: &cxx::CxxString) {
+//                 println!("fail {}", error);
+//             }
+//         }
 
-        let offer_cb = Box::new(SessDesc1(String::new()));
+//         let offer_cb = Box::new(SessDesc1(String::new()));
 
-        let offer_obs = CreateSessionDescriptionObserver::new(offer_cb);
+//         let offer_obs = CreateSessionDescriptionObserver::new(offer_cb);
 
-        peer1.inner.add_transceiver(
-            libwebrtc_sys::MediaType::MEDIA_TYPE_VIDEO,
-            libwebrtc_sys::RtpTransceiverDirection::kSendRecv,
-        );
+//         peer1.inner.add_transceiver(
+//             libwebrtc_sys::MediaType::MEDIA_TYPE_VIDEO,
+//             libwebrtc_sys::RtpTransceiverDirection::kSendRecv,
+//         );
 
-        peer1.inner.add_transceiver(
-            libwebrtc_sys::MediaType::MEDIA_TYPE_AUDIO,
-            libwebrtc_sys::RtpTransceiverDirection::kSendRecv,
-        );
+//         peer1.inner.add_transceiver(
+//             libwebrtc_sys::MediaType::MEDIA_TYPE_AUDIO,
+//             libwebrtc_sys::RtpTransceiverDirection::kSendRecv,
+//         );
 
-        peer1.inner.create_offer(&opts, offer_obs);
+//         peer1.inner.create_offer(&opts, offer_obs);
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+//         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        struct OfferDesc(u64);
+//         struct OfferDesc(u64);
 
-        impl libwebrtc_sys::SetDescriptionCallback for OfferDesc {
-            fn success(&mut self) {
-                println!("success set local");
-            }
+//         impl libwebrtc_sys::SetDescriptionCallback for OfferDesc {
+//             fn success(&mut self) {
+//                 println!("success set local");
+//             }
 
-            fn fail(&mut self, error: &cxx::CxxString) {
-                println!("fail set local {}", error);
-            }
-        }
+//             fn fail(&mut self, error: &cxx::CxxString) {
+//                 println!("fail set local {}", error);
+//             }
+//         }
 
-        let loc_desc_cb = Box::new(OfferDesc(1));
+//         let loc_desc_cb = Box::new(OfferDesc(1));
 
-        let loc_desc_obs =
-            libwebrtc_sys::SetLocalDescriptionObserver::new(loc_desc_cb);
+//         let loc_desc_obs =
+//             libwebrtc_sys::SetLocalDescriptionObserver::new(loc_desc_cb);
 
-        let loc_desc = unsafe {
-            libwebrtc_sys::SessionDescriptionInterface::new(
-                libwebrtc_sys::SdpType::kOffer,
-                SDP1.as_str(),
-            )
-        };
+//         let loc_desc = unsafe {
+//             libwebrtc_sys::SessionDescriptionInterface::new(
+//                 libwebrtc_sys::SdpType::kOffer,
+//                 SDP1.as_str(),
+//             )
+//         };
 
-        peer1.inner.set_local_description(loc_desc, loc_desc_obs);
+//         peer1.inner.set_local_description(loc_desc, loc_desc_obs);
 
-        let rem_desc_cb = Box::new(OfferDesc(1));
+//         let rem_desc_cb = Box::new(OfferDesc(1));
 
-        let rem_desc_obs =
-            libwebrtc_sys::SetRemoteDescriptionObserver::new(rem_desc_cb);
+//         let rem_desc_obs =
+//             libwebrtc_sys::SetRemoteDescriptionObserver::new(rem_desc_cb);
 
-        let rem_desc = unsafe {
-            libwebrtc_sys::SessionDescriptionInterface::new(
-                libwebrtc_sys::SdpType::kOffer,
-                SDP1.as_str(),
-            )
-        };
+//         let rem_desc = unsafe {
+//             libwebrtc_sys::SessionDescriptionInterface::new(
+//                 libwebrtc_sys::SdpType::kOffer,
+//                 SDP1.as_str(),
+//             )
+//         };
 
-        peer2.inner.set_remote_description(rem_desc, rem_desc_obs);
+//         peer2.inner.set_remote_description(rem_desc, rem_desc_obs);
 
-        struct SessDesc2(String);
+//         struct SessDesc2(String);
 
-        impl CreateSdpCallback for SessDesc2 {
-            fn success(&mut self, sdp: &cxx::CxxString, kind: &cxx::CxxString) {
-                unsafe {
-                    SDP2 = sdp.to_string();
-                }
-                println!("success create sdp");
-            }
+//         impl CreateSdpCallback for SessDesc2 {
+//             fn success(&mut self, sdp: &cxx::CxxString, kind: &cxx::CxxString) {
+//                 unsafe {
+//                     SDP2 = sdp.to_string();
+//                 }
+//                 println!("success create sdp");
+//             }
 
-            fn fail(&mut self, error: &cxx::CxxString) {
-                println!("fail {}", error);
-            }
-        }
+//             fn fail(&mut self, error: &cxx::CxxString) {
+//                 println!("fail {}", error);
+//             }
+//         }
 
-        let answer_cb = Box::new(SessDesc2(String::new()));
+//         let answer_cb = Box::new(SessDesc2(String::new()));
 
-        let answer_obs = CreateSessionDescriptionObserver::new(answer_cb);
+//         let answer_obs = CreateSessionDescriptionObserver::new(answer_cb);
 
-        peer2.inner.create_answer(&opts, answer_obs);
+//         peer2.inner.create_answer(&opts, answer_obs);
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+//         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        unsafe {
-            println!("{}", SDP2);
-        }
+//         unsafe {
+//             println!("{}", SDP2);
+//         }
 
-        let loc_desc_cb1 = Box::new(OfferDesc(1));
+//         let loc_desc_cb1 = Box::new(OfferDesc(1));
 
-        let loc_desc_obs1 =
-            libwebrtc_sys::SetLocalDescriptionObserver::new(loc_desc_cb1);
+//         let loc_desc_obs1 =
+//             libwebrtc_sys::SetLocalDescriptionObserver::new(loc_desc_cb1);
 
-        let loc_desc1 = unsafe {
-            libwebrtc_sys::SessionDescriptionInterface::new(
-                libwebrtc_sys::SdpType::kAnswer,
-                SDP2.as_str(),
-            )
-        };
+//         let loc_desc1 = unsafe {
+//             libwebrtc_sys::SessionDescriptionInterface::new(
+//                 libwebrtc_sys::SdpType::kAnswer,
+//                 SDP2.as_str(),
+//             )
+//         };
 
-        peer2.inner.set_local_description(loc_desc1, loc_desc_obs1);
+//         peer2.inner.set_local_description(loc_desc1, loc_desc_obs1);
 
-        let rem_desc_cb2 = Box::new(OfferDesc(1));
+//         let rem_desc_cb2 = Box::new(OfferDesc(1));
 
-        let rem_desc_obs2 =
-            libwebrtc_sys::SetRemoteDescriptionObserver::new(rem_desc_cb2);
+//         let rem_desc_obs2 =
+//             libwebrtc_sys::SetRemoteDescriptionObserver::new(rem_desc_cb2);
 
-        let rem_desc2 = unsafe {
-            libwebrtc_sys::SessionDescriptionInterface::new(
-                libwebrtc_sys::SdpType::kAnswer,
-                SDP2.as_str(),
-            )
-        };
+//         let rem_desc2 = unsafe {
+//             libwebrtc_sys::SessionDescriptionInterface::new(
+//                 libwebrtc_sys::SdpType::kAnswer,
+//                 SDP2.as_str(),
+//             )
+//         };
 
-        peer1.inner.set_remote_description(rem_desc2, rem_desc_obs2);
+//         peer1.inner.set_remote_description(rem_desc2, rem_desc_obs2);
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+//         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        // let _trans = peer1.inner.get_transceivers();
+//         // let _trans = peer1.inner.get_transceivers();
 
-        println!("all");
+//         println!("all");
 
-        // std::thread::sleep(std::time::Duration::from_secs(3));
+//         // std::thread::sleep(std::time::Duration::from_secs(3));
 
-        // a.get_transceivers(id1);
+//         // a.get_transceivers(id1);
 
-        // Box::leak(a);
+//         // Box::leak(a);
 
-        assert!(true);
-    }
-}
+//         assert!(true);
+//     }
+// }

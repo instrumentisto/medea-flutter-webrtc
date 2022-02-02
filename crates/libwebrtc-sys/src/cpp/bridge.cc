@@ -349,6 +349,7 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                                                         observer);
 }
 
+// Calls `PeerConnectionInterface->AddTransceiver`.
 void add_transceiver(PeerConnectionInterface& peer_connection_interface,
                      MediaType media_type,
                      RtpTransceiverDirection direction) {
@@ -358,47 +359,18 @@ void add_transceiver(PeerConnectionInterface& peer_connection_interface,
   peer_connection_interface->AddTransceiver(media_type, transceiver_init);
 }
 
+// Calls `PeerConnectionInterface->GetTransceivers`, writes `RtpTransceiver`'s
+// info to Rust structure `Transceivers`.
 rust::Box<Transceivers> get_transceivers(
     const PeerConnectionInterface& peer_connection_interface) {
   auto transceivers = create_transceivers();
 
-  auto count = 0;
-
-  for (RtpTransceiverInterface transceiver :
-       peer_connection_interface->GetTransceivers()) {
-    printf("%d\n", count++);
-    // transceivers->add(std::make_unique<RtpTransceiverInterface>(transceiver));
-    std::make_shared<RtpTransceiverInterface>(transceiver);
+  for (auto transceiver : peer_connection_interface->GetTransceivers()) {
+    transceiver->transceivers->add(transceiver->direction(),
+                                   transceiver->mid().value_or(""));
   }
 
   return transceivers;
-}
-
-// rust::Box<Transceivers> get_rust_transceivers(
-//     const PeerConnectionInterface& peer_connection_interface) {
-// auto rust_trans = create_transceivers();
-
-// for (RtpTransceiverInterface transceiver :
-//      peer_connection_interface->GetTransceivers()) {
-//   rust_trans->add(transceiver->direction(),
-//                   transceiver->mid().value_or("228"));
-// }
-
-// return rust_trans;
-// }
-
-bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,
-                         rust::String& mid) {
-  // mid = "322";
-  // return true;
-  auto raw_mid = transceiver->mid();
-
-  if (raw_mid.has_value()) {
-    mid = raw_mid.value();
-
-    return true;
-  }
-  return false;
 }
 
 void ustest(const PeerConnectionInterface& peer_connection_interface) {
