@@ -87,6 +87,12 @@ using IceGatheringState = webrtc::PeerConnectionInterface::IceGatheringState;
 using PeerConnectionState = webrtc::PeerConnectionInterface::PeerConnectionState;
 using IceCandidateInterface = webrtc::IceCandidateInterface;
 using Candidate = cricket::Candidate;
+using CandidatePairChangeEvent = cricket::CandidatePairChangeEvent;
+using CandidatePair = cricket::CandidatePair;
+
+using RtpReceiverInterface = rc<webrtc::RtpReceiverInterface>;
+using MediaStreamTrackInterface = rc<webrtc::MediaStreamTrackInterface>;
+
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -256,9 +262,30 @@ void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
-//todo
+// Calls `IceCandidateInterface->ToString` and wraps result in `std::unqiue_ptr`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(const IceCandidateInterface* candidate);
 
+// Calls `Candidate->ToString` and wraps result in `std::unqiue_ptr`.
 std::unique_ptr<std::string> candidate_to_string(const Candidate& candidate);
+
+// Gets `CandidatePairChangeEvent.candidate_pair`.
+const CandidatePair& get_candidate_pair(const CandidatePairChangeEvent& event);
+
+// Gets `CandidatePairChangeEvent.last_data_received_ms`.
+int64_t get_last_data_received_ms(const CandidatePairChangeEvent& event);
+
+// Gets `CandidatePairChangeEvent.reason` and wraps result in `std::unqiue_ptr`.
+std::unique_ptr<std::string> get_reason(const CandidatePairChangeEvent& event);
+
+// Gets `CandidatePairChangeEvent.estimated_disconnected_time_ms`.
+int64_t get_estimated_disconnected_time_ms(const CandidatePairChangeEvent& event);
+
+// Calls `CandidatePair->local_candidate`.
+const Candidate& get_local_candidate(const CandidatePair& pair);
+
+// Calls `CandidatePair->remote_candidate`.
+const Candidate& get_remote_candidate(const CandidatePair& pair);
+
+
 
 }  // namespace bridge

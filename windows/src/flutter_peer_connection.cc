@@ -64,10 +64,12 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
   std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
+
+// todo doc
 class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
  public:
-  PeerConnectionOnEvent(std::shared_ptr<EventContext> context)
-      : context(std::move(context)){};
+  PeerConnectionOnEvent(std::shared_ptr<EventContext> context, rust::Box<Webrtc>* webrtc)
+      : context(std::move(context)), webrtc_(webrtc) {};
 
   void OnSignalingChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*context->channel_m);
@@ -183,12 +185,34 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
       context->event_sink.get()->Success(flutter::EncodableValue(params));
     }
   }
-  void OnIceCandidatesRemoved(const std::string& candidate) {
+
+  void OnIceCandidatesRemoved(rust::Vec<rust::String> candidates) {
     const std::lock_guard<std::mutex> lock(*context->channel_m);
     if (context->event_sink.get() != nullptr) {
+      EncodableList candidate_list;
+      for (int i = 0; i<candidates.size(); ++i) {
+        candidate_list.push_back(std::string(candidates[i]));
+      }
       flutter::EncodableMap params;
       params[EncodableValue("event")] = "OnIceCandidatesRemoved";
-      params[EncodableValue("candidate")] = candidate;
+      params[EncodableValue("candidates")] = EncodableValue(candidate_list);
+      context->event_sink.get()->Success(flutter::EncodableValue(params));
+    }
+  }
+
+  void OnIceSelectedCandidatePairChanged(CandidatePairChangeEventSerialized event) {
+    const std::lock_guard<std::mutex> lock(*context->channel_m);
+    if (context->event_sink.get() != nullptr) {
+      flutter::EncodableMap pair;
+      pair[EncodableValue("local")] = std::string(event.selected_candidate_pair.local);
+      pair[EncodableValue("remote")] = std::string(event.selected_candidate_pair.remote);
+
+      flutter::EncodableMap params;
+      params[EncodableValue("event")] = "OnIceSelectedCandidatePairChanged";
+      params[EncodableValue("selected_candidate_pair")] = EncodableValue(pair);
+      params[EncodableValue("estimated_disconnected_time_ms")] = event.estimated_disconnected_time_ms;
+      params[EncodableValue("reason")] = std::string(event.reason);
+      params[EncodableValue("last_data_received_ms")] = event.last_data_received_ms;
       context->event_sink.get()->Success(flutter::EncodableValue(params));
     }
   }
@@ -202,6 +226,9 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
 
  private:
   std::shared_ptr<EventContext> context;
+
+  // megrate to new PR.
+  rust::Box<Webrtc>* webrtc_;
 };
 
 namespace flutter_webrtc_plugin {
@@ -214,15 +241,18 @@ void CreateRTCPeerConnection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
+  rust::Box<Webrtc>* webrtc_(&webrtc);
   std::shared_ptr<EventContext> event_context =
       std::make_shared<EventContext>(std::move(EventContext()));
+
   std::unique_ptr<PeerConnectionOnEventInterface> event_callback =
       std::unique_ptr<PeerConnectionOnEventInterface>(
-          new PeerConnectionOnEvent(event_context));
+          new PeerConnectionOnEvent(event_context, webrtc_));
 
   auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
       [=](const flutter::EncodableValue* arguments,
-          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events) 
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
         const std::lock_guard<std::mutex> lock(*event_context->channel_m);
         event_context->event_sink = std::move(events);
@@ -237,7 +267,7 @@ void CreateRTCPeerConnection(
       });
 
   // create id
-  rust::String error;
+  rust::cxxbridge1::String error;
   uint64_t id = webrtc->CreatePeerConnection(std::move(event_callback), error);
 
   if (error == "") {
@@ -298,7 +328,7 @@ void CreateOffer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error =
+  rust::cxxbridge1::String error =
       webrtc->CreateOffer(std::stoi(peerConnectionId), voice_activity_detection,
                           ice_restart, use_rtp_mux, std::move(callback));
 
@@ -348,7 +378,7 @@ void CreateAnswer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error = webrtc->CreateAnswer(
+  rust::cxxbridge1::String error = webrtc->CreateAnswer(
       std::stoi(peerConnectionId), voice_activity_detection, ice_restart,
       use_rtp_mux, std::move(callback));
 
@@ -371,8 +401,8 @@ void SetLocalDescription(
   const std::string peerConnectionId = findString(params, "peerConnectionId");
 
   const EncodableMap constraints = findMap(params, "description");
-  rust::String type = findString(constraints, "type");
-  rust::String sdp = findString(constraints, "sdp");
+  rust::cxxbridge1::String type = findString(constraints, "type");
+  rust::cxxbridge1::String sdp = findString(constraints, "sdp");
 
   auto shared_result =
       std::shared_ptr<flutter::MethodResult<EncodableValue>>(result.release());
@@ -380,7 +410,7 @@ void SetLocalDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error = webrtc->SetLocalDescription(
+  rust::cxxbridge1::String error = webrtc->SetLocalDescription(
       std::stoi(peerConnectionId), type, sdp, std::move(callback));
 
   if (error != "") {
@@ -402,8 +432,8 @@ void SetRemoteDescription(
   const std::string peerConnectionId = findString(params, "peerConnectionId");
 
   const EncodableMap constraints = findMap(params, "description");
-  rust::String type = findString(constraints, "type");
-  rust::String sdp = findString(constraints, "sdp");
+  rust::cxxbridge1::String type = findString(constraints, "type");
+  rust::cxxbridge1::String sdp = findString(constraints, "sdp");
 
   auto shared_result =
       std::shared_ptr<flutter::MethodResult<EncodableValue>>(result.release());
@@ -411,7 +441,7 @@ void SetRemoteDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error = webrtc->SetRemoteDescription(
+  rust::cxxbridge1::String error = webrtc->SetRemoteDescription(
       std::stoi(peerConnectionId), type, sdp, std::move(callback));
 
   if (error != "") {

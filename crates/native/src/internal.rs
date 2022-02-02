@@ -1,21 +1,18 @@
 pub use cpp_api_bindings::*;
-use cxx::{CxxVector, ExternType, type_id};
-use crate::Candidate;
-
-
-
 
 #[allow(clippy::items_after_statements)]
 #[cxx::bridge]
 mod cpp_api_bindings {
 
-
     unsafe extern "C++" {
         include!("flutter-webrtc-native/include/api.h");
         include!("flutter-webrtc-native/src/lib.rs.h");
 
-        pub type CreateSdpCallbackInterface;
-        pub type SetDescriptionCallbackInterface;
+        type CreateSdpCallbackInterface;
+        type SetDescriptionCallbackInterface;
+        type CandidatePairChangeEventSerialized =
+            crate::api::CandidatePairChangeEventSerialized;
+        type PeerConnectionOnEventInterface;
 
         /// Calls CXX side `CreateSdpCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
@@ -45,39 +42,53 @@ mod cpp_api_bindings {
             error: &CxxString,
         );
 
-        type PeerConnectionOnEventInterface;
-        /// Calls `OnFail` c++ `SetDescriptionCallbackInterface`
-        ///  abstract class method.
+        /// Calls `OnSignalingChange` c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnSignalingChange"]
         pub fn on_signaling_change(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             new_state: &CxxString,
         );
 
+        /// Calls `OnStandardizedIceConnectionChange`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnStandardizedIceConnectionChange"]
         pub fn on_standardized_ice_connection_change(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             new_state: &CxxString,
         );
 
+        /// Calls `OnConnectionChange`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnConnectionChange"]
         pub fn on_connection_change(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             new_state: &CxxString,
         );
 
+        /// Calls `OnIceGatheringChange`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnIceGatheringChange"]
         pub fn on_ice_gathering_change(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             new_state: &CxxString,
         );
 
+        /// Calls `OnNegotiationNeededEvent`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnNegotiationNeededEvent"]
         pub fn on_negotiation_needed_event(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             event_id: u32,
         );
 
+        /// Calls `OnIceCandidateError`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnIceCandidateError"]
         pub fn on_ice_candidate_error(
             self: Pin<&mut PeerConnectionOnEventInterface>,
@@ -87,6 +98,9 @@ mod cpp_api_bindings {
             error_text: &CxxString,
         );
 
+        /// Calls `OnIceCandidateError`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnIceCandidateError"]
         pub fn on_ice_candidate_address_port_error(
             self: Pin<&mut PeerConnectionOnEventInterface>,
@@ -97,49 +111,60 @@ mod cpp_api_bindings {
             error_text: &CxxString,
         );
 
+        /// Calls `OnIceConnectionReceivingChange`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnIceConnectionReceivingChange"]
         pub fn on_ice_connection_receiving_change(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             receiving: bool,
         );
 
+        /// Calls `OnInterestingUsage`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnInterestingUsage"]
         pub fn on_interesting_usage(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             usage_pattern: i32,
         );
 
+        /// Calls `OnIceCandidate`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
         #[cxx_name = "OnIceCandidate"]
         pub fn on_ice_candidate(
             self: Pin<&mut PeerConnectionOnEventInterface>,
-            candidate: &CxxString
-        );
-        
-        type CandidateWrapp = crate::CandidateWrapp;
-        #[cxx_name = "OnIceCandidatesRemoved"]
-        pub unsafe fn on_ice_candidates_removed(            
-            self: Pin<&mut PeerConnectionOnEventInterface>,
-            candidates: *mut CandidateWrapp
+            candidate: &CxxString,
         );
 
-        #[cxx_name = "OnIceCandidatesRemoved_v2"]
-        pub unsafe fn on_ice_candidates_removed_v2(            
+        /// Calls `OnIceCandidatesRemoved`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
+        #[cxx_name = "OnIceCandidatesRemoved"]
+        pub unsafe fn on_ice_candidates_removed(
             self: Pin<&mut PeerConnectionOnEventInterface>,
-            candidates: Vec<String>
+            candidates: Vec<String>,
         );
+
+        /// Calls `OnIceSelectedCandidatePairChanged`
+        /// c++ `PeerConnectionOnEventInterface`
+        /// abstract class method.
+        #[cxx_name = "OnIceSelectedCandidatePairChanged"]
+        pub unsafe fn on_ice_selected_candidate_pair_changed(
+            self: Pin<&mut PeerConnectionOnEventInterface>,
+            event: CandidatePairChangeEventSerialized,
+        );
+
     }
 
     // This will trigger cxx to generate UniquePtrTarget trait for the
     // mentioned types.
     extern "Rust" {
-
         fn _touch_create_sdp_callback(i: UniquePtr<CreateSdpCallbackInterface>);
         fn _touch_set_description_callback(
             i: UniquePtr<SetDescriptionCallbackInterface>,
         );
-
-        /// This will trigger cxx to generate UniquePtrTarget
-        /// for SetDescriptionCallbackInterface.
         fn _touch_unique_ptr_peer_connection_on_event_interface(
             i: UniquePtr<PeerConnectionOnEventInterface>,
         );
@@ -155,9 +180,4 @@ fn _touch_set_description_callback(
 fn _touch_unique_ptr_peer_connection_on_event_interface(
     _: cxx::UniquePtr<PeerConnectionOnEventInterface>,
 ) {
-}
-
-unsafe impl ExternType for crate::CandidateWrapp {
-    type Id = type_id!("CandidateWrapp");
-    type Kind = cxx::kind::Opaque;
 }

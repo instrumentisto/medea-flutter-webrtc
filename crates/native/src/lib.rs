@@ -13,15 +13,12 @@ use std::{
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo, Candidate
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
 #[doc(inline)]
 pub use crate::{
-    pc::{
-        PeerConnection,
-        PeerConnectionId,
-    },
+    pc::{PeerConnection, PeerConnectionId},
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
         MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
@@ -36,15 +33,27 @@ static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
-use cxx::{UniquePtr, CxxVector};
-
+use cxx::CxxVector;
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod api {
 
+    // todo doc
+    pub struct CandidatePairSerialized {
+        local: String,
+        remote: String,
+    }
 
+    // todo doc
+    pub struct CandidatePairChangeEventSerialized {
+        selected_candidate_pair: CandidatePairSerialized,
+        last_data_received_ms: i64,
+        reason: String,
+        // How long do we estimate that we've been disconnected.
+        estimated_disconnected_time_ms: i64,
+    }
 
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -193,7 +202,7 @@ pub mod api {
             err: &mut String,
         ) -> u64;
 
-        // todo
+        // todo delete
         #[cxx_name = "DeletePeerConnection"]
         pub fn delete_pc(self: &mut Webrtc, peer_connection_id: u64);
 
@@ -342,5 +351,3 @@ pub fn init() -> Box<Webrtc> {
         peer_connections: HashMap::new(),
     })))
 }
-
-pub struct CandidateWrapp(CxxVector<libwebrtc_sys::Candidate>);

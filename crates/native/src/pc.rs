@@ -1,9 +1,11 @@
-use std::vec;
-
-use cxx::{let_cxx_string, CxxString, UniquePtr, CxxVector};
+use cxx::{let_cxx_string, CxxString, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
-use sys::{PeerConnectionObserver, Candidate};
+use sys::{
+    get_candidate_pair, get_estimated_disconnected_time_ms,
+    get_last_data_received_ms, get_local_candidate, get_reason,
+    get_remote_candidate, PeerConnectionObserver,
+};
 
 use crate::{
     api::PeerConnectionOnEventInterface,
@@ -210,7 +212,6 @@ impl Webrtc {
         peer_connection_id: impl Into<PeerConnectionId>,
     ) {
         self.0.peer_connections.remove(&peer_connection_id.into());
-        println!("RUST drop pc");
     }
 }
 
@@ -272,15 +273,13 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     }
 }
 
-//todo
+//todo doc
 struct HandlerPeerConnectionOnEvent(UniquePtr<PeerConnectionOnEventInterface>);
 
 impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0
-            .pin_mut()
-            .on_signaling_change(&new_state);
+        self.0.pin_mut().on_signaling_change(&new_state);
     }
 
     fn on_standardized_ice_connection_change(
@@ -288,21 +287,19 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         new_state: sys::IceConnectionState,
     ) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0.pin_mut().on_standardized_ice_connection_change(&new_state);
+        self.0
+            .pin_mut()
+            .on_standardized_ice_connection_change(&new_state);
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0
-            .pin_mut()
-            .on_connection_change(&new_state);
+        self.0.pin_mut().on_connection_change(&new_state);
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0
-            .pin_mut()
-            .on_ice_gathering_change(&new_state);
+        self.0.pin_mut().on_ice_gathering_change(&new_state);
     }
 
     fn on_negotiation_needed_event(&mut self, event_id: u32) {
@@ -351,21 +348,65 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         &mut self,
         candidate: *const sys::IceCandidateInterface,
     ) {
-        let mut str_ice_candidate = unsafe {sys::ice_candidate_interface_to_string(candidate)};
-        self.0.pin_mut().on_ice_candidate(&str_ice_candidate.pin_mut());
+        let mut str_ice_candidate =
+            unsafe { sys::ice_candidate_interface_to_string(candidate) };
+        self.0
+            .pin_mut()
+            .on_ice_candidate(&str_ice_candidate.pin_mut());
     }
 
     fn on_ice_candidates_removed(
         &mut self,
-        candidates: Vec<UniquePtr<sys::Candidate>>,
+        candidates: Vec<libwebrtc_sys::CandidateWrap>,
     ) {
-        //unsafe {self.0.pin_mut().on_ice_candidates_removed(&mut crate::CandidateWrapp(candidates))};
-        let mut vec_str = vec![];
-        for mut i in candidates
-        {
-            vec_str.push(sys::candidate_to_string(&i.pin_mut()).to_string());
-        }
-        unsafe {self.0.pin_mut().on_ice_candidates_removed_v2(vec_str)};
+        unsafe {
+            self.0.pin_mut().on_ice_candidates_removed(
+                candidates
+                    .into_iter()
+                    .map(|mut c| {
+                        sys::candidate_to_string(&c.c.pin_mut()).to_string()
+                    })
+                    .collect(),
+            );
+        };
     }
-}
 
+    fn on_ice_selected_candidate_pair_changed(
+        &mut self,
+        event: &sys::CandidatePairChangeEvent,
+    ) {
+        let pair = get_candidate_pair(event);
+        let local = get_local_candidate(pair);
+        let remote = get_remote_candidate(pair);
+
+        let pair = crate::api::CandidatePairSerialized {
+            local: sys::candidate_to_string(local).to_string(),
+            remote: sys::candidate_to_string(remote).to_string(),
+        };
+        let candidate_pair_change_event_serialized =
+            crate::api::CandidatePairChangeEventSerialized {
+                selected_candidate_pair: pair,
+                last_data_received_ms: get_last_data_received_ms(event),
+                reason: get_reason(event).pin_mut().to_string(),
+                estimated_disconnected_time_ms:
+                    get_estimated_disconnected_time_ms(event),
+            };
+
+        unsafe {
+            self.0.pin_mut().on_ice_selected_candidate_pair_changed(
+                candidate_pair_change_event_serialized,
+            );
+        };
+    }
+
+    // migrate to new PR.
+    // fn on_add_track(
+    //     &mut self,
+    //     receiver: UniquePtr<sys::RtpReceiverInterface>,
+    //     streams: Vec<sys::MediaStreamTrackInterfaceWrap>,
+    // ) {
+    //     // todo ser receiver and streams and call c++ callback;
+    //     drop(receiver);
+    //     drop(streams);
+    // }
+}

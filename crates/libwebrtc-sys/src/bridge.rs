@@ -1,9 +1,12 @@
 use std::fmt;
 
 use anyhow::anyhow;
-use cxx::{CxxString,CxxVector,UniquePtr};
+use cxx::{CxxString, UniquePtr};
 
-use crate::{CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback, Candidate};
+use crate::{
+    Candidate, CreateSdpCallback, MediaStreamTrackInterface,
+    PeerConnectionOnEvent, SetDescriptionCallback,
+};
 
 /// [`CreateSdpCallback`] that can be transferred to the CXX side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
@@ -11,12 +14,24 @@ type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
 /// [`SetDescriptionCallback`] that can be transferred to the CXX side.
 type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
 
-pub type DynPeerConnectionOnEvent = Box<dyn PeerConnectionOnEvent>;
+/// [`PeerConnectionOnEvent`] that can be transferred to the CXX side.
+type DynPeerConnectionOnEvent = Box<dyn PeerConnectionOnEvent>;
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
+    /// [`Candidate`] wrapper 
+    /// for using in extern Rust [`Vec`].
+    pub struct CandidateWrap {
+        c: UniquePtr<Candidate>,
+    }
+
+    /// [`MediaStreamTrackInterface`] wrapper 
+    /// for using in extern Rust [`Vec`].
+    pub struct MediaStreamTrackInterfaceWrap {
+        m: UniquePtr<MediaStreamTrackInterface>,
+    }
 
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
@@ -48,7 +63,7 @@ pub(crate) mod webrtc {
 
         /// [RTCSdpType.pranswer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-pranswer
         kPrAnswer,
 
         /// [RTCSdpType.answer][1] representation.
@@ -62,50 +77,144 @@ pub(crate) mod webrtc {
         kRollback,
     }
 
-    // todo.
+    /// [RTCSignalingState] representation.
+    ///
+    /// [RTCSignalingState]: https://www.w3.org/TR/webrtc/#state-definitions
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SignalingState {
+        /// [RTCSignalingState.stable][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-stable
         kStable,
+
+        /// [RTCSignalingState.have-local-offer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-offer
         kHaveLocalOffer,
+
+        /// [RTCSignalingState.have-local-pranswer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-pranswer
         kHaveLocalPrAnswer,
+
+        /// [RTCSignalingState.have-remote-offer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-offer
         kHaveRemoteOffer,
+
+        /// [RTCSignalingState.have-remote-pranswer][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-pranswer
         kHaveRemotePrAnswer,
+
+        /// [RTCSignalingState.closed][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-closed
         kClosed,
     }
 
-    // todo.
+    /// [RTCIceGatheringState] representation.
+    ///
+    /// [RTCIceGatheringState]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum IceGatheringState {
+        /// [RTCIceGatheringState.new][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate-new
         kIceGatheringNew,
+
+        /// [RTCIceGatheringState.gathering][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate-gathering
         kIceGatheringGathering,
+
+        /// [RTCIceGatheringState.complete][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate-complete
         kIceGatheringComplete,
     }
 
-    // todo.
+    /// [RTCPeerConnectionState] representation.
+    ///
+    /// [RTCPeerConnectionState]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     enum PeerConnectionState {
+        /// [RTCPeerConnectionState.new][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-new
         kNew,
+
+        /// [RTCPeerConnectionState.connecting][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-connecting
         kConnecting,
+
+        /// [RTCPeerConnectionState.connected][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-connected
         kConnected,
+
+        /// [RTCPeerConnectionState.disconnected][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-disconnected
         kDisconnected,
+
+        /// [RTCPeerConnectionState.failed][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-failed
         kFailed,
+
+        /// [RTCPeerConnectionState.closed][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-closed
         kClosed,
     }
 
-    // todo.
+    /// [RTCIceConnectionState] representation.
+    ///
+    /// [RTCIceConnectionState]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     enum IceConnectionState {
+        /// [RTCIceConnectionState.new][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-new
         kIceConnectionNew,
+
+        /// [RTCIceConnectionState.checking][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-checking
         kIceConnectionChecking,
+
+        /// [RTCIceConnectionState.connected][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-connected
         kIceConnectionConnected,
+
+        /// [RTCIceConnectionState.completed][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-completed
         kIceConnectionCompleted,
+
+        /// [RTCIceConnectionState.failed][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-failed
         kIceConnectionFailed,
+
+        /// [RTCIceConnectionState.disconnected][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-disconnected
         kIceConnectionDisconnected,
+
+        /// [RTCIceConnectionState.closed][1] representation.
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-closed
         kIceConnectionClosed,
+
+        /// Unreachable.
         kIceConnectionMax,
     }
 
@@ -230,6 +339,12 @@ pub(crate) mod webrtc {
 
         type IceCandidateInterface;
         type Candidate;
+        type CandidatePairChangeEvent;
+        type CandidatePair;
+
+        type RtpReceiverInterface;
+        type MediaStreamTrackInterface;
+
 
         /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -336,11 +451,17 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
 
-        //todo
+        /// Converts [`IceCandidateInterface`] to [`UniquePtr<CxxString>`]
+        /// # Safety
+        /// get `*const IceCandidateInterface` from 
+        /// `PeerConnectionObserver`->`OnIceCandidate`.
+        #[must_use]
         pub unsafe fn ice_candidate_interface_to_string(
             candidate: *const IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
+        /// Converts [`Candidate`] to [`UniquePtr<CxxString>`]
+        #[must_use]
         pub fn candidate_to_string(candidate: &Candidate) -> UniquePtr<CxxString>;
     }
 
@@ -411,10 +532,38 @@ pub(crate) mod webrtc {
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
+
+        #[must_use]
+        pub fn get_candidate_pair(
+            event: &CandidatePairChangeEvent,
+        ) -> &CandidatePair;
+
+        #[must_use]
+        pub fn get_last_data_received_ms(
+            event: &CandidatePairChangeEvent,
+        ) -> i64;
+
+        #[must_use]
+        pub fn get_reason(
+            event: &CandidatePairChangeEvent,
+        ) -> UniquePtr<CxxString>;
+
+        #[must_use]
+        pub fn get_estimated_disconnected_time_ms(
+            event: &CandidatePairChangeEvent,
+        ) -> i64;
+
+        #[must_use]
+        pub fn get_local_candidate(pair: &CandidatePair) -> &Candidate;
+
+        #[must_use]
+        pub fn get_remote_candidate(pair: &CandidatePair) -> &Candidate;
     }
 
+    // This will trigger cxx to generate UniquePtrTarget trait for the
+    // mentioned types.
     extern "Rust" {
-        fn _touch_candidate(i: UniquePtr<Candidate>);
+        fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
     }
 
     extern "Rust" {
@@ -444,27 +593,37 @@ pub(crate) mod webrtc {
             error: &CxxString,
         );
 
-        /// todo
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_signaling_change(
             cb: &mut DynPeerConnectionOnEvent,
             state: SignalingState,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_standardized_ice_connection_change(
             cb: &mut DynPeerConnectionOnEvent,
             new_state: IceConnectionState,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_connection_change(
             cb: &mut DynPeerConnectionOnEvent,
             new_state: PeerConnectionState,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_ice_gathering_change(
             cb: &mut DynPeerConnectionOnEvent,
             new_state: IceGatheringState,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_negotiation_needed_event(
             cb: &mut DynPeerConnectionOnEvent,
             event_id: u32,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_ice_candidate_error(
             cb: &mut DynPeerConnectionOnEvent,
             host_candidate: &CxxString,
@@ -472,6 +631,8 @@ pub(crate) mod webrtc {
             error_code: i32,
             error_text: &CxxString,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_ice_candidate_address_port_error(
             cb: &mut DynPeerConnectionOnEvent,
             address: &CxxString,
@@ -480,19 +641,41 @@ pub(crate) mod webrtc {
             error_code: i32,
             error_text: &CxxString,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_ice_connection_receiving_change(
             cb: &mut DynPeerConnectionOnEvent,
             receiving: bool,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_interesting_usage(
             cb: &mut DynPeerConnectionOnEvent,
             usage_pattern: i32,
         );
 
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub unsafe fn call_peer_connection_on_ice_candidate(
             cb: &mut DynPeerConnectionOnEvent,
             candidate: *const IceCandidateInterface,
         );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
+        pub fn call_peer_connection_on_ice_candidates_removed(
+            cb: &mut DynPeerConnectionOnEvent,
+            candidates: Vec<CandidateWrap>,
+        );
+
+        /// Completes the provided [`DynPeerConnectionOnEvent`].
+        pub fn call_on_ice_selected_candidate_pair_changed(
+            cb: &mut DynPeerConnectionOnEvent,
+            event: &CandidatePairChangeEvent,
+        );
+
+        /// Creates [`CandidateWrap`].
+        pub fn create_candidate_wrapp(
+            candidate: UniquePtr<Candidate>,
+        ) -> CandidateWrap;
 
     }
 }
@@ -528,6 +711,7 @@ pub fn set_description_fail(
     cb.fail(error);
 }
 
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_signaling_change(
     cb: &mut DynPeerConnectionOnEvent,
     state: webrtc::SignalingState,
@@ -535,30 +719,39 @@ pub fn call_peer_connection_on_signaling_change(
     cb.on_signaling_change(state);
 }
 
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_standardized_ice_connection_change(
     cb: &mut DynPeerConnectionOnEvent,
     new_state: webrtc::IceConnectionState,
 ) {
     cb.on_standardized_ice_connection_change(new_state);
 }
+
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_connection_change(
     cb: &mut DynPeerConnectionOnEvent,
     new_state: webrtc::PeerConnectionState,
 ) {
     cb.on_connection_change(new_state);
 }
+
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_ice_gathering_change(
     cb: &mut DynPeerConnectionOnEvent,
     new_state: webrtc::IceGatheringState,
 ) {
     cb.on_ice_gathering_change(new_state);
 }
+
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_negotiation_needed_event(
     cb: &mut DynPeerConnectionOnEvent,
     event_id: u32,
 ) {
     cb.on_negotiation_needed_event(event_id);
 }
+
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_ice_candidate_error(
     cb: &mut DynPeerConnectionOnEvent,
     host_candidate: &CxxString,
@@ -568,6 +761,8 @@ pub fn call_peer_connection_on_ice_candidate_error(
 ) {
     cb.on_ice_candidate_error(host_candidate, url, error_code, error_text);
 }
+
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_ice_candidate_address_port_error(
     cb: &mut DynPeerConnectionOnEvent,
     address: &CxxString,
@@ -580,6 +775,8 @@ pub fn call_peer_connection_on_ice_candidate_address_port_error(
         address, port, url, error_code, error_text,
     );
 }
+
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_ice_connection_receiving_change(
     cb: &mut DynPeerConnectionOnEvent,
     receiving: bool,
@@ -587,6 +784,7 @@ pub fn call_peer_connection_on_ice_connection_receiving_change(
     cb.on_ice_connection_receiving_change(receiving);
 }
 
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_interesting_usage(
     cb: &mut DynPeerConnectionOnEvent,
     usage_pattern: i32,
@@ -594,6 +792,7 @@ pub fn call_peer_connection_on_interesting_usage(
     cb.on_interesting_usage(usage_pattern);
 }
 
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_ice_candidate(
     cb: &mut DynPeerConnectionOnEvent,
     candidate: *const webrtc::IceCandidateInterface,
@@ -601,14 +800,21 @@ pub fn call_peer_connection_on_ice_candidate(
     cb.on_ice_candidate(candidate);
 }
 
+/// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_ice_candidates_removed(
     cb: &mut DynPeerConnectionOnEvent,
-    candidates: Vec<UniquePtr<Candidate>>,
+    candidates: Vec<webrtc::CandidateWrap>,
 ) {
     cb.on_ice_candidates_removed(candidates);
 }
 
-fn _touch_candidate(_: cxx::UniquePtr<Candidate>) {}
+/// Completes the provided [`DynPeerConnectionOnEvent`].
+pub fn call_on_ice_selected_candidate_pair_changed(
+    cb: &mut DynPeerConnectionOnEvent,
+    event: &webrtc::CandidatePairChangeEvent,
+) {
+    cb.on_ice_selected_candidate_pair_changed(event);
+}
 
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
@@ -639,20 +845,20 @@ impl fmt::Display for webrtc::SdpType {
 impl ToString for webrtc::SignalingState {
     fn to_string(&self) -> String {
         match *self {
-            webrtc::SignalingState::kStable => "kStable".to_owned(),
+            webrtc::SignalingState::kStable => "stable".to_owned(),
             webrtc::SignalingState::kHaveLocalOffer => {
-                "kHaveLocalOffer".to_owned()
+                "have-local-offer".to_owned()
             }
             webrtc::SignalingState::kHaveLocalPrAnswer => {
-                "kHaveLocalPrAnswer".to_owned()
+                "have-local-pranswer".to_owned()
             }
             webrtc::SignalingState::kHaveRemoteOffer => {
-                "kHaveRemoteOffer".to_owned()
+                "have-remote-offer".to_owned()
             }
             webrtc::SignalingState::kHaveRemotePrAnswer => {
-                "kHaveRemotePrAnswer".to_owned()
+                "have-remote-pranswer".to_owned()
             }
-            webrtc::SignalingState::kClosed => "kClosed".to_owned(),
+            webrtc::SignalingState::kClosed => "closed".to_owned(),
             _ => unreachable!(),
         }
     }
@@ -661,14 +867,12 @@ impl ToString for webrtc::SignalingState {
 impl ToString for webrtc::IceGatheringState {
     fn to_string(&self) -> String {
         match *self {
-            webrtc::IceGatheringState::kIceGatheringNew => {
-                "kIceGatheringNew".to_owned()
-            }
+            webrtc::IceGatheringState::kIceGatheringNew => "new".to_owned(),
             webrtc::IceGatheringState::kIceGatheringGathering => {
-                "kIceGatheringGathering".to_owned()
+                "gathering".to_owned()
             }
             webrtc::IceGatheringState::kIceGatheringComplete => {
-                "kIceGatheringComplete".to_owned()
+                "complete".to_owned()
             }
             _ => unreachable!(),
         }
@@ -678,30 +882,26 @@ impl ToString for webrtc::IceGatheringState {
 impl ToString for webrtc::IceConnectionState {
     fn to_string(&self) -> String {
         match *self {
-            webrtc::IceConnectionState::kIceConnectionNew => {
-                "kIceConnectionNew".to_owned()
-            }
+            webrtc::IceConnectionState::kIceConnectionNew => "new".to_owned(),
             webrtc::IceConnectionState::kIceConnectionChecking => {
-                "kIceConnectionChecking".to_owned()
+                "checking".to_owned()
             }
             webrtc::IceConnectionState::kIceConnectionConnected => {
-                "kIceConnectionConnected".to_owned()
+                "connected".to_owned()
             }
             webrtc::IceConnectionState::kIceConnectionCompleted => {
-                "kIceConnectionCompleted".to_owned()
+                "completed".to_owned()
             }
             webrtc::IceConnectionState::kIceConnectionFailed => {
-                "kIceConnectionFailed".to_owned()
+                "failed".to_owned()
             }
             webrtc::IceConnectionState::kIceConnectionDisconnected => {
-                "kIceConnectionDisconnected".to_owned()
+                "disconnected".to_owned()
             }
             webrtc::IceConnectionState::kIceConnectionClosed => {
-                "kIceConnectionClosed".to_owned()
+                "closed".to_owned()
             }
-            webrtc::IceConnectionState::kIceConnectionMax => {
-                "kIceConnectionMax".to_owned()
-            }
+            webrtc::IceConnectionState::kIceConnectionMax => unreachable!(),
             _ => unreachable!(),
         }
     }
@@ -710,17 +910,34 @@ impl ToString for webrtc::IceConnectionState {
 impl ToString for webrtc::PeerConnectionState {
     fn to_string(&self) -> String {
         match *self {
-            webrtc::PeerConnectionState::kNew => "kNew".to_owned(),
-            webrtc::PeerConnectionState::kConnecting => {
-                "kConnecting".to_owned()
-            }
-            webrtc::PeerConnectionState::kConnected => "kConnected".to_owned(),
+            webrtc::PeerConnectionState::kNew => "new".to_owned(),
+            webrtc::PeerConnectionState::kConnecting => "connecting".to_owned(),
+            webrtc::PeerConnectionState::kConnected => "connected".to_owned(),
             webrtc::PeerConnectionState::kDisconnected => {
-                "kDisconnected".to_owned()
+                "disconnected".to_owned()
             }
-            webrtc::PeerConnectionState::kFailed => "kFailed".to_owned(),
-            webrtc::PeerConnectionState::kClosed => "kClosed".to_owned(),
+            webrtc::PeerConnectionState::kFailed => "failed".to_owned(),
+            webrtc::PeerConnectionState::kClosed => "closed".to_owned(),
             _ => unreachable!(),
         }
+    }
+}
+
+fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {}
+
+/// Creates [`CandidateWrap`].
+fn create_candidate_wrapp(
+    candidate: UniquePtr<Candidate>,
+) -> webrtc::CandidateWrap {
+    webrtc::CandidateWrap { c: candidate }
+}
+
+// migrate to new PR.
+/// Creates [`MediaStreamTrackInterfaceWrap`].
+fn create_media_stream_track_interface_wrap(
+    media_stream_track: UniquePtr<MediaStreamTrackInterface>,
+) -> webrtc::MediaStreamTrackInterfaceWrap {
+    webrtc::MediaStreamTrackInterfaceWrap {
+        m: media_stream_track,
     }
 }

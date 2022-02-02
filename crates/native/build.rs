@@ -1,9 +1,6 @@
 #![warn(clippy::pedantic)]
 
-use std::{
-    env, fs,
-    path::{Path, PathBuf},
-};
+use std::{env, fs, path::Path};
 
 use anyhow::{anyhow, Context};
 use walkdir::{DirEntry, WalkDir};

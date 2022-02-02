@@ -2,19 +2,21 @@
 #![allow(clippy::missing_errors_doc)]
 
 mod bridge;
-
 use anyhow::bail;
-use cxx::private::VectorElement;
-use cxx::{let_cxx_string, CxxString, UniquePtr, CxxVector};
-
+pub use bridge::webrtc::{CandidateWrap, MediaStreamTrackInterfaceWrap};
+use cxx::{let_cxx_string, CxxString, UniquePtr};
 use self::bridge::webrtc;
-
 pub use crate::webrtc::{
     AudioLayer, IceConnectionState, IceGatheringState, PeerConnectionState,
     SdpType, SignalingState,
 };
-
-pub use crate::webrtc::{IceCandidateInterface, Candidate, ice_candidate_interface_to_string, candidate_to_string};
+pub use crate::webrtc::{
+    candidate_to_string, get_candidate_pair,
+    get_estimated_disconnected_time_ms, get_last_data_received_ms,
+    get_local_candidate, get_reason, get_remote_candidate,
+    ice_candidate_interface_to_string, Candidate, CandidatePairChangeEvent,
+    IceCandidateInterface, MediaStreamTrackInterface, RtpReceiverInterface,
+};
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
 /// used to call [`PeerConnectionInterface::create_offer()`] and
@@ -39,16 +41,41 @@ pub trait SetDescriptionCallback {
     fn fail(&mut self, error: &CxxString);
 }
 
-/// todo
+/// Completion callback for the [`PeerConnectionObserver`] 
+/// that are used when calls:
+/// [`PeerConnectionObserver::OnSignalingChange`], 
+/// [`PeerConnectionObserver::OnNegotiationNeededEvent`], 
+/// [`PeerConnectionObserver::OnStandardizedIceConnectionChange`], 
+/// [`PeerConnectionObserver::OnConnectionChange`], 
+/// [`PeerConnectionObserver::OnIceGatheringChange`], 
+/// [`PeerConnectionObserver::OnIceCandidate`], 
+/// [`PeerConnectionObserver::OnIceCandidateError`], 
+/// [`PeerConnectionObserver::OnIceCandidateError`] (args overload), 
+/// [`PeerConnectionObserver::OnIceCandidatesRemoved`], 
+/// [`PeerConnectionObserver::OnIceConnectionReceivingChange`], 
+/// [`PeerConnectionObserver::OnIceSelectedCandidatePairChanged`], 
+/// [`PeerConnectionObserver::OnInterestingUsage`]. 
 pub trait PeerConnectionOnEvent {
+
+    /// Called when the associated event occurs.
     fn on_signaling_change(&mut self, new_state: SignalingState);
+
+    /// Called when the associated event occurs.
     fn on_standardized_ice_connection_change(
         &mut self,
         new_state: IceConnectionState,
     );
+
+    /// Called when the associated event occurs.
     fn on_connection_change(&mut self, new_state: PeerConnectionState);
+
+    /// Called when the associated event occurs.
     fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
+
+    /// Called when the associated event occurs.
     fn on_negotiation_needed_event(&mut self, event_id: u32);
+
+    /// Called when the associated event occurs.
     fn on_ice_candidate_error(
         &mut self,
         host_candidate: &CxxString,
@@ -56,6 +83,8 @@ pub trait PeerConnectionOnEvent {
         error_code: i32,
         error_text: &CxxString,
     );
+
+    /// Called when the associated event occurs.
     fn on_ice_candidate_address_port_error(
         &mut self,
         address: &CxxString,
@@ -64,21 +93,34 @@ pub trait PeerConnectionOnEvent {
         error_code: i32,
         error_text: &CxxString,
     );
+
+    /// Called when the associated event occurs.
     fn on_ice_connection_receiving_change(&mut self, receiving: bool);
 
+    /// Called when the associated event occurs.
     fn on_interesting_usage(&mut self, usage_pattern: i32);
 
+    /// Called when the associated event occurs.
     fn on_ice_candidate(
         &mut self,
         candidate: *const webrtc::IceCandidateInterface,
     );
 
-    fn on_ice_candidates_removed(
+    /// Called when the associated event occurs.
+    fn on_ice_candidates_removed(&mut self, candidates: Vec<CandidateWrap>);
+
+    /// Called when the associated event occurs.
+    fn on_ice_selected_candidate_pair_changed(
         &mut self,
-        candidates: Vec<UniquePtr<Candidate>>,
+        event: &CandidatePairChangeEvent,
     );
 
-    
+    // migrate to new PR
+    // fn on_add_track(
+    //     &mut self,
+    //     receiver: UniquePtr<RtpReceiverInterface>,
+    //     streams: Vec<MediaStreamTrackInterfaceWrap>,
+    // );
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -284,24 +326,27 @@ impl Default for RTCConfiguration {
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl PeerConnectionObserver {
+    #[must_use]
     pub fn new(cb: Box<dyn PeerConnectionOnEvent>) -> Self {
         Self(webrtc::create_peer_connection_observer(Box::new(cb)))
     }
 }
 
 /// Contains all of the [`PeerConnectionInterface`] dependencies.
+
 pub struct PeerConnectionDependencies {
     dependencies: UniquePtr<webrtc::PeerConnectionDependencies>,
-    _lt: PeerConnectionObserver,
+    _observer: PeerConnectionObserver,
 }
 
 impl PeerConnectionDependencies {
+    #[must_use]
     pub fn new(observer: PeerConnectionObserver) -> Self {
         Self {
             dependencies: webrtc::create_peer_connection_dependencies(
                 &observer.0,
             ),
-            _lt: observer,
+            _observer: observer,
         }
     }
 }
@@ -396,7 +441,7 @@ impl SetRemoteDescriptionObserver {
 /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection
 pub struct PeerConnectionInterface {
     pc: UniquePtr<webrtc::PeerConnectionInterface>,
-    _observer_lt: PeerConnectionObserver,
+    _observer: PeerConnectionObserver,
 }
 
 impl PeerConnectionInterface {
@@ -504,6 +549,7 @@ impl PeerConnectionFactoryInterface {
     }
 
     /// Creates a new [`PeerConnectionInterface`].
+    #[allow(clippy::used_underscore_binding)]
     pub fn create_peer_connection_or_error(
         &mut self,
         configuration: &RTCConfiguration,
@@ -529,7 +575,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(PeerConnectionInterface {
             pc: inner,
-            _observer_lt: dependencies._lt,
+            _observer: dependencies._observer,
         })
     }
 

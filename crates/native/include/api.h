@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "rust/cxx.h"
 
 // Completion callback for the `Webrtc::CreateOffer` and `Webrtc::CreateAnswer`
 // functions.
@@ -29,7 +28,16 @@ class SetDescriptionCallbackInterface {
   virtual ~SetDescriptionCallbackInterface() = default;
 };
 
-struct CandidateWrapp;
+namespace rust {
+  inline namespace cxxbridge1 {
+    template <typename T>
+    class Vec;
+    class String;
+  }
+}
+
+// todo doc
+struct CandidatePairChangeEventSerialized;
 class PeerConnectionOnEventInterface {
  public:
   virtual void OnSignalingChange(const std::string& new_state) = 0;
@@ -52,8 +60,9 @@ class PeerConnectionOnEventInterface {
   virtual void OnInterestingUsage(int usage_pattern) = 0;
 
   virtual void OnIceCandidate(const std::string& candidate) = 0;
-  virtual void OnIceCandidatesRemoved(CandidateWrapp* candidates) = 0;
-  virtual void OnIceCandidatesRemoved_v2(rust::Vec<rust::String> candidates) = 0;
+  virtual void OnIceCandidatesRemoved(rust::Vec<rust::String> candidates) = 0;
+  virtual void OnIceSelectedCandidatePairChanged(CandidatePairChangeEventSerialized event) = 0;
+ 
 
   virtual ~PeerConnectionOnEventInterface() = default;
 };

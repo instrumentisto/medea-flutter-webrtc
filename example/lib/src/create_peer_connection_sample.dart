@@ -44,9 +44,12 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
     if (obj is Exception) throw obj;
   }
 
+  // todo refact
   void _create_peer() async {
 
       try {
+
+        for (var i =0;i<1; ++i){
           final createPeerConnection1 = await WebRTC.invokeMethod(
             'createPeerConnection', null
           );
@@ -118,19 +121,28 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
            'type': createAnswer2['type']}
        });
 
-       await sub1.cancel();
+      await sub1.cancel();
 
 
     
-        final delete_pc2 =
-              await WebRTC.invokeMethod('deletePC', <String, dynamic>{
-            'peerConnectionId': pc2_id
-        });
+      final delete_pc2 =
+            await WebRTC.invokeMethod('deletePC', <String, dynamic>{
+          'peerConnectionId': pc2_id
+      });
 
+
+      await sub2.cancel();
+
+      final delete_pc1 =
+            await WebRTC.invokeMethod('deletePC', <String, dynamic>{
+          'peerConnectionId': pc1_id
+      });
 
       setState(() {
-        text = 'test is success';
+        text = 'test is success $i';
       });
+        }
+
       }
       catch (e) {
         print(e.toString());

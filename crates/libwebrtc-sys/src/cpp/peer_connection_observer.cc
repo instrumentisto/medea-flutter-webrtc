@@ -10,6 +10,7 @@ PeerConnectionObserver::PeerConnectionObserver(
     : cb_(std::move(cb)){};
 
 // Triggered when the SignalingState changed.
+// Propagates the received `SignalingState new_state` to the Rust side.
 void PeerConnectionObserver::OnSignalingChange(
     webrtc::PeerConnectionInterface::SignalingState new_state) {
   if (cb_) {
@@ -18,22 +19,8 @@ void PeerConnectionObserver::OnSignalingChange(
 };
 
 // no need
-void PeerConnectionObserver::OnAddStream(
-    rtc::scoped_refptr<webrtc::MediaStreamInterface> stream){};
-
-// no need
-void PeerConnectionObserver::OnRemoveStream(
-    rtc::scoped_refptr<webrtc::MediaStreamInterface> stream){};
-
-// no need
 void PeerConnectionObserver::OnDataChannel(
-    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel){};
-
-// Triggered when renegotiation is needed. For example, an ICE restart
-// has begun.
-// TODO(hbos): Delete in favor of OnNegotiationNeededEvent() when downstream
-// projects have migrated. ____need?____
-void PeerConnectionObserver::OnRenegotiationNeeded(){};
+    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
 
 // Used to fire spec-compliant onnegotiationneeded events, which should only
 // fire when the Operations Chain is empty. The observer is responsible for
@@ -42,6 +29,7 @@ void PeerConnectionObserver::OnRenegotiationNeeded(){};
 // PeerConnection::ShouldFireNegotiationNeededEvent() returns true since it is
 // possible for the event to become invalidated by operations subsequently
 // chained.
+// Propagates the received `event_id` to the Rust side.
 void PeerConnectionObserver::OnNegotiationNeededEvent(uint32_t event_id) {
   if (cb_) {
     bridge::call_peer_connection_on_negotiation_needed_event(*cb_.value(),
@@ -49,11 +37,8 @@ void PeerConnectionObserver::OnNegotiationNeededEvent(uint32_t event_id) {
   }
 };
 
-// no need
-void PeerConnectionObserver::OnIceConnectionChange(
-    webrtc::PeerConnectionInterface::IceConnectionState new_state){};
-
 // Called any time the standards-compliant IceConnectionState changes.
+// Propagates the received `IceConnectionState new_state` to the Rust side.
 void PeerConnectionObserver::OnStandardizedIceConnectionChange(
     webrtc::PeerConnectionInterface::IceConnectionState new_state) {
   if (cb_) {
@@ -63,6 +48,7 @@ void PeerConnectionObserver::OnStandardizedIceConnectionChange(
 };
 
 // Called any time the PeerConnectionState changes.
+// Propagates the received `PeerConnectionState new_state` to the Rust side.
 void PeerConnectionObserver::OnConnectionChange(
     webrtc::PeerConnectionInterface::PeerConnectionState new_state) {
   if (cb_) {
@@ -71,6 +57,7 @@ void PeerConnectionObserver::OnConnectionChange(
 };
 
 // Called any time the IceGatheringState changes.
+// Propagates the received `IceGatheringState new_state` to the Rust side.
 void PeerConnectionObserver::OnIceGatheringChange(
     webrtc::PeerConnectionInterface::IceGatheringState new_state) {
   if (cb_) {
@@ -80,16 +67,19 @@ void PeerConnectionObserver::OnIceGatheringChange(
 };
 
 // A new ICE candidate has been gathered.
+// Propagates the received `IceCandidateInterface candidate` to the Rust side.
 void PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface* candidate) {
-      if(cb_) {
-        bridge::call_peer_connection_on_ice_candidate(*cb_.value(), candidate);
-      }
-    };
+  if (cb_) {
+    bridge::call_peer_connection_on_ice_candidate(*cb_.value(), candidate);
+  }
+};
 
 // Gathering of an ICE candidate failed.
 // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
 // `host_candidate` is a stringified socket address.
+// Propagates the received `host_candidate`,
+// `url`, `error_code`, `error_text` to the Rust side.
 void PeerConnectionObserver::OnIceCandidateError(
     const std::string& host_candidate,
     const std::string& url,
@@ -103,6 +93,8 @@ void PeerConnectionObserver::OnIceCandidateError(
 
 // Gathering of an ICE candidate failed.
 // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
+// Propagates the received `address`, `port`, 
+// `url`, `error_code`, `error_text` to the Rust side.
 void PeerConnectionObserver::OnIceCandidateError(
     const std::string& address,
     int port,
@@ -116,12 +108,22 @@ void PeerConnectionObserver::OnIceCandidateError(
 };
 
 // Ice candidates have been removed.
-// TODO(honghaiz): Make this a pure virtual method when all its subclasses
-// implement it.
+// Propagates the received `std::vector<cricket::Candidate> candidates` to the Rust side.
 void PeerConnectionObserver::OnIceCandidatesRemoved(
-    const std::vector<cricket::Candidate>& candidates){};
+    const std::vector<cricket::Candidate>& candidates) {
+  if (cb_) {
+    rust::Vec<bridge::CandidateWrap> vec;
+    for (int i = 0; i < candidates.size(); ++i) {
+      vec.push_back(bridge::create_candidate_wrapp(
+          std::make_unique<bridge::Candidate>(candidates[i])));
+    }
+    bridge::call_peer_connection_on_ice_candidates_removed(*cb_.value(),
+                                                           std::move(vec));
+  }
+};
 
 // Called when the ICE connection receiving status changes.
+// Propagates the received `receiving` to the Rust side.
 void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
   if (cb_) {
     bridge::call_peer_connection_on_ice_connection_receiving_change(
@@ -130,8 +132,13 @@ void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
 };
 
 // Called when the selected candidate pair for the ICE connection changes.
+// Propagates the received `CandidatePairChangeEvent event` to the Rust side.
 void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
-    const cricket::CandidatePairChangeEvent& event){};
+    const cricket::CandidatePairChangeEvent& event) {
+  if (cb_) {
+    bridge::call_on_ice_selected_candidate_pair_changed(*cb_.value(), event);
+  }
+};
 
 // This is called when a receiver and its track are created.
 // TODO(zhihuang): Make this pure virtual when all subclasses implement it.
@@ -162,7 +169,6 @@ void PeerConnectionObserver::OnTrack(
 // With Unified Plan semantics, the receiver will remain but the transceiver
 // will have changed direction to either sendonly or inactive.
 // https://w3c.github.io/webrtc-pc/#process-remote-track-removal
-// TODO(hbos,deadbeef): Make pure virtual when all subclasses implement it.
 void PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver){};
 
@@ -172,6 +178,7 @@ void PeerConnectionObserver::OnRemoveTrack(
 // log function.
 // The heuristics for defining what constitutes "interesting" are
 // implementation-defined.
+// Propagates the received `usage_pattern` to the Rust side.
 void PeerConnectionObserver::OnInterestingUsage(int usage_pattern) {
   if (cb_) {
     bridge::call_peer_connection_on_interesting_usage(*cb_.value(),
