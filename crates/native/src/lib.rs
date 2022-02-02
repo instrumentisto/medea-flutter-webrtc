@@ -300,7 +300,7 @@ pub struct Context {
     audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
-    peer_connections: HashMap<PeerConnectionId, PeerConnection>,
+    pub peer_connections: HashMap<PeerConnectionId, PeerConnection>,
 }
 
 /// Creates an instanse of [`Webrtc`].

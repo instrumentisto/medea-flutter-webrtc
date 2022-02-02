@@ -362,9 +362,13 @@ rust::Box<Transceivers> get_transceivers(
     const PeerConnectionInterface& peer_connection_interface) {
   auto transceivers = create_transceivers();
 
+  auto count = 0;
+
   for (RtpTransceiverInterface transceiver :
        peer_connection_interface->GetTransceivers()) {
-    transceivers->add(std::make_unique<RtpTransceiverInterface>(transceiver));
+    printf("%d\n", count++);
+    // transceivers->add(std::make_unique<RtpTransceiverInterface>(transceiver));
+    std::make_shared<RtpTransceiverInterface>(transceiver);
   }
 
   return transceivers;
@@ -390,7 +394,7 @@ bool get_transceiver_mid(const RtpTransceiverInterface& transceiver,
   auto raw_mid = transceiver->mid();
 
   if (raw_mid.has_value()) {
-    mid = raw_mid.value_or("228");
+    mid = raw_mid.value();
 
     return true;
   }
