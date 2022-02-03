@@ -4,8 +4,7 @@ use anyhow::anyhow;
 use cxx::{CxxString, UniquePtr};
 
 use crate::{
-    Candidate, CreateSdpCallback, MediaStreamTrackInterface,
-    PeerConnectionOnEvent, SetDescriptionCallback,
+    Candidate, CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback,
 };
 
 /// [`CreateSdpCallback`] that can be transferred to the CXX side.
@@ -21,17 +20,18 @@ type DynPeerConnectionOnEvent = Box<dyn PeerConnectionOnEvent>;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
-    /// [`Candidate`] wrapper 
+    /// [`Candidate`] wrapper
     /// for using in extern Rust [`Vec`].
     pub struct CandidateWrap {
         c: UniquePtr<Candidate>,
     }
 
-    /// [`MediaStreamTrackInterface`] wrapper 
+    // todo migrate.
+    /// [`MediaStreamTrackInterface`] wrapper
     /// for using in extern Rust [`Vec`].
-    pub struct MediaStreamTrackInterfaceWrap {
-        m: UniquePtr<MediaStreamTrackInterface>,
-    }
+    // pub struct MediaStreamTrackInterfaceWrap {
+    //     m: UniquePtr<MediaStreamTrackInterface>,
+    // }
 
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
@@ -342,8 +342,9 @@ pub(crate) mod webrtc {
         type CandidatePairChangeEvent;
         type CandidatePair;
 
-        type RtpReceiverInterface;
-        type MediaStreamTrackInterface;
+        // todo migrate.
+        //type RtpReceiverInterface;
+        //type MediaStreamTrackInterface;
 
 
         /// Creates a default [`RTCConfiguration`].
@@ -562,9 +563,10 @@ pub(crate) mod webrtc {
 
     // This will trigger cxx to generate UniquePtrTarget trait for the
     // mentioned types.
-    extern "Rust" {
-        fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
-    }
+    // todo migrate. PR
+    // extern "Rust" {
+    //     fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
+    // }
 
     extern "Rust" {
         type DynSetDescriptionCallback;
@@ -901,7 +903,6 @@ impl ToString for webrtc::IceConnectionState {
             webrtc::IceConnectionState::kIceConnectionClosed => {
                 "closed".to_owned()
             }
-            webrtc::IceConnectionState::kIceConnectionMax => unreachable!(),
             _ => unreachable!(),
         }
     }
@@ -923,21 +924,20 @@ impl ToString for webrtc::PeerConnectionState {
     }
 }
 
-fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {}
+// migrate to new PR.
+// fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {}
+/// Creates [`MediaStreamTrackInterfaceWrap`].
+// fn create_media_stream_track_interface_wrap(
+//     media_stream_track: UniquePtr<MediaStreamTrackInterface>,
+// ) -> webrtc::MediaStreamTrackInterfaceWrap {
+//     webrtc::MediaStreamTrackInterfaceWrap {
+//         m: media_stream_track,
+//     }
+// }
 
 /// Creates [`CandidateWrap`].
 fn create_candidate_wrapp(
     candidate: UniquePtr<Candidate>,
 ) -> webrtc::CandidateWrap {
     webrtc::CandidateWrap { c: candidate }
-}
-
-// migrate to new PR.
-/// Creates [`MediaStreamTrackInterfaceWrap`].
-fn create_media_stream_track_interface_wrap(
-    media_stream_track: UniquePtr<MediaStreamTrackInterface>,
-) -> webrtc::MediaStreamTrackInterfaceWrap {
-    webrtc::MediaStreamTrackInterfaceWrap {
-        m: media_stream_track,
-    }
 }

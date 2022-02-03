@@ -33,25 +33,28 @@ static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
-use cxx::CxxVector;
 
 /// The module which describes the bridge to call Rust from C++.
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod api {
 
-    // todo doc
+    /// Serialized to strings [`CandidatePair`].
     pub struct CandidatePairSerialized {
+        /// Serialized to strings [`CandidatePair`].local.
         local: String,
+        /// Serialized to strings [`CandidatePair`].remote.
         remote: String,
     }
 
-    // todo doc
+    /// Serialized [`CandidatePairChangeEvent`] for writes in flutter.
     pub struct CandidatePairChangeEventSerialized {
+        /// Serialized to strings [`CandidatePair`].
         selected_candidate_pair: CandidatePairSerialized,
         last_data_received_ms: i64,
         reason: String,
-        // How long do we estimate that we've been disconnected.
+
+        /// How long do we estimate that we've been disconnected.
         estimated_disconnected_time_ms: i64,
     }
 

@@ -2,21 +2,18 @@
 #![allow(clippy::missing_errors_doc)]
 
 mod bridge;
-use anyhow::bail;
-pub use bridge::webrtc::{CandidateWrap, MediaStreamTrackInterfaceWrap};
-use cxx::{let_cxx_string, CxxString, UniquePtr};
 use self::bridge::webrtc;
-pub use crate::webrtc::{
-    AudioLayer, IceConnectionState, IceGatheringState, PeerConnectionState,
-    SdpType, SignalingState,
-};
 pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms,
     get_local_candidate, get_reason, get_remote_candidate,
-    ice_candidate_interface_to_string, Candidate, CandidatePairChangeEvent,
-    IceCandidateInterface, MediaStreamTrackInterface, RtpReceiverInterface,
+    ice_candidate_interface_to_string, AudioLayer, Candidate,
+    CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
+    IceGatheringState, PeerConnectionState, SdpType, SignalingState,
 };
+use anyhow::bail;
+pub use bridge::webrtc::CandidateWrap;
+use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
 /// used to call [`PeerConnectionInterface::create_offer()`] and
@@ -41,22 +38,21 @@ pub trait SetDescriptionCallback {
     fn fail(&mut self, error: &CxxString);
 }
 
-/// Completion callback for the [`PeerConnectionObserver`] 
+/// Completion callback for the [`PeerConnectionObserver`]
 /// that are used when calls:
-/// [`PeerConnectionObserver::OnSignalingChange`], 
-/// [`PeerConnectionObserver::OnNegotiationNeededEvent`], 
-/// [`PeerConnectionObserver::OnStandardizedIceConnectionChange`], 
-/// [`PeerConnectionObserver::OnConnectionChange`], 
-/// [`PeerConnectionObserver::OnIceGatheringChange`], 
-/// [`PeerConnectionObserver::OnIceCandidate`], 
-/// [`PeerConnectionObserver::OnIceCandidateError`], 
-/// [`PeerConnectionObserver::OnIceCandidateError`] (args overload), 
-/// [`PeerConnectionObserver::OnIceCandidatesRemoved`], 
-/// [`PeerConnectionObserver::OnIceConnectionReceivingChange`], 
-/// [`PeerConnectionObserver::OnIceSelectedCandidatePairChanged`], 
-/// [`PeerConnectionObserver::OnInterestingUsage`]. 
+/// `PeerConnectionObserver::OnSignalingChange`,
+/// `PeerConnectionObserver::OnNegotiationNeededEvent`,
+/// `PeerConnectionObserver::OnStandardizedIceConnectionChange`,
+/// `PeerConnectionObserver::OnConnectionChange`,
+/// `PeerConnectionObserver::OnIceGatheringChange`,
+/// `PeerConnectionObserver::OnIceCandidate`,
+/// `PeerConnectionObserver::OnIceCandidateError`,
+/// `PeerConnectionObserver::OnIceCandidateError` (args overload),
+/// `PeerConnectionObserver::OnIceCandidatesRemoved`,
+/// `PeerConnectionObserver::OnIceConnectionReceivingChange`,
+/// `PeerConnectionObserver::OnIceSelectedCandidatePairChanged`,
+/// `PeerConnectionObserver::OnInterestingUsage`.
 pub trait PeerConnectionOnEvent {
-
     /// Called when the associated event occurs.
     fn on_signaling_change(&mut self, new_state: SignalingState);
 

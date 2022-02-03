@@ -273,7 +273,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     }
 }
 
-//todo doc
+/// [`PeerConnectionOnEventInterface`] wrapper.
 struct HandlerPeerConnectionOnEvent(UniquePtr<PeerConnectionOnEventInterface>);
 
 impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {

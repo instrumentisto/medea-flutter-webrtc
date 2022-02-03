@@ -35,9 +35,9 @@ namespace rust {
     class String;
   }
 }
-
-// todo doc
 struct CandidatePairChangeEventSerialized;
+
+// Completion callback for the PeerConnection events.
 class PeerConnectionOnEventInterface {
  public:
   virtual void OnSignalingChange(const std::string& new_state) = 0;
