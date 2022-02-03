@@ -1,5 +1,4 @@
 #pragma once
-
 #include "flutter_webrtc.h"
 
 using namespace flutter;
@@ -7,9 +6,10 @@ using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
 
-// Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
+// Calls Rust `CreatePeerConnection()` and writes newly created Peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
+    flutter::BinaryMessenger* messenger,
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
@@ -40,4 +40,8 @@ void SetRemoteDescription(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-} // namespace flutter_webrtc_plugin
+// todo delete. That fn only for data leak test;
+void DeletePC(Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+}  // namespace flutter_webrtc_plugin
