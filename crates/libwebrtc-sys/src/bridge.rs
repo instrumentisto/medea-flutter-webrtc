@@ -16,7 +16,7 @@ type DynOnFrameCallback = Box<dyn OnFrameCallback>;
 
 #[allow(clippy::expl_impl_clone_on_copy, clippy::items_after_statements)]
 #[cxx::bridge(namespace = "bridge")]
-pub mod webrtc {
+pub(crate) mod webrtc {
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]

@@ -41,6 +41,9 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
 
   // Creates a `webrtc::DesktopCaptureOptions`.
   static webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions();
+
+  // A callback for `webrtc::DesktopCapturer::CaptureFrame`. Handles a
+  // `DesktopFrame`, makes a `VideoFrame` from it.
   void OnCaptureResult(webrtc::DesktopCapturer::Result result,
                        std::unique_ptr<webrtc::DesktopFrame> frame) override;
 

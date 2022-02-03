@@ -33,64 +33,6 @@ void FlutterWebRTC::HandleMethodCall(
     GetMedia(method_call, webrtc, std::move(result));
   } else if (method.compare("getDisplayMedia") == 0) {
     GetMedia(method_call, webrtc, std::move(result), true);
-    // if (!method_call.arguments()) {
-    //   result->Error("Bad Arguments", "Null constraints arguments received");
-    //   return;
-    // }
-
-    // LocalStreamInfo display_media = GetDisplayMedia(webrtc);
-
-    // EncodableMap params;
-    // params[EncodableValue("streamId")] =
-    //     EncodableValue(display_media.stream_id.c_str());
-
-    // EncodableList videoTracks;
-    // if (display_media.video_tracks.size() == 0) {
-    //   params[EncodableValue("videoTracks")] =
-    //   EncodableValue(EncodableList());
-    // } else {
-    //   for (size_t i = 0; i < display_media.video_tracks.size(); ++i) {
-    //     EncodableMap info;
-    //     info[EncodableValue("id")] =
-    //         EncodableValue(display_media.video_tracks[i].id.c_str());
-    //     info[EncodableValue("label")] =
-    //         EncodableValue(display_media.video_tracks[i].label.c_str());
-    //     info[EncodableValue("kind")] = EncodableValue(
-    //         display_media.video_tracks[i].kind == TrackKind::Video ? "video"
-    //                                                                :
-    //                                                                "audio");
-    //     info[EncodableValue("enabled")] =
-    //         EncodableValue(display_media.video_tracks[i].enabled);
-
-    //     videoTracks.push_back(EncodableValue(info));
-    //   }
-    // }
-    // params[EncodableValue("videoTracks")] = EncodableValue(videoTracks);
-
-    // EncodableList audioTracks;
-    // // if (display_media.audio_tracks.size() == 0) {
-    // params[EncodableValue("audioTracks")] = EncodableValue(EncodableList());
-    // // } else {
-    // //   for (size_t i = 0; i < display_media.audio_tracks.size(); ++i) {
-    // //     EncodableMap info;
-    // //     info[EncodableValue("id")] =
-    // //         EncodableValue(display_media.audio_tracks[i].id.c_str());
-    // //     info[EncodableValue("label")] =
-    // //         EncodableValue(display_media.audio_tracks[i].label.c_str());
-    // //     info[EncodableValue("kind")] = EncodableValue(
-    // //         display_media.audio_tracks[i].kind == TrackKind::Video ?
-    // "video"
-    // //                                                                :
-    // // "audio");
-    // //     info[EncodableValue("enabled")] =
-    // //         EncodableValue(display_media.audio_tracks[i].enabled);
-
-    // //     audioTracks.push_back(EncodableValue(info));
-    // //   }
-    // // }
-    // params[EncodableValue("audioTracks")] = EncodableValue(audioTracks);
-
-    // result->Success(EncodableValue(params));
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
     CreateOffer(webrtc, method_call, std::move(result));

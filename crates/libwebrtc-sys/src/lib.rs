@@ -6,7 +6,7 @@ mod bridge;
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 
-pub use self::bridge::webrtc;
+use self::bridge::webrtc;
 
 pub use crate::webrtc::{
     video_frame_to_abgr, AudioLayer, SdpType, VideoFrame, VideoRotation,
