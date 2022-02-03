@@ -18,10 +18,6 @@ jobs:
           profile: minimal
           toolchain: stable
           components: clippy
-      - uses: Swatinem/rust-cache@v1
-        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
-
-      - run: make cargo.clean
       - run: make cargo.lint
 
   rustfmt:
@@ -47,13 +43,10 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - uses: Swatinem/rust-cache@v1
-        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: 2.8.1
       - run: flutter config --enable-windows-desktop
-      - run: choco install make
 
       - run: make cargo.clean
       - run: make cargo.build
@@ -68,10 +61,6 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - uses: Swatinem/rust-cache@v1
-        if: ${{ !contains(github.event.head_commit.message, '[fresh ci]') }}
-
-      - run: make cargo.clean
       - run: make cargo.doc
 
   test:
@@ -83,7 +72,6 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - run: choco install make
 
       - run: make cargo.clean
       - run: make test
