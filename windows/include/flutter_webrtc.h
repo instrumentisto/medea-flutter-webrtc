@@ -1,24 +1,10 @@
-#ifndef PLUGINS_FLUTTER_WEBRTC_HXX
-#define PLUGINS_FLUTTER_WEBRTC_HXX
+#pragma once
 
-#include <flutter/method_channel.h>
-#include <flutter/plugin_registrar.h>
-#include <flutter/standard_message_codec.h>
-
-#include <flutter/encodable_value.h>
-#include <flutter/event_channel.h>
-#include <flutter/event_stream_handler_functions.h>
-#include <flutter/method_channel.h>
-#include <flutter/plugin_registrar.h>
-#include <flutter/standard_message_codec.h>
-#include <flutter/standard_method_codec.h>
-#include <flutter/texture_registrar.h>
-#include <flutter_webrtc_native.h>
-
-#include <string.h>
-#include <list>
-#include <map>
-#include <memory>
+#include "flutter/encodable_value.h"
+#include "flutter/method_call.h"
+#include "flutter/texture_registrar.h"
+#include "flutter_webrtc_native.h"
+#include "video_renderer.h"
 
 #include "wrapper.h"
 
@@ -26,6 +12,7 @@ using namespace flutter;
 using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
+
 class FlutterWebRTCPlugin : public flutter::Plugin {
  public:
   virtual flutter::BinaryMessenger* messenger() = 0;
@@ -33,7 +20,7 @@ class FlutterWebRTCPlugin : public flutter::Plugin {
   virtual flutter::TextureRegistrar* textures() = 0;
 };
 
-class FlutterWebRTC {
+class FlutterWebRTC : public FlutterVideoRendererManager {
  public:
   FlutterWebRTC(FlutterWebRTCPlugin* plugin);
   virtual ~FlutterWebRTC();
@@ -57,5 +44,3 @@ class FlutterWebRTC {
 };
 
 }  // namespace flutter_webrtc_plugin
-
-#endif  // PLUGINS_FLUTTER_WEBRTC_HXX
