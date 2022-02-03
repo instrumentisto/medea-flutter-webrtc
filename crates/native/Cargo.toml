@@ -8,11 +8,11 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-derive_more = "0.99"
 anyhow = "1.0"
 cxx = "1.0"
-winapi = { version = "0.3.9", features = ["winuser", "dbt"] }
+derive_more = "0.99"
 libwebrtc-sys = { path = "../libwebrtc-sys" }
+winapi = { version = "0.3", features = ["winuser", "dbt"] }
 
 [build-dependencies]
 anyhow = "1.0"

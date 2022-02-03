@@ -35,11 +35,16 @@ class SetDescriptionCallbackInterface {
 class OnFrameCallbackInterface {
  public:
   // Called when the underlying video engine produces a new video frame.
-  //
-  // The provided frame is a pointer to the `rust::Box<VideoFrame>`. Its
-  // ownership can be transferred back to the Rust side using the
-  // `rust::Box::from_raw()`.
   virtual void OnFrame(VideoFrame) = 0;
 
   virtual ~OnFrameCallbackInterface() = default;
+};
+
+// Callback called whenever the set of available media devices has changed.
+class OnDeviceChangeCallback {
+ public:
+  // Called whenever the set of available media devices has changed.
+  virtual void OnDeviceChange() = 0;
+
+  virtual ~OnDeviceChangeCallback() = default;
 };

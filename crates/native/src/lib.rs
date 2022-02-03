@@ -1,9 +1,8 @@
 #![warn(clippy::pedantic)]
 
-mod device_info;
+mod devices;
 mod internal;
 mod pc;
-mod notifier;
 mod user_media;
 mod video_sink;
 
@@ -12,6 +11,7 @@ use std::{
     rc::Rc,
     sync::atomic::{AtomicU64, Ordering},
 };
+use cxx::UniquePtr;
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
@@ -306,6 +306,16 @@ pub mod api {
             track_id: u64,
             enabled: bool,
         );
+
+        /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
+        /// called whenever the set of available media devices has changed.
+        ///
+        /// Only one callback can be set a time, so the previous one will be
+        /// dropped, if any.
+        pub fn set_on_device_changed(
+            self: &mut Webrtc,
+            cb: UniquePtr<OnDeviceChangeCallback>,
+        );
     }
 }
 
@@ -383,4 +393,10 @@ pub fn init() -> Box<Webrtc> {
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
     })))
+}
+
+impl Drop for Webrtc {
+    fn drop(&mut self) {
+        self.set_on_device_changed(UniquePtr::null());
+    }
 }

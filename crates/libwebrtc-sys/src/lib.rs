@@ -52,7 +52,7 @@ pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 impl TaskQueueFactory {
     /// Creates a default [`TaskQueueFactory`] based on the current platform.
     #[must_use]
-    pub fn create() -> Self {
+    pub fn create_default_task_queue_factory() -> Self {
         Self(webrtc::create_default_task_queue_factory())
     }
 }

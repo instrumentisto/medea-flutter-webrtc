@@ -146,8 +146,8 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
-  auto track = peer_connection_factory->CreateVideoTrack(std::string(id),
-                                                         video_source);
+  auto track = peer_connection_factory->CreateVideoTrack(
+      std::string(id), video_source);
 
   if (track == nullptr) {
     return nullptr;
@@ -161,8 +161,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source) {
-  auto track = peer_connection_factory->CreateAudioTrack(std::string(id),
-                                                         audio_source);
+  auto track = peer_connection_factory->CreateAudioTrack(
+      std::string(id), audio_source);
 
   if (track == nullptr) {
     return nullptr;

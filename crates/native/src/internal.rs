@@ -10,6 +10,7 @@ mod cpp_api_bindings {
         pub type CreateSdpCallbackInterface;
         pub type SetDescriptionCallbackInterface;
         pub type OnFrameCallbackInterface;
+        pub type OnDeviceChangeCallback;
 
         type VideoFrame = crate::api::VideoFrame;
 
@@ -47,6 +48,10 @@ mod cpp_api_bindings {
             self: Pin<&mut OnFrameCallbackInterface>,
             frame: VideoFrame,
         );
+
+        /// Calls C++ side `OnDeviceChangeCallback->OnDeviceChange`.
+        #[cxx_name = "OnDeviceChange"]
+        pub fn on_device_change(self: Pin<&mut OnDeviceChangeCallback>);
     }
 
     // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
@@ -58,6 +63,9 @@ mod cpp_api_bindings {
         );
         fn _touch_unique_ptr_on_frame_handler(
             i: UniquePtr<OnFrameCallbackInterface>,
+        );
+        fn _touch_unique_ptr_on_device_change(
+            i: UniquePtr<OnDeviceChangeCallback>,
         );
     }
 }
@@ -71,5 +79,10 @@ fn _touch_set_description_callback(
 
 fn _touch_unique_ptr_on_frame_handler(
     _: cxx::UniquePtr<OnFrameCallbackInterface>,
+) {
+}
+
+fn _touch_unique_ptr_on_device_change(
+    _: cxx::UniquePtr<OnDeviceChangeCallback>,
 ) {
 }

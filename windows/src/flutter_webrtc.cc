@@ -9,9 +9,6 @@
 
 namespace flutter_webrtc_plugin {
 
-typedef void (*notifier_handler)();
-extern "C" void register_notifier(notifier_handler);
-
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
     plugin->textures(),
@@ -20,8 +17,8 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
   media_device_count_ = webrtc->EnumerateDevices().size();
 
   // Creates a new `EventChannel` with name
-  // "FlutterWebRTC/OnMediaChangeNotifier".
-  std::string event_channel = "FlutterWebRTC/OnMediaChangeNotifier";
+  // "FlutterWebRTC/OnDeviceChange".
+  std::string event_channel = "FlutterWebRTC/OnDeviceChange";
   event_channel_.reset(new EventChannel<EncodableValue>(
       plugin->messenger(), event_channel, &StandardMethodCodec::GetInstance()));
 
@@ -50,9 +47,7 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
         if (new_count != context->media_device_count_) {
           context->media_device_count_ = new_count;
           if (context->event_sink_) {
-            EncodableMap params;
-            params[EncodableValue("event")] = "mediaDeviceChanged";
-            context->event_sink_->Success(EncodableValue(params));
+            context->event_sink_->Success(null);
           }
         }
       },

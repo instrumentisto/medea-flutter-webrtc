@@ -6,8 +6,6 @@
 #include "flutter_webrtc_native.h"
 #include "video_renderer.h"
 
-#include "wrapper.h"
-
 using namespace flutter;
 using namespace rust::cxxbridge1;
 
@@ -32,9 +30,6 @@ class FlutterWebRTC : public FlutterVideoRendererManager {
   Box<Webrtc> webrtc = Init();
 
  private:
-  // Number of the media devices at certain moment.
-  size_t media_device_count_;
-
   // A named channel for communicating with the Flutter application using
   // asynchronous event streams.
   std::unique_ptr<EventChannel<EncodableValue>> event_channel_;

@@ -8,27 +8,19 @@ import 'media_stream_impl.dart';
 import 'utils.dart';
 
 class MediaDeviceNative extends MediaDevices {
-  /// A subscription on events from a [Stream].
-  StreamSubscription<dynamic>? _eventSubscription;
-
-  /// Initiates subscription on the 'FlutterWebRTC/OnMediaChangeNotifier'
-  /// channel. Listens to if a media device has been added to or removed from
-  /// the system.
-  void initSubscription() {
-    _eventSubscription = EventChannel('FlutterWebRTC/OnMediaChangeNotifier')
+  MediaDeviceNative() {
+    _onDeviceChangeSub = EventChannel('FlutterWebRTC/OnDeviceChange')
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
   }
 
+  /// A subscription on events from a [Stream].
+  late StreamSubscription<dynamic> _onDeviceChangeSub;
+
   /// Event receiving success handler.
   void eventListener(dynamic event) {
-    final Map<dynamic, dynamic> map = event;
-    switch (map['event']) {
-      case 'mediaDeviceChanged':
-        if (onDeviceChange != null) {
-          onDeviceChange!();
-        }
-        break;
+    if (onDeviceChange != null) {
+      onDeviceChange!();
     }
   }
 
