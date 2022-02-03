@@ -296,10 +296,16 @@ pub mod api {
         #[cxx_name = "GetABGRBytes"]
         unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
 
-        /// Set the [`VideoTrack`]'s/[`AudioTrack`]'s `enabled`/`disabled`
-        /// state.
+        /// Changes the [enabled][1] property of the media track by the
+        /// provided ID.
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
         #[cxx_name = "SetTrackEnabled"]
-        pub fn set_track_enabled(self: &mut Webrtc, id: u64, enabled: bool);
+        pub fn set_track_enabled(
+            self: &mut Webrtc,
+            track_id: u64,
+            enabled: bool,
+        );
     }
 }
 

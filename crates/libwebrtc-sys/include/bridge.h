@@ -151,12 +151,10 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 
-// Sets `VideoTrackInterface` `enabled` or `disabled` according to passed
-// `bool`.
+// Changes the `enabled` property of the provided `VideoTrackInterface`.
 void set_video_track_enabled(const VideoTrackInterface& track, bool enabled);
 
-// Sets `AudioTrackInterface` `enabled` or `disabled` according to passed
-// `bool`.
+// Changes the `enabled` property of the provided `AudioTrackInterface`.
 void set_audio_track_enabled(const AudioTrackInterface& track, bool enabled);
 
 // Registers the provided video `sink` for the given `track`.

@@ -623,9 +623,9 @@ impl VideoTrackInterface {
         webrtc::remove_video_sink(&self.0, sink.0.pin_mut());
     }
 
-    /// Sets [`VideoTrackInterface`]  `enabled` or `disabled` according
-    /// to passed `bool`. If the [`VideoTrackInterface`] is `disabled`,
-    /// it will generate black [`webrtc::VideoFrame`]s.
+    /// Changes the [enabled][1] property of this [`VideoTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         webrtc::set_video_track_enabled(&self.0, enabled);
     }
@@ -637,9 +637,9 @@ impl VideoTrackInterface {
 pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
 
 impl AudioTrackInterface {
-    /// Sets [`AudioTrackInterface`]  `enabled` or `disabled` according
-    /// to passed `bool`. If the [`AudioTrackInterface`] is `disabled`,
-    /// it will generate silence.
+    /// Changes the [enabled][1] property of this [`AudioTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         webrtc::set_audio_track_enabled(&self.0, enabled);
     }

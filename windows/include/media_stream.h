@@ -24,7 +24,7 @@ void GetUserMedia(
     Box<Webrtc>& webrtc,
     std::unique_ptr<MethodResult<EncodableValue>> result);
 
-// Sets the `Track`'s state to `enabled` or `disabled`.
+// Changes the `enabled` property of the specified media track.
 void SetTrackEnabled(
     const flutter::MethodCall<EncodableValue>& method_call,
     Box<Webrtc>& webrtc,

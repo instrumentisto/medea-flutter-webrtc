@@ -1,10 +1,6 @@
-#include <stdint.h>
-#include <memory>
-
-#include <modules/video_capture/video_capture_factory.h>
-#include <rtc_base/checks.h>
-#include <rtc_base/logging.h>
 #include "device_video_capturer.h"
+#include "modules/video_capture/video_capture_factory.h"
+#include "rtc_base/logging.h"
 
 // MediaCodec wants resolution to be divisible by 2.
 const int kRequiredResolutionAlignment = 2;

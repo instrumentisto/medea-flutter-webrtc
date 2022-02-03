@@ -199,7 +199,7 @@ EncodableList GetParams(TrackKind type, MediaStream& user_media) {
   return tracks;
 }
 
-/// Sets the `Track`'s state to `enabled` or `disabled` calling Rust
+/// Changes the `enabled` property of the specified media track calling Rust
 /// `SetTrackEnabled`.
 void SetTrackEnabled( const flutter::MethodCall<EncodableValue>& method_call,
                       Box<Webrtc>& webrtc,

@@ -275,26 +275,23 @@ impl Webrtc {
         Ok(src)
     }
 
-    /// Set the [`VideoTrack`]'s/[`AudioTrack`]'s `enabled`/`disabled` state.
+    /// Changes the [enabled][1] property of the media track by the
+    /// provided ID.
     ///
     /// # Panics
     ///
-    /// It can't panic because of `is_none()` checks.
+    /// If could not find track with the provided ID.
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
     pub fn set_track_enabled(&mut self, id: u64, enabled: bool) {
-        let track = self.0.video_tracks.get(&VideoTrackId(id));
-
-        if track.is_none() {
-            let track = self.0.audio_tracks.get(&AudioTrackId(id));
-
-            if track.is_none() {
-                return;
-            }
-
-            track.unwrap().inner.set_enabled(enabled);
-            return;
+        if let Some(track) = self.0.video_tracks.get(&VideoTrackId(id)) {
+            track.inner.set_enabled(enabled);
+        } else if let Some(track) = self.0.audio_tracks.get(&AudioTrackId(id)) {
+            track.set_enabled(enabled);
+        } else {
+            // TODO: Return error.
+            panic!("Could not find track with `{id}` ID");
         }
-
-        track.unwrap().inner.set_enabled(enabled);
     }
 }
 
@@ -484,6 +481,14 @@ impl VideoTrack {
         self.sinks.retain(|&sink| sink != video_sink.id());
         self.inner.remove_sink(video_sink.as_mut());
     }
+
+    /// Changes the [enabled][1] property of the underlying
+    /// [`sys::VideoTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
+    pub fn set_enabled(&self, enabled: bool) {
+        self.inner.set_enabled(enabled);
+    }
 }
 
 /// Representation of a [`sys::AudioSourceInterface`].
@@ -520,6 +525,14 @@ impl AudioTrack {
             kind: api::TrackKind::kAudio,
             label,
         })
+    }
+
+    /// Changes the [enabled][1] property of the underlying
+    /// [`sys::AudioTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
+    pub fn set_enabled(&self, enabled: bool) {
+        self.inner.set_enabled(enabled);
     }
 }
 
