@@ -276,7 +276,7 @@ void CreateRTCPeerConnection(
   std::weak_ptr<PeerConnectionOnEvent::EventContext> weak_context(
       event_context);
   auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-      [weak_context](
+      [=](
           const flutter::EncodableValue* arguments,
           std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
@@ -288,7 +288,7 @@ void CreateRTCPeerConnection(
         return nullptr;
       },
 
-      [weak_context](const flutter::EncodableValue* arguments)
+      [=](const flutter::EncodableValue* arguments)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
         auto context = weak_context.lock();
         if (context) {
