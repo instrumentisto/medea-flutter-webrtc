@@ -304,7 +304,7 @@ pub mod webrtc {
         /// Creates a new [`SessionDescriptionInterface`].
         #[namespace = "webrtc"]
         #[cxx_name = "CreateSessionDescription"]
-        pub fn create_session_description(
+        #[must_use] pub fn create_session_description(
             kind: SdpType,
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
@@ -322,6 +322,7 @@ pub mod webrtc {
         type VideoRotation;
 
         /// Creates a new [`VideoTrackSourceInterface`], captures some camera.
+        #[must_use]
         pub fn create_video_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
@@ -332,6 +333,7 @@ pub mod webrtc {
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
         /// Creates a new [`VideoTrackSourceInterface`], captures some screen.
+        #[must_use]
         pub fn create_display_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
@@ -341,11 +343,13 @@ pub mod webrtc {
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
         /// Creates a new [`AudioSourceInterface`].
+        #[must_use]
         pub fn create_audio_source(
             peer_connection_factory: &PeerConnectionFactoryInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
         /// Creates a new [`VideoTrackInterface`].
+        #[must_use]
         pub fn create_video_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             id: String,
@@ -353,6 +357,7 @@ pub mod webrtc {
         ) -> UniquePtr<VideoTrackInterface>;
 
         /// Creates a new [`AudioTrackInterface`].
+        #[must_use]
         pub fn create_audio_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             id: String,
@@ -360,18 +365,21 @@ pub mod webrtc {
         ) -> UniquePtr<AudioTrackInterface>;
 
         /// Creates a new [`MediaStreamInterface`].
+        #[must_use]
         pub fn create_local_media_stream(
             peer_connection_factory: &PeerConnectionFactoryInterface,
             id: String,
         ) -> UniquePtr<MediaStreamInterface>;
 
         /// Adds the [`VideoTrackInterface`] to the [`MediaStreamInterface`].
+        #[must_use]
         pub fn add_video_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
 
         /// Adds the [`AudioTrackInterface`] to the [`MediaStreamInterface`].
+        #[must_use]
         pub fn add_audio_track(
             peer_connection_factory: &MediaStreamInterface,
             track: &AudioTrackInterface,
@@ -379,6 +387,7 @@ pub mod webrtc {
 
         /// Removes the [`VideoTrackInterface`] from the
         /// [`MediaStreamInterface`].
+        #[must_use]
         pub fn remove_video_track(
             media_stream: &MediaStreamInterface,
             track: &VideoTrackInterface,
@@ -386,6 +395,7 @@ pub mod webrtc {
 
         /// Removes the [`AudioTrackInterface`] from the
         /// [`MediaStreamInterface`].
+        #[must_use]
         pub fn remove_audio_track(
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,

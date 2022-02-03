@@ -106,7 +106,13 @@ impl Webrtc {
     ) -> anyhow::Result<&mut VideoTrack> {
         let track: VideoTrack;
 
-        if !is_display {
+        if is_display {
+            track = VideoTrack::new(
+                &self.0.peer_connection_factory,
+                source,
+                VideoLabel("screen".to_string()),
+            )?;
+        } else {
             let device_index = if let Some(index) =
                 self.get_index_of_video_device(&source.device_id)?
             {
@@ -124,12 +130,6 @@ impl Webrtc {
                 VideoLabel(
                     self.0.video_device_info.device_name(device_index)?.0,
                 ),
-            )?;
-        } else {
-            track = VideoTrack::new(
-                &self.0.peer_connection_factory,
-                source,
-                VideoLabel("screen".to_string()),
             )?;
         }
 
