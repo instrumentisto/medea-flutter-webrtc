@@ -18,8 +18,6 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
   MediaStream? _localStream;
   final _localRenderer = RTCVideoRenderer();
   bool _inCalling = false;
-  Timer? _timer;
-  var _counter = 0;
 
   @override
   void initState() {
@@ -33,18 +31,11 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     if (_inCalling) {
       _stop();
     }
-    _timer?.cancel();
     _localRenderer.dispose();
   }
 
   Future<void> initRenderers() async {
     await _localRenderer.initialize();
-  }
-
-  void handleTimer(Timer timer) async {
-    setState(() {
-      _counter++;
-    });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -74,8 +65,6 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     setState(() {
       _inCalling = true;
     });
-
-    _timer = Timer.periodic(Duration(milliseconds: 100), handleTimer);
   }
 
   Future<void> _stop() async {
@@ -93,23 +82,19 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     setState(() {
       _inCalling = false;
     });
-    _timer?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GetUserMedia API Test'),
+        title: Text('GetDisplayMedia API Test'),
         actions: [],
       ),
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Center(
             child: Stack(children: <Widget>[
-              Center(
-                child: Text('counter: ' + _counter.toString()),
-              ),
               Container(
                 margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 width: MediaQuery.of(context).size.width,
