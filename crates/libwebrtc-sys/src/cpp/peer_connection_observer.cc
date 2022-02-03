@@ -1,5 +1,4 @@
 
-
 #include "libwebrtc-sys/include/peer_connection_observer.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 
@@ -16,7 +15,7 @@ void PeerConnectionObserver::OnSignalingChange(
   if (cb_) {
     bridge::call_peer_connection_on_signaling_change(*cb_.value(), new_state);
   }
-};
+}
 
 // no need
 void PeerConnectionObserver::OnDataChannel(
@@ -35,7 +34,7 @@ void PeerConnectionObserver::OnNegotiationNeededEvent(uint32_t event_id) {
     bridge::call_peer_connection_on_negotiation_needed_event(*cb_.value(),
                                                              event_id);
   }
-};
+}
 
 // Called any time the standards-compliant IceConnectionState changes.
 // Propagates the received `IceConnectionState new_state` to the Rust side.
@@ -45,7 +44,7 @@ void PeerConnectionObserver::OnStandardizedIceConnectionChange(
     bridge::call_peer_connection_on_standardized_ice_connection_change(
         *cb_.value(), new_state);
   }
-};
+}
 
 // Called any time the PeerConnectionState changes.
 // Propagates the received `PeerConnectionState new_state` to the Rust side.
@@ -54,7 +53,7 @@ void PeerConnectionObserver::OnConnectionChange(
   if (cb_) {
     bridge::call_peer_connection_on_connection_change(*cb_.value(), new_state);
   }
-};
+}
 
 // Called any time the IceGatheringState changes.
 // Propagates the received `IceGatheringState new_state` to the Rust side.
@@ -64,7 +63,7 @@ void PeerConnectionObserver::OnIceGatheringChange(
     bridge::call_peer_connection_on_ice_gathering_change(*cb_.value(),
                                                          new_state);
   }
-};
+}
 
 // A new ICE candidate has been gathered.
 // Propagates the received `IceCandidateInterface candidate` to the Rust side.
@@ -73,7 +72,7 @@ void PeerConnectionObserver::OnIceCandidate(
   if (cb_) {
     bridge::call_peer_connection_on_ice_candidate(*cb_.value(), candidate);
   }
-};
+}
 
 // Gathering of an ICE candidate failed.
 // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
@@ -89,7 +88,7 @@ void PeerConnectionObserver::OnIceCandidateError(
     bridge::call_peer_connection_on_ice_candidate_error(
         *cb_.value(), host_candidate, url, error_code, error_text);
   }
-};
+}
 
 // Gathering of an ICE candidate failed.
 // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
@@ -105,7 +104,7 @@ void PeerConnectionObserver::OnIceCandidateError(
     bridge::call_peer_connection_on_ice_candidate_address_port_error(
         *cb_.value(), address, port, url, error_code, error_text);
   }
-};
+}
 
 // Ice candidates have been removed.
 // Propagates the received `std::vector<cricket::Candidate> candidates` to the Rust side.
@@ -120,7 +119,7 @@ void PeerConnectionObserver::OnIceCandidatesRemoved(
     bridge::call_peer_connection_on_ice_candidates_removed(*cb_.value(),
                                                            std::move(vec));
   }
-};
+}
 
 // Called when the ICE connection receiving status changes.
 // Propagates the received `receiving` to the Rust side.
@@ -129,7 +128,7 @@ void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
     bridge::call_peer_connection_on_ice_connection_receiving_change(
         *cb_.value(), receiving);
   }
-};
+}
 
 // Called when the selected candidate pair for the ICE connection changes.
 // Propagates the received `CandidatePairChangeEvent event` to the Rust side.
@@ -138,7 +137,7 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
   if (cb_) {
     bridge::call_on_ice_selected_candidate_pair_changed(*cb_.value(), event);
   }
-};
+}
 
 // This is called when a receiver and its track are created.
 // TODO(zhihuang): Make this pure virtual when all subclasses implement it.
@@ -148,7 +147,7 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
 void PeerConnectionObserver::OnAddTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-        streams){};
+        streams){}
 
 // This is called when signaling indicates a transceiver will be receiving
 // media from the remote endpoint. This is fired during a call to
@@ -160,7 +159,7 @@ void PeerConnectionObserver::OnAddTrack(
 // RTCSessionDescription" algorithm:
 // https://w3c.github.io/webrtc-pc/#set-description
 void PeerConnectionObserver::OnTrack(
-    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver){};
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver){}
 
 // Called when signaling indicates that media will no longer be received on a
 // track.
@@ -170,7 +169,7 @@ void PeerConnectionObserver::OnTrack(
 // will have changed direction to either sendonly or inactive.
 // https://w3c.github.io/webrtc-pc/#process-remote-track-removal
 void PeerConnectionObserver::OnRemoveTrack(
-    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver){};
+    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver){}
 
 // Called when an interesting usage is detected by WebRTC.
 // An appropriate action is to add information about the context of the
@@ -184,14 +183,14 @@ void PeerConnectionObserver::OnInterestingUsage(int usage_pattern) {
     bridge::call_peer_connection_on_interesting_usage(*cb_.value(),
                                                       usage_pattern);
   }
-};
+}
 
 // Creates a new `CreateSessionDescriptionObserver` backed by the provided
 // `bridge::DynCreateSdpCallback`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     rust::Box<bridge::DynCreateSdpCallback> cb) {
   this->cb_ = std::move(cb);
-};
+}
 
 // Propagates the received SDP to the Rust side.
 void CreateSessionDescriptionObserver::OnSuccess(
@@ -204,7 +203,7 @@ void CreateSessionDescriptionObserver::OnSuccess(
     bridge::create_sdp_success(std::move(cb), sdp, desc->GetType());
   }
   delete desc;
-};
+}
 
 // Propagates the received error to the Rust side.
 void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
@@ -214,14 +213,14 @@ void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
     std::string err = std::string(error.message());
     bridge::create_sdp_fail(std::move(cb), err);
   }
-};
+}
 
 // Creates a new `SetLocalDescriptionObserver` backed by the provided
 // `DynSetDescriptionCallback`.
 SetLocalDescriptionObserver::SetLocalDescriptionObserver(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
   this->cb_ = std::move(cb);
-};
+}
 
 // Propagates the completion result to the Rust side.
 void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
@@ -236,14 +235,14 @@ void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
       bridge::set_description_fail(std::move(cb), err);
     }
   }
-};
+}
 
 // Creates a new `SetRemoteDescriptionObserver` backed by the provided
 // `DynSetDescriptionCallback`.
 SetRemoteDescriptionObserver::SetRemoteDescriptionObserver(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
   this->cb_ = std::move(cb);
-};
+}
 
 // Propagates the completion result to the Rust side.
 void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
@@ -258,6 +257,6 @@ void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
       bridge::set_description_fail(std::move(cb), err);
     }
   }
-};
+}
 
-};  // namespace observer
+}  // namespace observer

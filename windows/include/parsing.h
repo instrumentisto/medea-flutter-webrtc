@@ -1,15 +1,6 @@
 #pragma once
 
 #include "flutter/encodable_value.h"
-#include "flutter/method_call.h"
-#include "flutter/texture_registrar.h"
-#include "flutter_webrtc_native.h"
-#include "video_renderer.h"
-
-#include "flutter_webrtc_native.h"
-
-using namespace flutter;
-using namespace rust::cxxbridge1;
 
 template<typename T>
 inline bool TypeIs(const EncodableValue val) {
@@ -19,6 +10,18 @@ inline bool TypeIs(const EncodableValue val) {
 template<typename T>
 inline const T GetValue(EncodableValue val) {
   return std::get<T>(val);
+}
+
+// Returns an `int64_t` value from the given `EncodableMap` by the given `key`
+// if any, or a `-1` otherwise.
+inline int64_t findLongInt(const EncodableMap& map, const std::string& key) {
+  for (auto it : map) {
+    if (key == GetValue<std::string>(it.first) &&
+        (TypeIs<int64_t>(it.second) || TypeIs<int32_t>(it.second)))
+      return GetValue<int64_t>(it.second);
+  }
+
+  return -1;
 }
 
 // Returns an `EncodableMap` value from the given `EncodableMap` by the given
@@ -39,8 +42,8 @@ inline std::string findString(const EncodableMap& map, const std::string& key) {
   return std::string();
 }
 
-// Returns an `bool` value from the given `EncodableMap` by the given
-// `key` if any, or false otherwise.
+// Returns a `bool` value from the given `EncodableMap` by the given `key` if
+// any, or `false` otherwise.
 inline bool findBool(const EncodableMap& map, const std::string& key) {
   auto it = map.find(EncodableValue(key));
   if (it != map.end() && TypeIs<bool>(it->second))
@@ -56,27 +59,3 @@ inline EncodableList findList(const EncodableMap& map, const std::string& key) {
     return GetValue<EncodableList>(it->second);
   return EncodableList();
 }
-
-namespace flutter_webrtc_plugin {
-
-class FlutterWebRTCPlugin : public flutter::Plugin {
- public:
-  virtual flutter::BinaryMessenger* messenger() = 0;
-
-  virtual flutter::TextureRegistrar* textures() = 0;
-};
-
-class FlutterWebRTC : public FlutterVideoRendererManager {
- public:
-  FlutterWebRTC(FlutterWebRTCPlugin* plugin);
-  virtual ~FlutterWebRTC();
-
-  Box<Webrtc> webrtc = Init();
-  flutter::BinaryMessenger* messenger_ = nullptr;
-
-  void HandleMethodCall(
-      const flutter::MethodCall<EncodableValue>& method_call,
-      std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
-};
-
-}  // namespace flutter_webrtc_plugin

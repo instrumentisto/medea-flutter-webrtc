@@ -2,10 +2,10 @@
 #include <memory>
 #include <string>
 
-#include "modules/audio_device/include/audio_device_factory.h"
-
+#include "api/video/i420_buffer.h"
 #include "libwebrtc-sys/include/bridge.h"
-#include "absl/strings/string_view.h"
+#include "libyuv.h"
+#include "modules/audio_device/include/audio_device_factory.h"
 
 namespace bridge {
 
@@ -21,7 +21,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   }
 
   return std::make_unique<AudioDeviceModule>(adm);
-};
+}
 
 // Calls `AudioDeviceModule->Init()`.
 int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module) {
@@ -31,12 +31,12 @@ int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module) {
 // Calls `AudioDeviceModule->PlayoutDevices()`.
 int16_t playout_devices(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->PlayoutDevices();
-};
+}
 
 // Calls `AudioDeviceModule->RecordingDevices()`.
 int16_t recording_devices(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->RecordingDevices();
-};
+}
 
 // Calls `AudioDeviceModule->PlayoutDeviceName()` with the provided arguments.
 int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
@@ -52,7 +52,7 @@ int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
   guid = guid_buff;
 
   return result;
-};
+}
 
 // Calls `AudioDeviceModule->RecordingDeviceName()` with the provided arguments.
 int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
@@ -69,7 +69,7 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
   guid = guid_buff;
 
   return result;
-};
+}
 
 // Calls `AudioDeviceModule->SetRecordingDevice()` with the provided arguments.
 int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
@@ -83,7 +83,7 @@ std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
       webrtc::VideoCaptureFactory::CreateDeviceInfo());
 
   return ptr;
-};
+}
 
 // Calls `VideoDeviceInfo->GetDeviceName()` with the provided arguments.
 int32_t video_device_name(VideoDeviceInfo& device_info,
@@ -100,7 +100,7 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
   guid = guid_buff;
 
   return size;
-};
+}
 
 // Calls `Thread->Create()`.
 std::unique_ptr<rtc::Thread> create_thread() {
@@ -207,6 +207,39 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track) {
   return media_stream->RemoveTrack(track.ptr());
+}
+
+// Registers the provided video `sink` for the given `track`.
+//
+// Used to connect the given `track` to the underlying video engine.
+void add_or_update_video_sink(const VideoTrackInterface& track,
+                              VideoSinkInterface& sink) {
+  track->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
+}
+
+// Detaches the provided video `sink` from the given `track`.
+void remove_video_sink(const VideoTrackInterface& track,
+                       VideoSinkInterface& sink) {
+  track->RemoveSink(&sink);
+}
+
+// Creates a new `ForwardingVideoSink`.
+std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
+    rust::Box<DynOnFrameCallback> cb) {
+  return std::make_unique<video_sink::ForwardingVideoSink>(std::move(cb));
+}
+
+// Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
+// writes the result to the provided `dst_abgr`.
+void video_frame_to_abgr(const webrtc::VideoFrame& frame,
+                         uint8_t* dst_abgr) {
+  rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
+      frame.video_frame_buffer()->ToI420());
+
+  libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
+                     buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
+                     dst_abgr, buffer->width() * 4, buffer->width(),
+                     buffer->height());
 }
 
 // Creates a new `PeerConnectionFactoryInterface`.

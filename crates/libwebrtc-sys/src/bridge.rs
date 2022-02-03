@@ -4,14 +4,17 @@ use anyhow::anyhow;
 use cxx::{CxxString, UniquePtr};
 
 use crate::{
-    Candidate, CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback,
+    Candidate, CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback, OnFrameCallback
 };
 
-/// [`CreateSdpCallback`] that can be transferred to the CXX side.
+/// [`CreateSdpCallback`] transferable to the C++ side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
 
-/// [`SetDescriptionCallback`] that can be transferred to the CXX side.
+/// [`SetDescriptionCallback`] transferable to the C++ side.
 type DynSetDescriptionCallback = Box<dyn SetDescriptionCallback>;
+
+/// [`OnFrameCallback`] transferable to the C++ side.
+type DynOnFrameCallback = Box<dyn OnFrameCallback>;
 
 /// [`PeerConnectionOnEvent`] that can be transferred to the CXX side.
 type DynPeerConnectionOnEvent = Box<dyn PeerConnectionOnEvent>;
@@ -25,13 +28,6 @@ pub(crate) mod webrtc {
     pub struct CandidateWrap {
         c: UniquePtr<Candidate>,
     }
-
-    // todo migrate.
-    /// [`MediaStreamTrackInterface`] wrapper
-    /// for using in extern Rust [`Vec`].
-    // pub struct MediaStreamTrackInterfaceWrap {
-    //     m: UniquePtr<MediaStreamTrackInterface>,
-    // }
 
     /// Possible kinds of audio devices implementation.
     #[repr(i32)]
@@ -52,166 +48,176 @@ pub(crate) mod webrtc {
 
     /// [RTCSdpType] representation.
     ///
-    /// [RTCSdpType]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype
+    /// [RTCSdpType]: https://w3.org/TR/webrtc#dom-rtcsdptype
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SdpType {
         /// [RTCSdpType.offer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-offer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-offer
         kOffer,
 
         /// [RTCSdpType.pranswer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-pranswer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-pranswer
         kPrAnswer,
 
         /// [RTCSdpType.answer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-answer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-answer
         kAnswer,
 
         /// [RTCSdpType.rollback][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsdptype-rollback
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsdptype-rollback
         kRollback,
     }
 
     /// [RTCSignalingState] representation.
     ///
-    /// [RTCSignalingState]: https://www.w3.org/TR/webrtc/#state-definitions
+    /// [RTCSignalingState]: https://w3.org/TR/webrtc/#state-definitions
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum SignalingState {
         /// [RTCSignalingState.stable][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-stable
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-stable
         kStable,
 
         /// [RTCSignalingState.have-local-offer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-offer
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-offer
         kHaveLocalOffer,
 
         /// [RTCSignalingState.have-local-pranswer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-pranswer
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-pranswer
         kHaveLocalPrAnswer,
 
         /// [RTCSignalingState.have-remote-offer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-offer
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-offer
         kHaveRemoteOffer,
 
         /// [RTCSignalingState.have-remote-pranswer][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-pranswer
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-pranswer
         kHaveRemotePrAnswer,
 
         /// [RTCSignalingState.closed][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate-closed
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-closed
         kClosed,
+    }
+
+    /// Possible variants of a [`VideoFrame`]'s rotation.
+    #[repr(i32)]
+    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    pub enum VideoRotation {
+        kVideoRotation_0 = 0,
+        kVideoRotation_90 = 90,
+        kVideoRotation_180 = 180,
+        kVideoRotation_270 = 270,
     }
 
     /// [RTCIceGatheringState] representation.
     ///
-    /// [RTCIceGatheringState]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate
+    /// [RTCIceGatheringState]: https://w3.org/TR/webrtc/#dom-rtcicegatheringstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum IceGatheringState {
         /// [RTCIceGatheringState.new][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate-new
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcicegatheringstate-new
         kIceGatheringNew,
 
         /// [RTCIceGatheringState.gathering][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate-gathering
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcicegatheringstate-gathering
         kIceGatheringGathering,
 
         /// [RTCIceGatheringState.complete][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate-complete
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcicegatheringstate-complete
         kIceGatheringComplete,
     }
 
     /// [RTCPeerConnectionState] representation.
     ///
-    /// [RTCPeerConnectionState]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate
+    /// [RTCPeerConnectionState]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     enum PeerConnectionState {
         /// [RTCPeerConnectionState.new][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-new
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-new
         kNew,
 
         /// [RTCPeerConnectionState.connecting][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-connecting
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-connecting
         kConnecting,
 
         /// [RTCPeerConnectionState.connected][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-connected
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-connected
         kConnected,
 
         /// [RTCPeerConnectionState.disconnected][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-disconnected
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-disconnected
         kDisconnected,
 
         /// [RTCPeerConnectionState.failed][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-failed
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-failed
         kFailed,
 
         /// [RTCPeerConnectionState.closed][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-closed
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-closed
         kClosed,
     }
 
     /// [RTCIceConnectionState] representation.
     ///
-    /// [RTCIceConnectionState]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate
+    /// [RTCIceConnectionState]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     enum IceConnectionState {
         /// [RTCIceConnectionState.new][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-new
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-new
         kIceConnectionNew,
 
         /// [RTCIceConnectionState.checking][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-checking
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-checking
         kIceConnectionChecking,
 
         /// [RTCIceConnectionState.connected][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-connected
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-connected
         kIceConnectionConnected,
 
         /// [RTCIceConnectionState.completed][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-completed
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-completed
         kIceConnectionCompleted,
 
         /// [RTCIceConnectionState.failed][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-failed
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-failed
         kIceConnectionFailed,
 
         /// [RTCIceConnectionState.disconnected][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-disconnected
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-disconnected
         kIceConnectionDisconnected,
 
         /// [RTCIceConnectionState.closed][1] representation.
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate-closed
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-closed
         kIceConnectionClosed,
 
         /// Unreachable.
@@ -342,10 +348,6 @@ pub(crate) mod webrtc {
         type CandidatePairChangeEvent;
         type CandidatePair;
 
-        // todo migrate.
-        //type RtpReceiverInterface;
-        //type MediaStreamTrackInterface;
-
 
         /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -404,40 +406,40 @@ pub(crate) mod webrtc {
             cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetRemoteDescriptionObserver>;
 
-        /// Calls the [`RTCPeerConnection::createOffer()`][1] on the provided
+        /// Calls the [RTCPeerConnection.createOffer()][1] on the provided
         /// [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createoffer
         pub fn create_offer(
             peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls the [`RTCPeerConnection::createAnswer()`][1] on the provided
+        /// Calls the [RTCPeerConnection.createAnswer()][1] on the provided
         /// [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createanswer
         pub fn create_answer(
             peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls the [`RTCPeerConnection::setLocalDescription()`][1] on the
+        /// Calls the [RTCPeerConnection.setLocalDescription()][1] on the
         /// provided [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
+        /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setlocaldescription
         pub fn set_local_description(
             peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
             obs: UniquePtr<SetLocalDescriptionObserver>,
         );
 
-        /// Calls the [`RTCPeerConnection::setRemoteDescription()`][1] on the
+        /// Calls the [RTCPeerConnection.setRemoteDescription()][1] on the
         /// provided [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
+        /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setremotedescription
         pub fn set_remote_description(
             peer: Pin<&mut PeerConnectionInterface>,
             desc: UniquePtr<SessionDescriptionInterface>,
@@ -472,6 +474,10 @@ pub(crate) mod webrtc {
         type MediaStreamInterface;
         type VideoTrackInterface;
         type VideoTrackSourceInterface;
+        #[namespace = "webrtc"]
+        type VideoFrame;
+        type VideoSinkInterface;
+        type VideoRotation;
 
         /// Creates a new [`VideoTrackSourceInterface`].
         pub fn create_video_source(
@@ -534,6 +540,45 @@ pub(crate) mod webrtc {
             track: &AudioTrackInterface,
         ) -> bool;
 
+        /// Registers the provided [`VideoSinkInterface`] for the given
+        /// [`VideoTrackInterface`].
+        ///
+        /// Used to connect the given [`VideoTrackInterface`] to the underlying
+        /// video engine.
+        pub fn add_or_update_video_sink(
+            track: &VideoTrackInterface,
+            sink: Pin<&mut VideoSinkInterface>,
+        );
+
+        /// Detaches the provided [`VideoSinkInterface`] from the given
+        /// [`VideoTrackInterface`].
+        pub fn remove_video_sink(
+            track: &VideoTrackInterface,
+            sink: Pin<&mut VideoSinkInterface>,
+        );
+
+        /// Creates a new forwarding [`VideoSinkInterface`] backed by the
+        /// provided [`DynOnFrameCallback`].
+        pub fn create_forwarding_video_sink(
+            handler: Box<DynOnFrameCallback>,
+        ) -> UniquePtr<VideoSinkInterface>;
+
+        /// Returns a width of this [`VideoFrame`].
+        #[must_use]
+        pub fn width(self: &VideoFrame) -> i32;
+
+        /// Returns a height of this [`VideoFrame`].
+        #[must_use]
+        pub fn height(self: &VideoFrame) -> i32;
+
+        /// Returns a [`VideoRotation`] of this [`VideoFrame`].
+        #[must_use]
+        pub fn rotation(self: &VideoFrame) -> VideoRotation;
+
+        /// Converts the provided [`webrtc::VideoFrame`] pixels to the `ABGR`
+        /// scheme and writes the result to the provided `buffer`.
+        pub unsafe fn video_frame_to_abgr(frame: &VideoFrame, buffer: *mut u8);
+
         #[must_use]
         pub fn get_candidate_pair(
             event: &CandidatePairChangeEvent,
@@ -561,12 +606,16 @@ pub(crate) mod webrtc {
         pub fn get_remote_candidate(pair: &CandidatePair) -> &Candidate;
     }
 
-    // This will trigger cxx to generate UniquePtrTarget trait for the
-    // mentioned types.
-    // todo migrate. PR
-    // extern "Rust" {
-    //     fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
-    // }
+    extern "Rust" {
+        type DynOnFrameCallback;
+
+        /// Forwards the given [`webrtc::VideoFrame`] the the provided
+        /// [`DynOnFrameCallback`].
+        pub fn on_frame(
+            cb: &mut DynOnFrameCallback,
+            frame: UniquePtr<VideoFrame>,
+        );
+    }
 
     extern "Rust" {
         type DynSetDescriptionCallback;
@@ -704,7 +753,7 @@ pub fn set_description_success(mut cb: Box<DynSetDescriptionCallback>) {
     cb.success();
 }
 
-/// Completes the provided [`DynSetDescriptionCallback`] with an error.
+/// Completes the provided [`DynSetDescriptionCallback`] with the given `error`.
 #[allow(clippy::boxed_local)]
 pub fn set_description_fail(
     mut cb: Box<DynSetDescriptionCallback>,
@@ -821,16 +870,17 @@ pub fn call_on_ice_selected_candidate_pair_changed(
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
-            "offer" => Ok(webrtc::SdpType::kOffer),
-            "answer" => Ok(webrtc::SdpType::kAnswer),
-            "pranswer" => Ok(webrtc::SdpType::kPrAnswer),
-            "rollback" => Ok(webrtc::SdpType::kRollback),
-            _ => Err(anyhow!("Invalid SdpType `{}`", value)),
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "offer" => Ok(Self::kOffer),
+            "answer" => Ok(Self::kAnswer),
+            "pranswer" => Ok(Self::kPrAnswer),
+            "rollback" => Ok(Self::kRollback),
+            v => Err(anyhow!("Invalid `SdpType`: {v}")),
         }
     }
 }
+
 
 impl fmt::Display for webrtc::SdpType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -940,4 +990,10 @@ fn create_candidate_wrapp(
     candidate: UniquePtr<Candidate>,
 ) -> webrtc::CandidateWrap {
     webrtc::CandidateWrap { c: candidate }
+}
+
+/// Forwards the given [`webrtc::VideoFrame`] the the provided
+/// [`DynOnFrameCallback`].
+fn on_frame(cb: &mut DynOnFrameCallback, frame: UniquePtr<webrtc::VideoFrame>) {
+    cb.on_frame(frame);
 }

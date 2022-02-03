@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -9,11 +8,9 @@
 #include "api/create_peerconnection_factory.h"
 #include "api/peer_connection_interface.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
-#include "libwebrtc-sys/include/peer_connection_observer.h"
 
 #include "api/task_queue/default_task_queue_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
-#include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
 #include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
@@ -21,6 +18,8 @@
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
+#include "peer_connection_observer.h"
+#include "video_sink.h"
 #include "rust/cxx.h"
 
 namespace bridge {
@@ -54,6 +53,7 @@ class rc {
 };
 
 using Thread = rtc::Thread;
+using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
 
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
@@ -64,6 +64,7 @@ using SdpType = webrtc::SdpType;
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+using VideoRotation = webrtc::VideoRotation;
 
 using AudioDeviceModule = rc<webrtc::AudioDeviceModule>;
 using AudioSourceInterface = rc<webrtc::AudioSourceInterface>;
@@ -89,9 +90,6 @@ using IceCandidateInterface = webrtc::IceCandidateInterface;
 using Candidate = cricket::Candidate;
 using CandidatePairChangeEvent = cricket::CandidatePairChangeEvent;
 using CandidatePair = cricket::CandidatePair;
-
-using RtpReceiverInterface = rc<webrtc::RtpReceiverInterface>;
-using MediaStreamTrackInterface = rc<webrtc::MediaStreamTrackInterface>;
 
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -189,6 +187,23 @@ bool remove_video_track(const MediaStreamInterface& media_stream,
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track);
 
+// Registers the provided video `sink` for the given `track`.
+// Used to connect the given `track` to the underlying video engine.
+void add_or_update_video_sink(const VideoTrackInterface& track,
+                              VideoSinkInterface& sink);
+
+// Detaches the provided video `sink` from the given `track`.
+void remove_video_sink(const VideoTrackInterface& track,
+                       VideoSinkInterface& sink);
+
+// Creates a new `ForwardingVideoSink`.
+std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
+    rust::Box<DynOnFrameCallback> handler);
+
+// Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
+// writes the result to the provided `dst_abgr`.
+void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr);
+
 // Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
@@ -213,7 +228,7 @@ std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
 // Creates a new `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
     const std::unique_ptr<PeerConnectionObserver>& observer);
-
+    
 // Creates a new `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options();
 

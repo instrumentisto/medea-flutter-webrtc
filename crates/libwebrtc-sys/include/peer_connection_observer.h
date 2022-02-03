@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdio>
 #include <functional>
 #include <optional>
+
 #include "api/peer_connection_interface.h"
 #include "rust/cxx.h"
 
@@ -137,8 +137,8 @@ class CreateSessionDescriptionObserver
   std::optional<rust::Box<bridge::DynCreateSdpCallback>> cb_;
 };
 
-// `SetLocalDescriptionObserverInterface` that propagates completion result to
-// the Rust side.
+// `SetLocalDescriptionObserverInterface` propagating completion result to the
+// Rust side.
 class SetLocalDescriptionObserver
     : public rtc::RefCountedObject<
         webrtc::SetLocalDescriptionObserverInterface> {
@@ -154,7 +154,7 @@ class SetLocalDescriptionObserver
   std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
 };
 
-// `SetRemoteDescriptionObserver` that propagates completion result to the Rust
+// `SetRemoteDescriptionObserver` propagating completion result to the Rust
 // side.
 class SetRemoteDescriptionObserver
     : public rtc::RefCountedObject<
@@ -170,4 +170,5 @@ class SetRemoteDescriptionObserver
   // Rust side callback.
   std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
 };
+
 }  // namespace observer
