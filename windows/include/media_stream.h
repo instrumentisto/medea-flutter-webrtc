@@ -19,11 +19,16 @@ void EnumerateDevice(rust::Box<Webrtc>& webrtc,
                      std::unique_ptr<MethodResult<EncodableValue>> result);
 
 // Parses the received constraints from Dart and passes them to Rust
-// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
+// `GetMedia()`, then converts the backed `MediaStream` info for Dart.
 void GetMedia(const flutter::MethodCall<EncodableValue>& method_call,
               Box<Webrtc>& webrtc,
               std::unique_ptr<MethodResult<EncodableValue>> result,
               bool is_display = false);
+
+// Changes the `enabled` property of the specified media track.
+void SetTrackEnabled(const flutter::MethodCall<EncodableValue>& method_call,
+                     Box<Webrtc>& webrtc,
+                     std::unique_ptr<MethodResult<EncodableValue>> result);
 
 // Disposes some media stream calling Rust `DisposeStream`.
 void DisposeStream(const flutter::MethodCall<EncodableValue>& method_call,
