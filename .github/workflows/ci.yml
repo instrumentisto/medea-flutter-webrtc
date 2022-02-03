@@ -22,7 +22,7 @@ jobs:
 
   rustfmt:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -31,7 +31,6 @@ jobs:
           toolchain: nightly
           components: rustfmt
 
-      - run: make cargo.clean
       - run: make cargo.fmt check=yes
 
   build:
@@ -48,7 +47,6 @@ jobs:
           flutter-version: 2.8.1
       - run: flutter config --enable-windows-desktop
 
-      - run: make cargo.clean
       - run: make cargo.build
       - run: make flutter.build
 
@@ -73,5 +71,4 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - run: make cargo.clean
       - run: make test
