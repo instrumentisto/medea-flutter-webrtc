@@ -625,7 +625,7 @@ impl VideoTrackInterface {
 
     /// Changes the [enabled][1] property of this [`VideoTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         webrtc::set_video_track_enabled(&self.0, enabled);
     }
@@ -639,7 +639,7 @@ pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
 impl AudioTrackInterface {
     /// Changes the [enabled][1] property of this [`AudioTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         webrtc::set_audio_track_enabled(&self.0, enabled);
     }

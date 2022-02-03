@@ -275,14 +275,13 @@ impl Webrtc {
         Ok(src)
     }
 
-    /// Changes the [enabled][1] property of the media track by the
-    /// provided ID.
+    /// Changes the [enabled][1] property of the media track by its ID.
     ///
     /// # Panics
     ///
-    /// If could not find track with the provided ID.
+    /// If cannot find any track with the provided ID.
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(&mut self, id: u64, enabled: bool) {
         if let Some(track) = self.0.video_tracks.get(&VideoTrackId(id)) {
             track.inner.set_enabled(enabled);
@@ -485,7 +484,7 @@ impl VideoTrack {
     /// Changes the [enabled][1] property of the underlying
     /// [`sys::VideoTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
     }
@@ -530,7 +529,7 @@ impl AudioTrack {
     /// Changes the [enabled][1] property of the underlying
     /// [`sys::AudioTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#track-enabled
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
     }
