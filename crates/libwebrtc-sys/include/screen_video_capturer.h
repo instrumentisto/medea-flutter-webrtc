@@ -1,23 +1,9 @@
-#ifndef SCREEN_VIDEO_CAPTURER_H_
-#define SCREEN_VIDEO_CAPTURER_H_
+#pragma once
 
-#include <memory>
-#include <vector>
-
-#include <api/scoped_refptr.h>
-#include <api/video/i420_buffer.h>
-#include <media/base/adapted_video_track_source.h>
-#include <modules/desktop_capture/cropped_desktop_frame.h>
-#include <modules/desktop_capture/desktop_and_cursor_composer.h>
-#include <modules/desktop_capture/desktop_capture_options.h>
-#include <modules/desktop_capture/desktop_capturer.h>
-#include <modules/video_capture/video_capture.h>
-#include <rtc_base/checks.h>
-#include <rtc_base/logging.h>
-#include <rtc_base/platform_thread.h>
-#include <rtc_base/time_utils.h>
-#include <system_wrappers/include/sleep.h>
-#include <third_party/libyuv/include/libyuv.h>
+#include "media/base/adapted_video_track_source.h"
+#include "modules/desktop_capture/desktop_capturer.h"
+#include "modules/video_capture/video_capture.h"
+#include "rtc_base/platform_thread.h"
 
 class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public rtc::VideoSinkInterface<webrtc::VideoFrame>,
@@ -104,5 +90,3 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   // A signal flag to stop the capturing in the `capture_thread_`.
   std::atomic<bool> quit_;
 };
-
-#endif  // SCREEN_VIDEO_CAPTURER_H_

@@ -1,9 +1,10 @@
+#include "api/video/i420_buffer.h"
+#include "modules/desktop_capture/cropped_desktop_frame.h"
+#include "modules/desktop_capture/desktop_and_cursor_composer.h"
+#include "rtc_base/logging.h"
 #include "screen_video_capturer.h"
-
-#include <stdint.h>
-
-#include <iostream>
-#include <memory>
+#include "system_wrappers/include/sleep.h"
+#include "third_party/libyuv/include/libyuv.h"
 
 // Returns a list of avaliable `screen`s to capture.
 bool ScreenVideoCapturer::GetSourceList(
@@ -203,7 +204,7 @@ void ScreenVideoCapturer::OnCaptureResult(
 
 // Returns `false`.
 bool ScreenVideoCapturer::is_screencast() const {
-  return false;
+  return true;
 }
 
 // Returns `false`.
