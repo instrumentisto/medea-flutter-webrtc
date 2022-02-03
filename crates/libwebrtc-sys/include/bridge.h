@@ -127,8 +127,8 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-// Creates a new `VideoTrackSourceInterface` according to the specified
-// constraints.
+// Creates a new `VideoTrackSourceInterface` from some camera according to the
+// specified constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
@@ -137,6 +137,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t fps,
     uint32_t device_index);
 
+// Creates a new `VideoTrackSourceInterface` from some screen according to the
+// specified constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_display_source(
     Thread& worker_thread,
     Thread& signaling_thread,

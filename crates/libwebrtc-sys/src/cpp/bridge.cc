@@ -127,6 +127,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
   return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
+// Creates a new `ScreenVideoCapturer` with the specified constraints and
+// calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_display_source(
     Thread& worker_thread,
     Thread& signaling_thread,
@@ -135,13 +137,23 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_source(
     size_t fps) {
   webrtc::DesktopCapturer::SourceList sourceList;
   ScreenVideoCapturer::GetSourceList(&sourceList);
+
+  if (sourceList.size() < 1) {
+    return nullptr;
+  }
+
   rtc::scoped_refptr<ScreenVideoCapturer> capturer(
       new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, width,
                                                      height, fps));
 
-  return std::make_unique<VideoTrackSourceInterface>(
-      webrtc::CreateVideoTrackSourceProxy(&signaling_thread, &worker_thread,
-                                          capturer));
+  auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
+                                                 &worker_thread, capturer);
+
+  if (src == nullptr) {
+    return nullptr;
+  }
+
+  return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
 // Calls `PeerConnectionFactoryInterface->CreateAudioSource()` with empty

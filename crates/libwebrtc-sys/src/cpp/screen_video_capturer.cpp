@@ -5,18 +5,7 @@
 #include <iostream>
 #include <memory>
 
-const std::string ScreenVideoCapturer::GetSourceListString() {
-  std::ostringstream oss;
-  webrtc::DesktopCapturer::SourceList sources;
-  if (GetSourceList(&sources)) {
-    int i = 0;
-    for (webrtc::DesktopCapturer::Source& source : sources) {
-      oss << i++ << " : " << source.title << std::endl;
-    }
-  }
-  return oss.str();
-}
-
+// Returns a list of avaliable `screen`s to capture.
 bool ScreenVideoCapturer::GetSourceList(
     webrtc::DesktopCapturer::SourceList* sources) {
   std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
@@ -37,7 +26,6 @@ ScreenVideoCapturer::ScreenVideoCapturer(
       quit_(false) {
   auto options = CreateDesktopCaptureOptions();
   std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
-      // webrtc::DesktopCapturer::CreateWindowCapturer(options));
       webrtc::DesktopCapturer::CreateScreenCapturer(options));
   if (screen_capturer && screen_capturer->SelectSource(source_id)) {
     capturer_.reset(new webrtc::DesktopAndCursorComposer(
@@ -63,23 +51,26 @@ ScreenVideoCapturer::~ScreenVideoCapturer() {
   capturer_.reset();
 }
 
+// Creates a default `webrtc::DesktopCaptureOptions` and calls
+// `webrtc::DesktopCaptureOptions::set_allow_directx_capturer` on it.
 webrtc::DesktopCaptureOptions
 ScreenVideoCapturer::CreateDesktopCaptureOptions() {
   webrtc::DesktopCaptureOptions options =
       webrtc::DesktopCaptureOptions::CreateDefault();
 
   options.set_allow_directx_capturer(true);
-  options.set_allow_use_magnification_api(false);
 
   return options;
 }
 
+// A handler for the `capture thread`.
 void ScreenVideoCapturer::CaptureThread(void* obj) {
   auto self = static_cast<ScreenVideoCapturer*>(obj);
   while (self->CaptureProcess()) {
   }
 }
 
+// Captures a `webrtc::DesktopFrame`.
 bool ScreenVideoCapturer::CaptureProcess() {
   if (quit_) {
     return false;
@@ -103,6 +94,8 @@ void ScreenVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
   AdaptedVideoTrackSource::OnFrame(frame);
 }
 
+// A callback for `webrtc::DesktopCapturer::CaptureFrame`. Handles a
+// `DesktopFrame`, makes a `VideoFrame` from it.
 void ScreenVideoCapturer::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
     std::unique_ptr<webrtc::DesktopFrame> frame) {

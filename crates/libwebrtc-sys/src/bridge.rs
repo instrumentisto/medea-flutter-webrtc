@@ -83,17 +83,21 @@ pub mod webrtc {
         /// platform.
         #[namespace = "webrtc"]
         #[cxx_name = "CreateDefaultTaskQueueFactory"]
+        #[must_use]
         pub fn create_default_task_queue_factory()
             -> UniquePtr<TaskQueueFactory>;
 
         /// Creates a new [`Thread`].
+        #[must_use]
         pub fn create_thread() -> UniquePtr<Thread>;
 
         /// Starts the current [`Thread`].
         #[cxx_name = "Start"]
+        #[must_use]
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;
 
         /// Creates a new [`PeerConnectionFactoryInterface`].
+        #[must_use]
         pub fn create_peer_connection_factory(
             network_thread: &UniquePtr<Thread>,
             worker_thread: &UniquePtr<Thread>,
@@ -107,20 +111,24 @@ pub mod webrtc {
         type AudioLayer;
 
         /// Creates a new [`AudioDeviceModule`] for the given [`AudioLayer`].
+        #[must_use]
         pub fn create_audio_device_module(
             audio_layer: AudioLayer,
             task_queue_factory: Pin<&mut TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
         /// Initializes the given [`AudioDeviceModule`].
+        #[must_use]
         pub fn init_audio_device_module(
             audio_device_module: &AudioDeviceModule,
         ) -> i32;
 
         /// Returns count of available audio playout devices.
+        #[must_use]
         pub fn playout_devices(audio_device_module: &AudioDeviceModule) -> i16;
 
         /// Returns count of available audio recording devices.
+        #[must_use]
         pub fn recording_devices(
             audio_device_module: &AudioDeviceModule,
         ) -> i16;
@@ -146,6 +154,7 @@ pub mod webrtc {
         /// Specifies which microphone to use for recording audio using an
         /// index retrieved by the corresponding enumeration method which is
         /// [`AudiDeviceModule::RecordingDeviceName`].
+        #[must_use]
         pub fn set_audio_recording_device(
             audio_device_module: &AudioDeviceModule,
             index: u16,
@@ -156,11 +165,13 @@ pub mod webrtc {
         type VideoDeviceInfo;
 
         /// Creates a new [`VideoDeviceInfo`].
+        #[must_use]
         pub fn create_video_device_info() -> UniquePtr<VideoDeviceInfo>;
 
         /// Returns count of a video recording devices.
         #[namespace = "webrtc"]
         #[cxx_name = "NumberOfDevices"]
+        #[must_use]
         pub fn number_of_video_devices(self: Pin<&mut VideoDeviceInfo>) -> u32;
 
         /// Writes device info to the provided `name` and `id` for the given
@@ -187,6 +198,7 @@ pub mod webrtc {
         type SetRemoteDescriptionObserver;
 
         /// Creates a default [`RTCConfiguration`].
+        #[must_use]
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
 
@@ -202,20 +214,24 @@ pub mod webrtc {
         ) -> UniquePtr<PeerConnectionInterface>;
 
         /// Creates a new [`PeerConnectionObserver`].
+        #[must_use]
         pub fn create_peer_connection_observer(
         ) -> UniquePtr<PeerConnectionObserver>;
 
         /// Creates a [`PeerConnectionDependencies`] from the provided
         /// [`PeerConnectionObserver`].
+        #[must_use]
         pub fn create_peer_connection_dependencies(
             observer: UniquePtr<PeerConnectionObserver>,
         ) -> UniquePtr<PeerConnectionDependencies>;
 
         /// Creates a default [`RTCOfferAnswerOptions`].
+        #[must_use]
         pub fn create_default_rtc_offer_answer_options(
         ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         /// Creates a new [`RTCOfferAnswerOptions`] from the provided options.
+        #[must_use]
         pub fn create_rtc_offer_answer_options(
             offer_to_receive_video: i32,
             offer_to_receive_audio: i32,
@@ -226,18 +242,21 @@ pub mod webrtc {
 
         /// Creates a new [`CreateSessionDescriptionObserver`] from the
         /// provided [`DynCreateSdpCallback`].
+        #[must_use]
         pub fn create_create_session_observer(
             cb: Box<DynCreateSdpCallback>,
         ) -> UniquePtr<CreateSessionDescriptionObserver>;
 
         /// Creates a new [`SetLocalDescriptionObserver`] from the provided
         /// [`DynSetDescriptionCallback`].
+        #[must_use]
         pub fn create_set_local_description_observer(
             cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetLocalDescriptionObserver>;
 
         /// Creates a new [`SetRemoteDescriptionObserver`] from the provided
         /// [`DynSetDescriptionCallback`].
+        #[must_use]
         pub fn create_set_remote_description_observer(
             cb: Box<DynSetDescriptionCallback>,
         ) -> UniquePtr<SetRemoteDescriptionObserver>;
@@ -302,7 +321,7 @@ pub mod webrtc {
         type VideoSinkInterface;
         type VideoRotation;
 
-        /// Creates a new [`VideoTrackSourceInterface`].
+        /// Creates a new [`VideoTrackSourceInterface`], captures some camera.
         pub fn create_video_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
@@ -312,7 +331,7 @@ pub mod webrtc {
             device_index: u32,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
-        /// Creates a new [`VideoTrackSourceInterface`].
+        /// Creates a new [`VideoTrackSourceInterface`], captures some screen.
         pub fn create_display_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
@@ -391,6 +410,7 @@ pub mod webrtc {
 
         /// Creates a new forwarding [`VideoSinkInterface`] backed by the
         /// provided [`DynOnFrameCallback`].
+        #[must_use]
         pub fn create_forwarding_video_sink(
             handler: Box<DynOnFrameCallback>,
         ) -> UniquePtr<VideoSinkInterface>;
