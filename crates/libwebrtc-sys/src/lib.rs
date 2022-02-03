@@ -11,14 +11,12 @@ pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms,
     get_local_candidate, get_reason, get_remote_candidate,
-    ice_candidate_interface_to_string, AudioLayer, Candidate,
-    CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
-    IceGatheringState, PeerConnectionState, SdpType, SignalingState,
+    ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
+    Candidate, CandidatePairChangeEvent, IceCandidateInterface,
+    IceConnectionState, IceGatheringState, PeerConnectionState, SdpType,
+    SignalingState, VideoFrame, VideoRotation,
 };
 pub use bridge::webrtc::CandidateWrap;
-pub use crate::webrtc::{
-    video_frame_to_abgr, VideoFrame, VideoRotation,
-};
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
 /// used to call [`PeerConnectionInterface::create_offer()`] and
@@ -116,7 +114,6 @@ pub trait PeerConnectionOnEvent {
         event: &CandidatePairChangeEvent,
     );
 }
-
 
 /// Handler of [`VideoFrame`]s.
 pub trait OnFrameCallback {
@@ -492,6 +489,13 @@ impl PeerConnectionInterface {
     }
 }
 
+impl Drop for PeerConnectionInterface {
+    fn drop(&mut self) {
+        webrtc::peer_connection_close(self.pc.pin_mut());
+        println!("ddrop");
+    }
+}
+
 /// Interface for using an RTC [`Thread`][1].
 ///
 /// [1]: https://tinyurl.com/doc-threads
@@ -554,13 +558,16 @@ impl PeerConnectionFactoryInterface {
     pub fn create_peer_connection_or_error(
         &mut self,
         configuration: &RTCConfiguration,
-        dependencies: PeerConnectionDependencies,
+        PeerConnectionDependencies {
+            dependencies,
+            _observer,
+        }: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
         let mut error = String::new();
         let inner = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
             &configuration.0,
-            dependencies.dependencies,
+            dependencies,
             &mut error,
         );
 
@@ -576,7 +583,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(PeerConnectionInterface {
             pc: inner,
-            _observer: dependencies._observer,
+            _observer,
         })
     }
 

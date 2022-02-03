@@ -4,7 +4,8 @@ use anyhow::anyhow;
 use cxx::{CxxString, UniquePtr};
 
 use crate::{
-    Candidate, CreateSdpCallback, PeerConnectionOnEvent, SetDescriptionCallback, OnFrameCallback
+    Candidate, CreateSdpCallback, OnFrameCallback, PeerConnectionOnEvent,
+    SetDescriptionCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -86,22 +87,26 @@ pub(crate) mod webrtc {
 
         /// [RTCSignalingState.have-local-offer][1] representation.
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-offer
+        /// [1]:
+        /// https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-offer
         kHaveLocalOffer,
 
         /// [RTCSignalingState.have-local-pranswer][1] representation.
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-pranswer
+        /// [1]:
+        /// https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-local-pranswer
         kHaveLocalPrAnswer,
 
         /// [RTCSignalingState.have-remote-offer][1] representation.
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-offer
+        /// [1]:
+        /// https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-offer
         kHaveRemoteOffer,
 
         /// [RTCSignalingState.have-remote-pranswer][1] representation.
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-pranswer
+        /// [1]:
+        /// https://w3.org/TR/webrtc/#dom-rtcsignalingstate-have-remote-pranswer
         kHaveRemotePrAnswer,
 
         /// [RTCSignalingState.closed][1] representation.
@@ -122,7 +127,8 @@ pub(crate) mod webrtc {
 
     /// [RTCIceGatheringState] representation.
     ///
-    /// [RTCIceGatheringState]: https://w3.org/TR/webrtc/#dom-rtcicegatheringstate
+    /// [RTCIceGatheringState]:
+    /// https://w3.org/TR/webrtc/#dom-rtcicegatheringstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum IceGatheringState {
@@ -144,7 +150,8 @@ pub(crate) mod webrtc {
 
     /// [RTCPeerConnectionState] representation.
     ///
-    /// [RTCPeerConnectionState]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate
+    /// [RTCPeerConnectionState]:
+    /// https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     enum PeerConnectionState {
@@ -165,7 +172,8 @@ pub(crate) mod webrtc {
 
         /// [RTCPeerConnectionState.disconnected][1] representation.
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-disconnected
+        /// [1]:
+        /// https://w3.org/TR/webrtc/#dom-rtcpeerconnectionstate-disconnected
         kDisconnected,
 
         /// [RTCPeerConnectionState.failed][1] representation.
@@ -181,7 +189,8 @@ pub(crate) mod webrtc {
 
     /// [RTCIceConnectionState] representation.
     ///
-    /// [RTCIceConnectionState]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate
+    /// [RTCIceConnectionState]:
+    /// https://w3.org/TR/webrtc/#dom-rtciceconnectionstate
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     enum IceConnectionState {
@@ -212,7 +221,8 @@ pub(crate) mod webrtc {
 
         /// [RTCIceConnectionState.disconnected][1] representation.
         ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-disconnected
+        /// [1]:
+        /// https://w3.org/TR/webrtc/#dom-rtciceconnectionstate-disconnected
         kIceConnectionDisconnected,
 
         /// [RTCIceConnectionState.closed][1] representation.
@@ -414,6 +424,14 @@ pub(crate) mod webrtc {
             peer: Pin<&mut PeerConnectionInterface>,
             options: &RTCOfferAnswerOptions,
             obs: UniquePtr<CreateSessionDescriptionObserver>,
+        );
+
+        /// Calls the [RTCPeerConnection.close()][1] on the provided
+        /// [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-close
+        pub fn peer_connection_close(
+            peer: Pin<&mut PeerConnectionInterface>
         );
 
         /// Calls the [RTCPeerConnection.createAnswer()][1] on the provided
@@ -881,7 +899,6 @@ impl TryFrom<&str> for webrtc::SdpType {
     }
 }
 
-
 impl fmt::Display for webrtc::SdpType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
@@ -973,17 +990,6 @@ impl ToString for webrtc::PeerConnectionState {
         }
     }
 }
-
-// migrate to new PR.
-// fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {}
-/// Creates [`MediaStreamTrackInterfaceWrap`].
-// fn create_media_stream_track_interface_wrap(
-//     media_stream_track: UniquePtr<MediaStreamTrackInterface>,
-// ) -> webrtc::MediaStreamTrackInterfaceWrap {
-//     webrtc::MediaStreamTrackInterfaceWrap {
-//         m: media_stream_track,
-//     }
-// }
 
 /// Creates [`CandidateWrap`].
 fn create_candidate_wrapp(

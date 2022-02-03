@@ -257,6 +257,9 @@ std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
     rust::Box<bridge::DynSetDescriptionCallback> cb);
 
+// Calls `PeerConnectionInterface->Close`.
+void peer_connection_close(PeerConnectionInterface& peer);
+
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer,
                   const RTCOfferAnswerOptions& options,

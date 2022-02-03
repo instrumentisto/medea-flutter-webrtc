@@ -278,9 +278,8 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
     const RTCConfiguration& configuration,
     std::unique_ptr<PeerConnectionDependencies> dependencies,
     rust::String& error) {
-  PeerConnectionDependencies pcd = std::move(*(dependencies.release()));
   auto pc = peer_connection_factory->CreatePeerConnectionOrError(
-      configuration, std::move(pcd));
+      configuration, std::move(*dependencies));
 
   if (pc.ok()) {
     return std::make_unique<PeerConnectionInterface>(pc.MoveValue());
@@ -348,6 +347,11 @@ std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
     rust::Box<bridge::DynSetDescriptionCallback> cb) {
   return std::make_unique<SetRemoteDescriptionObserver>(std::move(cb));
+}
+
+// Calls `PeerConnectionInterface->Close`.
+void peer_connection_close(PeerConnectionInterface& peer) {
+  peer->Close();
 }
 
 // Calls `PeerConnectionInterface->CreateOffer`.

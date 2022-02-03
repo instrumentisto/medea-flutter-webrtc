@@ -201,7 +201,7 @@ pub mod api {
 
         type PeerConnectionOnEventInterface =
             crate::internal::PeerConnectionOnEventInterface;
-            
+
         type OnFrameCallbackInterface =
             crate::internal::OnFrameCallbackInterface;
     }

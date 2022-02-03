@@ -10,7 +10,7 @@ mod cpp_api_bindings {
         pub type CreateSdpCallbackInterface;
         pub type SetDescriptionCallbackInterface;
         pub type OnFrameCallbackInterface;
-        
+
         type CandidatePairChangeEventSerialized =
             crate::api::CandidatePairChangeEventSerialized;
         type PeerConnectionOnEventInterface;
@@ -174,7 +174,8 @@ mod cpp_api_bindings {
             i: UniquePtr<SetDescriptionCallbackInterface>,
         );
         fn _touch_unique_ptr_peer_connection_on_event_interface(
-            i: UniquePtr<PeerConnectionOnEventInterface>,);
+            i: UniquePtr<PeerConnectionOnEventInterface>,
+        );
 
         fn _touch_unique_ptr_on_frame_handler(
             i: UniquePtr<OnFrameCallbackInterface>,
@@ -189,9 +190,9 @@ fn _touch_set_description_callback(
 ) {
 }
 fn _touch_unique_ptr_peer_connection_on_event_interface(
-    _: cxx::UniquePtr<PeerConnectionOnEventInterface>,) {
-        
-    }
+    _: cxx::UniquePtr<PeerConnectionOnEventInterface>,
+) {
+}
 
 fn _touch_unique_ptr_on_frame_handler(
     _: cxx::UniquePtr<OnFrameCallbackInterface>,

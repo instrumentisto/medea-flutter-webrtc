@@ -67,7 +67,8 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> _lt_channel;
   };
 
-  PeerConnectionOnEvent(std::shared_ptr<EventContext> context, rust::Box<Webrtc>* webrtc)
+  // Creates a new `CreateSdpCallback`.
+  PeerConnectionOnEvent(std::shared_ptr<EventContext> context)
       : context_(std::move(context)) {};
 
   // Successfully writes serialized `OnSignalingChange` event 
@@ -264,28 +265,36 @@ void CreateRTCPeerConnection(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
 
-  rust::Box<Webrtc>* webrtc_(&webrtc);
   std::shared_ptr<PeerConnectionOnEvent::EventContext> event_context =
       std::make_shared<PeerConnectionOnEvent::EventContext>(
         std::move(PeerConnectionOnEvent::EventContext()));
 
   std::unique_ptr<PeerConnectionOnEventInterface> event_callback =
       std::unique_ptr<PeerConnectionOnEventInterface>(
-          new PeerConnectionOnEvent(event_context, webrtc_));
+          new PeerConnectionOnEvent(event_context));
 
+  std::weak_ptr<PeerConnectionOnEvent::EventContext> weak_context(
+      event_context);
   auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-      [=](const flutter::EncodableValue* arguments,
-          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events) 
+      [weak_context](
+          const flutter::EncodableValue* arguments,
+          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        const std::lock_guard<std::mutex> lock(*event_context->channel_mutex);
-        event_context->event_sink = std::move(events);
+        auto context = weak_context.lock();
+        if (context) {
+          const std::lock_guard<std::mutex> lock(*context->channel_mutex);
+          context->event_sink = std::move(events);
+        }
         return nullptr;
       },
 
-      [=](const flutter::EncodableValue* arguments)
+      [weak_context](const flutter::EncodableValue* arguments)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        const std::lock_guard<std::mutex> lock(*event_context->channel_mutex);
-        event_context->event_sink.reset();
+        auto context = weak_context.lock();
+        if (context) {
+          const std::lock_guard<std::mutex> lock(*context->channel_mutex);
+          context->event_sink.reset();
+        }
         return nullptr;
       });
 

@@ -1,3 +1,5 @@
+
+
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
@@ -7,8 +9,7 @@ use sys::{
     get_remote_candidate, PeerConnectionObserver,
 };
 
-use crate::{
-    api::PeerConnectionOnEventInterface,};
+use crate::api::PeerConnectionOnEventInterface;
 
 use crate::{
     internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
@@ -206,7 +207,13 @@ impl Webrtc {
         &mut self,
         peer_connection_id: impl Into<PeerConnectionId>,
     ) {
-        self.0.peer_connections.remove(&peer_connection_id.into());
+        let a = self
+            .0
+            .peer_connections
+            .remove(&peer_connection_id.into())
+            .unwrap();
+        drop(a);
+        println!("drop");
     }
 }
 
@@ -393,5 +400,4 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
             );
         };
     }
-
 }
