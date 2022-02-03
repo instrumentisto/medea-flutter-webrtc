@@ -575,15 +575,26 @@ impl VideoTrackSourceInterface {
         height: usize,
         fps: usize,
         device_index: u32,
+        is_display: bool,
     ) -> anyhow::Result<Self> {
-        let ptr = webrtc::create_video_source(
-            worker_thread.0.pin_mut(),
-            signaling_thread.0.pin_mut(),
-            width,
-            height,
-            fps,
-            device_index,
-        );
+        let ptr = if !is_display {
+            webrtc::create_video_source(
+                worker_thread.0.pin_mut(),
+                signaling_thread.0.pin_mut(),
+                width,
+                height,
+                fps,
+                device_index,
+            )
+        } else {
+            webrtc::create_display_source(
+                worker_thread.0.pin_mut(),
+                signaling_thread.0.pin_mut(),
+                width,
+                height,
+                fps,
+            )
+        };
 
         if ptr.is_null() {
             bail!(

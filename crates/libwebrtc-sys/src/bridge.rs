@@ -312,6 +312,15 @@ pub mod webrtc {
             device_index: u32,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
+        /// Creates a new [`VideoTrackSourceInterface`].
+        pub fn create_display_source(
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
+            width: usize,
+            height: usize,
+            fps: usize,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
+
         /// Creates a new [`AudioSourceInterface`].
         pub fn create_audio_source(
             peer_connection_factory: &PeerConnectionFactoryInterface,

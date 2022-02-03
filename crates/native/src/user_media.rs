@@ -14,9 +14,10 @@ impl Webrtc {
     /// [`AudioTrack`]s according to the provided accepted
     /// [`api::MediaStreamConstraints`].
     #[allow(clippy::too_many_lines, clippy::missing_panics_doc)]
-    pub fn get_users_media(
+    pub fn get_media(
         self: &mut Webrtc,
         constraints: &api::MediaStreamConstraints,
+        is_display: bool,
     ) -> api::MediaStream {
         let mut stream =
             MediaStream::new(&self.0.peer_connection_factory).unwrap();
@@ -28,9 +29,10 @@ impl Webrtc {
         };
 
         if constraints.video.required {
-            let source =
-                self.get_or_create_video_source(&constraints.video).unwrap();
-            let track = self.create_video_track(source).unwrap();
+            let source = self
+                .get_or_create_video_source(&constraints.video, is_display)
+                .unwrap();
+            let track = self.create_video_track(source, is_display).unwrap();
 
             stream.add_video_track(track).unwrap();
             result.video_tracks.push(api::MediaStreamTrack {
@@ -100,23 +102,36 @@ impl Webrtc {
     fn create_video_track(
         &mut self,
         source: Rc<VideoSource>,
+        is_display: bool,
     ) -> anyhow::Result<&mut VideoTrack> {
-        let device_index = if let Some(index) =
-            self.get_index_of_video_device(&source.device_id)?
-        {
-            index
-        } else {
-            bail!(
-                "Could not find video device with the specified ID `{}`",
-                &source.device_id,
-            );
-        };
+        let track: VideoTrack;
 
-        let track = VideoTrack::new(
-            &self.0.peer_connection_factory,
-            source,
-            VideoLabel(self.0.video_device_info.device_name(device_index)?.0),
-        )?;
+        if !is_display {
+            let device_index = if let Some(index) =
+                self.get_index_of_video_device(&source.device_id)?
+            {
+                index
+            } else {
+                bail!(
+                    "Could not find video device with the specified ID `{}`",
+                    &source.device_id,
+                );
+            };
+
+            track = VideoTrack::new(
+                &self.0.peer_connection_factory,
+                source,
+                VideoLabel(
+                    self.0.video_device_info.device_name(device_index)?.0,
+                ),
+            )?;
+        } else {
+            track = VideoTrack::new(
+                &self.0.peer_connection_factory,
+                source,
+                VideoLabel("screen".to_string()),
+            )?;
+        }
 
         let track = self.0.video_tracks.entry(track.id).or_insert(track);
 
@@ -127,9 +142,13 @@ impl Webrtc {
     fn get_or_create_video_source(
         &mut self,
         caps: &VideoConstraints,
+        is_display: bool,
     ) -> anyhow::Result<Rc<VideoSource>> {
-        let (index, device_id) = if caps.device_id.is_empty() {
-            // No device ID is provided so just pick the first available device
+        let (index, device_id) = if is_display {
+            (0, VideoDeviceId("screen".to_string()))
+        } else if caps.device_id.is_empty() {
+            // No device ID is provided so just pick the first available
+            // device
             if self.0.video_device_info.number_of_devices() < 1 {
                 bail!("Could not find any available video input device");
             }
@@ -159,6 +178,7 @@ impl Webrtc {
             caps,
             index,
             device_id,
+            is_display,
         )?);
         self.0
             .video_sources
@@ -518,6 +538,7 @@ impl VideoSource {
         caps: &api::VideoConstraints,
         device_index: u32,
         device_id: VideoDeviceId,
+        is_display: bool,
     ) -> anyhow::Result<Self> {
         Ok(Self {
             inner: sys::VideoTrackSourceInterface::create_proxy(
@@ -527,6 +548,7 @@ impl VideoSource {
                 caps.height,
                 caps.frame_rate,
                 device_index,
+                is_display,
             )?,
             device_id,
         })

@@ -20,6 +20,7 @@
 #include "pc/video_track_source.h"
 #include "peer_connection_observer.h"
 #include "rust/cxx.h"
+#include "screen_video_capturer.h"
 #include "video_sink.h"
 
 namespace bridge {
@@ -135,6 +136,13 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t height,
     size_t fps,
     uint32_t device_index);
+
+std::unique_ptr<VideoTrackSourceInterface> create_display_source(
+    Thread& worker_thread,
+    Thread& signaling_thread,
+    size_t width,
+    size_t height,
+    size_t fps);
 
 // Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(

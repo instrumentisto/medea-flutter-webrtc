@@ -1,27 +1,9 @@
-// オリジナルは以下:
-// https://cs.chromium.org/chromium/src/content/browser/media/capture/desktop_capture_device.cc
-//
-// Copyright (c) 2013 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in https://cs.chromium.org/chromium/src/LICENSE.
-
 #include "screen_video_capturer.h"
 
 #include <stdint.h>
 
 #include <iostream>
 #include <memory>
-
-// WebRTC
-#include <api/video/i420_buffer.h>
-#include <modules/desktop_capture/cropped_desktop_frame.h>
-#include <modules/desktop_capture/desktop_and_cursor_composer.h>
-#include <modules/desktop_capture/desktop_capture_options.h>
-#include <rtc_base/checks.h>
-#include <rtc_base/logging.h>
-#include <rtc_base/time_utils.h>
-#include <system_wrappers/include/sleep.h>
-#include <third_party/libyuv/include/libyuv.h>
 
 const std::string ScreenVideoCapturer::GetSourceListString() {
   std::ostringstream oss;
@@ -38,8 +20,6 @@ const std::string ScreenVideoCapturer::GetSourceListString() {
 bool ScreenVideoCapturer::GetSourceList(
     webrtc::DesktopCapturer::SourceList* sources) {
   std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
-      // webrtc::DesktopCapturer::CreateWindowCapturer(
-      //     CreateDesktopCaptureOptions()));
       webrtc::DesktopCapturer::CreateScreenCapturer(
           CreateDesktopCaptureOptions()));
   return screen_capturer->GetSourceList(sources);
@@ -88,12 +68,8 @@ ScreenVideoCapturer::CreateDesktopCaptureOptions() {
   webrtc::DesktopCaptureOptions options =
       webrtc::DesktopCaptureOptions::CreateDefault();
 
-#if defined(_WIN32)
   options.set_allow_directx_capturer(true);
   options.set_allow_use_magnification_api(false);
-#elif defined(__APPLE__)
-  options.set_allow_iosurface(true);
-#endif
 
   return options;
 }
@@ -120,6 +96,11 @@ bool ScreenVideoCapturer::CaptureProcess() {
     webrtc::SleepMs(delta_time);
   }
   return true;
+}
+
+// Propagates a `VideoFrame` to the `AdaptedVideoTrackSource::OnFrame()`.
+void ScreenVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
+  AdaptedVideoTrackSource::OnFrame(frame);
 }
 
 void ScreenVideoCapturer::OnCaptureResult(
@@ -225,4 +206,24 @@ void ScreenVideoCapturer::OnCaptureResult(
                                         .build();
 
   OnFrame(captureFrame);
+}
+
+// Returns `false`.
+bool ScreenVideoCapturer::is_screencast() const {
+  return false;
+}
+
+// Returns `false`.
+absl::optional<bool> ScreenVideoCapturer::needs_denoising() const {
+  return false;
+}
+
+// Returns `SourceState::kLive`.
+webrtc::MediaSourceInterface::SourceState ScreenVideoCapturer::state() const {
+  return SourceState::kLive;
+}
+
+// Returns `false`.
+bool ScreenVideoCapturer::remote() const {
+  return false;
 }

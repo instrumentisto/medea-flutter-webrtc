@@ -32,6 +32,9 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rustc-link-lib=dylib=msdmo");
     println!("cargo:rustc-link-lib=dylib=winmm");
     println!("cargo:rustc-link-lib=dylib=Secur32");
+    println!("cargo:rustc-link-lib=dylib=Gdi32");
+    println!("cargo:rustc-link-lib=dylib=d3d11");
+    println!("cargo:rustc-link-lib=dylib=dxgi");
 
     cxx_build::bridge("src/bridge.rs")
         .files(&cpp_files)
