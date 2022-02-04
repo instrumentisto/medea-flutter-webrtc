@@ -1,3 +1,21 @@
+// This is a slightly tweaked version of
+// https://github.com/shiguredo/momo/blob/b81b51da8e2b823090d6a7f966fc517e047237e6/src/rtc/screen_video_capturer.cpp
+//
+// Copyright 2015-2021, tnoho (Original Author)
+// Copyright 2018-2021, Shiguredo Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "screen_video_capturer.h"
 #include "api/video/i420_buffer.h"
 #include "modules/desktop_capture/cropped_desktop_frame.h"
@@ -6,15 +24,21 @@
 #include "system_wrappers/include/sleep.h"
 #include "third_party/libyuv/include/libyuv.h"
 
-// Returns a list of available `screen`s to capture.
+// Maximum allow cpu consumption for the frame capturing thread.
+const int maxCpuConsumptionPercentage = 50;
+
+// Fills the provided `SourceList` with all available screens that can be
+// used by this `ScreenVideoCapturer`.
 bool ScreenVideoCapturer::GetSourceList(
     webrtc::DesktopCapturer::SourceList* sources) {
   std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
       webrtc::DesktopCapturer::CreateScreenCapturer(
       CreateDesktopCaptureOptions()));
+
   return screen_capturer->GetSourceList(sources);
 }
 
+// Creates a new `ScreenVideoCapturer` with the specified constraints.
 ScreenVideoCapturer::ScreenVideoCapturer(
     webrtc::DesktopCapturer::SourceId source_id,
     size_t max_width,
@@ -23,7 +47,6 @@ ScreenVideoCapturer::ScreenVideoCapturer(
     : max_width_(max_width),
       max_height_(max_height),
       requested_frame_duration_((int) (1000.0f / target_fps)),
-      max_cpu_consumption_percentage_(50),
       quit_(false) {
   auto options = CreateDesktopCaptureOptions();
   std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
@@ -52,18 +75,6 @@ ScreenVideoCapturer::~ScreenVideoCapturer() {
   capturer_.reset();
 }
 
-// Creates a default `webrtc::DesktopCaptureOptions` and calls
-// `webrtc::DesktopCaptureOptions::set_allow_directx_capturer` on it.
-webrtc::DesktopCaptureOptions
-ScreenVideoCapturer::CreateDesktopCaptureOptions() {
-  webrtc::DesktopCaptureOptions options =
-      webrtc::DesktopCaptureOptions::CreateDefault();
-
-  options.set_allow_directx_capturer(true);
-
-  return options;
-}
-
 // Captures a `webrtc::DesktopFrame`.
 bool ScreenVideoCapturer::CaptureProcess() {
   if (quit_) {
@@ -74,7 +85,7 @@ bool ScreenVideoCapturer::CaptureProcess() {
   capturer_->CaptureFrame();
   int last_capture_duration = (int) (rtc::TimeMillis() - started_time);
   int capture_period =
-      std::max((last_capture_duration * 100) / max_cpu_consumption_percentage_,
+      std::max((last_capture_duration * 100) / maxCpuConsumptionPercentage,
                requested_frame_duration_);
   int delta_time = capture_period - last_capture_duration;
   if (delta_time > 0) {
@@ -97,6 +108,8 @@ void ScreenVideoCapturer::OnCaptureResult(
   bool success = result == webrtc::DesktopCapturer::Result::SUCCESS;
 
   if (!success) {
+
+    RTC_LOG(LS_ERROR) << "The desktop capturer has failed.";
     return;
   }
 
@@ -118,8 +131,7 @@ void ScreenVideoCapturer::OnCaptureResult(
     previous_frame_size_ = frame->size();
   }
 
-  webrtc::DesktopSize
-  output_size(capture_width_ & ~1, capture_height_ & ~1);
+  webrtc::DesktopSize output_size(capture_width_ & ~1, capture_height_ & ~1);
   if (output_size.is_empty()) {
     output_size.set(2, 2);
   }
@@ -216,4 +228,15 @@ webrtc::MediaSourceInterface::SourceState ScreenVideoCapturer::state() const {
 // Returns `false`.
 bool ScreenVideoCapturer::remote() const {
   return false;
+}
+
+// Creates a default `webrtc::DesktopCaptureOptions` and calls
+// `webrtc::DesktopCaptureOptions::set_allow_directx_capturer` on it.
+webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions() {
+  webrtc::DesktopCaptureOptions options =
+      webrtc::DesktopCaptureOptions::CreateDefault();
+
+  options.set_allow_directx_capturer(true);
+
+  return options;
 }

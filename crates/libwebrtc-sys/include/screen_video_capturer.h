@@ -1,3 +1,21 @@
+// This is a slightly tweaked version of
+// https://github.com/shiguredo/momo/blob/b81b51da8e2b823090d6a7f966fc517e047237e6/src/rtc/screen_video_capturer.h
+//
+// Copyright 2015-2021, tnoho (Original Author)
+// Copyright 2018-2021, Shiguredo Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #pragma once
 
 #include "media/base/adapted_video_track_source.h"
@@ -5,13 +23,17 @@
 #include "modules/video_capture/video_capture.h"
 #include "rtc_base/platform_thread.h"
 
+// `VideoTrackSourceInterface` that captures frames a user's display.
 class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public rtc::VideoSinkInterface<webrtc::VideoFrame>,
                             public webrtc::DesktopCapturer::Callback {
  public:
-  // Returns a list of avaliable `screen`s to capture.
+
+  // Fills the provided `SourceList` with all available screens that can be
+  // used by this `ScreenVideoCapturer`.
   static bool GetSourceList(webrtc::DesktopCapturer::SourceList* sources);
 
+  // Creates a new `ScreenVideoCapturer` with the specified constraints.
   ScreenVideoCapturer(webrtc::DesktopCapturer::SourceId source_id,
                       size_t max_width,
                       size_t max_height,
@@ -22,11 +44,9 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   // Captures a `webrtc::DesktopFrame`.
   bool CaptureProcess();
 
-  // Creates a `webrtc::DesktopCaptureOptions`.
-  static webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions();
-
-  // A callback for `webrtc::DesktopCapturer::CaptureFrame`. Handles a
-  // `DesktopFrame`, makes a `VideoFrame` from it.
+  // A callback for `webrtc::DesktopCapturer::CaptureFrame`. Converts a
+  // `DesktopFrame` to a `VideoFrame` that is forwarded to
+  // `ScreenVideoCapturer::OnFrame`.
   void OnCaptureResult(webrtc::DesktopCapturer::Result result,
                        std::unique_ptr<webrtc::DesktopFrame> frame) override;
 
@@ -49,11 +69,14 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   // display surface.
   bool remote() const override;
 
-  // A max width of the `VideoFrame`.
+  // A max width of the captured `VideoFrame`.
   size_t max_width_;
 
-  // A max height of the `VideoFrame`.
+  // A max height of the captured `VideoFrame`.
   size_t max_height_;
+
+  // Target frame capturing interval.
+  int requested_frame_duration_;
 
   // The width of the captured `DesktopFrame`.
   size_t capture_width_;
@@ -61,29 +84,18 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   // The height of the captured `DesktopFrame`.
   size_t capture_height_;
 
-  // An interval of capturing screen. Calculated according to the `target fps`.
-  int requested_frame_duration_;
-
-  // A percent of CPU consumption while capturing is going on. It can make `real
-  // fps` lower than the `target fps` if CPU is slow. The `real fps` is so lower
-  // as `max_cpu_consumption_percentage_` is higher. And on the contrary - `real
-  // fps` rises when `max_cpu_consumption_percentage_` is getting lower, but the
-  // `real fps` can't be higher than the `target fps`.
-  int max_cpu_consumption_percentage_;
-
   // A size of the previous captured `DesktopFrame`.
   webrtc::DesktopSize previous_frame_size_;
 
   // The last captured `DesktopFrame`.
   std::unique_ptr<webrtc::DesktopFrame> output_frame_;
 
-  // The `thread` where the capturing is going on.
+  // The `PlatformThread` that does the actual frames capturing.
   rtc::PlatformThread capture_thread_;
 
-  // The instanse of the `webrtc::DesktopCapturer`, works on the
-  // `capture_thread_`.
+  // `webrtc::DesktopCapturer` used to capture frames.
   std::unique_ptr<webrtc::DesktopCapturer> capturer_;
 
-  // A signal flag to stop the capturing in the `capture_thread_`.
+  // Flag that signals the `capture_thread_` to stop.
   std::atomic<bool> quit_;
 };
