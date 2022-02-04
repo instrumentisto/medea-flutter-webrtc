@@ -1,8 +1,8 @@
+#include "screen_video_capturer.h"
 #include "api/video/i420_buffer.h"
 #include "modules/desktop_capture/cropped_desktop_frame.h"
 #include "modules/desktop_capture/desktop_and_cursor_composer.h"
 #include "rtc_base/logging.h"
-#include "screen_video_capturer.h"
 #include "system_wrappers/include/sleep.h"
 #include "third_party/libyuv/include/libyuv.h"
 
@@ -202,7 +202,7 @@ void ScreenVideoCapturer::OnCaptureResult(
   OnFrame(captureFrame);
 }
 
-// Returns `false`.
+// Returns `true`.
 bool ScreenVideoCapturer::is_screencast() const {
   return true;
 }
