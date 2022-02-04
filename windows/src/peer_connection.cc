@@ -496,16 +496,6 @@ void SetRemoteDescription(
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
   }
-};
-
-// todo delete. fn for peerconnection memory leak.
-void DeletePC(Box<Webrtc>& webrtc,
-              const flutter::MethodCall<EncodableValue>& method_call,
-              std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-  const std::string peerConnectionId = findString(params, "peerConnectionId");
-  webrtc->DeletePeerConnection(stoi(peerConnectionId));
-  result->Success(nullptr);
-};
+}
 
 }  // namespace flutter_webrtc_plugin

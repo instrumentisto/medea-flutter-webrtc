@@ -349,11 +349,6 @@ create_set_remote_description_observer(
   return std::make_unique<SetRemoteDescriptionObserver>(std::move(cb));
 }
 
-// Calls `PeerConnectionInterface->Close`.
-void peer_connection_close(PeerConnectionInterface& peer) {
-  peer->Close();
-}
-
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
                   const RTCOfferAnswerOptions& options,

@@ -335,7 +335,7 @@ impl PeerConnectionObserver {
 /// Description of the options used to control an offer/answer creation process.
 pub struct PeerConnectionDependencies {
     dependencies: UniquePtr<webrtc::PeerConnectionDependencies>,
-    _observer: PeerConnectionObserver,
+    observer: PeerConnectionObserver,
 }
 
 impl PeerConnectionDependencies {
@@ -345,7 +345,7 @@ impl PeerConnectionDependencies {
             dependencies: webrtc::create_peer_connection_dependencies(
                 &observer.0,
             ),
-            _observer: observer,
+            observer,
         }
     }
 }
@@ -455,7 +455,7 @@ impl PeerConnectionInterface {
         webrtc::create_offer(self.pc.pin_mut(), &options.0, obs.0);
     }
 
-    /// [RTCPeerConnection::createAnswer()][1] implementation.
+    /// [RTCPeerConnection.createAnswer()][1] implementation.
     ///
     /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
     pub fn create_answer(
@@ -466,7 +466,7 @@ impl PeerConnectionInterface {
         webrtc::create_answer(self.pc.pin_mut(), &options.0, obs.0);
     }
 
-    /// [RTCPeerConnection::setLocalDescription()][1] implementation.
+    /// [RTCPeerConnection.setLocalDescription()][1] implementation.
     ///
     /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
     pub fn set_local_description(
@@ -477,7 +477,7 @@ impl PeerConnectionInterface {
         webrtc::set_local_description(self.pc.pin_mut(), desc.0, obs.0);
     }
 
-    /// [RTCPeerConnection::setRemoteDescription()][1] implementation.
+    /// [RTCPeerConnection.setRemoteDescription()][1] implementation.
     ///
     /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
     pub fn set_remote_description(
@@ -486,13 +486,6 @@ impl PeerConnectionInterface {
         obs: SetRemoteDescriptionObserver,
     ) {
         webrtc::set_remote_description(self.pc.pin_mut(), desc.0, obs.0);
-    }
-}
-
-impl Drop for PeerConnectionInterface {
-    fn drop(&mut self) {
-        webrtc::peer_connection_close(self.pc.pin_mut());
-        println!("ddrop");
     }
 }
 
@@ -560,7 +553,7 @@ impl PeerConnectionFactoryInterface {
         configuration: &RTCConfiguration,
         PeerConnectionDependencies {
             dependencies,
-            _observer,
+            observer,
         }: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
         let mut error = String::new();
@@ -583,7 +576,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(PeerConnectionInterface {
             pc: inner,
-            _observer,
+            _observer: observer,
         })
     }
 

@@ -426,14 +426,6 @@ pub(crate) mod webrtc {
             obs: UniquePtr<CreateSessionDescriptionObserver>,
         );
 
-        /// Calls the [RTCPeerConnection.close()][1] on the provided
-        /// [`PeerConnectionInterface`].
-        ///
-        /// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-close
-        pub fn peer_connection_close(
-            peer: Pin<&mut PeerConnectionInterface>
-        );
-
         /// Calls the [RTCPeerConnection.createAnswer()][1] on the provided
         /// [`PeerConnectionInterface`].
         ///

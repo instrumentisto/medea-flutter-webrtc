@@ -231,10 +231,6 @@ pub mod api {
             err: &mut String,
         ) -> u64;
 
-        // todo delete after fix memory leak.
-        #[cxx_name = "DeletePeerConnection"]
-        pub fn delete_pc(self: &mut Webrtc, peer_connection_id: u64);
-
         /// Initiates the creation of an SDP offer for the purpose of starting
         /// a new WebRTC connection to a remote peer.
         ///

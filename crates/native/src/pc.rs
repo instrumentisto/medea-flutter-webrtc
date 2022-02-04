@@ -199,20 +199,6 @@ impl Webrtc {
 
         String::new()
     }
-
-    // todo not for release PR only test memory leak peer connection.
-    pub fn delete_pc(
-        &mut self,
-        peer_connection_id: impl Into<PeerConnectionId>,
-    ) {
-        let a = self
-            .0
-            .peer_connections
-            .remove(&peer_connection_id.into())
-            .unwrap();
-        drop(a);
-        println!("drop");
-    }
 }
 
 /// ID of a [`PeerConnection`].
