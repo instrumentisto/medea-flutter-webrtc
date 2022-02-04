@@ -252,7 +252,7 @@ pub mod api {
             peer_id: u64,
             media_type: String,
             direction: String,
-        );
+        ) -> TransceiverInfo;
 
         #[cxx_name = "GetTransceivers"]
         pub fn get_transceivers(

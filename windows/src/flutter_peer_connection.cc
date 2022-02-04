@@ -230,6 +230,20 @@ void SetRemoteDescription(
   }
 };
 
+EncodableMap TransceiverToMap(TransceiverInfo transceiver) {
+  EncodableMap info;
+
+  info[EncodableValue("transceiverId")] =
+      EncodableValue(std::to_string(transceiver.id));
+  info[EncodableValue("mid")] = EncodableValue(std::string(transceiver.mid));
+  info[EncodableValue("direction")] =
+      EncodableValue(std::string(transceiver.direction));
+  info[EncodableValue("sender")] = EncodableValue(EncodableMap());
+  info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
+
+  return info;
+};
+
 void AddTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -241,12 +255,12 @@ void AddTransceiver(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  webrtc->AddTransceiver(
+  auto transceiver = webrtc->AddTransceiver(
       std::stoi(findString(params, "peerConnectionId")),
       findString(params, "mediaType"),
       findString(findMap(params, "transceiverInit"), "direction"));
 
-  result->Success();
+  result->Success(EncodableValue(TransceiverToMap(transceiver)));
 }
 
 void GetTransceivers(
@@ -267,17 +281,7 @@ void GetTransceivers(
   EncodableList infos;
 
   for (auto transceiver : transceivers) {
-    EncodableMap info;
-
-    info[EncodableValue("transceiverId")] =
-        EncodableValue(std::to_string(transceiver.id));
-    info[EncodableValue("mid")] = EncodableValue(std::string(transceiver.mid));
-    info[EncodableValue("direction")] =
-        EncodableValue(std::string(transceiver.direction));
-    info[EncodableValue("sender")] = EncodableValue(EncodableMap());
-    info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
-
-    infos.push_back(info);
+    infos.push_back(TransceiverToMap(transceiver));
   }
 
   map[EncodableValue("transceivers")] = EncodableValue(infos);

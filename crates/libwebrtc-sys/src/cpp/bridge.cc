@@ -389,21 +389,21 @@ RtpTransceiverDirection get_transceiver_direction(
 }
 
 void ustest(const PeerConnectionInterface& peer_connection_interface) {
-  // for (RtpTransceiverInterface trans :
-  //      peer_connection_interface->GetTransceivers()) {
-  //   auto direction = trans->direction();
-  //   auto mid = trans->mid();
+  for (RtpTransceiverInterface trans :
+       peer_connection_interface->GetTransceivers()) {
+    auto direction = trans->direction();
+    auto mid = trans->mid();
 
-  //   auto sender = trans->sender();
-  //   auto sid = sender->id();
-  //   auto strack = sender->track();
-  //   auto srtpparams = sender->GetParameters();
+    auto sender = trans->sender();
+    auto sid = sender->id();
+    auto strack = sender->track();
+    auto srtpparams = sender->GetParameters();
 
-  //   auto receiver = trans->receiver();
-  //   auto rid = receiver->id();
-  //   auto rtrack = receiver->track();
-  //   auto rrtpparams = receiver->GetParameters();
-  // }
+    auto receiver = trans->receiver();
+    auto rid = receiver->id();
+    auto rtrack = receiver->track();
+    auto rrtpparams = receiver->GetParameters();
+  }
 
   auto ddpd = std::string();
 
