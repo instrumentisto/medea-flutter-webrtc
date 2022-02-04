@@ -379,6 +379,15 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
+size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver) {
+  return (size_t)transceiver.get();
+}
+
+RtpTransceiverDirection get_transceiver_direction(
+    const RtpTransceiverInterface& transceiver) {
+  return transceiver->direction();
+}
+
 void ustest(const PeerConnectionInterface& peer_connection_interface) {
   // for (RtpTransceiverInterface trans :
   //      peer_connection_interface->GetTransceivers()) {

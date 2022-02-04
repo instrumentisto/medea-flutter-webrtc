@@ -10,6 +10,7 @@ use cxx::{let_cxx_string, UniquePtr};
 
 use self::bridge::webrtc;
 
+use crate::bridge::webrtc::get_transceiver_ptr;
 pub use crate::{
     bridge::{CreateSdpCallback, SetDescriptionCallback},
     webrtc::{AudioLayer, MediaType, RtpTransceiverDirection, SdpType},
@@ -352,10 +353,16 @@ impl Transceiver {
         webrtc::get_transceiver_mid(&self.0)
     }
 
-    // /// Returns [`Transceiver`]'s `direction`.
-    // pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
-    //     &self
-    // }
+    /// Returns [`Transceiver`]'s `direction`.
+    pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
+        webrtc::get_transceiver_direction(&self.0)
+    }
+}
+
+impl PartialEq for Transceiver {
+    fn eq(&self, other: &Self) -> bool {
+        get_transceiver_ptr(&self.0) == get_transceiver_ptr(&other.0)
+    }
 }
 
 /// A struct contains a [`Vec`] of [`Transceiver`]s.
@@ -365,7 +372,7 @@ impl Transceivers {
     /// Adds a new [`Transceiver`].
     pub fn add(
         &mut self,
-        transceiver: UniquePtr<webrtc::RtpTransceiverInterface>
+        transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
     ) {
         self.0.push(Transceiver(transceiver));
     }
@@ -465,7 +472,11 @@ impl PeerConnectionInterface {
         media_type: MediaType,
         direction: RtpTransceiverDirection,
     ) -> Transceiver {
-        Transceiver(webrtc::add_transceiver(self.0.pin_mut(), media_type, direction))
+        Transceiver(webrtc::add_transceiver(
+            self.0.pin_mut(),
+            media_type,
+            direction,
+        ))
     }
 
     /// Gets information about [`PeerConnectionInterface`]'s [`Transceiver`]s.

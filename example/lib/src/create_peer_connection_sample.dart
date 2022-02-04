@@ -102,9 +102,12 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         }
       });
 
-      await WebRTC.invokeMethod('getTransceivers', <String, dynamic>{
+      final transceivers =
+          await WebRTC.invokeMethod('getTransceivers', <String, dynamic>{
         'peerConnectionId': pc1_id,
       });
+
+      print(transceivers);
 
       setState(() {
         text = 'test is success';

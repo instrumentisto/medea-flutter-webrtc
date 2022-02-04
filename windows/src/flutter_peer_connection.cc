@@ -241,41 +241,10 @@ void AddTransceiver(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  MediaType media_type;
-
-  auto raw_media_type = findString(params, "mediaType");
-
-  if (raw_media_type == "video") {
-    media_type = MediaType::MEDIA_TYPE_VIDEO;
-  } else if (raw_media_type == "audio") {
-    media_type = MediaType::MEDIA_TYPE_AUDIO;
-  } else {
-    result->Error("Invalid MediaType");
-    return;
-  }
-
-  RtpTransceiverDirection direction;
-
-  auto raw_direction =
-      findString(findMap(params, "transceiverInit"), "direction");
-
-  if (raw_direction == "sendrecv") {
-    direction = RtpTransceiverDirection::kSendRecv;
-  } else if (raw_direction == "sendonly") {
-    direction = RtpTransceiverDirection::kSendOnly;
-  } else if (raw_direction == "recvonly") {
-    direction = RtpTransceiverDirection::kRecvOnly;
-  } else if (raw_direction == "inactive") {
-    direction = RtpTransceiverDirection::kInactive;
-  } else if (raw_direction == "stopped") {
-    direction = RtpTransceiverDirection::kStopped;
-  } else {
-    result->Error("Invalid RtpTransceiverDirection");
-    return;
-  }
-
-  webrtc->AddTransceiver(std::stoi(findString(params, "peerConnectionId")),
-                         media_type, direction);
+  webrtc->AddTransceiver(
+      std::stoi(findString(params, "peerConnectionId")),
+      findString(params, "mediaType"),
+      findString(findMap(params, "transceiverInit"), "direction"));
 
   result->Success();
 }
@@ -291,10 +260,29 @@ void GetTransceivers(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  auto a = webrtc->GetTransceivers(
+  auto transceivers = webrtc->GetTransceivers(
       std::stoi(findString(params, "peerConnectionId")));
 
-  result->Success();
+  EncodableMap map;
+  EncodableList infos;
+
+  for (auto transceiver : transceivers) {
+    EncodableMap info;
+
+    info[EncodableValue("transceiverId")] =
+        EncodableValue(std::to_string(transceiver.id));
+    info[EncodableValue("mid")] = EncodableValue(std::string(transceiver.mid));
+    info[EncodableValue("direction")] =
+        EncodableValue(std::string(transceiver.direction));
+    info[EncodableValue("sender")] = EncodableValue(EncodableMap());
+    info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
+
+    infos.push_back(info);
+  }
+
+  map[EncodableValue("transceivers")] = EncodableValue(infos);
+
+  result->Success(EncodableValue(map));
 }
 
 }  // namespace flutter_webrtc_plugin

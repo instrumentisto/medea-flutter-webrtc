@@ -18,7 +18,7 @@ use libwebrtc_sys::{
 
 #[doc(inline)]
 pub use crate::{
-    pc::{PeerConnection, PeerConnectionId, TransceiverInfo},
+    pc::{PeerConnection, PeerConnectionId},
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
         MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
@@ -44,23 +44,6 @@ pub mod api {
         kAudioInput,
         kAudioOutput,
         kVideoInput,
-    }
-
-    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-    pub enum MediaType {
-        MEDIA_TYPE_AUDIO,
-        MEDIA_TYPE_VIDEO,
-        MEDIA_TYPE_DATA,
-        MEDIA_TYPE_UNSUPPORTED,
-    }
-
-    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-    pub enum RtpTransceiverDirection {
-        kSendRecv,
-        kSendOnly,
-        kRecvOnly,
-        kInactive,
-        kStopped,
     }
 
     /// Information describing a single media input or output device.
@@ -166,6 +149,14 @@ pub mod api {
         kVideo,
     }
 
+    /// Information about [`sys::Transceiver`].
+    #[derive(Clone, Debug, Eq, Hash, PartialEq)]
+    pub struct TransceiverInfo {
+        id: u64,
+        mid: String,
+        direction: String,
+    }
+
     extern "C++" {
         type CreateSdpCallbackInterface =
             crate::internal::CreateSdpCallbackInterface;
@@ -178,7 +169,6 @@ pub mod api {
         include!("flutter-webrtc-native/include/api.h");
 
         type Webrtc;
-        type TransceiverInfo;
 
         /// Creates an instance of [`Webrtc`].
         #[cxx_name = "Init"]
@@ -260,8 +250,8 @@ pub mod api {
         pub fn add_transceiver(
             self: &mut Webrtc,
             peer_id: u64,
-            media_type: MediaType,
-            direction: RtpTransceiverDirection,
+            media_type: String,
+            direction: String,
         );
 
         #[cxx_name = "GetTransceivers"]

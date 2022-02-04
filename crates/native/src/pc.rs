@@ -6,8 +6,8 @@ use libwebrtc_sys as sys;
 
 use crate::{
     api::{
-        CreateSdpCallbackInterface, MediaType, RtpTransceiverDirection,
-        SetDescriptionCallbackInterface,
+        CreateSdpCallbackInterface,
+        SetDescriptionCallbackInterface, TransceiverInfo
     },
     next_id, Webrtc,
 };
@@ -203,59 +203,84 @@ impl Webrtc {
     pub fn add_transceiver(
         &mut self,
         peer_id: u64,
-        media_type: MediaType,
-        direction: RtpTransceiverDirection,
+        media_type: String,
+        direction: String,
     ) {
-        let media_type: sys::MediaType = match media_type {
-            MediaType::MEDIA_TYPE_AUDIO => sys::MediaType::MEDIA_TYPE_AUDIO,
-            MediaType::MEDIA_TYPE_VIDEO => sys::MediaType::MEDIA_TYPE_VIDEO,
-            MediaType::MEDIA_TYPE_DATA => sys::MediaType::MEDIA_TYPE_DATA,
-            _ => sys::MediaType::MEDIA_TYPE_UNSUPPORTED,
+        let media_type: sys::MediaType = match media_type.as_str() {
+            "audio" => sys::MediaType::MEDIA_TYPE_AUDIO,
+            "video" => sys::MediaType::MEDIA_TYPE_VIDEO,
+            "data" => sys::MediaType::MEDIA_TYPE_DATA,
+            "unsupported" => sys::MediaType::MEDIA_TYPE_UNSUPPORTED,
+            _ => unreachable!()
         };
 
-        let direction: sys::RtpTransceiverDirection = match direction {
-            RtpTransceiverDirection::kRecvOnly => {
+        let direction: sys::RtpTransceiverDirection = match direction.as_str() {
+            "sendrecv" => {
                 sys::RtpTransceiverDirection::kRecvOnly
             }
-            RtpTransceiverDirection::kSendOnly => {
+            "sendonly" => {
                 sys::RtpTransceiverDirection::kSendOnly
             }
-            RtpTransceiverDirection::kSendRecv => {
+            "recvonly" => {
                 sys::RtpTransceiverDirection::kSendRecv
             }
-            RtpTransceiverDirection::kStopped => {
+            "stopped" => {
                 sys::RtpTransceiverDirection::kStopped
             }
-            _ => sys::RtpTransceiverDirection::kInactive,
+            "inactive" => sys::RtpTransceiverDirection::kInactive,
+            _ => unreachable!()
         };
 
-        let peer = self.0
+        let peer = self
+            .0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver = peer.inner
-            .add_transceiver(media_type, direction);
+        let transceiver = peer.inner.add_transceiver(media_type, direction);
 
-        peer.transceivers.insert(TransceiverId(next_id()), transceiver);
+        peer.transceivers
+            .insert(TransceiverId(next_id()), transceiver);
     }
 
     pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<TransceiverInfo> {
-        let transceivers = self
+        let peer = &mut self
             .0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
-            .unwrap()
-            .inner
-            .get_transceivers();
+            .unwrap();
 
-        for transceiver in transceivers.iter() {
-            let mid = transceiver.mid();
-            println!("{}", mid);
-            // let direction = transceiver.direction();
+        let mut transceivers = peer.inner.get_transceivers();
+
+        let mut out_info: Vec<TransceiverInfo> = Vec::new();
+
+        for _index in 0..transceivers.len() {
+            let transceiver = transceivers.pop().unwrap();
+            let mut is_in = false;
+
+            for written_transceiver in &peer.transceivers {
+                is_in  = written_transceiver.1 == &transceiver;
+            }
+
+            let info = TransceiverInfo {
+                id: next_id(),
+                mid: transceiver.mid(),
+                direction: match transceiver.direction() {
+                    sys::RtpTransceiverDirection::kSendRecv => "sendrecv".to_string(),
+                    sys::RtpTransceiverDirection::kSendOnly => "sendonly".to_string(),
+                    sys::RtpTransceiverDirection::kRecvOnly => "recvonly".to_string(),
+                    sys::RtpTransceiverDirection::kInactive => "inactive".to_string(),
+                    sys::RtpTransceiverDirection::kStopped => "stopped".to_string(),
+                    _ => unreachable!()
+                },
+            };
+
+            if !is_in {peer.transceivers.insert(TransceiverId(info.id), transceiver);}
+
+            out_info.push(info);
         }
 
-        Vec::new()
+        out_info
     }
 
     pub fn pupa(&mut self, peer_id: u64) {
@@ -267,13 +292,6 @@ impl Webrtc {
 
         libwebrtc_sys::testsk(&mut a.inner);
     }
-}
-
-/// Information about [`sys::Transceiver`].
-pub struct TransceiverInfo {
-    id: u64,
-    mid: String,
-    direction: RtpTransceiverDirection,
 }
 
 /// ID of a [`sys::Transceiver`].

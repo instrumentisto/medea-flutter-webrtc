@@ -346,6 +346,10 @@ pub(crate) mod webrtc {
         pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
 
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;
+
+        pub fn get_transceiver_ptr(transceiver: &RtpTransceiverInterface) -> usize;
+
+        pub fn get_transceiver_direction(transceiver: &RtpTransceiverInterface) -> RtpTransceiverDirection;
     }
 
     unsafe extern "C++" {
