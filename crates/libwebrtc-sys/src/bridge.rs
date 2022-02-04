@@ -24,10 +24,24 @@ type DynPeerConnectionOnEvent = Box<dyn PeerConnectionOnEvent>;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
 
+    // todo
+    #[repr(i32)]
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    enum TrackState {
+        kLive,
+        kEnded,
+    }
+
     /// [`Candidate`] wrapper
     /// for using in extern Rust [`Vec`].
     pub struct CandidateWrap {
         c: UniquePtr<Candidate>,
+    }
+
+    /// [`MediaStreamInterface`] wrapper
+    /// for using in extern Rust [`Vec`].
+    pub struct MediaStreamInterfaceWrap {
+        m: UniquePtr<MediaStreamInterface>,
     }
 
     /// Possible kinds of audio devices implementation.
@@ -357,6 +371,7 @@ pub(crate) mod webrtc {
         type Candidate;
         type CandidatePairChangeEvent;
         type CandidatePair;
+        type RtpReceiverInterface;
 
 
         /// Creates a default [`RTCConfiguration`].
@@ -627,6 +642,12 @@ pub(crate) mod webrtc {
         );
     }
 
+    // This will trigger cxx to generate UniquePtrTarget trait for the
+    // mentioned types.
+    extern "Rust" {
+         fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
+    }
+
     extern "Rust" {
         type DynSetDescriptionCallback;
         type DynCreateSdpCallback;
@@ -737,6 +758,11 @@ pub(crate) mod webrtc {
         pub fn create_candidate_wrapp(
             candidate: UniquePtr<Candidate>,
         ) -> CandidateWrap;
+
+        // todo
+        fn create_media_stream_wrapp(
+            media_stream_track: UniquePtr<MediaStreamInterface>,
+        ) -> MediaStreamInterfaceWrap;
 
     }
 }
@@ -983,11 +1009,31 @@ impl ToString for webrtc::PeerConnectionState {
     }
 }
 
+impl ToString for webrtc::TrackState {
+    fn to_string(&self) -> String {
+        match *self {
+            webrtc::TrackState::kLive => "live".to_owned(),
+            webrtc::TrackState::kEnded => "ended".to_owned(),
+            _ => unreachable!(),
+        }
+    }
+}
+
 /// Creates [`CandidateWrap`].
 fn create_candidate_wrapp(
     candidate: UniquePtr<Candidate>,
 ) -> webrtc::CandidateWrap {
     webrtc::CandidateWrap { c: candidate }
+}
+
+/// Creates [`MediaStreamInterfaceWrap`].
+fn create_media_stream_wrapp(
+    media_stream_track: UniquePtr<webrtc::MediaStreamInterface>,
+) -> webrtc::MediaStreamInterfaceWrap {
+    webrtc::MediaStreamInterfaceWrap { m: media_stream_track }
+}
+
+fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {
 }
 
 /// Forwards the given [`webrtc::VideoFrame`] the the provided

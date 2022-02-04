@@ -147,7 +147,15 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
 void PeerConnectionObserver::OnAddTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-        streams){}
+        streams) {
+          // rust::Vec<bridge::MediaStreamInterfaceWrap> vec;
+          // for (int i = 0; i < streams.size(); ++i) {
+          //   auto stream 
+          //     = std::make_unique<bridge::rc<webrtc::MediaStreamInterface>>(
+          //       bridge::rc<webrtc::MediaStreamInterface>(streams[i]));
+          //   vec.push_back(bridge::create_media_stream_wrapp(std::move(stream)));
+          // }
+        }
 
 // This is called when signaling indicates a transceiver will be receiving
 // media from the remote endpoint. This is fired during a call to

@@ -86,10 +86,15 @@ using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
 using IceConnectionState = webrtc::PeerConnectionInterface::IceConnectionState;
 using IceGatheringState = webrtc::PeerConnectionInterface::IceGatheringState;
 using PeerConnectionState = webrtc::PeerConnectionInterface::PeerConnectionState;
+using TrackState = webrtc::MediaStreamTrackInterface::TrackState;
+
 using IceCandidateInterface = webrtc::IceCandidateInterface;
 using Candidate = cricket::Candidate;
 using CandidatePairChangeEvent = cricket::CandidatePairChangeEvent;
 using CandidatePair = cricket::CandidatePair;
+
+using RtpReceiverInterface = rc<webrtc::RtpReceiverInterface>;
+using RtpTransceiverInterface = rc<webrtc::RtpTransceiverInterface>;
 
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -301,6 +306,55 @@ const Candidate& get_local_candidate(const CandidatePair& pair);
 // Calls `CandidatePair->remote_candidate`.
 const Candidate& get_remote_candidate(const CandidatePair& pair);
 
+// todo
+std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
+    RtpTransceiverInterface& transceiver);
 
+// todo 
+std::vector<std::unique_ptr<MediaStreamInterface>> rtp_receiver_interface_streams(
+    RtpReceiverInterface& receiver);
+
+// todo refact to bridge
+std::string media_stream_interface_get_id(MediaStreamInterface& stream);
+
+// todo
+std::vector<std::unique_ptr<AudioTrackInterface>> media_stream_interface_get_audio_tracks(
+    MediaStreamInterface& stream);
+
+// todo
+std::vector<std::unique_ptr<VideoTrackInterface>> media_stream_interface_get_video_tracks(
+    MediaStreamInterface& stream);
+
+// todo
+std::string audio_track_interface_get_kind(
+    AudioTrackInterface& track);
+
+// todo
+std::string audio_track_interface_get_id(
+    AudioTrackInterface& track);
+
+// todo
+TrackState audio_track_interface_get_state(
+    AudioTrackInterface& track);
+
+// todo
+bool audio_track_interface_get_enabled(
+    AudioTrackInterface& track);
+
+// todo
+std::string video_track_interface_get_kind(
+    VideoTrackInterface& track);
+
+// todo
+std::string video_track_interface_get_id(
+    VideoTrackInterface& track);
+
+// todo
+TrackState video_track_interface_get_state(
+    VideoTrackInterface& track);
+
+// todo
+bool video_track_interface_get_enabled(
+    VideoTrackInterface& track);
 
 }  // namespace bridge

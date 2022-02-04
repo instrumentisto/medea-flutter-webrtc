@@ -426,4 +426,96 @@ const Candidate& get_remote_candidate(const CandidatePair& pair) {
   return pair.remote_candidate();
 };
 
+// todo
+std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
+    RtpTransceiverInterface& transceiver) {
+      return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
+    }
+
+// todo
+std::vector<std::unique_ptr<MediaStreamInterface>> rtp_receiver_interface_streams(
+    RtpReceiverInterface& receiver) {
+      auto streams = receiver->streams();
+      std::vector<std::unique_ptr<MediaStreamInterface>> result;
+      for (int i = 0; i<streams.size(); ++i) {
+        result.push_back(std::move(std::make_unique<MediaStreamInterface>(streams[i])));
+      }
+      return result;
+    }
+
+// todo refact to bridge
+std::string media_stream_interface_get_id(MediaStreamInterface& stream) {
+  return stream->id();
+}
+
+// todo
+std::vector<std::unique_ptr<AudioTrackInterface>> media_stream_interface_get_audio_tracks(
+    MediaStreamInterface& stream) {
+      auto tracks = stream->GetAudioTracks();
+      std::vector<std::unique_ptr<AudioTrackInterface>> result;
+      for (int i = 0; i < tracks.size(); ++i) {
+        result.push_back(std::move(std::make_unique<AudioTrackInterface>(tracks[i])));
+      }
+      return result;
+    }
+
+// todo
+std::vector<std::unique_ptr<VideoTrackInterface>> media_stream_interface_get_video_tracks(
+    MediaStreamInterface& stream) {
+      auto tracks = stream->GetVideoTracks();
+      std::vector<std::unique_ptr<VideoTrackInterface>> result;
+      for (int i = 0; i < tracks.size(); ++i) {
+        result.push_back(std::move(std::make_unique<VideoTrackInterface>(tracks[i])));
+      }
+      return result;
+    }
+
+// todo
+std::string audio_track_interface_get_kind(
+    AudioTrackInterface& track) {
+        return track->kind();
+    }
+
+// todo
+std::string audio_track_interface_get_id(
+    AudioTrackInterface& track) {
+      return track->id();
+    }
+
+// todo
+TrackState audio_track_interface_get_state(
+    AudioTrackInterface& track) {
+      return track->state();
+    }
+
+// todo
+bool audio_track_interface_get_enabled(
+    AudioTrackInterface& track) {
+      return track->enabled();
+    }
+
+// todo
+std::string video_track_interface_get_kind(
+    VideoTrackInterface& track) {
+        return track->kind();
+    }
+
+// todo
+std::string video_track_interface_get_id(
+    VideoTrackInterface& track) {
+      return track->id();
+    }
+
+// todo
+TrackState video_track_interface_get_state(
+    VideoTrackInterface& track) {
+      return track->state();
+    }
+
+// todo
+bool video_track_interface_get_enabled(
+    VideoTrackInterface& track) {
+      return track->enabled();
+    }
+
 }  // namespace bridge
