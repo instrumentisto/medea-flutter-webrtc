@@ -27,6 +27,21 @@
 // Maximum allow cpu consumption for the frame capturing thread.
 const int maxCpuConsumptionPercentage = 50;
 
+namespace {
+
+// Creates a default `webrtc::DesktopCaptureOptions` and calls
+// `webrtc::DesktopCaptureOptions::set_allow_directx_capturer` on it.
+webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions() {
+  webrtc::DesktopCaptureOptions options =
+      webrtc::DesktopCaptureOptions::CreateDefault();
+
+  options.set_allow_directx_capturer(true);
+
+  return options;
+}
+
+}
+
 // Fills the provided `SourceList` with all available screens that can be
 // used by this `ScreenVideoCapturer`.
 bool ScreenVideoCapturer::GetSourceList(
@@ -228,15 +243,4 @@ webrtc::MediaSourceInterface::SourceState ScreenVideoCapturer::state() const {
 // Returns `false`.
 bool ScreenVideoCapturer::remote() const {
   return false;
-}
-
-// Creates a default `webrtc::DesktopCaptureOptions` and calls
-// `webrtc::DesktopCaptureOptions::set_allow_directx_capturer` on it.
-webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions() {
-  webrtc::DesktopCaptureOptions options =
-      webrtc::DesktopCaptureOptions::CreateDefault();
-
-  options.set_allow_directx_capturer(true);
-
-  return options;
 }

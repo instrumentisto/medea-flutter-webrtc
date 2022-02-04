@@ -107,8 +107,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t fps,
     uint32_t device_index);
 
-// Starts screen capturing and creates a new `VideoTrackSourceInterface` from
-// some screen according to the specified constraints.
+// Starts screen capturing and creates a new `VideoTrackSourceInterface`
+// according to the specified constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,

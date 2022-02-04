@@ -187,11 +187,13 @@ impl Webrtc {
                 device_id,
             )?
         };
-        let source = self.0
+        let source = self
+            .0
             .video_sources
-            .entry(source.device_id.clone()).or_insert(Rc::new(source));
+            .entry(source.device_id.clone())
+            .or_insert_with(|| Rc::new(source));
 
-        Ok(Rc::clone(&source))
+        Ok(Rc::clone(source))
     }
 
     /// Creates a new [`AudioTrack`] from the given

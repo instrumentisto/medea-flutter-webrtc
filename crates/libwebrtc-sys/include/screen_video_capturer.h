@@ -23,7 +23,7 @@
 #include "modules/video_capture/video_capture.h"
 #include "rtc_base/platform_thread.h"
 
-// `VideoTrackSourceInterface` that captures frames a user's display.
+// `VideoTrackSourceInterface` that captures from frames a user's display.
 class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public rtc::VideoSinkInterface<webrtc::VideoFrame>,
                             public webrtc::DesktopCapturer::Callback {
