@@ -1,5 +1,5 @@
-#include "media_stream.h"
 #include "flutter_webrtc.h"
+#include "media_stream.h"
 #include "parsing.h"
 
 namespace flutter_webrtc_plugin {
@@ -7,7 +7,7 @@ namespace flutter_webrtc_plugin {
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 /// `MediaDeviceInfo` info for Dart.
 void EnumerateDevice(Box<Webrtc>& webrtc,
-                     std::unique_ptr<MethodResult<EncodableValue>> result) {
+                    std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
   EncodableList sources;

@@ -12,14 +12,14 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-#include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
-#include "peer_connection_observer.h"
 #include "rust/cxx.h"
+#include "device_video_capturer.h"
+#include "peer_connection_observer.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
 
@@ -101,9 +101,9 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-// Creates a new `VideoTrackSourceInterface` from some camera according to the
-// specified constraints.
-std::unique_ptr<VideoTrackSourceInterface> create_video_source(
+// Creates a new `VideoTrackSourceInterface` from the specified video input
+// device according to the specified constraints.
+std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,
@@ -111,9 +111,9 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
     size_t fps,
     uint32_t device_index);
 
-// Creates a new `VideoTrackSourceInterface` from some screen according to the
-// specified constraints.
-std::unique_ptr<VideoTrackSourceInterface> create_display_source(
+// Starts screen capturing and creates a new `VideoTrackSourceInterface` from
+// some screen according to the specified constraints.
+std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,

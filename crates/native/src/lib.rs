@@ -1,5 +1,4 @@
 #![warn(clippy::pedantic)]
-use std::{collections::HashMap, rc::Rc};
 
 mod device_info;
 mod internal;
@@ -7,7 +6,11 @@ mod pc;
 mod user_media;
 mod video_sink;
 
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::{
+    collections::HashMap,
+    rc::Rc,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
@@ -64,11 +67,9 @@ pub mod api {
     /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
     /// [`Webrtc::get_users_media()`].
     pub struct MediaStreamConstraints {
-        /// Specifies the nature and settings of the video
-        /// [`MediaStreamTrack`].
+        /// Specifies the nature and settings of the video [`MediaStreamTrack`].
         pub audio: AudioConstraints,
-        /// Specifies the nature and settings of the audio
-        /// [`MediaStreamTrack`].
+        /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
         pub video: VideoConstraints,
     }
 
@@ -108,8 +109,7 @@ pub mod api {
         /// [`String`] is provided.
         ///
         /// __NOTE__: There can be only one active recording device at a time,
-        /// so changing device will affect all previously obtained audio
-        /// tracks.
+        /// so changing device will affect all previously obtained audio tracks.
         pub device_id: String,
     }
 
@@ -133,8 +133,7 @@ pub mod api {
         /// Unique identifier (GUID) for the track
         pub id: u64,
 
-        /// Label that identifies the track source, as in "internal
-        /// microphone".
+        /// Label that identifies the track source, as in "internal microphone".
         pub label: String,
 
         /// [`TrackKind`] of the current [`MediaStreamTrack`].

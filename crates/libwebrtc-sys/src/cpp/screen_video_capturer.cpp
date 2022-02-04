@@ -6,12 +6,12 @@
 #include "system_wrappers/include/sleep.h"
 #include "third_party/libyuv/include/libyuv.h"
 
-// Returns a list of avaliable `screen`s to capture.
+// Returns a list of available `screen`s to capture.
 bool ScreenVideoCapturer::GetSourceList(
     webrtc::DesktopCapturer::SourceList* sources) {
   std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
       webrtc::DesktopCapturer::CreateScreenCapturer(
-          CreateDesktopCaptureOptions()));
+      CreateDesktopCaptureOptions()));
   return screen_capturer->GetSourceList(sources);
 }
 
@@ -22,7 +22,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
     size_t target_fps)
     : max_width_(max_width),
       max_height_(max_height),
-      requested_frame_duration_((int)(1000.0f / target_fps)),
+      requested_frame_duration_((int) (1000.0f / target_fps)),
       max_cpu_consumption_percentage_(50),
       quit_(false) {
   auto options = CreateDesktopCaptureOptions();
@@ -36,7 +36,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
   capturer_->Start(this);
   if (capture_thread_.empty()) {
     capture_thread_ = rtc::PlatformThread::SpawnJoinable(
-        std::bind(ScreenVideoCapturer::CaptureThread, this),
+        [this] { while (CaptureProcess()) {}},
         "ScreenCaptureThread",
         rtc::ThreadAttributes().SetPriority(rtc::ThreadPriority::kHigh));
   }
@@ -64,13 +64,6 @@ ScreenVideoCapturer::CreateDesktopCaptureOptions() {
   return options;
 }
 
-// A handler for the `capture thread`.
-void ScreenVideoCapturer::CaptureThread(void* obj) {
-  auto self = static_cast<ScreenVideoCapturer*>(obj);
-  while (self->CaptureProcess()) {
-  }
-}
-
 // Captures a `webrtc::DesktopFrame`.
 bool ScreenVideoCapturer::CaptureProcess() {
   if (quit_) {
@@ -79,7 +72,7 @@ bool ScreenVideoCapturer::CaptureProcess() {
 
   int64_t started_time = rtc::TimeMillis();
   capturer_->CaptureFrame();
-  int last_capture_duration = (int)(rtc::TimeMillis() - started_time);
+  int last_capture_duration = (int) (rtc::TimeMillis() - started_time);
   int capture_period =
       std::max((last_capture_duration * 100) / max_cpu_consumption_percentage_,
                requested_frame_duration_);
@@ -95,8 +88,9 @@ void ScreenVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
   AdaptedVideoTrackSource::OnFrame(frame);
 }
 
-// A callback for `webrtc::DesktopCapturer::CaptureFrame`. Handles a
-// `DesktopFrame`, makes a `VideoFrame` from it.
+// A callback for `webrtc::DesktopCapturer::CaptureFrame`. Converts a
+// `DesktopFrame` to a `VideoFrame` that is forwarded to
+// `ScreenVideoCapturer::OnFrame`.
 void ScreenVideoCapturer::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
     std::unique_ptr<webrtc::DesktopFrame> frame) {
@@ -123,7 +117,9 @@ void ScreenVideoCapturer::OnCaptureResult(
 
     previous_frame_size_ = frame->size();
   }
-  webrtc::DesktopSize output_size(capture_width_ & ~1, capture_height_ & ~1);
+
+  webrtc::DesktopSize
+  output_size(capture_width_ & ~1, capture_height_ & ~1);
   if (output_size.is_empty()) {
     output_size.set(2, 2);
   }
@@ -150,10 +146,10 @@ void ScreenVideoCapturer::OnCaptureResult(
         output_frame_.reset(new webrtc::BasicDesktopFrame(output_size));
       }
       webrtc::DesktopRect output_rect;
-      if ((float)output_size.width() / (float)output_size.height() <
-          (float)frame->size().width() / (float)frame->size().height()) {
+      if ((float) output_size.width() / (float) output_size.height() <
+          (float) frame->size().width() / (float) frame->size().height()) {
         int32_t output_height = frame->size().height() * output_size.width() /
-                                frame->size().width();
+            frame->size().width();
         if (output_height > output_size.height())
           output_height = output_size.height();
         const int32_t margin_y = (output_size.height() - output_height) / 2;
@@ -161,7 +157,7 @@ void ScreenVideoCapturer::OnCaptureResult(
             0, margin_y, output_size.width(), output_height + margin_y);
       } else {
         int32_t output_width = frame->size().width() * output_size.height() /
-                               frame->size().height();
+            frame->size().height();
         if (output_width > output_size.width())
           output_width = output_size.width();
         const int32_t margin_x = (output_size.width() - output_width) / 2;
@@ -182,22 +178,22 @@ void ScreenVideoCapturer::OnCaptureResult(
     }
 
     if (libyuv::ARGBToI420(
-            output_data, output_stride, dst_buffer.get()->MutableDataY(),
-            dst_buffer.get()->StrideY(), dst_buffer.get()->MutableDataU(),
-            dst_buffer.get()->StrideU(), dst_buffer.get()->MutableDataV(),
-            dst_buffer.get()->StrideV(), output_size.width(),
-            output_size.height()) < 0) {
+        output_data, output_stride, dst_buffer.get()->MutableDataY(),
+        dst_buffer.get()->StrideY(), dst_buffer.get()->MutableDataU(),
+        dst_buffer.get()->StrideU(), dst_buffer.get()->MutableDataV(),
+        dst_buffer.get()->StrideV(), output_size.width(),
+        output_size.height()) < 0) {
       RTC_LOG(LS_ERROR) << "ConvertToI420 Failed";
       return;
     }
   }
 
   webrtc::VideoFrame captureFrame = webrtc::VideoFrame::Builder()
-                                        .set_video_frame_buffer(dst_buffer)
-                                        .set_timestamp_rtp(0)
-                                        .set_timestamp_ms(rtc::TimeMillis())
-                                        .set_rotation(webrtc::kVideoRotation_0)
-                                        .build();
+      .set_video_frame_buffer(dst_buffer)
+      .set_timestamp_rtp(0)
+      .set_timestamp_ms(rtc::TimeMillis())
+      .set_rotation(webrtc::kVideoRotation_0)
+      .build();
 
   OnFrame(captureFrame);
 }

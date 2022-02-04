@@ -19,9 +19,6 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   ~ScreenVideoCapturer();
 
  private:
-  // A handler for the `capture thread`.
-  static void CaptureThread(void* obj);
-
   // Captures a `webrtc::DesktopFrame`.
   bool CaptureProcess();
 
@@ -45,11 +42,11 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   // depending on a video codec.
   absl::optional<bool> needs_denoising() const override;
 
-  // Returns state of this `DeviceVideoCapturer`.
+  // Returns state of this `ScreenVideoCapturer`.
   webrtc::MediaSourceInterface::SourceState state() const override;
 
-  // Returns `false` since `DeviceVideoCapturer` is meant to source local
-  // devices only.
+  // Returns `false` since `ScreenVideoCapturer` is used to capture local
+  // display surface.
   bool remote() const override;
 
   // A max width of the `VideoFrame`.

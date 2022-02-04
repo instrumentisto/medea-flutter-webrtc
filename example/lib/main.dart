@@ -139,15 +139,6 @@ class _MyAppState extends State<MyApp> {
                 MaterialPageRoute(
                     builder: (BuildContext context) => RendererSample()));
           }),
-      RouteItem(
-          title: 'Get display media sample',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        GetDisplayMediaSample()));
-          }),
     ];
   }
 }

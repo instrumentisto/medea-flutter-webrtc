@@ -109,7 +109,7 @@ std::unique_ptr<rtc::Thread> create_thread() {
 
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
-std::unique_ptr<VideoTrackSourceInterface> create_video_source(
+std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,
@@ -129,7 +129,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
 
 // Creates a new `ScreenVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
-std::unique_ptr<VideoTrackSourceInterface> create_display_source(
+std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,
@@ -160,8 +160,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_source(
 // `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
-  auto src =
-      peer_connection_factory->CreateAudioSource(cricket::AudioOptions());
+  auto src = peer_connection_factory->CreateAudioSource(
+      cricket::AudioOptions());
 
   if (src == nullptr) {
     return nullptr;
@@ -175,8 +175,8 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
-  auto track =
-      peer_connection_factory->CreateVideoTrack(std::string(id), video_source);
+  auto track = peer_connection_factory->CreateVideoTrack(
+      std::string(id), video_source);
 
   if (track == nullptr) {
     return nullptr;
@@ -190,8 +190,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id,
     const AudioSourceInterface& audio_source) {
-  auto track =
-      peer_connection_factory->CreateAudioTrack(std::string(id), audio_source);
+  auto track = peer_connection_factory->CreateAudioTrack(
+      std::string(id), audio_source);
 
   if (track == nullptr) {
     return nullptr;
@@ -204,8 +204,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
 std::unique_ptr<MediaStreamInterface> create_local_media_stream(
     const PeerConnectionFactoryInterface& peer_connection_factory,
     rust::String id) {
-  auto stream =
-      peer_connection_factory->CreateLocalMediaStream(std::string(id));
+  auto
+      stream = peer_connection_factory->CreateLocalMediaStream(std::string(id));
 
   if (stream == nullptr) {
     return nullptr;
@@ -286,13 +286,18 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
+
   auto factory = webrtc::CreatePeerConnectionFactory(
-      network_thread.get(), worker_thread.get(), signaling_thread.get(),
+      network_thread.get(),
+      worker_thread.get(),
+      signaling_thread.get(),
       default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
+      webrtc::CreateBuiltinVideoDecoderFactory(),
+      nullptr,
+      nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -348,15 +353,17 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     bool voice_activity_detection,
     bool ice_restart,
     bool use_rtp_mux) {
-  return std::make_unique<RTCOfferAnswerOptions>(
-      offer_to_receive_video, offer_to_receive_audio, voice_activity_detection,
-      ice_restart, use_rtp_mux);
+  return std::make_unique<RTCOfferAnswerOptions>(offer_to_receive_video,
+                                                 offer_to_receive_audio,
+                                                 voice_activity_detection,
+                                                 ice_restart, use_rtp_mux);
 }
 
 // Creates a new `CreateSessionDescriptionObserver` from the provided
 // `bridge::DynCreateSdpCallback`.
 std::unique_ptr<CreateSessionDescriptionObserver>
-create_create_session_observer(rust::Box<bridge::DynCreateSdpCallback> cb) {
+create_create_session_observer(
+    rust::Box<bridge::DynCreateSdpCallback> cb) {
   return std::make_unique<CreateSessionDescriptionObserver>(std::move(cb));
 }
 

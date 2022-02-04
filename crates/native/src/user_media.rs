@@ -110,7 +110,7 @@ impl Webrtc {
             track = VideoTrack::new(
                 &self.0.peer_connection_factory,
                 source,
-                VideoLabel("screen".to_string()),
+                VideoLabel("screen:0".to_owned()),
             )?;
         } else {
             let device_index = if let Some(index) =
@@ -145,7 +145,8 @@ impl Webrtc {
         is_display: bool,
     ) -> anyhow::Result<Rc<VideoSource>> {
         let (index, device_id) = if is_display {
-            (0, VideoDeviceId("screen".to_string()))
+            // TODO: Support screens enumeration.
+            (0, VideoDeviceId("screen:0".to_owned()))
         } else if caps.device_id.is_empty() {
             // No device ID is provided so just pick the first available
             // device
@@ -172,14 +173,22 @@ impl Webrtc {
             return Ok(Rc::clone(src));
         }
 
-        let source = Rc::new(VideoSource::new(
-            &mut self.0.worker_thread,
-            &mut self.0.signaling_thread,
-            caps,
-            index,
-            device_id,
-            is_display,
-        )?);
+        let source = if is_display {
+            Rc::new(VideoSource::new_display_source(
+                &mut self.0.worker_thread,
+                &mut self.0.signaling_thread,
+                caps,
+                device_id,
+            )?)
+        } else {
+            Rc::new(VideoSource::new_device_source(
+                &mut self.0.worker_thread,
+                &mut self.0.signaling_thread,
+                caps,
+                index,
+                device_id,
+            )?)
+        };
         self.0
             .video_sources
             .insert(source.device_id.clone(), Rc::clone(&source));
@@ -565,24 +574,43 @@ pub struct VideoSource {
 }
 
 impl VideoSource {
-    /// Creates a new [`VideoSource`].
-    fn new(
+    /// Creates a new [`VideoTrackSourceInterface`] from the video input device
+    /// with the specified constraints.
+    fn new_device_source(
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
         caps: &api::VideoConstraints,
         device_index: u32,
         device_id: VideoDeviceId,
-        is_display: bool,
     ) -> anyhow::Result<Self> {
         Ok(Self {
-            inner: sys::VideoTrackSourceInterface::create_proxy(
+            inner: sys::VideoTrackSourceInterface::create_proxy_from_device(
                 worker_thread,
                 signaling_thread,
                 caps.width,
                 caps.height,
                 caps.frame_rate,
                 device_index,
-                is_display,
+            )?,
+            device_id,
+        })
+    }
+
+    /// Starts screen capturing and creates a new [`VideoTrackSourceInterface`]
+    /// with the specified constraints.
+    fn new_display_source(
+        worker_thread: &mut sys::Thread,
+        signaling_thread: &mut sys::Thread,
+        caps: &api::VideoConstraints,
+        device_id: VideoDeviceId,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            inner: sys::VideoTrackSourceInterface::create_proxy_from_display(
+                worker_thread,
+                signaling_thread,
+                caps.width,
+                caps.height,
+                caps.frame_rate,
             )?,
             device_id,
         })

@@ -561,40 +561,61 @@ pub struct VideoTrackSourceInterface(
 );
 
 impl VideoTrackSourceInterface {
-    /// Creates a new [`VideoTrackSourceInterface`] with the specified
-    /// constraints.
+    /// Creates a new [`VideoTrackSourceInterface`] from the video input device
+    /// with the specified constraints.
     ///
     /// The created capturer is wrapped in the `VideoTrackSourceProxy` that
     /// makes sure the real [`VideoTrackSourceInterface`] implementation is
     /// destroyed on the signaling thread and marshals all method calls to the
     /// signaling thread.
-    pub fn create_proxy(
+    pub fn create_proxy_from_device(
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
         width: usize,
         height: usize,
         fps: usize,
         device_index: u32,
-        is_display: bool,
     ) -> anyhow::Result<Self> {
-        let ptr = if is_display {
-            webrtc::create_display_source(
-                worker_thread.0.pin_mut(),
-                signaling_thread.0.pin_mut(),
-                width,
-                height,
-                fps,
-            )
-        } else {
-            webrtc::create_video_source(
-                worker_thread.0.pin_mut(),
-                signaling_thread.0.pin_mut(),
-                width,
-                height,
-                fps,
-                device_index,
-            )
-        };
+        let ptr = webrtc::create_device_video_source(
+            worker_thread.0.pin_mut(),
+            signaling_thread.0.pin_mut(),
+            width,
+            height,
+            fps,
+            device_index,
+        );
+
+        if ptr.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `webrtc::CreateVideoTrackSourceProxy()`",
+            );
+        }
+        Ok(VideoTrackSourceInterface(ptr))
+    }
+
+    // TODO: Support screens enumeration.
+    /// Starts screen capturing and creates a new [`VideoTrackSourceInterface`]
+    /// with the specified constraints.
+    ///
+    /// The created capturer is wrapped in the `VideoTrackSourceProxy` that
+    /// makes sure the real [`VideoTrackSourceInterface`] implementation is
+    /// destroyed on the signaling thread and marshals all method calls to the
+    /// signaling thread.
+    pub fn create_proxy_from_display(
+        worker_thread: &mut Thread,
+        signaling_thread: &mut Thread,
+        width: usize,
+        height: usize,
+        fps: usize,
+    ) -> anyhow::Result<Self> {
+        let ptr = webrtc::create_display_video_source(
+            worker_thread.0.pin_mut(),
+            signaling_thread.0.pin_mut(),
+            width,
+            height,
+            fps,
+        );
 
         if ptr.is_null() {
             bail!(

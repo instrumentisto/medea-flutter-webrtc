@@ -7,16 +7,12 @@
 #include "media_stream.h"
 #include "peer_connection.h"
 
-#define DEFAULT_WIDTH 640
-#define DEFAULT_HEIGHT 480
-#define DEFAULT_FPS 30
-
 namespace flutter_webrtc_plugin {
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
-          plugin->textures(),
-          plugin->messenger()) {}
+    plugin->textures(),
+    plugin->messenger()) {}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 
@@ -30,7 +26,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getSources") == 0) {
     EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
-    GetMedia(method_call, webrtc, std::move(result));
+    GetMedia(method_call, webrtc, std::move(result), false);
   } else if (method.compare("getDisplayMedia") == 0) {
     GetMedia(method_call, webrtc, std::move(result), true);
   } else if (method.compare("mediaStreamGetTracks") == 0) {
