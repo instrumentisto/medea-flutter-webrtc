@@ -75,8 +75,6 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("rtpTransceiverSetDirection") == 0) {
   } else if (method.compare("setConfiguration") == 0) {
   } else if (method.compare("captureFrame") == 0) {
-  } else if (method.compare("deletePC") == 0) {
-    DeletePC(webrtc, method_call, std::move(result));
   } else {
     result->NotImplemented();
   }
