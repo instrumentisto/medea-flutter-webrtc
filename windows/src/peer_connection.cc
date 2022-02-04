@@ -71,6 +71,12 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   PeerConnectionOnEvent(std::shared_ptr<EventContext> context)
       : context_(std::move(context)) {};
 
+  ~PeerConnectionOnEvent() {
+    if (context_->_lt_channel.get() != nullptr){
+      context_->_lt_channel->SetStreamHandler(nullptr);
+    }
+  }
+
   // Successfully writes serialized `OnSignalingChange` event 
   // an inner `flutter::EventSink`.
   void OnSignalingChange(const std::string& new_state) {
@@ -298,7 +304,7 @@ void CreateRTCPeerConnection(
         return nullptr;
       });
 
-  rust::cxxbridge1::String error;
+  rust::String error;
   uint64_t id = webrtc->CreatePeerConnection(std::move(event_callback), error);
   if (error == "") {
       std::string peer_connection_id = std::to_string(id);

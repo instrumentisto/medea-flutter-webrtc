@@ -34,7 +34,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
   }
 
   void errorListener(Object obj) {
-    print('bad\n');
     if (obj is Exception) throw obj;
   }
 
@@ -103,33 +102,9 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         }
       });
 
-      await sub2.cancel();
-
-      final delete_pc2 = await WebRTC.invokeMethod(
-          'deletePC', <String, dynamic>{'peerConnectionId': pc2_id});
-
-      await sub1.cancel();
-
-      final delete_pc1 = await WebRTC.invokeMethod(
-          'deletePC', <String, dynamic>{'peerConnectionId': pc1_id});
-
       setState(() {
         text = 'test is success';
       });
-
-       // memory leak test.
-       for (var i =0; i<100000; ++i) {
-         final createPeerConnection_leak =
-           await WebRTC.invokeMethod('createPeerConnection', null);
-         String pc_id = createPeerConnection_leak['peerConnectionId'];
-
-         final delete_pc1 = await WebRTC.invokeMethod(
-           'deletePC', <String, dynamic>{'peerConnectionId': pc_id});
-       }
-
-       setState(() {
-         text = 'test leak is success';
-       });
 
     } catch (e) {
       print(e.toString());
