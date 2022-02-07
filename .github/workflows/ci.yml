@@ -75,5 +75,6 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-
-      - run: make test device=windows
+      - run: make cargo.test
+      - run: make cargo.build
+      - run: make flutter.test device=windows
