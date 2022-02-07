@@ -38,6 +38,7 @@ namespace rust {
   }
 }
 struct CandidatePairChangeEventSerialized;
+struct OnTrackSerialized;
 
 // Completion callback for the PeerConnection events.
 class PeerConnectionOnEventInterface {
@@ -65,6 +66,7 @@ class PeerConnectionOnEventInterface {
   virtual void OnIceCandidatesRemoved(rust::Vec<rust::String> candidates) = 0;
   virtual void OnIceSelectedCandidatePairChanged(CandidatePairChangeEventSerialized event) = 0;
  
+  virtual void OnTrack(OnTrackSerialized event) = 0;
 
   virtual ~PeerConnectionOnEventInterface() = default;
 };

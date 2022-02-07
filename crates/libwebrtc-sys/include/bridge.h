@@ -95,6 +95,8 @@ using CandidatePair = cricket::CandidatePair;
 
 using RtpReceiverInterface = rc<webrtc::RtpReceiverInterface>;
 using RtpTransceiverInterface = rc<webrtc::RtpTransceiverInterface>;
+using RtpSenderInterface = rc<webrtc::RtpSenderInterface>;
+using MediaStreamTrackInterface = rc<webrtc::MediaStreamTrackInterface>;
 
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -308,53 +310,63 @@ const Candidate& get_remote_candidate(const CandidatePair& pair);
 
 // todo
 std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
-    RtpTransceiverInterface& transceiver);
+    const RtpTransceiverInterface& transceiver);
 
 // todo 
-std::vector<std::unique_ptr<MediaStreamInterface>> rtp_receiver_interface_streams(
-    RtpReceiverInterface& receiver);
-
-// todo refact to bridge
-std::string media_stream_interface_get_id(MediaStreamInterface& stream);
+std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_streams(
+    const RtpReceiverInterface& receiver);
 
 // todo
-std::vector<std::unique_ptr<AudioTrackInterface>> media_stream_interface_get_audio_tracks(
-    MediaStreamInterface& stream);
+std::unique_ptr<std::string> media_stream_interface_get_id(const MediaStreamInterface& stream);
 
 // todo
-std::vector<std::unique_ptr<VideoTrackInterface>> media_stream_interface_get_video_tracks(
-    MediaStreamInterface& stream);
+std::unique_ptr<std::vector<AudioTrackInterface>> media_stream_interface_get_audio_tracks(
+    const MediaStreamInterface& stream);
 
 // todo
-std::string audio_track_interface_get_kind(
-    AudioTrackInterface& track);
+std::unique_ptr<std::vector<VideoTrackInterface>> media_stream_interface_get_video_tracks(
+    const MediaStreamInterface& stream);
+
+// // todo
+// std::unique_ptr<std::string> audio_track_interface_get_kind(
+//     const AudioTrackInterface& track);
+
+// // todo
+// std::unique_ptr<std::string> audio_track_interface_get_id(
+//     const AudioTrackInterface& track);
+
+// // todo
+// TrackState audio_track_interface_get_state(
+//     const AudioTrackInterface& track);
+
+// // todo
+// bool audio_track_interface_get_enabled(
+//     const AudioTrackInterface& track);
 
 // todo
-std::string audio_track_interface_get_id(
-    AudioTrackInterface& track);
+std::unique_ptr<std::string> media_stream_track_interface_get_kind(
+    const MediaStreamTrackInterface& track);
 
 // todo
-TrackState audio_track_interface_get_state(
-    AudioTrackInterface& track);
+std::unique_ptr<std::string> media_stream_track_interface_get_id(
+    const MediaStreamTrackInterface& track);
 
 // todo
-bool audio_track_interface_get_enabled(
-    AudioTrackInterface& track);
+TrackState media_stream_track_interface_get_state(
+    const MediaStreamTrackInterface& track);
 
 // todo
-std::string video_track_interface_get_kind(
-    VideoTrackInterface& track);
+bool media_stream_track_interface_get_enabled(
+    const MediaStreamTrackInterface& track);
 
 // todo
-std::string video_track_interface_get_id(
-    VideoTrackInterface& track);
+const MediaStreamTrackInterface& rtp_sender_interface_get_track(
+    const RtpReceiverInterface& receiver);
 
-// todo
-TrackState video_track_interface_get_state(
-    VideoTrackInterface& track);
+const MediaStreamTrackInterface& video_track_truncation(
+    const VideoTrackInterface& track);
 
-// todo
-bool video_track_interface_get_enabled(
-    VideoTrackInterface& track);
+const MediaStreamTrackInterface& audio_track_truncation(
+    const AudioTrackInterface& track);
 
 }  // namespace bridge

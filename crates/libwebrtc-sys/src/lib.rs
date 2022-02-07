@@ -4,19 +4,31 @@
 mod bridge;
 
 use anyhow::bail;
+use bridge::webrtc::RtpReceiverInterface;
 use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
 pub use crate::webrtc::{
-    candidate_to_string, get_candidate_pair,
+    audio_track_truncation, candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms,
     get_local_candidate, get_reason, get_remote_candidate,
-    ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
-    Candidate, CandidatePairChangeEvent, IceCandidateInterface,
-    IceConnectionState, IceGatheringState, PeerConnectionState, SdpType,
+    ice_candidate_interface_to_string, media_stream_interface_get_audio_tracks,
+    media_stream_interface_get_id, media_stream_interface_get_video_tracks,
+    media_stream_track_interface_get_enabled,
+    media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
+    media_stream_track_interface_get_state, rtp_receiver_interface_streams,
+    rtp_sender_interface_get_track, rtp_transceiver_interface_get_receiver,
+    video_frame_to_abgr, video_track_truncation, AudioLayer, Candidate,
+    CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
+    IceGatheringState, PeerConnectionState, RtpTransceiverInterface, SdpType,
     SignalingState, VideoFrame, VideoRotation,
 };
 pub use bridge::webrtc::CandidateWrap;
+
+pub use bridge::webrtc::{
+    AudioTrackInterface as _AudioTrackInterface, MediaStreamTrackInterface,
+    VideoTrackInterface as _VideoTrackInterface,
+};
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
 /// used to call [`PeerConnectionInterface::create_offer()`] and
@@ -113,6 +125,12 @@ pub trait PeerConnectionOnEvent {
         &mut self,
         event: &CandidatePairChangeEvent,
     );
+
+    // todo
+    fn on_track(&mut self, event: &RtpTransceiverInterface);
+
+    // // todo
+    // fn on_remove_track(&mut self, event: &RtpReceiverInterface);
 }
 
 /// Handler of [`VideoFrame`]s.

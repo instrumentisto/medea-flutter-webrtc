@@ -27,7 +27,7 @@ pub(crate) mod webrtc {
     // todo
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
-    enum TrackState {
+    pub enum TrackState {
         kLive,
         kEnded,
     }
@@ -42,6 +42,16 @@ pub(crate) mod webrtc {
     /// for using in extern Rust [`Vec`].
     pub struct MediaStreamInterfaceWrap {
         m: UniquePtr<MediaStreamInterface>,
+    }
+
+    //todo
+    pub struct VideoTrackInterfaceWrap {
+        v: UniquePtr<VideoTrackInterface>,
+    }
+
+    //todo
+    pub struct AudioTrackInterfaceWrap {
+        a: UniquePtr<AudioTrackInterface>,
     }
 
     /// Possible kinds of audio devices implementation.
@@ -372,6 +382,10 @@ pub(crate) mod webrtc {
         type CandidatePairChangeEvent;
         type CandidatePair;
         type RtpReceiverInterface;
+        type MediaStreamTrackInterface;
+        type TrackState;
+        type RtpTransceiverInterface;
+        type RtpSenderInterface;
 
 
         /// Creates a default [`RTCConfiguration`].
@@ -629,6 +643,79 @@ pub(crate) mod webrtc {
 
         #[must_use]
         pub fn get_remote_candidate(pair: &CandidatePair) -> &Candidate;
+
+        // todo
+        pub fn rtp_transceiver_interface_get_receiver(
+            transceiver: &RtpTransceiverInterface,
+        ) -> UniquePtr<RtpReceiverInterface>;
+
+        // todo
+        pub fn rtp_receiver_interface_streams(
+            receiver: &RtpReceiverInterface,
+        ) -> UniquePtr<CxxVector<MediaStreamInterface>>;
+
+        pub fn rtp_sender_interface_get_track(
+            receiver: &RtpReceiverInterface,
+        ) -> &MediaStreamTrackInterface;
+
+        // todo refact to bridge
+        pub fn media_stream_interface_get_id(
+            stream: &MediaStreamInterface,
+        ) -> UniquePtr<CxxString>;
+
+        // todo
+        pub fn media_stream_interface_get_audio_tracks(
+            stream: &MediaStreamInterface,
+        ) -> UniquePtr<CxxVector<AudioTrackInterface>>;
+
+        // todo
+        pub fn media_stream_interface_get_video_tracks(
+            stream: &MediaStreamInterface,
+        ) -> UniquePtr<CxxVector<VideoTrackInterface>>;
+
+        // // todo
+        // pub fn audio_track_interface_get_kind(
+        //     track: &AudioTrackInterface) -> UniquePtr<CxxString>;
+
+        // // todo
+        // pub fn audio_track_interface_get_id(
+        //     track: &AudioTrackInterface) -> UniquePtr<CxxString>;
+
+        // // todo
+        // pub fn audio_track_interface_get_state(
+        //     track: &AudioTrackInterface) -> TrackState;
+
+        // // todo
+        // pub fn audio_track_interface_get_enabled(
+        //     track: &AudioTrackInterface) -> bool;
+
+        // todo
+        pub fn media_stream_track_interface_get_kind(
+            track: &MediaStreamTrackInterface,
+        ) -> UniquePtr<CxxString>;
+
+        // todo
+        pub fn media_stream_track_interface_get_id(
+            track: &MediaStreamTrackInterface,
+        ) -> UniquePtr<CxxString>;
+
+        // todo
+        pub fn media_stream_track_interface_get_state(
+            track: &MediaStreamTrackInterface,
+        ) -> TrackState;
+
+        // todo
+        pub fn media_stream_track_interface_get_enabled(
+            track: &MediaStreamTrackInterface,
+        ) -> bool;
+
+        pub fn video_track_truncation(
+            track: &VideoTrackInterface,
+        ) -> &MediaStreamTrackInterface;
+
+        pub fn audio_track_truncation(
+            track: &AudioTrackInterface,
+        ) -> &MediaStreamTrackInterface;
     }
 
     extern "Rust" {
@@ -645,7 +732,7 @@ pub(crate) mod webrtc {
     // This will trigger cxx to generate UniquePtrTarget trait for the
     // mentioned types.
     extern "Rust" {
-         fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
+        fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
     }
 
     extern "Rust" {
@@ -754,6 +841,11 @@ pub(crate) mod webrtc {
             event: &CandidatePairChangeEvent,
         );
 
+        pub fn call_peer_connection_on_track(
+            cb: &mut DynPeerConnectionOnEvent,
+            event: &RtpTransceiverInterface,
+        );
+
         /// Creates [`CandidateWrap`].
         pub fn create_candidate_wrapp(
             candidate: UniquePtr<Candidate>,
@@ -764,6 +856,15 @@ pub(crate) mod webrtc {
             media_stream_track: UniquePtr<MediaStreamInterface>,
         ) -> MediaStreamInterfaceWrap;
 
+        // todo
+        fn create_audio_track_interface_wrapp(
+            audio_track_interface: UniquePtr<AudioTrackInterface>,
+        ) -> AudioTrackInterfaceWrap;
+
+        // todo
+        fn create_video_track_interface_wrapp(
+            video_track_interface: UniquePtr<VideoTrackInterface>,
+        ) -> VideoTrackInterfaceWrap;
     }
 }
 
@@ -903,6 +1004,14 @@ pub fn call_on_ice_selected_candidate_pair_changed(
     cb.on_ice_selected_candidate_pair_changed(event);
 }
 
+// todo
+pub fn call_peer_connection_on_track(
+    cb: &mut DynPeerConnectionOnEvent,
+    event: &webrtc::RtpTransceiverInterface,
+) {
+    cb.on_track(event);
+}
+
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
@@ -1030,11 +1139,30 @@ fn create_candidate_wrapp(
 fn create_media_stream_wrapp(
     media_stream_track: UniquePtr<webrtc::MediaStreamInterface>,
 ) -> webrtc::MediaStreamInterfaceWrap {
-    webrtc::MediaStreamInterfaceWrap { m: media_stream_track }
+    webrtc::MediaStreamInterfaceWrap {
+        m: media_stream_track,
+    }
 }
 
-fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {
+// todo
+fn create_audio_track_interface_wrapp(
+    audio_track_interface: UniquePtr<webrtc::AudioTrackInterface>,
+) -> webrtc::AudioTrackInterfaceWrap {
+    webrtc::AudioTrackInterfaceWrap {
+        a: audio_track_interface,
+    }
 }
+
+// todo
+fn create_video_track_interface_wrapp(
+    video_track_interface: UniquePtr<webrtc::VideoTrackInterface>,
+) -> webrtc::VideoTrackInterfaceWrap {
+    webrtc::VideoTrackInterfaceWrap {
+        v: video_track_interface,
+    }
+}
+
+fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {}
 
 /// Forwards the given [`webrtc::VideoFrame`] the the provided
 /// [`DynOnFrameCallback`].

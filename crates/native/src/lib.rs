@@ -9,12 +9,21 @@ mod video_sink;
 use std::{
     collections::HashMap,
     rc::Rc,
-    sync::atomic::{AtomicU64, Ordering},
+    sync::{atomic::{AtomicU64, Ordering}, Arc, Mutex},
+};
+
+use api::TrackInterfaceSerialized;
+use libwebrtc_sys::{
+    AudioLayer, AudioSourceInterface, MediaStreamTrackInterface,
+    PeerConnectionFactoryInterface, RtpTransceiverInterface, TaskQueueFactory,
+    Thread, VideoDeviceInfo, _AudioTrackInterface,
+    _VideoTrackInterface,
 };
 
 use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo,
+    audio_track_truncation, media_stream_track_interface_get_enabled,
+    media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
+    media_stream_track_interface_get_state, video_track_truncation,
 };
 
 use crate::video_sink::Id as VideoSinkId;
@@ -60,6 +69,71 @@ pub mod api {
 
         /// How long do we estimate that we've been disconnected.
         estimated_disconnected_time_ms: i64,
+    }
+
+    // todo
+    pub struct TrackInterfaceSerialized {
+        label: String,
+        id: String,
+        kind: String,
+        state: String,
+        enabled: bool,
+    }
+
+    // todo
+    pub struct MediaStreamInterfaceSerialized {
+        id: String,
+        audio_tracks: Vec<TrackInterfaceSerialized>,
+        video_tracks: Vec<TrackInterfaceSerialized>,
+    }
+
+    // todo
+    pub struct RtpParametersSerialized {
+        id: String,
+        cname: String,
+        reduced_size: usize,
+    }
+
+    // todo
+    pub struct RtpReceiverInterfaceSerialized {
+        id: String,
+        parameters: RtpParametersSerialized,
+        track: TrackInterfaceSerialized,
+    }
+
+    // todo
+    pub struct DtmfSenderInterfaceSerialized {
+        dtmfSenderId: String,
+        interToneGap: i32,
+        duration: i32,
+    }
+
+    // todo
+    pub struct RtpSenderInterfaceSerialized {
+        id: String,
+        dtmfSender: DtmfSenderInterfaceSerialized,
+        rtpParameters: RtpParametersSerialized,
+        track: TrackInterfaceSerialized,
+    }
+
+    // todo
+    pub struct RtpTransceiverInterfaceSerialized {
+        mid: String,
+        direction: String,
+        sender: RtpSenderInterfaceSerialized,
+        receiver: RtpReceiverInterfaceSerialized,
+    }
+
+    // todo
+    pub struct OnTrackSerialized {
+        streams: Vec<MediaStreamInterfaceSerialized>,
+        track: TrackInterfaceSerialized,
+        // todo receiver: RtpReceiverInterfaceSerialized,
+        // todo transceiver: RtpTransceiverInterfaceSerialized,
+    }
+
+    pub struct OnRemoveTrackSerialized {
+        receiver: RtpReceiverInterfaceSerialized,
     }
 
     /// Possible kinds of media devices.
@@ -322,7 +396,46 @@ pub mod api {
     }
 }
 
+impl From<&_VideoTrackInterface> for TrackInterfaceSerialized {
+    fn from(track: &_VideoTrackInterface) -> Self {
+        let track = video_track_truncation(track);
+        TrackInterfaceSerialized {
+            label: "video".to_owned(),
+            id: media_stream_track_interface_get_id(track).to_string(),
+            kind: media_stream_track_interface_get_kind(track).to_string(),
+            state: media_stream_track_interface_get_state(track).to_string(),
+            enabled: media_stream_track_interface_get_enabled(track),
+        }
+    }
+}
+
+impl From<&_AudioTrackInterface> for TrackInterfaceSerialized {
+    fn from(track: &_AudioTrackInterface) -> Self {
+        let track = audio_track_truncation(track);
+        TrackInterfaceSerialized {
+            label: "audio".to_owned(),
+            id: media_stream_track_interface_get_id(track).to_string(),
+            kind: media_stream_track_interface_get_kind(track).to_string(),
+            state: media_stream_track_interface_get_state(track).to_string(),
+            enabled: media_stream_track_interface_get_enabled(track),
+        }
+    }
+}
+
+impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
+    fn from(track: &MediaStreamTrackInterface) -> Self {
+        TrackInterfaceSerialized {
+            label: media_stream_track_interface_get_kind(track).to_string(),
+            id: media_stream_track_interface_get_id(track).to_string(),
+            kind: media_stream_track_interface_get_kind(track).to_string(),
+            state: media_stream_track_interface_get_state(track).to_string(),
+            enabled: media_stream_track_interface_get_enabled(track),
+        }
+    }
+}
+
 /// [`Context`] wrapper that is exposed to the C++ API clients.
+// pub struct Webrtc(Box<Arc<Mutex<Context>>>);
 pub struct Webrtc(Box<Context>);
 
 /// Application context that manages all dependencies.
@@ -380,6 +493,7 @@ pub fn init() -> Box<Webrtc> {
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 
+    // Box::new(Webrtc(Box::new(Arc::new(Mutex::new(Context {
     Box::new(Webrtc(Box::new(Context {
         task_queue_factory,
         network_thread,

@@ -139,24 +139,6 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
   }
 }
 
-// This is called when a receiver and its track are created.
-// TODO(zhihuang): Make this pure virtual when all subclasses implement it.
-// Note: This is called with both Plan B and Unified Plan semantics. Unified
-// Plan users should prefer OnTrack, OnAddTrack is only called as backwards
-// compatibility (and is called in the exact same situations as OnTrack).
-void PeerConnectionObserver::OnAddTrack(
-    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
-    const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-        streams) {
-          // rust::Vec<bridge::MediaStreamInterfaceWrap> vec;
-          // for (int i = 0; i < streams.size(); ++i) {
-          //   auto stream 
-          //     = std::make_unique<bridge::rc<webrtc::MediaStreamInterface>>(
-          //       bridge::rc<webrtc::MediaStreamInterface>(streams[i]));
-          //   vec.push_back(bridge::create_media_stream_wrapp(std::move(stream)));
-          // }
-        }
-
 // This is called when signaling indicates a transceiver will be receiving
 // media from the remote endpoint. This is fired during a call to
 // SetRemoteDescription. The receiving track can be accessed by:
@@ -167,7 +149,13 @@ void PeerConnectionObserver::OnAddTrack(
 // RTCSessionDescription" algorithm:
 // https://w3c.github.io/webrtc-pc/#set-description
 void PeerConnectionObserver::OnTrack(
-    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver){}
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
+      if (cb_) {
+        bridge::call_peer_connection_on_track(
+          *cb_.value(), 
+          bridge::RtpTransceiverInterface(transceiver));
+      }
+    }
 
 // Called when signaling indicates that media will no longer be received on a
 // track.

@@ -79,11 +79,6 @@ public:
   void OnIceSelectedCandidatePairChanged(
       const cricket::CandidatePairChangeEvent& event);
 
-  // This is called when a receiver and its track are created.
-  void OnAddTrack(
-      rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
-      const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams);
-
   // This is called when signaling indicates a transceiver will be receiving
   // media from the remote endpoint. This is fired during a call to
   // SetRemoteDescription. The receiving track can be accessed by:

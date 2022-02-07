@@ -83,7 +83,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnSignalingChange";
+      params[flutter::EncodableValue("event")] = "OnSignalingChange";
       params[flutter::EncodableValue("new_state")] =
           new_state;
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
@@ -96,7 +96,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnStandardizedIceConnectionChange";
+      params[flutter::EncodableValue("event")] = "OnStandardizedIceConnectionChange";
       params[flutter::EncodableValue("new_state")] =
           new_state;
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
@@ -109,7 +109,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnConnectionChange";
+      params[flutter::EncodableValue("event")] = "OnConnectionChange";
       params[flutter::EncodableValue("new_state")] =
           std::string(new_state);
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
@@ -122,7 +122,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceGatheringChange";
+      params[flutter::EncodableValue("event")] = "OnIceGatheringChange";
       params[flutter::EncodableValue("new_state")] =
           new_state;
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
@@ -135,7 +135,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnNegotiationNeededEvent";
+      params[flutter::EncodableValue("event")] = "OnNegotiationNeededEvent";
       params[flutter::EncodableValue("event_id")] = (int64_t)event_id;
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
     }
@@ -150,7 +150,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceCandidateError";
+      params[flutter::EncodableValue("event")] = "OnIceCandidateError";
       params[flutter::EncodableValue("host_candidate")] = host_candidate;
       params[flutter::EncodableValue("url")] = url;
       params[flutter::EncodableValue("error_code")] = error_code;
@@ -170,7 +170,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceCandidateError";
+      params[flutter::EncodableValue("event")] = "OnIceCandidateError";
       params[flutter::EncodableValue("address")] = address;
       params[flutter::EncodableValue("port")] = port;
       params[flutter::EncodableValue("error_code")] = error_code;
@@ -186,8 +186,8 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceConnectionReceivingChange";
-      params[EncodableValue("receiving")] = receiving;
+      params[flutter::EncodableValue("event")] = "OnIceConnectionReceivingChange";
+      params[flutter::EncodableValue("receiving")] = receiving;
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
     }
   };
@@ -198,8 +198,8 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnInterestingUsage";
-      params[EncodableValue("usage_pattern")] = usage_pattern;
+      params[flutter::EncodableValue("event")] = "OnInterestingUsage";
+      params[flutter::EncodableValue("usage_pattern")] = usage_pattern;
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
     }
   };
@@ -210,8 +210,8 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceCandidate";
-      params[EncodableValue("candidate")] = candidate;
+      params[flutter::EncodableValue("event")] = "OnIceCandidate";
+      params[flutter::EncodableValue("candidate")] = candidate;
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
     }
   }
@@ -221,13 +221,13 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   void OnIceCandidatesRemoved(rust::Vec<rust::String> candidates) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
-      EncodableList candidate_list;
+      flutter::EncodableList candidate_list;
       for (int i = 0; i<candidates.size(); ++i) {
         candidate_list.push_back(std::string(candidates[i]));
       }
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceCandidatesRemoved";
-      params[EncodableValue("candidates")] = EncodableValue(candidate_list);
+      params[flutter::EncodableValue("event")] = "OnIceCandidatesRemoved";
+      params[flutter::EncodableValue("candidates")] = flutter::EncodableValue(candidate_list);
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
     }
   }
@@ -238,15 +238,34 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap pair;
-      pair[EncodableValue("local")] = std::string(event.selected_candidate_pair.local);
-      pair[EncodableValue("remote")] = std::string(event.selected_candidate_pair.remote);
+      pair[flutter::EncodableValue("local")] = std::string(event.selected_candidate_pair.local);
+      pair[flutter::EncodableValue("remote")] = std::string(event.selected_candidate_pair.remote);
 
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceSelectedCandidatePairChanged";
-      params[EncodableValue("selected_candidate_pair")] = EncodableValue(pair);
-      params[EncodableValue("estimated_disconnected_time_ms")] = event.estimated_disconnected_time_ms;
-      params[EncodableValue("reason")] = std::string(event.reason);
-      params[EncodableValue("last_data_received_ms")] = event.last_data_received_ms;
+      params[flutter::EncodableValue("event")] = "OnIceSelectedCandidatePairChanged";
+      params[flutter::EncodableValue("selected_candidate_pair")] = EncodableValue(pair);
+      params[flutter::EncodableValue("estimated_disconnected_time_ms")] = event.estimated_disconnected_time_ms;
+      params[flutter::EncodableValue("reason")] = std::string(event.reason);
+      params[flutter::EncodableValue("last_data_received_ms")] = event.last_data_received_ms;
+      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+    }
+  }
+
+  void OnTrack(OnTrackSerialized transceiver) {
+    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
+    if (context_->event_sink.get() != nullptr) {
+      //auto receiver = transceiver.receiver;
+      flutter::EncodableList streams_info;
+      for (int i = 0; i < transceiver.streams.size(); ++i) {
+        streams_info.push_back(mediaStreamToMap(transceiver.streams[i]));
+      }
+      flutter::EncodableMap params;
+      params[EncodableValue("event")] = "onTrack";
+      params[EncodableValue("streams")] = EncodableValue(streams_info);
+      // todo params[EncodableValue("track")] = EncodableValue(mediaTrackToMap(receiver.track));
+      // todo params[EncodableValue("receiver")] = EncodableValue(rtpReceiverToMap(receiver));
+      // todo params[EncodableValue("transceiver")] = EncodableValue(transceiverToMap(transceiver));
+
       context_->event_sink.get()->Success(flutter::EncodableValue(params));
     }
   }
@@ -257,6 +276,36 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   // `shared_ptr` for shared context 
   // in `flutter::StreamHandlerFunctions` (subscribe/unsubscribe event).
   std::shared_ptr<EventContext> context_;
+
+  flutter::EncodableMap mediaStreamToMap(MediaStreamInterfaceSerialized stream) {
+    EncodableMap params;
+    params[EncodableValue("streamId")] =  std::string(stream.id);
+    // params[EncodableValue("ownerTag")] =  EncodableValue(id);
+    EncodableList audioTracks;
+    auto audio_tracks = stream.audio_tracks;
+    for (TrackInterfaceSerialized val : audio_tracks) {
+      audioTracks.push_back(EncodableValue(mediaTrackToMap(val)));
+    }
+    params[EncodableValue("audioTracks")] =  EncodableValue(audioTracks);
+
+    EncodableList videoTracks;
+    auto video_tracks = stream.video_tracks;
+    for (TrackInterfaceSerialized val : video_tracks) {
+      videoTracks.push_back(EncodableValue(mediaTrackToMap(val)));
+    }
+    params[EncodableValue("videoTracks")] =  EncodableValue(videoTracks);
+    return params;
+  }
+
+  flutter::EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
+    EncodableMap info;
+    info[EncodableValue("id")] = std::string(track.id);
+    info[EncodableValue("kind")] = std::string(track.kind);
+    info[EncodableValue("label")] = std::string(track.kind);
+    info[EncodableValue("readyState")] = std::string(track.state);
+    info[EncodableValue("enabled")] = EncodableValue(track.enabled);
+    return info;
+  }
 };
 
 namespace flutter_webrtc_plugin {
@@ -317,7 +366,7 @@ void CreateRTCPeerConnection(
       event_context->_lt_channel = std::move(event_channel);
 
       EncodableMap params;
-      params[EncodableValue("peerConnectionId")] = std::to_string(id);
+      params[flutter::EncodableValue("peerConnectionId")] = std::to_string(id);
       result->Success(EncodableValue(params));
     } else {
      result->Error(std::string(error));
@@ -328,8 +377,8 @@ void CreateRTCPeerConnection(
 // provided `MethodResult`.
 void CreateOffer(
     Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+    const flutter::MethodCall<flutter::EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
   
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
