@@ -489,14 +489,25 @@ pub(crate) mod webrtc {
         type VideoSinkInterface;
         type VideoRotation;
 
-        /// Creates a new [`VideoTrackSourceInterface`].
-        pub fn create_video_source(
+        /// Creates a new [`VideoTrackSourceInterface`] sourced by a video input
+        /// device with provided `device_index`.
+        pub fn create_device_video_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
             width: usize,
             height: usize,
             fps: usize,
             device_index: u32,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
+
+        /// Creates a new [`VideoTrackSourceInterface`] sourced by a screen
+        /// capturing.
+        pub fn create_display_video_source(
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
+            width: usize,
+            height: usize,
+            fps: usize,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
         /// Creates a new [`AudioSourceInterface`].
@@ -549,6 +560,24 @@ pub(crate) mod webrtc {
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
+
+        /// Changes the [enabled][1] property of the specified
+        /// [`VideoTrackInterface`].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+        pub fn set_video_track_enabled(
+            track: &VideoTrackInterface,
+            enabled: bool,
+        );
+
+        /// Changes the [enabled][1] property of the specified
+        /// [`AudioTrackInterface`].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+        pub fn set_audio_track_enabled(
+            track: &AudioTrackInterface,
+            enabled: bool,
+        );
 
         /// Registers the provided [`VideoSinkInterface`] for the given
         /// [`VideoTrackInterface`].

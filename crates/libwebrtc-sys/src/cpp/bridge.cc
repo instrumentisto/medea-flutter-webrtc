@@ -109,7 +109,7 @@ std::unique_ptr<rtc::Thread> create_thread() {
 
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
-std::unique_ptr<VideoTrackSourceInterface> create_video_source(
+std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,
@@ -119,6 +119,35 @@ std::unique_ptr<VideoTrackSourceInterface> create_video_source(
   auto src = webrtc::CreateVideoTrackSourceProxy(
       &signaling_thread, &worker_thread,
       DeviceVideoCapturer::Create(width, height, fps, device));
+
+  if (src == nullptr) {
+    return nullptr;
+  }
+
+  return std::make_unique<VideoTrackSourceInterface>(src);
+}
+
+// Creates a new `ScreenVideoCapturer` with the specified constraints and
+// calls `CreateVideoTrackSourceProxy()`.
+std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
+    Thread& worker_thread,
+    Thread& signaling_thread,
+    size_t width,
+    size_t height,
+    size_t fps) {
+  webrtc::DesktopCapturer::SourceList sourceList;
+  ScreenVideoCapturer::GetSourceList(&sourceList);
+
+  if (sourceList.size() < 1) {
+    return nullptr;
+  }
+
+  rtc::scoped_refptr<ScreenVideoCapturer> capturer(
+      new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, width,
+                                                     height, fps));
+
+  auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
+                                                 &worker_thread, capturer);
 
   if (src == nullptr) {
     return nullptr;
@@ -147,7 +176,7 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
   auto track = peer_connection_factory->CreateVideoTrack(
-      std::string(id), video_source.ptr());
+      std::string(id), video_source);
 
   if (track == nullptr) {
     return nullptr;
@@ -162,7 +191,7 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
     rust::String id,
     const AudioSourceInterface& audio_source) {
   auto track = peer_connection_factory->CreateAudioTrack(
-      std::string(id), audio_source.ptr());
+      std::string(id), audio_source);
 
   if (track == nullptr) {
     return nullptr;
@@ -188,25 +217,35 @@ std::unique_ptr<MediaStreamInterface> create_local_media_stream(
 // Calls `MediaStreamInterface->AddTrack`.
 bool add_video_track(const MediaStreamInterface& media_stream,
                      const VideoTrackInterface& track) {
-  return media_stream->AddTrack(track.ptr());
+  return media_stream->AddTrack(track);
 }
 
 // Calls `MediaStreamInterface->AddTrack`.
 bool add_audio_track(const MediaStreamInterface& media_stream,
                      const AudioTrackInterface& track) {
-  return media_stream->AddTrack(track.ptr());
+  return media_stream->AddTrack(track);
 }
 
 // Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_video_track(const MediaStreamInterface& media_stream,
                         const VideoTrackInterface& track) {
-  return media_stream->RemoveTrack(track.ptr());
+  return media_stream->RemoveTrack(track);
 }
 
 // Calls `MediaStreamInterface->RemoveTrack`.
 bool remove_audio_track(const MediaStreamInterface& media_stream,
                         const AudioTrackInterface& track) {
-  return media_stream->RemoveTrack(track.ptr());
+  return media_stream->RemoveTrack(track);
+}
+
+// Calls `VideoTrackInterface->set_enabled()`.
+void set_video_track_enabled(const VideoTrackInterface& track, bool enabled) {
+  track->set_enabled(enabled);
+}
+
+// Calls `AudioTrackInterface->set_enabled()`.
+void set_audio_track_enabled(const AudioTrackInterface& track, bool enabled) {
+  track->set_enabled(enabled);
 }
 
 // Registers the provided video `sink` for the given `track`.
@@ -231,8 +270,7 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
 
 // Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
 // writes the result to the provided `dst_abgr`.
-void video_frame_to_abgr(const webrtc::VideoFrame& frame,
-                         uint8_t* dst_abgr) {
+void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       frame.video_frame_buffer()->ToI420());
 
@@ -248,17 +286,12 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
-  auto default_adm_ =
-      default_adm.get() == nullptr ? nullptr : default_adm.get()->ptr();
-  if (default_adm_ != nullptr) {
-    default_adm_->AddRef(); // TODO: recheck that we really need this
-  }
 
   auto factory = webrtc::CreatePeerConnectionFactory(
       network_thread.get(),
       worker_thread.get(),
       signaling_thread.get(),
-      default_adm_,
+      default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -308,7 +341,8 @@ std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
 }
 
 // Creates a new `RTCOfferAnswerOptions`.
-std::unique_ptr<RTCOfferAnswerOptions> create_default_rtc_offer_answer_options() {
+std::unique_ptr<RTCOfferAnswerOptions>
+create_default_rtc_offer_answer_options() {
   return std::make_unique<RTCOfferAnswerOptions>();
 }
 
@@ -370,8 +404,7 @@ void set_local_description(PeerConnectionInterface& peer_connection_interface,
   auto observer =
       rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(
           obs.release());
-  peer_connection_interface->SetLocalDescription(std::move(desc),
-                                                 observer);
+  peer_connection_interface->SetLocalDescription(std::move(desc), observer);
 }
 
 // Calls `PeerConnectionInterface->SetRemoteDescription`.
@@ -380,8 +413,7 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs) {
   auto observer =
       rtc::scoped_refptr<SetRemoteDescriptionObserver>(obs.release());
-  peer_connection_interface->SetRemoteDescription(std::move(desc),
-                                                  observer);
+  peer_connection_interface->SetRemoteDescription(std::move(desc), observer);
 }
 
 // Calls `IceCandidateInterface->ToString` and wraps result in `std::unqiue_ptr`.
