@@ -246,21 +246,23 @@ pub mod api {
             cb: UniquePtr<SetDescriptionCallbackInterface>,
         ) -> String;
 
+        /// Creates and adds a [`sys::Transceiver`] to the [`PeerConnection`],
+        /// returns the [`TransceiverInfo`] of that [`sys::Transceiver`].
         #[cxx_name = "AddTransceiver"]
         pub fn add_transceiver(
             self: &mut Webrtc,
             peer_id: u64,
-            media_type: String,
-            direction: String,
+            media_type: &str,
+            direction: &str,
         ) -> TransceiverInfo;
 
+        /// Returns the [`sys::Transceiver`]'s of some [`PeerConnection`]
+        /// according to the given `id`.
         #[cxx_name = "GetTransceivers"]
         pub fn get_transceivers(
             self: &mut Webrtc,
             peer_id: u64,
         ) -> Vec<TransceiverInfo>;
-
-        pub fn pupa(self: &mut Webrtc, peer_id: u64);
 
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].

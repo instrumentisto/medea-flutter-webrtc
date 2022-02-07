@@ -22,12 +22,8 @@ void FlutterWebRTC::HandleMethodCall(
 
   if (method.compare("createPeerConnection") == 0) {
     CreateRTCPeerConnection(webrtc, method_call, std::move(result));
-  } else if (method.compare("lol") == 0) {
-    const EncodableMap params =
-        GetValue<EncodableMap>(*method_call.arguments());
-
-    webrtc->pupa(std::stoi(findString(params, "peerConnectionId")));
-
+  } else if (method.compare("kek") == 0) {
+    printf("asdasd\n");
     result->Success();
   } else if (method.compare("getSources") == 0) {
     enumerate_device(webrtc, std::move(result));

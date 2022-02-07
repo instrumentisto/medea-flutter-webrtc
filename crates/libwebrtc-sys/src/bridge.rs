@@ -331,24 +331,31 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
 
-        /// Adds a new [`RTCRtpTransceiver`][1] to some [`PeerConnectionInterface`].
+        /// Adds a new [`RTCRtpTransceiver`][1] to some [`PeerConnectionInterface`]. The [`RTCRtpTransceiver`][1]
+        /// interface represents a combination of a [`RTCRtpSender`][2] and
+        /// a [`RTCRtpReceiver`][3].
         ///
         /// [1]: https://tinyurl.com/2p88ajym
+        /// [2]: https://tinyurl.com/mr37vbjy
+        /// [3]: https://tinyurl.com/zfmc7ph3
         pub fn add_transceiver(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             media_type: MediaType,
             direction: RtpTransceiverDirection
         ) -> UniquePtr<RtpTransceiverInterface>;
 
-        /// Gets information about [`PeerConnectionInterface`]'s [`RTCRtpTransceiver`]s.
+        /// Gets information about [`PeerConnectionInterface`]'s [`RTCRtpTransceiver`][1]s.
         ///
         /// [1]: https://tinyurl.com/2p88ajym
         pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
 
+        /// Gets [`Transceiver`]'s `mid`.
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;
 
+        /// Gets the [`Transceiver`]'s `pointer` as `usize`, used to compare [`Transceiver`]s.
         pub fn get_transceiver_ptr(transceiver: &RtpTransceiverInterface) -> usize;
 
+        /// Gets the [`Transceiver`]'s [`RtpTransceiverDirection`].
         pub fn get_transceiver_direction(transceiver: &RtpTransceiverInterface) -> RtpTransceiverDirection;
     }
 
@@ -419,8 +426,6 @@ pub(crate) mod webrtc {
             media_stream: &MediaStreamInterface,
             track: &AudioTrackInterface,
         ) -> bool;
-
-        pub fn ustest(peer_connection_interface: &PeerConnectionInterface);
     }
 }
 

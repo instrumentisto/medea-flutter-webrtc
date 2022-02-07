@@ -230,6 +230,7 @@ void SetRemoteDescription(
   }
 };
 
+// Converts Rust `TransceiverInfo` to Dart `EncodableMap`.
 EncodableMap TransceiverToMap(TransceiverInfo transceiver) {
   EncodableMap info;
 
@@ -244,6 +245,7 @@ EncodableMap TransceiverToMap(TransceiverInfo transceiver) {
   return info;
 };
 
+// Calls Rust `AddTransceiver()`.
 void AddTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -263,6 +265,7 @@ void AddTransceiver(
   result->Success(EncodableValue(TransceiverToMap(transceiver)));
 }
 
+// Calls Rust `GetTransceivers()`.
 void GetTransceivers(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

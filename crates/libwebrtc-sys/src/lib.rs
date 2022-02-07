@@ -349,11 +349,13 @@ pub struct Transceiver(UniquePtr<webrtc::RtpTransceiverInterface>);
 
 impl Transceiver {
     /// Returns [`Transceiver`]'s `mid`.
+    #[must_use]
     pub fn mid(&self) -> String {
         webrtc::get_transceiver_mid(&self.0)
     }
 
     /// Returns [`Transceiver`]'s `direction`.
+    #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
         webrtc::get_transceiver_direction(&self.0)
     }
@@ -366,6 +368,7 @@ impl PartialEq for Transceiver {
 }
 
 /// A struct contains a [`Vec`] of [`Transceiver`]s.
+#[allow(clippy::box_collection)]
 pub struct Transceivers(Box<Vec<Transceiver>>);
 
 impl Transceivers {
@@ -393,6 +396,7 @@ impl DerefMut for Transceivers {
 }
 
 /// Creates a new `boxed` [`Transceivers`].
+#[must_use]
 pub fn create_transceivers() -> Box<Transceivers> {
     Box::new(Transceivers(Box::new(Vec::new())))
 }
@@ -462,9 +466,7 @@ impl PeerConnectionInterface {
         webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
     }
 
-    /// Adds a new [`RTCRtpTransceiver`][1] to some
-    /// [`PeerConnectionInterface`]. The [`RTCRtpTransceiver`][1]
-    /// interface represents a combination of an `RTCRtpSender` and an `RTCRtpReceiver`.
+    /// Adds a new [`RTCRtpTransceiver`][1].
     ///
     /// [1]: https://tinyurl.com/2p88ajym
     pub fn add_transceiver(
@@ -479,7 +481,7 @@ impl PeerConnectionInterface {
         ))
     }
 
-    /// Gets information about [`PeerConnectionInterface`]'s [`Transceiver`]s.
+    /// Gets the [`Transceiver`]s.
     #[must_use]
     pub fn get_transceivers(&self) -> Box<Transceivers> {
         webrtc::get_transceivers(&self.0)
@@ -751,8 +753,4 @@ impl MediaStreamInterface {
         }
         Ok(())
     }
-}
-
-pub fn testsk(pc: &mut PeerConnectionInterface) {
-    webrtc::ustest(pc.0.as_ref().unwrap());
 }

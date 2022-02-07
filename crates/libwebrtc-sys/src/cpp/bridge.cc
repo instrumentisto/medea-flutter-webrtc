@@ -375,41 +375,20 @@ rust::Box<Transceivers> get_transceivers(
   return transceivers;
 }
 
+// Calls `RtpTransceiverInterface::mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
+// Calls `rtc::scoped_refptr<webrtc::RtpTransceiverInterface>::get`.
 size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver) {
   return (size_t)transceiver.get();
 }
 
+// Calls `RtpTransceiverInterface::direction`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->direction();
-}
-
-void ustest(const PeerConnectionInterface& peer_connection_interface) {
-  for (RtpTransceiverInterface trans :
-       peer_connection_interface->GetTransceivers()) {
-    auto direction = trans->direction();
-    auto mid = trans->mid();
-
-    auto sender = trans->sender();
-    auto sid = sender->id();
-    auto strack = sender->track();
-    auto srtpparams = sender->GetParameters();
-
-    auto receiver = trans->receiver();
-    auto rid = receiver->id();
-    auto rtrack = receiver->track();
-    auto rrtpparams = receiver->GetParameters();
-  }
-
-  auto ddpd = std::string();
-
-  peer_connection_interface->local_description()->ToString(&ddpd);
-
-  printf("testik %s\n=========================\n\n", ddpd.c_str());
 }
 
 }  // namespace bridge

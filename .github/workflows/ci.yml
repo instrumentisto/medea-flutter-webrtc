@@ -85,4 +85,4 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - run: make test
+      - run: make test device=windows
