@@ -24,7 +24,7 @@
 #include "system_wrappers/include/sleep.h"
 #include "third_party/libyuv/include/libyuv.h"
 
-// Maximum allow cpu consumption for the frame capturing thread.
+// Maximum allow CPU consumption for the frame capturing thread.
 const int maxCpuConsumptionPercentage = 50;
 
 namespace {
@@ -114,8 +114,9 @@ void ScreenVideoCapturer::OnFrame(const webrtc::VideoFrame& frame) {
   AdaptedVideoTrackSource::OnFrame(frame);
 }
 
-// A callback for `webrtc::DesktopCapturer::CaptureFrame`. Converts a
-// `DesktopFrame` to a `VideoFrame` that is forwarded to
+// Callback for `webrtc::DesktopCapturer::CaptureFrame`.
+//
+// Converts a `DesktopFrame` to a `VideoFrame` that is forwarded to
 // `ScreenVideoCapturer::OnFrame`.
 void ScreenVideoCapturer::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
@@ -225,12 +226,12 @@ void ScreenVideoCapturer::OnCaptureResult(
   OnFrame(captureFrame);
 }
 
-// Returns `true`.
+// Always returns `true`.
 bool ScreenVideoCapturer::is_screencast() const {
   return true;
 }
 
-// Returns `false`.
+// Always returns `false`.
 absl::optional<bool> ScreenVideoCapturer::needs_denoising() const {
   return false;
 }
@@ -240,7 +241,7 @@ webrtc::MediaSourceInterface::SourceState ScreenVideoCapturer::state() const {
   return SourceState::kLive;
 }
 
-// Returns `false`.
+// Always returns `false`.
 bool ScreenVideoCapturer::remote() const {
   return false;
 }

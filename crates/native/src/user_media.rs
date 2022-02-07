@@ -108,7 +108,7 @@ impl Webrtc {
             VideoTrack::new(
                 &self.0.peer_connection_factory,
                 source,
-                VideoLabel("screen:0".to_owned()),
+                VideoLabel("screen:0".into()),
             )?
         } else {
             let device_index = if let Some(index) =
@@ -144,7 +144,7 @@ impl Webrtc {
     ) -> anyhow::Result<Rc<VideoSource>> {
         let (index, device_id) = if is_display {
             // TODO: Support screens enumeration.
-            (0, VideoDeviceId("screen:0".to_owned()))
+            (0, VideoDeviceId("screen:0".into()))
         } else if caps.device_id.is_empty() {
             // No device ID is provided so just pick the first available
             // device
