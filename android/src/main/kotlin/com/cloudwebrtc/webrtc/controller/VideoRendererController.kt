@@ -9,6 +9,9 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
+/**
+ * Controller for the [FlutterRtcVideoRenderer].
+ */
 class VideoRendererController(
     binaryMessenger: BinaryMessenger,
     private val videoRenderer: FlutterRtcVideoRenderer
@@ -88,11 +91,21 @@ class VideoRendererController(
         eventSink = null
     }
 
+    /**
+     * Converts this [VideoRendererController] to the Flutter's method call result.
+     *
+     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     */
     fun asFlutterResult(): Map<String, Any> = mapOf(
         "channelId" to channelId,
         "textureId" to videoRenderer.textureId()
     )
 
+    /**
+     * Closes method channel of this [VideoRendererController].
+     *
+     * Disposes underlying [FlutterRtcVideoRenderer].
+     */
     private fun dispose() {
         eventChannel.setStreamHandler(null)
         eventSink = null

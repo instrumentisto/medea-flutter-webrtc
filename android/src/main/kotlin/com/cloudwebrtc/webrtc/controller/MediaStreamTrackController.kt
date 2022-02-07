@@ -1,10 +1,14 @@
 package com.cloudwebrtc.webrtc.controller
 
+import android.util.Log
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
+/**
+ * Controller for the [MediaStreamTrackProxy] functional.
+ */
 class MediaStreamTrackController(
     private val binaryMessenger: BinaryMessenger,
     private val track: MediaStreamTrackProxy
@@ -49,6 +53,11 @@ class MediaStreamTrackController(
         }
     }
 
+    /**
+     * Converts this [MediaStreamTrackController] to the Flutter's method call result.
+     *
+     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     */
     fun asFlutterResult(): Map<String, Any> = mapOf(
         "channelId" to channelId,
         "id" to track.id(),
@@ -56,6 +65,9 @@ class MediaStreamTrackController(
         "deviceId" to track.deviceId()
     )
 
+    /**
+     * Closes method channel of this [MediaStreamTrackController].
+     */
     private fun dispose() {
         methodChannel.setMethodCallHandler(null)
     }

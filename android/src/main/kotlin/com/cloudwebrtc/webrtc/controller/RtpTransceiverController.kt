@@ -6,6 +6,9 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
+/**
+ * Controller for the [RtpTransceiverProxy] functional.
+ */
 class RtpTransceiverController(
     private val binaryMessenger: BinaryMessenger,
     private val transceiver: RtpTransceiverProxy
@@ -53,6 +56,11 @@ class RtpTransceiverController(
         }
     }
 
+    /**
+     * Converts this [RtpTransceiverController] to the Flutter's method call result.
+     *
+     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     */
     fun asFlutterResult(): Map<String, Any?> {
         return mapOf(
             "channelId" to channelId,
@@ -64,6 +72,9 @@ class RtpTransceiverController(
         )
     }
 
+    /**
+     * Closes method channel of this [RtpTransceiverController].
+     */
     private fun dispose() {
         methodChannel.setMethodCallHandler(null)
     }

@@ -14,8 +14,9 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
         syncMediaStreamTrack();
     }
 
-    fun setTrack(track: MediaStreamTrackProxy?) {
-        obj.setTrack(track?.obj, false);
+    fun setTrack(t: MediaStreamTrackProxy?) {
+        track = t;
+        obj.setTrack(t?.obj, false);
     }
 
     private fun syncMediaStreamTrack() {

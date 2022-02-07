@@ -9,6 +9,9 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
+/**
+ * Controller for the functional of creating new [PeerConnectionController] by [PeerConnectionFactoryProxy].
+ */
 class PeerConnectionFactoryController(private val binaryMessenger: BinaryMessenger, state: State) :
     MethodChannel.MethodCallHandler {
     private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
@@ -49,6 +52,9 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
         }
     }
 
+    /**
+     * Closes method channel of this [PeerConnectionFactoryController].
+     */
     private fun dispose() {
         methodChannel.setMethodCallHandler(null)
     }

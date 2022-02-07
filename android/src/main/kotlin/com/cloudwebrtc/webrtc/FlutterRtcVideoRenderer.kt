@@ -31,7 +31,6 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     init {
         surfaceTextureRenderer.init(EglUtils.rootEglBaseContext, rendererEventsListener)
         surfaceTextureRenderer.surfaceCreated(surfaceTexture)
-        Log.d("FOOBAR", "Surface texture id: $id")
     }
 
     fun textureId(): Long {

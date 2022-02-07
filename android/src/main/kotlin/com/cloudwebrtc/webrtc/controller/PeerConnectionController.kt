@@ -12,6 +12,9 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Controller for the [PeerConnectionProxy] functional.
+ */
 class PeerConnectionController(
     private val messenger: BinaryMessenger,
     private val peer: PeerConnectionProxy
@@ -174,13 +177,22 @@ class PeerConnectionController(
         eventSink = null
     }
 
+    /**
+     * Converts this [PeerConnectionController] to the Flutter's method call result.
+     *
+     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     */
     fun asFlutterResult(): Map<String, Any> = mapOf<String, Any>(
         "channelId" to channelId,
         "id" to peer.id
     )
 
+    /**
+     * Closes method and event channels of this [PeerConnectionController].
+     *
+     * Disposes underlying [PeerConnectionProxy].
+     */
     private fun dispose() {
-        Log.d("FOOBAR", "Dispose PeerConnection")
         methodChannel.setMethodCallHandler(null)
         peer.removeEventObserver(eventObserver)
         peer.dispose()

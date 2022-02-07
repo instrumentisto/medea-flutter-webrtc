@@ -1,7 +1,15 @@
 package com.cloudwebrtc.webrtc.model
 
+/**
+ * Audio and video constraints data.
+ */
 data class Constraints(val audio: AudioConstraints?, val video: VideoConstraints?) {
     companion object {
+        /**
+         * Creates new [Constraints] object based on the method call received from the Flutter.
+         *
+         * @return [Constraints] created from the provided [Map].
+         */
         fun fromMap(map: Map<String, Any>): Constraints {
             val audioArg = map["audio"] as? Map<*, *>?
             var audio: AudioConstraints? = null

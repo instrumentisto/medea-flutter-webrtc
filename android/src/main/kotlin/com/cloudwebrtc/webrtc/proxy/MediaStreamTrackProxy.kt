@@ -1,5 +1,6 @@
 package com.cloudwebrtc.webrtc.proxy
 
+import android.util.Log
 import com.cloudwebrtc.webrtc.TrackRepository
 import com.cloudwebrtc.webrtc.model.MediaKind
 import com.cloudwebrtc.webrtc.model.MediaStreamTrackState
@@ -53,6 +54,8 @@ class MediaStreamTrackProxy(
         if (!isStopped) {
             isStopped = true
             onStopSubscribers.forEach { sub -> sub() }
+        } else {
+            Log.w("FlutterWebRTC", "Double stop detected [deviceId: $deviceId]!")
         }
     }
 

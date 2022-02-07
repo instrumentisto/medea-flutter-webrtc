@@ -7,6 +7,9 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
+/**
+ * Controller for [MediaDevices] functional.
+ */
 class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state: State) :
     MethodChannel.MethodCallHandler {
     private val mediaDevices = MediaDevices(state)

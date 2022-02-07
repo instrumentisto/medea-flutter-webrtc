@@ -2,11 +2,21 @@ package com.cloudwebrtc.webrtc.model
 
 import org.webrtc.MediaConstraints
 
+/**
+ * Mandatory and optional constraints related to the audio.
+ *
+ * @ses [Constraints](https://developer.mozilla.org/en-US/docs/Web/API/Media_Streams_API/Constraints)
+ */
 data class AudioConstraints(
     val mandatory: Map<String, String>,
     val optional: Map<String, String>
 ) {
     companion object {
+        /**
+         * Creates [AudioConstraints] object based on the [Map] received from the Flutter side.
+         *
+         * @return [AudioConstraints] based on the provided [Map].
+         */
         fun fromMap(map: Map<*, *>): AudioConstraints {
             val mandatoryArg =
                 map["mandatory"] as Map<*, *>? ?: mapOf<String, String>()
@@ -21,6 +31,11 @@ data class AudioConstraints(
         }
     }
 
+    /**
+     * Converts this [AudioConstraints] into libwebrtc object.
+     *
+     * @return libwebrtc's [MediaConstraints] object.
+     */
     // TODO(evdokimovs): Maybe add some default constraints
     fun intoWebRtc(): MediaConstraints {
         val mediaConstraints = MediaConstraints()

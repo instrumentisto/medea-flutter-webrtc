@@ -1,12 +1,14 @@
 package com.cloudwebrtc.webrtc.controller
 
-import android.util.Log
 import com.cloudwebrtc.webrtc.FlutterRtcVideoRenderer
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.TextureRegistry
 
+/**
+ * Controller for creating new [FlutterRtcVideoRenderer]s.
+ */
 class VideoRendererFactoryController(private val binaryMessenger: BinaryMessenger, private val textureRegistry: TextureRegistry) :
     MethodChannel.MethodCallHandler {
     private val methodChannel =

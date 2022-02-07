@@ -26,9 +26,7 @@ class PeerConnectionFactoryProxy(val state: State) {
 
     private fun removePeerObserver(id: Int) {
         peerObservers.remove(id)
-        Log.d("FOOBAR", "remove PeerObserver");
         if (peerObservers.isEmpty()) {
-            Log.d("FOOBAR", "release PeerConnectionFactory");
             state.releasePeerConnectionFactory()
         }
     }

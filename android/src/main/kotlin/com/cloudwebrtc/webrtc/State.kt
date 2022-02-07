@@ -32,6 +32,7 @@ class State(val context: Context) {
             .createAudioDeviceModule()
         val eglContext: EglBase.Context = EglUtils.rootEglBaseContext!!
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.mode = AudioManager.MODE_IN_CALL
         audioManager.isSpeakerphoneOn = true
         factory = PeerConnectionFactory.builder()
             .setOptions(PeerConnectionFactory.Options())
@@ -46,8 +47,8 @@ class State(val context: Context) {
     }
 
     fun releasePeerConnectionFactory() {
-//        factory?.dispose()
-//        audioDeviceModule?.release()
+        factory?.dispose()
+        audioDeviceModule?.release()
     }
 
     fun getPeerConnectionFactory(): PeerConnectionFactory {
