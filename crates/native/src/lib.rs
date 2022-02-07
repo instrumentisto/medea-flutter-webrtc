@@ -4,6 +4,7 @@ mod device_info;
 mod internal;
 mod pc;
 mod user_media;
+mod video_sink;
 
 use std::{
     collections::HashMap,
@@ -16,6 +17,8 @@ use libwebrtc_sys::{
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
+use crate::video_sink::Id as VideoSinkId;
+
 #[doc(inline)]
 pub use crate::{
     pc::{PeerConnection, PeerConnectionId},
@@ -24,6 +27,7 @@ pub use crate::{
         MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
         VideoTrackId,
     },
+    video_sink::{Frame, VideoSink},
 };
 
 /// Counter used to generate unique IDs.
@@ -157,18 +161,41 @@ pub mod api {
         direction: String,
     }
 
+    /// Single video frame.
+    pub struct VideoFrame {
+        /// Vertical count of pixels in this [`VideoFrame`].
+        pub height: usize,
+
+        /// Horizontal count of pixels in this [`VideoFrame`].
+        pub width: usize,
+
+        /// Rotation of this [`VideoFrame`] in degrees.
+        pub rotation: i32,
+
+        /// Size of the bytes buffer required for allocation of the
+        /// [`VideoFrame::get_abgr_bytes()`] call.
+        pub buffer_size: usize,
+
+        /// Underlying Rust side frame.
+        pub frame: Box<Frame>,
+    }
+
     extern "C++" {
         type CreateSdpCallbackInterface =
             crate::internal::CreateSdpCallbackInterface;
 
         type SetDescriptionCallbackInterface =
             crate::internal::SetDescriptionCallbackInterface;
+
+        type OnFrameCallbackInterface =
+            crate::internal::OnFrameCallbackInterface;
     }
 
     extern "Rust" {
         include!("flutter-webrtc-native/include/api.h");
 
         type Webrtc;
+        type Frame;
 
         /// Creates an instance of [`Webrtc`].
         #[cxx_name = "Init"]
@@ -179,19 +206,19 @@ pub mod api {
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a new [`PeerConnection`] and returns it's ID.
+        /// Creates a new [`PeerConnection`] and returns its ID.
         ///
-        /// Writes an error to the provided `err` if any.
+        /// Writes an error to the provided `err`, if any.
         #[cxx_name = "CreatePeerConnection"]
         pub fn create_peer_connection(
             self: &mut Webrtc,
             err: &mut String,
         ) -> u64;
 
-        /// Initiates the creation of an SDP offer for the purpose of starting
+        /// Initiates the creation of a SDP offer for the purpose of starting
         /// a new WebRTC connection to a remote peer.
         ///
-        /// Returns an empty [`String`] in operation succeeds or an error
+        /// Returns an empty [`String`] if operation succeeds or an error
         /// otherwise.
         #[cxx_name = "CreateOffer"]
         pub fn create_offer(
@@ -203,7 +230,7 @@ pub mod api {
             cb: UniquePtr<CreateSdpCallbackInterface>,
         ) -> String;
 
-        /// Creates an SDP answer to an offer received from a remote peer during
+        /// Creates a SDP answer to an offer received from a remote peer during
         /// the offer/answer negotiation of a WebRTC connection.
         ///
         /// Returns an empty [`String`] in operation succeeds or an error
@@ -266,15 +293,45 @@ pub mod api {
 
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
-        #[cxx_name = "GetUserMedia"]
-        pub fn get_users_media(
+        #[cxx_name = "GetMedia"]
+        pub fn get_media(
             self: &mut Webrtc,
             constraints: &MediaStreamConstraints,
+            is_display: bool,
         ) -> MediaStream;
 
         /// Disposes the [`MediaStream`] and all contained tracks.
         #[cxx_name = "DisposeStream"]
         pub fn dispose_stream(self: &mut Webrtc, id: u64);
+
+        /// Creates a new [`VideoSink`] attached to the specified media stream
+        /// backed by the provided [`OnFrameCallbackInterface`].
+        #[cxx_name = "CreateVideoSink"]
+        pub fn create_video_sink(
+            self: &mut Webrtc,
+            sink_id: i64,
+            stream_id: u64,
+            handler: UniquePtr<OnFrameCallbackInterface>,
+        );
+
+        /// Destroys the [`VideoSink`] by the given ID.
+        #[cxx_name = "DisposeVideoSink"]
+        fn dispose_video_sink(self: &mut Webrtc, sink_id: i64);
+
+        /// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
+        /// outputs the result to the provided `buffer`.
+        #[cxx_name = "GetABGRBytes"]
+        unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
+
+        /// Changes the [enabled][1] property of the media track by its ID.
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+        #[cxx_name = "SetTrackEnabled"]
+        pub fn set_track_enabled(
+            self: &mut Webrtc,
+            track_id: u64,
+            enabled: bool,
+        );
     }
 }
 
@@ -297,9 +354,10 @@ pub struct Context {
     audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
+    video_sinks: HashMap<VideoSinkId, VideoSink>,
 }
 
-/// Creates an instanse of [`Webrtc`].
+/// Creates a new instance of [`Webrtc`].
 ///
 /// # Panics
 ///
@@ -330,7 +388,8 @@ pub fn init() -> Box<Webrtc> {
         Some(&worker_thread),
         Some(&signaling_thread),
         Some(&audio_device_module.inner),
-    );
+    )
+    .unwrap();
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 
@@ -348,5 +407,6 @@ pub fn init() -> Box<Webrtc> {
         audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
+        video_sinks: HashMap::new(),
     })))
 }

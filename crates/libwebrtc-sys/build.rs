@@ -26,18 +26,22 @@ fn main() -> anyhow::Result<()> {
     );
     println!("cargo:rustc-link-lib=webrtc");
 
-    println!("cargo:rustc-link-lib=dylib=dmoguids");
-    println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
+    println!("cargo:rustc-link-lib=dylib=Gdi32");
+    println!("cargo:rustc-link-lib=dylib=Secur32");
     println!("cargo:rustc-link-lib=dylib=amstrmid");
+    println!("cargo:rustc-link-lib=dylib=d3d11");
+    println!("cargo:rustc-link-lib=dylib=dmoguids");
+    println!("cargo:rustc-link-lib=dylib=dxgi");
     println!("cargo:rustc-link-lib=dylib=msdmo");
     println!("cargo:rustc-link-lib=dylib=winmm");
-    println!("cargo:rustc-link-lib=dylib=Secur32");
+    println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
 
     cxx_build::bridge("src/bridge.rs")
         .files(&cpp_files)
         .include(path.join("include"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
+        .include(path.join("lib/include/third_party/libyuv/include"))
         .flag("-DWEBRTC_WIN")
         .flag("-DNOMINMAX")
         .flag("/std:c++17")
