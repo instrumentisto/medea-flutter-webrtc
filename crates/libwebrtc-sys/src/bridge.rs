@@ -466,7 +466,7 @@ pub(crate) mod webrtc {
 
         /// Converts [`IceCandidateInterface`] to [`UniquePtr<CxxString>`]
         /// # Safety
-        /// get `*const IceCandidateInterface` from 
+        /// get `*const IceCandidateInterface` from
         /// `PeerConnectionObserver`->`OnIceCandidate`.
         #[must_use]
         pub unsafe fn ice_candidate_interface_to_string(
@@ -716,15 +716,6 @@ pub(crate) mod webrtc {
         /// Completes the provided [`DynPeerConnectionOnEvent`].
         pub fn call_peer_connection_on_ice_candidate_error(
             cb: &mut DynPeerConnectionOnEvent,
-            host_candidate: &CxxString,
-            url: &CxxString,
-            error_code: i32,
-            error_text: &CxxString,
-        );
-
-        /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_ice_candidate_address_port_error(
-            cb: &mut DynPeerConnectionOnEvent,
             address: &CxxString,
             port: i32,
             url: &CxxString,
@@ -736,12 +727,6 @@ pub(crate) mod webrtc {
         pub fn call_peer_connection_on_ice_connection_receiving_change(
             cb: &mut DynPeerConnectionOnEvent,
             receiving: bool,
-        );
-
-        /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_interesting_usage(
-            cb: &mut DynPeerConnectionOnEvent,
-            usage_pattern: i32,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
@@ -844,24 +829,13 @@ pub fn call_peer_connection_on_negotiation_needed_event(
 /// Completes the provided [`DynPeerConnectionOnEvent`].
 pub fn call_peer_connection_on_ice_candidate_error(
     cb: &mut DynPeerConnectionOnEvent,
-    host_candidate: &CxxString,
-    url: &CxxString,
-    error_code: i32,
-    error_text: &CxxString,
-) {
-    cb.on_ice_candidate_error(host_candidate, url, error_code, error_text);
-}
-
-/// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_ice_candidate_address_port_error(
-    cb: &mut DynPeerConnectionOnEvent,
     address: &CxxString,
     port: i32,
     url: &CxxString,
     error_code: i32,
     error_text: &CxxString,
 ) {
-    cb.on_ice_candidate_address_port_error(
+    cb.on_ice_candidate_error(
         address, port, url, error_code, error_text,
     );
 }
@@ -872,14 +846,6 @@ pub fn call_peer_connection_on_ice_connection_receiving_change(
     receiving: bool,
 ) {
     cb.on_ice_connection_receiving_change(receiving);
-}
-
-/// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_interesting_usage(
-    cb: &mut DynPeerConnectionOnEvent,
-    usage_pattern: i32,
-) {
-    cb.on_interesting_usage(usage_pattern);
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].

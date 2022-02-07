@@ -50,41 +50,42 @@ pub trait SetDescriptionCallback {
 /// `PeerConnectionObserver::OnIceGatheringChange`,
 /// `PeerConnectionObserver::OnIceCandidate`,
 /// `PeerConnectionObserver::OnIceCandidateError`,
-/// `PeerConnectionObserver::OnIceCandidateError` (args overload),
 /// `PeerConnectionObserver::OnIceCandidatesRemoved`,
 /// `PeerConnectionObserver::OnIceConnectionReceivingChange`,
-/// `PeerConnectionObserver::OnIceSelectedCandidatePairChanged`,
-/// `PeerConnectionObserver::OnInterestingUsage`.
+/// `PeerConnectionObserver::OnIceSelectedCandidatePairChanged`.
 pub trait PeerConnectionOnEvent {
-    /// Called when the associated event occurs.
+    /// Called when a [`signalingstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#event-signalingstatechange
     fn on_signaling_change(&mut self, new_state: SignalingState);
 
-    /// Called when the associated event occurs.
+    /// Called when a [`iceconnectionstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#event-iceconnectionstatechange
     fn on_standardized_ice_connection_change(
         &mut self,
         new_state: IceConnectionState,
     );
 
-    /// Called when the associated event occurs.
+    /// Called when a [`connectionstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#event-connectionstatechange
     fn on_connection_change(&mut self, new_state: PeerConnectionState);
 
-    /// Called when the associated event occurs.
+    /// Called when a [`icegatheringstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#event-icegatheringstatechange
     fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
 
-    /// Called when the associated event occurs.
+    /// Called when a [`negotiation`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#event-negotiation
     fn on_negotiation_needed_event(&mut self, event_id: u32);
 
-    /// Called when the associated event occurs.
+    /// Called when a [`icecandidateerror`][1] event occurs.
+    ///
+    /// [1]: https://www.w3.org/TR/webrtc/#event-icecandidateerror
     fn on_ice_candidate_error(
-        &mut self,
-        host_candidate: &CxxString,
-        url: &CxxString,
-        error_code: i32,
-        error_text: &CxxString,
-    );
-
-    /// Called when the associated event occurs.
-    fn on_ice_candidate_address_port_error(
         &mut self,
         address: &CxxString,
         port: i32,
@@ -93,22 +94,23 @@ pub trait PeerConnectionOnEvent {
         error_text: &CxxString,
     );
 
-    /// Called when the associated event occurs.
+    /// Called when the ICE connection receiving status changes.
     fn on_ice_connection_receiving_change(&mut self, receiving: bool);
 
-    /// Called when the associated event occurs.
-    fn on_interesting_usage(&mut self, usage_pattern: i32);
-
-    /// Called when the associated event occurs.
+    /// Called when a [`icecandidate`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#event-icecandidate
     fn on_ice_candidate(
         &mut self,
         candidate: *const webrtc::IceCandidateInterface,
     );
 
-    /// Called when the associated event occurs.
+    /// Called when some ICE candidates have been removed.
     fn on_ice_candidates_removed(&mut self, candidates: Vec<CandidateWrap>);
 
-    /// Called when the associated event occurs.
+    /// Called when a [`icecandidate`][1] event occurs.
+    ///
+    /// [1]: https://tinyurl.com/w3-selectedcandidatepairchange
     fn on_ice_selected_candidate_pair_changed(
         &mut self,
         event: &CandidatePairChangeEvent,

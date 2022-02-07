@@ -83,8 +83,8 @@ mod cpp_api_bindings {
         /// Calls `OnNegotiationNeededEvent`
         /// c++ `PeerConnectionOnEventInterface`
         /// abstract class method.
-        #[cxx_name = "OnNegotiationNeededEvent"]
-        pub fn on_negotiation_needed_event(
+        #[cxx_name = "OnNegotiationNeeded"]
+        pub fn on_negotiation_needed(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             event_id: u32,
         );
@@ -94,18 +94,6 @@ mod cpp_api_bindings {
         /// abstract class method.
         #[cxx_name = "OnIceCandidateError"]
         pub fn on_ice_candidate_error(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
-            host_candidate: &CxxString,
-            url: &CxxString,
-            error_code: i32,
-            error_text: &CxxString,
-        );
-
-        /// Calls `OnIceCandidateError`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnIceCandidateError"]
-        pub fn on_ice_candidate_address_port_error(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             address: &CxxString,
             port: i32,
@@ -121,15 +109,6 @@ mod cpp_api_bindings {
         pub fn on_ice_connection_receiving_change(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             receiving: bool,
-        );
-
-        /// Calls `OnInterestingUsage`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnInterestingUsage"]
-        pub fn on_interesting_usage(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
-            usage_pattern: i32,
         );
 
         /// Calls `OnIceCandidate`

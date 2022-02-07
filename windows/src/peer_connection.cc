@@ -1,7 +1,7 @@
+#include <mutex>
+
 #include "peer_connection.h"
 #include "media_stream.h"
-
-#include <mutex>
 #include "flutter_webrtc.h"
 #include "flutter-webrtc-native/include/api.h"
 #include "flutter/standard_method_codec.h"
@@ -51,7 +51,6 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
   std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
-
 // `PeerConnectionOnEventInterface` implementation that forwards completion
 // events to the Flutter side via inner `flutter::EventSink`.
 class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
@@ -77,7 +76,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   }
 
-  // Successfully writes serialized `OnSignalingChange` event 
+  // Successfully writes serialized `OnSignalingChange` event
   // an inner `flutter::EventSink`.
   void OnSignalingChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -90,7 +89,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   }
 
-  // Successfully writes serialized `OnStandardizedIceConnectionChange` event 
+  // Successfully writes serialized `OnStandardizedIceConnectionChange` event
   // an inner `flutter::EventSink`.
   void OnStandardizedIceConnectionChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -103,7 +102,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   };
 
-  // Successfully writes serialized `OnConnectionChange` event 
+  // Successfully writes serialized `OnConnectionChange` event
   // an inner `flutter::EventSink`.
   void OnConnectionChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -116,7 +115,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   };
 
-  // Successfully writes serialized `OnIceGatheringChange` event 
+  // Successfully writes serialized `OnIceGatheringChange` event
   // an inner `flutter::EventSink`.
   void OnIceGatheringChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -129,7 +128,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   };
 
-  // Successfully writes `OnNegotiationNeededEvent` event 
+  // Successfully writes `OnNegotiationNeededEvent` event
   // an inner `flutter::EventSink`.
   void OnNegotiationNeededEvent(uint32_t event_id) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -141,7 +140,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   };
 
-  // Successfully writes `OnIceCandidateError` event 
+  // Successfully writes `OnIceCandidateError` event
   // an inner `flutter::EventSink`.
   void OnIceCandidateError(const std::string& host_candidate,
                            const std::string& url,
@@ -160,7 +159,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   };
 
-  // Successfully writes `OnIceCandidateError` event 
+  // Successfully writes `OnIceCandidateError` event
   // an inner `flutter::EventSink`.
   void OnIceCandidateError(const std::string& address,
                            int port,
@@ -180,7 +179,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   };
 
-  // Successfully writes `OnIceConnectionReceivingChange` event 
+  // Successfully writes `OnIceConnectionReceivingChange` event
   // an inner `flutter::EventSink`.
   void OnIceConnectionReceivingChange(bool receiving) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -192,31 +191,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   };
 
-  // Successfully writes `OnInterestingUsage` event 
-  // an inner `flutter::EventSink`.
-  void OnInterestingUsage(int usage_pattern) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnInterestingUsage";
-      params[EncodableValue("usage_pattern")] = usage_pattern;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  };
-
-  // Successfully writes serialized `OnInterestingUsage` event 
-  // an inner `flutter::EventSink`.
-  void OnIceCandidate(const std::string& candidate) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceCandidate";
-      params[EncodableValue("candidate")] = candidate;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  }
-
-  // Successfully writes serialized `OnIceCandidatesRemoved` event 
+  // Successfully writes serialized `OnIceCandidatesRemoved` event
   // an inner `flutter::EventSink`.
   void OnIceCandidatesRemoved(rust::Vec<rust::String> candidates) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -232,7 +207,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   }
 
-  // Successfully writes serialized `OnIceSelectedCandidatePairChanged` event 
+  // Successfully writes serialized `OnIceSelectedCandidatePairChanged` event
   // an inner `flutter::EventSink`.
   void OnIceSelectedCandidatePairChanged(CandidatePairChangeEventSerialized event) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
@@ -252,9 +227,9 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   }
 
  private:
-  // For initialization/reset `EventContext.event_sink` 
+  // For initialization/reset `EventContext.event_sink`
   // in flutter subscribe/unsubscribe event.
-  // `shared_ptr` for shared context 
+  // `shared_ptr` for shared context
   // in `flutter::StreamHandlerFunctions` (subscribe/unsubscribe event).
   std::shared_ptr<EventContext> context_;
 };
@@ -330,7 +305,7 @@ void CreateOffer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-  
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -492,7 +467,7 @@ void SetRemoteDescription(
                                                     type,
                                                     sdp,
                                                     std::move(callback));
-                                                    
+
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
   }

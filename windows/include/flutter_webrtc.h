@@ -6,8 +6,6 @@
 #include "flutter_webrtc_native.h"
 #include "video_renderer.h"
 
-#include "flutter_webrtc_native.h"
-
 using namespace flutter;
 using namespace rust::cxxbridge1;
 

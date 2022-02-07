@@ -76,23 +76,7 @@ void PeerConnectionObserver::OnIceCandidate(
 
 // Gathering of an ICE candidate failed.
 // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
-// `host_candidate` is a stringified socket address.
-// Propagates the received `host_candidate`,
-// `url`, `error_code`, `error_text` to the Rust side.
-void PeerConnectionObserver::OnIceCandidateError(
-    const std::string& host_candidate,
-    const std::string& url,
-    int error_code,
-    const std::string& error_text) {
-  if (cb_) {
-    bridge::call_peer_connection_on_ice_candidate_error(
-        *cb_.value(), host_candidate, url, error_code, error_text);
-  }
-}
-
-// Gathering of an ICE candidate failed.
-// See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
-// Propagates the received `address`, `port`, 
+// Propagates the received `address`, `port`,
 // `url`, `error_code`, `error_text` to the Rust side.
 void PeerConnectionObserver::OnIceCandidateError(
     const std::string& address,
@@ -101,7 +85,7 @@ void PeerConnectionObserver::OnIceCandidateError(
     int error_code,
     const std::string& error_text) {
   if (cb_) {
-    bridge::call_peer_connection_on_ice_candidate_address_port_error(
+    bridge::call_peer_connection_on_ice_candidate_error(
         *cb_.value(), address, port, url, error_code, error_text);
   }
 }
@@ -170,20 +154,6 @@ void PeerConnectionObserver::OnTrack(
 // https://w3c.github.io/webrtc-pc/#process-remote-track-removal
 void PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver){}
-
-// Called when an interesting usage is detected by WebRTC.
-// An appropriate action is to add information about the context of the
-// PeerConnection and write the event to some kind of "interesting events"
-// log function.
-// The heuristics for defining what constitutes "interesting" are
-// implementation-defined.
-// Propagates the received `usage_pattern` to the Rust side.
-void PeerConnectionObserver::OnInterestingUsage(int usage_pattern) {
-  if (cb_) {
-    bridge::call_peer_connection_on_interesting_usage(*cb_.value(),
-                                                      usage_pattern);
-  }
-}
 
 // Creates a new `CreateSessionDescriptionObserver` backed by the provided
 // `bridge::DynCreateSdpCallback`.

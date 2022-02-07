@@ -25,12 +25,18 @@ using Thread = rtc::Thread;
 using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
 
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
+using IceCandidateInterface = webrtc::IceCandidateInterface;
+using IceConnectionState = webrtc::PeerConnectionInterface::IceConnectionState;
+using IceGatheringState = webrtc::PeerConnectionInterface::IceGatheringState;
 using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
+using PeerConnectionState =
+    webrtc::PeerConnectionInterface::PeerConnectionState;
 using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
 using RTCOfferAnswerOptions =
     webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
 using SdpType = webrtc::SdpType;
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
+using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using VideoRotation = webrtc::VideoRotation;
@@ -53,15 +59,9 @@ using PeerConnectionObserver = observer::PeerConnectionObserver;
 using SetLocalDescriptionObserver = observer::SetLocalDescriptionObserver;
 using SetRemoteDescriptionObserver = observer::SetRemoteDescriptionObserver;
 
-using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
-using IceConnectionState = webrtc::PeerConnectionInterface::IceConnectionState;
-using IceGatheringState = webrtc::PeerConnectionInterface::IceGatheringState;
-using PeerConnectionState = webrtc::PeerConnectionInterface::PeerConnectionState;
-using IceCandidateInterface = webrtc::IceCandidateInterface;
 using Candidate = cricket::Candidate;
 using CandidatePairChangeEvent = cricket::CandidatePairChangeEvent;
 using CandidatePair = cricket::CandidatePair;
-
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(

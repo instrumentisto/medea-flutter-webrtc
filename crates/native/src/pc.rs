@@ -294,28 +294,13 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
 
     fn on_ice_candidate_error(
         &mut self,
-        host_candidate: &CxxString,
-        url: &CxxString,
-        error_code: i32,
-        error_text: &CxxString,
-    ) {
-        self.0.pin_mut().on_ice_candidate_error(
-            host_candidate,
-            url,
-            error_code,
-            error_text,
-        );
-    }
-
-    fn on_ice_candidate_address_port_error(
-        &mut self,
         address: &CxxString,
         port: i32,
         url: &CxxString,
         error_code: i32,
         error_text: &CxxString,
     ) {
-        self.0.pin_mut().on_ice_candidate_address_port_error(
+        self.0.pin_mut().on_ice_candidate_error(
             address, port, url, error_code, error_text,
         );
     }
@@ -324,10 +309,6 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         self.0
             .pin_mut()
             .on_ice_connection_receiving_change(receiving);
-    }
-
-    fn on_interesting_usage(&mut self, usage_pattern: i32) {
-        self.0.pin_mut().on_interesting_usage(usage_pattern);
     }
 
     fn on_ice_candidate(
