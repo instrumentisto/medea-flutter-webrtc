@@ -642,10 +642,10 @@ pub(crate) mod webrtc {
         ) -> i64;
 
         #[must_use]
-        pub fn get_local_candidate(pair: &CandidatePair) -> &Candidate;
+        pub fn local_candidate(self: &CandidatePair) -> &Candidate;
 
         #[must_use]
-        pub fn get_remote_candidate(pair: &CandidatePair) -> &Candidate;
+        pub fn remote_candidate(self: &CandidatePair) -> &Candidate;
     }
 
     extern "Rust" {

@@ -279,10 +279,4 @@ std::unique_ptr<std::string> get_reason(const cricket::CandidatePairChangeEvent&
 // Gets `CandidatePairChangeEvent.estimated_disconnected_time_ms`.
 int64_t get_estimated_disconnected_time_ms(const cricket::CandidatePairChangeEvent& event);
 
-// Calls `CandidatePair->local_candidate`.
-const cricket::Candidate& get_local_candidate(const cricket::CandidatePair& pair);
-
-// Calls `CandidatePair->remote_candidate`.
-const cricket::Candidate& get_remote_candidate(const cricket::CandidatePair& pair);
-
 }  // namespace bridge

@@ -10,7 +10,7 @@ use self::bridge::webrtc;
 pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms,
-    get_local_candidate, get_reason, get_remote_candidate,
+    get_reason,
     ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
     Candidate, CandidatePairChangeEvent, IceCandidateInterface,
     IceConnectionState, IceGatheringState, PeerConnectionState, SdpType,

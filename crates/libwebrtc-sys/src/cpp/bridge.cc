@@ -416,46 +416,41 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   peer_connection_interface->SetRemoteDescription(std::move(desc), observer);
 }
 
-// Calls `IceCandidateInterface->ToString` and wraps result in `std::unqiue_ptr`.
+// Calls `IceCandidateInterface->ToString`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(const IceCandidateInterface* candidate) {
     std::string out;
     candidate->ToString(&out);
     return std::make_unique<std::string>(out);
 };
 
-// Calls `Candidate->ToString` and wraps result in `std::unqiue_ptr`.
-std::unique_ptr<std::string> candidate_to_string(const cricket::Candidate& candidate) {
+// Calls `Candidate->ToString`.
+std::unique_ptr<std::string>
+candidate_to_string(const cricket::Candidate& candidate) {
   return std::make_unique<std::string>(candidate.ToString());
 };
 
 // Gets `CandidatePairChangeEvent.candidate_pair`.
-const cricket::CandidatePair& get_candidate_pair(const cricket::CandidatePairChangeEvent& event) {
+const cricket::CandidatePair&
+get_candidate_pair(const cricket::CandidatePairChangeEvent& event) {
   return event.selected_candidate_pair;
 };
 
 // Gets `CandidatePairChangeEvent.last_data_received_ms`.
-int64_t get_last_data_received_ms(const cricket::CandidatePairChangeEvent& event) {
+int64_t
+get_last_data_received_ms(const cricket::CandidatePairChangeEvent& event) {
   return event.last_data_received_ms;
 }
 
 // Gets `CandidatePairChangeEvent.reason` and wraps result in `std::unqiue_ptr`.
-std::unique_ptr<std::string> get_reason(const cricket::CandidatePairChangeEvent& event) {
+std::unique_ptr<std::string>
+get_reason(const cricket::CandidatePairChangeEvent& event) {
   return std::make_unique<std::string>(event.reason);
 }
 
 // Gets `CandidatePairChangeEvent.estimated_disconnected_time_ms`.
-int64_t get_estimated_disconnected_time_ms(const cricket::CandidatePairChangeEvent& event) {
+int64_t get_estimated_disconnected_time_ms(
+    const cricket::CandidatePairChangeEvent& event) {
   return event.estimated_disconnected_time_ms;
 }
-
-// Calls `CandidatePair->local_candidate`.
-const cricket::Candidate& get_local_candidate(const cricket::CandidatePair& pair) {
-  return pair.local_candidate();
-};
-
-// Calls `CandidatePair->remote_candidate`.
-const cricket::Candidate& get_remote_candidate(const cricket::CandidatePair& pair) {
-  return pair.remote_candidate();
-};
 
 }  // namespace bridge

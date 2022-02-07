@@ -3,8 +3,8 @@ use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::{
     get_candidate_pair, get_estimated_disconnected_time_ms,
-    get_last_data_received_ms, get_local_candidate, get_reason,
-    get_remote_candidate, PeerConnectionObserver,
+    get_last_data_received_ms, get_reason,
+    PeerConnectionObserver,
 };
 
 use crate::api::PeerConnectionOnEventInterface;
@@ -344,8 +344,8 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         event: &sys::CandidatePairChangeEvent,
     ) {
         let pair = get_candidate_pair(event);
-        let local = get_local_candidate(pair);
-        let remote = get_remote_candidate(pair);
+        let local = pair.local_candidate();
+        let remote = pair.remote_candidate();
 
         let pair = crate::api::CandidatePairSerialized {
             local: sys::candidate_to_string(local).to_string(),
