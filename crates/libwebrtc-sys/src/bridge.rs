@@ -687,37 +687,37 @@ pub(crate) mod webrtc {
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_signaling_change(
+        pub fn on_signaling_change(
             cb: &mut DynPeerConnectionOnEvent,
             state: SignalingState,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_standardized_ice_connection_change(
+        pub fn on_standardized_ice_connection_change(
             cb: &mut DynPeerConnectionOnEvent,
             new_state: IceConnectionState,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_connection_change(
+        pub fn on_connection_change(
             cb: &mut DynPeerConnectionOnEvent,
             new_state: PeerConnectionState,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_ice_gathering_change(
+        pub fn on_ice_gathering_change(
             cb: &mut DynPeerConnectionOnEvent,
             new_state: IceGatheringState,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_negotiation_needed_event(
+        pub fn on_negotiation_needed_event(
             cb: &mut DynPeerConnectionOnEvent,
             event_id: u32,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_ice_candidate_error(
+        pub fn on_ice_candidate_error(
             cb: &mut DynPeerConnectionOnEvent,
             address: &CxxString,
             port: i32,
@@ -727,25 +727,25 @@ pub(crate) mod webrtc {
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_ice_connection_receiving_change(
+        pub fn on_ice_connection_receiving_change(
             cb: &mut DynPeerConnectionOnEvent,
             receiving: bool,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub unsafe fn call_peer_connection_on_ice_candidate(
+        pub unsafe fn on_ice_candidate(
             cb: &mut DynPeerConnectionOnEvent,
             candidate: *const IceCandidateInterface,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_peer_connection_on_ice_candidates_removed(
+        pub fn on_ice_candidates_removed(
             cb: &mut DynPeerConnectionOnEvent,
             candidates: Vec<CandidateWrap>,
         );
 
         /// Completes the provided [`DynPeerConnectionOnEvent`].
-        pub fn call_on_ice_selected_candidate_pair_changed(
+        pub fn on_ice_selected_candidate_pair_changed(
             cb: &mut DynPeerConnectionOnEvent,
             event: &CandidatePairChangeEvent,
         );
@@ -790,7 +790,7 @@ pub fn set_description_fail(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_signaling_change(
+pub fn on_signaling_change(
     cb: &mut DynPeerConnectionOnEvent,
     state: webrtc::SignalingState,
 ) {
@@ -798,7 +798,7 @@ pub fn call_peer_connection_on_signaling_change(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_standardized_ice_connection_change(
+pub fn on_standardized_ice_connection_change(
     cb: &mut DynPeerConnectionOnEvent,
     new_state: webrtc::IceConnectionState,
 ) {
@@ -806,7 +806,7 @@ pub fn call_peer_connection_on_standardized_ice_connection_change(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_connection_change(
+pub fn on_connection_change(
     cb: &mut DynPeerConnectionOnEvent,
     new_state: webrtc::PeerConnectionState,
 ) {
@@ -814,7 +814,7 @@ pub fn call_peer_connection_on_connection_change(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_ice_gathering_change(
+pub fn on_ice_gathering_change(
     cb: &mut DynPeerConnectionOnEvent,
     new_state: webrtc::IceGatheringState,
 ) {
@@ -822,7 +822,7 @@ pub fn call_peer_connection_on_ice_gathering_change(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_negotiation_needed_event(
+pub fn on_negotiation_needed_event(
     cb: &mut DynPeerConnectionOnEvent,
     event_id: u32,
 ) {
@@ -830,7 +830,7 @@ pub fn call_peer_connection_on_negotiation_needed_event(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_ice_candidate_error(
+pub fn on_ice_candidate_error(
     cb: &mut DynPeerConnectionOnEvent,
     address: &CxxString,
     port: i32,
@@ -844,7 +844,7 @@ pub fn call_peer_connection_on_ice_candidate_error(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_ice_connection_receiving_change(
+pub fn on_ice_connection_receiving_change(
     cb: &mut DynPeerConnectionOnEvent,
     receiving: bool,
 ) {
@@ -852,7 +852,7 @@ pub fn call_peer_connection_on_ice_connection_receiving_change(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_ice_candidate(
+pub fn on_ice_candidate(
     cb: &mut DynPeerConnectionOnEvent,
     candidate: *const webrtc::IceCandidateInterface,
 ) {
@@ -860,7 +860,7 @@ pub fn call_peer_connection_on_ice_candidate(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_peer_connection_on_ice_candidates_removed(
+pub fn on_ice_candidates_removed(
     cb: &mut DynPeerConnectionOnEvent,
     candidates: Vec<webrtc::CandidateWrap>,
 ) {
@@ -868,7 +868,7 @@ pub fn call_peer_connection_on_ice_candidates_removed(
 }
 
 /// Completes the provided [`DynPeerConnectionOnEvent`].
-pub fn call_on_ice_selected_candidate_pair_changed(
+pub fn on_ice_selected_candidate_pair_changed(
     cb: &mut DynPeerConnectionOnEvent,
     event: &webrtc::CandidatePairChangeEvent,
 ) {

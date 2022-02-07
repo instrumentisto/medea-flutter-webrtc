@@ -12,7 +12,7 @@ PeerConnectionObserver::PeerConnectionObserver(
 // Propagates the received `SignalingState new_state` to the Rust side.
 void PeerConnectionObserver::OnSignalingChange(
     webrtc::PeerConnectionInterface::SignalingState new_state) {
-  bridge::call_peer_connection_on_signaling_change(*cb_, new_state);
+  bridge::on_signaling_change(*cb_, new_state);
 }
 
 // no need
@@ -28,14 +28,14 @@ void PeerConnectionObserver::OnDataChannel(
 // chained.
 // Propagates the received `event_id` to the Rust side.
 void PeerConnectionObserver::OnNegotiationNeededEvent(uint32_t event_id) {
-  bridge::call_peer_connection_on_negotiation_needed_event(*cb_, event_id);
+  bridge::on_negotiation_needed_event(*cb_, event_id);
 }
 
 // Called any time the standards-compliant IceConnectionState changes.
 // Propagates the received `IceConnectionState new_state` to the Rust side.
 void PeerConnectionObserver::OnStandardizedIceConnectionChange(
     webrtc::PeerConnectionInterface::IceConnectionState new_state) {
-    bridge::call_peer_connection_on_standardized_ice_connection_change(
+    bridge::on_standardized_ice_connection_change(
       *cb_,
       new_state);
 }
@@ -44,21 +44,21 @@ void PeerConnectionObserver::OnStandardizedIceConnectionChange(
 // Propagates the received `PeerConnectionState new_state` to the Rust side.
 void PeerConnectionObserver::OnConnectionChange(
     webrtc::PeerConnectionInterface::PeerConnectionState new_state) {
-  bridge::call_peer_connection_on_connection_change(*cb_, new_state);
+  bridge::on_connection_change(*cb_, new_state);
 }
 
 // Called any time the IceGatheringState changes.
 // Propagates the received `IceGatheringState new_state` to the Rust side.
 void PeerConnectionObserver::OnIceGatheringChange(
     webrtc::PeerConnectionInterface::IceGatheringState new_state) {
-  bridge::call_peer_connection_on_ice_gathering_change(*cb_, new_state);
+  bridge::on_ice_gathering_change(*cb_, new_state);
 }
 
 // A new ICE candidate has been gathered.
 // Propagates the received `IceCandidateInterface candidate` to the Rust side.
 void PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface* candidate) {
-  bridge::call_peer_connection_on_ice_candidate(*cb_, candidate);
+  bridge::on_ice_candidate(*cb_, candidate);
 }
 
 // Gathering of an ICE candidate failed.
@@ -71,7 +71,7 @@ void PeerConnectionObserver::OnIceCandidateError(
     const std::string& url,
     int error_code,
     const std::string& error_text) {
-  bridge::call_peer_connection_on_ice_candidate_error(*cb_,
+  bridge::on_ice_candidate_error(*cb_,
                                                       address,
                                                       port,
                                                       url,
@@ -88,13 +88,13 @@ void PeerConnectionObserver::OnIceCandidatesRemoved(
     vec.push_back(bridge::create_candidate_wrapp(
         std::make_unique<cricket::Candidate>(candidates[i])));
   }
-  bridge::call_peer_connection_on_ice_candidates_removed(*cb_, std::move(vec));
+  bridge::on_ice_candidates_removed(*cb_, std::move(vec));
 }
 
 // Called when the ICE connection receiving status changes.
 // Propagates the received `receiving` to the Rust side.
 void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
-  bridge::call_peer_connection_on_ice_connection_receiving_change(*cb_,
+  bridge::on_ice_connection_receiving_change(*cb_,
                                                                   receiving);
 }
 
@@ -102,7 +102,7 @@ void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
 // Propagates the received `CandidatePairChangeEvent event` to the Rust side.
 void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
     const cricket::CandidatePairChangeEvent& event) {
-  bridge::call_on_ice_selected_candidate_pair_changed(*cb_, event);
+  bridge::on_ice_selected_candidate_pair_changed(*cb_, event);
 }
 
 // This is called when a receiver and its track are created.

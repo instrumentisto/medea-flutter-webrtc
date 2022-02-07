@@ -204,7 +204,8 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
-// Creates a new `PeerConnectionObserver`.
+// Creates a new `PeerConnectionObserver` backed by the provided
+// `DynPeerConnectionOnEvent`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
     rust::Box<bridge::DynPeerConnectionOnEvent> cb);
 
@@ -262,9 +263,10 @@ void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
 // Calls `IceCandidateInterface->ToString` and wraps result in `std::unqiue_ptr`.
-std::unique_ptr<std::string> ice_candidate_interface_to_string(const IceCandidateInterface* candidate);
+std::unique_ptr<std::string> ice_candidate_interface_to_string(
+    const IceCandidateInterface* candidate);
 
-// Calls `Candidate->ToString` and wraps result in `std::unqiue_ptr`.
+// Creates a SDP-ized form of this `Candidate`.
 std::unique_ptr<std::string> candidate_to_string(const cricket::Candidate& candidate);
 
 // Gets `CandidatePairChangeEvent.candidate_pair`.
@@ -277,6 +279,7 @@ int64_t get_last_data_received_ms(const cricket::CandidatePairChangeEvent& event
 std::unique_ptr<std::string> get_reason(const cricket::CandidatePairChangeEvent& event);
 
 // Gets `CandidatePairChangeEvent.estimated_disconnected_time_ms`.
-int64_t get_estimated_disconnected_time_ms(const cricket::CandidatePairChangeEvent& event);
+int64_t get_estimated_disconnected_time_ms(
+    const cricket::CandidatePairChangeEvent& event);
 
 }  // namespace bridge
