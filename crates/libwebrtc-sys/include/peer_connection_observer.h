@@ -8,7 +8,7 @@
 
 namespace bridge {
 
-struct DynPeerConnectionOnEvent;
+struct DynPeerConnectionEventsHandler;
 struct DynSetDescriptionCallback;
 struct DynCreateSdpCallback;
 
@@ -16,13 +16,12 @@ struct DynCreateSdpCallback;
 
 namespace observer {
 
-// `PeerConnectionObserver` that handles RTCPeerConnection events.
+// `PeerConnectionObserver` propagating events to the Rust side.
 class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 public:
-  PeerConnectionObserver(
-      rust::Box<bridge::DynPeerConnectionOnEvent> cb);
+  PeerConnectionObserver(rust::Box<bridge::DynPeerConnectionEventsHandler> cb);
 
-  // A new ICE candidate has been gathered.
+  // Called when a new ICE candidate has been discovered.
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) override;
 
   // Gathering of an ICE candidate failed.
@@ -37,7 +36,7 @@ public:
   void OnIceCandidatesRemoved(
       const std::vector<cricket::Candidate>& candidates) override;
 
-  // Triggered when the SignalingState changed.
+  // Called when the `SignalingState` changes.
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) override;
 
@@ -52,7 +51,7 @@ public:
   // Called when the ICE connection receiving status changes.
   void OnIceConnectionReceivingChange(bool receiving) override;
 
-  // Called any time the IceGatheringState changes.
+  // Called when the `IceGatheringState` changes.
   void OnIceGatheringChange(
       webrtc::PeerConnectionInterface::IceGatheringState new_state) override;
 
@@ -60,9 +59,9 @@ public:
   void OnIceSelectedCandidatePairChanged(
       const cricket::CandidatePairChangeEvent& event) override;
 
-  // Triggered when a remote peer opens a data channel.
+  // Called when a remote peer opens a data channel.
   void OnDataChannel(
-      rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel);
+      rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) override;
 
   // Used to fire spec-compliant onnegotiationneeded events, which should only
   // fire when the Operations Chain is empty. The observer is responsible for
@@ -71,7 +70,7 @@ public:
   // PeerConnection::ShouldFireNegotiationNeededEvent() returns true since it is
   // possible for the event to become invalidated by operations subsequently
   // chained.
-  void OnNegotiationNeededEvent(uint32_t event_id);
+  void OnNegotiationNeededEvent(uint32_t event_id) override;
 
   // This is called when a receiver and its track are created.
   //
@@ -80,7 +79,8 @@ public:
   // compatibility (and is called in the exact same situations as OnTrack).
   void OnAddTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
-      const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams);
+      const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams
+  ) override;
 
   // This is called when signaling indicates a transceiver will be receiving
   // media from the remote endpoint. This is fired during a call to
@@ -92,7 +92,7 @@ public:
   // RTCSessionDescription" algorithm:
   // https://w3c.github.io/webrtc-pc/#set-description
   void OnTrack(
-      rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver);
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) override;
 
   // Called when signaling indicates that media will no longer be received on a
   // track.
@@ -102,15 +102,15 @@ public:
   // will have changed direction to either sendonly or inactive.
   // https://w3c.github.io/webrtc-pc/#process-remote-track-removal
   void OnRemoveTrack(
-      rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver);
+      rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
 
  private:
   // Rust side callback.
-  rust::Box<bridge::DynPeerConnectionOnEvent> cb_;
+  rust::Box<bridge::DynPeerConnectionEventsHandler> cb_;
 };
 
-// `CreateSessionDescriptionObserver` that propagates completion result to the
-// Rust side.
+// `CreateSessionDescriptionObserver` propagating completion result to the Rust
+// side.
 class CreateSessionDescriptionObserver
     : public rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
  public:
@@ -159,7 +159,7 @@ class SetRemoteDescriptionObserver
 
  private:
   // Rust side callback.
-   std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
+  std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
 };
 
 }  // namespace observer

@@ -205,9 +205,9 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
 // Creates a new `PeerConnectionObserver` backed by the provided
-// `DynPeerConnectionOnEvent`.
+// `DynPeerConnectionEventsHandler`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
-    rust::Box<bridge::DynPeerConnectionOnEvent> cb);
+    rust::Box<bridge::DynPeerConnectionEventsHandler> cb);
 
 // Creates a new `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
@@ -262,7 +262,7 @@ void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
-// Calls `IceCandidateInterface->ToString` and wraps result in `std::unqiue_ptr`.
+// Calls `IceCandidateInterface->ToString`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(
     const IceCandidateInterface* candidate);
 

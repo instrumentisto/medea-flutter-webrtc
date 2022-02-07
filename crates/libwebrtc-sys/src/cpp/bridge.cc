@@ -329,8 +329,9 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
 
 // Creates a new `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
-    rust::Box<bridge::DynPeerConnectionOnEvent> cb) {
-  return std::make_unique<PeerConnectionObserver>(PeerConnectionObserver(std::move(cb)));
+    rust::Box<bridge::DynPeerConnectionEventsHandler> cb) {
+  return std::make_unique<PeerConnectionObserver>(
+      PeerConnectionObserver(std::move(cb)));
 }
 
 // Creates a new `PeerConnectionDependencies`.
@@ -417,7 +418,8 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
 }
 
 // Calls `IceCandidateInterface->ToString`.
-std::unique_ptr<std::string> ice_candidate_interface_to_string(const IceCandidateInterface* candidate) {
+std::unique_ptr<std::string>
+ice_candidate_interface_to_string(const IceCandidateInterface* candidate) {
     std::string out;
     candidate->ToString(&out);
     return std::make_unique<std::string>(out);

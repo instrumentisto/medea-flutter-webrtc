@@ -5,7 +5,7 @@
 namespace observer {
 
 PeerConnectionObserver::PeerConnectionObserver(
-    rust::Box<bridge::DynPeerConnectionOnEvent> cb)
+    rust::Box<bridge::DynPeerConnectionEventsHandler> cb)
     : cb_(std::move(cb)){};
 
 // Triggered when the SignalingState changed.
@@ -83,19 +83,13 @@ void PeerConnectionObserver::OnIceCandidateError(
 // Propagates the received `std::vector<cricket::Candidate> candidates` to the Rust side.
 void PeerConnectionObserver::OnIceCandidatesRemoved(
     const std::vector<cricket::Candidate>& candidates) {
-  rust::Vec<bridge::CandidateWrap> vec;
-  for (int i = 0; i < candidates.size(); ++i) {
-    vec.push_back(bridge::create_candidate_wrapp(
-        std::make_unique<cricket::Candidate>(candidates[i])));
-  }
-  bridge::on_ice_candidates_removed(*cb_, std::move(vec));
+  bridge::on_ice_candidates_removed(*cb_, candidates);
 }
 
 // Called when the ICE connection receiving status changes.
 // Propagates the received `receiving` to the Rust side.
 void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
-  bridge::on_ice_connection_receiving_change(*cb_,
-                                                                  receiving);
+  bridge::on_ice_connection_receiving_change(*cb_, receiving);
 }
 
 // Called when the selected candidate pair for the ICE connection changes.

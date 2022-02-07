@@ -42,26 +42,6 @@ pub(crate) fn next_id() -> u64 {
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod api {
-
-    /// Serialized to strings [`CandidatePair`].
-    pub struct CandidatePairSerialized {
-        /// Serialized to strings [`CandidatePair`].local.
-        local: String,
-        /// Serialized to strings [`CandidatePair`].remote.
-        remote: String,
-    }
-
-    /// Serialized [`CandidatePairChangeEvent`] for writes in flutter.
-    pub struct CandidatePairChangeEventSerialized {
-        /// Serialized to strings [`CandidatePair`].
-        selected_candidate_pair: CandidatePairSerialized,
-        last_data_received_ms: i64,
-        reason: String,
-
-        /// How long do we estimate that we've been disconnected.
-        estimated_disconnected_time_ms: i64,
-    }
-
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -199,8 +179,8 @@ pub mod api {
         type SetDescriptionCallbackInterface =
             crate::internal::SetDescriptionCallbackInterface;
 
-        type PeerConnectionOnEventInterface =
-            crate::internal::PeerConnectionOnEventInterface;
+        type PeerConnectionObserverInterface =
+            crate::internal::PeerConnectionObserverInterface;
 
         type OnFrameCallbackInterface =
             crate::internal::OnFrameCallbackInterface;
@@ -221,20 +201,20 @@ pub mod api {
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a new [`PeerConnection`] and returns it's ID.
+        /// Creates a new [`PeerConnection`] and returns its ID.
         ///
-        /// Writes an error to the provided `err` if any.
+        /// Writes an error to the provided `err`, if any.
         #[cxx_name = "CreatePeerConnection"]
         pub fn create_peer_connection(
             self: &mut Webrtc,
-            cb: UniquePtr<PeerConnectionOnEventInterface>,
+            cb: UniquePtr<PeerConnectionObserverInterface>,
             err: &mut String,
         ) -> u64;
 
-        /// Initiates the creation of an SDP offer for the purpose of starting
+        /// Initiates the creation of a SDP offer for the purpose of starting
         /// a new WebRTC connection to a remote peer.
         ///
-        /// Returns an empty [`String`] in operation succeeds or an error
+        /// Returns an empty [`String`] if operation succeeds or an error
         /// otherwise.
         #[cxx_name = "CreateOffer"]
         pub fn create_offer(

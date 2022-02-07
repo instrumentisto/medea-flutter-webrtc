@@ -4,40 +4,39 @@
 mod bridge;
 
 use anyhow::bail;
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
+
 pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
-    get_estimated_disconnected_time_ms, get_last_data_received_ms,
-    get_reason,
+    get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
     ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
     Candidate, CandidatePairChangeEvent, IceCandidateInterface,
     IceConnectionState, IceGatheringState, PeerConnectionState, SdpType,
     SignalingState, VideoFrame, VideoRotation,
 };
-pub use bridge::webrtc::CandidateWrap;
 
-/// Completion callback for the [`CreateSessionDescriptionObserver`] that is
-/// used to call [`PeerConnectionInterface::create_offer()`] and
+/// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
+/// [`PeerConnectionInterface::create_offer()`] and
 /// [`PeerConnectionInterface::create_answer()`].
 pub trait CreateSdpCallback {
-    /// Called when the related operation was successfully completed.
+    /// Called when the related operation is successfully completed.
     fn success(&mut self, sdp: &CxxString, kind: webrtc::SdpType);
 
-    /// Called when the related operation was completed with an error.
+    /// Called when the related operation is completed with the `error`.
     fn fail(&mut self, error: &CxxString);
 }
 
-/// Completion callback for the [`SetLocalDescriptionObserver`] and
-/// [`SetRemoteDescriptionObserver`] that are used to call
+/// Completion callback for a [`SetLocalDescriptionObserver`] and
+/// [`SetRemoteDescriptionObserver`], used to call
 /// [`PeerConnectionInterface::set_local_description()`] and
 /// [`PeerConnectionInterface::set_remote_description()`].
 pub trait SetDescriptionCallback {
-    /// Called when the related operation was successfully completed.
+    /// Called when the related operation is successfully completed.
     fn success(&mut self);
 
-    /// Called when the related operation was completed with an error.
+    /// Called when the related operation is completed with the `error`.
     fn fail(&mut self, error: &CxxString);
 }
 
@@ -46,14 +45,14 @@ pub trait SetDescriptionCallback {
 /// `PeerConnectionObserver::OnSignalingChange`,
 /// `PeerConnectionObserver::OnNegotiationNeededEvent`,
 /// `PeerConnectionObserver::OnStandardizedIceConnectionChange`,
-/// `PeerConnectionObserver::OnConnectionChange`,
+/// `PeerConnectionObserver::OnConnectionStateChange`,
 /// `PeerConnectionObserver::OnIceGatheringChange`,
 /// `PeerConnectionObserver::OnIceCandidate`,
 /// `PeerConnectionObserver::OnIceCandidateError`,
 /// `PeerConnectionObserver::OnIceCandidatesRemoved`,
 /// `PeerConnectionObserver::OnIceConnectionReceivingChange`,
 /// `PeerConnectionObserver::OnIceSelectedCandidatePairChanged`.
-pub trait PeerConnectionOnEvent {
+pub trait PeerConnectionEventsHandler {
     /// Called when a [`signalingstatechange`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc/#event-signalingstatechange
@@ -106,7 +105,7 @@ pub trait PeerConnectionOnEvent {
     );
 
     /// Called when some ICE candidates have been removed.
-    fn on_ice_candidates_removed(&mut self, candidates: Vec<CandidateWrap>);
+    fn on_ice_candidates_removed(&mut self, candidates: &CxxVector<Candidate>);
 
     /// Called when a [`icecandidate`][1] event occurs.
     ///
@@ -327,33 +326,31 @@ impl Default for RTCConfiguration {
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl PeerConnectionObserver {
+    /// Creates a new [`PeerConnectionObserver`] backed by the provided
+    /// [`PeerConnectionEventsHandler`]
     #[must_use]
-    pub fn new(cb: Box<dyn PeerConnectionOnEvent>) -> Self {
+    pub fn new(cb: Box<dyn PeerConnectionEventsHandler>) -> Self {
         Self(webrtc::create_peer_connection_observer(Box::new(cb)))
     }
 }
 
-/// Contains all of the [`PeerConnectionInterface`] dependencies.
-/// Description of the options used to control an offer/answer creation process.
+/// Contains all the [`PeerConnectionInterface`] dependencies.
 pub struct PeerConnectionDependencies {
-    dependencies: UniquePtr<webrtc::PeerConnectionDependencies>,
-    observer: PeerConnectionObserver,
+    inner: UniquePtr<webrtc::PeerConnectionDependencies>,
+    _observer: PeerConnectionObserver,
 }
 
 impl PeerConnectionDependencies {
     #[must_use]
     pub fn new(observer: PeerConnectionObserver) -> Self {
         Self {
-            dependencies: webrtc::create_peer_connection_dependencies(
-                &observer.0,
-            ),
-            observer,
+            inner: webrtc::create_peer_connection_dependencies(&observer.0),
+            _observer: observer,
         }
     }
 }
 
-/// Description of the options that can be used to control the offer/answer
-/// creation process
+/// Description of the options used to control an offer/answer creation process.
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
@@ -439,11 +436,8 @@ impl SetRemoteDescriptionObserver {
 
 /// [RTCPeerConnection][1] implementation.
 ///
-/// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection
-pub struct PeerConnectionInterface {
-    pc: UniquePtr<webrtc::PeerConnectionInterface>,
-    _observer: PeerConnectionObserver,
-}
+/// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
 
 impl PeerConnectionInterface {
     /// [RTCPeerConnection.createOffer()][1] implementation.
@@ -454,40 +448,40 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_offer(self.pc.pin_mut(), &options.0, obs.0);
+        webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0);
     }
 
     /// [RTCPeerConnection.createAnswer()][1] implementation.
     ///
-    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createanswer
     pub fn create_answer(
         &mut self,
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_answer(self.pc.pin_mut(), &options.0, obs.0);
+        webrtc::create_answer(self.0.pin_mut(), &options.0, obs.0);
     }
 
     /// [RTCPeerConnection.setLocalDescription()][1] implementation.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
+    /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setlocaldescription
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
         obs: SetLocalDescriptionObserver,
     ) {
-        webrtc::set_local_description(self.pc.pin_mut(), desc.0, obs.0);
+        webrtc::set_local_description(self.0.pin_mut(), desc.0, obs.0);
     }
 
     /// [RTCPeerConnection.setRemoteDescription()][1] implementation.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
+    /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setremotedescription
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
         obs: SetRemoteDescriptionObserver,
     ) {
-        webrtc::set_remote_description(self.pc.pin_mut(), desc.0, obs.0);
+        webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
     }
 }
 
@@ -553,16 +547,13 @@ impl PeerConnectionFactoryInterface {
     pub fn create_peer_connection_or_error(
         &mut self,
         configuration: &RTCConfiguration,
-        PeerConnectionDependencies {
-            dependencies,
-            observer,
-        }: PeerConnectionDependencies,
+        dependencies: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
         let mut error = String::new();
         let inner = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
             &configuration.0,
-            dependencies,
+            dependencies.inner,
             &mut error,
         );
 
@@ -576,10 +567,7 @@ impl PeerConnectionFactoryInterface {
                  CreatePeerConnectionOrError()`",
             );
         }
-        Ok(PeerConnectionInterface {
-            pc: inner,
-            _observer: observer,
-        })
+        Ok(PeerConnectionInterface(inner))
     }
 
     /// Creates a new [`AudioSourceInterface`], which provides sound recording

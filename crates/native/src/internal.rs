@@ -10,10 +10,7 @@ mod cpp_api_bindings {
         pub type CreateSdpCallbackInterface;
         pub type SetDescriptionCallbackInterface;
         pub type OnFrameCallbackInterface;
-
-        type CandidatePairChangeEventSerialized =
-            crate::api::CandidatePairChangeEventSerialized;
-        type PeerConnectionOnEventInterface;
+        pub type PeerConnectionObserverInterface;
 
         type VideoFrame = crate::api::VideoFrame;
 
@@ -45,55 +42,56 @@ mod cpp_api_bindings {
             error: &CxxString,
         );
 
-        /// Calls `OnSignalingChange` c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
+        /// Calls C++ side `OnFrameCallbackInterface->OnFrame`.
+        #[cxx_name = "OnFrame"]
+        pub fn on_frame(
+            self: Pin<&mut OnFrameCallbackInterface>,
+            frame: VideoFrame,
+        );
+
+        /// Calls C++ side `PeerConnectionObserverInterface->OnSignalingChange`.
         #[cxx_name = "OnSignalingChange"]
         pub fn on_signaling_change(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
+            self: Pin<&mut PeerConnectionObserverInterface>,
             new_state: &CxxString,
         );
 
-        /// Calls `OnStandardizedIceConnectionChange`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnStandardizedIceConnectionChange"]
-        pub fn on_standardized_ice_connection_change(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
+        /// Calls C++ side
+        /// `PeerConnectionObserverInterface->OnIceConnectionStateChange`.
+        #[cxx_name = "OnIceConnectionStateChange"]
+        pub fn on_ice_connection_state_change(
+            self: Pin<&mut PeerConnectionObserverInterface>,
             new_state: &CxxString,
         );
 
-        /// Calls `OnConnectionChange`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnConnectionChange"]
-        pub fn on_connection_change(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
+        /// Calls C++ side
+        /// `PeerConnectionObserverInterface->OnConnectionStateChange`.
+        #[cxx_name = "OnConnectionStateChange"]
+        pub fn on_connection_state_change(
+            self: Pin<&mut PeerConnectionObserverInterface>,
             new_state: &CxxString,
         );
 
-        /// Calls `OnIceGatheringChange`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnIceGatheringChange"]
+        /// Calls C++ side
+        /// `PeerConnectionObserverInterface->OnIceGatheringStateChange`.
+        #[cxx_name = "OnIceGatheringStateChange"]
         pub fn on_ice_gathering_change(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
+            self: Pin<&mut PeerConnectionObserverInterface>,
             new_state: &CxxString,
         );
 
-        /// Calls `OnNegotiationNeededEvent`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
+        /// Calls C++ side
+        /// `PeerConnectionObserverInterface->OnNegotiationNeeded`.
         #[cxx_name = "OnNegotiationNeeded"]
         pub fn on_negotiation_needed(
-            self: Pin<&mut PeerConnectionOnEventInterface>
+            self: Pin<&mut PeerConnectionObserverInterface>,
         );
 
-        /// Calls `OnIceCandidateError`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
+        /// Calls C++ side
+        /// `PeerConnectionObserverInterface->OnIceCandidateError`.
         #[cxx_name = "OnIceCandidateError"]
         pub fn on_ice_candidate_error(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
+            self: Pin<&mut PeerConnectionObserverInterface>,
             address: &CxxString,
             port: i32,
             url: &CxxString,
@@ -101,46 +99,11 @@ mod cpp_api_bindings {
             error_text: &CxxString,
         );
 
-        /// Calls `OnIceConnectionReceivingChange`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnIceConnectionReceivingChange"]
-        pub fn on_ice_connection_receiving_change(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
-            receiving: bool,
-        );
-
-        /// Calls `OnIceCandidate`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
+        /// Calls C++ side `PeerConnectionObserverInterface->OnIceCandidate`.
         #[cxx_name = "OnIceCandidate"]
         pub fn on_ice_candidate(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
+            self: Pin<&mut PeerConnectionObserverInterface>,
             candidate: &CxxString,
-        );
-
-        /// Calls `OnIceCandidatesRemoved`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnIceCandidatesRemoved"]
-        pub unsafe fn on_ice_candidates_removed(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
-            candidates: Vec<String>,
-        );
-
-        /// Calls `OnIceSelectedCandidatePairChanged`
-        /// c++ `PeerConnectionOnEventInterface`
-        /// abstract class method.
-        #[cxx_name = "OnIceSelectedCandidatePairChanged"]
-        pub unsafe fn on_ice_selected_candidate_pair_changed(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
-            event: CandidatePairChangeEventSerialized,
-        );
-        /// Calls C++ side `OnFrameCallbackInterface->OnFrame`.
-        #[cxx_name = "OnFrame"]
-        pub fn on_frame(
-            self: Pin<&mut OnFrameCallbackInterface>,
-            frame: VideoFrame,
         );
     }
 
@@ -151,12 +114,11 @@ mod cpp_api_bindings {
         fn _touch_set_description_callback(
             i: UniquePtr<SetDescriptionCallbackInterface>,
         );
-        fn _touch_unique_ptr_peer_connection_on_event_interface(
-            i: UniquePtr<PeerConnectionOnEventInterface>,
-        );
-
         fn _touch_unique_ptr_on_frame_handler(
             i: UniquePtr<OnFrameCallbackInterface>,
+        );
+        fn _touch_unique_ptr_peer_connection_on_event_interface(
+            i: UniquePtr<PeerConnectionObserverInterface>,
         );
     }
 }
@@ -167,12 +129,13 @@ fn _touch_set_description_callback(
     _: cxx::UniquePtr<SetDescriptionCallbackInterface>,
 ) {
 }
-fn _touch_unique_ptr_peer_connection_on_event_interface(
-    _: cxx::UniquePtr<PeerConnectionOnEventInterface>,
-) {
-}
 
 fn _touch_unique_ptr_on_frame_handler(
     _: cxx::UniquePtr<OnFrameCallbackInterface>,
+) {
+}
+
+fn _touch_unique_ptr_peer_connection_on_event_interface(
+    _: cxx::UniquePtr<PeerConnectionObserverInterface>,
 ) {
 }

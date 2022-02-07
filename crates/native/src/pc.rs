@@ -1,16 +1,12 @@
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
-use sys::{
-    get_candidate_pair, get_estimated_disconnected_time_ms,
-    get_last_data_received_ms, get_reason,
-    PeerConnectionObserver,
-};
-
-use crate::api::PeerConnectionOnEventInterface;
 
 use crate::{
-    internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
+    internal::{
+        CreateSdpCallbackInterface, PeerConnectionObserverInterface,
+        SetDescriptionCallbackInterface,
+    },
     next_id, Webrtc,
 };
 
@@ -20,13 +16,14 @@ impl Webrtc {
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
         self: &mut Webrtc,
-        cb: UniquePtr<PeerConnectionOnEventInterface>,
+        cb: UniquePtr<PeerConnectionObserverInterface>,
         error: &mut String,
     ) -> u64 {
-        let dependencies =
-            sys::PeerConnectionDependencies::new(PeerConnectionObserver::new(
-                Box::new(HandlerPeerConnectionOnEvent(cb)),
-            ));
+        let dependencies = sys::PeerConnectionDependencies::new(
+            sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver(
+                cb,
+            ))),
+        );
         let peer = PeerConnection::new(
             &mut self.0.peer_connection_factory,
             dependencies,
@@ -153,10 +150,12 @@ impl Webrtc {
                 return e.to_string();
             }
         };
+
         let desc = sys::SessionDescriptionInterface::new(sdp_kind, &sdp);
         let obs =
             sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
         peer.inner.set_local_description(desc, obs);
+
         String::new()
     }
 
@@ -259,10 +258,10 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     }
 }
 
-/// [`PeerConnectionOnEventInterface`] wrapper.
-struct HandlerPeerConnectionOnEvent(UniquePtr<PeerConnectionOnEventInterface>);
+/// [`PeerConnectionObserverInterface`] wrapper.
+struct PeerConnectionObserver(UniquePtr<PeerConnectionObserverInterface>);
 
-impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
+impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         let_cxx_string!(new_state = new_state.to_string());
         self.0.pin_mut().on_signaling_change(&new_state);
@@ -273,14 +272,12 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         new_state: sys::IceConnectionState,
     ) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0
-            .pin_mut()
-            .on_standardized_ice_connection_change(&new_state);
+        self.0.pin_mut().on_ice_connection_state_change(&new_state);
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0.pin_mut().on_connection_change(&new_state);
+        self.0.pin_mut().on_connection_state_change(&new_state);
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
@@ -288,8 +285,7 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         self.0.pin_mut().on_ice_gathering_change(&new_state);
     }
 
-    fn on_negotiation_needed_event(&mut self, _event_id: u32) {
-        // TODO: recheck event
+    fn on_negotiation_needed_event(&mut self, _: u32) {
         self.0.pin_mut().on_negotiation_needed();
     }
 
@@ -301,16 +297,12 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         error_code: i32,
         error_text: &CxxString,
     ) {
-        self.0.pin_mut().on_ice_candidate_error(
-            address, port, url, error_code, error_text,
-        );
-    }
-
-    fn on_ice_connection_receiving_change(&mut self, receiving: bool) {
         self.0
             .pin_mut()
-            .on_ice_connection_receiving_change(receiving);
+            .on_ice_candidate_error(address, port, url, error_code, error_text);
     }
+
+    fn on_ice_connection_receiving_change(&mut self, _: bool) {}
 
     fn on_ice_candidate(
         &mut self,
@@ -323,47 +315,11 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
             .on_ice_candidate(&str_ice_candidate.pin_mut());
     }
 
-    fn on_ice_candidates_removed(
-        &mut self,
-        candidates: Vec<libwebrtc_sys::CandidateWrap>,
-    ) {
-        unsafe {
-            self.0.pin_mut().on_ice_candidates_removed(
-                candidates
-                    .into_iter()
-                    .map(|mut c| {
-                        sys::candidate_to_string(&c.c.pin_mut()).to_string()
-                    })
-                    .collect(),
-            );
-        };
-    }
+    fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {}
 
     fn on_ice_selected_candidate_pair_changed(
         &mut self,
-        event: &sys::CandidatePairChangeEvent,
+        _: &sys::CandidatePairChangeEvent,
     ) {
-        let pair = get_candidate_pair(event);
-        let local = pair.local_candidate();
-        let remote = pair.remote_candidate();
-
-        let pair = crate::api::CandidatePairSerialized {
-            local: sys::candidate_to_string(local).to_string(),
-            remote: sys::candidate_to_string(remote).to_string(),
-        };
-        let candidate_pair_change_event_serialized =
-            crate::api::CandidatePairChangeEventSerialized {
-                selected_candidate_pair: pair,
-                last_data_received_ms: get_last_data_received_ms(event),
-                reason: get_reason(event).pin_mut().to_string(),
-                estimated_disconnected_time_ms:
-                    get_estimated_disconnected_time_ms(event),
-            };
-
-        unsafe {
-            self.0.pin_mut().on_ice_selected_candidate_pair_changed(
-                candidate_pair_change_event_serialized,
-            );
-        };
     }
 }
