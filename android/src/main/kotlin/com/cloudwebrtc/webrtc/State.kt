@@ -47,8 +47,8 @@ class State(val context: Context) {
     }
 
     fun releasePeerConnectionFactory() {
-        factory?.dispose()
-        audioDeviceModule?.release()
+//        factory?.dispose()
+//        audioDeviceModule?.release()
     }
 
     fun getPeerConnectionFactory(): PeerConnectionFactory {
