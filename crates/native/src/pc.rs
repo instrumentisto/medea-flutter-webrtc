@@ -312,6 +312,7 @@ pub struct PeerConnection {
     /// Underlying [`sys::PeerConnectionInterface`].
     inner: sys::PeerConnectionInterface,
 
+    /// The [`sys::Transceiver`]s of this [`PeerConnection`].
     transceivers: HashMap<TransceiverId, sys::Transceiver>,
 }
 

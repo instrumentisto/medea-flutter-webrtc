@@ -57,6 +57,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
     this._id,
     this._direction,
     this._mid,
+    // TODO: Implement Sender and Receiver.
     // this._sender,
     // this._receiver,
     this._peerConnectionId,
@@ -68,6 +69,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
         map['transceiverId'] ?? '',
         typeStringToRtpTransceiverDirection[map['direction']]!,
         map['mid'] ?? '',
+        // TODO: Implement Sender and Receiver.
         // RTCRtpSenderNative.fromMap(map['sender'],
         //     peerConnectionId: peerConnectionId),
         // RTCRtpReceiverNative.fromMap(map['receiver'],
@@ -89,6 +91,8 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
   bool _stop = false;
   TransceiverDirection _direction;
   String _mid;
+
+  // TODO: Implement Sender and Receiver.
   late RTCRtpSender _sender;
   late RTCRtpReceiver _receiver;
 

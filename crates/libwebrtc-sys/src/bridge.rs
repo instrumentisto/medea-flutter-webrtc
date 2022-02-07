@@ -64,6 +64,7 @@ pub(crate) mod webrtc {
         kRollback,
     }
 
+    /// Possible variants of a [`RtpTransceiverInterface`] `media type`.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum MediaType {
@@ -73,6 +74,7 @@ pub(crate) mod webrtc {
         MEDIA_TYPE_UNSUPPORTED,
     }
 
+    /// Possible variants of a [`RtpTransceiverInterface`]'s `direction`.
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum RtpTransceiverDirection {

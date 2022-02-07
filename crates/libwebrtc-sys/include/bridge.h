@@ -56,12 +56,6 @@ using PeerConnectionObserver = observer::PeerConnectionObserver;
 using SetLocalDescriptionObserver = observer::SetLocalDescriptionObserver;
 using SetRemoteDescriptionObserver = observer::SetRemoteDescriptionObserver;
 
-using CreateSessionDescriptionObserver =
-    observer::CreateSessionDescriptionObserver;
-using PeerConnectionObserver = observer::PeerConnectionObserver;
-using SetLocalDescriptionObserver = observer::SetLocalDescriptionObserver;
-using SetRemoteDescriptionObserver = observer::SetRemoteDescriptionObserver;
-
 using MediaType = cricket::MediaType;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using RtpTransceiverInterface =

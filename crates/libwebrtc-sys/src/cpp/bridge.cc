@@ -322,7 +322,9 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
-  return std::make_unique<RTCConfiguration>();
+  RTCConfiguration config;
+  config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+  return std::make_unique<RTCConfiguration>(config);
 }
 
 // Creates a new `PeerConnectionObserver`.
