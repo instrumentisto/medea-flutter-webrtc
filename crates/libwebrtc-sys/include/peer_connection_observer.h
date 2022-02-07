@@ -23,7 +23,7 @@ public:
       rust::Box<bridge::DynPeerConnectionOnEvent> cb);
 
   // A new ICE candidate has been gathered.
-  void OnIceCandidate(const IceCandidateInterface* candidate) override;
+  void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) override;
 
   // Gathering of an ICE candidate failed.
   // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
@@ -39,22 +39,22 @@ public:
 
   // Triggered when the SignalingState changed.
   void OnSignalingChange(
-      PeerConnectionInterface::SignalingState new_state) override;
+      webrtc::PeerConnectionInterface::SignalingState new_state) override;
 
   // Called any time the standards-compliant IceConnectionState changes.
   void OnStandardizedIceConnectionChange(
-      PeerConnectionInterface::IceConnectionState new_state) override;
+      webrtc::PeerConnectionInterface::IceConnectionState new_state) override;
 
   // Called any time the PeerConnectionState changes.
   void OnConnectionChange(
-      PeerConnectionInterface::PeerConnectionState new_state) override;
+      webrtc::PeerConnectionInterface::PeerConnectionState new_state) override;
 
   // Called when the ICE connection receiving status changes.
   void OnIceConnectionReceivingChange(bool receiving) override;
 
   // Called any time the IceGatheringState changes.
   void OnIceGatheringChange(
-      PeerConnectionInterface::IceGatheringState new_state) override;
+      webrtc::PeerConnectionInterface::IceGatheringState new_state) override;
 
   // Called when the selected candidate pair for the ICE connection changes.
   void OnIceSelectedCandidatePairChanged(
@@ -106,7 +106,7 @@ public:
 
  private:
   // Rust side callback.
-  std::optional<rust::Box<bridge::DynPeerConnectionOnEvent>> cb_;
+  rust::Box<bridge::DynPeerConnectionOnEvent> cb_;
 };
 
 // `CreateSessionDescriptionObserver` that propagates completion result to the
@@ -159,7 +159,7 @@ class SetRemoteDescriptionObserver
 
  private:
   // Rust side callback.
-  std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
+   std::optional<rust::Box<bridge::DynSetDescriptionCallback>> cb_;
 };
 
 }  // namespace observer

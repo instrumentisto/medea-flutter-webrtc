@@ -288,8 +288,9 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
         self.0.pin_mut().on_ice_gathering_change(&new_state);
     }
 
-    fn on_negotiation_needed_event(&mut self, event_id: u32) {
-        self.0.pin_mut().on_negotiation_needed_event(event_id);
+    fn on_negotiation_needed_event(&mut self, _event_id: u32) {
+        // TODO: recheck event
+        self.0.pin_mut().on_negotiation_needed();
     }
 
     fn on_ice_candidate_error(

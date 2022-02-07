@@ -85,8 +85,7 @@ mod cpp_api_bindings {
         /// abstract class method.
         #[cxx_name = "OnNegotiationNeeded"]
         pub fn on_negotiation_needed(
-            self: Pin<&mut PeerConnectionOnEventInterface>,
-            event_id: u32,
+            self: Pin<&mut PeerConnectionOnEventInterface>
         );
 
         /// Calls `OnIceCandidateError`
