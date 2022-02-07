@@ -354,8 +354,11 @@ pub(crate) mod webrtc {
         type IceConnectionState;
 
         type IceCandidateInterface;
+        #[namespace = "cricket"]
         type Candidate;
+        #[namespace = "cricket"]
         type CandidatePairChangeEvent;
+        #[namespace = "cricket"]
         type CandidatePair;
 
 
