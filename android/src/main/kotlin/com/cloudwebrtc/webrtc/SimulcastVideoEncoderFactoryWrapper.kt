@@ -167,15 +167,9 @@ internal class SimulcastVideoEncoderFactoryWrapper(
     }
 
     private class StreamEncoderWrapperFactory(private val factory: VideoEncoderFactory) :
-            VideoEncoderFactory {
+        VideoEncoderFactory {
         override fun createEncoder(videoCodecInfo: VideoCodecInfo?): VideoEncoder? {
-            val encoder = factory.createEncoder(videoCodecInfo)
-            if (encoder == null) {
-                return null
-            }
-            if (encoder is WrappedNativeVideoEncoder) {
-                return encoder
-            }
+            val encoder = factory.createEncoder(videoCodecInfo) ?: return null
             return StreamEncoderWrapper(encoder)
         }
 
@@ -191,7 +185,7 @@ internal class SimulcastVideoEncoderFactoryWrapper(
 
     init {
         val hardwareVideoEncoderFactory = HardwareVideoEncoderFactory(
-                sharedContext, enableIntelVp8Encoder, enableH264HighProfile
+            sharedContext, enableIntelVp8Encoder, enableH264HighProfile
         )
         primary = StreamEncoderWrapperFactory(hardwareVideoEncoderFactory)
         fallback = StreamEncoderWrapperFactory(Fallback(primary))
