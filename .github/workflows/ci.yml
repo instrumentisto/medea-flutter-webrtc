@@ -54,6 +54,12 @@ jobs:
       - run: make cargo.build
       - run: make flutter.build
 
+      - name: Caching
+        uses: action/cache@2
+        key: testing
+        with:
+          path: windows/rust
+
   rustdoc:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
@@ -75,6 +81,11 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - name: Cache
+        uses: action/cache@2
+        key: testing
+        with:
+          path: windows/rust
       - run: make cargo.test
       - run: make cargo.build
       - run: make flutter.test device=windows
