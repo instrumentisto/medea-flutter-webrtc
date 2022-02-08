@@ -11,11 +11,8 @@ namespace flutter_webrtc_plugin {
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
-    plugin->textures(),
-    plugin->messenger()) {
-
-  media_device_count_ = webrtc->EnumerateDevices().size();
-
+          plugin->textures(),
+          plugin->messenger()) {
   // Creates a new `EventChannel` with name
   // "FlutterWebRTC/OnDeviceChange".
   std::string event_channel = "FlutterWebRTC/OnDeviceChange";
@@ -40,20 +37,18 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
 
   event_channel_->SetStreamHandler(std::move(handler));
 
-  // Binds a `Flutter` notifier callback.
-  auto bind = std::bind(
-      [](FlutterWebRTC* context) {
-        size_t new_count = context->webrtc->EnumerateDevices().size();
-        if (new_count != context->media_device_count_) {
-          context->media_device_count_ = new_count;
-          if (context->event_sink_) {
-            context->event_sink_->Success(null);
-          }
-        }
-      },
-      this);
-  // Converts `std::function` to `function pointer`.
-  register_notifier(Wrapper<0, void()>::wrap(bind));
+  // // Binds a `Flutter` notifier callback.
+  // auto bind = std::bind(
+  //     [](FlutterWebRTC* context) {
+  //       size_t new_count = context->webrtc->EnumerateDevices().size();
+  //       if (new_count != context->media_device_count_) {
+  //         context->media_device_count_ = new_count;
+  //         if (context->event_sink_) {
+  //           context->event_sink_->Success(null);
+  //         }
+  //       }
+  //     },
+  //     this);
 }
 
 FlutterWebRTC::~FlutterWebRTC() {}
@@ -122,5 +117,9 @@ void FlutterWebRTC::HandleMethodCall(
     result->NotImplemented();
   }
 }
+
+// OnDeviceChange::OnDeviceChange(EventSink<EncodableValue> event_sink) {
+//   event_sink_ = event_sink;
+// }
 
 }  // namespace flutter_webrtc_plugin

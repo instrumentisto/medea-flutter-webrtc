@@ -35,9 +35,15 @@ class FlutterWebRTC : public FlutterVideoRendererManager {
   std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
   // Event callback. Events to be sent to Flutter application
   // act as clients of this interface for sending events.
-  std::unique_ptr<EventSink<EncodableValue>> event_sink_;
+  std::shared_ptr<EventSink<EncodableValue>> event_sink_;
 };
 
-class OnDeviceChange : public OnDeviceChangeCallback {};
+// class OnDeviceChange : public OnDeviceChangeCallback {
+//  public:
+//   OnDeviceChange(EventSink<EncodableValue> event_sink);
+
+//  private:
+//   std::shared_ptr<EventSink<EncodableValue>> event_sink_;
+// };
 
 }  // namespace flutter_webrtc_plugin
