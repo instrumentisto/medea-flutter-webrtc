@@ -86,13 +86,14 @@ jobs:
   flutter_test:
     needs: ['build']
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: 2.8.1
       - run: flutter config --enable-windows-desktop
+      - run: make flutter.build
       - name: Cache
         uses: actions/cache@v2
         with:
