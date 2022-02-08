@@ -2,9 +2,6 @@
 #include <sstream>
 #include <string>
 
-#include <flutter/standard_message_codec.h>
-#include <flutter/standard_method_codec.h>
-
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include "media_stream.h"
@@ -16,33 +13,8 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
           plugin->textures(),
           plugin->messenger()) {
-  // Creates a new `EventChannel` with name
-  // "FlutterWebRTC/OnDeviceChange".
-  std::string event_channel = "FlutterWebRTC/OnDeviceChange";
-  event_channel_.reset(new EventChannel<EncodableValue>(
-      plugin->messenger(), event_channel, &StandardMethodCodec::GetInstance()));
-
-  // Creates a handler for the `EventChannel`.
-  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-      // An `on_listen` callback.
-      [&](const flutter::EncodableValue* arguments,
-          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        event_sink_ = std::move(events);
-        return nullptr;
-      },
-      // An `on_cancel` callback.
-      [&](const flutter::EncodableValue* arguments)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        event_sink_ = nullptr;
-        return nullptr;
-      });
-
-  event_channel_->SetStreamHandler(std::move(handler));
-
-  webrtc->SetOnDeviceChanged(std::make_unique<DeviceChangeHandler>(std::move(
-      std::bind([](FlutterWebRTC* context) { context->event_sink_->Success(); },
-                this))));
+  webrtc->SetOnDeviceChanged(
+      std::make_unique<DeviceChangeHandler>(plugin->messenger()));
 }
 
 FlutterWebRTC::~FlutterWebRTC() {}

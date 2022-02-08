@@ -1,13 +1,16 @@
-#include "flutter_webrtc.h"
 #include "media_stream.h"
+#include "flutter_webrtc.h"
 #include "parsing.h"
+
+#include <flutter/standard_message_codec.h>
+#include <flutter/standard_method_codec.h>
 
 namespace flutter_webrtc_plugin {
 
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 /// `MediaDeviceInfo` info for Dart.
 void EnumerateDevice(Box<Webrtc>& webrtc,
-                    std::unique_ptr<MethodResult<EncodableValue>> result) {
+                     std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
   EncodableList sources;
@@ -201,9 +204,9 @@ EncodableList GetParams(TrackKind type, MediaStream& user_media) {
 
 /// Changes the `enabled` property of the specified media track calling Rust
 /// `SetTrackEnabled`.
-void SetTrackEnabled( const flutter::MethodCall<EncodableValue>& method_call,
-                      Box<Webrtc>& webrtc,
-                      std::unique_ptr<MethodResult<EncodableValue>> result) {
+void SetTrackEnabled(const flutter::MethodCall<EncodableValue>& method_call,
+                     Box<Webrtc>& webrtc,
+                     std::unique_ptr<MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -221,8 +224,8 @@ void SetTrackEnabled( const flutter::MethodCall<EncodableValue>& method_call,
 
 /// Disposes some media stream calling Rust `DisposeStream`.
 void DisposeStream(const flutter::MethodCall<EncodableValue>& method_call,
-                  Box<Webrtc>& webrtc,
-                  std::unique_ptr<MethodResult<EncodableValue>> result) {
+                   Box<Webrtc>& webrtc,
+                   std::unique_ptr<MethodResult<EncodableValue>> result) {
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
   auto converted_id = std::stoi(findString(params, "streamId"));
@@ -233,6 +236,38 @@ void DisposeStream(const flutter::MethodCall<EncodableValue>& method_call,
 
   webrtc->DisposeStream(converted_id);
   result->Success();
+}
+
+DeviceChangeHandler::DeviceChangeHandler(
+    flutter::BinaryMessenger* binary_messanger) {
+  // Creates a new `EventChannel` with name
+  // "FlutterWebRTC/OnDeviceChange".
+  std::string event_channel = "FlutterWebRTC/OnDeviceChange";
+  event_channel_.reset(new EventChannel<EncodableValue>(
+      binary_messanger, event_channel, &StandardMethodCodec::GetInstance()));
+
+  // Creates a handler for the `EventChannel`.
+  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
+      // An `on_listen` callback.
+      [&](const flutter::EncodableValue* arguments,
+          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        event_sink_ = std::move(events);
+        return nullptr;
+      },
+      // An `on_cancel` callback.
+      [&](const flutter::EncodableValue* arguments)
+          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        event_sink_ = nullptr;
+        return nullptr;
+      });
+
+  event_channel_->SetStreamHandler(std::move(handler));
+}
+
+// `OnDeviceChangeCallback` implementation.
+void DeviceChangeHandler::OnDeviceChange() {
+  event_sink_->Success();
 }
 
 }  // namespace flutter_webrtc_plugin

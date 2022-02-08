@@ -28,14 +28,6 @@ class FlutterWebRTC : public FlutterVideoRendererManager {
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
   Box<Webrtc> webrtc = Init();
-
- private:
-  // A named channel for communicating with the Flutter application using
-  // asynchronous event streams.
-  std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
-  // Event callback. Events to be sent to Flutter application
-  // act as clients of this interface for sending events.
-  std::unique_ptr<EventSink<EncodableValue>> event_sink_;
 };
 
 }  // namespace flutter_webrtc_plugin

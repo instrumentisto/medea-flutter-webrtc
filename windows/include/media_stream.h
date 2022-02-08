@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flutter/method_result.h"
+#include "flutter_webrtc.h"
 
 using namespace rust::cxxbridge1;
 using namespace flutter;
@@ -45,14 +45,19 @@ EncodableList GetParams(TrackKind type, MediaStream& user_media);
 // Handler for changing media devices in system.
 class DeviceChangeHandler : public OnDeviceChangeCallback {
  public:
-  DeviceChangeHandler(std::function<void()> cb) : cb_(std::move(cb)){};
+  DeviceChangeHandler(flutter::BinaryMessenger* binary_messanger);
 
   // `OnDeviceChangeCallback` implementation.
-  void OnDeviceChange() { cb_(); };
+  void OnDeviceChange();
 
  private:
-  // A `callback` which generates events for Dart.
-  std::function<void()> cb_;
+  // A named channel for communicating with the Flutter application using
+  // asynchronous event streams.
+  std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
+
+  // Event callback. Events to be sent to Flutter application
+  // act as clients of this interface for sending events.
+  std::unique_ptr<EventSink<EncodableValue>> event_sink_;
 };
 
 }  // namespace flutter_webrtc_plugin
