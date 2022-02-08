@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include "rust/cxx.h"
-
 struct VideoFrame;
 
 // Completion callback for the `Webrtc::CreateOffer` and `Webrtc::CreateAnswer`
