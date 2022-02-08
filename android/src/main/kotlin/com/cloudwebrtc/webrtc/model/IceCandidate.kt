@@ -18,9 +18,9 @@ data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: Str
          */
         fun fromMap(map: Map<String, Any>): IceCandidate {
             return IceCandidate(
-                map["sdpMid"] as String,
-                map["sdpMLineIndex"] as Int,
-                map["sdp"] as String
+                    map["sdpMid"] as String,
+                    map["sdpMLineIndex"] as Int,
+                    map["sdp"] as String
             )
         }
 
@@ -30,7 +30,7 @@ data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: Str
          * @return [IceCandidate] created based on the provided [org.webrtc.IceCandidate].
          */
         fun fromWebRtc(from: WIceCandidate): IceCandidate =
-            IceCandidate(from.sdpMid, from.sdpMLineIndex, from.sdp)
+                IceCandidate(from.sdpMid, from.sdpMLineIndex, from.sdp)
 
     }
 
@@ -47,8 +47,8 @@ data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: Str
      * Converts this [IceCandidate] into [Map] which can be returned to the Flutter side.
      */
     fun intoMap(): Map<String, Any> = mapOf(
-        "sdpMid" to sdpMid,
-        "sdpMLineIndex" to sdpMLineIndex,
-        "sdp" to sdp
+            "sdpMid" to sdpMid,
+            "sdpMLineIndex" to sdpMLineIndex,
+            "sdp" to sdp
     )
 }

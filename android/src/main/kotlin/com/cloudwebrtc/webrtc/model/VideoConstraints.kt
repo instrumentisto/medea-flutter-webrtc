@@ -72,7 +72,8 @@ enum class ConstraintScore {
                 when (score) {
                     NO -> return null
                     YES -> total++
-                    MAYBE -> {}
+                    MAYBE -> {
+                    }
                 }
             }
 
@@ -130,7 +131,7 @@ interface ConstraintChecker {
  * @property isMandatory indicates that this constraint is mandatory.
  */
 data class DeviceIdConstraint(val id: String, override val isMandatory: Boolean) :
-    ConstraintChecker {
+        ConstraintChecker {
     override fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean {
         return deviceId == id
     }
@@ -143,7 +144,7 @@ data class DeviceIdConstraint(val id: String, override val isMandatory: Boolean)
  * @property isMandatory indicates that this constraint is mandatory.
  */
 data class FacingModeConstraint(val facingMode: FacingMode, override val isMandatory: Boolean) :
-    ConstraintChecker {
+        ConstraintChecker {
     override fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean {
         return when (facingMode) {
             FacingMode.USER -> enumerator.isFrontFacing(deviceId)
@@ -159,7 +160,7 @@ data class FacingModeConstraint(val facingMode: FacingMode, override val isManda
  * @property constraints list of [ConstraintChecker] provided by user.
  */
 data class VideoConstraints(
-    val constraints: List<ConstraintChecker>
+        val constraints: List<ConstraintChecker>
 ) {
     companion object {
         /**
@@ -172,7 +173,7 @@ data class VideoConstraints(
             val constraintCheckers = mutableListOf<ConstraintChecker>()
 
             val mandatoryArg =
-                map["mandatory"] as Map<*, *>?
+                    map["mandatory"] as Map<*, *>?
             for ((key, value) in mandatoryArg ?: mapOf<Any, Any>()) {
                 when (key as String) {
                     "deviceId" -> {
@@ -180,10 +181,10 @@ data class VideoConstraints(
                     }
                     "facingMode" -> {
                         constraintCheckers.add(
-                            FacingModeConstraint(
-                                FacingMode.fromInt(value as Int),
-                                true
-                            )
+                                FacingModeConstraint(
+                                        FacingMode.fromInt(value as Int),
+                                        true
+                                )
                         )
                     }
                 }
@@ -198,10 +199,10 @@ data class VideoConstraints(
                         }
                         "facingMode" -> {
                             constraintCheckers.add(
-                                FacingModeConstraint(
-                                    FacingMode.fromInt(value as Int),
-                                    false
-                                )
+                                    FacingModeConstraint(
+                                            FacingMode.fromInt(value as Int),
+                                            false
+                                    )
                             )
                         }
                     }

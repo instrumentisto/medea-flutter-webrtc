@@ -90,8 +90,8 @@ data class IceServer(val urls: List<String>, val username: String?, val password
  * created with this [PeerConnectionConfiguration].
  */
 data class PeerConnectionConfiguration(
-    val iceServers: List<IceServer>,
-    val iceTransportType: IceTransportType
+        val iceServers: List<IceServer>,
+        val iceTransportType: IceTransportType
 ) {
     /**
      * Converts this [PeerConnectionConfiguration] into [PeerConnection.RTCConfiguration].

@@ -16,10 +16,10 @@ import io.flutter.plugin.common.MethodChannel
  * @param state will be used for creating new [MediaStreamTrackProxy]s.
  */
 class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state: State) :
-    MethodChannel.MethodCallHandler {
+        MethodChannel.MethodCallHandler {
     private val mediaDevices = MediaDevices(state)
     private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("MediaDevices"))
+            MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("MediaDevices"))
 
     init {
         methodChannel.setMethodCallHandler(this)
@@ -36,8 +36,8 @@ class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state
 
                 result.success(tracks.map {
                     MediaStreamTrackController(
-                        binaryMessenger,
-                        it
+                            binaryMessenger,
+                            it
                     ).asFlutterResult()
                 })
             }

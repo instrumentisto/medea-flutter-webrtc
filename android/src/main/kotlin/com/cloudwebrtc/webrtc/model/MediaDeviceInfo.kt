@@ -34,8 +34,8 @@ data class MediaDeviceInfo(val deviceId: String, val label: String, val kind: Me
      * Converts this [MediaDeviceInfo] into [Map] which can be returned to the Flutter side.
      */
     fun intoMap(): Map<String, Any> = mapOf(
-        "deviceId" to deviceId,
-        "label" to label,
-        "kind" to kind.value
+            "deviceId" to deviceId,
+            "label" to label,
+            "kind" to kind.value
     )
 }

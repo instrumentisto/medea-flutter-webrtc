@@ -14,8 +14,8 @@ import io.flutter.plugin.common.MethodChannel
  * @property transceiver underlying [RtpTransceiverProxy] on which method calls will be performed.
  */
 class RtpTransceiverController(
-    private val binaryMessenger: BinaryMessenger,
-    private val transceiver: RtpTransceiverProxy
+        private val binaryMessenger: BinaryMessenger,
+        private val transceiver: RtpTransceiverProxy
 ) : MethodChannel.MethodCallHandler, IdentifiableController {
     /**
      * Unique ID of the [MethodChannel] of this controller.
@@ -26,7 +26,7 @@ class RtpTransceiverController(
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.withId("RtpTransceiver", channelId))
+            MethodChannel(binaryMessenger, ChannelNameGenerator.withId("RtpTransceiver", channelId))
 
     init {
         methodChannel.setMethodCallHandler(this)
@@ -50,10 +50,10 @@ class RtpTransceiverController(
             }
             "getSender" -> {
                 result.success(
-                    RtpSenderController(
-                        binaryMessenger,
-                        transceiver.getSender()
-                    ).asFlutterResult()
+                        RtpSenderController(
+                                binaryMessenger,
+                                transceiver.getSender()
+                        ).asFlutterResult()
                 )
             }
             "stop" -> {
@@ -74,12 +74,12 @@ class RtpTransceiverController(
      */
     fun asFlutterResult(): Map<String, Any?> {
         return mapOf(
-            "channelId" to channelId,
-            "sender" to RtpSenderController(
-                binaryMessenger,
-                transceiver.getSender()
-            ).asFlutterResult(),
-            "mid" to transceiver.getMid() as Any?
+                "channelId" to channelId,
+                "sender" to RtpSenderController(
+                        binaryMessenger,
+                        transceiver.getSender()
+                ).asFlutterResult(),
+                "mid" to transceiver.getMid() as Any?
         )
     }
 

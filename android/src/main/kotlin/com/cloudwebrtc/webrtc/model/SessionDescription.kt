@@ -79,8 +79,8 @@ data class SessionDescription(val type: SessionDescriptionType, val description:
          */
         fun fromWebRtc(sdp: WSessionDescription): SessionDescription {
             return SessionDescription(
-                SessionDescriptionType.fromWebRtc(sdp.type),
-                sdp.description
+                    SessionDescriptionType.fromWebRtc(sdp.type),
+                    sdp.description
             );
         }
 
@@ -111,8 +111,8 @@ data class SessionDescription(val type: SessionDescriptionType, val description:
      */
     fun intoMap(): Map<String, Any> {
         return mapOf(
-            "type" to type.value,
-            "description" to description
+                "type" to type.value,
+                "description" to description
         )
     }
 }

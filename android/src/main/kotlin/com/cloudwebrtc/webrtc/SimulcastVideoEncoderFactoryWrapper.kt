@@ -20,9 +20,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 internal class SimulcastVideoEncoderFactoryWrapper(
-    sharedContext: EglBase.Context?,
-    enableIntelVp8Encoder: Boolean,
-    enableH264HighProfile: Boolean
+        sharedContext: EglBase.Context?,
+        enableIntelVp8Encoder: Boolean,
+        enableH264HighProfile: Boolean
 ) : VideoEncoderFactory {
 
     /**
@@ -49,7 +49,7 @@ internal class SimulcastVideoEncoderFactoryWrapper(
      * but there aren't any specific problems in doing so.
      */
     private class Fallback(private val hardwareVideoEncoderFactory: VideoEncoderFactory) :
-        VideoEncoderFactory {
+            VideoEncoderFactory {
 
         private val softwareVideoEncoderFactory: VideoEncoderFactory = SoftwareVideoEncoderFactory()
 
@@ -85,8 +85,8 @@ internal class SimulcastVideoEncoderFactoryWrapper(
         var streamSettings: VideoEncoder.Settings? = null
 
         override fun initEncode(
-            settings: VideoEncoder.Settings,
-            callback: VideoEncoder.Callback?
+                settings: VideoEncoder.Settings,
+                callback: VideoEncoder.Callback?
         ): VideoCodecStatus {
             streamSettings = settings
             val future = executor.submit(Callable {
@@ -114,8 +114,8 @@ internal class SimulcastVideoEncoderFactoryWrapper(
         }
 
         override fun encode(
-            frame: VideoFrame,
-            encodeInfo: VideoEncoder.EncodeInfo?
+                frame: VideoFrame,
+                encodeInfo: VideoEncoder.EncodeInfo?
         ): VideoCodecStatus {
             val future = executor.submit(Callable {
                 //LKLog.d { "encode() buffer=${frame.buffer}, thread=${Thread.currentThread().name} " +
@@ -130,8 +130,8 @@ internal class SimulcastVideoEncoderFactoryWrapper(
                     val originalBuffer = frame.buffer
                     // TODO: Do we need to handle when the scale factor is weird?
                     val adaptedBuffer = originalBuffer.cropAndScale(
-                        0, 0, originalBuffer.width, originalBuffer.height,
-                        streamSettings!!.width, streamSettings!!.height
+                            0, 0, originalBuffer.width, originalBuffer.height,
+                            streamSettings!!.width, streamSettings!!.height
                     )
                     val adaptedFrame = VideoFrame(adaptedBuffer, frame.rotation, frame.timestampNs)
                     val result = encoder.encode(adaptedFrame, encodeInfo)
@@ -143,13 +143,13 @@ internal class SimulcastVideoEncoderFactoryWrapper(
         }
 
         override fun setRateAllocation(
-            allocation: VideoEncoder.BitrateAllocation?,
-            frameRate: Int
+                allocation: VideoEncoder.BitrateAllocation?,
+                frameRate: Int
         ): VideoCodecStatus {
             val future = executor.submit(Callable {
                 return@Callable encoder.setRateAllocation(
-                    allocation,
-                    frameRate
+                        allocation,
+                        frameRate
                 )
             })
             return future.get()
@@ -167,7 +167,7 @@ internal class SimulcastVideoEncoderFactoryWrapper(
     }
 
     private class StreamEncoderWrapperFactory(private val factory: VideoEncoderFactory) :
-        VideoEncoderFactory {
+            VideoEncoderFactory {
         override fun createEncoder(videoCodecInfo: VideoCodecInfo?): VideoEncoder? {
             val encoder = factory.createEncoder(videoCodecInfo)
             if (encoder == null) {
@@ -191,7 +191,7 @@ internal class SimulcastVideoEncoderFactoryWrapper(
 
     init {
         val hardwareVideoEncoderFactory = HardwareVideoEncoderFactory(
-            sharedContext, enableIntelVp8Encoder, enableH264HighProfile
+                sharedContext, enableIntelVp8Encoder, enableH264HighProfile
         )
         primary = StreamEncoderWrapperFactory(hardwareVideoEncoderFactory)
         fallback = StreamEncoderWrapperFactory(Fallback(primary))

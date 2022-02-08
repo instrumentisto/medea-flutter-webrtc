@@ -202,8 +202,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     internal fun observableEventBroadcaster(): EventObserver {
         return object : EventObserver {
             override fun onAddTrack(
-                track: MediaStreamTrackProxy,
-                transceiver: RtpTransceiverProxy
+                    track: MediaStreamTrackProxy,
+                    transceiver: RtpTransceiverProxy
             ) {
                 eventObservers.forEach { it.onAddTrack(track, transceiver) }
             }

@@ -19,13 +19,14 @@ object EglUtils {
         get() {
             if (field == null) {
                 field =
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) EglBase.createEgl10(
-                        EglBase.CONFIG_PLAIN
-                    ) else EglBase.create()
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) EglBase.createEgl10(
+                                EglBase.CONFIG_PLAIN
+                        ) else EglBase.create()
             }
             return field
         }
         private set
+
     @JvmStatic
     val rootEglBaseContext: EglBase.Context?
         get() {

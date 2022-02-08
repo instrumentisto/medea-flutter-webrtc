@@ -31,9 +31,9 @@ class State(private val context: Context) {
 
     init {
         PeerConnectionFactory.initialize(
-            PeerConnectionFactory.InitializationOptions.builder(context)
-                .setEnableInternalTracer(true)
-                .createInitializationOptions()
+                PeerConnectionFactory.InitializationOptions.builder(context)
+                        .setEnableInternalTracer(true)
+                        .createInitializationOptions()
         )
     }
 
@@ -42,21 +42,21 @@ class State(private val context: Context) {
      */
     private fun initPeerConnectionFactory() {
         val audioModule = JavaAudioDeviceModule.builder(context)
-            .setUseHardwareAcousticEchoCanceler(true)
-            .setUseHardwareNoiseSuppressor(true)
-            .createAudioDeviceModule()
+                .setUseHardwareAcousticEchoCanceler(true)
+                .setUseHardwareNoiseSuppressor(true)
+                .createAudioDeviceModule()
         val eglContext: EglBase.Context = EglUtils.rootEglBaseContext!!
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.mode = AudioManager.MODE_IN_CALL
         audioManager.isSpeakerphoneOn = true
         factory = PeerConnectionFactory.builder()
-            .setOptions(PeerConnectionFactory.Options())
-            .setVideoEncoderFactory(
-                DefaultVideoEncoderFactory(eglContext, true, true)
-            )
-            .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
-            .setAudioDeviceModule(audioModule)
-            .createPeerConnectionFactory()
+                .setOptions(PeerConnectionFactory.Options())
+                .setVideoEncoderFactory(
+                        DefaultVideoEncoderFactory(eglContext, true, true)
+                )
+                .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglContext))
+                .setAudioDeviceModule(audioModule)
+                .createPeerConnectionFactory()
         audioModule.setSpeakerMute(false)
         audioDeviceModule = audioModule
     }

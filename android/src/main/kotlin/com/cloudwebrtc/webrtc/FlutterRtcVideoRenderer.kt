@@ -18,7 +18,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
      * Texture entry on which video will be rendered.
      */
     private val surfaceTextureEntry: TextureRegistry.SurfaceTextureEntry =
-        textureRegistry.createSurfaceTexture()
+            textureRegistry.createSurfaceTexture()
 
     /**
      * Texture on which video will be rendered.
@@ -44,7 +44,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
      * Helper for rendering video on the surface.
      */
     private val surfaceTextureRenderer: SurfaceTextureRenderer =
-        SurfaceTextureRenderer("flutter-video-renderer-$id")
+            SurfaceTextureRenderer("flutter-video-renderer-$id")
 
     /**
      * [VideoTrackProxy] from which [FlutterRtcVideoRenderer] obtains video and renders it.

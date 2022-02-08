@@ -109,7 +109,7 @@ class MediaDevices(val state: State) {
     // TODO(evdokimovs): Adapt width, height and fps based on constraints
     private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
         val deviceId =
-            findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
+                findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
 
         val videoSource = state.getPeerConnectionFactory().createVideoSource(false)
         // TODO(evdokimovs): This is optional function call as I know, so
@@ -118,35 +118,35 @@ class MediaDevices(val state: State) {
         videoSource.adaptOutputFormat(1280, 720, 30)
 
         val surfaceTextureRenderer = SurfaceTextureHelper.create(
-            Thread.currentThread().name,
-            EglUtils.rootEglBaseContext
+                Thread.currentThread().name,
+                EglUtils.rootEglBaseContext
         )
         // TODO(evdokimovs): Maybe we need some implementation in CameraEventsHandler?
         val videoCapturer = cameraEnumerator.createCapturer(
-            deviceId,
-            object : CameraVideoCapturer.CameraEventsHandler {
-                override fun onCameraError(p0: String?) {}
-                override fun onCameraDisconnected() {}
-                override fun onCameraFreezed(p0: String?) {}
-                override fun onCameraOpening(p0: String?) {}
-                override fun onFirstFrameAvailable() {}
-                override fun onCameraClosed() {}
-            }
+                deviceId,
+                object : CameraVideoCapturer.CameraEventsHandler {
+                    override fun onCameraError(p0: String?) {}
+                    override fun onCameraDisconnected() {}
+                    override fun onCameraFreezed(p0: String?) {}
+                    override fun onCameraOpening(p0: String?) {}
+                    override fun onFirstFrameAvailable() {}
+                    override fun onCameraClosed() {}
+                }
         )
         videoCapturer.initialize(
-            surfaceTextureRenderer,
-            state.getAppContext(),
-            videoSource.capturerObserver
+                surfaceTextureRenderer,
+                state.getAppContext(),
+                videoSource.capturerObserver
         )
         // Just use width and height of the selected device here
         videoCapturer.startCapture(1280, 720, 30)
 
         val videoTrackSource = VideoMediaTrackSource(
-            videoCapturer,
-            videoSource,
-            surfaceTextureRenderer,
-            state.getPeerConnectionFactory(),
-            deviceId
+                videoCapturer,
+                videoSource,
+                surfaceTextureRenderer,
+                state.getPeerConnectionFactory(),
+                deviceId
         );
         return videoTrackSource.newTrack();
     }

@@ -20,11 +20,11 @@ import org.webrtc.*
  * @property deviceId unique device ID of the provided [VideoSource].
  */
 class VideoMediaTrackSource(
-    private val videoCapturer: VideoCapturer,
-    private val videoSource: VideoSource,
-    private val surfaceTextureRenderer: SurfaceTextureHelper,
-    private val peerConnectionFactoryProxy: PeerConnectionFactory,
-    private val deviceId: String
+        private val videoCapturer: VideoCapturer,
+        private val videoSource: VideoSource,
+        private val surfaceTextureRenderer: SurfaceTextureHelper,
+        private val peerConnectionFactoryProxy: PeerConnectionFactory,
+        private val deviceId: String
 ) : MediaTrackSource {
     /**
      * Count of currently alive [MediaStreamTrackProxy] created from this [VideoMediaTrackSource].
@@ -38,9 +38,9 @@ class VideoMediaTrackSource(
      */
     override fun newTrack(): MediaStreamTrackProxy {
         val videoTrack = MediaStreamTrackProxy(
-            peerConnectionFactoryProxy.createVideoTrack(LocalTrackIdGenerator.nextId(), videoSource),
-            deviceId,
-            this
+                peerConnectionFactoryProxy.createVideoTrack(LocalTrackIdGenerator.nextId(), videoSource),
+                deviceId,
+                this
         );
         aliveTracksCount += 1;
         videoTrack.onStop {

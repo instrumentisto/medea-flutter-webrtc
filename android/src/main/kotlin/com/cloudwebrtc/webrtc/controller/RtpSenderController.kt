@@ -14,7 +14,7 @@ import io.flutter.plugin.common.MethodChannel
  * @property track underlying [RtpSenderProxy] on which method calls will be performed.
  */
 class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSenderProxy) :
-    MethodChannel.MethodCallHandler, IdentifiableController {
+        MethodChannel.MethodCallHandler, IdentifiableController {
     /**
      * Unique ID of the [MethodChannel] of this controller.
      */
@@ -24,7 +24,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-        MethodChannel(messenger, ChannelNameGenerator.withId("RtpSender", channelId))
+            MethodChannel(messenger, ChannelNameGenerator.withId("RtpSender", channelId))
 
     init {
         methodChannel.setMethodCallHandler(this);

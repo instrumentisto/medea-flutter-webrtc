@@ -29,9 +29,9 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
      */
     override fun newTrack(): MediaStreamTrackProxy {
         val track = MediaStreamTrackProxy(
-            peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source),
-            "audio-1",
-            this
+                peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source),
+                "audio-1",
+                this
         )
         track.onStop {
             trackStopped()
