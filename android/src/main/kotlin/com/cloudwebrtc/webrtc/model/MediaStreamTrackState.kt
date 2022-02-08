@@ -9,7 +9,7 @@ import org.webrtc.MediaStreamTrack
  */
 enum class MediaStreamTrackState(val value: Int) {
     /**
-     * Indicates that the input is not giving any more data and will never provide new data
+     * Indicates that the input is not giving any more data and will never provide new data.
      */
     ENDED(0),
 

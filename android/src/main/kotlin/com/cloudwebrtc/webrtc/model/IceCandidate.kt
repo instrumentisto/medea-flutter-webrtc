@@ -7,7 +7,7 @@ import org.webrtc.IceCandidate as WIceCandidate;
  *
  * @property sdpMid mid of this [IceCandidate].
  * @property sdpMLineIndex sdpMLineIndex of this [IceCandidate].
- * @property sdp  SDPof this [IceCandidate].
+ * @property sdp  SDP of this [IceCandidate].
  */
 data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: String) {
     companion object {
