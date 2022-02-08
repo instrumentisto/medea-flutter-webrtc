@@ -60,19 +60,6 @@ jobs:
           key: build-rust-${{ github.run_id }}
           path: windows/rust
 
-      - name: Caching target/
-        uses: actions/cache@v2
-        with:
-          key: build-target-${{ github.run_id }}
-          path: target/
-
-      - name: Caching example/build
-        uses: actions/cache@v2
-        with:
-          key: build-flutter-${{ github.run_id }}
-          path: example/build
-
-
   rustdoc:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
@@ -94,11 +81,6 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - name: Caching target/
-        uses: actions/cache@v2
-        with:
-          key: build-target-${{ github.run_id }}
-          path: target/
       - run: make cargo.test
 
   flutter_test:
@@ -111,14 +93,9 @@ jobs:
         with:
           flutter-version: 2.8.1
       - run: flutter config --enable-windows-desktop
-      - name: Store windows/rust
+      - name: Storing windows/rust
         uses: actions/cache@v2
         with:
           key: build-rust-${{ github.run_id }}
           path: windows/rust
-      - name: Caching example/build
-        uses: actions/cache@v2
-        with:
-          key: build-flutter-${{ github.run_id }}
-          path: example/build
       - run: make flutter.test device=windows
