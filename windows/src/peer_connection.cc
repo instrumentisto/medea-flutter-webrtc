@@ -55,7 +55,6 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
 // Flutter side via `flutter::EventSink`.
 class PeerConnectionObserver : public PeerConnectionObserverInterface {
  public:
-
   // `PeerConnectionObserver` dependencies.
   struct Dependencies {
     // `EventSink` guard.
@@ -173,37 +172,13 @@ using namespace flutter;
 // Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
-    flutter::BinaryMessenger* messenger,
     Box<Webrtc>& webrtc,
+    flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
 
   auto ctx = std::make_shared<PeerConnectionObserver::Dependencies>();
-  std::weak_ptr<PeerConnectionObserver::Dependencies> weak_deps(ctx);
   auto observer = std::make_unique<PeerConnectionObserver>(std::move(ctx));
-
-  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-      [=](
-          const flutter::EncodableValue* arguments,
-          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        auto context = weak_deps.lock();
-        if (context) {
-          const std::lock_guard<std::mutex> lock(*context->lock_);
-          context->sink_ = std::move(events);
-        }
-        return nullptr;
-      },
-
-      [=](const flutter::EncodableValue* arguments)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        auto context = weak_deps.lock();
-        if (context) {
-          const std::lock_guard<std::mutex> lock(*context->lock_);
-          context->sink_.reset();
-        }
-        return nullptr;
-      });
 
   rust::String error;
   uint64_t id = webrtc->CreatePeerConnection(std::move(observer), error);
@@ -214,6 +189,28 @@ void CreateRTCPeerConnection(
               messenger, "PeerConnection/Event/channel/id/" + peer_id,
               &StandardMethodCodec::GetInstance()));
 
+    std::weak_ptr<PeerConnectionObserver::Dependencies> weak_deps(ctx);
+    auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
+        [=](const flutter::EncodableValue* arguments,
+            std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+            -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+          auto context = weak_deps.lock();
+          if (context) {
+            const std::lock_guard<std::mutex> lock(*context->lock_);
+            context->sink_ = std::move(events);
+          }
+          return nullptr;
+        },
+
+        [=](const flutter::EncodableValue* arguments)
+            -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+          auto context = weak_deps.lock();
+          if (context) {
+            const std::lock_guard<std::mutex> lock(*context->lock_);
+            context->sink_.reset();
+          }
+          return nullptr;
+        });
       event_channel->SetStreamHandler(std::move(handler));
       ctx->chan_ = std::move(event_channel);
 
@@ -267,7 +264,7 @@ void CreateOffer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-    rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
+  rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
                                            voice_activity_detection,
                                            ice_restart,
                                            use_rtp_mux,

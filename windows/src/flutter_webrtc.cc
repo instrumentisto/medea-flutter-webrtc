@@ -22,7 +22,7 @@ void FlutterWebRTC::HandleMethodCall(
   const std::string& method = method_call.method_name();
 
   if (method.compare("createPeerConnection") == 0) {
-    CreateRTCPeerConnection(messenger_, webrtc, method_call, std::move(result));
+    CreateRTCPeerConnection(webrtc, messenger_, method_call, std::move(result));
   } else if (method.compare("getSources") == 0) {
     EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
