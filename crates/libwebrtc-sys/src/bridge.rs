@@ -1,7 +1,7 @@
 use std::fmt;
 
 use anyhow::anyhow;
-use cxx::{CxxString, UniquePtr};
+use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
     Candidate, CreateSdpCallback, OnFrameCallback, PeerConnectionOnEvent,
@@ -517,6 +517,11 @@ pub(crate) mod webrtc {
         type VideoFrame;
         type VideoSinkInterface;
         type VideoRotation;
+        type RtpParameters;
+        type RtpCodecParameters;
+        type RtpExtension;
+        type RtpEncodingParameters;
+        type RtcpParameters;
 
         /// Creates a new [`VideoTrackSourceInterface`].
         pub fn create_video_source(
@@ -650,13 +655,13 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<RtpReceiverInterface>;
 
         // todo
-        pub fn rtp_receiver_interface_streams(
+        pub fn rtp_receiver_interface_get_streams(
             receiver: &RtpReceiverInterface,
         ) -> UniquePtr<CxxVector<MediaStreamInterface>>;
 
         pub fn rtp_sender_interface_get_track(
             receiver: &RtpReceiverInterface,
-        ) -> &MediaStreamTrackInterface;
+        ) -> UniquePtr<MediaStreamTrackInterface>;
 
         // todo refact to bridge
         pub fn media_stream_interface_get_id(
@@ -672,22 +677,6 @@ pub(crate) mod webrtc {
         pub fn media_stream_interface_get_video_tracks(
             stream: &MediaStreamInterface,
         ) -> UniquePtr<CxxVector<VideoTrackInterface>>;
-
-        // // todo
-        // pub fn audio_track_interface_get_kind(
-        //     track: &AudioTrackInterface) -> UniquePtr<CxxString>;
-
-        // // todo
-        // pub fn audio_track_interface_get_id(
-        //     track: &AudioTrackInterface) -> UniquePtr<CxxString>;
-
-        // // todo
-        // pub fn audio_track_interface_get_state(
-        //     track: &AudioTrackInterface) -> TrackState;
-
-        // // todo
-        // pub fn audio_track_interface_get_enabled(
-        //     track: &AudioTrackInterface) -> bool;
 
         // todo
         pub fn media_stream_track_interface_get_kind(
@@ -716,6 +705,58 @@ pub(crate) mod webrtc {
         pub fn audio_track_truncation(
             track: &AudioTrackInterface,
         ) -> &MediaStreamTrackInterface;
+
+        // todo recheck
+        pub fn media_stream_track_interface_downcast_video_track(
+            track: Pin<&mut MediaStreamTrackInterface>,
+        ) -> UniquePtr<VideoTrackInterface>;
+
+        // todo recheck
+        pub fn media_stream_track_interface_downcast_audio_track(
+            track: Pin<&mut MediaStreamTrackInterface>,
+        ) -> UniquePtr<AudioTrackInterface>;
+
+        pub fn audio_track_get_sourse(
+            track: &AudioTrackInterface,
+        ) -> UniquePtr<AudioSourceInterface>;
+
+        pub fn video_track_get_sourse(
+            track: &VideoTrackInterface,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
+
+        pub fn rtp_sender_interface_get_parameters(
+            receiver: &RtpReceiverInterface,
+        ) -> UniquePtr<RtpParameters>;
+
+        // todo
+        pub fn rtp_parameters_get_transaction_id(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxString>;
+
+        // todo
+        pub fn rtp_parameters_get_mid(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxString>;
+
+        // todo
+        pub fn rtp_parameters_get_codecs(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxVector<RtpCodecParameters>>;
+
+        // todo
+        pub fn rtp_parameters_get_header_extensions(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxVector<RtpExtension>>;
+
+        // todo
+        pub fn rtp_parameters_get_encodings(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxVector<RtpEncodingParameters>>;
+
+        // todo
+        pub fn rtp_parameters_get_rtcp(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<RtcpParameters>;
     }
 
     extern "Rust" {
@@ -731,6 +772,7 @@ pub(crate) mod webrtc {
 
     // This will trigger cxx to generate UniquePtrTarget trait for the
     // mentioned types.
+
     extern "Rust" {
         fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
     }

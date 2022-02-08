@@ -74,6 +74,7 @@ using PeerConnectionFactoryInterface =
     rc<webrtc::PeerConnectionFactoryInterface>;
 using PeerConnectionInterface = rc<webrtc::PeerConnectionInterface>;
 using VideoTrackInterface = rc<webrtc::VideoTrackInterface>;
+
 using VideoTrackSourceInterface = rc<webrtc::VideoTrackSourceInterface>;
 
 using CreateSessionDescriptionObserver =
@@ -97,6 +98,13 @@ using RtpReceiverInterface = rc<webrtc::RtpReceiverInterface>;
 using RtpTransceiverInterface = rc<webrtc::RtpTransceiverInterface>;
 using RtpSenderInterface = rc<webrtc::RtpSenderInterface>;
 using MediaStreamTrackInterface = rc<webrtc::MediaStreamTrackInterface>;
+using RtcpParameters = webrtc::RtcpParameters; // todo
+using RtpParameters = webrtc::RtpParameters;
+using RtpCodecParameters = webrtc::RtpCodecParameters;
+using RtpExtension = webrtc::RtpExtension;
+using RtpEncodingParameters = webrtc::RtpEncodingParameters;
+
+using MediaType = cricket::MediaType;
 
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -308,40 +316,102 @@ const Candidate& get_local_candidate(const CandidatePair& pair);
 // Calls `CandidatePair->remote_candidate`.
 const Candidate& get_remote_candidate(const CandidatePair& pair);
 
+
+
+
+// RtpReceiverInterface
+
 // todo
 std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
     const RtpTransceiverInterface& transceiver);
 
+// todo
+std::unique_ptr<std::string> rtp_receiver_interface_get_id(
+    const RtpReceiverInterface& receiver);
+
 // todo 
-std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_streams(
+std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_get_streams(
     const RtpReceiverInterface& receiver);
 
 // todo
-std::unique_ptr<std::string> media_stream_interface_get_id(const MediaStreamInterface& stream);
+std::unique_ptr<MediaStreamTrackInterface> rtp_sender_interface_get_track(
+    const RtpReceiverInterface& receiver);
+
+// todo 
+std::unique_ptr<std::vector<std::string>> rtp_sender_interface_get_stream_ids(
+    const RtpReceiverInterface& receiver);
 
 // todo
-std::unique_ptr<std::vector<AudioTrackInterface>> media_stream_interface_get_audio_tracks(
-    const MediaStreamInterface& stream);
+std::unique_ptr<RtpParameters> rtp_sender_interface_get_parameters(
+    const RtpReceiverInterface& receiver);
+
+// End RtpReceiverInterface
+
+
+
+
+// RtpParameters 
 
 // todo
-std::unique_ptr<std::vector<VideoTrackInterface>> media_stream_interface_get_video_tracks(
-    const MediaStreamInterface& stream);
+std::unique_ptr<std::string> rtp_parameters_get_transaction_id(
+    const RtpParameters& parameters);
+
+// todo
+std::unique_ptr<std::string> rtp_parameters_get_mid(
+    const RtpParameters& parameters);
+
+// todo
+std::unique_ptr<std::vector<RtpCodecParameters>> rtp_parameters_get_codecs(
+    const RtpParameters& parameters);
+
+// todo
+std::unique_ptr<std::vector<RtpExtension>> rtp_parameters_get_header_extensions(
+    const RtpParameters& parameters);
+
+// todo
+std::unique_ptr<std::vector<RtpEncodingParameters>> rtp_parameters_get_encodings(
+    const RtpParameters& parameters);
+
+// todo
+std::unique_ptr<RtcpParameters> rtp_parameters_get_rtcp(
+    const RtpParameters& parameters);
+
+// End RtpParameters
+
+
+
+// RtpCodecParameters
+
+// todo 
+std::unique_ptr<std::string> rtp_codec_parameters_get_name(
+    const RtpCodecParameters& codec);
+
+// todo 
+int rtp_codec_parameters_get_payload_type(
+    const RtpCodecParameters& codec);
+
+// todo optinoanl
+int rtp_codec_parameters_get_clock_rate(
+    const RtpCodecParameters& codec);
+
+// todo
+int rtp_codec_parameters_get_num_channels(
+    const RtpCodecParameters& codec);
 
 // // todo
-// std::unique_ptr<std::string> audio_track_interface_get_kind(
-//     const AudioTrackInterface& track);
+// <SHARED_TYPE> rtp_codec_parameters_get_parameters(
+//     const RtpCodecParameters& codec);
 
-// // todo
-// std::unique_ptr<std::string> audio_track_interface_get_id(
-//     const AudioTrackInterface& track);
+// todo
+MediaType rtp_codec_parameters_get_kind(
+    const RtpCodecParameters& codec);
 
-// // todo
-// TrackState audio_track_interface_get_state(
-//     const AudioTrackInterface& track);
+// Enc RtpCodecParameters
 
-// // todo
-// bool audio_track_interface_get_enabled(
-//     const AudioTrackInterface& track);
+
+
+
+// MediaStreamTrackInterface
 
 // todo
 std::unique_ptr<std::string> media_stream_track_interface_get_kind(
@@ -359,14 +429,63 @@ TrackState media_stream_track_interface_get_state(
 bool media_stream_track_interface_get_enabled(
     const MediaStreamTrackInterface& track);
 
-// todo
-const MediaStreamTrackInterface& rtp_sender_interface_get_track(
-    const RtpReceiverInterface& receiver);
+// todo recheck
+std::unique_ptr<VideoTrackInterface> media_stream_track_interface_downcast_video_track(
+  MediaStreamTrackInterface& track);
+// todo recheck
+std::unique_ptr<AudioTrackInterface> media_stream_track_interface_downcast_audio_track(
+  MediaStreamTrackInterface& track);
 
+// End MediaStreamTrackInterface
+
+
+
+
+// MediaStreamInterface
+
+// todo
+std::unique_ptr<std::string> media_stream_interface_get_id(const MediaStreamInterface& stream);
+
+// todo
+std::unique_ptr<std::vector<AudioTrackInterface>> media_stream_interface_get_audio_tracks(
+    const MediaStreamInterface& stream);
+
+// todo
+std::unique_ptr<std::vector<VideoTrackInterface>> media_stream_interface_get_video_tracks(
+    const MediaStreamInterface& stream);
+
+// End MediaStreamInterface
+
+
+
+
+// VideoTrackInterface
+
+// todo
 const MediaStreamTrackInterface& video_track_truncation(
     const VideoTrackInterface& track);
 
+// todo
+std::unique_ptr<VideoTrackSourceInterface> video_track_get_sourse(
+    const VideoTrackInterface& track);
+
+// End VideoTrackInterface
+
+
+
+
+// AudioTrackInterface
+
+// todo
 const MediaStreamTrackInterface& audio_track_truncation(
     const AudioTrackInterface& track);
+
+// todo
+std::unique_ptr<AudioSourceInterface> audio_track_get_sourse(
+     const AudioTrackInterface& track);
+
+// End AudioTrackInterface
+
+
 
 }  // namespace bridge

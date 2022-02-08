@@ -426,14 +426,22 @@ const Candidate& get_remote_candidate(const CandidatePair& pair) {
   return pair.remote_candidate();
 };
 
+
 // todo
 std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
     const RtpTransceiverInterface& transceiver) {
       return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
     }
 
+
+// RtpReceiverInterface
+
 // todo
-std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_streams(
+std::unique_ptr<std::string> rtp_receiver_interface_get_id(
+    const RtpReceiverInterface& receiver);
+
+// todo
+std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_get_streams(
     const RtpReceiverInterface& receiver) {
       auto streams = receiver->streams();
       std::vector<MediaStreamInterface> result;
@@ -443,7 +451,107 @@ std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_stream
       return std::make_unique<std::vector<MediaStreamInterface>>(result);
     }
 
-// todo refact to bridge
+
+// todo
+std::unique_ptr<MediaStreamTrackInterface> rtp_sender_interface_get_track(
+    const RtpReceiverInterface& receiver) {
+      return std::make_unique<MediaStreamTrackInterface>(receiver->track());
+}
+
+// todo 
+std::unique_ptr<std::vector<std::string>> rtp_sender_interface_get_stream_ids(
+    const RtpReceiverInterface& receiver) {
+      return std::make_unique<std::vector<std::string>>(receiver->stream_ids());
+    }
+
+// todo
+std::unique_ptr<RtpParameters> rtp_sender_interface_get_parameters(
+    const RtpReceiverInterface& receiver) {
+      return std::make_unique<RtpParameters>(receiver->GetParameters());
+    }
+
+// End RtpReceiverInterface
+
+
+
+
+// RtpParameters 
+
+// todo
+std::unique_ptr<std::string> rtp_parameters_get_transaction_id(
+    const RtpParameters& parameters) {
+      return std::make_unique<std::string>(parameters.transaction_id);
+    }
+
+// todo
+std::unique_ptr<std::string> rtp_parameters_get_mid(
+    const RtpParameters& parameters) {
+      return std::make_unique<std::string>(parameters.mid);
+    }
+
+// todo
+std::unique_ptr<std::vector<RtpCodecParameters>> rtp_parameters_get_codecs(
+    const RtpParameters& parameters) {
+      return std::make_unique<std::vector<RtpCodecParameters>>(parameters.codecs);
+    }
+
+// todo
+std::unique_ptr<std::vector<RtpExtension>> rtp_parameters_get_header_extensions(
+    const RtpParameters& parameters) {
+      return std::make_unique<std::vector<RtpExtension>>(parameters.header_extensions);
+    }
+
+// todo
+std::unique_ptr<std::vector<RtpEncodingParameters>> rtp_parameters_get_encodings(
+    const RtpParameters& parameters) {
+      return std::make_unique<std::vector<RtpEncodingParameters>>(parameters.encodings);
+    }
+
+// todo
+std::unique_ptr<RtcpParameters> rtp_parameters_get_rtcp(
+    const RtpParameters& parameters) {
+      return std::make_unique<RtcpParameters>(parameters.rtcp);
+    }
+
+// End RtpParameters
+
+
+
+// RtpCodecParameters
+
+// todo 
+std::unique_ptr<std::string> rtp_codec_parameters_get_name(
+    const RtpCodecParameters& codec) {
+      return std::make_unique<std::string>(codec.name);
+    }
+
+// todo 
+int rtp_codec_parameters_get_payload_type(
+    const RtpCodecParameters& codec);
+
+// todo optinoanl
+int rtp_codec_parameters_get_clock_rate(
+    const RtpCodecParameters& codec);
+
+// todo
+int rtp_codec_parameters_get_num_channels(
+    const RtpCodecParameters& codec);
+
+// // todo
+// <SHARED_TYPE> rtp_codec_parameters_get_parameters(
+//     const RtpCodecParameters& codec);
+
+// todo
+MediaType rtp_codec_parameters_get_kind(
+    const RtpCodecParameters& codec);
+
+// End RtpCodecParameters
+
+
+
+// MediaStreamInterface
+
+// todo 
 std::unique_ptr<std::string> media_stream_interface_get_id(
   const MediaStreamInterface& stream) {
   return std::make_unique<std::string>(stream->id());
@@ -471,6 +579,14 @@ std::unique_ptr<std::vector<VideoTrackInterface>> media_stream_interface_get_vid
       return std::make_unique<std::vector<VideoTrackInterface>>(result);
     }
 
+
+// End MediaStreamInterface
+
+
+
+
+// MediaStreamTrackInterface
+
 // todo
 std::unique_ptr<std::string> media_stream_track_interface_get_kind(
     const MediaStreamTrackInterface& track) {
@@ -495,12 +611,23 @@ bool media_stream_track_interface_get_enabled(
       return track->enabled();
     }
 
-// todo
-const MediaStreamTrackInterface& rtp_sender_interface_get_track(
-    const RtpReceiverInterface& receiver) {
-      auto track = static_cast<webrtc::VideoTrackInterface*>(receiver->track().get());
-      return receiver->track();
-}
+// todo recheck
+std::unique_ptr<VideoTrackInterface> media_stream_track_interface_downcast_video_track(
+  MediaStreamTrackInterface& track) {
+    return std::make_unique<VideoTrackInterface>(static_cast<webrtc::VideoTrackInterface*>(track.ptr()));
+  }
+
+// todo recheck
+std::unique_ptr<AudioTrackInterface> media_stream_track_interface_downcast_audio_track(
+  MediaStreamTrackInterface& track) {
+    return std::make_unique<AudioTrackInterface>(static_cast<webrtc::AudioTrackInterface*>(track.ptr()));
+  }
+
+// End MediaStreamTrackInterface
+
+
+
+
 
 const MediaStreamTrackInterface& video_track_truncation(
     const VideoTrackInterface& track) {
@@ -510,6 +637,17 @@ const MediaStreamTrackInterface& video_track_truncation(
 const MediaStreamTrackInterface& audio_track_truncation(
     const AudioTrackInterface& track) {
       return MediaStreamTrackInterface(track.ptr());
+    }
+
+// todo
+std::unique_ptr<AudioSourceInterface> audio_track_get_sourse(
+     const AudioTrackInterface& track) {
+       return std::make_unique<AudioSourceInterface>(track->GetSource());
+     }
+
+std::unique_ptr<VideoTrackSourceInterface> video_track_get_sourse(
+    const VideoTrackInterface& track) {
+      return std::make_unique<VideoTrackSourceInterface>(track->GetSource());
     }
 
 }  // namespace bridge

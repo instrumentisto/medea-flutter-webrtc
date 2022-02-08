@@ -7,23 +7,31 @@ use sys::{
     get_candidate_pair, get_estimated_disconnected_time_ms,
     get_last_data_received_ms, get_local_candidate, get_remote_candidate,
     PeerConnectionObserver, _AudioTrackInterface, _VideoTrackInterface,
-    get_reason, media_stream_interface_get_audio_tracks,
+    audio_track_get_sourse, get_reason,
+    media_stream_interface_get_audio_tracks,
     media_stream_interface_get_video_tracks,
+    media_stream_track_interface_downcast_audio_track,
+    media_stream_track_interface_downcast_video_track,
+    rtp_sender_interface_get_parameters, video_track_get_sourse,
+    AudioSourceInterface, AudioTrackInterface, MediaStreamTrackInterface,
+    VideoTrackInterface, VideoTrackSourceInterface,
 };
 
 use sys::{
     audio_track_truncation, media_stream_interface_get_id,
     media_stream_track_interface_get_enabled,
     media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
-    media_stream_track_interface_get_state, rtp_receiver_interface_streams,
+    media_stream_track_interface_get_state, rtp_receiver_interface_get_streams,
     rtp_sender_interface_get_track, rtp_transceiver_interface_get_receiver,
     video_track_truncation,
 };
 
-use crate::Context;
-use crate::api::{
-    MediaStreamInterfaceSerialized, OnTrackSerialized,
-    PeerConnectionOnEventInterface, TrackInterfaceSerialized,
+use crate::{
+    api::{
+        MediaStreamInterfaceSerialized, OnTrackSerialized,
+        PeerConnectionOnEventInterface, TrackInterfaceSerialized,
+    },
+    AudioTrack, Context, VideoTrack, VideoTrackId,
 };
 
 use crate::{
@@ -42,15 +50,17 @@ impl Webrtc {
     ) -> u64 {
         let dependencies =
             sys::PeerConnectionDependencies::new(PeerConnectionObserver::new(
-                Box::new(HandlerPeerConnectionOnEvent{cb}),
+                Box::new(HandlerPeerConnectionOnEvent {
+                    cb,
+                    ctx: self.0.as_ref().clone(),
+                }),
             ));
-        let peer = PeerConnection::new(
-            &mut self.0.peer_connection_factory,
-            dependencies,
-        );
+
+        let mut ctx = self.0.lock().unwrap();
+        let peer =
+            PeerConnection::new(&mut ctx.peer_connection_factory, dependencies);
         match peer {
-            Ok(peer) => self
-                .0
+            Ok(peer) => ctx
                 .peer_connections
                 .entry(peer.id)
                 .or_insert(peer)
@@ -75,8 +85,8 @@ impl Webrtc {
         use_rtp_mux: bool,
         cb: UniquePtr<CreateSdpCallbackInterface>,
     ) -> String {
-        let peer = if let Some(peer) = self
-            .0
+        let mut ctx = self.0.lock().unwrap();
+        let peer = if let Some(peer) = ctx
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -114,8 +124,8 @@ impl Webrtc {
         use_rtp_mux: bool,
         cb: UniquePtr<CreateSdpCallbackInterface>,
     ) -> String {
-        let peer = if let Some(peer) = self
-            .0
+        let mut ctx = self.0.lock().unwrap();
+        let peer = if let Some(peer) = ctx
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -152,8 +162,8 @@ impl Webrtc {
         sdp: String,
         cb: UniquePtr<SetDescriptionCallbackInterface>,
     ) -> String {
-        let peer = if let Some(peer) = self
-            .0
+        let mut ctx = self.0.lock().unwrap();
+        let peer = if let Some(peer) = ctx
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -189,8 +199,8 @@ impl Webrtc {
         sdp: String,
         cb: UniquePtr<SetDescriptionCallbackInterface>,
     ) -> String {
-        let peer = if let Some(peer) = self
-            .0
+        let mut ctx = self.0.lock().unwrap();
+        let peer = if let Some(peer) = ctx
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -279,7 +289,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 /// [`PeerConnectionOnEventInterface`] wrapper.
 struct HandlerPeerConnectionOnEvent {
     cb: UniquePtr<PeerConnectionOnEventInterface>,
-    //ctx: Arc<Mutex<Context>>,
+    ctx: Arc<Mutex<Context>>,
 }
 
 impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
@@ -406,9 +416,8 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
     }
 
     fn on_track(&mut self, event: &crate::RtpTransceiverInterface) {
-        // todo add track to webrtc context
         let receiver = rtp_transceiver_interface_get_receiver(event);
-        let mut streams = rtp_receiver_interface_streams(&receiver);
+        let mut streams = rtp_receiver_interface_get_streams(&receiver);
 
         let mut vec_streams = vec![];
         for i in streams.pin_mut() {
@@ -436,11 +445,54 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
             vec_streams.push(media);
         }
 
-        let track = rtp_sender_interface_get_track(&receiver);
+        let mut track = rtp_sender_interface_get_track(&receiver);
+
+        if media_stream_track_interface_get_kind(&track.pin_mut()).to_string()
+            == "video"
+        {
+            let id = media_stream_track_interface_get_id(&track.pin_mut())
+                .to_string()
+                .parse::<u64>()
+                .unwrap();
+
+            let inner = VideoTrackInterface::new(
+                media_stream_track_interface_downcast_video_track(
+                    track.pin_mut(),
+                ),
+            );
+            let source = video_track_get_sourse(inner.inner());
+            let v = VideoTrack::my_new(
+                inner,
+                VideoTrackSourceInterface::my_new(source),
+            );
+            self.ctx.lock().unwrap().video_tracks.insert(id.into(), v);
+        } else {
+            let id = media_stream_track_interface_get_id(&track.pin_mut())
+                .to_string()
+                .parse::<u64>()
+                .unwrap();
+
+            let inner = AudioTrackInterface::new(
+                media_stream_track_interface_downcast_audio_track(
+                    track.pin_mut(),
+                ),
+            );
+            let source = audio_track_get_sourse(inner.inner());
+            let a =
+                AudioTrack::my_new(inner, AudioSourceInterface::new(source));
+            self.ctx.lock().unwrap().audio_tracks.insert(id.into(), a);
+        }
+
+        let par =
+            rtp_sender_interface_get_parameters(receiver.as_ref().unwrap());
 
         let result = OnTrackSerialized {
             streams: vec_streams,
-            track: TrackInterfaceSerialized::from(track),
+            track: TrackInterfaceSerialized::from(
+                &track.pin_mut() as &MediaStreamTrackInterface
+            ),
+            receiver: todo!(),
+            transceiver: todo!(),
         };
         self.cb.pin_mut().on_track(result);
     }

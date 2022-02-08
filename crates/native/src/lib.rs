@@ -9,14 +9,17 @@ mod video_sink;
 use std::{
     collections::HashMap,
     rc::Rc,
-    sync::{atomic::{AtomicU64, Ordering}, Arc, Mutex},
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc, Mutex,
+    },
 };
 
-use api::TrackInterfaceSerialized;
+use api::{RtpParametersSerialized, TrackInterfaceSerialized};
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, MediaStreamTrackInterface,
-    PeerConnectionFactoryInterface, RtpTransceiverInterface, TaskQueueFactory,
-    Thread, VideoDeviceInfo, _AudioTrackInterface,
+    PeerConnectionFactoryInterface, RtpParameters, RtpTransceiverInterface,
+    TaskQueueFactory, Thread, VideoDeviceInfo, _AudioTrackInterface,
     _VideoTrackInterface,
 };
 
@@ -88,10 +91,51 @@ pub mod api {
     }
 
     // todo
-    pub struct RtpParametersSerialized {
-        id: String,
+    pub struct RtcpParametersSerialized {
         cname: String,
         reduced_size: usize,
+    }
+
+    // todo
+    pub struct RtpExtensionSerialized {
+        uri: String,
+        id: i32,
+        encrypted: bool,
+    }
+
+    // todo
+    pub struct RtpEncodingParameters {
+        active: bool,
+        maxBitrate: i32,
+        minBitrate: i32,
+        maxFramerate: f64,
+        scaleResolutionDownBy: f64,
+        ssrc: i64,
+    }
+
+    // todo
+    pub struct Pair {
+        first: String,
+        second: String,
+    }
+
+    // todo
+    pub struct RtpCodecParametersSerialized {
+        name: String,
+        payloadType: i32,
+        clockRate: i32,
+        numChannels: i32,
+        parameters: Vec<Pair>,
+        kind: String,
+    }
+
+    // todo
+    pub struct RtpParametersSerialized {
+        id: String,
+        rtcp: RtcpParametersSerialized,
+        codecs: Vec<RtpCodecParametersSerialized>,
+        header_extensions: Vec<RtpExtensionSerialized>,
+        encodings: Vec<RtpEncodingParameters>,
     }
 
     // todo
@@ -128,8 +172,8 @@ pub mod api {
     pub struct OnTrackSerialized {
         streams: Vec<MediaStreamInterfaceSerialized>,
         track: TrackInterfaceSerialized,
-        // todo receiver: RtpReceiverInterfaceSerialized,
-        // todo transceiver: RtpTransceiverInterfaceSerialized,
+        receiver: RtpReceiverInterfaceSerialized,
+        transceiver: RtpTransceiverInterfaceSerialized,
     }
 
     pub struct OnRemoveTrackSerialized {
@@ -434,9 +478,20 @@ impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
     }
 }
 
+impl From<&RtpParameters> for RtpParametersSerialized {
+    fn from(par: &RtpParameters) -> Self {
+        Self {
+            id: todo!(),
+            rtcp: todo!(),
+            codecs: todo!(),
+            header_extensions: todo!(),
+            encodings: todo!(),
+        }
+    }
+}
+
 /// [`Context`] wrapper that is exposed to the C++ API clients.
-// pub struct Webrtc(Box<Arc<Mutex<Context>>>);
-pub struct Webrtc(Box<Context>);
+pub struct Webrtc(Box<Arc<Mutex<Context>>>);
 
 /// Application context that manages all dependencies.
 #[allow(dead_code)]
@@ -493,8 +548,7 @@ pub fn init() -> Box<Webrtc> {
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 
-    // Box::new(Webrtc(Box::new(Arc::new(Mutex::new(Context {
-    Box::new(Webrtc(Box::new(Context {
+    Box::new(Webrtc(Box::new(Arc::new(Mutex::new(Context {
         task_queue_factory,
         network_thread,
         worker_thread,
@@ -509,5 +563,5 @@ pub fn init() -> Box<Webrtc> {
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
-    })))
+    })))))
 }

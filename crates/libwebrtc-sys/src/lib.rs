@@ -9,19 +9,27 @@ use cxx::{let_cxx_string, CxxString, UniquePtr};
 
 use self::bridge::webrtc;
 pub use crate::webrtc::{
-    audio_track_truncation, candidate_to_string, get_candidate_pair,
-    get_estimated_disconnected_time_ms, get_last_data_received_ms,
-    get_local_candidate, get_reason, get_remote_candidate,
-    ice_candidate_interface_to_string, media_stream_interface_get_audio_tracks,
-    media_stream_interface_get_id, media_stream_interface_get_video_tracks,
+    audio_track_get_sourse, audio_track_truncation, candidate_to_string,
+    get_candidate_pair, get_estimated_disconnected_time_ms,
+    get_last_data_received_ms, get_local_candidate, get_reason,
+    get_remote_candidate, ice_candidate_interface_to_string,
+    media_stream_interface_get_audio_tracks, media_stream_interface_get_id,
+    media_stream_interface_get_video_tracks,
+    media_stream_track_interface_downcast_audio_track,
+    media_stream_track_interface_downcast_video_track,
     media_stream_track_interface_get_enabled,
     media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
-    media_stream_track_interface_get_state, rtp_receiver_interface_streams,
-    rtp_sender_interface_get_track, rtp_transceiver_interface_get_receiver,
-    video_frame_to_abgr, video_track_truncation, AudioLayer, Candidate,
+    media_stream_track_interface_get_state, rtp_parameters_get_codecs,
+    rtp_parameters_get_encodings, rtp_parameters_get_header_extensions,
+    rtp_parameters_get_mid, rtp_parameters_get_rtcp,
+    rtp_parameters_get_transaction_id, rtp_receiver_interface_get_streams,
+    rtp_sender_interface_get_parameters, rtp_sender_interface_get_track,
+    rtp_transceiver_interface_get_receiver, video_frame_to_abgr,
+    video_track_get_sourse, video_track_truncation, AudioLayer, Candidate,
     CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
-    IceGatheringState, PeerConnectionState, RtpTransceiverInterface, SdpType,
-    SignalingState, VideoFrame, VideoRotation,
+    IceGatheringState, PeerConnectionState, RtpParameters,
+    RtpTransceiverInterface, SdpType, SignalingState, VideoFrame,
+    VideoRotation,
 };
 pub use bridge::webrtc::CandidateWrap;
 
@@ -708,6 +716,10 @@ impl VideoTrackSourceInterface {
         }
         Ok(VideoTrackSourceInterface(ptr))
     }
+
+    pub fn my_new(inner: UniquePtr<webrtc::VideoTrackSourceInterface>) -> Self {
+        Self(inner)
+    }
 }
 
 /// [`VideoTrackSourceInterface`] captures data from the specific audio input
@@ -716,6 +728,12 @@ impl VideoTrackSourceInterface {
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
+
+impl AudioSourceInterface {
+    pub fn new(inner: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
+        Self(inner)
+    }
+}
 
 /// Video [`MediaStreamTrack`][1].
 ///
@@ -737,12 +755,30 @@ impl VideoTrackInterface {
     pub fn remove_sink(&self, sink: &mut VideoSinkInterface) {
         webrtc::remove_video_sink(&self.0, sink.0.pin_mut());
     }
+
+    pub fn new(track: UniquePtr<webrtc::VideoTrackInterface>) -> Self {
+        VideoTrackInterface(track)
+    }
+
+    pub fn inner(&self) -> &webrtc::VideoTrackInterface {
+        self.0.as_ref().unwrap()
+    }
 }
 
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
+
+impl AudioTrackInterface {
+    pub fn new(inner: UniquePtr<webrtc::AudioTrackInterface>) -> Self {
+        Self(inner)
+    }
+
+    pub fn inner(&self) -> &webrtc::AudioTrackInterface {
+        self.0.as_ref().unwrap()
+    }
+}
 
 /// [`MediaStreamInterface`][1] representation.
 ///
