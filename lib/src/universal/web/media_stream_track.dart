@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:html' as html;
 
 import 'package:flutter_webrtc/src/model/media_kind.dart';
-
 import '../media_stream_track.dart';
 
 class WebMediaStreamTrack extends MediaStreamTrack {

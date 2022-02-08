@@ -1,6 +1,6 @@
 package com.cloudwebrtc.webrtc.model
 
-import org.webrtc.IceCandidate as WIceCandidate;
+import org.webrtc.IceCandidate as WIceCandidate
 
 /**
  * Representation of the [org.webrtc.IceCandidate].

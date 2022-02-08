@@ -27,7 +27,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
             MethodChannel(messenger, ChannelNameGenerator.withId("RtpSender", channelId))
 
     init {
-        methodChannel.setMethodCallHandler(this);
+        methodChannel.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {

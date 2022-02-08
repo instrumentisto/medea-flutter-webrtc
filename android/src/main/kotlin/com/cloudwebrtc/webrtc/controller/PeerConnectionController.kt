@@ -71,12 +71,10 @@ class PeerConnectionController(
         }
 
         override fun onSignalingStateChange(signalingState: SignalingState) {
-            eventSink?.success(
-                    mapOf(
-                            "event" to "onSignalingStateChange",
-                            "state" to signalingState.value
-                    )
-            )
+            eventSink?.success(mapOf(
+                    "event" to "onSignalingStateChange",
+                    "state" to signalingState.value
+            ))
         }
 
         override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {

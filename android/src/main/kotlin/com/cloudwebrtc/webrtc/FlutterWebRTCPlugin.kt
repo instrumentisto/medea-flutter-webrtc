@@ -18,7 +18,5 @@ class FlutterWebRTCPlugin : FlutterPlugin {
         videoRendererFactory = VideoRendererFactoryController(messenger, registar.textureRegistry)
     }
 
-    override fun onDetachedFromEngine(registrar: FlutterPlugin.FlutterPluginBinding) {
-        // TODO: Implement disposing mechanism on application close
-    }
+    override fun onDetachedFromEngine(registrar: FlutterPlugin.FlutterPluginBinding) {}
 }

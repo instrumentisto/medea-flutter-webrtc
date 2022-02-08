@@ -77,6 +77,6 @@ class State(private val context: Context) {
      * @return Android SDK [Context].
      */
     fun getAppContext(): Context {
-        return context;
+        return context
     }
 }

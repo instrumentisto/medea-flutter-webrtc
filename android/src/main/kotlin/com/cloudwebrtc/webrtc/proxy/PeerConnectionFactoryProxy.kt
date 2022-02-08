@@ -12,14 +12,14 @@ class PeerConnectionFactoryProxy(val state: State) {
     /**
      * Counter for generating new [PeerConnectionProxy] IDs.
      */
-    private var lastPeerConnectionId: Int = 0;
+    private var lastPeerConnectionId: Int = 0
 
     /**
      * All [PeerObserver]s created by this [PeerConnectionFactoryProxy].
      *
      * [PeerObserver]s will be removed on [PeerConnectionProxy] dispose.
      */
-    private var peerObservers: HashMap<Int, PeerObserver> = HashMap();
+    private var peerObservers: HashMap<Int, PeerObserver> = HashMap()
 
     /**
      * Creates new [PeerConnectionProxy] based on the provided [PeerConnectionConfiguration].
@@ -28,8 +28,8 @@ class PeerConnectionFactoryProxy(val state: State) {
      * @return newly created [PeerConnectionProxy].
      */
     fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {
-        val id = nextId();
-        val peerObserver = PeerObserver();
+        val id = nextId()
+        val peerObserver = PeerObserver()
         val peer =
                 state.getPeerConnectionFactory().createPeerConnection(config.intoWebRtc(), peerObserver)
                         ?: throw UnknownError("Creating new PeerConnection was failed because of unknown issue")
@@ -39,7 +39,7 @@ class PeerConnectionFactoryProxy(val state: State) {
 
         peerObservers[id] = peerObserver
 
-        return peerProxy;
+        return peerProxy
     }
 
     /**
@@ -55,6 +55,6 @@ class PeerConnectionFactoryProxy(val state: State) {
      * @return newly generated [PeerConnectionProxy] ID.
      */
     private fun nextId(): Int {
-        return lastPeerConnectionId++;
+        return lastPeerConnectionId++
     }
 }

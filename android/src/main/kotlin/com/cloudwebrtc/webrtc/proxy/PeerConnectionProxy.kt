@@ -125,7 +125,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
                 }
 
                 override fun onCreateFailure(msg: String?) {
-                    var message = msg;
+                    var message = msg
                     if (message == null) {
                         message = ""
                     }
@@ -152,7 +152,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
                 }
 
                 override fun onSetSuccess() {
-                    continuation.resume(Unit);
+                    continuation.resume(Unit)
                 }
 
                 override fun onCreateFailure(msg: String?) {
@@ -160,7 +160,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
                 }
 
                 override fun onSetFailure(msg: String?) {
-                    var message = msg;
+                    var message = msg
                     if (message == null) {
                         message = ""
                     }
@@ -171,9 +171,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     }
 
     override fun syncWithObject() {
-        syncSenders();
-        syncReceivers();
-        syncTransceivers();
+        syncSenders()
+        syncReceivers()
+        syncTransceivers()
     }
 
     /**
@@ -235,9 +235,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * notifies all [onDispose] subscribers about it.
      */
     fun dispose() {
-        obj.dispose();
-        senders = HashMap();
-        receivers = HashMap();
+        obj.dispose()
+        senders = HashMap()
+        receivers = HashMap()
         onDisposeSubscribers.forEach { sub -> sub(id) }
     }
 
@@ -247,7 +247,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * @param f callback which will be called on [dispose].
      */
     fun onDispose(f: (Int) -> Unit) {
-        onDisposeSubscribers.add(f);
+        onDisposeSubscribers.add(f)
     }
 
     /**
@@ -256,8 +256,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * @return all [RtpSenderProxy]s of this [PeerConnectionProxy].
      */
     fun getSenders(): List<RtpSenderProxy> {
-        syncSenders();
-        return senders.values.toList();
+        syncSenders()
+        return senders.values.toList()
     }
 
     /**
@@ -266,22 +266,22 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * @return all [RtpTransceiverProxy]s of this [PeerConnectionProxy].
      */
     fun getTransceivers(): List<RtpTransceiverProxy> {
-        syncTransceivers();
-        return transceivers.values.toList();
+        syncTransceivers()
+        return transceivers.values.toList()
     }
 
     /**
      * @return local [SessionDescription] of the underlying [PeerConnection].
      */
     fun getLocalDescription(): SessionDescription {
-        return SessionDescription.fromWebRtc(obj.localDescription);
+        return SessionDescription.fromWebRtc(obj.localDescription)
     }
 
     /**
      * @return remote [SessionDescription] of the underlying [PeerConnection].
      */
     fun getRemoteDescription(): SessionDescription? {
-        val sdp = obj.remoteDescription;
+        val sdp = obj.remoteDescription
         return if (sdp == null) {
             null
         } else {
@@ -384,13 +384,13 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      */
     private fun syncSenders() {
         val newSenders = mutableMapOf<String, RtpSenderProxy>()
-        val oldSenders = senders;
+        val oldSenders = senders
 
-        val peerSenders = obj.senders;
+        val peerSenders = obj.senders
         for (peerSender in peerSenders) {
-            val peerSenderId = peerSender.id();
+            val peerSenderId = peerSender.id()
 
-            val oldSender = oldSenders.remove(peerSenderId);
+            val oldSender = oldSenders.remove(peerSenderId)
             if (oldSender == null) {
                 newSenders[peerSenderId] = RtpSenderProxy(peerSender)
             } else {
@@ -405,19 +405,19 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * creates [RtpReceiverProxy]s for the new [RtpReceiver]s.
      */
     private fun syncReceivers() {
-        val newReceivers = mutableMapOf<String, RtpReceiverProxy>();
-        val oldReceivers = receivers;
+        val newReceivers = mutableMapOf<String, RtpReceiverProxy>()
+        val oldReceivers = receivers
 
-        val peerReceivers = obj.receivers;
+        val peerReceivers = obj.receivers
         for (peerReceiver in peerReceivers) {
-            val peerReceiverId = peerReceiver.id();
+            val peerReceiverId = peerReceiver.id()
 
-            val oldReceiver = oldReceivers.remove(peerReceiverId);
+            val oldReceiver = oldReceivers.remove(peerReceiverId)
             if (oldReceiver == null) {
-                newReceivers[peerReceiverId] = RtpReceiverProxy(peerReceiver);
+                newReceivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
             } else {
-                oldReceiver.updateObject(peerReceiver);
-                newReceivers[peerReceiverId] = oldReceiver;
+                oldReceiver.updateObject(peerReceiver)
+                newReceivers[peerReceiverId] = oldReceiver
             }
         }
     }
@@ -427,14 +427,14 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * creates [RtpTransceiverProxy]s for the new [RtpTransceiver]s.
      */
     private fun syncTransceivers() {
-        val peerTransceivers = obj.transceivers.withIndex();
+        val peerTransceivers = obj.transceivers.withIndex()
 
         for ((id, peerTransceiver) in peerTransceivers) {
-            val oldTransceiver = transceivers[id];
+            val oldTransceiver = transceivers[id]
             if (oldTransceiver == null) {
-                transceivers[id] = RtpTransceiverProxy(peerTransceiver);
+                transceivers[id] = RtpTransceiverProxy(peerTransceiver)
             } else {
-                oldTransceiver.updateObject(peerTransceiver);
+                oldTransceiver.updateObject(peerTransceiver)
             }
         }
     }

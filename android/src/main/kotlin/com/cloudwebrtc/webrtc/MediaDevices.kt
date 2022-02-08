@@ -1,6 +1,7 @@
 package com.cloudwebrtc.webrtc
 
 import android.content.Context
+import android.util.Log
 import com.cloudwebrtc.webrtc.exception.OverconstrainedException
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.AudioMediaTrackSource
@@ -34,7 +35,6 @@ class MediaDevices(val state: State) {
             return if (Camera2Enumerator.isSupported(context)) {
                 Camera2Enumerator(context)
             } else {
-                // TODO(evdokimovs): Why captureToTexture is false?
                 Camera1Enumerator(false)
             }
         }
@@ -89,7 +89,7 @@ class MediaDevices(val state: State) {
      * @return Most suitable device ID for the provided [VideoConstraints].
      */
     private fun findDeviceMatchingConstraints(constraints: VideoConstraints): String? {
-        val scoreTable = TreeMap<Int, String>();
+        val scoreTable = TreeMap<Int, String>()
         for (deviceId in cameraEnumerator.deviceNames) {
             val deviceScore = constraints.calculateScoreForDeviceId(cameraEnumerator, deviceId)
             if (deviceScore != null) {
@@ -106,22 +106,19 @@ class MediaDevices(val state: State) {
      * @param constraints [VideoConstraints] based on which lookup will be performed.
      * @return Most suitable [MediaStreamTrackProxy] for the provided [VideoConstraints].
      */
-    // TODO(evdokimovs): Adapt width, height and fps based on constraints
+    // TODO(evdokimovs): Here we can make some optimization in the future by tuning video modes
+    //                   of camera using CameraEnumerator.getSupportedFormats API.
     private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
         val deviceId =
                 findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
 
         val videoSource = state.getPeerConnectionFactory().createVideoSource(false)
-        // TODO(evdokimovs): This is optional function call as I know, so
-        //                   call it only when some constraints was provided
-        // TODO: Remove this line and if all continues to work then yep, it's okay
         videoSource.adaptOutputFormat(1280, 720, 30)
 
         val surfaceTextureRenderer = SurfaceTextureHelper.create(
                 Thread.currentThread().name,
                 EglUtils.rootEglBaseContext
         )
-        // TODO(evdokimovs): Maybe we need some implementation in CameraEventsHandler?
         val videoCapturer = cameraEnumerator.createCapturer(
                 deviceId,
                 object : CameraVideoCapturer.CameraEventsHandler {
@@ -138,7 +135,6 @@ class MediaDevices(val state: State) {
                 state.getAppContext(),
                 videoSource.capturerObserver
         )
-        // Just use width and height of the selected device here
         videoCapturer.startCapture(1280, 720, 30)
 
         val videoTrackSource = VideoMediaTrackSource(
@@ -147,8 +143,9 @@ class MediaDevices(val state: State) {
                 surfaceTextureRenderer,
                 state.getPeerConnectionFactory(),
                 deviceId
-        );
-        return videoTrackSource.newTrack();
+        )
+
+        return videoTrackSource.newTrack()
     }
 
     /**

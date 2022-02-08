@@ -1,6 +1,6 @@
 package com.cloudwebrtc.webrtc.model
 
-import org.webrtc.RtpTransceiver.RtpTransceiverInit as WRtpTransceiverInit;
+import org.webrtc.RtpTransceiver.RtpTransceiverInit as WRtpTransceiverInit
 
 /**
  * Representation of the [org.webrtc.RtpTransceiver.RtpTransceiverInit].

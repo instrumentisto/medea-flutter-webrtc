@@ -4,7 +4,6 @@ import com.cloudwebrtc.webrtc.MediaDevices
 import com.cloudwebrtc.webrtc.State
 import com.cloudwebrtc.webrtc.model.Constraints
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
-import com.cloudwebrtc.webrtc.proxy.PeerConnectionFactoryProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -17,7 +16,14 @@ import io.flutter.plugin.common.MethodChannel
  */
 class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state: State) :
         MethodChannel.MethodCallHandler {
+    /**
+     * Underlying [MediaDevices] on which method calls will be performed.
+     */
     private val mediaDevices = MediaDevices(state)
+
+    /**
+     * Channel which will be listened for the [MethodCall]s.
+     */
     private val methodChannel =
             MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("MediaDevices"))
 

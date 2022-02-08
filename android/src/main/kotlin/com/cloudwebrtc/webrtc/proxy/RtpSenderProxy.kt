@@ -12,19 +12,19 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
     /**
      * Actual underlying [RtpReceiver].
      */
-    override var obj: RtpSender = sender;
+    override var obj: RtpSender = sender
 
     /**
      * [MediaStreamTrackProxy] of this [RtpReceiverProxy].
      */
-    private var track: MediaStreamTrackProxy? = null;
+    private var track: MediaStreamTrackProxy? = null
 
     init {
-        syncWithObject();
+        syncWithObject()
     }
 
     override fun syncWithObject() {
-        syncMediaStreamTrack();
+        syncMediaStreamTrack()
     }
 
     /**
@@ -33,8 +33,8 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
      * @param t [MediaStreamTrackProxy] which will be set to the underlying [RtpSender].
      */
     fun setTrack(t: MediaStreamTrackProxy?) {
-        track = t;
-        obj.setTrack(t?.obj, false);
+        track = t
+        obj.setTrack(t?.obj, false)
     }
 
     /**
@@ -42,14 +42,14 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
      * a underlying [RtpSender].
      */
     private fun syncMediaStreamTrack() {
-        val newSenderTrack = obj.track();
+        val newSenderTrack = obj.track()
         if (newSenderTrack == null) {
-            track = null;
+            track = null
         } else {
             if (track == null) {
-                track = MediaStreamTrackProxy(newSenderTrack);
+                track = MediaStreamTrackProxy(newSenderTrack)
             } else {
-                track!!.updateObject(newSenderTrack);
+                track!!.updateObject(newSenderTrack)
             }
         }
     }

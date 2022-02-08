@@ -29,7 +29,7 @@ class VideoMediaTrackSource(
     /**
      * Count of currently alive [MediaStreamTrackProxy] created from this [VideoMediaTrackSource].
      */
-    private var aliveTracksCount: Int = 0;
+    private var aliveTracksCount: Int = 0
 
     /**
      * Creates new [MediaStreamTrackProxy] with the underlying [VideoSource].
@@ -41,8 +41,8 @@ class VideoMediaTrackSource(
                 peerConnectionFactoryProxy.createVideoTrack(LocalTrackIdGenerator.nextId(), videoSource),
                 deviceId,
                 this
-        );
-        aliveTracksCount += 1;
+        )
+        aliveTracksCount += 1
         videoTrack.onStop {
             trackStopped()
         }
@@ -57,7 +57,7 @@ class VideoMediaTrackSource(
      * this [VideoMediaTrackSource].
      */
     private fun trackStopped() {
-        aliveTracksCount--;
+        aliveTracksCount--
         if (aliveTracksCount == 0) {
             dispose()
         }

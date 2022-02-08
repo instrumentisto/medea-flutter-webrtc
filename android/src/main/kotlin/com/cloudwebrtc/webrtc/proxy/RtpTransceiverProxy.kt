@@ -10,12 +10,12 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
     /**
      * [RtpSenderProxy] of this [RtpTransceiverProxy].
      */
-    private lateinit var sender: RtpSenderProxy;
+    private lateinit var sender: RtpSenderProxy
 
     /**
      * [RtpReceiverProxy] of this [RtpTransceiverProxy].
      */
-    private lateinit var receiver: RtpReceiverProxy;
+    private lateinit var receiver: RtpReceiverProxy
 
     init {
         syncWithObject()
@@ -77,7 +77,7 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
      * Stops underlying [RtpTransceiver].
      */
     fun stop() {
-        obj.stop();
+        obj.stop()
     }
 
     /**
@@ -85,7 +85,7 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
      * underlying [RtpTransceiver].
      */
     private fun syncSender() {
-        val newSender = obj.sender;
+        val newSender = obj.sender
         if (this::sender.isInitialized) {
             sender.updateObject(newSender)
         } else {

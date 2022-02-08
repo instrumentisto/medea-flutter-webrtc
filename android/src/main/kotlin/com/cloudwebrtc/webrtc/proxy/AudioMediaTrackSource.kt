@@ -20,7 +20,7 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
     /**
      * Count of currently alive [MediaStreamTrackProxy] created from this [AudioMediaTrackSource].
      */
-    private var aliveTracksCount: Int = 0;
+    private var aliveTracksCount: Int = 0
 
     /**
      * Creates new [MediaStreamTrackProxy] with the underlying [AudioSource].
@@ -36,7 +36,7 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
         track.onStop {
             trackStopped()
         }
-        aliveTracksCount += 1;
+        aliveTracksCount += 1
 
         return track
     }
@@ -48,7 +48,7 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
      * this [AudioMediaTrackSource].
      */
     private fun trackStopped() {
-        aliveTracksCount--;
+        aliveTracksCount--
         if (aliveTracksCount == 0) {
             dispose()
         }

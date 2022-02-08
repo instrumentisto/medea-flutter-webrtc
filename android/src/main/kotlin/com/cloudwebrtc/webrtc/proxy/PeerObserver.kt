@@ -19,7 +19,7 @@ class PeerObserver : PeerConnection.Observer {
     /**
      * [PeerConnectionProxy] which will be notified about all events.
      */
-    private var peer: PeerConnectionProxy? = null;
+    private var peer: PeerConnectionProxy? = null
 
     override fun onSignalingChange(signallingState: PeerConnection.SignalingState?) {
         if (signallingState != null) {
@@ -51,9 +51,9 @@ class PeerObserver : PeerConnection.Observer {
 
     override fun onAddTrack(receiver: RtpReceiver?, mediaStreams: Array<out MediaStream>?) {
         if (receiver != null) {
-            val track = receiver.track();
+            val track = receiver.track()
             if (track != null) {
-                val transceivers = peer?.getTransceivers()!!;
+                val transceivers = peer?.getTransceivers()!!
                 for (trans in transceivers) {
                     if (trans.getReceiver().id() == receiver.id()) {
                         peer?.observableEventBroadcaster()
@@ -76,6 +76,6 @@ class PeerObserver : PeerConnection.Observer {
      * Sets [PeerConnectionProxy] which will be notified about all events.
      */
     fun setPeerConnection(newPeer: PeerConnectionProxy) {
-        peer = newPeer;
+        peer = newPeer
     }
 }

@@ -1,6 +1,6 @@
 package com.cloudwebrtc.webrtc.model
 
-import org.webrtc.MediaStreamTrack.MediaType as WMediaType;
+import org.webrtc.MediaStreamTrack.MediaType as WMediaType
 
 /**
  * [org.webrtc.MediaStreamTrack.MediaType] representation.

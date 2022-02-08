@@ -7,7 +7,7 @@ object LocalTrackIdGenerator {
     /**
      * Last created unique ID.
      */
-    private var lastId: Int = 0;
+    private var lastId: Int = 0
 
     /**
      * @return new unique ID for the local track.

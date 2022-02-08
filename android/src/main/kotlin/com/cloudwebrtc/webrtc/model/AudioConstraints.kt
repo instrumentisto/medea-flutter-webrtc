@@ -36,7 +36,6 @@ data class AudioConstraints(
      *
      * @return libwebrtc's [MediaConstraints] object.
      */
-    // TODO(evdokimovs): Maybe add some default constraints
     fun intoWebRtc(): MediaConstraints {
         val mediaConstraints = MediaConstraints()
         for (entry in mandatory) {

@@ -24,7 +24,7 @@ class VideoRendererController(
     /**
      * Unique ID of the [MethodChannel] of this controller.
      */
-    private val channelId: Int = nextChannelId();
+    private val channelId: Int = nextChannelId()
 
     /**
      * Channel which will be listened for the [MethodCall]s.

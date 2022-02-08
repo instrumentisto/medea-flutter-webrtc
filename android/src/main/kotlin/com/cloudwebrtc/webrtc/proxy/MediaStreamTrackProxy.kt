@@ -23,7 +23,7 @@ class MediaStreamTrackProxy(
     /**
      * Actual underlying [MediaStreamTrack].
      */
-    override var obj: MediaStreamTrack = track;
+    override var obj: MediaStreamTrack = track
 
     /**
      * ID of underlying [MediaStreamTrack].
@@ -40,7 +40,7 @@ class MediaStreamTrackProxy(
     /**
      * Indicates that this [stop] was called on this [MediaStreamTrackProxy].
      */
-    private var isStopped: Boolean = false;
+    private var isStopped: Boolean = false
 
     init {
         TrackRepository.addTrack(id, this)
@@ -72,7 +72,7 @@ class MediaStreamTrackProxy(
      * @return unique device ID of the underlying [MediaStreamTrack].
      */
     fun deviceId(): String {
-        return deviceId;
+        return deviceId
     }
 
     /**
@@ -111,7 +111,7 @@ class MediaStreamTrackProxy(
      * @return [MediaStreamTrackState] of the underlying [MediaStreamTrack].
      */
     fun state(): MediaStreamTrackState {
-        return MediaStreamTrackState.fromWebRtcState(obj.state());
+        return MediaStreamTrackState.fromWebRtcState(obj.state())
     }
 
     /**
@@ -120,7 +120,7 @@ class MediaStreamTrackProxy(
      * @param enabled state which will be set to the underlying [MediaStreamTrack].
      */
     fun setEnabled(enabled: Boolean) {
-        obj.setEnabled(enabled);
+        obj.setEnabled(enabled)
     }
 
     /**

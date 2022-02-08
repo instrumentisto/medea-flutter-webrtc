@@ -7,7 +7,7 @@ import java.util.concurrent.*
 Copyright 2017, Lyo Kato <lyo.kato at gmail.com> (Original Author)
 Copyright 2017-2021, Shiguredo Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
+Licensed under the Apache License, Version 2.0 (the "License")
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
@@ -167,7 +167,7 @@ internal class SimulcastVideoEncoderFactoryWrapper(
     }
 
     private class StreamEncoderWrapperFactory(private val factory: VideoEncoderFactory) :
-        VideoEncoderFactory {
+            VideoEncoderFactory {
         override fun createEncoder(videoCodecInfo: VideoCodecInfo?): VideoEncoder? {
             val encoder = factory.createEncoder(videoCodecInfo) ?: return null
             return StreamEncoderWrapper(encoder)
@@ -185,7 +185,7 @@ internal class SimulcastVideoEncoderFactoryWrapper(
 
     init {
         val hardwareVideoEncoderFactory = HardwareVideoEncoderFactory(
-            sharedContext, enableIntelVp8Encoder, enableH264HighProfile
+                sharedContext, enableIntelVp8Encoder, enableH264HighProfile
         )
         primary = StreamEncoderWrapperFactory(hardwareVideoEncoderFactory)
         fallback = StreamEncoderWrapperFactory(Fallback(primary))

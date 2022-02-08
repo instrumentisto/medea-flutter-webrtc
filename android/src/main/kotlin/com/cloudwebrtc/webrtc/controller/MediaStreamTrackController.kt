@@ -1,6 +1,5 @@
 package com.cloudwebrtc.webrtc.controller
 
-import android.util.Log
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -19,7 +18,7 @@ class MediaStreamTrackController(
     /**
      * Unique ID of the [MethodChannel] of this controller.
      */
-    private val channelId: Int = nextChannelId();
+    private val channelId: Int = nextChannelId()
 
     /**
      * Channel which will be listened for the [MethodCall]s.

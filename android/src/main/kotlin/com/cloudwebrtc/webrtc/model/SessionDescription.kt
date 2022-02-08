@@ -1,6 +1,6 @@
 package com.cloudwebrtc.webrtc.model
 
-import org.webrtc.SessionDescription as WSessionDescription;
+import org.webrtc.SessionDescription as WSessionDescription
 
 /**
  * Representation of the [org.webrtc.SessionDescription.Type].
@@ -81,7 +81,7 @@ data class SessionDescription(val type: SessionDescriptionType, val description:
             return SessionDescription(
                     SessionDescriptionType.fromWebRtc(sdp.type),
                     sdp.description
-            );
+            )
         }
 
         /**

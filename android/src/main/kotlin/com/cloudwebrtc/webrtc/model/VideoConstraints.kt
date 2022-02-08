@@ -221,7 +221,7 @@ data class VideoConstraints(
      * @return total score calculated based on provided list.
      */
     fun calculateScoreForDeviceId(enumerator: CameraEnumerator, deviceId: String): Int? {
-        val scores = mutableListOf<ConstraintScore>();
+        val scores = mutableListOf<ConstraintScore>()
         for (constraint in constraints) {
             scores.add(constraint.score(enumerator, deviceId))
         }

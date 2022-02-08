@@ -11,19 +11,19 @@ class RtpReceiverProxy(receiver: RtpReceiver) : IWebRTCProxy<RtpReceiver> {
     /**
      * Actual underlying [RtpReceiver].
      */
-    override var obj: RtpReceiver = receiver;
+    override var obj: RtpReceiver = receiver
 
     /**
      * [MediaStreamTrackProxy] of this [RtpReceiverProxy].
      */
-    private var track: MediaStreamTrackProxy? = null;
+    private var track: MediaStreamTrackProxy? = null
 
     init {
-        syncWithObject();
+        syncWithObject()
     }
 
     override fun syncWithObject() {
-        syncMediaStreamTrack();
+        syncMediaStreamTrack()
     }
 
     /**
@@ -38,14 +38,14 @@ class RtpReceiverProxy(receiver: RtpReceiver) : IWebRTCProxy<RtpReceiver> {
      * a underlying [RtpReceiver].
      */
     private fun syncMediaStreamTrack() {
-        val newReceiverTrack = obj.track();
+        val newReceiverTrack = obj.track()
         if (newReceiverTrack == null) {
-            track = null;
+            track = null
         } else {
             if (track == null) {
-                track = MediaStreamTrackProxy(newReceiverTrack);
+                track = MediaStreamTrackProxy(newReceiverTrack)
             } else {
-                track!!.updateObject(newReceiverTrack);
+                track!!.updateObject(newReceiverTrack)
             }
         }
     }

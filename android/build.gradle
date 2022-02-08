@@ -49,7 +49,6 @@ android {
 }
 
 dependencies {
-//    debugImplementation files('/usr/local/Caskroom/flutter/2.8.1/flutter/bin/cache/artifacts/engine/android-x64/flutter.jar')
     implementation 'com.github.webrtc-sdk:android:92.4515.03'
     implementation 'com.twilio:audioswitch:1.1.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
