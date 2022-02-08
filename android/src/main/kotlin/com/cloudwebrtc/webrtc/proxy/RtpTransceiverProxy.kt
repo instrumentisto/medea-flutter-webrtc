@@ -62,18 +62,6 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
     }
 
     /**
-     * @return current [RtpTransceiverDirection] negotiated for the underlying [RtpTransceiver].
-     */
-    fun getCurrentDirection(): RtpTransceiverDirection? {
-        val direction = obj.currentDirection
-        return if (direction == null) {
-            null
-        } else {
-            RtpTransceiverDirection.fromWebRtc(direction)
-        }
-    }
-
-    /**
      * Stops underlying [RtpTransceiver].
      */
     fun stop() {

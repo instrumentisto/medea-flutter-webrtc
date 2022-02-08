@@ -113,12 +113,6 @@ class PeerConnectionController(
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
-            "getLocalDescription" -> {
-                result.success(peer.getLocalDescription().intoMap())
-            }
-            "getRemoteDescription" -> {
-                result.success(peer.getRemoteDescription()?.intoMap())
-            }
             "createOffer" -> {
                 runBlocking {
                     result.success(peer.createOffer().intoMap())
@@ -165,10 +159,6 @@ class PeerConnectionController(
                 }
                 val transceiverController = RtpTransceiverController(messenger, transceiver)
                 result.success(transceiverController.asFlutterResult())
-            }
-            "getSenders" -> {
-                result.success(
-                        peer.getSenders().map { RtpSenderController(messenger, it).asFlutterResult() })
             }
             "getTransceivers" -> {
                 result.success(

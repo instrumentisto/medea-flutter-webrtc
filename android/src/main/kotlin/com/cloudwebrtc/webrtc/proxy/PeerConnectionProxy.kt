@@ -251,16 +251,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     }
 
     /**
-     * Synchronizes and returns all [RtpSenderProxy]s of this [PeerConnectionProxy].
-     *
-     * @return all [RtpSenderProxy]s of this [PeerConnectionProxy].
-     */
-    fun getSenders(): List<RtpSenderProxy> {
-        syncSenders()
-        return senders.values.toList()
-    }
-
-    /**
      * Synchronizes and returns all [RtpTransceiverProxy]s of this [PeerConnectionProxy].
      *
      * @return all [RtpTransceiverProxy]s of this [PeerConnectionProxy].
@@ -268,25 +258,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     fun getTransceivers(): List<RtpTransceiverProxy> {
         syncTransceivers()
         return transceivers.values.toList()
-    }
-
-    /**
-     * @return local [SessionDescription] of the underlying [PeerConnection].
-     */
-    fun getLocalDescription(): SessionDescription {
-        return SessionDescription.fromWebRtc(obj.localDescription)
-    }
-
-    /**
-     * @return remote [SessionDescription] of the underlying [PeerConnection].
-     */
-    fun getRemoteDescription(): SessionDescription? {
-        val sdp = obj.remoteDescription
-        return if (sdp == null) {
-            null
-        } else {
-            SessionDescription.fromWebRtc(sdp)
-        }
     }
 
     /**

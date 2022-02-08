@@ -45,17 +45,6 @@ class RtpTransceiverController(
             "getDirection" -> {
                 result.success(transceiver.getDirection().value)
             }
-            "getCurrentDirection" -> {
-                result.success(transceiver.getCurrentDirection()?.value)
-            }
-            "getSender" -> {
-                result.success(
-                        RtpSenderController(
-                                binaryMessenger,
-                                transceiver.getSender()
-                        ).asFlutterResult()
-                )
-            }
             "stop" -> {
                 transceiver.stop()
                 result.success(null)
