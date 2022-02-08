@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import 'src/create_peer_connection_sample.dart';
 import 'src/data_channel_sample.dart';
 import 'src/get_display_media_sample.dart';
 import 'src/get_sources_sample.dart';
@@ -15,7 +16,6 @@ import 'src/loopback_sample.dart';
 import 'src/renderer.dart';
 import 'src/notifier_test.dart';
 import 'src/route_item.dart';
-import 'src/create_peer_connection_sample.dart';
 
 void main() {
   if (WebRTC.platformIsDesktop) {

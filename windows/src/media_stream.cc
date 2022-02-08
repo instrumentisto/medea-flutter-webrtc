@@ -53,10 +53,11 @@ void EnumerateDevice(Box<Webrtc>& webrtc,
 }
 
 /// Parses the received constraints from Dart and passes them to Rust
-/// `GetUserMedia()`, then converts the backed `MediaStream` info for Dart.
-void GetUserMedia(const flutter::MethodCall<EncodableValue>& method_call,
-                  Box<Webrtc>& webrtc,
-                  std::unique_ptr<MethodResult<EncodableValue>> result) {
+/// `GetMedia()`, then converts the backed `MediaStream` info for Dart.
+void GetMedia(const flutter::MethodCall<EncodableValue>& method_call,
+              Box<Webrtc>& webrtc,
+              std::unique_ptr<MethodResult<EncodableValue>> result,
+              bool is_display) {
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -73,15 +74,16 @@ void GetUserMedia(const flutter::MethodCall<EncodableValue>& method_call,
   constraints.video = ParseVideoConstraints(video_arg);
   constraints.audio = ParseAudioConstraints(audio_arg);
 
-  MediaStream user_media = webrtc->GetUserMedia(constraints);
+  MediaStream media = webrtc->GetMedia(constraints, is_display);
+
   EncodableMap params;
 
   params[EncodableValue("streamId")] =
-      EncodableValue(std::to_string(user_media.stream_id).c_str());
+      EncodableValue(std::to_string(media.stream_id).c_str());
   params[EncodableValue("videoTracks")] =
-      EncodableValue(GetParams(TrackKind::kVideo, user_media));
+      EncodableValue(GetParams(TrackKind::kVideo, media));
   params[EncodableValue("audioTracks")] =
-      EncodableValue(GetParams(TrackKind::kAudio, user_media));
+      EncodableValue(GetParams(TrackKind::kAudio, media));
 
   result->Success(EncodableValue(params));
 }
@@ -176,9 +178,9 @@ AudioConstraints ParseAudioConstraints(EncodableValue audio_arg) {
 
 /// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
 /// for passing to Dart according to `TrackKind`.
-EncodableList GetParams(TrackKind type, MediaStream& user_media) {
-  auto rust_tracks = type == TrackKind::kVideo ? user_media.video_tracks
-                                               : user_media.audio_tracks;
+EncodableList GetParams(TrackKind type, MediaStream& media) {
+  auto rust_tracks =
+      type == TrackKind::kVideo ? media.video_tracks : media.audio_tracks;
 
   EncodableList tracks;
 
