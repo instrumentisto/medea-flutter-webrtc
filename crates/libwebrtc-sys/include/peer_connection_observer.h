@@ -19,13 +19,13 @@ namespace observer {
 // `PeerConnectionObserver` propagating events to the Rust side.
 class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 public:
+  // Creates a new `PeerConnectionObserver`.
   PeerConnectionObserver(rust::Box<bridge::DynPeerConnectionEventsHandler> cb);
 
   // Called when a new ICE candidate has been discovered.
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) override;
 
   // Gathering of an ICE candidate failed.
-  // See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
   void OnIceCandidateError(const std::string& address,
                            int port,
                            const std::string& url,
@@ -40,11 +40,11 @@ public:
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) override;
 
-  // Called any time the standards-compliant IceConnectionState changes.
+  // Called any time the standards-compliant `IceConnectionState` changes.
   void OnStandardizedIceConnectionChange(
       webrtc::PeerConnectionInterface::IceConnectionState new_state) override;
 
-  // Called any time the PeerConnectionState changes.
+  // Called any time the `PeerConnectionState` changes.
   void OnConnectionChange(
       webrtc::PeerConnectionInterface::PeerConnectionState new_state) override;
 

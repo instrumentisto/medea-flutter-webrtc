@@ -16,18 +16,11 @@ impl Webrtc {
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
         self: &mut Webrtc,
-        cb: UniquePtr<PeerConnectionObserverInterface>,
+        obs: UniquePtr<PeerConnectionObserverInterface>,
         error: &mut String,
     ) -> u64 {
-        let dependencies = sys::PeerConnectionDependencies::new(
-            sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver(
-                cb,
-            ))),
-        );
-        let peer = PeerConnection::new(
-            &mut self.0.peer_connection_factory,
-            dependencies,
-        );
+        let peer =
+            PeerConnection::new(&mut self.0.peer_connection_factory, obs);
         match peer {
             Ok(peer) => self
                 .0
@@ -217,11 +210,14 @@ impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
-        dependencies: sys::PeerConnectionDependencies,
+        observer: UniquePtr<PeerConnectionObserverInterface>,
     ) -> anyhow::Result<Self> {
+        let observer = sys::PeerConnectionObserver::new(Box::new(
+            PeerConnectionObserver(observer),
+        ));
         let inner = factory.create_peer_connection_or_error(
             &sys::RTCConfiguration::default(),
-            dependencies,
+            sys::PeerConnectionDependencies::new(observer),
         )?;
 
         Ok(Self {
@@ -302,24 +298,27 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             .on_ice_candidate_error(address, port, url, error_code, error_text);
     }
 
-    fn on_ice_connection_receiving_change(&mut self, _: bool) {}
+    fn on_ice_connection_receiving_change(&mut self, _: bool) {
+        // This is a non-spec-compliant event.
+    }
 
     fn on_ice_candidate(
         &mut self,
         candidate: *const sys::IceCandidateInterface,
     ) {
-        let mut str_ice_candidate =
+        let mut string =
             unsafe { sys::ice_candidate_interface_to_string(candidate) };
-        self.0
-            .pin_mut()
-            .on_ice_candidate(&str_ice_candidate.pin_mut());
+        self.0.pin_mut().on_ice_candidate(&string.pin_mut());
     }
 
-    fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {}
+    fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
+        // This is a non-spec-compliant event.
+    }
 
     fn on_ice_selected_candidate_pair_changed(
         &mut self,
         _: &sys::CandidatePairChangeEvent,
     ) {
+        // This is a non-spec-compliant event.
     }
 }

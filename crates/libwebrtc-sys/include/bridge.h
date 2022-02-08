@@ -263,22 +263,27 @@ void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
 // Calls `IceCandidateInterface->ToString`.
-std::unique_ptr<std::string> ice_candidate_interface_to_string(
-    const IceCandidateInterface* candidate);
+std::unique_ptr<std::string>
+ice_candidate_interface_to_string(const IceCandidateInterface* candidate);
 
 // Creates a SDP-ized form of this `Candidate`.
-std::unique_ptr<std::string> candidate_to_string(const cricket::Candidate& candidate);
+std::unique_ptr<std::string>
+candidate_to_string(const cricket::Candidate& candidate);
 
-// Gets `CandidatePairChangeEvent.candidate_pair`.
-const cricket::CandidatePair& get_candidate_pair(const cricket::CandidatePairChangeEvent& event);
+// Returns `CandidatePairChangeEvent.candidate_pair` field value.
+const cricket::CandidatePair&
+get_candidate_pair(const cricket::CandidatePairChangeEvent& event);
 
-// Gets `CandidatePairChangeEvent.last_data_received_ms`.
-int64_t get_last_data_received_ms(const cricket::CandidatePairChangeEvent& event);
+// Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
+int64_t get_last_data_received_ms(
+    const cricket::CandidatePairChangeEvent& event);
 
-// Gets `CandidatePairChangeEvent.reason` and wraps result in `std::unqiue_ptr`.
-std::unique_ptr<std::string> get_reason(const cricket::CandidatePairChangeEvent& event);
+// Returns `CandidatePairChangeEvent.reason` field value.
+std::unique_ptr<std::string> get_reason(
+    const cricket::CandidatePairChangeEvent& event);
 
-// Gets `CandidatePairChangeEvent.estimated_disconnected_time_ms`.
+// Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
+// value.
 int64_t get_estimated_disconnected_time_ms(
     const cricket::CandidatePairChangeEvent& event);
 

@@ -431,25 +431,26 @@ candidate_to_string(const cricket::Candidate& candidate) {
   return std::make_unique<std::string>(candidate.ToString());
 };
 
-// Gets `CandidatePairChangeEvent.candidate_pair`.
+// Returns `CandidatePairChangeEvent.candidate_pair` field value.
 const cricket::CandidatePair&
 get_candidate_pair(const cricket::CandidatePairChangeEvent& event) {
   return event.selected_candidate_pair;
 };
 
-// Gets `CandidatePairChangeEvent.last_data_received_ms`.
-int64_t
-get_last_data_received_ms(const cricket::CandidatePairChangeEvent& event) {
+// Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
+int64_t get_last_data_received_ms(
+    const cricket::CandidatePairChangeEvent& event) {
   return event.last_data_received_ms;
 }
 
-// Gets `CandidatePairChangeEvent.reason` and wraps result in `std::unqiue_ptr`.
+// Returns `CandidatePairChangeEvent.reason` field value.
 std::unique_ptr<std::string>
 get_reason(const cricket::CandidatePairChangeEvent& event) {
   return std::make_unique<std::string>(event.reason);
 }
 
-// Gets `CandidatePairChangeEvent.estimated_disconnected_time_ms`.
+// Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
+// value.
 int64_t get_estimated_disconnected_time_ms(
     const cricket::CandidatePairChangeEvent& event) {
   return event.estimated_disconnected_time_ms;

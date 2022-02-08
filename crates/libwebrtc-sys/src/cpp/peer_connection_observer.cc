@@ -4,130 +4,98 @@
 
 namespace observer {
 
+// Creates a new `PeerConnectionObserver` backed by the provided
+// `DynPeerConnectionEventsHandler`.
 PeerConnectionObserver::PeerConnectionObserver(
     rust::Box<bridge::DynPeerConnectionEventsHandler> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
-// Triggered when the SignalingState changed.
-// Propagates the received `SignalingState new_state` to the Rust side.
+// Propagates the new `SignalingState` to the Rust side.
 void PeerConnectionObserver::OnSignalingChange(
     webrtc::PeerConnectionInterface::SignalingState new_state) {
   bridge::on_signaling_change(*cb_, new_state);
 }
 
-// no need
-void PeerConnectionObserver::OnDataChannel(
-    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
-
-// Used to fire spec-compliant onnegotiationneeded events, which should only
-// fire when the Operations Chain is empty. The observer is responsible for
-// queuing a task (e.g. Chromium: jump to main thread) to maybe fire the
-// event. The event identified using `event_id` must only fire if
-// PeerConnection::ShouldFireNegotiationNeededEvent() returns true since it is
-// possible for the event to become invalidated by operations subsequently
-// chained.
-// Propagates the received `event_id` to the Rust side.
+// Propagates the `event_id` to the Rust side.
 void PeerConnectionObserver::OnNegotiationNeededEvent(uint32_t event_id) {
   bridge::on_negotiation_needed_event(*cb_, event_id);
 }
 
-// Called any time the standards-compliant IceConnectionState changes.
-// Propagates the received `IceConnectionState new_state` to the Rust side.
+// Propagates the new `IceConnectionState` to the Rust side.
 void PeerConnectionObserver::OnStandardizedIceConnectionChange(
     webrtc::PeerConnectionInterface::IceConnectionState new_state) {
-    bridge::on_standardized_ice_connection_change(
-      *cb_,
-      new_state);
+  bridge::on_standardized_ice_connection_change(*cb_, new_state);
 }
 
-// Called any time the PeerConnectionState changes.
-// Propagates the received `PeerConnectionState new_state` to the Rust side.
+// Propagates the new `PeerConnectionState` to the Rust side.
 void PeerConnectionObserver::OnConnectionChange(
     webrtc::PeerConnectionInterface::PeerConnectionState new_state) {
   bridge::on_connection_change(*cb_, new_state);
 }
 
-// Called any time the IceGatheringState changes.
-// Propagates the received `IceGatheringState new_state` to the Rust side.
+// Propagates the new `IceGatheringState` to the Rust side.
 void PeerConnectionObserver::OnIceGatheringChange(
     webrtc::PeerConnectionInterface::IceGatheringState new_state) {
   bridge::on_ice_gathering_change(*cb_, new_state);
 }
 
-// A new ICE candidate has been gathered.
-// Propagates the received `IceCandidateInterface candidate` to the Rust side.
+// Propagates the discovered `IceCandidateInterface` to the Rust side.
 void PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface* candidate) {
   bridge::on_ice_candidate(*cb_, candidate);
 }
 
-// Gathering of an ICE candidate failed.
-// See https://w3c.github.io/webrtc-pc/#event-icecandidateerror
-// Propagates the received `address`, `port`,
-// `url`, `error_code`, `error_text` to the Rust side.
+// Propagates received error information to the Rust side.
 void PeerConnectionObserver::OnIceCandidateError(
     const std::string& address,
     int port,
     const std::string& url,
-    int error_code,
-    const std::string& error_text) {
-  bridge::on_ice_candidate_error(*cb_,
-                                                      address,
-                                                      port,
-                                                      url,
-                                                      error_code,
-                                                      error_text);
+    int err_code,
+    const std::string& err_text) {
+  bridge::on_ice_candidate_error(*cb_, address, port, url, err_code, err_text);
 }
 
-// Ice candidates have been removed.
-// Propagates the received `std::vector<cricket::Candidate> candidates` to the Rust side.
+// Propagates the removed `Candidate`s to the Rust side.
 void PeerConnectionObserver::OnIceCandidatesRemoved(
     const std::vector<cricket::Candidate>& candidates) {
   bridge::on_ice_candidates_removed(*cb_, candidates);
 }
 
-// Called when the ICE connection receiving status changes.
-// Propagates the received `receiving` to the Rust side.
+// Propagates the new ICE connection receiving status to the Rust side.
 void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
   bridge::on_ice_connection_receiving_change(*cb_, receiving);
 }
 
-// Called when the selected candidate pair for the ICE connection changes.
-// Propagates the received `CandidatePairChangeEvent event` to the Rust side.
+// Propagates the received `CandidatePairChangeEvent` to the Rust side.
 void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
     const cricket::CandidatePairChangeEvent& event) {
   bridge::on_ice_selected_candidate_pair_changed(*cb_, event);
 }
 
-// This is called when a receiver and its track are created.
-// TODO(zhihuang): Make this pure virtual when all subclasses implement it.
-// Note: This is called with both Plan B and Unified Plan semantics. Unified
-// Plan users should prefer OnTrack, OnAddTrack is only called as backwards
-// compatibility (and is called in the exact same situations as OnTrack).
+// TODO: Implement in #30.
+// Passes the track to the Rust side.
+void PeerConnectionObserver::OnTrack(
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {}
+
+// TODO: Implement in #30.
+// Notifies the Rust side.
+void PeerConnectionObserver::OnRemoveTrack(
+    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) {}
+
+// Does nothing since we do not use DataChannels at the moment.
+void PeerConnectionObserver::OnDataChannel(
+    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
+
+// Does nothing since we do not plan to support Plan-B.
 void PeerConnectionObserver::OnAddTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-        streams){}
-
-// TODO: Implement in #30.
-// Passes the track to to Rust side.
-void PeerConnectionObserver::OnTrack(
-    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver){}
-
-// Called when signaling indicates that media will no longer be received on a
-// track.
-// With Plan B semantics, the given receiver will have been removed from the
-// PeerConnection and the track muted.
-// With Unified Plan semantics, the receiver will remain but the transceiver
-// will have changed direction to either sendonly or inactive.
-// https://w3c.github.io/webrtc-pc/#process-remote-track-removal
-void PeerConnectionObserver::OnRemoveTrack(
-    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver){}
+    streams) {}
 
 // Creates a new `CreateSessionDescriptionObserver` backed by the provided
 // `bridge::DynCreateSdpCallback`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
-    rust::Box<bridge::DynCreateSdpCallback> cb): cb_(std::move(cb)){};
+    rust::Box<bridge::DynCreateSdpCallback> cb) : cb_(std::move(cb)) {};
 
 // Propagates the received SDP to the Rust side.
 void CreateSessionDescriptionObserver::OnSuccess(
@@ -155,7 +123,7 @@ void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
 // Creates a new `SetLocalDescriptionObserver` backed by the provided
 // `DynSetDescriptionCallback`.
 SetLocalDescriptionObserver::SetLocalDescriptionObserver(
-    rust::Box<bridge::DynSetDescriptionCallback> cb): cb_(std::move(cb)){};
+    rust::Box<bridge::DynSetDescriptionCallback> cb) : cb_(std::move(cb)) {};
 
 // Propagates the completion result to the Rust side.
 void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
@@ -175,7 +143,7 @@ void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
 // Creates a new `SetRemoteDescriptionObserver` backed by the provided
 // `DynSetDescriptionCallback`.
 SetRemoteDescriptionObserver::SetRemoteDescriptionObserver(
-    rust::Box<bridge::DynSetDescriptionCallback> cb): cb_(std::move(cb)){};
+    rust::Box<bridge::DynSetDescriptionCallback> cb) : cb_(std::move(cb)) {};
 
 // Propagates the completion result to the Rust side.
 void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(

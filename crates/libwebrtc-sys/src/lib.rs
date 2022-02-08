@@ -40,25 +40,21 @@ pub trait SetDescriptionCallback {
     fn fail(&mut self, error: &CxxString);
 }
 
-/// Completion callback for the [`PeerConnectionObserver`]
-/// that are used when calls:
-/// `PeerConnectionObserver::OnSignalingChange`,
-/// `PeerConnectionObserver::OnNegotiationNeededEvent`,
-/// `PeerConnectionObserver::OnStandardizedIceConnectionChange`,
-/// `PeerConnectionObserver::OnConnectionStateChange`,
-/// `PeerConnectionObserver::OnIceGatheringChange`,
-/// `PeerConnectionObserver::OnIceCandidate`,
-/// `PeerConnectionObserver::OnIceCandidateError`,
-/// `PeerConnectionObserver::OnIceCandidatesRemoved`,
-/// `PeerConnectionObserver::OnIceConnectionReceivingChange`,
-/// `PeerConnectionObserver::OnIceSelectedCandidatePairChanged`.
+/// Handler of [`VideoFrame`]s.
+pub trait OnFrameCallback {
+    /// Called when the attached [`VideoTrackInterface`] produces a new
+    /// [`VideoFrame`].
+    fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
+}
+
+/// Handler of events that fire from a [`PeerConnectionInterface`].
 pub trait PeerConnectionEventsHandler {
     /// Called when a [`signalingstatechange`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc/#event-signalingstatechange
     fn on_signaling_change(&mut self, new_state: SignalingState);
 
-    /// Called when a [`iceconnectionstatechange`][1] event occurs.
+    /// Called when an [`iceconnectionstatechange`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc/#event-iceconnectionstatechange
     fn on_standardized_ice_connection_change(
@@ -71,7 +67,7 @@ pub trait PeerConnectionEventsHandler {
     /// [1]: https://w3.org/TR/webrtc/#event-connectionstatechange
     fn on_connection_change(&mut self, new_state: PeerConnectionState);
 
-    /// Called when a [`icegatheringstatechange`][1] event occurs.
+    /// Called when an [`icegatheringstatechange`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc/#event-icegatheringstatechange
     fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
@@ -81,7 +77,7 @@ pub trait PeerConnectionEventsHandler {
     /// [1]: https://w3.org/TR/webrtc/#event-negotiation
     fn on_negotiation_needed_event(&mut self, event_id: u32);
 
-    /// Called when a [`icecandidateerror`][1] event occurs.
+    /// Called when an [`icecandidateerror`][1] event occurs.
     ///
     /// [1]: https://www.w3.org/TR/webrtc/#event-icecandidateerror
     fn on_ice_candidate_error(
@@ -96,7 +92,7 @@ pub trait PeerConnectionEventsHandler {
     /// Called when the ICE connection receiving status changes.
     fn on_ice_connection_receiving_change(&mut self, receiving: bool);
 
-    /// Called when a [`icecandidate`][1] event occurs.
+    /// Called when an [`icecandidate`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc/#event-icecandidate
     fn on_ice_candidate(
@@ -114,13 +110,6 @@ pub trait PeerConnectionEventsHandler {
         &mut self,
         event: &CandidatePairChangeEvent,
     );
-}
-
-/// Handler of [`VideoFrame`]s.
-pub trait OnFrameCallback {
-    /// Called when the attached [`VideoTrackInterface`] produces a new
-    /// [`VideoFrame`].
-    fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -336,11 +325,18 @@ impl PeerConnectionObserver {
 
 /// Contains all the [`PeerConnectionInterface`] dependencies.
 pub struct PeerConnectionDependencies {
+    /// Pointer to the C++ side `PeerConnectionDependencies` object.
     inner: UniquePtr<webrtc::PeerConnectionDependencies>,
+
+    /// [`PeerConnectionObserver`] that this [`PeerConnectionDependencies`]
+    /// depends on. It is stored here since it must outlive the dependencies
+    /// object.
     _observer: PeerConnectionObserver,
 }
 
 impl PeerConnectionDependencies {
+    /// Creates a new [`PeerConnectionDependencies`] backed by the provided
+    /// [`PeerConnectionObserver`].
     #[must_use]
     pub fn new(observer: PeerConnectionObserver) -> Self {
         Self {
