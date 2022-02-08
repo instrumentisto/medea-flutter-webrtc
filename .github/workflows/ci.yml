@@ -57,7 +57,7 @@ jobs:
       - name: Caching
         uses: actions/cache@v2
         with:
-          key: build-{{ github.run_id }}
+          key: build-${{ github.run_id }}
           path: |
             windows/rust
             target
@@ -88,7 +88,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v2
         with:
-          key: build-{{ github.run_id }}
+          key: build-${{ github.run_id }}
           path: |
             target
       - run: make cargo.test
@@ -106,7 +106,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v2
         with:
-          key: build-{{ github.run_id }}
+          key: build-${{ github.run_id }}
           path: |
             windows/rust
             example/build
