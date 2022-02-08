@@ -314,6 +314,7 @@ pub mod api {
         ///
         /// Only one callback can be set a time, so the previous one will be
         /// dropped, if any.
+        #[cxx_name = "SetOnDeviceChanged"]
         pub fn set_on_device_changed(
             self: &mut Webrtc,
             cb: UniquePtr<OnDeviceChangeCallback>,

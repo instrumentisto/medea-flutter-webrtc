@@ -7,6 +7,7 @@ use std::{
 };
 
 use cxx::UniquePtr;
+use libwebrtc_sys::{AudioLayer, VideoDeviceInfo};
 use winapi::{
     shared::{
         minwindef::{HINSTANCE, LPARAM, LRESULT, UINT, WPARAM},
@@ -26,11 +27,18 @@ use crate::{
     api,
     internal::OnDeviceChangeCallback,
     user_media::{AudioDeviceId, VideoDeviceId},
-    Webrtc,
+    AudioDeviceModule, Webrtc,
 };
 
-static ON_DEVICE_CHANGE: AtomicPtr<OnDeviceChangeCallback> =
+static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
     AtomicPtr::new(ptr::null_mut());
+
+struct DeviceState {
+    cb: UniquePtr<OnDeviceChangeCallback>,
+    adm: AudioDeviceModule,
+    vdi: VideoDeviceInfo,
+    count: u32,
+}
 
 impl Webrtc {
     /// Returns a list of all available audio input and output devices.
@@ -175,11 +183,34 @@ impl Webrtc {
         self: &mut Webrtc,
         cb: UniquePtr<OnDeviceChangeCallback>,
     ) {
-        let prev = ON_DEVICE_CHANGE.swap(cb.into_raw(), Ordering::SeqCst);
+        let adm = AudioDeviceModule::new(
+            AudioLayer::kPlatformDefaultAudio,
+            &mut self.0.task_queue_factory,
+        )
+        .unwrap();
+
+        let mut vdi = VideoDeviceInfo::create().unwrap();
+
+        let device_count = TryInto::<u32>::try_into(
+            adm.inner.playout_devices().unwrap()
+                + adm.inner.recording_devices().unwrap(),
+        )
+        .unwrap()
+            + vdi.number_of_devices();
+
+        let prev = ON_DEVICE_CHANGE.swap(
+            Box::into_raw(Box::new(DeviceState {
+                cb,
+                adm,
+                vdi,
+                count: device_count,
+            })),
+            Ordering::SeqCst,
+        );
 
         if !prev.is_null() {
             unsafe {
-                let _ = UniquePtr::from_raw(prev);
+                let _ = Box::from_raw(prev);
             }
         }
 
@@ -204,11 +235,22 @@ unsafe extern "system" fn wndproc(
         // The device event when a device has been added to or removed from the
         // system.
         if DBT_DEVNODES_CHANGED == wp {
-            let mut cb =
-                UniquePtr::from_raw(ON_DEVICE_CHANGE.load(Ordering::SeqCst));
+            let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
 
-            if !cb.is_null() {
-                cb.pin_mut().on_device_change();
+            if !state.is_null() {
+                let device_state = &mut *state;
+                let new_count = TryInto::<u32>::try_into(
+                    device_state.adm.inner.playout_devices().unwrap()
+                        + device_state.adm.inner.recording_devices().unwrap(),
+                )
+                .unwrap()
+                    + device_state.vdi.number_of_devices();
+
+                if device_state.count != new_count {
+                    device_state.count = new_count;
+
+                    device_state.cb.pin_mut().on_device_change();
+                }
             }
         }
     } else {

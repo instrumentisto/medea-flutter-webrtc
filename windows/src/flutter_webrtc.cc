@@ -2,6 +2,9 @@
 #include <sstream>
 #include <string>
 
+#include <flutter/standard_message_codec.h>
+#include <flutter/standard_method_codec.h>
+
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include "media_stream.h"
@@ -37,18 +40,9 @@ FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
 
   event_channel_->SetStreamHandler(std::move(handler));
 
-  // // Binds a `Flutter` notifier callback.
-  // auto bind = std::bind(
-  //     [](FlutterWebRTC* context) {
-  //       size_t new_count = context->webrtc->EnumerateDevices().size();
-  //       if (new_count != context->media_device_count_) {
-  //         context->media_device_count_ = new_count;
-  //         if (context->event_sink_) {
-  //           context->event_sink_->Success(null);
-  //         }
-  //       }
-  //     },
-  //     this);
+  webrtc->SetOnDeviceChanged(std::make_unique<DeviceChangeHandler>(std::move(
+      std::bind([](FlutterWebRTC* context) { context->event_sink_->Success(); },
+                this))));
 }
 
 FlutterWebRTC::~FlutterWebRTC() {}
@@ -117,9 +111,5 @@ void FlutterWebRTC::HandleMethodCall(
     result->NotImplemented();
   }
 }
-
-// OnDeviceChange::OnDeviceChange(EventSink<EncodableValue> event_sink) {
-//   event_sink_ = event_sink;
-// }
 
 }  // namespace flutter_webrtc_plugin
