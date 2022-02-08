@@ -5,11 +5,11 @@ import kotlin.jvm.Synchronized
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import android.os.Build
 
+/**
+ * Lazily creates and returns the one and only [EglBase] which will serve as the root for
+ * all contexts that are needed.
+ */
 object EglUtils {
-    /**
-     * Lazily creates and returns the one and only [EglBase] which will serve as the root for
-     * all contexts that are needed.
-     */
     /**
      * The root [EglBase] instance shared by the entire application for the sake of reducing the
      * utilization of system resources (such as EGL contexts).

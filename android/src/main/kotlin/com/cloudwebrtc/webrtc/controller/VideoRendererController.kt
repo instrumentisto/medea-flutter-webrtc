@@ -2,6 +2,8 @@ package com.cloudwebrtc.webrtc.controller
 
 import com.cloudwebrtc.webrtc.FlutterRtcVideoRenderer
 import com.cloudwebrtc.webrtc.TrackRepository
+import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
+import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
 import com.cloudwebrtc.webrtc.proxy.VideoTrackProxy
 import com.cloudwebrtc.webrtc.utils.AnyThreadSink
 import io.flutter.plugin.common.BinaryMessenger
@@ -11,18 +13,35 @@ import io.flutter.plugin.common.MethodChannel
 
 /**
  * Controller for the [FlutterRtcVideoRenderer].
+ *
+ * @param binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @property videoRenderer underlying [FlutterRtcVideoRenderer] on which method calls will be performed.
  */
 class VideoRendererController(
     binaryMessenger: BinaryMessenger,
     private val videoRenderer: FlutterRtcVideoRenderer
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+    /**
+     * Unique ID of the [MethodChannel] of this controller.
+     */
     private val channelId: Int = nextChannelId();
+
+    /**
+     * Channel which will be listened for the [MethodCall]s.
+     */
     private val methodChannel: MethodChannel = MethodChannel(
         binaryMessenger,
         ChannelNameGenerator.withId("VideoRenderer", channelId)
     )
+    /**
+     * Event channel into which all [FlutterRtcVideoRenderer] events will be sent.
+     */
     private val eventChannel: EventChannel =
         EventChannel(binaryMessenger, ChannelNameGenerator.withId("VideoRendererEvent", channelId))
+
+    /**
+     * Event sink into which all [FlutterRtcVideoRenderer] events will be sent.
+     */
     private var eventSink: AnyThreadSink? = null
 
     init {

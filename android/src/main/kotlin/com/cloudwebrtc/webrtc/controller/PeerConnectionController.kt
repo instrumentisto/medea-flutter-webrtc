@@ -1,6 +1,5 @@
 package com.cloudwebrtc.webrtc.controller
 
-import android.util.Log
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
@@ -14,18 +13,40 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * Controller for the [PeerConnectionProxy] functional.
+ *
+ * @property messenger messenger used for creating new [MethodChannel]s.
+ * @property peer underlying [MediaStreamTrackProxy] on which method calls will be performed.
  */
 class PeerConnectionController(
     private val messenger: BinaryMessenger,
     private val peer: PeerConnectionProxy
 ) :
     MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+    /**
+     * Unique ID of the [MethodChannel] of this controller.
+     */
     private val channelId = nextChannelId()
+
+    /**
+     * Channel which will be listened for the [MethodCall]s.
+     */
     private val methodChannel: MethodChannel =
         MethodChannel(messenger, ChannelNameGenerator.withId("PeerConnection", channelId))
+
+    /**
+     * Event channel into which all [PeerConnectionProxy] events will be sent.
+     */
     private val eventChannel: EventChannel =
         EventChannel(messenger, ChannelNameGenerator.withId("PeerConnectionEvent", channelId))
+
+    /**
+     * Event sink into which all [PeerConnectionProxy] events will be sent.
+     */
     private var eventSink: AnyThreadSink? = null
+
+    /**
+     * [PeerConnectionProxy] events observer which will send all events to the [eventSink].
+     */
     private val eventObserver = object : PeerConnectionProxy.Companion.EventObserver {
         override fun onAddTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
             eventSink?.success(

@@ -11,10 +11,20 @@ import io.flutter.plugin.common.MethodChannel
 
 /**
  * Controller for the functional of creating new [PeerConnectionController] by [PeerConnectionFactoryProxy].
+ *
+ * @property binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @param state will be used for creating new [PeerConnectionFactoryProxy].
  */
 class PeerConnectionFactoryController(private val binaryMessenger: BinaryMessenger, state: State) :
     MethodChannel.MethodCallHandler {
+    /**
+     * Factory which will create new [PeerConnectionController]s.
+     */
     private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
+
+    /**
+     * Channel which will be listened for the [MethodCall]s.
+     */
     private val methodChannel =
         MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("PeerConnectionFactory"))
 

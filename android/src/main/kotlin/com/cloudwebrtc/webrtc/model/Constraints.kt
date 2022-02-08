@@ -2,6 +2,9 @@ package com.cloudwebrtc.webrtc.model
 
 /**
  * Audio and video constraints data.
+ *
+ * @property audio optional constraints with which audio devices will be lookuped.
+ * @property video optional constraints with which video devices will be lookuped.
  */
 data class Constraints(val audio: AudioConstraints?, val video: VideoConstraints?) {
     companion object {

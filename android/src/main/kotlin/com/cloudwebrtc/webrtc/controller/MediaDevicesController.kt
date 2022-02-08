@@ -3,12 +3,17 @@ package com.cloudwebrtc.webrtc.controller
 import com.cloudwebrtc.webrtc.MediaDevices
 import com.cloudwebrtc.webrtc.State
 import com.cloudwebrtc.webrtc.model.Constraints
+import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
+import com.cloudwebrtc.webrtc.proxy.PeerConnectionFactoryProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 /**
  * Controller for [MediaDevices] functional.
+ *
+ * @property binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @param state will be used for creating new [MediaStreamTrackProxy]s.
  */
 class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state: State) :
     MethodChannel.MethodCallHandler {

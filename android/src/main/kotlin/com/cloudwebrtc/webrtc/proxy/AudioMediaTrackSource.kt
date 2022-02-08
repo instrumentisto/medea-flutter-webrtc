@@ -11,8 +11,15 @@ import org.webrtc.PeerConnectionFactory
  *
  * Also, this object will track all child [MediaStreamTrackProxy]s and when they all disposed,
  * will dispose underlying [AudioSource].
+ *
+ * @property source underlying [AudioSource] which will be used
+ * for [MediaStreamTrackProxy] creation.
+ * @property peerConnectionFactory factory with which new [MediaStreamTrackProxy]s will be created.
  */
 class AudioMediaTrackSource(private val source: AudioSource, private val peerConnectionFactory: PeerConnectionFactory) : MediaTrackSource {
+    /**
+     * Count of currently alive [MediaStreamTrackProxy] created from this [AudioMediaTrackSource].
+     */
     private var aliveTracksCount: Int = 0;
 
     /**
@@ -34,6 +41,12 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
         return track
     }
 
+    /**
+     * Function which will be called when this [AudioMediaTrackSource] is stopped.
+     *
+     * Decrements [aliveTracksCount] and if no [MediaStreamTrackProxy]s left, then disposes
+     * this [AudioMediaTrackSource].
+     */
     private fun trackStopped() {
         aliveTracksCount--;
         if (aliveTracksCount == 0) {
@@ -41,6 +54,9 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
         }
     }
 
+    /**
+     * Disposes this [AudioMediaTrackSource].
+     */
     private fun dispose() {
         source.dispose()
     }

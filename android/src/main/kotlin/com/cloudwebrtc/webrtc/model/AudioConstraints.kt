@@ -5,7 +5,7 @@ import org.webrtc.MediaConstraints
 /**
  * Mandatory and optional constraints related to the audio.
  *
- * @ses [Constraints](https://developer.mozilla.org/en-US/docs/Web/API/Media_Streams_API/Constraints)
+ * @see [Constraints](https://developer.mozilla.org/en-US/docs/Web/API/Media_Streams_API/Constraints)
  */
 data class AudioConstraints(
     val mandatory: Map<String, String>,

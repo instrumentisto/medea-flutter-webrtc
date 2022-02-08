@@ -1,20 +1,32 @@
 package com.cloudwebrtc.webrtc
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.media.AudioManager
-import android.os.Build
 import com.cloudwebrtc.webrtc.utils.EglUtils
-import com.twilio.audioswitch.AudioDevice
-import com.twilio.audioswitch.AudioSwitch
 import org.webrtc.DefaultVideoDecoderFactory
 import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.audio.JavaAudioDeviceModule
 
-class State(val context: Context) {
+/**
+ * Global context for the flutter_webrtc library.
+ *
+ * Used for creating tracks, peers, perform gUM requests.
+ *
+ * @property context Android [Context] used, for example, for gUM requests.
+ */
+class State(private val context: Context) {
+    /**
+     * Module for the controlling audio devices in context of libwebrtc.
+     */
     private var audioDeviceModule: JavaAudioDeviceModule? = null
+
+    /**
+     * Factory for the `PeerConnection`s, `MediaStreamTrack`s.
+     *
+     * Will be lazily initialized on the first call of [getPeerConnectionFactory].
+     */
     private var factory: PeerConnectionFactory? = null
 
     init {
@@ -25,6 +37,9 @@ class State(val context: Context) {
         )
     }
 
+    /**
+     * Initializes new [factory].
+     */
     private fun initPeerConnectionFactory() {
         val audioModule = JavaAudioDeviceModule.builder(context)
             .setUseHardwareAcousticEchoCanceler(true)
@@ -46,11 +61,11 @@ class State(val context: Context) {
         audioDeviceModule = audioModule
     }
 
-    fun releasePeerConnectionFactory() {
-//        factory?.dispose()
-//        audioDeviceModule?.release()
-    }
-
+    /**
+     * Initializes [PeerConnectionFactory] if it wasn't initiaized before.
+     *
+     * @return current [PeerConnectionFactory] of this [State].
+     */
     fun getPeerConnectionFactory(): PeerConnectionFactory {
         if (factory == null) {
             initPeerConnectionFactory()
@@ -58,6 +73,9 @@ class State(val context: Context) {
         return factory!!
     }
 
+    /**
+     * @return Android SDK [Context].
+     */
     fun getAppContext(): Context {
         return context;
     }

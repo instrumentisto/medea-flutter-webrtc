@@ -3,8 +3,18 @@ package com.cloudwebrtc.webrtc.proxy
 import com.cloudwebrtc.webrtc.model.RtpTransceiverDirection
 import org.webrtc.RtpTransceiver
 
+/**
+ * Wrapper around [RtpTransceiver].
+ */
 class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTransceiver> {
+    /**
+     * [RtpSenderProxy] of this [RtpTransceiverProxy].
+     */
     private lateinit var sender: RtpSenderProxy;
+
+    /**
+     * [RtpReceiverProxy] of this [RtpTransceiverProxy].
+     */
     private lateinit var receiver: RtpReceiverProxy;
 
     init {
@@ -16,26 +26,44 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
         syncReceiver()
     }
 
+    /**
+     * @return [RtpSenderProxy] of this [RtpTransceiverProxy].
+     */
     fun getSender(): RtpSenderProxy {
         return sender
     }
 
+    /**
+     * @return [RtpReceiverProxy] of this [RtpTransceiverProxy].
+     */
     fun getReceiver(): RtpReceiverProxy {
         return receiver
     }
 
+    /**
+     * Sets [RtpTransceiverDirection] of the underlying [RtpTransceiver].
+     */
     fun setDirection(direction: RtpTransceiverDirection) {
         obj.direction = direction.intoWebRtc()
     }
 
+    /**
+     * Returns mID of the underlying [RtpTransceiver].
+     */
     fun getMid(): String? {
         return obj.mid
     }
 
+    /**
+     * @return preferred [RtpTransceiverDirection] of the underlying [RtpTransceiver].
+     */
     fun getDirection(): RtpTransceiverDirection {
         return RtpTransceiverDirection.fromWebRtc(obj.direction)
     }
 
+    /**
+     * @return current [RtpTransceiverDirection] negotiated for the underlying [RtpTransceiver].
+     */
     fun getCurrentDirection(): RtpTransceiverDirection? {
         val direction = obj.currentDirection
         return if (direction == null) {
@@ -45,10 +73,17 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
         }
     }
 
+    /**
+     * Stops underlying [RtpTransceiver].
+     */
     fun stop() {
         obj.stop();
     }
 
+    /**
+     * Synchronizes [RtpSenderProxy] of this [RtpTransceiverProxy] with the
+     * underlying [RtpTransceiver].
+     */
     private fun syncSender() {
         val newSender = obj.sender;
         if (this::sender.isInitialized) {
@@ -58,6 +93,10 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
         }
     }
 
+    /**
+     * Synchronizes [RtpReceiverProxy] of this [RtpTransceiverProxy] with the
+     * underlying [RtpTransceiver].
+     */
     private fun syncReceiver() {
         val newReceiver = obj.receiver
         if (this::receiver.isInitialized) {

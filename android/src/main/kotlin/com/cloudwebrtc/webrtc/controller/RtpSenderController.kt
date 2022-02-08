@@ -1,6 +1,7 @@
 package com.cloudwebrtc.webrtc.controller
 
 import com.cloudwebrtc.webrtc.TrackRepository
+import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.RtpSenderProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -8,10 +9,20 @@ import io.flutter.plugin.common.MethodChannel
 
 /**
  * Controller for the [RtpSenderProxy] functional.
+ *
+ * @param messenger messenger used for creating new [MethodChannel]s.
+ * @property track underlying [RtpSenderProxy] on which method calls will be performed.
  */
 class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSenderProxy) :
     MethodChannel.MethodCallHandler, IdentifiableController {
+    /**
+     * Unique ID of the [MethodChannel] of this controller.
+     */
     private val channelId = nextChannelId()
+
+    /**
+     * Channel which will be listened for the [MethodCall]s.
+     */
     private val methodChannel =
         MethodChannel(messenger, ChannelNameGenerator.withId("RtpSender", channelId))
 
