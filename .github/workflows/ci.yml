@@ -54,12 +54,23 @@ jobs:
       - run: make cargo.build
       - run: make flutter.build
 
-      - name: Caching
+      - name: Caching windows/rust
         uses: actions/cache@v2
         with:
-          key: build-${{ github.run_id }}
-          path: |
-            windows/rust
+          key: build-rust-${{ github.run_id }}
+          path: windows/rust
+
+      - name: Caching target/
+        uses: actions/cache@v2
+        with:
+          key: build-target-${{ github.run_id }}
+          path: target/
+
+      - name: Caching example/build
+        uses: actions/cache@v2
+        with:
+          key: build-flutter-${{ github.run_id }}
+          path: example/build
 
 
   rustdoc:
@@ -83,6 +94,11 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - name: Caching target/
+        uses: actions/cache@v2
+        with:
+          key: build-target-${{ github.run_id }}
+          path: target/
       - run: make cargo.test
 
   flutter_test:
@@ -95,10 +111,14 @@ jobs:
         with:
           flutter-version: 2.8.1
       - run: flutter config --enable-windows-desktop
-      - name: Cache
+      - name: Store windows/rust
         uses: actions/cache@v2
         with:
-          key: build-${{ github.run_id }}
-          path: |
-            windows/rust
+          key: build-rust-${{ github.run_id }}
+          path: windows/rust
+      - name: Caching example/build
+        uses: actions/cache@v2
+        with:
+          key: build-flutter-${{ github.run_id }}
+          path: example/build
       - run: make flutter.test device=windows
