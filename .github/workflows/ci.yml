@@ -60,8 +60,6 @@ jobs:
           key: build-${{ github.run_id }}
           path: |
             windows/rust
-            target
-            example/build
 
 
   rustdoc:
@@ -85,12 +83,6 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - name: Cache
-        uses: actions/cache@v2
-        with:
-          key: build-${{ github.run_id }}
-          path: |
-            target
       - run: make cargo.test
 
   flutter_test:
@@ -109,5 +101,4 @@ jobs:
           key: build-${{ github.run_id }}
           path: |
             windows/rust
-            example/build
       - run: make flutter.test device=windows
