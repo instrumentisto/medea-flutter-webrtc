@@ -56,7 +56,7 @@ jobs:
 
       - name: Caching
         uses: action/cache@2
-        key: testing
+        key: jjkj
         with:
           path: windows/rust
 
@@ -83,7 +83,7 @@ jobs:
           toolchain: stable
       - name: Cache
         uses: action/cache@2
-        key: testing
+        key: jjkj
         with:
           path: windows/rust
       - run: make cargo.test
