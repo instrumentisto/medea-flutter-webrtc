@@ -57,8 +57,12 @@ jobs:
       - name: Caching
         uses: actions/cache@v2
         with:
-          key: built-rust
-          path: windows/rust
+          key: build-{{ github.run_id }}
+          path: |
+            windows/rust
+            target
+            example/build
+
 
   rustdoc:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -81,6 +85,12 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          key: build-{{ github.run_id }}
+          path: |
+            target
       - run: make cargo.test
 
   flutter_test:
@@ -96,7 +106,8 @@ jobs:
       - name: Cache
         uses: actions/cache@v2
         with:
-          key: built-rust
-          path: windows/rust
-      - run: make flutter.build
+          key: build-{{ github.run_id }}
+          path: |
+            windows/rust
+            example/build
       - run: make flutter.test device=windows
