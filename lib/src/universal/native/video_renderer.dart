@@ -7,24 +7,45 @@ import 'package:flutter_webrtc/src/model/media_kind.dart';
 import '../media_stream_track.dart';
 import '../video_renderer.dart';
 
-const videoRendererFactoryMethodChannel = MethodChannel('$CHANNEL_TAG/VideoRendererFactory');
+/// Cretes new [NativeVideoRenderer].
+VideoRenderer createPlatformSpecificVideoRenderer() {
+  return NativeVideoRenderer();
+}
 
+/// [MethodChannel] for factory used for the messaging with a native side.
+const videoRendererFactoryMethodChannel =
+    MethodChannel('$CHANNEL_TAG/VideoRendererFactory');
+
+/// [VideoRenderer] implementation for the native.
 class NativeVideoRenderer extends VideoRenderer {
   NativeVideoRenderer();
+
+  /// Unique ID for the texture on which video will be rendered.
   int? _textureId;
+
+  /// Unique ID of the channel for the native side `VideoRenderer`.
   late int _channelId;
+
+  /// Currently rendering [MediaStreamTrack].
   MediaStreamTrack? _srcObject;
+
+  /// Subscription to the events of this [NativeVideoRenderer].
   StreamSubscription<dynamic>? _eventSubscription;
+
+  /// [MethodChannel] for the [NativeVideoRenderer] used for the messaging
+  /// with a native side.
   late MethodChannel _methodChannel;
 
   @override
   Future<void> initialize() async {
-    final response = await videoRendererFactoryMethodChannel.invokeMethod('create');
+    final response =
+        await videoRendererFactoryMethodChannel.invokeMethod('create');
     _textureId = response['textureId'];
     _channelId = response['channelId'];
-    _eventSubscription = EventChannel('$CHANNEL_TAG/VideoRendererEvent/$_channelId')
-        .receiveBroadcastStream()
-        .listen(eventListener, onError: errorListener);
+    _eventSubscription =
+        EventChannel('$CHANNEL_TAG/VideoRendererEvent/$_channelId')
+            .receiveBroadcastStream()
+            .listen(eventListener, onError: errorListener);
     _methodChannel = MethodChannel('$CHANNEL_TAG/VideoRenderer/$_channelId');
   }
 
@@ -72,6 +93,8 @@ class NativeVideoRenderer extends VideoRenderer {
     await super.dispose();
   }
 
+  /// Listener for the [NativeVideoRenderer] events received from the native
+  /// side.
   void eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
     switch (map['event']) {
@@ -93,6 +116,7 @@ class NativeVideoRenderer extends VideoRenderer {
     }
   }
 
+  /// Listener for the errors of the native event channel.
   void errorListener(Object obj) {
     if (obj is Exception) {
       throw obj;

@@ -4,17 +4,16 @@ import 'package:flutter/material.dart';
 
 import '../video_renderer.dart';
 import '../video_view_object_fit.dart';
-import 'video_renderer.dart';
 
 class VideoView extends StatelessWidget {
   VideoView(
-      this._renderer, {
-        Key? key,
-        this.objectFit = VideoViewObjectFit.contain,
-        this.mirror = false,
-        this.enableContextMenu = true,
-        this.filterQuality = FilterQuality.low,
-      }) : super(key: key);
+    this._renderer, {
+    Key? key,
+    this.objectFit = VideoViewObjectFit.contain,
+    this.mirror = false,
+    this.enableContextMenu = true,
+    this.filterQuality = FilterQuality.low,
+  }) : super(key: key);
 
   final VideoRenderer _renderer;
   final VideoViewObjectFit objectFit;
@@ -56,11 +55,11 @@ class VideoView extends StatelessWidget {
                 transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
                 alignment: FractionalOffset.center,
                 child: videoRenderer.textureId != null &&
-                    videoRenderer.srcObject != null
+                        videoRenderer.srcObject != null
                     ? Texture(
-                  textureId: videoRenderer.textureId!,
-                  filterQuality: filterQuality,
-                )
+                        textureId: videoRenderer.textureId!,
+                        filterQuality: filterQuality,
+                      )
                     : Container(),
               ),
             ),

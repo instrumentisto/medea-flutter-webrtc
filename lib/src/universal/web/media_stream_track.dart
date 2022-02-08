@@ -43,10 +43,9 @@ class WebMediaStreamTrack extends MediaStreamTrack {
 
   @override
   Future<void> stop() async {
-     jsTrack.stop();
+    jsTrack.stop();
   }
 
-  // TODO(evdokimovs): I think that in Web implementation MediaStreamTrack disposing is not needed.
   @override
   Future<void> dispose() async {}
 

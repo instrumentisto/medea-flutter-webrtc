@@ -8,6 +8,10 @@ import '../media_stream_track.dart';
 import '../video_renderer.dart';
 import 'media_stream_track.dart';
 
+VideoRenderer createPlatformSpecificVideoRenderer() {
+  return WebVideoRenderer();
+}
+
 // An error code value to error name Map.
 // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaError/code
 const Map<int, String> _kErrorValueToErrorName = {
@@ -125,7 +129,7 @@ class WebVideoRenderer extends VideoRenderer {
     element?.load();
     _audioElement?.remove();
     final audioManager = html.document.getElementById(_elementIdForAudioManager)
-    as html.DivElement?;
+        as html.DivElement?;
     if (audioManager != null && !audioManager.hasChildNodes()) {
       audioManager.remove();
     }
@@ -136,64 +140,64 @@ class WebVideoRenderer extends VideoRenderer {
   Future<void> initialize() async {
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('RTCVideoRenderer-$textureId',
-            (int viewId) {
-          _subscriptions.forEach((s) => s.cancel());
-          _subscriptions.clear();
+        (int viewId) {
+      _subscriptions.forEach((s) => s.cancel());
+      _subscriptions.clear();
 
-          final element = html.VideoElement()
-            ..autoplay = true
-            ..muted = true
-            ..controls = false
-            ..style.objectFit = _objectFit
-            ..style.border = 'none'
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..style.transform = mirror ? 'rotateY(0.5turn)' : ''
-            ..srcObject = _videoStream
-            ..id = _elementIdForVideo
-            ..setAttribute('playsinline', 'true')
-            ..setAttribute(
-                'oncontextmenu', enableContextMenu ? '' : 'return false;');
+      final element = html.VideoElement()
+        ..autoplay = true
+        ..muted = true
+        ..controls = false
+        ..style.objectFit = _objectFit
+        ..style.border = 'none'
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.transform = mirror ? 'rotateY(0.5turn)' : ''
+        ..srcObject = _videoStream
+        ..id = _elementIdForVideo
+        ..setAttribute('playsinline', 'true')
+        ..setAttribute(
+            'oncontextmenu', enableContextMenu ? '' : 'return false;');
 
-          _subscriptions.add(
-            element.onCanPlay.listen((dynamic _) {
-              _updateAllValues();
-              // print('RTCVideoRenderer: videoElement.onCanPlay ${value.toString()}');
-            }),
-          );
+      _subscriptions.add(
+        element.onCanPlay.listen((dynamic _) {
+          _updateAllValues();
+          // print('RTCVideoRenderer: videoElement.onCanPlay ${value.toString()}');
+        }),
+      );
 
-          _subscriptions.add(
-            element.onResize.listen((dynamic _) {
-              _updateAllValues();
-              onResize?.call();
-              // print('RTCVideoRenderer: videoElement.onResize ${value.toString()}');
-            }),
-          );
+      _subscriptions.add(
+        element.onResize.listen((dynamic _) {
+          _updateAllValues();
+          onResize?.call();
+          // print('RTCVideoRenderer: videoElement.onResize ${value.toString()}');
+        }),
+      );
 
-          // The error event fires when some form of error occurs while attempting to load or perform the media.
-          _subscriptions.add(
-            element.onError.listen((html.Event _) {
-              // The Event itself (_) doesn't contain info about the actual error.
-              // We need to look at the HTMLMediaElement.error.
-              // See: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/error
-              final error = element.error;
-              print('RTCVideoRenderer: videoElement.onError, ${error.toString()}');
-              throw PlatformException(
-                code: _kErrorValueToErrorName[error!.code]!,
-                message:
+      // The error event fires when some form of error occurs while attempting to load or perform the media.
+      _subscriptions.add(
+        element.onError.listen((html.Event _) {
+          // The Event itself (_) doesn't contain info about the actual error.
+          // We need to look at the HTMLMediaElement.error.
+          // See: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/error
+          final error = element.error;
+          print('RTCVideoRenderer: videoElement.onError, ${error.toString()}');
+          throw PlatformException(
+            code: _kErrorValueToErrorName[error!.code]!,
+            message:
                 error.message != '' ? error.message : _kDefaultErrorMessage,
-                details: _kErrorValueToErrorDescription[error.code],
-              );
-            }),
+            details: _kErrorValueToErrorDescription[error.code],
           );
+        }),
+      );
 
-          _subscriptions.add(
-            element.onEnded.listen((dynamic _) {
-              // print('RTCVideoRenderer: videoElement.onEnded');
-            }),
-          );
+      _subscriptions.add(
+        element.onEnded.listen((dynamic _) {
+          // print('RTCVideoRenderer: videoElement.onEnded');
+        }),
+      );
 
-          return element;
-        });
+      return element;
+    });
   }
 }

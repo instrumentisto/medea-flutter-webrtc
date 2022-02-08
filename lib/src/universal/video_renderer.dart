@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/src/universal/native/video_renderer.dart';
 
 import 'media_stream_track.dart';
+export 'native/video_renderer.dart'
+    if (dart.library.html) 'web/video_renderer.dart';
 
 @immutable
 class RTCVideoValue {
@@ -72,10 +74,5 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
 }
 
 VideoRenderer createVideoRenderer() {
-  if (kIsWeb) {
-    throw Exception();
-    // return WebVideoRenderer();
-  } else {
-    return NativeVideoRenderer();
-  }
+  return createPlatformSpecificVideoRenderer();
 }

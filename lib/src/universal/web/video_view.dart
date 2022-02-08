@@ -2,19 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../video_view_object_fit.dart';
 import '../video_renderer.dart';
+import '../video_view_object_fit.dart';
 import 'video_renderer.dart';
 
 class VideoView extends StatefulWidget {
   VideoView(
-      this._renderer, {
-        Key? key,
-        this.objectFit = VideoViewObjectFit.contain,
-        this.mirror = false,
-        this.enableContextMenu = true,
-        this.filterQuality = FilterQuality.low,
-      }) : super(key: key);
+    this._renderer, {
+    Key? key,
+    this.objectFit = VideoViewObjectFit.contain,
+    this.mirror = false,
+    this.enableContextMenu = true,
+    this.filterQuality = FilterQuality.low,
+  }) : super(key: key);
 
   final VideoRenderer _renderer;
   final VideoViewObjectFit objectFit;
@@ -29,8 +29,7 @@ class VideoView extends StatefulWidget {
 class _VideoViewState extends State<VideoView> {
   _VideoViewState();
 
-  WebVideoRenderer get videoRenderer =>
-      widget._renderer as WebVideoRenderer;
+  WebVideoRenderer get videoRenderer => widget._renderer as WebVideoRenderer;
 
   @override
   void initState() {
@@ -39,9 +38,7 @@ class _VideoViewState extends State<VideoView> {
     videoRenderer.mirror = widget.mirror;
     videoRenderer.enableContextMenu = widget.enableContextMenu;
     videoRenderer.objectFit =
-    widget.objectFit == VideoViewObjectFit.contain
-        ? 'contain'
-        : 'cover';
+        widget.objectFit == VideoViewObjectFit.contain ? 'contain' : 'cover';
   }
 
   void _onRendererListener() {
@@ -62,9 +59,7 @@ class _VideoViewState extends State<VideoView> {
         Duration(milliseconds: 10), () => videoRenderer.mirror = widget.mirror);
     videoRenderer.enableContextMenu = widget.enableContextMenu;
     videoRenderer.objectFit =
-    widget.objectFit == VideoViewObjectFit.contain
-        ? 'contain'
-        : 'cover';
+        widget.objectFit == VideoViewObjectFit.contain ? 'contain' : 'cover';
   }
 
   Widget buildVideoElementView() {
