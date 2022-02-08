@@ -182,6 +182,10 @@ impl Webrtc {
                 let _ = UniquePtr::from_raw(prev);
             }
         }
+
+        unsafe {
+            init();
+        }
     }
 }
 
@@ -200,10 +204,11 @@ unsafe extern "system" fn wndproc(
         // The device event when a device has been added to or removed from the
         // system.
         if DBT_DEVNODES_CHANGED == wp {
-            let cb = CB.load(Ordering::SeqCst);
+            let mut cb =
+                UniquePtr::from_raw(ON_DEVICE_CHANGE.load(Ordering::SeqCst));
 
             if !cb.is_null() {
-                (*cb)();
+                cb.pin_mut().on_device_change();
             }
         }
     } else {

@@ -38,4 +38,6 @@ class FlutterWebRTC : public FlutterVideoRendererManager {
   std::unique_ptr<EventSink<EncodableValue>> event_sink_;
 };
 
+class OnDeviceChange : public OnDeviceChangeCallback {};
+
 }  // namespace flutter_webrtc_plugin
