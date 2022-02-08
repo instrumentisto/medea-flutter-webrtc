@@ -57,7 +57,7 @@ jobs:
       - name: Caching
         uses: actions/cache@v2
         with:
-          key: jjkj
+          key: built-rust
           path: windows/rust
 
   rustdoc:
@@ -71,7 +71,7 @@ jobs:
           toolchain: stable
       - run: make cargo.doc
 
-  test:
+  cargo test:
     needs: ['build']
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
@@ -81,11 +81,21 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - run: make cargo.test
+
+  flutter test:
+    needs: ['build']
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: 2.8.1
+      - run: flutter config --enable-windows-desktop
       - name: Cache
         uses: actions/cache@v2
         with:
-          key: jjkj
+          key: built-rust
           path: windows/rust
-      - run: make cargo.test
-      - run: make cargo.build
       - run: make flutter.test device=windows
