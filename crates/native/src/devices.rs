@@ -17,19 +17,20 @@ use winapi::{
         winuser::{
             CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
             RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT, MSG,
-            SW_HIDE, WM_CLOSE, WM_DEVICECHANGE, WNDCLASSEXW, WS_ICONIC,
+            SW_HIDE, WM_DEVICECHANGE, WNDCLASSEXW, WS_ICONIC,
         },
     },
 };
 
 use crate::{
-    internal::OnDeviceChangeCallback,
     api,
+    internal::OnDeviceChangeCallback,
     user_media::{AudioDeviceId, VideoDeviceId},
     Webrtc,
 };
 
-static ON_DEVICE_CHANGE: AtomicPtr<OnDeviceChangeCallback> = AtomicPtr::new(ptr::null_mut());
+static ON_DEVICE_CHANGE: AtomicPtr<OnDeviceChangeCallback> =
+    AtomicPtr::new(ptr::null_mut());
 
 impl Webrtc {
     /// Returns a list of all available audio input and output devices.
@@ -177,7 +178,9 @@ impl Webrtc {
         let prev = ON_DEVICE_CHANGE.swap(cb.into_raw(), Ordering::SeqCst);
 
         if !prev.is_null() {
-            unsafe { let _ = UniquePtr::from_raw(prev); }
+            unsafe {
+                let _ = UniquePtr::from_raw(prev);
+            }
         }
     }
 }
@@ -191,11 +194,9 @@ unsafe extern "system" fn wndproc(
 ) -> LRESULT {
     let mut result: LRESULT = 0;
 
-    if msg == WM_CLOSE {
-        std::process::exit(0);
-        // The message that notifies an application of a change to the hardware
-        // configuration of a device or the computer.
-    } else if msg == WM_DEVICECHANGE {
+    // The message that notifies an application of a change to the hardware
+    // configuration of a device or the computer.
+    if msg == WM_DEVICECHANGE {
         // The device event when a device has been added to or removed from the
         // system.
         if DBT_DEVNODES_CHANGED == wp {
@@ -217,7 +218,7 @@ unsafe extern "system" fn wndproc(
 pub unsafe fn init() {
     std::thread::spawn(|| {
         #[allow(clippy::cast_possible_truncation)]
-            let class = WNDCLASSEXW {
+        let class = WNDCLASSEXW {
             cbSize: mem::size_of::<WNDCLASSEXW>() as u32,
             style: Default::default(),
             lpfnWndProc: Some(wndproc),
@@ -231,10 +232,10 @@ pub unsafe fn init() {
             lpszClassName: OsStr::new(
                 format!("{:?}", std::time::Instant::now()).as_str(),
             )
-                .encode_wide()
-                .chain(Some(0).into_iter())
-                .collect::<Vec<u16>>()
-                .as_ptr(),
+            .encode_wide()
+            .chain(Some(0).into_iter())
+            .collect::<Vec<u16>>()
+            .as_ptr(),
             hIconSm: ptr::null_mut(),
         };
         RegisterClassExW(&class);
