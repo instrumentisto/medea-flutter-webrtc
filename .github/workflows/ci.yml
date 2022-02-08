@@ -71,7 +71,7 @@ jobs:
           toolchain: stable
       - run: make cargo.doc
 
-  cargo test:
+  cargo_test:
     needs: ['build']
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
@@ -83,7 +83,7 @@ jobs:
           toolchain: stable
       - run: make cargo.test
 
-  flutter test:
+  flutter_test:
     needs: ['build']
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: windows-latest
