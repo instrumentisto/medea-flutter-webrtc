@@ -30,9 +30,13 @@ use crate::{
     AudioDeviceModule, Webrtc,
 };
 
+/// A static instance of a [`DeviceState`].
 static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
     AtomicPtr::new(ptr::null_mut());
 
+/// This struct contains the current number of media devices and some tools
+/// to enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`])
+/// and generate event with [`OnDeviceChangeCallback`], if the last is needed.
 struct DeviceState {
     cb: UniquePtr<OnDeviceChangeCallback>,
     adm: AudioDeviceModule,
@@ -179,6 +183,11 @@ impl Webrtc {
     ///
     /// Only one callback can be set a time, so the previous one will be
     /// dropped, if any.
+    ///
+    /// # Panics
+    ///
+    /// May panic on creating [`AudioDeviceModule`] or [`VideoDeviceInfo`]
+    /// or getting number of `playout` and `recording` devices.
     pub fn set_on_device_changed(
         self: &mut Webrtc,
         cb: UniquePtr<OnDeviceChangeCallback>,
@@ -210,7 +219,7 @@ impl Webrtc {
 
         if !prev.is_null() {
             unsafe {
-                let _ = Box::from_raw(prev);
+                drop(Box::from_raw(prev));
             }
         }
 

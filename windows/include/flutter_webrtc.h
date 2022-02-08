@@ -29,26 +29,13 @@ class FlutterWebRTC : public FlutterVideoRendererManager {
 
   Box<Webrtc> webrtc = Init();
 
-  //  private:
+ private:
   // A named channel for communicating with the Flutter application using
   // asynchronous event streams.
   std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
   // Event callback. Events to be sent to Flutter application
   // act as clients of this interface for sending events.
   std::unique_ptr<EventSink<EncodableValue>> event_sink_;
-};
-
-// Handler for changing media devices in system.
-class DeviceChangeHandler : public OnDeviceChangeCallback {
- public:
-  DeviceChangeHandler(std::function<void()> cb) : cb_(std::move(cb)){};
-
-  // `OnDeviceChangeCallback` implementation.
-  void OnDeviceChange() { cb_(); };
-
- private:
-  // A `callback` which generates event for Dart.
-  std::function<void()> cb_;
 };
 
 }  // namespace flutter_webrtc_plugin

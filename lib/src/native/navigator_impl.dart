@@ -26,7 +26,6 @@ class NavigatorNative extends Navigator {
   MediaDevices get mediaDevices {
     if (_mediaDevices == null) {
       _mediaDevices = MediaDeviceNative();
-      // _mediaDevices!.initSubscription();
     }
 
     return _mediaDevices!;
