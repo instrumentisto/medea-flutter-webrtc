@@ -55,7 +55,7 @@ jobs:
       - run: make flutter.build
 
       - name: Caching
-        uses: action/cache@2
+        uses: actions/cache@v2
         with:
           key: jjkj
           path: windows/rust
@@ -82,7 +82,7 @@ jobs:
           profile: minimal
           toolchain: stable
       - name: Cache
-        uses: action/cache@2
+        uses: actions/cache@v2
         with:
           key: jjkj
           path: windows/rust
