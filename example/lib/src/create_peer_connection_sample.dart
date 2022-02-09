@@ -43,7 +43,9 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       });
 
     } catch (e) {
-      print(e.toString());
+      setState(() {
+        text = e.toString();
+      });
     }
   }
 

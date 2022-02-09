@@ -572,7 +572,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(PeerConnectionInterface {
             inner,
-            _observer: dependencies._observer
+            _observer: dependencies._observer,
         })
     }
 
