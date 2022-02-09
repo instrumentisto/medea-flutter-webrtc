@@ -25,14 +25,14 @@ public:
   // Called when a new ICE candidate has been discovered.
   void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) override;
 
-  // Gathering of an ICE candidate failed.
+  // Called when an ICE candidate failed.
   void OnIceCandidateError(const std::string& address,
                            int port,
                            const std::string& url,
                            int error_code,
                            const std::string& error_text) override;
 
-  // Ice candidates have been removed.
+  // Called when the ICE candidates have been removed.
   void OnIceCandidatesRemoved(
       const std::vector<cricket::Candidate>& candidates) override;
 
@@ -48,14 +48,14 @@ public:
   void OnConnectionChange(
       webrtc::PeerConnectionInterface::PeerConnectionState new_state) override;
 
-  // Called when the ICE connection receiving status changes.
+  // Called when an ICE connection receiving status changes.
   void OnIceConnectionReceivingChange(bool receiving) override;
 
   // Called when the `IceGatheringState` changes.
   void OnIceGatheringChange(
       webrtc::PeerConnectionInterface::IceGatheringState new_state) override;
 
-  // Called when the selected candidate pair for the ICE connection changes.
+  // Called when the selected candidate pair for an ICE connection changes.
   void OnIceSelectedCandidatePairChanged(
       const cricket::CandidatePairChangeEvent& event) override;
 
@@ -63,44 +63,50 @@ public:
   void OnDataChannel(
       rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) override;
 
-  // Used to fire spec-compliant onnegotiationneeded events, which should only
+  // Used to fire spec-compliant `onnegotiationneeded` events, which should only
   // fire when the Operations Chain is empty. The observer is responsible for
   // queuing a task (e.g. Chromium: jump to main thread) to maybe fire the
   // event. The event identified using `event_id` must only fire if
-  // PeerConnection::ShouldFireNegotiationNeededEvent() returns true since it is
-  // possible for the event to become invalidated by operations subsequently
-  // chained.
+  // `PeerConnection::ShouldFireNegotiationNeededEvent()` returns `true` since
+  // it's possible for the event to become invalidated by operations
+  // subsequently chained.
   void OnNegotiationNeededEvent(uint32_t event_id) override;
 
-  // This is called when a receiver and its track are created.
+  // Called when a receiver and its track are created.
   //
-  // Note: This is called with both Plan B and Unified Plan semantics. Unified
-  // Plan users should prefer OnTrack, OnAddTrack is only called as backwards
-  // compatibility (and is called in the exact same situations as OnTrack).
+  // NOTE: Called with both "Plan B" and "Unified Plan" semantics. "Unified
+  //       Plan" users should prefer `OnTrack`, `OnAddTrack` is only called as
+  //       backwards compatibility (and is called in the exact same situations
+  //       as `OnTrack`).
   void OnAddTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
       const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams
   ) override;
 
-  // This is called when signaling indicates a transceiver will be receiving
-  // media from the remote endpoint. This is fired during a call to
-  // SetRemoteDescription. The receiving track can be accessed by:
-  // `transceiver->receiver()->track()` and its associated streams by
-  // `transceiver->receiver()->streams()`.
-  // Note: This will only be called if Unified Plan semantics are specified.
-  // This behavior is specified in section 2.2.8.2.5 of the "Set the
-  // RTCSessionDescription" algorithm:
-  // https://w3c.github.io/webrtc-pc/#set-description
+  // Called when signaling indicates a transceiver will be receiving media from
+  // a remote endpoint. It's fired during a call to `SetRemoteDescription`.
+  //
+  // The receiving track can be accessed by `transceiver->receiver()->track()`
+  // and its associated streams by `transceiver->receiver()->streams()`.
+  //
+  // NOTE: Only called if "Unified Plan" semantics are specified.
+  //       This behavior is specified in section 2.2.8.2.5 of the "Set the
+  //       RTCSessionDescription" algorithm:
+  //       https://w3c.github.io/webrtc-pc#set-description
   void OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) override;
 
   // Called when signaling indicates that media will no longer be received on a
   // track.
-  // With Plan B semantics, the given receiver will have been removed from the
-  // PeerConnection and the track muted.
-  // With Unified Plan semantics, the receiver will remain but the transceiver
-  // will have changed direction to either sendonly or inactive.
-  // https://w3c.github.io/webrtc-pc/#process-remote-track-removal
+  //
+  // With "Plan B" semantics, the given receiver will be removed from the
+  // `PeerConnection` and the muted track.
+  //
+  // With "Unified Plan" semantics, the receiver will remain, but the
+  // transceiver will have its direction changed to either `sendonly` or
+  // `inactive`.
+  //
+  // See more: https://w3c.github.io/webrtc-pc#process-remote-track-removal
   void OnRemoveTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
 

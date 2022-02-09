@@ -82,11 +82,11 @@ void PeerConnectionObserver::OnTrack(
 void PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) {}
 
-// Does nothing since we do not use DataChannels at the moment.
+// Does nothing since we do not use `DataChannel`s at the moment.
 void PeerConnectionObserver::OnDataChannel(
     rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
 
-// Does nothing since we do not plan to support Plan-B.
+// Does nothing since we do not plan to support "Plan B" semantics.
 void PeerConnectionObserver::OnAddTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&

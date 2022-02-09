@@ -51,12 +51,12 @@ pub trait OnFrameCallback {
 pub trait PeerConnectionEventsHandler {
     /// Called when a [`signalingstatechange`][1] event occurs.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#event-signalingstatechange
+    /// [1]: https://w3.org/TR/webrtc#event-signalingstatechange
     fn on_signaling_change(&mut self, new_state: SignalingState);
 
     /// Called when an [`iceconnectionstatechange`][1] event occurs.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#event-iceconnectionstatechange
+    /// [1]: https://w3.org/TR/webrtc#event-iceconnectionstatechange
     fn on_standardized_ice_connection_change(
         &mut self,
         new_state: IceConnectionState,
@@ -64,17 +64,17 @@ pub trait PeerConnectionEventsHandler {
 
     /// Called when a [`connectionstatechange`][1] event occurs.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#event-connectionstatechange
+    /// [1]: https://w3.org/TR/webrtc#event-connectionstatechange
     fn on_connection_change(&mut self, new_state: PeerConnectionState);
 
     /// Called when an [`icegatheringstatechange`][1] event occurs.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#event-icegatheringstatechange
+    /// [1]: https://w3.org/TR/webrtc#event-icegatheringstatechange
     fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
 
     /// Called when a [`negotiation`][1] event occurs.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#event-negotiation
+    /// [1]: https://w3.org/TR/webrtc#event-negotiation
     fn on_negotiation_needed_event(&mut self, event_id: u32);
 
     /// Called when an [`icecandidateerror`][1] event occurs.
@@ -94,7 +94,7 @@ pub trait PeerConnectionEventsHandler {
 
     /// Called when an [`icecandidate`][1] event occurs.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#event-icecandidate
+    /// [1]: https://w3.org/TR/webrtc#event-icecandidate
     fn on_ice_candidate(
         &mut self,
         candidate: *const webrtc::IceCandidateInterface,
@@ -103,7 +103,7 @@ pub trait PeerConnectionEventsHandler {
     /// Called when some ICE candidates have been removed.
     fn on_ice_candidates_removed(&mut self, candidates: &CxxVector<Candidate>);
 
-    /// Called when a [`icecandidate`][1] event occurs.
+    /// Called when a [`selectedcandidatepairchange`][1] event occurs.
     ///
     /// [1]: https://tinyurl.com/w3-selectedcandidatepairchange
     fn on_ice_selected_candidate_pair_changed(
@@ -328,9 +328,10 @@ pub struct PeerConnectionDependencies {
     /// Pointer to the C++ side `PeerConnectionDependencies` object.
     inner: UniquePtr<webrtc::PeerConnectionDependencies>,
 
-    /// [`PeerConnectionObserver`] that this [`PeerConnectionDependencies`]
-    /// depends on. It is stored here since it must outlive the dependencies
-    /// object.
+    /// [`PeerConnectionObserver`] that these [`PeerConnectionDependencies`]
+    /// depend on.
+    ///
+    /// It's stored here since it must outlive the dependencies object.
     observer: PeerConnectionObserver,
 }
 
@@ -434,11 +435,15 @@ impl SetRemoteDescriptionObserver {
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 pub struct PeerConnectionInterface {
-    /// Pointer to the C++ side `PeerConnectionInterface` object.
+    /// Pointer to the C++ side [`PeerConnectionInterface`] object.
+    ///
+    /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
     inner: UniquePtr<webrtc::PeerConnectionInterface>,
+
     /// [`PeerConnectionObserver`] that this [`PeerConnectionInterface`]
-    /// uses internally. It is stored here since it must outlive the peer
-    /// connection object.
+    /// uses internally.
+    ///
+    /// It's stored here since it must outlive the peer connection object.
     _observer: PeerConnectionObserver,
 }
 

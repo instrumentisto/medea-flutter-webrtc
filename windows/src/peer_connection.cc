@@ -51,7 +51,7 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
   std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
-// `PeerConnectionObserverInterface` implementation that forwards events to the
+// `PeerConnectionObserverInterface` implementation forwarding events to the
 // Flutter side via `flutter::EventSink`.
 class PeerConnectionObserver : public PeerConnectionObserverInterface {
  public:
@@ -61,7 +61,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     std::unique_ptr<std::mutex> lock_ = std::make_unique<std::mutex>();
     // `EventSink` used to send events to the Flutter side.
     std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> sink_;
-    // Flutter `EventChannel` used to dispose channel object.
+    // Flutter `EventChannel` used to dispose the channel object.
     std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> chan_;
   };
 

@@ -28,8 +28,8 @@ type DynPeerConnectionEventsHandler = Box<dyn PeerConnectionEventsHandler>;
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
     /// Possible kinds of audio devices implementation.
-    #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum AudioLayer {
         kPlatformDefaultAudio = 0,
         kWindowsCoreAudio,
@@ -47,8 +47,8 @@ pub(crate) mod webrtc {
     /// [RTCSdpType] representation.
     ///
     /// [RTCSdpType]: https://w3.org/TR/webrtc#dom-rtcsdptype
-    #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum SdpType {
         /// [RTCSdpType.offer][1] representation.
         ///
@@ -72,8 +72,8 @@ pub(crate) mod webrtc {
     }
 
     /// Possible variants of a [`VideoFrame`]'s rotation.
-    #[repr(i32)]
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum VideoRotation {
         kVideoRotation_0 = 0,
         kVideoRotation_90 = 90,
@@ -83,9 +83,9 @@ pub(crate) mod webrtc {
 
     /// [RTCSignalingState] representation.
     ///
-    /// [RTCSignalingState]: https://w3.org/TR/webrtc/#state-definitions
-    #[repr(i32)]
+    /// [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum SignalingState {
         /// [RTCSignalingState.stable][1] representation.
         ///
@@ -121,8 +121,8 @@ pub(crate) mod webrtc {
     /// [RTCIceGatheringState][1] representation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
-    #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum IceGatheringState {
         /// [RTCIceGatheringState.new][1] representation.
         ///
@@ -143,8 +143,8 @@ pub(crate) mod webrtc {
     /// [RTCPeerConnectionState][1] representation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnectionstate
-    #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum PeerConnectionState {
         /// [RTCPeerConnectionState.new][1] representation.
         ///
@@ -180,8 +180,8 @@ pub(crate) mod webrtc {
     /// [RTCIceConnectionState][1] representation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
-    #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum IceConnectionState {
         /// [RTCIceConnectionState.new][1] representation.
         ///
@@ -218,7 +218,7 @@ pub(crate) mod webrtc {
         /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-closed
         kIceConnectionClosed,
 
-        /// Non-spec-compliant variant. `WebRTC` docs state that it is
+        /// Non-spec-compliant variant. `WebRTC` docs state that it's
         /// unreachable.
         kIceConnectionMax,
     }
@@ -612,38 +612,38 @@ pub(crate) mod webrtc {
         pub unsafe fn video_frame_to_abgr(frame: &VideoFrame, buffer: *mut u8);
 
         /// Returns the timestamp of when the last data was received from the
-        /// given [`CandidatePairChangeEvent`].
+        /// provided [`CandidatePairChangeEvent`].
         #[must_use]
         pub fn get_last_data_received_ms(
             event: &CandidatePairChangeEvent,
         ) -> i64;
 
-        /// Returns the reason that caused the given
+        /// Returns the reason causing the provided
         /// [`CandidatePairChangeEvent`].
         #[must_use]
         pub fn get_reason(
             event: &CandidatePairChangeEvent,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns the estimated disconnect time in milliseconds from the given
-        /// [`CandidatePairChangeEvent`].
+        /// Returns the estimated disconnect time in milliseconds from the
+        /// provided [`CandidatePairChangeEvent`].
         #[must_use]
         pub fn get_estimated_disconnected_time_ms(
             event: &CandidatePairChangeEvent,
         ) -> i64;
 
-        /// Returns the [`CandidatePair`] from the given
+        /// Returns the [`CandidatePair`] from the provided
         /// [`CandidatePairChangeEvent`].
         #[must_use]
         pub fn get_candidate_pair(
             event: &CandidatePairChangeEvent,
         ) -> &CandidatePair;
 
-        /// Returns the local [`Candidate`] of the given [`CandidatePair`].
+        /// Returns the local [`Candidate`] of the provided [`CandidatePair`].
         #[must_use]
         pub fn local_candidate(self: &CandidatePair) -> &Candidate;
 
-        /// Returns the remote [`Candidate`] of the given [`CandidatePair`].
+        /// Returns the remote [`Candidate`] of the provided [`CandidatePair`].
         #[must_use]
         pub fn remote_candidate(self: &CandidatePair) -> &Candidate;
     }
@@ -789,7 +789,7 @@ fn on_frame(cb: &mut DynOnFrameCallback, frame: UniquePtr<webrtc::VideoFrame>) {
     cb.on_frame(frame);
 }
 
-/// Forwards the event to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the event to the provided [`DynPeerConnectionEventsHandler`].
 pub fn on_signaling_change(
     cb: &mut DynPeerConnectionEventsHandler,
     state: webrtc::SignalingState,
@@ -797,7 +797,7 @@ pub fn on_signaling_change(
     cb.on_signaling_change(state);
 }
 
-/// Forwards the event to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the event to the provided [`DynPeerConnectionEventsHandler`].
 pub fn on_standardized_ice_connection_change(
     cb: &mut DynPeerConnectionEventsHandler,
     new_state: webrtc::IceConnectionState,
@@ -805,7 +805,7 @@ pub fn on_standardized_ice_connection_change(
     cb.on_standardized_ice_connection_change(new_state);
 }
 
-/// Forwards the event to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the event to the provided [`DynPeerConnectionEventsHandler`].
 pub fn on_connection_change(
     cb: &mut DynPeerConnectionEventsHandler,
     new_state: webrtc::PeerConnectionState,
@@ -813,7 +813,7 @@ pub fn on_connection_change(
     cb.on_connection_change(new_state);
 }
 
-/// Forwards the event to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the event to the provided [`DynPeerConnectionEventsHandler`].
 pub fn on_ice_gathering_change(
     cb: &mut DynPeerConnectionEventsHandler,
     new_state: webrtc::IceGatheringState,
@@ -821,7 +821,7 @@ pub fn on_ice_gathering_change(
     cb.on_ice_gathering_change(new_state);
 }
 
-/// Forwards the event to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the event to the provided [`DynPeerConnectionEventsHandler`].
 pub fn on_negotiation_needed_event(
     cb: &mut DynPeerConnectionEventsHandler,
     event_id: u32,
@@ -829,7 +829,7 @@ pub fn on_negotiation_needed_event(
     cb.on_negotiation_needed_event(event_id);
 }
 
-/// Forwards the event to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the event to the provided [`DynPeerConnectionEventsHandler`].
 pub fn on_ice_candidate_error(
     cb: &mut DynPeerConnectionEventsHandler,
     address: &CxxString,
@@ -841,7 +841,7 @@ pub fn on_ice_candidate_error(
     cb.on_ice_candidate_error(address, port, url, error_code, error_text);
 }
 
-/// Forwards the event to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the event to the provided [`DynPeerConnectionEventsHandler`].
 pub fn on_ice_connection_receiving_change(
     cb: &mut DynPeerConnectionEventsHandler,
     receiving: bool,

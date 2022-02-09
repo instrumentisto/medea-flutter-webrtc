@@ -266,7 +266,7 @@ void set_remote_description(PeerConnectionInterface& peer,
 std::unique_ptr<std::string>
 ice_candidate_interface_to_string(const IceCandidateInterface* candidate);
 
-// Creates a SDP-ized form of this `Candidate`.
+// Creates an SDP-ized form of this `Candidate`.
 std::unique_ptr<std::string>
 candidate_to_string(const cricket::Candidate& candidate);
 

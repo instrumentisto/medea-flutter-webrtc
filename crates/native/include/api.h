@@ -45,18 +45,18 @@ class OnFrameCallbackInterface {
 };
 
 // TODO: Add OnTrack event in #30.
-// Handler of the events that fire from a `PeerConnectionInterface`.
+// Handler of events firing from a `PeerConnectionInterface`.
 class PeerConnectionObserverInterface {
  public:
 
   // Called when a `connectionstatechange` event occurs.
   //
-  // See: https://w3.org/TR/webrtc/#event-connectionstatechange
+  // See: https://w3.org/TR/webrtc#event-connectionstatechange
   virtual void OnConnectionStateChange(const std::string& new_state) = 0;
 
   // Called when an `icecandidate` event occurs.
   //
-  // See: https://w3.org/TR/webrtc/#event-icecandidate
+  // See: https://w3.org/TR/webrtc#event-icecandidate
   virtual void OnIceCandidate(const std::string& candidate) = 0;
 
   // Called when an `icecandidateerror` event occurs.
@@ -70,22 +70,22 @@ class PeerConnectionObserverInterface {
 
   // Called when an `iceconnectionstatechange` event occurs.
   //
-  // See: https://w3.org/TR/webrtc/#event-iceconnectionstatechange
+  // See: https://w3.org/TR/webrtc#event-iceconnectionstatechange
   virtual void OnIceConnectionStateChange(const std::string& new_state) = 0;
 
   // Called when an `icegatheringstatechange` event occurs.
   //
-  // See: https://w3.org/TR/webrtc/#event-icegatheringstatechange
+  // See: https://w3.org/TR/webrtc#event-icegatheringstatechange
   virtual void OnIceGatheringStateChange(const std::string& new_state) = 0;
 
   // Called when a `negotiation` event occurs.
   //
-  // See: https://w3.org/TR/webrtc/#event-negotiation
+  // See: https://w3.org/TR/webrtc#event-negotiation
   virtual void OnNegotiationNeeded() = 0;
 
   // Called when a `signalingstatechange` event occurs.
   //
-  // See: https://w3.org/TR/webrtc/#event-signalingstatechange
+  // See: https://w3.org/TR/webrtc#event-signalingstatechange
   virtual void OnSignalingChange(const std::string& new_state) = 0;
 
   virtual ~PeerConnectionObserverInterface() = default;
