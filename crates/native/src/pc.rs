@@ -11,6 +11,7 @@ use crate::{
 
 use crate::api::TransceiverInfo;
 
+/// Converts [`sys::RtpTransceiverDirection`] into [`String`].
 fn direction_to_string(direction: sys::RtpTransceiverDirection) -> String {
     match direction {
         sys::RtpTransceiverDirection::kSendRecv => "sendrecv".to_string(),
