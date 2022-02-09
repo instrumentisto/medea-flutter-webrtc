@@ -75,10 +75,10 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   }
 
-  // Sends the `OnConnectionStateChange` event with the new
+  // Sends an `OnConnectionStateChange` event with the provided
   // `RTCPeerConnectionState` to the Dart side.
   //
-  // See: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnectionstate
+  // See: https://w3.org/TR/webrtc#dom-rtcpeerconnectionstate
   void OnConnectionStateChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
@@ -89,10 +89,10 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   };
 
-  // Sends the `OnIceCandidate` event with the new `RTCIceCandidate` to the
+  // Sends an `OnIceCandidate` event with the provided `RTCIceCandidate` to the
   // Dart side.
   //
-  // See: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
+  // See: https://w3.org/TR/webrtc#dom-rtcicecandidate
   void OnIceCandidate(const std::string& candidate) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
@@ -103,7 +103,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   }
 
-  // Sends the `OnIceCandidateError` event with the new
+  // Sends an `OnIceCandidateError` event with the provided
   // `RTCPeerConnectionIceErrorEvent` to the Dart side.
   //
   // See: https://w3.org/TR/webrtc#dom-rtcpeerconnectioniceerrorevent
@@ -126,10 +126,10 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   };
 
-  // Sends the `OnIceConnectionStateChange` event with the new
+  // Sends an `OnIceConnectionStateChange` event with the provided
   // `RTCIceConnectionState` to the Dart side.
   //
-  // See: https://www.w3.org/TR/webrtc/#dom-rtciceconnectionstate
+  // See: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
   void OnIceConnectionStateChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
@@ -140,10 +140,10 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   };
 
-  // Sends the `OnIceGatheringStateChange` event with the new
+  // Sends an `OnIceGatheringStateChange` event with the provided
   // `RTCIceGatheringState` to the Dart side.
   //
-  // See: https://www.w3.org/TR/webrtc/#dom-rtcicegatheringstate
+  // See: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
   void OnIceGatheringStateChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
@@ -154,7 +154,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   };
 
-  // Sends the `OnNegotiationNeededEvent` event to the Dart side.
+  // Sends an `OnNegotiationNeededEvent` event to the Dart side.
   //
   // See: https://w3.org/TR/webrtc#event-negotiation
   void OnNegotiationNeeded() {
@@ -166,10 +166,10 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   };
 
-  // Sends the `OnSignalingChange` event with the new `RTCSignalingState` to
+  // Sends an `OnSignalingChange` event with the provided `RTCSignalingState` to
   // the Dart side.
   //
-  // See: https://www.w3.org/TR/webrtc/#dom-rtcsignalingstate
+  // See: https://w3.org/TR/webrtc#dom-rtcsignalingstate
   void OnSignalingChange(const std::string& new_state) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {

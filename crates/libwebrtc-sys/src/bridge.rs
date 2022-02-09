@@ -218,10 +218,11 @@ pub(crate) mod webrtc {
         /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-closed
         kIceConnectionClosed,
 
-        /// Non-spec-compliant variant. `WebRTC` docs [state] that it's
-        /// unreachable.
+        /// Non-spec-compliant variant.
         ///
-        /// [state]: https://tinyurl.com/kIceConnectionMax-unreachable
+        /// [`libwertc` states that it's unreachable][1].
+        ///
+        /// [1]: https://tinyurl.com/kIceConnectionMax-unreachable
         kIceConnectionMax,
     }
 
@@ -688,9 +689,10 @@ pub(crate) mod webrtc {
             error: &CxxString,
         );
 
-        /// Called when a [`signalingstatechange`][1] event occurs in an
-        /// attached [`PeerConnectionInterface`]. Forwards a new
-        /// [`SignalingState`] to the given [`DynPeerConnectionEventsHandler`].
+        /// Forwards the new [`SignalingState`] to the provided
+        /// [`DynPeerConnectionEventsHandler`] when a
+        /// [`signalingstatechange`][1] event occurs in the attached
+        /// [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#event-signalingstatechange
         pub fn on_signaling_change(
@@ -698,10 +700,10 @@ pub(crate) mod webrtc {
             state: SignalingState,
         );
 
-        /// Called when an [`iceconnectionstatechange`][1] event occurs in an
-        /// attached [`PeerConnectionInterface`]. Forwards a new
-        /// [`IceConnectionState`] to the given
-        /// [`DynPeerConnectionEventsHandler`].
+        /// Forwards the new [`IceConnectionState`] to the provided
+        /// [`DynPeerConnectionEventsHandler`] when an
+        /// [`iceconnectionstatechange`][1] event occurs in the attached
+        /// [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#event-iceconnectionstatechange
         pub fn on_standardized_ice_connection_change(
@@ -709,10 +711,10 @@ pub(crate) mod webrtc {
             new_state: IceConnectionState,
         );
 
-        /// Called when a [`connectionstatechange`][1] event occurs in an
-        /// attached [`PeerConnectionInterface`]. Forwards a new
-        /// [`PeerConnectionState`] to the given
-        /// [`DynPeerConnectionEventsHandler`].
+        /// Forwards the new [`PeerConnectionState`] to the provided
+        /// [`DynPeerConnectionEventsHandler`] when a
+        /// [`connectionstatechange`][1] event occurs in the attached
+        /// [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#event-connectionstatechange
         pub fn on_connection_change(
@@ -720,10 +722,10 @@ pub(crate) mod webrtc {
             new_state: PeerConnectionState,
         );
 
-        /// Called when an [`icegatheringstatechange`][1] event occurs in an
-        /// attached [`PeerConnectionInterface`]. Forwards a new
-        /// [`IceGatheringState`] to the given
-        /// [`DynPeerConnectionEventsHandler`].
+        /// Forwards the new [`IceGatheringState`] to the provided
+        /// [`DynPeerConnectionEventsHandler`] when an
+        /// [`icegatheringstatechange`][1] event occurs in the attached
+        /// [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#event-icegatheringstatechange
         pub fn on_ice_gathering_change(
@@ -731,9 +733,9 @@ pub(crate) mod webrtc {
             new_state: IceGatheringState,
         );
 
-        /// Called when a [`negotiation`][1] event occurs in an attached
-        /// [`PeerConnectionInterface`]. Forwards the event to the
-        /// given [`DynPeerConnectionEventsHandler`].
+        /// Forwards a [`negotiation`][1] event to the provided
+        /// [`DynPeerConnectionEventsHandler`] when it occurs in the attached
+        /// [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#event-negotiation
         pub fn on_negotiation_needed_event(
@@ -741,11 +743,11 @@ pub(crate) mod webrtc {
             event_id: u32,
         );
 
-        /// Called when an [`icecandidateerror`][1] event occurs in an attached
-        /// [`PeerConnectionInterface`]. Forwards the error information to the
-        /// given [`DynPeerConnectionEventsHandler`].
+        /// Forwards an [`icecandidateerror`][1] event's error information to
+        /// the provided [`DynPeerConnectionEventsHandler`] when it occurs in
+        /// the attached [`PeerConnectionInterface`].
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#event-icecandidateerror
+        /// [1]: https://w3.org/TR/webrtc#event-icecandidateerror
         pub fn on_ice_candidate_error(
             cb: &mut DynPeerConnectionEventsHandler,
             address: &CxxString,
@@ -755,18 +757,17 @@ pub(crate) mod webrtc {
             error_text: &CxxString,
         );
 
-        /// Called when the ICE connection receiving status changes in an
-        /// attached [`PeerConnectionInterface`]. Forwards the new receiving
-        /// status to the given [`DynPeerConnectionEventsHandler`].
+        /// Forwards the new `receiving` status to the provided
+        /// [`DynPeerConnectionEventsHandler`] when an ICE connection receiving
+        /// status changes in the attached [`PeerConnectionInterface`].
         pub fn on_ice_connection_receiving_change(
             cb: &mut DynPeerConnectionEventsHandler,
             receiving: bool,
         );
 
-        /// Called when an [`icecandidate`][1] event occurs in the attached
-        /// [`PeerConnectionInterface`]. Forwards the discovered
-        /// [`IceCandidateInterface`] to the given
-        /// [`DynPeerConnectionEventsHandler`].
+        /// Forwards the discovered [`IceCandidateInterface`] to the provided
+        /// [`DynPeerConnectionEventsHandler`] when an [`icecandidate`][1] event
+        /// occurs in the attached [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#event-icecandidate
         pub unsafe fn on_ice_candidate(
@@ -774,18 +775,18 @@ pub(crate) mod webrtc {
             candidate: *const IceCandidateInterface,
         );
 
-        /// Called when some ICE candidates have been removed. Forwards the
-        /// removed [`Candidate`]s to the given
-        /// [`DynPeerConnectionEventsHandler`].
+        /// Forwards the removed [`Candidate`]s to the given
+        /// [`DynPeerConnectionEventsHandler`] when some ICE candidates have
+        /// been removed.
         pub fn on_ice_candidates_removed(
             cb: &mut DynPeerConnectionEventsHandler,
             candidates: &CxxVector<Candidate>,
         );
 
-        /// Called when a [`selectedcandidatepairchange`][1] event occurs in
-        /// an attached [`PeerConnectionInterface`]. Forwards the selected
-        /// [`CandidatePairChangeEvent`] to the given
-        /// [`DynPeerConnectionEventsHandler`].
+        /// Forwards the selected [`CandidatePairChangeEvent`] to the provided
+        /// [`DynPeerConnectionEventsHandler`] when a
+        /// [`selectedcandidatepairchange`][1] event occurs in the attached
+        /// [`PeerConnectionInterface`].
         ///
         /// [1]: https://tinyurl.com/w3-selectedcandidatepairchange
         pub fn on_ice_selected_candidate_pair_changed(
@@ -832,13 +833,13 @@ fn on_frame(cb: &mut DynOnFrameCallback, frame: UniquePtr<webrtc::VideoFrame>) {
     cb.on_frame(frame);
 }
 
-/// Called when a [`signalingstatechange`][1] event occurs in an attached
-/// [`PeerConnectionInterface`]. Forwards a new [`SignalingState`] to the given
-/// [`DynPeerConnectionEventsHandler`].
+/// Forwards the new [`SignalingState`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when a [`signalingstatechange`][1] event
+/// occurs in the attached [`PeerConnectionInterface`].
 ///
-/// [1]: https://w3.org/TR/webrtc#event-signalingstatechange
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 /// [`SignalingState`]: webrtc::SignalingState
+/// [1]: https://w3.org/TR/webrtc#event-signalingstatechange
 pub fn on_signaling_change(
     cb: &mut DynPeerConnectionEventsHandler,
     state: webrtc::SignalingState,
@@ -846,13 +847,13 @@ pub fn on_signaling_change(
     cb.on_signaling_change(state);
 }
 
-/// Called when an [`iceconnectionstatechange`][1] event occurs in an attached
-/// [`PeerConnectionInterface`]. Forwards a new [`IceConnectionState`] to the
-/// given [`DynPeerConnectionEventsHandler`].
+/// Forwards the new [`IceConnectionState`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when an [`iceconnectionstatechange`][1]
+/// event occurs in the attached [`PeerConnectionInterface`].
 ///
-/// [1]: https://w3.org/TR/webrtc#event-iceconnectionstatechange
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 /// [`IceConnectionState`]: webrtc::IceConnectionState
+/// [1]: https://w3.org/TR/webrtc#event-iceconnectionstatechange
 pub fn on_standardized_ice_connection_change(
     cb: &mut DynPeerConnectionEventsHandler,
     new_state: webrtc::IceConnectionState,
@@ -860,13 +861,13 @@ pub fn on_standardized_ice_connection_change(
     cb.on_standardized_ice_connection_change(new_state);
 }
 
-/// Called when a [`connectionstatechange`][1] event occurs in an attached
-/// [`PeerConnectionInterface`]. Forwards a new [`PeerConnectionState`] to the
-/// given [`DynPeerConnectionEventsHandler`].
+/// Forwards the new [`PeerConnectionState`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when a [`connectionstatechange`][1] event
+/// occurs in the attached [`PeerConnectionInterface`].
 ///
-/// [1]: https://w3.org/TR/webrtc#event-connectionstatechange
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 /// [`PeerConnectionState`]: webrtc::PeerConnectionState
+/// [1]: https://w3.org/TR/webrtc#event-connectionstatechange
 pub fn on_connection_change(
     cb: &mut DynPeerConnectionEventsHandler,
     new_state: webrtc::PeerConnectionState,
@@ -874,13 +875,13 @@ pub fn on_connection_change(
     cb.on_connection_change(new_state);
 }
 
-/// Called when an [`icegatheringstatechange`][1] event occurs in an attached
-/// [`PeerConnectionInterface`]. Forwards a new [`IceGatheringState`] to the
-/// given [`DynPeerConnectionEventsHandler`].
+/// Forwards the new [`IceGatheringState`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when an [`icegatheringstatechange`][1]
+/// event occurs in the attached [`PeerConnectionInterface`].
 ///
-/// [1]: https://w3.org/TR/webrtc#event-icegatheringstatechange
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 /// [`IceGatheringState`]: webrtc::IceGatheringState
+/// [1]: https://w3.org/TR/webrtc#event-icegatheringstatechange
 pub fn on_ice_gathering_change(
     cb: &mut DynPeerConnectionEventsHandler,
     new_state: webrtc::IceGatheringState,
@@ -888,12 +889,12 @@ pub fn on_ice_gathering_change(
     cb.on_ice_gathering_change(new_state);
 }
 
-/// Called when a [`negotiation`][1] event occurs in an attached
-/// [`PeerConnectionInterface`]. Forwards the event to the given
-/// [`DynPeerConnectionEventsHandler`].
+/// Forwards a [`negotiation`][1] event to the provided
+/// [`DynPeerConnectionEventsHandler`] when it occurs in the attached
+/// [`PeerConnectionInterface`].
 ///
-/// [1]: https://w3.org/TR/webrtc#event-negotiation
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
+/// [1]: https://w3.org/TR/webrtc#event-negotiation
 pub fn on_negotiation_needed_event(
     cb: &mut DynPeerConnectionEventsHandler,
     event_id: u32,
@@ -901,12 +902,12 @@ pub fn on_negotiation_needed_event(
     cb.on_negotiation_needed_event(event_id);
 }
 
-/// Called when an [`icecandidateerror`][1] event occurs in an attached
-/// [`PeerConnectionInterface`]. Forwards the error information to the
-/// given [`DynPeerConnectionEventsHandler`].
+/// Forwards an [`icecandidateerror`][1] event's error information to the
+/// provided [`DynPeerConnectionEventsHandler`] when it occurs in the attached
+/// [`PeerConnectionInterface`].
 ///
-/// [1]: https://www.w3.org/TR/webrtc/#event-icecandidateerror
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
+/// [1]: https://w3.org/TR/webrtc#event-icecandidateerror
 pub fn on_ice_candidate_error(
     cb: &mut DynPeerConnectionEventsHandler,
     address: &CxxString,
@@ -918,9 +919,9 @@ pub fn on_ice_candidate_error(
     cb.on_ice_candidate_error(address, port, url, error_code, error_text);
 }
 
-/// Called when the ICE connection receiving status changes in an attached
-/// [`PeerConnectionInterface`]. Forwards the new receiving status to the given
-/// [`DynPeerConnectionEventsHandler`].
+/// Forwards the new `receiving` status to the provided
+/// [`DynPeerConnectionEventsHandler`] when an ICE connection receiving status
+/// changes in the attached [`PeerConnectionInterface`].
 ///
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 pub fn on_ice_connection_receiving_change(
@@ -930,13 +931,13 @@ pub fn on_ice_connection_receiving_change(
     cb.on_ice_connection_receiving_change(receiving);
 }
 
-/// Called when an [`icecandidate`][1] event occurs in an attached
-/// [`PeerConnectionInterface`]. Forwards the discovered
-/// [`IceCandidateInterface`] to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the discovered [`IceCandidateInterface`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when an [`icecandidate`][1] event occurs
+/// in the attached [`PeerConnectionInterface`].
 ///
-/// [1]: https://w3.org/TR/webrtc#event-icecandidate
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 /// [`IceCandidateInterface`]: webrtc::IceCandidateInterface
+/// [1]: https://w3.org/TR/webrtc#event-icecandidate
 pub fn on_ice_candidate(
     cb: &mut DynPeerConnectionEventsHandler,
     candidate: *const webrtc::IceCandidateInterface,
@@ -944,8 +945,9 @@ pub fn on_ice_candidate(
     cb.on_ice_candidate(candidate);
 }
 
-/// Called when some ICE candidates have been removed. Forwards the removed
-/// [`Candidate`]s to the given [`DynPeerConnectionEventsHandler`].
+/// Forwards the removed [`Candidate`]s to the given
+/// [`DynPeerConnectionEventsHandler`] when some ICE candidates have been
+/// removed.
 ///
 /// [`Candidate`]: webrtc::Candidate
 pub fn on_ice_candidates_removed(
@@ -960,9 +962,13 @@ pub fn on_ice_candidates_removed(
 /// [`CandidatePairChangeEvent`] to the given
 /// [`DynPeerConnectionEventsHandler`].
 ///
-/// [1]: https://tinyurl.com/w3-selectedcandidatepairchange
+/// Forwards the selected [`CandidatePairChangeEvent`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when a [`selectedcandidatepairchange`][1]
+/// event occurs in the attached [`PeerConnectionInterface`].
+///
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 /// [`CandidatePairChangeEvent`]: webrtc::CandidatePairChangeEvent
+/// [1]: https://tinyurl.com/w3-selectedcandidatepairchange
 pub fn on_ice_selected_candidate_pair_changed(
     cb: &mut DynPeerConnectionEventsHandler,
     event: &webrtc::CandidatePairChangeEvent,
