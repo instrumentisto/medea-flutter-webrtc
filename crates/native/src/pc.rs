@@ -300,6 +300,12 @@ impl Webrtc {
         out_info
     }
 
+    /// Sets the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`].
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
+    /// or setting the [`sys::RtpTransceiverDirection`].
     pub fn set_transceiver_direction(
         &mut self,
         peer_id: u64,
@@ -319,6 +325,11 @@ impl Webrtc {
             .unwrap();
     }
 
+    /// Returns the [`sys::Transceiver`]'s `mid`.
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`].
     pub fn get_transceiver_mid(
         &mut self,
         peer_id: u64,
@@ -336,6 +347,12 @@ impl Webrtc {
             .mid()
     }
 
+    /// Returns the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`]
+    /// as [`Srting`].
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`].
     pub fn get_transceiver_direction(
         &mut self,
         peer_id: u64,
@@ -355,6 +372,12 @@ impl Webrtc {
         )
     }
 
+    /// Stops the [`sys::Transceiver`].
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
+    /// or on stoping the [`sys::Transceiver`].
     pub fn stop_transceiver(&mut self, peer_id: u64, transceiver_id: u64) {
         let peer = self
             .0
@@ -369,6 +392,15 @@ impl Webrtc {
             .unwrap();
     }
 
+    /// Removes the [`sys::Transceiver`] from the [`PeerConnection`]'s
+    /// `transceivers` map.
+    ///
+    /// Pay attention that it doesn't stop the [`sys::Transceiver`].
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
+    /// or on removing the last one.
     pub fn dispose_transceiver(&mut self, peer_id: u64, transceiver_id: u64) {
         self.0
             .peer_connections

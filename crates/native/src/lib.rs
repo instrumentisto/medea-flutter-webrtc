@@ -283,7 +283,7 @@ pub mod api {
             direction: &str,
         ) -> TransceiverInfo;
 
-        /// Returns the [`sys::Transceiver`]'s of some [`PeerConnection`]
+        /// Returns the [`sys::Transceiver`]s of some [`PeerConnection`]
         /// according to the given `id`.
         #[cxx_name = "GetTransceivers"]
         pub fn get_transceivers(
@@ -291,6 +291,7 @@ pub mod api {
             peer_id: u64,
         ) -> Vec<TransceiverInfo>;
 
+        /// Sets the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`].
         #[cxx_name = "SetTransceiverDirection"]
         pub fn set_transceiver_direction(
             self: &mut Webrtc,
@@ -299,6 +300,7 @@ pub mod api {
             direction: &str,
         );
 
+        /// Returns the [`sys::Transceiver`]'s `mid`.
         #[cxx_name = "GetTransceiverMid"]
         pub fn get_transceiver_mid(
             self: &mut Webrtc,
@@ -306,6 +308,8 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
+        /// Returns the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`]
+        /// as [`Srting`].
         #[cxx_name = "GetTransceiverDirection"]
         pub fn get_transceiver_direction(
             self: &mut Webrtc,
@@ -313,6 +317,7 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
+        /// Stops the [`sys::Transceiver`].
         #[cxx_name = "StopTransceiver"]
         pub fn stop_transceiver(
             self: &mut Webrtc,
@@ -320,6 +325,10 @@ pub mod api {
             transceiver_id: u64,
         );
 
+        /// Removes the [`sys::Transceiver`] from the [`PeerConnection`]'s
+        /// `transceivers` map.
+        ///
+        /// Pay attention that it doesn't stop the [`sys::Transceiver`].
         #[cxx_name = "DisposeTransceiver"]
         pub fn dispose_transceiver(
             self: &mut Webrtc,

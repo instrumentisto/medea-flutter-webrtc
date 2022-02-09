@@ -283,10 +283,12 @@ size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver);
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
 
+// Sets some `RtpTransceiverDirection` to the `RtpTransceiverInterface`.
 void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
                                RtpTransceiverDirection new_direction,
                                rust::String& error);
 
+// Stops the `RtpTransceiverInterface`.
 void stop_transceiver(const RtpTransceiverInterface& transceiver,
                       rust::String& error);
 

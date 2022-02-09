@@ -370,6 +370,7 @@ impl Transceiver {
         webrtc::get_transceiver_direction(&self.0)
     }
 
+    /// Sets the [`Transceiver`]'s `direction`.
     pub fn set_direction(
         &self,
         direction: webrtc::RtpTransceiverDirection,
@@ -379,19 +380,26 @@ impl Transceiver {
         webrtc::set_transceiver_direction(&self.0, direction, &mut error);
 
         if !error.is_empty() {
-            bail!("{error}");
+            bail!(
+                "Fails trying to set `Transceiver`'s `direction` \
+                with the error: {error}"
+            );
         }
 
         Ok(())
     }
 
+    /// Stops the [`Transceiver`].
     pub fn stop(&self) -> anyhow::Result<()> {
         let mut error = String::new();
 
         webrtc::stop_transceiver(&self.0, &mut error);
 
         if !error.is_empty() {
-            bail!("{error}");
+            bail!(
+                "Fails trying to stop `Transceiver` \
+                with the error: {error}"
+            );
         }
 
         Ok(())

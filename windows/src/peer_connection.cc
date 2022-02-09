@@ -293,6 +293,7 @@ void GetTransceivers(
   result->Success(EncodableValue(map));
 }
 
+// Calls Rust `StopTransceivers()`.
 void StopTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -310,6 +311,7 @@ void StopTransceiver(
   result->Success();
 }
 
+// Calls Rust `DisposeTransceiver()`.
 void DisposeTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -327,6 +329,7 @@ void DisposeTransceiver(
   result->Success();
 }
 
+// Calls Rust `SetTransceiverDirection()`.
 void SetTransceiverDirection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -346,6 +349,7 @@ void SetTransceiverDirection(
   result->Success();
 }
 
+// Calls Rust `GetTransceiverDirection()`.
 void GetTransceiverDirection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -367,6 +371,7 @@ void GetTransceiverDirection(
   result->Success(map);
 }
 
+// Calls Rust `GetTransceiverMid()`.
 void GetTransceiverMid(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
