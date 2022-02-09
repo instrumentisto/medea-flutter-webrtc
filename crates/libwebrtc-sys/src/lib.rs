@@ -565,7 +565,7 @@ impl PeerConnectionInterface {
         direction: RtpTransceiverDirection,
     ) -> Transceiver {
         Transceiver(webrtc::add_transceiver(
-            self.0.pin_mut(),
+            self.inner.pin_mut(),
             media_type,
             direction,
         ))
@@ -574,7 +574,7 @@ impl PeerConnectionInterface {
     /// Gets the [`Transceiver`]s.
     #[must_use]
     pub fn get_transceivers(&self) -> Box<Transceivers> {
-        webrtc::get_transceivers(&self.0)
+        webrtc::get_transceivers(&self.inner)
     }
 }
 

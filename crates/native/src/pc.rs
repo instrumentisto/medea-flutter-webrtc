@@ -225,7 +225,7 @@ impl Webrtc {
         };
 
         peer.transceivers
-            .insert(TransceiverId(info.id), transceiver);
+            .insert(TransceiverId(result.id), transceiver);
 
         result
     }

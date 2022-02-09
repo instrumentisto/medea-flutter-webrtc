@@ -189,6 +189,21 @@ namespace flutter_webrtc_plugin {
 
 using namespace flutter;
 
+// Converts a Rust `RtcRtpTransceiver` to Dart `EncodableMap`.
+EncodableMap TransceiverToMap(RtcRtpTransceiver transceiver) {
+  EncodableMap info;
+
+  info[EncodableValue("transceiverId")] =
+      EncodableValue(std::to_string(transceiver.id));
+  info[EncodableValue("mid")] = EncodableValue(std::string(transceiver.mid));
+  info[EncodableValue("direction")] =
+      EncodableValue(std::string(transceiver.direction));
+  info[EncodableValue("sender")] = EncodableValue(EncodableMap());
+  info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
+
+  return info;
+};
+
 // Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
@@ -451,31 +466,15 @@ void GetTransceivers(
   auto transceivers = webrtc->GetTransceivers(
       std::stoi(findString(params, "peerConnectionId")));
 
-  EncodableMap map;
   EncodableList infos;
-
   for (auto transceiver : transceivers) {
     infos.push_back(TransceiverToMap(transceiver));
   }
 
+  EncodableMap map;
   map[EncodableValue("transceivers")] = EncodableValue(infos);
 
   result->Success(EncodableValue(map));
 }
-
-// Converts Rust `TransceiverInfo` to Dart `EncodableMap`.
-EncodableMap TransceiverToMap(TransceiverInfo transceiver) {
-  EncodableMap info;
-
-  info[EncodableValue("transceiverId")] =
-      EncodableValue(std::to_string(transceiver.id));
-  info[EncodableValue("mid")] = EncodableValue(std::string(transceiver.mid));
-  info[EncodableValue("direction")] =
-      EncodableValue(std::string(transceiver.direction));
-  info[EncodableValue("sender")] = EncodableValue(EncodableMap());
-  info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
-
-  return info;
-};
 
 }  // namespace flutter_webrtc_plugin
