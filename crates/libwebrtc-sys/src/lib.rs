@@ -331,7 +331,7 @@ pub struct PeerConnectionDependencies {
     /// [`PeerConnectionObserver`] that this [`PeerConnectionDependencies`]
     /// depends on. It is stored here since it must outlive the dependencies
     /// object.
-    _observer: PeerConnectionObserver,
+    observer: PeerConnectionObserver,
 }
 
 impl PeerConnectionDependencies {
@@ -341,7 +341,7 @@ impl PeerConnectionDependencies {
     pub fn new(observer: PeerConnectionObserver) -> Self {
         Self {
             inner: webrtc::create_peer_connection_dependencies(&observer.0),
-            _observer: observer,
+            observer,
         }
     }
 }
@@ -572,7 +572,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(PeerConnectionInterface {
             inner,
-            _observer: dependencies._observer,
+            _observer: dependencies.observer,
         })
     }
 
