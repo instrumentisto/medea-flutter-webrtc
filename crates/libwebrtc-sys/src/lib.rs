@@ -433,7 +433,14 @@ impl SetRemoteDescriptionObserver {
 /// [RTCPeerConnection][1] implementation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-pub struct PeerConnectionInterface(UniquePtr<webrtc::PeerConnectionInterface>);
+pub struct PeerConnectionInterface {
+    /// Pointer to the C++ side `PeerConnectionInterface` object.
+    inner: UniquePtr<webrtc::PeerConnectionInterface>,
+    /// [`PeerConnectionObserver`] that this [`PeerConnectionInterface`]
+    /// uses internally. It is stored here since it must outlive the peer
+    /// connection object.
+    _observer: PeerConnectionObserver,
+}
 
 impl PeerConnectionInterface {
     /// [RTCPeerConnection.createOffer()][1] implementation.
@@ -444,7 +451,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_offer(self.0.pin_mut(), &options.0, obs.0);
+        webrtc::create_offer(self.inner.pin_mut(), &options.0, obs.0);
     }
 
     /// [RTCPeerConnection.createAnswer()][1] implementation.
@@ -455,7 +462,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_answer(self.0.pin_mut(), &options.0, obs.0);
+        webrtc::create_answer(self.inner.pin_mut(), &options.0, obs.0);
     }
 
     /// [RTCPeerConnection.setLocalDescription()][1] implementation.
@@ -466,7 +473,7 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetLocalDescriptionObserver,
     ) {
-        webrtc::set_local_description(self.0.pin_mut(), desc.0, obs.0);
+        webrtc::set_local_description(self.inner.pin_mut(), desc.0, obs.0);
     }
 
     /// [RTCPeerConnection.setRemoteDescription()][1] implementation.
@@ -477,7 +484,7 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetRemoteDescriptionObserver,
     ) {
-        webrtc::set_remote_description(self.0.pin_mut(), desc.0, obs.0);
+        webrtc::set_remote_description(self.inner.pin_mut(), desc.0, obs.0);
     }
 }
 
@@ -563,7 +570,10 @@ impl PeerConnectionFactoryInterface {
                  CreatePeerConnectionOrError()`",
             );
         }
-        Ok(PeerConnectionInterface(inner))
+        Ok(PeerConnectionInterface {
+            inner,
+            _observer: dependencies._observer
+        })
     }
 
     /// Creates a new [`AudioSourceInterface`], which provides sound recording

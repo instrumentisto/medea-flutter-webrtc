@@ -178,16 +178,15 @@ void CreateRTCPeerConnection(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
 
   auto ctx = std::make_shared<PeerConnectionObserver::Dependencies>();
-  auto observer = std::make_unique<PeerConnectionObserver>(std::move(ctx));
+  auto observer = std::make_unique<PeerConnectionObserver>(ctx);
 
   rust::String error;
   uint64_t id = webrtc->CreatePeerConnection(std::move(observer), error);
   if (error == "") {
-      std::string peer_id = std::to_string(id);
-      auto event_channel = std::unique_ptr<EventChannel<EncodableValue>>(
-          new EventChannel<EncodableValue>(
-              messenger, "PeerConnection/Event/channel/id/" + peer_id,
-              &StandardMethodCodec::GetInstance()));
+    std::string peer_id = std::to_string(id);
+    auto event_channel = std::make_unique<EventChannel<EncodableValue>>(
+        messenger, "FlutterWebRTC/peerConnectionEvent" + peer_id,
+        &StandardMethodCodec::GetInstance());
 
     std::weak_ptr<PeerConnectionObserver::Dependencies> weak_deps(ctx);
     auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
@@ -201,7 +200,6 @@ void CreateRTCPeerConnection(
           }
           return nullptr;
         },
-
         [=](const flutter::EncodableValue* arguments)
             -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
           auto context = weak_deps.lock();
