@@ -29,10 +29,9 @@ import 'utils.dart';
  */
 class RTCPeerConnectionNative extends RTCPeerConnection {
   RTCPeerConnectionNative(this._peerConnectionId, this._configuration) {
-    // TODO: Add PeerConnection Events.
-    // _eventSubscription = _eventChannelFor(_peerConnectionId)
-    //     .receiveBroadcastStream()
-    //     .listen(eventListener, onError: errorListener);
+    _eventSubscription = _eventChannelFor(_peerConnectionId)
+        .receiveBroadcastStream()
+        .listen(eventListener, onError: errorListener);
   }
 
   // private:

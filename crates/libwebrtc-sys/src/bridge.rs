@@ -585,6 +585,35 @@ impl TryFrom<&str> for webrtc::SdpType {
     }
 }
 
+impl TryFrom<&str> for webrtc::MediaType {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "audio" => Ok(Self::MEDIA_TYPE_AUDIO),
+            "video" => Ok(Self::MEDIA_TYPE_VIDEO),
+            "data" => Ok(Self::MEDIA_TYPE_DATA),
+            "unsupported" => Ok(Self::MEDIA_TYPE_UNSUPPORTED),
+            v => Err(anyhow!("Invalid `MediaType`: {v}")),
+        }
+    }
+}
+
+impl TryFrom<&str> for webrtc::RtpTransceiverDirection {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "sendrecv" => Ok(Self::kSendRecv),
+            "sendonly" => Ok(Self::kSendOnly),
+            "recvonly" => Ok(Self::kRecvOnly),
+            "stopped" => Ok(Self::kStopped),
+            "inactive" => Ok(Self::kInactive),
+            v => Err(anyhow!("Invalid `RtpTransceiverDirection`: {v}")),
+        }
+    }
+}
+
 impl fmt::Display for webrtc::SdpType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
@@ -592,6 +621,19 @@ impl fmt::Display for webrtc::SdpType {
             webrtc::SdpType::kAnswer => write!(f, "answer"),
             webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
             webrtc::SdpType::kRollback => write!(f, "rollback"),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl fmt::Display for webrtc::RtpTransceiverDirection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            webrtc::RtpTransceiverDirection::kSendRecv => write!(f, "sendrecv"),
+            webrtc::RtpTransceiverDirection::kSendOnly => write!(f, "sendonly"),
+            webrtc::RtpTransceiverDirection::kRecvOnly => write!(f, "recvonly"),
+            webrtc::RtpTransceiverDirection::kInactive => write!(f, "inactive"),
+            webrtc::RtpTransceiverDirection::kStopped => write!(f, "stopped"),
             _ => unreachable!(),
         }
     }

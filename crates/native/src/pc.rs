@@ -5,23 +5,10 @@ use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 
 use crate::{
+    api,
     internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
     next_id, Webrtc,
 };
-
-use crate::api::TransceiverInfo;
-
-/// Converts [`sys::RtpTransceiverDirection`] into [`String`].
-fn direction_to_string(direction: sys::RtpTransceiverDirection) -> String {
-    match direction {
-        sys::RtpTransceiverDirection::kSendRecv => "sendrecv".to_string(),
-        sys::RtpTransceiverDirection::kSendOnly => "sendonly".to_string(),
-        sys::RtpTransceiverDirection::kRecvOnly => "recvonly".to_string(),
-        sys::RtpTransceiverDirection::kInactive => "inactive".to_string(),
-        sys::RtpTransceiverDirection::kStopped => "stopped".to_string(),
-        _ => unreachable!(),
-    }
-}
 
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
@@ -203,8 +190,8 @@ impl Webrtc {
         String::new()
     }
 
-    /// Creates and adds a [`sys::Transceiver`] to the [`PeerConnection`],
-    /// returns the [`TransceiverInfo`] of that [`sys::Transceiver`].
+    /// Creates a new [`api::RtcRtpTransceiver`] and adds it to the set of
+    /// transceivers of the specified [`PeerConnection`].
     ///
     /// # Panics
     ///
@@ -214,51 +201,41 @@ impl Webrtc {
         peer_id: u64,
         media_type: &str,
         direction: &str,
-    ) -> TransceiverInfo {
-        let media_type: sys::MediaType = match media_type {
-            "audio" => sys::MediaType::MEDIA_TYPE_AUDIO,
-            "video" => sys::MediaType::MEDIA_TYPE_VIDEO,
-            "data" => sys::MediaType::MEDIA_TYPE_DATA,
-            "unsupported" => sys::MediaType::MEDIA_TYPE_UNSUPPORTED,
-            _ => unreachable!(),
-        };
-
-        let direction: sys::RtpTransceiverDirection = match direction {
-            "sendrecv" => sys::RtpTransceiverDirection::kSendRecv,
-            "sendonly" => sys::RtpTransceiverDirection::kSendOnly,
-            "recvonly" => sys::RtpTransceiverDirection::kRecvOnly,
-            "stopped" => sys::RtpTransceiverDirection::kStopped,
-            "inactive" => sys::RtpTransceiverDirection::kInactive,
-            _ => unreachable!(),
-        };
-
+    ) -> api::RtcRtpTransceiver {
         let peer = self
             .0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver = peer.inner.add_transceiver(media_type, direction);
+        let transceiver = peer.inner.add_transceiver(
+            media_type.try_into().unwrap(),
+            direction.try_into().unwrap(),
+        );
 
-        let info = TransceiverInfo {
+        let result = api::RtcRtpTransceiver {
             id: next_id(),
             mid: transceiver.mid(),
-            direction: direction_to_string(transceiver.direction()),
+            direction: transceiver.direction().to_string(),
         };
 
         peer.transceivers
             .insert(TransceiverId(info.id), transceiver);
 
-        info
+        result
     }
 
-    /// Returns the [`sys::Transceiver`]'s of some [`PeerConnection`] according
-    /// to the given `id`.
+    /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the
+    /// RTP transceivers that are currently attached to this [`PeerConnection`]
+    /// object.
     ///
     /// # Panics
     ///
     /// May panic on getting [`PeerConnection`].
-    pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<TransceiverInfo> {
+    pub fn get_transceivers(
+        &mut self,
+        peer_id: u64,
+    ) -> Vec<api::RtcRtpTransceiver> {
         let peer = self
             .0
             .peer_connections
@@ -267,7 +244,7 @@ impl Webrtc {
 
         let mut transceivers = peer.inner.get_transceivers();
 
-        let mut out_info: Vec<TransceiverInfo> = Vec::new();
+        let mut out_info: Vec<_> = Vec::new();
 
         for _index in 0..transceivers.len() {
             let transceiver = transceivers.pop().unwrap();
@@ -279,10 +256,10 @@ impl Webrtc {
                 id = written_transceiver.0 .0;
             }
 
-            let info = TransceiverInfo {
+            let info = api::RtcRtpTransceiver {
                 id: if is_in { id } else { next_id() },
                 mid: transceiver.mid(),
-                direction: direction_to_string(transceiver.direction()),
+                direction: transceiver.direction().to_string(),
             };
 
             if !is_in {
