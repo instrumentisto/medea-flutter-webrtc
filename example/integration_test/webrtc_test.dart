@@ -60,11 +60,18 @@ void main() {
 
     expect(direction, equals(TransceiverDirection.SendRecv));
 
-    await trans.setDirection(TransceiverDirection.Inactive);
+    for (var dir in TransceiverDirection.values) {
+      // `TransceiverDirection.Stopped` can't be set, but read.
+      if (dir == TransceiverDirection.Stopped) {
+        continue;
+      }
 
-    direction = await trans.getDirection();
+      await trans.setDirection(dir);
 
-    expect(direction, equals(TransceiverDirection.Inactive));
+      direction = await trans.getDirection();
+
+      expect(direction, equals(dir));
+    }
   });
 
   testWidgets('Stop transceiver', (WidgetTester tester) async {
