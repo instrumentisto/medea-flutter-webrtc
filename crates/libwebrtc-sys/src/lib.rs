@@ -369,6 +369,33 @@ impl Transceiver {
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
         webrtc::get_transceiver_direction(&self.0)
     }
+
+    pub fn set_direction(
+        &self,
+        direction: webrtc::RtpTransceiverDirection,
+    ) -> anyhow::Result<()> {
+        let mut error = String::new();
+
+        webrtc::set_transceiver_direction(&self.0, direction, &mut error);
+
+        if !error.is_empty() {
+            bail!("{error}");
+        }
+
+        Ok(())
+    }
+
+    pub fn stop(&self) -> anyhow::Result<()> {
+        let mut error = String::new();
+
+        webrtc::stop_transceiver(&self.0, &mut error);
+
+        if !error.is_empty() {
+            bail!("{error}");
+        }
+
+        Ok(())
+    }
 }
 
 impl PartialEq for Transceiver {

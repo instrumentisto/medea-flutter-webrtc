@@ -283,4 +283,11 @@ size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver);
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
 
+void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
+                               RtpTransceiverDirection new_direction,
+                               rust::String& error);
+
+void stop_transceiver(const RtpTransceiverInterface& transceiver,
+                      rust::String& error);
+
 }  // namespace bridge

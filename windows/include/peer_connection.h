@@ -51,4 +51,29 @@ void GetTransceivers(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
+void StopTransceiver(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+void DisposeTransceiver(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+void SetTransceiverDirection(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+void GetTransceiverDirection(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+void GetTransceiverMid(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
 }  // namespace flutter_webrtc_plugin

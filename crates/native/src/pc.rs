@@ -22,6 +22,17 @@ fn direction_to_string(direction: sys::RtpTransceiverDirection) -> String {
     }
 }
 
+fn string_to_direction(direction: &str) -> sys::RtpTransceiverDirection {
+    match direction {
+        "sendrecv" => sys::RtpTransceiverDirection::kSendRecv,
+        "sendonly" => sys::RtpTransceiverDirection::kSendOnly,
+        "recvonly" => sys::RtpTransceiverDirection::kRecvOnly,
+        "inactive" => sys::RtpTransceiverDirection::kInactive,
+        "stopped" => sys::RtpTransceiverDirection::kStopped,
+        _ => unreachable!(),
+    }
+}
+
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
     ///
@@ -222,14 +233,8 @@ impl Webrtc {
             _ => unreachable!(),
         };
 
-        let direction: sys::RtpTransceiverDirection = match direction {
-            "sendrecv" => sys::RtpTransceiverDirection::kSendRecv,
-            "sendonly" => sys::RtpTransceiverDirection::kSendOnly,
-            "recvonly" => sys::RtpTransceiverDirection::kRecvOnly,
-            "stopped" => sys::RtpTransceiverDirection::kStopped,
-            "inactive" => sys::RtpTransceiverDirection::kInactive,
-            _ => unreachable!(),
-        };
+        let direction: sys::RtpTransceiverDirection =
+            string_to_direction(direction);
 
         let peer = self
             .0
@@ -293,6 +298,85 @@ impl Webrtc {
         }
 
         out_info
+    }
+
+    pub fn set_transceiver_direction(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+        direction: &str,
+    ) {
+        let peer = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
+
+        peer.transceivers
+            .get(&TransceiverId(transceiver_id))
+            .unwrap()
+            .set_direction(string_to_direction(direction))
+            .unwrap();
+    }
+
+    pub fn get_transceiver_mid(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+    ) -> String {
+        let peer = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
+
+        peer.transceivers
+            .get(&TransceiverId(transceiver_id))
+            .unwrap()
+            .mid()
+    }
+
+    pub fn get_transceiver_direction(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+    ) -> String {
+        let peer = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
+
+        direction_to_string(
+            peer.transceivers
+                .get(&TransceiverId(transceiver_id))
+                .unwrap()
+                .direction(),
+        )
+    }
+
+    pub fn stop_transceiver(&mut self, peer_id: u64, transceiver_id: u64) {
+        let peer = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
+
+        peer.transceivers
+            .get(&TransceiverId(transceiver_id))
+            .unwrap()
+            .stop()
+            .unwrap();
+    }
+
+    pub fn dispose_transceiver(&mut self, peer_id: u64, transceiver_id: u64) {
+        self.0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .transceivers
+            .remove(&TransceiverId(transceiver_id))
+            .unwrap();
     }
 }
 

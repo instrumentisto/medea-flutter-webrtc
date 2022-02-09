@@ -357,6 +357,10 @@ pub(crate) mod webrtc {
 
         /// Gets the [`Transceiver`]'s [`RtpTransceiverDirection`].
         pub fn get_transceiver_direction(transceiver: &RtpTransceiverInterface) -> RtpTransceiverDirection;
+
+        pub fn set_transceiver_direction(transceiver: &RtpTransceiverInterface, new_direction: RtpTransceiverDirection, error: &mut String);
+
+        pub fn stop_transceiver(transceiver: &RtpTransceiverInterface, error: &mut String);
     }
 
     unsafe extern "C++" {

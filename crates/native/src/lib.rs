@@ -291,6 +291,42 @@ pub mod api {
             peer_id: u64,
         ) -> Vec<TransceiverInfo>;
 
+        #[cxx_name = "SetTransceiverDirection"]
+        pub fn set_transceiver_direction(
+            self: &mut Webrtc,
+            peer_id: u64,
+            transceiver_id: u64,
+            direction: &str,
+        );
+
+        #[cxx_name = "GetTransceiverMid"]
+        pub fn get_transceiver_mid(
+            self: &mut Webrtc,
+            peer_id: u64,
+            transceiver_id: u64,
+        ) -> String;
+
+        #[cxx_name = "GetTransceiverDirection"]
+        pub fn get_transceiver_direction(
+            self: &mut Webrtc,
+            peer_id: u64,
+            transceiver_id: u64,
+        ) -> String;
+
+        #[cxx_name = "StopTransceiver"]
+        pub fn stop_transceiver(
+            self: &mut Webrtc,
+            peer_id: u64,
+            transceiver_id: u64,
+        );
+
+        #[cxx_name = "DisposeTransceiver"]
+        pub fn dispose_transceiver(
+            self: &mut Webrtc,
+            peer_id: u64,
+            transceiver_id: u64,
+        );
+
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
         #[cxx_name = "GetMedia"]

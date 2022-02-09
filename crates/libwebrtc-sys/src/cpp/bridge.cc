@@ -453,4 +453,23 @@ RtpTransceiverDirection get_transceiver_direction(
   return transceiver->direction();
 }
 
+void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
+                               webrtc::RtpTransceiverDirection new_direction,
+                               rust::String& error) {
+  webrtc::RTCError result = transceiver->SetDirectionWithError(new_direction);
+
+  if (!result.ok()) {
+    error = result.message();
+  }
+}
+
+void stop_transceiver(const RtpTransceiverInterface& transceiver,
+                      rust::String& error) {
+  webrtc::RTCError result = transceiver->StopStandard();
+
+  if (!result.ok()) {
+    error = result.message();
+  }
+}
+
 }  // namespace bridge

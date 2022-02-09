@@ -36,4 +36,71 @@ void main() {
     expect(response.length, equals(2));
     expect(response[0].mid.isEmpty, equals(false));
   });
+
+  testWidgets('Get transceiver direction', (WidgetTester tester) async {
+    var pc = await createPeerConnection({});
+    var init = RTCRtpTransceiverInit();
+    init.direction = TransceiverDirection.SendRecv;
+    var trans = await pc.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+    var direction = await trans.getDirection();
+
+    expect(direction, equals(TransceiverDirection.SendRecv));
+  });
+
+  testWidgets('Set transceiver direction', (WidgetTester tester) async {
+    var pc = await createPeerConnection({});
+    var init = RTCRtpTransceiverInit();
+    init.direction = TransceiverDirection.SendRecv;
+    var trans = await pc.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+    var direction = await trans.getDirection();
+
+    expect(direction, equals(TransceiverDirection.SendRecv));
+
+    await trans.setDirection(TransceiverDirection.Inactive);
+
+    direction = await trans.getDirection();
+
+    expect(direction, equals(TransceiverDirection.Inactive));
+  });
+
+  testWidgets('Stop transceiver', (WidgetTester tester) async {
+    var pc = await createPeerConnection({});
+    var init = RTCRtpTransceiverInit();
+    init.direction = TransceiverDirection.SendRecv;
+    var trans = await pc.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+    var direction = await trans.getDirection();
+
+    expect(direction, equals(TransceiverDirection.SendRecv));
+
+    await trans.stop();
+
+    direction = await trans.getDirection();
+
+    expect(direction, equals(TransceiverDirection.Stopped));
+  });
+
+  testWidgets('Get transceiver mid', (WidgetTester tester) async {
+    var pc = await createPeerConnection({});
+    var init = RTCRtpTransceiverInit();
+    init.direction = TransceiverDirection.SendRecv;
+    var trans = await pc.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+    var mid = await trans.getMid();
+
+    expect(mid.isEmpty, equals(true));
+
+    var sess = await pc.createOffer();
+    await pc.setLocalDescription(sess);
+
+    mid = await trans.getMid();
+
+    expect(mid.isEmpty, equals(false));
+  });
 }

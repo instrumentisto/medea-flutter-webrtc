@@ -42,6 +42,9 @@ abstract class RTCRtpTransceiver {
 
   Future<void> stop();
 
+  // TODO: Remove when new Fluter api implemented.
+  Future<String> getMid();
+
   /// Deprecated methods.
   @Deprecated('Use the `await getCurrentDirection` instead')
   TransceiverDirection get currentDirection => throw UnimplementedError(

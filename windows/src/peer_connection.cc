@@ -293,4 +293,99 @@ void GetTransceivers(
   result->Success(EncodableValue(map));
 }
 
+void StopTransceiver(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  webrtc->StopTransceiver(std::stoi(findString(params, "peerConnectionId")),
+                          std::stoi(findString(params, "transceiverId")));
+
+  result->Success();
+}
+
+void DisposeTransceiver(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  webrtc->DisposeTransceiver(std::stoi(findString(params, "peerConnectionId")),
+                             std::stoi(findString(params, "transceiverId")));
+
+  result->Success();
+}
+
+void SetTransceiverDirection(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  webrtc->SetTransceiverDirection(
+      std::stoi(findString(params, "peerConnectionId")),
+      std::stoi(findString(params, "transceiverId")),
+      findString(params, "direction"));
+
+  result->Success();
+}
+
+void GetTransceiverDirection(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  auto direction = (std::string)webrtc->GetTransceiverDirection(
+      std::stoi(findString(params, "peerConnectionId")),
+      std::stoi(findString(params, "transceiverId")));
+
+  EncodableMap map;
+  map[EncodableValue("result")] = EncodableValue(direction);
+
+  result->Success(map);
+}
+
+void GetTransceiverMid(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  auto mid = (std::string)webrtc->GetTransceiverMid(
+      std::stoi(findString(params, "peerConnectionId")),
+      std::stoi(findString(params, "transceiverId")));
+
+  EncodableMap map;
+  map[EncodableValue("mid")] = EncodableValue(mid);
+
+  result->Success(map);
+}
+
 }  // namespace flutter_webrtc_plugin
