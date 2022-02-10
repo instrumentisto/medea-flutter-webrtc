@@ -292,20 +292,21 @@ std::unique_ptr<std::string> get_reason(
 int64_t get_estimated_disconnected_time_ms(
     const cricket::CandidatePairChangeEvent& event);
 
-// Adds a new `RtpTransceiver` to the `PeerConnectionInterface`.
+// Adds a new `RtpTransceiverInterface` to the given `PeerConnectionInterface`.
 std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     PeerConnectionInterface& peer,
     cricket::MediaType media_type,
     RtpTransceiverDirection direction);
 
-// Returns a list of `PeerConnection`'s `RtpTransceiver`s.
+// Returns a list of `RtpTransceiverInterface`s attached to the given
+// `PeerConnectionInterface`.
 rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer);
 
-// Returns a `Transceiver`'s `mid`.
+// Returns a `RtpTransceiverInterface`'s `mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
-// Returns a `Transceiver`'s `direction`.
+// Returns a `RtpTransceiverInterface`'s `direction`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
 
