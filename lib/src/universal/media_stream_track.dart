@@ -34,7 +34,7 @@ abstract class MediaStreamTrack {
   Future<void> stop();
 
   /// Creates new instance of [MediaStreamTrack], which will depend on the same
-  /// media source as this [MediaStremTrack].
+  /// media source as this [MediaStreamTrack].
   ///
   /// If parent or child [MediaStreamTrack] will be stopped then another
   /// [MediaStreamTrack] will continue to work normally. But when all

@@ -45,9 +45,11 @@ class AudioConstraints implements MediaConstraints {
   /// Converts this model to the [Map] expected by Flutter.
   @override
   dynamic toMap() {
-    return {
-      'deviceId': deviceId,
-    };
+    var map = {};
+    if (deviceId != null) {
+      map['deviceId'] = deviceId;
+    }
+    return map;
   }
 }
 
@@ -67,9 +69,6 @@ enum FacingMode {
 
 /// Constraints related to the video.
 class VideoConstraints implements MediaConstraints {
-  /// Creates new [VideoConstraints] set with a provided constraints.
-  VideoConstraints(this.deviceId, this.facingMode);
-
   /// Constraint which will search for device with some concrete device ID.
   String? deviceId;
 
@@ -79,9 +78,13 @@ class VideoConstraints implements MediaConstraints {
   /// Converts this model to the [Map] expected by Flutter.
   @override
   dynamic toMap() {
-    return {
-      'deviceId': deviceId,
-      'facingMode': facingMode?.index,
-    };
+    var map = {};
+    if (deviceId != null) {
+      map['deviceId'] = deviceId;
+    }
+    if (facingMode != null) {
+      map['facingMode'] = facingMode!.index;
+    }
+    return map;
   }
 }
