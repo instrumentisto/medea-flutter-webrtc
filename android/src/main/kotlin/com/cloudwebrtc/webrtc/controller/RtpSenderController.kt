@@ -33,7 +33,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "replaceTrack" -> {
-                val trackId: String = call.argument("trackId")
+                val trackId: String? = call.argument("trackId")
                 val track = if (trackId != null) {
                     TrackRepository.getTrack(trackId)!!
                 } else {
