@@ -69,12 +69,20 @@ enum FacingMode {
 
 /// Device constraints related to the video.
 class DeviceVideoConstraints implements DeviceMediaConstraints {
-  // TODO(#31): height, width, fps
   /// Constraint which will search for device with some concrete device ID.
   String? deviceId;
 
   /// Constraint which will search for device with some [FacingMode].
   FacingMode? facingMode;
+
+  /// Constraint which will search for device with concrete height.
+  int? height;
+
+  /// Constraint which will search for device with concrete width.
+  int? width;
+
+  /// Constraint which will search for device with concrete fps.
+  int? fps;
 
   /// Converts this model to the [Map] expected by Flutter.
   @override
@@ -85,6 +93,15 @@ class DeviceVideoConstraints implements DeviceMediaConstraints {
     }
     if (facingMode != null) {
       map['facingMode'] = facingMode!.index;
+    }
+    if (height != null) {
+      map['height'] = height;
+    }
+    if (width != null) {
+      map['width'] = width;
+    }
+    if (fps != null) {
+      map['fps'] = fps;
     }
     return map;
   }

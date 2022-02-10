@@ -158,9 +158,15 @@ data class FacingModeConstraint(val facingMode: FacingMode, override val isManda
  * List of constraints for video devices.
  *
  * @property constraints list of [ConstraintChecker] provided by user.
+ * @property width width of the device video.
+ * @property height height of the device video.
+ * @property fps fps of the device video.
  */
 data class VideoConstraints(
-        val constraints: List<ConstraintChecker>
+        val constraints: List<ConstraintChecker>,
+        val width: Int?,
+        val height: Int?,
+        val fps: Int?,
 ) {
     companion object {
         /**
@@ -171,6 +177,9 @@ data class VideoConstraints(
          */
         fun fromMap(map: Map<*, *>): VideoConstraints {
             val constraintCheckers = mutableListOf<ConstraintChecker>()
+            var width: Int? = null
+            var height: Int? = null
+            var fps: Int? = null
 
             val mandatoryArg =
                     map["mandatory"] as Map<*, *>?
@@ -187,6 +196,15 @@ data class VideoConstraints(
                                             true
                                     )
                             )
+                        }
+                        "width" -> {
+                            width = value as Int
+                        }
+                        "height" -> {
+                            height = value as Int
+                        }
+                        "fps" -> {
+                            fps = value as Int
                         }
                     }
                 }
@@ -207,11 +225,20 @@ data class VideoConstraints(
                                     )
                             )
                         }
+                        "width" -> {
+                            width = value as Int
+                        }
+                        "height" -> {
+                            height = value as Int
+                        }
+                        "fps" -> {
+                            fps = value as Int
+                        }
                     }
                 }
             }
 
-            return VideoConstraints(constraintCheckers)
+            return VideoConstraints(constraintCheckers, width, height, fps)
         }
     }
 

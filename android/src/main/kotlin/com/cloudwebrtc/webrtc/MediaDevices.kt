@@ -12,6 +12,31 @@ import org.webrtc.*
 import java.util.*
 
 /**
+ * Default device video width.
+ *
+ * This width will be used, if no width provided in the constraints.
+ *
+ * SD resolution used by default.
+ */
+private const val DEFAULT_WIDTH = 720
+
+/**
+ * Default device video height.
+ *
+ * This width will be used, if no height provided in the constraints.
+ *
+ * SD resolution used by default.
+ */
+private const val DEFAULT_HEIGHT = 576
+
+/**
+ * Default device video fps.
+ *
+ * This width will be used, if no fps provided in the constraints.
+ */
+private const val DEFAULT_FPS = 30
+
+/**
  * Processor for the gUM requests.
  *
  * @property state global state used for enumerating devices and
@@ -106,14 +131,15 @@ class MediaDevices(val state: State) {
      * @param constraints [VideoConstraints] based on which lookup will be performed.
      * @return Most suitable [MediaStreamTrackProxy] for the provided [VideoConstraints].
      */
-    // TODO(evdokimovs): Here we can make some optimization in the future by tuning video modes
-    //                   of camera using CameraEnumerator.getSupportedFormats API.
     private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
         val deviceId =
                 findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
+        val width = constraints.width ?: DEFAULT_WIDTH
+        val height = constraints.height ?: DEFAULT_HEIGHT
+        val fps = constraints.fps ?: DEFAULT_FPS
 
         val videoSource = state.getPeerConnectionFactory().createVideoSource(false)
-        videoSource.adaptOutputFormat(1280, 720, 30)
+        videoSource.adaptOutputFormat(width, height, fps)
 
         val surfaceTextureRenderer = SurfaceTextureHelper.create(
                 Thread.currentThread().name,
@@ -135,7 +161,7 @@ class MediaDevices(val state: State) {
                 state.getAppContext(),
                 videoSource.capturerObserver
         )
-        videoCapturer.startCapture(1280, 720, 30)
+        videoCapturer.startCapture(width, height, fps)
 
         val videoTrackSource = VideoMediaTrackSource(
                 videoCapturer,
