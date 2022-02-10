@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_webrtc/src/model/display_constraints.dart';
 
 import '/src/api/utils/channel_name_generator.dart';
 import '/src/model/device_constraints.dart';
+import '/src/model/display_constraints.dart';
 import '/src/model/media_device_info.dart';
 import '/src/universal/native/media_stream_track.dart';
 

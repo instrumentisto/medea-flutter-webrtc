@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '/src/api/utils/channel_name_generator.dart';
 import '/src/model/ice_candidate.dart';
+import '/src/model/ice_candidate_error_event.dart';
 import '/src/model/media_stream_track_state.dart';
 import '/src/model/peer_connection_config.dart';
 import '/src/model/peer_connections_states.dart';
@@ -37,6 +38,8 @@ typedef OnNegotiationNeededCallback = void Function();
 /// Typedef for the `on_signaling_state_change` callback.
 typedef OnSignalingStateChangeCallback = void Function(SignalingState);
 
+/// Typedef for the `on_ice_candidate_error` callback.
+typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
 class PeerConnection {
   /// Creates [PeerConnection] based on the [Map] received from the native side.
@@ -46,14 +49,12 @@ class PeerConnection {
         MethodChannel(channelNameWithId('PeerConnection', channelId));
     _eventChannel =
         EventChannel(channelNameWithId('PeerConnectionEvent', channelId));
-    // TODO(evdokimovs): Maybe we need to listen for errorEvents? But I think we don't
     _eventSubscription =
         _eventChannel.receiveBroadcastStream().listen(eventListener);
   }
 
   /// Listener for the all [PeerConnection] events received from the native side.
   void eventListener(dynamic event) {
-    // TODO(#31): onIceCandidateError
     final dynamic e = event;
     switch (e['event']) {
       case 'onIceCandidate':
@@ -63,6 +64,10 @@ class PeerConnection {
       case 'onIceGatheringStateChange':
         var state = IceGatheringState.values[e['state']];
         _onIceGatheringStateChange?.call(state);
+        break;
+      case 'onIceCandidateError':
+        var errorEvent = IceCandidateErrorEvent.fromMap(e['errorEvent']);
+        _onIceCandidateError?.call(errorEvent);
         break;
       case 'onNegotiationNeeded':
         _onNegotiationNeeded?.call();
@@ -104,6 +109,9 @@ class PeerConnection {
 
   /// `on_ice_candidate` event subcriber.
   OnIceCandidateCallback? _onIceCandidate;
+
+  /// `on_ice_candidate_error` event subcriber.
+  OnIceCandidateErrorCallback? _onIceCandidateError;
 
   /// `on_track` event subcriber.
   OnTrackCallback? _onTrack;
@@ -163,6 +171,12 @@ class PeerConnection {
   /// this [PeerConnection]
   void onIceCandidate(OnIceCandidateCallback f) {
     _onIceCandidate = f;
+  }
+
+  /// Subscribes provided callback to the `on_ice_candidate_error` events of
+  /// this [PeerConnection]
+  void onIceCandidateError(OnIceCandidateErrorCallback f) {
+    _onIceCandidateError = f;
   }
 
   /// Subscribes provided callback to the `on_ice_connection_state_change`
