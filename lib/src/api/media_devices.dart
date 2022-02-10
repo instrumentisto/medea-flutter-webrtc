@@ -27,7 +27,9 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
 
 /// Returns list of local display [NativeMediaStreamTrack]s based on
 /// the provided [DisplayConstraints].
-Future<List<NativeMediaStreamTrack>> getDisplayMedia(DisplayConstraints constraints) async {
-  List<dynamic> res = await _mediaDevicesMethodChannel.invokeMethod('getDisplayMedia', {'constraints': constraints.toMap()});
+Future<List<NativeMediaStreamTrack>> getDisplayMedia(
+    DisplayConstraints constraints) async {
+  List<dynamic> res = await _mediaDevicesMethodChannel
+      .invokeMethod('getDisplayMedia', {'constraints': constraints.toMap()});
   return res.map((t) => NativeMediaStreamTrack.fromMap(t)).toList();
 }
