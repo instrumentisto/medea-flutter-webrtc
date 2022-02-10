@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 
 import '/src/api/utils/channel_name_generator.dart';
 import '/src/model/media_stream_track_state.dart';
-import '../media_stream_track.dart';
-import '../video_renderer.dart';
+import '/src/universal/media_stream_track.dart';
+import '/src/universal/video_renderer.dart';
 
 /// Cretes new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
