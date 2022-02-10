@@ -4,9 +4,6 @@
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
 #include "api/peer_connection_interface.h"
-#include "api/video_codecs/builtin_video_encoder_factory.h"
-#include "libwebrtc-sys/include/peer_connection_observer.h"
-
 #include "api/task_queue/default_task_queue_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
@@ -28,12 +25,18 @@ using Thread = rtc::Thread;
 using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
 
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
+using IceCandidateInterface = webrtc::IceCandidateInterface;
+using IceConnectionState = webrtc::PeerConnectionInterface::IceConnectionState;
+using IceGatheringState = webrtc::PeerConnectionInterface::IceGatheringState;
 using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
+using PeerConnectionState =
+    webrtc::PeerConnectionInterface::PeerConnectionState;
 using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
 using RTCOfferAnswerOptions =
     webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
 using SdpType = webrtc::SdpType;
 using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
+using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using VideoRotation = webrtc::VideoRotation;
@@ -62,7 +65,7 @@ using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
 using RtpSenderInterface = rtc::scoped_refptr<webrtc::RtpSenderInterface>;
 
-struct Transceivers;
+struct TransceiverWrapper;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -209,12 +212,14 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
-// Creates a new `PeerConnectionObserver`.
-std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer();
+// Creates a new `PeerConnectionObserver` backed by the provided
+// `DynPeerConnectionEventsHandler`.
+std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
+    rust::Box<bridge::DynPeerConnectionEventsHandler> cb);
 
 // Creates a new `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
-    std::unique_ptr<PeerConnectionObserver> observer);
+    const std::unique_ptr<PeerConnectionObserver>& observer);
 
 // Creates a new `RTCOfferAnswerOptions`.
 std::unique_ptr<RTCOfferAnswerOptions>
@@ -265,22 +270,45 @@ void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
+// Calls `IceCandidateInterface->ToString`.
+std::unique_ptr<std::string> ice_candidate_interface_to_string(
+    const IceCandidateInterface* candidate);
+
+// Creates an SDP-ized form of this `Candidate`.
+std::unique_ptr<std::string> candidate_to_string(
+    const cricket::Candidate& candidate);
+
+// Returns `CandidatePairChangeEvent.candidate_pair` field value.
+const cricket::CandidatePair& get_candidate_pair(
+    const cricket::CandidatePairChangeEvent& event);
+
+// Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
+int64_t get_last_data_received_ms(
+    const cricket::CandidatePairChangeEvent& event);
+
+// Returns `CandidatePairChangeEvent.reason` field value.
+std::unique_ptr<std::string> get_reason(
+    const cricket::CandidatePairChangeEvent& event);
+
+// Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
+// value.
+int64_t get_estimated_disconnected_time_ms(
+    const cricket::CandidatePairChangeEvent& event);
+
 // Adds a `RtpTransceiver` to the `PeerConnectionInterface`.
 std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     PeerConnectionInterface& peer,
     MediaType media_type,
     RtpTransceiverDirection direction);
 
-// Gets the `PeerConnection`'s `RtpTransceiver`s info to Rust `Transceivers`.
-rust::Box<Transceivers> get_transceivers(const PeerConnectionInterface& peer);
+// Gets the `PeerConnection`'s `RtpTransceiver`s.
+rust::Vec<TransceiverWrapper> get_transceivers(
+    const PeerConnectionInterface& peer);
 
 // Gets the `Transceiver`'s `mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
-MediaType get_stransceiver_type(const RtpTransceiverInterface& transceiver);
-
-// Gets the `pointer` of the `Transceiver`'s `scoped_refpt`.
-size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver);
+MediaType get_transceiver_type(const RtpTransceiverInterface& transceiver);
 
 // Gets the `Transceiver`'s `direction`.
 RtpTransceiverDirection get_transceiver_direction(
@@ -303,5 +331,7 @@ bool set_sender_video_track(const RtpSenderInterface& sender,
 
 bool set_sender_audio_track(const RtpSenderInterface& sender,
                             const AudioTrackInterface& track);
+
+bool is_track_in_sender(const RtpSenderInterface& sender);
 
 }  // namespace bridge
