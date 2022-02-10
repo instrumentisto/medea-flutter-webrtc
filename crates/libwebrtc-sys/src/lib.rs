@@ -357,7 +357,6 @@ impl SetRemoteDescriptionObserver {
 /// [1]: https://tinyurl.com/2p88ajym
 pub struct Transceiver {
     ptr: UniquePtr<webrtc::RtpTransceiverInterface>,
-    media_type: MediaType,
     sender: UniquePtr<webrtc::RtpSenderInterface>,
 }
 
@@ -457,9 +456,9 @@ impl Transceivers {
         transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
     ) {
         let sender = webrtc::get_sender(&transceiver);
-        let media_type = webrtc::self.0.push(Transceiver {
+
+        self.0.push(Transceiver {
             ptr: transceiver,
-            media_type: todo!(),
             sender,
         });
     }

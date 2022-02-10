@@ -442,6 +442,10 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
+MediaType get_stransceiver_type(const RtpTransceiverInterface& transceiver) {
+  return transceiver->media_type();
+}
+
 // Calls `rtc::scoped_refptr<webrtc::RtpTransceiverInterface>::get`.
 size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver) {
   return (size_t)transceiver.get();
@@ -487,10 +491,6 @@ bool set_sender_video_track(const RtpSenderInterface& sender,
 bool set_sender_audio_track(const RtpSenderInterface& sender,
                             const AudioTrackInterface& track) {
   return sender->SetTrack(track);
-}
-
-MediaType get_stransceiver_type(const RtpTransceiverInterface& transceiver) {
-  return transceiver->media_type();
 }
 
 }  // namespace bridge
