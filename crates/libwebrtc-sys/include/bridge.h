@@ -103,8 +103,12 @@ using RtpParameters = webrtc::RtpParameters;
 using RtpCodecParameters = webrtc::RtpCodecParameters;
 using RtpExtension = webrtc::RtpExtension;
 using RtpEncodingParameters = webrtc::RtpEncodingParameters;
+using DtmfSenderInterface = rc<webrtc::DtmfSenderInterface>;
 
 using MediaType = cricket::MediaType;
+using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
+
+struct StringPair;
 
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -319,11 +323,56 @@ const Candidate& get_remote_candidate(const CandidatePair& pair);
 
 
 
-// RtpReceiverInterface
+// RtpTransceiverInterface
 
 // todo
 std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
     const RtpTransceiverInterface& transceiver);
+
+std::unique_ptr<std::string> rtp_transceiver_interface_get_mid(
+    const RtpTransceiverInterface& transceiver);
+
+RtpTransceiverDirection rtp_transceiver_interface_get_direction(
+    const RtpTransceiverInterface& transceiver);
+
+std::unique_ptr<RtpSenderInterface> rtp_transceiver_interface_get_sender(
+    const RtpTransceiverInterface& transceiver);
+
+// End RtpTransceiverInterface
+
+
+
+
+// RtpSenderInterface
+
+std::unique_ptr<std::string> rtp_sender_interface_get_id(
+    const RtpSenderInterface& sender);
+
+std::unique_ptr<DtmfSenderInterface> rtp_sender_interface_get_dtmf(
+    const RtpSenderInterface& sender);
+
+std::unique_ptr<RtpParameters> rtp_sender_interface_get_parameters(
+    const RtpSenderInterface& sender);
+
+std::unique_ptr<MediaStreamTrackInterface> rtp_sender_interface_get_track(
+    const RtpSenderInterface& sender);
+
+// End RtpSenderInterface
+
+
+// DtmfSenderInterface
+
+int32_t dtmf_sender_interface_get_duration(
+    const DtmfSenderInterface& dtmf);
+
+int32_t dtmf_sender_interface_get_inter_tone_gap(
+    const DtmfSenderInterface& dtmf);
+
+// End DtmfSenderInterface
+
+
+
+// RtpReceiverInterface
 
 // todo
 std::unique_ptr<std::string> rtp_receiver_interface_get_id(
@@ -334,15 +383,15 @@ std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_get_st
     const RtpReceiverInterface& receiver);
 
 // todo
-std::unique_ptr<MediaStreamTrackInterface> rtp_sender_interface_get_track(
+std::unique_ptr<MediaStreamTrackInterface> rtp_receiver_interface_get_track(
     const RtpReceiverInterface& receiver);
 
 // todo 
-std::unique_ptr<std::vector<std::string>> rtp_sender_interface_get_stream_ids(
+std::unique_ptr<std::vector<std::string>> rtp_receiver_interface_get_stream_ids(
     const RtpReceiverInterface& receiver);
 
 // todo
-std::unique_ptr<RtpParameters> rtp_sender_interface_get_parameters(
+std::unique_ptr<RtpParameters> rtp_receiver_interface_get_parameters(
     const RtpReceiverInterface& receiver);
 
 // End RtpReceiverInterface
@@ -380,6 +429,39 @@ std::unique_ptr<RtcpParameters> rtp_parameters_get_rtcp(
 
 
 
+
+// RtpExtension
+
+// todo
+std::unique_ptr<std::string> rtp_extension_get_uri(
+    const RtpExtension& extension);
+
+int32_t rtp_extension_get_id(
+    const RtpExtension& extension);
+
+bool rtp_extension_get_encrypt(
+    const RtpExtension& extension);
+
+// End RtpExtension
+
+
+
+
+// RtcpParameters
+
+// todo
+std::unique_ptr<std::string> rtcp_parameters_get_cname(
+    const RtcpParameters& rtcp);
+
+// todo refact
+bool rtcp_parameters_get_reduced_size(
+    const RtcpParameters& rtcp);
+
+// End RtcpParameters
+
+
+
+
 // RtpCodecParameters
 
 // todo 
@@ -387,20 +469,20 @@ std::unique_ptr<std::string> rtp_codec_parameters_get_name(
     const RtpCodecParameters& codec);
 
 // todo 
-int rtp_codec_parameters_get_payload_type(
+int32_t rtp_codec_parameters_get_payload_type(
     const RtpCodecParameters& codec);
 
 // todo optinoanl
-int rtp_codec_parameters_get_clock_rate(
+int32_t rtp_codec_parameters_get_clock_rate(
     const RtpCodecParameters& codec);
 
 // todo
-int rtp_codec_parameters_get_num_channels(
+int32_t rtp_codec_parameters_get_num_channels(
     const RtpCodecParameters& codec);
 
-// // todo
-// <SHARED_TYPE> rtp_codec_parameters_get_parameters(
-//     const RtpCodecParameters& codec);
+// todo
+std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_get_parameters(
+    const RtpCodecParameters& codec);
 
 // todo
 MediaType rtp_codec_parameters_get_kind(
@@ -470,6 +552,32 @@ std::unique_ptr<VideoTrackSourceInterface> video_track_get_sourse(
     const VideoTrackInterface& track);
 
 // End VideoTrackInterface
+
+
+
+
+// RtpEncodingParameters
+
+// todo
+bool rtp_encoding_parameters_get_active(
+    const RtpEncodingParameters& encoding);
+
+int32_t rtp_encoding_parameters_get_maxBitrate(
+    const RtpEncodingParameters& encoding);
+
+int32_t rtp_encoding_parameters_get_minBitrate(
+    const RtpEncodingParameters& encoding);
+
+double rtp_encoding_parameters_get_maxFramerate(
+    const RtpEncodingParameters& encoding);
+
+int64_t rtp_encoding_parameters_get_ssrc(
+    const RtpEncodingParameters& encoding);
+
+double rtp_encoding_parameters_get_scale_resolution_down_by(
+    const RtpEncodingParameters& encoding);
+
+// End RtpEncodingParameters
 
 
 

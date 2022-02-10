@@ -19,6 +19,9 @@ mod cpp_api_bindings {
 
         type OnTrackSerialized = crate::api::OnTrackSerialized;
 
+        type RtpReceiverInterfaceSerialized =
+            crate::api::RtpReceiverInterfaceSerialized;
+
         /// Calls C++ side `CreateSdpCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
         pub fn on_create_sdp_success(
@@ -159,6 +162,12 @@ mod cpp_api_bindings {
         pub unsafe fn on_ice_selected_candidate_pair_changed(
             self: Pin<&mut PeerConnectionOnEventInterface>,
             event: CandidatePairChangeEventSerialized,
+        );
+
+        #[cxx_name = "OnRemoveTrack"]
+        pub fn on_remove_track(
+            self: Pin<&mut PeerConnectionOnEventInterface>,
+            event: RtpReceiverInterfaceSerialized,
         );
 
         // todo

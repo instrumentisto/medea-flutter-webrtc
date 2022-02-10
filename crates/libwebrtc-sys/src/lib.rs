@@ -10,24 +10,41 @@ use cxx::{let_cxx_string, CxxString, UniquePtr};
 use self::bridge::webrtc;
 pub use crate::webrtc::{
     audio_track_get_sourse, audio_track_truncation, candidate_to_string,
-    get_candidate_pair, get_estimated_disconnected_time_ms,
-    get_last_data_received_ms, get_local_candidate, get_reason,
-    get_remote_candidate, ice_candidate_interface_to_string,
-    media_stream_interface_get_audio_tracks, media_stream_interface_get_id,
-    media_stream_interface_get_video_tracks,
+    dtmf_sender_interface_get_duration,
+    dtmf_sender_interface_get_inter_tone_gap, get_candidate_pair,
+    get_estimated_disconnected_time_ms, get_last_data_received_ms,
+    get_local_candidate, get_reason, get_remote_candidate,
+    ice_candidate_interface_to_string, media_stream_interface_get_audio_tracks,
+    media_stream_interface_get_id, media_stream_interface_get_video_tracks,
     media_stream_track_interface_downcast_audio_track,
     media_stream_track_interface_downcast_video_track,
     media_stream_track_interface_get_enabled,
     media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
-    media_stream_track_interface_get_state, rtp_parameters_get_codecs,
+    media_stream_track_interface_get_state, rtcp_parameters_get_cname,
+    rtcp_parameters_get_reduced_size, rtp_codec_parameters_get_clock_rate,
+    rtp_codec_parameters_get_kind, rtp_codec_parameters_get_name,
+    rtp_codec_parameters_get_num_channels, rtp_codec_parameters_get_parameters,
+    rtp_codec_parameters_get_payload_type, rtp_encoding_parameters_get_active,
+    rtp_encoding_parameters_get_maxBitrate,
+    rtp_encoding_parameters_get_maxFramerate,
+    rtp_encoding_parameters_get_minBitrate,
+    rtp_encoding_parameters_get_scale_resolution_down_by,
+    rtp_encoding_parameters_get_ssrc, rtp_extension_get_encrypt,
+    rtp_extension_get_id, rtp_extension_get_uri, rtp_parameters_get_codecs,
     rtp_parameters_get_encodings, rtp_parameters_get_header_extensions,
     rtp_parameters_get_mid, rtp_parameters_get_rtcp,
-    rtp_parameters_get_transaction_id, rtp_receiver_interface_get_streams,
-    rtp_sender_interface_get_parameters, rtp_sender_interface_get_track,
-    rtp_transceiver_interface_get_receiver, video_frame_to_abgr,
+    rtp_parameters_get_transaction_id, rtp_receiver_interface_get_id,
+    rtp_receiver_interface_get_parameters, rtp_receiver_interface_get_streams,
+    rtp_receiver_interface_get_track, rtp_sender_interface_get_dtmf,
+    rtp_sender_interface_get_id, rtp_sender_interface_get_parameters,
+    rtp_sender_interface_get_track, rtp_transceiver_interface_get_direction,
+    rtp_transceiver_interface_get_mid, rtp_transceiver_interface_get_receiver,
+    rtp_transceiver_interface_get_sender, video_frame_to_abgr,
     video_track_get_sourse, video_track_truncation, AudioLayer, Candidate,
-    CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
-    IceGatheringState, PeerConnectionState, RtpParameters,
+    CandidatePairChangeEvent, DtmfSenderInterface, IceCandidateInterface,
+    IceConnectionState, IceGatheringState, PeerConnectionState,
+    RtpCodecParameters, RtpEncodingParameters, RtpExtension, RtpParameters,
+    RtpReceiverInterface as _RtpReceiverInterface, RtpSenderInterface,
     RtpTransceiverInterface, SdpType, SignalingState, VideoFrame,
     VideoRotation,
 };
@@ -137,8 +154,8 @@ pub trait PeerConnectionOnEvent {
     // todo
     fn on_track(&mut self, event: &RtpTransceiverInterface);
 
-    // // todo
-    // fn on_remove_track(&mut self, event: &RtpReceiverInterface);
+    // todo
+    fn on_remove_track(&mut self, event: &RtpReceiverInterface);
 }
 
 /// Handler of [`VideoFrame`]s.

@@ -15,7 +15,7 @@ use std::{
     },
 };
 
-use api::{RtpParametersSerialized, TrackInterfaceSerialized};
+use api::{RtpParametersSerialized, TrackInterfaceSerialized, DtmfSenderInterfaceSerialized};
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, MediaStreamTrackInterface,
     PeerConnectionFactoryInterface, RtpParameters, RtpTransceiverInterface,
@@ -85,7 +85,8 @@ pub mod api {
 
     // todo
     pub struct MediaStreamInterfaceSerialized {
-        id: String,
+        streamId: String,
+        // ownerTag: String, peer_connection_id
         audio_tracks: Vec<TrackInterfaceSerialized>,
         video_tracks: Vec<TrackInterfaceSerialized>,
     }
@@ -93,7 +94,7 @@ pub mod api {
     // todo
     pub struct RtcpParametersSerialized {
         cname: String,
-        reduced_size: usize,
+        reduced_size: bool,
     }
 
     // todo
@@ -104,7 +105,7 @@ pub mod api {
     }
 
     // todo
-    pub struct RtpEncodingParameters {
+    pub struct RtpEncodingParametersSerialized {
         active: bool,
         maxBitrate: i32,
         minBitrate: i32,
@@ -114,7 +115,7 @@ pub mod api {
     }
 
     // todo
-    pub struct Pair {
+    pub struct StringPair {
         first: String,
         second: String,
     }
@@ -125,22 +126,22 @@ pub mod api {
         payloadType: i32,
         clockRate: i32,
         numChannels: i32,
-        parameters: Vec<Pair>,
+        parameters: Vec<StringPair>,
         kind: String,
     }
 
     // todo
     pub struct RtpParametersSerialized {
-        id: String,
+        transactionId: String,
         rtcp: RtcpParametersSerialized,
         codecs: Vec<RtpCodecParametersSerialized>,
         header_extensions: Vec<RtpExtensionSerialized>,
-        encodings: Vec<RtpEncodingParameters>,
+        encodings: Vec<RtpEncodingParametersSerialized>,
     }
 
     // todo
     pub struct RtpReceiverInterfaceSerialized {
-        id: String,
+        receiverId: String,
         parameters: RtpParametersSerialized,
         track: TrackInterfaceSerialized,
     }
@@ -150,11 +151,13 @@ pub mod api {
         dtmfSenderId: String,
         interToneGap: i32,
         duration: i32,
+        is_null: bool,
     }
 
     // todo
     pub struct RtpSenderInterfaceSerialized {
-        id: String,
+        senderId: String,
+        ownsTrack: bool,
         dtmfSender: DtmfSenderInterfaceSerialized,
         rtpParameters: RtpParametersSerialized,
         track: TrackInterfaceSerialized,
@@ -162,6 +165,7 @@ pub mod api {
 
     // todo
     pub struct RtpTransceiverInterfaceSerialized {
+        transceiverId: String,
         mid: String,
         direction: String,
         sender: RtpSenderInterfaceSerialized,
@@ -478,14 +482,13 @@ impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
     }
 }
 
-impl From<&RtpParameters> for RtpParametersSerialized {
-    fn from(par: &RtpParameters) -> Self {
-        Self {
-            id: todo!(),
-            rtcp: todo!(),
-            codecs: todo!(),
-            header_extensions: todo!(),
-            encodings: todo!(),
+impl Default for DtmfSenderInterfaceSerialized {
+    fn default() -> Self {
+        DtmfSenderInterfaceSerialized {
+            dtmfSenderId: "".to_owned(),
+            interToneGap: 0,
+            duration: 0,
+            is_null: true,
         }
     }
 }

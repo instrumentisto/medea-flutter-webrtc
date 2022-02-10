@@ -6,6 +6,7 @@
 #include "libwebrtc-sys/include/bridge.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
+#include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
 
@@ -427,18 +428,91 @@ const Candidate& get_remote_candidate(const CandidatePair& pair) {
 };
 
 
+
+
+
+
+// RtpTransceiverInterface
+
 // todo
 std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
     const RtpTransceiverInterface& transceiver) {
       return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
     }
 
+std::unique_ptr<std::string> rtp_transceiver_interface_get_mid(
+    const RtpTransceiverInterface& transceiver) {
+      return std::make_unique<std::string>(
+        transceiver->mid().has_value() ? transceiver->mid().value() : "");
+    }
+
+RtpTransceiverDirection rtp_transceiver_interface_get_direction(
+    const RtpTransceiverInterface& transceiver) {
+      return transceiver->direction();
+    }
+
+std::unique_ptr<RtpSenderInterface> rtp_transceiver_interface_get_sender(
+    const RtpTransceiverInterface& transceiver) {
+      return std::make_unique<RtpSenderInterface> (transceiver->sender());
+    }
+
+// End RtpTransceiverInterface
+
+
+
+
+// RtpSenderInterface
+
+std::unique_ptr<std::string> rtp_sender_interface_get_id(
+    const RtpSenderInterface& sender) {
+      return std::make_unique<std::string>(sender->id());
+    }
+
+std::unique_ptr<DtmfSenderInterface> rtp_sender_interface_get_dtmf(
+    const RtpSenderInterface& sender) {
+      return std::make_unique<DtmfSenderInterface>(sender->GetDtmfSender());
+    }
+
+std::unique_ptr<RtpParameters> rtp_sender_interface_get_parameters(
+    const RtpSenderInterface& sender) {
+      return std::make_unique<RtpParameters>(sender->GetParameters());
+    }
+
+std::unique_ptr<MediaStreamTrackInterface> rtp_sender_interface_get_track(
+    const RtpSenderInterface& sender) {
+      return std::make_unique<MediaStreamTrackInterface>(sender->track());
+    }
+
+// End RtpSenderInterface
+
+
+
+
+// DtmfSenderInterface
+
+int32_t dtmf_sender_interface_get_duration(
+    const DtmfSenderInterface& dtmf) {
+      return dtmf->duration();
+    }
+
+int32_t dtmf_sender_interface_get_inter_tone_gap(
+    const DtmfSenderInterface& dtmf) {
+      return dtmf->inter_tone_gap();
+    }
+
+// End DtmfSenderInterface
+
+
+
+
 
 // RtpReceiverInterface
 
 // todo
 std::unique_ptr<std::string> rtp_receiver_interface_get_id(
-    const RtpReceiverInterface& receiver);
+    const RtpReceiverInterface& receiver) {
+      return std::make_unique<std::string>(receiver->id());
+    }
 
 // todo
 std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_get_streams(
@@ -453,19 +527,19 @@ std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_get_st
 
 
 // todo
-std::unique_ptr<MediaStreamTrackInterface> rtp_sender_interface_get_track(
+std::unique_ptr<MediaStreamTrackInterface> rtp_receiver_interface_get_track(
     const RtpReceiverInterface& receiver) {
       return std::make_unique<MediaStreamTrackInterface>(receiver->track());
 }
 
 // todo 
-std::unique_ptr<std::vector<std::string>> rtp_sender_interface_get_stream_ids(
+std::unique_ptr<std::vector<std::string>> rtp_receiver_interface_get_stream_ids(
     const RtpReceiverInterface& receiver) {
       return std::make_unique<std::vector<std::string>>(receiver->stream_ids());
     }
 
 // todo
-std::unique_ptr<RtpParameters> rtp_sender_interface_get_parameters(
+std::unique_ptr<RtpParameters> rtp_receiver_interface_get_parameters(
     const RtpReceiverInterface& receiver) {
       return std::make_unique<RtpParameters>(receiver->GetParameters());
     }
@@ -517,6 +591,25 @@ std::unique_ptr<RtcpParameters> rtp_parameters_get_rtcp(
 
 
 
+// RtcpParameters
+
+// todo
+std::unique_ptr<std::string> rtcp_parameters_get_cname(
+    const RtcpParameters& rtcp) {
+      return std::make_unique<std::string> (rtcp.cname);
+    }
+
+// todo refact
+bool rtcp_parameters_get_reduced_size(
+    const RtcpParameters& rtcp) {
+      return rtcp.reduced_size;
+    }
+
+
+// End RtcpParameters
+
+
+
 // RtpCodecParameters
 
 // todo 
@@ -525,27 +618,103 @@ std::unique_ptr<std::string> rtp_codec_parameters_get_name(
       return std::make_unique<std::string>(codec.name);
     }
 
-// todo 
-int rtp_codec_parameters_get_payload_type(
-    const RtpCodecParameters& codec);
+ // todo 
+ int32_t rtp_codec_parameters_get_payload_type(
+     const RtpCodecParameters& codec) {
+       return codec.payload_type;
+     }
 
-// todo optinoanl
-int rtp_codec_parameters_get_clock_rate(
-    const RtpCodecParameters& codec);
+ // todo optinoanl
+ int32_t rtp_codec_parameters_get_clock_rate(
+     const RtpCodecParameters& codec) {
+       return codec.clock_rate.value();
+     }
+
+ // todo optinoanl
+ int32_t rtp_codec_parameters_get_num_channels(
+     const RtpCodecParameters& codec) {
+       return codec.num_channels.value();
+     }
 
 // todo
-int rtp_codec_parameters_get_num_channels(
-    const RtpCodecParameters& codec);
-
-// // todo
-// <SHARED_TYPE> rtp_codec_parameters_get_parameters(
-//     const RtpCodecParameters& codec);
+std::unique_ptr<std::vector<bridge::StringPair>> rtp_codec_parameters_get_parameters(
+    const RtpCodecParameters& codec) {
+      std::vector<StringPair> result;
+       for (std::pair<std::string, std::string> element : codec.parameters) {
+         auto pair = new_string_pair(element.first, element.second);
+         result.push_back(pair);
+       }
+      return nullptr;
+    }
 
 // todo
 MediaType rtp_codec_parameters_get_kind(
-    const RtpCodecParameters& codec);
+    const RtpCodecParameters& codec) {
+      return codec.kind;
+    }
 
 // End RtpCodecParameters
+
+
+
+
+// RtpExtension
+
+// todo
+std::unique_ptr<std::string> rtp_extension_get_uri(
+    const RtpExtension& extension) {
+      return std::make_unique<std::string>(extension.uri);
+    }
+
+int32_t rtp_extension_get_id(
+    const RtpExtension& extension) {
+      return extension.id;
+    }
+
+bool rtp_extension_get_encrypt(
+    const RtpExtension& extension) {
+      return extension.encrypt;
+    }
+
+// End RtpExtension
+
+
+
+// RtpEncodingParameters
+
+// todo
+bool rtp_encoding_parameters_get_active(
+    const RtpEncodingParameters& encoding) {
+      return encoding.active; 
+    }
+
+int32_t rtp_encoding_parameters_get_maxBitrate(
+    const RtpEncodingParameters& encoding) {
+      return encoding.max_bitrate_bps.value();
+    }
+
+int32_t rtp_encoding_parameters_get_minBitrate(
+    const RtpEncodingParameters& encoding) {
+      return encoding.min_bitrate_bps.value();
+    }
+
+double rtp_encoding_parameters_get_maxFramerate(
+    const RtpEncodingParameters& encoding) {
+      return encoding.max_framerate.value();
+    }
+
+int64_t rtp_encoding_parameters_get_ssrc(
+    const RtpEncodingParameters& encoding) {
+      return encoding.ssrc.value();
+    }
+
+double rtp_encoding_parameters_get_scale_resolution_down_by(
+    const RtpEncodingParameters& encoding) {
+      return encoding.scale_resolution_down_by.value();
+    }
+
+// End RtpEncodingParameters
+
 
 
 
