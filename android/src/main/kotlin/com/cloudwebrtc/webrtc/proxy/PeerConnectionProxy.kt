@@ -105,6 +105,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
              * @param candidate newly added [IceCandidate].
              */
             fun onIceCandidate(candidate: IceCandidate)
+
+            /**
+             * Notifies observer about new necessity to perform renegotiation process.
+             */
+            fun onNegotiationNeeded()
         }
 
         /**
@@ -226,6 +231,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
 
             override fun onIceCandidate(candidate: IceCandidate) {
                 eventObservers.forEach { it.onIceCandidate(candidate) }
+            }
+
+            override fun onNegotiationNeeded() {
+                eventObservers.forEach { it.onNegotiationNeeded() }
             }
         }
     }

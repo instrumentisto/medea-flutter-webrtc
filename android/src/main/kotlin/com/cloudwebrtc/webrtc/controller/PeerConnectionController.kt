@@ -103,6 +103,14 @@ class PeerConnectionController(
                     )
             )
         }
+
+        override fun onNegotiationNeeded() {
+            eventSink?.success(
+                    mapOf(
+                            "event" to "onNegotiationNeeded"
+                    )
+            )
+        }
     }
 
     init {

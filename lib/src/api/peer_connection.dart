@@ -28,6 +28,16 @@ typedef OnIceConnectionStateChangeCallback = void Function(IceConnectionState);
 /// Typedef for the `on_connection_state_change` callback.
 typedef OnConnectionStateChangeCallback = void Function(PeerConnectionState);
 
+/// Typedef for the `on_ice_gathering_state_change` callback.
+typedef OnIceGatheringStateChangeCallback = void Function(IceGatheringState);
+
+/// Typedef for the `on_negotiation_needed` callback.
+typedef OnNegotiationNeededCallback = void Function();
+
+/// Typedef for the `on_signaling_state_change` callback.
+typedef OnSignalingStateChangeCallback = void Function(SignalingState);
+
+
 class PeerConnection {
   /// Creates [PeerConnection] based on the [Map] received from the native side.
   PeerConnection._fromMap(dynamic map) {
@@ -44,14 +54,22 @@ class PeerConnection {
   /// Listener for the all [PeerConnection] events received from the native side.
   void eventListener(dynamic event) {
     // TODO(#31): onIceCandidateError
-    //            onIceGatheringStateChange
-    //            onNegotiationNeeded
-    //            onSignalingStateChange
     final dynamic e = event;
     switch (e['event']) {
       case 'onIceCandidate':
         dynamic iceCandidate = e['candidate'];
         _onIceCandidate?.call(IceCandidate.fromMap(iceCandidate));
+        break;
+      case 'onIceGatheringStateChange':
+        var state = IceGatheringState.values[e['state']];
+        _onIceGatheringStateChange?.call(state);
+        break;
+      case 'onNegotiationNeeded':
+        _onNegotiationNeeded?.call();
+        break;
+      case 'onSignalingStateChange':
+        var state = SignalingState.values[e['state']];
+        _onSignalingStateChange?.call(state);
         break;
       case 'onIceConnectionStateChange':
         var state = IceConnectionState.values[e['state']];
@@ -92,6 +110,15 @@ class PeerConnection {
 
   /// `on_connection_state_change` event subcriber.
   OnConnectionStateChangeCallback? _onConnectionStateChange;
+
+  /// `on_ice_gathering_state_change` event subcriber.
+  OnIceGatheringStateChangeCallback? _onIceGatheringStateChange;
+
+  /// `on_negotiation_needed` event subcriber.
+  OnNegotiationNeededCallback? _onNegotiationNeeded;
+
+  /// `on_signaling_state_change` event subcriber.
+  OnSignalingStateChangeCallback? _onSignalingStateChange;
 
   /// Current [IceConnectionState] of this [PeerConnection].
   ///
@@ -148,6 +175,24 @@ class PeerConnection {
   /// events of this [PeerConnection]
   void onConnectionStateChange(OnConnectionStateChangeCallback f) {
     _onConnectionStateChange = f;
+  }
+
+  /// Subscribes provided callback to the `on_ice_gathering_state_change`
+  /// events of this [PeerConnection]
+  void onIceGatheringStateChange(OnIceGatheringStateChangeCallback f) {
+    _onIceGatheringStateChange = f;
+  }
+
+  /// Subscribes provided callback to the `on_negotiation_needed`
+  /// events of this [PeerConnection]
+  void onNegotiationNeeded(OnNegotiationNeededCallback f) {
+    _onNegotiationNeeded = f;
+  }
+
+  /// Subscribes provided callback to the `on_signaling_state_change`
+  /// events of this [PeerConnection]
+  void onSignalingStateChange(OnSignalingStateChangeCallback f) {
+    _onSignalingStateChange = f;
   }
 
   /// Synchonizes mids of the [_transceivers] owned by this [PeerConnection].

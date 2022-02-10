@@ -65,12 +65,15 @@ class PeerObserver : PeerConnection.Observer {
         super.onAddTrack(receiver, mediaStreams)
     }
 
+    override fun onRenegotiationNeeded() {
+        peer?.observableEventBroadcaster()?.onNegotiationNeeded()
+    }
+
     override fun onIceConnectionReceivingChange(p0: Boolean) {}
     override fun onIceCandidatesRemoved(candidates: Array<out WIceCandidate>?) {}
     override fun onAddStream(p0: MediaStream?) {}
     override fun onRemoveStream(p0: MediaStream?) {}
     override fun onDataChannel(p0: DataChannel?) {}
-    override fun onRenegotiationNeeded() {}
 
     /**
      * Sets [PeerConnectionProxy] which will be notified about all events.
