@@ -19,9 +19,9 @@ class RtpSender {
   /// Getter for the [MediaStreamTrack] currently owned by this [RtpSender].
   MediaStreamTrack? get track => _track;
 
-  /// Sets [MediaStreamTrack] for this [RtpSender].
-  Future<void> setTrack(MediaStreamTrack? t) async { // TODO(#31): replaceTrack?
+  /// Replaces [MediaStreamTrack] of this [RtpSender].
+  Future<void> replaceTrack(MediaStreamTrack? t) async {
     _track = t;
-    await _methodChannel.invokeMethod('setTrack', {'trackId': t?.id()});
+    await _methodChannel.invokeMethod('replaceTrack', {'trackId': t?.id()});
   }
 }

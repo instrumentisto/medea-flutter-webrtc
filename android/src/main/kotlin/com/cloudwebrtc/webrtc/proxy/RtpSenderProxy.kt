@@ -28,11 +28,11 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
     }
 
     /**
-     * Sets [MediaStreamTrackProxy] of the underlying [RtpSender] to the provided one.
+     * Replaces [MediaStreamTrackProxy] of the underlying [RtpSender] with the provided one.
      *
      * @param t [MediaStreamTrackProxy] which will be set to the underlying [RtpSender].
      */
-    fun setTrack(t: MediaStreamTrackProxy?) {
+    fun replaceTrack(t: MediaStreamTrackProxy?) {
         track = t
         obj.setTrack(t?.obj, false)
     }
