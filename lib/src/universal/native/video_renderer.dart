@@ -71,7 +71,7 @@ class NativeVideoRenderer extends VideoRenderer {
     if (textureId == null) {
       throw 'Renderer should be initialize before setting src';
     }
-    if (track?.kind() != MediaKind.Video) {
+    if (track?.kind() != MediaKind.video) {
       throw 'VideoRenderer do not supports MediaStreamTrack with video kind!';
     }
 

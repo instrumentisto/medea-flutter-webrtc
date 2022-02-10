@@ -12,8 +12,8 @@ enum MediaStreamTrackState {
 /// Kind of media.
 enum MediaKind {
   /// Audio data.
-  Audio,
+  audio,
 
   /// Video data.
-  Video
+  video
 }

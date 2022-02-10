@@ -1,3 +1,5 @@
+/// Represents a candidate Interactive Connectivity Establishment (ICE)
+/// configuration which may be used to establish an PeerConnection.
 class IceCandidate {
   /// Creates new [IceCandidate] with the provided parameters.
   IceCandidate(this.sdpMid, this.sdpMLineIndex, this.sdp);

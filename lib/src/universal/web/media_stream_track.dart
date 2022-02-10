@@ -29,9 +29,9 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   MediaKind kind() {
     var jsKind = jsTrack.kind;
     if (jsKind == 'audio') {
-      return MediaKind.Audio;
+      return MediaKind.audio;
     } else {
-      return MediaKind.Video;
+      return MediaKind.video;
     }
   }
 
