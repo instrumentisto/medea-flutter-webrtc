@@ -273,16 +273,16 @@ void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
 // Calls `IceCandidateInterface->ToString`.
-std::unique_ptr<std::string>
-ice_candidate_interface_to_string(const IceCandidateInterface* candidate);
+std::unique_ptr<std::string> ice_candidate_interface_to_string(
+    const IceCandidateInterface* candidate);
 
 // Creates an SDP-ized form of this `Candidate`.
-std::unique_ptr<std::string>
-candidate_to_string(const cricket::Candidate& candidate);
+std::unique_ptr<std::string> candidate_to_string(
+    const cricket::Candidate& candidate);
 
 // Returns `CandidatePairChangeEvent.candidate_pair` field value.
-const cricket::CandidatePair&
-get_candidate_pair(const cricket::CandidatePairChangeEvent& event);
+const cricket::CandidatePair& get_candidate_pair(
+    const cricket::CandidatePairChangeEvent& event);
 
 // Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
 int64_t get_last_data_received_ms(
@@ -303,7 +303,7 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     MediaType media_type,
     RtpTransceiverDirection direction);
 
-// Gets the `PeerConnection`'s `RtpTransceiver`s info to Rust `Transceivers`.
+// Gets the `PeerConnection`'s `RtpTransceiver`s.
 rust::Vec<TransceiverWrapper> get_transceivers(
     const PeerConnectionInterface& peer);
 

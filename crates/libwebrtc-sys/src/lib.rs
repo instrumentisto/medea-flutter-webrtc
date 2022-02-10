@@ -538,11 +538,10 @@ impl PeerConnectionInterface {
     /// Gets the [`Transceiver`]s.
     #[must_use]
     pub fn get_transceivers(&self) -> Vec<Transceiver> {
-        Vec::from_iter(
-            webrtc::get_transceivers(&self.inner)
-                .into_iter()
-                .map(|transceiver| Transceiver(transceiver.ptr)),
-        )
+        webrtc::get_transceivers(&self.inner)
+            .into_iter()
+            .map(|transceiver| Transceiver(transceiver.ptr))
+            .collect::<_>()
     }
 }
 

@@ -465,8 +465,7 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
       peer->AddTransceiver(media_type, transceiver_init).MoveValue());
 }
 
-// Calls `PeerConnectionInterface->GetTransceivers`, writes `RtpTransceiver`'s
-// info to Rust structure `Transceivers`.
+// Calls `PeerConnectionInterface->GetTransceivers`.
 rust::Vec<TransceiverWrapper> get_transceivers(
     const PeerConnectionInterface& peer) {
   rust::Vec<TransceiverWrapper> transceivers;

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
@@ -219,20 +217,19 @@ impl Webrtc {
         );
 
         let result = api::RtcRtpTransceiver {
-            id: next_id(),
+            id: peer.transceivers.len() as u64,
             mid: transceiver.mid(),
             direction: transceiver.direction().to_string(),
         };
 
-        peer.transceivers
-            .insert(TransceiverId(result.id), transceiver);
+        peer.transceivers.push(transceiver);
 
         result
     }
 
-    /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the
-    /// RTP transceivers that are currently attached to this [`PeerConnection`]
-    /// object.
+    /// Returns a sequence of [`api::RtcRtpTransceiver`] objects representing
+    /// the RTP transceivers that are currently attached to this
+    /// [`PeerConnection`] object.
     ///
     /// # Panics
     ///
@@ -248,31 +245,24 @@ impl Webrtc {
             .unwrap();
 
         let mut transceivers = peer.inner.get_transceivers();
+        transceivers.reverse();
 
-        let mut out_info: Vec<_> = Vec::new();
+        let mut out_info = Vec::new();
 
-        for _index in 0..transceivers.len() {
+        for index in 0..transceivers.len() as u64 {
             let transceiver = transceivers.pop().unwrap();
-            let mut is_in = false;
-            let mut id = 0;
-
-            for written_transceiver in &peer.transceivers {
-                is_in = written_transceiver.1 == &transceiver;
-                id = written_transceiver.0 .0;
-            }
 
             let info = api::RtcRtpTransceiver {
-                id: if is_in { id } else { next_id() },
+                id: index as u64,
                 mid: transceiver.mid(),
                 direction: transceiver.direction().to_string(),
             };
 
-            if !is_in {
-                peer.transceivers
-                    .insert(TransceiverId(info.id), transceiver);
-            }
-
             out_info.push(info);
+
+            if index == peer.transceivers.len() as u64 {
+                peer.transceivers.push(transceiver);
+            }
         }
 
         out_info
@@ -296,7 +286,7 @@ pub struct PeerConnection {
     inner: sys::PeerConnectionInterface,
 
     /// The [`sys::Transceiver`]s of this [`PeerConnection`].
-    transceivers: HashMap<TransceiverId, sys::Transceiver>,
+    transceivers: Vec<sys::Transceiver>,
 }
 
 impl PeerConnection {
@@ -316,7 +306,7 @@ impl PeerConnection {
         Ok(Self {
             id: PeerConnectionId::from(next_id()),
             inner,
-            transceivers: HashMap::new(),
+            transceivers: Vec::new(),
         })
     }
 }

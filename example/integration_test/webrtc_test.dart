@@ -32,6 +32,7 @@ void main() {
         kind: RTCRtpMediaType.RTCRtpMediaTypeAudio, init: init);
 
     var before = await pc.getTransceivers();
+
     expect(before[0].mid.isEmpty, isTrue);
     expect(before[1].mid.isEmpty, isTrue);
 
