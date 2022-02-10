@@ -41,7 +41,7 @@ void main() {
 
     var after = await pc.getTransceivers();
 
-    expect(after[0].mid, equals("0"));
-    expect(after[1].mid, equals("1"));
+    expect(after[0].mid, equals('0'));
+    expect(after[1].mid, equals('1'));
   });
 }
