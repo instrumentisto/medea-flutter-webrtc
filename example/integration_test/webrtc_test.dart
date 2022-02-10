@@ -110,4 +110,33 @@ void main() {
 
     expect(mid.isEmpty, equals(false));
   });
+
+  testWidgets('Get transceiver mid', (WidgetTester tester) async {
+    var pc = await createPeerConnection({});
+    var init = RTCRtpTransceiverInit();
+    init.direction = TransceiverDirection.SendRecv;
+    var trans = await pc.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+    final mediaConstraints = <String, dynamic>{
+      'audio': false,
+      'video': {
+        'mandatory': {
+          'minWidth':
+              '640', // Provide your own width, height and frame rate here
+          'minHeight': '480',
+          'minFrameRate': '30',
+        },
+        'facingMode': 'user',
+        'optional': [],
+      }
+    };
+
+    var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+
+    await trans.sender.setTrack(stream.getVideoTracks()[0]);
+
+    var sess = await pc.createOffer();
+    print(sess.sdp);
+  });
 }

@@ -355,19 +355,22 @@ impl SetRemoteDescriptionObserver {
 /// A struct contains [`RTCRtpTransceiver`][1]'s information.
 ///
 /// [1]: https://tinyurl.com/2p88ajym
-pub struct Transceiver(UniquePtr<webrtc::RtpTransceiverInterface>);
+pub struct Transceiver {
+    ptr: UniquePtr<webrtc::RtpTransceiverInterface>,
+    sender: UniquePtr<webrtc::RtpSenderInterface>,
+}
 
 impl Transceiver {
     /// Returns [`Transceiver`]'s `mid`.
     #[must_use]
     pub fn mid(&self) -> String {
-        webrtc::get_transceiver_mid(&self.0)
+        webrtc::get_transceiver_mid(&self.ptr)
     }
 
     /// Returns [`Transceiver`]'s `direction`.
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
-        webrtc::get_transceiver_direction(&self.0)
+        webrtc::get_transceiver_direction(&self.ptr)
     }
 
     /// Sets the [`Transceiver`]'s `direction`.
@@ -377,7 +380,7 @@ impl Transceiver {
     ) -> anyhow::Result<()> {
         let mut error = String::new();
 
-        webrtc::set_transceiver_direction(&self.0, direction, &mut error);
+        webrtc::set_transceiver_direction(&self.ptr, direction, &mut error);
 
         if !error.is_empty() {
             bail!(
@@ -393,7 +396,7 @@ impl Transceiver {
     pub fn stop(&self) -> anyhow::Result<()> {
         let mut error = String::new();
 
-        webrtc::stop_transceiver(&self.0, &mut error);
+        webrtc::stop_transceiver(&self.ptr, &mut error);
 
         if !error.is_empty() {
             bail!(
@@ -404,11 +407,41 @@ impl Transceiver {
 
         Ok(())
     }
+
+    pub fn set_video_track(
+        &self,
+        track: &VideoTrackInterface,
+    ) -> anyhow::Result<()> {
+        let result = webrtc::set_sender_video_track(&self.sender, &track.0);
+
+        if !result {
+            bail!(
+                "Fails trying to set `track`, `track` type should be `video`."
+            );
+        }
+
+        Ok(())
+    }
+
+    pub fn set_audio_track(
+        &self,
+        track: &AudioTrackInterface,
+    ) -> anyhow::Result<()> {
+        let result = webrtc::set_sender_audio_track(&self.sender, &track.0);
+
+        if !result {
+            bail!(
+                "Fails trying to set `track`, `track` type should be `audio`."
+            );
+        }
+
+        Ok(())
+    }
 }
 
 impl PartialEq for Transceiver {
     fn eq(&self, other: &Self) -> bool {
-        get_transceiver_ptr(&self.0) == get_transceiver_ptr(&other.0)
+        get_transceiver_ptr(&self.ptr) == get_transceiver_ptr(&other.ptr)
     }
 }
 
@@ -422,7 +455,12 @@ impl Transceivers {
         &mut self,
         transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
     ) {
-        self.0.push(Transceiver(transceiver));
+        let sender = webrtc::get_sender(&transceiver);
+
+        self.0.push(Transceiver {
+            ptr: transceiver,
+            sender,
+        });
     }
 }
 
@@ -504,11 +542,15 @@ impl PeerConnectionInterface {
         media_type: MediaType,
         direction: RtpTransceiverDirection,
     ) -> Transceiver {
-        Transceiver(webrtc::add_transceiver(
-            self.0.pin_mut(),
-            media_type,
-            direction,
-        ))
+        let transceiver =
+            webrtc::add_transceiver(self.0.pin_mut(), media_type, direction);
+
+        let sender = webrtc::get_sender(&transceiver);
+
+        Transceiver {
+            ptr: transceiver,
+            sender,
+        }
     }
 
     /// Gets the [`Transceiver`]s.

@@ -13,20 +13,21 @@ import 'rtc_dtmf_sender_impl.dart';
 import 'utils.dart';
 
 class RTCRtpSenderNative extends RTCRtpSender {
-  RTCRtpSenderNative(this._id, this._track, this._dtmf, this._parameters,
-      this._ownsTrack, this._peerConnectionId);
+  RTCRtpSenderNative(this._transceiverId, this._track, this._peerConnectionId);
 
   factory RTCRtpSenderNative.fromMap(Map<dynamic, dynamic> map,
       {required String peerConnectionId}) {
-    Map<dynamic, dynamic> trackMap = map['track'];
+    // Map<dynamic, dynamic> trackMap = map['track'];
     return RTCRtpSenderNative(
-        map['senderId'],
-        (trackMap.isNotEmpty)
-            ? MediaStreamTrackNative.fromMap(map['track'])
-            : null,
-        RTCDTMFSenderNative(peerConnectionId, map['senderId']),
-        RTCRtpParameters.fromMap(map['rtpParameters']),
-        map['ownsTrack'],
+        // map['senderId'],
+        // (trackMap.isNotEmpty)
+        //     ? MediaStreamTrackNative.fromMap(map['track'])
+        //     : null,
+        map['transceiverId'],
+        null,
+        // RTCDTMFSenderNative(peerConnectionId, map['senderId']),
+        // RTCRtpParameters.fromMap(map['rtpParameters']),
+        // map['ownsTrack'],
         peerConnectionId);
   }
 
@@ -39,11 +40,12 @@ class RTCRtpSenderNative extends RTCRtpSender {
   }
 
   String _peerConnectionId;
-  String _id;
+  String? _id;
+  String _transceiverId;
   MediaStreamTrack? _track;
-  RTCDTMFSender _dtmf;
-  RTCRtpParameters _parameters;
-  bool _ownsTrack = false;
+  RTCDTMFSender? _dtmf;
+  RTCRtpParameters? _parameters;
+  bool? _ownsTrack = false;
 
   @override
   Future<List<StatsReport>> getStats() async {
@@ -101,29 +103,31 @@ class RTCRtpSenderNative extends RTCRtpSender {
     try {
       await WebRTC.invokeMethod('rtpSenderSetTrack', <String, dynamic>{
         'peerConnectionId': _peerConnectionId,
-        'rtpSenderId': _id,
+        'transceiverId': _transceiverId,
+        // 'rtpSenderId': _id,
         'trackId': track.id,
-        'takeOwnership': takeOwnership,
+        // 'takeOwnership': takeOwnership,
       });
     } on PlatformException catch (e) {
       throw 'Unable to RTCRtpSender::setTrack: ${e.message}';
     }
   }
 
-  @override
-  RTCRtpParameters get parameters => _parameters;
-
+  // @override
+  // RTCRtpParameters get parameters => _parameters;
+  //
   @override
   MediaStreamTrack? get track => _track;
-
+  //
   @override
-  String get senderId => _id;
-
-  @override
-  bool get ownsTrack => _ownsTrack;
-
-  @override
-  RTCDTMFSender get dtmfSender => _dtmf;
+  // String get senderId => _id;
+  String get senderId => 'id';
+  //
+  // @override
+  // bool get ownsTrack => _ownsTrack;
+  //
+  // @override
+  // RTCDTMFSender get dtmfSender => _dtmf;
 
   @override
   @mustCallSuper

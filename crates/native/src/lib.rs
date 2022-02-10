@@ -336,6 +336,14 @@ pub mod api {
             transceiver_id: u64,
         );
 
+        #[cxx_name = "SetTrackOnSender"]
+        pub fn set_track_on_sender(
+            self: &mut Webrtc,
+            peer_id: u64,
+            transceiver_id: u64,
+            track_id: u64,
+        );
+
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
         #[cxx_name = "GetMedia"]

@@ -474,4 +474,19 @@ void stop_transceiver(const RtpTransceiverInterface& transceiver,
   }
 }
 
+std::unique_ptr<RtpSenderInterface> get_sender(
+    const RtpTransceiverInterface& transceiver) {
+  return std::make_unique<RtpSenderInterface>(transceiver->sender());
+}
+
+bool set_sender_video_track(const RtpSenderInterface& sender,
+                            const VideoTrackInterface& track) {
+  return sender->SetTrack(track);
+}
+
+bool set_sender_audio_track(const RtpSenderInterface& sender,
+                            const AudioTrackInterface& track) {
+  return sender->SetTrack(track);
+}
+
 }  // namespace bridge

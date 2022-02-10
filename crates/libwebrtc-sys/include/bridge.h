@@ -60,6 +60,7 @@ using MediaType = cricket::MediaType;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
+using RtpSenderInterface = rtc::scoped_refptr<webrtc::RtpSenderInterface>;
 
 struct Transceivers;
 
@@ -291,5 +292,16 @@ void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
 // Stops the `RtpTransceiverInterface`.
 void stop_transceiver(const RtpTransceiverInterface& transceiver,
                       rust::String& error);
+
+std::unique_ptr<RtpSenderInterface> get_sender(
+    const RtpTransceiverInterface& transceiver);
+
+bool set_sender_video_track(const RtpSenderInterface& sender,
+                            const VideoTrackInterface& track);
+
+bool set_sender_audio_track(const RtpSenderInterface& sender,
+                            const AudioTrackInterface& track);
+
+std::string asd(const RtpSenderInterface& sender);
 
 }  // namespace bridge

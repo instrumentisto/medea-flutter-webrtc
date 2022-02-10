@@ -6,7 +6,7 @@ use libwebrtc_sys as sys;
 
 use crate::{
     internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
-    next_id, Webrtc,
+    next_id, AudioTrackId, VideoTrackId, Webrtc,
 };
 
 use crate::api::TransceiverInfo;
@@ -411,6 +411,40 @@ impl Webrtc {
             .transceivers
             .remove(&TransceiverId(transceiver_id))
             .unwrap();
+    }
+
+    pub fn set_track_on_sender(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+        track_id: u64,
+    ) {
+        let peer = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
+
+        let transceiver = peer
+            .transceivers
+            .get(&TransceiverId(transceiver_id))
+            .unwrap();
+
+        if self.0.video_tracks.contains_key(&VideoTrackId(track_id)) {
+            transceiver
+                .set_video_track(
+                    self.0.video_tracks.get(&VideoTrackId(track_id)).unwrap(),
+                )
+                .unwrap();
+        } else if self.0.audio_tracks.contains_key(&AudioTrackId(track_id)) {
+            transceiver
+                .set_audio_track(
+                    self.0.audio_tracks.get(&AudioTrackId(track_id)).unwrap(),
+                )
+                .unwrap();
+        } else {
+            unreachable!();
+        }
     }
 }
 

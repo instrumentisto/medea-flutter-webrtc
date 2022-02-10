@@ -226,6 +226,7 @@ pub(crate) mod webrtc {
         type MediaType;
         type RtpTransceiverDirection;
         type RtpTransceiverInterface;
+        type RtpSenderInterface;
 
         /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -363,6 +364,12 @@ pub(crate) mod webrtc {
 
         /// Stops the [`Transceiver`].
         pub fn stop_transceiver(transceiver: &RtpTransceiverInterface, error: &mut String);
+
+        pub fn get_sender(transceiver: &RtpTransceiverInterface) -> UniquePtr<RtpSenderInterface>;
+
+        pub fn set_sender_video_track(transceiver: &RtpSenderInterface, track: &VideoTrackInterface) -> bool;
+
+        pub fn set_sender_audio_track(transceiver: &RtpSenderInterface, track: &AudioTrackInterface) -> bool;
     }
 
     unsafe extern "C++" {
