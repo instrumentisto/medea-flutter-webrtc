@@ -9,10 +9,9 @@ class WebMediaStreamTrack extends MediaStreamTrack {
 
   final html.MediaStreamTrack jsTrack;
 
-  // TODO(#31): Fix deviceId functional for Web
   @override
   String deviceId() {
-    return jsTrack.id!;
+    return jsTrack.getSettings()['deviceId']!;
   }
 
   @override
