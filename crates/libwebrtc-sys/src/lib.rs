@@ -4,7 +4,6 @@
 mod bridge;
 
 use anyhow::bail;
-use bridge::webrtc::get_transceiver_ptr;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 pub use bridge::webrtc::{MediaType, RtpTransceiverDirection};
@@ -442,20 +441,20 @@ pub struct Transceiver(UniquePtr<webrtc::RtpTransceiverInterface>);
 impl Transceiver {
     /// Returns [`Transceiver`]'s `mid`.
     #[must_use]
-    pub fn mid(&self) -> String {
-        webrtc::get_transceiver_mid(&self.0)
+    pub fn mid(&self) -> Option<String> {
+        let mid = webrtc::get_transceiver_mid(&self.0);
+
+        if mid.is_empty() {
+            None
+        } else {
+            Some(mid)
+        }
     }
 
     /// Returns [`Transceiver`]'s `direction`.
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
         webrtc::get_transceiver_direction(&self.0)
-    }
-}
-
-impl PartialEq for Transceiver {
-    fn eq(&self, other: &Self) -> bool {
-        get_transceiver_ptr(&self.0) == get_transceiver_ptr(&other.0)
     }
 }
 

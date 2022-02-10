@@ -520,11 +520,11 @@ pub(crate) mod webrtc {
         /// [1]: https://tinyurl.com/2p88ajym
         pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Vec<TransceiverWrapper>;
 
-        /// Gets [`Transceiver`]'s `mid`.
+        /// Returns [`Transceiver`]'s `mid`.
+        ///
+        /// If an empty [`String`] is returned, then the given [`Transceiver`]
+        /// was not negotiated yet.
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;
-
-        /// Gets the [`Transceiver`]'s `pointer` as `usize`, used to compare [`Transceiver`]s.
-        pub fn get_transceiver_ptr(transceiver: &RtpTransceiverInterface) -> usize;
 
         /// Gets the [`Transceiver`]'s [`RtpTransceiverDirection`].
         pub fn get_transceiver_direction(transceiver: &RtpTransceiverInterface) -> RtpTransceiverDirection;

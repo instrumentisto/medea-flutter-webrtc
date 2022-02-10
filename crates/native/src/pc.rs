@@ -221,7 +221,7 @@ impl Webrtc {
 
         let result = api::RtcRtpTransceiver {
             id: peer.transceivers.len() as u64,
-            mid: transceiver.mid(),
+            mid: transceiver.mid().unwrap_or_default(),
             direction: transceiver.direction().to_string(),
         };
 
@@ -250,20 +250,17 @@ impl Webrtc {
         let mut transceivers = peer.inner.get_transceivers();
         transceivers.reverse();
 
-        let mut result = Vec::new();
+        let mut result = Vec::with_capacity(transceivers.len());
 
-        for index in 0..transceivers.len() as u64 {
-            let transceiver = transceivers.pop().unwrap();
-
+        for (index, transceiver) in transceivers.into_iter().enumerate() {
             let info = api::RtcRtpTransceiver {
                 id: index as u64,
-                mid: transceiver.mid(),
+                mid: transceiver.mid().unwrap_or_default(),
                 direction: transceiver.direction().to_string(),
             };
-
             result.push(info);
 
-            if index == peer.transceivers.len() as u64 {
+            if index == peer.transceivers.len() {
                 peer.transceivers.push(transceiver);
             }
         }

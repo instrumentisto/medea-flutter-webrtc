@@ -204,5 +204,5 @@ test.cargo: cargo.test
 .PHONY: build deps docs fmt lint run test \
         cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
         docs.rust \
-        flutter.build flutter.pub flutter.run \
+        flutter.build flutter.pub flutter.run flutter.test \
         test.cargo \
