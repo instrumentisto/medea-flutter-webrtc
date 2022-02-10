@@ -523,9 +523,6 @@ pub(crate) mod webrtc {
         /// Gets [`Transceiver`]'s `mid`.
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;
 
-        /// Gets the [`Transceiver`]'s `pointer` as `usize`, used to compare [`Transceiver`]s.
-        pub fn get_transceiver_ptr(transceiver: &RtpTransceiverInterface) -> usize;
-
         /// Gets the [`Transceiver`]'s [`RtpTransceiverDirection`].
         pub fn get_transceiver_direction(transceiver: &RtpTransceiverInterface) -> RtpTransceiverDirection;
     }

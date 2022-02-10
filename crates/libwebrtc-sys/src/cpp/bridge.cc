@@ -484,11 +484,6 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
-// Calls `rtc::scoped_refptr<webrtc::RtpTransceiverInterface>::get`.
-size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver) {
-  return (size_t)transceiver.get();
-}
-
 // Calls `RtpTransceiverInterface::direction`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {

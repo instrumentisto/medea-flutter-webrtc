@@ -310,9 +310,6 @@ rust::Vec<TransceiverWrapper> get_transceivers(
 // Gets the `Transceiver`'s `mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
-// Gets the `pointer` of the `Transceiver`'s `scoped_refpt`.
-size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver);
-
 // Gets the `Transceiver`'s `direction`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
