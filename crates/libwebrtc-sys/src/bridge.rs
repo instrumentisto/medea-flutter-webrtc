@@ -3,10 +3,7 @@ use std::fmt;
 use anyhow::anyhow;
 use cxx::{CxxString, UniquePtr};
 
-use crate::{
-    create_transceivers, CreateSdpCallback, OnFrameCallback,
-    SetDescriptionCallback, Transceivers,
-};
+use crate::{CreateSdpCallback, OnFrameCallback, SetDescriptionCallback};
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
@@ -93,6 +90,10 @@ pub(crate) mod webrtc {
         kVideoRotation_90 = 90,
         kVideoRotation_180 = 180,
         kVideoRotation_270 = 270,
+    }
+
+    pub struct TransceiverWrapper {
+        pub ptr: UniquePtr<RtpTransceiverInterface>,
     }
 
     #[rustfmt::skip]
@@ -195,19 +196,6 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
-    }
-
-    extern "Rust" {
-        type Transceivers;
-
-        /// Adds a new [`RtpTransceiverInterface`].
-        pub fn add(
-            self: &mut Transceivers,
-            transceiver: UniquePtr<RtpTransceiverInterface>,
-        );
-
-        /// Creates a new `boxed` [`Transceivers`].
-        pub fn create_transceivers() -> Box<Transceivers>;
     }
 
     #[rustfmt::skip]
@@ -347,7 +335,7 @@ pub(crate) mod webrtc {
         /// Gets information about [`PeerConnectionInterface`]'s [`RTCRtpTransceiver`][1]s.
         ///
         /// [1]: https://tinyurl.com/2p88ajym
-        pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Box<Transceivers>;
+        pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Vec<TransceiverWrapper>;
 
         /// Gets [`Transceiver`]'s `mid`.
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;

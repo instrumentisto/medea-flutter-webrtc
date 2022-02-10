@@ -427,11 +427,14 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
 
 // Calls `PeerConnectionInterface->GetTransceivers`, writes `RtpTransceiver`'s
 // info to Rust structure `Transceivers`.
-rust::Box<Transceivers> get_transceivers(const PeerConnectionInterface& peer) {
-  auto transceivers = create_transceivers();
+rust::Vec<TransceiverWrapper> get_transceivers(
+    const PeerConnectionInterface& peer) {
+  rust::Vec<TransceiverWrapper> transceivers;
 
   for (auto transceiver : peer->GetTransceivers()) {
-    transceivers->add(std::make_unique<RtpTransceiverInterface>(transceiver));
+    TransceiverWrapper wrapper;
+    wrapper.ptr = std::make_unique<RtpTransceiverInterface>(transceiver);
+    transceivers.emplace_back(wrapperok);
   }
 
   return transceivers;

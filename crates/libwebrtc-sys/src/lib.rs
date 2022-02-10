@@ -377,40 +377,6 @@ impl PartialEq for Transceiver {
     }
 }
 
-/// A struct contains a [`Vec`] of [`Transceiver`]s.
-#[allow(clippy::box_collection)]
-pub struct Transceivers(Box<Vec<Transceiver>>);
-
-impl Transceivers {
-    /// Adds a new [`Transceiver`].
-    pub fn add(
-        &mut self,
-        transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
-    ) {
-        self.0.push(Transceiver(transceiver));
-    }
-}
-
-impl Deref for Transceivers {
-    type Target = Vec<Transceiver>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for Transceivers {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-/// Creates a new `boxed` [`Transceivers`].
-#[must_use]
-pub fn create_transceivers() -> Box<Transceivers> {
-    Box::new(Transceivers(Box::new(Vec::new())))
-}
-
 /// [RTCPeerConnection][1] implementation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
@@ -479,7 +445,8 @@ impl PeerConnectionInterface {
     /// Gets the [`Transceiver`]s.
     #[must_use]
     pub fn get_transceivers(&self) -> Box<Transceivers> {
-        webrtc::get_transceivers(&self.0)
+        webrtc::get_transceivers(&self.0);
+        Box::new(Transceivers(Box::new(Vec::new())))
     }
 }
 

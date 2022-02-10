@@ -61,7 +61,7 @@ using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
 
-struct Transceivers;
+struct TransceiverWrapper;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -271,7 +271,8 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     RtpTransceiverDirection direction);
 
 // Gets the `PeerConnection`'s `RtpTransceiver`s info to Rust `Transceivers`.
-rust::Box<Transceivers> get_transceivers(const PeerConnectionInterface& peer);
+rust::Vec<TransceiverWrapper> get_transceivers(
+    const PeerConnectionInterface& peer);
 
 // Gets the `Transceiver`'s `mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
