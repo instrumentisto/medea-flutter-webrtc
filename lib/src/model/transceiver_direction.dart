@@ -15,5 +15,7 @@ enum TransceiverDirection {
   /// any media data.
   INACTIVE,
 
-  // TODO(#31): stopped?
+  /// The Transceiver will neither send nor receive RTP. It will generate a
+  /// zero port in the offer.
+  STOPPED,
 }
