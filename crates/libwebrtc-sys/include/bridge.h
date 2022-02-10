@@ -327,10 +327,10 @@ std::unique_ptr<RtpSenderInterface> get_sender(
     const RtpTransceiverInterface& transceiver);
 
 bool set_sender_video_track(const RtpSenderInterface& sender,
-                            const VideoTrackInterface& track);
+                            const std::unique_ptr<VideoTrackInterface>& track);
 
 bool set_sender_audio_track(const RtpSenderInterface& sender,
-                            const AudioTrackInterface& track);
+                            const std::unique_ptr<AudioTrackInterface>& track);
 
 bool is_track_in_sender(const RtpSenderInterface& sender);
 

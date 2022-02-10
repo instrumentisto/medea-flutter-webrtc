@@ -14,9 +14,11 @@ abstract class RTCRtpSender {
 
   // Future<void> replaceTrack(MediaStreamTrack track);
 
-  Future<void> setTrack(MediaStreamTrack track, {bool takeOwnership = true});
+  Future<void> setTrack(MediaStreamTrack? track);
 
   Future<List<StatsReport>> getStats();
+
+  Future<bool> hasTrack();
 
   // RTCRtpParameters get parameters;
 

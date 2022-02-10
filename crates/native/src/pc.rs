@@ -1,6 +1,7 @@
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
+use std::str::FromStr;
 
 use crate::{
     api::{self, PeerConnectionObserverInterface},
@@ -381,7 +382,7 @@ impl Webrtc {
         &mut self,
         peer_id: u64,
         transceiver_id: u64,
-        track_id: u64,
+        track_id: &str,
     ) {
         let peer = self
             .0
@@ -392,21 +393,62 @@ impl Webrtc {
         let transceiver =
             peer.transceivers.get(transceiver_id as usize).unwrap();
 
-        if self.0.video_tracks.contains_key(&VideoTrackId(track_id)) {
-            transceiver
-                .set_video_track(
-                    self.0.video_tracks.get(&VideoTrackId(track_id)).unwrap(),
-                )
-                .unwrap();
-        } else if self.0.audio_tracks.contains_key(&AudioTrackId(track_id)) {
-            transceiver
-                .set_audio_track(
-                    self.0.audio_tracks.get(&AudioTrackId(track_id)).unwrap(),
-                )
-                .unwrap();
+        if !track_id.is_empty() {
+            match transceiver.media_type() {
+                sys::MediaType::MEDIA_TYPE_VIDEO => {
+                    transceiver
+                        .set_video_track(
+                            self.0
+                                .video_tracks
+                                .get(&VideoTrackId(
+                                    u64::from_str(track_id).unwrap(),
+                                ))
+                                .unwrap(),
+                        )
+                        .unwrap();
+                }
+                sys::MediaType::MEDIA_TYPE_AUDIO => {
+                    transceiver
+                        .set_audio_track(
+                            self.0
+                                .audio_tracks
+                                .get(&AudioTrackId(
+                                    u64::from_str(track_id).unwrap(),
+                                ))
+                                .unwrap(),
+                        )
+                        .unwrap();
+                }
+                _ => unreachable!(),
+            }
         } else {
-            unreachable!();
+            match transceiver.media_type() {
+                sys::MediaType::MEDIA_TYPE_VIDEO => {
+                    transceiver.set_no_video_track().unwrap();
+                }
+                sys::MediaType::MEDIA_TYPE_AUDIO => {
+                    transceiver.set_no_audio_track().unwrap();
+                }
+                _ => unreachable!(),
+            }
         }
+    }
+
+    pub fn sender_has_track(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+    ) -> bool {
+        let peer = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
+
+        let transceiver =
+            peer.transceivers.get(transceiver_id as usize).unwrap();
+
+        transceiver.is_track_in()
     }
 }
 

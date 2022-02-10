@@ -438,6 +438,7 @@ impl SetRemoteDescriptionObserver {
 /// [1]: https://tinyurl.com/2p88ajym
 pub struct Transceiver {
     ptr: UniquePtr<webrtc::RtpTransceiverInterface>,
+    media_type: MediaType,
     sender: UniquePtr<webrtc::RtpSenderInterface>,
 }
 
@@ -473,6 +474,16 @@ impl Transceiver {
         Ok(())
     }
 
+    #[must_use]
+    pub fn media_type(&self) -> MediaType {
+        self.media_type
+    }
+
+    #[must_use]
+    pub fn is_track_in(&self) -> bool {
+        webrtc::is_track_in_sender(&self.sender)
+    }
+
     /// Stops the [`Transceiver`].
     pub fn stop(&self) -> anyhow::Result<()> {
         let mut error = String::new();
@@ -504,11 +515,37 @@ impl Transceiver {
         Ok(())
     }
 
+    pub fn set_no_video_track(&self) -> anyhow::Result<()> {
+        let result =
+            webrtc::set_sender_video_track(&self.sender, &UniquePtr::null());
+
+        if !result {
+            bail!(
+                "Fails trying to set `track`, `track` type should be `video`."
+            );
+        }
+
+        Ok(())
+    }
+
     pub fn set_audio_track(
         &self,
         track: &AudioTrackInterface,
     ) -> anyhow::Result<()> {
         let result = webrtc::set_sender_audio_track(&self.sender, &track.0);
+
+        if !result {
+            bail!(
+                "Fails trying to set `track`, `track` type should be `audio`."
+            );
+        }
+
+        Ok(())
+    }
+
+    pub fn set_no_audio_track(&self) -> anyhow::Result<()> {
+        let result =
+            webrtc::set_sender_audio_track(&self.sender, &UniquePtr::null());
 
         if !result {
             bail!(
@@ -595,10 +632,12 @@ impl PeerConnectionInterface {
             direction,
         );
 
+        let media_type = webrtc::get_transceiver_type(&transceiver);
         let sender = webrtc::get_sender(&transceiver);
 
         Transceiver {
             ptr: transceiver,
+            media_type,
             sender,
         }
     }
@@ -609,9 +648,11 @@ impl PeerConnectionInterface {
         webrtc::get_transceivers(&self.inner)
             .into_iter()
             .map(|transceiver| {
+                let media_type = webrtc::get_transceiver_type(&transceiver.ptr);
                 let sender = webrtc::get_sender(&transceiver.ptr);
                 Transceiver {
                     ptr: transceiver.ptr,
+                    media_type,
                     sender,
                 }
             })

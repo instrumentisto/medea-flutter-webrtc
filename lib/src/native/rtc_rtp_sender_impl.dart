@@ -98,18 +98,32 @@ class RTCRtpSenderNative extends RTCRtpSender {
   }
 
   @override
-  Future<void> setTrack(MediaStreamTrack track,
-      {bool takeOwnership = true}) async {
+  Future<void> setTrack(MediaStreamTrack? track) async {
     try {
       await WebRTC.invokeMethod('rtpSenderSetTrack', <String, dynamic>{
         'peerConnectionId': _peerConnectionId,
         'transceiverId': _transceiverId,
         // 'rtpSenderId': _id,
-        'trackId': track.id,
+        'trackId': track != null ? track!.id : '',
         // 'takeOwnership': takeOwnership,
       });
     } on PlatformException catch (e) {
       throw 'Unable to RTCRtpSender::setTrack: ${e.message}';
+    }
+  }
+
+  @override
+  Future<bool> hasTrack() async {
+    try {
+      final response =
+          await WebRTC.invokeMethod('rtpSenderHasTrack', <String, dynamic>{
+        'peerConnectionId': _peerConnectionId,
+        'transceiverId': _transceiverId,
+      });
+
+      return response['hasTrack'];
+    } on PlatformException catch (e) {
+      throw 'Unable to RTCRtpSender::hasTrack: ${e.message}';
     }
   }
 

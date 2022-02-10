@@ -521,13 +521,23 @@ std::unique_ptr<RtpSenderInterface> get_sender(
 }
 
 bool set_sender_video_track(const RtpSenderInterface& sender,
-                            const VideoTrackInterface& track) {
-  return sender->SetTrack(track);
+                            const std::unique_ptr<VideoTrackInterface>& track) {
+  if (!track.get()) {
+    printf("123123123123");
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
 }
 
 bool set_sender_audio_track(const RtpSenderInterface& sender,
-                            const AudioTrackInterface& track) {
-  return sender->SetTrack(track);
+                            const std::unique_ptr<AudioTrackInterface>& track) {
+  if (!track.get()) {
+    printf("123123123123");
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
 }
 
 bool is_track_in_sender(const RtpSenderInterface& sender) {

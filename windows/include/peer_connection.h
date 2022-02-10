@@ -17,10 +17,9 @@ void CreateRTCPeerConnection(
 
 // Calls Rust `CreateOffer()` and writes the returned session description to the
 // provided `MethodResult`.
-void CreateOffer(
-    Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+void CreateOffer(Box<Webrtc>& webrtc,
+                 const flutter::MethodCall<EncodableValue>& method_call,
+                 std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Calls Rust `CreateAnswer()`and writes the returned session description to the
 // provided `MethodResult`.
@@ -84,6 +83,11 @@ void GetTransceiverMid(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 void SetTrackOnSender(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+void SenderHasTrack(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);

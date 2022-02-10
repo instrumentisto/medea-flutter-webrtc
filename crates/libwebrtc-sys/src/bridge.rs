@@ -537,9 +537,9 @@ pub(crate) mod webrtc {
 
         pub fn get_sender(transceiver: &RtpTransceiverInterface) -> UniquePtr<RtpSenderInterface>;
 
-        pub fn set_sender_video_track(sender: &RtpSenderInterface, track: &VideoTrackInterface) -> bool;
+        pub fn set_sender_video_track(sender: &RtpSenderInterface, track: &UniquePtr<VideoTrackInterface>) -> bool;
 
-        pub fn set_sender_audio_track(sender: &RtpSenderInterface, track: &AudioTrackInterface) -> bool;
+        pub fn set_sender_audio_track(sender: &RtpSenderInterface, track: &UniquePtr<AudioTrackInterface>) -> bool;
 
         pub fn is_track_in_sender(sender: &RtpSenderInterface) -> bool;
     }

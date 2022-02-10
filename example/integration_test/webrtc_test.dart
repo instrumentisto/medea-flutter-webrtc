@@ -119,7 +119,7 @@ void main() {
     expect(mid.isEmpty, equals(false));
   });
 
-  testWidgets('Get transceiver mid', (WidgetTester tester) async {
+  testWidgets('Set track', (WidgetTester tester) async {
     var pc = await createPeerConnection({});
     var init = RTCRtpTransceiverInit();
     init.direction = TransceiverDirection.SendRecv;
@@ -142,6 +142,16 @@ void main() {
 
     var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
+    expect(await trans.sender.hasTrack(), isFalse);
+
     await trans.sender.setTrack(stream.getVideoTracks()[0]);
+
+    expect(await trans.sender.hasTrack(), isTrue);
+
+    await trans.sender.setTrack(null);
+
+    await stream.dispose();
+
+    expect(await trans.sender.hasTrack(), isFalse);
   });
 }
