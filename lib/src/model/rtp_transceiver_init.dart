@@ -1,4 +1,4 @@
-import 'package:flutter_webrtc/src/model/transceiver_direction.dart';
+import '/src/model/transceiver_direction.dart';
 
 /// Init config for `RtpTransceiver` creation.
 class RtpTransceiverInit {

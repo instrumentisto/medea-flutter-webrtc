@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
-import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
-import 'package:flutter_webrtc/src/universal/media_stream_track.dart';
+import '/src/api/utils/channel_name_generator.dart';
+import '/src/universal/media_stream_track.dart';
 
 class RtpSender {
   /// Creates [RtpSender] based on the [Map] received from the native side.
@@ -20,7 +20,7 @@ class RtpSender {
   MediaStreamTrack? get track => _track;
 
   /// Sets [MediaStreamTrack] for this [RtpSender].
-  Future<void> setTrack(MediaStreamTrack? t) async {
+  Future<void> setTrack(MediaStreamTrack? t) async { // TODO(#31): replaceTrack?
     _track = t;
     await _methodChannel.invokeMethod('setTrack', {'trackId': t?.id()});
   }

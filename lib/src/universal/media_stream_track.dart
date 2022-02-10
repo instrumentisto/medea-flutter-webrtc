@@ -1,4 +1,4 @@
-import 'package:flutter_webrtc/src/model/media_kind.dart';
+import '/src/model/media_stream_track_state.dart';
 
 /// Abstract representation of the one media unit on native or web side.
 abstract class MediaStreamTrack {

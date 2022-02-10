@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 
-import 'package:flutter_webrtc/src/api/rtp_sender.dart';
-import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
-import 'package:flutter_webrtc/src/model/transceiver_direction.dart';
+import '/src/model/transceiver_direction.dart';
+import 'rtp_sender.dart';
+import 'utils/channel_name_generator.dart';
 
 class RtpTransceiver {
   /// Creates [RtpTransceiver] based on the [Map] received from the native side.

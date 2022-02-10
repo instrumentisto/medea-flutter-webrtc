@@ -69,6 +69,7 @@ enum FacingMode {
 
 /// Constraints related to the video.
 class VideoConstraints implements MediaConstraints {
+  // TODO(#31): height, width, fps
   /// Constraint which will search for device with some concrete device ID.
   String? deviceId;
 

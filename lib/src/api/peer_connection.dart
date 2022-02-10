@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import 'package:flutter_webrtc/src/api/rtp_transceiver.dart';
-import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
-import 'package:flutter_webrtc/src/model/ice_candidate.dart';
-import 'package:flutter_webrtc/src/model/media_type.dart';
-import 'package:flutter_webrtc/src/model/peer_connection_config.dart';
-import 'package:flutter_webrtc/src/model/peer_connections_states.dart';
-import 'package:flutter_webrtc/src/model/rtp_transceiver_init.dart';
-import 'package:flutter_webrtc/src/model/session_description.dart';
-import 'package:flutter_webrtc/src/universal/native/media_stream_track.dart';
+import '/src/api/utils/channel_name_generator.dart';
+import '/src/model/ice_candidate.dart';
+import '/src/model/media_stream_track_state.dart';
+import '/src/model/peer_connection_config.dart';
+import '/src/model/peer_connections_states.dart';
+import '/src/model/rtp_transceiver_init.dart';
+import '/src/model/session_description.dart';
+import '/src/universal/native/media_stream_track.dart';
+import 'rtp_transceiver.dart';
 
 /// [MethodChannel] used for the messaging with a native side.
 const _peerConnectionFactoryMethodChannel =
@@ -43,6 +43,10 @@ class PeerConnection {
 
   /// Listener for the all [PeerConnection] events received from the native side.
   void eventListener(dynamic event) {
+    // TODO(#31): onIceCandidateError
+    //            onIceGatheringStateChange
+    //            onNegotiationNeeded
+    //            onSignalingStateChange
     final dynamic e = event;
     switch (e['event']) {
       case 'onIceCandidate':
@@ -59,7 +63,7 @@ class PeerConnection {
         _connectionState = state;
         _onConnectionStateChange?.call(state);
         break;
-      case 'onAddTrack':
+      case 'onAddTrack': // TODO(#31): onTrack?
         dynamic track = e['track'];
         dynamic transceiver = e['transceiver'];
         _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
@@ -155,7 +159,7 @@ class PeerConnection {
 
   /// Adds new [RtpTransceiver] to this [PeerConnection].
   Future<RtpTransceiver> addTransceiver(
-      MediaType mediaType, RtpTransceiverInit init) async {
+      MediaKind mediaType, RtpTransceiverInit init) async {
     dynamic res = await _methodChannel.invokeMethod(
         'addTransceiver', {'mediaType': mediaType.index, 'init': init.toMap()});
     var transceiver = RtpTransceiver.fromMap(res);

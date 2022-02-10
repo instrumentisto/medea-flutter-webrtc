@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:flutter_webrtc/src/universal/native/video_renderer.dart';
+import '/src/universal/native/video_renderer.dart';
 import 'media_stream_track.dart';
 
 export 'native/video_renderer.dart'

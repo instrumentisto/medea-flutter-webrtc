@@ -1,9 +1,9 @@
 import 'package:flutter/services.dart';
 
-import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
-import 'package:flutter_webrtc/src/model/constraints.dart';
-import 'package:flutter_webrtc/src/model/media_device_info.dart';
-import 'package:flutter_webrtc/src/universal/native/media_stream_track.dart';
+import '/src/api/utils/channel_name_generator.dart';
+import '/src/model/constraints.dart';
+import '/src/model/media_device_info.dart';
+import '/src/universal/native/media_stream_track.dart';
 
 /// [MethodChannel] used for the messaging with a native side.
 const _mediaDevicesMethodChannel = MethodChannel('$CHANNEL_TAG/MediaDevices');
@@ -23,3 +23,4 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
       .invokeMethod('getUserMedia', {'constraints': constraints.toMap()});
   return res.map((t) => NativeMediaStreamTrack.fromMap(t)).toList();
 }
+// TODO(#31): getDisplayMedia

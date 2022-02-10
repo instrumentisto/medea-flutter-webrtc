@@ -14,4 +14,6 @@ enum TransceiverDirection {
   /// Indicates that Transceiver is inactive, neither sending nor receiving
   /// any media data.
   INACTIVE,
+
+  // TODO(#31): stopped?
 }

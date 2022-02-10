@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
-import 'package:flutter_webrtc/src/api/utils/channel_name_generator.dart';
-import 'package:flutter_webrtc/src/model/media_kind.dart';
+import '/src/api/utils/channel_name_generator.dart';
+import '/src/model/media_stream_track_state.dart';
 import '../media_stream_track.dart';
 
 /// Repesentation of the one media unit.

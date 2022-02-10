@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:html' as html;
 
-import 'package:flutter_webrtc/src/model/media_kind.dart';
+import '/src/model/media_stream_track_state.dart';
 import '../media_stream_track.dart';
 
 class WebMediaStreamTrack extends MediaStreamTrack {
@@ -9,7 +9,7 @@ class WebMediaStreamTrack extends MediaStreamTrack {
 
   final html.MediaStreamTrack jsTrack;
 
-  // TODO(evdokimovs): Fix deviceId functional for Web
+  // TODO(#31): Fix deviceId functional for Web
   @override
   String deviceId() {
     return jsTrack.id!;
