@@ -1,7 +1,8 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/src/model/display_constraints.dart';
 
 import '/src/api/utils/channel_name_generator.dart';
-import '/src/model/constraints.dart';
+import '/src/model/device_constraints.dart';
 import '/src/model/media_device_info.dart';
 import '/src/universal/native/media_stream_track.dart';
 
@@ -16,11 +17,17 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
 }
 
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on
-/// the provided [Constraints].
+/// the provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(
-    Constraints constraints) async {
+    DeviceConstraints constraints) async {
   List<dynamic> res = await _mediaDevicesMethodChannel
       .invokeMethod('getUserMedia', {'constraints': constraints.toMap()});
   return res.map((t) => NativeMediaStreamTrack.fromMap(t)).toList();
 }
-// TODO(#31): getDisplayMedia
+
+/// Returns list of local display [NativeMediaStreamTrack]s based on
+/// the provided [DisplayConstraints].
+Future<List<NativeMediaStreamTrack>> getDisplayMedia(DisplayConstraints constraints) async {
+  List<dynamic> res = await _mediaDevicesMethodChannel.invokeMethod('getDisplayMedia', {'constraints': constraints.toMap()});
+  return res.map((t) => NativeMediaStreamTrack.fromMap(t)).toList();
+}

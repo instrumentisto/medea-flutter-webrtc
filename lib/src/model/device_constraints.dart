@@ -1,10 +1,10 @@
-/// Audio and video constraints data.
-class Constraints {
+/// Device audio and video constraints data.
+class DeviceConstraints {
   /// Optional constraints with which audio devices will be lookuped.
-  ConstraintMap<AudioConstraints> audio = ConstraintMap();
+  DeviceConstraintMap<AudioConstraints> audio = DeviceConstraintMap();
 
   /// Optional constraints with which video devices will be lookuped.
-  ConstraintMap<VideoConstraints> video = ConstraintMap();
+  DeviceConstraintMap<DeviceVideoConstraints> video = DeviceConstraintMap();
 
   /// Converts this model to the [Map] expected by Flutter.
   Map<String, dynamic> toMap() {
@@ -15,8 +15,8 @@ class Constraints {
   }
 }
 
-/// Abstract constraint property.
-class ConstraintMap<T extends MediaConstraints> {
+/// Abstract device constraint property.
+class DeviceConstraintMap<T extends DeviceMediaConstraints> {
   /// Storage for the mandatory constraint.
   T? mandatory;
 
@@ -32,14 +32,14 @@ class ConstraintMap<T extends MediaConstraints> {
   }
 }
 
-/// Some abstract constraints.
-abstract class MediaConstraints {
-  /// Converts [MediaConstraints] to the [Map] expected by Flutter.
+/// Some device abstract constraints.
+abstract class DeviceMediaConstraints {
+  /// Converts [DeviceMediaConstraints] to the [Map] expected by Flutter.
   Map<String, dynamic> toMap();
 }
 
-/// [MediaConstraints] for the audio devices.
-class AudioConstraints implements MediaConstraints {
+/// [DeviceMediaConstraints] for the audio devices.
+class AudioConstraints implements DeviceMediaConstraints {
   String? deviceId;
 
   /// Converts this model to the [Map] expected by Flutter.
@@ -67,8 +67,8 @@ enum FacingMode {
   environment,
 }
 
-/// Constraints related to the video.
-class VideoConstraints implements MediaConstraints {
+/// Device constraints related to the video.
+class DeviceVideoConstraints implements DeviceMediaConstraints {
   // TODO(#31): height, width, fps
   /// Constraint which will search for device with some concrete device ID.
   String? deviceId;
