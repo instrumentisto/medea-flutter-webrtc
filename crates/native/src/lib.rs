@@ -157,7 +157,8 @@ pub mod api {
     /// and an `RtcRtpReceiver`, along with some shared state.
     #[derive(Clone, Debug, Eq, Hash, PartialEq)]
     pub struct RtcRtpTransceiver {
-        /// Unique ID of this [`RtcRtpTransceiver`].
+        /// ID of this [`RtcRtpTransceiver`]. It is not unique across all
+        /// transceivers but only within specific peer.
         pub id: u64,
 
         /// The negotiated media ID (mid) which the local and remote peers have
