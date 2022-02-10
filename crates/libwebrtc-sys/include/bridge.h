@@ -277,8 +277,10 @@ rust::Box<Transceivers> get_transceivers(const PeerConnectionInterface& peer);
 // Gets the `Transceiver`'s `mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
-// Gets the `pointer` of the `Transceiver`'s `scoped_refpt`.
-size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver);
+MediaType get_stransceiver_type(const RtpTransceiverInterface& transceiver)
+
+    // Gets the `pointer` of the `Transceiver`'s `scoped_refpt`.
+    size_t get_transceiver_ptr(const RtpTransceiverInterface& transceiver);
 
 // Gets the `Transceiver`'s `direction`.
 RtpTransceiverDirection get_transceiver_direction(
@@ -301,7 +303,5 @@ bool set_sender_video_track(const RtpSenderInterface& sender,
 
 bool set_sender_audio_track(const RtpSenderInterface& sender,
                             const AudioTrackInterface& track);
-
-std::string asd(const RtpSenderInterface& sender);
 
 }  // namespace bridge

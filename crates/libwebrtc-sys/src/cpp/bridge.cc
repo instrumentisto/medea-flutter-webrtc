@@ -489,4 +489,8 @@ bool set_sender_audio_track(const RtpSenderInterface& sender,
   return sender->SetTrack(track);
 }
 
+MediaType get_stransceiver_type(const RtpTransceiverInterface& transceiver) {
+  return transceiver->media_type();
+}
+
 }  // namespace bridge

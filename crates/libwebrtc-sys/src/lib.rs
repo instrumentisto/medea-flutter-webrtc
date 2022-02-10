@@ -357,6 +357,7 @@ impl SetRemoteDescriptionObserver {
 /// [1]: https://tinyurl.com/2p88ajym
 pub struct Transceiver {
     ptr: UniquePtr<webrtc::RtpTransceiverInterface>,
+    media_type: MediaType,
     sender: UniquePtr<webrtc::RtpSenderInterface>,
 }
 
@@ -456,9 +457,9 @@ impl Transceivers {
         transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
     ) {
         let sender = webrtc::get_sender(&transceiver);
-
-        self.0.push(Transceiver {
+        let media_type = webrtc::self.0.push(Transceiver {
             ptr: transceiver,
+            media_type: todo!(),
             sender,
         });
     }
@@ -911,5 +912,15 @@ impl VideoSinkInterface {
     #[must_use]
     pub fn create_forwarding(cb: Box<dyn OnFrameCallback>) -> Self {
         Self(webrtc::create_forwarding_video_sink(Box::new(cb)))
+    }
+}
+
+#[cfg(test)]
+mod asd {
+    use crate::bridge::webrtc::asd;
+
+    #[test]
+    fn name() {
+        asd();
     }
 }
