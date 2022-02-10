@@ -198,7 +198,10 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// May panic on getting [`PeerConnection`].
+    /// Panics if could not parse the given `media_type` and `direction` to a
+    /// valid [`sys::MediaType`] and [`sys::RtpTransceiverDirection`].
+    ///
+    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
     pub fn add_transceiver(
         &mut self,
         peer_id: u64,
@@ -233,7 +236,7 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// May panic on getting [`PeerConnection`].
+    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
     pub fn get_transceivers(
         &mut self,
         peer_id: u64,
@@ -247,7 +250,7 @@ impl Webrtc {
         let mut transceivers = peer.inner.get_transceivers();
         transceivers.reverse();
 
-        let mut out_info = Vec::new();
+        let mut result = Vec::new();
 
         for index in 0..transceivers.len() as u64 {
             let transceiver = transceivers.pop().unwrap();
@@ -258,14 +261,14 @@ impl Webrtc {
                 direction: transceiver.direction().to_string(),
             };
 
-            out_info.push(info);
+            result.push(info);
 
             if index == peer.transceivers.len() as u64 {
                 peer.transceivers.push(transceiver);
             }
         }
 
-        out_info
+        result
     }
 }
 
