@@ -10,4 +10,10 @@ enum MediaStreamTrackState {
 }
 
 /// Kind of media.
-enum MediaKind { Audio, Video } // TODO(#31): docs
+enum MediaKind {
+  /// Audio data.
+  Audio,
+
+  /// Video data.
+  Video
+}
