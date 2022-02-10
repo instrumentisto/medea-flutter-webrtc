@@ -288,7 +288,7 @@ impl Webrtc {
             .unwrap();
 
         peer.transceivers
-            .get(transceiver_id as usize)
+            .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .set_direction(direction.try_into().unwrap())
             .unwrap();
@@ -311,7 +311,7 @@ impl Webrtc {
             .unwrap();
 
         peer.transceivers
-            .get(transceiver_id as usize)
+            .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .mid()
     }
@@ -334,7 +334,7 @@ impl Webrtc {
             .unwrap();
 
         peer.transceivers
-            .get(transceiver_id as usize)
+            .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .direction()
             .to_string()
@@ -354,7 +354,7 @@ impl Webrtc {
             .unwrap();
 
         peer.transceivers
-            .get(transceiver_id as usize)
+            .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .stop()
             .unwrap();
@@ -375,7 +375,7 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .transceivers
-            .remove(transceiver_id as usize);
+            .remove(usize::try_from(transceiver_id).unwrap());
     }
 
     pub fn set_track_on_sender(
@@ -390,10 +390,22 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver =
-            peer.transceivers.get(transceiver_id as usize).unwrap();
+        let transceiver = peer
+            .transceivers
+            .get(usize::try_from(transceiver_id).unwrap())
+            .unwrap();
 
-        if !track_id.is_empty() {
+        if track_id.is_empty() {
+            match transceiver.media_type() {
+                sys::MediaType::MEDIA_TYPE_VIDEO => {
+                    transceiver.set_no_video_track().unwrap();
+                }
+                sys::MediaType::MEDIA_TYPE_AUDIO => {
+                    transceiver.set_no_audio_track().unwrap();
+                }
+                _ => unreachable!(),
+            }
+        } else {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
                     transceiver
@@ -421,16 +433,6 @@ impl Webrtc {
                 }
                 _ => unreachable!(),
             }
-        } else {
-            match transceiver.media_type() {
-                sys::MediaType::MEDIA_TYPE_VIDEO => {
-                    transceiver.set_no_video_track().unwrap();
-                }
-                sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    transceiver.set_no_audio_track().unwrap();
-                }
-                _ => unreachable!(),
-            }
         }
     }
 
@@ -445,8 +447,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver =
-            peer.transceivers.get(transceiver_id as usize).unwrap();
+        let transceiver = peer
+            .transceivers
+            .get(usize::try_from(transceiver_id).unwrap())
+            .unwrap();
 
         transceiver.is_track_in()
     }
