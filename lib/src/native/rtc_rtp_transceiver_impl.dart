@@ -9,6 +9,8 @@ import '../interface/rtc_rtp_receiver.dart';
 import '../interface/rtc_rtp_sender.dart';
 import '../interface/rtc_rtp_transceiver.dart';
 import 'media_stream_impl.dart';
+import 'rtc_rtp_receiver_impl.dart';
+import 'rtc_rtp_sender_impl.dart';
 import 'utils.dart';
 
 List<RTCRtpEncoding> listToRtpEncodings(List<Map<String, dynamic>> list) {
@@ -66,9 +68,9 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
   factory RTCRtpTransceiverNative.fromMap(Map<dynamic, dynamic> map,
       {required String peerConnectionId}) {
     var transceiver = RTCRtpTransceiverNative(
-        map['transceiverId'] ?? '',
+        map['transceiverId'],
         typeStringToRtpTransceiverDirection[map['direction']]!,
-        map['mid'] ?? '',
+        map['mid']!,
         // TODO: Implement Sender and Receiver.
         // RTCRtpSenderNative.fromMap(map['sender'],
         //     peerConnectionId: peerConnectionId),

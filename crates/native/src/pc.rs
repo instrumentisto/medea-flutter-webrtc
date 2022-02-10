@@ -1,27 +1,17 @@
 use std::collections::HashMap;
 
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 
 use crate::{
-    internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
+    api,
+    internal::{
+        CreateSdpCallbackInterface, PeerConnectionObserverInterface,
+        SetDescriptionCallbackInterface,
+    },
     next_id, Webrtc,
 };
-
-use crate::api::TransceiverInfo;
-
-/// Converts [`sys::RtpTransceiverDirection`] into [`String`].
-fn direction_to_string(direction: sys::RtpTransceiverDirection) -> String {
-    match direction {
-        sys::RtpTransceiverDirection::kSendRecv => "sendrecv".to_string(),
-        sys::RtpTransceiverDirection::kSendOnly => "sendonly".to_string(),
-        sys::RtpTransceiverDirection::kRecvOnly => "recvonly".to_string(),
-        sys::RtpTransceiverDirection::kInactive => "inactive".to_string(),
-        sys::RtpTransceiverDirection::kStopped => "stopped".to_string(),
-        _ => unreachable!(),
-    }
-}
 
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
@@ -29,9 +19,11 @@ impl Webrtc {
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
         self: &mut Webrtc,
+        obs: UniquePtr<PeerConnectionObserverInterface>,
         error: &mut String,
     ) -> u64 {
-        let peer = PeerConnection::new(&mut self.0.peer_connection_factory);
+        let peer =
+            PeerConnection::new(&mut self.0.peer_connection_factory, obs);
         match peer {
             Ok(peer) => self
                 .0
@@ -203,8 +195,8 @@ impl Webrtc {
         String::new()
     }
 
-    /// Creates and adds a [`sys::Transceiver`] to the [`PeerConnection`],
-    /// returns the [`TransceiverInfo`] of that [`sys::Transceiver`].
+    /// Creates a new [`api::RtcRtpTransceiver`] and adds it to the set of
+    /// transceivers of the specified [`PeerConnection`].
     ///
     /// # Panics
     ///
@@ -214,51 +206,41 @@ impl Webrtc {
         peer_id: u64,
         media_type: &str,
         direction: &str,
-    ) -> TransceiverInfo {
-        let media_type: sys::MediaType = match media_type {
-            "audio" => sys::MediaType::MEDIA_TYPE_AUDIO,
-            "video" => sys::MediaType::MEDIA_TYPE_VIDEO,
-            "data" => sys::MediaType::MEDIA_TYPE_DATA,
-            "unsupported" => sys::MediaType::MEDIA_TYPE_UNSUPPORTED,
-            _ => unreachable!(),
-        };
-
-        let direction: sys::RtpTransceiverDirection = match direction {
-            "sendrecv" => sys::RtpTransceiverDirection::kSendRecv,
-            "sendonly" => sys::RtpTransceiverDirection::kSendOnly,
-            "recvonly" => sys::RtpTransceiverDirection::kRecvOnly,
-            "stopped" => sys::RtpTransceiverDirection::kStopped,
-            "inactive" => sys::RtpTransceiverDirection::kInactive,
-            _ => unreachable!(),
-        };
-
+    ) -> api::RtcRtpTransceiver {
         let peer = self
             .0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver = peer.inner.add_transceiver(media_type, direction);
+        let transceiver = peer.inner.add_transceiver(
+            media_type.try_into().unwrap(),
+            direction.try_into().unwrap(),
+        );
 
-        let info = TransceiverInfo {
+        let result = api::RtcRtpTransceiver {
             id: next_id(),
             mid: transceiver.mid(),
-            direction: direction_to_string(transceiver.direction()),
+            direction: transceiver.direction().to_string(),
         };
 
         peer.transceivers
-            .insert(TransceiverId(info.id), transceiver);
+            .insert(TransceiverId(result.id), transceiver);
 
-        info
+        result
     }
 
-    /// Returns the [`sys::Transceiver`]'s of some [`PeerConnection`] according
-    /// to the given `id`.
+    /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the
+    /// RTP transceivers that are currently attached to this [`PeerConnection`]
+    /// object.
     ///
     /// # Panics
     ///
     /// May panic on getting [`PeerConnection`].
-    pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<TransceiverInfo> {
+    pub fn get_transceivers(
+        &mut self,
+        peer_id: u64,
+    ) -> Vec<api::RtcRtpTransceiver> {
         let peer = self
             .0
             .peer_connections
@@ -267,7 +249,7 @@ impl Webrtc {
 
         let mut transceivers = peer.inner.get_transceivers();
 
-        let mut out_info: Vec<TransceiverInfo> = Vec::new();
+        let mut out_info: Vec<_> = Vec::new();
 
         for _index in 0..transceivers.len() {
             let transceiver = transceivers.pop().unwrap();
@@ -279,10 +261,10 @@ impl Webrtc {
                 id = written_transceiver.0 .0;
             }
 
-            let info = TransceiverInfo {
+            let info = api::RtcRtpTransceiver {
                 id: if is_in { id } else { next_id() },
                 mid: transceiver.mid(),
-                direction: direction_to_string(transceiver.direction()),
+                direction: transceiver.direction().to_string(),
             };
 
             if !is_in {
@@ -321,10 +303,14 @@ impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
+        observer: UniquePtr<PeerConnectionObserverInterface>,
     ) -> anyhow::Result<Self> {
+        let observer = sys::PeerConnectionObserver::new(Box::new(
+            PeerConnectionObserver(observer),
+        ));
         let inner = factory.create_peer_connection_or_error(
             &sys::RTCConfiguration::default(),
-            sys::PeerConnectionDependencies::default(),
+            sys::PeerConnectionDependencies::new(observer),
         )?;
 
         Ok(Self {
@@ -359,5 +345,74 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 
     fn fail(&mut self, error: &CxxString) {
         self.0.pin_mut().on_set_description_fail(error);
+    }
+}
+
+/// [`PeerConnectionObserverInterface`] wrapper.
+struct PeerConnectionObserver(UniquePtr<PeerConnectionObserverInterface>);
+
+impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
+    fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_signaling_change(&new_state);
+    }
+
+    fn on_standardized_ice_connection_change(
+        &mut self,
+        new_state: sys::IceConnectionState,
+    ) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_ice_connection_state_change(&new_state);
+    }
+
+    fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_connection_state_change(&new_state);
+    }
+
+    fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_ice_gathering_change(&new_state);
+    }
+
+    fn on_negotiation_needed_event(&mut self, _: u32) {
+        self.0.pin_mut().on_negotiation_needed();
+    }
+
+    fn on_ice_candidate_error(
+        &mut self,
+        address: &CxxString,
+        port: i32,
+        url: &CxxString,
+        error_code: i32,
+        error_text: &CxxString,
+    ) {
+        self.0
+            .pin_mut()
+            .on_ice_candidate_error(address, port, url, error_code, error_text);
+    }
+
+    fn on_ice_connection_receiving_change(&mut self, _: bool) {
+        // This is a non-spec-compliant event.
+    }
+
+    fn on_ice_candidate(
+        &mut self,
+        candidate: *const sys::IceCandidateInterface,
+    ) {
+        let mut string =
+            unsafe { sys::ice_candidate_interface_to_string(candidate) };
+        self.0.pin_mut().on_ice_candidate(&string.pin_mut());
+    }
+
+    fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
+        // This is a non-spec-compliant event.
+    }
+
+    fn on_ice_selected_candidate_pair_changed(
+        &mut self,
+        _: &sys::CandidatePairChangeEvent,
+    ) {
+        // This is a non-spec-compliant event.
     }
 }
