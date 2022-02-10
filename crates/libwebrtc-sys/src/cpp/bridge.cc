@@ -462,7 +462,7 @@ int64_t get_estimated_disconnected_time_ms(
 // Calls `PeerConnectionInterface->AddTransceiver`.
 std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     PeerConnectionInterface& peer,
-    MediaType media_type,
+    cricket::MediaType media_type,
     RtpTransceiverDirection direction) {
   auto transceiver_init = webrtc::RtpTransceiverInit();
   transceiver_init.direction = direction;
@@ -478,9 +478,9 @@ rust::Vec<TransceiverContainer> get_transceivers(
 
   for (auto transceiver : peer->GetTransceivers()) {
     TransceiverContainer container = {
-        ptr: std::make_unique<RtpTransceiverInterface>(transceiver)
+        std::make_unique<RtpTransceiverInterface>(transceiver)
     };
-    transceivers.push_back(std::move(wrapper));
+    transceivers.push_back(std::move(container));
   }
 
   return transceivers;

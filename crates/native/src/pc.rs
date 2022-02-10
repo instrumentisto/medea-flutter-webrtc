@@ -247,9 +247,7 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let mut transceivers = peer.inner.get_transceivers();
-        transceivers.reverse();
-
+        let transceivers = peer.inner.get_transceivers();
         let mut result = Vec::with_capacity(transceivers.len());
 
         for (index, transceiver) in transceivers.into_iter().enumerate() {

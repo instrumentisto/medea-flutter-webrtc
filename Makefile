@@ -83,6 +83,7 @@ flutter.test:
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
 				  --target=integration_test/webrtc_test.dart \
+				  --profile \
 				  $(if $(call eq,$(device),),,-d $(device))
 
 

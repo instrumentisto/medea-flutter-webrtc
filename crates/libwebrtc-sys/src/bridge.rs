@@ -366,10 +366,9 @@ pub(crate) mod webrtc {
         #[namespace = "cricket"]
         pub type CandidatePairChangeEvent;
         pub type IceCandidateInterface;
+        pub type MediaType;
         #[namespace = "cricket"]
         type CandidatePair;
-        #[namespace = "cricket"]
-        pub type MediaType;
         type CreateSessionDescriptionObserver;
         type IceConnectionState;
         type IceGatheringState;

@@ -26,6 +26,8 @@ struct TransceiverContainer;
 using Thread = rtc::Thread;
 using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
 
+using MediaType = cricket::MediaType;
+
 using AudioLayer = webrtc::AudioDeviceModule::AudioLayer;
 using IceCandidateInterface = webrtc::IceCandidateInterface;
 using IceConnectionState = webrtc::PeerConnectionInterface::IceConnectionState;
