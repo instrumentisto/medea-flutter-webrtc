@@ -21,7 +21,7 @@ class IceCandidate {
   late String sdp;
 
   /// Converts this model to the [Map] expected by Flutter.
-  dynamic toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'sdpMid': sdpMid,
       'sdpMLineIndex': sdpMLineIndex,

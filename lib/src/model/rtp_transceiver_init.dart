@@ -12,7 +12,7 @@ class RtpTransceiverInit {
   late TransceiverDirection direction;
 
   /// Converts this model to the [Map] expected by Flutter.
-  dynamic toMap() {
+  Map<String, dynamic> toMap() {
     return {'direction': direction.index};
   }
 }

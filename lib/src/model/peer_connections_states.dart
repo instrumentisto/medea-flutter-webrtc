@@ -43,7 +43,7 @@ enum IceConnectionState {
 }
 
 /// Connection's ICE gathering state.
-enum IceGatheringState { // TODO(#31): not used anywhere
+enum IceGatheringState {
   /// The peer connection was just created and hasn't done any networking yet.
   new_,
 
@@ -59,7 +59,7 @@ enum IceGatheringState { // TODO(#31): not used anywhere
 
 /// State of the signaling process on the local end of the connection while
 /// connecting or reconnecting to another peer.
-enum SignalingState { // TODO(#31): not used anywhere
+enum SignalingState {
   /// There is no ongoing exchange of offer and answer underway.
   stable,
 

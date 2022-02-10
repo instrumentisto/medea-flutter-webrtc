@@ -7,7 +7,7 @@ class Constraints {
   ConstraintMap<VideoConstraints> video = ConstraintMap();
 
   /// Converts this model to the [Map] expected by Flutter.
-  dynamic toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'audio': audio.toMap(),
       'video': video.toMap(),
@@ -24,7 +24,7 @@ class ConstraintMap<T extends MediaConstraints> {
   T? optional;
 
   /// Converts this model to the [Map] expected by Flutter.
-  dynamic toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'mandatory': mandatory?.toMap(),
       'optional': optional?.toMap(),
@@ -35,7 +35,7 @@ class ConstraintMap<T extends MediaConstraints> {
 /// Some abstract constraints.
 abstract class MediaConstraints {
   /// Converts [MediaConstraints] to the [Map] expected by Flutter.
-  dynamic toMap();
+  Map<String, dynamic> toMap();
 }
 
 /// [MediaConstraints] for the audio devices.
@@ -44,8 +44,8 @@ class AudioConstraints implements MediaConstraints {
 
   /// Converts this model to the [Map] expected by Flutter.
   @override
-  dynamic toMap() {
-    var map = {};
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{};
     if (deviceId != null) {
       map['deviceId'] = deviceId;
     }
@@ -78,8 +78,8 @@ class VideoConstraints implements MediaConstraints {
 
   /// Converts this model to the [Map] expected by Flutter.
   @override
-  dynamic toMap() {
-    var map = {};
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{};
     if (deviceId != null) {
       map['deviceId'] = deviceId;
     }

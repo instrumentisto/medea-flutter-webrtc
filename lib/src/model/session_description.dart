@@ -36,7 +36,7 @@ class SessionDescription {
   late String description;
 
   /// Converts this model to the [Map] expected by Flutter.
-  dynamic toMap() { // TODO(#31): Map<String, dynamic>?
+  Map<String, dynamic> toMap() {
     return {
       'type': type.index,
       'description': description,
