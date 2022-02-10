@@ -9,14 +9,14 @@ import org.webrtc.MediaStreamTrack
  */
 enum class MediaStreamTrackState(val value: Int) {
     /**
-     * Indicates that the input is not giving any more data and will never provide new data.
-     */
-    ENDED(0),
-
-    /**
      * Indicates that an input is connected and does its best-effort in providing real-time data.
      */
-    LIVE(1);
+    LIVE(1),
+
+    /**
+     * Indicates that the input is not giving any more data and will never provide new data.
+     */
+    ENDED(0);
 
     companion object {
         /**
