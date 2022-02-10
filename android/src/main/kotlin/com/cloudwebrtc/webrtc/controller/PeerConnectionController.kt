@@ -48,10 +48,10 @@ class PeerConnectionController(
      * [PeerConnectionProxy] events observer which will send all events to the [eventSink].
      */
     private val eventObserver = object : PeerConnectionProxy.Companion.EventObserver {
-        override fun onAddTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
+        override fun onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
             eventSink?.success(
                     mapOf(
-                            "event" to "onAddTrack",
+                            "event" to "onTrack",
                             "track" to MediaStreamTrackController(messenger, track).asFlutterResult(),
                             "transceiver" to RtpTransceiverController(
                                     messenger,

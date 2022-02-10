@@ -57,7 +57,7 @@ class PeerObserver : PeerConnection.Observer {
                 for (trans in transceivers) {
                     if (trans.getReceiver().id() == receiver.id()) {
                         peer?.observableEventBroadcaster()
-                                ?.onAddTrack(MediaStreamTrackProxy(track), trans)
+                                ?.onTrack(MediaStreamTrackProxy(track), trans)
                     }
                 }
             }

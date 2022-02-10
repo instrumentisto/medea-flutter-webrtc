@@ -63,7 +63,7 @@ class PeerConnection {
         _connectionState = state;
         _onConnectionStateChange?.call(state);
         break;
-      case 'onAddTrack': // TODO(#31): onTrack?
+      case 'onTrack':
         dynamic track = e['track'];
         dynamic transceiver = e['transceiver'];
         _onTrack?.call(NativeMediaStreamTrack.fromMap(track),

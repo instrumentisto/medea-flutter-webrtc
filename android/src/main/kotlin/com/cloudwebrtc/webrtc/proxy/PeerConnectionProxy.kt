@@ -69,7 +69,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
              * @param track newly added [MediaStreamTrackProxy].
              * @param transceiver [RtpTransceiverProxy] of this [MediaStreamTrackProxy].
              */
-            fun onAddTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy)
+            fun onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy)
 
             /**
              * Notifies observer about [IceConnectionState] update.
@@ -201,11 +201,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      */
     internal fun observableEventBroadcaster(): EventObserver {
         return object : EventObserver {
-            override fun onAddTrack(
+            override fun onTrack(
                     track: MediaStreamTrackProxy,
                     transceiver: RtpTransceiverProxy
             ) {
-                eventObservers.forEach { it.onAddTrack(track, transceiver) }
+                eventObservers.forEach { it.onTrack(track, transceiver) }
             }
 
             override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
