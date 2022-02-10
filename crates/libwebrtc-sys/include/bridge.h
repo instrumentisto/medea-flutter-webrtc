@@ -21,6 +21,8 @@
 
 namespace bridge {
 
+struct TransceiverContainer;
+
 using Thread = rtc::Thread;
 using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
 
@@ -40,6 +42,7 @@ using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using VideoRotation = webrtc::VideoRotation;
+using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 
 using AudioDeviceModule = rtc::scoped_refptr<webrtc::AudioDeviceModule>;
 using AudioSourceInterface = rtc::scoped_refptr<webrtc::AudioSourceInterface>;
@@ -49,6 +52,8 @@ using PeerConnectionFactoryInterface =
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>;
 using PeerConnectionInterface =
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>;
+using RtpTransceiverInterface =
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
 using VideoTrackInterface = rtc::scoped_refptr<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface =
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>;
@@ -58,13 +63,6 @@ using CreateSessionDescriptionObserver =
 using PeerConnectionObserver = observer::PeerConnectionObserver;
 using SetLocalDescriptionObserver = observer::SetLocalDescriptionObserver;
 using SetRemoteDescriptionObserver = observer::SetRemoteDescriptionObserver;
-
-using MediaType = cricket::MediaType;
-using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
-using RtpTransceiverInterface =
-    rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
-
-struct TransceiverWrapper;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -294,20 +292,20 @@ std::unique_ptr<std::string> get_reason(
 int64_t get_estimated_disconnected_time_ms(
     const cricket::CandidatePairChangeEvent& event);
 
-// Adds a `RtpTransceiver` to the `PeerConnectionInterface`.
+// Adds a new `RtpTransceiver` to the `PeerConnectionInterface`.
 std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     PeerConnectionInterface& peer,
-    MediaType media_type,
+    cricket::MediaType media_type,
     RtpTransceiverDirection direction);
 
-// Gets the `PeerConnection`'s `RtpTransceiver`s.
-rust::Vec<TransceiverWrapper> get_transceivers(
+// Returns a list of `PeerConnection`'s `RtpTransceiver`s.
+rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer);
 
-// Gets the `Transceiver`'s `mid`.
+// Returns a `Transceiver`'s `mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
-// Gets the `Transceiver`'s `direction`.
+// Returns a `Transceiver`'s `direction`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
 

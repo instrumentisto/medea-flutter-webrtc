@@ -269,10 +269,6 @@ impl Webrtc {
     }
 }
 
-/// ID of a [`sys::Transceiver`].
-#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct TransceiverId(u64);
-
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 pub struct PeerConnectionId(u64);
@@ -286,7 +282,7 @@ pub struct PeerConnection {
     inner: sys::PeerConnectionInterface,
 
     /// The [`sys::Transceiver`]s of this [`PeerConnection`].
-    transceivers: Vec<sys::Transceiver>,
+    transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 
 impl PeerConnection {

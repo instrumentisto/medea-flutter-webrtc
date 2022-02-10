@@ -71,7 +71,7 @@ pub(crate) mod webrtc {
         kRollback,
     }
 
-    /// Possible variants of a [`RtpTransceiverInterface`] `media type`.
+    /// Possible kinds of an [`RtpTransceiverInterface`].
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum MediaType {
@@ -81,7 +81,9 @@ pub(crate) mod webrtc {
         MEDIA_TYPE_UNSUPPORTED,
     }
 
-    /// Possible variants of a [`RtpTransceiverInterface`]'s `direction`.
+    /// [RTCRtpTransceiverDirection][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum RtpTransceiverDirection {
@@ -102,7 +104,11 @@ pub(crate) mod webrtc {
         kVideoRotation_270 = 270,
     }
 
-    pub struct TransceiverWrapper {
+    // TODO: Remove when CXX allows using pointers to opaque types in vectors.
+    //       https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for [`RtpTransceiverInterface`] that can be used in Rust / C++
+    /// vectors.
+    struct TransceiverContainer {
         pub ptr: UniquePtr<RtpTransceiverInterface>,
     }
 
@@ -362,6 +368,8 @@ pub(crate) mod webrtc {
         pub type IceCandidateInterface;
         #[namespace = "cricket"]
         type CandidatePair;
+        #[namespace = "cricket"]
+        pub type MediaType;
         type CreateSessionDescriptionObserver;
         type IceConnectionState;
         type IceGatheringState;
@@ -371,15 +379,13 @@ pub(crate) mod webrtc {
         type PeerConnectionState;
         type RTCConfiguration;
         type RTCOfferAnswerOptions;
+        type RtpTransceiverDirection;
+        type RtpTransceiverInterface;
         type SdpType;
         type SessionDescriptionInterface;
         type SetLocalDescriptionObserver;
         type SetRemoteDescriptionObserver;
         type SignalingState;
-
-        type MediaType;
-        type RtpTransceiverDirection;
-        type RtpTransceiverInterface;
 
         /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
@@ -502,32 +508,34 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn candidate_to_string(candidate: &Candidate) -> UniquePtr<CxxString>;
 
-        /// Adds a new [`RTCRtpTransceiver`][1] to some [`PeerConnectionInterface`]. The [`RTCRtpTransceiver`][1]
-        /// interface represents a combination of a [`RTCRtpSender`][2] and
-        /// a [`RTCRtpReceiver`][3].
-        ///
-        /// [1]: https://tinyurl.com/2p88ajym
-        /// [2]: https://tinyurl.com/mr37vbjy
-        /// [3]: https://tinyurl.com/zfmc7ph3
+        /// Creates a new [`RtpTransceiverInterface`] and adds it to the set of
+        /// transceivers of the given [`PeerConnectionInterface`].
         pub fn add_transceiver(
             peer_connection_interface: Pin<&mut PeerConnectionInterface>,
             media_type: MediaType,
             direction: RtpTransceiverDirection
         ) -> UniquePtr<RtpTransceiverInterface>;
 
-        /// Gets information about [`PeerConnectionInterface`]'s [`RTCRtpTransceiver`][1]s.
-        ///
-        /// [1]: https://tinyurl.com/2p88ajym
-        pub fn get_transceivers(peer_connection_interface: &PeerConnectionInterface) -> Vec<TransceiverWrapper>;
+        /// Returns a sequence of [`RtpTransceiverInterface`] objects
+        /// representing the RTP transceivers that are currently attached to
+        /// this [`PeerConnectionInterface`] object.
+        pub fn get_transceivers(
+            peer_connection_interface: &PeerConnectionInterface
+        ) -> Vec<TransceiverContainer>;
 
-        /// Returns [`Transceiver`]'s `mid`.
+        /// Returns a `mid` of the given [`RtpTransceiverInterface`].
         ///
-        /// If an empty [`String`] is returned, then the given [`Transceiver`]
+        /// If an empty [`String`] is returned, then the given [`RtpTransceiverInterface`]
         /// was not negotiated yet.
-        pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;
+        pub fn get_transceiver_mid(
+            transceiver: &RtpTransceiverInterface
+        ) -> String;
 
-        /// Gets the [`Transceiver`]'s [`RtpTransceiverDirection`].
-        pub fn get_transceiver_direction(transceiver: &RtpTransceiverInterface) -> RtpTransceiverDirection;
+        /// Returns a [`RtpTransceiverDirection`] of the given
+        /// [`RtpTransceiverInterface`].
+        pub fn get_transceiver_direction(
+            transceiver: &RtpTransceiverInterface
+        ) -> RtpTransceiverDirection;
     }
 
     unsafe extern "C++" {

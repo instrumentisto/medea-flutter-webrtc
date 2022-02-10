@@ -6,8 +6,6 @@ mod bridge;
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
-pub use bridge::webrtc::{MediaType, RtpTransceiverDirection};
-
 use self::bridge::webrtc;
 
 pub use crate::webrtc::{
@@ -15,8 +13,9 @@ pub use crate::webrtc::{
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
     ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
     Candidate, CandidatePairChangeEvent, IceCandidateInterface,
-    IceConnectionState, IceGatheringState, PeerConnectionState, SdpType,
-    SignalingState, VideoFrame, VideoRotation,
+    IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
+    RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
+    VideoRotation,
 };
 
 /// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
@@ -433,13 +432,19 @@ impl SetRemoteDescriptionObserver {
     }
 }
 
-/// A struct contains [`RTCRtpTransceiver`][1]'s information.
+/// The [`RtpTransceiverInterface`] represents a combination of an [`RtpSender`]
+/// and an [`RtpReceiver`] that share a common
+/// [media stream "identification-tag"][1].
 ///
-/// [1]: https://tinyurl.com/2p88ajym
-pub struct Transceiver(UniquePtr<webrtc::RtpTransceiverInterface>);
+/// [`RtpSender`]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+/// [`RtpReceiver`]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+/// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
+pub struct RtpTransceiverInterface(UniquePtr<webrtc::RtpTransceiverInterface>);
 
-impl Transceiver {
-    /// Returns [`Transceiver`]'s `mid`.
+impl RtpTransceiverInterface {
+    /// Returns [`RtpTransceiverInterface`]'s [`mid`].
+    ///
+    /// [`mid`]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
     #[must_use]
     pub fn mid(&self) -> Option<String> {
         let mid = webrtc::get_transceiver_mid(&self.0);
@@ -451,7 +456,9 @@ impl Transceiver {
         }
     }
 
-    /// Returns [`Transceiver`]'s `direction`.
+    /// Returns [`RtpTransceiverInterface`]'s [`direction`].
+    ///
+    /// [`mid`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
         webrtc::get_transceiver_direction(&self.0)
@@ -519,27 +526,28 @@ impl PeerConnectionInterface {
         webrtc::set_remote_description(self.inner.pin_mut(), desc.0, obs.0);
     }
 
-    /// Adds a new [`RTCRtpTransceiver`][1].
-    ///
-    /// [1]: https://tinyurl.com/2p88ajym
+    /// Creates a new [`RtpTransceiverInterface`] and adds it to the set of
+    /// transceivers of the given [`PeerConnectionInterface`].
     pub fn add_transceiver(
         &mut self,
         media_type: MediaType,
         direction: RtpTransceiverDirection,
-    ) -> Transceiver {
-        Transceiver(webrtc::add_transceiver(
+    ) -> RtpTransceiverInterface {
+        RtpTransceiverInterface(webrtc::add_transceiver(
             self.inner.pin_mut(),
             media_type,
             direction,
         ))
     }
 
-    /// Gets the [`Transceiver`]s.
+    /// Returns a sequence of [`RtpTransceiverInterface`] objects representing
+    /// the RTP transceivers that are currently attached to this
+    /// [`PeerConnectionInterface`] object.
     #[must_use]
-    pub fn get_transceivers(&self) -> Vec<Transceiver> {
+    pub fn get_transceivers(&self) -> Vec<RtpTransceiverInterface> {
         webrtc::get_transceivers(&self.inner)
             .into_iter()
-            .map(|transceiver| Transceiver(transceiver.ptr))
+            .map(|transceiver| RtpTransceiverInterface(transceiver.ptr))
             .collect::<_>()
     }
 }
