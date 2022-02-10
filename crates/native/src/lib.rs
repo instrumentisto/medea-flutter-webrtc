@@ -180,6 +180,9 @@ pub mod api {
         type SetDescriptionCallbackInterface =
             crate::internal::SetDescriptionCallbackInterface;
 
+        type PeerConnectionObserverInterface =
+            crate::internal::PeerConnectionObserverInterface;
+
         type OnFrameCallbackInterface =
             crate::internal::OnFrameCallbackInterface;
 
@@ -207,6 +210,7 @@ pub mod api {
         #[cxx_name = "CreatePeerConnection"]
         pub fn create_peer_connection(
             self: &mut Webrtc,
+            cb: UniquePtr<PeerConnectionObserverInterface>,
             err: &mut String,
         ) -> u64;
 

@@ -11,10 +11,11 @@ namespace flutter_webrtc_plugin {
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
-          plugin->textures(),
-          plugin->messenger()) {
-  webrtc->SetOnDeviceChanged(
-      std::make_unique<DeviceChangeHandler>(plugin->messenger()));
+    plugin->textures(),
+    plugin->messenger()) {
+        messenger_ = plugin->messenger();
+        webrtc->SetOnDeviceChanged(
+            std::make_unique<DeviceChangeHandler>(plugin->messenger()));
 }
 
 FlutterWebRTC::~FlutterWebRTC() {}
@@ -25,7 +26,7 @@ void FlutterWebRTC::HandleMethodCall(
   const std::string& method = method_call.method_name();
 
   if (method.compare("createPeerConnection") == 0) {
-    CreateRTCPeerConnection(webrtc, method_call, std::move(result));
+    CreateRTCPeerConnection(webrtc, messenger_, method_call, std::move(result));
   } else if (method.compare("getSources") == 0) {
     EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
