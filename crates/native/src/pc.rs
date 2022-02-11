@@ -219,7 +219,7 @@ impl Webrtc {
 
         let result = api::RtcRtpTransceiver {
             id: peer.transceivers.len() as u64,
-            mid: transceiver.mid(),
+            mid: transceiver.mid().unwrap_or_default(),
             direction: transceiver.direction().to_string(),
         };
 
@@ -245,23 +245,18 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let mut transceivers = peer.inner.get_transceivers();
-        transceivers.reverse();
+        let transceivers = peer.inner.get_transceivers();
+        let mut result = Vec::with_capacity(transceivers.len());
 
-        let mut result = Vec::new();
-
-        for index in 0..transceivers.len() as u64 {
-            let transceiver = transceivers.pop().unwrap();
-
+        for (index, transceiver) in transceivers.into_iter().enumerate() {
             let info = api::RtcRtpTransceiver {
                 id: index as u64,
-                mid: transceiver.mid(),
+                mid: transceiver.mid().unwrap_or_default(),
                 direction: transceiver.direction().to_string(),
             };
-
             result.push(info);
 
-            if index == peer.transceivers.len() as u64 {
+            if index == peer.transceivers.len() {
                 peer.transceivers.push(transceiver);
             }
         }
@@ -310,10 +305,17 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        let mid = peer
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
-            .mid()
+            .mid();
+
+        if let Some(mid) = mid {
+            mid
+        } else {
+            String::new()
+        }
     }
 
     /// Returns the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`]
@@ -444,10 +446,6 @@ impl Webrtc {
     }
 }
 
-/// ID of a [`sys::Transceiver`].
-#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct TransceiverId(u64);
-
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 pub struct PeerConnectionId(u64);
@@ -461,7 +459,7 @@ pub struct PeerConnection {
     inner: sys::PeerConnectionInterface,
 
     /// The [`sys::Transceiver`]s of this [`PeerConnection`].
-    transceivers: Vec<sys::Transceiver>,
+    transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 
 impl PeerConnection {

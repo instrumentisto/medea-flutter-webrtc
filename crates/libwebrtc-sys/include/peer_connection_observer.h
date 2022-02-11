@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <optional>
+
 #include "api/peer_connection_interface.h"
 #include "rust/cxx.h"
 
@@ -137,7 +138,7 @@ class CreateSessionDescriptionObserver
 // Rust side.
 class SetLocalDescriptionObserver
     : public rtc::RefCountedObject<
-          webrtc::SetLocalDescriptionObserverInterface> {
+        webrtc::SetLocalDescriptionObserverInterface> {
  public:
   // Creates a new `SetLocalDescriptionObserver`.
   SetLocalDescriptionObserver(rust::Box<bridge::DynSetDescriptionCallback> cb);
@@ -154,7 +155,7 @@ class SetLocalDescriptionObserver
 // side.
 class SetRemoteDescriptionObserver
     : public rtc::RefCountedObject<
-          webrtc::SetRemoteDescriptionObserverInterface> {
+        webrtc::SetRemoteDescriptionObserverInterface> {
  public:
   // Creates a new `SetRemoteDescriptionObserver`.
   SetRemoteDescriptionObserver(rust::Box<bridge::DynSetDescriptionCallback> cb);

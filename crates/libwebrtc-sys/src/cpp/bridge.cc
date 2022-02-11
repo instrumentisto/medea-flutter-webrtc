@@ -456,7 +456,7 @@ int64_t get_estimated_disconnected_time_ms(
 // Calls `PeerConnectionInterface->AddTransceiver`.
 std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     PeerConnectionInterface& peer,
-    MediaType media_type,
+    cricket::MediaType media_type,
     RtpTransceiverDirection direction) {
   auto transceiver_init = webrtc::RtpTransceiverInit();
   transceiver_init.direction = direction;
@@ -466,20 +466,20 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
 }
 
 // Calls `PeerConnectionInterface->GetTransceivers`.
-rust::Vec<TransceiverWrapper> get_transceivers(
+rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer) {
-  rust::Vec<TransceiverWrapper> transceivers;
+  rust::Vec<TransceiverContainer> transceivers;
 
   for (auto transceiver : peer->GetTransceivers()) {
-    TransceiverWrapper wrapper;
-    wrapper.ptr = std::make_unique<RtpTransceiverInterface>(transceiver);
-    transceivers.push_back(std::move(wrapper));
+    TransceiverContainer container = {
+        std::make_unique<RtpTransceiverInterface>(transceiver)};
+    transceivers.push_back(std::move(container));
   }
 
   return transceivers;
 }
 
-// Calls `RtpTransceiverInterface::mid`.
+// Calls `PeerConnectionInterface->mid()`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
@@ -489,7 +489,7 @@ MediaType get_transceiver_type(const RtpTransceiverInterface& transceiver) {
   return transceiver->media_type();
 }
 
-// Calls `RtpTransceiverInterface::direction`.
+// Calls `PeerConnectionInterface->direction()`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->direction();
