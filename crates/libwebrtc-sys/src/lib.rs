@@ -474,6 +474,7 @@ impl Transceiver {
         Ok(())
     }
 
+    /// Gets the [`Transceiver`]'s [`MediaType`].
     #[must_use]
     pub fn media_type(&self) -> MediaType {
         self.media_type
@@ -495,6 +496,7 @@ impl Transceiver {
         Ok(())
     }
 
+    /// Sets the [`VideoTrackInterface`] to the [`webrtc::RtpSenderInterface`].
     pub fn set_video_track(
         &self,
         track: &VideoTrackInterface,
@@ -510,6 +512,7 @@ impl Transceiver {
         Ok(())
     }
 
+    /// Sets the [`VideoTrackInterface`] as `null` to the [`webrtc::RtpSenderInterface`].
     pub fn set_no_video_track(&self) -> anyhow::Result<()> {
         let result =
             webrtc::set_sender_video_track(&self.sender, &UniquePtr::null());
@@ -523,6 +526,7 @@ impl Transceiver {
         Ok(())
     }
 
+    /// Sets the [`AudioTrackInterface`] to the [`webrtc::RtpSenderInterface`].
     pub fn set_audio_track(
         &self,
         track: &AudioTrackInterface,
@@ -538,6 +542,7 @@ impl Transceiver {
         Ok(())
     }
 
+    /// Sets the [`AudioTrackInterface`] as `null` to the [`webrtc::RtpSenderInterface`].
     pub fn set_no_audio_track(&self) -> anyhow::Result<()> {
         let result =
             webrtc::set_sender_audio_track(&self.sender, &UniquePtr::null());

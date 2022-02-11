@@ -308,6 +308,7 @@ rust::Vec<TransceiverWrapper> get_transceivers(
 // Gets the `Transceiver`'s `mid`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
+// Gets the `Transceiver`'s `MediaType`.
 MediaType get_transceiver_type(const RtpTransceiverInterface& transceiver);
 
 // Gets the `Transceiver`'s `direction`.

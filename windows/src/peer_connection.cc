@@ -563,6 +563,7 @@ void GetTransceiverMid(
   result->Success(map);
 }
 
+// Calls Rust `SetTrackOnSender()`.
 void SetTrackOnSender(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

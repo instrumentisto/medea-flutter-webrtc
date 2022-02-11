@@ -102,6 +102,7 @@ pub(crate) mod webrtc {
         kVideoRotation_270 = 270,
     }
 
+    /// A wrapper for the [`RtpTransceiverInterface`].
     pub struct TransceiverWrapper {
         pub ptr: UniquePtr<RtpTransceiverInterface>,
     }
