@@ -115,6 +115,6 @@ void main() {
 
     mid = await trans.getMid();
 
-    expect(mid.isEmpty, equals('0'));
+    expect(mid, equals('0'));
   });
 }
