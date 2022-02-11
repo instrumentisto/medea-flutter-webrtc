@@ -419,7 +419,7 @@ impl Webrtc {
                         .replace_video_track(
                             self.0
                                 .video_tracks
-                                .get(&VideoTrackId(
+                                .get(&VideoTrackId::from(
                                     u64::from_str(track_id).unwrap(),
                                 ))
                                 .unwrap(),
@@ -431,7 +431,7 @@ impl Webrtc {
                         .replace_audio_track(
                             self.0
                                 .audio_tracks
-                                .get(&AudioTrackId(
+                                .get(&AudioTrackId::from(
                                     u64::from_str(track_id).unwrap(),
                                 ))
                                 .unwrap(),
