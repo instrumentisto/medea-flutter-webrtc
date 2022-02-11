@@ -54,22 +54,6 @@ pub(crate) mod webrtc {
         c: UniquePtr<Candidate>,
     }
 
-    /// [`MediaStreamInterface`] wrapper
-    /// for using in extern Rust [`Vec`].
-    pub struct MediaStreamInterfaceWrap {
-        m: UniquePtr<MediaStreamInterface>,
-    }
-
-    //todo
-    pub struct VideoTrackInterfaceWrap {
-        v: UniquePtr<VideoTrackInterface>,
-    }
-
-    //todo
-    pub struct AudioTrackInterfaceWrap {
-        a: UniquePtr<AudioTrackInterface>,
-    }
-
     // todo
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -388,6 +372,208 @@ pub(crate) mod webrtc {
 
     #[rustfmt::skip]
     unsafe extern "C++" {
+        include!("libwebrtc-sys/include/media_stream_track_interface_getters.h");
+        type MediaStreamTrackInterface;
+
+        #[must_use]
+        pub fn media_stream_track_interface_get_kind(
+            track: &MediaStreamTrackInterface,
+        ) -> UniquePtr<CxxString>;
+
+        #[must_use]
+        pub fn media_stream_track_interface_get_id(
+            track: &MediaStreamTrackInterface,
+        ) -> UniquePtr<CxxString>;
+
+        #[must_use]
+        pub fn media_stream_track_interface_get_state(
+            track: &MediaStreamTrackInterface,
+        ) -> TrackState;
+
+        #[must_use]
+        pub fn media_stream_track_interface_get_enabled(
+            track: &MediaStreamTrackInterface,
+        ) -> bool;
+    }
+
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        include!("libwebrtc-sys/include/rtp_codec_parameters_getters.h");
+
+        type MediaType;
+        type RtpCodecParameters;
+
+        #[must_use]
+        pub fn rtp_codec_parameters_get_name(
+            codec: &RtpCodecParameters,
+        ) -> UniquePtr<CxxString>;
+
+        #[must_use]
+        pub fn rtp_codec_parameters_get_payload_type(
+            codec: &RtpCodecParameters,
+        ) -> i32;
+
+        // todo optinoanl
+        pub fn rtp_codec_parameters_get_clock_rate(
+            codec: &RtpCodecParameters,
+        ) -> Result<i32>;
+
+        // todo
+        pub fn rtp_codec_parameters_get_num_channels(
+            codec: &RtpCodecParameters,
+        ) -> Result<i32>;
+
+        #[must_use]
+        pub fn rtp_codec_parameters_get_parameters(
+            codec: &RtpCodecParameters,
+        ) -> UniquePtr<CxxVector<StringPair>>;
+
+        #[must_use]
+        pub fn rtp_codec_parameters_get_kind(
+            codec: &RtpCodecParameters,
+        ) -> MediaType;
+    }
+
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        include!("libwebrtc-sys/include/rtp_receiver_interface_getters.h");
+
+        type RtpReceiverInterface;
+        #[must_use]
+        pub fn rtp_receiver_interface_get_streams(
+            receiver: &RtpReceiverInterface,
+        ) -> UniquePtr<CxxVector<MediaStreamInterface>>;
+
+        #[must_use]
+        pub fn rtp_receiver_interface_get_id(
+            receiver: &RtpReceiverInterface,
+        ) -> UniquePtr<CxxString>;
+
+        #[must_use]
+        pub fn rtp_receiver_interface_get_track(
+            receiver: &RtpReceiverInterface,
+        ) -> UniquePtr<MediaStreamTrackInterface>;
+
+        #[must_use]
+        pub fn rtp_receiver_interface_get_parameters(
+            receiver: &RtpReceiverInterface,
+        ) -> UniquePtr<RtpParameters>;
+    }
+
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        include!("libwebrtc-sys/include/rtp_sender_interface_getters.h");
+
+        type RtpSenderInterface;
+        #[must_use]
+        pub fn rtp_sender_interface_get_id(
+            sender: &RtpSenderInterface,
+        ) -> UniquePtr<CxxString>;
+
+        // may be null
+        #[must_use]
+        pub fn rtp_sender_interface_get_dtmf(
+            sender: &RtpSenderInterface,
+        ) -> UniquePtr<DtmfSenderInterface>;
+
+        #[must_use]
+        pub fn rtp_sender_interface_get_parameters(
+            sender: &RtpSenderInterface,
+        ) -> UniquePtr<RtpParameters>;
+
+        #[must_use]
+        pub fn rtp_sender_interface_get_track(
+            sender: &RtpSenderInterface,
+        ) -> UniquePtr<MediaStreamTrackInterface>;
+    }
+
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        include!("libwebrtc-sys/include/rtp_encoding_parameters_getters.h");
+
+        type RtpEncodingParameters;
+        #[must_use]
+        pub fn rtp_encoding_parameters_get_active(
+            encoding: &RtpEncodingParameters,
+        ) -> bool;
+
+        pub fn rtp_encoding_parameters_get_maxBitrate(
+            encoding: &RtpEncodingParameters,
+        ) -> Result<i32>;
+
+        pub fn rtp_encoding_parameters_get_minBitrate(
+            encoding: &RtpEncodingParameters,
+        ) -> Result<i32>;
+
+        pub fn rtp_encoding_parameters_get_maxFramerate(
+            encoding: &RtpEncodingParameters,
+        ) -> Result<f64>;
+
+        pub fn rtp_encoding_parameters_get_ssrc(
+            encoding: &RtpEncodingParameters,
+        ) -> Result<i64>;
+
+        pub fn rtp_encoding_parameters_get_scale_resolution_down_by(
+            encoding: &RtpEncodingParameters,
+        ) -> Result<f64>;
+    }
+
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        include!("libwebrtc-sys/include/rtp_parameters_getters.h");
+
+        type RtpParameters;
+        #[must_use]
+        pub fn rtp_parameters_get_transaction_id(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxString>;
+
+        #[must_use]
+        pub fn rtp_parameters_get_mid(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxString>;
+
+        #[must_use]
+        pub fn rtp_parameters_get_codecs(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxVector<RtpCodecParameters>>;
+
+        #[must_use]
+        pub fn rtp_parameters_get_header_extensions(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxVector<RtpExtension>>;
+
+        #[must_use]
+        pub fn rtp_parameters_get_encodings(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<CxxVector<RtpEncodingParameters>>;
+
+        #[must_use]
+        pub fn rtp_parameters_get_rtcp(
+            parameters: &RtpParameters,
+        ) -> UniquePtr<RtcpParameters>;
+    }
+
+
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        type DtmfSenderInterface;
+
+        #[must_use]
+        pub fn dtmf_sender_interface_get_duration(
+            dtmf: &DtmfSenderInterface,
+        ) -> i32;
+    
+        #[must_use]
+        pub fn dtmf_sender_interface_get_inter_tone_gap(
+            dtmf: &DtmfSenderInterface,
+        ) -> i32;
+    }
+
+
+
+    #[rustfmt::skip]
+    unsafe extern "C++" {
         type CreateSessionDescriptionObserver;
         type PeerConnectionDependencies;
         type PeerConnectionInterface;
@@ -407,11 +593,7 @@ pub(crate) mod webrtc {
         type Candidate;
         type CandidatePairChangeEvent;
         type CandidatePair;
-        type RtpReceiverInterface;
-        type MediaStreamTrackInterface;
         type TrackState;
-        type RtpTransceiverInterface;
-        type RtpSenderInterface;
 
 
         /// Creates a default [`RTCConfiguration`].
@@ -533,6 +715,29 @@ pub(crate) mod webrtc {
         pub fn candidate_to_string(candidate: &Candidate) -> UniquePtr<CxxString>;
     }
 
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        type RtpTransceiverInterface;
+        pub fn rtp_transceiver_interface_get_mid(
+            transceiver: &RtpTransceiverInterface,
+        ) -> Result<UniquePtr<CxxString>>;
+
+        #[must_use]
+        pub fn rtp_transceiver_interface_get_direction(
+            transceiver: &RtpTransceiverInterface,
+        ) -> RtpTransceiverDirection;
+
+        #[must_use]
+        pub fn rtp_transceiver_interface_get_sender(
+            transceiver: &RtpTransceiverInterface,
+        ) -> UniquePtr<RtpSenderInterface>;
+
+        #[must_use]
+        pub fn rtp_transceiver_interface_get_receiver(
+            transceiver: &RtpTransceiverInterface,
+        ) -> UniquePtr<RtpReceiverInterface>;
+    }
+
     unsafe extern "C++" {
         type AudioSourceInterface;
         type AudioTrackInterface;
@@ -543,14 +748,9 @@ pub(crate) mod webrtc {
         type VideoFrame;
         type VideoSinkInterface;
         type VideoRotation;
-        type RtpParameters;
-        type RtpCodecParameters;
         type RtpExtension;
-        type RtpEncodingParameters;
         type RtcpParameters;
-        type MediaType;
         type RtpTransceiverDirection;
-        type DtmfSenderInterface;
 
         /// Creates a new [`VideoTrackSourceInterface`].
         pub fn create_video_source(
@@ -592,6 +792,18 @@ pub(crate) mod webrtc {
             peer_connection_factory: &MediaStreamInterface,
             track: &VideoTrackInterface,
         ) -> bool;
+
+        // todo
+        #[must_use]
+        pub fn audio_track_get_sourse(
+            track: &AudioTrackInterface,
+        ) -> UniquePtr<AudioSourceInterface>;
+
+        // todo
+        #[must_use]
+        pub fn video_track_get_sourse(
+            track: &VideoTrackInterface,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
 
         /// Adds the [`AudioTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_audio_track(
@@ -678,25 +890,6 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn get_remote_candidate(pair: &CandidatePair) -> &Candidate;
 
-        #[must_use]
-        pub fn rtp_transceiver_interface_get_receiver(
-            transceiver: &RtpTransceiverInterface,
-        ) -> UniquePtr<RtpReceiverInterface>;
-
-        #[must_use]
-        pub fn rtp_receiver_interface_get_streams(
-            receiver: &RtpReceiverInterface,
-        ) -> UniquePtr<CxxVector<MediaStreamInterface>>;
-
-        #[must_use]
-        pub fn rtp_receiver_interface_get_id(
-            receiver: &RtpReceiverInterface,
-        ) -> UniquePtr<CxxString>;
-
-        #[must_use]
-        pub fn rtp_receiver_interface_get_track(
-            receiver: &RtpReceiverInterface,
-        ) -> UniquePtr<MediaStreamTrackInterface>;
 
         #[must_use]
         pub fn media_stream_interface_get_id(
@@ -712,26 +905,6 @@ pub(crate) mod webrtc {
         pub fn media_stream_interface_get_video_tracks(
             stream: &MediaStreamInterface,
         ) -> UniquePtr<CxxVector<VideoTrackInterface>>;
-
-        #[must_use]
-        pub fn media_stream_track_interface_get_kind(
-            track: &MediaStreamTrackInterface,
-        ) -> UniquePtr<CxxString>;
-
-        #[must_use]
-        pub fn media_stream_track_interface_get_id(
-            track: &MediaStreamTrackInterface,
-        ) -> UniquePtr<CxxString>;
-
-        #[must_use]
-        pub fn media_stream_track_interface_get_state(
-            track: &MediaStreamTrackInterface,
-        ) -> TrackState;
-
-        #[must_use]
-        pub fn media_stream_track_interface_get_enabled(
-            track: &MediaStreamTrackInterface,
-        ) -> bool;
 
         #[must_use]
         pub fn video_track_truncation(
@@ -753,50 +926,6 @@ pub(crate) mod webrtc {
             track: Pin<&mut MediaStreamTrackInterface>,
         ) -> UniquePtr<AudioTrackInterface>;
 
-        #[must_use]
-        pub fn audio_track_get_sourse(
-            track: &AudioTrackInterface,
-        ) -> UniquePtr<AudioSourceInterface>;
-
-        #[must_use]
-        pub fn video_track_get_sourse(
-            track: &VideoTrackInterface,
-        ) -> UniquePtr<VideoTrackSourceInterface>;
-
-        #[must_use]
-        pub fn rtp_receiver_interface_get_parameters(
-            receiver: &RtpReceiverInterface,
-        ) -> UniquePtr<RtpParameters>;
-
-        #[must_use]
-        pub fn rtp_parameters_get_transaction_id(
-            parameters: &RtpParameters,
-        ) -> UniquePtr<CxxString>;
-
-        #[must_use]
-        pub fn rtp_parameters_get_mid(
-            parameters: &RtpParameters,
-        ) -> UniquePtr<CxxString>;
-
-        #[must_use]
-        pub fn rtp_parameters_get_codecs(
-            parameters: &RtpParameters,
-        ) -> UniquePtr<CxxVector<RtpCodecParameters>>;
-
-        #[must_use]
-        pub fn rtp_parameters_get_header_extensions(
-            parameters: &RtpParameters,
-        ) -> UniquePtr<CxxVector<RtpExtension>>;
-
-        #[must_use]
-        pub fn rtp_parameters_get_encodings(
-            parameters: &RtpParameters,
-        ) -> UniquePtr<CxxVector<RtpEncodingParameters>>;
-
-        #[must_use]
-        pub fn rtp_parameters_get_rtcp(
-            parameters: &RtpParameters,
-        ) -> UniquePtr<RtcpParameters>;
 
         #[must_use]
         pub fn rtcp_parameters_get_cname(
@@ -805,36 +934,6 @@ pub(crate) mod webrtc {
 
         #[must_use]
         pub fn rtcp_parameters_get_reduced_size(rtcp: &RtcpParameters) -> bool;
-
-        #[must_use]
-        pub fn rtp_codec_parameters_get_name(
-            codec: &RtpCodecParameters,
-        ) -> UniquePtr<CxxString>;
-
-        #[must_use]
-        pub fn rtp_codec_parameters_get_payload_type(
-            codec: &RtpCodecParameters,
-        ) -> i32;
-
-        // todo optinoanl
-        pub fn rtp_codec_parameters_get_clock_rate(
-            codec: &RtpCodecParameters,
-        ) -> Result<i32>;
-
-        // todo
-        pub fn rtp_codec_parameters_get_num_channels(
-            codec: &RtpCodecParameters,
-        ) -> Result<i32>;
-
-        #[must_use]
-        pub fn rtp_codec_parameters_get_parameters(
-            codec: &RtpCodecParameters,
-        ) -> UniquePtr<CxxVector<StringPair>>;
-
-        #[must_use]
-        pub fn rtp_codec_parameters_get_kind(
-            codec: &RtpCodecParameters,
-        ) -> MediaType;
 
         #[must_use]
         pub fn rtp_extension_get_uri(
@@ -846,76 +945,6 @@ pub(crate) mod webrtc {
 
         #[must_use]
         pub fn rtp_extension_get_encrypt(extension: &RtpExtension) -> bool;
-
-        #[must_use]
-        pub fn rtp_encoding_parameters_get_active(
-            encoding: &RtpEncodingParameters,
-        ) -> bool;
-
-        pub fn rtp_encoding_parameters_get_maxBitrate(
-            encoding: &RtpEncodingParameters,
-        ) -> Result<i32>;
-
-        pub fn rtp_encoding_parameters_get_minBitrate(
-            encoding: &RtpEncodingParameters,
-        ) -> Result<i32>;
-
-        pub fn rtp_encoding_parameters_get_maxFramerate(
-            encoding: &RtpEncodingParameters,
-        ) -> Result<f64>;
-
-        pub fn rtp_encoding_parameters_get_ssrc(
-            encoding: &RtpEncodingParameters,
-        ) -> Result<i64>;
-
-        pub fn rtp_encoding_parameters_get_scale_resolution_down_by(
-            encoding: &RtpEncodingParameters,
-        ) -> Result<f64>;
-
-        pub fn rtp_transceiver_interface_get_mid(
-            transceiver: &RtpTransceiverInterface,
-        ) -> Result<UniquePtr<CxxString>>;
-
-        #[must_use]
-        pub fn rtp_transceiver_interface_get_direction(
-            transceiver: &RtpTransceiverInterface,
-        ) -> RtpTransceiverDirection;
-
-        #[must_use]
-        pub fn rtp_transceiver_interface_get_sender(
-            transceiver: &RtpTransceiverInterface,
-        ) -> UniquePtr<RtpSenderInterface>;
-
-        #[must_use]
-        pub fn rtp_sender_interface_get_id(
-            sender: &RtpSenderInterface,
-        ) -> UniquePtr<CxxString>;
-
-        // may be null
-        #[must_use]
-        pub fn rtp_sender_interface_get_dtmf(
-            sender: &RtpSenderInterface,
-        ) -> UniquePtr<DtmfSenderInterface>;
-
-        #[must_use]
-        pub fn rtp_sender_interface_get_parameters(
-            sender: &RtpSenderInterface,
-        ) -> UniquePtr<RtpParameters>;
-
-        #[must_use]
-        pub fn rtp_sender_interface_get_track(
-            sender: &RtpSenderInterface,
-        ) -> UniquePtr<MediaStreamTrackInterface>;
-
-        #[must_use]
-        pub fn dtmf_sender_interface_get_duration(
-            dtmf: &DtmfSenderInterface,
-        ) -> i32;
-
-        #[must_use]
-        pub fn dtmf_sender_interface_get_inter_tone_gap(
-            dtmf: &DtmfSenderInterface,
-        ) -> i32;
     }
 
     extern "Rust" {
@@ -927,13 +956,6 @@ pub(crate) mod webrtc {
             cb: &mut DynOnFrameCallback,
             frame: UniquePtr<VideoFrame>,
         );
-    }
-
-    // This will trigger cxx to generate UniquePtrTarget trait for the
-    // mentioned types.
-
-    extern "Rust" {
-        fn _touch_rtp_receiver_interface(i: UniquePtr<RtpReceiverInterface>);
     }
 
     extern "Rust" {
@@ -1050,24 +1072,9 @@ pub(crate) mod webrtc {
         );
 
         /// Creates [`CandidateWrap`].
-        pub fn create_candidate_wrapp(
+        pub fn create_candidate_wrap(
             candidate: UniquePtr<Candidate>,
         ) -> CandidateWrap;
-
-        // todo
-        fn create_media_stream_wrapp(
-            media_stream_track: UniquePtr<MediaStreamInterface>,
-        ) -> MediaStreamInterfaceWrap;
-
-        // todo
-        fn create_audio_track_interface_wrapp(
-            audio_track_interface: UniquePtr<AudioTrackInterface>,
-        ) -> AudioTrackInterfaceWrap;
-
-        // todo
-        fn create_video_track_interface_wrapp(
-            video_track_interface: UniquePtr<VideoTrackInterface>,
-        ) -> VideoTrackInterfaceWrap;
     }
 }
 
@@ -1215,6 +1222,15 @@ pub fn call_peer_connection_on_track(
     cb.on_track(event);
 }
 
+// todo
+pub fn call_peer_connection_on_remove_track(
+    cb: &mut DynPeerConnectionOnEvent,
+    event: &webrtc::RtpReceiverInterface,
+) {
+    cb.on_remove_track(event);
+}
+
+
 impl TryFrom<&str> for webrtc::SdpType {
     type Error = anyhow::Error;
 
@@ -1359,37 +1375,10 @@ impl ToString for webrtc::RtpTransceiverDirection {
 }
 
 /// Creates [`CandidateWrap`].
-fn create_candidate_wrapp(
+fn create_candidate_wrap(
     candidate: UniquePtr<Candidate>,
 ) -> webrtc::CandidateWrap {
     webrtc::CandidateWrap { c: candidate }
-}
-
-/// Creates [`MediaStreamInterfaceWrap`].
-fn create_media_stream_wrapp(
-    media_stream_track: UniquePtr<webrtc::MediaStreamInterface>,
-) -> webrtc::MediaStreamInterfaceWrap {
-    webrtc::MediaStreamInterfaceWrap {
-        m: media_stream_track,
-    }
-}
-
-// todo
-fn create_audio_track_interface_wrapp(
-    audio_track_interface: UniquePtr<webrtc::AudioTrackInterface>,
-) -> webrtc::AudioTrackInterfaceWrap {
-    webrtc::AudioTrackInterfaceWrap {
-        a: audio_track_interface,
-    }
-}
-
-// todo
-fn create_video_track_interface_wrapp(
-    video_track_interface: UniquePtr<webrtc::VideoTrackInterface>,
-) -> webrtc::VideoTrackInterfaceWrap {
-    webrtc::VideoTrackInterfaceWrap {
-        v: video_track_interface,
-    }
 }
 
 fn new_string_pair(f: &CxxString, s: &CxxString) -> webrtc::StringPair {
@@ -1398,8 +1387,6 @@ fn new_string_pair(f: &CxxString, s: &CxxString) -> webrtc::StringPair {
         second: s.to_string(),
     }
 }
-
-fn _touch_rtp_receiver_interface(_: UniquePtr<webrtc::RtpReceiverInterface>) {}
 
 /// Forwards the given [`webrtc::VideoFrame`] the the provided
 /// [`DynOnFrameCallback`].

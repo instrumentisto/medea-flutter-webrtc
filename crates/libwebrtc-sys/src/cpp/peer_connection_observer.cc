@@ -113,7 +113,7 @@ void PeerConnectionObserver::OnIceCandidatesRemoved(
   if (cb_) {
     rust::Vec<bridge::CandidateWrap> vec;
     for (int i = 0; i < candidates.size(); ++i) {
-      vec.push_back(bridge::create_candidate_wrapp(
+      vec.push_back(bridge::create_candidate_wrap(
           std::make_unique<bridge::Candidate>(candidates[i])));
     }
     bridge::call_peer_connection_on_ice_candidates_removed(*cb_.value(),
