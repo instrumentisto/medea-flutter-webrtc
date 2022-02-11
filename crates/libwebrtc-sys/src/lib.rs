@@ -512,7 +512,8 @@ impl Transceiver {
         Ok(())
     }
 
-    /// Sets the [`VideoTrackInterface`] as `null` to the [`webrtc::RtpSenderInterface`].
+    /// Sets the [`VideoTrackInterface`] as `null` to
+    /// the [`webrtc::RtpSenderInterface`].
     pub fn set_no_video_track(&self) -> anyhow::Result<()> {
         let result =
             webrtc::set_sender_video_track(&self.sender, &UniquePtr::null());
@@ -542,7 +543,8 @@ impl Transceiver {
         Ok(())
     }
 
-    /// Sets the [`AudioTrackInterface`] as `null` to the [`webrtc::RtpSenderInterface`].
+    /// Sets the [`AudioTrackInterface`] as `null` to
+    /// the [`webrtc::RtpSenderInterface`].
     pub fn set_no_audio_track(&self) -> anyhow::Result<()> {
         let result =
             webrtc::set_sender_audio_track(&self.sender, &UniquePtr::null());
