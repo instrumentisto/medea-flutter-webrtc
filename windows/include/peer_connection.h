@@ -17,9 +17,10 @@ void CreateRTCPeerConnection(
 
 // Calls Rust `CreateOffer()` and writes the returned session description to the
 // provided `MethodResult`.
-void CreateOffer(Box<Webrtc>& webrtc,
-                 const flutter::MethodCall<EncodableValue>& method_call,
-                 std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+void CreateOffer(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Calls Rust `CreateAnswer()`and writes the returned session description to the
 // provided `MethodResult`.
@@ -52,31 +53,34 @@ void GetTransceivers(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-// Gets the `RTCRtpTransceiver`.
+// Calls Rust `StopTransceiver()` to permanently stop the given transceiver.
 void StopTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-// Disposes the `RTCRtpTransceiver`
+// Calls Rust `DisposeTransceiver()` to free Rust side `RTCRtpTransceiver`.
 void DisposeTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-// Sets the `RTCRtpTransceiver`'s `RtpTransceiverDirection`.
+// Calls Rust `SetTransceiverDirection()` to change the preferred direction of
+// the given `RTCRtpTransceiver`.
 void SetTransceiverDirection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-// Gets the `RTCRtpTransceiver`'s `RtpTransceiverDirection`.
+// Calls Rust `GetTransceiverDirection()` and returns the preferred direction
+// of the given `RTCRtpTransceiver`.
 void GetTransceiverDirection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-// Gets the `RTCRtpTransceiver`'s `mid`.
+// Calls Rust `GetTransceiverMid()` and returns the media stream
+// `identification-tag` of the given `RTCRtpTransceiver`
 void GetTransceiverMid(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

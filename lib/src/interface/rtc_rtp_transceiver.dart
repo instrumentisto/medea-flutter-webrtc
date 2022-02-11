@@ -42,7 +42,7 @@ abstract class RTCRtpTransceiver {
 
   Future<void> stop();
 
-  // TODO: Remove when new Fluter api implemented.
+  // TODO: Used during tests, remove when merging with #31.
   Future<String> getMid();
 
   /// Deprecated methods.

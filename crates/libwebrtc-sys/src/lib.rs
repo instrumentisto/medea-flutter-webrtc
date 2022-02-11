@@ -458,14 +458,13 @@ impl RtpTransceiverInterface {
         webrtc::get_transceiver_direction(&self.0)
     }
 
-    /// Sets the [`Transceiver`]'s `direction`.
+    /// Changes the preferred direction of the given
+    /// [`RtpTransceiverInterface`].
     pub fn set_direction(
         &self,
         direction: webrtc::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
-        let mut error = String::new();
-
-        webrtc::set_transceiver_direction(&self.0, direction, &mut error);
+        let error = webrtc::set_transceiver_direction(&self.0, direction);
 
         if !error.is_empty() {
             bail!(
@@ -477,11 +476,13 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Stops the [`Transceiver`].
+    /// Irreversibly marks the given [`RtpTransceiverInterface`] as stopping,
+    /// unless it is already stopped.
+    ///
+    /// This will immediately cause the transceiver's sender to no longer send,
+    /// and its receiver to no longer receive.
     pub fn stop(&self) -> anyhow::Result<()> {
-        let mut error = String::new();
-
-        webrtc::stop_transceiver(&self.0, &mut error);
+        let error = webrtc::stop_transceiver(&self.0, &mut error);
 
         if !error.is_empty() {
             bail!(

@@ -8,14 +8,14 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-#include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
-#include "peer_connection_observer.h"
 #include "rust/cxx.h"
+#include "device_video_capturer.h"
+#include "peer_connection_observer.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
 
@@ -312,12 +312,16 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
 
-// Sets some `RtpTransceiverDirection` to the `RtpTransceiverInterface`.
+// Changes the preferred `RtpTransceiverInterface` direction to the given
+// `RtpTransceiverDirection`.
 void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
                                RtpTransceiverDirection new_direction,
                                rust::String& error);
 
-// Stops the `RtpTransceiverInterface`.
+// Irreversibly marks the transceiver as stopping, unless it is already stopped.
+//
+// This will immediately cause the transceiver's sender to no longer send, and
+// its receiver to no longer receive.
 void stop_transceiver(const RtpTransceiverInterface& transceiver,
                       rust::String& error);
 

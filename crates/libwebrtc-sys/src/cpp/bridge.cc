@@ -288,13 +288,18 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
+
   auto factory = webrtc::CreatePeerConnectionFactory(
-      network_thread.get(), worker_thread.get(), signaling_thread.get(),
+      network_thread.get(),
+      worker_thread.get(),
+      signaling_thread.get(),
       default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
+      webrtc::CreateBuiltinVideoDecoderFactory(),
+      nullptr,
+      nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -353,9 +358,10 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     bool voice_activity_detection,
     bool ice_restart,
     bool use_rtp_mux) {
-  return std::make_unique<RTCOfferAnswerOptions>(
-      offer_to_receive_video, offer_to_receive_audio, voice_activity_detection,
-      ice_restart, use_rtp_mux);
+  return std::make_unique<RTCOfferAnswerOptions>(offer_to_receive_video,
+                                                 offer_to_receive_audio,
+                                                 voice_activity_detection,
+                                                 ice_restart, use_rtp_mux);
 }
 
 // Creates a new `CreateSessionDescriptionObserver` from the provided
@@ -472,7 +478,8 @@ rust::Vec<TransceiverContainer> get_transceivers(
 
   for (auto transceiver : peer->GetTransceivers()) {
     TransceiverContainer container = {
-        std::make_unique<RtpTransceiverInterface>(transceiver)};
+        std::make_unique<RtpTransceiverInterface>(transceiver)
+    };
     transceivers.push_back(std::move(container));
   }
 
@@ -490,25 +497,29 @@ RtpTransceiverDirection get_transceiver_direction(
   return transceiver->direction();
 }
 
-// Calls `RtpTransceiverInterface::SetDirectionWithError`.
-void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
-                               webrtc::RtpTransceiverDirection new_direction,
-                               rust::String& error) {
+// Calls `RtpTransceiverInterface::SetDirectionWithError()`.
+rust::String set_transceiver_direction(
+    const RtpTransceiverInterface& transceiver,
+    webrtc::RtpTransceiverDirection new_direction) {
+
   webrtc::RTCError result = transceiver->SetDirectionWithError(new_direction);
+  rust::String error;
 
   if (!result.ok()) {
     error = result.message();
   }
+  return error;
 }
 
-// Calls `RtpTransceiverInterface::StopStandard`.
-void stop_transceiver(const RtpTransceiverInterface& transceiver,
-                      rust::String& error) {
+// Calls `RtpTransceiverInterface::StopStandard()`.
+rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
   webrtc::RTCError result = transceiver->StopStandard();
+  rust::String error;
 
   if (!result.ok()) {
     error = result.message();
   }
+  return error;
 }
 
 }  // namespace bridge
