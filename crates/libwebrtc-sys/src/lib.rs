@@ -432,33 +432,27 @@ impl SetRemoteDescriptionObserver {
     }
 }
 
-/// The [`RtpTransceiverInterface`] represents a combination of an [`RtpSender`]
-/// and an [`RtpReceiver`] that share a common
-/// [media stream "identification-tag"][1].
+/// Representation of a combination of an [RTCRtpSender] and an [RTCRtpReceiver]
+/// sharing a common [media stream "identification-tag"][1].
 ///
-/// [`RtpSender`]: https://w3.org/TR/webrtc#dom-rtcrtpsender
-/// [`RtpReceiver`]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+/// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 pub struct RtpTransceiverInterface(UniquePtr<webrtc::RtpTransceiverInterface>);
 
 impl RtpTransceiverInterface {
-    /// Returns [`RtpTransceiverInterface`]'s [`mid`].
+    /// Returns a [`mid`] of this [`RtpTransceiverInterface`].
     ///
     /// [`mid`]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
     #[must_use]
     pub fn mid(&self) -> Option<String> {
         let mid = webrtc::get_transceiver_mid(&self.0);
-
-        if mid.is_empty() {
-            None
-        } else {
-            Some(mid)
-        }
+        (!mid.is_empty()).then(|| mid)
     }
 
-    /// Returns [`RtpTransceiverInterface`]'s [`direction`].
+    /// Returns a [`direction`] of this [`RtpTransceiverInterface`].
     ///
-    /// [`mid`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
+    /// [`direction`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
         webrtc::get_transceiver_direction(&self.0)
@@ -562,7 +556,7 @@ impl PeerConnectionInterface {
     }
 
     /// Creates a new [`RtpTransceiverInterface`] and adds it to the set of
-    /// transceivers of the given [`PeerConnectionInterface`].
+    /// transceivers of this [`PeerConnectionInterface`].
     pub fn add_transceiver(
         &mut self,
         media_type: MediaType,
@@ -576,14 +570,14 @@ impl PeerConnectionInterface {
     }
 
     /// Returns a sequence of [`RtpTransceiverInterface`] objects representing
-    /// the RTP transceivers that are currently attached to this
-    /// [`PeerConnectionInterface`] object.
+    /// the RTP transceivers currently attached to this
+    /// [`PeerConnectionInterface`].
     #[must_use]
     pub fn get_transceivers(&self) -> Vec<RtpTransceiverInterface> {
         webrtc::get_transceivers(&self.inner)
             .into_iter()
             .map(|transceiver| RtpTransceiverInterface(transceiver.ptr))
-            .collect::<_>()
+            .collect()
     }
 }
 

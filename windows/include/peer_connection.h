@@ -17,10 +17,9 @@ void CreateRTCPeerConnection(
 
 // Calls Rust `CreateOffer()` and writes the returned session description to the
 // provided `MethodResult`.
-void CreateOffer(
-    Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+void CreateOffer(Box<Webrtc>& webrtc,
+                 const flutter::MethodCall<EncodableValue>& method_call,
+                 std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Calls Rust `CreateAnswer()`and writes the returned session description to the
 // provided `MethodResult`.
@@ -41,13 +40,13 @@ void SetRemoteDescription(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-// Adds a new `RTCRtpTransceiver`.
+// Adds a new `RTCRtpTransceiver` to a `PeerConnectionInterface`.
 void AddTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-// Gets the `RTCRtpTransceiver`'s of some `PeerConnectionInterface`.
+// Returns a list of `RTCRtpTransceiver`s of a `PeerConnectionInterface`.
 void GetTransceivers(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
