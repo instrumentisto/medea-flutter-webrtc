@@ -494,7 +494,7 @@ void StopTransceiver(
       std::stoi(findString(params, "peerConnectionId")),
       std::stoi(findString(params, "transceiverId")));
 
-  if (error->empty()) {
+  if (error.empty()) {
     result->Success();
   } else {
     result->Error("Failed to stop transceiver", std::string(error));
@@ -538,7 +538,7 @@ void SetTransceiverDirection(
       std::stoi(findString(params, "transceiverId")),
       findString(params, "direction"));
 
-  if (error->empty()) {
+  if (error.empty()) {
     result->Success();
   } else {
     result->Error("Failed to change transceiver direction", std::string(error));
