@@ -503,7 +503,8 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Replaces the [`VideoTrackInterface`] to the [`webrtc::RtpSenderInterface`].
+    /// Replaces the [`VideoTrackInterface`] to
+    /// the [`webrtc::RtpSenderInterface`].
     pub fn replace_video_track(
         &self,
         track: &VideoTrackInterface,
@@ -536,7 +537,8 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Replaces the [`AudioTrackInterface`] to the [`webrtc::RtpSenderInterface`].
+    /// Replaces the [`AudioTrackInterface`] to
+    /// the [`webrtc::RtpSenderInterface`].
     pub fn replace_audio_track(
         &self,
         track: &AudioTrackInterface,
