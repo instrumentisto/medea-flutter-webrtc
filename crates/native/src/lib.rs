@@ -116,7 +116,7 @@ pub mod api {
     /// The [`MediaStream`] represents a stream of media content. A stream
     /// consists of several [`MediaStreamTrack`], such as video or audio tracks.
     pub struct MediaStream {
-        /// Unique ID of this [`MediaStream`];
+        /// Unique ID of this [`MediaStream`].
         pub stream_id: u64,
 
         /// [`MediaStreamTrack`]s with [`TrackKind::kVideo`].
@@ -126,9 +126,9 @@ pub mod api {
         pub audio_tracks: Vec<MediaStreamTrack>,
     }
 
-    /// The [MediaStreamTrack] interface represents a single media track within
-    /// a stream; typically, these are audio or video tracks, but other track
-    /// types may exist as well.
+    /// The [`MediaStreamTrack`] interface represents a single media track
+    /// within a stream; typically, these are audio or video tracks, but other
+    /// track types may exist as well.
     pub struct MediaStreamTrack {
         /// Unique identifier (GUID) for the track
         pub id: u64,
@@ -153,12 +153,21 @@ pub mod api {
         kVideo,
     }
 
-    /// Information about [`sys::Transceiver`].
+    /// [`RtcRtpTransceiver`] describes a permanent pairing of an `RtcRtpSender`
+    /// and an `RtcRtpReceiver`, along with some shared state.
     #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-    pub struct TransceiverInfo {
-        id: u64,
-        mid: String,
-        direction: String,
+    pub struct RtcRtpTransceiver {
+        /// ID of this [`RtcRtpTransceiver`]. It is not unique across all
+        /// transceivers but only within specific peer.
+        pub id: u64,
+
+        /// The negotiated media ID (mid) which the local and remote peers have
+        /// agreed upon to uniquely identify the stream's pairing of sender and
+        /// receiver.
+        pub mid: String,
+
+        /// [`RtcRtpTransceiver`]'s preferred directionality.
+        pub direction: String,
     }
 
     /// Single video frame.
@@ -187,6 +196,9 @@ pub mod api {
         type SetDescriptionCallbackInterface =
             crate::internal::SetDescriptionCallbackInterface;
 
+        type PeerConnectionObserverInterface =
+            crate::internal::PeerConnectionObserverInterface;
+
         type OnFrameCallbackInterface =
             crate::internal::OnFrameCallbackInterface;
     }
@@ -212,6 +224,7 @@ pub mod api {
         #[cxx_name = "CreatePeerConnection"]
         pub fn create_peer_connection(
             self: &mut Webrtc,
+            cb: UniquePtr<PeerConnectionObserverInterface>,
             err: &mut String,
         ) -> u64;
 
@@ -273,23 +286,24 @@ pub mod api {
             cb: UniquePtr<SetDescriptionCallbackInterface>,
         ) -> String;
 
-        /// Creates and adds a [`sys::Transceiver`] to the [`PeerConnection`],
-        /// returns the [`TransceiverInfo`] of that [`sys::Transceiver`].
+        /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of
+        /// transceivers of the specified [`PeerConnection`].
         #[cxx_name = "AddTransceiver"]
         pub fn add_transceiver(
             self: &mut Webrtc,
             peer_id: u64,
             media_type: &str,
             direction: &str,
-        ) -> TransceiverInfo;
+        ) -> RtcRtpTransceiver;
 
-        /// Returns the [`sys::Transceiver`]s of some [`PeerConnection`]
-        /// according to the given `id`.
+        /// Returns a sequence of [`RtcRtpTransceiver`] objects representing
+        /// the RTP transceivers that are currently attached to this
+        /// [`PeerConnection`] object.
         #[cxx_name = "GetTransceivers"]
         pub fn get_transceivers(
             self: &mut Webrtc,
             peer_id: u64,
-        ) -> Vec<TransceiverInfo>;
+        ) -> Vec<RtcRtpTransceiver>;
 
         /// Sets the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`].
         #[cxx_name = "SetTransceiverDirection"]

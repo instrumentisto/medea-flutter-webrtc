@@ -1,39 +1,15 @@
-use std::collections::HashMap;
-
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 
 use crate::{
-    internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
+    api,
+    internal::{
+        CreateSdpCallbackInterface, PeerConnectionObserverInterface,
+        SetDescriptionCallbackInterface,
+    },
     next_id, Webrtc,
 };
-
-use crate::api::TransceiverInfo;
-
-/// Converts [`sys::RtpTransceiverDirection`] into [`String`].
-fn direction_to_string(direction: sys::RtpTransceiverDirection) -> String {
-    match direction {
-        sys::RtpTransceiverDirection::kSendRecv => "sendrecv".to_string(),
-        sys::RtpTransceiverDirection::kSendOnly => "sendonly".to_string(),
-        sys::RtpTransceiverDirection::kRecvOnly => "recvonly".to_string(),
-        sys::RtpTransceiverDirection::kInactive => "inactive".to_string(),
-        sys::RtpTransceiverDirection::kStopped => "stopped".to_string(),
-        _ => unreachable!(),
-    }
-}
-
-/// Converts [`sys::RtpTransceiverDirection`] from [`str`].
-fn string_to_direction(direction: &str) -> sys::RtpTransceiverDirection {
-    match direction {
-        "sendrecv" => sys::RtpTransceiverDirection::kSendRecv,
-        "sendonly" => sys::RtpTransceiverDirection::kSendOnly,
-        "recvonly" => sys::RtpTransceiverDirection::kRecvOnly,
-        "inactive" => sys::RtpTransceiverDirection::kInactive,
-        "stopped" => sys::RtpTransceiverDirection::kStopped,
-        _ => unreachable!(),
-    }
-}
 
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
@@ -41,9 +17,11 @@ impl Webrtc {
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
         self: &mut Webrtc,
+        obs: UniquePtr<PeerConnectionObserverInterface>,
         error: &mut String,
     ) -> u64 {
-        let peer = PeerConnection::new(&mut self.0.peer_connection_factory);
+        let peer =
+            PeerConnection::new(&mut self.0.peer_connection_factory, obs);
         match peer {
             Ok(peer) => self
                 .0
@@ -215,91 +193,77 @@ impl Webrtc {
         String::new()
     }
 
-    /// Creates and adds a [`sys::Transceiver`] to the [`PeerConnection`],
-    /// returns the [`TransceiverInfo`] of that [`sys::Transceiver`].
+    /// Creates a new [`api::RtcRtpTransceiver`] and adds it to the set of
+    /// transceivers of the specified [`PeerConnection`].
     ///
     /// # Panics
     ///
-    /// May panic on getting [`PeerConnection`].
+    /// Panics if could not parse the given `media_type` and `direction` to a
+    /// valid [`sys::MediaType`] and [`sys::RtpTransceiverDirection`].
+    ///
+    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
     pub fn add_transceiver(
         &mut self,
         peer_id: u64,
         media_type: &str,
         direction: &str,
-    ) -> TransceiverInfo {
-        let media_type: sys::MediaType = match media_type {
-            "audio" => sys::MediaType::MEDIA_TYPE_AUDIO,
-            "video" => sys::MediaType::MEDIA_TYPE_VIDEO,
-            "data" => sys::MediaType::MEDIA_TYPE_DATA,
-            "unsupported" => sys::MediaType::MEDIA_TYPE_UNSUPPORTED,
-            _ => unreachable!(),
-        };
-
-        let direction: sys::RtpTransceiverDirection =
-            string_to_direction(direction);
-
+    ) -> api::RtcRtpTransceiver {
         let peer = self
             .0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver = peer.inner.add_transceiver(media_type, direction);
+        let transceiver = peer.inner.add_transceiver(
+            media_type.try_into().unwrap(),
+            direction.try_into().unwrap(),
+        );
 
-        let info = TransceiverInfo {
-            id: next_id(),
-            mid: transceiver.mid(),
-            direction: direction_to_string(transceiver.direction()),
+        let result = api::RtcRtpTransceiver {
+            id: peer.transceivers.len() as u64,
+            mid: transceiver.mid().unwrap_or_default(),
+            direction: transceiver.direction().to_string(),
         };
 
-        peer.transceivers
-            .insert(TransceiverId(info.id), transceiver);
+        peer.transceivers.push(transceiver);
 
-        info
+        result
     }
 
-    /// Returns the [`sys::Transceiver`]'s of some [`PeerConnection`] according
-    /// to the given `id`.
+    /// Returns a sequence of [`api::RtcRtpTransceiver`] objects representing
+    /// the RTP transceivers that are currently attached to this
+    /// [`PeerConnection`] object.
     ///
     /// # Panics
     ///
-    /// May panic on getting [`PeerConnection`].
-    pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<TransceiverInfo> {
+    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
+    pub fn get_transceivers(
+        &mut self,
+        peer_id: u64,
+    ) -> Vec<api::RtcRtpTransceiver> {
         let peer = self
             .0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let mut transceivers = peer.inner.get_transceivers();
+        let transceivers = peer.inner.get_transceivers();
+        let mut result = Vec::with_capacity(transceivers.len());
 
-        let mut out_info: Vec<TransceiverInfo> = Vec::new();
-
-        for _index in 0..transceivers.len() {
-            let transceiver = transceivers.pop().unwrap();
-            let mut is_in = false;
-            let mut id = 0;
-
-            for written_transceiver in &peer.transceivers {
-                is_in = written_transceiver.1 == &transceiver;
-                id = written_transceiver.0 .0;
-            }
-
-            let info = TransceiverInfo {
-                id: if is_in { id } else { next_id() },
-                mid: transceiver.mid(),
-                direction: direction_to_string(transceiver.direction()),
+        for (index, transceiver) in transceivers.into_iter().enumerate() {
+            let info = api::RtcRtpTransceiver {
+                id: index as u64,
+                mid: transceiver.mid().unwrap_or_default(),
+                direction: transceiver.direction().to_string(),
             };
+            result.push(info);
 
-            if !is_in {
-                peer.transceivers
-                    .insert(TransceiverId(info.id), transceiver);
+            if index == peer.transceivers.len() {
+                peer.transceivers.push(transceiver);
             }
-
-            out_info.push(info);
         }
 
-        out_info
+        result
     }
 
     /// Sets the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`].
@@ -321,9 +285,9 @@ impl Webrtc {
             .unwrap();
 
         peer.transceivers
-            .get(&TransceiverId(transceiver_id))
+            .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
-            .set_direction(string_to_direction(direction))
+            .set_direction(direction.try_into().unwrap())
             .unwrap();
     }
 
@@ -343,10 +307,17 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
-            .get(&TransceiverId(transceiver_id))
+        let mid = peer
+            .transceivers
+            .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
-            .mid()
+            .mid();
+
+        if let Some(mid) = mid {
+            mid
+        } else {
+            String::new()
+        }
     }
 
     /// Returns the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`]
@@ -366,12 +337,11 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        direction_to_string(
-            peer.transceivers
-                .get(&TransceiverId(transceiver_id))
-                .unwrap()
-                .direction(),
-        )
+        peer.transceivers
+            .get(usize::try_from(transceiver_id).unwrap())
+            .unwrap()
+            .direction()
+            .to_string()
     }
 
     /// Stops the [`sys::Transceiver`].
@@ -388,7 +358,7 @@ impl Webrtc {
             .unwrap();
 
         peer.transceivers
-            .get(&TransceiverId(transceiver_id))
+            .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .stop()
             .unwrap();
@@ -409,14 +379,9 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .transceivers
-            .remove(&TransceiverId(transceiver_id))
-            .unwrap();
+            .remove(usize::try_from(transceiver_id).unwrap());
     }
 }
-
-/// ID of a [`sys::Transceiver`].
-#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct TransceiverId(u64);
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
@@ -431,23 +396,27 @@ pub struct PeerConnection {
     inner: sys::PeerConnectionInterface,
 
     /// The [`sys::Transceiver`]s of this [`PeerConnection`].
-    transceivers: HashMap<TransceiverId, sys::Transceiver>,
+    transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
+        observer: UniquePtr<PeerConnectionObserverInterface>,
     ) -> anyhow::Result<Self> {
+        let observer = sys::PeerConnectionObserver::new(Box::new(
+            PeerConnectionObserver(observer),
+        ));
         let inner = factory.create_peer_connection_or_error(
             &sys::RTCConfiguration::default(),
-            sys::PeerConnectionDependencies::default(),
+            sys::PeerConnectionDependencies::new(observer),
         )?;
 
         Ok(Self {
             id: PeerConnectionId::from(next_id()),
             inner,
-            transceivers: HashMap::new(),
+            transceivers: Vec::new(),
         })
     }
 }
@@ -476,5 +445,74 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 
     fn fail(&mut self, error: &CxxString) {
         self.0.pin_mut().on_set_description_fail(error);
+    }
+}
+
+/// [`PeerConnectionObserverInterface`] wrapper.
+struct PeerConnectionObserver(UniquePtr<PeerConnectionObserverInterface>);
+
+impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
+    fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_signaling_change(&new_state);
+    }
+
+    fn on_standardized_ice_connection_change(
+        &mut self,
+        new_state: sys::IceConnectionState,
+    ) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_ice_connection_state_change(&new_state);
+    }
+
+    fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_connection_state_change(&new_state);
+    }
+
+    fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
+        let_cxx_string!(new_state = new_state.to_string());
+        self.0.pin_mut().on_ice_gathering_change(&new_state);
+    }
+
+    fn on_negotiation_needed_event(&mut self, _: u32) {
+        self.0.pin_mut().on_negotiation_needed();
+    }
+
+    fn on_ice_candidate_error(
+        &mut self,
+        address: &CxxString,
+        port: i32,
+        url: &CxxString,
+        error_code: i32,
+        error_text: &CxxString,
+    ) {
+        self.0
+            .pin_mut()
+            .on_ice_candidate_error(address, port, url, error_code, error_text);
+    }
+
+    fn on_ice_connection_receiving_change(&mut self, _: bool) {
+        // This is a non-spec-compliant event.
+    }
+
+    fn on_ice_candidate(
+        &mut self,
+        candidate: *const sys::IceCandidateInterface,
+    ) {
+        let mut string =
+            unsafe { sys::ice_candidate_interface_to_string(candidate) };
+        self.0.pin_mut().on_ice_candidate(&string.pin_mut());
+    }
+
+    fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
+        // This is a non-spec-compliant event.
+    }
+
+    fn on_ice_selected_candidate_pair_changed(
+        &mut self,
+        _: &sys::CandidatePairChangeEvent,
+    ) {
+        // This is a non-spec-compliant event.
     }
 }
