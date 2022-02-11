@@ -468,8 +468,8 @@ impl RtpTransceiverInterface {
 
         if !error.is_empty() {
             bail!(
-                "Fails trying to set `Transceiver`'s `direction` \
-                with the error: {error}"
+                "`RtpTransceiverInterface->SetDirectionWithError()` call \
+                failed: {error}"
             );
         }
 
@@ -486,8 +486,7 @@ impl RtpTransceiverInterface {
 
         if !error.is_empty() {
             bail!(
-                "Fails trying to stop `Transceiver` \
-                with the error: {error}"
+                "`RtpTransceiverInterface->StopStandard()` call failed: {error}"
             );
         }
 

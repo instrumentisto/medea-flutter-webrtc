@@ -497,11 +497,10 @@ RtpTransceiverDirection get_transceiver_direction(
   return transceiver->direction();
 }
 
-// Calls `RtpTransceiverInterface::SetDirectionWithError()`.
+// Calls `RtpTransceiverInterface->SetDirectionWithError()`.
 rust::String set_transceiver_direction(
     const RtpTransceiverInterface& transceiver,
     webrtc::RtpTransceiverDirection new_direction) {
-
   webrtc::RTCError result = transceiver->SetDirectionWithError(new_direction);
   rust::String error;
 
@@ -511,7 +510,7 @@ rust::String set_transceiver_direction(
   return error;
 }
 
-// Calls `RtpTransceiverInterface::StopStandard()`.
+// Calls `RtpTransceiverInterface->StopStandard()`.
 rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
   webrtc::RTCError result = transceiver->StopStandard();
   rust::String error;
