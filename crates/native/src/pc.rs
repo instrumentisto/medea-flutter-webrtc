@@ -380,14 +380,14 @@ impl Webrtc {
             .remove(usize::try_from(transceiver_id).unwrap());
     }
 
-    /// Sets the [`crate::AudioTrack`] or the [`crate::VideoTrack`] to
+    /// Replaces the [`crate::AudioTrack`] or the [`crate::VideoTrack`] on
     /// the [`sys::Transceiver`]'s `sender`.
     ///
     /// # Panics
     ///
     /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
     /// or on setting the `track`.
-    pub fn set_track_on_sender(
+    pub fn replace_track_on_sender(
         &mut self,
         peer_id: u64,
         transceiver_id: u64,
@@ -418,7 +418,7 @@ impl Webrtc {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
                     transceiver
-                        .set_video_track(
+                        .replace_video_track(
                             self.0
                                 .video_tracks
                                 .get(&VideoTrackId(
@@ -430,7 +430,7 @@ impl Webrtc {
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
                     transceiver
-                        .set_audio_track(
+                        .replace_audio_track(
                             self.0
                                 .audio_tracks
                                 .get(&AudioTrackId(

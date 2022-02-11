@@ -563,8 +563,8 @@ void GetTransceiverMid(
   result->Success(map);
 }
 
-// Calls Rust `SetTrackOnSender()`.
-void SetTrackOnSender(
+// Calls Rust `ReplaceTrackOnSender()`.
+void ReplaceTrackOnSender(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
@@ -575,7 +575,7 @@ void SetTrackOnSender(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  webrtc->SetTrackOnSender(std::stoi(findString(params, "peerConnectionId")),
+  webrtc->ReplaceTrackOnSender(std::stoi(findString(params, "peerConnectionId")),
                            std::stoi(findString(params, "transceiverId")),
                            findString(params, "trackId"));
 

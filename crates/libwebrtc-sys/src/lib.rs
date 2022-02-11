@@ -509,12 +509,12 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Sets the [`VideoTrackInterface`] to the [`webrtc::RtpSenderInterface`].
-    pub fn set_video_track(
+    /// Replaces the [`VideoTrackInterface`] to the [`webrtc::RtpSenderInterface`].
+    pub fn replace_video_track(
         &self,
         track: &VideoTrackInterface,
     ) -> anyhow::Result<()> {
-        let result = webrtc::set_sender_video_track(&self.sender, &track.0);
+        let result = webrtc::replace_sender_video_track(&self.sender, &track.0);
 
         if !result {
             bail!(
@@ -528,8 +528,10 @@ impl RtpTransceiverInterface {
     /// Sets the [`VideoTrackInterface`] as `null` to
     /// the [`webrtc::RtpSenderInterface`].
     pub fn set_no_video_track(&self) -> anyhow::Result<()> {
-        let result =
-            webrtc::set_sender_video_track(&self.sender, &UniquePtr::null());
+        let result = webrtc::replace_sender_video_track(
+            &self.sender,
+            &UniquePtr::null(),
+        );
 
         if !result {
             bail!(
@@ -540,12 +542,12 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Sets the [`AudioTrackInterface`] to the [`webrtc::RtpSenderInterface`].
-    pub fn set_audio_track(
+    /// Replaces the [`AudioTrackInterface`] to the [`webrtc::RtpSenderInterface`].
+    pub fn replace_audio_track(
         &self,
         track: &AudioTrackInterface,
     ) -> anyhow::Result<()> {
-        let result = webrtc::set_sender_audio_track(&self.sender, &track.0);
+        let result = webrtc::replace_sender_audio_track(&self.sender, &track.0);
 
         if !result {
             bail!(
@@ -559,8 +561,10 @@ impl RtpTransceiverInterface {
     /// Sets the [`AudioTrackInterface`] as `null` to
     /// the [`webrtc::RtpSenderInterface`].
     pub fn set_no_audio_track(&self) -> anyhow::Result<()> {
-        let result =
-            webrtc::set_sender_audio_track(&self.sender, &UniquePtr::null());
+        let result = webrtc::replace_sender_audio_track(
+            &self.sender,
+            &UniquePtr::null(),
+        );
 
         if !result {
             bail!(

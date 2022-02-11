@@ -329,12 +329,14 @@ void stop_transceiver(const RtpTransceiverInterface& transceiver,
 std::unique_ptr<RtpSenderInterface> get_sender(
     const RtpTransceiverInterface& transceiver);
 
-// Sets the `VideoTrackInterface` to the `RtpSenderInterface`.
-bool set_sender_video_track(const RtpSenderInterface& sender,
-                            const std::unique_ptr<VideoTrackInterface>& track);
+// Replaces the `VideoTrackInterface` to the `RtpSenderInterface`.
+bool replace_sender_video_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<VideoTrackInterface>& track);
 
-// Sets the `AudioTrackInterface` to the `RtpSenderInterface`.
-bool set_sender_audio_track(const RtpSenderInterface& sender,
-                            const std::unique_ptr<AudioTrackInterface>& track);
+// Replaces the `AudioTrackInterface` to the `RtpSenderInterface`.
+bool replace_sender_audio_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<AudioTrackInterface>& track);
 
 }  // namespace bridge

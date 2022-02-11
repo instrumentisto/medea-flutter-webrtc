@@ -549,11 +549,11 @@ pub(crate) mod webrtc {
         /// Gets the [`RtpSenderInterface`].
         pub fn get_sender(transceiver: &RtpTransceiverInterface) -> UniquePtr<RtpSenderInterface>;
 
-        /// Sets the [`VideoTrackInterface`] to the [`RtpSenderInterface`].
-        pub fn set_sender_video_track(sender: &RtpSenderInterface, track: &UniquePtr<VideoTrackInterface>) -> bool;
+        /// Replaces the [`VideoTrackInterface`] to the [`RtpSenderInterface`].
+        pub fn replace_sender_video_track(sender: &RtpSenderInterface, track: &UniquePtr<VideoTrackInterface>) -> bool;
 
-        /// Sets the [`AudioTrackInterface`] to the [`RtpSenderInterface`].
-        pub fn set_sender_audio_track(sender: &RtpSenderInterface, track: &UniquePtr<AudioTrackInterface>) -> bool;
+        /// Replaces the [`AudioTrackInterface`] to the [`RtpSenderInterface`].
+        pub fn replace_sender_audio_track(sender: &RtpSenderInterface, track: &UniquePtr<AudioTrackInterface>) -> bool;
     }
 
     unsafe extern "C++" {
