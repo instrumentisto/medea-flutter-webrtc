@@ -11,8 +11,8 @@ namespace flutter_webrtc_plugin {
 
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
-    plugin->textures(),
-    plugin->messenger()) {
+          plugin->textures(),
+          plugin->messenger()) {
         messenger_ = plugin->messenger();
         webrtc->SetOnDeviceChanged(
             std::make_unique<DeviceChangeHandler>(plugin->messenger()));
@@ -70,7 +70,9 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("addTrack") == 0) {
   } else if (method.compare("removeTrack") == 0) {
   } else if (method.compare("addTransceiver") == 0) {
+    AddTransceiver(webrtc, method_call, std::move(result));
   } else if (method.compare("getTransceivers") == 0) {
+    GetTransceivers(webrtc, method_call, std::move(result));
   } else if (method.compare("getReceivers") == 0) {
   } else if (method.compare("getSenders") == 0) {
   } else if (method.compare("rtpSenderDispose") == 0) {
