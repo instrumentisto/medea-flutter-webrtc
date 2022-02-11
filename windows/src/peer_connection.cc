@@ -581,25 +581,4 @@ void SetTrackOnSender(
   result->Success();
 }
 
-void SenderHasTrack(
-    Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-  if (!method_call.arguments()) {
-    result->Error("Bad Arguments", "Null constraints arguments received");
-    return;
-  }
-
-  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-
-  auto has_track =
-      webrtc->SenderHasTrack(std::stoi(findString(params, "peerConnectionId")),
-                             std::stoi(findString(params, "transceiverId")));
-
-  EncodableMap map;
-  map[EncodableValue("hasTrack")] = EncodableValue(has_track);
-
-  result->Success(map);
-}
-
 }  // namespace flutter_webrtc_plugin

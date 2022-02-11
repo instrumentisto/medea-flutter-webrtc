@@ -358,13 +358,6 @@ pub mod api {
             track_id: &str,
         );
 
-        #[cxx_name = "SenderHasTrack"]
-        pub fn sender_has_track(
-            self: &mut Webrtc,
-            peer_id: u64,
-            transceiver_id: u64,
-        ) -> bool;
-
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
         #[cxx_name = "GetMedia"]

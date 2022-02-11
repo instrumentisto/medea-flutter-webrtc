@@ -524,6 +524,7 @@ pub(crate) mod webrtc {
         /// Gets [`Transceiver`]'s `mid`.
         pub fn get_transceiver_mid(transceiver: &RtpTransceiverInterface) -> String;
 
+        /// Gets [`Transceiver`]'s [`MediaType`].
         pub fn get_transceiver_type(transceiver: &RtpTransceiverInterface) -> MediaType;
 
         /// Gets the [`Transceiver`]'s [`RtpTransceiverDirection`].
@@ -535,13 +536,14 @@ pub(crate) mod webrtc {
         /// Stops the [`Transceiver`].
         pub fn stop_transceiver(transceiver: &RtpTransceiverInterface, error: &mut String);
 
+        /// Gets the [`RtpSenderInterface`].
         pub fn get_sender(transceiver: &RtpTransceiverInterface) -> UniquePtr<RtpSenderInterface>;
 
+        /// Sets the [`VideoTrackInterface`] to the [`RtpSenderInterface`].
         pub fn set_sender_video_track(sender: &RtpSenderInterface, track: &UniquePtr<VideoTrackInterface>) -> bool;
 
+        /// Sets the [`AudioTrackInterface`] to the [`RtpSenderInterface`].
         pub fn set_sender_audio_track(sender: &RtpSenderInterface, track: &UniquePtr<AudioTrackInterface>) -> bool;
-
-        pub fn is_track_in_sender(sender: &RtpSenderInterface) -> bool;
     }
 
     unsafe extern "C++" {

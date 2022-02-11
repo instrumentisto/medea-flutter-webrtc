@@ -75,8 +75,6 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("rtpSenderDispose") == 0) {
   } else if (method.compare("rtpSenderSetTrack") == 0) {
     SetTrackOnSender(webrtc, method_call, std::move(result));
-  } else if (method.compare("rtpSenderHasTrack") == 0) {
-    SenderHasTrack(webrtc, method_call, std::move(result));
   } else if (method.compare("rtpTransceiverStop") == 0) {
     StopTransceiver(webrtc, method_call, std::move(result));
   } else if (method.compare("rtpTransceiverDispose") == 0) {

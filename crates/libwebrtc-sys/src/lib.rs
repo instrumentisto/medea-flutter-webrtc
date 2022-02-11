@@ -479,11 +479,6 @@ impl Transceiver {
         self.media_type
     }
 
-    #[must_use]
-    pub fn is_track_in(&self) -> bool {
-        webrtc::is_track_in_sender(&self.sender)
-    }
-
     /// Stops the [`Transceiver`].
     pub fn stop(&self) -> anyhow::Result<()> {
         let mut error = String::new();
@@ -632,7 +627,6 @@ impl PeerConnectionInterface {
             direction,
         );
 
-        let media_type = webrtc::get_transceiver_type(&transceiver);
         let sender = webrtc::get_sender(&transceiver);
 
         Transceiver {

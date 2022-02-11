@@ -515,33 +515,30 @@ void stop_transceiver(const RtpTransceiverInterface& transceiver,
   }
 }
 
+// Calls `RtpSenderInterface::sender`.
 std::unique_ptr<RtpSenderInterface> get_sender(
     const RtpTransceiverInterface& transceiver) {
   return std::make_unique<RtpSenderInterface>(transceiver->sender());
 }
 
+// Calls `RtpSenderInterface::SetTrack`.
 bool set_sender_video_track(const RtpSenderInterface& sender,
                             const std::unique_ptr<VideoTrackInterface>& track) {
   if (!track.get()) {
-    printf("123123123123");
     return sender->SetTrack(nullptr);
   } else {
     return sender->SetTrack(track.get()->get());
   }
 }
 
+// Calls `RtpSenderInterface::SetTrack`.
 bool set_sender_audio_track(const RtpSenderInterface& sender,
                             const std::unique_ptr<AudioTrackInterface>& track) {
   if (!track.get()) {
-    printf("123123123123");
     return sender->SetTrack(nullptr);
   } else {
     return sender->SetTrack(track.get()->get());
   }
-}
-
-bool is_track_in_sender(const RtpSenderInterface& sender) {
-  return sender->track() != nullptr;
 }
 
 }  // namespace bridge

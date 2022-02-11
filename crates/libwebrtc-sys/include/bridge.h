@@ -323,15 +323,16 @@ void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
 void stop_transceiver(const RtpTransceiverInterface& transceiver,
                       rust::String& error);
 
+// Gets the `RtpSenderInterface` from the `RtpTransceiverInterface`.
 std::unique_ptr<RtpSenderInterface> get_sender(
     const RtpTransceiverInterface& transceiver);
 
+// Sets the `VideoTrackInterface` to the `RtpSenderInterface`.
 bool set_sender_video_track(const RtpSenderInterface& sender,
                             const std::unique_ptr<VideoTrackInterface>& track);
 
+// Sets the `AudioTrackInterface` to the `RtpSenderInterface`.
 bool set_sender_audio_track(const RtpSenderInterface& sender,
                             const std::unique_ptr<AudioTrackInterface>& track);
-
-bool is_track_in_sender(const RtpSenderInterface& sender);
 
 }  // namespace bridge

@@ -378,6 +378,13 @@ impl Webrtc {
             .remove(usize::try_from(transceiver_id).unwrap());
     }
 
+    /// Sets the [`crate::AudioTrack`] or the [`crate::VideoTrack`] to
+    /// the [`sys::Transceiver`]'s `sender`.
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
+    /// or on setting the `track`.
     pub fn set_track_on_sender(
         &mut self,
         peer_id: u64,
@@ -434,25 +441,6 @@ impl Webrtc {
                 _ => unreachable!(),
             }
         }
-    }
-
-    pub fn sender_has_track(
-        &mut self,
-        peer_id: u64,
-        transceiver_id: u64,
-    ) -> bool {
-        let peer = self
-            .0
-            .peer_connections
-            .get_mut(&PeerConnectionId(peer_id))
-            .unwrap();
-
-        let transceiver = peer
-            .transceivers
-            .get(usize::try_from(transceiver_id).unwrap())
-            .unwrap();
-
-        transceiver.is_track_in()
     }
 }
 

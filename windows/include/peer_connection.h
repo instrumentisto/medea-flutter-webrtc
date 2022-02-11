@@ -87,9 +87,4 @@ void SetTrackOnSender(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
-void SenderHasTrack(
-    Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
-
 }  // namespace flutter_webrtc_plugin
