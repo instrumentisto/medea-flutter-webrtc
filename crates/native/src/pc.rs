@@ -198,10 +198,9 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// Panics if could not parse the given `media_type` and `direction` to a
-    /// valid [`sys::MediaType`] and [`sys::RtpTransceiverDirection`].
-    ///
-    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
+    /// - If cannot parse the given `media_type` and `direction` to a valid
+    ///   [`sys::MediaType`] and [`sys::RtpTransceiverDirection`].
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     pub fn add_transceiver(
         &mut self,
         peer_id: u64,
@@ -231,12 +230,11 @@ impl Webrtc {
     }
 
     /// Returns a sequence of [`api::RtcRtpTransceiver`] objects representing
-    /// the RTP transceivers that are currently attached to this
-    /// [`PeerConnection`] object.
+    /// the RTP transceivers currently attached to specified [`PeerConnection`].
     ///
     /// # Panics
     ///
-    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
+    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     pub fn get_transceivers(
         &mut self,
         peer_id: u64,
@@ -279,7 +277,7 @@ pub struct PeerConnection {
     /// Underlying [`sys::PeerConnectionInterface`].
     inner: sys::PeerConnectionInterface,
 
-    /// The [`sys::Transceiver`]s of this [`PeerConnection`].
+    /// [`sys::Transceiver`]s of this [`PeerConnection`].
     transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 

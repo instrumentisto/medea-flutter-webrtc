@@ -72,8 +72,8 @@ pub(crate) mod webrtc {
     }
 
     /// Possible kinds of an [`RtpTransceiverInterface`].
-    #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum MediaType {
         MEDIA_TYPE_AUDIO = 0,
         MEDIA_TYPE_VIDEO,
@@ -84,8 +84,8 @@ pub(crate) mod webrtc {
     /// [RTCRtpTransceiverDirection][1] representation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
-    #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum RtpTransceiverDirection {
         kSendRecv = 0,
         kSendOnly,
@@ -104,11 +104,12 @@ pub(crate) mod webrtc {
         kVideoRotation_270 = 270,
     }
 
-    // TODO: Remove when CXX allows using pointers to opaque types in vectors.
-    //       https://github.com/dtolnay/cxx/issues/741
-    /// Wrapper for [`RtpTransceiverInterface`] that can be used in Rust / C++
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpTransceiverInterface`] that can be used in Rust/C++
     /// vectors.
     struct TransceiverContainer {
+        /// Wrapped [`RtpTransceiverInterface`].
         pub ptr: UniquePtr<RtpTransceiverInterface>,
     }
 
@@ -516,16 +517,16 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<RtpTransceiverInterface>;
 
         /// Returns a sequence of [`RtpTransceiverInterface`] objects
-        /// representing the RTP transceivers that are currently attached to
-        /// this [`PeerConnectionInterface`] object.
+        /// representing the RTP transceivers currently attached to the given
+        /// [`PeerConnectionInterface`] object.
         pub fn get_transceivers(
             peer_connection_interface: &PeerConnectionInterface
         ) -> Vec<TransceiverContainer>;
 
         /// Returns a `mid` of the given [`RtpTransceiverInterface`].
         ///
-        /// If an empty [`String`] is returned, then the given [`RtpTransceiverInterface`]
-        /// was not negotiated yet.
+        /// If an empty [`String`] is returned, then the given
+        /// [`RtpTransceiverInterface`] hasn't been negotiated yet.
         pub fn get_transceiver_mid(
             transceiver: &RtpTransceiverInterface
         ) -> String;
@@ -1084,11 +1085,13 @@ impl TryFrom<&str> for webrtc::RtpTransceiverDirection {
 
 impl fmt::Display for webrtc::SdpType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use webrtc::SdpType as ST;
+
         match *self {
-            webrtc::SdpType::kOffer => write!(f, "offer"),
-            webrtc::SdpType::kAnswer => write!(f, "answer"),
-            webrtc::SdpType::kPrAnswer => write!(f, "pranswer"),
-            webrtc::SdpType::kRollback => write!(f, "rollback"),
+            ST::kOffer => write!(f, "offer"),
+            ST::kAnswer => write!(f, "answer"),
+            ST::kPrAnswer => write!(f, "pranswer"),
+            ST::kRollback => write!(f, "rollback"),
             _ => unreachable!(),
         }
     }
@@ -1096,12 +1099,14 @@ impl fmt::Display for webrtc::SdpType {
 
 impl fmt::Display for webrtc::RtpTransceiverDirection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use webrtc::RtpTransceiverDirection as D;
+
         match *self {
-            webrtc::RtpTransceiverDirection::kSendRecv => write!(f, "sendrecv"),
-            webrtc::RtpTransceiverDirection::kSendOnly => write!(f, "sendonly"),
-            webrtc::RtpTransceiverDirection::kRecvOnly => write!(f, "recvonly"),
-            webrtc::RtpTransceiverDirection::kInactive => write!(f, "inactive"),
-            webrtc::RtpTransceiverDirection::kStopped => write!(f, "stopped"),
+            D::kSendRecv => write!(f, "sendrecv"),
+            D::kSendOnly => write!(f, "sendonly"),
+            D::kRecvOnly => write!(f, "recvonly"),
+            D::kInactive => write!(f, "inactive"),
+            D::kStopped => write!(f, "stopped"),
             _ => unreachable!(),
         }
     }

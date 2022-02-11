@@ -189,7 +189,7 @@ namespace flutter_webrtc_plugin {
 
 using namespace flutter;
 
-// Converts a Rust `RtcRtpTransceiver` to Dart `EncodableMap`.
+// Converts a Rust `RtcRtpTransceiver` into a Dart `EncodableMap`.
 EncodableMap TransceiverToMap(RtcRtpTransceiver transceiver) {
   EncodableMap info;
 
@@ -202,7 +202,7 @@ EncodableMap TransceiverToMap(RtcRtpTransceiver transceiver) {
   info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
 
   return info;
-};
+}
 
 // Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
