@@ -104,6 +104,8 @@ mod cpp_api_bindings {
         pub fn on_ice_candidate(
             self: Pin<&mut PeerConnectionObserverInterface>,
             candidate: &CxxString,
+            mid: &CxxString,
+            mline_index: i32,
         );
     }
 

@@ -360,6 +360,15 @@ pub mod api {
             track_id: &str,
         );
 
+        #[cxx_name = "AddIceCandidate"]
+        pub fn add_ice_candidate(
+            self: &mut Webrtc,
+            peer_id: u64,
+            candidate: String,
+            sdp_mid: String,
+            sdp_mline_index: i32,
+        );
+
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
         #[cxx_name = "GetMedia"]

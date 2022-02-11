@@ -78,23 +78,23 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
     final Map<dynamic, dynamic> map = event;
 
     switch (map['event']) {
-      case 'signalingState':
+      case 'onSignalingStateChange':
         _signalingState = signalingStateForString(map['state']);
         onSignalingState?.call(_signalingState!);
         break;
-      case 'peerConnectionState':
+      case 'onConnectionStateChange':
         _connectionState = peerConnectionStateForString(map['state']);
         onConnectionState?.call(_connectionState!);
         break;
-      case 'iceGatheringState':
+      case 'onIceGatheringStateChange':
         _iceGatheringState = iceGatheringStateforString(map['state']);
         onIceGatheringState?.call(_iceGatheringState!);
         break;
-      case 'iceConnectionState':
+      case 'onIceConnectionStateChange':
         _iceConnectionState = iceConnectionStateForString(map['state']);
         onIceConnectionState?.call(_iceConnectionState!);
         break;
-      case 'onCandidate':
+      case 'onIceCandidate':
         Map<dynamic, dynamic> cand = map['candidate'];
         var candidate = RTCIceCandidate(
             cand['candidate'], cand['sdpMid'], cand['sdpMLineIndex']);
@@ -369,7 +369,7 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
 
   @override
   Future<void> addCandidate(RTCIceCandidate candidate) async {
-    await WebRTC.invokeMethod('addCandidate', <String, dynamic>{
+    await WebRTC.invokeMethod('addIceCandidate', <String, dynamic>{
       'peerConnectionId': _peerConnectionId,
       'candidate': candidate.toMap(),
     });

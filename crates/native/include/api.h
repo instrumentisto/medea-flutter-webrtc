@@ -48,7 +48,6 @@ class OnFrameCallbackInterface {
 // Handler of events firing from a `PeerConnectionInterface`.
 class PeerConnectionObserverInterface {
  public:
-
   // Called when a `connectionstatechange` event occurs.
   //
   // See: https://w3.org/TR/webrtc#event-connectionstatechange
@@ -57,7 +56,9 @@ class PeerConnectionObserverInterface {
   // Called when an `icecandidate` event occurs.
   //
   // See: https://w3.org/TR/webrtc#event-icecandidate
-  virtual void OnIceCandidate(const std::string& candidate) = 0;
+  virtual void OnIceCandidate(const std::string& candidate,
+                              const std::string& mid,
+                              int mline_index) = 0;
 
   // Called when an `icecandidateerror` event occurs.
   //

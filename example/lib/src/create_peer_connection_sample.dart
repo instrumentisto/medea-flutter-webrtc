@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -29,6 +28,19 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       var pc1 = await createPeerConnection({});
       var pc2 = await createPeerConnection({});
 
+      pc1.onIceCandidate = (RTCIceCandidate candidate) async {
+        await pc2.addCandidate(candidate);
+      };
+
+      pc2.onIceCandidate = (RTCIceCandidate candidate) async {
+        await pc1.addCandidate(candidate);
+      };
+
+      var init = RTCRtpTransceiverInit();
+      init.direction = TransceiverDirection.SendRecv;
+      await pc1.addTransceiver(
+          kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
       var offer = await pc1.createOffer();
       await pc1.setLocalDescription(offer);
       await pc2.setRemoteDescription(offer);
@@ -40,7 +52,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       setState(() {
         text = 'test is success';
       });
-
     } catch (e) {
       setState(() {
         text = e.toString();

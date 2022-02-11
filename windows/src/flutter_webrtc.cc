@@ -42,7 +42,8 @@ void FlutterWebRTC::HandleMethodCall(
     SetLocalDescription(webrtc, method_call, std::move(result));
   } else if (method.compare("setRemoteDescription") == 0) {
     SetRemoteDescription(webrtc, method_call, std::move(result));
-  } else if (method.compare("addCandidate") == 0) {
+  } else if (method.compare("addIceCandidate") == 0) {
+    AddIceCandidate(webrtc, method_call, std::move(result));
   } else if (method.compare("getStats") == 0) {
   } else if (method.compare("createDataChannel") == 0) {
   } else if (method.compare("dataChannelSend") == 0) {

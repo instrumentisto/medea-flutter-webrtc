@@ -8,7 +8,7 @@ namespace observer {
 // `DynPeerConnectionEventsHandler`.
 PeerConnectionObserver::PeerConnectionObserver(
     rust::Box<bridge::DynPeerConnectionEventsHandler> cb)
-    : cb_(std::move(cb)) {};
+    : cb_(std::move(cb)){};
 
 // Propagates the new `SignalingState` to the Rust side.
 void PeerConnectionObserver::OnSignalingChange(
@@ -46,12 +46,11 @@ void PeerConnectionObserver::OnIceCandidate(
 }
 
 // Propagates received error information to the Rust side.
-void PeerConnectionObserver::OnIceCandidateError(
-    const std::string& address,
-    int port,
-    const std::string& url,
-    int err_code,
-    const std::string& err_text) {
+void PeerConnectionObserver::OnIceCandidateError(const std::string& address,
+                                                 int port,
+                                                 const std::string& url,
+                                                 int err_code,
+                                                 const std::string& err_text) {
   bridge::on_ice_candidate_error(*cb_, address, port, url, err_code, err_text);
 }
 
@@ -84,18 +83,19 @@ void PeerConnectionObserver::OnRemoveTrack(
 
 // Does nothing since we do not use `DataChannel`s at the moment.
 void PeerConnectionObserver::OnDataChannel(
-    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
+    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel){};
 
 // Does nothing since we do not plan to support "Plan B" semantics.
 void PeerConnectionObserver::OnAddTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-    streams) {}
+        streams) {}
 
 // Creates a new `CreateSessionDescriptionObserver` backed by the provided
 // `bridge::DynCreateSdpCallback`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
-    rust::Box<bridge::DynCreateSdpCallback> cb) : cb_(std::move(cb)) {};
+    rust::Box<bridge::DynCreateSdpCallback> cb)
+    : cb_(std::move(cb)){};
 
 // Propagates the received SDP to the Rust side.
 void CreateSessionDescriptionObserver::OnSuccess(
@@ -123,7 +123,8 @@ void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
 // Creates a new `SetLocalDescriptionObserver` backed by the provided
 // `DynSetDescriptionCallback`.
 SetLocalDescriptionObserver::SetLocalDescriptionObserver(
-    rust::Box<bridge::DynSetDescriptionCallback> cb) : cb_(std::move(cb)) {};
+    rust::Box<bridge::DynSetDescriptionCallback> cb)
+    : cb_(std::move(cb)){};
 
 // Propagates the completion result to the Rust side.
 void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
@@ -143,7 +144,8 @@ void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
 // Creates a new `SetRemoteDescriptionObserver` backed by the provided
 // `DynSetDescriptionCallback`.
 SetRemoteDescriptionObserver::SetRemoteDescriptionObserver(
-    rust::Box<bridge::DynSetDescriptionCallback> cb) : cb_(std::move(cb)) {};
+    rust::Box<bridge::DynSetDescriptionCallback> cb)
+    : cb_(std::move(cb)){};
 
 // Propagates the completion result to the Rust side.
 void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(

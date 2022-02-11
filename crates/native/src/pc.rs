@@ -444,6 +444,22 @@ impl Webrtc {
             }
         }
     }
+
+    pub fn add_ice_candidate(
+        &mut self,
+        peer_id: u64,
+        candidate: String,
+        sdp_mid: String,
+        sdp_mline_index: i32,
+    ) {
+        self.0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .inner
+            .add_ice_candidate(&sdp_mid, sdp_mline_index, &candidate)
+            .unwrap();
+    }
 }
 
 /// ID of a [`PeerConnection`].
@@ -565,7 +581,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     ) {
         let mut string =
             unsafe { sys::ice_candidate_interface_to_string(candidate) };
-        self.0.pin_mut().on_ice_candidate(&string.pin_mut());
+        let mut mid = unsafe { sys::sdp_mid_of_ice_candidate(candidate) };
+        let mline_index =
+            unsafe { sys::sdp_mline_index_of_ice_candidate(candidate) };
+        self.0.pin_mut().on_ice_candidate(
+            &string.pin_mut(),
+            &mid.pin_mut(),
+            mline_index,
+        );
     }
 
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {

@@ -339,4 +339,14 @@ bool replace_sender_audio_track(
     const RtpSenderInterface& sender,
     const std::unique_ptr<AudioTrackInterface>& track);
 
+std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
+    const IceCandidateInterface* candidate);
+
+int sdp_mline_index_of_ice_candidate(const IceCandidateInterface* candidate);
+
+bool add_ice_candidate(const PeerConnectionInterface& peer,
+                       const rust::String& sdp_mid,
+                       int sdp_mline_index,
+                       const rust::String& candidate,
+                       rust::String& error);
 }  // namespace bridge

@@ -83,7 +83,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnConnectionStateChange";
+      params[EncodableValue("event")] = "onConnectionStateChange";
       params[flutter::EncodableValue("state")] = new_state;
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
@@ -93,12 +93,18 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   // Dart side.
   //
   // See: https://w3.org/TR/webrtc#dom-rtcicecandidate
-  void OnIceCandidate(const std::string& candidate) {
+  void OnIceCandidate(const std::string& candidate,
+                      const std::string& mid,
+                      int mline_index) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceCandidate";
-      params[EncodableValue("candidate")] = candidate;
+      params[EncodableValue("event")] = "onIceCandidate";
+      flutter::EncodableMap candidate_map;
+      candidate_map[EncodableValue("candidate")] = candidate;
+      candidate_map[EncodableValue("sdpMid")] = mid;
+      candidate_map[EncodableValue("sdpMLineIndex")] = mline_index;
+      params[EncodableValue("candidate")] = candidate_map;
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
   }
@@ -115,7 +121,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceCandidateError";
+      params[EncodableValue("event")] = "onIceCandidateError";
       params[flutter::EncodableValue("address")] = address;
       params[flutter::EncodableValue("errorCode")] = error_code;
       params[flutter::EncodableValue("errorText")] = error_text;
@@ -134,7 +140,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceConnectionStateChange";
+      params[EncodableValue("event")] = "onIceConnectionStateChange";
       params[flutter::EncodableValue("state")] = new_state;
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
@@ -148,7 +154,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnIceGatheringStateChange";
+      params[EncodableValue("event")] = "onIceGatheringStateChange";
       params[flutter::EncodableValue("state")] = new_state;
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
@@ -161,7 +167,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnNegotiationNeededEvent";
+      params[EncodableValue("event")] = "onNegotiationNeeded";
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
   };
@@ -174,7 +180,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnSignalingChange";
+      params[EncodableValue("event")] = "onSignalingStateChange";
       params[flutter::EncodableValue("state")] = new_state;
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
@@ -575,9 +581,30 @@ void ReplaceTrackOnSender(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  webrtc->ReplaceTrackOnSender(std::stoi(findString(params, "peerConnectionId")),
-                           std::stoi(findString(params, "transceiverId")),
-                           findString(params, "trackId"));
+  webrtc->ReplaceTrackOnSender(
+      std::stoi(findString(params, "peerConnectionId")),
+      std::stoi(findString(params, "transceiverId")),
+      findString(params, "trackId"));
+
+  result->Success();
+}
+
+void AddIceCandidate(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+  const EncodableMap candidate = findMap(params, "candidate");
+
+  webrtc->AddIceCandidate(std::stoi(findString(params, "peerConnectionId")),
+                          findString(candidate, "candidate"),
+                          findString(candidate, "sdpMid"),
+                          findInt(candidate, "sdpMLineIndex"));
 
   result->Success();
 }
