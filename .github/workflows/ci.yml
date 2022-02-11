@@ -134,6 +134,5 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - run: make cargo.test
 
       - run: make cargo.doc
