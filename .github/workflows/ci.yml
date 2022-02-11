@@ -114,6 +114,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: build-rust
+          path: windows/rust/
 
       - run: make flutter.test device=windows
 
