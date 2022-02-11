@@ -314,15 +314,14 @@ RtpTransceiverDirection get_transceiver_direction(
 
 // Changes the preferred `RtpTransceiverInterface` direction to the given
 // `RtpTransceiverDirection`.
-void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
-                               RtpTransceiverDirection new_direction,
-                               rust::String& error);
+rust::String set_transceiver_direction(
+    const RtpTransceiverInterface& transceiver,
+    RtpTransceiverDirection new_direction);
 
 // Irreversibly marks the transceiver as stopping, unless it is already stopped.
 //
 // This will immediately cause the transceiver's sender to no longer send, and
 // its receiver to no longer receive.
-void stop_transceiver(const RtpTransceiverInterface& transceiver,
-                      rust::String& error);
+rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 
 }  // namespace bridge

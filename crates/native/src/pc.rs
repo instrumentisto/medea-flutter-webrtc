@@ -289,8 +289,7 @@ impl Webrtc {
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .set_direction(direction.try_into().unwrap())
-            .map(Default::default)
-            .unwrap_or_else(|err| err.to_string())
+            .map_or_else(|err| err.to_string(), |_| String::new())
     }
 
     /// Returns the [Negotiated media ID (mid)][1] of the given
@@ -378,8 +377,7 @@ impl Webrtc {
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .stop()
-            .map(Default::default)
-            .unwrap_or_else(|err| err.to_string())
+            .map_or_else(|err| err.to_string(), |_| String::new())
     }
 
     /// Frees the given [`RtcRtpTransceiver`].

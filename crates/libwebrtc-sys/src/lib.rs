@@ -482,7 +482,7 @@ impl RtpTransceiverInterface {
     /// This will immediately cause the transceiver's sender to no longer send,
     /// and its receiver to no longer receive.
     pub fn stop(&self) -> anyhow::Result<()> {
-        let error = webrtc::stop_transceiver(&self.0, &mut error);
+        let error = webrtc::stop_transceiver(&self.0);
 
         if !error.is_empty() {
             bail!(
