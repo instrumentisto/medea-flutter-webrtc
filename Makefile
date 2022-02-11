@@ -75,16 +75,16 @@ flutter.run:
 	flutter run -d windows --release
 
 
-# Runs Flutter plugin integration tests on an attached device.
+# Run Flutter plugin integration tests on an attached device.
 #
 # Usage:
 #	make flutter.test [device=<device-id>]
 flutter.test:
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
-				  --target=integration_test/webrtc_test.dart \
-				  --profile \
-				  $(if $(call eq,$(device),),,-d $(device))
+	              --target=integration_test/webrtc_test.dart \
+	              --profile \
+	              $(if $(call eq,$(device),),,-d $(device))
 
 
 
@@ -195,6 +195,8 @@ docs.rust: cargo.doc
 
 test.cargo: cargo.test
 
+test.flutter: flutter.test
+
 
 
 
@@ -206,4 +208,4 @@ test.cargo: cargo.test
         cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
         docs.rust \
         flutter.build flutter.pub flutter.run flutter.test \
-        test.cargo \
+        test.cargo test.flutter

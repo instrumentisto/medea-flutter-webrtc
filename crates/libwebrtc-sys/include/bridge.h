@@ -306,13 +306,13 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
 rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer);
 
-// Returns a `RtpTransceiverInterface`'s `mid`.
+// Returns a `mid` of the given `RtpTransceiverInterface`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
 // Gets the `Transceiver`'s `MediaType`.
 MediaType get_transceiver_type(const RtpTransceiverInterface& transceiver);
 
-// Returns a `RtpTransceiverInterface`'s `direction`.
+// Returns a `direction` of the given `RtpTransceiverInterface`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
 
