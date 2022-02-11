@@ -17,7 +17,8 @@ impl Webrtc {
         stream_id: u64,
         handler: UniquePtr<internal::OnFrameCallbackInterface>,
     ) {
-        let track_id = self.0
+        let track_id = self
+            .0
             .local_media_streams
             .get(&MediaStreamId::from(stream_id))
             .unwrap()
@@ -33,18 +34,23 @@ impl Webrtc {
             track_id: *track_id,
         };
 
-        self.0.video_tracks.lock().unwrap()
+        self.0
+            .video_tracks
+            .lock()
+            .unwrap()
             .get_mut(track_id)
             .unwrap()
             .add_video_sink(&mut sink);
 
-            self.0.video_sinks.insert(Id(sink_id), sink);
+        self.0.video_sinks.insert(Id(sink_id), sink);
     }
 
     /// Destroys a [`VideoSink`] by the given ID.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
         if let Some(sink) = self.0.video_sinks.remove(&Id(sink_id)) {
-            if let Some(track) = self.0.video_tracks.lock().unwrap().get_mut(&sink.track_id) {
+            if let Some(track) =
+                self.0.video_tracks.lock().unwrap().get_mut(&sink.track_id)
+            {
                 track.remove_video_sink(sink);
             }
         }

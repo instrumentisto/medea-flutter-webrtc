@@ -1,15 +1,14 @@
-use std::{ops::DerefMut, rc::Rc};
+use std::rc::Rc;
 
 use anyhow::bail;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 
-use owning_ref::{MutexGuardRefMut};
 use sys::{AudioTrackInterface, VideoTrackInterface};
 
 use crate::{
     api::{self, AudioConstraints, VideoConstraints},
-    next_id, Context, VideoSink, VideoSinkId, Webrtc,
+    next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
 impl Webrtc {
@@ -56,7 +55,10 @@ impl Webrtc {
                 enabled: true,
             });
         };
-        self.0.local_media_streams.entry(stream.id).or_insert(stream);
+        self.0
+            .local_media_streams
+            .entry(stream.id)
+            .or_insert(stream);
         result
     }
 
@@ -67,13 +69,21 @@ impl Webrtc {
     /// Panics if tracks from the provided [`MediaStream`] are not found in the
     /// context, as it's an invariant violation.
     pub fn dispose_stream(self: &mut Webrtc, id: u64) {
-        if let Some(stream) = self.0.local_media_streams.remove(&MediaStreamId(id))
+        if let Some(stream) =
+            self.0.local_media_streams.remove(&MediaStreamId(id))
         {
             let video_tracks = stream.video_tracks;
             let audio_tracks = stream.audio_tracks;
 
             for track in video_tracks {
-                let src = self.0.video_tracks.lock().unwrap().remove(&track).unwrap().src;
+                let src = self
+                    .0
+                    .video_tracks
+                    .lock()
+                    .unwrap()
+                    .remove(&track)
+                    .unwrap()
+                    .src;
 
                 if Rc::strong_count(&src) == 2 {
                     self.0.video_sources.remove(&src.device_id);
@@ -81,7 +91,14 @@ impl Webrtc {
             }
 
             for track in audio_tracks {
-                let src = self.0.audio_tracks.lock().unwrap().remove(&track).unwrap().src;
+                let src = self
+                    .0
+                    .audio_tracks
+                    .lock()
+                    .unwrap()
+                    .remove(&track)
+                    .unwrap()
+                    .src;
 
                 if Rc::strong_count(&src) == 2 {
                     self.0.audio_source.take();
@@ -97,16 +114,19 @@ impl Webrtc {
         &mut self,
         source: Rc<VideoSource>,
     ) -> anyhow::Result<&mut VideoTrack> {
+        let track = VideoTrack::new(
+            &self.0.peer_connection_factory,
+            source,
+            VideoLabel(self.0.video_device_info.device_name(0)?.0),
+        )?;
 
-    let track = VideoTrack::new(
-        &self.0.peer_connection_factory,
-        source,
-        VideoLabel(
-            self.0.video_device_info.device_name(0)?.0,
-        ),
-    )?;
-
-        let track = self.0.video_tracks.lock().unwrap().entry(track.id).or_insert(track);
+        let track = self
+            .0
+            .video_tracks
+            .lock()
+            .unwrap()
+            .entry(track.id)
+            .or_insert(track);
 
         bail!("")
     }
@@ -149,10 +169,11 @@ impl Webrtc {
 
         let source = source.map(|s| {
             let s = Rc::new(s);
-            self.0.video_sources.insert(s.device_id.clone(), Rc::clone(&s));
+            self.0
+                .video_sources
+                .insert(s.device_id.clone(), Rc::clone(&s));
             s
         });
-
 
         Ok(source.unwrap())
     }
@@ -165,8 +186,12 @@ impl Webrtc {
     ) -> anyhow::Result<&mut AudioTrack> {
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
-        let device_id =
-            self.0.audio_device_module.current_device_id.clone().unwrap();
+        let device_id = self
+            .0
+            .audio_device_module
+            .current_device_id
+            .clone()
+            .unwrap();
         let device_index = if let Some(index) =
             self.get_index_of_audio_recording_device(&device_id)?
         {
@@ -183,7 +208,8 @@ impl Webrtc {
             source,
             AudioLabel(
                 #[allow(clippy::cast_possible_wrap)]
-                self.0.audio_device_module
+                self.0
+                    .audio_device_module
                     .inner
                     .recording_device_name(device_index as i16)?
                     .0,
@@ -209,10 +235,18 @@ impl Webrtc {
                 }
 
                 AudioDeviceId(
-                    self.0.audio_device_module.inner.recording_device_name(0)?.1,
+                    self.0
+                        .audio_device_module
+                        .inner
+                        .recording_device_name(0)?
+                        .1,
                 )
             } else {
-                self.0.audio_device_module.current_device_id.clone().unwrap()
+                self.0
+                    .audio_device_module
+                    .current_device_id
+                    .clone()
+                    .unwrap()
             }
         } else {
             AudioDeviceId(caps.device_id.clone())
@@ -232,7 +266,8 @@ impl Webrtc {
         if Some(&device_id)
             != self.0.audio_device_module.current_device_id.as_ref()
         {
-            self.0.audio_device_module
+            self.0
+                .audio_device_module
                 .set_recording_device(device_id, device_index)?;
         }
 
@@ -241,7 +276,7 @@ impl Webrtc {
         } else {
             let src =
                 Rc::new(self.0.peer_connection_factory.create_audio_source()?);
-                self.0.audio_source.replace(Rc::clone(&src));
+            self.0.audio_source.replace(Rc::clone(&src));
 
             src
         };

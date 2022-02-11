@@ -3,6 +3,9 @@
 
 mod bridge;
 
+extern crate derive_more;
+use derive_more::From;
+
 use anyhow::bail;
 use bridge::webrtc::RtpReceiverInterface;
 use cxx::{let_cxx_string, CxxString, UniquePtr};
@@ -42,17 +45,16 @@ pub use crate::webrtc::{
     rtp_transceiver_interface_get_sender, video_frame_to_abgr,
     video_track_get_sourse, video_track_truncation, AudioLayer, Candidate,
     CandidatePairChangeEvent, DtmfSenderInterface, IceCandidateInterface,
-    IceConnectionState, IceGatheringState, PeerConnectionState,
-    RtpCodecParameters, RtpEncodingParameters, RtpExtension, RtpParameters,
-    MediaStreamTrackInterface, RtpSenderInterface,
-    RtpTransceiverInterface, SdpType, SignalingState, VideoFrame,
-    VideoRotation,
+    IceConnectionState, IceGatheringState, MediaStreamTrackInterface,
+    PeerConnectionState, RtpCodecParameters, RtpEncodingParameters,
+    RtpExtension, RtpParameters, RtpSenderInterface, RtpTransceiverInterface,
+    SdpType, SignalingState, VideoFrame, VideoRotation,
 };
 pub use bridge::webrtc::CandidateWrap;
 
 pub use bridge::webrtc::{
-    RtpReceiverInterface as Sys_RtpReceiverInterface,
     AudioTrackInterface as Sys_AudioTrackInterface,
+    RtpReceiverInterface as Sys_RtpReceiverInterface,
     VideoTrackInterface as Sys_VideoTrackInterface,
 };
 
@@ -697,6 +699,7 @@ impl PeerConnectionFactoryInterface {
 ///
 /// It can be later used to create a [`VideoTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_video_track()`].
+#[derive(From)]
 pub struct VideoTrackSourceInterface(
     UniquePtr<webrtc::VideoTrackSourceInterface>,
 );
@@ -736,27 +739,20 @@ impl VideoTrackSourceInterface {
     }
 }
 
-impl From<UniquePtr<webrtc::VideoTrackSourceInterface>> for VideoTrackSourceInterface {
-    fn from(inner: UniquePtr<webrtc::VideoTrackSourceInterface>) -> Self {
-        Self(inner)
-    }
-}
+
 
 /// [`VideoTrackSourceInterface`] captures data from the specific audio input
 /// device.
 ///
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
+#[derive(From)]
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
-impl From<UniquePtr<webrtc::AudioSourceInterface>> for AudioSourceInterface {
-    fn from(inner: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
-        Self(inner)
-    }
-}
 
 /// Video [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+#[derive(From)]
 pub struct VideoTrackInterface(UniquePtr<webrtc::VideoTrackInterface>);
 
 impl VideoTrackInterface {
@@ -781,15 +777,10 @@ impl VideoTrackInterface {
     }
 }
 
-impl From<UniquePtr<webrtc::VideoTrackInterface>> for VideoTrackInterface {
-    fn from(inner: UniquePtr<webrtc::VideoTrackInterface>) -> Self {
-        Self(inner)
-    }
-}
-
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+#[derive(From)]
 pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
 
 impl AudioTrackInterface {
@@ -798,13 +789,6 @@ impl AudioTrackInterface {
         &self.0
     }
 }
-
-impl From<UniquePtr<webrtc::AudioTrackInterface>> for AudioTrackInterface {
-    fn from(inner: UniquePtr<webrtc::AudioTrackInterface>) -> Self {
-        Self(inner)
-    }
-}
-
 /// [`MediaStreamInterface`][1] representation.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastream

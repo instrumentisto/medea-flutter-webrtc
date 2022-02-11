@@ -251,33 +251,16 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     }
   }
 
-  void OnTrack(OnTrackSerialized transceiver) {
+  void OnTrack(OnTrackSerialized event) {
     const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
-      auto receiver = transceiver.receiver;
-      flutter::EncodableList streams_info;
-      for (int i = 0; i < transceiver.streams.size(); ++i) {
-        streams_info.push_back(mediaStreamToMap(transceiver.streams[i]));
-      }
-      flutter::EncodableMap params;
-      params[EncodableValue("event")] = "onTrack";
-      params[EncodableValue("streams")] = EncodableValue(streams_info);
-      params[EncodableValue("track")] = EncodableValue(mediaTrackToMap(receiver.track));
-      params[EncodableValue("receiver")] = EncodableValue(rtpReceiverToMap(receiver));
-      params[EncodableValue("transceiver")] = EncodableValue(transceiverToMap(transceiver.transceiver));
+      flutter::EncodableMap info;
+      info[EncodableValue("event")] = "onTrack";
+      info[EncodableValue("channelId")] = EncodableValue(event.channel_id);
+      info[EncodableValue("track")] = EncodableValue(mediaTrackToMap(event.track));
+      info[EncodableValue("transceiver")] = EncodableValue(transceiverToMap(event.transceiver));
 
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  }
-
-  void OnRemoveTrack(RtpReceiverInterfaceSerialized receiver) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[EncodableValue("event")] = "OnRemoveTrack";
-      params[EncodableValue("receiver")] = EncodableValue(rtpReceiverToMap(receiver));
-
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+      context_->event_sink.get()->Success(flutter::EncodableValue(info));
     }
   }
 
@@ -287,160 +270,42 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   // `shared_ptr` for shared context 
   // in `flutter::StreamHandlerFunctions` (subscribe/unsubscribe event).
   std::shared_ptr<EventContext> context_;
-
-  flutter::EncodableMap transceiverToMap(RtpTransceiverInterfaceSerialized transceiver) {
-    EncodableMap info;
-    std::string mid = std::string(transceiver.mid);
-    if (mid != "") {
-      info[EncodableValue("transceiverId")] =  mid;
-      info[EncodableValue("mid")] =  mid;
-    }
-    info[EncodableValue("direction")] = std::string(transceiver.direction);
-    info[EncodableValue("sender")] =  rtpSenderToMap(transceiver.sender);
-    info[EncodableValue("receiver")] =  rtpReceiverToMap(transceiver.receiver);
-    return info;
-  }
   
+  EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
+    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
+    if (context_->event_sink.get() != nullptr) {
+      flutter::EncodableMap info;
+      info[EncodableValue("channelId")] = EncodableValue(track.channel_id);
+      info[EncodableValue("id")] = std::string(track.id);
+      if(track.device_id != "") {
+        info[EncodableValue("deviceId")] = std::string(track.device_id);
+      }
+      info[EncodableValue("kind")] = std::string(track.kind);
+      context_->event_sink.get()->Success(flutter::EncodableValue(info));
+    }
+  }
+
+  EncodableMap transceiverToMap(RtpTransceiverInterfaceSerialized tranceiver) {
+    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
+    if (context_->event_sink.get() != nullptr) {
+      flutter::EncodableMap info;
+      info[EncodableValue("channelId")] = EncodableValue(tranceiver.channel_id);
+      if(tranceiver.mid != "") {
+        info[EncodableValue("mid")] = std::string(tranceiver.mid);
+      }
+      info[EncodableValue("sender")] = EncodableValue(rtpSenderToMap(tranceiver.sender));
+      context_->event_sink.get()->Success(flutter::EncodableValue(info));
+    }
+  }
+
   EncodableMap rtpSenderToMap(RtpSenderInterfaceSerialized sender) {
-    EncodableMap info;
-    std::string id = std::string(sender.senderId);
-    info[EncodableValue("senderId")] =  id;
-    info[EncodableValue("ownsTrack")] =  EncodableValue(true);
-    info[EncodableValue("dtmfSender")] = EncodableValue(
-        dtmfSenderToMap(sender.dtmfSender, id));
-    info[EncodableValue("rtpParameters")] = EncodableValue(
-        rtpParametersToMap(sender.rtpParameters));
-    info[EncodableValue("track")] =  EncodableValue(mediaTrackToMap(sender.track));
-    return info;
+    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
+    if (context_->event_sink.get() != nullptr) {
+      flutter::EncodableMap info;
+      info[EncodableValue("channelId")] = EncodableValue(sender.channel_id);
+      context_->event_sink.get()->Success(flutter::EncodableValue(info));
+    }
   }
-
-  EncodableMap dtmfSenderToMap(
-    DtmfSenderInterfaceSerialized dtmfSender,
-    std::string id) {
-    EncodableMap info;
-    if (!dtmfSender.is_null) {
-      info[EncodableValue("dtmfSenderId")] = EncodableValue(id);
-      info[EncodableValue("interToneGap")] =
-          EncodableValue(dtmfSender.interToneGap);
-      info[EncodableValue("duration")] = EncodableValue(dtmfSender.duration);
-    }
-    return info;
-  }
-
-  flutter::EncodableMap mediaStreamToMap(MediaStreamInterfaceSerialized stream) {
-    EncodableMap params;
-    params[EncodableValue("streamId")] =  std::string(stream.streamId);
-    // params[EncodableValue("ownerTag")] =  EncodableValue(id);
-    EncodableList audioTracks;
-    auto audio_tracks = stream.audio_tracks;
-    for (TrackInterfaceSerialized val : audio_tracks) {
-      audioTracks.push_back(EncodableValue(mediaTrackToMap(val)));
-    }
-    params[EncodableValue("audioTracks")] =  EncodableValue(audioTracks);
-
-    EncodableList videoTracks;
-    auto video_tracks = stream.video_tracks;
-    for (TrackInterfaceSerialized val : video_tracks) {
-      videoTracks.push_back(EncodableValue(mediaTrackToMap(val)));
-    }
-    params[EncodableValue("videoTracks")] =  EncodableValue(videoTracks);
-    return params;
-  }
-
-  flutter::EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
-    EncodableMap info;
-    info[EncodableValue("id")] = std::string(track.id);
-    info[EncodableValue("kind")] = std::string(track.kind);
-    info[EncodableValue("label")] = std::string(track.kind);
-    info[EncodableValue("readyState")] = std::string(track.state);
-    info[EncodableValue("enabled")] = EncodableValue(track.enabled);
-    return info;
-  }
-
-  EncodableMap rtpReceiverToMap(RtpReceiverInterfaceSerialized receiver) {
-  EncodableMap info;
-  info[EncodableValue("receiverId")] =  std::string(receiver.receiverId);
-  info[EncodableValue("rtpParameters")] = EncodableValue(
-      rtpParametersToMap(receiver.parameters));
-  info[EncodableValue("track")] =  EncodableValue(mediaTrackToMap(receiver.track));
-  return info;
-}
-
-// todo parse 'if' to int f64 
-EncodableMap rtpParametersToMap(RtpParametersSerialized rtpParameters) {
-  EncodableMap info;
-  info[EncodableValue("transactionId")] = std::string(rtpParameters.transactionId);
-
-  EncodableMap rtcp;
-  rtcp[EncodableValue("cname")] =
-      std::string(rtpParameters.rtcp.cname);
-  rtcp[EncodableValue("reducedSize")] =
-      EncodableValue(rtpParameters.rtcp.reduced_size);
-
-  info[EncodableValue("rtcp")] = EncodableValue(rtcp);
-
-  EncodableList headerExtensions;
-  auto header_extensions = rtpParameters.header_extensions;
-  for (RtpExtensionSerialized extension :
-       rtpParameters.header_extensions) {
-    EncodableMap map;
-    map[EncodableValue("uri")] = std::string(extension.uri);
-    map[EncodableValue("id")] = EncodableValue(extension.id);
-    map[EncodableValue("encrypted")] = EncodableValue(extension.encrypted);
-    headerExtensions.push_back(EncodableValue(map));
-  }
-  info[EncodableValue("headerExtensions")] = EncodableValue(headerExtensions);
-
-  EncodableList encodings_info;
-  auto encodings = rtpParameters.encodings;
-  for (RtpEncodingParametersSerialized encoding :
-       rtpParameters.encodings) {
-    EncodableMap map;
-    map[EncodableValue("active")] = EncodableValue(encoding.active);
-    if (encoding.maxBitrate != "") {
-      map[EncodableValue("maxBitrate")] = std::string(encoding.maxBitrate);
-    }
-    if (encoding.maxBitrate != "") {
-      map[EncodableValue("minBitrate")] = std::string(encoding.minBitrate);
-    }
-    if (encoding.maxBitrate != "") {
-      map[EncodableValue("maxFramerate")] = std::string(encoding.maxFramerate);
-    }
-    if (encoding.maxBitrate != "") {
-      map[EncodableValue("scaleResolutionDownBy")] = std::string(encoding.scaleResolutionDownBy);
-    }
-    if (encoding.maxBitrate != "") {
-      map[EncodableValue("ssrc")] = std::string(encoding.ssrc);
-    }
-    encodings_info.push_back(EncodableValue(map));
-  }
-  info[EncodableValue("encodings")] = EncodableValue(encodings_info);
-
-  EncodableList codecs_info;
-  for (RtpCodecParametersSerialized codec : rtpParameters.codecs) {
-    EncodableMap map;
-    map[EncodableValue("name")] = std::string(codec.name);
-    map[EncodableValue("payloadType")] = EncodableValue(codec.payloadType);
-    if (codec.clockRate != "") {
-      map[EncodableValue("clockRate")] = std::string(codec.clockRate);
-    }
-    if (codec.numChannels != "") {
-      map[EncodableValue("numChannels")] = std::string(codec.numChannels);
-    }
-    EncodableMap param;
-    for (auto item : codec.parameters) {
-      param[EncodableValue(std::string(item.first))] = EncodableValue(std::string(item.second));
-    }
-    map[EncodableValue("parameters")] = EncodableValue(param);
-
-    map[EncodableValue("kind")] = EncodableValue(std::string(codec.kind));
-
-    codecs_info.push_back(EncodableValue(map));
-  }
-  info[EncodableValue("codecs")] = EncodableValue(codecs_info);
-
-  return info;
-}
 };
 
 namespace flutter_webrtc_plugin {

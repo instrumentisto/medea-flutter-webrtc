@@ -17,8 +17,12 @@ impl Webrtc {
         let mut audio = {
             let count_playout =
                 self.0.audio_device_module.inner.playout_devices().unwrap();
-            let count_recording =
-            self.0.audio_device_module.inner.recording_devices().unwrap();
+            let count_recording = self
+                .0
+                .audio_device_module
+                .inner
+                .recording_devices()
+                .unwrap();
 
             #[allow(clippy::cast_sign_loss)]
             let mut result =
@@ -37,12 +41,14 @@ impl Webrtc {
                 for i in 0..count {
                     let (label, device_id) =
                         if let api::MediaDeviceKind::kAudioOutput = kind {
-                            self.0.audio_device_module
+                            self.0
+                                .audio_device_module
                                 .inner
                                 .playout_device_name(i)
                                 .unwrap()
                         } else {
-                            self.0.audio_device_module
+                            self.0
+                                .audio_device_module
                                 .inner
                                 .recording_device_name(i)
                                 .unwrap()
@@ -66,7 +72,7 @@ impl Webrtc {
 
             for i in 0..count {
                 let (label, device_id) =
-                self.0.video_device_info.device_name(i).unwrap();
+                    self.0.video_device_info.device_name(i).unwrap();
 
                 result.push(api::MediaDeviceInfo {
                     device_id,
@@ -123,7 +129,7 @@ impl Webrtc {
         let count = self.0.audio_device_module.inner.recording_devices()?;
         for i in 0..count {
             let (_, id) =
-            self.0.audio_device_module.inner.recording_device_name(i)?;
+                self.0.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.as_ref() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));

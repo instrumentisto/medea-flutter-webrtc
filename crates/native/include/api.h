@@ -68,7 +68,6 @@ class PeerConnectionOnEventInterface {
   virtual void OnIceSelectedCandidatePairChanged(CandidatePairChangeEventSerialized event) = 0;
  
   virtual void OnTrack(OnTrackSerialized event) = 0;
-  virtual void OnRemoveTrack(RtpReceiverInterfaceSerialized receiver) = 0;
 
   virtual ~PeerConnectionOnEventInterface() = default;
 };
