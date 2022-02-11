@@ -442,8 +442,7 @@ std::unique_ptr<RtpReceiverInterface> rtp_transceiver_interface_get_receiver(
 
 std::unique_ptr<std::string> rtp_transceiver_interface_get_mid(
     const RtpTransceiverInterface& transceiver) {
-      return std::make_unique<std::string>(
-        transceiver->mid().has_value() ? transceiver->mid().value() : "");
+      return std::make_unique<std::string>(transceiver->mid().value());
     }
 
 RtpTransceiverDirection rtp_transceiver_interface_get_direction(

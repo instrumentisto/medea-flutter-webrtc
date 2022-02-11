@@ -366,6 +366,7 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   return info;
 }
 
+// todo parse 'if' to int f64 
 EncodableMap rtpParametersToMap(RtpParametersSerialized rtpParameters) {
   EncodableMap info;
   info[EncodableValue("transactionId")] = std::string(rtpParameters.transactionId);
@@ -396,12 +397,21 @@ EncodableMap rtpParametersToMap(RtpParametersSerialized rtpParameters) {
        rtpParameters.encodings) {
     EncodableMap map;
     map[EncodableValue("active")] = EncodableValue(encoding.active);
-    map[EncodableValue("maxBitrate")] = EncodableValue(encoding.maxBitrate);
-    map[EncodableValue("minBitrate")] = EncodableValue(encoding.minBitrate);
-    map[EncodableValue("maxFramerate")] = EncodableValue(encoding.maxFramerate);
-    map[EncodableValue("scaleResolutionDownBy")] =
-        EncodableValue(encoding.scaleResolutionDownBy);
-    map[EncodableValue("ssrc")] = EncodableValue((long)encoding.ssrc);
+    if (encoding.maxBitrate != "") {
+      map[EncodableValue("maxBitrate")] = std::string(encoding.maxBitrate);
+    }
+    if (encoding.maxBitrate != "") {
+      map[EncodableValue("minBitrate")] = std::string(encoding.minBitrate);
+    }
+    if (encoding.maxBitrate != "") {
+      map[EncodableValue("maxFramerate")] = std::string(encoding.maxFramerate);
+    }
+    if (encoding.maxBitrate != "") {
+      map[EncodableValue("scaleResolutionDownBy")] = std::string(encoding.scaleResolutionDownBy);
+    }
+    if (encoding.maxBitrate != "") {
+      map[EncodableValue("ssrc")] = std::string(encoding.ssrc);
+    }
     encodings_info.push_back(EncodableValue(map));
   }
   info[EncodableValue("encodings")] = EncodableValue(encodings_info);
@@ -411,9 +421,12 @@ EncodableMap rtpParametersToMap(RtpParametersSerialized rtpParameters) {
     EncodableMap map;
     map[EncodableValue("name")] = std::string(codec.name);
     map[EncodableValue("payloadType")] = EncodableValue(codec.payloadType);
-    map[EncodableValue("clockRate")] = EncodableValue(codec.clockRate);
-    map[EncodableValue("numChannels")] = EncodableValue(codec.numChannels);
-
+    if (codec.clockRate != "") {
+      map[EncodableValue("clockRate")] = std::string(codec.clockRate);
+    }
+    if (codec.numChannels != "") {
+      map[EncodableValue("numChannels")] = std::string(codec.numChannels);
+    }
     EncodableMap param;
     for (auto item : codec.parameters) {
       param[EncodableValue(std::string(item.first))] = EncodableValue(std::string(item.second));

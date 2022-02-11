@@ -15,12 +15,40 @@ use std::{
     },
 };
 
-use api::{RtpParametersSerialized, TrackInterfaceSerialized, DtmfSenderInterfaceSerialized};
+use api::{
+    DtmfSenderInterfaceSerialized, RtcpParametersSerialized,
+    RtpCodecParametersSerialized, RtpEncodingParametersSerialized,
+    RtpExtensionSerialized, RtpParametersSerialized,
+    RtpReceiverInterfaceSerialized, RtpSenderInterfaceSerialized,
+    RtpTransceiverInterfaceSerialized, StringPair, TrackInterfaceSerialized,
+};
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, MediaStreamTrackInterface,
     PeerConnectionFactoryInterface, RtpParameters, RtpTransceiverInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo, _AudioTrackInterface,
-    _VideoTrackInterface,
+    TaskQueueFactory, Thread, VideoDeviceInfo, Sys_AudioTrackInterface,
+    Sys_RtpReceiverInterface, Sys_VideoTrackInterface,
+    dtmf_sender_interface_get_duration,
+    dtmf_sender_interface_get_inter_tone_gap, rtcp_parameters_get_cname,
+    rtcp_parameters_get_reduced_size, rtp_codec_parameters_get_clock_rate,
+    rtp_codec_parameters_get_kind, rtp_codec_parameters_get_name,
+    rtp_codec_parameters_get_num_channels, rtp_codec_parameters_get_parameters,
+    rtp_codec_parameters_get_payload_type, rtp_encoding_parameters_get_active,
+    rtp_encoding_parameters_get_maxBitrate,
+    rtp_encoding_parameters_get_maxFramerate,
+    rtp_encoding_parameters_get_minBitrate,
+    rtp_encoding_parameters_get_scale_resolution_down_by,
+    rtp_encoding_parameters_get_ssrc, rtp_extension_get_encrypt,
+    rtp_extension_get_id, rtp_extension_get_uri, rtp_parameters_get_codecs,
+    rtp_parameters_get_encodings, rtp_parameters_get_header_extensions,
+    rtp_parameters_get_rtcp, rtp_parameters_get_transaction_id,
+    rtp_receiver_interface_get_id, rtp_receiver_interface_get_parameters,
+    rtp_receiver_interface_get_track, rtp_sender_interface_get_dtmf,
+    rtp_sender_interface_get_id, rtp_sender_interface_get_parameters,
+    rtp_sender_interface_get_track, rtp_transceiver_interface_get_direction,
+    rtp_transceiver_interface_get_mid, rtp_transceiver_interface_get_receiver,
+    rtp_transceiver_interface_get_sender, DtmfSenderInterface,
+    RtpCodecParameters, RtpEncodingParameters, RtpExtension,
+    RtpSenderInterface,
 };
 
 use libwebrtc_sys::{
@@ -107,11 +135,11 @@ pub mod api {
     // todo
     pub struct RtpEncodingParametersSerialized {
         active: bool,
-        maxBitrate: i32,
-        minBitrate: i32,
-        maxFramerate: f64,
-        scaleResolutionDownBy: f64,
-        ssrc: i64,
+        maxBitrate: String,
+        minBitrate: String,
+        maxFramerate: String,
+        scaleResolutionDownBy: String,
+        ssrc: String,
     }
 
     // todo
@@ -124,8 +152,8 @@ pub mod api {
     pub struct RtpCodecParametersSerialized {
         name: String,
         payloadType: i32,
-        clockRate: i32,
-        numChannels: i32,
+        clockRate: String,
+        numChannels: String,
         parameters: Vec<StringPair>,
         kind: String,
     }
@@ -444,8 +472,8 @@ pub mod api {
     }
 }
 
-impl From<&_VideoTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &_VideoTrackInterface) -> Self {
+impl From<&Sys_VideoTrackInterface> for TrackInterfaceSerialized {
+    fn from(track: &Sys_VideoTrackInterface) -> Self {
         let track = video_track_truncation(track);
         TrackInterfaceSerialized {
             label: "video".to_owned(),
@@ -457,8 +485,8 @@ impl From<&_VideoTrackInterface> for TrackInterfaceSerialized {
     }
 }
 
-impl From<&_AudioTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &_AudioTrackInterface) -> Self {
+impl From<&Sys_AudioTrackInterface> for TrackInterfaceSerialized {
+    fn from(track: &Sys_AudioTrackInterface) -> Self {
         let track = audio_track_truncation(track);
         TrackInterfaceSerialized {
             label: "audio".to_owned(),
@@ -482,6 +510,127 @@ impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
     }
 }
 
+impl From<&RtpParameters> for RtpParametersSerialized {
+    fn from(parameters: &RtpParameters) -> Self {
+        let rtcp = rtp_parameters_get_rtcp(&parameters);
+
+        let rtcp = RtcpParametersSerialized {
+            cname: rtcp_parameters_get_cname(&rtcp).to_string(),
+            reduced_size: rtcp_parameters_get_reduced_size(&rtcp),
+        };
+
+        let codecs = rtp_parameters_get_codecs(&parameters);
+        let mut res_codecs = vec![];
+        for i in codecs.into_iter() {
+            res_codecs.push(RtpCodecParametersSerialized::from(i));
+        }
+
+        let header_extension =
+            rtp_parameters_get_header_extensions(&parameters);
+        let mut res_header_extension = vec![];
+        for i in header_extension.into_iter() {
+            res_header_extension.push(RtpExtensionSerialized::from(i));
+        }
+
+        let encodings = rtp_parameters_get_encodings(&parameters);
+        let mut res_encodings = vec![];
+
+        for i in encodings.into_iter() {
+            res_encodings.push(RtpEncodingParametersSerialized::from(i));
+        }
+
+        RtpParametersSerialized {
+            transactionId: rtp_parameters_get_transaction_id(&parameters)
+                .to_string(),
+            rtcp,
+            codecs: res_codecs,
+            header_extensions: res_header_extension,
+            encodings: res_encodings,
+        }
+    }
+}
+
+impl From<&RtpExtension> for RtpExtensionSerialized {
+    fn from(ext: &RtpExtension) -> Self {
+        RtpExtensionSerialized {
+            uri: rtp_extension_get_uri(ext).to_string(),
+            id: rtp_extension_get_id(ext),
+            encrypted: rtp_extension_get_encrypt(ext),
+        }
+    }
+}
+
+impl From<&Sys_RtpReceiverInterface> for RtpReceiverInterfaceSerialized {
+    fn from(receiver: &Sys_RtpReceiverInterface) -> Self {
+        let params = rtp_receiver_interface_get_parameters(receiver);
+
+        let track = rtp_receiver_interface_get_track(receiver);
+
+        RtpReceiverInterfaceSerialized {
+            receiverId: rtp_receiver_interface_get_id(receiver).to_string(),
+            parameters: RtpParametersSerialized::from(
+                &params as &RtpParameters,
+            ),
+            track: TrackInterfaceSerialized::from(
+                &track as &MediaStreamTrackInterface,
+            ),
+        }
+    }
+}
+
+impl From<&RtpEncodingParameters> for RtpEncodingParametersSerialized {
+    fn from(ext: &RtpEncodingParameters) -> Self {
+        RtpEncodingParametersSerialized {
+            active: rtp_encoding_parameters_get_active(ext),
+            maxBitrate: rtp_encoding_parameters_get_maxBitrate(ext)
+                .map_or("".to_owned(), |id| id.to_string()),
+            minBitrate: rtp_encoding_parameters_get_minBitrate(ext)
+                .map_or("".to_owned(), |id| id.to_string()),
+            maxFramerate: rtp_encoding_parameters_get_maxFramerate(ext)
+                .map_or("".to_owned(), |id| id.to_string()),
+            scaleResolutionDownBy:
+                rtp_encoding_parameters_get_scale_resolution_down_by(ext)
+                    .map_or("".to_owned(), |id| id.to_string()),
+            ssrc: rtp_encoding_parameters_get_ssrc(ext)
+                .map_or("".to_owned(), |id| id.to_string()),
+        }
+    }
+}
+
+impl From<&RtpCodecParameters> for RtpCodecParametersSerialized {
+    fn from(codec: &RtpCodecParameters) -> Self {
+        let pars_ = rtp_codec_parameters_get_parameters(codec);
+        let mut parameters = vec![];
+        for i in pars_.into_iter() {
+            parameters.push(StringPair {
+                first: i.first.clone(),
+                second: i.second.clone(),
+            });
+        }
+        RtpCodecParametersSerialized {
+            name: rtp_codec_parameters_get_name(codec).to_string(),
+            payloadType: rtp_codec_parameters_get_payload_type(codec),
+            clockRate: rtp_codec_parameters_get_clock_rate(codec)
+                .map_or("".to_owned(), |id| id.to_string()),
+            numChannels: rtp_codec_parameters_get_num_channels(codec)
+                .map_or("".to_owned(), |id| id.to_string()),
+            parameters,
+            kind: rtp_codec_parameters_get_kind(codec).to_string(),
+        }
+    }
+}
+
+impl DtmfSenderInterfaceSerialized {
+    pub fn new(dtmf: &DtmfSenderInterface, id: &str) -> Self {
+        DtmfSenderInterfaceSerialized {
+            dtmfSenderId: id.to_string(),
+            interToneGap: dtmf_sender_interface_get_inter_tone_gap(dtmf),
+            duration: dtmf_sender_interface_get_duration(dtmf),
+            is_null: false,
+        }
+    }
+}
+
 impl Default for DtmfSenderInterfaceSerialized {
     fn default() -> Self {
         DtmfSenderInterfaceSerialized {
@@ -493,8 +642,54 @@ impl Default for DtmfSenderInterfaceSerialized {
     }
 }
 
+impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
+    fn from(sender: &RtpSenderInterface) -> Self {
+        let params = rtp_sender_interface_get_parameters(sender);
+        let track = rtp_sender_interface_get_track(sender);
+        let dtfm = rtp_sender_interface_get_dtmf(sender);
+        let id = rtp_sender_interface_get_id(sender).to_string();
+        let dtmf_ser = if dtfm.is_null() {
+            DtmfSenderInterfaceSerialized::default()
+        } else {
+            DtmfSenderInterfaceSerialized::new(&dtfm, &id)
+        };
+        RtpSenderInterfaceSerialized {
+            senderId: id.clone(),
+            ownsTrack: true,
+            dtmfSender: dtmf_ser,
+            rtpParameters: RtpParametersSerialized::from(
+                &params as &RtpParameters,
+            ),
+            track: TrackInterfaceSerialized::from(
+                &track as &MediaStreamTrackInterface,
+            ),
+        }
+    }
+}
+
+impl From<&RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
+    fn from(transceiver: &RtpTransceiverInterface) -> Self {
+        let rec = rtp_transceiver_interface_get_receiver(transceiver);
+        let sender = rtp_transceiver_interface_get_sender(transceiver);
+        RtpTransceiverInterfaceSerialized {
+            transceiverId: rtp_transceiver_interface_get_mid(transceiver)
+                .map_or("".to_owned(), |id| id.to_string()),
+            mid: rtp_transceiver_interface_get_mid(transceiver)
+                .map_or("".to_owned(), |id| id.to_string()),
+            direction: rtp_transceiver_interface_get_direction(transceiver)
+                .to_string(),
+            sender: RtpSenderInterfaceSerialized::from(
+                &sender as &RtpSenderInterface,
+            ),
+            receiver: RtpReceiverInterfaceSerialized::from(
+                &rec as &Sys_RtpReceiverInterface,
+            ),
+        }
+    }
+}
+
 /// [`Context`] wrapper that is exposed to the C++ API clients.
-pub struct Webrtc(Box<Arc<Mutex<Context>>>);
+pub struct Webrtc(Box<Context>);
 
 /// Application context that manages all dependencies.
 #[allow(dead_code)]
@@ -507,9 +702,9 @@ pub struct Context {
     video_device_info: VideoDeviceInfo,
     peer_connection_factory: PeerConnectionFactoryInterface,
     video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
-    video_tracks: HashMap<VideoTrackId, VideoTrack>,
+    video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
     audio_source: Option<Rc<AudioSourceInterface>>,
-    audio_tracks: HashMap<AudioTrackId, AudioTrack>,
+    audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
@@ -551,7 +746,7 @@ pub fn init() -> Box<Webrtc> {
 
     let video_device_info = VideoDeviceInfo::create().unwrap();
 
-    Box::new(Webrtc(Box::new(Arc::new(Mutex::new(Context {
+    Box::new(Webrtc(Box::new(Context {
         task_queue_factory,
         network_thread,
         worker_thread,
@@ -560,11 +755,11 @@ pub fn init() -> Box<Webrtc> {
         video_device_info,
         peer_connection_factory,
         video_sources: HashMap::new(),
-        video_tracks: HashMap::new(),
+        video_tracks: Arc::new(Mutex::new(HashMap::new())),
         audio_source: None,
-        audio_tracks: HashMap::new(),
+        audio_tracks: Arc::new(Mutex::new(HashMap::new())),
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
-    })))))
+    })))
 }

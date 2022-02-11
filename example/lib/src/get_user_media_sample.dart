@@ -60,8 +60,12 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
       }
     };
 
+    print("FAIL");
+
     try {
+      
       var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      print("FAIL2");
       _mediaDevicesList = await navigator.mediaDevices.enumerateDevices();
       _localStream = stream;
       _localRenderer.srcObject = _localStream;

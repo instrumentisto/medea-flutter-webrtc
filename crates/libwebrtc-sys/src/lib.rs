@@ -44,15 +44,16 @@ pub use crate::webrtc::{
     CandidatePairChangeEvent, DtmfSenderInterface, IceCandidateInterface,
     IceConnectionState, IceGatheringState, PeerConnectionState,
     RtpCodecParameters, RtpEncodingParameters, RtpExtension, RtpParameters,
-    RtpReceiverInterface as _RtpReceiverInterface, RtpSenderInterface,
+    MediaStreamTrackInterface, RtpSenderInterface,
     RtpTransceiverInterface, SdpType, SignalingState, VideoFrame,
     VideoRotation,
 };
 pub use bridge::webrtc::CandidateWrap;
 
 pub use bridge::webrtc::{
-    AudioTrackInterface as _AudioTrackInterface, MediaStreamTrackInterface,
-    VideoTrackInterface as _VideoTrackInterface,
+    RtpReceiverInterface as Sys_RtpReceiverInterface,
+    AudioTrackInterface as Sys_AudioTrackInterface,
+    VideoTrackInterface as Sys_VideoTrackInterface,
 };
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
@@ -733,8 +734,10 @@ impl VideoTrackSourceInterface {
         }
         Ok(VideoTrackSourceInterface(ptr))
     }
+}
 
-    pub fn my_new(inner: UniquePtr<webrtc::VideoTrackSourceInterface>) -> Self {
+impl From<UniquePtr<webrtc::VideoTrackSourceInterface>> for VideoTrackSourceInterface {
+    fn from(inner: UniquePtr<webrtc::VideoTrackSourceInterface>) -> Self {
         Self(inner)
     }
 }
@@ -745,9 +748,8 @@ impl VideoTrackSourceInterface {
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
-
-impl AudioSourceInterface {
-    pub fn new(inner: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
+impl From<UniquePtr<webrtc::AudioSourceInterface>> for AudioSourceInterface {
+    fn from(inner: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
         Self(inner)
     }
 }
@@ -773,12 +775,15 @@ impl VideoTrackInterface {
         webrtc::remove_video_sink(&self.0, sink.0.pin_mut());
     }
 
-    pub fn new(track: UniquePtr<webrtc::VideoTrackInterface>) -> Self {
-        VideoTrackInterface(track)
-    }
-
+    #[must_use]
     pub fn inner(&self) -> &webrtc::VideoTrackInterface {
-        self.0.as_ref().unwrap()
+        &self.0
+    }
+}
+
+impl From<UniquePtr<webrtc::VideoTrackInterface>> for VideoTrackInterface {
+    fn from(inner: UniquePtr<webrtc::VideoTrackInterface>) -> Self {
+        Self(inner)
     }
 }
 
@@ -788,12 +793,15 @@ impl VideoTrackInterface {
 pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
 
 impl AudioTrackInterface {
-    pub fn new(inner: UniquePtr<webrtc::AudioTrackInterface>) -> Self {
-        Self(inner)
-    }
-
+    #[must_use]
     pub fn inner(&self) -> &webrtc::AudioTrackInterface {
-        self.0.as_ref().unwrap()
+        &self.0
+    }
+}
+
+impl From<UniquePtr<webrtc::AudioTrackInterface>> for AudioTrackInterface {
+    fn from(inner: UniquePtr<webrtc::AudioTrackInterface>) -> Self {
+        Self(inner)
     }
 }
 

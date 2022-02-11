@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use cxx::{let_cxx_string, CxxString, UniquePtr};
@@ -6,57 +7,37 @@ use libwebrtc_sys as sys;
 use sys::{
     get_candidate_pair, get_estimated_disconnected_time_ms,
     get_last_data_received_ms, get_local_candidate, get_remote_candidate,
-    PeerConnectionObserver, _AudioTrackInterface, _RtpReceiverInterface,
-    _VideoTrackInterface, audio_track_get_sourse,
-    dtmf_sender_interface_get_duration,
-    dtmf_sender_interface_get_inter_tone_gap, get_reason,
+    PeerConnectionObserver, Sys_AudioTrackInterface, Sys_RtpReceiverInterface,
+    Sys_VideoTrackInterface, audio_track_get_sourse, get_reason,
     media_stream_interface_get_audio_tracks,
     media_stream_interface_get_video_tracks,
     media_stream_track_interface_downcast_audio_track,
     media_stream_track_interface_downcast_video_track,
-    rtcp_parameters_get_cname, rtcp_parameters_get_reduced_size,
-    rtp_codec_parameters_get_clock_rate, rtp_codec_parameters_get_kind,
-    rtp_codec_parameters_get_name, rtp_codec_parameters_get_num_channels,
-    rtp_codec_parameters_get_parameters, rtp_codec_parameters_get_payload_type,
-    rtp_encoding_parameters_get_active, rtp_encoding_parameters_get_maxBitrate,
-    rtp_encoding_parameters_get_maxFramerate,
-    rtp_encoding_parameters_get_minBitrate,
-    rtp_encoding_parameters_get_scale_resolution_down_by,
-    rtp_encoding_parameters_get_ssrc, rtp_extension_get_encrypt,
-    rtp_extension_get_id, rtp_extension_get_uri, rtp_parameters_get_codecs,
-    rtp_parameters_get_encodings, rtp_parameters_get_header_extensions,
-    rtp_parameters_get_mid, rtp_parameters_get_rtcp,
-    rtp_parameters_get_transaction_id, rtp_receiver_interface_get_id,
-    rtp_receiver_interface_get_parameters, rtp_receiver_interface_get_track,
-    rtp_sender_interface_get_dtmf, rtp_sender_interface_get_id,
-    rtp_sender_interface_get_parameters, rtp_sender_interface_get_track,
-    rtp_transceiver_interface_get_direction, rtp_transceiver_interface_get_mid,
-    rtp_transceiver_interface_get_sender, video_track_get_sourse,
-    AudioSourceInterface, AudioTrackInterface, DtmfSenderInterface,
-    MediaStreamTrackInterface, RtpCodecParameters, RtpEncodingParameters,
-    RtpExtension, RtpParameters, RtpSenderInterface, RtpTransceiverInterface,
-    VideoTrackInterface, VideoTrackSourceInterface,
+    video_track_get_sourse,
+    AudioSourceInterface, AudioTrackInterface,
+    MediaStreamTrackInterface,
+    VideoTrackInterface, VideoTrackSourceInterface, rtp_receiver_interface_get_track,
 };
 
 use sys::{
-    audio_track_truncation, media_stream_interface_get_id,
-    media_stream_track_interface_get_enabled,
+    media_stream_interface_get_id,
     media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
-    media_stream_track_interface_get_state, rtp_receiver_interface_get_streams,
-    rtp_transceiver_interface_get_receiver, video_track_truncation,
+     rtp_receiver_interface_get_streams,
+    rtp_transceiver_interface_get_receiver,
 };
 
+use crate::{VideoTrackId, AudioTrackId};
 use crate::{
     api::{
-        DtmfSenderInterfaceSerialized, MediaStreamInterfaceSerialized,
+         MediaStreamInterfaceSerialized,
         OnTrackSerialized, PeerConnectionOnEventInterface,
-        RtcpParametersSerialized, RtpCodecParametersSerialized,
-        RtpEncodingParametersSerialized, RtpExtensionSerialized,
-        RtpParametersSerialized, RtpReceiverInterfaceSerialized,
-        RtpSenderInterfaceSerialized, RtpTransceiverInterfaceSerialized,
-        StringPair, TrackInterfaceSerialized,
+         
+         
+         RtpReceiverInterfaceSerialized,
+         RtpTransceiverInterfaceSerialized,
+         TrackInterfaceSerialized,
     },
-    AudioTrack, Context, VideoTrack, VideoTrackId,
+    AudioTrack, Context, VideoTrack, 
 };
 
 use crate::{
@@ -77,15 +58,15 @@ impl Webrtc {
             sys::PeerConnectionDependencies::new(PeerConnectionObserver::new(
                 Box::new(HandlerPeerConnectionOnEvent {
                     cb,
-                    ctx: self.0.as_ref().clone(),
+                    video_tracks: self.0.video_tracks.clone(),
+                    audio_tracks: self.0.audio_tracks.clone(),
                 }),
             ));
 
-        let mut ctx = self.0.lock().unwrap();
         let peer =
-            PeerConnection::new(&mut ctx.peer_connection_factory, dependencies);
+            PeerConnection::new(&mut self.0.peer_connection_factory, dependencies);
         match peer {
-            Ok(peer) => ctx
+            Ok(peer) => self.0
                 .peer_connections
                 .entry(peer.id)
                 .or_insert(peer)
@@ -110,8 +91,7 @@ impl Webrtc {
         use_rtp_mux: bool,
         cb: UniquePtr<CreateSdpCallbackInterface>,
     ) -> String {
-        let mut ctx = self.0.lock().unwrap();
-        let peer = if let Some(peer) = ctx
+        let peer = if let Some(peer) = self.0
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -149,8 +129,7 @@ impl Webrtc {
         use_rtp_mux: bool,
         cb: UniquePtr<CreateSdpCallbackInterface>,
     ) -> String {
-        let mut ctx = self.0.lock().unwrap();
-        let peer = if let Some(peer) = ctx
+        let peer = if let Some(peer) = self.0
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -187,8 +166,7 @@ impl Webrtc {
         sdp: String,
         cb: UniquePtr<SetDescriptionCallbackInterface>,
     ) -> String {
-        let mut ctx = self.0.lock().unwrap();
-        let peer = if let Some(peer) = ctx
+        let peer = if let Some(peer) = self.0
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -224,8 +202,7 @@ impl Webrtc {
         sdp: String,
         cb: UniquePtr<SetDescriptionCallbackInterface>,
     ) -> String {
-        let mut ctx = self.0.lock().unwrap();
-        let peer = if let Some(peer) = ctx
+        let peer = if let Some(peer) = self.0
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
         {
@@ -314,7 +291,8 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 /// [`PeerConnectionOnEventInterface`] wrapper.
 struct HandlerPeerConnectionOnEvent {
     cb: UniquePtr<PeerConnectionOnEventInterface>,
-    ctx: Arc<Mutex<Context>>,
+    video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
+    audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>
 }
 
 impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
@@ -450,7 +428,7 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
             let mut at = media_stream_interface_get_audio_tracks(&i);
             for track in at.pin_mut() {
                 audio_tracks.push(TrackInterfaceSerialized::from(
-                    &track as &_AudioTrackInterface,
+                    &track as &Sys_AudioTrackInterface,
                 ));
             }
 
@@ -458,7 +436,7 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
             let mut vt = media_stream_interface_get_video_tracks(&i);
             for track in vt.pin_mut() {
                 video_tracks.push(TrackInterfaceSerialized::from(
-                    &track as &_VideoTrackInterface,
+                    &track as &Sys_VideoTrackInterface,
                 ));
             }
 
@@ -481,32 +459,32 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
                 .parse::<u64>()
                 .unwrap();
 
-            let inner = VideoTrackInterface::new(
+            let inner = VideoTrackInterface::from(
                 media_stream_track_interface_downcast_video_track(
                     track.pin_mut(),
                 ),
             );
             let source = video_track_get_sourse(inner.inner());
-            let v = VideoTrack::my_new(
+            let v = VideoTrack::new_from_video_interface(
                 inner,
-                VideoTrackSourceInterface::my_new(source),
+                VideoTrackSourceInterface::from(source),
             );
-            self.ctx.lock().unwrap().video_tracks.insert(id.into(), v);
+            self.video_tracks.lock().unwrap().insert(id.into(), v);
         } else {
             let id = media_stream_track_interface_get_id(&track.pin_mut())
                 .to_string()
                 .parse::<u64>()
                 .unwrap();
 
-            let inner = AudioTrackInterface::new(
+            let inner = AudioTrackInterface::from(
                 media_stream_track_interface_downcast_audio_track(
                     track.pin_mut(),
                 ),
             );
             let source = audio_track_get_sourse(inner.inner());
             let a =
-                AudioTrack::my_new(inner, AudioSourceInterface::new(source));
-            self.ctx.lock().unwrap().audio_tracks.insert(id.into(), a);
+                AudioTrack::new_from_audio_interface(inner, AudioSourceInterface::from(source));
+                self.audio_tracks.lock().unwrap().insert(id.into(), a);
         }
 
         let result = OnTrackSerialized {
@@ -514,151 +492,19 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
             track: TrackInterfaceSerialized::from(
                 &track as &MediaStreamTrackInterface,
             ),
-            receiver: rec_to_ser(&receiver),
-            transceiver: tran_ser(event),
+            receiver: RtpReceiverInterfaceSerialized::from(
+                &receiver as &Sys_RtpReceiverInterface,
+            ),
+            transceiver: RtpTransceiverInterfaceSerialized::from(event),
         };
         self.cb.pin_mut().on_track(result);
     }
 
-    fn on_remove_track(&mut self, event: &_RtpReceiverInterface) {
-        self.cb.pin_mut().on_remove_track(rec_to_ser(event));
-    }
-}
-
-fn tran_ser(
-    transceiver: &RtpTransceiverInterface,
-) -> RtpTransceiverInterfaceSerialized {
-    let rec = rtp_transceiver_interface_get_receiver(transceiver);
-    let sender = rtp_transceiver_interface_get_sender(transceiver);
-    RtpTransceiverInterfaceSerialized {
-        transceiverId: rtp_transceiver_interface_get_mid(transceiver).to_string(),
-        mid: rtp_transceiver_interface_get_mid(transceiver).to_string(),
-        direction: rtp_transceiver_interface_get_direction(transceiver)
-            .to_string(),
-        sender: send_rec(&sender),
-        receiver: rec_to_ser(&rec),
-    }
-}
-
-fn send_rec(sender: &RtpSenderInterface) -> RtpSenderInterfaceSerialized {
-    let params = rtp_sender_interface_get_parameters(sender);
-    let track = rtp_sender_interface_get_track(sender);
-    let dtfm = rtp_sender_interface_get_dtmf(sender);
-    let id = rtp_sender_interface_get_id(sender).to_string();
-    let dtmf_ser = if dtfm.is_null() {DtmfSenderInterfaceSerialized::default()} else {dtmf_ser(&dtfm, &id)};
-    RtpSenderInterfaceSerialized {
-        senderId: id.clone(),
-        ownsTrack: true,
-        dtmfSender: dtmf_ser,
-        rtpParameters: params_ser(&params),
-        track: TrackInterfaceSerialized::from(
-            &track as &MediaStreamTrackInterface,
-        ),
-        
-    }
-}
-
-fn dtmf_ser(
-    dtmf: &DtmfSenderInterface,
-    id: &str,
-) -> DtmfSenderInterfaceSerialized {
-    DtmfSenderInterfaceSerialized {
-        dtmfSenderId: id.to_string(),
-        interToneGap: dtmf_sender_interface_get_inter_tone_gap(dtmf),
-        duration: dtmf_sender_interface_get_duration(dtmf),
-        is_null: false,
-    }
-}
-
-fn rec_to_ser(
-    receiver: &_RtpReceiverInterface,
-) -> RtpReceiverInterfaceSerialized {
-    let par = rtp_receiver_interface_get_parameters(receiver);
-
-    let track = rtp_receiver_interface_get_track(receiver);
-
-    RtpReceiverInterfaceSerialized {
-        receiverId: rtp_receiver_interface_get_id(receiver).to_string(),
-        parameters: params_ser(&par),
-        track: TrackInterfaceSerialized::from(
-            &track as &MediaStreamTrackInterface,
-        ),
-    }
-}
-
-fn params_ser(parameters: &RtpParameters) -> RtpParametersSerialized {
-    let rtcp = rtp_parameters_get_rtcp(&parameters);
-
-    let rtcp = RtcpParametersSerialized {
-        cname: rtcp_parameters_get_cname(&rtcp).to_string(),
-        reduced_size: rtcp_parameters_get_reduced_size(&rtcp),
-    };
-
-    let codecs = rtp_parameters_get_codecs(&parameters);
-    let mut res_codecs = vec![];
-    for i in codecs.into_iter() {
-        res_codecs.push(codec_ser(i));
-    }
-
-    let header_extension = rtp_parameters_get_header_extensions(&parameters);
-    let mut res_header_extension = vec![];
-    for i in header_extension.into_iter() {
-        res_header_extension.push(ext_ser(i));
-    }
-
-    let encodings = rtp_parameters_get_encodings(&parameters);
-    let mut res_encodings = vec![];
-
-    for i in encodings.into_iter() {
-        res_encodings.push(encoding_ser(i));
-    }
-
-    RtpParametersSerialized {
-        transactionId: rtp_parameters_get_transaction_id(&parameters).to_string(),
-        rtcp,
-        codecs: res_codecs,
-        header_extensions: res_header_extension,
-        encodings: res_encodings,
-    }
-}
-
-fn codec_ser(codec: &RtpCodecParameters) -> RtpCodecParametersSerialized {
-    let pars_ = rtp_codec_parameters_get_parameters(codec);
-    let mut parameters = vec![];
-    for i in pars_.into_iter() {
-        parameters.push(StringPair {
-            first: i.first.clone(),
-            second: i.second.clone(),
-        });
-    }
-    RtpCodecParametersSerialized {
-        name: rtp_codec_parameters_get_name(codec).to_string(),
-        payloadType: rtp_codec_parameters_get_payload_type(codec),
-        clockRate: rtp_codec_parameters_get_clock_rate(codec),
-        numChannels: rtp_codec_parameters_get_num_channels(codec),
-        parameters,
-        kind: rtp_codec_parameters_get_kind(codec).to_string(),
-    }
-}
-
-fn ext_ser(ext: &RtpExtension) -> RtpExtensionSerialized {
-    RtpExtensionSerialized {
-        uri: rtp_extension_get_uri(ext).to_string(),
-        id: rtp_extension_get_id(ext),
-        encrypted: rtp_extension_get_encrypt(ext),
-    }
-}
-
-fn encoding_ser(
-    ext: &RtpEncodingParameters,
-) -> RtpEncodingParametersSerialized {
-    RtpEncodingParametersSerialized {
-        active: rtp_encoding_parameters_get_active(ext),
-        maxBitrate: rtp_encoding_parameters_get_maxBitrate(ext),
-        minBitrate: rtp_encoding_parameters_get_minBitrate(ext),
-        maxFramerate: rtp_encoding_parameters_get_maxFramerate(ext),
-        scaleResolutionDownBy:
-            rtp_encoding_parameters_get_scale_resolution_down_by(ext),
-        ssrc: rtp_encoding_parameters_get_ssrc(ext),
+    fn on_remove_track(&mut self, event: &Sys_RtpReceiverInterface) {
+        self.cb.pin_mut().on_remove_track(
+            RtpReceiverInterfaceSerialized::from(
+                &event as &Sys_RtpReceiverInterface,
+            ),
+        );
     }
 }
