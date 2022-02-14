@@ -491,6 +491,7 @@ impl RtpTransceiverInterface {
 
     /// Returns the [`RtpSenderInterface`] object responsible for encoding and
     /// sending data to the remote peer.
+    #[must_use]
     pub fn sender(&self) -> RtpSenderInterface {
         RtpSenderInterface(webrtc::get_transceiver_sender(&self.inner))
     }
@@ -526,7 +527,7 @@ impl RtpSenderInterface {
     ) -> anyhow::Result<()> {
         let success = webrtc::replace_sender_video_track(
             &self.0,
-            track.map_or_else(|| &UniquePtr::null(), |t| &t.0),
+            track.map_or(&UniquePtr::null(), |t| &t.0),
         );
 
         if !success {
@@ -542,9 +543,9 @@ impl RtpSenderInterface {
         &self,
         track: Option<&AudioTrackInterface>,
     ) -> anyhow::Result<()> {
-        let success = webrtc::replace_sender_video_track(
+        let success = webrtc::replace_sender_audio_track(
             &self.0,
-            track.map_or_else(|| &UniquePtr::null(), |t| &t.0),
+            track.map_or(&UniquePtr::null(), |t| &t.0),
         );
 
         if !success {
@@ -640,8 +641,8 @@ impl PeerConnectionInterface {
         webrtc::get_transceivers(&self.inner)
             .into_iter()
             .map(|t| RtpTransceiverInterface {
-                inner: t.ptr,
                 media_type: webrtc::get_transceiver_media_type(&t.ptr),
+                inner: t.ptr,
             })
             .collect()
     }

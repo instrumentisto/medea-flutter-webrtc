@@ -459,10 +459,12 @@ impl MediaStream {
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].
+#[derive(AsRef)]
 pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
     id: VideoTrackId,
 
+    #[as_ref]
     /// Underlying [`sys::VideoTrackInterface`].
     inner: sys::VideoTrackInterface,
 
@@ -520,11 +522,13 @@ impl VideoTrack {
 }
 
 /// Representation of a [`sys::AudioSourceInterface`].
+#[derive(AsRef)]
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
     id: AudioTrackId,
 
     /// Underlying [`sys::AudioTrackInterface`].
+    #[as_ref]
     inner: sys::AudioTrackInterface,
 
     /// [`sys::AudioSourceInterface`] that is used by this [`AudioTrack`].

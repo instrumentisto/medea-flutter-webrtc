@@ -374,8 +374,8 @@ pub mod api {
             self: &mut Webrtc,
             peer_id: u64,
             transceiver_id: u64,
-            track_id: &str,
-        );
+            track_id: u64,
+        ) -> String;
 
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].

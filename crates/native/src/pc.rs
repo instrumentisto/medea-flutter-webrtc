@@ -399,13 +399,12 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
-    /// - If cannot set the `track` to the [`sys::Transceiver`].
     pub fn sender_replace_track(
         &mut self,
         peer_id: u64,
         transceiver_id: u64,
         track_id: u64,
-    ) {
+    ) -> String {
         let peer = self
             .0
             .peer_connections
@@ -417,41 +416,41 @@ impl Webrtc {
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap();
 
+        let sender = transceiver.sender();
         if track_id == 0 {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
-                    transceiver.set_no_video_track().unwrap();
+                    sender.replace_video_track(None)
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    transceiver.set_no_audio_track().unwrap();
+                    sender.replace_audio_track(None)
                 }
                 _ => unreachable!(),
             }
         } else {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
-                    transceiver
-                        .replace_video_track(
-                            self.0
-                                .video_tracks
-                                .get(&VideoTrackId::from(track_id))
-                                .unwrap(),
-                        )
-                        .unwrap();
+                    sender.replace_video_track(Some(
+                        self.0
+                            .video_tracks
+                            .get(&VideoTrackId::from(track_id))
+                            .unwrap()
+                            .as_ref(),
+                    ))
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    transceiver
-                        .replace_audio_track(
-                            self.0
-                                .audio_tracks
-                                .get(&AudioTrackId::from(track_id))
-                                .unwrap(),
-                        )
-                        .unwrap();
+                    sender.replace_audio_track(Some(
+                        self.0
+                            .audio_tracks
+                            .get(&AudioTrackId::from(track_id))
+                            .unwrap()
+                            .as_ref(),
+                    ))
                 }
                 _ => unreachable!(),
             }
         }
+        .map_or_else(|err| err.to_string(), |_| String::new())
     }
 }
 
