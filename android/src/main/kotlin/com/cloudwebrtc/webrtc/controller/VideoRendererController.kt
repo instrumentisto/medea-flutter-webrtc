@@ -18,8 +18,8 @@ import io.flutter.plugin.common.MethodChannel
  * @property videoRenderer underlying [FlutterRtcVideoRenderer] on which method calls will be performed.
  */
 class VideoRendererController(
-        binaryMessenger: BinaryMessenger,
-        private val videoRenderer: FlutterRtcVideoRenderer
+    binaryMessenger: BinaryMessenger,
+    private val videoRenderer: FlutterRtcVideoRenderer
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
     /**
      * Unique ID of the [MethodChannel] of this controller.
@@ -30,15 +30,15 @@ class VideoRendererController(
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel: MethodChannel = MethodChannel(
-            binaryMessenger,
-            ChannelNameGenerator.withId("VideoRenderer", channelId)
+        binaryMessenger,
+        ChannelNameGenerator.withId("VideoRenderer", channelId)
     )
 
     /**
      * Event channel into which all [FlutterRtcVideoRenderer] events will be sent.
      */
     private val eventChannel: EventChannel =
-            EventChannel(binaryMessenger, ChannelNameGenerator.withId("VideoRendererEvent", channelId))
+        EventChannel(binaryMessenger, ChannelNameGenerator.withId("VideoRendererEvent", channelId))
 
     /**
      * Event sink into which all [FlutterRtcVideoRenderer] events will be sent.
@@ -52,31 +52,31 @@ class VideoRendererController(
         videoRenderer.setEventListener(object : FlutterRtcVideoRenderer.Companion.EventListener {
             override fun onFirstFrameRendered(id: Long) {
                 eventSink?.success(
-                        mapOf(
-                                "event" to "onFirstFrameRendered",
-                                "id" to id
-                        )
+                    mapOf(
+                        "event" to "onFirstFrameRendered",
+                        "id" to id
+                    )
                 )
             }
 
             override fun onTextureChangeVideoSize(id: Long, height: Int, width: Int) {
                 eventSink?.success(
-                        mapOf(
-                                "event" to "onTextureChangeVideoSize",
-                                "id" to id,
-                                "width" to width,
-                                "height" to height
-                        )
+                    mapOf(
+                        "event" to "onTextureChangeVideoSize",
+                        "id" to id,
+                        "width" to width,
+                        "height" to height
+                    )
                 )
             }
 
             override fun onTextureChangeRotation(id: Long, rotation: Int) {
                 eventSink?.success(
-                        mapOf(
-                                "event" to "onTextureChangeRotation",
-                                "id" to id,
-                                "rotation" to rotation
-                        )
+                    mapOf(
+                        "event" to "onTextureChangeRotation",
+                        "id" to id,
+                        "rotation" to rotation
+                    )
                 )
             }
 
@@ -117,8 +117,8 @@ class VideoRendererController(
      * @return [Map] generated from this controller which can be returned to the Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf(
-            "channelId" to channelId,
-            "textureId" to videoRenderer.textureId()
+        "channelId" to channelId,
+        "textureId" to videoRenderer.textureId()
     )
 
     /**

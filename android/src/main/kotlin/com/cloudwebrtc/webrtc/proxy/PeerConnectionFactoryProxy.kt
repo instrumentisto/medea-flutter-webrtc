@@ -31,8 +31,8 @@ class PeerConnectionFactoryProxy(val state: State) {
         val id = nextId()
         val peerObserver = PeerObserver()
         val peer =
-                state.getPeerConnectionFactory().createPeerConnection(config.intoWebRtc(), peerObserver)
-                        ?: throw UnknownError("Creating new PeerConnection was failed because of unknown issue")
+            state.getPeerConnectionFactory().createPeerConnection(config.intoWebRtc(), peerObserver)
+                ?: throw UnknownError("Creating new PeerConnection was failed because of unknown issue")
         val peerProxy = PeerConnectionProxy(id, peer)
         peerObserver.setPeerConnection(peerProxy)
         peerProxy.onDispose(::removePeerObserver)

@@ -1,12 +1,12 @@
 import 'package:flutter/services.dart';
 
-import '/src/model/transceiver_direction.dart';
+import '/src/model/transceiver.dart';
 import 'rtp_sender.dart';
 import 'utils/channel_name_generator.dart';
 
 class RtpTransceiver {
   /// Creates [RtpTransceiver] based on the [Map] received from the native side.
-  RtpTransceiver.fromMap(dynamic map) {
+  RtpTransceiver.fromMap(Map<String, dynamic> map) {
     int channelId = map['channelId'];
     _methodChannel =
         MethodChannel(channelNameWithId('RtpTransceiver', channelId));

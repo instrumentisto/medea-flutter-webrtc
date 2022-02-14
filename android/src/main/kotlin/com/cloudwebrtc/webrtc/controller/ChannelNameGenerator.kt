@@ -4,7 +4,7 @@ package com.cloudwebrtc.webrtc.controller
  * Generator for the all [io.flutter.plugin.common.MethodChannel] names created by `flutter_webrtc`.
  */
 object ChannelNameGenerator {
-    private const val CHANNEL_NAME_TAG: String = "com.instrumentisto.flutter_webrtc"
+    private const val CHANNEL_NAME_TAG: String = "FlutterWebRtc"
 
     /**
      * Generates new channel name for some controller with a provided ID.

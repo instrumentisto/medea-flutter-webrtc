@@ -2,13 +2,13 @@
 /// configuration which may be used to establish an PeerConnection.
 class IceCandidate {
   /// Creates new [IceCandidate] with the provided parameters.
-  IceCandidate(this.sdpMid, this.sdpMLineIndex, this.sdp);
+  IceCandidate(this.sdpMid, this.sdpMLineIndex, this.candidate);
 
   /// Creates [IceCandidate] based on the [Map] received from the native side.
-  IceCandidate.fromMap(dynamic map) {
+  IceCandidate.fromMap(Map<String, dynamic> map) {
     sdpMid = map['sdpMid'];
     sdpMLineIndex = map['sdpMLineIndex'];
-    sdp = map['sdp'];
+    candidate = map['candidate'];
   }
 
   /// Mid of this [IceCandidate].
@@ -18,14 +18,14 @@ class IceCandidate {
   late int sdpMLineIndex;
 
   /// SDP of this [IceCandidate].
-  late String sdp;
+  late String candidate;
 
   /// Converts this model to the [Map] expected by Flutter.
   Map<String, dynamic> toMap() {
     return {
       'sdpMid': sdpMid,
       'sdpMLineIndex': sdpMLineIndex,
-      'sdp': sdp,
+      'candidate': candidate,
     };
   }
 }

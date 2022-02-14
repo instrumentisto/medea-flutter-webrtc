@@ -8,7 +8,7 @@ import '/src/universal/media_stream_track.dart';
 class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates [NativeMediaStreamTrack] based on the [Map] received
   /// from the native side.
-  NativeMediaStreamTrack.fromMap(dynamic map) {
+  NativeMediaStreamTrack.fromMap(Map<String, dynamic> map) {
     _methodChannel =
         MethodChannel(channelNameWithId('MediaStreamTrack', map['channelId']));
     _id = map['id'];

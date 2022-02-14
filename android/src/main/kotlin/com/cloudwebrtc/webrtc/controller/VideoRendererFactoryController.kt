@@ -13,13 +13,16 @@ import io.flutter.view.TextureRegistry
  * @property binaryMessenger messenger used for creating new [MethodChannel]s.
  * @property textureRegistry registry with which new textures will be created.
  */
-class VideoRendererFactoryController(private val binaryMessenger: BinaryMessenger, private val textureRegistry: TextureRegistry) :
-        MethodChannel.MethodCallHandler {
+class VideoRendererFactoryController(
+    private val binaryMessenger: BinaryMessenger,
+    private val textureRegistry: TextureRegistry
+) :
+    MethodChannel.MethodCallHandler {
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-            MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("VideoRendererFactory"))
+        MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("VideoRendererFactory"))
 
     init {
         methodChannel.setMethodCallHandler(this)

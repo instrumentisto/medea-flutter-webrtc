@@ -16,7 +16,7 @@ import io.flutter.plugin.common.MethodChannel
  * @param state will be used for creating new [PeerConnectionFactoryProxy].
  */
 class PeerConnectionFactoryController(private val binaryMessenger: BinaryMessenger, state: State) :
-        MethodChannel.MethodCallHandler {
+    MethodChannel.MethodCallHandler {
     /**
      * Factory which will create new [PeerConnectionController]s.
      */
@@ -26,7 +26,7 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-            MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("PeerConnectionFactory"))
+        MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("PeerConnectionFactory"))
 
     init {
         methodChannel.setMethodCallHandler(this)
@@ -51,7 +51,7 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
                 }
 
                 val newPeer =
-                        factory.create(PeerConnectionConfiguration(iceServers, iceTransportType))
+                    factory.create(PeerConnectionConfiguration(iceServers, iceTransportType))
                 val peerController = PeerConnectionController(binaryMessenger, newPeer)
                 result.success(peerController.asFlutterResult())
             }

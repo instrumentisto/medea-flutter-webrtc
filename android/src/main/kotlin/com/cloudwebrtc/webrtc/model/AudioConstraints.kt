@@ -8,8 +8,8 @@ import org.webrtc.MediaConstraints
  * @see [Constraints](https://developer.mozilla.org/en-US/docs/Web/API/Media_Streams_API/Constraints)
  */
 data class AudioConstraints(
-        val mandatory: Map<String, String>,
-        val optional: Map<String, String>
+    val mandatory: Map<String, String>,
+    val optional: Map<String, String>
 ) {
     companion object {
         /**
@@ -19,13 +19,13 @@ data class AudioConstraints(
          */
         fun fromMap(map: Map<*, *>): AudioConstraints {
             val mandatoryArg =
-                    map["mandatory"] as Map<*, *>? ?: mapOf<String, String>()
+                map["mandatory"] as Map<*, *>? ?: mapOf<String, String>()
             val optionalArg =
-                    map["optional"] as Map<*, *>? ?: mapOf<String, String>()
+                map["optional"] as Map<*, *>? ?: mapOf<String, String>()
             val mandatory =
-                    mandatoryArg.entries.associate { it.key as String to it.value as String }
+                mandatoryArg.entries.associate { it.key as String to it.value as String }
             val optional =
-                    optionalArg.entries.associate { it.key as String to it.value as String }
+                optionalArg.entries.associate { it.key as String to it.value as String }
 
             return AudioConstraints(mandatory, optional)
         }

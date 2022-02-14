@@ -1,9 +1,6 @@
 package com.cloudwebrtc.webrtc.utils
 
 import org.webrtc.EglBase
-import kotlin.jvm.Synchronized
-import com.cloudwebrtc.webrtc.utils.EglUtils
-import android.os.Build
 
 /**
  * Lazily creates and returns the one and only [EglBase] which will serve as the root for
@@ -18,10 +15,7 @@ object EglUtils {
     var rootEglBase: EglBase? = null
         get() {
             if (field == null) {
-                field =
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) EglBase.createEgl10(
-                                EglBase.CONFIG_PLAIN
-                        ) else EglBase.create()
+                field = EglBase.create()
             }
             return field
         }

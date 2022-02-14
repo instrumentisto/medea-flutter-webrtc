@@ -24,7 +24,7 @@ class PeerObserver : PeerConnection.Observer {
     override fun onSignalingChange(signallingState: PeerConnection.SignalingState?) {
         if (signallingState != null) {
             peer?.observableEventBroadcaster()
-                    ?.onSignalingStateChange(SignalingState.fromWebRtc(signallingState))
+                ?.onSignalingStateChange(SignalingState.fromWebRtc(signallingState))
 
         }
     }
@@ -32,14 +32,14 @@ class PeerObserver : PeerConnection.Observer {
     override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState?) {
         if (iceConnectionState != null) {
             peer?.observableEventBroadcaster()
-                    ?.onIceConnectionStateChange(IceConnectionState.fromWebRtc(iceConnectionState))
+                ?.onIceConnectionStateChange(IceConnectionState.fromWebRtc(iceConnectionState))
         }
     }
 
     override fun onIceGatheringChange(iceGatheringState: PeerConnection.IceGatheringState?) {
         if (iceGatheringState != null) {
             peer?.observableEventBroadcaster()
-                    ?.onIceGatheringStateChange(IceGatheringState.fromWebRtc(iceGatheringState))
+                ?.onIceGatheringStateChange(IceGatheringState.fromWebRtc(iceGatheringState))
         }
     }
 
@@ -57,7 +57,7 @@ class PeerObserver : PeerConnection.Observer {
                 for (trans in transceivers) {
                     if (trans.getReceiver().id() == receiver.id()) {
                         peer?.observableEventBroadcaster()
-                                ?.onTrack(MediaStreamTrackProxy(track), trans)
+                            ?.onTrack(MediaStreamTrackProxy(track), trans)
                     }
                 }
             }

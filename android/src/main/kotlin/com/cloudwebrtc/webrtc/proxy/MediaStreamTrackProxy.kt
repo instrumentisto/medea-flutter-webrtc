@@ -15,11 +15,11 @@ import org.webrtc.MediaStreamTrack
  * `null` for [MediaStreamTrackProxy]s received from the remote side.
  */
 class MediaStreamTrackProxy(
-        track: MediaStreamTrack,
-        private val deviceId: String = "remote",
-        private val source: MediaTrackSource? = null
+    track: MediaStreamTrack,
+    private val deviceId: String = "remote",
+    private val source: MediaTrackSource? = null
 ) :
-        IWebRTCProxy<MediaStreamTrack> {
+    IWebRTCProxy<MediaStreamTrack> {
     /**
      * Actual underlying [MediaStreamTrack].
      */

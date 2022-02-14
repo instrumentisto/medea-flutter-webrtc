@@ -5,7 +5,7 @@ import '/src/universal/media_stream_track.dart';
 
 class RtpSender {
   /// Creates [RtpSender] based on the [Map] received from the native side.
-  RtpSender.fromMap(dynamic map) {
+  RtpSender.fromMap(Map<String, dynamic> map) {
     _methodChannel =
         MethodChannel(channelNameWithId('RtpSender', map['channelId']));
   }

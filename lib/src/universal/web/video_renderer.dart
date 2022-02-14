@@ -116,7 +116,11 @@ class WebVideoRenderer extends VideoRenderer {
 
   html.VideoElement? findHtmlView() {
     final element = html.document.getElementById(_elementIdForVideo);
-    if (null != element) return element as html.VideoElement;
+    if (null != element) {
+      return element as html.VideoElement;
+    } else {
+      return null;
+    }
   }
 
   @override
@@ -162,7 +166,6 @@ class WebVideoRenderer extends VideoRenderer {
       _subscriptions.add(
         element.onCanPlay.listen((dynamic _) {
           _updateAllValues();
-          // print('RTCVideoRenderer: videoElement.onCanPlay ${value.toString()}');
         }),
       );
 
@@ -170,7 +173,6 @@ class WebVideoRenderer extends VideoRenderer {
         element.onResize.listen((dynamic _) {
           _updateAllValues();
           onResize?.call();
-          // print('RTCVideoRenderer: videoElement.onResize ${value.toString()}');
         }),
       );
 
@@ -181,19 +183,12 @@ class WebVideoRenderer extends VideoRenderer {
           // We need to look at the HTMLMediaElement.error.
           // See: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/error
           final error = element.error;
-          print('RTCVideoRenderer: videoElement.onError, ${error.toString()}');
           throw PlatformException(
             code: _kErrorValueToErrorName[error!.code]!,
             message:
                 error.message != '' ? error.message : _kDefaultErrorMessage,
             details: _kErrorValueToErrorDescription[error.code],
           );
-        }),
-      );
-
-      _subscriptions.add(
-        element.onEnded.listen((dynamic _) {
-          // print('RTCVideoRenderer: videoElement.onEnded');
         }),
       );
 

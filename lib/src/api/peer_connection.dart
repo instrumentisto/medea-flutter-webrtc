@@ -8,7 +8,7 @@ import '/src/model/ice_candidate_error_event.dart';
 import '/src/model/media_stream_track_state.dart';
 import '/src/model/peer_connection_config.dart';
 import '/src/model/peer_connections_states.dart';
-import '/src/model/rtp_transceiver_init.dart';
+import '/src/model/transceiver.dart';
 import '/src/model/session_description.dart';
 import '/src/universal/native/media_stream_track.dart';
 import 'rtp_transceiver.dart';
@@ -43,7 +43,7 @@ typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
 class PeerConnection {
   /// Creates [PeerConnection] based on the [Map] received from the native side.
-  PeerConnection._fromMap(dynamic map) {
+  PeerConnection._fromMap(Map<String, dynamic> map) {
     int channelId = map['channelId'];
     _methodChannel =
         MethodChannel(channelNameWithId('PeerConnection', channelId));
@@ -55,10 +55,10 @@ class PeerConnection {
 
   /// Listener for the all [PeerConnection] events received from the native side.
   void eventListener(dynamic event) {
-    final dynamic e = event;
+    final Map<String, dynamic> e = event;
     switch (e['event']) {
       case 'onIceCandidate':
-        dynamic iceCandidate = e['candidate'];
+        Map<String, dynamic> iceCandidate = e['candidate'];
         _onIceCandidate?.call(IceCandidate.fromMap(iceCandidate));
         break;
       case 'onIceGatheringStateChange':
@@ -78,17 +78,15 @@ class PeerConnection {
         break;
       case 'onIceConnectionStateChange':
         var state = IceConnectionState.values[e['state']];
-        _iceConnectionState = state;
         _onIceConnectionStateChange?.call(state);
         break;
       case 'onConnectionStateChange':
         var state = PeerConnectionState.values[e['state']];
-        _connectionState = state;
         _onConnectionStateChange?.call(state);
         break;
       case 'onTrack':
-        dynamic track = e['track'];
-        dynamic transceiver = e['transceiver'];
+        Map<String, dynamic> track = e['track'];
+        Map<String, dynamic> transceiver = e['transceiver'];
         _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
             RtpTransceiver.fromMap(transceiver));
         break;
@@ -128,18 +126,6 @@ class PeerConnection {
   /// `on_signaling_state_change` event subcriber.
   OnSignalingStateChangeCallback? _onSignalingStateChange;
 
-  /// Current [IceConnectionState] of this [PeerConnection].
-  ///
-  /// This field will be updated automatically based on the events received
-  /// from the native side.
-  IceConnectionState _iceConnectionState = IceConnectionState.new_;
-
-  /// Current [PeerConnectionState] of this [PeerConnection].
-  ///
-  /// This field will be updated automatically based on the events received
-  /// from the native side.
-  PeerConnectionState _connectionState = PeerConnectionState.new_;
-
   /// All [RtpTransceiver]s owned by this [PeerConnection].
   ///
   /// This list will be automatically updated call of some action which
@@ -152,7 +138,7 @@ class PeerConnection {
   /// and [IceServer]s.
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
-    dynamic res =
+    Map<String, dynamic> res =
         await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
       'iceTransportType': iceTransportType.index,
       'iceServers': iceServers.map((s) => s.toMap()).toList(),
@@ -219,7 +205,7 @@ class PeerConnection {
   /// Adds new [RtpTransceiver] to this [PeerConnection].
   Future<RtpTransceiver> addTransceiver(
       MediaKind mediaType, RtpTransceiverInit init) async {
-    dynamic res = await _methodChannel.invokeMethod(
+    Map<String, dynamic> res = await _methodChannel.invokeMethod(
         'addTransceiver', {'mediaType': mediaType.index, 'init': init.toMap()});
     var transceiver = RtpTransceiver.fromMap(res);
     _transceivers.add(transceiver);
@@ -252,13 +238,13 @@ class PeerConnection {
 
   /// Creates new [SessionDescription] offer.
   Future<SessionDescription> createOffer() async {
-    dynamic res = await _methodChannel.invokeMethod('createOffer');
+    Map<String, dynamic> res = await _methodChannel.invokeMethod('createOffer');
     return SessionDescription.fromMap(res);
   }
 
   /// Creates new [SessionDescription] answer.
   Future<SessionDescription> createAnswer() async {
-    dynamic res = await _methodChannel.invokeMethod('createAnswer');
+    Map<String, dynamic> res = await _methodChannel.invokeMethod('createAnswer');
     return SessionDescription.fromMap(res);
   }
 
@@ -271,16 +257,6 @@ class PeerConnection {
   /// Requests [PeerConnection] to [IceCandidate] gathering redone.
   Future<void> restartIce() async {
     await _methodChannel.invokeMethod('restartIce');
-  }
-
-  /// Returns current [PeerConnectionState] of this [PeerConnection].
-  PeerConnectionState connectionState() {
-    return _connectionState;
-  }
-
-  /// Returns current [IceConnectionState] of this [PeerConnection].
-  IceConnectionState iceConnectionState() {
-    return _iceConnectionState;
   }
 
   /// Closes this [PeerConnection] and all it's owned entitied (for example

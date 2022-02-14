@@ -96,7 +96,7 @@ class NativeVideoRenderer extends VideoRenderer {
   /// Listener for the [NativeVideoRenderer] events received from the native
   /// side.
   void eventListener(dynamic event) {
-    final Map<dynamic, dynamic> map = event;
+    final Map<String, dynamic> map = event;
     switch (map['event']) {
       case 'onTextureChangeRotation':
         value =

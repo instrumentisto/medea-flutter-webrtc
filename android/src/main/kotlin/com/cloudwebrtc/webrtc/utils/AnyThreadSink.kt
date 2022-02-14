@@ -1,9 +1,8 @@
 package com.cloudwebrtc.webrtc.utils
 
 import android.os.Handler
-import io.flutter.plugin.common.EventChannel.EventSink
 import android.os.Looper
-import java.lang.Runnable
+import io.flutter.plugin.common.EventChannel.EventSink
 
 /**
  * Thread agnostic [EventSink] for sending events from Android side to the Flutter.

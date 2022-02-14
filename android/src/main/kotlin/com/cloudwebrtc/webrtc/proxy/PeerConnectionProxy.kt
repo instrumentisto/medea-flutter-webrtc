@@ -5,6 +5,7 @@ import com.cloudwebrtc.webrtc.exception.CreateSdpException
 import com.cloudwebrtc.webrtc.exception.SetSdpException
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.model.IceCandidate
+import com.cloudwebrtc.webrtc.model.SessionDescription
 import org.webrtc.*
 import java.util.*
 import kotlin.collections.HashMap
@@ -207,8 +208,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
     internal fun observableEventBroadcaster(): EventObserver {
         return object : EventObserver {
             override fun onTrack(
-                    track: MediaStreamTrackProxy,
-                    transceiver: RtpTransceiverProxy
+                track: MediaStreamTrackProxy,
+                transceiver: RtpTransceiverProxy
             ) {
                 eventObservers.forEach { it.onTrack(track, transceiver) }
             }

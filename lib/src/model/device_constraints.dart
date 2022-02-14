@@ -7,7 +7,7 @@ class DeviceConstraints {
   DeviceConstraintMap<DeviceVideoConstraints> video = DeviceConstraintMap();
 
   /// Converts this model to the [Map] expected by Flutter.
-  Map<String, dynamic> toMap() {
+  Map<String, Map<String, dynamic>> toMap() {
     return {
       'audio': audio.toMap(),
       'video': video.toMap(),

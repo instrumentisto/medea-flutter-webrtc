@@ -12,8 +12,8 @@ import io.flutter.plugin.common.MethodChannel
  * @property track underlying [MediaStreamTrackProxy] on which method calls will be performed.
  */
 class MediaStreamTrackController(
-        private val binaryMessenger: BinaryMessenger,
-        private val track: MediaStreamTrackProxy
+    private val binaryMessenger: BinaryMessenger,
+    private val track: MediaStreamTrackProxy
 ) : MethodChannel.MethodCallHandler, IdentifiableController {
     /**
      * Unique ID of the [MethodChannel] of this controller.
@@ -24,8 +24,8 @@ class MediaStreamTrackController(
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel: MethodChannel = MethodChannel(
-            binaryMessenger,
-            ChannelNameGenerator.withId("MediaStreamTrack", channelId)
+        binaryMessenger,
+        ChannelNameGenerator.withId("MediaStreamTrack", channelId)
     )
 
     init {
@@ -49,10 +49,10 @@ class MediaStreamTrackController(
             }
             "clone" -> {
                 result.success(
-                        MediaStreamTrackController(
-                                binaryMessenger,
-                                track.clone()
-                        ).asFlutterResult()
+                    MediaStreamTrackController(
+                        binaryMessenger,
+                        track.clone()
+                    ).asFlutterResult()
                 )
             }
             "dispose" -> {
@@ -68,10 +68,10 @@ class MediaStreamTrackController(
      * @return [Map] generated from this controller which can be returned to the Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf(
-            "channelId" to channelId,
-            "id" to track.id(),
-            "kind" to track.kind().value,
-            "deviceId" to track.deviceId()
+        "channelId" to channelId,
+        "id" to track.id(),
+        "kind" to track.kind().value,
+        "deviceId" to track.deviceId()
     )
 
     /**

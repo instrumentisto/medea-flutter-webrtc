@@ -2,8 +2,6 @@ package com.cloudwebrtc.webrtc
 
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import java.lang.ref.WeakReference
-import java.util.*
-import kotlin.collections.HashMap
 
 /**
  * Repository for the all [MediaStreamTrackProxy]s.

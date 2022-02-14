@@ -1,7 +1,6 @@
 package com.cloudwebrtc.webrtc
 
 import android.graphics.SurfaceTexture
-import android.util.Log
 import com.cloudwebrtc.webrtc.proxy.VideoTrackProxy
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import io.flutter.view.TextureRegistry
@@ -18,7 +17,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
      * Texture entry on which video will be rendered.
      */
     private val surfaceTextureEntry: TextureRegistry.SurfaceTextureEntry =
-            textureRegistry.createSurfaceTexture()
+        textureRegistry.createSurfaceTexture()
 
     /**
      * Texture on which video will be rendered.
@@ -44,7 +43,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
      * Helper for rendering video on the surface.
      */
     private val surfaceTextureRenderer: SurfaceTextureRenderer =
-            SurfaceTextureRenderer("flutter-video-renderer-$id")
+        SurfaceTextureRenderer("flutter-video-renderer-$id")
 
     /**
      * [VideoTrackProxy] from which [FlutterRtcVideoRenderer] obtains video and renders it.

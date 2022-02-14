@@ -13,7 +13,7 @@ enum MediaDeviceKind {
 /// The [MediaDeviceInfo] provides information about some media device.
 class MediaDeviceInfo {
   /// Creates [MediaDeviceInfo] based on the [Map] received from the native side.
-  MediaDeviceInfo.fromMap(dynamic map) {
+  MediaDeviceInfo.fromMap(Map<String, dynamic> map) {
     deviceId = map['deviceId'];
     label = map['label'];
     kind = MediaDeviceKind.values[map['kind']];

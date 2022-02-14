@@ -7,4 +7,4 @@ package com.cloudwebrtc.webrtc.exception
  * by used `Constraints`.
  */
 class OverconstrainedException :
-        Exception("getUserMedia failed because device matching provided Constraints is not found")
+    Exception("getUserMedia failed because device matching provided Constraints is not found")

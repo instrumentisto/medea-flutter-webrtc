@@ -15,7 +15,7 @@ import java.util.concurrent.CountDownLatch
  */
 class SurfaceTextureRenderer
 /** In order to render something, you must first call init().  */
-(name: String?) : EglRenderer(name) {
+    (name: String?) : EglRenderer(name) {
     // Callback for reporting renderer events. Read-only after initilization so no lock required.
     private var rendererEvents: RendererEvents? = null
     private val layoutLock = Any()
@@ -33,10 +33,10 @@ class SurfaceTextureRenderer
      */
     @JvmOverloads
     fun init(
-            sharedContext: EglBase.Context?,
-            rendererEvents: RendererEvents?,
-            configAttributes: IntArray? = EglBase.CONFIG_PLAIN,
-            drawer: GlDrawer? = GlRectDrawer()
+        sharedContext: EglBase.Context?,
+        rendererEvents: RendererEvents?,
+        configAttributes: IntArray? = EglBase.CONFIG_PLAIN,
+        drawer: GlDrawer? = GlRectDrawer()
     ) {
         ThreadUtils.checkIsOnMainThread()
         this.rendererEvents = rendererEvents
@@ -50,9 +50,9 @@ class SurfaceTextureRenderer
     }
 
     override fun init(
-            sharedContext: EglBase.Context?,
-            configAttributes: IntArray,
-            drawer: GlDrawer
+        sharedContext: EglBase.Context?,
+        configAttributes: IntArray,
+        drawer: GlDrawer
     ) {
         init(sharedContext, null /* rendererEvents */, configAttributes, drawer)
     }
@@ -113,7 +113,7 @@ class SurfaceTextureRenderer
             if (rotatedFrameWidth != frame.rotatedWidth || rotatedFrameHeight != frame.rotatedHeight || frameRotation != frame.rotation) {
                 if (rendererEvents != null) {
                     rendererEvents!!.onFrameResolutionChanged(
-                            frame.buffer.width, frame.buffer.height, frame.rotation
+                        frame.buffer.width, frame.buffer.height, frame.rotation
                     )
                 }
                 rotatedFrameWidth = frame.rotatedWidth

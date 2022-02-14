@@ -16,7 +16,10 @@ import org.webrtc.PeerConnectionFactory
  * for [MediaStreamTrackProxy] creation.
  * @property peerConnectionFactory factory with which new [MediaStreamTrackProxy]s will be created.
  */
-class AudioMediaTrackSource(private val source: AudioSource, private val peerConnectionFactory: PeerConnectionFactory) : MediaTrackSource {
+class AudioMediaTrackSource(
+    private val source: AudioSource,
+    private val peerConnectionFactory: PeerConnectionFactory
+) : MediaTrackSource {
     /**
      * Count of currently alive [MediaStreamTrackProxy] created from this [AudioMediaTrackSource].
      */
@@ -29,9 +32,9 @@ class AudioMediaTrackSource(private val source: AudioSource, private val peerCon
      */
     override fun newTrack(): MediaStreamTrackProxy {
         val track = MediaStreamTrackProxy(
-                peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source),
-                "audio-1",
-                this
+            peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source),
+            "audio-1",
+            this
         )
         track.onStop {
             trackStopped()
