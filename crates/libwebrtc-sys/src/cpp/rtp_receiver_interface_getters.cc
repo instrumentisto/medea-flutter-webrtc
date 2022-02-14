@@ -5,22 +5,22 @@
 
 namespace bridge {
     // todo
-std::unique_ptr<std::string> rtp_receiver_interface_get_id(
+std::unique_ptr<std::string> get_rtp_receiver_id(
     const RtpReceiverInterface& receiver);
 
 // todo 
-std::unique_ptr<std::vector<MediaStreamInterface>> rtp_receiver_interface_get_streams(
+std::unique_ptr<std::vector<MediaStreamInterface>> get_rtp_receiver_streams(
     const RtpReceiverInterface& receiver);
 
 // todo
-std::unique_ptr<MediaStreamTrackInterface> rtp_receiver_interface_get_track(
+std::unique_ptr<MediaStreamTrackInterface> get_rtp_receiver_track(
     const RtpReceiverInterface& receiver);
 
 // todo 
-std::unique_ptr<std::vector<std::string>> rtp_receiver_interface_get_stream_ids(
+std::unique_ptr<std::vector<std::string>> get_rtp_receiver_stream_ids(
     const RtpReceiverInterface& receiver);
 
 // todo
-std::unique_ptr<RtpParameters> rtp_receiver_interface_get_parameters(
+std::unique_ptr<RtpParameters> get_rtp_receiver_parameters(
     const RtpReceiverInterface& receiver);
 }

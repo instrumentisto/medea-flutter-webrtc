@@ -4,19 +4,19 @@
 #include "bridge.h"
 
 namespace bridge {
-    std::unique_ptr<std::string> media_stream_track_interface_get_kind(
+    std::unique_ptr<std::string> get_media_stream_track_kind(
         const MediaStreamTrackInterface& track);
 
     // todo
-    std::unique_ptr<std::string> media_stream_track_interface_get_id(
+    std::unique_ptr<std::string> get_media_stream_track_id(
         const MediaStreamTrackInterface& track);
 
     // todo
-    TrackState media_stream_track_interface_get_state(
+    TrackState get_media_stream_track_state(
         const MediaStreamTrackInterface& track);
 
     // todo
-    bool media_stream_track_interface_get_enabled(
+    bool get_media_stream_track_enabled(
         const MediaStreamTrackInterface& track);
 
     // todo recheck

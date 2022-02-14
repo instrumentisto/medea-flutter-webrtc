@@ -5,28 +5,36 @@
 
 namespace bridge {
     // todo 
-    std::unique_ptr<std::string> rtp_codec_parameters_get_name(
+    std::unique_ptr<std::string> get_rtp_codec_parameters_name(
         const RtpCodecParameters& codec);
 
     // todo 
-    int32_t rtp_codec_parameters_get_payload_type(
+    int32_t get_rtp_codec_parameters_type(
         const RtpCodecParameters& codec);
 
-    // todo optinoanl
-    int32_t rtp_codec_parameters_get_clock_rate(
-        const RtpCodecParameters& codec);
-
-    // todo
-    int32_t rtp_codec_parameters_get_num_channels(
+    // todo 
+    int32_t get_rtp_codec_parameters_rate(
         const RtpCodecParameters& codec);
 
     // todo
-    std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_get_parameters(
+    int32_t get_rtp_codec_parameters_num_channels(
         const RtpCodecParameters& codec);
 
     // todo
-    MediaType rtp_codec_parameters_get_kind(
+    std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
         const RtpCodecParameters& codec);
+
+    // todo
+    MediaType get_rtp_codec_parameters_kind(
+        const RtpCodecParameters& codec);
+
+     // todo 
+    int32_t get_rtp_codec_parameters_payload_type(
+        const RtpCodecParameters& codec);
+
+     // todo
+    int32_t get_rtp_codec_parameters_clock_rate(
+     const RtpCodecParameters& codec);
 
     // Enc RtpCodecParameters
 }

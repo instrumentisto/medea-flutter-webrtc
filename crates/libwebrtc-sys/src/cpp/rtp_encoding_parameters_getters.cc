@@ -4,32 +4,32 @@
 
 namespace bridge {
 
-bool rtp_encoding_parameters_get_active(
+bool get_rtp_encoding_parameters_active(
     const RtpEncodingParameters& encoding) {
       return encoding.active; 
     }
 
-int32_t rtp_encoding_parameters_get_maxBitrate(
+int32_t get_rtp_encoding_parameters_maxBitrate(
     const RtpEncodingParameters& encoding) {
       return encoding.max_bitrate_bps.value();
     }
 
-int32_t rtp_encoding_parameters_get_minBitrate(
+int32_t get_rtp_encoding_parameters_minBitrate(
     const RtpEncodingParameters& encoding) {
       return encoding.min_bitrate_bps.value();
     }
 
-double rtp_encoding_parameters_get_maxFramerate(
+double get_rtp_encoding_parameters_maxFramerate(
     const RtpEncodingParameters& encoding) {
       return encoding.max_framerate.value();
     }
 
-int64_t rtp_encoding_parameters_get_ssrc(
+int64_t get_rtp_encoding_parameters_ssrc(
     const RtpEncodingParameters& encoding) {
       return encoding.ssrc.value();
     }
 
-double rtp_encoding_parameters_get_scale_resolution_down_by(
+double get_rtp_encoding_parameters_scale_resolution_down_by(
     const RtpEncodingParameters& encoding) {
       return encoding.scale_resolution_down_by.value();
     }
