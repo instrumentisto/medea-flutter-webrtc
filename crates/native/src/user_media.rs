@@ -1,5 +1,8 @@
-use std::rc::Rc;
+extern crate owning_ref;
 
+use owning_ref::MutexGuardRefMut;
+
+use std::{rc::Rc, collections::HashMap};
 use anyhow::bail;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
@@ -16,9 +19,10 @@ impl Webrtc {
     /// [`AudioTrack`]s according to the provided accepted
     /// [`api::MediaStreamConstraints`].
     #[allow(clippy::too_many_lines, clippy::missing_panics_doc)]
-    pub fn get_users_media(
+    pub fn get_media(
         self: &mut Webrtc,
         constraints: &api::MediaStreamConstraints,
+        is_display: bool,
     ) -> api::MediaStream {
         let mut stream =
             MediaStream::new(&self.0.peer_connection_factory).unwrap();
@@ -30,8 +34,9 @@ impl Webrtc {
         };
 
         if constraints.video.required {
-            let source =
-                self.get_or_create_video_source(&constraints.video).unwrap();
+            let source = self
+                .get_or_create_video_source(&constraints.video, is_display)
+                .unwrap();
             let track = self.create_video_track(source).unwrap();
 
             stream.add_video_track(&track).unwrap();
@@ -113,31 +118,52 @@ impl Webrtc {
     fn create_video_track(
         &mut self,
         source: Rc<VideoSource>,
-    ) -> anyhow::Result<&mut VideoTrack> {
-        let track = VideoTrack::new(
-            &self.0.peer_connection_factory,
-            source,
-            VideoLabel(self.0.video_device_info.device_name(0)?.0),
-        )?;
+    ) -> anyhow::Result<MutexGuardRefMut<HashMap<VideoTrackId, VideoTrack>, VideoTrack>> {
+        let track = if source.is_display {
+            // TODO: Support screens enumeration.
+            VideoTrack::new(
+                &self.0.peer_connection_factory,
+                source,
+                VideoLabel("screen:0".into()),
+            )?
+        } else {
+            let device_index = if let Some(index) =
+                self.get_index_of_video_device(&source.device_id)?
+            {
+                index
+            } else {
+                bail!(
+                    "Could not find video device with the specified ID `{}`",
+                    &source.device_id,
+                );
+            };
 
-        let track = self
-            .0
-            .video_tracks
-            .lock()
-            .unwrap()
-            .entry(track.id)
-            .or_insert(track);
+            VideoTrack::new(
+                &self.0.peer_connection_factory,
+                source,
+                VideoLabel(
+                    self.0.video_device_info.device_name(device_index)?.0,
+                ),
+            )?
+        };
 
-        bail!("")
+        let track = MutexGuardRefMut::new(self.0.video_tracks.lock().unwrap())
+            .map_mut(|vt| vt.entry(track.id).or_insert(track));
+        Ok(track)
     }
 
     /// Creates a new [`VideoSource`] based on the given [`VideoConstraints`].
     fn get_or_create_video_source(
         &mut self,
         caps: &VideoConstraints,
+        is_display: bool,
     ) -> anyhow::Result<Rc<VideoSource>> {
-        let (index, device_id) = if caps.device_id.is_empty() {
-            // No device ID is provided so just pick the first available device
+        let (index, device_id) = if is_display {
+            // TODO: Support screens enumeration.
+            (0, VideoDeviceId("screen:0".into()))
+        } else if caps.device_id.is_empty() {
+            // No device ID is provided so just pick the first available
+            // device
             if self.0.video_device_info.number_of_devices() < 1 {
                 bail!("Could not find any available video input device");
             }
@@ -159,31 +185,38 @@ impl Webrtc {
         if let Some(src) = self.0.video_sources.get(&device_id) {
             return Ok(Rc::clone(src));
         }
-        let source = VideoSource::new(
-            &mut self.0.worker_thread,
-            &mut self.0.signaling_thread,
-            caps,
-            index,
-            device_id,
-        );
 
-        let source = source.map(|s| {
-            let s = Rc::new(s);
-            self.0
-                .video_sources
-                .insert(s.device_id.clone(), Rc::clone(&s));
-            s
-        });
+        let source = if is_display {
+            VideoSource::new_display_source(
+                &mut self.0.worker_thread,
+                &mut self.0.signaling_thread,
+                caps,
+                device_id,
+            )?
+        } else {
+            VideoSource::new_device_source(
+                &mut self.0.worker_thread,
+                &mut self.0.signaling_thread,
+                caps,
+                index,
+                device_id,
+            )?
+        };
+        let source = self
+            .0
+            .video_sources
+            .entry(source.device_id.clone())
+            .or_insert_with(|| Rc::new(source));
 
-        Ok(source.unwrap())
+        Ok(Rc::clone(source))
     }
 
-    /// Creates a new [`AudioTrack`] from the given
+ /// Creates a new [`AudioTrack`] from the given
     /// [`sys::AudioSourceInterface`].
     fn create_audio_track(
         &mut self,
         source: Rc<sys::AudioSourceInterface>,
-    ) -> anyhow::Result<&mut AudioTrack> {
+    ) -> anyhow::Result<MutexGuardRefMut<HashMap<AudioTrackId, AudioTrack>, AudioTrack>>{
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
         let device_id = self
@@ -216,7 +249,9 @@ impl Webrtc {
             ),
         )?;
 
-        bail!("")
+        let track = MutexGuardRefMut::new(self.0.audio_tracks.lock().unwrap())
+            .map_mut(|vt| vt.entry(track.id).or_insert(track));
+        Ok(track)
     }
 
     /// Creates a new [`sys::AudioSourceInterface`] based on the given
@@ -282,6 +317,24 @@ impl Webrtc {
         };
 
         Ok(src)
+    }
+
+    /// Changes the [enabled][1] property of the media track by its ID.
+    ///
+    /// # Panics
+    ///
+    /// If cannot find any track with the provided ID.
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+    pub fn set_track_enabled(&mut self, id: u64, enabled: bool) {
+        if let Some(track) = self.0.video_tracks.lock().unwrap().get(&VideoTrackId(id)) {
+            track.inner.set_enabled(enabled);
+        } else if let Some(track) = self.0.audio_tracks.lock().unwrap().get(&AudioTrackId(id)) {
+            track.set_enabled(enabled);
+        } else {
+            // TODO: Return error.
+            panic!("Could not find track with `{id}` ID");
+        }
     }
 }
 
@@ -470,6 +523,7 @@ impl VideoTrack {
         let src = VideoSource {
             inner: src,
             device_id: VideoDeviceId(deviece_id.to_string()),
+            is_display: false, // todo ???
         };
         Self {
             id,
@@ -491,6 +545,14 @@ impl VideoTrack {
     pub fn remove_video_sink(&mut self, mut video_sink: VideoSink) {
         self.sinks.retain(|&sink| sink != video_sink.id());
         self.inner.remove_sink(video_sink.as_mut());
+    }
+
+    /// Changes the [enabled][1] property of the underlying
+    /// [`sys::VideoTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+    pub fn set_enabled(&self, enabled: bool) {
+        self.inner.set_enabled(enabled);
     }
 }
 
@@ -530,6 +592,7 @@ impl AudioTrack {
         })
     }
 
+    // todo
     pub fn new_from_audio_interface(
         inner: AudioTrackInterface,
         src: sys::AudioSourceInterface,
@@ -543,6 +606,15 @@ impl AudioTrack {
             label: AudioLabel("audio".to_owned()),
         }
     }
+
+
+    /// Changes the [enabled][1] property of the underlying
+    /// [`sys::AudioTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+    pub fn set_enabled(&self, enabled: bool) {
+        self.inner.set_enabled(enabled);
+    }
 }
 
 /// [`sys::VideoTrackSourceInterface`] wrapper.
@@ -552,11 +624,15 @@ pub struct VideoSource {
 
     /// ID of an video input device that provides data to this [`VideoSource`].
     device_id: VideoDeviceId,
+
+    /// Indicates whether this [`VideoSource`] is backed by screen capturing.
+    is_display: bool,
 }
 
 impl VideoSource {
-    /// Creates a new [`VideoSource`].
-    fn new(
+    /// Creates a new [`VideoTrackSourceInterface`] from the video input device
+    /// with the specified constraints.
+    fn new_device_source(
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
         caps: &api::VideoConstraints,
@@ -564,7 +640,7 @@ impl VideoSource {
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
         Ok(Self {
-            inner: sys::VideoTrackSourceInterface::create_proxy(
+            inner: sys::VideoTrackSourceInterface::create_proxy_from_device(
                 worker_thread,
                 signaling_thread,
                 caps.width,
@@ -573,6 +649,28 @@ impl VideoSource {
                 device_index,
             )?,
             device_id,
+            is_display: false,
+        })
+    }
+
+    /// Starts screen capturing and creates a new [`VideoTrackSourceInterface`]
+    /// with the specified constraints.
+    fn new_display_source(
+        worker_thread: &mut sys::Thread,
+        signaling_thread: &mut sys::Thread,
+        caps: &api::VideoConstraints,
+        device_id: VideoDeviceId,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            inner: sys::VideoTrackSourceInterface::create_proxy_from_display(
+                worker_thread,
+                signaling_thread,
+                caps.width,
+                caps.height,
+                caps.frame_rate,
+            )?,
+            device_id,
+            is_display: true,
         })
     }
 }

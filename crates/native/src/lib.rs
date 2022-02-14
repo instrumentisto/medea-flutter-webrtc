@@ -332,10 +332,11 @@ pub mod api {
 
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
-        #[cxx_name = "GetUserMedia"]
-        pub fn get_users_media(
+        #[cxx_name = "GetMedia"]
+        pub fn get_media(
             self: &mut Webrtc,
             constraints: &MediaStreamConstraints,
+            is_display: bool,
         ) -> MediaStream;
 
         /// Disposes the [`MediaStream`] and all contained tracks.
@@ -360,6 +361,16 @@ pub mod api {
         /// outputs the result to the provided `buffer`.
         #[cxx_name = "GetABGRBytes"]
         unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
+
+        /// Changes the [enabled][1] property of the media track by its ID.
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+        #[cxx_name = "SetTrackEnabled"]
+        pub fn set_track_enabled(
+            self: &mut Webrtc,
+            track_id: u64,
+            enabled: bool,
+        );
     }
 }
 

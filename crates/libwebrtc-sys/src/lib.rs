@@ -705,14 +705,14 @@ pub struct VideoTrackSourceInterface(
 );
 
 impl VideoTrackSourceInterface {
-    /// Creates a new [`VideoTrackSourceInterface`] with the specified
-    /// constraints.
+    /// Creates a new [`VideoTrackSourceInterface`] from the video input device
+    /// with the specified constraints.
     ///
     /// The created capturer is wrapped in the `VideoTrackSourceProxy` that
     /// makes sure the real [`VideoTrackSourceInterface`] implementation is
     /// destroyed on the signaling thread and marshals all method calls to the
     /// signaling thread.
-    pub fn create_proxy(
+    pub fn create_proxy_from_device(
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
         width: usize,
@@ -720,13 +720,45 @@ impl VideoTrackSourceInterface {
         fps: usize,
         device_index: u32,
     ) -> anyhow::Result<Self> {
-        let ptr = webrtc::create_video_source(
+        let ptr = webrtc::create_device_video_source(
             worker_thread.0.pin_mut(),
             signaling_thread.0.pin_mut(),
             width,
             height,
             fps,
             device_index,
+        );
+
+        if ptr.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `webrtc::CreateVideoTrackSourceProxy()`",
+            );
+        }
+        Ok(VideoTrackSourceInterface(ptr))
+    }
+
+    // TODO: Support screens enumeration.
+    /// Starts screen capturing and creates a new [`VideoTrackSourceInterface`]
+    /// with the specified constraints.
+    ///
+    /// The created capturer is wrapped in the `VideoTrackSourceProxy` that
+    /// makes sure the real [`VideoTrackSourceInterface`] implementation is
+    /// destroyed on the signaling thread and marshals all method calls to the
+    /// signaling thread.
+    pub fn create_proxy_from_display(
+        worker_thread: &mut Thread,
+        signaling_thread: &mut Thread,
+        width: usize,
+        height: usize,
+        fps: usize,
+    ) -> anyhow::Result<Self> {
+        let ptr = webrtc::create_display_video_source(
+            worker_thread.0.pin_mut(),
+            signaling_thread.0.pin_mut(),
+            width,
+            height,
+            fps,
         );
 
         if ptr.is_null() {
@@ -771,9 +803,17 @@ impl VideoTrackInterface {
         webrtc::remove_video_sink(&self.0, sink.0.pin_mut());
     }
 
+    // todo
     #[must_use]
     pub fn inner(&self) -> &webrtc::VideoTrackInterface {
         &self.0
+    }
+
+    /// Changes the [enabled][1] property of this [`VideoTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+    pub fn set_enabled(&self, enabled: bool) {
+        webrtc::set_video_track_enabled(&self.0, enabled);
     }
 }
 
@@ -784,11 +824,20 @@ impl VideoTrackInterface {
 pub struct AudioTrackInterface(UniquePtr<webrtc::AudioTrackInterface>);
 
 impl AudioTrackInterface {
+    // todo
     #[must_use]
     pub fn inner(&self) -> &webrtc::AudioTrackInterface {
         &self.0
     }
+    
+    /// Changes the [enabled][1] property of this [`AudioTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+    pub fn set_enabled(&self, enabled: bool) {
+        webrtc::set_audio_track_enabled(&self.0, enabled);
+    }
 }
+
 /// [`MediaStreamInterface`][1] representation.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastream
