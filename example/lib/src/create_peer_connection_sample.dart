@@ -42,6 +42,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
 
       var offer = await pc1.createOffer();
+      print(offer.sdp);
       await pc1.setLocalDescription(offer);
       await pc2.setRemoteDescription(offer);
 

@@ -360,12 +360,13 @@ pub mod api {
             track_id: &str,
         );
 
+        /// Adds the [`sys::IceCandidateInterface`] to the [`PeerConnection`].
         #[cxx_name = "AddIceCandidate"]
         pub fn add_ice_candidate(
             self: &mut Webrtc,
             peer_id: u64,
-            candidate: String,
-            sdp_mid: String,
+            candidate: &str,
+            sdp_mid: &str,
             sdp_mline_index: i32,
         );
 

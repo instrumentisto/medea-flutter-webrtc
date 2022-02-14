@@ -118,4 +118,31 @@ void main() {
 
     expect(mid.isEmpty, equals(false));
   });
+
+  testWidgets('Add Ice Candidate', (WidgetTester tester) async {
+    var pc1 = await createPeerConnection({});
+    var pc2 = await createPeerConnection({});
+
+    pc1.onIceCandidate = (RTCIceCandidate candidate) async {
+      await pc2.addCandidate(candidate);
+    };
+
+    pc2.onIceCandidate = (RTCIceCandidate candidate) async {
+      await pc1.addCandidate(candidate);
+    };
+
+    var init = RTCRtpTransceiverInit();
+    init.direction = TransceiverDirection.SendRecv;
+    await pc1.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+    var offer = await pc1.createOffer();
+    print(offer.sdp);
+    await pc1.setLocalDescription(offer);
+    await pc2.setRemoteDescription(offer);
+
+    var answer = await pc2.createAnswer({});
+    await pc2.setLocalDescription(answer);
+    await pc1.setRemoteDescription(answer);
+  });
 }

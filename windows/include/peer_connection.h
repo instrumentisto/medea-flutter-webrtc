@@ -89,6 +89,7 @@ void ReplaceTrackOnSender(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
+// Adds the `IceCandidateInterface` to the `PeerConnectionInterface`.
 void AddIceCandidate(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

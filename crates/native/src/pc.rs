@@ -445,11 +445,17 @@ impl Webrtc {
         }
     }
 
+    /// Adds the [`sys::IceCandidateInterface`] to the [`PeerConnection`].
+    ///
+    /// # Panics
+    ///
+    /// May panic on getting the [`PeerConnection`] or adding
+    /// the [`sys::IceCandidateInterface`].
     pub fn add_ice_candidate(
         &mut self,
         peer_id: u64,
-        candidate: String,
-        sdp_mid: String,
+        candidate: &str,
+        sdp_mid: &str,
         sdp_mline_index: i32,
     ) {
         self.0
@@ -457,7 +463,7 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .inner
-            .add_ice_candidate(&sdp_mid, sdp_mline_index, &candidate)
+            .add_ice_candidate(sdp_mid, sdp_mline_index, candidate)
             .unwrap();
     }
 }

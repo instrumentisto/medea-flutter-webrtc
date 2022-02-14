@@ -11,7 +11,8 @@ use self::bridge::webrtc;
 pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
-    ice_candidate_interface_to_string, sdp_mid_of_ice_candidate, sdp_mline_index_of_ice_candidate, video_frame_to_abgr, AudioLayer,
+    ice_candidate_interface_to_string, sdp_mid_of_ice_candidate,
+    sdp_mline_index_of_ice_candidate, video_frame_to_abgr, AudioLayer,
     Candidate, CandidatePairChangeEvent, IceCandidateInterface,
     IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
     RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
@@ -509,7 +510,8 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Replaces the [`VideoTrackInterface`] to the [`webrtc::RtpSenderInterface`].
+    /// Replaces the [`VideoTrackInterface`] to
+    /// the [`webrtc::RtpSenderInterface`].
     pub fn replace_video_track(
         &self,
         track: &VideoTrackInterface,
@@ -542,7 +544,8 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Replaces the [`AudioTrackInterface`] to the [`webrtc::RtpSenderInterface`].
+    /// Replaces the [`AudioTrackInterface`] to
+    /// the [`webrtc::RtpSenderInterface`].
     pub fn replace_audio_track(
         &self,
         track: &AudioTrackInterface,
@@ -678,12 +681,22 @@ impl PeerConnectionInterface {
             .collect::<_>()
     }
 
-    pub fn add_ice_candidate(&self, sdp_mid: &String, sdp_mline_index: i32, candidate: &String) -> anyhow::Result<()> {
-        let mut error = String::new();
-        let result = webrtc::add_ice_candidate(&self.inner, sdp_mid, sdp_mline_index, candidate, &mut error);
+    /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].
+    pub fn add_ice_candidate(
+        &self,
+        sdp_mid: &str,
+        sdp_mline_index: i32,
+        candidate: &str,
+    ) -> anyhow::Result<()> {
+        let result = webrtc::add_ice_candidate(
+            &self.inner,
+            sdp_mid,
+            sdp_mline_index,
+            candidate,
+        );
 
-        if !result {
-            bail!("Fails when try to `AddIceCandidate` with error: {error}");
+        if !result.is_empty() {
+            bail!("Fails when try to `AddIceCandidate` with error: {result}");
         }
 
         Ok(())

@@ -589,6 +589,7 @@ void ReplaceTrackOnSender(
   result->Success();
 }
 
+// Calls Rust `AddIceCandidate`.
 void AddIceCandidate(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

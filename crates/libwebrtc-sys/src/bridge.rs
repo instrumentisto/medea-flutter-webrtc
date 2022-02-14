@@ -503,17 +503,20 @@ pub(crate) mod webrtc {
             candidate: *const IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
+        /// Returns the `sdpMid` string of the [`IceCandidateInterface`].
         #[must_use]
         pub unsafe fn sdp_mid_of_ice_candidate(
             candidate: *const IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
+        /// Returns the `sdpMLineIndex` of the [`IceCandidateInterface`].
         #[must_use]
         pub unsafe fn sdp_mline_index_of_ice_candidate(
             candidate: *const IceCandidateInterface
         ) -> i32;
 
-        pub fn add_ice_candidate(peer_connection_interface: &PeerConnectionInterface, sdp_mid: &String, sdp_mline_index: i32, candidate: &String, error: &mut String) -> bool;
+        /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].
+        pub fn add_ice_candidate(peer_connection_interface: &PeerConnectionInterface, sdp_mid: &str, sdp_mline_index: i32, candidate: &str) -> String;
 
         /// Returns the spec-compliant string representation of the provided
         /// [`Candidate`].

@@ -544,31 +544,35 @@ bool replace_sender_audio_track(
   }
 }
 
+// Calls `IceCandidateInterface::sdp_mid`.
 std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
     const IceCandidateInterface* candidate) {
   return std::make_unique<std::string>(candidate->sdp_mid());
 }
 
+// Calls `IceCandidateInterface::sdp_mline_index`.
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface* candidate) {
   return candidate->sdp_mline_index();
 }
 
-bool add_ice_candidate(const PeerConnectionInterface& peer,
-                       const rust::String& sdp_mid,
-                       int sdp_mline_index,
-                       const rust::String& candidate,
-                       rust::String& error) {
+// Calls `PeerConnectionInterface::AddIceCandidate`.
+rust::String add_ice_candidate(const PeerConnectionInterface& peer,
+                               rust::Str sdp_mid,
+                               int sdp_mline_index,
+                               rust::Str candidate) {
   webrtc::SdpParseError* sdp_error;
   auto candidatee = webrtc::CreateIceCandidate(
       std::string(sdp_mid), sdp_mline_index, std::string(candidate), sdp_error);
 
   auto result = peer->AddIceCandidate(candidatee);
 
+  rust::String error;
+
   if (!result) {
     error = sdp_error->description;
   }
 
-  return result;
+  return error;
 }
 
 }  // namespace bridge
