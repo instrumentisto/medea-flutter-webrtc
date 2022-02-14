@@ -317,16 +317,19 @@ pub mod api {
             peer_id: u64,
         ) -> Vec<RtcRtpTransceiver>;
 
-        /// Sets the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`].
+        /// Changes the preferred direction of the given [`RtcRtpTransceiver`].
         #[cxx_name = "SetTransceiverDirection"]
         pub fn set_transceiver_direction(
             self: &mut Webrtc,
             peer_id: u64,
             transceiver_id: u64,
             direction: &str,
-        );
+        ) -> String;
 
-        /// Returns the [`sys::Transceiver`]'s `mid`.
+        /// Returns the [Negotiated media ID (mid)][1] of the given
+        /// [`RtcRtpTransceiver`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
         #[cxx_name = "GetTransceiverMid"]
         pub fn get_transceiver_mid(
             self: &mut Webrtc,
@@ -334,8 +337,7 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
-        /// Returns the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`]
-        /// as [`Srting`].
+        /// Returns the preferred direction of the given [`RtcRtpTransceiver`].
         #[cxx_name = "GetTransceiverDirection"]
         pub fn get_transceiver_direction(
             self: &mut Webrtc,
@@ -343,18 +345,19 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
-        /// Stops the [`sys::Transceiver`].
+        /// Irreversibly marks the given [`RtcRtpTransceiver`] as stopping,
+        /// unless it is already stopped.
+        ///
+        /// This will immediately cause the transceiver's sender to no longer
+        /// send, and its receiver to no longer receive.
         #[cxx_name = "StopTransceiver"]
         pub fn stop_transceiver(
             self: &mut Webrtc,
             peer_id: u64,
             transceiver_id: u64,
-        );
+        ) -> String;
 
-        /// Removes the [`sys::Transceiver`] from the [`PeerConnection`]'s
-        /// `transceivers` map.
-        ///
-        /// Pay attention that it doesn't stop the [`sys::Transceiver`].
+        /// Frees the given [`RtcRtpTransceiver`].
         #[cxx_name = "DisposeTransceiver"]
         pub fn dispose_transceiver(
             self: &mut Webrtc,

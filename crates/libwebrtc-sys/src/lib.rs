@@ -462,41 +462,41 @@ impl RtpTransceiverInterface {
         webrtc::get_transceiver_direction(&self.ptr)
     }
 
-    /// Sets the [`Transceiver`]'s `direction`.
-    pub fn set_direction(
-        &self,
-        direction: webrtc::RtpTransceiverDirection,
-    ) -> anyhow::Result<()> {
-        let mut error = String::new();
-
-        webrtc::set_transceiver_direction(&self.ptr, direction, &mut error);
-
-        if !error.is_empty() {
-            bail!(
-                "Fails trying to set `Transceiver`'s `direction` \
-                with the error: {error}"
-            );
-        }
-
-        Ok(())
-    }
-
     /// Gets the [`Transceiver`]'s [`MediaType`].
     #[must_use]
     pub fn media_type(&self) -> MediaType {
         self.media_type
     }
 
-    /// Stops the [`Transceiver`].
-    pub fn stop(&self) -> anyhow::Result<()> {
-        let mut error = String::new();
-
-        webrtc::stop_transceiver(&self.ptr, &mut error);
+    /// Changes the preferred direction of the given
+    /// [`RtpTransceiverInterface`].
+    pub fn set_direction(
+        &self,
+        direction: webrtc::RtpTransceiverDirection,
+    ) -> anyhow::Result<()> {
+        let error = webrtc::set_transceiver_direction(&self.ptr, direction);
 
         if !error.is_empty() {
             bail!(
-                "Fails trying to stop `Transceiver` \
-                with the error: {error}"
+                "`RtpTransceiverInterface->SetDirectionWithError()` call \
+                failed: {error}"
+            );
+        }
+
+        Ok(())
+    }
+
+    /// Irreversibly marks the given [`RtpTransceiverInterface`] as stopping,
+    /// unless it is already stopped.
+    ///
+    /// This will immediately cause the transceiver's sender to no longer send,
+    /// and its receiver to no longer receive.
+    pub fn stop(&self) -> anyhow::Result<()> {
+        let error = webrtc::stop_transceiver(&self.ptr);
+
+        if !error.is_empty() {
+            bail!(
+                "`RtpTransceiverInterface->StopStandard()` call failed: {error}"
             );
         }
 

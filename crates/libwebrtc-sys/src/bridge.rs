@@ -541,11 +541,21 @@ pub(crate) mod webrtc {
             transceiver: &RtpTransceiverInterface
         ) -> RtpTransceiverDirection;
 
-        /// Sets some [`RtpTransceiverDirection`] to the [`Transceiver`].
-        pub fn set_transceiver_direction(transceiver: &RtpTransceiverInterface, new_direction: RtpTransceiverDirection, error: &mut String);
+        /// Changes the preferred direction of the given
+        /// [`RtpTransceiverInterface`].
+        pub fn set_transceiver_direction(
+            transceiver: &RtpTransceiverInterface,
+            new_direction: RtpTransceiverDirection,
+        ) -> String;
 
-        /// Stops the [`Transceiver`].
-        pub fn stop_transceiver(transceiver: &RtpTransceiverInterface, error: &mut String);
+        /// Irreversibly marks the given [`RtpTransceiverInterface`] as
+        /// stopping, unless it is already stopped.
+        ///
+        /// This will immediately cause the transceiver's sender to no longer
+        /// send, and its receiver to no longer receive.
+        pub fn stop_transceiver(
+            transceiver: &RtpTransceiverInterface,
+        ) -> String;
 
         /// Gets the [`RtpSenderInterface`].
         pub fn get_sender(transceiver: &RtpTransceiverInterface) -> UniquePtr<RtpSenderInterface>;
