@@ -12,9 +12,7 @@ namespace flutter_webrtc_plugin {
 FlutterWebRTC::FlutterWebRTC(FlutterWebRTCPlugin* plugin)
     : FlutterVideoRendererManager::FlutterVideoRendererManager(
           plugin->textures(),
-          plugin->messenger()) {
-  messenger_ = plugin->messenger();
-}
+          plugin->messenger()) { messenger_ = plugin->messenger();}
 
 FlutterWebRTC::~FlutterWebRTC() {}
 

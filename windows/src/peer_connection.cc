@@ -67,7 +67,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
 
   // Creates a new `PeerConnectionObserver`.
   PeerConnectionObserver(std::shared_ptr<Dependencies> deps)
-      : deps_(std::move(deps)){};
+      : deps_(std::move(deps)) {};
 
   ~PeerConnectionObserver() {
     if (deps_->chan_) {
