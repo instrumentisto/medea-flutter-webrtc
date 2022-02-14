@@ -4,6 +4,8 @@ import 'dart:html' as html;
 import '/src/model/media_stream_track_state.dart';
 import '/src/universal/media_stream_track.dart';
 
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 class WebMediaStreamTrack extends MediaStreamTrack {
   WebMediaStreamTrack(this.jsTrack);
 

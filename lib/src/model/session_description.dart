@@ -24,7 +24,7 @@ class SessionDescription {
 
   /// Creates [SessionDescription] based on the [Map] received from
   /// the native side.
-  SessionDescription.fromMap(Map<String, dynamic> map) {
+  SessionDescription.fromMap(dynamic map) {
     type = SessionDescriptionType.values[map['type']];
     description = map['description'];
   }

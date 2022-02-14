@@ -5,7 +5,7 @@ class IceCandidate {
   IceCandidate(this.sdpMid, this.sdpMLineIndex, this.candidate);
 
   /// Creates [IceCandidate] based on the [Map] received from the native side.
-  IceCandidate.fromMap(Map<String, dynamic> map) {
+  IceCandidate.fromMap(dynamic map) {
     sdpMid = map['sdpMid'];
     sdpMLineIndex = map['sdpMLineIndex'];
     candidate = map['candidate'];

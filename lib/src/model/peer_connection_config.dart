@@ -16,11 +16,7 @@ enum IceTransportType {
 /// ICE server which should be used by some `PeerConnection`.
 class IceServer {
   /// Creates new ICE server with a provided parameters.
-  IceServer(List<String> urls, String? username, String? password) {
-    this.urls = urls;
-    this.username = username;
-    this.password = password;
-  }
+  IceServer(this.urls, this.username, this.password);
 
   /// List of URLs of this [IceServer].
   late List<String> urls;

@@ -8,6 +8,8 @@ import '../media_stream_track.dart';
 import '../video_renderer.dart';
 import 'media_stream_track.dart';
 
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 VideoRenderer createPlatformSpecificVideoRenderer() {
   return WebVideoRenderer();
 }
@@ -127,7 +129,9 @@ class WebVideoRenderer extends VideoRenderer {
   Future<void> dispose() async {
     await _srcObject?.dispose();
     _srcObject = null;
-    _subscriptions.forEach((s) => s.cancel());
+    for (var s in _subscriptions) {
+      s.cancel();
+    }
     final element = findHtmlView();
     element?.removeAttribute('src');
     element?.load();
@@ -145,7 +149,9 @@ class WebVideoRenderer extends VideoRenderer {
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('RTCVideoRenderer-$textureId',
         (int viewId) {
-      _subscriptions.forEach((s) => s.cancel());
+      for (var s in _subscriptions) {
+        s.cancel();
+      }
       _subscriptions.clear();
 
       final element = html.VideoElement()

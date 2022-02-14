@@ -14,7 +14,7 @@ VideoRenderer createPlatformSpecificVideoRenderer() {
 
 /// [MethodChannel] for factory used for the messaging with a native side.
 const videoRendererFactoryMethodChannel =
-    MethodChannel('$CHANNEL_TAG/VideoRendererFactory');
+    MethodChannel('$channelTag/VideoRendererFactory');
 
 /// [VideoRenderer] implementation for the native.
 class NativeVideoRenderer extends VideoRenderer {
@@ -43,10 +43,10 @@ class NativeVideoRenderer extends VideoRenderer {
     _textureId = response['textureId'];
     _channelId = response['channelId'];
     _eventSubscription =
-        EventChannel('$CHANNEL_TAG/VideoRendererEvent/$_channelId')
+        EventChannel('$channelTag/VideoRendererEvent/$_channelId')
             .receiveBroadcastStream()
             .listen(eventListener, onError: errorListener);
-    _methodChannel = MethodChannel('$CHANNEL_TAG/VideoRenderer/$_channelId');
+    _methodChannel = MethodChannel('$channelTag/VideoRenderer/$_channelId');
   }
 
   @override
@@ -96,7 +96,7 @@ class NativeVideoRenderer extends VideoRenderer {
   /// Listener for the [NativeVideoRenderer] events received from the native
   /// side.
   void eventListener(dynamic event) {
-    final Map<String, dynamic> map = event;
+    final dynamic map = event;
     switch (map['event']) {
       case 'onTextureChangeRotation':
         value =

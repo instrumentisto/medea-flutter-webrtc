@@ -7,7 +7,7 @@ import '../video_view_object_fit.dart';
 import 'video_renderer.dart';
 
 class VideoView extends StatefulWidget {
-  VideoView(
+  const VideoView(
     this._renderer, {
     Key? key,
     this.objectFit = VideoViewObjectFit.contain,
@@ -55,8 +55,8 @@ class _VideoViewState extends State<VideoView> {
   void didUpdateWidget(VideoView oldWidget) {
     super.didUpdateWidget(oldWidget);
     videoRenderer.mirror = widget.mirror;
-    Timer(
-        Duration(milliseconds: 10), () => videoRenderer.mirror = widget.mirror);
+    Timer(const Duration(milliseconds: 10),
+        () => videoRenderer.mirror = widget.mirror);
     videoRenderer.enableContextMenu = widget.enableContextMenu;
     videoRenderer.objectFit =
         widget.objectFit == VideoViewObjectFit.contain ? 'contain' : 'cover';
@@ -73,7 +73,7 @@ class _VideoViewState extends State<VideoView> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Center(
-          child: Container(
+          child: SizedBox(
             width: constraints.maxWidth,
             height: constraints.maxHeight,
             child: widget._renderer.renderVideo

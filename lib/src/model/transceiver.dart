@@ -21,14 +21,11 @@ enum TransceiverDirection {
   stopped,
 }
 
-
 /// Init config for `RtpTransceiver` creation.
 class RtpTransceiverInit {
   /// Creates new [RtpTransceiverInit] config with a provided
   /// [TransceiverDirection].
-  RtpTransceiverInit(TransceiverDirection direction) {
-    this.direction = direction;
-  }
+  RtpTransceiverInit(this.direction);
 
   /// Direction of `RtpTransceiver` which will be created from this config.
   late TransceiverDirection direction;

@@ -2,6 +2,7 @@ package com.cloudwebrtc.webrtc.controller
 
 import com.cloudwebrtc.webrtc.MediaDevices
 import com.cloudwebrtc.webrtc.State
+import com.cloudwebrtc.webrtc.exception.OverconstrainedException
 import com.cloudwebrtc.webrtc.model.Constraints
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import io.flutter.plugin.common.BinaryMessenger
@@ -38,14 +39,17 @@ class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state
             }
             "getUserMedia" -> {
                 val constraintsArg: Map<String, Any> = call.argument("constraints")!!
-                val tracks = mediaDevices.getUserMedia(Constraints.fromMap(constraintsArg))
-
-                result.success(tracks.map {
-                    MediaStreamTrackController(
-                        binaryMessenger,
-                        it
-                    ).asFlutterResult()
-                })
+                try {
+                    val tracks = mediaDevices.getUserMedia(Constraints.fromMap(constraintsArg))
+                    result.success(tracks.map {
+                        MediaStreamTrackController(
+                                binaryMessenger,
+                                it
+                        ).asFlutterResult()
+                    })
+                } catch (e: OverconstrainedException) {
+                    result.error("OverconstrainedError", null, null)
+                }
             }
         }
     }

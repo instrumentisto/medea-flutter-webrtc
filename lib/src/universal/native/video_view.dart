@@ -6,7 +6,7 @@ import '../video_renderer.dart';
 import '../video_view_object_fit.dart';
 
 class VideoView extends StatelessWidget {
-  VideoView(
+  const VideoView(
     this._renderer, {
     Key? key,
     this.objectFit = VideoViewObjectFit.contain,
@@ -32,7 +32,7 @@ class VideoView extends StatelessWidget {
 
   Widget _buildVideoView(BoxConstraints constraints) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: constraints.maxWidth,
         height: constraints.maxHeight,
         child: FittedBox(

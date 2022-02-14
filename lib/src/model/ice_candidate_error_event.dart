@@ -2,7 +2,7 @@
 class IceCandidateErrorEvent {
   /// Creates [IceCandidateErrorEvent] based on the [Map] received
   /// from the native side.
-  IceCandidateErrorEvent.fromMap(Map<String, dynamic> map) {
+  IceCandidateErrorEvent.fromMap(dynamic map) {
     address = map['address'];
     port = map['port'];
     url = map['url'];

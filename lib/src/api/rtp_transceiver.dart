@@ -6,7 +6,7 @@ import 'utils/channel_name_generator.dart';
 
 class RtpTransceiver {
   /// Creates [RtpTransceiver] based on the [Map] received from the native side.
-  RtpTransceiver.fromMap(Map<String, dynamic> map) {
+  RtpTransceiver.fromMap(dynamic map) {
     int channelId = map['channelId'];
     _methodChannel =
         MethodChannel(channelNameWithId('RtpTransceiver', channelId));
