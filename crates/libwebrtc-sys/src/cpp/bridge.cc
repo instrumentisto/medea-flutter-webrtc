@@ -619,5 +619,28 @@ std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
     const RtpTransceiverInterface& transceiver) {
       return std::make_unique<RtpSenderInterface> (transceiver->sender());
     }
+// Calls `RtpTransceiverInterface->SetDirectionWithError()`.
+rust::String set_transceiver_direction(
+    const RtpTransceiverInterface& transceiver,
+    webrtc::RtpTransceiverDirection new_direction) {
+  webrtc::RTCError result = transceiver->SetDirectionWithError(new_direction);
+  rust::String error;
+
+  if (!result.ok()) {
+    error = result.message();
+  }
+  return error;
+}
+
+// Calls `RtpTransceiverInterface->StopStandard()`.
+rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
+  webrtc::RTCError result = transceiver->StopStandard();
+  rust::String error;
+
+  if (!result.ok()) {
+    error = result.message();
+  }
+  return error;
+}
 
 }  // namespace bridge
