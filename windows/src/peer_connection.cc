@@ -180,6 +180,9 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   }
 
+  // Sends an `OnTrack` event to the Dart side.
+  //
+  // See: https://w3.org/TR/webrtc/#event-track
   void OnTrack(OnTrackSerialized event) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_.get() != nullptr) {
@@ -196,6 +199,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   // `PeerConnectionObserver` dependencies.
   std::shared_ptr<Dependencies> deps_;
   
+  // Convert `TrackInterfaceSerialized` to flutter `EncodableMap`.
   EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
       flutter::EncodableMap info;
       info[EncodableValue("channelId")] = EncodableValue(track.channel_id);
@@ -207,6 +211,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
       return info;
   }
 
+  // Convert `RtpTransceiverInterfaceSerialized` to flutter `EncodableMap`.
   EncodableMap transceiverToMap(RtpTransceiverInterfaceSerialized tranceiver) {
       flutter::EncodableMap info;
       info[EncodableValue("channelId")] = EncodableValue(tranceiver.channel_id);
@@ -217,6 +222,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
       return info;
   }
 
+  // Convert `RtpSenderInterfaceSerialized` to flutter `EncodableMap`.
   EncodableMap rtpSenderToMap(RtpSenderInterfaceSerialized sender) {
       flutter::EncodableMap info;
       info[EncodableValue("channelId")] = EncodableValue(sender.channel_id);

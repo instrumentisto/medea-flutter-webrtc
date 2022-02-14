@@ -455,24 +455,14 @@ pub mod api {
 impl From<&Sys_VideoTrackInterface> for TrackInterfaceSerialized {
     fn from(track: &Sys_VideoTrackInterface) -> Self {
         let track = video_track_media_stream_track_upcast(track);
-        TrackInterfaceSerialized {
-            id: get_media_stream_track_id(track).to_string(),
-            kind: get_media_stream_track_kind(track).to_string(),
-            channel_id: 0, // todo add actual id
-            device_id: 0.to_string(), // todo [`Sys_VideoTrackInterface`] dont have `device_id`
-        }
+        TrackInterfaceSerialized::from(track)
     }
 }
 
 impl From<&Sys_AudioTrackInterface> for TrackInterfaceSerialized {
     fn from(track: &Sys_AudioTrackInterface) -> Self {
         let track = audio_track_media_stream_track_upcast(track);
-        TrackInterfaceSerialized {
-            id: get_media_stream_track_id(track).to_string(),
-            kind: get_media_stream_track_kind(track).to_string(),
-            channel_id: 0, // todo add actual id
-            device_id: 0.to_string(), // todo [`Sys_AudioTrackInterface`] dont have `device_id`
-        }
+        TrackInterfaceSerialized::from(track)
     }
 }
 
@@ -482,7 +472,7 @@ impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
             id: get_media_stream_track_id(track).to_string(),
             kind: get_media_stream_track_kind(track).to_string(),
             channel_id: 0, // todo add actual id
-            device_id: 0.to_string(), // todo [`Sys_AudioTrackInterface`] dont have `device_id`
+            device_id: "".to_owned(),
         }
     }
 }
