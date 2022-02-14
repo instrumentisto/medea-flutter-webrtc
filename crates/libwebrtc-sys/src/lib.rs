@@ -468,41 +468,6 @@ impl RtpTransceiverInterface {
         self.media_type
     }
 
-    /// Changes the preferred direction of the given
-    /// [`RtpTransceiverInterface`].
-    pub fn set_direction(
-        &self,
-        direction: webrtc::RtpTransceiverDirection,
-    ) -> anyhow::Result<()> {
-        let error = webrtc::set_transceiver_direction(&self.ptr, direction);
-
-        if !error.is_empty() {
-            bail!(
-                "`RtpTransceiverInterface->SetDirectionWithError()` call \
-                failed: {error}"
-            );
-        }
-
-        Ok(())
-    }
-
-    /// Irreversibly marks the given [`RtpTransceiverInterface`] as stopping,
-    /// unless it is already stopped.
-    ///
-    /// This will immediately cause the transceiver's sender to no longer send,
-    /// and its receiver to no longer receive.
-    pub fn stop(&self) -> anyhow::Result<()> {
-        let error = webrtc::stop_transceiver(&self.ptr);
-
-        if !error.is_empty() {
-            bail!(
-                "`RtpTransceiverInterface->StopStandard()` call failed: {error}"
-            );
-        }
-
-        Ok(())
-    }
-
     /// Replaces the [`VideoTrackInterface`] to
     /// the [`webrtc::RtpSenderInterface`].
     pub fn replace_video_track(
@@ -568,6 +533,36 @@ impl RtpTransceiverInterface {
             );
         }
 
+        Ok(())
+    }
+
+    /// Changes the preferred `direction` of this [`RtpTransceiverInterface`].
+    pub fn set_direction(
+        &self,
+        direction: webrtc::RtpTransceiverDirection,
+    ) -> anyhow::Result<()> {
+        let err = webrtc::set_transceiver_direction(&self.ptr, direction);
+        if !err.is_empty() {
+            bail!(
+                "`RtpTransceiverInterface->SetDirectionWithError()` call \
+                 failed: {err}",
+            );
+        }
+        Ok(())
+    }
+
+    /// Irreversibly marks this [`RtpTransceiverInterface`] as stopping, unless
+    /// it's already stopped.
+    ///
+    /// This will immediately cause this [`RtpTransceiverInterface`]'s sender to
+    /// no longer send, and its receiver to no longer receive.
+    pub fn stop(&self) -> anyhow::Result<()> {
+        let err = webrtc::stop_transceiver(&self.ptr);
+        if !err.is_empty() {
+            bail!(
+                "`RtpTransceiverInterface->StopStandard()` call failed: {err}",
+            );
+        }
         Ok(())
     }
 }

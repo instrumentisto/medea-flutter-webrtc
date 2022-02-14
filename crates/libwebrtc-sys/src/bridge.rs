@@ -549,9 +549,9 @@ pub(crate) mod webrtc {
         ) -> String;
 
         /// Irreversibly marks the given [`RtpTransceiverInterface`] as
-        /// stopping, unless it is already stopped.
+        /// stopping, unless it's already stopped.
         ///
-        /// This will immediately cause the transceiver's sender to no longer
+        /// This will immediately cause the `transceiver`'s sender to no longer
         /// send, and its receiver to no longer receive.
         pub fn stop_transceiver(
             transceiver: &RtpTransceiverInterface,
