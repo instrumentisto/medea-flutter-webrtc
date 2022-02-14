@@ -69,7 +69,6 @@ void main() {
     expect(direction, equals(TransceiverDirection.SendRecv));
 
     for (var dir in TransceiverDirection.values) {
-      // `TransceiverDirection.Stopped` can't be set, but read.
       if (dir == TransceiverDirection.Stopped) {
         continue;
       }
@@ -109,14 +108,14 @@ void main() {
 
     var mid = await trans.getMid();
 
-    expect(mid.isEmpty, equals(true));
+    expect(mid.isEmpty, isTrue);
 
     var sess = await pc.createOffer();
     await pc.setLocalDescription(sess);
 
     mid = await trans.getMid();
 
-    expect(mid.isEmpty, equals(false));
+    expect(mid, equals('0'));
   });
 
   testWidgets('Add Ice Candidate', (WidgetTester tester) async {

@@ -196,10 +196,9 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// Panics if could not parse the given `media_type` and `direction` to a
-    /// valid [`sys::MediaType`] and [`sys::RtpTransceiverDirection`].
-    ///
-    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
+    /// - If cannot parse the given `media_type` and `direction` to a valid
+    ///   [`sys::MediaType`] and [`sys::RtpTransceiverDirection`].
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     pub fn add_transceiver(
         &mut self,
         peer_id: u64,
@@ -229,12 +228,11 @@ impl Webrtc {
     }
 
     /// Returns a sequence of [`api::RtcRtpTransceiver`] objects representing
-    /// the RTP transceivers that are currently attached to this
-    /// [`PeerConnection`] object.
+    /// the RTP transceivers currently attached to specified [`PeerConnection`].
     ///
     /// # Panics
     ///
-    /// Panics if could not find a [`PeerConnection`] by the provided `peer_id`.
+    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     pub fn get_transceivers(
         &mut self,
         peer_id: u64,
@@ -264,18 +262,21 @@ impl Webrtc {
         result
     }
 
-    /// Sets the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`].
+    /// Changes the preferred direction of the given [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
-    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
-    /// or setting the [`sys::RtpTransceiverDirection`].
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
+    ///   `transceiver_id`.
+    /// - If cannot parse the given `direction` to a valid
+    ///   [`sys::RtpTransceiverDirection`].
     pub fn set_transceiver_direction(
         &mut self,
         peer_id: u64,
         transceiver_id: u64,
         direction: &str,
-    ) {
+    ) -> String {
         let peer = self
             .0
             .peer_connections
@@ -286,14 +287,19 @@ impl Webrtc {
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .set_direction(direction.try_into().unwrap())
-            .unwrap();
+            .map_or_else(|err| err.to_string(), |_| String::new())
     }
 
-    /// Returns the [`sys::Transceiver`]'s `mid`.
+    /// Returns the [Negotiated media ID (mid)][1] of the given
+    /// [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
-    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`].
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
+    ///   `transceiver_id`.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     pub fn get_transceiver_mid(
         &mut self,
         peer_id: u64,
@@ -318,12 +324,13 @@ impl Webrtc {
         }
     }
 
-    /// Returns the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`]
-    /// as [`Srting`].
+    /// Returns the preferred direction of the given [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
-    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`].
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
+    ///   `transceiver_id`.
     pub fn get_transceiver_direction(
         &mut self,
         peer_id: u64,
@@ -342,13 +349,22 @@ impl Webrtc {
             .to_string()
     }
 
-    /// Stops the [`sys::Transceiver`].
+    /// Irreversibly marks the given [`RtcRtpTransceiver`] as stopping,
+    /// unless it is already stopped.
+    ///
+    /// This will immediately cause the transceiver's sender to no longer
+    /// send, and its receiver to no longer receive.
     ///
     /// # Panics
     ///
-    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
-    /// or on stoping the [`sys::Transceiver`].
-    pub fn stop_transceiver(&mut self, peer_id: u64, transceiver_id: u64) {
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
+    ///   `transceiver_id`.
+    pub fn stop_transceiver(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+    ) -> String {
         let peer = self
             .0
             .peer_connections
@@ -359,18 +375,16 @@ impl Webrtc {
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .stop()
-            .unwrap();
+            .map_or_else(|err| err.to_string(), |_| String::new())
     }
 
-    /// Removes the [`sys::Transceiver`] from the [`PeerConnection`]'s
-    /// `transceivers` map.
-    ///
-    /// Pay attention that it doesn't stop the [`sys::Transceiver`].
+    /// Frees the given [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
-    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
-    /// or on removing the last one.
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
+    ///   `transceiver_id`.
     pub fn dispose_transceiver(&mut self, peer_id: u64, transceiver_id: u64) {
         self.0
             .peer_connections
@@ -421,7 +435,7 @@ impl Webrtc {
                         .replace_video_track(
                             self.0
                                 .video_tracks
-                                .get(&VideoTrackId(
+                                .get(&VideoTrackId::from(
                                     u64::from_str(track_id).unwrap(),
                                 ))
                                 .unwrap(),
@@ -433,7 +447,7 @@ impl Webrtc {
                         .replace_audio_track(
                             self.0
                                 .audio_tracks
-                                .get(&AudioTrackId(
+                                .get(&AudioTrackId::from(
                                     u64::from_str(track_id).unwrap(),
                                 ))
                                 .unwrap(),
@@ -480,7 +494,7 @@ pub struct PeerConnection {
     /// Underlying [`sys::PeerConnectionInterface`].
     inner: sys::PeerConnectionInterface,
 
-    /// The [`sys::Transceiver`]s of this [`PeerConnection`].
+    /// [`sys::Transceiver`]s of this [`PeerConnection`].
     transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 

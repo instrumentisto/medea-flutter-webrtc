@@ -338,12 +338,12 @@ pub struct VideoDeviceId(String);
 pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct VideoTrackId(pub(crate) u64);
+#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
+pub struct VideoTrackId(u64);
 
 /// ID of an [`AudioTrack`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, PartialEq)]
-pub struct AudioTrackId(pub(crate) u64);
+#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
+pub struct AudioTrackId(u64);
 
 /// Label identifying a video track source.
 #[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq)]

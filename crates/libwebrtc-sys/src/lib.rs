@@ -433,12 +433,11 @@ impl SetRemoteDescriptionObserver {
     }
 }
 
-/// The [`RtpTransceiverInterface`] represents a combination of an [`RtpSender`]
-/// and an [`RtpReceiver`] that share a common
-/// [media stream "identification-tag"][1].
+/// Representation of a combination of an [RTCRtpSender] and an [RTCRtpReceiver]
+/// sharing a common [media stream "identification-tag"][1].
 ///
-/// [`RtpSender`]: https://w3.org/TR/webrtc#dom-rtcrtpsender
-/// [`RtpReceiver`]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+/// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 pub struct RtpTransceiverInterface {
     ptr: UniquePtr<webrtc::RtpTransceiverInterface>,
@@ -447,45 +446,21 @@ pub struct RtpTransceiverInterface {
 }
 
 impl RtpTransceiverInterface {
-    /// Returns [`RtpTransceiverInterface`]'s [`mid`].
+    /// Returns a [`mid`] of this [`RtpTransceiverInterface`].
     ///
     /// [`mid`]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
     #[must_use]
     pub fn mid(&self) -> Option<String> {
         let mid = webrtc::get_transceiver_mid(&self.ptr);
-
-        if mid.is_empty() {
-            None
-        } else {
-            Some(mid)
-        }
+        (!mid.is_empty()).then(|| mid)
     }
 
-    /// Returns [`RtpTransceiverInterface`]'s [`direction`].
+    /// Returns a [`direction`] of this [`RtpTransceiverInterface`].
     ///
-    /// [`mid`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
+    /// [`direction`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
         webrtc::get_transceiver_direction(&self.ptr)
-    }
-
-    /// Sets the [`Transceiver`]'s `direction`.
-    pub fn set_direction(
-        &self,
-        direction: webrtc::RtpTransceiverDirection,
-    ) -> anyhow::Result<()> {
-        let mut error = String::new();
-
-        webrtc::set_transceiver_direction(&self.ptr, direction, &mut error);
-
-        if !error.is_empty() {
-            bail!(
-                "Fails trying to set `Transceiver`'s `direction` \
-                with the error: {error}"
-            );
-        }
-
-        Ok(())
     }
 
     /// Gets the [`Transceiver`]'s [`MediaType`].
@@ -494,16 +469,35 @@ impl RtpTransceiverInterface {
         self.media_type
     }
 
-    /// Stops the [`Transceiver`].
-    pub fn stop(&self) -> anyhow::Result<()> {
-        let mut error = String::new();
-
-        webrtc::stop_transceiver(&self.ptr, &mut error);
+    /// Changes the preferred direction of the given
+    /// [`RtpTransceiverInterface`].
+    pub fn set_direction(
+        &self,
+        direction: webrtc::RtpTransceiverDirection,
+    ) -> anyhow::Result<()> {
+        let error = webrtc::set_transceiver_direction(&self.ptr, direction);
 
         if !error.is_empty() {
             bail!(
-                "Fails trying to stop `Transceiver` \
-                with the error: {error}"
+                "`RtpTransceiverInterface->SetDirectionWithError()` call \
+                failed: {error}"
+            );
+        }
+
+        Ok(())
+    }
+
+    /// Irreversibly marks the given [`RtpTransceiverInterface`] as stopping,
+    /// unless it is already stopped.
+    ///
+    /// This will immediately cause the transceiver's sender to no longer send,
+    /// and its receiver to no longer receive.
+    pub fn stop(&self) -> anyhow::Result<()> {
+        let error = webrtc::stop_transceiver(&self.ptr);
+
+        if !error.is_empty() {
+            bail!(
+                "`RtpTransceiverInterface->StopStandard()` call failed: {error}"
             );
         }
 
@@ -641,7 +635,7 @@ impl PeerConnectionInterface {
     }
 
     /// Creates a new [`RtpTransceiverInterface`] and adds it to the set of
-    /// transceivers of the given [`PeerConnectionInterface`].
+    /// transceivers of this [`PeerConnectionInterface`].
     pub fn add_transceiver(
         &mut self,
         media_type: MediaType,
@@ -663,8 +657,8 @@ impl PeerConnectionInterface {
     }
 
     /// Returns a sequence of [`RtpTransceiverInterface`] objects representing
-    /// the RTP transceivers that are currently attached to this
-    /// [`PeerConnectionInterface`] object.
+    /// the RTP transceivers currently attached to this
+    /// [`PeerConnectionInterface`].
     #[must_use]
     pub fn get_transceivers(&self) -> Vec<RtpTransceiverInterface> {
         webrtc::get_transceivers(&self.inner)
@@ -678,7 +672,7 @@ impl PeerConnectionInterface {
                     sender,
                 }
             })
-            .collect::<_>()
+            .collect()
     }
 
     /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].

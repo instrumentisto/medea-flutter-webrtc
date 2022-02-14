@@ -113,8 +113,10 @@ pub mod api {
         pub device_id: String,
     }
 
-    /// The [`MediaStream`] represents a stream of media content. A stream
-    /// consists of several [`MediaStreamTrack`], such as video or audio tracks.
+    /// Representation of a stream of media content.
+    ///
+    /// This stream consists of several [`MediaStreamTrack`]s, such as video
+    /// and/or audio tracks.
     pub struct MediaStream {
         /// Unique ID of this [`MediaStream`].
         pub stream_id: u64,
@@ -126,9 +128,10 @@ pub mod api {
         pub audio_tracks: Vec<MediaStreamTrack>,
     }
 
-    /// The [`MediaStreamTrack`] interface represents a single media track
-    /// within a stream; typically, these are audio or video tracks, but other
-    /// track types may exist as well.
+    /// Representation of a single media track within a [`MediaStream`].
+    ///
+    /// Typically, these are audio or video tracks, but other track types may
+    /// exist as well.
     pub struct MediaStreamTrack {
         /// Unique identifier (GUID) for the track
         pub id: u64,
@@ -153,20 +156,29 @@ pub mod api {
         kVideo,
     }
 
-    /// [`RtcRtpTransceiver`] describes a permanent pairing of an `RtcRtpSender`
-    /// and an `RtcRtpReceiver`, along with some shared state.
+    /// Representation of a permanent pair of an [RTCRtpSender] and an
+    /// [RTCRtpReceiver], along with some shared state.
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     #[derive(Clone, Debug, Eq, Hash, PartialEq)]
     pub struct RtcRtpTransceiver {
-        /// ID of this [`RtcRtpTransceiver`]. It is not unique across all
-        /// transceivers but only within specific peer.
+        /// ID of this [`RtcRtpTransceiver`].
+        ///
+        /// It's not unique across all possible [`RtcRtpTransceiver`]s, but only
+        /// within a specific peer.
         pub id: u64,
 
-        /// The negotiated media ID (mid) which the local and remote peers have
-        /// agreed upon to uniquely identify the stream's pairing of sender and
-        /// receiver.
+        /// [Negotiated media ID (mid)][1] which the local and remote peers have
+        /// agreed upon to uniquely identify the [`MediaStream`]'s pairing of
+        /// sender and receiver.
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
         pub mid: String,
 
-        /// [`RtcRtpTransceiver`]'s preferred directionality.
+        /// Preferred [`direction`][1] of this [`RtcRtpTransceiver`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
         pub direction: String,
     }
 
@@ -297,24 +309,27 @@ pub mod api {
         ) -> RtcRtpTransceiver;
 
         /// Returns a sequence of [`RtcRtpTransceiver`] objects representing
-        /// the RTP transceivers that are currently attached to this
-        /// [`PeerConnection`] object.
+        /// the RTP transceivers currently attached to the specified
+        /// [`PeerConnection`].
         #[cxx_name = "GetTransceivers"]
         pub fn get_transceivers(
             self: &mut Webrtc,
             peer_id: u64,
         ) -> Vec<RtcRtpTransceiver>;
 
-        /// Sets the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`].
+        /// Changes the preferred direction of the given [`RtcRtpTransceiver`].
         #[cxx_name = "SetTransceiverDirection"]
         pub fn set_transceiver_direction(
             self: &mut Webrtc,
             peer_id: u64,
             transceiver_id: u64,
             direction: &str,
-        );
+        ) -> String;
 
-        /// Returns the [`sys::Transceiver`]'s `mid`.
+        /// Returns the [Negotiated media ID (mid)][1] of the given
+        /// [`RtcRtpTransceiver`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
         #[cxx_name = "GetTransceiverMid"]
         pub fn get_transceiver_mid(
             self: &mut Webrtc,
@@ -322,8 +337,7 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
-        /// Returns the [`sys::Transceiver`]'s [`sys::RtpTransceiverDirection`]
-        /// as [`Srting`].
+        /// Returns the preferred direction of the given [`RtcRtpTransceiver`].
         #[cxx_name = "GetTransceiverDirection"]
         pub fn get_transceiver_direction(
             self: &mut Webrtc,
@@ -331,18 +345,19 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
-        /// Stops the [`sys::Transceiver`].
+        /// Irreversibly marks the given [`RtcRtpTransceiver`] as stopping,
+        /// unless it is already stopped.
+        ///
+        /// This will immediately cause the transceiver's sender to no longer
+        /// send, and its receiver to no longer receive.
         #[cxx_name = "StopTransceiver"]
         pub fn stop_transceiver(
             self: &mut Webrtc,
             peer_id: u64,
             transceiver_id: u64,
-        );
+        ) -> String;
 
-        /// Removes the [`sys::Transceiver`] from the [`PeerConnection`]'s
-        /// `transceivers` map.
-        ///
-        /// Pay attention that it doesn't stop the [`sys::Transceiver`].
+        /// Frees the given [`RtcRtpTransceiver`].
         #[cxx_name = "DisposeTransceiver"]
         pub fn dispose_transceiver(
             self: &mut Webrtc,

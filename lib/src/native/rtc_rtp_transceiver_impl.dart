@@ -177,7 +177,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
     }
   }
 
-  // TODO: Remove when new Fluter api implemented.
+  // TODO: Used during tests, remove when merging with #31.
   @override
   Future<String> getMid() async {
     try {

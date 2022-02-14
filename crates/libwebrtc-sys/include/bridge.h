@@ -8,14 +8,14 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-#include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
-#include "peer_connection_observer.h"
 #include "rust/cxx.h"
+#include "device_video_capturer.h"
+#include "peer_connection_observer.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
 
@@ -306,24 +306,27 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
 rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer);
 
-// Returns a `RtpTransceiverInterface`'s `mid`.
+// Returns a `mid` of the given `RtpTransceiverInterface`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
 // Gets the `Transceiver`'s `MediaType`.
 MediaType get_transceiver_type(const RtpTransceiverInterface& transceiver);
 
-// Returns a `RtpTransceiverInterface`'s `direction`.
+// Returns a `direction` of the given `RtpTransceiverInterface`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
 
-// Sets some `RtpTransceiverDirection` to the `RtpTransceiverInterface`.
-void set_transceiver_direction(const RtpTransceiverInterface& transceiver,
-                               RtpTransceiverDirection new_direction,
-                               rust::String& error);
+// Changes the preferred `RtpTransceiverInterface` direction to the given
+// `RtpTransceiverDirection`.
+rust::String set_transceiver_direction(
+    const RtpTransceiverInterface& transceiver,
+    RtpTransceiverDirection new_direction);
 
-// Stops the `RtpTransceiverInterface`.
-void stop_transceiver(const RtpTransceiverInterface& transceiver,
-                      rust::String& error);
+// Irreversibly marks the transceiver as stopping, unless it is already stopped.
+//
+// This will immediately cause the transceiver's sender to no longer send, and
+// its receiver to no longer receive.
+rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 
 // Gets the `RtpSenderInterface` from the `RtpTransceiverInterface`.
 std::unique_ptr<RtpSenderInterface> get_sender(
