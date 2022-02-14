@@ -30,13 +30,13 @@ bool media_stream_track_interface_get_enabled(
 // todo recheck
 std::unique_ptr<VideoTrackInterface> media_stream_track_interface_downcast_video_track(
   MediaStreamTrackInterface& track) {
-    return std::make_unique<VideoTrackInterface>(static_cast<webrtc::VideoTrackInterface*>(track.ptr()));
+    return std::make_unique<VideoTrackInterface>(static_cast<webrtc::VideoTrackInterface*>(track.release()));
   }
 
 // todo recheck
 std::unique_ptr<AudioTrackInterface> media_stream_track_interface_downcast_audio_track(
   MediaStreamTrackInterface& track) {
-    return std::make_unique<AudioTrackInterface>(static_cast<webrtc::AudioTrackInterface*>(track.ptr()));
+    return std::make_unique<AudioTrackInterface>(static_cast<webrtc::AudioTrackInterface*>(track.release()));
   }
 
 }

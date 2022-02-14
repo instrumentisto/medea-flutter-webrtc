@@ -674,12 +674,12 @@ std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_get_parameters(
 
 const MediaStreamTrackInterface& video_track_truncation(
     const VideoTrackInterface& track) {
-      return MediaStreamTrackInterface(track.ptr());
+      return MediaStreamTrackInterface(track);
     }
 
 const MediaStreamTrackInterface& audio_track_truncation(
     const AudioTrackInterface& track) {
-      return MediaStreamTrackInterface(track.ptr());
+      return MediaStreamTrackInterface(track);
     }
 
 // todo

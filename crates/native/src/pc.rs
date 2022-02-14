@@ -461,7 +461,7 @@ impl sys::PeerConnectionOnEvent for HandlerPeerConnectionOnEvent {
             track: TrackInterfaceSerialized::from(
                 &track as &MediaStreamTrackInterface,
             ),
-            tranceiver: RtpTransceiverInterfaceSerialized::from(event),
+            transceiver: RtpTransceiverInterfaceSerialized::from(event),
         };
         self.cb.pin_mut().on_track(result);
     }

@@ -100,7 +100,7 @@ pub mod api {
     // todo
     pub struct OnTrackSerialized {
         track: TrackInterfaceSerialized,
-        tranceiver: RtpTransceiverInterfaceSerialized,
+        transceiver: RtpTransceiverInterfaceSerialized,
     }
 
     /// Possible kinds of media devices.

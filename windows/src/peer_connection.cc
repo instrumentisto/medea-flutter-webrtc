@@ -256,7 +256,6 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap info;
       info[EncodableValue("event")] = "onTrack";
-      info[EncodableValue("channelId")] = EncodableValue(event.channel_id);
       info[EncodableValue("track")] = EncodableValue(mediaTrackToMap(event.track));
       info[EncodableValue("transceiver")] = EncodableValue(transceiverToMap(event.transceiver));
 
@@ -272,8 +271,6 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   std::shared_ptr<EventContext> context_;
   
   EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap info;
       info[EncodableValue("channelId")] = EncodableValue(track.channel_id);
       info[EncodableValue("id")] = std::string(track.id);
@@ -281,30 +278,24 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
         info[EncodableValue("deviceId")] = std::string(track.device_id);
       }
       info[EncodableValue("kind")] = std::string(track.kind);
-      context_->event_sink.get()->Success(flutter::EncodableValue(info));
-    }
+      return info;
   }
 
   EncodableMap transceiverToMap(RtpTransceiverInterfaceSerialized tranceiver) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap info;
       info[EncodableValue("channelId")] = EncodableValue(tranceiver.channel_id);
       if(tranceiver.mid != "") {
         info[EncodableValue("mid")] = std::string(tranceiver.mid);
       }
       info[EncodableValue("sender")] = EncodableValue(rtpSenderToMap(tranceiver.sender));
-      context_->event_sink.get()->Success(flutter::EncodableValue(info));
-    }
+      return info;
   }
 
   EncodableMap rtpSenderToMap(RtpSenderInterfaceSerialized sender) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap info;
       info[EncodableValue("channelId")] = EncodableValue(sender.channel_id);
-      context_->event_sink.get()->Success(flutter::EncodableValue(info));
-    }
+      return info;
+
   }
 };
 

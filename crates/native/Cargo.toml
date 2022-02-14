@@ -11,6 +11,7 @@ crate-type = ["cdylib"]
 anyhow = "1.0"
 cxx = "1.0"
 derive_more = "0.99"
+owning_ref = "0.4.1"
 libwebrtc-sys = { path = "../libwebrtc-sys" }
 
 [build-dependencies]

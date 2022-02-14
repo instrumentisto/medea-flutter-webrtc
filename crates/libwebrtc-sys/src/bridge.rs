@@ -1252,6 +1252,7 @@ pub fn call_peer_connection_on_track(
 }
 
 // todo
+#[warn(dead_code)]
 pub fn call_peer_connection_on_remove_track(
     cb: &mut DynPeerConnectionOnEvent,
     event: &webrtc::RtpReceiverInterface,
