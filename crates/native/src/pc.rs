@@ -262,14 +262,15 @@ impl Webrtc {
         result
     }
 
-    /// Changes the preferred direction of the given [`RtcRtpTransceiver`].
+    /// Changes the preferred `direction` of the specified
+    /// [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
-    /// - If cannot parse the given `direction` to a valid
+    /// - If cannot parse the given `direction` as a valid
     ///   [`sys::RtpTransceiverDirection`].
     pub fn set_transceiver_direction(
         &mut self,
@@ -290,7 +291,7 @@ impl Webrtc {
             .map_or_else(|err| err.to_string(), |_| String::new())
     }
 
-    /// Returns the [Negotiated media ID (mid)][1] of the given
+    /// Returns the [Negotiated media ID (mid)][1] of the specified
     /// [`RtcRtpTransceiver`].
     ///
     /// # Panics
@@ -311,20 +312,14 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let mid = peer
-            .transceivers
+        peer.transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
-            .mid();
-
-        if let Some(mid) = mid {
-            mid
-        } else {
-            String::new()
-        }
+            .mid()
+            .unwrap_or_default()
     }
 
-    /// Returns the preferred direction of the given [`RtcRtpTransceiver`].
+    /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
@@ -349,11 +344,11 @@ impl Webrtc {
             .to_string()
     }
 
-    /// Irreversibly marks the given [`RtcRtpTransceiver`] as stopping,
-    /// unless it is already stopped.
+    /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
+    /// unless it's already stopped.
     ///
-    /// This will immediately cause the transceiver's sender to no longer
-    /// send, and its receiver to no longer receive.
+    /// This will immediately cause the transceiver's sender to no longer send,
+    /// and its receiver to no longer receive.
     ///
     /// # Panics
     ///
@@ -378,7 +373,7 @@ impl Webrtc {
             .map_or_else(|err| err.to_string(), |_| String::new())
     }
 
-    /// Frees the given [`RtcRtpTransceiver`].
+    /// Frees the specified [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
@@ -399,8 +394,10 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// May panic on getting the [`PeerConnection`] or the [`sys::Transceiver`]
-    /// or on setting the `track`.
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
+    ///   `transceiver_id`.
+    /// - If cannot set the `track` to the [`sys::Transceiver`].
     pub fn replace_track_on_sender(
         &mut self,
         peer_id: u64,
