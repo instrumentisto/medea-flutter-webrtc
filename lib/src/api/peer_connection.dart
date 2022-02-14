@@ -8,8 +8,8 @@ import '/src/model/ice_candidate_error_event.dart';
 import '/src/model/media_stream_track_state.dart';
 import '/src/model/peer_connection_config.dart';
 import '/src/model/peer_connections_states.dart';
-import '/src/model/transceiver.dart';
 import '/src/model/session_description.dart';
+import '/src/model/transceiver.dart';
 import '/src/universal/native/media_stream_track.dart';
 import 'rtp_transceiver.dart';
 
