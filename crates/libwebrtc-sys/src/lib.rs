@@ -4,6 +4,7 @@
 mod bridge;
 
 extern crate derive_more;
+use bridge::webrtc::RtpReceiverInterface;
 use derive_more::From;
 
 use anyhow::bail;
@@ -14,10 +15,46 @@ pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
     ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
-    Candidate, CandidatePairChangeEvent, IceCandidateInterface,
-    IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
-    RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
-    VideoRotation,
+    AudioTrackInterface as Sys_AudioTrackInterface, Candidate,
+    CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
+    IceGatheringState, MediaStreamTrackInterface, MediaType,
+    PeerConnectionState, RtpReceiverInterface as Sys_RtpReceiverInterface,
+    RtpSenderInterface, RtpTransceiverDirection,
+    RtpTransceiverInterface as Sys_RtpTransceiverInterface, SdpType,
+    SignalingState, VideoFrame, VideoRotation,
+    VideoTrackInterface as Sys_VideoTrackInterface,
+};
+
+pub use crate::webrtc::{
+    audio_track_media_stream_track_upcast, get_audio_track_sourse,
+    get_media_stream_track_id, get_media_stream_track_kind,
+    get_rtp_receiver_track, get_transceiver_mid, get_transceiver_receiver,
+    get_transceiver_sender, get_video_track_sourse,
+    media_stream_track_interface_downcast_audio_track,
+    media_stream_track_interface_downcast_video_track,
+    video_track_media_stream_track_upcast,
+};
+
+pub use crate::webrtc::{
+    get_dtmf_sender_duration, get_dtmf_sender_inter_tone_gap,
+    get_media_stream_audio_tracks, get_media_stream_id,
+    get_media_stream_track_enabled, get_media_stream_track_state,
+    get_media_stream_video_tracks, get_rtcp_parameters_cname,
+    get_rtcp_parameters_reduced_size, get_rtp_codec_parameters_clock_rate,
+    get_rtp_codec_parameters_kind, get_rtp_codec_parameters_name,
+    get_rtp_codec_parameters_num_channels, get_rtp_codec_parameters_parameters,
+    get_rtp_codec_parameters_payload_type, get_rtp_encoding_parameters_active,
+    get_rtp_encoding_parameters_maxBitrate,
+    get_rtp_encoding_parameters_maxFramerate,
+    get_rtp_encoding_parameters_minBitrate,
+    get_rtp_encoding_parameters_scale_resolution_down_by,
+    get_rtp_encoding_parameters_ssrc, get_rtp_extension_encrypt,
+    get_rtp_extension_id, get_rtp_extension_uri, get_rtp_parameters_codecs,
+    get_rtp_parameters_encodings, get_rtp_parameters_header_extensions,
+    get_rtp_parameters_mid, get_rtp_parameters_rtcp,
+    get_rtp_parameters_transaction_id, get_rtp_receiver_id,
+    get_rtp_receiver_parameters, get_rtp_receiver_streams, get_rtp_sender_dtmf,
+    get_rtp_sender_id,
 };
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
@@ -41,93 +78,6 @@ pub trait SetDescriptionCallback {
 
     /// Called when the related operation was completed with an error.
     fn fail(&mut self, error: &CxxString);
-}
-
-/// Completion callback for the [`PeerConnectionObserver`]
-/// that are used when calls:
-/// `PeerConnectionObserver::OnSignalingChange`,
-/// `PeerConnectionObserver::OnNegotiationNeededEvent`,
-/// `PeerConnectionObserver::OnStandardizedIceConnectionChange`,
-/// `PeerConnectionObserver::OnConnectionChange`,
-/// `PeerConnectionObserver::OnIceGatheringChange`,
-/// `PeerConnectionObserver::OnIceCandidate`,
-/// `PeerConnectionObserver::OnIceCandidateError`,
-/// `PeerConnectionObserver::OnIceCandidateError` (args overload),
-/// `PeerConnectionObserver::OnIceCandidatesRemoved`,
-/// `PeerConnectionObserver::OnIceConnectionReceivingChange`,
-/// `PeerConnectionObserver::OnIceSelectedCandidatePairChanged`,
-/// `PeerConnectionObserver::OnInterestingUsage`.
-pub trait PeerConnectionOnEvent {
-    /// Called when the associated event occurs.
-    fn on_signaling_change(&mut self, new_state: SignalingState);
-
-    /// Called when the associated event occurs.
-    fn on_standardized_ice_connection_change(
-        &mut self,
-        new_state: IceConnectionState,
-    );
-
-    /// Called when the associated event occurs.
-    fn on_connection_change(&mut self, new_state: PeerConnectionState);
-
-    /// Called when the associated event occurs.
-    fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
-
-    /// Called when the associated event occurs.
-    fn on_negotiation_needed_event(&mut self, event_id: u32);
-
-    /// Called when the associated event occurs.
-    fn on_ice_candidate_error(
-        &mut self,
-        host_candidate: &CxxString,
-        url: &CxxString,
-        error_code: i32,
-        error_text: &CxxString,
-    );
-
-    /// Called when the associated event occurs.
-    fn on_ice_candidate_address_port_error(
-        &mut self,
-        address: &CxxString,
-        port: i32,
-        url: &CxxString,
-        error_code: i32,
-        error_text: &CxxString,
-    );
-
-    /// Called when the associated event occurs.
-    fn on_ice_connection_receiving_change(&mut self, receiving: bool);
-
-    /// Called when the associated event occurs.
-    fn on_interesting_usage(&mut self, usage_pattern: i32);
-
-    /// Called when the associated event occurs.
-    fn on_ice_candidate(
-        &mut self,
-        candidate: *const webrtc::IceCandidateInterface,
-    );
-
-    /// Called when the associated event occurs.
-    fn on_ice_candidates_removed(&mut self, candidates: Vec<CandidateWrap>);
-
-    /// Called when the associated event occurs.
-    fn on_ice_selected_candidate_pair_changed(
-        &mut self,
-        event: &CandidatePairChangeEvent,
-    );
-
-    // todo
-    fn on_track(&mut self, event: &RtpTransceiverInterface);
-
-    // todo
-    fn on_remove_track(&mut self, event: &RtpReceiverInterface);
-}
-
-/// Handler of [`VideoFrame`]s.
-pub trait OnFrameCallback {
-    /// Called when the attached [`VideoTrackInterface`] produces a new
-    /// [`VideoFrame`].
-    fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
 }
 
 /// Handler of events that fire from a [`PeerConnectionInterface`].
@@ -193,6 +143,19 @@ pub trait PeerConnectionEventsHandler {
         &mut self,
         event: &CandidatePairChangeEvent,
     );
+
+    // todo
+    fn on_track(&mut self, event: &webrtc::RtpTransceiverInterface);
+
+    // todo
+    fn on_remove_track(&mut self, event: &RtpReceiverInterface);
+}
+
+/// Handler of [`VideoFrame`]s.
+pub trait OnFrameCallback {
+    /// Called when the attached [`VideoTrackInterface`] produces a new
+    /// [`VideoFrame`].
+    fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -428,13 +391,6 @@ impl PeerConnectionDependencies {
             observer,
         }
     }
-}
-
-/// Contains all of the [`PeerConnectionInterface`] dependencies.
-/// Description of the options used to control an offer/answer creation process.
-pub struct PeerConnectionDependencies {
-    dependencies: UniquePtr<webrtc::PeerConnectionDependencies>,
-    observer: PeerConnectionObserver,
 }
 
 /// Description of the options that can be used to control the offer/answer
@@ -728,10 +684,7 @@ impl PeerConnectionFactoryInterface {
     pub fn create_peer_connection_or_error(
         &mut self,
         configuration: &RTCConfiguration,
-        PeerConnectionDependencies {
-            inner,
-            observer,
-        }: PeerConnectionDependencies,
+        dependencies: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
         let mut error = String::new();
         let inner = webrtc::create_peer_connection_or_error(
@@ -902,8 +855,6 @@ impl VideoTrackSourceInterface {
     }
 }
 
-
-
 /// [`VideoTrackSourceInterface`] captures data from the specific audio input
 /// device.
 ///
@@ -960,7 +911,7 @@ impl AudioTrackInterface {
     pub fn inner(&self) -> &webrtc::AudioTrackInterface {
         &self.0
     }
-    
+
     /// Changes the [enabled][1] property of this [`AudioTrackInterface`].
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled

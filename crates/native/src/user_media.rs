@@ -2,10 +2,10 @@ extern crate owning_ref;
 
 use owning_ref::MutexGuardRefMut;
 
-use std::{rc::Rc, collections::HashMap};
 use anyhow::bail;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
+use std::{collections::HashMap, rc::Rc};
 
 use sys::{AudioTrackInterface, VideoTrackInterface};
 
@@ -118,7 +118,9 @@ impl Webrtc {
     fn create_video_track(
         &mut self,
         source: Rc<VideoSource>,
-    ) -> anyhow::Result<MutexGuardRefMut<HashMap<VideoTrackId, VideoTrack>, VideoTrack>> {
+    ) -> anyhow::Result<
+        MutexGuardRefMut<HashMap<VideoTrackId, VideoTrack>, VideoTrack>,
+    > {
         let track = if source.is_display {
             // TODO: Support screens enumeration.
             VideoTrack::new(
@@ -211,12 +213,14 @@ impl Webrtc {
         Ok(Rc::clone(source))
     }
 
- /// Creates a new [`AudioTrack`] from the given
+    /// Creates a new [`AudioTrack`] from the given
     /// [`sys::AudioSourceInterface`].
     fn create_audio_track(
         &mut self,
         source: Rc<sys::AudioSourceInterface>,
-    ) -> anyhow::Result<MutexGuardRefMut<HashMap<AudioTrackId, AudioTrack>, AudioTrack>>{
+    ) -> anyhow::Result<
+        MutexGuardRefMut<HashMap<AudioTrackId, AudioTrack>, AudioTrack>,
+    > {
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
         let device_id = self
@@ -327,9 +331,13 @@ impl Webrtc {
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(&mut self, id: u64, enabled: bool) {
-        if let Some(track) = self.0.video_tracks.lock().unwrap().get(&VideoTrackId(id)) {
+        if let Some(track) =
+            self.0.video_tracks.lock().unwrap().get(&VideoTrackId(id))
+        {
             track.inner.set_enabled(enabled);
-        } else if let Some(track) = self.0.audio_tracks.lock().unwrap().get(&AudioTrackId(id)) {
+        } else if let Some(track) =
+            self.0.audio_tracks.lock().unwrap().get(&AudioTrackId(id))
+        {
             track.set_enabled(enabled);
         } else {
             // TODO: Return error.
@@ -513,7 +521,9 @@ impl VideoTrack {
         })
     }
 
-    // todo
+    /// Creates a new [`VideoTrack`].
+    /// from [`VideoTrackInterface`].
+    #[must_use]
     pub fn new_from_video_interface(
         inner: VideoTrackInterface,
         src: sys::VideoTrackSourceInterface,
@@ -592,7 +602,9 @@ impl AudioTrack {
         })
     }
 
-    // todo
+    /// Creates a new [`AudioTrack`].
+    /// from [`AudioTrackInterface`].
+    #[must_use]
     pub fn new_from_audio_interface(
         inner: AudioTrackInterface,
         src: sys::AudioSourceInterface,
@@ -606,7 +618,6 @@ impl AudioTrack {
             label: AudioLabel("audio".to_owned()),
         }
     }
-
 
     /// Changes the [enabled][1] property of the underlying
     /// [`sys::AudioTrackInterface`].

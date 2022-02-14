@@ -1,27 +1,26 @@
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
+
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::{
-    audio_track_get_sourse, get_candidate_pair,
-    get_estimated_disconnected_time_ms, get_last_data_received_ms,
-    get_local_candidate, get_reason, get_remote_candidate,
+    get_audio_track_sourse, get_media_stream_track_id,
+    get_media_stream_track_kind, get_rtp_receiver_track,
+    get_transceiver_receiver, get_video_track_sourse,
     media_stream_track_interface_downcast_audio_track,
-    media_stream_track_interface_downcast_video_track,
-    rtp_receiver_interface_get_track, video_track_get_sourse,
-    AudioSourceInterface, AudioTrackInterface, MediaStreamTrackInterface,
-    PeerConnectionObserver, Sys_RtpReceiverInterface, VideoTrackInterface,
+    media_stream_track_interface_downcast_video_track, AudioSourceInterface,
+    AudioTrackInterface, MediaStreamTrackInterface, Sys_RtpReceiverInterface,
+    Sys_RtpTransceiverInterface, VideoTrackInterface,
     VideoTrackSourceInterface,
-};
-
-use sys::{
-    media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
-    rtp_transceiver_interface_get_receiver,
 };
 
 use crate::{
     api::{
-        OnTrackSerialized, PeerConnectionOnEventInterface,
-        RtpTransceiverInterfaceSerialized, TrackInterfaceSerialized,
+        OnTrackSerialized, RtpTransceiverInterfaceSerialized,
+        TrackInterfaceSerialized,
     },
     AudioTrack, AudioTrackId, VideoTrack, VideoTrackId,
 };
@@ -44,8 +43,12 @@ impl Webrtc {
         obs: UniquePtr<PeerConnectionObserverInterface>,
         error: &mut String,
     ) -> u64 {
-        let peer =
-            PeerConnection::new(&mut self.0.peer_connection_factory, obs);
+        let peer = PeerConnection::new(
+            &mut self.0.peer_connection_factory,
+            obs,
+            self.0.video_tracks.clone(),
+            self.0.audio_tracks.clone(),
+        );
         match peer {
             Ok(peer) => self
                 .0
@@ -435,9 +438,15 @@ impl PeerConnection {
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
         observer: UniquePtr<PeerConnectionObserverInterface>,
+        video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
+        audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
     ) -> anyhow::Result<Self> {
         let observer = sys::PeerConnectionObserver::new(Box::new(
-            PeerConnectionObserver(observer),
+            PeerConnectionObserver {
+                cb: observer,
+                video_tracks,
+                audio_tracks,
+            },
         ));
         let inner = factory.create_peer_connection_or_error(
             &sys::RTCConfiguration::default(),
@@ -480,8 +489,8 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 }
 
 /// [`PeerConnectionObserverInterface`] wrapper.
-struct PeerConnectionObserver{
-    cb: UniquePtr<PeerConnectionOnEventInterface>,
+struct PeerConnectionObserver {
+    cb: UniquePtr<PeerConnectionObserverInterface>,
     video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
     audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
 }
@@ -489,7 +498,7 @@ struct PeerConnectionObserver{
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0.pin_mut().on_signaling_change(&new_state);
+        self.cb.pin_mut().on_signaling_change(&new_state);
     }
 
     fn on_standardized_ice_connection_change(
@@ -497,21 +506,21 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         new_state: sys::IceConnectionState,
     ) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0.pin_mut().on_ice_connection_state_change(&new_state);
+        self.cb.pin_mut().on_ice_connection_state_change(&new_state);
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0.pin_mut().on_connection_state_change(&new_state);
+        self.cb.pin_mut().on_connection_state_change(&new_state);
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.0.pin_mut().on_ice_gathering_change(&new_state);
+        self.cb.pin_mut().on_ice_gathering_change(&new_state);
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
-        self.0.pin_mut().on_negotiation_needed();
+        self.cb.pin_mut().on_negotiation_needed();
     }
 
     fn on_ice_candidate_error(
@@ -522,7 +531,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_code: i32,
         error_text: &CxxString,
     ) {
-        self.0
+        self.cb
             .pin_mut()
             .on_ice_candidate_error(address, port, url, error_code, error_text);
     }
@@ -537,7 +546,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     ) {
         let mut string =
             unsafe { sys::ice_candidate_interface_to_string(candidate) };
-        self.0.pin_mut().on_ice_candidate(&string.pin_mut());
+        self.cb.pin_mut().on_ice_candidate(&string.pin_mut());
     }
 
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
@@ -551,13 +560,12 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         // This is a non-spec-compliant event.
     }
 
-    fn on_track(&mut self, event: &crate::RtpTransceiverInterface) {
-        let receiver = rtp_transceiver_interface_get_receiver(event);
-        let mut track = rtp_receiver_interface_get_track(&receiver);
+    fn on_track(&mut self, event: &Sys_RtpTransceiverInterface) {
+        let receiver = get_transceiver_receiver(event);
+        let mut track = get_rtp_receiver_track(&receiver);
 
-        if media_stream_track_interface_get_kind(&track).to_string() == "video"
-        {
-            let id = media_stream_track_interface_get_id(&track)
+        if get_media_stream_track_kind(&track).to_string() == "video" {
+            let id = get_media_stream_track_id(&track)
                 .to_string()
                 .parse::<u64>()
                 .unwrap();
@@ -567,14 +575,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     track.pin_mut(),
                 ),
             );
-            let source = video_track_get_sourse(inner.inner());
+            let source = get_video_track_sourse(inner.inner());
             let v = VideoTrack::new_from_video_interface(
                 inner,
                 VideoTrackSourceInterface::from(source),
             );
             self.video_tracks.lock().unwrap().insert(id.into(), v);
         } else {
-            let id = media_stream_track_interface_get_id(&track)
+            let id = get_media_stream_track_id(&track)
                 .to_string()
                 .parse::<u64>()
                 .unwrap();
@@ -584,7 +592,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     track.pin_mut(),
                 ),
             );
-            let source = audio_track_get_sourse(inner.inner());
+            let source = get_audio_track_sourse(inner.inner());
             let a = AudioTrack::new_from_audio_interface(
                 inner,
                 AudioSourceInterface::from(source),
@@ -602,6 +610,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_remove_track(&mut self, _: &Sys_RtpReceiverInterface) {
-        // no need
+        // This is a non-spec-compliant event.
     }
 }

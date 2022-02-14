@@ -20,16 +20,12 @@ use api::{
     TrackInterfaceSerialized,
 };
 use libwebrtc_sys::{
-    rtp_transceiver_interface_get_mid, rtp_transceiver_interface_get_sender,
-    AudioLayer, AudioSourceInterface, MediaStreamTrackInterface,
-    PeerConnectionFactoryInterface, RtpSenderInterface,
-    RtpTransceiverInterface, Sys_AudioTrackInterface, Sys_VideoTrackInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo,
-};
-
-use libwebrtc_sys::{
-    audio_track_truncation, media_stream_track_interface_get_id,
-    media_stream_track_interface_get_kind, video_track_truncation,
+    audio_track_media_stream_track_upcast, get_media_stream_track_id,
+    get_media_stream_track_kind, get_transceiver_mid, get_transceiver_sender,
+    video_track_media_stream_track_upcast, AudioLayer, AudioSourceInterface,
+    MediaStreamTrackInterface, PeerConnectionFactoryInterface,
+    RtpSenderInterface, Sys_AudioTrackInterface, Sys_RtpTransceiverInterface,
+    Sys_VideoTrackInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
 use crate::video_sink::Id as VideoSinkId;
@@ -58,26 +54,7 @@ pub(crate) fn next_id() -> u64 {
 #[cxx::bridge]
 pub mod api {
 
-    /// Serialized to strings [`CandidatePair`].
-    pub struct CandidatePairSerialized {
-        /// Serialized to strings [`CandidatePair`].local.
-        local: String,
-        /// Serialized to strings [`CandidatePair`].remote.
-        remote: String,
-    }
-
-    /// Serialized [`CandidatePairChangeEvent`] for writes in flutter.
-    pub struct CandidatePairChangeEventSerialized {
-        /// Serialized to strings [`CandidatePair`].
-        selected_candidate_pair: CandidatePairSerialized,
-        last_data_received_ms: i64,
-        reason: String,
-
-        /// How long do we estimate that we've been disconnected.
-        estimated_disconnected_time_ms: i64,
-    }
-
-    // todo
+    /// Serialized `MediaTrack` for writes in flutter.
     pub struct TrackInterfaceSerialized {
         channel_id: i32,
         id: String,
@@ -85,19 +62,22 @@ pub mod api {
         kind: String,
     }
 
-    // todo
+    /// Serialized ` RtpSender` for writes in flutter.
     pub struct RtpSenderInterfaceSerialized {
         channel_id: i32,
     }
 
-    // todo
+    /// Serialized `RtpTransceiver` for writes in flutter.
     pub struct RtpTransceiverInterfaceSerialized {
         sender: RtpSenderInterfaceSerialized,
         channel_id: i32,
+
+        /// `mid` is optional field.
+        /// if `mid` == "" then mid is None
         mid: String,
     }
 
-    // todo
+    /// Serialized `OnTrack` event for writes in flutter.
     pub struct OnTrackSerialized {
         track: TrackInterfaceSerialized,
         transceiver: RtpTransceiverInterfaceSerialized,
@@ -474,24 +454,24 @@ pub mod api {
 
 impl From<&Sys_VideoTrackInterface> for TrackInterfaceSerialized {
     fn from(track: &Sys_VideoTrackInterface) -> Self {
-        let track = video_track_truncation(track);
+        let track = video_track_media_stream_track_upcast(track);
         TrackInterfaceSerialized {
-            id: media_stream_track_interface_get_id(track).to_string(),
-            kind: media_stream_track_interface_get_kind(track).to_string(),
-            channel_id: 0,
-            device_id: media_stream_track_interface_get_id(track).to_string(),
+            id: get_media_stream_track_id(track).to_string(),
+            kind: get_media_stream_track_kind(track).to_string(),
+            channel_id: 0, // todo add actual id
+            device_id: 0.to_string(), // todo [`Sys_VideoTrackInterface`] dont have `device_id`
         }
     }
 }
 
 impl From<&Sys_AudioTrackInterface> for TrackInterfaceSerialized {
     fn from(track: &Sys_AudioTrackInterface) -> Self {
-        let track = audio_track_truncation(track);
+        let track = audio_track_media_stream_track_upcast(track);
         TrackInterfaceSerialized {
-            id: media_stream_track_interface_get_id(track).to_string(),
-            kind: media_stream_track_interface_get_kind(track).to_string(),
-            channel_id: 0,
-            device_id: media_stream_track_interface_get_id(track).to_string(),
+            id: get_media_stream_track_id(track).to_string(),
+            kind: get_media_stream_track_kind(track).to_string(),
+            channel_id: 0, // todo add actual id
+            device_id: 0.to_string(), // todo [`Sys_AudioTrackInterface`] dont have `device_id`
         }
     }
 }
@@ -499,30 +479,29 @@ impl From<&Sys_AudioTrackInterface> for TrackInterfaceSerialized {
 impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
     fn from(track: &MediaStreamTrackInterface) -> Self {
         TrackInterfaceSerialized {
-            id: media_stream_track_interface_get_id(track).to_string(),
-            kind: media_stream_track_interface_get_kind(track).to_string(),
-            channel_id: 0,
-            device_id: media_stream_track_interface_get_id(track).to_string(),
+            id: get_media_stream_track_id(track).to_string(),
+            kind: get_media_stream_track_kind(track).to_string(),
+            channel_id: 0, // todo add actual id
+            device_id: 0.to_string(), // todo [`Sys_AudioTrackInterface`] dont have `device_id`
         }
     }
 }
 
 impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
     fn from(_: &RtpSenderInterface) -> Self {
-        RtpSenderInterfaceSerialized { channel_id: 0 }
+        RtpSenderInterfaceSerialized { channel_id: 0 } // todo add actual id
     }
 }
 
-impl From<&RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
-    fn from(transceiver: &RtpTransceiverInterface) -> Self {
-        let sender = rtp_transceiver_interface_get_sender(transceiver);
+impl From<&Sys_RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
+    fn from(transceiver: &Sys_RtpTransceiverInterface) -> Self {
+        let sender = get_transceiver_sender(transceiver);
         RtpTransceiverInterfaceSerialized {
             sender: RtpSenderInterfaceSerialized::from(
                 &sender as &RtpSenderInterface,
             ),
-            channel_id: 0,
-            mid: rtp_transceiver_interface_get_mid(transceiver)
-                .map_or("".to_owned(), |id| id.to_string()),
+            channel_id: 0, // todo add actual id
+            mid: get_transceiver_mid(transceiver),
         }
     }
 }

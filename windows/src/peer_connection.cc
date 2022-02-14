@@ -181,14 +181,14 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   }
 
   void OnTrack(OnTrackSerialized event) {
-    const std::lock_guard<std::mutex> lock(*deps_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_.get() != nullptr) {
       flutter::EncodableMap info;
       info[EncodableValue("event")] = "onTrack";
       info[EncodableValue("track")] = EncodableValue(mediaTrackToMap(event.track));
       info[EncodableValue("transceiver")] = EncodableValue(transceiverToMap(event.transceiver));
 
-      context_->event_sink.get()->Success(flutter::EncodableValue(info));
+      deps_->sink_.get()->Success(flutter::EncodableValue(info));
     }
   }
 
@@ -247,7 +247,6 @@ EncodableMap TransceiverToMap(RtcRtpTransceiver transceiver) {
 // Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
-    flutter::BinaryMessenger* messenger,
     Box<Webrtc>& webrtc,
     flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,

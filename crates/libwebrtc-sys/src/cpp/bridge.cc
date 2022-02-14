@@ -8,8 +8,6 @@
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 
-#include "libwebrtc-sys/src/bridge.rs.h"
-
 namespace bridge {
 
 // Calls `AudioDeviceModule->Create()`.
@@ -607,18 +605,13 @@ std::unique_ptr<RtpReceiverInterface> get_transceiver_receiver(
     const RtpTransceiverInterface& transceiver) {
       return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
     }
-
-// Returns a `direction` of the given `RtpTransceiverInterface`.
-RtpTransceiverDirection get_transceiver_direction(
-    const RtpTransceiverInterface& transceiver) {
-      return transceiver->direction();
-    }
-
+    
 // Returns a `sender` of the given `RtpTransceiverInterface`.
 std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
     const RtpTransceiverInterface& transceiver) {
       return std::make_unique<RtpSenderInterface> (transceiver->sender());
     }
+
 // Calls `RtpTransceiverInterface->SetDirectionWithError()`.
 rust::String set_transceiver_direction(
     const RtpTransceiverInterface& transceiver,
@@ -642,5 +635,16 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
   }
   return error;
 }
+
+// Returns a `parameters` as std::vector<(std::string, std::string)> 
+// of the given `RtpCodecParameters`.
+std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
+    const RtpCodecParameters& codec) {
+      std::vector<StringPair> result;
+      for (auto const& p : codec.parameters) {
+        result.push_back(new_string_pair(p.first, p.second));
+      }
+      return std::make_unique<std::vector<StringPair>>(result);
+    }
 
 }  // namespace bridge
