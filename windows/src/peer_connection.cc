@@ -1,7 +1,7 @@
+#include <mutex>
+
 #include "peer_connection.h"
 #include "media_stream.h"
-
-#include <mutex>
 #include "flutter_webrtc.h"
 #include "flutter-webrtc-native/include/api.h"
 #include "flutter/standard_method_codec.h"
@@ -51,208 +51,137 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
   std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
-
-// `PeerConnectionOnEventInterface` implementation that forwards completion
-// events to the Flutter side via inner `flutter::EventSink`.
-class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
+// `PeerConnectionObserverInterface` implementation forwarding events to the
+// Flutter side via `flutter::EventSink`.
+class PeerConnectionObserver : public PeerConnectionObserverInterface {
  public:
-
-  // `EventContext` provides `PeerConnection` events recording to flutter.
-  struct EventContext {
-    // Mutex uses for thread safe access `event_sink`.
-    std::unique_ptr<std::mutex> channel_mutex = std::make_unique<std::mutex>();
-    // flutter::EventSink for writes PeerConnection events.
-    std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink;
-    // Owns for lifetime flutter::EventChannel.
-    std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> _lt_channel;
+  // `PeerConnectionObserver` dependencies.
+  struct Dependencies {
+    // `EventSink` guard.
+    std::unique_ptr<std::mutex> lock_ = std::make_unique<std::mutex>();
+    // `EventSink` used to send events to the Flutter side.
+    std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> sink_;
+    // Flutter `EventChannel` used to dispose the channel object.
+    std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> chan_;
   };
 
-  // Creates a new `CreateSdpCallback`.
-  PeerConnectionOnEvent(std::shared_ptr<EventContext> context)
-      : context_(std::move(context)) {};
+  // Creates a new `PeerConnectionObserver`.
+  PeerConnectionObserver(std::shared_ptr<Dependencies> deps)
+      : deps_(std::move(deps)) {};
 
-  ~PeerConnectionOnEvent() {
-    if (context_->_lt_channel.get() != nullptr){
-      context_->_lt_channel->SetStreamHandler(nullptr);
+  ~PeerConnectionObserver() {
+    if (deps_->chan_){
+      deps_->chan_->SetStreamHandler(nullptr);
     }
   }
 
-  // Successfully writes serialized `OnSignalingChange` event 
-  // an inner `flutter::EventSink`.
-  void OnSignalingChange(const std::string& new_state) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
+  // Sends an `OnConnectionStateChange` event with the provided
+  // `RTCPeerConnectionState` to the Dart side.
+  //
+  // See: https://w3.org/TR/webrtc#dom-rtcpeerconnectionstate
+  void OnConnectionStateChange(const std::string& new_state) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnSignalingChange";
-      params[flutter::EncodableValue("new_state")] =
-          new_state;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+      params[EncodableValue("event")] = "OnConnectionStateChange";
+      params[flutter::EncodableValue("state")] = new_state;
+      deps_->sink_->Success(flutter::EncodableValue(params));
+    }
+  };
+
+  // Sends an `OnIceCandidate` event with the provided `RTCIceCandidate` to the
+  // Dart side.
+  //
+  // See: https://w3.org/TR/webrtc#dom-rtcicecandidate
+  void OnIceCandidate(const std::string& candidate) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
+      flutter::EncodableMap params;
+      params[EncodableValue("event")] = "OnIceCandidate";
+      params[EncodableValue("candidate")] = candidate;
+      deps_->sink_->Success(flutter::EncodableValue(params));
     }
   }
 
-  // Successfully writes serialized `OnStandardizedIceConnectionChange` event 
-  // an inner `flutter::EventSink`.
-  void OnStandardizedIceConnectionChange(const std::string& new_state) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnStandardizedIceConnectionChange";
-      params[flutter::EncodableValue("new_state")] =
-          new_state;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  };
-
-  // Successfully writes serialized `OnConnectionChange` event 
-  // an inner `flutter::EventSink`.
-  void OnConnectionChange(const std::string& new_state) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnConnectionChange";
-      params[flutter::EncodableValue("new_state")] =
-          std::string(new_state);
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  };
-
-  // Successfully writes serialized `OnIceGatheringChange` event 
-  // an inner `flutter::EventSink`.
-  void OnIceGatheringChange(const std::string& new_state) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnIceGatheringChange";
-      params[flutter::EncodableValue("new_state")] =
-          new_state;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  };
-
-  // Successfully writes `OnNegotiationNeededEvent` event 
-  // an inner `flutter::EventSink`.
-  void OnNegotiationNeededEvent(uint32_t event_id) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnNegotiationNeededEvent";
-      params[flutter::EncodableValue("event_id")] = (int64_t)event_id;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  };
-
-  // Successfully writes `OnIceCandidateError` event 
-  // an inner `flutter::EventSink`.
-  void OnIceCandidateError(const std::string& host_candidate,
-                           const std::string& url,
-                           int error_code,
-                           const std::string& error_text) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnIceCandidateError";
-      params[flutter::EncodableValue("host_candidate")] = host_candidate;
-      params[flutter::EncodableValue("url")] = url;
-      params[flutter::EncodableValue("error_code")] = error_code;
-      params[flutter::EncodableValue("error_text")] = error_text;
-
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  };
-
-  // Successfully writes `OnIceCandidateError` event 
-  // an inner `flutter::EventSink`.
+  // Sends an `OnIceCandidateError` event with the provided
+  // `RTCPeerConnectionIceErrorEvent` to the Dart side.
+  //
+  // See: https://w3.org/TR/webrtc#dom-rtcpeerconnectioniceerrorevent
   void OnIceCandidateError(const std::string& address,
                            int port,
                            const std::string& url,
                            int error_code,
                            const std::string& error_text) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnIceCandidateError";
+      params[EncodableValue("event")] = "OnIceCandidateError";
       params[flutter::EncodableValue("address")] = address;
+      params[flutter::EncodableValue("errorCode")] = error_code;
+      params[flutter::EncodableValue("errorText")] = error_text;
       params[flutter::EncodableValue("port")] = port;
-      params[flutter::EncodableValue("error_code")] = error_code;
-      params[flutter::EncodableValue("error_text")] = error_text;
+      params[flutter::EncodableValue("url")] = url;
 
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+      deps_->sink_->Success(flutter::EncodableValue(params));
     }
   };
 
-  // Successfully writes `OnIceConnectionReceivingChange` event 
-  // an inner `flutter::EventSink`.
-  void OnIceConnectionReceivingChange(bool receiving) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
+  // Sends an `OnIceConnectionStateChange` event with the provided
+  // `RTCIceConnectionState` to the Dart side.
+  //
+  // See: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
+  void OnIceConnectionStateChange(const std::string& new_state) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnIceConnectionReceivingChange";
-      params[flutter::EncodableValue("receiving")] = receiving;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+      params[EncodableValue("event")] = "OnIceConnectionStateChange";
+      params[flutter::EncodableValue("state")] = new_state;
+      deps_->sink_->Success(flutter::EncodableValue(params));
     }
   };
 
-  // Successfully writes `OnInterestingUsage` event 
-  // an inner `flutter::EventSink`.
-  void OnInterestingUsage(int usage_pattern) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
+  // Sends an `OnIceGatheringStateChange` event with the provided
+  // `RTCIceGatheringState` to the Dart side.
+  //
+  // See: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
+  void OnIceGatheringStateChange(const std::string& new_state) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnInterestingUsage";
-      params[flutter::EncodableValue("usage_pattern")] = usage_pattern;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+      params[EncodableValue("event")] = "OnIceGatheringStateChange";
+      params[flutter::EncodableValue("state")] = new_state;
+      deps_->sink_->Success(flutter::EncodableValue(params));
     }
   };
 
-  // Successfully writes serialized `OnInterestingUsage` event 
-  // an inner `flutter::EventSink`.
-  void OnIceCandidate(const std::string& candidate) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
+  // Sends an `OnNegotiationNeededEvent` event to the Dart side.
+  //
+  // See: https://w3.org/TR/webrtc#event-negotiation
+  void OnNegotiationNeeded() {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnIceCandidate";
-      params[flutter::EncodableValue("candidate")] = candidate;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+      params[EncodableValue("event")] = "OnNegotiationNeededEvent";
+      deps_->sink_->Success(flutter::EncodableValue(params));
     }
-  }
+  };
 
-  // Successfully writes serialized `OnIceCandidatesRemoved` event 
-  // an inner `flutter::EventSink`.
-  void OnIceCandidatesRemoved(rust::Vec<rust::String> candidates) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableList candidate_list;
-      for (int i = 0; i<candidates.size(); ++i) {
-        candidate_list.push_back(std::string(candidates[i]));
-      }
+  // Sends an `OnSignalingChange` event with the provided `RTCSignalingState` to
+  // the Dart side.
+  //
+  // See: https://w3.org/TR/webrtc#dom-rtcsignalingstate
+  void OnSignalingChange(const std::string& new_state) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
       flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnIceCandidatesRemoved";
-      params[flutter::EncodableValue("candidates")] = flutter::EncodableValue(candidate_list);
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
-    }
-  }
-
-  // Successfully writes serialized `OnIceSelectedCandidatePairChanged` event 
-  // an inner `flutter::EventSink`.
-  void OnIceSelectedCandidatePairChanged(CandidatePairChangeEventSerialized event) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
-    if (context_->event_sink.get() != nullptr) {
-      flutter::EncodableMap pair;
-      pair[flutter::EncodableValue("local")] = std::string(event.selected_candidate_pair.local);
-      pair[flutter::EncodableValue("remote")] = std::string(event.selected_candidate_pair.remote);
-
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "OnIceSelectedCandidatePairChanged";
-      params[flutter::EncodableValue("selected_candidate_pair")] = EncodableValue(pair);
-      params[flutter::EncodableValue("estimated_disconnected_time_ms")] = event.estimated_disconnected_time_ms;
-      params[flutter::EncodableValue("reason")] = std::string(event.reason);
-      params[flutter::EncodableValue("last_data_received_ms")] = event.last_data_received_ms;
-      context_->event_sink.get()->Success(flutter::EncodableValue(params));
+      params[EncodableValue("event")] = "OnSignalingChange";
+      params[flutter::EncodableValue("state")] = new_state;
+      deps_->sink_->Success(flutter::EncodableValue(params));
     }
   }
 
   void OnTrack(OnTrackSerialized event) {
-    const std::lock_guard<std::mutex> lock(*context_->channel_mutex);
+    const std::lock_guard<std::mutex> lock(*deps_->channel_mutex);
     if (context_->event_sink.get() != nullptr) {
       flutter::EncodableMap info;
       info[EncodableValue("event")] = "onTrack";
@@ -264,11 +193,8 @@ class PeerConnectionOnEvent : public PeerConnectionOnEventInterface {
   }
 
  private:
-  // For initialization/reset `EventContext.event_sink` 
-  // in flutter subscribe/unsubscribe event.
-  // `shared_ptr` for shared context 
-  // in `flutter::StreamHandlerFunctions` (subscribe/unsubscribe event).
-  std::shared_ptr<EventContext> context_;
+  // `PeerConnectionObserver` dependencies.
+  std::shared_ptr<Dependencies> deps_;
   
   EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
       flutter::EncodableMap info;
@@ -303,61 +229,67 @@ namespace flutter_webrtc_plugin {
 
 using namespace flutter;
 
+// Converts a Rust `RtcRtpTransceiver` into a Dart `EncodableMap`.
+EncodableMap TransceiverToMap(RtcRtpTransceiver transceiver) {
+  EncodableMap info;
+
+  info[EncodableValue("transceiverId")] =
+      EncodableValue(std::to_string(transceiver.id));
+  info[EncodableValue("mid")] = EncodableValue(std::string(transceiver.mid));
+  info[EncodableValue("direction")] =
+      EncodableValue(std::string(transceiver.direction));
+  info[EncodableValue("sender")] = EncodableValue(EncodableMap());
+  info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
+
+  return info;
+}
+
 // Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
     flutter::BinaryMessenger* messenger,
     Box<Webrtc>& webrtc,
+    flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
 
-  std::shared_ptr<PeerConnectionOnEvent::EventContext> event_context =
-      std::make_shared<PeerConnectionOnEvent::EventContext>(
-        std::move(PeerConnectionOnEvent::EventContext()));
-
-  std::unique_ptr<PeerConnectionOnEventInterface> event_callback =
-      std::unique_ptr<PeerConnectionOnEventInterface>(
-          new PeerConnectionOnEvent(event_context));
-
-  std::weak_ptr<PeerConnectionOnEvent::EventContext> weak_context(
-      event_context);
-  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-      [=](
-          const flutter::EncodableValue* arguments,
-          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        auto context = weak_context.lock();
-        if (context) {
-          const std::lock_guard<std::mutex> lock(*context->channel_mutex);
-          context->event_sink = std::move(events);
-        }
-        return nullptr;
-      },
-
-      [=](const flutter::EncodableValue* arguments)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        auto context = weak_context.lock();
-        if (context) {
-          const std::lock_guard<std::mutex> lock(*context->channel_mutex);
-          context->event_sink.reset();
-        }
-        return nullptr;
-      });
+  auto ctx = std::make_shared<PeerConnectionObserver::Dependencies>();
+  auto observer = std::make_unique<PeerConnectionObserver>(ctx);
 
   rust::String error;
-  uint64_t id = webrtc->CreatePeerConnection(std::move(event_callback), error);
+  uint64_t id = webrtc->CreatePeerConnection(std::move(observer), error);
   if (error == "") {
-      std::string peer_connection_id = std::to_string(id);
-      auto event_channel = std::unique_ptr<EventChannel<EncodableValue>>(
-          new EventChannel<EncodableValue>(
-              messenger, "PeerConnection/Event/channel/id/" + peer_connection_id,
-              &StandardMethodCodec::GetInstance()));
+    std::string peer_id = std::to_string(id);
+    auto event_channel = std::make_unique<EventChannel<EncodableValue>>(
+        messenger, "FlutterWebRTC/peerConnectionEvent" + peer_id,
+        &StandardMethodCodec::GetInstance());
 
+    std::weak_ptr<PeerConnectionObserver::Dependencies> weak_deps(ctx);
+    auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
+        [=](const flutter::EncodableValue* arguments,
+            std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+            -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+          auto context = weak_deps.lock();
+          if (context) {
+            const std::lock_guard<std::mutex> lock(*context->lock_);
+            context->sink_ = std::move(events);
+          }
+          return nullptr;
+        },
+        [=](const flutter::EncodableValue* arguments)
+            -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+          auto context = weak_deps.lock();
+          if (context) {
+            const std::lock_guard<std::mutex> lock(*context->lock_);
+            context->sink_.reset();
+          }
+          return nullptr;
+        });
       event_channel->SetStreamHandler(std::move(handler));
-      event_context->_lt_channel = std::move(event_channel);
+      ctx->chan_ = std::move(event_channel);
 
       EncodableMap params;
-      params[flutter::EncodableValue("peerConnectionId")] = std::to_string(id);
+      params[EncodableValue("peerConnectionId")] = peer_id;
       result->Success(EncodableValue(params));
     } else {
      result->Error(std::string(error));
@@ -536,6 +468,54 @@ void SetRemoteDescription(
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
   }
+}
+
+// Calls Rust `AddTransceiver()`.
+void AddTransceiver(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  auto transceiver = webrtc->AddTransceiver(
+      std::stoi(findString(params, "peerConnectionId")),
+      findString(params, "mediaType"),
+      findString(findMap(params, "transceiverInit"), "direction"));
+
+  result->Success(EncodableValue(TransceiverToMap(transceiver)));
+}
+
+// Calls Rust `GetTransceivers()`.
+void GetTransceivers(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  auto transceivers = webrtc->GetTransceivers(
+      std::stoi(findString(params, "peerConnectionId")));
+
+  EncodableList infos;
+  for (auto transceiver : transceivers) {
+    infos.push_back(TransceiverToMap(transceiver));
+  }
+
+  EncodableMap map;
+  map[EncodableValue("transceivers")] = EncodableValue(infos);
+
+  result->Success(EncodableValue(map));
 }
 
 }  // namespace flutter_webrtc_plugin

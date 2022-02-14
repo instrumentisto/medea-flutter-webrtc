@@ -11,6 +11,7 @@ namespace flutter_webrtc_plugin {
 void CreateRTCPeerConnection(
     flutter::BinaryMessenger* messenger,
     Box<Webrtc>& webrtc,
+    flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
@@ -39,4 +40,17 @@ void SetRemoteDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+// Adds a new `RTCRtpTransceiver` to a `PeerConnectionInterface`.
+void AddTransceiver(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+// Returns a list of `RTCRtpTransceiver`s of a `PeerConnectionInterface`.
+void GetTransceivers(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
 }  // namespace flutter_webrtc_plugin

@@ -7,55 +7,17 @@ extern crate derive_more;
 use derive_more::From;
 
 use anyhow::bail;
-use bridge::webrtc::RtpReceiverInterface;
-use cxx::{let_cxx_string, CxxString, UniquePtr};
+use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
 pub use crate::webrtc::{
-    audio_track_get_sourse, audio_track_truncation, candidate_to_string,
-    dtmf_sender_interface_get_duration,
-    dtmf_sender_interface_get_inter_tone_gap, get_candidate_pair,
-    get_estimated_disconnected_time_ms, get_last_data_received_ms,
-    get_local_candidate, get_reason, get_remote_candidate,
-    ice_candidate_interface_to_string, media_stream_interface_get_audio_tracks,
-    media_stream_interface_get_id, media_stream_interface_get_video_tracks,
-    media_stream_track_interface_downcast_audio_track,
-    media_stream_track_interface_downcast_video_track,
-    media_stream_track_interface_get_enabled,
-    media_stream_track_interface_get_id, media_stream_track_interface_get_kind,
-    media_stream_track_interface_get_state, rtcp_parameters_get_cname,
-    rtcp_parameters_get_reduced_size, rtp_codec_parameters_get_clock_rate,
-    rtp_codec_parameters_get_kind, rtp_codec_parameters_get_name,
-    rtp_codec_parameters_get_num_channels, rtp_codec_parameters_get_parameters,
-    rtp_codec_parameters_get_payload_type, rtp_encoding_parameters_get_active,
-    rtp_encoding_parameters_get_maxBitrate,
-    rtp_encoding_parameters_get_maxFramerate,
-    rtp_encoding_parameters_get_minBitrate,
-    rtp_encoding_parameters_get_scale_resolution_down_by,
-    rtp_encoding_parameters_get_ssrc, rtp_extension_get_encrypt,
-    rtp_extension_get_id, rtp_extension_get_uri, rtp_parameters_get_codecs,
-    rtp_parameters_get_encodings, rtp_parameters_get_header_extensions,
-    rtp_parameters_get_mid, rtp_parameters_get_rtcp,
-    rtp_parameters_get_transaction_id, rtp_receiver_interface_get_id,
-    rtp_receiver_interface_get_parameters, rtp_receiver_interface_get_streams,
-    rtp_receiver_interface_get_track, rtp_sender_interface_get_dtmf,
-    rtp_sender_interface_get_id, rtp_sender_interface_get_parameters,
-    rtp_sender_interface_get_track, rtp_transceiver_interface_get_direction,
-    rtp_transceiver_interface_get_mid, rtp_transceiver_interface_get_receiver,
-    rtp_transceiver_interface_get_sender, video_frame_to_abgr,
-    video_track_get_sourse, video_track_truncation, AudioLayer, Candidate,
-    CandidatePairChangeEvent, DtmfSenderInterface, IceCandidateInterface,
-    IceConnectionState, IceGatheringState, MediaStreamTrackInterface,
-    PeerConnectionState, RtpCodecParameters, RtpEncodingParameters,
-    RtpExtension, RtpParameters, RtpSenderInterface, RtpTransceiverInterface,
-    SdpType, SignalingState, VideoFrame, VideoRotation,
-};
-pub use bridge::webrtc::CandidateWrap;
-
-pub use bridge::webrtc::{
-    AudioTrackInterface as Sys_AudioTrackInterface,
-    RtpReceiverInterface as Sys_RtpReceiverInterface,
-    VideoTrackInterface as Sys_VideoTrackInterface,
+    candidate_to_string, get_candidate_pair,
+    get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
+    ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
+    Candidate, CandidatePairChangeEvent, IceCandidateInterface,
+    IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
+    RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
+    VideoRotation,
 };
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
@@ -166,6 +128,71 @@ pub trait OnFrameCallback {
     /// Called when the attached [`VideoTrackInterface`] produces a new
     /// [`VideoFrame`].
     fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
+}
+
+/// Handler of events that fire from a [`PeerConnectionInterface`].
+pub trait PeerConnectionEventsHandler {
+    /// Called when a [`signalingstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#event-signalingstatechange
+    fn on_signaling_change(&mut self, new_state: SignalingState);
+
+    /// Called when an [`iceconnectionstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#event-iceconnectionstatechange
+    fn on_standardized_ice_connection_change(
+        &mut self,
+        new_state: IceConnectionState,
+    );
+
+    /// Called when a [`connectionstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#event-connectionstatechange
+    fn on_connection_change(&mut self, new_state: PeerConnectionState);
+
+    /// Called when an [`icegatheringstatechange`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#event-icegatheringstatechange
+    fn on_ice_gathering_change(&mut self, new_state: IceGatheringState);
+
+    /// Called when a [`negotiation`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#event-negotiation
+    fn on_negotiation_needed_event(&mut self, event_id: u32);
+
+    /// Called when an [`icecandidateerror`][1] event occurs.
+    ///
+    /// [1]: https://www.w3.org/TR/webrtc/#event-icecandidateerror
+    fn on_ice_candidate_error(
+        &mut self,
+        address: &CxxString,
+        port: i32,
+        url: &CxxString,
+        error_code: i32,
+        error_text: &CxxString,
+    );
+
+    /// Called when the ICE connection receiving status changes.
+    fn on_ice_connection_receiving_change(&mut self, receiving: bool);
+
+    /// Called when an [`icecandidate`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#event-icecandidate
+    fn on_ice_candidate(
+        &mut self,
+        candidate: *const webrtc::IceCandidateInterface,
+    );
+
+    /// Called when some ICE candidates have been removed.
+    fn on_ice_candidates_removed(&mut self, candidates: &CxxVector<Candidate>);
+
+    /// Called when a [`selectedcandidatepairchange`][1] event occurs.
+    ///
+    /// [1]: https://tinyurl.com/w3-selectedcandidatepairchange
+    fn on_ice_selected_candidate_pair_changed(
+        &mut self,
+        event: &CandidatePairChangeEvent,
+    );
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -371,9 +398,35 @@ impl Default for RTCConfiguration {
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl PeerConnectionObserver {
+    /// Creates a new [`PeerConnectionObserver`] backed by the provided
+    /// [`PeerConnectionEventsHandler`]
     #[must_use]
-    pub fn new(cb: Box<dyn PeerConnectionOnEvent>) -> Self {
+    pub fn new(cb: Box<dyn PeerConnectionEventsHandler>) -> Self {
         Self(webrtc::create_peer_connection_observer(Box::new(cb)))
+    }
+}
+
+/// Contains all the [`PeerConnectionInterface`] dependencies.
+pub struct PeerConnectionDependencies {
+    /// Pointer to the C++ side `PeerConnectionDependencies` object.
+    inner: UniquePtr<webrtc::PeerConnectionDependencies>,
+
+    /// [`PeerConnectionObserver`] that these [`PeerConnectionDependencies`]
+    /// depend on.
+    ///
+    /// It's stored here since it must outlive the dependencies object.
+    observer: PeerConnectionObserver,
+}
+
+impl PeerConnectionDependencies {
+    /// Creates a new [`PeerConnectionDependencies`] backed by the provided
+    /// [`PeerConnectionObserver`].
+    #[must_use]
+    pub fn new(observer: PeerConnectionObserver) -> Self {
+        Self {
+            inner: webrtc::create_peer_connection_dependencies(&observer.0),
+            observer,
+        }
     }
 }
 
@@ -382,18 +435,6 @@ impl PeerConnectionObserver {
 pub struct PeerConnectionDependencies {
     dependencies: UniquePtr<webrtc::PeerConnectionDependencies>,
     observer: PeerConnectionObserver,
-}
-
-impl PeerConnectionDependencies {
-    #[must_use]
-    pub fn new(observer: PeerConnectionObserver) -> Self {
-        Self {
-            dependencies: webrtc::create_peer_connection_dependencies(
-                &observer.0,
-            ),
-            observer,
-        }
-    }
 }
 
 /// Description of the options that can be used to control the offer/answer
@@ -481,11 +522,46 @@ impl SetRemoteDescriptionObserver {
     }
 }
 
+/// Representation of a combination of an [RTCRtpSender] and an [RTCRtpReceiver]
+/// sharing a common [media stream "identification-tag"][1].
+///
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+/// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+/// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
+pub struct RtpTransceiverInterface(UniquePtr<webrtc::RtpTransceiverInterface>);
+
+impl RtpTransceiverInterface {
+    /// Returns a [`mid`] of this [`RtpTransceiverInterface`].
+    ///
+    /// [`mid`]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
+    #[must_use]
+    pub fn mid(&self) -> Option<String> {
+        let mid = webrtc::get_transceiver_mid(&self.0);
+        (!mid.is_empty()).then(|| mid)
+    }
+
+    /// Returns a [`direction`] of this [`RtpTransceiverInterface`].
+    ///
+    /// [`direction`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
+    #[must_use]
+    pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
+        webrtc::get_transceiver_direction(&self.0)
+    }
+}
+
 /// [RTCPeerConnection][1] implementation.
 ///
-/// [1]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection
+/// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 pub struct PeerConnectionInterface {
-    pc: UniquePtr<webrtc::PeerConnectionInterface>,
+    /// Pointer to the C++ side [`PeerConnectionInterface`] object.
+    ///
+    /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
+    inner: UniquePtr<webrtc::PeerConnectionInterface>,
+
+    /// [`PeerConnectionObserver`] that this [`PeerConnectionInterface`]
+    /// uses internally.
+    ///
+    /// It's stored here since it must outlive the peer connection object.
     _observer: PeerConnectionObserver,
 }
 
@@ -498,7 +574,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_offer(self.pc.pin_mut(), &options.0, obs.0);
+        webrtc::create_offer(self.inner.pin_mut(), &options.0, obs.0);
     }
 
     /// [RTCPeerConnection.createAnswer()][1] implementation.
@@ -509,7 +585,7 @@ impl PeerConnectionInterface {
         options: &RTCOfferAnswerOptions,
         obs: CreateSessionDescriptionObserver,
     ) {
-        webrtc::create_answer(self.pc.pin_mut(), &options.0, obs.0);
+        webrtc::create_answer(self.inner.pin_mut(), &options.0, obs.0);
     }
 
     /// [RTCPeerConnection.setLocalDescription()][1] implementation.
@@ -520,7 +596,7 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetLocalDescriptionObserver,
     ) {
-        webrtc::set_local_description(self.pc.pin_mut(), desc.0, obs.0);
+        webrtc::set_local_description(self.inner.pin_mut(), desc.0, obs.0);
     }
 
     /// [RTCPeerConnection.setRemoteDescription()][1] implementation.
@@ -531,7 +607,32 @@ impl PeerConnectionInterface {
         desc: SessionDescriptionInterface,
         obs: SetRemoteDescriptionObserver,
     ) {
-        webrtc::set_remote_description(self.pc.pin_mut(), desc.0, obs.0);
+        webrtc::set_remote_description(self.inner.pin_mut(), desc.0, obs.0);
+    }
+
+    /// Creates a new [`RtpTransceiverInterface`] and adds it to the set of
+    /// transceivers of this [`PeerConnectionInterface`].
+    pub fn add_transceiver(
+        &mut self,
+        media_type: MediaType,
+        direction: RtpTransceiverDirection,
+    ) -> RtpTransceiverInterface {
+        RtpTransceiverInterface(webrtc::add_transceiver(
+            self.inner.pin_mut(),
+            media_type,
+            direction,
+        ))
+    }
+
+    /// Returns a sequence of [`RtpTransceiverInterface`] objects representing
+    /// the RTP transceivers currently attached to this
+    /// [`PeerConnectionInterface`].
+    #[must_use]
+    pub fn get_transceivers(&self) -> Vec<RtpTransceiverInterface> {
+        webrtc::get_transceivers(&self.inner)
+            .into_iter()
+            .map(|transceiver| RtpTransceiverInterface(transceiver.ptr))
+            .collect()
     }
 }
 
@@ -598,7 +699,7 @@ impl PeerConnectionFactoryInterface {
         &mut self,
         configuration: &RTCConfiguration,
         PeerConnectionDependencies {
-            dependencies,
+            inner,
             observer,
         }: PeerConnectionDependencies,
     ) -> anyhow::Result<PeerConnectionInterface> {
@@ -606,7 +707,7 @@ impl PeerConnectionFactoryInterface {
         let inner = webrtc::create_peer_connection_or_error(
             self.0.pin_mut(),
             &configuration.0,
-            dependencies,
+            dependencies.inner,
             &mut error,
         );
 
@@ -621,8 +722,8 @@ impl PeerConnectionFactoryInterface {
             );
         }
         Ok(PeerConnectionInterface {
-            pc: inner,
-            _observer: observer,
+            inner,
+            _observer: dependencies.observer,
         })
     }
 
