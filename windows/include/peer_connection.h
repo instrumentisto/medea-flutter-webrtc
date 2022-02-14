@@ -80,7 +80,7 @@ void GetTransceiverDirection(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Calls Rust `GetTransceiverMid()` and returns the media stream
-// `identification-tag` of the given `RTCRtpTransceiver`
+// `identification-tag` of the given `RTCRtpTransceiver`.
 void GetTransceiverMid(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

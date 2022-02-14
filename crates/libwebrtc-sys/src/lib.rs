@@ -458,38 +458,33 @@ impl RtpTransceiverInterface {
         webrtc::get_transceiver_direction(&self.0)
     }
 
-    /// Changes the preferred direction of the given
-    /// [`RtpTransceiverInterface`].
+    /// Changes the preferred `direction` of this [`RtpTransceiverInterface`].
     pub fn set_direction(
         &self,
         direction: webrtc::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
-        let error = webrtc::set_transceiver_direction(&self.0, direction);
-
-        if !error.is_empty() {
+        let err = webrtc::set_transceiver_direction(&self.0, direction);
+        if !err.is_empty() {
             bail!(
                 "`RtpTransceiverInterface->SetDirectionWithError()` call \
-                failed: {error}"
+                 failed: {err}",
             );
         }
-
         Ok(())
     }
 
-    /// Irreversibly marks the given [`RtpTransceiverInterface`] as stopping,
-    /// unless it is already stopped.
+    /// Irreversibly marks this [`RtpTransceiverInterface`] as stopping, unless
+    /// it's already stopped.
     ///
-    /// This will immediately cause the transceiver's sender to no longer send,
-    /// and its receiver to no longer receive.
+    /// This will immediately cause this [`RtpTransceiverInterface`]'s sender to
+    /// no longer send, and its receiver to no longer receive.
     pub fn stop(&self) -> anyhow::Result<()> {
-        let error = webrtc::stop_transceiver(&self.0);
-
-        if !error.is_empty() {
+        let err = webrtc::stop_transceiver(&self.0);
+        if !err.is_empty() {
             bail!(
-                "`RtpTransceiverInterface->StopStandard()` call failed: {error}"
+                "`RtpTransceiverInterface->StopStandard()` call failed: {err}",
             );
         }
-
         Ok(())
     }
 }

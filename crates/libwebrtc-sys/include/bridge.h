@@ -318,9 +318,10 @@ rust::String set_transceiver_direction(
     const RtpTransceiverInterface& transceiver,
     RtpTransceiverDirection new_direction);
 
-// Irreversibly marks the transceiver as stopping, unless it is already stopped.
+// Irreversibly marks the `transceiver` as stopping, unless it's already
+// stopped.
 //
-// This will immediately cause the transceiver's sender to no longer send, and
+// This will immediately cause the `transceiver`'s sender to no longer send, and
 // its receiver to no longer receive.
 rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 
