@@ -309,8 +309,8 @@ rust::Vec<TransceiverContainer> get_transceivers(
 // Returns a `mid` of the given `RtpTransceiverInterface`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
-// Gets the `Transceiver`'s `MediaType`.
-MediaType get_transceiver_type(const RtpTransceiverInterface& transceiver);
+// Returns a `MediaType` of the given `RtpTransceiverInterface`.
+MediaType get_transceiver_media_type(const RtpTransceiverInterface& transceiver);
 
 // Returns a `direction` of the given `RtpTransceiverInterface`.
 RtpTransceiverDirection get_transceiver_direction(
@@ -329,16 +329,18 @@ rust::String set_transceiver_direction(
 // its receiver to no longer receive.
 rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 
-// Gets the `RtpSenderInterface` from the `RtpTransceiverInterface`.
-std::unique_ptr<RtpSenderInterface> get_sender(
+// Returns a `RtpSenderInterface` of the given `RtpTransceiverInterface`.
+std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
     const RtpTransceiverInterface& transceiver);
 
-// Replaces the `VideoTrackInterface` to the `RtpSenderInterface`.
+// Replaces the track currently being used as the sender's source with a new
+// `VideoTrackInterface`.
 bool replace_sender_video_track(
     const RtpSenderInterface& sender,
     const std::unique_ptr<VideoTrackInterface>& track);
 
-// Replaces the `AudioTrackInterface` to the `RtpSenderInterface`.
+// Replaces the track currently being used as the sender's source with a new
+// `AudioTrackInterface`.
 bool replace_sender_audio_track(
     const RtpSenderInterface& sender,
     const std::unique_ptr<AudioTrackInterface>& track);

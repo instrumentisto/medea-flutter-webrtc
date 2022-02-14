@@ -1,11 +1,13 @@
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
-use std::str::FromStr;
 
 use crate::{
-    api::{self, PeerConnectionObserverInterface},
-    internal::{CreateSdpCallbackInterface, SetDescriptionCallbackInterface},
+    api,
+    internal::{
+        CreateSdpCallbackInterface, PeerConnectionObserverInterface,
+        SetDescriptionCallbackInterface,
+    },
     next_id, AudioTrackId, VideoTrackId, Webrtc,
 };
 
@@ -398,11 +400,11 @@ impl Webrtc {
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
     /// - If cannot set the `track` to the [`sys::Transceiver`].
-    pub fn replace_track_on_sender(
+    pub fn sender_replace_track(
         &mut self,
         peer_id: u64,
         transceiver_id: u64,
-        track_id: &str,
+        track_id: u64,
     ) {
         let peer = self
             .0
@@ -415,7 +417,7 @@ impl Webrtc {
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap();
 
-        if track_id.is_empty() {
+        if track_id == 0 {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
                     transceiver.set_no_video_track().unwrap();
@@ -432,9 +434,7 @@ impl Webrtc {
                         .replace_video_track(
                             self.0
                                 .video_tracks
-                                .get(&VideoTrackId::from(
-                                    u64::from_str(track_id).unwrap(),
-                                ))
+                                .get(&VideoTrackId::from(track_id))
                                 .unwrap(),
                         )
                         .unwrap();
@@ -444,9 +444,7 @@ impl Webrtc {
                         .replace_audio_track(
                             self.0
                                 .audio_tracks
-                                .get(&AudioTrackId::from(
-                                    u64::from_str(track_id).unwrap(),
-                                ))
+                                .get(&AudioTrackId::from(track_id))
                                 .unwrap(),
                         )
                         .unwrap();

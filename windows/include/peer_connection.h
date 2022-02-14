@@ -87,7 +87,7 @@ void GetTransceiverMid(
 
 // Replaces the `MediaStreamTrackInterface` to the `RTCRtpTransceiver`'s
 // `RTCRtpSender`.
-void ReplaceTrackOnSender(
+void SenderReplaceTrack(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);

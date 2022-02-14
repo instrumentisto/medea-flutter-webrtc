@@ -572,22 +572,24 @@ void GetTransceiverMid(
   result->Success(map);
 }
 
-// Calls Rust `ReplaceTrackOnSender()`.
-void ReplaceTrackOnSender(
+// Calls Rust `SenderReplaceTrack()`.
+void SenderReplaceTrack(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
   }
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+  int64_t track_id = findLongInt(params, "trackId");
 
-  webrtc->ReplaceTrackOnSender(
+  webrtc->SenderReplaceTrack(
       std::stoi(findString(params, "peerConnectionId")),
       std::stoi(findString(params, "transceiverId")),
-      findString(params, "trackId"));
+      track_id == -1 ? 0 : track_id);
 
   result->Success();
 }
