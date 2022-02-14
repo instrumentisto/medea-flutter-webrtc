@@ -100,6 +100,9 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
             cand['candidate'], cand['sdpMid'], cand['sdpMLineIndex']);
         onIceCandidate?.call(candidate);
         break;
+      case 'onNegotiationNeeded':
+        onRenegotiationNeeded?.call();
+        break;
       case 'onAddStream':
         String streamId = map['streamId'];
 
@@ -435,6 +438,17 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
   Future<void> close() async {
     try {
       await WebRTC.invokeMethod('peerConnectionClose', <String, dynamic>{
+        'peerConnectionId': _peerConnectionId,
+      });
+    } on PlatformException catch (e) {
+      throw 'Unable to RTCPeerConnection::close: ${e.message}';
+    }
+  }
+
+  @override
+  Future<void> restartIce() async {
+    try {
+      await WebRTC.invokeMethod('restartIce', <String, dynamic>{
         'peerConnectionId': _peerConnectionId,
       });
     } on PlatformException catch (e) {

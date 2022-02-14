@@ -619,4 +619,38 @@ void AddIceCandidate(
   result->Success();
 }
 
+// Calls Rust `RestartIce`.
+void RestartIce(Box<Webrtc>& webrtc,
+                const flutter::MethodCall<EncodableValue>& method_call,
+                std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  webrtc->RestartIce(std::stoi(findString(params, "peerConnectionId")));
+
+  result->Success();
+}
+
+// Calls Rust `DisposePeerConnection`.
+void DisposePeerConnection(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
+
+  webrtc->DisposePeerConnection(
+      std::stoi(findString(params, "peerConnectionId")));
+
+  result->Success();
+}
+
 }  // namespace flutter_webrtc_plugin

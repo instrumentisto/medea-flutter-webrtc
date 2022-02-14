@@ -55,6 +55,9 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("trackDispose") == 0) {
   } else if (method.compare("peerConnectionClose") == 0) {
   } else if (method.compare("peerConnectionDispose") == 0) {
+    DisposePeerConnection(webrtc, method_call, std::move(result));
+  } else if (method.compare("restartIce") == 0) {
+    RestartIce(webrtc, method_call, std::move(result));
   } else if (method.compare("createVideoRenderer") == 0) {
     CreateVideoRendererTexture(std::move(result));
   } else if (method.compare("videoRendererDispose") == 0) {

@@ -578,4 +578,14 @@ rust::String add_ice_candidate(const PeerConnectionInterface& peer,
   return error;
 }
 
+// Calls `PeerConnectionInterface::RestartIce`.
+void restart_ice(const PeerConnectionInterface& peer) {
+  peer->RestartIce();
+}
+
+// Calls `PeerConnectionInterface::Close`.
+void close_peer_connection(const PeerConnectionInterface& peer) {
+  peer->Close();
+}
+
 }  // namespace bridge

@@ -517,7 +517,13 @@ pub(crate) mod webrtc {
         ) -> i32;
 
         /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].
-        pub fn add_ice_candidate(peer_connection_interface: &PeerConnectionInterface, sdp_mid: &str, sdp_mline_index: i32, candidate: &str) -> String;
+        pub fn add_ice_candidate(peer: &PeerConnectionInterface, sdp_mid: &str, sdp_mline_index: i32, candidate: &str) -> String;
+
+        /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.
+        pub fn restart_ice(peer: &PeerConnectionInterface);
+
+        /// Closes the [`PeerConnectionInterface`].
+        pub fn close_peer_connection(peer: &PeerConnectionInterface);
 
         /// Returns the spec-compliant string representation of the provided
         /// [`Candidate`].

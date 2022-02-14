@@ -355,4 +355,10 @@ rust::String add_ice_candidate(const PeerConnectionInterface& peer,
                                rust::Str sdp_mid,
                                int sdp_mline_index,
                                rust::Str candidate);
+
+// Tells the `PeerConnectionInterface` that ICE should be restarted.
+void restart_ice(const PeerConnectionInterface& peer);
+
+// Closes the `PeerConnectionInterface`.
+void close_peer_connection(const PeerConnectionInterface& peer);
 }  // namespace bridge

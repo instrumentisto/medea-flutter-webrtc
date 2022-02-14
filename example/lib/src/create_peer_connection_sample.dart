@@ -28,6 +28,14 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       var pc1 = await createPeerConnection({});
       var pc2 = await createPeerConnection({});
 
+      pc1.onRenegotiationNeeded = () async {
+        print('negot1');
+      };
+
+      pc2.onRenegotiationNeeded = () async {
+        print('negot2');
+      };
+
       pc1.onIceCandidate = (RTCIceCandidate candidate) async {
         await pc2.addCandidate(candidate);
       };
@@ -42,13 +50,22 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
           kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
 
       var offer = await pc1.createOffer();
-      print(offer.sdp);
       await pc1.setLocalDescription(offer);
       await pc2.setRemoteDescription(offer);
 
       var answer = await pc2.createAnswer({});
       await pc2.setLocalDescription(answer);
       await pc1.setRemoteDescription(answer);
+
+      await pc1.restartIce();
+
+      await pc1.createOffer({
+        'mandatory': {
+          'OfferToReceiveAudio': true,
+          'OfferToReceiveVideo': true,
+        },
+        'optional': [true, true, true],
+      });
 
       setState(() {
         text = 'test is success';

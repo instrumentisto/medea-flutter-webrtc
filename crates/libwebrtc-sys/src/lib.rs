@@ -690,6 +690,16 @@ impl PeerConnectionInterface {
 
         Ok(())
     }
+
+    /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.
+    pub fn restart_ice(&self) {
+        webrtc::restart_ice(&self.inner);
+    }
+
+    /// Closes the [`PeerConnectionInterface`].
+    pub fn close(&self) {
+        webrtc::close_peer_connection(&self.inner);
+    }
 }
 
 /// Interface for using an RTC [`Thread`][1].

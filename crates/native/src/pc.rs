@@ -460,8 +460,8 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// May panic on getting the [`PeerConnection`] or adding
-    /// the [`sys::IceCandidateInterface`].
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot add the `ICE Candidate`.
     pub fn add_ice_candidate(
         &mut self,
         peer_id: u64,
@@ -476,6 +476,34 @@ impl Webrtc {
             .inner
             .add_ice_candidate(sdp_mid, sdp_mline_index, candidate)
             .unwrap();
+    }
+
+    /// Tells the [`PeerConnection`] that ICE should be restarted.
+    ///
+    /// # Panics
+    ///
+    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    pub fn restart_ice(&mut self, peer_id: u64) {
+        self.0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .inner
+            .restart_ice();
+    }
+
+    /// Closes the [`PeerConnection`].
+    ///
+    /// # Panics
+    ///
+    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    pub fn dispose_peer_connection(&mut self, peer_id: u64) {
+        self.0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .inner
+            .close();
     }
 }
 

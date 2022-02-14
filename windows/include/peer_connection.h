@@ -98,4 +98,15 @@ void AddIceCandidate(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
+// Tells the `PeerConnectionInterface` that ICE should be restarted.
+void RestartIce(Box<Webrtc>& webrtc,
+                const flutter::MethodCall<EncodableValue>& method_call,
+                std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
+// Closes the `PeerConnectionInterface`.
+void DisposePeerConnection(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+
 }  // namespace flutter_webrtc_plugin
