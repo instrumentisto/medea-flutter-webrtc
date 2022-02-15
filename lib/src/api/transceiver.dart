@@ -36,8 +36,7 @@ class RtpTransceiver {
 
   /// Changes [TransceiverDirection] of this [RtpTransceiver].
   Future<void> setDirection(TransceiverDirection direction) async {
-    await _chan
-        .invokeMethod('setDirection', {'direction': direction.index});
+    await _chan.invokeMethod('setDirection', {'direction': direction.index});
   }
 
   /// Returns current preffered [TransceiverDirection] of this [RtpTransceiver].

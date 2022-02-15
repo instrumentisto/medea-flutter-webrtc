@@ -37,8 +37,7 @@ class NativeVideoRenderer extends VideoRenderer {
 
   @override
   Future<void> initialize() async {
-    final response =
-        await _rendererFactoryChannel.invokeMethod('create');
+    final response = await _rendererFactoryChannel.invokeMethod('create');
     _textureId = response['textureId'];
     _channelId = response['channelId'];
     _eventChan = eventChannel('VideoRendererEvent', _channelId)

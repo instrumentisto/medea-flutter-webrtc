@@ -73,7 +73,6 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
 
   @override
   Future<MediaStreamTrack> clone() async {
-    return NativeMediaStreamTrack.fromMap(
-        await _chan.invokeMethod('clone'));
+    return NativeMediaStreamTrack.fromMap(await _chan.invokeMethod('clone'));
   }
 }
