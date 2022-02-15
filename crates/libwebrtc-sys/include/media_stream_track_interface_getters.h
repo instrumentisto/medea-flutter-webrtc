@@ -23,9 +23,9 @@ namespace bridge {
 
     // Downcast `MediaStreamTrackInterface` to `VideoTrackInterface`.
     std::unique_ptr<VideoTrackInterface> media_stream_track_interface_downcast_video_track(
-    MediaStreamTrackInterface& track);
+        std::unique_ptr<MediaStreamTrackInterface> track);
     
     // Downcast `MediaStreamTrackInterface` to `AudioTrackInterface`.
     std::unique_ptr<AudioTrackInterface> media_stream_track_interface_downcast_audio_track(
-    MediaStreamTrackInterface& track);
+        std::unique_ptr<MediaStreamTrackInterface> track);
 }

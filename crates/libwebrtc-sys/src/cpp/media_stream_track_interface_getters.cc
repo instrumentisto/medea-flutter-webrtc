@@ -29,14 +29,14 @@ bool get_media_stream_track_enabled(
 
 // Downcast `MediaStreamTrackInterface` to `VideoTrackInterface`.
 std::unique_ptr<VideoTrackInterface> media_stream_track_interface_downcast_video_track(
-  MediaStreamTrackInterface& track) {
-    return std::make_unique<VideoTrackInterface>(static_cast<webrtc::VideoTrackInterface*>(track.release()));
+  std::unique_ptr<MediaStreamTrackInterface> track) {
+    return std::make_unique<VideoTrackInterface>(static_cast<webrtc::VideoTrackInterface*>(track.release()->release()));
   }
 
 // Downcast `MediaStreamTrackInterface` to `AudioTrackInterface`.
 std::unique_ptr<AudioTrackInterface> media_stream_track_interface_downcast_audio_track(
-  MediaStreamTrackInterface& track) {
-    return std::make_unique<AudioTrackInterface>(static_cast<webrtc::AudioTrackInterface*>(track.release()));
+  std::unique_ptr<MediaStreamTrackInterface> track) {
+    return std::make_unique<AudioTrackInterface>(static_cast<webrtc::AudioTrackInterface*>(track.release()->release()));
   }
 
 }

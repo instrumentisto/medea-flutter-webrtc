@@ -202,7 +202,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   // Convert `TrackInterfaceSerialized` to flutter `EncodableMap`.
   EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
       flutter::EncodableMap info;
-      info[EncodableValue("channelId")] = EncodableValue(track.channel_id);
+      info[EncodableValue("channelId")] = EncodableValue((long) track.channel_id);
       info[EncodableValue("id")] = std::string(track.id);
       if(track.device_id != "") {
         info[EncodableValue("deviceId")] = std::string(track.device_id);
@@ -214,7 +214,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   // Convert `RtpTransceiverInterfaceSerialized` to flutter `EncodableMap`.
   EncodableMap transceiverToMap(RtpTransceiverInterfaceSerialized tranceiver) {
       flutter::EncodableMap info;
-      info[EncodableValue("channelId")] = EncodableValue(tranceiver.channel_id);
+      info[EncodableValue("channelId")] = EncodableValue((long) tranceiver.channel_id);
       if(tranceiver.mid != "") {
         info[EncodableValue("mid")] = std::string(tranceiver.mid);
       }
@@ -225,7 +225,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   // Convert `RtpSenderInterfaceSerialized` to flutter `EncodableMap`.
   EncodableMap rtpSenderToMap(RtpSenderInterfaceSerialized sender) {
       flutter::EncodableMap info;
-      info[EncodableValue("channelId")] = EncodableValue(sender.channel_id);
+      info[EncodableValue("channelId")] = EncodableValue((long) sender.channel_id);
       return info;
 
   }
@@ -490,7 +490,7 @@ void AddTransceiver(
 
   auto transceiver = webrtc->AddTransceiver(
       std::stoi(findString(params, "peerConnectionId")),
-      findString(params, "mediaType"),
+      findString(params, "mediaType").c_str(),
       findString(findMap(params, "transceiverInit"), "direction"));
 
   result->Success(EncodableValue(TransceiverToMap(transceiver)));

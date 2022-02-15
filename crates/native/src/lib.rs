@@ -56,7 +56,7 @@ pub mod api {
 
     /// Serialized `MediaTrack` for writes in flutter.
     pub struct TrackInterfaceSerialized {
-        channel_id: i32,
+        channel_id: u64,
         id: String,
         device_id: String,
         kind: String,
@@ -64,13 +64,13 @@ pub mod api {
 
     /// Serialized ` RtpSender` for writes in flutter.
     pub struct RtpSenderInterfaceSerialized {
-        channel_id: i32,
+        channel_id: u64,
     }
 
     /// Serialized `RtpTransceiver` for writes in flutter.
     pub struct RtpTransceiverInterfaceSerialized {
         sender: RtpSenderInterfaceSerialized,
-        channel_id: i32,
+        channel_id: u64,
 
         /// `mid` is optional field.
         /// if `mid` == "" then mid is None
@@ -471,15 +471,17 @@ impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
         TrackInterfaceSerialized {
             id: get_media_stream_track_id(track).to_string(),
             kind: get_media_stream_track_kind(track).to_string(),
-            channel_id: 0, // todo add actual id
-            device_id: "".to_owned(),
+            channel_id: next_id(), // todo add actual id
+            device_id: "remote".to_owned(),
         }
     }
 }
 
 impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
     fn from(_: &RtpSenderInterface) -> Self {
-        RtpSenderInterfaceSerialized { channel_id: 0 } // todo add actual id
+        RtpSenderInterfaceSerialized {
+            channel_id: next_id(),
+        } // todo add actual id
     }
 }
 
@@ -490,7 +492,7 @@ impl From<&Sys_RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
             sender: RtpSenderInterfaceSerialized::from(
                 &sender as &RtpSenderInterface,
             ),
-            channel_id: 0, // todo add actual id
+            channel_id: next_id(),
             mid: get_transceiver_mid(transceiver),
         }
     }
@@ -510,12 +512,14 @@ pub struct Context {
     video_device_info: VideoDeviceInfo,
     peer_connection_factory: PeerConnectionFactoryInterface,
     video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
-    video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
+    video_tracks: HashMap<VideoTrackId, VideoTrack>,
     audio_source: Option<Rc<AudioSourceInterface>>,
-    audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
+    audio_tracks: HashMap<AudioTrackId, AudioTrack>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
+    remote_video_tracks: Arc<Mutex<HashMap<String, VideoTrack>>>,
+    remote_audio_tracks: Arc<Mutex<HashMap<String, AudioTrack>>>,
 }
 
 /// Creates a new instance of [`Webrtc`].
@@ -563,11 +567,13 @@ pub fn init() -> Box<Webrtc> {
         video_device_info,
         peer_connection_factory,
         video_sources: HashMap::new(),
-        video_tracks: Arc::new(Mutex::new(HashMap::new())),
+        video_tracks: HashMap::new(),
         audio_source: None,
-        audio_tracks: Arc::new(Mutex::new(HashMap::new())),
+        audio_tracks: HashMap::new(),
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
+        remote_video_tracks: Arc::new(Mutex::new(HashMap::new())),
+        remote_audio_tracks: Arc::new(Mutex::new(HashMap::new())),
     })))
 }

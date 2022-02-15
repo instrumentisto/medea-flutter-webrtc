@@ -22,7 +22,7 @@ use crate::{
         OnTrackSerialized, RtpTransceiverInterfaceSerialized,
         TrackInterfaceSerialized,
     },
-    AudioTrack, AudioTrackId, VideoTrack, VideoTrackId,
+    AudioTrack, VideoTrack,
 };
 
 use crate::{
@@ -46,8 +46,8 @@ impl Webrtc {
         let peer = PeerConnection::new(
             &mut self.0.peer_connection_factory,
             obs,
-            self.0.video_tracks.clone(),
-            self.0.audio_tracks.clone(),
+            self.0.remote_video_tracks.clone(),
+            self.0.remote_audio_tracks.clone(),
         );
         match peer {
             Ok(peer) => self
@@ -438,14 +438,14 @@ impl PeerConnection {
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
         observer: UniquePtr<PeerConnectionObserverInterface>,
-        video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
-        audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
+        remote_video_tracks: Arc<Mutex<HashMap<String, VideoTrack>>>,
+        remote_audio_tracks: Arc<Mutex<HashMap<String, AudioTrack>>>,
     ) -> anyhow::Result<Self> {
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
                 cb: observer,
-                video_tracks,
-                audio_tracks,
+                remote_video_tracks,
+                remote_audio_tracks,
             },
         ));
         let inner = factory.create_peer_connection_or_error(
@@ -491,8 +491,8 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 /// [`PeerConnectionObserverInterface`] wrapper.
 struct PeerConnectionObserver {
     cb: UniquePtr<PeerConnectionObserverInterface>,
-    video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
-    audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
+    remote_video_tracks: Arc<Mutex<HashMap<String, VideoTrack>>>,
+    remote_audio_tracks: Arc<Mutex<HashMap<String, AudioTrack>>>,
 }
 
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
@@ -562,44 +562,32 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
     fn on_track(&mut self, event: &Sys_RtpTransceiverInterface) {
         let receiver = get_transceiver_receiver(event);
-        let mut track = get_rtp_receiver_track(&receiver);
+        let track = get_rtp_receiver_track(&receiver);
+        let id = get_media_stream_track_id(&track).to_string();
 
         if get_media_stream_track_kind(&track).to_string() == "video" {
-            let id = get_media_stream_track_id(&track)
-                .to_string()
-                .parse::<u64>()
-                .unwrap();
-
             let inner = VideoTrackInterface::from(
-                media_stream_track_interface_downcast_video_track(
-                    track.pin_mut(),
-                ),
+                media_stream_track_interface_downcast_video_track(track),
             );
             let source = get_video_track_sourse(inner.inner());
             let v = VideoTrack::new_from_video_interface(
                 inner,
                 VideoTrackSourceInterface::from(source),
             );
-            self.video_tracks.lock().unwrap().insert(id.into(), v);
+            self.remote_video_tracks.lock().unwrap().insert(id, v);
         } else {
-            let id = get_media_stream_track_id(&track)
-                .to_string()
-                .parse::<u64>()
-                .unwrap();
-
             let inner = AudioTrackInterface::from(
-                media_stream_track_interface_downcast_audio_track(
-                    track.pin_mut(),
-                ),
+                media_stream_track_interface_downcast_audio_track(track),
             );
             let source = get_audio_track_sourse(inner.inner());
             let a = AudioTrack::new_from_audio_interface(
                 inner,
                 AudioSourceInterface::from(source),
             );
-            self.audio_tracks.lock().unwrap().insert(id.into(), a);
+            self.remote_audio_tracks.lock().unwrap().insert(id, a);
         }
 
+        let track = get_rtp_receiver_track(&receiver);
         let result = OnTrackSerialized {
             track: TrackInterfaceSerialized::from(
                 &track as &MediaStreamTrackInterface,
@@ -610,6 +598,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_remove_track(&mut self, _: &Sys_RtpReceiverInterface) {
-        // This is a non-spec-compliant event.
+        // Not required at the moment.
     }
 }

@@ -8,14 +8,14 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 
-class PeerConnectionSample extends StatefulWidget {
+class PeerOnTrackSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
 
   @override
-  _PeerConnectionSampleState createState() => _PeerConnectionSampleState();
+  _PeerOnTrackSample createState() => _PeerOnTrackSample();
 }
 
-class _PeerConnectionSampleState extends State<PeerConnectionSample> {
+class _PeerOnTrackSample extends State<PeerOnTrackSample> {
   String text = 'Press call button to test create PeerConnection';
 
   @override
@@ -38,19 +38,27 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
     try {
+
       var pc1 = await createPeerConnection({});
+      var init = RTCRtpTransceiverInit();
+      init.direction = TransceiverDirection.SendRecv;
+
+      await pc1.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
       var pc2 = await createPeerConnection({});
+      var complete = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail');
+      pc2.onTrack = (RTCTrackEvent e) => {complete = Future.value('Success')};
+      await pc2.setRemoteDescription(await pc1.createOffer({}));
 
-      var offer = await pc1.createOffer();
-      await pc1.setLocalDescription(offer);
-      await pc2.setRemoteDescription(offer);
-
-      var answer = await pc2.createAnswer({});
-      await pc2.setLocalDescription(answer);
-      await pc1.setRemoteDescription(answer);
+      var result = await complete;
 
       setState(() {
-        text = 'test is success';
+        if (result == 'Success') {
+          text = 'test is success';
+        } else {
+          text = 'Fail timeout.';
+        }
+        
       });
 
     } catch (e) {

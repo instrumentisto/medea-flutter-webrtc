@@ -39,17 +39,20 @@ pub(crate) mod webrtc {
     ///
     /// [MediaStreamTrackState]:
     /// https://w3.org/TR/mediacapture-streams/#dom-mediastreamtrackstate
+    #[rustfmt::skip]
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum TrackState {
         /// [MediaStreamTrackState.live][1] representation.
         ///
-        /// [1]: https://w3.org/TR/mediacapture-streams/#idl-def-MediaStreamTrackState.live
+        /// [1]:
+        /// https://w3.org/TR/mediacapture-streams/#idl-def-MediaStreamTrackState.live
         kLive,
 
         /// [MediaStreamTrackState.ended][1] representation.
         ///
-        /// [1]: https://w3.org/TR/mediacapture-streams/#idl-def-MediaStreamTrackState.ended
+        /// [1]:
+        /// https://w3.org/TR/mediacapture-streams/#idl-def-MediaStreamTrackState.ended
         kEnded,
     }
 
@@ -1052,14 +1055,14 @@ pub(crate) mod webrtc {
         /// [`VideoTrackInterface`].
         #[must_use]
         pub fn media_stream_track_interface_downcast_video_track(
-            track: Pin<&mut MediaStreamTrackInterface>,
+            track: UniquePtr<MediaStreamTrackInterface>,
         ) -> UniquePtr<VideoTrackInterface>;
 
         /// Downcasts [`MediaStreamTrackInterface`] to
         /// [`AudioTrackInterface`].
         #[must_use]
         pub fn media_stream_track_interface_downcast_audio_track(
-            track: Pin<&mut MediaStreamTrackInterface>,
+            track: UniquePtr<MediaStreamTrackInterface>,
         ) -> UniquePtr<AudioTrackInterface>;
 
         /// Returns a `cname` of the given [`RtcpParameters`].
