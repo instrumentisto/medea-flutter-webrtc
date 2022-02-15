@@ -18,14 +18,14 @@ class MediaStreamTrackController(
     /**
      * Unique ID of the [MethodChannel] of this controller.
      */
-    private val channelId: Int = nextChannelId()
+    private val channelId: Long = nextChannelId()
 
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel: MethodChannel = MethodChannel(
         binaryMessenger,
-        ChannelNameGenerator.withId("MediaStreamTrack", channelId)
+        ChannelNameGenerator.name("MediaStreamTrack", channelId)
     )
 
     init {
@@ -51,7 +51,7 @@ class MediaStreamTrackController(
                 result.success(
                     MediaStreamTrackController(
                         binaryMessenger,
-                        track.clone()
+                        track.fork()
                     ).asFlutterResult()
                 )
             }

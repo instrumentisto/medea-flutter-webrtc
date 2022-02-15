@@ -31,13 +31,13 @@ class PeerConnectionController(
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel: MethodChannel =
-        MethodChannel(messenger, ChannelNameGenerator.withId("PeerConnection", channelId))
+        MethodChannel(messenger, ChannelNameGenerator.name("PeerConnection", channelId))
 
     /**
      * Event channel into which all [PeerConnectionProxy] events will be sent.
      */
     private val eventChannel: EventChannel =
-        EventChannel(messenger, ChannelNameGenerator.withId("PeerConnectionEvent", channelId))
+        EventChannel(messenger, ChannelNameGenerator.name("PeerConnectionEvent", channelId))
 
     /**
      * Event sink into which all [PeerConnectionProxy] events will be sent.
@@ -122,6 +122,7 @@ class PeerConnectionController(
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+        // TODO(#34): dont block
         when (call.method) {
             "createOffer" -> {
                 runBlocking {

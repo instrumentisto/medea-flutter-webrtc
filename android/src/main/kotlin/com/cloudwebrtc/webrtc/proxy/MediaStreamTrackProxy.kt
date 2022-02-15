@@ -84,7 +84,7 @@ class MediaStreamTrackProxy(
      * @throws Exception if called on remote [MediaStreamTrackProxy].
      * @return created [MediaStreamTrackProxy].
      */
-    fun clone(): MediaStreamTrackProxy {
+    fun fork(): MediaStreamTrackProxy {
         if (this.source == null) {
             throw Exception("Remote MediaStreamTracks can't be cloned")
         } else {

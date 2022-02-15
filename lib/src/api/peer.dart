@@ -2,20 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import '/src/api/utils/channel_name_generator.dart';
-import '/src/model/ice_candidate.dart';
-import '/src/model/ice_candidate_error_event.dart';
-import '/src/model/media_stream_track_state.dart';
-import '/src/model/peer_connection_config.dart';
-import '/src/model/peer_connections_states.dart';
-import '/src/model/session_description.dart';
+import '/src/model/ice.dart';
+import '/src/model/peer.dart';
+import '/src/model/sdp.dart';
+import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
-import '/src/universal/native/media_stream_track.dart';
-import 'rtp_transceiver.dart';
+import '/src/platform/native/media_stream_track.dart';
+import 'channel.dart';
+import 'transceiver.dart';
 
 /// [MethodChannel] used for the messaging with a native side.
-const _peerConnectionFactoryMethodChannel =
-    MethodChannel('$channelTag/PeerConnectionFactory');
+final _peerConnectionFactoryMethodChannel =
+    methodChannel('PeerConnectionFactory', 0);
 
 /// Typedef for the `on_track` callback.
 typedef OnTrackCallback = void Function(NativeMediaStreamTrack, RtpTransceiver);
@@ -45,12 +43,9 @@ class PeerConnection {
   /// Creates [PeerConnection] based on the [Map] received from the native side.
   PeerConnection._fromMap(dynamic map) {
     int channelId = map['channelId'];
-    _methodChannel =
-        MethodChannel(channelNameWithId('PeerConnection', channelId));
-    _eventChannel =
-        EventChannel(channelNameWithId('PeerConnectionEvent', channelId));
-    _eventSubscription =
-        _eventChannel.receiveBroadcastStream().listen(eventListener);
+    _chan = methodChannel('PeerConnection', channelId);
+    _eventChan = eventChannel('PeerConnectionEvent', channelId);
+    _eventSub = _eventChan.receiveBroadcastStream().listen(eventListener);
   }
 
   /// Listener for the all [PeerConnection] events received from the native side.
@@ -96,13 +91,13 @@ class PeerConnection {
   }
 
   /// [MethodChannel] used for the messaging with a native side.
-  late MethodChannel _methodChannel;
+  late MethodChannel _chan;
 
   /// [EventChannel] from which all [PeerConnection] events will be received.
-  late EventChannel _eventChannel;
+  late EventChannel _eventChan;
 
-  /// [_eventChannel] subscription to the [PeerConnection] events.
-  late StreamSubscription<dynamic>? _eventSubscription;
+  /// [_eventChan] subscription to the [PeerConnection] events.
+  late StreamSubscription<dynamic>? _eventSub;
 
   /// `on_ice_connection_state_change` event subcriber.
   OnIceConnectionStateChangeCallback? _onIceConnectionStateChange;
@@ -219,7 +214,7 @@ class PeerConnection {
   /// Adds new [RtpTransceiver] to this [PeerConnection].
   Future<RtpTransceiver> addTransceiver(
       MediaKind mediaType, RtpTransceiverInit init) async {
-    dynamic res = await _methodChannel.invokeMethod(
+    dynamic res = await _chan.invokeMethod(
         'addTransceiver', {'mediaType': mediaType.index, 'init': init.toMap()});
     var transceiver = RtpTransceiver.fromMap(res);
     _transceivers.add(transceiver);
@@ -229,7 +224,7 @@ class PeerConnection {
 
   /// Returns all [RtpTransceiver]s owned by this [PeerConnection].
   Future<List<RtpTransceiver>> getTransceivers() async {
-    List<dynamic> res = await _methodChannel.invokeMethod('getTransceivers');
+    List<dynamic> res = await _chan.invokeMethod('getTransceivers');
     var transceivers = res.map((t) => RtpTransceiver.fromMap(t)).toList();
     _transceivers.addAll(transceivers);
 
@@ -238,39 +233,39 @@ class PeerConnection {
 
   /// Sets provided remote [SessionDescription] to the [PeerConnection].
   Future<void> setRemoteDescription(SessionDescription description) async {
-    await _methodChannel.invokeMethod(
+    await _chan.invokeMethod(
         'setRemoteDescription', {'description': description.toMap()});
     await _syncTransceiversMids();
   }
 
   /// Sets provided local [SessionDescription] to the [PeerConnection].
   Future<void> setLocalDescription(SessionDescription description) async {
-    await _methodChannel.invokeMethod(
+    await _chan.invokeMethod(
         'setLocalDescription', {'description': description.toMap()});
     await _syncTransceiversMids();
   }
 
   /// Creates new [SessionDescription] offer.
   Future<SessionDescription> createOffer() async {
-    dynamic res = await _methodChannel.invokeMethod('createOffer');
+    dynamic res = await _chan.invokeMethod('createOffer');
     return SessionDescription.fromMap(res);
   }
 
   /// Creates new [SessionDescription] answer.
   Future<SessionDescription> createAnswer() async {
-    dynamic res = await _methodChannel.invokeMethod('createAnswer');
+    dynamic res = await _chan.invokeMethod('createAnswer');
     return SessionDescription.fromMap(res);
   }
 
   /// Adds new [IceCandidate] to the [PeerConnection].
   Future<void> addIceCandidate(IceCandidate candidate) async {
-    await _methodChannel
+    await _chan
         .invokeMethod('addIceCandidate', {'candidate': candidate.toMap()});
   }
 
   /// Requests [PeerConnection] to [IceCandidate] gathering redone.
   Future<void> restartIce() async {
-    await _methodChannel.invokeMethod('restartIce');
+    await _chan.invokeMethod('restartIce');
   }
 
   /// Returns current [PeerConnectionState] of this [PeerConnection].
@@ -289,7 +284,7 @@ class PeerConnection {
     for (var e in _transceivers) {
       e.stoppedByPeer();
     }
-    await _eventSubscription?.cancel();
-    await _methodChannel.invokeMethod('dispose');
+    await _eventSub?.cancel();
+    await _chan.invokeMethod('dispose');
   }
 }

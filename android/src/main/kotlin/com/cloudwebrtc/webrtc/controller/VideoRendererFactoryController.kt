@@ -1,7 +1,6 @@
 package com.cloudwebrtc.webrtc.controller
 
 import com.cloudwebrtc.webrtc.FlutterRtcVideoRenderer
-import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -22,7 +21,7 @@ class VideoRendererFactoryController(
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("VideoRendererFactory"))
+        MethodChannel(binaryMessenger, ChannelNameGenerator.name("VideoRendererFactory", 0))
 
     init {
         methodChannel.setMethodCallHandler(this)

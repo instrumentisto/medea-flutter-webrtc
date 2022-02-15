@@ -26,7 +26,7 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("PeerConnectionFactory"))
+        MethodChannel(binaryMessenger, ChannelNameGenerator.name("PeerConnectionFactory", 0))
 
     init {
         methodChannel.setMethodCallHandler(this)

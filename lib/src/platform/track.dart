@@ -1,4 +1,4 @@
-import '/src/model/media_stream_track_state.dart';
+import '/src/model/track.dart';
 
 /// Abstract representation of the one media unit on native or web side.
 abstract class MediaStreamTrack {

@@ -1,21 +1,20 @@
 import 'package:flutter/services.dart';
 
 import '/src/model/transceiver.dart';
-import 'rtp_sender.dart';
-import 'utils/channel_name_generator.dart';
+import 'channel.dart';
+import 'sender.dart';
 
 class RtpTransceiver {
   /// Creates [RtpTransceiver] based on the [Map] received from the native side.
   RtpTransceiver.fromMap(dynamic map) {
     int channelId = map['channelId'];
-    _methodChannel =
-        MethodChannel(channelNameWithId('RtpTransceiver', channelId));
+    _chan = methodChannel('RtpTransceiver', channelId);
     _sender = RtpSender.fromMap(map['sender']);
     _mid = map['mid'];
   }
 
   /// [MethodChannel] used for the messaging with a native side.
-  late MethodChannel _methodChannel;
+  late MethodChannel _chan;
 
   /// [RtpSender] owned by this [RtpTransceiver].
   late RtpSender _sender;
@@ -37,19 +36,19 @@ class RtpTransceiver {
 
   /// Changes [TransceiverDirection] of this [RtpTransceiver].
   Future<void> setDirection(TransceiverDirection direction) async {
-    await _methodChannel
+    await _chan
         .invokeMethod('setDirection', {'direction': direction.index});
   }
 
   /// Returns current preffered [TransceiverDirection] of this [RtpTransceiver].
   Future<TransceiverDirection> getDirection() async {
-    int res = await _methodChannel.invokeMethod('getDirection');
+    int res = await _chan.invokeMethod('getDirection');
     return TransceiverDirection.values[res];
   }
 
   /// Synchonizes [_mid] of this [RtpTransceiver] with a native side.
   Future<void> syncMid() async {
-    _mid = await _methodChannel.invokeMethod('getMid');
+    _mid = await _chan.invokeMethod('getMid');
   }
 
   /// Stops this [RtpTransceiver].
@@ -57,7 +56,7 @@ class RtpTransceiver {
   /// After this action, no media will be transferred from/to this [RtpTransceiver].
   Future<void> stop() async {
     _isStopped = true;
-    await _methodChannel.invokeMethod('stop');
+    await _chan.invokeMethod('stop');
   }
 
   /// Notifies [RtpTransceiver] that it was stopped by peer.

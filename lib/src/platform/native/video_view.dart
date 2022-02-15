@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../video_renderer.dart';
-import '../video_view_object_fit.dart';
 
 class VideoView extends StatelessWidget {
   const VideoView(

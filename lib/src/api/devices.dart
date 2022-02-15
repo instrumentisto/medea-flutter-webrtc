@@ -1,10 +1,9 @@
 import 'package:flutter/services.dart';
 
-import '/src/api/utils/channel_name_generator.dart';
-import '/src/model/device_constraints.dart';
-import '/src/model/display_constraints.dart';
-import '/src/model/media_device_info.dart';
-import '/src/universal/native/media_stream_track.dart';
+import '/src/model/constraints.dart';
+import '/src/model/device.dart';
+import '/src/platform/native/media_stream_track.dart';
+import 'channel.dart';
 
 /// Thrown if the specified constraints resulted in no candidate devices
 /// which met the criteria requested. The error is an object of type
@@ -21,7 +20,7 @@ class OverconstrainedException implements Exception {
 }
 
 /// [MethodChannel] used for the messaging with a native side.
-const _mediaDevicesMethodChannel = MethodChannel('$channelTag/MediaDevices');
+final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 
 /// Returns list of [MediaDeviceInfo]s for the currently available devices.
 Future<List<MediaDeviceInfo>> enumerateDevices() async {

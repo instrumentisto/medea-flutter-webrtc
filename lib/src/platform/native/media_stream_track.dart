@@ -1,16 +1,15 @@
 import 'package:flutter/services.dart';
 
-import '/src/api/utils/channel_name_generator.dart';
-import '/src/model/media_stream_track_state.dart';
-import '/src/universal/media_stream_track.dart';
+import '/src/api/channel.dart';
+import '/src/model/track.dart';
+import '/src/platform/track.dart';
 
 /// Repesentation of the one media unit.
 class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates [NativeMediaStreamTrack] based on the [Map] received
   /// from the native side.
   NativeMediaStreamTrack.fromMap(dynamic map) {
-    _methodChannel =
-        MethodChannel(channelNameWithId('MediaStreamTrack', map['channelId']));
+    _chan = methodChannel('MediaStreamTrack', map['channelId']);
     _id = map['id'];
     _deviceId = map['deviceId'];
     _kind = MediaKind.values[map['kind']];
@@ -35,7 +34,7 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   late String _deviceId;
 
   /// [MethodChannel] used for the messaging with a native side.
-  late MethodChannel _methodChannel;
+  late MethodChannel _chan;
 
   @override
   String id() {
@@ -59,13 +58,13 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
 
   @override
   Future<void> setEnabled(bool enabled) async {
-    await _methodChannel.invokeMethod('setEnabled', {'enabled': enabled});
+    await _chan.invokeMethod('setEnabled', {'enabled': enabled});
     _enabled = enabled;
   }
 
   @override
   Future<void> stop() async {
-    await _methodChannel.invokeMethod('stop');
+    await _chan.invokeMethod('stop');
   }
 
   // TODO(evdokimovs): implement disposing for native side
@@ -75,6 +74,6 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   @override
   Future<MediaStreamTrack> clone() async {
     return NativeMediaStreamTrack.fromMap(
-        await _methodChannel.invokeMethod('clone'));
+        await _chan.invokeMethod('clone'));
   }
 }

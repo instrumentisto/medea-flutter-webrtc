@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../video_renderer.dart';
-import '../video_view_object_fit.dart';
 import 'video_renderer.dart';
 
 class VideoView extends StatefulWidget {

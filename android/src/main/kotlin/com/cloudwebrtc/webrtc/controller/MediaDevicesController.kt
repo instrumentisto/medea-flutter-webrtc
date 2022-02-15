@@ -26,7 +26,7 @@ class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.withoutId("MediaDevices"))
+        MethodChannel(binaryMessenger, ChannelNameGenerator.name("MediaDevices", 0))
 
     init {
         methodChannel.setMethodCallHandler(this)

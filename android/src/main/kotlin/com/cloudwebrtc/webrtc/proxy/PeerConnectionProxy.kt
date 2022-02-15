@@ -15,7 +15,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import org.webrtc.SessionDescription as WSessionDescription
-
+// TODO(#34): dont do anything on libwebrtc threads
 /**
  * Wrapper around [PeerConnection].
  *
@@ -364,6 +364,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * creates [RtpSenderProxy]s for the new [RtpSender]s.
      */
     private fun syncSenders() {
+        // TODO(#34): whats the point?
         val newSenders = mutableMapOf<String, RtpSenderProxy>()
         val oldSenders = senders
 
@@ -386,6 +387,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * creates [RtpReceiverProxy]s for the new [RtpReceiver]s.
      */
     private fun syncReceivers() {
+        // TODO(#34): whats the point?
         val newReceivers = mutableMapOf<String, RtpReceiverProxy>()
         val oldReceivers = receivers
 

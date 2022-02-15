@@ -1,7 +1,6 @@
 package com.cloudwebrtc.webrtc.controller
 
 import com.cloudwebrtc.webrtc.model.RtpTransceiverDirection
-import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.RtpTransceiverProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -26,7 +25,7 @@ class RtpTransceiverController(
      * Channel which will be listened for the [MethodCall]s.
      */
     private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.withId("RtpTransceiver", channelId))
+        MethodChannel(binaryMessenger, ChannelNameGenerator.name("RtpTransceiver", channelId))
 
     init {
         methodChannel.setMethodCallHandler(this)

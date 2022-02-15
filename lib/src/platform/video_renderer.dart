@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '/src/universal/native/video_renderer.dart';
-import 'media_stream_track.dart';
+import '/src/platform/native/video_renderer.dart';
+import 'track.dart';
 
 export 'native/video_renderer.dart'
     if (dart.library.html) 'web/video_renderer.dart';
@@ -14,11 +14,13 @@ class RTCVideoValue {
     this.rotation = 0,
     this.renderVideo = false,
   });
+
   static const RTCVideoValue empty = RTCVideoValue();
   final double width;
   final double height;
   final int rotation;
   final bool renderVideo;
+
   double get aspectRatio {
     if (width == 0.0 || height == 0.0) {
       return 1.0;
@@ -59,11 +61,13 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
   set mirror(bool mirror);
 
   bool get renderVideo;
+
   int? get textureId;
 
   Future<void> initialize();
 
   MediaStreamTrack? get srcObject;
+
   set srcObject(MediaStreamTrack? track);
 
   @override
@@ -72,6 +76,11 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
     super.dispose();
     return Future.value();
   }
+}
+
+enum VideoViewObjectFit {
+  contain,
+  cover,
 }
 
 VideoRenderer createVideoRenderer() {

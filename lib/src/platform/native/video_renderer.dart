@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import '/src/api/utils/channel_name_generator.dart';
-import '/src/model/media_stream_track_state.dart';
-import '/src/universal/media_stream_track.dart';
-import '/src/universal/video_renderer.dart';
+import '/src/api/channel.dart';
+import '/src/model/track.dart';
+import '/src/platform/track.dart';
+import '/src/platform/video_renderer.dart';
 
 /// Cretes new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
@@ -13,8 +13,7 @@ VideoRenderer createPlatformSpecificVideoRenderer() {
 }
 
 /// [MethodChannel] for factory used for the messaging with a native side.
-const videoRendererFactoryMethodChannel =
-    MethodChannel('$channelTag/VideoRendererFactory');
+final _rendererFactoryChannel = methodChannel('VideoRendererFactory', 0);
 
 /// [VideoRenderer] implementation for the native.
 class NativeVideoRenderer extends VideoRenderer {
@@ -30,23 +29,22 @@ class NativeVideoRenderer extends VideoRenderer {
   MediaStreamTrack? _srcObject;
 
   /// Subscription to the events of this [NativeVideoRenderer].
-  StreamSubscription<dynamic>? _eventSubscription;
+  StreamSubscription<dynamic>? _eventChan;
 
   /// [MethodChannel] for the [NativeVideoRenderer] used for the messaging
   /// with a native side.
-  late MethodChannel _methodChannel;
+  late MethodChannel _chan;
 
   @override
   Future<void> initialize() async {
     final response =
-        await videoRendererFactoryMethodChannel.invokeMethod('create');
+        await _rendererFactoryChannel.invokeMethod('create');
     _textureId = response['textureId'];
     _channelId = response['channelId'];
-    _eventSubscription =
-        EventChannel('$channelTag/VideoRendererEvent/$_channelId')
-            .receiveBroadcastStream()
-            .listen(eventListener, onError: errorListener);
-    _methodChannel = MethodChannel('$channelTag/VideoRenderer/$_channelId');
+    _eventChan = eventChannel('VideoRendererEvent', _channelId)
+        .receiveBroadcastStream()
+        .listen(eventListener, onError: errorListener);
+    _chan = methodChannel('VideoRenderer', _channelId);
   }
 
   @override
@@ -76,7 +74,7 @@ class NativeVideoRenderer extends VideoRenderer {
     }
 
     _srcObject = track;
-    _methodChannel.invokeMethod('setSrcObject', {
+    _chan.invokeMethod('setSrcObject', {
       'trackId': track?.id(),
     }).then((_) {
       value = (track == null)
@@ -87,8 +85,8 @@ class NativeVideoRenderer extends VideoRenderer {
 
   @override
   Future<void> dispose() async {
-    await _eventSubscription?.cancel();
-    await _methodChannel.invokeMethod('dispose');
+    await _eventChan?.cancel();
+    await _chan.invokeMethod('dispose');
 
     await super.dispose();
   }

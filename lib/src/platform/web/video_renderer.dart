@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
 
-import '../media_stream_track.dart';
+import '../track.dart';
 import '../video_renderer.dart';
 import 'media_stream_track.dart';
 
