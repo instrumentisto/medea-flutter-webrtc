@@ -433,16 +433,22 @@ impl SetRemoteDescriptionObserver {
     }
 }
 
-/// Representation of a combination of an [RTCRtpSender] and an [RTCRtpReceiver]
-/// sharing a common [media stream "identification-tag"][1].
+/// Representation of a combination of an [`RtpSenderInterface`] and an
+/// [RTCRtpReceiver] sharing a common [media stream "identification-tag"][1].
 ///
-/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 pub struct RtpTransceiverInterface {
-    ptr: UniquePtr<webrtc::RtpTransceiverInterface>,
+    /// Pointer to the C++ side [`RtpTransceiverInterface`] object.
+    ///
+    /// [`RtpTransceiverInterface`]: webrtc::PeerConnectionInterface
+    inner: UniquePtr<webrtc::RtpTransceiverInterface>,
+
+    /// Configured [`MediaType`] of the current [`RtpTransceiverInterface`].
+    ///
+    /// It cannot be changed so it is fetched from the C++ side once and cached
+    /// here.
     media_type: MediaType,
-    sender: UniquePtr<webrtc::RtpSenderInterface>,
 }
 
 impl RtpTransceiverInterface {
@@ -451,7 +457,7 @@ impl RtpTransceiverInterface {
     /// [`mid`]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
     #[must_use]
     pub fn mid(&self) -> Option<String> {
-        let mid = webrtc::get_transceiver_mid(&self.ptr);
+        let mid = webrtc::get_transceiver_mid(&self.inner);
         (!mid.is_empty()).then(|| mid)
     }
 
@@ -460,81 +466,13 @@ impl RtpTransceiverInterface {
     /// [`direction`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
-        webrtc::get_transceiver_direction(&self.ptr)
+        webrtc::get_transceiver_direction(&self.inner)
     }
 
-    /// Gets the [`Transceiver`]'s [`MediaType`].
+    /// Returns the [`MediaType`] of this [`RtpTransceiverInterface`].
     #[must_use]
     pub fn media_type(&self) -> MediaType {
         self.media_type
-    }
-
-    /// Replaces the [`VideoTrackInterface`] to
-    /// the [`webrtc::RtpSenderInterface`].
-    pub fn replace_video_track(
-        &self,
-        track: &VideoTrackInterface,
-    ) -> anyhow::Result<()> {
-        let result = webrtc::replace_sender_video_track(&self.sender, &track.0);
-
-        if !result {
-            bail!(
-                "Fails trying to set `track`, `track` type should be `video`."
-            );
-        }
-
-        Ok(())
-    }
-
-    /// Sets the [`VideoTrackInterface`] as `null` to
-    /// the [`webrtc::RtpSenderInterface`].
-    pub fn set_no_video_track(&self) -> anyhow::Result<()> {
-        let result = webrtc::replace_sender_video_track(
-            &self.sender,
-            &UniquePtr::null(),
-        );
-
-        if !result {
-            bail!(
-                "Fails trying to set `track`, `track` type should be `video`."
-            );
-        }
-
-        Ok(())
-    }
-
-    /// Replaces the [`AudioTrackInterface`] to
-    /// the [`webrtc::RtpSenderInterface`].
-    pub fn replace_audio_track(
-        &self,
-        track: &AudioTrackInterface,
-    ) -> anyhow::Result<()> {
-        let result = webrtc::replace_sender_audio_track(&self.sender, &track.0);
-
-        if !result {
-            bail!(
-                "Fails trying to set `track`, `track` type should be `audio`."
-            );
-        }
-
-        Ok(())
-    }
-
-    /// Sets the [`AudioTrackInterface`] as `null` to
-    /// the [`webrtc::RtpSenderInterface`].
-    pub fn set_no_audio_track(&self) -> anyhow::Result<()> {
-        let result = webrtc::replace_sender_audio_track(
-            &self.sender,
-            &UniquePtr::null(),
-        );
-
-        if !result {
-            bail!(
-                "Fails trying to set `track`, `track` type should be `audio`."
-            );
-        }
-
-        Ok(())
     }
 
     /// Changes the preferred `direction` of this [`RtpTransceiverInterface`].
@@ -542,7 +480,7 @@ impl RtpTransceiverInterface {
         &self,
         direction: webrtc::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
-        let err = webrtc::set_transceiver_direction(&self.ptr, direction);
+        let err = webrtc::set_transceiver_direction(&self.inner, direction);
         if !err.is_empty() {
             bail!(
                 "`RtpTransceiverInterface->SetDirectionWithError()` call \
@@ -552,18 +490,69 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
+    /// Returns the [`RtpSenderInterface`] object responsible for encoding and
+    /// sending data to the remote peer.
+    #[must_use]
+    pub fn sender(&self) -> RtpSenderInterface {
+        RtpSenderInterface(webrtc::get_transceiver_sender(&self.inner))
+    }
+
     /// Irreversibly marks this [`RtpTransceiverInterface`] as stopping, unless
     /// it's already stopped.
     ///
     /// This will immediately cause this [`RtpTransceiverInterface`]'s sender to
     /// no longer send, and its receiver to no longer receive.
     pub fn stop(&self) -> anyhow::Result<()> {
-        let err = webrtc::stop_transceiver(&self.ptr);
+        let err = webrtc::stop_transceiver(&self.inner);
         if !err.is_empty() {
             bail!(
                 "`RtpTransceiverInterface->StopStandard()` call failed: {err}",
             );
         }
+        Ok(())
+    }
+}
+
+/// The [`RtpSenderInterface`] allows an application to control how a given
+/// [`MediaStreamTrack`][1]. is encoded and transmitted to a remote peer.
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+pub struct RtpSenderInterface(UniquePtr<webrtc::RtpSenderInterface>);
+
+impl RtpSenderInterface {
+    /// Replaces the track currently being used as the sender's source with a
+    /// new [`VideoTrackInterface`].
+    pub fn replace_video_track(
+        &self,
+        track: Option<&VideoTrackInterface>,
+    ) -> anyhow::Result<()> {
+        let success = webrtc::replace_sender_video_track(
+            &self.0,
+            track.map_or(&UniquePtr::null(), |t| &t.0),
+        );
+
+        if !success {
+            bail!("`RtpSenderInterface::SetTrack` failed");
+        }
+
+        Ok(())
+    }
+
+    /// Replaces the track currently being used as the sender's source with a
+    /// new [`AudioTrackInterface`].
+    pub fn replace_audio_track(
+        &self,
+        track: Option<&AudioTrackInterface>,
+    ) -> anyhow::Result<()> {
+        let success = webrtc::replace_sender_audio_track(
+            &self.0,
+            track.map_or(&UniquePtr::null(), |t| &t.0),
+        );
+
+        if !success {
+            bail!("`RtpSenderInterface::SetTrack` failed");
+        }
+
         Ok(())
     }
 }
@@ -636,19 +625,13 @@ impl PeerConnectionInterface {
         media_type: MediaType,
         direction: RtpTransceiverDirection,
     ) -> RtpTransceiverInterface {
-        let transceiver = webrtc::add_transceiver(
+        let inner = webrtc::add_transceiver(
             self.inner.pin_mut(),
             media_type,
             direction,
         );
 
-        let sender = webrtc::get_sender(&transceiver);
-
-        RtpTransceiverInterface {
-            ptr: transceiver,
-            media_type,
-            sender,
-        }
+        RtpTransceiverInterface { inner, media_type }
     }
 
     /// Returns a sequence of [`RtpTransceiverInterface`] objects representing
@@ -658,14 +641,9 @@ impl PeerConnectionInterface {
     pub fn get_transceivers(&self) -> Vec<RtpTransceiverInterface> {
         webrtc::get_transceivers(&self.inner)
             .into_iter()
-            .map(|transceiver| {
-                let media_type = webrtc::get_transceiver_type(&transceiver.ptr);
-                let sender = webrtc::get_sender(&transceiver.ptr);
-                RtpTransceiverInterface {
-                    ptr: transceiver.ptr,
-                    media_type,
-                    sender,
-                }
+            .map(|t| RtpTransceiverInterface {
+                media_type: webrtc::get_transceiver_media_type(&t.ptr),
+                inner: t.ptr,
             })
             .collect()
     }

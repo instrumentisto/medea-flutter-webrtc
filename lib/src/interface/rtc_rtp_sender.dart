@@ -10,25 +10,23 @@ import 'rtc_stats_report.dart';
 abstract class RTCRtpSender {
   RTCRtpSender();
 
-  // Future<bool> setParameters(RTCRtpParameters parameters);
+  Future<bool> setParameters(RTCRtpParameters parameters);
 
-  // Future<void> replaceTrack(MediaStreamTrack track);
+  Future<void> replaceTrack(MediaStreamTrack? track);
 
-  Future<void> setTrack(MediaStreamTrack? track);
+  Future<void> setTrack(MediaStreamTrack track, {bool takeOwnership = true});
 
   Future<List<StatsReport>> getStats();
 
-  Future<bool> hasTrack();
-
-  // RTCRtpParameters get parameters;
+  RTCRtpParameters get parameters;
 
   MediaStreamTrack? get track;
 
   String get senderId;
 
-  // bool get ownsTrack;
+  bool get ownsTrack;
 
-  // RTCDTMFSender get dtmfSender;
+  RTCDTMFSender get dtmfSender;
 
   @mustCallSuper
   Future<void> dispose();

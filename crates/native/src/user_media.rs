@@ -1,4 +1,4 @@
-use std::{ops::Deref, rc::Rc};
+use std::rc::Rc;
 
 use anyhow::bail;
 use derive_more::{AsRef, Display, From};
@@ -459,10 +459,12 @@ impl MediaStream {
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].
+#[derive(AsRef)]
 pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
     id: VideoTrackId,
 
+    #[as_ref]
     /// Underlying [`sys::VideoTrackInterface`].
     inner: sys::VideoTrackInterface,
 
@@ -519,20 +521,14 @@ impl VideoTrack {
     }
 }
 
-impl Deref for VideoTrack {
-    type Target = sys::VideoTrackInterface;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
 /// Representation of a [`sys::AudioSourceInterface`].
+#[derive(AsRef)]
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
     id: AudioTrackId,
 
     /// Underlying [`sys::AudioTrackInterface`].
+    #[as_ref]
     inner: sys::AudioTrackInterface,
 
     /// [`sys::AudioSourceInterface`] that is used by this [`AudioTrack`].
@@ -569,14 +565,6 @@ impl AudioTrack {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
-    }
-}
-
-impl Deref for AudioTrack {
-    type Target = sys::AudioTrackInterface;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
     }
 }
 
