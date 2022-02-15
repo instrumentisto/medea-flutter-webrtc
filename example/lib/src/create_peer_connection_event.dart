@@ -6,6 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc_example/src/get_user_media_sample.dart';
 
 
 class PeerConnectionSampleEvent extends StatefulWidget {
@@ -45,18 +46,30 @@ class _PeerConnectionSampleEvent extends State<PeerConnectionSampleEvent> {
       var trans = await pc1.addTransceiver(
         kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
 
-      // var pc2 = await createPeerConnection({});
+      final mediaConstraints = <String, dynamic>{
+        'audio': false,
+        'video': {
+          'mandatory': {},
+        }
+      };
+      
+      var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
-      // var offer = await pc1.createOffer();
-      // await pc1.setLocalDescription(offer);
-      // await pc2.setRemoteDescription(offer);
+      var track = stream.getTracks()[1];
+      await trans.sender.replaceTrack(track);
+      var pc2 = await createPeerConnection({});
+      var complete = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail');
+      pc2.onTrack = (RTCTrackEvent e) => {complete = Future.value('Success')};
 
-      // var answer = await pc2.createAnswer({});
-      // await pc2.setLocalDescription(answer);
-      // await pc1.setRemoteDescription(answer);
+      await pc2.setRemoteDescription(await pc1.createOffer({}));
+      var result = await complete;
 
       setState(() {
-        text = 'test is success';
+        if (result == 'Success') {
+          text = 'test is success';
+        } else {
+          text = 'Fail. timeout';
+        }
       });
 
     } catch (e) {

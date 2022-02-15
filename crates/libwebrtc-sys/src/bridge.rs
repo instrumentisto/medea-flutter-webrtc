@@ -837,6 +837,7 @@ pub(crate) mod webrtc {
 
         /// Returns a [`RtpSenderInterface`] of the given
         /// [`RtpTransceiverInterface`].
+        #[must_use]
         pub fn get_transceiver_sender(
             transceiver: &RtpTransceiverInterface
         ) -> UniquePtr<RtpSenderInterface>;
@@ -1067,14 +1068,14 @@ pub(crate) mod webrtc {
         /// [`VideoTrackInterface`].
         #[must_use]
         pub fn media_stream_track_interface_downcast_video_track(
-            track: Pin<&mut MediaStreamTrackInterface>,
+            track: UniquePtr<MediaStreamTrackInterface>,
         ) -> UniquePtr<VideoTrackInterface>;
 
         /// Downcasts [`MediaStreamTrackInterface`] to
         /// [`AudioTrackInterface`].
         #[must_use]
         pub fn media_stream_track_interface_downcast_audio_track(
-            track: Pin<&mut MediaStreamTrackInterface>,
+            track: UniquePtr<MediaStreamTrackInterface>,
         ) -> UniquePtr<AudioTrackInterface>;
 
         /// Returns a `cname` of the given [`RtcpParameters`].

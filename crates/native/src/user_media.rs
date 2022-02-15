@@ -1,11 +1,9 @@
 extern crate owning_ref;
 
-use owning_ref::MutexGuardRefMut;
-
 use anyhow::bail;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
-use std::{collections::HashMap, rc::Rc};
+use std::rc::Rc;
 
 use sys::{AudioTrackInterface, VideoTrackInterface};
 
@@ -39,7 +37,7 @@ impl Webrtc {
                 .unwrap();
             let track = self.create_video_track(source).unwrap();
 
-            stream.add_video_track(&track).unwrap();
+            stream.add_video_track(track).unwrap();
             result.video_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
                 label: track.label.0.clone(),
@@ -52,7 +50,7 @@ impl Webrtc {
                 self.get_or_create_audio_source(&constraints.audio).unwrap();
             let track = self.create_audio_track(source).unwrap();
 
-            stream.add_audio_track(&track).unwrap();
+            stream.add_audio_track(track).unwrap();
             result.audio_tracks.push(api::MediaStreamTrack {
                 id: track.id.0,
                 label: track.label.0.clone(),
@@ -81,14 +79,7 @@ impl Webrtc {
             let audio_tracks = stream.audio_tracks;
 
             for track in video_tracks {
-                let src = self
-                    .0
-                    .video_tracks
-                    .lock()
-                    .unwrap()
-                    .remove(&track)
-                    .unwrap()
-                    .src;
+                let src = self.0.video_tracks.remove(&track).unwrap().src;
 
                 if Rc::strong_count(&src) == 2 {
                     self.0.video_sources.remove(&src.device_id);
@@ -96,14 +87,7 @@ impl Webrtc {
             }
 
             for track in audio_tracks {
-                let src = self
-                    .0
-                    .audio_tracks
-                    .lock()
-                    .unwrap()
-                    .remove(&track)
-                    .unwrap()
-                    .src;
+                let src = self.0.audio_tracks.remove(&track).unwrap().src;
 
                 if Rc::strong_count(&src) == 2 {
                     self.0.audio_source.take();
@@ -118,9 +102,7 @@ impl Webrtc {
     fn create_video_track(
         &mut self,
         source: Rc<VideoSource>,
-    ) -> anyhow::Result<
-        MutexGuardRefMut<HashMap<VideoTrackId, VideoTrack>, VideoTrack>,
-    > {
+    ) -> anyhow::Result<&mut VideoTrack> {
         let track = if source.is_display {
             // TODO: Support screens enumeration.
             VideoTrack::new(
@@ -149,8 +131,7 @@ impl Webrtc {
             )?
         };
 
-        let track = MutexGuardRefMut::new(self.0.video_tracks.lock().unwrap())
-            .map_mut(|vt| vt.entry(track.id).or_insert(track));
+        let track = self.0.video_tracks.entry(track.id).or_insert(track);
         Ok(track)
     }
 
@@ -218,9 +199,7 @@ impl Webrtc {
     fn create_audio_track(
         &mut self,
         source: Rc<sys::AudioSourceInterface>,
-    ) -> anyhow::Result<
-        MutexGuardRefMut<HashMap<AudioTrackId, AudioTrack>, AudioTrack>,
-    > {
+    ) -> anyhow::Result<&mut AudioTrack> {
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
         let device_id = self
@@ -253,8 +232,7 @@ impl Webrtc {
             ),
         )?;
 
-        let track = MutexGuardRefMut::new(self.0.audio_tracks.lock().unwrap())
-            .map_mut(|vt| vt.entry(track.id).or_insert(track));
+        let track = self.0.audio_tracks.entry(track.id).or_insert(track);
         Ok(track)
     }
 
@@ -331,13 +309,9 @@ impl Webrtc {
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(&mut self, id: u64, enabled: bool) {
-        if let Some(track) =
-            self.0.video_tracks.lock().unwrap().get(&VideoTrackId(id))
-        {
+        if let Some(track) = self.0.video_tracks.get(&VideoTrackId(id)) {
             track.inner.set_enabled(enabled);
-        } else if let Some(track) =
-            self.0.audio_tracks.lock().unwrap().get(&AudioTrackId(id))
-        {
+        } else if let Some(track) = self.0.audio_tracks.get(&AudioTrackId(id)) {
             track.set_enabled(enabled);
         } else {
             // TODO: Return error.
