@@ -606,15 +606,10 @@ void SenderReplaceTrack(
   std::string track_id_string = findString(params, "trackId");
   uint64_t track_id = track_id_string.empty() ? 0 : std::stoi(track_id_string);
 
-  webrtc->SenderReplaceTrack(
-      std::stoi(findString(params, "peerConnectionId")),
-      std::stoi(findString(params, "transceiverId")),
-      track_id);
-
   rust::String error = webrtc->SenderReplaceTrack(
                              std::stoi(findString(params, "peerConnectionId")),
                              std::stoi(findString(params, "transceiverId")),
-                             track_id == -1 ? 0 : track_id);
+                             track_id);
 
   if (error.empty()) {
     result->Success();
