@@ -28,14 +28,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       var pc1 = await createPeerConnection({});
       var pc2 = await createPeerConnection({});
 
-      pc1.onRenegotiationNeeded = () async {
-        print('negot1');
-      };
-
-      pc2.onRenegotiationNeeded = () async {
-        print('negot2');
-      };
-
       pc1.onIceCandidate = (RTCIceCandidate candidate) async {
         await pc2.addCandidate(candidate);
       };
