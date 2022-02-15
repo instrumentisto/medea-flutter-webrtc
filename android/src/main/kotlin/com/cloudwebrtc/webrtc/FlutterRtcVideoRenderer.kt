@@ -1,6 +1,8 @@
 package com.cloudwebrtc.webrtc
 
 import android.graphics.SurfaceTexture
+import android.os.Handler
+import android.os.Looper
 import com.cloudwebrtc.webrtc.proxy.VideoTrackProxy
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import io.flutter.view.TextureRegistry
@@ -149,19 +151,25 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
             private var height: Int = 0
 
             override fun onFirstFrameRendered() {
-                eventListener?.onFirstFrameRendered(id)
+                Handler(Looper.getMainLooper()).post {
+                    eventListener?.onFirstFrameRendered(id)
+                }
             }
 
             override fun onFrameResolutionChanged(newWidth: Int, newHeight: Int, newRotation: Int) {
                 if (newWidth != width || newHeight != height) {
                     width = newWidth
                     height = newHeight
-                    eventListener?.onTextureChangeVideoSize(id, height, width)
+                    Handler(Looper.getMainLooper()).post {
+                        eventListener?.onTextureChangeVideoSize(id, height, width)
+                    }
                 }
 
                 if (newRotation != rotation) {
                     rotation = newRotation
-                    eventListener?.onTextureChangeRotation(id, rotation)
+                    Handler(Looper.getMainLooper()).post {
+                        eventListener?.onTextureChangeRotation(id, rotation)
+                    }
                 }
             }
         }

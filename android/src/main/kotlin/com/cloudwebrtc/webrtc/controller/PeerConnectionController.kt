@@ -9,7 +9,9 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Controller for the [PeerConnectionProxy] functional.
@@ -122,15 +124,14 @@ class PeerConnectionController(
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        // TODO(#34): dont block
         when (call.method) {
             "createOffer" -> {
-                runBlocking {
+                GlobalScope.launch(Dispatchers.Main) {
                     result.success(peer.createOffer().intoMap())
                 }
             }
             "createAnswer" -> {
-                runBlocking {
+                GlobalScope.launch(Dispatchers.Main) {
                     result.success(peer.createAnswer().intoMap())
                 }
             }
@@ -141,24 +142,24 @@ class PeerConnectionController(
                 } else {
                     SessionDescription.fromMap(descriptionArg)
                 }
-                runBlocking {
+                GlobalScope.launch(Dispatchers.Main) {
                     peer.setLocalDescription(description)
+                    result.success(null)
                 }
-                result.success(null)
             }
             "setRemoteDescription" -> {
                 val descriptionArg: Map<String, Any> = call.argument("description")!!
-                runBlocking {
+                GlobalScope.launch(Dispatchers.Main) {
                     peer.setRemoteDescription(SessionDescription.fromMap(descriptionArg))
+                    result.success(null)
                 }
-                result.success(null)
             }
             "addIceCandidate" -> {
                 val candidate: Map<String, Any> = call.argument("candidate")!!
-                runBlocking {
+                GlobalScope.launch(Dispatchers.Main) {
                     peer.addIceCandidate(IceCandidate.fromMap(candidate))
+                    result.success(null)
                 }
-                result.success(null)
             }
             "addTransceiver" -> {
                 val mediaType = MediaType.fromInt(call.argument("mediaType")!!)

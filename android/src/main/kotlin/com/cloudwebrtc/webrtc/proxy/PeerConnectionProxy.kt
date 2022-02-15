@@ -1,5 +1,7 @@
 package com.cloudwebrtc.webrtc.proxy
 
+import android.os.Handler
+import android.os.Looper
 import com.cloudwebrtc.webrtc.exception.AddIceCandidateException
 import com.cloudwebrtc.webrtc.exception.CreateSdpException
 import com.cloudwebrtc.webrtc.exception.SetSdpException
@@ -15,7 +17,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import org.webrtc.SessionDescription as WSessionDescription
-// TODO(#34): dont do anything on libwebrtc threads
+
 /**
  * Wrapper around [PeerConnection].
  *
@@ -211,31 +213,45 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
                 track: MediaStreamTrackProxy,
                 transceiver: RtpTransceiverProxy
             ) {
-                eventObservers.forEach { it.onTrack(track, transceiver) }
+                Handler(Looper.getMainLooper()).post {
+                    eventObservers.forEach { it.onTrack(track, transceiver) }
+                }
             }
 
             override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
-                eventObservers.forEach { it.onIceConnectionStateChange(iceConnectionState) }
+                Handler(Looper.getMainLooper()).post {
+                    eventObservers.forEach { it.onIceConnectionStateChange(iceConnectionState) }
+                }
             }
 
             override fun onSignalingStateChange(signalingState: SignalingState) {
-                eventObservers.forEach { it.onSignalingStateChange(signalingState) }
+                Handler(Looper.getMainLooper()).post {
+                    eventObservers.forEach { it.onSignalingStateChange(signalingState) }
+                }
             }
 
             override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
-                eventObservers.forEach { it.onConnectionStateChange(peerConnectionState) }
+                Handler(Looper.getMainLooper()).post {
+                    eventObservers.forEach { it.onConnectionStateChange(peerConnectionState) }
+                }
             }
 
             override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
-                eventObservers.forEach { it.onIceGatheringStateChange(iceGatheringState) }
+                Handler(Looper.getMainLooper()).post {
+                    eventObservers.forEach { it.onIceGatheringStateChange(iceGatheringState) }
+                }
             }
 
             override fun onIceCandidate(candidate: IceCandidate) {
-                eventObservers.forEach { it.onIceCandidate(candidate) }
+                Handler(Looper.getMainLooper()).post {
+                    eventObservers.forEach { it.onIceCandidate(candidate) }
+                }
             }
 
             override fun onNegotiationNeeded() {
-                eventObservers.forEach { it.onNegotiationNeeded() }
+                Handler(Looper.getMainLooper()).post {
+                    eventObservers.forEach { it.onNegotiationNeeded() }
+                }
             }
         }
     }
@@ -364,20 +380,15 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * creates [RtpSenderProxy]s for the new [RtpSender]s.
      */
     private fun syncSenders() {
-        // TODO(#34): whats the point?
-        val newSenders = mutableMapOf<String, RtpSenderProxy>()
-        val oldSenders = senders
-
         val peerSenders = obj.senders
         for (peerSender in peerSenders) {
             val peerSenderId = peerSender.id()
 
-            val oldSender = oldSenders.remove(peerSenderId)
+            val oldSender = senders[peerSenderId]
             if (oldSender == null) {
-                newSenders[peerSenderId] = RtpSenderProxy(peerSender)
+                senders[peerSenderId] = RtpSenderProxy(peerSender)
             } else {
                 oldSender.updateObject(peerSender)
-                newSenders[peerSenderId] = oldSender
             }
         }
     }
@@ -387,20 +398,15 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * creates [RtpReceiverProxy]s for the new [RtpReceiver]s.
      */
     private fun syncReceivers() {
-        // TODO(#34): whats the point?
-        val newReceivers = mutableMapOf<String, RtpReceiverProxy>()
-        val oldReceivers = receivers
-
         val peerReceivers = obj.receivers
         for (peerReceiver in peerReceivers) {
             val peerReceiverId = peerReceiver.id()
 
-            val oldReceiver = oldReceivers.remove(peerReceiverId)
+            val oldReceiver = receivers[peerReceiverId]
             if (oldReceiver == null) {
-                newReceivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
+                receivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
             } else {
                 oldReceiver.updateObject(peerReceiver)
-                newReceivers[peerReceiverId] = oldReceiver
             }
         }
     }
