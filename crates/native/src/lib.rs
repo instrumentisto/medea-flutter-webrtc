@@ -56,7 +56,7 @@ pub mod api {
 
     /// Serialized `MediaTrack` for writes in flutter.
     pub struct TrackInterfaceSerialized {
-        channel_id: i32,
+        channel_id: i64,
         id: String,
         device_id: String,
         kind: String,
@@ -64,13 +64,13 @@ pub mod api {
 
     /// Serialized ` RtpSender` for writes in flutter.
     pub struct RtpSenderInterfaceSerialized {
-        channel_id: i32,
+        channel_id: i64,
     }
 
     /// Serialized `RtpTransceiver` for writes in flutter.
     pub struct RtpTransceiverInterfaceSerialized {
         sender: RtpSenderInterfaceSerialized,
-        channel_id: i32,
+        channel_id: i64,
 
         /// `mid` is optional field.
         /// if `mid` == "" then mid is None
@@ -468,18 +468,19 @@ impl From<&Sys_AudioTrackInterface> for TrackInterfaceSerialized {
 
 impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
     fn from(track: &MediaStreamTrackInterface) -> Self {
+
         TrackInterfaceSerialized {
             id: get_media_stream_track_id(track).to_string(),
             kind: get_media_stream_track_kind(track).to_string(),
-            channel_id: 0, // todo add actual id
-            device_id: "".to_owned(),
+            channel_id: next_id() as i64,
+            device_id: "remote".to_owned(),
         }
     }
 }
 
 impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
     fn from(_: &RtpSenderInterface) -> Self {
-        RtpSenderInterfaceSerialized { channel_id: 0 } // todo add actual id
+        RtpSenderInterfaceSerialized { channel_id: next_id() as i64 }
     }
 }
 
@@ -490,7 +491,7 @@ impl From<&Sys_RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
             sender: RtpSenderInterfaceSerialized::from(
                 &sender as &RtpSenderInterface,
             ),
-            channel_id: 0, // todo add actual id
+            channel_id: next_id() as i64,
             mid: get_transceiver_mid(transceiver),
         }
     }
