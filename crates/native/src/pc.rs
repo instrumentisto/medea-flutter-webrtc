@@ -636,10 +636,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 inner,
                 VideoTrackSourceInterface::from(source),
             );
-            self.remote_video_tracks
-                .lock()
-                .unwrap()
-                .insert(id, v);
+            self.remote_video_tracks.lock().unwrap().insert(id, v);
         } else {
             let inner = AudioTrackInterface::from(
                 media_stream_track_interface_downcast_audio_track(track),
@@ -649,10 +646,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 inner,
                 AudioSourceInterface::from(source),
             );
-            self.remote_audio_tracks
-                .lock()
-                .unwrap()
-                .insert(id, a);
+            self.remote_audio_tracks.lock().unwrap().insert(id, a);
         }
 
         let track = get_rtp_receiver_track(&receiver);

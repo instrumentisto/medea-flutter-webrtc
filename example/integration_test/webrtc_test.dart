@@ -138,16 +138,23 @@ void main() {
   });
 
     testWidgets('Peer connection', (WidgetTester tester) async {
-      var pc1 = await createPeerConnection({});
-      var pc2 = await createPeerConnection({});
+      var result = 'Success';
 
-      var offer = await pc1.createOffer();
-      await pc1.setLocalDescription(offer);
-      await pc2.setRemoteDescription(offer);
+      try {
+        var pc1 = await createPeerConnection({});
+        var pc2 = await createPeerConnection({});
 
-      var answer = await pc2.createAnswer({});
-      await pc2.setLocalDescription(answer);
-      await pc1.setRemoteDescription(answer);
+        var offer = await pc1.createOffer();
+        await pc1.setLocalDescription(offer);
+        await pc2.setRemoteDescription(offer);
+
+        var answer = await pc2.createAnswer({});
+        await pc2.setLocalDescription(answer);
+        await pc1.setRemoteDescription(answer);
+      } catch (e) {
+        result = e.toString();
+      }
+      expect(result, equals('Success'));
   });
 
     testWidgets('Peer connection event on track', (WidgetTester tester) async {
@@ -172,7 +179,7 @@ void main() {
       var complete = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail');
       pc2.onTrack = (RTCTrackEvent e) => {complete = Future.value('Success')};
       await pc2.setRemoteDescription(await pc1.createOffer({}));
-      
+
       var result = await complete;
       expect(result, equals('Success'));
   });
