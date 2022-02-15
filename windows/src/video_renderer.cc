@@ -1,7 +1,7 @@
+#include "video_renderer.h"
 #include "flutter/method_channel.h"
 #include "flutter/standard_method_codec.h"
 #include "flutter_webrtc_native.h"
-#include "video_renderer.h"
 #include "parsing.h"
 
 namespace flutter_webrtc_plugin {
@@ -28,9 +28,9 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
 
 // Changes a media source of the specific `TextureVideoRenderer`.
 void FlutterVideoRendererManager::SetMediaStream(
+    Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
-    rust::Box<Webrtc>& webrtc,
-    std::unique_ptr<MethodResult<EncodableValue>> result) {
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -42,9 +42,8 @@ void FlutterVideoRendererManager::SetMediaStream(
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
     if (stream_id != "") {
-      webrtc->CreateVideoSink(
-          texture_id, (uint64_t) std::stoi(stream_id),
-          std::make_unique<FrameHandler>(it->second));
+      webrtc->CreateVideoSink(texture_id, (uint64_t)std::stoi(stream_id),
+                              std::make_unique<FrameHandler>(it->second));
     } else {
       webrtc->DisposeVideoSink(texture_id);
       it->second.get()->ResetRenderer();
@@ -56,9 +55,9 @@ void FlutterVideoRendererManager::SetMediaStream(
 
 // Disposes the specific `TextureVideoRenderer`.
 void FlutterVideoRendererManager::VideoRendererDispose(
+    Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
-    rust::Box<Webrtc>& webrtc,
-    std::unique_ptr<MethodResult<EncodableValue>> result) {
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -95,26 +94,27 @@ TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
   event_channel_.reset(new EventChannel<EncodableValue>(
       messenger, event_channel, &StandardMethodCodec::GetInstance()));
 
-  auto handler = std::make_unique < StreamHandlerFunctions < EncodableValue >> (
+  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
       [&](const flutter::EncodableValue* arguments,
           std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
           -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
         event_sink_ = std::move(events);
         return nullptr;
       },
-          [&](const flutter::EncodableValue* arguments)
-              -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-            event_sink_ = nullptr;
-            return nullptr;
-          });
+      [&](const flutter::EncodableValue* arguments)
+          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
+        event_sink_ = nullptr;
+        return nullptr;
+      });
 
   event_channel_->SetStreamHandler(std::move(handler));
 }
 
 // Constructs and returns `FlutterDesktopPixelBuffer` from the current
 // `VideoFrame`.
-FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(size_t width,
-                                                                 size_t height) {
+FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
+    size_t width,
+    size_t height) {
   mutex_.lock();
   if (pixel_buffer_.get() && frame_) {
     if (pixel_buffer_->width != frame_->width ||
@@ -158,7 +158,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       params[EncodableValue("event")] = "didTextureChangeRotation";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       params[EncodableValue("rotation")] =
-          EncodableValue((int32_t) frame.rotation);
+          EncodableValue((int32_t)frame.rotation);
       event_sink_->Success(EncodableValue(params));
     }
     rotation_ = frame.rotation;
@@ -169,9 +169,8 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       EncodableMap params;
       params[EncodableValue("event")] = "didTextureChangeVideoSize";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
-      params[EncodableValue("width")] = EncodableValue((int32_t) frame.width);
-      params[EncodableValue("height")] =
-          EncodableValue((int32_t) frame.height);
+      params[EncodableValue("width")] = EncodableValue((int32_t)frame.width);
+      params[EncodableValue("height")] = EncodableValue((int32_t)frame.height);
       event_sink_->Success(EncodableValue(params));
     }
     last_frame_size_ = {frame.width, frame.height};
@@ -193,8 +192,7 @@ void TextureVideoRenderer::ResetRenderer() {
 }
 
 // Creates a new `FrameHandler`.
-FrameHandler::FrameHandler(
-    std::shared_ptr<TextureVideoRenderer> ctx) {
+FrameHandler::FrameHandler(std::shared_ptr<TextureVideoRenderer> ctx) {
   renderer_ = std::move(ctx);
 }
 
