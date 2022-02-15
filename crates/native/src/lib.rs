@@ -24,8 +24,8 @@ use libwebrtc_sys::{
     get_media_stream_track_kind, get_transceiver_mid, get_transceiver_sender,
     video_track_media_stream_track_upcast, AudioLayer, AudioSourceInterface,
     MediaStreamTrackInterface, PeerConnectionFactoryInterface,
-    RtpSenderInterface, Sys_AudioTrackInterface, Sys_RtpTransceiverInterface,
-    Sys_VideoTrackInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
+    Sys_AudioTrackInterface, Sys_RtpTransceiverInterface,
+    Sys_VideoTrackInterface, TaskQueueFactory, Thread, VideoDeviceInfo, Sys_RtpSenderInterface,
 };
 
 use crate::video_sink::Id as VideoSinkId;
@@ -42,7 +42,7 @@ pub use crate::{
 };
 
 /// Counter used to generate unique IDs.
-static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
+static ID_COUNTER: AtomicU64 = AtomicU64::new(1);
 
 /// Returns a next unique ID.
 pub(crate) fn next_id() -> u64 {
@@ -271,9 +271,9 @@ pub mod api {
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a new [`PeerConnection`] and returns it's ID.
+        /// Creates a new [`PeerConnection`] and returns its ID.
         ///
-        /// Writes an error to the provided `err` if any.
+        /// Writes an error to the provided `err`, if any.
         #[cxx_name = "CreatePeerConnection"]
         pub fn create_peer_connection(
             self: &mut Webrtc,
@@ -284,7 +284,7 @@ pub mod api {
         /// Initiates the creation of an SDP offer for the purpose of starting
         /// a new WebRTC connection to a remote peer.
         ///
-        /// Returns an empty [`String`] in operation succeeds or an error
+        /// Returns an empty [`String`] if operation succeeds or an error
         /// otherwise.
         #[cxx_name = "CreateOffer"]
         pub fn create_offer(
@@ -408,6 +408,16 @@ pub mod api {
             transceiver_id: u64,
         );
 
+        /// Replaces the [`AudioTrack`] or the [`VideoTrack`] on
+        /// the [`sys::Transceiver`]'s `sender`.
+        #[cxx_name = "SenderReplaceTrack"]
+        pub fn sender_replace_track(
+            self: &mut Webrtc,
+            peer_id: u64,
+            transceiver_id: u64,
+            track_id: u64,
+        ) -> String;
+
         /// Creates a [`MediaStream`] with tracks according to provided
         /// [`MediaStreamConstraints`].
         #[cxx_name = "GetMedia"]
@@ -478,8 +488,8 @@ impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
     }
 }
 
-impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
-    fn from(_: &RtpSenderInterface) -> Self {
+impl From<&Sys_RtpSenderInterface> for RtpSenderInterfaceSerialized {
+    fn from(_: &Sys_RtpSenderInterface) -> Self {
         RtpSenderInterfaceSerialized { channel_id: next_id() as i64 }
     }
 }
@@ -489,7 +499,7 @@ impl From<&Sys_RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
         let sender = get_transceiver_sender(transceiver);
         RtpTransceiverInterfaceSerialized {
             sender: RtpSenderInterfaceSerialized::from(
-                &sender as &RtpSenderInterface,
+                &sender as &Sys_RtpSenderInterface,
             ),
             channel_id: next_id() as i64,
             mid: get_transceiver_mid(transceiver),

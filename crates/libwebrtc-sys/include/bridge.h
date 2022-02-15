@@ -9,14 +9,14 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
+#include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
-#include "rust/cxx.h"
-#include "device_video_capturer.h"
 #include "peer_connection_observer.h"
+#include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
 
@@ -58,6 +58,7 @@ using PeerConnectionInterface =
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>;
 using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
+using RtpSenderInterface = rtc::scoped_refptr<webrtc::RtpSenderInterface>;
 using VideoTrackInterface = rtc::scoped_refptr<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface =
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>;
@@ -219,18 +220,6 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
     rust::Box<DynOnFrameCallback> handler);
 
 
-// Creates a new `RTCOfferAnswerOptions`.
-std::unique_ptr<RTCOfferAnswerOptions>
-create_default_rtc_offer_answer_options();
-
-// Creates a new `RTCOfferAnswerOptions`.
-std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
-    int32_t offer_to_receive_video,
-    int32_t offer_to_receive_audio,
-    bool voice_activity_detection,
-    bool ice_restart,
-    bool use_rtp_mux);
-
 // Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
 // writes the result to the provided `dst_abgr`.
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr);
@@ -260,6 +249,18 @@ std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
 // Creates a new `PeerConnectionDependencies`.
 std::unique_ptr<PeerConnectionDependencies> create_peer_connection_dependencies(
     const std::unique_ptr<PeerConnectionObserver>& observer);
+
+// Creates a new `RTCOfferAnswerOptions`.
+std::unique_ptr<RTCOfferAnswerOptions>
+create_default_rtc_offer_answer_options();
+
+// Creates a new `RTCOfferAnswerOptions`.
+std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
+    int32_t offer_to_receive_video,
+    int32_t offer_to_receive_audio,
+    bool voice_activity_detection,
+    bool ice_restart,
+    bool use_rtp_mux);
 
 // Creates a new `CreateSessionDescriptionObserver` from the provided
 // `bridge::DynCreateSdpCallback`.
@@ -400,6 +401,9 @@ rust::Vec<TransceiverContainer> get_transceivers(
 rust::String get_transceiver_mid(
     const RtpTransceiverInterface& transceiver);
 
+// Returns a `MediaType` of the given `RtpTransceiverInterface`.
+MediaType get_transceiver_media_type(const RtpTransceiverInterface& transceiver);
+
 // Returns a `direction` of the given `RtpTransceiverInterface`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
@@ -429,5 +433,17 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 // of the given `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
     const RtpCodecParameters& codec);
+
+// Replaces the track currently being used as the sender's source with a new
+// `VideoTrackInterface`.
+bool replace_sender_video_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<VideoTrackInterface>& track);
+
+// Replaces the track currently being used as the sender's source with a new
+// `AudioTrackInterface`.
+bool replace_sender_audio_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<AudioTrackInterface>& track);
 
 }  // namespace bridge

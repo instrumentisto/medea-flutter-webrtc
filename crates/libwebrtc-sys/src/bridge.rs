@@ -496,8 +496,6 @@ pub(crate) mod webrtc {
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/rtp_sender_interface_getters.h");
 
-        type RtpSenderInterface;
-
         /// Returns a `id`
         /// of the given [`RtpSenderInterface`].
         #[must_use]
@@ -648,6 +646,7 @@ pub(crate) mod webrtc {
         type RTCOfferAnswerOptions;
         type RtpTransceiverDirection;
         type RtpTransceiverInterface;
+        type RtpSenderInterface;
         type SdpType;
         type SessionDescriptionInterface;
         type SetLocalDescriptionObserver;
@@ -793,6 +792,11 @@ pub(crate) mod webrtc {
             peer_connection_interface: &PeerConnectionInterface
         ) -> Vec<TransceiverContainer>;
 
+        /// Returns a [`MediaType`] of the given [`RtpTransceiverInterface`].
+        pub fn get_transceiver_media_type(
+            transceiver: &RtpTransceiverInterface
+        ) -> MediaType;
+
         /// Returns a `mid` of the given [`RtpTransceiverInterface`].
         ///
         /// If an empty [`String`] is returned, then the given
@@ -807,15 +811,6 @@ pub(crate) mod webrtc {
         pub fn get_transceiver_direction(
             transceiver: &RtpTransceiverInterface
         ) -> RtpTransceiverDirection;
-
-
-        /// Returns a [`RtpSenderInterface`] of the given
-        /// [`RtpTransceiverInterface`].
-        #[must_use]
-        pub fn get_transceiver_sender(
-            transceiver: &RtpTransceiverInterface,
-        ) -> UniquePtr<RtpSenderInterface>;
-
 
         /// Returns a [`RtpReceiverInterface`] of the given
         /// [`RtpTransceiverInterface`].
@@ -839,6 +834,26 @@ pub(crate) mod webrtc {
         pub fn stop_transceiver(
             transceiver: &RtpTransceiverInterface,
         ) -> String;
+
+        /// Returns a [`RtpSenderInterface`] of the given
+        /// [`RtpTransceiverInterface`].
+        pub fn get_transceiver_sender(
+            transceiver: &RtpTransceiverInterface
+        ) -> UniquePtr<RtpSenderInterface>;
+
+        /// Replaces the track currently being used as the sender's source with
+        /// a new [`VideoTrackInterface`].
+        pub fn replace_sender_video_track(
+            sender: &RtpSenderInterface,
+            track: &UniquePtr<VideoTrackInterface>
+        ) -> bool;
+
+        /// Replaces the track currently being used as the sender's source with
+        /// a new [`AudioTrackInterface`].
+        pub fn replace_sender_audio_track(
+            sender: &RtpSenderInterface,
+            track: &UniquePtr<AudioTrackInterface>
+        ) -> bool;
     }
 
     unsafe extern "C++" {

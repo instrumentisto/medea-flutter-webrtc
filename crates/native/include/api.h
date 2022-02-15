@@ -3,6 +3,7 @@
 #include <memory>
 
 struct VideoFrame;
+struct OnTrackSerialized;
 
 // Completion callback for the `Webrtc::CreateOffer` and `Webrtc::CreateAnswer`
 // functions.
@@ -29,18 +30,6 @@ class SetDescriptionCallbackInterface {
 
   virtual ~SetDescriptionCallbackInterface() = default;
 };
-
-namespace rust {
-  inline namespace cxxbridge1 {
-    template <typename T>
-    class Vec;
-    class String;
-  }
-}
-struct CandidatePairChangeEventSerialized;
-struct RtpReceiverInterfaceSerialized;
-struct OnTrackSerialized;
-
 
 // Callback for video frames handlers provided to the
 // `Webrtc::create_video_sink()` function.
