@@ -8,11 +8,11 @@ import io.flutter.plugin.common.MethodChannel
 /**
  * Controller for the [MediaStreamTrackProxy] functional.
  *
- * @property binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @property messenger messenger used for creating new [MethodChannel]s.
  * @property track underlying [MediaStreamTrackProxy] on which method calls will be performed.
  */
 class MediaStreamTrackController(
-    private val binaryMessenger: BinaryMessenger,
+    private val messenger: BinaryMessenger,
     private val track: MediaStreamTrackProxy
 ) : MethodChannel.MethodCallHandler, IdentifiableController {
     /**
@@ -23,13 +23,13 @@ class MediaStreamTrackController(
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
-    private val methodChannel: MethodChannel = MethodChannel(
-        binaryMessenger,
+    private val chan: MethodChannel = MethodChannel(
+        messenger,
         ChannelNameGenerator.name("MediaStreamTrack", channelId)
     )
 
     init {
-        methodChannel.setMethodCallHandler(this)
+        chan.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -50,13 +50,13 @@ class MediaStreamTrackController(
             "clone" -> {
                 result.success(
                     MediaStreamTrackController(
-                        binaryMessenger,
+                        messenger,
                         track.fork()
                     ).asFlutterResult()
                 )
             }
             "dispose" -> {
-                dispose()
+                chan.setMethodCallHandler(null)
                 result.success(null)
             }
         }
@@ -73,11 +73,4 @@ class MediaStreamTrackController(
         "kind" to track.kind().value,
         "deviceId" to track.deviceId()
     )
-
-    /**
-     * Closes method channel of this [MediaStreamTrackController].
-     */
-    private fun dispose() {
-        methodChannel.setMethodCallHandler(null)
-    }
 }

@@ -23,7 +23,8 @@ class PeerConnectionController(
     private val messenger: BinaryMessenger,
     private val peer: PeerConnectionProxy
 ) :
-    MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+    MethodChannel.MethodCallHandler, EventChannel.StreamHandler,
+    IdentifiableController {
     /**
      * Unique ID of the [MethodChannel] of this controller.
      */
@@ -32,14 +33,20 @@ class PeerConnectionController(
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
-    private val methodChannel: MethodChannel =
-        MethodChannel(messenger, ChannelNameGenerator.name("PeerConnection", channelId))
+    private val chan: MethodChannel =
+        MethodChannel(
+            messenger,
+            ChannelNameGenerator.name("PeerConnection", channelId)
+        )
 
     /**
      * Event channel into which all [PeerConnectionProxy] events will be sent.
      */
     private val eventChannel: EventChannel =
-        EventChannel(messenger, ChannelNameGenerator.name("PeerConnectionEvent", channelId))
+        EventChannel(
+            messenger,
+            ChannelNameGenerator.name("PeerConnectionEvent", channelId)
+        )
 
     /**
      * Event sink into which all [PeerConnectionProxy] events will be sent.
@@ -49,76 +56,83 @@ class PeerConnectionController(
     /**
      * [PeerConnectionProxy] events observer which will send all events to the [eventSink].
      */
-    private val eventObserver = object : PeerConnectionProxy.Companion.EventObserver {
-        override fun onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
-            eventSink?.success(
-                mapOf(
-                    "event" to "onTrack",
-                    "track" to MediaStreamTrackController(messenger, track).asFlutterResult(),
-                    "transceiver" to RtpTransceiverController(
-                        messenger,
-                        transceiver
-                    ).asFlutterResult()
+    private val eventObserver =
+        object : PeerConnectionProxy.Companion.EventObserver {
+            override fun onTrack(
+                track: MediaStreamTrackProxy,
+                transceiver: RtpTransceiverProxy
+            ) {
+                eventSink?.success(
+                    mapOf(
+                        "event" to "onTrack",
+                        "track" to MediaStreamTrackController(
+                            messenger,
+                            track
+                        ).asFlutterResult(),
+                        "transceiver" to RtpTransceiverController(
+                            messenger,
+                            transceiver
+                        ).asFlutterResult()
+                    )
                 )
-            )
-        }
+            }
 
-        override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
-            eventSink?.success(
-                mapOf(
-                    "event" to "onIceConnectionStateChange",
-                    "state" to iceConnectionState.value
+            override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
+                eventSink?.success(
+                    mapOf(
+                        "event" to "onIceConnectionStateChange",
+                        "state" to iceConnectionState.value
+                    )
                 )
-            )
-        }
+            }
 
-        override fun onSignalingStateChange(signalingState: SignalingState) {
-            eventSink?.success(
-                mapOf(
-                    "event" to "onSignalingStateChange",
-                    "state" to signalingState.value
+            override fun onSignalingStateChange(signalingState: SignalingState) {
+                eventSink?.success(
+                    mapOf(
+                        "event" to "onSignalingStateChange",
+                        "state" to signalingState.value
+                    )
                 )
-            )
-        }
+            }
 
-        override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
-            eventSink?.success(
-                mapOf(
-                    "event" to "onConnectionStateChange",
-                    "state" to peerConnectionState.value
+            override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
+                eventSink?.success(
+                    mapOf(
+                        "event" to "onConnectionStateChange",
+                        "state" to peerConnectionState.value
+                    )
                 )
-            )
-        }
+            }
 
-        override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
-            eventSink?.success(
-                mapOf(
-                    "event" to "onIceGatheringStateChange",
-                    "state" to iceGatheringState.value
+            override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
+                eventSink?.success(
+                    mapOf(
+                        "event" to "onIceGatheringStateChange",
+                        "state" to iceGatheringState.value
+                    )
                 )
-            )
-        }
+            }
 
-        override fun onIceCandidate(candidate: IceCandidate) {
-            eventSink?.success(
-                mapOf(
-                    "event" to "onIceCandidate",
-                    "candidate" to candidate.intoMap()
+            override fun onIceCandidate(candidate: IceCandidate) {
+                eventSink?.success(
+                    mapOf(
+                        "event" to "onIceCandidate",
+                        "candidate" to candidate.asFlutterResult()
+                    )
                 )
-            )
-        }
+            }
 
-        override fun onNegotiationNeeded() {
-            eventSink?.success(
-                mapOf(
-                    "event" to "onNegotiationNeeded"
+            override fun onNegotiationNeeded() {
+                eventSink?.success(
+                    mapOf(
+                        "event" to "onNegotiationNeeded"
+                    )
                 )
-            )
+            }
         }
-    }
 
     init {
-        methodChannel.setMethodCallHandler(this)
+        chan.setMethodCallHandler(this)
         eventChannel.setStreamHandler(this)
         peer.addEventObserver(eventObserver)
     }
@@ -127,16 +141,17 @@ class PeerConnectionController(
         when (call.method) {
             "createOffer" -> {
                 GlobalScope.launch(Dispatchers.Main) {
-                    result.success(peer.createOffer().intoMap())
+                    result.success(peer.createOffer().asFlutterResult())
                 }
             }
             "createAnswer" -> {
                 GlobalScope.launch(Dispatchers.Main) {
-                    result.success(peer.createAnswer().intoMap())
+                    result.success(peer.createAnswer().asFlutterResult())
                 }
             }
             "setLocalDescription" -> {
-                val descriptionArg: Map<String, Any>? = call.argument("description")
+                val descriptionArg: Map<String, Any>? =
+                    call.argument("description")
                 val description = if (descriptionArg == null) {
                     null
                 } else {
@@ -148,34 +163,50 @@ class PeerConnectionController(
                 }
             }
             "setRemoteDescription" -> {
-                val descriptionArg: Map<String, Any> = call.argument("description")!!
+                val descriptionArg: Map<String, Any> =
+                    call.argument("description")!!
                 GlobalScope.launch(Dispatchers.Main) {
-                    peer.setRemoteDescription(SessionDescription.fromMap(descriptionArg))
+                    peer.setRemoteDescription(
+                        SessionDescription.fromMap(
+                            descriptionArg
+                        )
+                    )
                     result.success(null)
                 }
             }
             "addIceCandidate" -> {
                 val candidate: Map<String, Any> = call.argument("candidate")!!
                 GlobalScope.launch(Dispatchers.Main) {
+                    // TODO(#34): wrap in try-catch?
                     peer.addIceCandidate(IceCandidate.fromMap(candidate))
                     result.success(null)
                 }
             }
             "addTransceiver" -> {
                 val mediaType = MediaType.fromInt(call.argument("mediaType")!!)
-                val transceiverInitArg: Map<String, Any>? = call.argument("init")
+                val transceiverInitArg: Map<String, Any>? =
+                    call.argument("init")
                 val transceiver = if (transceiverInitArg == null) {
                     peer.addTransceiver(mediaType, null)
                 } else {
-                    peer.addTransceiver(mediaType, RtpTransceiverInit.fromMap(transceiverInitArg))
+                    peer.addTransceiver(
+                        mediaType,
+                        RtpTransceiverInit.fromMap(transceiverInitArg)
+                    )
                 }
-                val transceiverController = RtpTransceiverController(messenger, transceiver)
+                val transceiverController =
+                    RtpTransceiverController(messenger, transceiver)
                 result.success(transceiverController.asFlutterResult())
             }
             "getTransceivers" -> {
                 result.success(
                     peer.getTransceivers()
-                        .map { RtpTransceiverController(messenger, it).asFlutterResult() })
+                        .map {
+                            RtpTransceiverController(
+                                messenger,
+                                it
+                            ).asFlutterResult()
+                        })
             }
             "restartIce" -> {
                 peer.restartIce()
@@ -214,7 +245,7 @@ class PeerConnectionController(
      * Disposes underlying [PeerConnectionProxy].
      */
     private fun dispose() {
-        methodChannel.setMethodCallHandler(null)
+        chan.setMethodCallHandler(null)
         peer.removeEventObserver(eventObserver)
         peer.dispose()
         eventChannel.setStreamHandler(null)

@@ -29,11 +29,15 @@ enum class MediaDeviceKind(val value: Int) {
  * @property label human readable device description (for example "External USB Webcam").
  * @property kind media kind of device (for example audioinput for microphone).
  */
-data class MediaDeviceInfo(val deviceId: String, val label: String, val kind: MediaDeviceKind) {
+data class MediaDeviceInfo(
+    val deviceId: String,
+    val label: String,
+    val kind: MediaDeviceKind
+) {
     /**
      * Converts this [MediaDeviceInfo] into [Map] which can be returned to the Flutter side.
      */
-    fun intoMap(): Map<String, Any> = mapOf(
+    fun asFlutterResult(): Map<String, Any> = mapOf(
         "deviceId" to deviceId,
         "label" to label,
         "kind" to kind.value

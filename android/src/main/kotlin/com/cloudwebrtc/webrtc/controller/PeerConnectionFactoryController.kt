@@ -12,33 +12,43 @@ import io.flutter.plugin.common.MethodChannel
 /**
  * Controller for the functional of creating new [PeerConnectionController] by [PeerConnectionFactoryProxy].
  *
- * @property binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @property messenger messenger used for creating new [MethodChannel]s.
  * @param state will be used for creating new [PeerConnectionFactoryProxy].
  */
-class PeerConnectionFactoryController(private val binaryMessenger: BinaryMessenger, state: State) :
+class PeerConnectionFactoryController(
+    private val messenger: BinaryMessenger,
+    state: State
+) :
     MethodChannel.MethodCallHandler {
     /**
      * Factory which will create new [PeerConnectionController]s.
      */
-    private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
+    private val factory: PeerConnectionFactoryProxy =
+        PeerConnectionFactoryProxy(state)
 
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
-    private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.name("PeerConnectionFactory", 0))
+    private val chan =
+        MethodChannel(
+            messenger,
+            ChannelNameGenerator.name("PeerConnectionFactory", 0)
+        )
 
     init {
-        methodChannel.setMethodCallHandler(this)
+        chan.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "create" -> {
-                val iceTransportTypeArg: Int = call.argument("iceTransportType") ?: 0
-                val iceTransportType = IceTransportType.fromInt(iceTransportTypeArg)
+                val iceTransportTypeArg: Int =
+                    call.argument("iceTransportType") ?: 0
+                val iceTransportType =
+                    IceTransportType.fromInt(iceTransportTypeArg)
 
-                val iceServersArg: List<Map<String, Any>> = call.argument("iceServers") ?: listOf()
+                val iceServersArg: List<Map<String, Any>> =
+                    call.argument("iceServers") ?: listOf()
                 val iceServers: List<IceServer> = iceServersArg.map { serv ->
                     val urlsArg = serv["urls"] as? List<*>
                     val urls = urlsArg?.mapNotNull {
@@ -51,21 +61,20 @@ class PeerConnectionFactoryController(private val binaryMessenger: BinaryMesseng
                 }
 
                 val newPeer =
-                    factory.create(PeerConnectionConfiguration(iceServers, iceTransportType))
-                val peerController = PeerConnectionController(binaryMessenger, newPeer)
+                    factory.create(
+                        PeerConnectionConfiguration(
+                            iceServers,
+                            iceTransportType
+                        )
+                    )
+                val peerController =
+                    PeerConnectionController(messenger, newPeer)
                 result.success(peerController.asFlutterResult())
             }
             "dispose" -> {
-                dispose()
+                chan.setMethodCallHandler(null)
                 result.success(null)
             }
         }
-    }
-
-    /**
-     * Closes method channel of this [PeerConnectionFactoryController].
-     */
-    private fun dispose() {
-        methodChannel.setMethodCallHandler(null)
     }
 }

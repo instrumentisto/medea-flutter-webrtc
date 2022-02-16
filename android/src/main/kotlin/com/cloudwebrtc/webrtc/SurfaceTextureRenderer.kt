@@ -7,23 +7,20 @@ import org.webrtc.RendererCommon.RendererEvents
 import java.util.concurrent.CountDownLatch
 
 /**
- * Display the video stream on a Surface. renderFrame() is asynchronous to avoid blocking the
- * calling thread. This class is thread safe and handles access from potentially three different
- * threads: Interaction from the main app in init, release and setMirror. Interaction from C++
- * rtc::VideoSinkInterface in renderFrame. Interaction from SurfaceHolder lifecycle in
- * surfaceCreated, surfaceChanged, and surfaceDestroyed.
+ * Displays the video stream on a Surface.
  */
-class SurfaceTextureRenderer
-/** In order to render something, you must first call init().  */
-    (name: String?) : EglRenderer(name) {
-    // Callback for reporting renderer events. Read-only after initilization so no lock required.
+class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
+    // Callback for reporting renderer events. Read-only after initialization so no lock required.
     private var rendererEvents: RendererEvents? = null
     private val layoutLock = Any()
+
+    @Volatile
     private var isRenderingPaused = false
     private var isFirstFrameRendered = false
     private var rotatedFrameWidth = 0
     private var rotatedFrameHeight = 0
     private var frameRotation = 0
+    private var texture: SurfaceTexture? = null
 
     /**
      * Initialize this class, sharing resources with |sharedContext|. The custom |drawer| will be used
@@ -54,7 +51,7 @@ class SurfaceTextureRenderer
         configAttributes: IntArray,
         drawer: GlDrawer
     ) {
-        init(sharedContext, null /* rendererEvents */, configAttributes, drawer)
+        init(sharedContext, null, configAttributes, drawer)
     }
 
     /**
@@ -64,42 +61,22 @@ class SurfaceTextureRenderer
      * reduction.
      */
     override fun setFpsReduction(fps: Float) {
-        synchronized(layoutLock) { isRenderingPaused = fps == 0f }
+        isRenderingPaused = fps == 0f
         super.setFpsReduction(fps)
     }
 
     override fun disableFpsReduction() {
-        synchronized(layoutLock) { isRenderingPaused = false }
+        isRenderingPaused = false
         super.disableFpsReduction()
     }
 
     override fun pauseVideo() {
-        synchronized(layoutLock) { isRenderingPaused = true }
+        isRenderingPaused = true
         super.pauseVideo()
     }
 
     // VideoSink interface.
     override fun onFrame(frame: VideoFrame) {
-        updateFrameDimensionsAndReportEvents(frame)
-        super.onFrame(frame)
-    }
-
-    private var texture: SurfaceTexture? = null
-    fun surfaceCreated(texture: SurfaceTexture?) {
-        ThreadUtils.checkIsOnMainThread()
-        this.texture = texture
-        createEglSurface(texture)
-    }
-
-    fun surfaceDestroyed() {
-        ThreadUtils.checkIsOnMainThread()
-        val completionLatch = CountDownLatch(1)
-        releaseEglSurface { completionLatch.countDown() }
-        ThreadUtils.awaitUninterruptibly(completionLatch)
-    }
-
-    // Update frame dimensions and report any changes to |rendererEvents|.
-    private fun updateFrameDimensionsAndReportEvents(frame: VideoFrame) {
         synchronized(layoutLock) {
             if (isRenderingPaused) {
                 return
@@ -118,9 +95,26 @@ class SurfaceTextureRenderer
                 }
                 rotatedFrameWidth = frame.rotatedWidth
                 rotatedFrameHeight = frame.rotatedHeight
-                texture!!.setDefaultBufferSize(rotatedFrameWidth, rotatedFrameHeight)
+                texture!!.setDefaultBufferSize(
+                    rotatedFrameWidth,
+                    rotatedFrameHeight
+                )
                 frameRotation = frame.rotation
             }
         }
+        super.onFrame(frame)
+    }
+
+    fun surfaceCreated(texture: SurfaceTexture) {
+        ThreadUtils.checkIsOnMainThread()
+        this.texture = texture
+        createEglSurface(texture)
+    }
+
+    fun surfaceDestroyed() { // TODO(#34): unused?
+        ThreadUtils.checkIsOnMainThread()
+        val completionLatch = CountDownLatch(1)
+        releaseEglSurface { completionLatch.countDown() }
+        ThreadUtils.awaitUninterruptibly(completionLatch)
     }
 }

@@ -130,9 +130,15 @@ interface ConstraintChecker {
  * @property id concrete deviceId which will be searched.
  * @property isMandatory indicates that this constraint is mandatory.
  */
-data class DeviceIdConstraint(val id: String, override val isMandatory: Boolean) :
-        ConstraintChecker {
-    override fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean {
+data class DeviceIdConstraint(
+    val id: String,
+    override val isMandatory: Boolean
+) :
+    ConstraintChecker {
+    override fun isFits(
+        enumerator: CameraEnumerator,
+        deviceId: String
+    ): Boolean {
         return deviceId == id
     }
 }
@@ -143,9 +149,15 @@ data class DeviceIdConstraint(val id: String, override val isMandatory: Boolean)
  * @property facingMode [FacingMode] which will be searched.
  * @property isMandatory indicates that this constraint is mandatory.
  */
-data class FacingModeConstraint(val facingMode: FacingMode, override val isMandatory: Boolean) :
-        ConstraintChecker {
-    override fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean {
+data class FacingModeConstraint(
+    val facingMode: FacingMode,
+    override val isMandatory: Boolean
+) :
+    ConstraintChecker {
+    override fun isFits(
+        enumerator: CameraEnumerator,
+        deviceId: String
+    ): Boolean {
         return when (facingMode) {
             FacingMode.USER -> enumerator.isFrontFacing(deviceId)
             FacingMode.ENVIRONMENT -> enumerator.isBackFacing(deviceId)
@@ -163,10 +175,10 @@ data class FacingModeConstraint(val facingMode: FacingMode, override val isManda
  * @property fps fps of the device video.
  */
 data class VideoConstraints(
-        val constraints: List<ConstraintChecker>,
-        val width: Int?,
-        val height: Int?,
-        val fps: Int?,
+    val constraints: List<ConstraintChecker>,
+    val width: Int?,
+    val height: Int?,
+    val fps: Int?,
 ) {
     companion object {
         /**
@@ -182,19 +194,24 @@ data class VideoConstraints(
             var fps: Int? = null
 
             val mandatoryArg =
-                    map["mandatory"] as Map<*, *>?
+                map["mandatory"] as Map<*, *>?
             for ((key, value) in mandatoryArg ?: mapOf<Any, Any>()) {
                 if (value != null) {
                     when (key as String) {
                         "deviceId" -> {
-                            constraintCheckers.add(DeviceIdConstraint(value as String, true))
+                            constraintCheckers.add(
+                                DeviceIdConstraint(
+                                    value as String,
+                                    true
+                                )
+                            )
                         }
                         "facingMode" -> {
                             constraintCheckers.add(
-                                    FacingModeConstraint(
-                                            FacingMode.fromInt(value as Int),
-                                            true
-                                    )
+                                FacingModeConstraint(
+                                    FacingMode.fromInt(value as Int),
+                                    true
+                                )
                             )
                         }
                         "width" -> {
@@ -215,14 +232,19 @@ data class VideoConstraints(
                 if (value != null) {
                     when (key as String) {
                         "deviceId" -> {
-                            constraintCheckers.add(DeviceIdConstraint(value as String, false))
+                            constraintCheckers.add(
+                                DeviceIdConstraint(
+                                    value as String,
+                                    false
+                                )
+                            )
                         }
                         "facingMode" -> {
                             constraintCheckers.add(
-                                    FacingModeConstraint(
-                                            FacingMode.fromInt(value as Int),
-                                            false
-                                    )
+                                FacingModeConstraint(
+                                    FacingMode.fromInt(value as Int),
+                                    false
+                                )
                             )
                         }
                         "width" -> {
@@ -249,7 +271,10 @@ data class VideoConstraints(
      * @param deviceId ID of device which suitability should be checked.
      * @return total score calculated based on provided list.
      */
-    fun calculateScoreForDeviceId(enumerator: CameraEnumerator, deviceId: String): Int? {
+    fun calculateScoreForDeviceId(
+        enumerator: CameraEnumerator,
+        deviceId: String
+    ): Int? {
         val scores = mutableListOf<ConstraintScore>()
         for (constraint in constraints) {
             scores.add(constraint.score(enumerator, deviceId))

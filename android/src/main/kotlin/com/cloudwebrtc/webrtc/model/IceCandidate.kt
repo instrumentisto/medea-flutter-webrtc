@@ -9,7 +9,11 @@ import org.webrtc.IceCandidate as WIceCandidate
  * @property sdpMLineIndex sdpMLineIndex of this [IceCandidate].
  * @property sdp  SDP of this [IceCandidate].
  */
-data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: String) {
+data class IceCandidate(
+    val sdpMid: String,
+    val sdpMLineIndex: Int,
+    val sdp: String
+) {
     companion object {
         /**
          * Creates new [IceCandidate] object based on the method call received from the Flutter.
@@ -46,7 +50,7 @@ data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: Str
     /**
      * Converts this [IceCandidate] into [Map] which can be returned to the Flutter side.
      */
-    fun intoMap(): Map<String, Any> = mapOf(
+    fun asFlutterResult(): Map<String, Any> = mapOf(
         "sdpMid" to sdpMid,
         "sdpMLineIndex" to sdpMLineIndex,
         "candidate" to sdp

@@ -14,8 +14,10 @@ class FlutterWebRTCPlugin : FlutterPlugin {
         val messenger = registar.binaryMessenger
         val state = State(registar.applicationContext)
         mediaDevices = MediaDevicesController(messenger, state)
-        peerConnectionFactory = PeerConnectionFactoryController(messenger, state)
-        videoRendererFactory = VideoRendererFactoryController(messenger, registar.textureRegistry)
+        peerConnectionFactory =
+            PeerConnectionFactoryController(messenger, state)
+        videoRendererFactory =
+            VideoRendererFactoryController(messenger, registar.textureRegistry)
     }
 
     override fun onDetachedFromEngine(registrar: FlutterPlugin.FlutterPluginBinding) {}

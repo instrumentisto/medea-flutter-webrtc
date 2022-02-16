@@ -9,11 +9,11 @@ import io.flutter.plugin.common.MethodChannel
 /**
  * Controller for the [RtpTransceiverProxy] functional.
  *
- * @property binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @property messenger messenger used for creating new [MethodChannel]s.
  * @property transceiver underlying [RtpTransceiverProxy] on which method calls will be performed.
  */
 class RtpTransceiverController(
-    private val binaryMessenger: BinaryMessenger,
+    private val messenger: BinaryMessenger,
     private val transceiver: RtpTransceiverProxy
 ) : MethodChannel.MethodCallHandler, IdentifiableController {
     /**
@@ -24,17 +24,21 @@ class RtpTransceiverController(
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
-    private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.name("RtpTransceiver", channelId))
+    private val chan =
+        MethodChannel(
+            messenger,
+            ChannelNameGenerator.name("RtpTransceiver", channelId)
+        )
 
     init {
-        methodChannel.setMethodCallHandler(this)
+        chan.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "setDirection" -> {
-                val direction = RtpTransceiverDirection.fromInt(call.argument("direction")!!)
+                val direction =
+                    RtpTransceiverDirection.fromInt(call.argument("direction")!!)
                 transceiver.setDirection(direction)
                 result.success(null)
             }
@@ -49,7 +53,7 @@ class RtpTransceiverController(
                 result.success(null)
             }
             "dispose" -> {
-                dispose()
+                chan.setMethodCallHandler(null)
                 result.success(null)
             }
         }
@@ -64,17 +68,10 @@ class RtpTransceiverController(
         return mapOf(
             "channelId" to channelId,
             "sender" to RtpSenderController(
-                binaryMessenger,
+                messenger,
                 transceiver.getSender()
             ).asFlutterResult(),
             "mid" to transceiver.getMid() as Any?
         )
-    }
-
-    /**
-     * Closes method channel of this [RtpTransceiverController].
-     */
-    private fun dispose() {
-        methodChannel.setMethodCallHandler(null)
     }
 }

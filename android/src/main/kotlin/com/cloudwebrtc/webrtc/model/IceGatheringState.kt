@@ -8,6 +8,7 @@ import org.webrtc.PeerConnection.IceGatheringState as WIceGatheringState
  * @property value [Int] representation of this enum which will be expected on Flutter side.
  */
 enum class IceGatheringState(val value: Int) {
+    // TODO(#34): docs
     NEW(0),
     GATHERING(1),
     COMPLETE(2);

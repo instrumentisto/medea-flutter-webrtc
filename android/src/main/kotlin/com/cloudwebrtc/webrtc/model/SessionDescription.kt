@@ -69,7 +69,10 @@ enum class SessionDescriptionType(val value: Int) {
  * @property type type of this [SessionDescription].
  * @property description SDP of this [SessionDescription].
  */
-data class SessionDescription(val type: SessionDescriptionType, val description: String) {
+data class SessionDescription(
+    val type: SessionDescriptionType,
+    val description: String
+) {
     companion object {
         /**
          * Converts provided [org.webrtc.SessionDescription] into [SessionDescription].
@@ -79,8 +82,8 @@ data class SessionDescription(val type: SessionDescriptionType, val description:
          */
         fun fromWebRtc(sdp: WSessionDescription): SessionDescription {
             return SessionDescription(
-                    SessionDescriptionType.fromWebRtc(sdp.type),
-                    sdp.description
+                SessionDescriptionType.fromWebRtc(sdp.type),
+                sdp.description
             )
         }
 
@@ -109,10 +112,10 @@ data class SessionDescription(val type: SessionDescriptionType, val description:
     /**
      * Converts this [SessionDescription] into [Map] which can be returned to the Flutter side.
      */
-    fun intoMap(): Map<String, Any> {
+    fun asFlutterResult(): Map<String, Any> {
         return mapOf(
-                "type" to type.value,
-                "description" to description
+            "type" to type.value,
+            "description" to description
         )
     }
 }

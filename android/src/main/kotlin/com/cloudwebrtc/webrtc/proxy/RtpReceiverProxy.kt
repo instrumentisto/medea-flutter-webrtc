@@ -45,7 +45,7 @@ class RtpReceiverProxy(receiver: RtpReceiver) : IWebRTCProxy<RtpReceiver> {
             if (track == null) {
                 track = MediaStreamTrackProxy(newReceiverTrack)
             } else {
-                track!!.updateObject(newReceiverTrack)
+                track!!.replace(newReceiverTrack)
             }
         }
     }

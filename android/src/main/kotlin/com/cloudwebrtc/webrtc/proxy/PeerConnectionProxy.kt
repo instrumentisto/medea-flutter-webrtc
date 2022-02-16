@@ -10,8 +10,6 @@ import com.cloudwebrtc.webrtc.model.IceCandidate
 import com.cloudwebrtc.webrtc.model.SessionDescription
 import org.webrtc.*
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -24,7 +22,8 @@ import org.webrtc.SessionDescription as WSessionDescription
  * @property id unique ID of this [PeerConnectionProxy].
  * @param peer underlying [PeerConnection].
  */
-class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<PeerConnection> {
+class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
+    IWebRTCProxy<PeerConnection> {
     /**
      * Actual underlying [PeerConnection].
      */
@@ -50,7 +49,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      *
      * This callbacks will be called on [dispose] method call.
      */
-    private var onDisposeSubscribers: MutableList<(Int) -> Unit> = mutableListOf()
+    private var onDisposeSubscribers: MutableList<(Int) -> Unit> =
+        mutableListOf()
 
     /**
      * List of [EventObserver] for this [PeerConnectionProxy].
@@ -72,7 +72,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
              * @param track newly added [MediaStreamTrackProxy].
              * @param transceiver [RtpTransceiverProxy] of this [MediaStreamTrackProxy].
              */
-            fun onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy)
+            fun onTrack(
+                track: MediaStreamTrackProxy,
+                transceiver: RtpTransceiverProxy
+            )
 
             /**
              * Notifies observer about [IceConnectionState] update.
@@ -220,25 +223,41 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
 
             override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
                 Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach { it.onIceConnectionStateChange(iceConnectionState) }
+                    eventObservers.forEach {
+                        it.onIceConnectionStateChange(
+                            iceConnectionState
+                        )
+                    }
                 }
             }
 
             override fun onSignalingStateChange(signalingState: SignalingState) {
                 Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach { it.onSignalingStateChange(signalingState) }
+                    eventObservers.forEach {
+                        it.onSignalingStateChange(
+                            signalingState
+                        )
+                    }
                 }
             }
 
             override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
                 Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach { it.onConnectionStateChange(peerConnectionState) }
+                    eventObservers.forEach {
+                        it.onConnectionStateChange(
+                            peerConnectionState
+                        )
+                    }
                 }
             }
 
             override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
                 Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach { it.onIceGatheringStateChange(iceGatheringState) }
+                    eventObservers.forEach {
+                        it.onIceGatheringStateChange(
+                            iceGatheringState
+                        )
+                    }
                 }
             }
 
@@ -304,7 +323,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      */
     suspend fun createAnswer(): SessionDescription {
         return suspendCoroutine { continuation ->
-            obj.createAnswer(createSdpObserver(continuation), MediaConstraints())
+            obj.createAnswer(
+                createSdpObserver(continuation),
+                MediaConstraints()
+            )
         }
     }
 
@@ -318,7 +340,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
             if (description == null) {
                 obj.setLocalDescription(setSdpObserver(continuation))
             } else {
-                obj.setLocalDescription(setSdpObserver(continuation), description.intoWebRtc())
+                obj.setLocalDescription(
+                    setSdpObserver(continuation),
+                    description.intoWebRtc()
+                )
             }
         }
     }
@@ -330,7 +355,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      */
     suspend fun setRemoteDescription(description: SessionDescription) {
         suspendCoroutine<Unit> { continuation ->
-            obj.setRemoteDescription(setSdpObserver(continuation), description.intoWebRtc())
+            obj.setRemoteDescription(
+                setSdpObserver(continuation),
+                description.intoWebRtc()
+            )
         }
     }
 
@@ -339,19 +367,23 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      */
     suspend fun addIceCandidate(candidate: IceCandidate) {
         suspendCoroutine<Unit> { continuation ->
-            obj.addIceCandidate(candidate.intoWebRtc(), object : AddIceObserver {
-                override fun onAddSuccess() {
-                    continuation.resume(Unit)
-                }
-
-                override fun onAddFailure(msg: String?) {
-                    var message = msg
-                    if (message == null) {
-                        message = ""
+            obj.addIceCandidate(
+                candidate.intoWebRtc(),
+                object : AddIceObserver {
+                    override fun onAddSuccess() {
+                        continuation.resume(Unit)
                     }
-                    continuation.resumeWithException(AddIceCandidateException(message))
-                }
-            })
+
+                    override fun onAddFailure(msg: String?) {
+                        var message = msg
+                        if (message == null) {
+                            message = ""
+                        }
+                        continuation.resumeWithException(
+                            AddIceCandidateException(message)
+                        )
+                    }
+                })
         }
     }
 
@@ -362,7 +394,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
      * @param init configuration of the newly created [RtpTransceiverProxy].
      * @return newly created [RtpTransceiverProxy].
      */
-    fun addTransceiver(mediaType: MediaType, init: RtpTransceiverInit?): RtpTransceiverProxy {
+    fun addTransceiver(
+        mediaType: MediaType,
+        init: RtpTransceiverInit?
+    ): RtpTransceiverProxy {
         obj.addTransceiver(mediaType.intoWebRtc(), init?.intoWebRtc())
         syncTransceivers()
         return transceivers.lastEntry()!!.value
@@ -388,7 +423,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
             if (oldSender == null) {
                 senders[peerSenderId] = RtpSenderProxy(peerSender)
             } else {
-                oldSender.updateObject(peerSender)
+                oldSender.replace(peerSender)
             }
         }
     }
@@ -406,7 +441,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
             if (oldReceiver == null) {
                 receivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
             } else {
-                oldReceiver.updateObject(peerReceiver)
+                oldReceiver.replace(peerReceiver)
             }
         }
     }
@@ -423,7 +458,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : IWebRTCProxy<Peer
             if (oldTransceiver == null) {
                 transceivers[id] = RtpTransceiverProxy(peerTransceiver)
             } else {
-                oldTransceiver.updateObject(peerTransceiver)
+                oldTransceiver.replace(peerTransceiver)
             }
         }
     }

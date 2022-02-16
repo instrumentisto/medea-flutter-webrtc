@@ -39,10 +39,20 @@ data class AudioConstraints(
     fun intoWebRtc(): MediaConstraints {
         val mediaConstraints = MediaConstraints()
         for (entry in mandatory) {
-            mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair(entry.key, entry.value))
+            mediaConstraints.mandatory.add(
+                MediaConstraints.KeyValuePair(
+                    entry.key,
+                    entry.value
+                )
+            )
         }
         for (entry in optional) {
-            mediaConstraints.optional.add(MediaConstraints.KeyValuePair(entry.key, entry.value))
+            mediaConstraints.optional.add(
+                MediaConstraints.KeyValuePair(
+                    entry.key,
+                    entry.value
+                )
+            )
         }
         return mediaConstraints
     }

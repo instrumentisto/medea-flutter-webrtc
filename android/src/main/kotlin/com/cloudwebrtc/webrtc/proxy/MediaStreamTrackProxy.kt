@@ -2,8 +2,8 @@ package com.cloudwebrtc.webrtc.proxy
 
 import android.util.Log
 import com.cloudwebrtc.webrtc.TrackRepository
-import com.cloudwebrtc.webrtc.model.MediaKind
 import com.cloudwebrtc.webrtc.model.MediaStreamTrackState
+import com.cloudwebrtc.webrtc.model.MediaType
 import org.webrtc.MediaStreamTrack
 
 /**
@@ -26,12 +26,7 @@ class MediaStreamTrackProxy(
     override var obj: MediaStreamTrack = track
 
     /**
-     * ID of underlying [MediaStreamTrack].
-     */
-    private val id = track.id()
-
-    /**
-     * Subsribers for the [onStop] callback.
+     * Subscribers for the [onStop] callback.
      *
      * Will be called once on [stop] call.
      */
@@ -43,10 +38,8 @@ class MediaStreamTrackProxy(
     private var isStopped: Boolean = false
 
     init {
-        TrackRepository.addTrack(id, this)
+        TrackRepository.addTrack(this)
     }
-
-    override fun syncWithObject() {}
 
     /**
      * Returns ID of the underlying [MediaStreamTrack].
@@ -54,17 +47,17 @@ class MediaStreamTrackProxy(
      * @return ID of the underlying [MediaStreamTrack].
      */
     fun id(): String {
-        return id
+        return obj.id()
     }
 
     /**
-     * @return [MediaKind] of the underlying [MediaStreamTrack].
+     * @return [MediaType] of the underlying [MediaStreamTrack].
      */
-    fun kind(): MediaKind {
+    fun kind(): MediaType {
         return when (obj.kind()) {
-            MediaStreamTrack.VIDEO_TRACK_KIND -> MediaKind.Video
-            MediaStreamTrack.AUDIO_TRACK_KIND -> MediaKind.Audio
-            else -> throw Exception("LibWebRTC provided unknown MediaKind value")
+            MediaStreamTrack.VIDEO_TRACK_KIND -> MediaType.VIDEO
+            MediaStreamTrack.AUDIO_TRACK_KIND -> MediaType.AUDIO
+            else -> throw Exception("LibWebRTC provided unknown MediaType value")
         }
     }
 
@@ -103,7 +96,10 @@ class MediaStreamTrackProxy(
             isStopped = true
             onStopSubscribers.forEach { sub -> sub() }
         } else {
-            Log.w("FlutterWebRTC", "Double stop detected [deviceId: $deviceId]!")
+            Log.w(
+                "FlutterWebRTC",
+                "Double stop detected [deviceId: $deviceId]!"
+            )
         }
     }
 

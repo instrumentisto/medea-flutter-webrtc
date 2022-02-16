@@ -32,7 +32,10 @@ class AudioMediaTrackSource(
      */
     override fun newTrack(): MediaStreamTrackProxy {
         val track = MediaStreamTrackProxy(
-            peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source),
+            peerConnectionFactory.createAudioTrack(
+                LocalTrackIdGenerator.nextId(),
+                source
+            ),
             "audio-1",
             this
         )

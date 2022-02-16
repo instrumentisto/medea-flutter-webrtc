@@ -10,9 +10,12 @@ import io.flutter.plugin.common.MethodChannel
  * Controller for the [RtpSenderProxy] functional.
  *
  * @param messenger messenger used for creating new [MethodChannel]s.
- * @property track underlying [RtpSenderProxy] on which method calls will be performed.
+ * @property sender underlying [RtpSenderProxy] on which method calls will be performed.
  */
-class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSenderProxy) :
+class RtpSenderController(
+    messenger: BinaryMessenger,
+    private val sender: RtpSenderProxy
+) :
     MethodChannel.MethodCallHandler, IdentifiableController {
     /**
      * Unique ID of the [MethodChannel] of this controller.
@@ -22,11 +25,14 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
-    private val methodChannel =
-        MethodChannel(messenger, ChannelNameGenerator.name("RtpSender", channelId))
+    private val chan =
+        MethodChannel(
+            messenger,
+            ChannelNameGenerator.name("RtpSender", channelId)
+        )
 
     init {
-        methodChannel.setMethodCallHandler(this)
+        chan.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -42,7 +48,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
                 result.success(null)
             }
             "dispose" -> {
-                dispose()
+                chan.setMethodCallHandler(null)
                 result.success(null)
             }
         }
@@ -54,11 +60,4 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
      * @return [Map] generated from this controller which can be returned to the Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf("channelId" to channelId)
-
-    /**
-     * Closes method channel of this [RtpSenderController].
-     */
-    private fun dispose() {
-        methodChannel.setMethodCallHandler(null)
-    }
 }

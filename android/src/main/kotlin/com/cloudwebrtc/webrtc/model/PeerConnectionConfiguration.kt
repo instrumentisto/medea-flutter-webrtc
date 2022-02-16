@@ -17,7 +17,8 @@ enum class IceTransportType(val value: Int) {
     ALL(0),
 
     /**
-     * Only advertize relay-type candidates, like TURN servers, to avoid leaking the IP address of the client.
+     * Only advertise relay-type candidates, like TURN servers, to avoid leaking the IP address of
+     * the client.
      */
     RELAY(1),
 
@@ -63,7 +64,11 @@ enum class IceTransportType(val value: Int) {
  * @property username username for auth on this [IceServer].
  * @property password password for auth on this [IceServer].
  */
-data class IceServer(val urls: List<String>, val username: String?, val password: String?) {
+data class IceServer(
+    val urls: List<String>,
+    val username: String?,
+    val password: String?
+) {
     /**
      * Converts this [IceServer] into [PeerConnection.IceServer].
      *
@@ -99,7 +104,9 @@ data class PeerConnectionConfiguration(
      * @return [PeerConnection.RTCConfiguration] based on this [PeerConnectionConfiguration].
      */
     fun intoWebRtc(): WRTCConfiguration {
-        val conf = WRTCConfiguration(iceServers.map { server -> server.intoWebRtc() }.toList())
+        val conf =
+            WRTCConfiguration(iceServers.map { server -> server.intoWebRtc() }
+                .toList())
         conf.iceTransportsType = iceTransportType.intoWebRtc()
         conf.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
 

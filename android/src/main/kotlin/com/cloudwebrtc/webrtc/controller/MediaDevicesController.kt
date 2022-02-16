@@ -12,10 +12,13 @@ import io.flutter.plugin.common.MethodChannel
 /**
  * Controller for [MediaDevices] functional.
  *
- * @property binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @property messenger messenger used for creating new [MethodChannel]s.
  * @param state will be used for creating new [MediaStreamTrackProxy]s.
  */
-class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state: State) :
+class MediaDevicesController(
+    private val messenger: BinaryMessenger,
+    state: State
+) :
     MethodChannel.MethodCallHandler {
     /**
      * Underlying [MediaDevices] on which method calls will be performed.
@@ -25,26 +28,31 @@ class MediaDevicesController(private val binaryMessenger: BinaryMessenger, state
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
-    private val methodChannel =
-        MethodChannel(binaryMessenger, ChannelNameGenerator.name("MediaDevices", 0))
+    private val chan =
+        MethodChannel(messenger, ChannelNameGenerator.name("MediaDevices", 0))
 
     init {
-        methodChannel.setMethodCallHandler(this)
+        chan.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "enumerateDevices" -> {
-                result.success(mediaDevices.enumerateDevices().map { it.intoMap() })
+                result.success(
+                    mediaDevices.enumerateDevices()
+                        .map { it.asFlutterResult() })
             }
             "getUserMedia" -> {
-                val constraintsArg: Map<String, Any> = call.argument("constraints")!!
+                val constraintsArg: Map<String, Any> =
+                    call.argument("constraints")!!
                 try {
-                    val tracks = mediaDevices.getUserMedia(Constraints.fromMap(constraintsArg))
+                    val tracks = mediaDevices.getUserMedia(
+                        Constraints.fromMap(constraintsArg)
+                    )
                     result.success(tracks.map {
                         MediaStreamTrackController(
-                                binaryMessenger,
-                                it
+                            messenger,
+                            it
                         ).asFlutterResult()
                     })
                 } catch (e: OverconstrainedException) {

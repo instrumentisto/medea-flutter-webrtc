@@ -12,13 +12,14 @@ import io.flutter.plugin.common.MethodChannel
 /**
  * Controller for the [FlutterRtcVideoRenderer].
  *
- * @param binaryMessenger messenger used for creating new [MethodChannel]s.
+ * @param messenger messenger used for creating new [MethodChannel]s.
  * @property videoRenderer underlying [FlutterRtcVideoRenderer] on which method calls will be performed.
  */
 class VideoRendererController(
-    binaryMessenger: BinaryMessenger,
+    messenger: BinaryMessenger,
     private val videoRenderer: FlutterRtcVideoRenderer
-) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler,
+    IdentifiableController {
     /**
      * Unique ID of the [MethodChannel] of this controller.
      */
@@ -27,8 +28,8 @@ class VideoRendererController(
     /**
      * Channel which will be listened for the [MethodCall]s.
      */
-    private val methodChannel: MethodChannel = MethodChannel(
-        binaryMessenger,
+    private val chan: MethodChannel = MethodChannel(
+        messenger,
         ChannelNameGenerator.name("VideoRenderer", channelId)
     )
 
@@ -36,7 +37,10 @@ class VideoRendererController(
      * Event channel into which all [FlutterRtcVideoRenderer] events will be sent.
      */
     private val eventChannel: EventChannel =
-        EventChannel(binaryMessenger, ChannelNameGenerator.name("VideoRendererEvent", channelId))
+        EventChannel(
+            messenger,
+            ChannelNameGenerator.name("VideoRendererEvent", channelId)
+        )
 
     /**
      * Event sink into which all [FlutterRtcVideoRenderer] events will be sent.
@@ -44,10 +48,11 @@ class VideoRendererController(
     private var eventSink: AnyThreadSink? = null
 
     init {
-        methodChannel.setMethodCallHandler(this)
+        chan.setMethodCallHandler(this)
         eventChannel.setStreamHandler(this)
 
-        videoRenderer.setEventListener(object : FlutterRtcVideoRenderer.Companion.EventListener {
+        videoRenderer.setEventListener(object :
+            FlutterRtcVideoRenderer.Companion.EventListener {
             override fun onFirstFrameRendered(id: Long) {
                 eventSink?.success(
                     mapOf(
@@ -57,7 +62,11 @@ class VideoRendererController(
                 )
             }
 
-            override fun onTextureChangeVideoSize(id: Long, height: Int, width: Int) {
+            override fun onTextureChangeVideoSize(
+                id: Long,
+                height: Int,
+                width: Int
+            ) {
                 eventSink?.success(
                     mapOf(
                         "event" to "onTextureChangeVideoSize",

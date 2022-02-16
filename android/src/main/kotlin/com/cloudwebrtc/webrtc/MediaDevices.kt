@@ -46,7 +46,8 @@ class MediaDevices(val state: State) {
      * Enumerator for the camera devices, based on which new video [MediaStreamTrackProxy]s
      * will be created.
      */
-    private val cameraEnumerator: CameraEnumerator = getCameraEnumerator(state.getAppContext())
+    private val cameraEnumerator: CameraEnumerator =
+        getCameraEnumerator(state.getAppContext())
 
     companion object {
         /**
@@ -93,7 +94,13 @@ class MediaDevices(val state: State) {
      * @return List of [MediaDeviceInfo]s for the currently available audio devices.
      */
     private fun enumerateAudioDevices(): List<MediaDeviceInfo> {
-        return listOf(MediaDeviceInfo("default", "default", MediaDeviceKind.AUDIO_INPUT))
+        return listOf(
+            MediaDeviceInfo(
+                "default",
+                "default",
+                MediaDeviceKind.AUDIO_INPUT
+            )
+        )
     }
 
     /**
@@ -115,7 +122,10 @@ class MediaDevices(val state: State) {
     private fun findDeviceMatchingConstraints(constraints: VideoConstraints): String? {
         val scoreTable = TreeMap<Int, String>()
         for (deviceId in cameraEnumerator.deviceNames) {
-            val deviceScore = constraints.calculateScoreForDeviceId(cameraEnumerator, deviceId)
+            val deviceScore = constraints.calculateScoreForDeviceId(
+                cameraEnumerator,
+                deviceId
+            )
             if (deviceScore != null) {
                 scoreTable[deviceScore] = deviceId
             }
@@ -132,12 +142,14 @@ class MediaDevices(val state: State) {
      */
     private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
         val deviceId =
-            findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
+            findDeviceMatchingConstraints(constraints)
+                ?: throw OverconstrainedException()
         val width = constraints.width ?: DEFAULT_WIDTH
         val height = constraints.height ?: DEFAULT_HEIGHT
         val fps = constraints.fps ?: DEFAULT_FPS
 
-        val videoSource = state.getPeerConnectionFactory().createVideoSource(false)
+        val videoSource =
+            state.getPeerConnectionFactory().createVideoSource(false)
         videoSource.adaptOutputFormat(width, height, fps)
 
         val surfaceTextureRenderer = SurfaceTextureHelper.create(
@@ -180,8 +192,10 @@ class MediaDevices(val state: State) {
      * @return Most suitable [MediaStreamTrackProxy] for the provided [AudioConstraints].
      */
     private fun getUserAudioTrack(constraints: AudioConstraints): MediaStreamTrackProxy {
-        val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
-        val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
+        val source = state.getPeerConnectionFactory()
+            .createAudioSource(constraints.intoWebRtc())
+        val audioTrackSource =
+            AudioMediaTrackSource(source, state.getPeerConnectionFactory())
         return audioTrackSource.newTrack()
     }
 }

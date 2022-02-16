@@ -6,7 +6,8 @@ import org.webrtc.RtpTransceiver
 /**
  * Wrapper around [RtpTransceiver].
  */
-class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTransceiver> {
+class RtpTransceiverProxy(override var obj: RtpTransceiver) :
+    IWebRTCProxy<RtpTransceiver> {
     /**
      * [RtpSenderProxy] of this [RtpTransceiverProxy].
      */
@@ -75,7 +76,7 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
     private fun syncSender() {
         val newSender = obj.sender
         if (this::sender.isInitialized) {
-            sender.updateObject(newSender)
+            sender.replace(newSender)
         } else {
             sender = RtpSenderProxy(newSender)
         }
@@ -88,7 +89,7 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : IWebRTCProxy<RtpTr
     private fun syncReceiver() {
         val newReceiver = obj.receiver
         if (this::receiver.isInitialized) {
-            receiver.updateObject(newReceiver)
+            receiver.replace(newReceiver)
         } else {
             receiver = RtpReceiverProxy(newReceiver)
         }

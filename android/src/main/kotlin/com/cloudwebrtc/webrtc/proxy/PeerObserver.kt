@@ -24,7 +24,11 @@ class PeerObserver : PeerConnection.Observer {
     override fun onSignalingChange(signallingState: PeerConnection.SignalingState?) {
         if (signallingState != null) {
             peer?.observableEventBroadcaster()
-                ?.onSignalingStateChange(SignalingState.fromWebRtc(signallingState))
+                ?.onSignalingStateChange(
+                    SignalingState.fromWebRtc(
+                        signallingState
+                    )
+                )
 
         }
     }
@@ -32,24 +36,37 @@ class PeerObserver : PeerConnection.Observer {
     override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState?) {
         if (iceConnectionState != null) {
             peer?.observableEventBroadcaster()
-                ?.onIceConnectionStateChange(IceConnectionState.fromWebRtc(iceConnectionState))
+                ?.onIceConnectionStateChange(
+                    IceConnectionState.fromWebRtc(
+                        iceConnectionState
+                    )
+                )
         }
     }
 
     override fun onIceGatheringChange(iceGatheringState: PeerConnection.IceGatheringState?) {
         if (iceGatheringState != null) {
             peer?.observableEventBroadcaster()
-                ?.onIceGatheringStateChange(IceGatheringState.fromWebRtc(iceGatheringState))
+                ?.onIceGatheringStateChange(
+                    IceGatheringState.fromWebRtc(
+                        iceGatheringState
+                    )
+                )
         }
     }
 
     override fun onIceCandidate(candidate: WIceCandidate?) {
         if (candidate != null) {
-            peer?.observableEventBroadcaster()?.onIceCandidate(IceCandidate.fromWebRtc(candidate))
+            peer?.observableEventBroadcaster()
+                ?.onIceCandidate(IceCandidate.fromWebRtc(candidate))
         }
     }
 
-    override fun onAddTrack(receiver: RtpReceiver?, mediaStreams: Array<out MediaStream>?) {
+    // TODO(#34): we should prefer onTrack
+    override fun onAddTrack(
+        receiver: RtpReceiver?,
+        mediaStreams: Array<out MediaStream>?
+    ) {
         if (receiver != null) {
             val track = receiver.track()
             if (track != null) {
@@ -69,11 +86,11 @@ class PeerObserver : PeerConnection.Observer {
         peer?.observableEventBroadcaster()?.onNegotiationNeeded()
     }
 
-    override fun onIceConnectionReceivingChange(p0: Boolean) {}
+    override fun onIceConnectionReceivingChange(receiving: Boolean) {}
     override fun onIceCandidatesRemoved(candidates: Array<out WIceCandidate>?) {}
-    override fun onAddStream(p0: MediaStream?) {}
-    override fun onRemoveStream(p0: MediaStream?) {}
-    override fun onDataChannel(p0: DataChannel?) {}
+    override fun onAddStream(stream: MediaStream?) {}
+    override fun onRemoveStream(stream: MediaStream?) {}
+    override fun onDataChannel(chan: DataChannel?) {}
 
     /**
      * Sets [PeerConnectionProxy] which will be notified about all events.

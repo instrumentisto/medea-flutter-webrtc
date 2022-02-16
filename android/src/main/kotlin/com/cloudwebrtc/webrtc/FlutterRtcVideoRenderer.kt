@@ -24,7 +24,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     /**
      * Texture on which video will be rendered.
      */
-    private val surfaceTexture: SurfaceTexture = surfaceTextureEntry.surfaceTexture()
+    private val texture: SurfaceTexture = surfaceTextureEntry.surfaceTexture()
 
     /**
      * Unique ID of the underlying texture.
@@ -32,9 +32,10 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     private val id: Long = surfaceTextureEntry.id()
 
     /**
-     * Listener for the [surfaceTextureRenderer] events.
+     * Listener for the [renderer] events.
      */
-    private var rendererEventsListener: RendererCommon.RendererEvents = rendererEventsListener()
+    private var rendererEventsListener: RendererCommon.RendererEvents =
+        rendererEventsListener()
 
     /**
      * This [FlutterRtcVideoRenderer] events listener.
@@ -44,13 +45,13 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     /**
      * Helper for rendering video on the surface.
      */
-    private val surfaceTextureRenderer: SurfaceTextureRenderer =
+    private val renderer: SurfaceTextureRenderer =
         SurfaceTextureRenderer("flutter-video-renderer-$id")
 
     /**
      * [VideoTrackProxy] from which [FlutterRtcVideoRenderer] obtains video and renders it.
      */
-    private var videoTrack: VideoTrackProxy? = null
+    private var track: VideoTrackProxy? = null
 
     companion object {
         /**
@@ -84,8 +85,8 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     }
 
     init {
-        surfaceTextureRenderer.init(EglUtils.rootEglBaseContext, rendererEventsListener)
-        surfaceTextureRenderer.surfaceCreated(surfaceTexture)
+        renderer.init(EglUtils.rootEglBaseContext, rendererEventsListener)
+        renderer.surfaceCreated(texture)
     }
 
     /**
@@ -107,24 +108,24 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     /**
      * Sets [VideoTrackProxy] from which video will be rendered on the texture surface.
      *
-     * @param newVideoTrack [VideoTrackProxy] for rendering.
+     * @param newTrack [VideoTrackProxy] for rendering.
      */
-    fun setVideoTrack(newVideoTrack: VideoTrackProxy?) {
-        if (videoTrack != newVideoTrack && newVideoTrack != null) {
-            removeRendererFromVideoTrack()
+    fun setVideoTrack(newTrack: VideoTrackProxy?) {
+        if (track != newTrack && newTrack != null) {
+            track?.removeSink(renderer)
 
-            if (videoTrack == null) {
+            if (track == null) {
                 val sharedContext = EglUtils.rootEglBaseContext!!
-                surfaceTextureRenderer.release()
+                renderer.release()
                 rendererEventsListener = rendererEventsListener()
-                surfaceTextureRenderer.init(sharedContext, rendererEventsListener)
-                surfaceTextureRenderer.surfaceCreated(surfaceTexture)
+                renderer.init(sharedContext, rendererEventsListener)
+                renderer.surfaceCreated(texture)
             }
 
-            newVideoTrack.addSink(surfaceTextureRenderer)
+            newTrack.addSink(renderer)
         }
 
-        videoTrack = newVideoTrack
+        track = newTrack
     }
 
     /**
@@ -133,11 +134,12 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
      * Closes [EventListener], releases all related to the surface texture renderer entities.
      */
     fun dispose() {
+        // TODO(#34): surfaceTextureRenderer.surfaceDestroyed()?
         eventListener = null
-        removeRendererFromVideoTrack()
-        surfaceTextureRenderer.release()
+        track?.removeSink(renderer)
+        renderer.release()
         surfaceTextureEntry.release()
-        surfaceTexture.release()
+        texture.release()
     }
 
     /**
@@ -156,12 +158,20 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
                 }
             }
 
-            override fun onFrameResolutionChanged(newWidth: Int, newHeight: Int, newRotation: Int) {
+            override fun onFrameResolutionChanged(
+                newWidth: Int,
+                newHeight: Int,
+                newRotation: Int
+            ) {
                 if (newWidth != width || newHeight != height) {
                     width = newWidth
                     height = newHeight
                     Handler(Looper.getMainLooper()).post {
-                        eventListener?.onTextureChangeVideoSize(id, height, width)
+                        eventListener?.onTextureChangeVideoSize(
+                            id,
+                            height,
+                            width
+                        )
                     }
                 }
 
@@ -173,13 +183,5 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
                 }
             }
         }
-    }
-
-    /**
-     * Removes [SurfaceTextureRenderer] of this [FlutterRtcVideoRenderer] from the
-     * rendering [VideoTrackProxy].
-     */
-    private fun removeRendererFromVideoTrack() {
-        videoTrack?.removeSink(surfaceTextureRenderer)
     }
 }

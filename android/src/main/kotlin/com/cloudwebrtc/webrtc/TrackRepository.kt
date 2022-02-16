@@ -13,16 +13,16 @@ object TrackRepository {
     /**
      * All [MediaStreamTrackProxy]s created in flutter_webrtc.
      */
-    private val tracks: HashMap<String, WeakReference<MediaStreamTrackProxy>> = HashMap()
+    private val tracks: HashMap<String, WeakReference<MediaStreamTrackProxy>> =
+        HashMap()
 
     /**
      * Adds new [MediaStreamTrackProxy].
      *
-     * @param id unique [MediaStreamTrackProxy] ID which can be used for lookup this track.
      * @param track actual [MediaStreamTrackProxy] which will be stored here.
      */
-    fun addTrack(id: String, track: MediaStreamTrackProxy) {
-        tracks[id] = WeakReference(track)
+    fun addTrack(track: MediaStreamTrackProxy) {
+        tracks[track.id()] = WeakReference(track)
     }
 
     /**

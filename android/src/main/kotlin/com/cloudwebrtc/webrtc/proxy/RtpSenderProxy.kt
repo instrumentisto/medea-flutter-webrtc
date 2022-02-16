@@ -34,6 +34,7 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
      */
     fun replaceTrack(t: MediaStreamTrackProxy?) {
         track = t
+        // TODO(#34): handle error?
         obj.setTrack(t?.obj, false)
     }
 
@@ -49,7 +50,7 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
             if (track == null) {
                 track = MediaStreamTrackProxy(newSenderTrack)
             } else {
-                track!!.updateObject(newSenderTrack)
+                track!!.replace(newSenderTrack)
             }
         }
     }
