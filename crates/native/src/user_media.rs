@@ -464,8 +464,8 @@ pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
     id: VideoTrackId,
 
-    #[as_ref]
     /// Underlying [`sys::VideoTrackInterface`].
+    #[as_ref]
     inner: sys::VideoTrackInterface,
 
     /// [`VideoSource`] that is used by this [`VideoTrack`].

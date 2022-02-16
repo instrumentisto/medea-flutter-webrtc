@@ -492,7 +492,8 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
 }
 
 // Calls `RtpTransceiverInterface->media_type()`.
-MediaType get_transceiver_media_type(const RtpTransceiverInterface& transceiver) {
+MediaType get_transceiver_media_type(
+    const RtpTransceiverInterface& transceiver) {
   return transceiver->media_type();
 }
 

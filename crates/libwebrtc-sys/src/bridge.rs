@@ -565,15 +565,15 @@ pub(crate) mod webrtc {
             transceiver: &RtpTransceiverInterface
         ) -> UniquePtr<RtpSenderInterface>;
 
-        /// Replaces the track currently being used as the sender's source with
-        /// a new [`VideoTrackInterface`].
+        /// Replaces the track currently being used as the `sender`'s source
+        /// with a new [`VideoTrackInterface`].
         pub fn replace_sender_video_track(
             sender: &RtpSenderInterface,
             track: &UniquePtr<VideoTrackInterface>
         ) -> bool;
 
-        /// Replaces the track currently being used as the sender's source with
-        /// a new [`AudioTrackInterface`].
+        /// Replaces the track currently being used as the `sender`'s source
+        /// with a new [`AudioTrackInterface`].
         pub fn replace_sender_audio_track(
             sender: &RtpSenderInterface,
             track: &UniquePtr<AudioTrackInterface>
