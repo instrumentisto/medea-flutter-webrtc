@@ -10,6 +10,25 @@
 
 namespace bridge {
 
+TrackEventObserver::TrackEventObserver(
+  webrtc::MediaStreamTrackInterface* track, rust::Box<bridge::DynTrackEventCallback> cb)
+  : track_(track), cb_(std::move(cb))  {}
+
+void TrackEventObserver::OnChanged() {
+   if (track_ != nullptr) {
+     if (track_->enabled() != old_enabled) {
+       old_enabled = track_->enabled();
+       if (old_enabled) {
+         bridge::on_unmute(*cb_.value());
+       } else {
+         bridge::on_mute(*cb_.value());
+       }
+     } else {
+       bridge::on_ended(*cb_.value());
+     }
+   }
+}
+
 // Calls `AudioDeviceModule->Create()`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
@@ -645,6 +664,41 @@ std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
         result.push_back(new_string_pair(p.first, p.second));
       }
       return std::make_unique<std::vector<StringPair>>(result);
+    }
+
+
+// todo
+std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
+    const VideoTrackInterface& track,
+    rust::Box<bridge::DynTrackEventCallback> cb
+) {
+    return std::make_unique<TrackEventObserver>(
+      TrackEventObserver(track.get(), std::move(cb))
+    );
+}
+
+// todo
+std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
+    const AudioTrackInterface& track,
+    rust::Box<bridge::DynTrackEventCallback> cb
+) {
+    return std::make_unique<TrackEventObserver>(
+      TrackEventObserver(track.get(), std::move(cb))
+    );
+}
+
+// todo
+void video_track_register_observer(
+    VideoTrackInterface& track, 
+    TrackEventObserver& obs) {
+      track->RegisterObserver(&obs);
+    }
+
+// todo
+void audio_track_register_observer(
+    AudioTrackInterface& track, 
+    TrackEventObserver& obs) {
+      track->RegisterObserver(&obs);
     }
 
 }  // namespace bridge

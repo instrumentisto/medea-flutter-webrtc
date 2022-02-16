@@ -22,6 +22,20 @@
 
 namespace bridge {
 
+struct DynTrackEventCallback;
+
+class TrackEventObserver : public webrtc::ObserverInterface {
+ public:
+    TrackEventObserver(webrtc::MediaStreamTrackInterface* track,
+                       rust::Box<bridge::DynTrackEventCallback> cb);
+
+  void OnChanged();
+
+ private:
+  webrtc::MediaStreamTrackInterface* track_;
+  bool old_enabled;
+  std::optional<rust::Box<bridge::DynTrackEventCallback>> cb_;
+};
 struct TransceiverContainer;
 struct StringPair;
 
@@ -429,5 +443,27 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 // of the given `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
     const RtpCodecParameters& codec);
+
+// todo
+std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
+    const VideoTrackInterface& track,
+    rust::Box<bridge::DynTrackEventCallback> cb
+);
+
+// todo
+std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
+    const AudioTrackInterface& track,
+    rust::Box<bridge::DynTrackEventCallback> cb
+);
+
+// todo
+void video_track_register_observer(
+    VideoTrackInterface& track, 
+    TrackEventObserver& obs);
+
+// todo
+void audio_track_register_observer(
+    AudioTrackInterface& track, 
+    TrackEventObserver& obs);
 
 }  // namespace bridge

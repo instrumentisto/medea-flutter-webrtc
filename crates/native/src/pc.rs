@@ -567,7 +567,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
         if get_media_stream_track_kind(&track).to_string() == "video" {
             let inner = VideoTrackInterface::from(
-                media_stream_track_interface_downcast_video_track(track),
+                (media_stream_track_interface_downcast_video_track(track), None)
             );
             let source = get_video_track_sourse(inner.inner());
             let v = VideoTrack::new_from_video_interface(
@@ -577,7 +577,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             self.remote_video_tracks.lock().unwrap().insert(id, v);
         } else {
             let inner = AudioTrackInterface::from(
-                media_stream_track_interface_downcast_audio_track(track),
+                (media_stream_track_interface_downcast_audio_track(track), None)
             );
             let source = get_audio_track_sourse(inner.inner());
             let a = AudioTrack::new_from_audio_interface(

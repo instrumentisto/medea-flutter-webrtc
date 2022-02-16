@@ -5,8 +5,11 @@ use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
     CreateSdpCallback, OnFrameCallback, PeerConnectionEventsHandler,
-    SetDescriptionCallback,
+    SetDescriptionCallback, TrackEventCallback
 };
+
+// todo
+type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
@@ -856,6 +859,7 @@ pub(crate) mod webrtc {
         type VideoRotation;
         type RtpExtension;
         type RtcpParameters;
+        type TrackEventObserver;
 
         /// Creates a new [`VideoTrackSourceInterface`] sourced by a video input
         /// device with provided `device_index`.
@@ -1103,6 +1107,29 @@ pub(crate) mod webrtc {
         /// Returns the remote [`Candidate`] of the provided [`CandidatePair`].
         #[must_use]
         pub fn remote_candidate(self: &CandidatePair) -> &Candidate;
+
+        // todo
+        pub fn create_audio_track_event_observer(
+            track: &AudioTrackInterface,
+            cb: Box<DynTrackEventCallback>, 
+        ) -> UniquePtr<TrackEventObserver>;
+
+        // todo
+        pub fn create_video_track_event_observer(
+            track: &VideoTrackInterface,
+            cb: Box<DynTrackEventCallback>, 
+        ) -> UniquePtr<TrackEventObserver>;
+
+        // todo
+        pub fn audio_track_register_observer(
+            track: Pin<&mut AudioTrackInterface>,
+            obs: Pin<&mut TrackEventObserver>,
+        );
+
+        pub fn video_track_register_observer(
+            track: Pin<&mut VideoTrackInterface>,
+            obs: Pin<&mut TrackEventObserver>,
+        );
     }
 
     extern "Rust" {
@@ -1113,6 +1140,23 @@ pub(crate) mod webrtc {
         pub fn on_frame(
             cb: &mut DynOnFrameCallback,
             frame: UniquePtr<VideoFrame>,
+        );
+    }
+
+    extern "Rust" {
+        type DynTrackEventCallback;
+        fn on_ended(
+            cb: &mut DynTrackEventCallback,
+        );
+        
+        // todo
+        fn on_mute(
+            cb: &mut DynTrackEventCallback,
+        );
+        
+        // todo
+        fn on_unmute(
+            cb: &mut DynTrackEventCallback,
         );
     }
 
@@ -1639,4 +1683,25 @@ impl fmt::Display for webrtc::PeerConnectionState {
             _ => unreachable!(),
         }
     }
+}
+
+// todo
+pub fn on_ended(
+    cb: &mut DynTrackEventCallback,
+) {
+    cb.on_ended();
+}
+
+// todo
+pub fn on_mute(
+    cb: &mut DynTrackEventCallback,
+) {
+    cb.on_mute();
+}
+
+// todo
+pub fn on_unmute(
+    cb: &mut DynTrackEventCallback,
+) {
+    cb.on_unmute();
 }
