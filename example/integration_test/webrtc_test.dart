@@ -118,6 +118,25 @@ void main() {
     expect(mid, equals('0'));
   });
 
+  testWidgets('Get transceiver mid', (WidgetTester tester) async {
+    var pc = await createPeerConnection({});
+    var init = RTCRtpTransceiverInit();
+    init.direction = TransceiverDirection.SendRecv;
+    var trans = await pc.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+    var mid = await trans.getMid();
+
+    expect(mid.isEmpty, isTrue);
+
+    var sess = await pc.createOffer();
+    await pc.setLocalDescription(sess);
+
+    mid = await trans.getMid();
+
+    expect(mid, equals('0'));
+  });
+
   testWidgets('Peer connection', (WidgetTester tester) async {
     var result = 'Success';
 

@@ -6,6 +6,7 @@
 #include "libwebrtc-sys/include/bridge.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
+
 #include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
@@ -419,16 +420,6 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   peer_connection_interface->SetRemoteDescription(std::move(desc), observer);
 }
 
-// Returns a `local` of the given `CandidatePair`.
-const Candidate& get_candidate_pair_local_candidate(const CandidatePair& pair) {
-  return pair.local_candidate();
-};
-
-// Returns a `remote` of the given `CandidatePair`.
-const Candidate& get_candidate_pair_remote_candidate(const CandidatePair& pair) {
-  return pair.remote_candidate();
-};
-
 // Returns a `duration` of the given `DtmfSenderInterface`.
 int32_t get_dtmf_sender_duration(
     const DtmfSenderInterface& dtmf) {
@@ -594,23 +585,17 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
+// Calls `RtpTransceiverInterface->media_type()`.
+MediaType get_transceiver_media_type(
+    const RtpTransceiverInterface& transceiver) {
+  return transceiver->media_type();
+}
+
 // Calls `PeerConnectionInterface->direction()`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->direction();
 }
-
-// Returns a `receiver` of the given `RtpTransceiverInterface`.
-std::unique_ptr<RtpReceiverInterface> get_transceiver_receiver(
-    const RtpTransceiverInterface& transceiver) {
-      return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
-    }
-    
-// Returns a `sender` of the given `RtpTransceiverInterface`.
-std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
-    const RtpTransceiverInterface& transceiver) {
-      return std::make_unique<RtpSenderInterface> (transceiver->sender());
-    }
 
 // Calls `RtpTransceiverInterface->SetDirectionWithError()`.
 rust::String set_transceiver_direction(
@@ -636,7 +621,41 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
   return error;
 }
 
-// Returns a `parameters` as std::vector<(std::string, std::string)> 
+// Calls `RtpTransceiverInterface->sender()`.
+std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
+    const RtpTransceiverInterface& transceiver) {
+  return std::make_unique<RtpSenderInterface>(transceiver->sender());
+}
+
+// Returns a `receiver` of the given `RtpTransceiverInterface`.
+std::unique_ptr<RtpReceiverInterface> get_transceiver_receiver(
+    const RtpTransceiverInterface& transceiver) {
+  return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
+}
+
+// Calls `RtpSenderInterface->SetTrack()`.
+bool replace_sender_video_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<VideoTrackInterface>& track) {
+  if (!track.get()) {
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
+}
+
+// Calls `RtpSenderInterface->SetTrack()`.
+bool replace_sender_audio_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<AudioTrackInterface>& track) {
+  if (!track.get()) {
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
+}
+
+// Returns a `parameters` as std::vector<(std::string, std::string)>
 // of the given `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
     const RtpCodecParameters& codec) {

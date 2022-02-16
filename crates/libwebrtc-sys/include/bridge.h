@@ -4,19 +4,18 @@
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
 #include "api/peer_connection_interface.h"
-
 #include "api/task_queue/default_task_queue_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
+#include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
-#include "rust/cxx.h"
-#include "device_video_capturer.h"
 #include "peer_connection_observer.h"
+#include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
 
@@ -58,6 +57,7 @@ using PeerConnectionInterface =
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>;
 using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
+using RtpSenderInterface = rtc::scoped_refptr<webrtc::RtpSenderInterface>;
 using VideoTrackInterface = rtc::scoped_refptr<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface =
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>;
@@ -92,7 +92,6 @@ using DtmfSenderInterface = rtc::scoped_refptr<webrtc::DtmfSenderInterface>;
 using MediaType = cricket::MediaType;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using RtpCodecParameters = webrtc::RtpCodecParameters;
-using RtpSenderInterface = rtc::scoped_refptr<webrtc::RtpSenderInterface>;
 using RtpParameters = webrtc::RtpParameters;
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
@@ -206,6 +205,7 @@ void set_video_track_enabled(const VideoTrackInterface& track, bool enabled);
 void set_audio_track_enabled(const AudioTrackInterface& track, bool enabled);
 
 // Registers the provided video `sink` for the given `track`.
+//
 // Used to connect the given `track` to the underlying video engine.
 void add_or_update_video_sink(const VideoTrackInterface& track,
                               VideoSinkInterface& sink);
@@ -297,12 +297,6 @@ void set_local_description(PeerConnectionInterface& peer,
 void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
-
-// Returns a `local` of the given `CandidatePair`.
-const Candidate& get_candidate_pair_local_candidate(const CandidatePair& pair);
-
-// Returns a `remote` of the given `CandidatePair`.
-const Candidate& get_candidate_pair_remote_candidate(const CandidatePair& pair);
 
 // Returns a `duration` of the given `DtmfSenderInterface`.
 int32_t get_dtmf_sender_duration(
@@ -396,20 +390,14 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
 rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer);
 
-// Calls `PeerConnectionInterface->mid()`.
-rust::String get_transceiver_mid(
-    const RtpTransceiverInterface& transceiver);
+// Returns a `mid` of the given `RtpTransceiverInterface`.
+rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
+
+// Returns a `MediaType` of the given `RtpTransceiverInterface`.
+MediaType get_transceiver_media_type(const RtpTransceiverInterface& transceiver);
 
 // Returns a `direction` of the given `RtpTransceiverInterface`.
 RtpTransceiverDirection get_transceiver_direction(
-    const RtpTransceiverInterface& transceiver);
-
-// Returns a `receiver` of the given `RtpTransceiverInterface`.
-std::unique_ptr<RtpReceiverInterface> get_transceiver_receiver(
-    const RtpTransceiverInterface& transceiver);
-
-// Returns a `sender` of the given `RtpTransceiverInterface`.
-std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
     const RtpTransceiverInterface& transceiver);
 
 // Changes the preferred `RtpTransceiverInterface` direction to the given
@@ -425,7 +413,27 @@ rust::String set_transceiver_direction(
 // its receiver to no longer receive.
 rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 
-// Returns a `parameters` as std::vector<(std::string, std::string)> 
+// Returns a `RtpSenderInterface` of the given `RtpTransceiverInterface`.
+std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
+    const RtpTransceiverInterface& transceiver);
+
+// Returns a `receiver` of the given `RtpTransceiverInterface`.
+std::unique_ptr<RtpReceiverInterface> get_transceiver_receiver(
+    const RtpTransceiverInterface& transceiver);
+
+// Replaces the track currently being used as the `sender`'s source with a new
+// `VideoTrackInterface`.
+bool replace_sender_video_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<VideoTrackInterface>& track);
+
+// Replaces the track currently being used as the `sender`'s source with a new
+// `AudioTrackInterface`.
+bool replace_sender_audio_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<AudioTrackInterface>& track);
+
+// Returns a `parameters` as std::vector<(std::string, std::string)>
 // of the given `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
     const RtpCodecParameters& codec);
