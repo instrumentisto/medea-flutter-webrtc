@@ -7,7 +7,7 @@ import org.webrtc.RtpTransceiver
  * Wrapper around [RtpTransceiver].
  */
 class RtpTransceiverProxy(override var obj: RtpTransceiver) :
-    IWebRTCProxy<RtpTransceiver> {
+    Proxy<RtpTransceiver> {
     /**
      * [RtpSenderProxy] of this [RtpTransceiverProxy].
      */

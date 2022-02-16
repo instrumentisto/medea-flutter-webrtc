@@ -1,5 +1,6 @@
 package com.cloudwebrtc.webrtc.proxy
 
+import com.cloudwebrtc.webrtc.exception.ReplaceSenderTrackException
 import org.webrtc.RtpReceiver
 import org.webrtc.RtpSender
 
@@ -8,7 +9,7 @@ import org.webrtc.RtpSender
  *
  * @param sender actual underlying [RtpSender].
  */
-class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
+class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender> {
     /**
      * Actual underlying [RtpReceiver].
      */
@@ -34,8 +35,10 @@ class RtpSenderProxy(sender: RtpSender) : IWebRTCProxy<RtpSender> {
      */
     fun replaceTrack(t: MediaStreamTrackProxy?) {
         track = t
-        // TODO(#34): handle error?
-        obj.setTrack(t?.obj, false)
+        val isSuccessful = obj.setTrack(t?.obj, false)
+        if (!isSuccessful) {
+            throw ReplaceSenderTrackException()
+        }
     }
 
     /**

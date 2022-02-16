@@ -5,6 +5,7 @@ import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
 import com.cloudwebrtc.webrtc.proxy.RtpTransceiverProxy
 import com.cloudwebrtc.webrtc.utils.AnyThreadSink
+import com.cloudwebrtc.webrtc.utils.resultUnhandledException
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -141,12 +142,20 @@ class PeerConnectionController(
         when (call.method) {
             "createOffer" -> {
                 GlobalScope.launch(Dispatchers.Main) {
-                    result.success(peer.createOffer().asFlutterResult())
+                    try {
+                        result.success(peer.createOffer().asFlutterResult())
+                    } catch (e: Exception) {
+                        resultUnhandledException(result, e)
+                    }
                 }
             }
             "createAnswer" -> {
                 GlobalScope.launch(Dispatchers.Main) {
-                    result.success(peer.createAnswer().asFlutterResult())
+                    try {
+                        result.success(peer.createAnswer().asFlutterResult())
+                    } catch (e: Exception) {
+                        resultUnhandledException(result, e)
+                    }
                 }
             }
             "setLocalDescription" -> {
@@ -158,28 +167,39 @@ class PeerConnectionController(
                     SessionDescription.fromMap(descriptionArg)
                 }
                 GlobalScope.launch(Dispatchers.Main) {
-                    peer.setLocalDescription(description)
-                    result.success(null)
+                    try {
+                        peer.setLocalDescription(description)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        resultUnhandledException(result, e)
+                    }
                 }
             }
             "setRemoteDescription" -> {
                 val descriptionArg: Map<String, Any> =
                     call.argument("description")!!
                 GlobalScope.launch(Dispatchers.Main) {
-                    peer.setRemoteDescription(
-                        SessionDescription.fromMap(
-                            descriptionArg
+                    try {
+                        peer.setRemoteDescription(
+                            SessionDescription.fromMap(
+                                descriptionArg
+                            )
                         )
-                    )
-                    result.success(null)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        resultUnhandledException(result, e)
+                    }
                 }
             }
             "addIceCandidate" -> {
                 val candidate: Map<String, Any> = call.argument("candidate")!!
                 GlobalScope.launch(Dispatchers.Main) {
-                    // TODO(#34): wrap in try-catch?
-                    peer.addIceCandidate(IceCandidate.fromMap(candidate))
-                    result.success(null)
+                    try {
+                        peer.addIceCandidate(IceCandidate.fromMap(candidate))
+                        result.success(null)
+                    } catch (e: Exception) {
+                        resultUnhandledException(result, e)
+                    }
                 }
             }
             "addTransceiver" -> {

@@ -7,7 +7,7 @@ import org.webrtc.RtpReceiver
  *
  * @param receiver underlying [RtpReceiver].
  */
-class RtpReceiverProxy(receiver: RtpReceiver) : IWebRTCProxy<RtpReceiver> {
+class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver> {
     /**
      * Actual underlying [RtpReceiver].
      */

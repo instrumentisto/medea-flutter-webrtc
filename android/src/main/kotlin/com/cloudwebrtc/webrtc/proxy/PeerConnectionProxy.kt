@@ -23,7 +23,7 @@ import org.webrtc.SessionDescription as WSessionDescription
  * @param peer underlying [PeerConnection].
  */
 class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
-    IWebRTCProxy<PeerConnection> {
+    Proxy<PeerConnection> {
     /**
      * Actual underlying [PeerConnection].
      */
@@ -216,61 +216,47 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
                 track: MediaStreamTrackProxy,
                 transceiver: RtpTransceiverProxy
             ) {
-                Handler(Looper.getMainLooper()).post {
                     eventObservers.forEach { it.onTrack(track, transceiver) }
-                }
             }
 
             override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
-                Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach {
-                        it.onIceConnectionStateChange(
-                            iceConnectionState
-                        )
-                    }
+                eventObservers.forEach {
+                    it.onIceConnectionStateChange(
+                        iceConnectionState
+                    )
                 }
             }
 
             override fun onSignalingStateChange(signalingState: SignalingState) {
-                Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach {
-                        it.onSignalingStateChange(
-                            signalingState
-                        )
-                    }
+                eventObservers.forEach {
+                    it.onSignalingStateChange(
+                        signalingState
+                    )
                 }
             }
 
             override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
-                Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach {
-                        it.onConnectionStateChange(
-                            peerConnectionState
-                        )
-                    }
+                eventObservers.forEach {
+                    it.onConnectionStateChange(
+                        peerConnectionState
+                    )
                 }
             }
 
             override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
-                Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach {
-                        it.onIceGatheringStateChange(
-                            iceGatheringState
-                        )
-                    }
+                eventObservers.forEach {
+                    it.onIceGatheringStateChange(
+                        iceGatheringState
+                    )
                 }
             }
 
             override fun onIceCandidate(candidate: IceCandidate) {
-                Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach { it.onIceCandidate(candidate) }
-                }
+                eventObservers.forEach { it.onIceCandidate(candidate) }
             }
 
             override fun onNegotiationNeeded() {
-                Handler(Looper.getMainLooper()).post {
-                    eventObservers.forEach { it.onNegotiationNeeded() }
-                }
+                eventObservers.forEach { it.onNegotiationNeeded() }
             }
         }
     }

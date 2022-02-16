@@ -111,7 +111,7 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
         createEglSurface(texture)
     }
 
-    fun surfaceDestroyed() { // TODO(#34): unused?
+    fun surfaceDestroyed() {
         ThreadUtils.checkIsOnMainThread()
         val completionLatch = CountDownLatch(1)
         releaseEglSurface { completionLatch.countDown() }

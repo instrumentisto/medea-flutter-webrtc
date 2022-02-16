@@ -8,9 +8,21 @@ import org.webrtc.PeerConnection.IceGatheringState as WIceGatheringState
  * @property value [Int] representation of this enum which will be expected on Flutter side.
  */
 enum class IceGatheringState(val value: Int) {
-    // TODO(#34): docs
+    /**
+     * The peer connection was just created and hasn't done any networking yet.
+     */
     NEW(0),
+
+    /**
+     * The ICE agent is in the process of gathering candidates for the connection.
+     */
     GATHERING(1),
+
+    /**
+     * The ICE agent has finished gathering candidates. If something happens that requires
+     * collecting new candidates, such as a new interface being added or the addition of a
+     * new ICE server, the state will revert to gathering to gather those candidates.
+     */
     COMPLETE(2);
 
     companion object {

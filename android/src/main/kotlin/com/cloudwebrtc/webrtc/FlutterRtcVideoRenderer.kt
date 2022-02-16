@@ -134,12 +134,12 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
      * Closes [EventListener], releases all related to the surface texture renderer entities.
      */
     fun dispose() {
-        // TODO(#34): surfaceTextureRenderer.surfaceDestroyed()?
         eventListener = null
         track?.removeSink(renderer)
         renderer.release()
         surfaceTextureEntry.release()
         texture.release()
+        renderer.surfaceDestroyed()
     }
 
     /**

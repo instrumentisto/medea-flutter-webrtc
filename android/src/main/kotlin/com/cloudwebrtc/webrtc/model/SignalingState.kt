@@ -39,7 +39,7 @@ enum class SignalingState(val value: Int) {
     /**
      * Indicates that peer was closed.
      */
-    CLOSED(4); // TODO(#34): 4 again?
+    CLOSED(5);
 
     companion object {
         /**

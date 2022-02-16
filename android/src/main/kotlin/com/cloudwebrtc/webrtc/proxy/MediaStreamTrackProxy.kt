@@ -19,7 +19,7 @@ class MediaStreamTrackProxy(
     private val deviceId: String = "remote",
     private val source: MediaTrackSource? = null
 ) :
-    IWebRTCProxy<MediaStreamTrack> {
+    Proxy<MediaStreamTrack> {
     /**
      * Actual underlying [MediaStreamTrack].
      */
