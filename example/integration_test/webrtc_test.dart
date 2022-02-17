@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
@@ -214,12 +215,12 @@ void main() {
     var pc1 = await createPeerConnection({});
     var pc2 = await createPeerConnection({});
 
-    // var controller = StreamController<String>();
-    // var iterator = StreamIterator(controller.stream);
+    var controller = StreamController<String>();
+    var iterator = StreamIterator(controller.stream);
 
-    // pc1.onIceConnectionState = (RTCIceConnectionState state) async {
-    //   print(state.toString());
-    // };
+    pc1.onIceConnectionState = (RTCIceConnectionState state) async {
+      print(state.toString());
+    };
 
     pc1.onIceCandidate = (RTCIceCandidate candidate) async {
       await pc2.addCandidate(candidate);
