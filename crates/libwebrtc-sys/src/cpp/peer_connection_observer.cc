@@ -2,6 +2,11 @@
 #include "libwebrtc-sys/include/peer_connection_observer.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 
+
+#include <chrono>
+#include <thread>
+
+
 namespace observer {
 
 // Creates a new `PeerConnectionObserver` backed by the provided
@@ -77,7 +82,7 @@ void PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
         bridge::on_track(
           *cb_, 
-          transceiver);
+          std::make_unique<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>>(transceiver));
       }
 
 // Notifies the Rust side.

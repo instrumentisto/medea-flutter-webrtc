@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    pin::Pin,
     sync::{Arc, Mutex},
 };
 
@@ -11,22 +12,21 @@ use sys::{
     get_media_stream_track_kind, get_rtp_receiver_track,
     get_transceiver_receiver, get_video_track_sourse,
     media_stream_track_interface_downcast_audio_track,
-    media_stream_track_interface_downcast_video_track, AudioSourceInterface,
-    AudioTrackInterface, MediaStreamTrackInterface, Sys_RtpReceiverInterface,
-    Sys_RtpTransceiverInterface, VideoTrackInterface,
+    media_stream_track_interface_downcast_video_track, stop_T,
+    AudioSourceInterface, AudioTrackInterface, MediaStreamTrackInterface,
+    Sys_RtpReceiverInterface, Sys_RtpTransceiverInterface, VideoTrackInterface,
     VideoTrackSourceInterface,
 };
 
 use crate::{
     api::{
-        OnTrackSerialized, RtpTransceiverInterfaceSerialized,
+        self, OnTrackSerialized, RtpTransceiverInterfaceSerialized,
         TrackInterfaceSerialized,
     },
     AudioTrack, VideoTrack,
 };
 
 use crate::{
-    api,
     internal::{
         CreateSdpCallbackInterface, PeerConnectionObserverInterface,
         SetDescriptionCallbackInterface,
@@ -560,15 +560,27 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         // This is a non-spec-compliant event.
     }
 
-    fn on_track(&mut self, event: &Sys_RtpTransceiverInterface) {
-        let receiver = get_transceiver_receiver(event);
+    fn on_track(&mut self, mut event: UniquePtr<Sys_RtpTransceiverInterface>) {
+        let receiver = get_transceiver_receiver(&event);
         let track = get_rtp_receiver_track(&receiver);
         let id = get_media_stream_track_id(&track).to_string();
 
         if get_media_stream_track_kind(&track).to_string() == "video" {
-            let inner = VideoTrackInterface::from(
-                (media_stream_track_interface_downcast_video_track(track), None)
-            );
+            let mut inner = VideoTrackInterface::from((
+                media_stream_track_interface_downcast_video_track(track),
+                HashMap::new(),
+            ));
+
+            // {// for test
+            //     let id_ = inner.register_observer(Box::new(TestTrackEvent()));
+            //     inner.set_enabled(false);
+            //     inner.set_enabled(true);
+            //     inner.set_enabled(true);
+            //     inner.set_enabled(false);
+            //     stop_T(event.pin_mut());
+            //     inner.unregister_observer(id_);
+            // }
+
             let source = get_video_track_sourse(inner.inner());
             let v = VideoTrack::new_from_video_interface(
                 inner,
@@ -576,9 +588,20 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             );
             self.remote_video_tracks.lock().unwrap().insert(id, v);
         } else {
-            let inner = AudioTrackInterface::from(
-                (media_stream_track_interface_downcast_audio_track(track), None)
-            );
+            let mut inner = AudioTrackInterface::from((
+                media_stream_track_interface_downcast_audio_track(track),
+                HashMap::new(),
+            ));
+
+            // {// for test
+            //     let id_ = inner.register_observer(Box::new(TestTrackEvent()));
+            //     inner.set_enabled(false);
+            //     inner.set_enabled(true);
+            //     inner.set_enabled(true);
+            //     inner.set_enabled(false);
+            //     inner.unregister_observer(id_);
+            // }
+
             let source = get_audio_track_sourse(inner.inner());
             let a = AudioTrack::new_from_audio_interface(
                 inner,
@@ -592,7 +615,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             track: TrackInterfaceSerialized::from(
                 &track as &MediaStreamTrackInterface,
             ),
-            transceiver: RtpTransceiverInterfaceSerialized::from(event),
+            transceiver: RtpTransceiverInterfaceSerialized::from(
+                &event.pin_mut() as &Sys_RtpTransceiverInterface,
+            ),
         };
         self.cb.pin_mut().on_track(result);
     }

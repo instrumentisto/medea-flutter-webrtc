@@ -1,14 +1,16 @@
 extern crate owning_ref;
 
 use anyhow::bail;
+use cxx::UniquePtr;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 use std::rc::Rc;
 
-use sys::{AudioTrackInterface, VideoTrackInterface};
+use sys::{AudioTrackInterface, TrackEventCallback, VideoTrackInterface};
 
 use crate::{
-    api::{self, AudioConstraints, VideoConstraints},
+    api::{self, AudioConstraints, TrackInterfaceSerialized, VideoConstraints},
+    internal::TrackEventInterface,
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
@@ -313,6 +315,85 @@ impl Webrtc {
             track.inner.set_enabled(enabled);
         } else if let Some(track) = self.0.audio_tracks.get(&AudioTrackId(id)) {
             track.set_enabled(enabled);
+        } else {
+            // TODO: Return error.
+            panic!("Could not find track with `{id}` ID");
+        }
+    }
+
+    //todo
+    pub fn register_observer_local_track(
+        &mut self,
+        id: u64,
+        cb: UniquePtr<TrackEventInterface>,
+    ) -> u64 {
+        if let Some(track) = self.0.video_tracks.get_mut(&VideoTrackId(id)) {
+            return track
+                .inner
+                .register_observer(Box::new(TrackEventHandler(cb)));
+        } else if let Some(track) =
+            self.0.audio_tracks.get_mut(&AudioTrackId(id))
+        {
+            return track
+                .inner
+                .register_observer(Box::new(TrackEventHandler(cb)));
+        } else {
+            // TODO: Return error.
+            panic!("Could not find track with `{id}` ID");
+        }
+    }
+
+    //todo
+    pub fn register_observer_remote_track(
+        &mut self,
+        id: String,
+        cb: UniquePtr<TrackEventInterface>,
+    ) -> u64 {
+        if let Some(track) = self.0.remote_video_tracks.lock().unwrap().get_mut(&id) {
+            return track
+                .inner
+                .register_observer(Box::new(TrackEventHandler(cb)));
+        } else if let Some(track) =
+            self.0.remote_audio_tracks.lock().unwrap().get_mut(&id)
+        {
+            return track
+                .inner
+                .register_observer(Box::new(TrackEventHandler(cb)));
+        } else {
+            // TODO: Return error.
+            panic!("Could not find track with `{id}` ID");
+        }
+    }
+
+    //todo
+    pub fn unregister_observer_local_track(&mut self, id: u64, id_obs: u64) {
+        if let Some(track) = self.0.video_tracks.get_mut(&VideoTrackId(id)) {
+            track
+                .inner
+                .unregister_observer(id_obs);
+        } else if let Some(track) =
+            self.0.audio_tracks.get_mut(&AudioTrackId(id))
+        {
+            track
+                .inner
+                .unregister_observer(id_obs);
+        } else {
+            // TODO: Return error.
+            panic!("Could not find track with `{id}` ID");
+        }
+    }
+        //todo
+    pub fn unregister_observer_remote_track(&mut self, id: String, id_obs: u64) {
+        if let Some(track) = self.0.remote_video_tracks.lock().unwrap().get_mut(&id) {
+            track
+                .inner
+                .unregister_observer(id_obs);
+        } else if let Some(track) =
+            self.0.remote_audio_tracks.lock().unwrap().get_mut(&id)
+        {
+            track
+                .inner
+                .unregister_observer(id_obs);
         } else {
             // TODO: Return error.
             panic!("Could not find track with `{id}` ID");
@@ -657,5 +738,29 @@ impl VideoSource {
             device_id,
             is_display: true,
         })
+    }
+}
+
+//todo
+/// [`TrackEventInterface`] wrapper.
+struct TrackEventHandler(UniquePtr<TrackEventInterface>);
+
+impl sys::TrackEventCallback for TrackEventHandler {
+    fn on_ended(&mut self, track: &sys::MediaStreamTrackInterface) {
+        self.0
+            .pin_mut()
+            .on_ended(TrackInterfaceSerialized::from(track));
+    }
+
+    fn on_mute(&mut self, track: &sys::MediaStreamTrackInterface) {
+        self.0
+            .pin_mut()
+            .on_mute(TrackInterfaceSerialized::from(track));
+    }
+
+    fn on_unmute(&mut self, track: &sys::MediaStreamTrackInterface) {
+        self.0
+            .pin_mut()
+            .on_unmute(TrackInterfaceSerialized::from(track));
     }
 }

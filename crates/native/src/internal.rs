@@ -11,9 +11,11 @@ mod cpp_api_bindings {
         pub type SetDescriptionCallbackInterface;
         pub type OnFrameCallbackInterface;
         pub type PeerConnectionObserverInterface;
+        pub type TrackEventInterface;
 
         type VideoFrame = crate::api::VideoFrame;
         type OnTrackSerialized = crate::api::OnTrackSerialized;
+        type TrackInterfaceSerialized = crate::api::TrackInterfaceSerialized;
 
         /// Calls C++ side `CreateSdpCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
@@ -113,6 +115,28 @@ mod cpp_api_bindings {
             self: Pin<&mut PeerConnectionObserverInterface>,
             event: OnTrackSerialized,
         );
+
+        /// Calls C++ side `TrackEventInterface->OnEnded`.
+        #[cxx_name = "OnEnded"]
+        pub fn on_ended(
+            self: Pin<&mut TrackEventInterface>,
+            track: TrackInterfaceSerialized,
+        );
+
+        /// Calls C++ side `TrackEventInterface->OnMute`.
+        #[cxx_name = "OnMute"]
+        pub fn on_mute(
+            self: Pin<&mut TrackEventInterface>,
+            track: TrackInterfaceSerialized,
+        );
+
+        /// Calls C++ side `TrackEventInterface->OnUnmute`.
+        #[cxx_name = "OnUnmute"]
+        pub fn on_unmute(
+            self: Pin<&mut TrackEventInterface>,
+            track: TrackInterfaceSerialized,
+        );
+
     }
 
     // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
@@ -128,9 +152,12 @@ mod cpp_api_bindings {
         fn _touch_unique_ptr_peer_connection_on_event_interface(
             i: UniquePtr<PeerConnectionObserverInterface>,
         );
+
+        fn _touch_track_event(i: UniquePtr<TrackEventInterface>);
     }
 }
 
+fn _touch_track_event(_: cxx::UniquePtr<TrackEventInterface>) {}
 fn _touch_create_sdp_callback(_: cxx::UniquePtr<CreateSdpCallbackInterface>) {}
 
 fn _touch_set_description_callback(

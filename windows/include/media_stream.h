@@ -1,6 +1,7 @@
 #pragma once
 
 #include "flutter/method_result.h"
+#include "flutter_webrtc.h"
 
 using namespace rust::cxxbridge1;
 using namespace flutter;

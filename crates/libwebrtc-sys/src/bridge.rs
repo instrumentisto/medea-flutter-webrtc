@@ -1,11 +1,11 @@
-use std::fmt;
+use std::{fmt, pin::Pin};
 
 use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
     CreateSdpCallback, OnFrameCallback, PeerConnectionEventsHandler,
-    SetDescriptionCallback, TrackEventCallback
+    SetDescriptionCallback, TrackEventCallback,
 };
 
 // todo
@@ -1111,13 +1111,13 @@ pub(crate) mod webrtc {
         // todo
         pub fn create_audio_track_event_observer(
             track: &AudioTrackInterface,
-            cb: Box<DynTrackEventCallback>, 
+            cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
         // todo
         pub fn create_video_track_event_observer(
             track: &VideoTrackInterface,
-            cb: Box<DynTrackEventCallback>, 
+            cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
         // todo
@@ -1130,6 +1130,20 @@ pub(crate) mod webrtc {
             track: Pin<&mut VideoTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
+
+        // todo
+        pub fn audio_track_unregister_observer(
+            track: Pin<&mut AudioTrackInterface>,
+            obs: Pin<&mut TrackEventObserver>,
+        );
+
+        // todo
+        pub fn video_track_unregister_observer(
+            track: Pin<&mut VideoTrackInterface>,
+            obs: Pin<&mut TrackEventObserver>,
+        );
+
+        pub fn stop_T(tr: Pin<&mut RtpTransceiverInterface>);
     }
 
     extern "Rust" {
@@ -1147,16 +1161,19 @@ pub(crate) mod webrtc {
         type DynTrackEventCallback;
         fn on_ended(
             cb: &mut DynTrackEventCallback,
+            track: &MediaStreamTrackInterface,
         );
-        
+
         // todo
         fn on_mute(
             cb: &mut DynTrackEventCallback,
+            track: &MediaStreamTrackInterface,
         );
-        
+
         // todo
         fn on_unmute(
             cb: &mut DynTrackEventCallback,
+            track: &MediaStreamTrackInterface,
         );
     }
 
@@ -1301,7 +1318,7 @@ pub(crate) mod webrtc {
         /// [1]: https://www.w3.org/TR/webrtc/#event-track
         pub fn on_track(
             cb: &mut DynPeerConnectionEventsHandler,
-            event: &RtpTransceiverInterface,
+            event: UniquePtr<RtpTransceiverInterface>,
         );
 
         /// Forwards the [`RtpTransceiverInterface`] to the given
@@ -1502,7 +1519,7 @@ pub fn on_ice_selected_candidate_pair_changed(
 /// [1]: https://w3.org/TR/webrtc/#event-track
 pub fn on_track(
     cb: &mut DynPeerConnectionEventsHandler,
-    event: &webrtc::RtpTransceiverInterface,
+    event: UniquePtr<webrtc::RtpTransceiverInterface>,
 ) {
     cb.on_track(event);
 }
@@ -1688,20 +1705,23 @@ impl fmt::Display for webrtc::PeerConnectionState {
 // todo
 pub fn on_ended(
     cb: &mut DynTrackEventCallback,
+    track: &webrtc::MediaStreamTrackInterface,
 ) {
-    cb.on_ended();
+    cb.on_ended(track);
 }
 
 // todo
 pub fn on_mute(
     cb: &mut DynTrackEventCallback,
+    track: &webrtc::MediaStreamTrackInterface,
 ) {
-    cb.on_mute();
+    cb.on_mute(track);
 }
 
 // todo
 pub fn on_unmute(
     cb: &mut DynTrackEventCallback,
+    track: &webrtc::MediaStreamTrackInterface,
 ) {
-    cb.on_unmute();
+    cb.on_unmute(track);
 }

@@ -40,6 +40,7 @@ namespace rust {
 struct CandidatePairChangeEventSerialized;
 struct RtpReceiverInterfaceSerialized;
 struct OnTrackSerialized;
+struct TrackInterfaceSerialized;
 
 
 // Callback for video frames handlers provided to the
@@ -106,4 +107,15 @@ class PeerConnectionObserverInterface {
   virtual void OnTrack(OnTrackSerialized event) = 0;
 
   virtual ~PeerConnectionObserverInterface() = default;
+};
+
+// todo
+class TrackEventInterface {
+ public:
+
+  virtual void OnEnded(TrackInterfaceSerialized track) = 0;
+  virtual void OnMute(TrackInterfaceSerialized track) = 0;
+  virtual void OnUnmute(TrackInterfaceSerialized track) = 0;
+
+  virtual ~TrackEventInterface() = default;
 };

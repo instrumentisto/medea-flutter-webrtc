@@ -19,6 +19,10 @@ use api::{
     RtpSenderInterfaceSerialized, RtpTransceiverInterfaceSerialized,
     TrackInterfaceSerialized,
 };
+// use api::{
+//     RtpSenderInterfaceSerialized, RtpTransceiverInterfaceSerialized,
+//     TrackInterfaceSerialized,
+// };
 use libwebrtc_sys::{
     audio_track_media_stream_track_upcast, get_media_stream_track_id,
     get_media_stream_track_kind, get_transceiver_mid, get_transceiver_sender,
@@ -254,6 +258,8 @@ pub mod api {
 
         type OnFrameCallbackInterface =
             crate::internal::OnFrameCallbackInterface;
+
+        type TrackEventInterface = crate::internal::TrackEventInterface;
     }
 
     extern "Rust" {
@@ -449,6 +455,33 @@ pub mod api {
             track_id: u64,
             enabled: bool,
         );
+
+        // todo
+        pub fn register_observer_local_track(
+            self: &mut Webrtc,
+            id: u64,
+            cb: UniquePtr<TrackEventInterface>,
+        ) -> u64;
+
+        //
+        pub fn register_observer_remote_track(
+            self: &mut Webrtc,
+            id: String,
+            cb: UniquePtr<TrackEventInterface>,
+        ) -> u64;
+
+        // todo
+        pub fn unregister_observer_local_track(
+            self: &mut Webrtc,
+            id: u64,
+            id_obs: u64,
+        );
+
+        pub fn unregister_observer_remote_track(
+            self: &mut Webrtc,
+            id: String,
+            id_obs: u64,
+        );
     }
 }
 
@@ -481,7 +514,7 @@ impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
     fn from(_: &RtpSenderInterface) -> Self {
         RtpSenderInterfaceSerialized {
             channel_id: next_id(),
-        } // todo add actual id
+        }
     }
 }
 

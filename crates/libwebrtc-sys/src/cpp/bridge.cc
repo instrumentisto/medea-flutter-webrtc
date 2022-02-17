@@ -10,23 +10,23 @@
 
 namespace bridge {
 
+// Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
-  webrtc::MediaStreamTrackInterface* track, rust::Box<bridge::DynTrackEventCallback> cb)
-  : track_(track), cb_(std::move(cb))  {}
+    rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+    rust::Box<bridge::DynTrackEventCallback> cb)
+    : track_(track), cb_(std::move(cb)) {}
 
+// Called when track calls `set_state` or `set_enabled`.
 void TrackEventObserver::OnChanged() {
-   if (track_ != nullptr) {
-     if (track_->enabled() != old_enabled) {
-       old_enabled = track_->enabled();
-       if (old_enabled) {
-         bridge::on_unmute(*cb_.value());
-       } else {
-         bridge::on_mute(*cb_.value());
-       }
-     } else {
-       bridge::on_ended(*cb_.value());
-     }
-   }
+  if (track_ != nullptr) {
+    if (track_->state() ==
+        webrtc::MediaStreamTrackInterface::TrackState::kEnded) {
+      bridge::on_ended(*cb_, track_);
+    } else {
+      track_->enabled() ? bridge::on_unmute(*cb_, track_)
+                        : bridge::on_mute(*cb_, track_);
+    }
+  }
 }
 
 // Calls `AudioDeviceModule->Create()`.
@@ -667,7 +667,8 @@ std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
     }
 
 
-// todo
+// Creates a new `TrackEventObserver` from the provided
+// `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
     const VideoTrackInterface& track,
     rust::Box<bridge::DynTrackEventCallback> cb
@@ -677,28 +678,46 @@ std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
     );
 }
 
-// todo
+// Creates a new `TrackEventObserver` from the provided
+// `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
     const AudioTrackInterface& track,
     rust::Box<bridge::DynTrackEventCallback> cb
 ) {
     return std::make_unique<TrackEventObserver>(
-      TrackEventObserver(track.get(), std::move(cb))
+      TrackEventObserver(track, std::move(cb))
     );
 }
 
-// todo
+// Calls `VideoTrackInterface->RegisterObserver`.
 void video_track_register_observer(
     VideoTrackInterface& track, 
     TrackEventObserver& obs) {
       track->RegisterObserver(&obs);
     }
 
-// todo
+// Calls `AudioTrackInterface->RegisterObserver`.
 void audio_track_register_observer(
     AudioTrackInterface& track, 
     TrackEventObserver& obs) {
       track->RegisterObserver(&obs);
     }
 
+// Calls `VideoTrackInterface->UnregisterObserver`.
+void video_track_unregister_observer(
+    VideoTrackInterface& track, 
+    TrackEventObserver& obs) {
+      track->UnregisterObserver(&obs);
+    }
+
+// Calls `AudioTrackInterface->UnregisterObserver`.
+void audio_track_unregister_observer(
+    AudioTrackInterface& track, 
+    TrackEventObserver& obs) {
+      track->UnregisterObserver(&obs);
+    }
+
+void stop_T(RtpTransceiverInterface& tr) {
+  tr->StopStandard();
+}
 }  // namespace bridge

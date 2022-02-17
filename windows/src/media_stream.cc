@@ -1,8 +1,72 @@
 #include "flutter_webrtc.h"
 #include "media_stream.h"
 #include "parsing.h"
+#include <mutex>
 
 namespace flutter_webrtc_plugin {
+
+  // `CreateSdpCallbackInterface` implementation forwarding completion result to
+// the Flutter side via inner `flutter::MethodResult`.
+class TrackEventCallback : public TrackEventInterface {
+
+    struct Dependencies {
+    // `EventSink` guard.
+    std::unique_ptr<std::mutex> lock_ = std::make_unique<std::mutex>();
+    // `EventSink` used to send events to the Flutter side.
+    std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> sink_;
+    // Flutter `EventChannel` used to dispose the channel object.
+    std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> chan_;
+  };
+
+ public:
+
+  void OnEnded(TrackInterfaceSerialized track) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
+      flutter::EncodableMap params;
+      params[flutter::EncodableValue("event")] = "onended";
+      params[flutter::EncodableValue("type")] = EncodableValue(mediaTrackToMap(event.track));
+      deps_->sink_->Success(flutter::EncodableValue(params));
+    }
+  }
+
+  void OnMute(TrackInterfaceSerialized track) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
+      flutter::EncodableMap params;
+      params[flutter::EncodableValue("event")] = "onmut";
+      params[flutter::EncodableValue("type")] = EncodableValue(mediaTrackToMap(event.track));
+      deps_->sink_->Success(flutter::EncodableValue(params));
+    }
+  }
+
+  void OnUnmute(TrackInterfaceSerialized track) {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
+      flutter::EncodableMap params;
+      params[flutter::EncodableValue("event")] = "onunmut";
+      params[flutter::EncodableValue("type")] = EncodableValue(mediaTrackToMap(event.track));
+      deps_->sink_->Success(flutter::EncodableValue(params));
+    }
+  }
+
+ private:
+
+  // Convert `TrackInterfaceSerialized` to flutter `EncodableMap`.
+  EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
+      flutter::EncodableMap info;
+      info[EncodableValue("channelId")] = EncodableValue((long) track.channel_id);
+      info[EncodableValue("id")] = std::string(track.id);
+      if(track.device_id != "") {
+        info[EncodableValue("deviceId")] = std::string(track.device_id);
+      }
+      info[EncodableValue("kind")] = std::string(track.kind);
+      return info;
+  }
+
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
+  std::shared_ptr<Dependencies> deps_;
+};
 
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 /// `MediaDeviceInfo` info for Dart.

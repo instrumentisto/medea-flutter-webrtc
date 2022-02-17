@@ -4,7 +4,16 @@
 mod bridge;
 
 extern crate derive_more;
-use bridge::webrtc::{RtpReceiverInterface, TrackEventObserver, create_video_track_event_observer, create_audio_track_event_observer, video_track_register_observer, audio_track_register_observer};
+use std::{
+    collections::HashMap,
+    sync::atomic::{AtomicU64, Ordering},
+};
+
+use bridge::webrtc::{
+    audio_track_register_observer, create_audio_track_event_observer,
+    create_video_track_event_observer, video_track_register_observer,
+    RtpReceiverInterface,
+};
 use derive_more::From;
 
 use anyhow::bail;
@@ -26,13 +35,13 @@ pub use crate::webrtc::{
 };
 
 pub use crate::webrtc::{
-    audio_track_media_stream_track_upcast, get_audio_track_sourse,
-    get_media_stream_track_id, get_media_stream_track_kind,
-    get_rtp_receiver_track, get_transceiver_mid, get_transceiver_receiver,
-    get_transceiver_sender, get_video_track_sourse,
+    audio_track_media_stream_track_upcast, audio_track_unregister_observer,
+    get_audio_track_sourse, get_media_stream_track_id,
+    get_media_stream_track_kind, get_rtp_receiver_track, get_transceiver_mid,
+    get_transceiver_receiver, get_transceiver_sender, get_video_track_sourse,
     media_stream_track_interface_downcast_audio_track,
     media_stream_track_interface_downcast_video_track,
-    video_track_media_stream_track_upcast,
+    video_track_media_stream_track_upcast, video_track_unregister_observer,
 };
 
 pub use crate::webrtc::{
@@ -54,16 +63,24 @@ pub use crate::webrtc::{
     get_rtp_parameters_mid, get_rtp_parameters_rtcp,
     get_rtp_parameters_transaction_id, get_rtp_receiver_id,
     get_rtp_receiver_parameters, get_rtp_receiver_streams, get_rtp_sender_dtmf,
-    get_rtp_sender_id,
+    get_rtp_sender_id, stop_T,
 };
+
+/// Counter used to generate unique IDs.s
+static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// Returns a next unique ID.
+fn next_id() -> u64 {
+    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
+}
 
 // todo
 pub trait TrackEventCallback {
-    fn on_ended(&mut self);
+    fn on_ended(&mut self, track: &MediaStreamTrackInterface);
 
-    fn on_mute(&mut self);
+    fn on_mute(&mut self, track: &MediaStreamTrackInterface);
 
-    fn on_unmute(&mut self);
+    fn on_unmute(&mut self, track: &MediaStreamTrackInterface);
 }
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
@@ -154,7 +171,7 @@ pub trait PeerConnectionEventsHandler {
     );
 
     // todo
-    fn on_track(&mut self, event: &webrtc::RtpTransceiverInterface);
+    fn on_track(&mut self, event: UniquePtr<webrtc::RtpTransceiverInterface>);
 
     // todo
     fn on_remove_track(&mut self, event: &RtpReceiverInterface);
@@ -364,6 +381,10 @@ impl Default for RTCConfiguration {
         Self(webrtc::create_default_rtc_configuration())
     }
 }
+
+//todo
+#[derive(From)]
+pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 /// Member of [`PeerConnectionDependencies`] containing functions called on
 /// events in a [`PeerConnectionInterface`]
@@ -748,7 +769,10 @@ impl PeerConnectionFactoryInterface {
                  `webrtc::PeerConnectionFactoryInterface::CreateVideoTrack()`",
             );
         }
-        Ok(VideoTrackInterface{inner: ptr, obs: None})
+        Ok(VideoTrackInterface {
+            inner: ptr,
+            obs: HashMap::new(),
+        })
     }
 
     /// Creates a new [`AudioTrackInterface`] sourced by the provided
@@ -766,7 +790,10 @@ impl PeerConnectionFactoryInterface {
                  `webrtc::PeerConnectionFactoryInterface::CreateAudioTrack()`",
             );
         }
-        Ok(AudioTrackInterface{ inner: ptr, obs: None})
+        Ok(AudioTrackInterface {
+            inner: ptr,
+            obs: HashMap::new(),
+        })
     }
 
     /// Creates a new empty [`MediaStreamInterface`].
@@ -878,7 +905,7 @@ pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 #[derive(From)]
 pub struct VideoTrackInterface {
     inner: UniquePtr<webrtc::VideoTrackInterface>,
-    obs: Option<UniquePtr<TrackEventObserver>>,
+    obs: HashMap<u64, TrackEventObserver>,
 }
 
 impl VideoTrackInterface {
@@ -911,10 +938,27 @@ impl VideoTrackInterface {
     }
 
     // todo
-    pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
-        let mut obs = create_video_track_event_observer(&self.inner, Box::new(cb));
+    pub fn register_observer(
+        &mut self,
+        cb: Box<dyn TrackEventCallback>,
+    ) -> u64 {
+        let mut obs =
+            create_video_track_event_observer(&self.inner, Box::new(cb));
         video_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
-        self.obs = Some(obs);
+        let id = next_id();
+        self.obs.insert(id, TrackEventObserver::from(obs));
+        id
+    }
+
+    // todo
+    pub fn unregister_observer(&mut self, id: u64) {
+        if let Some(cb) = self.obs.get_mut(&id) {
+            video_track_unregister_observer(
+                self.inner.pin_mut(),
+                cb.0.pin_mut(),
+            );
+            self.obs.remove(&id);
+        }
     }
 }
 
@@ -924,7 +968,7 @@ impl VideoTrackInterface {
 #[derive(From)]
 pub struct AudioTrackInterface {
     inner: UniquePtr<webrtc::AudioTrackInterface>,
-    obs: Option<UniquePtr<TrackEventObserver>>,
+    obs: HashMap<u64, TrackEventObserver>,
 }
 
 impl AudioTrackInterface {
@@ -942,10 +986,27 @@ impl AudioTrackInterface {
     }
 
     // todo
-    pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
-        let mut obs = create_audio_track_event_observer(&self.inner, Box::new(cb));
+    pub fn register_observer(
+        &mut self,
+        cb: Box<dyn TrackEventCallback>,
+    ) -> u64 {
+        let mut obs =
+            create_audio_track_event_observer(&self.inner, Box::new(cb));
         audio_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
-        self.obs = Some(obs);
+        let id = next_id();
+        self.obs.insert(id, TrackEventObserver::from(obs));
+        id
+    }
+
+    // todo
+    pub fn unregister_observer(&mut self, id: u64) {
+        if let Some(cb) = self.obs.get_mut(&id) {
+            audio_track_unregister_observer(
+                self.inner.pin_mut(),
+                cb.0.pin_mut(),
+            );
+            self.obs.remove(&id);
+        }
     }
 }
 
