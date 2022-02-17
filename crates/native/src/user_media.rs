@@ -8,7 +8,6 @@ use crate::{
     api::{self, AudioConstraints, VideoConstraints},
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
-use crate::api::MediaStreamTrack;
 
 impl Webrtc {
     /// Creates a new local [`MediaStream`] with [`VideoTrack`]s and/or

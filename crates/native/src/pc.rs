@@ -7,13 +7,12 @@ use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::{
-    get_audio_track_source, get_media_stream_track_id,
+    get_media_stream_track_id,
     get_media_stream_track_kind,
-    get_transceiver_receiver, get_video_track_source,
     media_stream_track_interface_downcast_audio_track,
     media_stream_track_interface_downcast_video_track, AudioSourceInterface,
-    AudioTrackInterface, MediaStreamTrackInterface, Sys_RtpReceiverInterface,
-    Sys_RtpTransceiverInterface, VideoTrackInterface,
+    AudioTrackInterface, MediaStreamTrackInterface,
+    VideoTrackInterface,
     VideoTrackSourceInterface,
 };
 
@@ -664,7 +663,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         // This is a non-spec-compliant event.
     }
 
-    fn on_remove_track(&mut self, _: &Sys_RtpReceiverInterface) {
+    fn on_remove_track(&mut self, _: sys::RtpReceiverInterface) {
         // This is a non-spec-compliant event.
     }
 }

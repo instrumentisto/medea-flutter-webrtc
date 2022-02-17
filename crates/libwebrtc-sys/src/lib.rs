@@ -14,14 +14,14 @@ pub use crate::webrtc::{
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
     ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
     Candidate, CandidatePairChangeEvent, IceCandidateInterface,
-    IceConnectionState, IceGatheringState, MediaStreamTrackInterface,
-    MediaType, PeerConnectionState, RtpTransceiverDirection, SdpType,
-    SignalingState, VideoFrame, VideoRotation,
+    IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
+    RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
+    VideoRotation,
 };
 
 pub use crate::webrtc::{
-    audio_track_media_stream_track_upcast,
-    get_media_stream_track_id, get_media_stream_track_kind,
+    audio_track_media_stream_track_upcast, get_media_stream_track_id,
+    get_media_stream_track_kind,
     media_stream_track_interface_downcast_audio_track,
     media_stream_track_interface_downcast_video_track,
     video_track_media_stream_track_upcast,
@@ -493,7 +493,9 @@ pub struct RtpTransceiverInterface {
 }
 
 impl RtpTransceiverInterface {
-    pub(crate) fn from_ptr(inner: UniquePtr<webrtc::RtpTransceiverInterface>) -> Self {
+    pub(crate) fn from_ptr(
+        inner: UniquePtr<webrtc::RtpTransceiverInterface>,
+    ) -> Self {
         Self {
             media_type: webrtc::get_transceiver_media_type(&inner),
             inner,
@@ -621,12 +623,17 @@ impl RtpSenderInterface {
 pub struct RtpReceiverInterface(UniquePtr<webrtc::RtpReceiverInterface>);
 
 impl RtpReceiverInterface {
-    pub(crate) fn from_ptr(inner: UniquePtr<webrtc::RtpReceiverInterface>) -> Self {
+    pub(crate) fn from_ptr(
+        inner: UniquePtr<webrtc::RtpReceiverInterface>,
+    ) -> Self {
         Self(inner)
     }
 
-    pub fn get_track() -> asdasd {
-        get_rtp_receiver_track
+    /// Returns the [`MediaStreamTrackInterface`] attribute is the track that is
+    /// associated with this [`RtpReceiverInterface`] object receiver.
+    #[must_use]
+    pub fn track(&self) -> MediaStreamTrackInterface {
+        MediaStreamTrackInterface(webrtc::get_rtp_receiver_track(&self.0))
     }
 }
 
@@ -963,6 +970,14 @@ impl VideoTrackSourceInterface {
 #[derive(From)]
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
+/// A [MediaStreamTrack] object represents a media source in the User Agent. An
+/// example source is a device connected to the User Agent.
+///
+/// [MediaStreamTrack]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+pub struct MediaStreamTrackInterface(
+    UniquePtr<webrtc::MediaStreamTrackInterface>,
+);
+
 /// Video [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
@@ -994,7 +1009,8 @@ impl VideoTrackInterface {
 
     /// Returns a [`VideoTrackSourceInterface`] attached to this
     /// [`VideoTrackInterface`].
-    pub fn get_source(&self) -> VideoTrackSourceInterface {
+    #[must_use]
+    pub fn source(&self) -> VideoTrackSourceInterface {
         VideoTrackSourceInterface(webrtc::get_video_track_source(&self.0))
     }
 }
@@ -1015,7 +1031,8 @@ impl AudioTrackInterface {
 
     /// Returns a [`AudioSourceInterface`] attached to this
     /// [`AudioTrackInterface`].
-    pub fn get_source(&self) -> AudioSourceInterface {
+    #[must_use]
+    pub fn source(&self) -> AudioSourceInterface {
         AudioSourceInterface(webrtc::get_audio_track_source(&self.0))
     }
 }

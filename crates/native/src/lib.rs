@@ -16,11 +16,9 @@ use std::{
 };
 
 use libwebrtc_sys::{
-    audio_track_media_stream_track_upcast, get_media_stream_track_id,
-    get_media_stream_track_kind, get_transceiver_mid, get_transceiver_sender,
-    video_track_media_stream_track_upcast, AudioLayer, AudioSourceInterface,
-    MediaStreamTrackInterface, PeerConnectionFactoryInterface,
-    RtpSenderInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
+    AudioLayer, AudioSourceInterface,
+    PeerConnectionFactoryInterface,
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
 use crate::video_sink::Id as VideoSinkId;
