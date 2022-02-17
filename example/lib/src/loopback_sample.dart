@@ -105,11 +105,9 @@ class _MyAppState extends State<LoopBackSample> {
 
   void _onTrack(RTCTrackEvent event) {
     print('onTrack');
-    // Сurrent implementation is incompatible
-    
-    // if (event.track.kind == 'video') {
-    //   _remoteRenderer.srcObject = event.streams[0];
-    // }
+    if (event.track.kind == 'video') {
+      _remoteRenderer.srcObject = event.streams[0];
+    }
   }
 
   void _onAddTrack(MediaStream stream, MediaStreamTrack track) {
@@ -243,7 +241,7 @@ class _MyAppState extends State<LoopBackSample> {
               ),
             ],
           ));
-      
+
       await _peerConnection.addTransceiver(
           kind: RTCRtpMediaType.RTCRtpMediaTypeVideo);
       await _peerConnection.addTransceiver(

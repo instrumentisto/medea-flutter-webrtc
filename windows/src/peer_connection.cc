@@ -180,75 +180,65 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     }
   }
 
-  // Sends an `OnTrack` event to the Dart side.
+  // Sends an `OnTrack` event with the provided `MediaStreamTrack` and
+  // `RtcRtpTransceiver` to the Dart side.
   //
   // See: https://w3.org/TR/webrtc/#event-track
-  void OnTrack(OnTrackSerialized event) {
+  void OnTrack(TrackEvent event) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_.get() != nullptr) {
-      flutter::EncodableMap info;
-      info[EncodableValue("event")] = "onTrack";
-      info[EncodableValue("track")] = EncodableValue(mediaTrackToMap(event.track));
-      info[EncodableValue("transceiver")] = EncodableValue(transceiverToMap(event.transceiver));
+      flutter::EncodableMap params;
+      params[EncodableValue("event")] = "onTrack";
+      params[EncodableValue("track")] =
+          EncodableValue(TrackToMap(event.track));
+      params[EncodableValue("transceiver")] =
+          EncodableValue(TransceiverToMap(event.transceiver));
 
-      deps_->sink_.get()->Success(flutter::EncodableValue(info));
+      deps_->sink_.get()->Success(flutter::EncodableValue(map));
     }
   }
 
  private:
   // `PeerConnectionObserver` dependencies.
   std::shared_ptr<Dependencies> deps_;
-  
-  // Convert `TrackInterfaceSerialized` to flutter `EncodableMap`.
-  EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
-      flutter::EncodableMap info;
-      info[EncodableValue("channelId")] = EncodableValue((long) track.channel_id);
-      info[EncodableValue("id")] = std::string(track.id);
-      if(track.device_id != "") {
-        info[EncodableValue("deviceId")] = std::string(track.device_id);
-      }
-      info[EncodableValue("kind")] = std::string(track.kind);
-      return info;
+
+  // Converts `MediaStreamTrack` to `flutter::EncodableMap`.
+  flutter::EncodableMap TrackToMap(MediaStreamTrack track) {
+    flutter::EncodableMap map;
+    map[EncodableValue("id")] = EncodableValue(std::string(track.id));
+    map[EncodableValue("label")] = EncodableValue(std::string(track.label));
+    map[EncodableValue("kind")] =
+        EncodableValue(track.kind == TrackKind::kVideo ? "video" : "audio");
+    map[EncodableValue("enabled")] = EncodableValue(track.enabled);
+
+    return map;
   }
 
-  // Convert `RtpTransceiverInterfaceSerialized` to flutter `EncodableMap`.
-  EncodableMap transceiverToMap(RtpTransceiverInterfaceSerialized tranceiver) {
-      flutter::EncodableMap info;
-      info[EncodableValue("channelId")] = EncodableValue((long) tranceiver.channel_id);
-      if(tranceiver.mid != "") {
-        info[EncodableValue("mid")] = std::string(tranceiver.mid);
-      }
-      info[EncodableValue("sender")] = EncodableValue(rtpSenderToMap(tranceiver.sender));
-      return info;
+  // Converts `RtcRtpTransceiver` to `flutter::EncodableMap`.
+   flutter::EncodableMap TransceiverToMap(RtcRtpTransceiver tr) {
+     flutter::EncodableMap map;
+    map[EncodableValue("transceiverId")] =
+        EncodableValue(std::to_string(tr.id));
+    map[EncodableValue("mid")] = EncodableValue(std::string(tr.mid));
+    map[EncodableValue("direction")] =
+        EncodableValue(std::string(tr.direction));
+    map[EncodableValue("sender")] = EncodableValue(SenderToMap(tr.sender));
+
+    return map;
   }
 
-  // Convert `RtpSenderInterfaceSerialized` to flutter `EncodableMap`.
-  EncodableMap rtpSenderToMap(RtpSenderInterfaceSerialized sender) {
-      flutter::EncodableMap info;
-      info[EncodableValue("channelId")] = EncodableValue((long) sender.channel_id);
-      return info;
+  // Converts `RtcRtpSender` to `flutter::EncodableMap`.
+  flutter::EncodableMap SenderToMap(RtcRtpSender sender) {
+    flutter::EncodableMap map;
+    map[EncodableValue("id")] = EncodableValue(std::string(sender.id));
 
+    return map;
   }
 };
 
 namespace flutter_webrtc_plugin {
 
 using namespace flutter;
-
-// Converts a Rust `RtcRtpTransceiver` into a Dart `EncodableMap`.
-EncodableMap TransceiverToMap(RtcRtpTransceiver transceiver) {
-  EncodableMap info;
-
-  info[EncodableValue("transceiverId")] =
-      EncodableValue(std::to_string(transceiver.id));
-  info[EncodableValue("mid")] = EncodableValue(std::string(transceiver.mid));
-  info[EncodableValue("direction")] =
-      EncodableValue(std::string(transceiver.direction));
-  info[EncodableValue("sender")] = EncodableValue(EncodableMap());
-  info[EncodableValue("receiver")] = EncodableValue(EncodableMap());
-
-  return info;
-}
 
 // Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
@@ -305,9 +295,9 @@ void CreateRTCPeerConnection(
 // provided `MethodResult`.
 void CreateOffer(
     Box<Webrtc>& webrtc,
-    const flutter::MethodCall<flutter::EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -343,7 +333,7 @@ void CreateOffer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-    rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
+  rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
                                            voice_activity_detection,
                                            ice_restart,
                                            use_rtp_mux,
@@ -469,7 +459,7 @@ void SetRemoteDescription(
                                                     type,
                                                     sdp,
                                                     std::move(callback));
-                                                    
+
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
   }
@@ -490,7 +480,7 @@ void AddTransceiver(
 
   auto transceiver = webrtc->AddTransceiver(
       std::stoi(findString(params, "peerConnectionId")),
-      findString(params, "mediaType").c_str(),
+      findString(params, "mediaType"),
       findString(findMap(params, "transceiverInit"), "direction"));
 
   result->Success(EncodableValue(TransceiverToMap(transceiver)));

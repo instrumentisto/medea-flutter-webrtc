@@ -44,8 +44,6 @@ impl Webrtc {
     }
 
     /// Destroys a [`VideoSink`] by the given ID.
-    /// # Panics
-    /// Panic when `video_tracks` fail in other thread.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
         if let Some(sink) = self.0.video_sinks.remove(&Id(sink_id)) {
             if let Some(track) = self.0.video_tracks.get_mut(&sink.track_id) {

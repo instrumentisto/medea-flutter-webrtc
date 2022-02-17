@@ -8,6 +8,7 @@ use crate::{
     api::{self, AudioConstraints, VideoConstraints},
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
+use crate::api::MediaStreamTrack;
 
 impl Webrtc {
     /// Creates a new local [`MediaStream`] with [`VideoTrack`]s and/or
@@ -35,12 +36,7 @@ impl Webrtc {
             let track = self.create_video_track(source).unwrap();
 
             stream.add_video_track(track).unwrap();
-            result.video_tracks.push(api::MediaStreamTrack {
-                id: track.id.0,
-                label: track.label.0.clone(),
-                kind: track.kind,
-                enabled: true,
-            });
+            result.video_tracks.push(api::MediaStreamTrack::from(track));
         }
 
         if constraints.audio.required {
@@ -49,12 +45,7 @@ impl Webrtc {
             let track = self.create_audio_track(source).unwrap();
 
             stream.add_audio_track(track).unwrap();
-            result.audio_tracks.push(api::MediaStreamTrack {
-                id: track.id.0,
-                label: track.label.0.clone(),
-                kind: track.kind,
-                enabled: true,
-            });
+            result.audio_tracks.push(api::MediaStreamTrack::from(track));
         };
 
         self.0
@@ -500,8 +491,7 @@ impl VideoTrack {
         })
     }
 
-    /// Creates a new [`VideoTrack`].
-    /// from [`VideoTrackInterface`].
+    /// Creates a new [`VideoTrack`] from [`VideoTrackInterface`].
     #[must_use]
     pub fn new_from_video_interface(
         inner: VideoTrackInterface,
@@ -568,7 +558,7 @@ pub struct AudioTrack {
 
 impl AudioTrack {
     /// Creates a new [`AudioTrack`].
-    fn new(
+    pub(crate) fn new(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Rc<sys::AudioSourceInterface>,
         label: AudioLabel,
@@ -583,8 +573,7 @@ impl AudioTrack {
         })
     }
 
-    /// Creates a new [`AudioTrack`].
-    /// from [`AudioTrackInterface`].
+    /// Creates a new [`AudioTrack`] from [`AudioTrackInterface`].
     #[must_use]
     pub fn new_from_audio_interface(
         inner: AudioTrackInterface,
@@ -664,5 +653,27 @@ impl VideoSource {
             device_id,
             is_display: true,
         })
+    }
+}
+
+impl From<&AudioTrack> for api::MediaStreamTrack {
+    fn from(track: &AudioTrack) -> Self {
+        Self {
+            id: track.id.0,
+            label: track.label.0.clone(),
+            kind: track.kind,
+            enabled: true,
+        }
+    }
+}
+
+impl From<&VideoTrack> for api::MediaStreamTrack {
+    fn from(track: &VideoTrack) -> Self {
+        Self {
+            id: track.id.0,
+            label: track.label.0.clone(),
+            kind: track.kind,
+            enabled: true,
+        }
     }
 }

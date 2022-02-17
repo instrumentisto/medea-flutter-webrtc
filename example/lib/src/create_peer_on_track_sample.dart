@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
-
-
 class PeerOnTrackSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
 
@@ -58,7 +55,7 @@ class _PeerOnTrackSample extends State<PeerOnTrackSample> {
         } else {
           text = 'Fail timeout.';
         }
-        
+
       });
 
     } catch (e) {

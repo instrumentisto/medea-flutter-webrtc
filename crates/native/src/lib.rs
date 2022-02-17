@@ -15,17 +15,12 @@ use std::{
     },
 };
 
-use api::{
-    RtpSenderInterfaceSerialized, RtpTransceiverInterfaceSerialized,
-    TrackInterfaceSerialized,
-};
 use libwebrtc_sys::{
     audio_track_media_stream_track_upcast, get_media_stream_track_id,
     get_media_stream_track_kind, get_transceiver_mid, get_transceiver_sender,
     video_track_media_stream_track_upcast, AudioLayer, AudioSourceInterface,
     MediaStreamTrackInterface, PeerConnectionFactoryInterface,
-    RtpSenderInterface, Sys_AudioTrackInterface, Sys_RtpTransceiverInterface,
-    Sys_VideoTrackInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
+    RtpSenderInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
 use crate::video_sink::Id as VideoSinkId;
@@ -53,36 +48,6 @@ pub(crate) fn next_id() -> u64 {
 #[allow(clippy::items_after_statements, clippy::expl_impl_clone_on_copy)]
 #[cxx::bridge]
 pub mod api {
-
-    /// Serialized `MediaTrack` for writes in flutter.
-    pub struct TrackInterfaceSerialized {
-        channel_id: u64,
-        id: String,
-        device_id: String,
-        kind: String,
-    }
-
-    /// Serialized ` RtpSender` for writes in flutter.
-    pub struct RtpSenderInterfaceSerialized {
-        channel_id: u64,
-    }
-
-    /// Serialized `RtpTransceiver` for writes in flutter.
-    pub struct RtpTransceiverInterfaceSerialized {
-        sender: RtpSenderInterfaceSerialized,
-        channel_id: u64,
-
-        /// `mid` is optional field.
-        /// if `mid` == "" then mid is None
-        mid: String,
-    }
-
-    /// Serialized `OnTrack` event for writes in flutter.
-    pub struct OnTrackSerialized {
-        track: TrackInterfaceSerialized,
-        transceiver: RtpTransceiverInterfaceSerialized,
-    }
-
     /// Possible kinds of media devices.
     #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
     pub enum MediaDeviceKind {
@@ -197,10 +162,9 @@ pub mod api {
         kVideo,
     }
 
-    /// Representation of a permanent pair of an [RTCRtpSender] and an
+    /// Representation of a permanent pair of an [`RtcRtpSender`] and an
     /// [RTCRtpReceiver], along with some shared state.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     #[derive(Clone, Debug, Eq, Hash, PartialEq)]
     pub struct RtcRtpTransceiver {
@@ -221,6 +185,26 @@ pub mod api {
         ///
         /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
         pub direction: String,
+
+        /// [`RtcRtpSender`] responsible for encoding and sending outgoing
+        /// media data for the transceiver's stream.
+        pub sender: RtcRtpSender,
+    }
+
+    /// The [`RtcRtpSender`] object allows an application to control how a
+    /// given [`MediaStreamTrack`] is encoded and transmitted to a remote peer.
+    #[derive(Clone, Debug, Eq, Hash, PartialEq)]
+    pub struct RtcRtpSender {
+        /// ID of this [`RtcRtpSender`].
+        pub id: u64,
+    }
+
+    /// [`RtcTrackEvent`] represents the track event, which is sent when a new
+    /// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] which is part
+    /// of the [`PeerConnection`].
+    pub struct RtcTrackEvent {
+        track: MediaStreamTrack,
+        transceiver: RtcRtpTransceiver,
     }
 
     /// Single video frame.
@@ -271,9 +255,9 @@ pub mod api {
         #[cxx_name = "EnumerateDevices"]
         pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo>;
 
-        /// Creates a new [`PeerConnection`] and returns it's ID.
+        /// Creates a new [`PeerConnection`] and returns its ID.
         ///
-        /// Writes an error to the provided `err` if any.
+        /// Writes an error to the provided `err`, if any.
         #[cxx_name = "CreatePeerConnection"]
         pub fn create_peer_connection(
             self: &mut Webrtc,
@@ -281,10 +265,10 @@ pub mod api {
             err: &mut String,
         ) -> u64;
 
-        /// Initiates the creation of an SDP offer for the purpose of starting
+        /// Initiates the creation of a SDP offer for the purpose of starting
         /// a new WebRTC connection to a remote peer.
         ///
-        /// Returns an empty [`String`] in operation succeeds or an error
+        /// Returns an empty [`String`] if operation succeeds or an error
         /// otherwise.
         #[cxx_name = "CreateOffer"]
         pub fn create_offer(
@@ -459,52 +443,6 @@ pub mod api {
             track_id: u64,
             enabled: bool,
         );
-    }
-}
-
-impl From<&Sys_VideoTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &Sys_VideoTrackInterface) -> Self {
-        let track = video_track_media_stream_track_upcast(track);
-        TrackInterfaceSerialized::from(track)
-    }
-}
-
-impl From<&Sys_AudioTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &Sys_AudioTrackInterface) -> Self {
-        let track = audio_track_media_stream_track_upcast(track);
-        TrackInterfaceSerialized::from(track)
-    }
-}
-
-impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &MediaStreamTrackInterface) -> Self {
-        TrackInterfaceSerialized {
-            id: get_media_stream_track_id(track).to_string(),
-            kind: get_media_stream_track_kind(track).to_string(),
-            channel_id: next_id(), // todo add actual id
-            device_id: "remote".to_owned(),
-        }
-    }
-}
-
-impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
-    fn from(_: &RtpSenderInterface) -> Self {
-        RtpSenderInterfaceSerialized {
-            channel_id: next_id(),
-        } // todo add actual id
-    }
-}
-
-impl From<&Sys_RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
-    fn from(transceiver: &Sys_RtpTransceiverInterface) -> Self {
-        let sender = get_transceiver_sender(transceiver);
-        RtpTransceiverInterfaceSerialized {
-            sender: RtpSenderInterfaceSerialized::from(
-                &sender as &RtpSenderInterface,
-            ),
-            channel_id: next_id(),
-            mid: get_transceiver_mid(transceiver),
-        }
     }
 }
 

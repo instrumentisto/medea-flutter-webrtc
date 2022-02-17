@@ -497,7 +497,7 @@ const MediaStreamTrackInterface& video_track_media_stream_track_upcast(
     }
 
 // Returns a `VideoTrackInterface` of the given `VideoTrackSourceInterface`.
-std::unique_ptr<VideoTrackSourceInterface> get_video_track_sourse(
+std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
     const VideoTrackInterface& track) {
       return std::make_unique<VideoTrackSourceInterface>(track->GetSource());
     }
@@ -509,7 +509,7 @@ const MediaStreamTrackInterface& audio_track_media_stream_track_upcast(
     }
 
 // Returns a `AudioSourceInterface` of the given `AudioTrackInterface`.
-std::unique_ptr<AudioSourceInterface> get_audio_track_sourse(
+std::unique_ptr<AudioSourceInterface> get_audio_track_source(
      const AudioTrackInterface& track) {
        return std::make_unique<AudioSourceInterface>(track->GetSource());
      }

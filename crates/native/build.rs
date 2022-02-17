@@ -11,6 +11,7 @@ fn main() -> anyhow::Result<()> {
     cxx_build::bridge("src/internal.rs").compile("cpp_api_bindings");
 
     copy_cxxbridge1_lib()?;
+
     Ok(())
 }
 
