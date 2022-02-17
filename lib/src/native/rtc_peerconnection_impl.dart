@@ -76,6 +76,7 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
    */
   void eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
+    print(map['event']);
 
     switch (map['event']) {
       case 'onSignalingStateChange':

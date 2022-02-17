@@ -466,6 +466,8 @@ impl Webrtc {
         sdp_mid: &str,
         sdp_mline_index: i32,
     ) {
+        println!("candidate: {candidate}\nsdp_mid: {sdp_mid}\nmline: {sdp_mline_index}");
+
         self.0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
@@ -614,6 +616,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_ice_connection_receiving_change(&mut self, _: bool) {
+        println!("receivingChange");
         // This is a non-spec-compliant event.
     }
 

@@ -288,18 +288,13 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
-
   auto factory = webrtc::CreatePeerConnectionFactory(
-      network_thread.get(),
-      worker_thread.get(),
-      signaling_thread.get(),
+      network_thread.get(), worker_thread.get(), signaling_thread.get(),
       default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(),
-      nullptr,
-      nullptr);
+      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -328,6 +323,7 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   RTCConfiguration config;
   config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+
   return std::make_unique<RTCConfiguration>(config);
 }
 
@@ -358,10 +354,9 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     bool voice_activity_detection,
     bool ice_restart,
     bool use_rtp_mux) {
-  return std::make_unique<RTCOfferAnswerOptions>(offer_to_receive_video,
-                                                 offer_to_receive_audio,
-                                                 voice_activity_detection,
-                                                 ice_restart, use_rtp_mux);
+  return std::make_unique<RTCOfferAnswerOptions>(
+      offer_to_receive_video, offer_to_receive_audio, voice_activity_detection,
+      ice_restart, use_rtp_mux);
 }
 
 // Creates a new `CreateSessionDescriptionObserver` from the provided
@@ -478,8 +473,7 @@ rust::Vec<TransceiverContainer> get_transceivers(
 
   for (auto transceiver : peer->GetTransceivers()) {
     TransceiverContainer container = {
-        std::make_unique<RtpTransceiverInterface>(transceiver)
-    };
+        std::make_unique<RtpTransceiverInterface>(transceiver)};
     transceivers.push_back(std::move(container));
   }
 
@@ -492,7 +486,8 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
 }
 
 // Calls `RtpTransceiverInterface->media_type()`.
-MediaType get_transceiver_media_type(const RtpTransceiverInterface& transceiver) {
+MediaType get_transceiver_media_type(
+    const RtpTransceiverInterface& transceiver) {
   return transceiver->media_type();
 }
 
@@ -571,15 +566,24 @@ rust::String add_ice_candidate(const PeerConnectionInterface& peer,
                                int sdp_mline_index,
                                rust::Str candidate) {
   webrtc::SdpParseError* sdp_error;
-  auto candidatee = webrtc::CreateIceCandidate(
-      std::string(sdp_mid), sdp_mline_index, std::string(candidate), sdp_error);
-
-  auto result = peer->AddIceCandidate(candidatee);
+  std::unique_ptr<webrtc::IceCandidateInterface> owned_candidate(
+      CreateIceCandidate(std::string(sdp_mid), sdp_mline_index,
+                         std::string(candidate), sdp_error));
 
   rust::String error;
 
-  if (!result) {
+  if (!owned_candidate.get()) {
     error = sdp_error->description;
+  } else {
+    // printf("type: %s\n", owned_candidate->candidate().type().c_str());
+    // printf("TCP type: %s\n", owned_candidate->candidate().tcptype().c_str());
+    peer->AddIceCandidate(std::move(owned_candidate), [](webrtc::RTCError err) {
+      // if (err.ok()) {
+      //   printf("OK\n");
+      // } else {
+      //   printf("NE OK\n");
+      // }
+    });
   }
 
   return error;
@@ -593,6 +597,70 @@ void restart_ice(const PeerConnectionInterface& peer) {
 // Calls `PeerConnectionInterface::Close`.
 void close_peer_connection(const PeerConnectionInterface& peer) {
   peer->Close();
+}
+
+void test(const PeerConnectionInterface& peer) {
+  auto state = peer->peer_connection_state();
+  switch (state) {
+    case PeerConnectionState::kClosed:
+      printf("state: Closed\n");
+      break;
+
+    case PeerConnectionState::kConnected:
+      printf("state: Connected\n");
+      break;
+
+    case PeerConnectionState::kConnecting:
+      printf("state: Connecting\n");
+      break;
+
+    case PeerConnectionState::kDisconnected:
+      printf("state: Disconnected\n");
+      break;
+
+    case PeerConnectionState::kFailed:
+      printf("state: Failed\n");
+      break;
+
+    case PeerConnectionState::kNew:
+      printf("state: New\n");
+      break;
+  }
+
+  auto ice_state = peer->standardized_ice_connection_state();
+  switch (ice_state) {
+    case IceConnectionState::kIceConnectionChecking:
+      printf("ice state: Checking\n");
+      break;
+
+    case IceConnectionState::kIceConnectionClosed:
+      printf("ice state: Closed\n");
+      break;
+
+    case IceConnectionState::kIceConnectionCompleted:
+      printf("ice state: Completed\n");
+      break;
+
+    case IceConnectionState::kIceConnectionConnected:
+      printf("ice state: Connected\n");
+      break;
+
+    case IceConnectionState::kIceConnectionDisconnected:
+      printf("ice state: Disconnected\n");
+      break;
+
+    case IceConnectionState::kIceConnectionFailed:
+      printf("ice state: Failed\n");
+      break;
+
+    case IceConnectionState::kIceConnectionMax:
+      printf("ice state: Max\n");
+      break;
+
+    case IceConnectionState::kIceConnectionNew:
+      printf("ice state: New\n");
+      break;
+  }
 }
 
 }  // namespace bridge

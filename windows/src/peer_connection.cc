@@ -67,7 +67,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
 
   // Creates a new `PeerConnectionObserver`.
   PeerConnectionObserver(std::shared_ptr<Dependencies> deps)
-      : deps_(std::move(deps)) {};
+      : deps_(std::move(deps)){};
 
   ~PeerConnectionObserver() {
     if (deps_->chan_) {
@@ -217,7 +217,6 @@ void CreateRTCPeerConnection(
     flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   auto ctx = std::make_shared<PeerConnectionObserver::Dependencies>();
   auto observer = std::make_unique<PeerConnectionObserver>(ctx);
 
@@ -232,7 +231,8 @@ void CreateRTCPeerConnection(
     std::weak_ptr<PeerConnectionObserver::Dependencies> weak_deps(ctx);
     auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
         [=](const flutter::EncodableValue* arguments,
-            std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+            std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&&
+                events)
             -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
           auto context = weak_deps.lock();
           if (context) {
@@ -250,14 +250,14 @@ void CreateRTCPeerConnection(
           }
           return nullptr;
         });
-      event_channel->SetStreamHandler(std::move(handler));
-      ctx->chan_ = std::move(event_channel);
+    event_channel->SetStreamHandler(std::move(handler));
+    ctx->chan_ = std::move(event_channel);
 
-      EncodableMap params;
-      params[EncodableValue("peerConnectionId")] = peer_id;
-      result->Success(EncodableValue(params));
-    } else {
-     result->Error(std::string(error));
+    EncodableMap params;
+    params[EncodableValue("peerConnectionId")] = peer_id;
+    result->Success(EncodableValue(params));
+  } else {
+    result->Error(std::string(error));
   }
 }
 
@@ -267,7 +267,6 @@ void CreateOffer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -303,11 +302,9 @@ void CreateOffer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error = webrtc->CreateOffer(std::stoi(peerConnectionId),
-                                           voice_activity_detection,
-                                           ice_restart,
-                                           use_rtp_mux,
-                                           std::move(callback));
+  rust::String error =
+      webrtc->CreateOffer(std::stoi(peerConnectionId), voice_activity_detection,
+                          ice_restart, use_rtp_mux, std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -320,7 +317,6 @@ void CreateAnswer(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -356,11 +352,9 @@ void CreateAnswer(
   auto callback = std::unique_ptr<CreateSdpCallbackInterface>(
       new CreateSdpCallback(shared_result));
 
-  rust::String error = webrtc->CreateAnswer(std::stoi(peerConnectionId),
-                                            voice_activity_detection,
-                                            ice_restart,
-                                            use_rtp_mux,
-                                            std::move(callback));
+  rust::String error = webrtc->CreateAnswer(
+      std::stoi(peerConnectionId), voice_activity_detection, ice_restart,
+      use_rtp_mux, std::move(callback));
 
   if (error != "") {
     shared_result->Error("createAnswerOffer", std::string(error));
@@ -372,7 +366,6 @@ void SetLocalDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -391,10 +384,8 @@ void SetLocalDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error = webrtc->SetLocalDescription(std::stoi(peerConnectionId),
-                                                   type,
-                                                   sdp,
-                                                   std::move(callback));
+  rust::String error = webrtc->SetLocalDescription(
+      std::stoi(peerConnectionId), type, sdp, std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
@@ -406,7 +397,6 @@ void SetRemoteDescription(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -425,10 +415,8 @@ void SetRemoteDescription(
   auto callback = std::unique_ptr<SetDescriptionCallbackInterface>(
       new SetDescriptionCallBack(shared_result));
 
-  rust::String error = webrtc->SetRemoteDescription(std::stoi(peerConnectionId),
-                                                    type,
-                                                    sdp,
-                                                    std::move(callback));
+  rust::String error = webrtc->SetRemoteDescription(
+      std::stoi(peerConnectionId), type, sdp, std::move(callback));
 
   if (error != "") {
     shared_result->Error("SetLocalDescription", std::string(error));
@@ -440,7 +428,6 @@ void AddTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -461,7 +448,6 @@ void GetTransceivers(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -488,7 +474,6 @@ void StopTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -496,9 +481,9 @@ void StopTransceiver(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  rust::String error = webrtc->StopTransceiver(
-      std::stoi(findString(params, "peerConnectionId")),
-      std::stoi(findString(params, "transceiverId")));
+  rust::String error =
+      webrtc->StopTransceiver(std::stoi(findString(params, "peerConnectionId")),
+                              std::stoi(findString(params, "transceiverId")));
 
   if (error.empty()) {
     result->Success();
@@ -512,7 +497,6 @@ void DisposeTransceiver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -531,7 +515,6 @@ void SetTransceiverDirection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -556,7 +539,6 @@ void GetTransceiverDirection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -564,7 +546,7 @@ void GetTransceiverDirection(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  auto direction = (std::string) webrtc->GetTransceiverDirection(
+  auto direction = (std::string)webrtc->GetTransceiverDirection(
       std::stoi(findString(params, "peerConnectionId")),
       std::stoi(findString(params, "transceiverId")));
 
@@ -579,7 +561,6 @@ void GetTransceiverMid(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -587,7 +568,7 @@ void GetTransceiverMid(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
 
-  auto mid = (std::string) webrtc->GetTransceiverMid(
+  auto mid = (std::string)webrtc->GetTransceiverMid(
       std::stoi(findString(params, "peerConnectionId")),
       std::stoi(findString(params, "transceiverId")));
 
@@ -602,7 +583,6 @@ void SenderReplaceTrack(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -612,15 +592,10 @@ void SenderReplaceTrack(
   std::string track_id_string = findString(params, "trackId");
   uint64_t track_id = track_id_string.empty() ? 0 : std::stoi(track_id_string);
 
-  webrtc->SenderReplaceTrack(
+  rust::String error = webrtc->SenderReplaceTrack(
       std::stoi(findString(params, "peerConnectionId")),
       std::stoi(findString(params, "transceiverId")),
-      track_id);
-
-  rust::String error = webrtc->SenderReplaceTrack(
-                             std::stoi(findString(params, "peerConnectionId")),
-                             std::stoi(findString(params, "transceiverId")),
-                             track_id == -1 ? 0 : track_id);
+      track_id == -1 ? 0 : track_id);
 
   if (error.empty()) {
     result->Success();

@@ -310,7 +310,8 @@ rust::Vec<TransceiverContainer> get_transceivers(
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
 
 // Returns a `MediaType` of the given `RtpTransceiverInterface`.
-MediaType get_transceiver_media_type(const RtpTransceiverInterface& transceiver);
+MediaType get_transceiver_media_type(
+    const RtpTransceiverInterface& transceiver);
 
 // Returns a `direction` of the given `RtpTransceiverInterface`.
 RtpTransceiverDirection get_transceiver_direction(
@@ -363,4 +364,6 @@ void restart_ice(const PeerConnectionInterface& peer);
 
 // Closes the `PeerConnectionInterface`.
 void close_peer_connection(const PeerConnectionInterface& peer);
+
+void test(const PeerConnectionInterface& peer);
 }  // namespace bridge

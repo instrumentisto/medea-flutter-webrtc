@@ -42,6 +42,7 @@ void PeerConnectionObserver::OnIceGatheringChange(
 // Propagates the discovered `IceCandidateInterface` to the Rust side.
 void PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface* candidate) {
+  printf("candidate: %s\n", candidate->candidate().ToString().c_str());
   bridge::on_ice_candidate(*cb_, candidate);
 }
 
@@ -51,6 +52,8 @@ void PeerConnectionObserver::OnIceCandidateError(const std::string& address,
                                                  const std::string& url,
                                                  int err_code,
                                                  const std::string& err_text) {
+  printf("onIceCandidateError\ncode: %d\ntext: %s\nurl: %s\naddress: %s\n",
+         err_code, err_text.c_str(), url.c_str(), address.c_str());
   bridge::on_ice_candidate_error(*cb_, address, port, url, err_code, err_text);
 }
 
@@ -62,12 +65,14 @@ void PeerConnectionObserver::OnIceCandidatesRemoved(
 
 // Propagates the new ICE connection receiving status to the Rust side.
 void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
+  printf("onIceConnectionChange\n");
   bridge::on_ice_connection_receiving_change(*cb_, receiving);
 }
 
 // Propagates the received `CandidatePairChangeEvent` to the Rust side.
 void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
     const cricket::CandidatePairChangeEvent& event) {
+  printf("onIceParedChange\n");
   bridge::on_ice_selected_candidate_pair_changed(*cb_, event);
 }
 

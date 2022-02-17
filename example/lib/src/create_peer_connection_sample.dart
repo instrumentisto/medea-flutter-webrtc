@@ -12,7 +12,7 @@ class PeerConnectionSample extends StatefulWidget {
 
 class _PeerConnectionSampleState extends State<PeerConnectionSample> {
   String text = 'Press call button to test create PeerConnection';
-
+  MediaStream? _stream;
   @override
   void initState() {
     super.initState();
@@ -25,21 +25,47 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
     try {
+      final mediaConstraints = <String, dynamic>{
+        'audio': false,
+        'video': {
+          'mandatory': {
+            'minWidth':
+                '640', // Provide your own width, height and frame rate here
+            'minHeight': '480',
+            'minFrameRate': '30',
+          },
+          'facingMode': 'user',
+          'optional': [],
+        }
+      };
+
+      _stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+
       var pc1 = await createPeerConnection({});
       var pc2 = await createPeerConnection({});
 
-      pc1.onIceCandidate = (RTCIceCandidate candidate) async {
-        await pc2.addCandidate(candidate);
-      };
+      // pc1.onIceConnectionState = (RTCIceConnectionState state) async {
+      //   print('pc1: ${state.toString()}');
+      // };
+      //
+      // pc2.onIceConnectionState = (RTCIceConnectionState state) async {
+      //   print('pc2: ${state.toString()}');
+      // };
+      //
+      // pc1.onIceCandidate = (RTCIceCandidate candidate) async {
+      //   await pc2.addCandidate(candidate);
+      // };
+      //
+      // pc2.onIceCandidate = (RTCIceCandidate candidate) async {
+      //   await pc1.addCandidate(candidate);
+      // };
 
-      pc2.onIceCandidate = (RTCIceCandidate candidate) async {
-        await pc1.addCandidate(candidate);
-      };
-
-      var init = RTCRtpTransceiverInit();
-      init.direction = TransceiverDirection.SendRecv;
-      await pc1.addTransceiver(
-          kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+      // var init = RTCRtpTransceiverInit();
+      // init.direction = TransceiverDirection.SendOnly;
+      // var trans = await pc1.addTransceiver(
+      //     kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+      //
+      // await trans.sender.replaceTrack(_stream!.getVideoTracks()[0]);
 
       var offer = await pc1.createOffer();
       await pc1.setLocalDescription(offer);
@@ -49,15 +75,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       await pc2.setLocalDescription(answer);
       await pc1.setRemoteDescription(answer);
 
-      await pc1.restartIce();
-
-      await pc1.createOffer({
-        'mandatory': {
-          'OfferToReceiveAudio': true,
-          'OfferToReceiveVideo': true,
-        },
-        'optional': [true, true, true],
-      });
+      print(answer.sdp);
 
       setState(() {
         text = 'test is success';
