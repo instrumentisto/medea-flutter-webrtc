@@ -326,11 +326,12 @@ void RegisterObserver(
   rust::String error;
   uint64_t observer_id =
       webrtc->RegisterObserver(std::stoi(track_id), std::move(observer), rust::String(device_id), error);
+  //
+  observer_id;
   if (error == "") {
     auto event_channel = std::make_unique<EventChannel<EncodableValue>>(
         messenger,
-        "FlutterWebRTC/track" + track_id + "/observer" +
-            std::to_string(observer_id),
+        "com.instrumentisto.flutter_webrtc/MediaStreamTrack/" + track_id,
         &StandardMethodCodec::GetInstance());
 
     std::weak_ptr<TrackEventCallback::Dependencies> weak_deps(ctx);
@@ -367,7 +368,6 @@ void RegisterObserver(
 // todo
 void UnegisterObserver(
     Box<Webrtc>& webrtc,
-    flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
