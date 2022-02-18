@@ -13,20 +13,15 @@ namespace bridge {
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
-    uint64_t track_id,
-    rust::String device_id,
     rust::Box<bridge::DynTrackEventCallback> cb)
-    : track_(track), track_id_(track_id), device_id_(device_id), cb_(std::move(cb)) {}
+    : track_(track), cb_(std::move(cb)) {}
 
 // Called when track calls `set_state` or `set_enabled`.
 void TrackEventObserver::OnChanged() {
   if (track_ != nullptr) {
     if (track_->state() ==
         webrtc::MediaStreamTrackInterface::TrackState::kEnded) {
-      bridge::on_ended(*cb_, track_, track_id_, device_id_);
-    } else {
-      track_->enabled() ? bridge::on_unmute(*cb_, track_, track_id_, device_id_)
-                        : bridge::on_mute(*cb_, track_, track_id_, device_id_);
+      bridge::on_ended(*cb_);
     }
   }
 }
@@ -673,12 +668,10 @@ std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
 // `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
     const VideoTrackInterface& track,
-    uint64_t track_id,
-    rust::String device_id,
     rust::Box<bridge::DynTrackEventCallback> cb
 ) {
     return std::make_unique<TrackEventObserver>(
-      TrackEventObserver(track.get(), track_id, device_id, std::move(cb))
+      TrackEventObserver(track.get(), std::move(cb))
     );
 }
 
@@ -686,12 +679,10 @@ std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
 // `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
     const AudioTrackInterface& track,
-    uint64_t track_id,
-    rust::String device_id,
     rust::Box<bridge::DynTrackEventCallback> cb
 ) {
     return std::make_unique<TrackEventObserver>(
-      TrackEventObserver(track, track_id, device_id, std::move(cb))
+      TrackEventObserver(track, std::move(cb))
     );
 }
 
@@ -722,8 +713,4 @@ void audio_track_unregister_observer(
     TrackEventObserver& obs) {
       track->UnregisterObserver(&obs);
     }
-
-void stop_T(RtpTransceiverInterface& tr) {
-  tr->StopStandard();
-}
 }  // namespace bridge

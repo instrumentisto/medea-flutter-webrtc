@@ -1111,16 +1111,12 @@ pub(crate) mod webrtc {
         // todo
         pub fn create_audio_track_event_observer(
             track: &AudioTrackInterface,
-            track_id: u64,
-            deviec_id: String,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
         // todo
         pub fn create_video_track_event_observer(
             track: &VideoTrackInterface,
-            track_id: u64,
-            deviec_id: String,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
@@ -1146,8 +1142,6 @@ pub(crate) mod webrtc {
             track: Pin<&mut VideoTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
-
-        pub fn stop_T(tr: Pin<&mut RtpTransceiverInterface>);
     }
 
     extern "Rust" {
@@ -1165,25 +1159,6 @@ pub(crate) mod webrtc {
         type DynTrackEventCallback;
         fn on_ended(
             cb: &mut DynTrackEventCallback,
-            track: &MediaStreamTrackInterface,
-            track_id: u64,
-            device_id: String,
-        );
-
-        // todo
-        fn on_mute(
-            cb: &mut DynTrackEventCallback,
-            track: &MediaStreamTrackInterface,
-            track_id: u64,
-            device_id: String,
-        );
-
-        // todo
-        fn on_unmute(
-            cb: &mut DynTrackEventCallback,
-            track: &MediaStreamTrackInterface,
-            track_id: u64,
-            device_id: String,
         );
     }
 
@@ -1715,29 +1690,6 @@ impl fmt::Display for webrtc::PeerConnectionState {
 // todo
 pub fn on_ended(
     cb: &mut DynTrackEventCallback,
-    track: &webrtc::MediaStreamTrackInterface,
-    track_id: u64,
-    device_id: String,
 ) {
-    cb.on_ended(track, track_id, device_id);
-}
-
-// todo
-pub fn on_mute(
-    cb: &mut DynTrackEventCallback,
-    track: &webrtc::MediaStreamTrackInterface,
-    track_id: u64,
-    device_id: String,
-) {
-    cb.on_mute(track, track_id, device_id);
-}
-
-// todo
-pub fn on_unmute(
-    cb: &mut DynTrackEventCallback,
-    track: &webrtc::MediaStreamTrackInterface,
-    track_id: u64,
-    device_id: String,
-) {
-    cb.on_unmute(track, track_id, device_id);
+    cb.on_ended();
 }

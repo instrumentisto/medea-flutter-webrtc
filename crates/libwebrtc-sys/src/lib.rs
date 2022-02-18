@@ -63,7 +63,7 @@ pub use crate::webrtc::{
     get_rtp_parameters_mid, get_rtp_parameters_rtcp,
     get_rtp_parameters_transaction_id, get_rtp_receiver_id,
     get_rtp_receiver_parameters, get_rtp_receiver_streams, get_rtp_sender_dtmf,
-    get_rtp_sender_id, stop_T,
+    get_rtp_sender_id,
 };
 
 /// Counter used to generate unique IDs.s
@@ -76,11 +76,7 @@ fn next_id() -> u64 {
 
 // todo
 pub trait TrackEventCallback {
-    fn on_ended(&mut self, track: &MediaStreamTrackInterface, track_id: u64, device_id: String,);
-
-    fn on_mute(&mut self, track: &MediaStreamTrackInterface, track_id: u64, device_id: String,);
-
-    fn on_unmute(&mut self, track: &MediaStreamTrackInterface, track_id: u64, device_id: String,);
+    fn on_ended(&mut self);
 }
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
@@ -941,30 +937,27 @@ impl VideoTrackInterface {
     pub fn register_observer(
         &mut self,
         cb: Box<dyn TrackEventCallback>,
-        track_id: u64,
-        device_id: String,
-    ) -> u64 {
+    ) {
         let mut obs = create_video_track_event_observer(
             &self.inner,
-            track_id,
-            device_id,
             Box::new(cb),
         );
         video_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
         self.obs.insert(id, TrackEventObserver::from(obs));
-        id
     }
 
     // todo
-    pub fn unregister_observer(&mut self, id: u64) {
-        if let Some(cb) = self.obs.get_mut(&id) {
+    pub fn unregister_observer(&mut self) {
+        let mut id = 0;
+        if let Some((_id, cb)) = self.obs.iter_mut().next() {
+            id = *_id;
             video_track_unregister_observer(
                 self.inner.pin_mut(),
                 cb.0.pin_mut(),
             );
-            self.obs.remove(&id);
         }
+        self.obs.remove(&id);
     }
 }
 
@@ -995,30 +988,27 @@ impl AudioTrackInterface {
     pub fn register_observer(
         &mut self,
         cb: Box<dyn TrackEventCallback>,
-        track_id: u64,
-        device_id: String,
-    ) -> u64 {
+    ) {
         let mut obs = create_audio_track_event_observer(
             &self.inner,
-            track_id,
-            device_id,
             Box::new(cb),
         );
         audio_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
         self.obs.insert(id, TrackEventObserver::from(obs));
-        id
     }
 
     // todo
-    pub fn unregister_observer(&mut self, id: u64) {
-        if let Some(cb) = self.obs.get_mut(&id) {
+    pub fn unregister_observer(&mut self) {
+        let mut id = 0;
+        if let Some((_id, cb)) = self.obs.iter_mut().next() {
+            id = *_id;
             audio_track_unregister_observer(
                 self.inner.pin_mut(),
                 cb.0.pin_mut(),
             );
-            self.obs.remove(&id);
         }
+        self.obs.remove(&id);
     }
 }
 

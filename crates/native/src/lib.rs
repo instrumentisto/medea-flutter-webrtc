@@ -24,7 +24,7 @@ use api::{
 //     TrackInterfaceSerialized,
 // };
 use libwebrtc_sys::{
-    audio_track_media_stream_track_upcast, get_media_stream_track_id,
+    audio_track_media_stream_track_upcast,
     get_media_stream_track_kind, get_transceiver_mid, get_transceiver_sender,
     video_track_media_stream_track_upcast, AudioLayer, AudioSourceInterface,
     MediaStreamTrackInterface, PeerConnectionFactoryInterface,
@@ -461,15 +461,12 @@ pub mod api {
             self: &mut Webrtc,
             id: u64,
             cb: UniquePtr<TrackEventInterface>,
-            device_id: String,
-            error: &mut String,
-        ) -> u64;
+        ) -> String;
 
         #[cxx_name = "UnregisterObserver"]
         pub fn unregister_observer_track(
             self: &mut Webrtc,
             id: u64,
-            id_obs: u64,
         ) -> String;
     }
 }

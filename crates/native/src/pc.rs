@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    pin::Pin,
     sync::{Arc, Mutex},
 };
 
@@ -8,11 +7,11 @@ use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::{
-    get_audio_track_sourse, get_media_stream_track_id,
+    get_audio_track_sourse,
     get_media_stream_track_kind, get_rtp_receiver_track,
     get_transceiver_receiver, get_video_track_sourse,
     media_stream_track_interface_downcast_audio_track,
-    media_stream_track_interface_downcast_video_track, stop_T,
+    media_stream_track_interface_downcast_video_track,
     AudioSourceInterface, AudioTrackInterface, MediaStreamTrackInterface,
     Sys_RtpReceiverInterface, Sys_RtpTransceiverInterface, VideoTrackInterface,
     VideoTrackSourceInterface,
@@ -566,7 +565,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         let id = next_id();
 
         if get_media_stream_track_kind(&track).to_string() == "video" {
-            let mut inner = VideoTrackInterface::from((
+            let inner = VideoTrackInterface::from((
                 media_stream_track_interface_downcast_video_track(track),
                 HashMap::new(),
             ));
@@ -585,13 +584,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let v = VideoTrack::new_from_video_interface(
                 inner,
                 VideoTrackSourceInterface::from(source),
+                "remote".to_owned()
             );
             self.remote_video_tracks
                 .lock()
                 .unwrap()
                 .insert(id.into(), v);
         } else {
-            let mut inner = AudioTrackInterface::from((
+            let inner = AudioTrackInterface::from((
                 media_stream_track_interface_downcast_audio_track(track),
                 HashMap::new(),
             ));
@@ -609,6 +609,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let a = AudioTrack::new_from_audio_interface(
                 inner,
                 AudioSourceInterface::from(source),
+                "audio".to_owned()
             );
             self.remote_audio_tracks
                 .lock()

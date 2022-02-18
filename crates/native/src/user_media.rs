@@ -10,7 +10,7 @@ use std::{collections::HashMap, rc::Rc};
 use sys::{AudioTrackInterface, VideoTrackInterface};
 
 use crate::{
-    api::{self, AudioConstraints, TrackInterfaceSerialized, VideoConstraints},
+    api::{self, AudioConstraints, VideoConstraints},
     internal::TrackEventInterface,
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
@@ -351,25 +351,23 @@ impl Webrtc {
         &mut self,
         id: u64,
         cb: UniquePtr<TrackEventInterface>,
-        device_id: String,
-        error: &mut String,
-    ) -> u64 {
+    ) -> String {
         if let Some(track) =
             self.0.video_tracks.lock().unwrap().get_mut(&id.into())
         {
-            return track
+            track
                 .inner
-                .register_observer(Box::new(TrackEventHandler(cb)), id, device_id);
+                .register_observer(Box::new(TrackEventHandler(cb)));
+            String::new()
         } else if let Some(track) =
             self.0.audio_tracks.lock().unwrap().get_mut(&id.into())
         {
-            return track
+            track
                 .inner
-                .register_observer(Box::new(TrackEventHandler(cb)), id, device_id);
+                .register_observer(Box::new(TrackEventHandler(cb)));
+            String::new()
         } else {
-            // TODO: Return error.
-            error.push_str(&format!("Could not find track with `{id}` ID"));
-            0
+            format!("Could not find track with `{id}` ID")
         }
     }
 
@@ -377,17 +375,16 @@ impl Webrtc {
     pub fn unregister_observer_track(
         &mut self,
         id: u64,
-        id_obs: u64,
     ) -> String {
         if let Some(track) =
             self.0.video_tracks.lock().unwrap().get_mut(&id.into())
         {
-            track.inner.unregister_observer(id_obs);
+            track.inner.unregister_observer();
             String::new()
         } else if let Some(track) =
             self.0.audio_tracks.lock().unwrap().get_mut(&id.into())
         {
-            track.inner.unregister_observer(id_obs);
+            track.inner.unregister_observer();
             String::new()
         } else {
             format!("Could not find track with `{id}` ID")
@@ -576,14 +573,14 @@ impl VideoTrack {
     pub fn new_from_video_interface(
         inner: VideoTrackInterface,
         src: sys::VideoTrackSourceInterface,
+        device_id: String,
     ) -> Self {
         let id = VideoTrackId(next_id());
-        let deviece_id = VideoTrackId(next_id());
         let src = VideoSource {
             inner: src,
-            device_id: VideoDeviceId(deviece_id.to_string()),
+            device_id: VideoDeviceId(device_id),
             is_display: false, // todo ???
-        };
+        }; 
         Self {
             id,
             inner,
@@ -642,13 +639,15 @@ impl AudioTrack {
         label: AudioLabel,
     ) -> anyhow::Result<Self> {
         let id = AudioTrackId(next_id());
-        Ok(Self {
+        let inner = pc.create_audio_track(id.to_string(), &src)?;
+        let track = Self {
             id,
-            inner: pc.create_audio_track(id.to_string(), &src)?,
+            inner,
             src,
             kind: api::TrackKind::kAudio,
             label,
-        })
+        };
+        Ok(track)
     }
 
     /// Creates a new [`AudioTrack`].
@@ -657,6 +656,7 @@ impl AudioTrack {
     pub fn new_from_audio_interface(
         inner: AudioTrackInterface,
         src: sys::AudioSourceInterface,
+        device_id: String,
     ) -> Self {
         let id = AudioTrackId(next_id());
         Self {
@@ -664,7 +664,7 @@ impl AudioTrack {
             inner,
             src: Rc::new(src),
             kind: api::TrackKind::kAudio,
-            label: AudioLabel("audio".to_owned()),
+            label: AudioLabel(device_id),
         }
     }
 
@@ -742,34 +742,9 @@ struct TrackEventHandler(UniquePtr<TrackEventInterface>);
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(
         &mut self,
-        track: &sys::MediaStreamTrackInterface,
-        track_id: u64,
-        device_id: String,
     ) {
         self.0
             .pin_mut()
-            .on_ended(TrackInterfaceSerialized::from((track, track_id, device_id)));
-    }
-
-    fn on_mute(
-        &mut self,
-        track: &sys::MediaStreamTrackInterface,
-        track_id: u64,
-        device_id: String,
-    ) {
-        self.0
-            .pin_mut()
-            .on_mute(TrackInterfaceSerialized::from((track, track_id, device_id)));
-    }
-
-    fn on_unmute(
-        &mut self,
-        track: &sys::MediaStreamTrackInterface,
-        track_id: u64,
-        device_id: String,
-    ) {
-        self.0
-            .pin_mut()
-            .on_unmute(TrackInterfaceSerialized::from((track, track_id, device_id)));
+            .on_ended();
     }
 }

@@ -15,7 +15,6 @@ mod cpp_api_bindings {
 
         type VideoFrame = crate::api::VideoFrame;
         type OnTrackSerialized = crate::api::OnTrackSerialized;
-        type TrackInterfaceSerialized = crate::api::TrackInterfaceSerialized;
 
         /// Calls C++ side `CreateSdpCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
@@ -120,21 +119,6 @@ mod cpp_api_bindings {
         #[cxx_name = "OnEnded"]
         pub fn on_ended(
             self: Pin<&mut TrackEventInterface>,
-            track: TrackInterfaceSerialized,
-        );
-
-        /// Calls C++ side `TrackEventInterface->OnMute`.
-        #[cxx_name = "OnMute"]
-        pub fn on_mute(
-            self: Pin<&mut TrackEventInterface>,
-            track: TrackInterfaceSerialized,
-        );
-
-        /// Calls C++ side `TrackEventInterface->OnUnmute`.
-        #[cxx_name = "OnUnmute"]
-        pub fn on_unmute(
-            self: Pin<&mut TrackEventInterface>,
-            track: TrackInterfaceSerialized,
         );
 
     }

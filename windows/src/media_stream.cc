@@ -24,51 +24,22 @@ class TrackEventCallback : public TrackEventInterface {
   TrackEventCallback(std::shared_ptr<Dependencies> deps)
       : deps_(std::move(deps)) {};
 
-  void OnEnded(TrackInterfaceSerialized track) {
+  ~TrackEventCallback() {
+    if (deps_->chan_) {
+      deps_->chan_->SetStreamHandler(nullptr);
+    }
+  }
+
+  void OnEnded() {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
       params[flutter::EncodableValue("event")] = "onended";
-      params[flutter::EncodableValue("track")] = EncodableValue(mediaTrackToMap(track));
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
   }
-
-  void OnMute(TrackInterfaceSerialized track) {
-    const std::lock_guard<std::mutex> lock(*deps_->lock_);
-    if (deps_->sink_) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "onmut";
-      params[flutter::EncodableValue("track")] = EncodableValue(mediaTrackToMap(track));
-      deps_->sink_->Success(flutter::EncodableValue(params));
-    }
-  }
-
-  void OnUnmute(TrackInterfaceSerialized track) {
-    const std::lock_guard<std::mutex> lock(*deps_->lock_);
-    if (deps_->sink_) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "onunmut";
-      params[flutter::EncodableValue("track")] = EncodableValue(mediaTrackToMap(track));
-      deps_->sink_->Success(flutter::EncodableValue(params));
-    }
-  }
-
  private:
 
-// Convert `TrackInterfaceSerialized` to flutter `EncodableMap`.
-EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
-  flutter::EncodableMap info;
-  info[EncodableValue("channelId")] = EncodableValue((long)track.channel_id);
-  info[EncodableValue("id")] = std::to_string(track.id);
-  if (track.device_id != "") {
-    info[EncodableValue("deviceId")] = std::string(track.device_id);
-  }
-  info[EncodableValue("kind")] = std::string(track.kind);
-  return info;
-}
-
-  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
   std::shared_ptr<Dependencies> deps_;
 };
 
@@ -121,6 +92,7 @@ void EnumerateDevice(Box<Webrtc>& webrtc,
 /// `GetMedia()`, then converts the backed `MediaStream` info for Dart.
 void GetMedia(const flutter::MethodCall<EncodableValue>& method_call,
               Box<Webrtc>& webrtc,
+              flutter::BinaryMessenger* messenger,
               std::unique_ptr<MethodResult<EncodableValue>> result,
               bool is_display) {
   if (!method_call.arguments()) {
@@ -311,6 +283,7 @@ void RegisterObserver(
     flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -318,20 +291,16 @@ void RegisterObserver(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
   const std::string track_id = findString(params, "trackId");
-  const std::string device_id = findString(params, "deviceId");
 
   auto ctx = std::make_shared<TrackEventCallback::Dependencies>();
   auto observer = std::make_unique<TrackEventCallback>(ctx);
 
-  rust::String error;
-  uint64_t observer_id =
-      webrtc->RegisterObserver(std::stoi(track_id), std::move(observer), rust::String(device_id), error);
-  //
-  observer_id;
-  if (error == "") {
+  rust::String error = webrtc->RegisterObserver(std::stoi(track_id), std::move(observer));
+
+  if(error == "") {
     auto event_channel = std::make_unique<EventChannel<EncodableValue>>(
         messenger,
-        "com.instrumentisto.flutter_webrtc/MediaStreamTrack/" + track_id,
+        "MediaStreamTrack/" + track_id,
         &StandardMethodCodec::GetInstance());
 
     std::weak_ptr<TrackEventCallback::Dependencies> weak_deps(ctx);
@@ -358,18 +327,19 @@ void RegisterObserver(
         });
     event_channel->SetStreamHandler(std::move(handler));
     ctx->chan_ = std::move(event_channel);
-
     result->Success(nullptr);
+
   } else {
     result->Error(std::string(error));
   }
+
 }
 
-// todo
-void UnegisterObserver(
+void UnregisterObserver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -377,10 +347,9 @@ void UnegisterObserver(
 
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
   const std::string track_id = findString(params, "trackId");
-  const std::string observer_id = findString(params, "observerId");
 
   rust::String error =
-      webrtc->UnregisterObserver(std::stoi(track_id), std::stoi(observer_id));
+      webrtc->UnregisterObserver(std::stoi(track_id));
   if (error == "") {
     result->Success(nullptr);
   } else {

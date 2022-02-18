@@ -26,9 +26,9 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getSources") == 0) {
     EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
-    GetMedia(method_call, webrtc, std::move(result), false);
+    GetMedia(method_call, webrtc, messenger_, std::move(result), false);
   } else if (method.compare("getDisplayMedia") == 0) {
-    GetMedia(method_call, webrtc, std::move(result), true);
+    GetMedia(method_call, webrtc, messenger_, std::move(result), true);
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
     CreateOffer(webrtc, method_call, std::move(result));
@@ -73,8 +73,8 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getSenders") == 0) {
   } else if (method.compare("RegisterObserver") == 0) {
     RegisterObserver(webrtc, messenger_, method_call, std::move(result));
-  } else if (method.compare("UnegisterObserver") == 0) {
-    UnegisterObserver(webrtc, method_call, std::move(result));
+  } else if (method.compare("UnregisterObserver") == 0) {
+    UnregisterObserver(webrtc, method_call, std::move(result));
   } else if (method.compare("rtpSenderDispose") == 0) {
   } else if (method.compare("rtpSenderSetTrack") == 0) {
   } else if (method.compare("rtpSenderReplaceTrack") == 0) {

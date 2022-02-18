@@ -10,13 +10,13 @@ class RTCTrackEvent {
     // required this.streams,
     // required this.track,
     this.streams,
-    this.track,
+    required this.track,
     this.transceiver,
   });
   final RTCRtpReceiver? receiver;
   // final List<MediaStream> streams;
   // final MediaStreamTrack track;
   final List<MediaStream>? streams;
-  final MediaStreamTrack? track;
+  final MediaStreamTrack track;
   final RTCRtpTransceiver? transceiver;
 }

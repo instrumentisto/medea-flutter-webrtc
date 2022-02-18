@@ -113,9 +113,7 @@ class PeerConnectionObserverInterface {
 class TrackEventInterface {
  public:
 
-  virtual void OnEnded(TrackInterfaceSerialized track) = 0;
-  virtual void OnMute(TrackInterfaceSerialized track) = 0;
-  virtual void OnUnmute(TrackInterfaceSerialized track) = 0;
+  virtual void OnEnded() = 0;
 
   virtual ~TrackEventInterface() = default;
 };

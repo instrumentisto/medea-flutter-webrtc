@@ -23,6 +23,7 @@ void EnumerateDevice(
 void GetMedia(
     const flutter::MethodCall<EncodableValue>& method_call,
     Box<Webrtc>& webrtc,
+    flutter::BinaryMessenger* messenger,
     std::unique_ptr<MethodResult<EncodableValue>> result,
     bool is_display = false);
 
@@ -55,7 +56,7 @@ void RegisterObserver(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // todo
-void UnegisterObserver(
+void UnregisterObserver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
