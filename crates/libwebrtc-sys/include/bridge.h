@@ -369,6 +369,4 @@ void restart_ice(const PeerConnectionInterface& peer);
 
 // Closes the `PeerConnectionInterface`.
 void close_peer_connection(const PeerConnectionInterface& peer);
-
-void test(const PeerConnectionInterface& peer);
 }  // namespace bridge
