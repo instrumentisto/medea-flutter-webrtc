@@ -453,9 +453,9 @@ pub struct RtpTransceiverInterface {
     /// [`RtpTransceiverInterface`]: webrtc::PeerConnectionInterface
     inner: UniquePtr<webrtc::RtpTransceiverInterface>,
 
-    /// Configured [`MediaType`] of the current [`RtpTransceiverInterface`].
+    /// Configured [`MediaType`] of this [`RtpTransceiverInterface`].
     ///
-    /// It cannot be changed so it is fetched from the C++ side once and cached
+    /// It cannot be changed, so it's fetched from the C++ side once and cached
     /// here.
     media_type: MediaType,
 }
@@ -478,7 +478,7 @@ impl RtpTransceiverInterface {
         webrtc::get_transceiver_direction(&self.inner)
     }
 
-    /// Returns the [`MediaType`] of this [`RtpTransceiverInterface`].
+    /// Returns a [`MediaType`] of this [`RtpTransceiverInterface`].
     #[must_use]
     pub fn media_type(&self) -> MediaType {
         self.media_type
@@ -522,9 +522,10 @@ impl RtpTransceiverInterface {
     }
 }
 
-/// The [`RtpSenderInterface`] allows an application to control how a given
-/// [`MediaStreamTrack`][1]. is encoded and transmitted to a remote peer.
+/// [RTCRtpSender] allowing to control how a [MediaStreamTrack][1] is encoded
+/// and transmitted to a remote peer.
 ///
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct RtpSenderInterface(UniquePtr<webrtc::RtpSenderInterface>);
 

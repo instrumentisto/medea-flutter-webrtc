@@ -370,7 +370,7 @@ pub mod api {
             transceiver_id: u64,
         );
 
-        /// Replaces the [`AudioTrack`] or the [`VideoTrack`] on
+        /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
         /// the [`sys::Transceiver`]'s `sender`.
         #[cxx_name = "SenderReplaceTrack"]
         pub fn sender_replace_track(
