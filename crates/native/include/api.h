@@ -91,3 +91,15 @@ class PeerConnectionObserverInterface {
 
   virtual ~PeerConnectionObserverInterface() = default;
 };
+
+// Completion callback for the `webrtc::AddIceCandidate`.
+class AddIceCandidateCallbackInterface {
+ public:
+  // Called when an operation succeeds.
+  virtual void OnSuccess() = 0;
+
+  // Called when an operation fails with the `error`.
+  virtual void OnFail(const std::string& error) = 0;
+
+  virtual ~AddIceCandidateCallbackInterface() = default;
+};

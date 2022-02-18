@@ -42,7 +42,7 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
       : result_(std::move(res)) {}
 
   // Successfully completes an inner `flutter::MethodResult`.
-  void OnSuccess() { result_->Success(nullptr); }
+  void OnSuccess() { result_->Success(); }
 
   // Forwards the provided `error` to the `flutter::MethodResult` error.
   void OnFail(const std::string& error) { result_->Error(error); }
@@ -189,6 +189,22 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
  private:
   // `PeerConnectionObserver` dependencies.
   std::shared_ptr<Dependencies> deps_;
+};
+
+class AddIceCandidateCallback : public AddIceCandidateCallbackInterface {
+ public:
+  AddIceCandidateCallback(
+      std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> res)
+      : result_(std::move(res)) {}
+
+  // Successfully completes an inner `flutter::MethodResult`.
+  void OnSuccess() { result_->Success(); }
+
+  // Forwards the provided `error` to the `flutter::MethodResult` error.
+  void OnFail(const std::string& error) { result_->Error(error); }
+
+ private:
+  std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result_;
 };
 
 namespace flutter_webrtc_plugin {
@@ -617,12 +633,16 @@ void AddIceCandidate(
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
   const EncodableMap candidate = findMap(params, "candidate");
 
-  webrtc->AddIceCandidate(std::stoi(findString(params, "peerConnectionId")),
-                          findString(candidate, "candidate"),
-                          findString(candidate, "sdpMid"),
-                          findInt(candidate, "sdpMLineIndex"));
+  auto shared_result =
+      std::shared_ptr<flutter::MethodResult<EncodableValue>>(result.release());
 
-  result->Success();
+  auto callback = std::unique_ptr<AddIceCandidateCallbackInterface>(
+      new AddIceCandidateCallback(shared_result));
+
+  webrtc->AddIceCandidate(
+      std::stoi(findString(params, "peerConnectionId")),
+      findString(candidate, "candidate"), findString(candidate, "sdpMid"),
+      findInt(candidate, "sdpMLineIndex"), std::move(callback));
 }
 
 // Calls Rust `RestartIce`.

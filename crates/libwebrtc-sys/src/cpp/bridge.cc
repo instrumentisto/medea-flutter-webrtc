@@ -566,10 +566,12 @@ int sdp_mline_index_of_ice_candidate(const IceCandidateInterface* candidate) {
 }
 
 // Calls `PeerConnectionInterface::AddIceCandidate`.
-rust::String add_ice_candidate(const PeerConnectionInterface& peer,
-                               rust::Str sdp_mid,
-                               int sdp_mline_index,
-                               rust::Str candidate) {
+rust::String add_ice_candidate(
+    const PeerConnectionInterface& peer,
+    rust::Str sdp_mid,
+    int sdp_mline_index,
+    rust::Str candidate,
+    rust::Box<bridge::DynAddIceCandidateCallback> cb) {
   webrtc::SdpParseError* sdp_error;
   std::unique_ptr<webrtc::IceCandidateInterface> owned_candidate(
       CreateIceCandidate(std::string(sdp_mid), sdp_mline_index,
@@ -580,15 +582,14 @@ rust::String add_ice_candidate(const PeerConnectionInterface& peer,
   if (!owned_candidate.get()) {
     error = sdp_error->description;
   } else {
-    // printf("type: %s\n", owned_candidate->candidate().type().c_str());
-    // printf("TCP type: %s\n", owned_candidate->candidate().tcptype().c_str());
-    peer->AddIceCandidate(std::move(owned_candidate), [](webrtc::RTCError err) {
-      // if (err.ok()) {
-      //   printf("OK\n");
-      // } else {
-      //   printf("NE OK\n");
-      // }
-    });
+    peer->AddIceCandidate(
+        std::move(owned_candidate), [&](webrtc::RTCError err) {
+          if (err.ok()) {
+            add_ice_candidate_success(std::move(cb));
+          } else {
+            add_ice_candidate_fail(std::move(cb), err.message());
+          }
+        });
   }
 
   return error;
@@ -602,70 +603,6 @@ void restart_ice(const PeerConnectionInterface& peer) {
 // Calls `PeerConnectionInterface::Close`.
 void close_peer_connection(const PeerConnectionInterface& peer) {
   peer->Close();
-}
-
-void test(const PeerConnectionInterface& peer) {
-  auto state = peer->peer_connection_state();
-  switch (state) {
-    case PeerConnectionState::kClosed:
-      printf("state: Closed\n");
-      break;
-
-    case PeerConnectionState::kConnected:
-      printf("state: Connected\n");
-      break;
-
-    case PeerConnectionState::kConnecting:
-      printf("state: Connecting\n");
-      break;
-
-    case PeerConnectionState::kDisconnected:
-      printf("state: Disconnected\n");
-      break;
-
-    case PeerConnectionState::kFailed:
-      printf("state: Failed\n");
-      break;
-
-    case PeerConnectionState::kNew:
-      printf("state: New\n");
-      break;
-  }
-
-  auto ice_state = peer->standardized_ice_connection_state();
-  switch (ice_state) {
-    case IceConnectionState::kIceConnectionChecking:
-      printf("ice state: Checking\n");
-      break;
-
-    case IceConnectionState::kIceConnectionClosed:
-      printf("ice state: Closed\n");
-      break;
-
-    case IceConnectionState::kIceConnectionCompleted:
-      printf("ice state: Completed\n");
-      break;
-
-    case IceConnectionState::kIceConnectionConnected:
-      printf("ice state: Connected\n");
-      break;
-
-    case IceConnectionState::kIceConnectionDisconnected:
-      printf("ice state: Disconnected\n");
-      break;
-
-    case IceConnectionState::kIceConnectionFailed:
-      printf("ice state: Failed\n");
-      break;
-
-    case IceConnectionState::kIceConnectionMax:
-      printf("ice state: Max\n");
-      break;
-
-    case IceConnectionState::kIceConnectionNew:
-      printf("ice state: New\n");
-      break;
-  }
 }
 
 }  // namespace bridge

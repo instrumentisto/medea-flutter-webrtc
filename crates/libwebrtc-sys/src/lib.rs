@@ -114,6 +114,15 @@ pub trait PeerConnectionEventsHandler {
     );
 }
 
+/// Handler for [`webrtc::add_ice_candidate`].
+pub trait AddIceCandidateHandler {
+    /// Callback if there is success when add the [`IceCandidateInterface`].
+    fn on_success(&mut self);
+
+    /// Callback if there is fail when add the [`IceCandidateInterface`].
+    fn on_fail(&mut self, error: &CxxString);
+}
+
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.
 ///
@@ -654,12 +663,14 @@ impl PeerConnectionInterface {
         sdp_mid: &str,
         sdp_mline_index: i32,
         candidate: &str,
+        cb: Box<dyn AddIceCandidateHandler>,
     ) -> anyhow::Result<()> {
         let result = webrtc::add_ice_candidate(
             &self.inner,
             sdp_mid,
             sdp_mline_index,
             candidate,
+            Box::new(cb),
         );
 
         if !result.is_empty() {

@@ -5,8 +5,8 @@ use libwebrtc_sys as sys;
 use crate::{
     api,
     internal::{
-        CreateSdpCallbackInterface, PeerConnectionObserverInterface,
-        SetDescriptionCallbackInterface,
+        AddIceCandidateCallbackInterface, CreateSdpCallbackInterface,
+        PeerConnectionObserverInterface, SetDescriptionCallbackInterface,
     },
     next_id, AudioTrackId, VideoTrackId, Webrtc,
 };
@@ -465,13 +465,19 @@ impl Webrtc {
         candidate: &str,
         sdp_mid: &str,
         sdp_mline_index: i32,
+        cb: UniquePtr<AddIceCandidateCallbackInterface>,
     ) {
         self.0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .inner
-            .add_ice_candidate(sdp_mid, sdp_mline_index, candidate)
+            .add_ice_candidate(
+                sdp_mid,
+                sdp_mline_index,
+                candidate,
+                Box::new(AddIceCandidate(cb)),
+            )
             .unwrap();
     }
 
@@ -642,5 +648,17 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         _: &sys::CandidatePairChangeEvent,
     ) {
         // This is a non-spec-compliant event.
+    }
+}
+
+pub struct AddIceCandidate(UniquePtr<AddIceCandidateCallbackInterface>);
+
+impl sys::AddIceCandidateHandler for AddIceCandidate {
+    fn on_success(&mut self) {
+        self.0.pin_mut().on_add_ice_candidate_sucess();
+    }
+
+    fn on_fail(&mut self, error: &CxxString) {
+        self.0.pin_mut().on_add_ice_candidate_fail(error);
     }
 }

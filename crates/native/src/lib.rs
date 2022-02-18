@@ -213,6 +213,9 @@ pub mod api {
 
         type OnFrameCallbackInterface =
             crate::internal::OnFrameCallbackInterface;
+
+        type AddIceCandidateCallbackInterface =
+            crate::internal::AddIceCandidateCallbackInterface;
     }
 
     extern "Rust" {
@@ -385,6 +388,7 @@ pub mod api {
             candidate: &str,
             sdp_mid: &str,
             sdp_mline_index: i32,
+            cb: UniquePtr<AddIceCandidateCallbackInterface>,
         );
 
         /// Tells the [`PeerConnection`] that ICE should be restarted.

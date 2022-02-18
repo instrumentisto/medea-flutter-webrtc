@@ -4,8 +4,8 @@ use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
-    CreateSdpCallback, OnFrameCallback, PeerConnectionEventsHandler,
-    SetDescriptionCallback,
+    AddIceCandidateHandler, CreateSdpCallback, OnFrameCallback,
+    PeerConnectionEventsHandler, SetDescriptionCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -19,6 +19,9 @@ type DynOnFrameCallback = Box<dyn OnFrameCallback>;
 
 /// [`PeerConnectionEventsHandler`] transferable to the C++ side.
 type DynPeerConnectionEventsHandler = Box<dyn PeerConnectionEventsHandler>;
+
+/// [`AddIceCandidateHandler`] transferable to the C++ side.
+type DynAddIceCandidateCallback = Box<dyn AddIceCandidateHandler>;
 
 #[allow(
     clippy::expl_impl_clone_on_copy,
@@ -363,6 +366,21 @@ pub(crate) mod webrtc {
         ) -> i32;
     }
 
+    extern "Rust" {
+        type DynAddIceCandidateCallback;
+
+        /// Calls the success callback of the [`DynAddIceCandidateCallback`].
+        pub fn add_ice_candidate_success(
+            mut cb: Box<DynAddIceCandidateCallback>,
+        );
+
+        /// Calls the fail callback of the [`DynAddIceCandidateCallback`].
+        pub fn add_ice_candidate_fail(
+            mut cb: Box<DynAddIceCandidateCallback>,
+            error: &CxxString,
+        );
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         #[namespace = "cricket"]
@@ -520,7 +538,7 @@ pub(crate) mod webrtc {
         ) -> i32;
 
         /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].
-        pub fn add_ice_candidate(peer: &PeerConnectionInterface, sdp_mid: &str, sdp_mline_index: i32, candidate: &str) -> String;
+        pub fn add_ice_candidate(peer: &PeerConnectionInterface, sdp_mid: &str, sdp_mline_index: i32, candidate: &str, cb: Box<DynAddIceCandidateCallback>) -> String;
 
         /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.
         pub fn restart_ice(peer: &PeerConnectionInterface);
@@ -1104,6 +1122,21 @@ pub fn on_ice_selected_candidate_pair_changed(
     event: &webrtc::CandidatePairChangeEvent,
 ) {
     cb.on_ice_selected_candidate_pair_changed(event);
+}
+
+/// Calls the success callback of the [`DynAddIceCandidateCallback`].
+#[allow(clippy::boxed_local)]
+pub fn add_ice_candidate_success(mut cb: Box<DynAddIceCandidateCallback>) {
+    cb.on_success();
+}
+
+/// Calls the fail callback of the [`DynAddIceCandidateCallback`].
+#[allow(clippy::boxed_local)]
+pub fn add_ice_candidate_fail(
+    mut cb: Box<DynAddIceCandidateCallback>,
+    error: &CxxString,
+) {
+    cb.on_fail(error);
 }
 
 impl TryFrom<&str> for webrtc::SdpType {
