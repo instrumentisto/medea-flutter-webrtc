@@ -29,6 +29,8 @@ class TrackEventObserver : public webrtc::ObserverInterface {
  public:
   // Creates a new `TrackEventObserver`.
   TrackEventObserver(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+                     uint64_t track_id,
+                     rust::String device_id,
                      rust::Box<bridge::DynTrackEventCallback> cb);
   
   // Called when track calls `set_state` or `set_enabled`.
@@ -38,6 +40,9 @@ class TrackEventObserver : public webrtc::ObserverInterface {
 
   // `MediaStreamTrackInterface` for determine the event.
   rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track_;
+
+  uint64_t track_id_;
+  rust::String device_id_;
 
   // Rust side callback.
   rust::Box<bridge::DynTrackEventCallback> cb_;
@@ -455,6 +460,8 @@ std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
 // `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
     const VideoTrackInterface& track,
+    uint64_t track_id,
+    rust::String divice_id,
     rust::Box<bridge::DynTrackEventCallback> cb
 );
 
@@ -462,6 +469,8 @@ std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
 // `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
     const AudioTrackInterface& track,
+    uint64_t track_id,
+    rust::String divice_id,
     rust::Box<bridge::DynTrackEventCallback> cb
 );
 

@@ -61,7 +61,7 @@ pub mod api {
     /// Serialized `MediaTrack` for writes in flutter.
     pub struct TrackInterfaceSerialized {
         channel_id: u64,
-        id: String,
+        id: u64,
         device_id: String,
         kind: String,
     }
@@ -456,56 +456,45 @@ pub mod api {
             enabled: bool,
         );
 
-        // todo
-        pub fn register_observer_local_track(
+        #[cxx_name = "RegisterObserver"]
+        pub fn register_observer_track(
             self: &mut Webrtc,
             id: u64,
             cb: UniquePtr<TrackEventInterface>,
+            device_id: String,
+            error: &mut String,
         ) -> u64;
 
-        //
-        pub fn register_observer_remote_track(
-            self: &mut Webrtc,
-            id: String,
-            cb: UniquePtr<TrackEventInterface>,
-        ) -> u64;
-
-        // todo
-        pub fn unregister_observer_local_track(
+        #[cxx_name = "UnregisterObserver"]
+        pub fn unregister_observer_track(
             self: &mut Webrtc,
             id: u64,
             id_obs: u64,
-        );
-
-        pub fn unregister_observer_remote_track(
-            self: &mut Webrtc,
-            id: String,
-            id_obs: u64,
-        );
+        ) -> String;
     }
 }
 
-impl From<&Sys_VideoTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &Sys_VideoTrackInterface) -> Self {
+impl From<(&Sys_VideoTrackInterface, u64, String)> for TrackInterfaceSerialized {
+    fn from((track, track_id, device_id): (&Sys_VideoTrackInterface, u64, String)) -> Self {
         let track = video_track_media_stream_track_upcast(track);
-        TrackInterfaceSerialized::from(track)
+        TrackInterfaceSerialized::from((track, track_id, device_id))
     }
 }
 
-impl From<&Sys_AudioTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &Sys_AudioTrackInterface) -> Self {
+impl From<(&Sys_AudioTrackInterface, u64, String)> for TrackInterfaceSerialized {
+    fn from((track, track_id, device_id): (&Sys_AudioTrackInterface, u64, String)) -> Self {
         let track = audio_track_media_stream_track_upcast(track);
-        TrackInterfaceSerialized::from(track)
+        TrackInterfaceSerialized::from((track, track_id, device_id))
     }
 }
 
-impl From<&MediaStreamTrackInterface> for TrackInterfaceSerialized {
-    fn from(track: &MediaStreamTrackInterface) -> Self {
+impl From<(&MediaStreamTrackInterface, u64, String)> for TrackInterfaceSerialized {
+    fn from((track, track_id, device_id): (&MediaStreamTrackInterface, u64, String)) -> Self {
         TrackInterfaceSerialized {
-            id: get_media_stream_track_id(track).to_string(),
+            id: track_id,
             kind: get_media_stream_track_kind(track).to_string(),
-            channel_id: next_id(), // todo add actual id
-            device_id: "remote".to_owned(),
+            channel_id: track_id,
+            device_id,
         }
     }
 }
@@ -545,14 +534,12 @@ pub struct Context {
     video_device_info: VideoDeviceInfo,
     peer_connection_factory: PeerConnectionFactoryInterface,
     video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
-    video_tracks: HashMap<VideoTrackId, VideoTrack>,
+    video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
     audio_source: Option<Rc<AudioSourceInterface>>,
-    audio_tracks: HashMap<AudioTrackId, AudioTrack>,
+    audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
-    remote_video_tracks: Arc<Mutex<HashMap<String, VideoTrack>>>,
-    remote_audio_tracks: Arc<Mutex<HashMap<String, AudioTrack>>>,
 }
 
 /// Creates a new instance of [`Webrtc`].
@@ -600,13 +587,11 @@ pub fn init() -> Box<Webrtc> {
         video_device_info,
         peer_connection_factory,
         video_sources: HashMap::new(),
-        video_tracks: HashMap::new(),
+        video_tracks: Arc::new(Mutex::new(HashMap::new())),
         audio_source: None,
-        audio_tracks: HashMap::new(),
+        audio_tracks: Arc::new(Mutex::new(HashMap::new())),
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
-        remote_video_tracks: Arc::new(Mutex::new(HashMap::new())),
-        remote_audio_tracks: Arc::new(Mutex::new(HashMap::new())),
     })))
 }

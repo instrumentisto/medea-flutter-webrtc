@@ -76,11 +76,11 @@ fn next_id() -> u64 {
 
 // todo
 pub trait TrackEventCallback {
-    fn on_ended(&mut self, track: &MediaStreamTrackInterface);
+    fn on_ended(&mut self, track: &MediaStreamTrackInterface, track_id: u64, device_id: String,);
 
-    fn on_mute(&mut self, track: &MediaStreamTrackInterface);
+    fn on_mute(&mut self, track: &MediaStreamTrackInterface, track_id: u64, device_id: String,);
 
-    fn on_unmute(&mut self, track: &MediaStreamTrackInterface);
+    fn on_unmute(&mut self, track: &MediaStreamTrackInterface, track_id: u64, device_id: String,);
 }
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
@@ -941,9 +941,15 @@ impl VideoTrackInterface {
     pub fn register_observer(
         &mut self,
         cb: Box<dyn TrackEventCallback>,
+        track_id: u64,
+        device_id: String,
     ) -> u64 {
-        let mut obs =
-            create_video_track_event_observer(&self.inner, Box::new(cb));
+        let mut obs = create_video_track_event_observer(
+            &self.inner,
+            track_id,
+            device_id,
+            Box::new(cb),
+        );
         video_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
         self.obs.insert(id, TrackEventObserver::from(obs));
@@ -989,9 +995,15 @@ impl AudioTrackInterface {
     pub fn register_observer(
         &mut self,
         cb: Box<dyn TrackEventCallback>,
+        track_id: u64,
+        device_id: String,
     ) -> u64 {
-        let mut obs =
-            create_audio_track_event_observer(&self.inner, Box::new(cb));
+        let mut obs = create_audio_track_event_observer(
+            &self.inner,
+            track_id,
+            device_id,
+            Box::new(cb),
+        );
         audio_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
         self.obs.insert(id, TrackEventObserver::from(obs));

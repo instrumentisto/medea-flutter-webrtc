@@ -1,4 +1,4 @@
-use std::{fmt, pin::Pin};
+use std::fmt;
 
 use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
@@ -1111,12 +1111,16 @@ pub(crate) mod webrtc {
         // todo
         pub fn create_audio_track_event_observer(
             track: &AudioTrackInterface,
+            track_id: u64,
+            deviec_id: String,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
         // todo
         pub fn create_video_track_event_observer(
             track: &VideoTrackInterface,
+            track_id: u64,
+            deviec_id: String,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
@@ -1162,18 +1166,24 @@ pub(crate) mod webrtc {
         fn on_ended(
             cb: &mut DynTrackEventCallback,
             track: &MediaStreamTrackInterface,
+            track_id: u64,
+            device_id: String,
         );
 
         // todo
         fn on_mute(
             cb: &mut DynTrackEventCallback,
             track: &MediaStreamTrackInterface,
+            track_id: u64,
+            device_id: String,
         );
 
         // todo
         fn on_unmute(
             cb: &mut DynTrackEventCallback,
             track: &MediaStreamTrackInterface,
+            track_id: u64,
+            device_id: String,
         );
     }
 
@@ -1706,22 +1716,28 @@ impl fmt::Display for webrtc::PeerConnectionState {
 pub fn on_ended(
     cb: &mut DynTrackEventCallback,
     track: &webrtc::MediaStreamTrackInterface,
+    track_id: u64,
+    device_id: String,
 ) {
-    cb.on_ended(track);
+    cb.on_ended(track, track_id, device_id);
 }
 
 // todo
 pub fn on_mute(
     cb: &mut DynTrackEventCallback,
     track: &webrtc::MediaStreamTrackInterface,
+    track_id: u64,
+    device_id: String,
 ) {
-    cb.on_mute(track);
+    cb.on_mute(track, track_id, device_id);
 }
 
 // todo
 pub fn on_unmute(
     cb: &mut DynTrackEventCallback,
     track: &webrtc::MediaStreamTrackInterface,
+    track_id: u64,
+    device_id: String,
 ) {
-    cb.on_unmute(track);
+    cb.on_unmute(track, track_id, device_id);
 }
