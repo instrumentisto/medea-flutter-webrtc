@@ -44,28 +44,23 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       var pc1 = await createPeerConnection({});
       var pc2 = await createPeerConnection({});
 
-      // pc1.onIceConnectionState = (RTCIceConnectionState state) async {
-      //   print('pc1: ${state.toString()}');
-      // };
-      //
-      // pc2.onIceConnectionState = (RTCIceConnectionState state) async {
-      //   print('pc2: ${state.toString()}');
-      // };
-      //
-      // pc1.onIceCandidate = (RTCIceCandidate candidate) async {
-      //   await pc2.addCandidate(candidate);
-      // };
-      //
-      // pc2.onIceCandidate = (RTCIceCandidate candidate) async {
-      //   await pc1.addCandidate(candidate);
-      // };
+      final icecb = (RTCIceConnectionState state) {
+        print(state.toString());
+      };
 
-      // var init = RTCRtpTransceiverInit();
-      // init.direction = TransceiverDirection.SendOnly;
-      // var trans = await pc1.addTransceiver(
-      //     kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
-      //
-      // await trans.sender.replaceTrack(_stream!.getVideoTracks()[0]);
+      final pccb = (RTCPeerConnectionState state) {
+        print(state.toString());
+      };
+
+      pc1.onIceConnectionState = pc2.onIceConnectionState = icecb;
+      pc1.onConnectionState = pc2.onConnectionState = pccb;
+
+      var init = RTCRtpTransceiverInit();
+      init.direction = TransceiverDirection.SendOnly;
+      var trans = await pc1.addTransceiver(
+          kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+
+      await trans.sender.replaceTrack(_stream!.getVideoTracks()[0]);
 
       var offer = await pc1.createOffer();
       await pc1.setLocalDescription(offer);
@@ -75,7 +70,15 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       await pc2.setLocalDescription(answer);
       await pc1.setRemoteDescription(answer);
 
-      print(answer.sdp);
+      pc1.onIceCandidate = (RTCIceCandidate candidate) async {
+        print(candidate.candidate.toString());
+        await pc2.addCandidate(candidate);
+      };
+
+      pc2.onIceCandidate = (RTCIceCandidate candidate) async {
+        print(candidate.candidate.toString());
+        await pc1.addCandidate(candidate);
+      };
 
       setState(() {
         text = 'test is success';

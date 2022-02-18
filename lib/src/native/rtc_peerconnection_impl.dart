@@ -76,7 +76,6 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
    */
   void eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
-    print(map['event']);
 
     switch (map['event']) {
       case 'onSignalingStateChange':
@@ -233,6 +232,8 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
       'peerConnectionDispose',
       <String, dynamic>{'peerConnectionId': _peerConnectionId},
     );
+    onConnectionState
+        ?.call(RTCPeerConnectionState.RTCPeerConnectionStateClosed);
   }
 
   EventChannel _eventChannelFor(String peerConnectionId) {

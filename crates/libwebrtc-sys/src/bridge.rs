@@ -276,6 +276,9 @@ pub(crate) mod webrtc {
         /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
+        /// Creates a new [`Thread`] with `socket server`.
+        pub fn create_thread_with_socket_server() -> UniquePtr<Thread>;
+
         /// Starts the current [`Thread`].
         #[cxx_name = "Start"]
         pub fn start_thread(self: Pin<&mut Thread>) -> bool;

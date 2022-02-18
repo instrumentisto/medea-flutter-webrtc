@@ -109,6 +109,11 @@ std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
+// Calls `Thread->CreateWithSocketServer()`.
+std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
+  return rtc::Thread::CreateWithSocketServer();
+}
+
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(

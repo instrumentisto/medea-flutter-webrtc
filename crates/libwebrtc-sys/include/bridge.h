@@ -111,6 +111,9 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
+// Creates a new `Thread` with `socket server`.
+std::unique_ptr<rtc::Thread> create_thread_with_socket_server();
+
 // Creates a new `VideoTrackSourceInterface` from the specified video input
 // device according to the specified constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(

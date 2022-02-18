@@ -687,8 +687,12 @@ pub struct Thread(UniquePtr<webrtc::Thread>);
 
 impl Thread {
     /// Creates a new [`Thread`].
-    pub fn create() -> anyhow::Result<Self> {
-        let ptr = webrtc::create_thread();
+    pub fn create(with_socket_server: bool) -> anyhow::Result<Self> {
+        let ptr = if with_socket_server {
+            webrtc::create_thread_with_socket_server()
+        } else {
+            webrtc::create_thread()
+        };
 
         if ptr.is_null() {
             bail!("`null` pointer returned from `rtc::Thread::Create()`");

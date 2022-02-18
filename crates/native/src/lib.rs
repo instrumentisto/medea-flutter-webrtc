@@ -472,13 +472,13 @@ pub fn init() -> Box<Webrtc> {
     let mut task_queue_factory =
         TaskQueueFactory::create_default_task_queue_factory();
 
-    let mut network_thread = Thread::create().unwrap();
+    let mut network_thread = Thread::create(true).unwrap();
     network_thread.start().unwrap();
 
-    let mut worker_thread = Thread::create().unwrap();
+    let mut worker_thread = Thread::create(false).unwrap();
     worker_thread.start().unwrap();
 
-    let mut signaling_thread = Thread::create().unwrap();
+    let mut signaling_thread = Thread::create(false).unwrap();
     signaling_thread.start().unwrap();
 
     let audio_device_module = AudioDeviceModule::new(
