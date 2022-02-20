@@ -315,9 +315,54 @@ impl VideoDeviceInfo {
 /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration
 pub struct RTCConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 
+impl RTCConfiguration {
+    fn set_ice_transport_type(
+        &mut self,
+        transport_type: webrtc::IceTransportsType,
+    ) {
+        webrtc::set_rtc_configuration_ice_transport_type(
+            self.0.pin_mut(),
+            transport_type,
+        );
+    }
+
+    fn set_bundle_policy(&mut self, bundle_policy: webrtc::BundlePolicy) {
+        webrtc::set_rtc_configuration_bundle_policy(
+            self.0.pin_mut(),
+            bundle_policy,
+        );
+    }
+
+    fn add_server(&mut self, server: webrtc::IceServer) {
+        webrtc::add_rtc_configuration_server(self.0.pin_mut(), server);
+    }
+}
+
 impl Default for RTCConfiguration {
     fn default() -> Self {
         Self(webrtc::create_default_rtc_configuration())
+    }
+}
+
+pub struct IceServer(UniquePtr<webrtc::IceServer>);
+
+impl IceServer {
+    fn add_url(&mut self, url: &String) {
+        webrtc::add_ice_server_url(self.0.pin_mut(), url);
+    }
+
+    fn set_credentials(&mut self, username: &String, password: &String) {
+        webrtc::set_ice_server_credentials(
+            self.0.pin_mut(),
+            username,
+            password,
+        );
+    }
+}
+
+impl Default for IceServer {
+    fn default() -> Self {
+        Self(webrtc::create_ice_server())
     }
 }
 

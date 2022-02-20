@@ -37,6 +37,9 @@ using PeerConnectionDependencies = webrtc::PeerConnectionDependencies;
 using PeerConnectionState =
     webrtc::PeerConnectionInterface::PeerConnectionState;
 using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
+using IceTransportsType = webrtc::PeerConnectionInterface::IceTransportsType;
+using BundlePolicy = webrtc::PeerConnectionInterface::BundlePolicy;
+using IceServer = webrtc::PeerConnectionInterface::IceServer;
 using RTCOfferAnswerOptions =
     webrtc::PeerConnectionInterface::RTCOfferAnswerOptions;
 using SdpType = webrtc::SdpType;
@@ -215,6 +218,22 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
+
+void set_rtc_configuration_ice_transport_type(RTCConfiguration& config,
+                                              IceTransportsType transport_type);
+
+void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
+                                         BundlePolicy bundle_policy);
+
+void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server);
+
+std::unique_ptr<IceServer> create_ice_server();
+
+void add_ice_server_url(IceServer& server, rust::String& url);
+
+void set_ice_server_credentials(IceServer& server,
+                                rust::String& username,
+                                rust::String& password);
 
 // Creates a new `PeerConnectionObserver` backed by the provided
 // `DynPeerConnectionEventsHandler`.

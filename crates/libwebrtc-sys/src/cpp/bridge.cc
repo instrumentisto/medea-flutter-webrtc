@@ -332,6 +332,36 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   return std::make_unique<RTCConfiguration>(config);
 }
 
+void set_rtc_configuration_ice_transport_type(
+    RTCConfiguration& config,
+    IceTransportsType transport_type) {
+  config.type = transport_type;
+}
+
+void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
+                                         BundlePolicy bundle_policy) {
+  config.bundle_policy = bundle_policy;
+}
+
+void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server) {
+  config.servers.push_back(server);
+}
+
+std::unique_ptr<IceServer> create_ice_server() {
+  return std::make_unique<IceServer>();
+}
+
+void add_ice_server_url(IceServer& server, rust::String& url) {
+  server.urls.push_back(url.c_str());
+}
+
+void set_ice_server_credentials(IceServer& server,
+                                rust::String& username,
+                                rust::String& password) {
+  server.username = username.c_str();
+  server.password = password.c_str();
+}
+
 // Creates a new `PeerConnectionObserver`.
 std::unique_ptr<PeerConnectionObserver> create_peer_connection_observer(
     rust::Box<bridge::DynPeerConnectionEventsHandler> cb) {

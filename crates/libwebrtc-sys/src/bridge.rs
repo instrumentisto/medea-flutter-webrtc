@@ -261,6 +261,23 @@ pub(crate) mod webrtc {
         kIceConnectionMax,
     }
 
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    enum IceTransportsType {
+        kNone,
+        kRelay,
+        kNoHost,
+        kAll,
+    }
+
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    enum BundlePolicy {
+        kBundlePolicyBalanced,
+        kBundlePolicyMaxBundle,
+        kBundlePolicyMaxCompat,
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -399,6 +416,7 @@ pub(crate) mod webrtc {
         type PeerConnectionObserver;
         type PeerConnectionState;
         type RTCConfiguration;
+        type IceServer;
         type RTCOfferAnswerOptions;
         type RtpTransceiverDirection;
         type RtpTransceiverInterface;
@@ -412,6 +430,18 @@ pub(crate) mod webrtc {
         /// Creates a default [`RTCConfiguration`].
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
+
+        pub fn set_rtc_configuration_ice_transport_type(config: Pin<&mut RTCConfiguration>, transport_type: IceTransportsType);
+
+        pub fn set_rtc_configuration_bundle_policy(config: Pin<&mut RTCConfiguration>, bundle_policy: BundlePolicy);
+
+        pub fn add_rtc_configuration_server(config: Pin<&mut RTCConfiguration>, server: Pin<&mut IceServer>);
+
+        pub fn create_ice_server() -> UniquePtr<IceServer>;
+
+        pub fn add_ice_server_url(server: Pin<&mut IceServer>, url: &String);
+
+        pub fn set_ice_server_credentials(server: Pin<&mut IceServer>, username: &String, password: &String);
 
         /// Creates a new [`PeerConnectionInterface`].
         ///
@@ -1178,6 +1208,33 @@ impl TryFrom<&str> for webrtc::RtpTransceiverDirection {
             "stopped" => Ok(Self::kStopped),
             "inactive" => Ok(Self::kInactive),
             v => Err(anyhow!("Invalid `RtpTransceiverDirection`: {v}")),
+        }
+    }
+}
+
+impl TryFrom<&str> for webrtc::IceTransportsType {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "none" => Ok(Self::kNone),
+            "relay" => Ok(Self::kRelay),
+            "nohost" => Ok(Self::kNoHost),
+            "all" => Ok(Self::kAll),
+            v => Err(anyhow!("Invalid `IceTransportsType`: {v}")),
+        }
+    }
+}
+
+impl TryFrom<&str> for webrtc::BundlePolicy {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "bundlepolicybalanced" => Ok(Self::kBundlePolicyBalanced),
+            "bundlepolicymaxbundle" => Ok(Self::kBundlePolicyMaxBundle),
+            "bundlepolicymaxcompat" => Ok(Self::kBundlePolicyMaxCompat),
+            v => Err(anyhow!("Invalid `BundlePolicy`: {v}")),
         }
     }
 }
