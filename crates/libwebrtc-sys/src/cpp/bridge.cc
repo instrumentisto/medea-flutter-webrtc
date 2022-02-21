@@ -288,18 +288,13 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
-
   auto factory = webrtc::CreatePeerConnectionFactory(
-      network_thread.get(),
-      worker_thread.get(),
-      signaling_thread.get(),
+      network_thread.get(), worker_thread.get(), signaling_thread.get(),
       default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(),
-      nullptr,
-      nullptr);
+      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -358,10 +353,9 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
     bool voice_activity_detection,
     bool ice_restart,
     bool use_rtp_mux) {
-  return std::make_unique<RTCOfferAnswerOptions>(offer_to_receive_video,
-                                                 offer_to_receive_audio,
-                                                 voice_activity_detection,
-                                                 ice_restart, use_rtp_mux);
+  return std::make_unique<RTCOfferAnswerOptions>(
+      offer_to_receive_video, offer_to_receive_audio, voice_activity_detection,
+      ice_restart, use_rtp_mux);
 }
 
 // Creates a new `CreateSessionDescriptionObserver` from the provided
@@ -420,99 +414,44 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
   peer_connection_interface->SetRemoteDescription(std::move(desc), observer);
 }
 
-// Returns a `duration` of the given `DtmfSenderInterface`.
-int32_t get_dtmf_sender_duration(
-    const DtmfSenderInterface& dtmf) {
-      return dtmf->duration();
-    }
-
-// Returns a `inter_tone_gap` of the given `DtmfSenderInterface`.
-int32_t get_dtmf_sender_inter_tone_gap(
-    const DtmfSenderInterface& dtmf) {
-      return dtmf->inter_tone_gap();
-    }
-
 // Returns `RtpExtension.uri` field value.
 std::unique_ptr<std::string> get_rtp_extension_uri(
-    const RtpExtension& extension) {
-      return std::make_unique<std::string>(extension.uri);
-    }
+    const webrtc::RtpExtension& extension) {
+  return std::make_unique<std::string>(extension.uri);
+}
 
 // Returns `RtpExtension.id` field value.
-int32_t get_rtp_extension_id(
-    const RtpExtension& extension) {
-      return extension.id;
-    }
+int32_t get_rtp_extension_id(const webrtc::RtpExtension& extension) {
+  return extension.id;
+}
 
 // Returns `RtpExtension.encrypt` field value.
-bool get_rtp_extension_encrypt(
-    const RtpExtension& extension) {
-      return extension.encrypt;
-    }
+bool get_rtp_extension_encrypt(const webrtc::RtpExtension& extension) {
+  return extension.encrypt;
+}
 
 // Returns `RtcpParameters.cname` field value.
 std::unique_ptr<std::string> get_rtcp_parameters_cname(
-    const RtcpParameters& rtcp) {
-      return std::make_unique<std::string> (rtcp.cname);
-    }
-
-// Returns `RtcpParameters.reduced_size` field value.
-bool get_rtcp_parameters_reduced_size(
-    const RtcpParameters& rtcp) {
-      return rtcp.reduced_size;
-    }
-
-// Returns a `id` of the given `MediaStreamInterface`.
-std::unique_ptr<std::string> get_media_stream_id(
-  const MediaStreamInterface& stream) {
-  return std::make_unique<std::string>(stream->id());
+    const webrtc::RtcpParameters& rtcp) {
+  return std::make_unique<std::string>(rtcp.cname);
 }
 
-// Returns a `AudioTrackVector` of the given `MediaStreamInterface`.
-std::unique_ptr<std::vector<AudioTrackInterface>> get_media_stream_audio_tracks(
-    const MediaStreamInterface& stream) {
-      auto tracks = stream->GetAudioTracks();
-      std::vector<AudioTrackInterface> result;
-      for (int i = 0; i < tracks.size(); ++i) {
-        result.push_back(tracks[i]);
-      }
-      return std::make_unique<std::vector<AudioTrackInterface>>(result);
-    }
-
-// Returns a `VideoTrackVector` of the given `MediaStreamInterface`.
-std::unique_ptr<std::vector<VideoTrackInterface>> get_media_stream_video_tracks(
-    const MediaStreamInterface& stream) {
-      auto tracks = stream->GetVideoTracks();
-      std::vector<VideoTrackInterface> result;
-      for (int i = 0; i < tracks.size(); ++i) {
-        result.push_back(tracks[i]);
-      }
-      return std::make_unique<std::vector<VideoTrackInterface>>(result);
-    }
-
-// Upcast `VideoTrackInterface` to `MediaStreamTrackInterface`.
-const MediaStreamTrackInterface& video_track_media_stream_track_upcast(
-    const VideoTrackInterface& track) {
-      return MediaStreamTrackInterface(track);
-    }
+// Returns `RtcpParameters.reduced_size` field value.
+bool get_rtcp_parameters_reduced_size(const webrtc::RtcpParameters& rtcp) {
+  return rtcp.reduced_size;
+}
 
 // Returns a `VideoTrackInterface` of the given `VideoTrackSourceInterface`.
 std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
     const VideoTrackInterface& track) {
-      return std::make_unique<VideoTrackSourceInterface>(track->GetSource());
-    }
-
-// Upcast `AudioTrackInterface` to `MediaStreamTrackInterface`.
-const MediaStreamTrackInterface& audio_track_media_stream_track_upcast(
-    const AudioTrackInterface& track) {
-      return MediaStreamTrackInterface(track);
-    }
+  return std::make_unique<VideoTrackSourceInterface>(track->GetSource());
+}
 
 // Returns a `AudioSourceInterface` of the given `AudioTrackInterface`.
 std::unique_ptr<AudioSourceInterface> get_audio_track_source(
-     const AudioTrackInterface& track) {
-       return std::make_unique<AudioSourceInterface>(track->GetSource());
-     }
+    const AudioTrackInterface& track) {
+  return std::make_unique<AudioSourceInterface>(track->GetSource());
+}
 
 // Calls `IceCandidateInterface->ToString`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(
@@ -572,8 +511,7 @@ rust::Vec<TransceiverContainer> get_transceivers(
 
   for (auto transceiver : peer->GetTransceivers()) {
     TransceiverContainer container = {
-        std::make_unique<RtpTransceiverInterface>(transceiver)
-    };
+        std::make_unique<RtpTransceiverInterface>(transceiver)};
     transceivers.push_back(std::move(container));
   }
 
@@ -633,37 +571,15 @@ std::unique_ptr<RtpReceiverInterface> get_transceiver_receiver(
   return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
 }
 
-// Calls `RtpSenderInterface->SetTrack()`.
-bool replace_sender_video_track(
-    const RtpSenderInterface& sender,
-    const std::unique_ptr<VideoTrackInterface>& track) {
-  if (!track.get()) {
-    return sender->SetTrack(nullptr);
-  } else {
-    return sender->SetTrack(track.get()->get());
-  }
-}
-
-// Calls `RtpSenderInterface->SetTrack()`.
-bool replace_sender_audio_track(
-    const RtpSenderInterface& sender,
-    const std::unique_ptr<AudioTrackInterface>& track) {
-  if (!track.get()) {
-    return sender->SetTrack(nullptr);
-  } else {
-    return sender->SetTrack(track.get()->get());
-  }
-}
-
 // Returns a `parameters` as std::vector<(std::string, std::string)>
 // of the given `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
-    const RtpCodecParameters& codec) {
-      std::vector<StringPair> result;
-      for (auto const& p : codec.parameters) {
-        result.push_back(new_string_pair(p.first, p.second));
-      }
-      return std::make_unique<std::vector<StringPair>>(result);
-    }
+    const webrtc::RtpCodecParameters& codec) {
+  std::vector<StringPair> result;
+  for (auto const& p : codec.parameters) {
+    result.push_back(new_string_pair(p.first, p.second));
+  }
+  return std::make_unique<std::vector<StringPair>>(result);
+}
 
 }  // namespace bridge

@@ -11,13 +11,13 @@ use std::{
     rc::Rc,
     sync::{
         atomic::{AtomicU64, Ordering},
-        Arc, Mutex,
+        Arc,
     },
 };
 
+use dashmap::DashMap;
 use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface,
-    PeerConnectionFactoryInterface,
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 
@@ -201,8 +201,8 @@ pub mod api {
     /// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] which is part
     /// of the [`PeerConnection`].
     pub struct RtcTrackEvent {
-        track: MediaStreamTrack,
-        transceiver: RtcRtpTransceiver,
+        pub track: MediaStreamTrack,
+        pub transceiver: RtcRtpTransceiver,
     }
 
     /// Single video frame.
@@ -458,14 +458,12 @@ pub struct Context {
     video_device_info: VideoDeviceInfo,
     peer_connection_factory: PeerConnectionFactoryInterface,
     video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
-    video_tracks: HashMap<VideoTrackId, VideoTrack>,
+    video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
     audio_source: Option<Rc<AudioSourceInterface>>,
-    audio_tracks: HashMap<AudioTrackId, AudioTrack>,
+    audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
-    remote_video_tracks: Arc<Mutex<HashMap<String, VideoTrack>>>,
-    remote_audio_tracks: Arc<Mutex<HashMap<String, AudioTrack>>>,
 }
 
 /// Creates a new instance of [`Webrtc`].
@@ -513,13 +511,11 @@ pub fn init() -> Box<Webrtc> {
         video_device_info,
         peer_connection_factory,
         video_sources: HashMap::new(),
-        video_tracks: HashMap::new(),
+        video_tracks: Arc::new(DashMap::new()),
         audio_source: None,
-        audio_tracks: HashMap::new(),
+        audio_tracks: Arc::new(DashMap::new()),
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
-        remote_video_tracks: Arc::new(Mutex::new(HashMap::new())),
-        remote_audio_tracks: Arc::new(Mutex::new(HashMap::new())),
     })))
 }

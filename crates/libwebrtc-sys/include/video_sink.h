@@ -3,7 +3,6 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <string>
 
 #include "api/media_stream_interface.h"
 #include "api/video/video_frame.h"

@@ -75,18 +75,16 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
 // Propagates the received `RtpTransceiverInterface` to the Rust side.
 void PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
-        bridge::on_track(
-          *cb_,
-          std::make_unique<bridge::RtpTransceiverInterface>(transceiver));
-      }
+  bridge::on_track(
+      *cb_, std::make_unique<bridge::RtpTransceiverInterface>(transceiver));
+}
 
 // Propagates the received `RtpReceiverInterface` to the Rust side.
 void PeerConnectionObserver::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) {
-          bridge::on_remove_track(
-          *cb_,
-          std::make_unique<bridge::RtpReceiverInterface>(receiver));
-    }
+  bridge::on_remove_track(
+      *cb_, std::make_unique<bridge::RtpReceiverInterface>(receiver));
+}
 
 // Does nothing since we do not use `DataChannel`s at the moment.
 void PeerConnectionObserver::OnDataChannel(
