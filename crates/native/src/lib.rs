@@ -201,6 +201,18 @@ pub mod api {
         pub frame: Box<Frame>,
     }
 
+    pub struct RTCConfigurationInfo {
+        ice_transport_policy: String,
+        bundle_policy: String,
+        servers: Vec<IceServerInfo>,
+    }
+
+    pub struct IceServerInfo {
+        urls: Vec<String>,
+        username: String,
+        password: String,
+    }
+
     extern "C++" {
         type CreateSdpCallbackInterface =
             crate::internal::CreateSdpCallbackInterface;
@@ -240,6 +252,7 @@ pub mod api {
         pub fn create_peer_connection(
             self: &mut Webrtc,
             cb: UniquePtr<PeerConnectionObserverInterface>,
+            constraints: RTCConfigurationInfo,
             err: &mut String,
         ) -> u64;
 

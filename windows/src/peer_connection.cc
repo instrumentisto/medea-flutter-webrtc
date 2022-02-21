@@ -236,8 +236,37 @@ void CreateRTCPeerConnection(
   auto ctx = std::make_shared<PeerConnectionObserver::Dependencies>();
   auto observer = std::make_unique<PeerConnectionObserver>(ctx);
 
+  if (!method_call.arguments()) {
+    result->Error("Bad Arguments", "Null constraints arguments received");
+    return;
+  }
+
+  const EncodableMap parameters =
+      GetValue<EncodableMap>(*method_call.arguments());
+  const EncodableMap configuration = findMap(parameters, "configuration");
+
+  RTCConfigurationInfo configuration_info;
+  configuration_info.ice_transport_policy =
+      findString(configuration, "iceTransportPolicy");
+  configuration_info.bundle_policy = findString(configuration, "bundlePolicy");
+
+  for (auto server_value : findList(configuration, "servers")) {
+    auto server = GetValue<EncodableMap>(server_value);
+    IceServerInfo server_info;
+
+    for (auto url : findList(server, "urls")) {
+      server_info.urls.push_back(GetValue<std::string>(url));
+    }
+
+    server_info.username = findString(server, "username");
+    server_info.password = findString(server, "password");
+
+    configuration_info.servers.push_back(server_info);
+  }
+
   rust::String error;
-  uint64_t id = webrtc->CreatePeerConnection(std::move(observer), error);
+  uint64_t id = webrtc->CreatePeerConnection(std::move(observer),
+                                             configuration_info, error);
   if (error == "") {
     std::string peer_id = std::to_string(id);
     auto event_channel = std::make_unique<EventChannel<EncodableValue>>(

@@ -18,10 +18,14 @@ impl Webrtc {
     pub fn create_peer_connection(
         self: &mut Webrtc,
         obs: UniquePtr<PeerConnectionObserverInterface>,
+        configuration: api::RTCConfigurationInfo,
         error: &mut String,
     ) -> u64 {
-        let peer =
-            PeerConnection::new(&mut self.0.peer_connection_factory, obs);
+        let peer = PeerConnection::new(
+            &mut self.0.peer_connection_factory,
+            obs,
+            configuration,
+        );
         match peer {
             Ok(peer) => self
                 .0
@@ -533,12 +537,55 @@ impl PeerConnection {
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
         observer: UniquePtr<PeerConnectionObserverInterface>,
+        configuration: api::RTCConfigurationInfo,
     ) -> anyhow::Result<Self> {
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver(observer),
         ));
+
+        let mut rtc_config = sys::RTCConfiguration::default();
+
+        if !configuration.ice_transport_policy.is_empty() {
+            rtc_config.set_ice_transport_type(
+                configuration
+                    .ice_transport_policy
+                    .as_str()
+                    .try_into()
+                    .unwrap(),
+            );
+        }
+
+        if !configuration.bundle_policy.is_empty() {
+            rtc_config.set_bundle_policy(
+                configuration.bundle_policy.as_str().try_into().unwrap(),
+            );
+        }
+
+        for mut server in configuration.servers {
+            let mut ice_server = sys::IceServer::default();
+            let mut is_ice_server_not_empty = false;
+
+            if !server.username.is_empty() || !server.password.is_empty() {
+                ice_server.set_credentials(
+                    &mut server.username,
+                    &mut server.password,
+                );
+            }
+
+            for mut url in server.urls {
+                if !url.is_empty() {
+                    ice_server.add_url(&mut url);
+                    is_ice_server_not_empty = true;
+                }
+            }
+
+            if is_ice_server_not_empty {
+                rtc_config.add_server(ice_server);
+            }
+        }
+
         let inner = factory.create_peer_connection_or_error(
-            &sys::RTCConfiguration::default(),
+            &rtc_config,
             sys::PeerConnectionDependencies::new(observer),
         )?;
 

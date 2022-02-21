@@ -416,6 +416,8 @@ pub(crate) mod webrtc {
         type PeerConnectionObserver;
         type PeerConnectionState;
         type RTCConfiguration;
+        type IceTransportsType;
+        type BundlePolicy;
         type IceServer;
         type RTCOfferAnswerOptions;
         type RtpTransceiverDirection;
@@ -439,9 +441,9 @@ pub(crate) mod webrtc {
 
         pub fn create_ice_server() -> UniquePtr<IceServer>;
 
-        pub fn add_ice_server_url(server: Pin<&mut IceServer>, url: &String);
+        pub fn add_ice_server_url(server: Pin<&mut IceServer>, url: &mut String);
 
-        pub fn set_ice_server_credentials(server: Pin<&mut IceServer>, username: &String, password: &String);
+        pub fn set_ice_server_credentials(server: Pin<&mut IceServer>, username: &mut String, password: &mut String);
 
         /// Creates a new [`PeerConnectionInterface`].
         ///
@@ -1231,9 +1233,9 @@ impl TryFrom<&str> for webrtc::BundlePolicy {
 
     fn try_from(val: &str) -> Result<Self, Self::Error> {
         match val {
-            "bundlepolicybalanced" => Ok(Self::kBundlePolicyBalanced),
-            "bundlepolicymaxbundle" => Ok(Self::kBundlePolicyMaxBundle),
-            "bundlepolicymaxcompat" => Ok(Self::kBundlePolicyMaxCompat),
+            "balanced" => Ok(Self::kBundlePolicyBalanced),
+            "maxbundle" => Ok(Self::kBundlePolicyMaxBundle),
+            "maxcompat" => Ok(Self::kBundlePolicyMaxCompat),
             v => Err(anyhow!("Invalid `BundlePolicy`: {v}")),
         }
     }

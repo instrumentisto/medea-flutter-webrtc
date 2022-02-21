@@ -41,7 +41,17 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
       _stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
-      var pc1 = await createPeerConnection({});
+      var pc1 = await createPeerConnection({
+        'iceTransportPolicy': 'all',
+        'bundlePolicy': 'maxbundle',
+        'servers': [
+          {
+            'urls': ['stun:stun.l.google.com:19302'],
+            'username': 'username',
+            'password': 'password'
+          }
+        ]
+      });
       var pc2 = await createPeerConnection({});
 
       final icecb = (RTCIceConnectionState state) {
