@@ -2,6 +2,12 @@
 
 #include <string>
 
+namespace rust {
+inline namespace cxxbridge1 {
+  struct String;
+}
+}
+
 struct VideoFrame;
 
 // Completion callback for the `Webrtc::CreateOffer` and `Webrtc::CreateAnswer`
@@ -56,8 +62,8 @@ class PeerConnectionObserverInterface {
   // Called when an `icecandidate` event occurs.
   //
   // See: https://w3.org/TR/webrtc#event-icecandidate
-  virtual void OnIceCandidate(const std::string& candidate,
-                              const std::string& mid,
+  virtual void OnIceCandidate(const rust::String candidate,
+                              const rust::String mid,
                               int mline_index) = 0;
 
   // Called when an `icecandidateerror` event occurs.

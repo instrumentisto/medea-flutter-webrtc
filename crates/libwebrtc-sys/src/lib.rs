@@ -11,9 +11,7 @@ use self::bridge::webrtc;
 pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
-    ice_candidate_interface_to_string, sdp_mid_of_ice_candidate,
-    sdp_mline_index_of_ice_candidate, video_frame_to_abgr, AudioLayer,
-    Candidate, CandidatePairChangeEvent, IceCandidateInterface,
+    video_frame_to_abgr, AudioLayer, Candidate, CandidatePairChangeEvent,
     IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
     RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
     VideoRotation,
@@ -97,10 +95,7 @@ pub trait PeerConnectionEventsHandler {
     /// Called when an [`icecandidate`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc#event-icecandidate
-    fn on_ice_candidate(
-        &mut self,
-        candidate: *const webrtc::IceCandidateInterface,
-    );
+    fn on_ice_candidate(&mut self, candidate: IceCandidateInterface);
 
     /// Called when some ICE candidates have been removed.
     fn on_ice_candidates_removed(&mut self, candidates: &CxxVector<Candidate>);
@@ -624,6 +619,42 @@ impl RtpSenderInterface {
     }
 }
 
+pub struct IceCandidateInterface(UniquePtr<webrtc::IceCandidateInterface>);
+
+impl IceCandidateInterface {
+    pub fn new(
+        sdp_mid: &str,
+        sdp_mline_index: i32,
+        candidate: &str,
+    ) -> anyhow::Result<IceCandidateInterface> {
+        let mut error = String::new();
+        let inner = webrtc::create_ice_candidate(
+            sdp_mid,
+            sdp_mline_index,
+            candidate,
+            &mut error,
+        );
+
+        if !error.is_empty() {
+            bail!(error);
+        }
+
+        Ok(IceCandidateInterface(inner))
+    }
+
+    pub fn mid(&self) -> String {
+        webrtc::sdp_mid_of_ice_candidate(&self.0).to_string()
+    }
+
+    pub fn candidate(&self) -> String {
+        webrtc::ice_candidate_interface_to_string(&self.0).to_string()
+    }
+
+    pub fn mline_index(&self) -> i32 {
+        webrtc::sdp_mline_index_of_ice_candidate(&self.0)
+    }
+}
+
 /// [RTCPeerConnection][1] implementation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
@@ -718,24 +749,10 @@ impl PeerConnectionInterface {
     /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].
     pub fn add_ice_candidate(
         &self,
-        sdp_mid: &str,
-        sdp_mline_index: i32,
-        candidate: &str,
+        candidate: IceCandidateInterface,
         cb: Box<dyn AddIceCandidateHandler>,
-    ) -> anyhow::Result<()> {
-        let result = webrtc::add_ice_candidate(
-            &self.inner,
-            sdp_mid,
-            sdp_mline_index,
-            candidate,
-            Box::new(cb),
-        );
-
-        if !result.is_empty() {
-            bail!("Fails when try to `AddIceCandidate` with error: {result}");
-        }
-
-        Ok(())
+    ) {
+        webrtc::add_ice_candidate(&self.inner, candidate.0, Box::new(cb));
     }
 
     /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.

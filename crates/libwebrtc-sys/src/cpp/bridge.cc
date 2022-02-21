@@ -328,7 +328,6 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   RTCConfiguration config;
   config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-
   return std::make_unique<RTCConfiguration>(config);
 }
 
@@ -423,44 +422,11 @@ create_set_remote_description_observer(
   return std::make_unique<SetRemoteDescriptionObserver>(std::move(cb));
 }
 
-// Calls `PeerConnectionInterface->CreateOffer`.
-void create_offer(PeerConnectionInterface& peer_connection_interface,
-                  const RTCOfferAnswerOptions& options,
-                  std::unique_ptr<CreateSessionDescriptionObserver> obs) {
-  peer_connection_interface->CreateOffer(obs.release(), options);
-}
-
-// Calls `PeerConnectionInterface->CreateAnswer`.
-void create_answer(PeerConnectionInterface& peer_connection_interface,
-                   const RTCOfferAnswerOptions& options,
-                   std::unique_ptr<CreateSessionDescriptionObserver> obs) {
-  peer_connection_interface->CreateAnswer(obs.release(), options);
-}
-
-// Calls `PeerConnectionInterface->SetLocalDescription`.
-void set_local_description(PeerConnectionInterface& peer_connection_interface,
-                           std::unique_ptr<SessionDescriptionInterface> desc,
-                           std::unique_ptr<SetLocalDescriptionObserver> obs) {
-  auto observer =
-      rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(
-          obs.release());
-  peer_connection_interface->SetLocalDescription(std::move(desc), observer);
-}
-
-// Calls `PeerConnectionInterface->SetRemoteDescription`.
-void set_remote_description(PeerConnectionInterface& peer_connection_interface,
-                            std::unique_ptr<SessionDescriptionInterface> desc,
-                            std::unique_ptr<SetRemoteDescriptionObserver> obs) {
-  auto observer =
-      rtc::scoped_refptr<SetRemoteDescriptionObserver>(obs.release());
-  peer_connection_interface->SetRemoteDescription(std::move(desc), observer);
-}
-
 // Calls `IceCandidateInterface->ToString`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(
-    const IceCandidateInterface* candidate) {
+    const IceCandidateInterface& candidate) {
   std::string out;
-  candidate->ToString(&out);
+  candidate.ToString(&out);
   return std::make_unique<std::string>(out);
 };
 
@@ -495,33 +461,7 @@ int64_t get_estimated_disconnected_time_ms(
   return event.estimated_disconnected_time_ms;
 }
 
-// Calls `PeerConnectionInterface->AddTransceiver`.
-std::unique_ptr<RtpTransceiverInterface> add_transceiver(
-    PeerConnectionInterface& peer,
-    cricket::MediaType media_type,
-    RtpTransceiverDirection direction) {
-  auto transceiver_init = webrtc::RtpTransceiverInit();
-  transceiver_init.direction = direction;
-
-  return std::make_unique<RtpTransceiverInterface>(
-      peer->AddTransceiver(media_type, transceiver_init).MoveValue());
-}
-
-// Calls `PeerConnectionInterface->GetTransceivers`.
-rust::Vec<TransceiverContainer> get_transceivers(
-    const PeerConnectionInterface& peer) {
-  rust::Vec<TransceiverContainer> transceivers;
-
-  for (auto transceiver : peer->GetTransceivers()) {
-    TransceiverContainer container = {
-        std::make_unique<RtpTransceiverInterface>(transceiver)};
-    transceivers.push_back(std::move(container));
-  }
-
-  return transceivers;
-}
-
-// Calls `PeerConnectionInterface->mid()`.
+// Calls `RtpTransceiverInterface->mid()`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
@@ -532,7 +472,7 @@ MediaType get_transceiver_media_type(
   return transceiver->media_type();
 }
 
-// Calls `PeerConnectionInterface->direction()`.
+// Calls `RtpTransceiverInterface->direction()`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->direction();
@@ -592,53 +532,31 @@ bool replace_sender_audio_track(
 
 // Calls `IceCandidateInterface::sdp_mid`.
 std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
-    const IceCandidateInterface* candidate) {
-  return std::make_unique<std::string>(candidate->sdp_mid());
+    const IceCandidateInterface& candidate) {
+  return std::make_unique<std::string>(candidate.sdp_mid());
 }
 
 // Calls `IceCandidateInterface::sdp_mline_index`.
-int sdp_mline_index_of_ice_candidate(const IceCandidateInterface* candidate) {
-  return candidate->sdp_mline_index();
+int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate) {
+  return candidate.sdp_mline_index();
 }
 
-// Calls `PeerConnectionInterface::AddIceCandidate`.
-rust::String add_ice_candidate(
-    const PeerConnectionInterface& peer,
+std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
     rust::Str sdp_mid,
     int sdp_mline_index,
     rust::Str candidate,
-    rust::Box<bridge::DynAddIceCandidateCallback> cb) {
+    rust::String& error) {
   webrtc::SdpParseError* sdp_error;
   std::unique_ptr<webrtc::IceCandidateInterface> owned_candidate(
-      CreateIceCandidate(std::string(sdp_mid), sdp_mline_index,
-                         std::string(candidate), sdp_error));
-
-  rust::String error;
+      webrtc::CreateIceCandidate(std::string(sdp_mid), sdp_mline_index,
+                                 std::string(candidate), sdp_error));
 
   if (!owned_candidate.get()) {
     error = sdp_error->description;
+    return nullptr;
   } else {
-    peer->AddIceCandidate(
-        std::move(owned_candidate), [&](webrtc::RTCError err) {
-          if (err.ok()) {
-            add_ice_candidate_success(std::move(cb));
-          } else {
-            add_ice_candidate_fail(std::move(cb), err.message());
-          }
-        });
+    return owned_candidate;
   }
-
-  return error;
-}
-
-// Calls `PeerConnectionInterface::RestartIce`.
-void restart_ice(const PeerConnectionInterface& peer) {
-  peer->RestartIce();
-}
-
-// Calls `PeerConnectionInterface::Close`.
-void close_peer_connection(const PeerConnectionInterface& peer) {
-  peer->Close();
 }
 
 }  // namespace bridge

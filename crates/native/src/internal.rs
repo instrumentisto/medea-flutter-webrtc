@@ -104,14 +104,14 @@ mod cpp_api_bindings {
         #[cxx_name = "OnIceCandidate"]
         pub fn on_ice_candidate(
             self: Pin<&mut PeerConnectionObserverInterface>,
-            candidate: &CxxString,
-            mid: &CxxString,
+            candidate: String,
+            mid: String,
             mline_index: i32,
         );
 
         /// Calls C++ side `AddIceCandidateCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
-        pub fn on_add_ice_candidate_sucess(
+        pub fn on_add_ice_candidate_success(
             self: Pin<&mut AddIceCandidateCallbackInterface>,
         );
 

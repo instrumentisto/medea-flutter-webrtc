@@ -546,3 +546,9 @@ pub fn init() -> Box<Webrtc> {
         video_sinks: HashMap::new(),
     })))
 }
+
+impl Drop for Context {
+    fn drop(&mut self) {
+        todo!()
+    }
+}

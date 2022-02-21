@@ -473,18 +473,18 @@ impl Webrtc {
         sdp_mline_index: i32,
         cb: UniquePtr<AddIceCandidateCallbackInterface>,
     ) {
+        let candidate = sys::IceCandidateInterface::new(
+            sdp_mid,
+            sdp_mline_index,
+            candidate,
+        )
+        .unwrap();
         self.0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .inner
-            .add_ice_candidate(
-                sdp_mid,
-                sdp_mline_index,
-                candidate,
-                Box::new(AddIceCandidate(cb)),
-            )
-            .unwrap();
+            .add_ice_candidate(candidate, Box::new(AddIceCandidate(cb)));
     }
 
     /// Tells the [`PeerConnection`] that ICE should be restarted.
@@ -672,19 +672,11 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         // This is a non-spec-compliant event.
     }
 
-    fn on_ice_candidate(
-        &mut self,
-        candidate: *const sys::IceCandidateInterface,
-    ) {
-        let mut string =
-            unsafe { sys::ice_candidate_interface_to_string(candidate) };
-        let mut mid = unsafe { sys::sdp_mid_of_ice_candidate(candidate) };
-        let mline_index =
-            unsafe { sys::sdp_mline_index_of_ice_candidate(candidate) };
+    fn on_ice_candidate(&mut self, candidate: sys::IceCandidateInterface) {
         self.0.pin_mut().on_ice_candidate(
-            &string.pin_mut(),
-            &mid.pin_mut(),
-            mline_index,
+            candidate.candidate(),
+            candidate.mid(),
+            candidate.mline_index(),
         );
     }
 
@@ -704,7 +696,7 @@ pub struct AddIceCandidate(UniquePtr<AddIceCandidateCallbackInterface>);
 
 impl sys::AddIceCandidateHandler for AddIceCandidate {
     fn on_success(&mut self) {
-        self.0.pin_mut().on_add_ice_candidate_sucess();
+        self.0.pin_mut().on_add_ice_candidate_success();
     }
 
     fn on_fail(&mut self, error: &CxxString) {

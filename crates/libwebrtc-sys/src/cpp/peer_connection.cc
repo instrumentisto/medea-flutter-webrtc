@@ -1,14 +1,12 @@
-
-#include "libwebrtc-sys/include/peer_connection_observer.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 
-namespace observer {
+namespace bridge {
 
 // Creates a new `PeerConnectionObserver` backed by the provided
 // `DynPeerConnectionEventsHandler`.
 PeerConnectionObserver::PeerConnectionObserver(
     rust::Box<bridge::DynPeerConnectionEventsHandler> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
 // Propagates the new `SignalingState` to the Rust side.
 void PeerConnectionObserver::OnSignalingChange(
@@ -42,7 +40,12 @@ void PeerConnectionObserver::OnIceGatheringChange(
 // Propagates the discovered `IceCandidateInterface` to the Rust side.
 void PeerConnectionObserver::OnIceCandidate(
     const webrtc::IceCandidateInterface* candidate) {
-  bridge::on_ice_candidate(*cb_, candidate);
+  std::unique_ptr<webrtc::IceCandidateInterface> candidate_copy(
+      webrtc::CreateIceCandidate(candidate->sdp_mid(),
+                                 candidate->sdp_mline_index(),
+                                 candidate->candidate()));
+
+  bridge::on_ice_candidate(*cb_, std::move(candidate_copy));
 }
 
 // Propagates received error information to the Rust side.
@@ -83,7 +86,7 @@ void PeerConnectionObserver::OnRemoveTrack(
 
 // Does nothing since we do not use `DataChannel`s at the moment.
 void PeerConnectionObserver::OnDataChannel(
-    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel){};
+    rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel) {};
 
 // Does nothing since we do not plan to support "Plan B" semantics.
 void PeerConnectionObserver::OnAddTrack(
@@ -95,7 +98,7 @@ void PeerConnectionObserver::OnAddTrack(
 // `bridge::DynCreateSdpCallback`.
 CreateSessionDescriptionObserver::CreateSessionDescriptionObserver(
     rust::Box<bridge::DynCreateSdpCallback> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
 // Propagates the received SDP to the Rust side.
 void CreateSessionDescriptionObserver::OnSuccess(
@@ -124,7 +127,7 @@ void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error) {
 // `DynSetDescriptionCallback`.
 SetLocalDescriptionObserver::SetLocalDescriptionObserver(
     rust::Box<bridge::DynSetDescriptionCallback> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
 // Propagates the completion result to the Rust side.
 void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
@@ -145,7 +148,7 @@ void SetLocalDescriptionObserver::OnSetLocalDescriptionComplete(
 // `DynSetDescriptionCallback`.
 SetRemoteDescriptionObserver::SetRemoteDescriptionObserver(
     rust::Box<bridge::DynSetDescriptionCallback> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
 // Propagates the completion result to the Rust side.
 void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
@@ -162,4 +165,89 @@ void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
   }
 }
 
-}  // namespace observer
+// Calls `PeerConnectionInterface->CreateOffer`.
+void create_offer(PeerConnectionInterface& peer_connection_interface,
+                  const RTCOfferAnswerOptions& options,
+                  std::unique_ptr<CreateSessionDescriptionObserver> obs) {
+  peer_connection_interface->CreateOffer(obs.release(), options);
+}
+
+// Calls `PeerConnectionInterface->CreateAnswer`.
+void create_answer(PeerConnectionInterface& peer_connection_interface,
+                   const RTCOfferAnswerOptions& options,
+                   std::unique_ptr<CreateSessionDescriptionObserver> obs) {
+  peer_connection_interface->CreateAnswer(obs.release(), options);
+}
+
+// Calls `PeerConnectionInterface->SetLocalDescription`.
+void set_local_description(PeerConnectionInterface& peer_connection_interface,
+                           std::unique_ptr<SessionDescriptionInterface> desc,
+                           std::unique_ptr<SetLocalDescriptionObserver> obs) {
+  auto observer =
+      rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(
+          obs.release());
+  peer_connection_interface->SetLocalDescription(std::move(desc), observer);
+}
+
+// Calls `PeerConnectionInterface->SetRemoteDescription`.
+void set_remote_description(PeerConnectionInterface& peer_connection_interface,
+                            std::unique_ptr<SessionDescriptionInterface> desc,
+                            std::unique_ptr<SetRemoteDescriptionObserver> obs) {
+  auto observer =
+      rtc::scoped_refptr<SetRemoteDescriptionObserver>(obs.release());
+  peer_connection_interface->SetRemoteDescription(std::move(desc), observer);
+}
+
+// Calls `PeerConnectionInterface->AddTransceiver`.
+std::unique_ptr<RtpTransceiverInterface> add_transceiver(
+    PeerConnectionInterface& peer,
+    cricket::MediaType media_type,
+    RtpTransceiverDirection direction) {
+  auto transceiver_init = webrtc::RtpTransceiverInit();
+  transceiver_init.direction = direction;
+
+  return std::make_unique<RtpTransceiverInterface>(
+      peer->AddTransceiver(media_type, transceiver_init).MoveValue());
+}
+
+// Calls `PeerConnectionInterface->GetTransceivers`.
+rust::Vec<TransceiverContainer> get_transceivers(
+    const PeerConnectionInterface& peer) {
+  rust::Vec<TransceiverContainer> transceivers;
+
+  for (auto transceiver : peer->GetTransceivers()) {
+    TransceiverContainer container = {
+        std::make_unique<RtpTransceiverInterface>(transceiver)};
+    transceivers.push_back(std::move(container));
+  }
+
+  return transceivers;
+}
+
+// Calls `PeerConnectionInterface::AddIceCandidate`.
+void add_ice_candidate(
+    const PeerConnectionInterface& peer,
+    std::unique_ptr<webrtc::IceCandidateInterface> candidate,
+    rust::Box<bridge::DynAddIceCandidateCallback> cb) {
+
+  peer->AddIceCandidate(
+      std::move(candidate), [&](webrtc::RTCError err) {
+        if (err.ok()) {
+          add_ice_candidate_success(std::move(cb));
+        } else {
+          add_ice_candidate_fail(std::move(cb), err.message());
+        }
+      });
+}
+
+// Calls `PeerConnectionInterface::RestartIce`.
+void restart_ice(const PeerConnectionInterface& peer) {
+  peer->RestartIce();
+}
+
+// Calls `PeerConnectionInterface::Close`.
+void close_peer_connection(const PeerConnectionInterface& peer) {
+  peer->Close();
+}
+
+}  // namespace bridge

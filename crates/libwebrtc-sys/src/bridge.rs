@@ -4,8 +4,8 @@ use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
-    AddIceCandidateHandler, CreateSdpCallback, OnFrameCallback,
-    PeerConnectionEventsHandler, SetDescriptionCallback,
+    AddIceCandidateHandler, CreateSdpCallback, IceCandidateInterface,
+    OnFrameCallback, PeerConnectionEventsHandler, SetDescriptionCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -577,6 +577,13 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
 
+        pub fn create_ice_candidate(
+            sdp_mid: &str,
+            sdp_mline_index: i32,
+            candidate: &str,
+            error: &mut String
+        ) -> UniquePtr<IceCandidateInterface>;
+
         /// Returns the spec-compliant string representation of the provided
         /// [`IceCandidateInterface`].
         ///
@@ -584,24 +591,28 @@ pub(crate) mod webrtc {
         ///
         /// `candidate` must be a valid [`IceCandidateInterface`] pointer.
         #[must_use]
-        pub unsafe fn ice_candidate_interface_to_string(
-            candidate: *const IceCandidateInterface
+        pub fn ice_candidate_interface_to_string(
+            candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
         /// Returns the `sdpMid` string of the [`IceCandidateInterface`].
         #[must_use]
-        pub unsafe fn sdp_mid_of_ice_candidate(
-            candidate: *const IceCandidateInterface
+        pub fn sdp_mid_of_ice_candidate(
+            candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
         /// Returns the `sdpMLineIndex` of the [`IceCandidateInterface`].
         #[must_use]
-        pub unsafe fn sdp_mline_index_of_ice_candidate(
-            candidate: *const IceCandidateInterface
+        pub fn sdp_mline_index_of_ice_candidate(
+            candidate: &IceCandidateInterface
         ) -> i32;
 
         /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].
-        pub fn add_ice_candidate(peer: &PeerConnectionInterface, sdp_mid: &str, sdp_mline_index: i32, candidate: &str, cb: Box<DynAddIceCandidateCallback>) -> String;
+        pub fn add_ice_candidate(
+            peer: &PeerConnectionInterface,
+            candidate: UniquePtr<IceCandidateInterface>,
+            cb: Box<DynAddIceCandidateCallback>
+        );
 
         /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.
         pub fn restart_ice(peer: &PeerConnectionInterface);
@@ -981,9 +992,9 @@ pub(crate) mod webrtc {
         /// occurs in the attached [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#event-icecandidate
-        pub unsafe fn on_ice_candidate(
+        pub fn on_ice_candidate(
             cb: &mut DynPeerConnectionEventsHandler,
-            candidate: *const IceCandidateInterface,
+            candidate: UniquePtr<IceCandidateInterface>,
         );
 
         /// Forwards the removed [`Candidate`]s to the given
@@ -1151,9 +1162,9 @@ pub fn on_ice_connection_receiving_change(
 /// [1]: https://w3.org/TR/webrtc#event-icecandidate
 pub fn on_ice_candidate(
     cb: &mut DynPeerConnectionEventsHandler,
-    candidate: *const webrtc::IceCandidateInterface,
+    candidate: UniquePtr<webrtc::IceCandidateInterface>,
 ) {
-    cb.on_ice_candidate(candidate);
+    cb.on_ice_candidate(IceCandidateInterface(candidate));
 }
 
 /// Forwards the removed [`Candidate`]s to the given
