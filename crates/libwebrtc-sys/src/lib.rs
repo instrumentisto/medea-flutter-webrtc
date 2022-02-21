@@ -28,7 +28,7 @@ pub use crate::webrtc::{
     CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
     IceGatheringState, MediaStreamTrackInterface, MediaType,
     PeerConnectionState, RtpReceiverInterface as Sys_RtpReceiverInterface,
-    RtpSenderInterface, RtpTransceiverDirection,
+    RtpSenderInterface as Sys_RtpSenderInterface, RtpTransceiverDirection,
     RtpTransceiverInterface as Sys_RtpTransceiverInterface, SdpType,
     SignalingState, VideoFrame, VideoRotation,
     VideoTrackInterface as Sys_VideoTrackInterface,
@@ -619,7 +619,7 @@ impl RtpSenderInterface {
     ) -> anyhow::Result<()> {
         let success = webrtc::replace_sender_video_track(
             &self.0,
-            track.map_or(&UniquePtr::null(), |t| &t.0),
+            track.map_or(&UniquePtr::null(), |t| &t.inner),
         );
 
         if !success {
@@ -637,7 +637,7 @@ impl RtpSenderInterface {
     ) -> anyhow::Result<()> {
         let success = webrtc::replace_sender_audio_track(
             &self.0,
-            track.map_or(&UniquePtr::null(), |t| &t.0),
+            track.map_or(&UniquePtr::null(), |t| &t.inner),
         );
 
         if !success {

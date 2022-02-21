@@ -19,17 +19,14 @@ use api::{
     RtpSenderInterfaceSerialized, RtpTransceiverInterfaceSerialized,
     TrackInterfaceSerialized,
 };
-// use api::{
-//     RtpSenderInterfaceSerialized, RtpTransceiverInterfaceSerialized,
-//     TrackInterfaceSerialized,
-// };
 use libwebrtc_sys::{
     audio_track_media_stream_track_upcast, get_media_stream_track_kind,
     get_transceiver_mid, get_transceiver_sender,
     video_track_media_stream_track_upcast, AudioLayer, AudioSourceInterface,
     MediaStreamTrackInterface, PeerConnectionFactoryInterface,
-    RtpSenderInterface, Sys_AudioTrackInterface, Sys_RtpTransceiverInterface,
-    Sys_VideoTrackInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
+    Sys_AudioTrackInterface, Sys_RtpSenderInterface,
+    Sys_RtpTransceiverInterface, Sys_VideoTrackInterface, TaskQueueFactory,
+    Thread, VideoDeviceInfo,
 };
 
 use crate::video_sink::Id as VideoSinkId;
@@ -515,8 +512,8 @@ impl From<(&MediaStreamTrackInterface, u64, String)>
     }
 }
 
-impl From<&RtpSenderInterface> for RtpSenderInterfaceSerialized {
-    fn from(_: &RtpSenderInterface) -> Self {
+impl From<&Sys_RtpSenderInterface> for RtpSenderInterfaceSerialized {
+    fn from(_: &Sys_RtpSenderInterface) -> Self {
         RtpSenderInterfaceSerialized {
             channel_id: next_id(),
         }
@@ -528,7 +525,7 @@ impl From<&Sys_RtpTransceiverInterface> for RtpTransceiverInterfaceSerialized {
         let sender = get_transceiver_sender(transceiver);
         RtpTransceiverInterfaceSerialized {
             sender: RtpSenderInterfaceSerialized::from(
-                &sender as &RtpSenderInterface,
+                &sender as &Sys_RtpSenderInterface,
             ),
             channel_id: next_id(),
             mid: get_transceiver_mid(transceiver),

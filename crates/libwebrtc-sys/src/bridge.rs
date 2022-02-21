@@ -502,8 +502,6 @@ pub(crate) mod webrtc {
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/rtp_sender_interface_getters.h");
 
-        type RtpSenderInterface;
-
         /// Returns a `id`
         /// of the given [`RtpSenderInterface`].
         #[must_use]
@@ -820,15 +818,6 @@ pub(crate) mod webrtc {
             transceiver: &RtpTransceiverInterface
         ) -> RtpTransceiverDirection;
 
-
-        /// Returns a [`RtpSenderInterface`] of the given
-        /// [`RtpTransceiverInterface`].
-        #[must_use]
-        pub fn get_transceiver_sender(
-            transceiver: &RtpTransceiverInterface,
-        ) -> UniquePtr<RtpSenderInterface>;
-
-
         /// Returns a [`RtpReceiverInterface`] of the given
         /// [`RtpTransceiverInterface`].
         #[must_use]
@@ -854,6 +843,7 @@ pub(crate) mod webrtc {
 
         /// Returns a [`RtpSenderInterface`] of the given
         /// [`RtpTransceiverInterface`].
+        #[must_use]
         pub fn get_transceiver_sender(
             transceiver: &RtpTransceiverInterface
         ) -> UniquePtr<RtpSenderInterface>;

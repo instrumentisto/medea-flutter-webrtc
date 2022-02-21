@@ -21,7 +21,7 @@ use crate::{
         self, OnTrackSerialized, RtpTransceiverInterfaceSerialized,
         TrackInterfaceSerialized,
     },
-    AudioTrack, AudioTrackId, VideoTrack, VideoTrackId,
+    AudioTrack, VideoTrack,
 };
 
 use crate::{
@@ -458,6 +458,8 @@ impl Webrtc {
                     sender.replace_video_track(Some(
                         self.0
                             .video_tracks
+                            .lock()
+                            .unwrap()
                             .get(&VideoTrackId::from(track_id))
                             .unwrap()
                             .as_ref(),
@@ -467,6 +469,8 @@ impl Webrtc {
                     sender.replace_audio_track(Some(
                         self.0
                             .audio_tracks
+                            .lock()
+                            .unwrap()
                             .get(&AudioTrackId::from(track_id))
                             .unwrap()
                             .as_ref(),
