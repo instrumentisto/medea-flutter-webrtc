@@ -497,4 +497,21 @@ void video_track_unregister_observer(
 void audio_track_unregister_observer(
     AudioTrackInterface& track, 
     TrackEventObserver& obs);
+
+// Returns a `RtpSenderInterface` of the given `RtpTransceiverInterface`.
+std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
+    const RtpTransceiverInterface& transceiver);
+
+// Replaces the track currently being used as the `sender`'s source with a new
+// `VideoTrackInterface`.
+bool replace_sender_video_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<VideoTrackInterface>& track);
+
+// Replaces the track currently being used as the `sender`'s source with a new
+// `AudioTrackInterface`.
+bool replace_sender_audio_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<AudioTrackInterface>& track);
+    
 }  // namespace bridge

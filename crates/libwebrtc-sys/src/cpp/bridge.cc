@@ -748,4 +748,33 @@ void audio_track_unregister_observer(
     TrackEventObserver& obs) {
       track->UnregisterObserver(&obs);
     }
+
+  // Calls `RtpTransceiverInterface->sender()`.
+std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
+    const RtpTransceiverInterface& transceiver) {
+  return std::make_unique<RtpSenderInterface>(transceiver->sender());
+}
+
+// Calls `RtpSenderInterface->SetTrack()`.
+bool replace_sender_video_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<VideoTrackInterface>& track) {
+  if (!track.get()) {
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
+}
+
+// Calls `RtpSenderInterface->SetTrack()`.
+bool replace_sender_audio_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<AudioTrackInterface>& track) {
+  if (!track.get()) {
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
+}
+
 }  // namespace bridge
