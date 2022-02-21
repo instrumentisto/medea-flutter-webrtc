@@ -185,7 +185,7 @@ void main() {
       var complete_ended = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail onEnded');
     pc2.onTrack = (RTCTrackEvent e) => {
       e.track.onEnded = () => complete_ended = Future.value('Success'),
-      complete = Future.value(),
+      complete = Future.value(''),
     };
     
     await pc2.setRemoteDescription(await pc1.createOffer({}));
