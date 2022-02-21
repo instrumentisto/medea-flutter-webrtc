@@ -332,29 +332,35 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   return std::make_unique<RTCConfiguration>(config);
 }
 
+// Sets `IceTransportsType` for the `RTCConfiguration`.
 void set_rtc_configuration_ice_transport_type(
     RTCConfiguration& config,
     IceTransportsType transport_type) {
   config.type = transport_type;
 }
 
+// Sets `BundlePolicy` for the `RTCConfiguration`.
 void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
                                          BundlePolicy bundle_policy) {
   config.bundle_policy = bundle_policy;
 }
 
+// Adds `IceServer` to the `RTCConfiguration`.
 void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server) {
   config.servers.push_back(server);
 }
 
+// Creates a new empty `IceServer`.
 std::unique_ptr<IceServer> create_ice_server() {
   return std::make_unique<IceServer>();
 }
 
+// Adds a `url` to the `IceServer`.
 void add_ice_server_url(IceServer& server, rust::String& url) {
   server.urls.push_back(url.c_str());
 }
 
+// Sets a `creadentials` for the `IceServer`.
 void set_ice_server_credentials(IceServer& server,
                                 rust::String& username,
                                 rust::String& password) {

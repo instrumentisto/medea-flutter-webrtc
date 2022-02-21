@@ -201,15 +201,30 @@ pub mod api {
         pub frame: Box<Frame>,
     }
 
+    /// Representation of some [`RTCConfiguration`] internal settings.
     pub struct RTCConfigurationInfo {
+        /// Indicates which candidates the `ICE Agent` is allowed to use.
         ice_transport_policy: String,
+
+        /// Indicates which media-bundling policy to use when gathering ICE
+        /// candidates.
         bundle_policy: String,
+
+        /// An array of objects describing servers available to be used by ICE,
+        /// such as STUN and TURN servers.
         servers: Vec<IceServerInfo>,
     }
 
+    /// Describes the STUN and TURN servers that can be used by the `ICE Agent`
+    /// to establish a connection with a peer.
     pub struct IceServerInfo {
+        /// STUN or TURN URI(s).
         urls: Vec<String>,
+
+        /// Specifies the `username` to use with that TURN server.
         username: String,
+
+        /// Specifies the `password` to use with that TURN server.
         password: String,
     }
 

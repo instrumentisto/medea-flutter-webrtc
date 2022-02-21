@@ -261,20 +261,45 @@ pub(crate) mod webrtc {
         kIceConnectionMax,
     }
 
+    /// Indicates which candidates the `ICE Agent` is allowed to use.
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     enum IceTransportsType {
+        /// Non-spec-compliant variant.
         kNone,
+
+        /// [RTCIceTransportPolicy.relay][1] representation.
+        ///
+        /// [1]: https://tinyurl.com/rfhrde4p
         kRelay,
+
+        /// Non-spec-compliant variant.
         kNoHost,
+
+        /// [RTCIceTransportPolicy.all][1] representation.
+        ///
+        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicetransportpolicy-all
         kAll,
     }
 
+    /// Indicates which media-bundling policy to use when gathering ICE
+    /// candidates.
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     enum BundlePolicy {
+        /// [BundlePolicy.balanced][1] representation.
+        ///
+        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcbundlepolicy-balanced
         kBundlePolicyBalanced,
+
+        /// [BundlePolicy.max-bundle][1] representation.
+        ///
+        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcbundlepolicy-max-bundle
         kBundlePolicyMaxBundle,
+
+        /// [BundlePolicy.max-compat][1] representation.
+        ///
+        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcbundlepolicy-max-compat
         kBundlePolicyMaxCompat,
     }
 
@@ -433,16 +458,22 @@ pub(crate) mod webrtc {
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
 
+        /// Sets [`IceTransportsType`] for the [`RTCConfiguration`].
         pub fn set_rtc_configuration_ice_transport_type(config: Pin<&mut RTCConfiguration>, transport_type: IceTransportsType);
 
+        /// Sets [`BundlePolicy`] for the [`RTCConfiguration`].
         pub fn set_rtc_configuration_bundle_policy(config: Pin<&mut RTCConfiguration>, bundle_policy: BundlePolicy);
 
+        /// Adds [`IceServer`] to the [`RTCConfiguration`].
         pub fn add_rtc_configuration_server(config: Pin<&mut RTCConfiguration>, server: Pin<&mut IceServer>);
 
+        /// Creates a new empty [`IceServer`].
         pub fn create_ice_server() -> UniquePtr<IceServer>;
 
+        /// Adds a `url` to the [`IceServer`].
         pub fn add_ice_server_url(server: Pin<&mut IceServer>, url: &mut String);
 
+        /// Sets `credentials` for the [`IceServer`].
         pub fn set_ice_server_credentials(server: Pin<&mut IceServer>, username: &mut String, password: &mut String);
 
         /// Creates a new [`PeerConnectionInterface`].

@@ -219,18 +219,24 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
+// Sets `IceTransportsType` for the `RTCConfiguration`.
 void set_rtc_configuration_ice_transport_type(RTCConfiguration& config,
                                               IceTransportsType transport_type);
 
+// Sets `BundlePolicy` for the `RTCConfiguration`.
 void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
                                          BundlePolicy bundle_policy);
 
+// Adds `IceServer` to the `RTCConfiguration`.
 void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server);
 
+// Creates a new empty `IceServer`.
 std::unique_ptr<IceServer> create_ice_server();
 
+// Adds a `url` to the `IceServer`.
 void add_ice_server_url(IceServer& server, rust::String& url);
 
+// Sets a `creadentials` for the `IceServer`.
 void set_ice_server_credentials(IceServer& server,
                                 rust::String& username,
                                 rust::String& password);

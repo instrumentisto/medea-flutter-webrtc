@@ -316,6 +316,7 @@ impl VideoDeviceInfo {
 pub struct RTCConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 
 impl RTCConfiguration {
+    /// Sets [`IceTransportsType`].
     pub fn set_ice_transport_type(
         &mut self,
         transport_type: webrtc::IceTransportsType,
@@ -326,6 +327,7 @@ impl RTCConfiguration {
         );
     }
 
+    /// Sets [`BundlePolicy`].
     pub fn set_bundle_policy(&mut self, bundle_policy: webrtc::BundlePolicy) {
         webrtc::set_rtc_configuration_bundle_policy(
             self.0.pin_mut(),
@@ -333,6 +335,7 @@ impl RTCConfiguration {
         );
     }
 
+    /// Adds [`IceServer`].
     pub fn add_server(&mut self, mut server: IceServer) {
         webrtc::add_rtc_configuration_server(
             self.0.pin_mut(),
@@ -350,10 +353,12 @@ impl Default for RTCConfiguration {
 pub struct IceServer(UniquePtr<webrtc::IceServer>);
 
 impl IceServer {
+    /// Adds a `url`.
     pub fn add_url(&mut self, url: &mut String) {
         webrtc::add_ice_server_url(self.0.pin_mut(), url);
     }
 
+    /// Sets `credentials`.
     pub fn set_credentials(
         &mut self,
         username: &mut String,
