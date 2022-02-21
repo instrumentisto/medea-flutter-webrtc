@@ -121,6 +121,20 @@ mod cpp_api_bindings {
             self: Pin<&mut TrackEventInterface>,
         );
 
+        /// Calls C++ side `TrackEventInterface->OnMute`.
+        #[cxx_name = "OnMute"]
+        pub fn on_mute(
+            self: Pin<&mut TrackEventInterface>,
+        );
+
+                
+        /// Calls C++ side `TrackEventInterface->OnUnmute`.
+        #[cxx_name = "OnUnmute"]
+        pub fn on_unmute(
+            self: Pin<&mut TrackEventInterface>,
+        );
+
+
     }
 
     // This will trigger `cxx` to generate `UniquePtrTarget` trait for the

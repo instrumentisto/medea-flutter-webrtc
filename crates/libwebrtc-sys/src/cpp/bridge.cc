@@ -14,7 +14,41 @@ namespace bridge {
 TrackEventObserver::TrackEventObserver(
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
     rust::Box<bridge::DynTrackEventCallback> cb)
-    : track_(track), cb_(std::move(cb)) {}
+    : track_(track), cb_(std::move(cb)) {
+
+  webrtc::MediaSourceInterface* source;
+  if (track->kind() == "video") {
+    auto video_track = static_cast<webrtc::VideoTrackInterface*>(track.get());
+    source =
+        static_cast<webrtc::MediaSourceInterface*>(video_track->GetSource());
+  } else {
+    auto audio_track = static_cast<webrtc::AudioTrackInterface*>(track.get());
+    source =
+        static_cast<webrtc::MediaSourceInterface*>(audio_track->GetSource());
+  }
+
+  this->source_obs = std::make_unique<SourceEventObserver>([=] {
+    webrtc::MediaSourceInterface::SourceState state;
+    if (track->kind() == "video") {
+      auto video_track = static_cast<webrtc::VideoTrackInterface*>(track.get());
+      state = video_track->GetSource()->state();
+
+    } else {
+      auto audio_track = static_cast<webrtc::AudioTrackInterface*>(track.get());
+      state = audio_track->GetSource()->state();
+    }
+
+    if (state == webrtc::MediaSourceInterface::SourceState::kMuted) {
+      bridge::on_mute(*cb_);
+    } else if (state == webrtc::MediaSourceInterface::SourceState::kLive) {
+      bridge::on_unmute(*cb_);
+    }
+  });
+
+  if (source != nullptr) {
+    source->RegisterObserver(this->source_obs.get());
+  }
+}
 
 // Called when track calls `set_state` or `set_enabled`.
 void TrackEventObserver::OnChanged() {

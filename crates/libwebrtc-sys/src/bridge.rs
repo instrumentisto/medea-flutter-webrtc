@@ -8,7 +8,7 @@ use crate::{
     SetDescriptionCallback, TrackEventCallback,
 };
 
-// todo
+/// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -1108,36 +1108,39 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn remote_candidate(self: &CandidatePair) -> &Candidate;
 
-        // todo
+        /// Creates a new [`DynTrackEventCallback`] backed by the
+        /// provided [`DynOnFrameCallback`].
         pub fn create_audio_track_event_observer(
             track: &AudioTrackInterface,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
-        // todo
+        /// Creates a new [`DynTrackEventCallback`] backed by the
+        /// provided [`DynOnFrameCallback`].
         pub fn create_video_track_event_observer(
             track: &VideoTrackInterface,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
-        // todo
+        /// Calls [`AudioTrackInterface`]->RegisterObserver.
         pub fn audio_track_register_observer(
             track: Pin<&mut AudioTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
 
+        /// Calls [`TrackEventObserver`]->RegisterObserver.
         pub fn video_track_register_observer(
             track: Pin<&mut VideoTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
 
-        // todo
+        /// Calls [`AudioTrackInterface`]->UnregisterObserver.
         pub fn audio_track_unregister_observer(
             track: Pin<&mut AudioTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
 
-        // todo
+        /// Calls [`VideoTrackInterface`]->UnregisterObserver
         pub fn video_track_unregister_observer(
             track: Pin<&mut VideoTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
@@ -1157,7 +1160,28 @@ pub(crate) mod webrtc {
 
     extern "Rust" {
         type DynTrackEventCallback;
+
+        /// Calls when a [`ended`][1]
+        /// event occurs in the attached [`MediaStreamTrackInterface`].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
         fn on_ended(
+            cb: &mut DynTrackEventCallback,
+        );
+
+        /// Calls when a [`mute`][1]
+        /// event occurs in the attached [`MediaStreamTrackInterface`].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
+        fn on_mute(
+            cb: &mut DynTrackEventCallback,
+        );
+
+        /// Calls when a [`unmute`][1]
+        /// event occurs in the attached [`MediaStreamTrackInterface`].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
+        fn on_unmute(
             cb: &mut DynTrackEventCallback,
         );
     }
@@ -1520,6 +1544,38 @@ pub fn on_remove_track(
     cb.on_remove_track(event);
 }
 
+/// Calls when a [`ended`][1]
+/// event occurs in the attached [`MediaStreamTrackInterface`].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
+pub fn on_ended(
+    cb: &mut DynTrackEventCallback,
+) {
+    cb.on_ended();
+}
+
+
+/// Calls when a [`mute`][1]
+/// event occurs in the attached [`MediaStreamTrackInterface`].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
+pub fn on_mute(
+    cb: &mut DynTrackEventCallback,
+) {
+    cb.on_mute();
+}
+
+/// Calls when a [`unmute`][1]
+/// event occurs in the attached [`MediaStreamTrackInterface`].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
+pub fn on_unmute(
+    cb: &mut DynTrackEventCallback,
+) {
+    cb.on_unmute();
+}
+
+
 /// Creates [`StringPair`].
 fn new_string_pair(f: &CxxString, s: &CxxString) -> webrtc::StringPair {
     webrtc::StringPair {
@@ -1685,11 +1741,4 @@ impl fmt::Display for webrtc::PeerConnectionState {
             _ => unreachable!(),
         }
     }
-}
-
-// todo
-pub fn on_ended(
-    cb: &mut DynTrackEventCallback,
-) {
-    cb.on_ended();
 }

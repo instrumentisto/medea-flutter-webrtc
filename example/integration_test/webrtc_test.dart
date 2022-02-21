@@ -162,8 +162,8 @@ void main() {
     await pc1.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
     var pc2 = await createPeerConnection({});
-    var complete = Future.delayed(const Duration(seconds: 5));
-    var complete_ended = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail');
+      var complete = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail onTrack');
+      var complete_ended = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail onEnded');
     pc2.onTrack = (RTCTrackEvent e) => {
       e.track.onEnded = () => complete_ended = Future.value('Success'),
       complete = Future.value(),

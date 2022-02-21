@@ -44,6 +44,12 @@ class MediaStreamTrackNative extends MediaStreamTrack {
       case 'onended':
         onEnded?.call();
         break;
+      case 'onmute':
+        onMute?.call();
+        break;
+      case 'onunmute':
+        onUnMute?.call();
+        break;
     }
   }
 

@@ -109,11 +109,25 @@ class PeerConnectionObserverInterface {
   virtual ~PeerConnectionObserverInterface() = default;
 };
 
-// todo
+
+// Handler of events firing from a `MediaStreamTrackInterface`.
 class TrackEventInterface {
  public:
 
+  // Called when a `Ended` event occurs.
+  //
+  // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
   virtual void OnEnded() = 0;
+  
+  // Called when a `Mute` event occurs.
+  //
+  // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
+  virtual void OnMute() = 0;
+  
+  // Called when a `Unmute` event occurs.
+  //
+  // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
+  virtual void OnUnmute() = 0;
 
   virtual ~TrackEventInterface() = default;
 };

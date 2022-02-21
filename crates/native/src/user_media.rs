@@ -346,7 +346,8 @@ impl Webrtc {
         }
     }
 
-    //todo
+    /// Registers an events observer for [`AudioTrack`]
+    /// or [`VideoTrack`].
     pub fn register_observer_track(
         &mut self,
         id: u64,
@@ -371,7 +372,9 @@ impl Webrtc {
         }
     }
 
-    //todo
+    /// Unregisters an events observer 
+    /// for [`AudioTrack`]
+    /// or [``VideoTrack].
     pub fn unregister_observer_track(
         &mut self,
         id: u64,
@@ -735,7 +738,6 @@ impl VideoSource {
     }
 }
 
-//todo
 /// [`TrackEventInterface`] wrapper.
 struct TrackEventHandler(UniquePtr<TrackEventInterface>);
 
@@ -746,5 +748,17 @@ impl sys::TrackEventCallback for TrackEventHandler {
         self.0
             .pin_mut()
             .on_ended();
+    }
+
+    fn on_mute(&mut self) {
+        self.0
+            .pin_mut()
+            .on_mute()
+    }
+
+    fn on_unmute(&mut self) {
+        self.0
+            .pin_mut()
+            .on_unmute()
     }
 }

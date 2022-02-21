@@ -74,9 +74,26 @@ fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-// todo
+/// Handler of events that fire from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
+
+    /// Called when a [`ended`][1]
+    /// event occurs in the attached [`MediaStreamTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
     fn on_ended(&mut self);
+
+    /// Called when a [`mute`][1]
+    /// event occurs in the attached [`MediaStreamTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
+    fn on_mute(&mut self);
+
+    /// Called when a [`unmute`][1]
+    /// event occurs in the attached [`MediaStreamTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
+    fn on_unmute(&mut self);
 }
 
 /// Completion callback for the [`CreateSessionDescriptionObserver`] that is
@@ -166,10 +183,13 @@ pub trait PeerConnectionEventsHandler {
         event: &CandidatePairChangeEvent,
     );
 
-    // todo
+    
+    /// Called when a [`track`][1] event occurs.
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#event-track
     fn on_track(&mut self, event: UniquePtr<webrtc::RtpTransceiverInterface>);
 
-    // todo
+    // This is a non-spec-compliant event.
     fn on_remove_track(&mut self, event: &RtpReceiverInterface);
 }
 
@@ -378,7 +398,8 @@ impl Default for RTCConfiguration {
     }
 }
 
-//todo
+/// Member of [`PeerConnectionDependencies`] containing functions called on
+/// events in a [`PeerConnectionInterface`]
 #[derive(From)]
 pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
@@ -920,9 +941,9 @@ impl VideoTrackInterface {
         webrtc::remove_video_sink(&self.inner, sink.0.pin_mut());
     }
 
-    // todo
+    /// Returns ref [`Sys_VideoTrackInterface`].
     #[must_use]
-    pub fn inner(&self) -> &webrtc::VideoTrackInterface {
+    pub fn inner(&self) -> &Sys_VideoTrackInterface {
         &self.inner
     }
 
@@ -933,7 +954,7 @@ impl VideoTrackInterface {
         webrtc::set_video_track_enabled(&self.inner, enabled);
     }
 
-    // todo
+    /// Creates and register observer [`MediaStreamTrackInterface`] events.
     pub fn register_observer(
         &mut self,
         cb: Box<dyn TrackEventCallback>,
@@ -947,7 +968,7 @@ impl VideoTrackInterface {
         self.obs.insert(id, TrackEventObserver::from(obs));
     }
 
-    // todo
+    /// Unregisters observer [`MediaStreamTrackInterface`] events.
     pub fn unregister_observer(&mut self) {
         let mut id = 0;
         if let Some((_id, cb)) = self.obs.iter_mut().next() {
@@ -971,9 +992,9 @@ pub struct AudioTrackInterface {
 }
 
 impl AudioTrackInterface {
-    // todo
+    /// Returns ref [`Sys_AudioTrackInterface`].
     #[must_use]
-    pub fn inner(&self) -> &webrtc::AudioTrackInterface {
+    pub fn inner(&self) -> &Sys_AudioTrackInterface {
         &self.inner
     }
 
@@ -984,7 +1005,7 @@ impl AudioTrackInterface {
         webrtc::set_audio_track_enabled(&self.inner, enabled);
     }
 
-    // todo
+    /// Creates and register observer [`MediaStreamTrackInterface`] events.
     pub fn register_observer(
         &mut self,
         cb: Box<dyn TrackEventCallback>,
@@ -998,7 +1019,7 @@ impl AudioTrackInterface {
         self.obs.insert(id, TrackEventObserver::from(obs));
     }
 
-    // todo
+    /// Unregisters observer [`MediaStreamTrackInterface`] events.
     pub fn unregister_observer(&mut self) {
         let mut id = 0;
         if let Some((_id, cb)) = self.obs.iter_mut().next() {

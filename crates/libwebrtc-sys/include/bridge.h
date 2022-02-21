@@ -19,6 +19,7 @@
 #include "peer_connection_observer.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
+#include <functional>
 
 namespace bridge {
 
@@ -35,6 +36,18 @@ class TrackEventObserver : public webrtc::ObserverInterface {
   void OnChanged();
 
  private:
+
+  // `SourceEventObserver` propagating mute/unmute track events to the Rust side.
+  class SourceEventObserver : public webrtc::ObserverInterface {
+      public:
+      SourceEventObserver(std::function<void()> callback): callback_(callback) {}
+      void OnChanged() {callback_();}
+      private:
+      std::function<void()> callback_;
+  };
+
+  // `MediaStreamTrackInterface` for mute/unmute event.
+  std::unique_ptr<SourceEventObserver> source_obs;
 
   // `MediaStreamTrackInterface` for determine the event.
   rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track_;

@@ -38,6 +38,24 @@ class TrackEventCallback : public TrackEventInterface {
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
   }
+
+  void OnMute() {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
+      flutter::EncodableMap params;
+      params[flutter::EncodableValue("event")] = "onmute";
+      deps_->sink_->Success(flutter::EncodableValue(params));
+    }
+  }
+
+  void OnUnmute() {
+    const std::lock_guard<std::mutex> lock(*deps_->lock_);
+    if (deps_->sink_) {
+      flutter::EncodableMap params;
+      params[flutter::EncodableValue("event")] = "onunmute";
+      deps_->sink_->Success(flutter::EncodableValue(params));
+    }
+  }
  private:
 
   std::shared_ptr<Dependencies> deps_;
@@ -277,7 +295,7 @@ void DisposeStream(const flutter::MethodCall<EncodableValue>& method_call,
   result->Success();
 }
 
-// todo
+// Registers observer for `MediaStreamTrackInterface`.
 void RegisterObserver(
     Box<Webrtc>& webrtc,
     flutter::BinaryMessenger* messenger,
@@ -335,6 +353,7 @@ void RegisterObserver(
 
 }
 
+// Unregisters observer for `MediaStreamTrackInterface`.
 void UnregisterObserver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

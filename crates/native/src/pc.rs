@@ -570,15 +570,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 HashMap::new(),
             ));
 
-            // {// for test
-            //     let id_ = inner.register_observer(Box::new(TestTrackEvent()));
-            //     inner.set_enabled(false);
-            //     inner.set_enabled(true);
-            //     inner.set_enabled(true);
-            //     inner.set_enabled(false);
-            //     stop_T(event.pin_mut());
-            //     inner.unregister_observer(id_);
-            // }
 
             let source = get_video_track_sourse(inner.inner());
             let v = VideoTrack::new_from_video_interface(
@@ -596,14 +587,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 HashMap::new(),
             ));
 
-            // {// for test
-            //     let id_ = inner.register_observer(Box::new(TestTrackEvent()));
-            //     inner.set_enabled(false);
-            //     inner.set_enabled(true);
-            //     inner.set_enabled(true);
-            //     inner.set_enabled(false);
-            //     inner.unregister_observer(id_);
-            // }
 
             let source = get_audio_track_sourse(inner.inner());
             let a = AudioTrack::new_from_audio_interface(
