@@ -117,23 +117,15 @@ mod cpp_api_bindings {
 
         /// Calls C++ side `TrackEventInterface->OnEnded`.
         #[cxx_name = "OnEnded"]
-        pub fn on_ended(
-            self: Pin<&mut TrackEventInterface>,
-        );
+        pub fn on_ended(self: Pin<&mut TrackEventInterface>);
 
         /// Calls C++ side `TrackEventInterface->OnMute`.
         #[cxx_name = "OnMute"]
-        pub fn on_mute(
-            self: Pin<&mut TrackEventInterface>,
-        );
+        pub fn on_mute(self: Pin<&mut TrackEventInterface>);
 
-                
         /// Calls C++ side `TrackEventInterface->OnUnmute`.
         #[cxx_name = "OnUnmute"]
-        pub fn on_unmute(
-            self: Pin<&mut TrackEventInterface>,
-        );
-
+        pub fn on_unmute(self: Pin<&mut TrackEventInterface>);
 
     }
 

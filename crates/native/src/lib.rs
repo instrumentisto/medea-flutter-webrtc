@@ -24,8 +24,8 @@ use api::{
 //     TrackInterfaceSerialized,
 // };
 use libwebrtc_sys::{
-    audio_track_media_stream_track_upcast,
-    get_media_stream_track_kind, get_transceiver_mid, get_transceiver_sender,
+    audio_track_media_stream_track_upcast, get_media_stream_track_kind,
+    get_transceiver_mid, get_transceiver_sender,
     video_track_media_stream_track_upcast, AudioLayer, AudioSourceInterface,
     MediaStreamTrackInterface, PeerConnectionFactoryInterface,
     RtpSenderInterface, Sys_AudioTrackInterface, Sys_RtpTransceiverInterface,
@@ -464,29 +464,38 @@ pub mod api {
         ) -> String;
 
         #[cxx_name = "UnregisterObserver"]
-        pub fn unregister_observer_track(
-            self: &mut Webrtc,
-            id: u64,
-        ) -> String;
+        pub fn unregister_observer_track(self: &mut Webrtc, id: u64) -> String;
     }
 }
 
-impl From<(&Sys_VideoTrackInterface, u64, String)> for TrackInterfaceSerialized {
-    fn from((track, track_id, device_id): (&Sys_VideoTrackInterface, u64, String)) -> Self {
+impl From<(&Sys_VideoTrackInterface, u64, String)>
+    for TrackInterfaceSerialized
+{
+    fn from(
+        (track, track_id, device_id): (&Sys_VideoTrackInterface, u64, String),
+    ) -> Self {
         let track = video_track_media_stream_track_upcast(track);
         TrackInterfaceSerialized::from((track, track_id, device_id))
     }
 }
 
-impl From<(&Sys_AudioTrackInterface, u64, String)> for TrackInterfaceSerialized {
-    fn from((track, track_id, device_id): (&Sys_AudioTrackInterface, u64, String)) -> Self {
+impl From<(&Sys_AudioTrackInterface, u64, String)>
+    for TrackInterfaceSerialized
+{
+    fn from(
+        (track, track_id, device_id): (&Sys_AudioTrackInterface, u64, String),
+    ) -> Self {
         let track = audio_track_media_stream_track_upcast(track);
         TrackInterfaceSerialized::from((track, track_id, device_id))
     }
 }
 
-impl From<(&MediaStreamTrackInterface, u64, String)> for TrackInterfaceSerialized {
-    fn from((track, track_id, device_id): (&MediaStreamTrackInterface, u64, String)) -> Self {
+impl From<(&MediaStreamTrackInterface, u64, String)>
+    for TrackInterfaceSerialized
+{
+    fn from(
+        (track, track_id, device_id): (&MediaStreamTrackInterface, u64, String),
+    ) -> Self {
         TrackInterfaceSerialized {
             id: track_id,
             kind: get_media_stream_track_kind(track).to_string(),

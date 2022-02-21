@@ -76,23 +76,22 @@ fn next_id() -> u64 {
 
 /// Handler of events that fire from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
-
     /// Called when a [`ended`][1]
     /// event occurs in the attached [`MediaStreamTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
+    /// [1]: https://tinyurl.com/event-mediastreamtrack-ended
     fn on_ended(&mut self);
 
     /// Called when a [`mute`][1]
     /// event occurs in the attached [`MediaStreamTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
+    /// [1]: https://tinyurl.com/event-mediastreamtrack-mute
     fn on_mute(&mut self);
 
     /// Called when a [`unmute`][1]
     /// event occurs in the attached [`MediaStreamTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
+    /// [1]: https://tinyurl.com/event-mediastreamtrack-unmute
     fn on_unmute(&mut self);
 }
 
@@ -183,7 +182,6 @@ pub trait PeerConnectionEventsHandler {
         event: &CandidatePairChangeEvent,
     );
 
-    
     /// Called when a [`track`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc/#event-track
@@ -955,14 +953,9 @@ impl VideoTrackInterface {
     }
 
     /// Creates and register observer [`MediaStreamTrackInterface`] events.
-    pub fn register_observer(
-        &mut self,
-        cb: Box<dyn TrackEventCallback>,
-    ) {
-        let mut obs = create_video_track_event_observer(
-            &self.inner,
-            Box::new(cb),
-        );
+    pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
+        let mut obs =
+            create_video_track_event_observer(&self.inner, Box::new(cb));
         video_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
         self.obs.insert(id, TrackEventObserver::from(obs));
@@ -971,8 +964,8 @@ impl VideoTrackInterface {
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
     pub fn unregister_observer(&mut self) {
         let mut id = 0;
-        if let Some((_id, cb)) = self.obs.iter_mut().next() {
-            id = *_id;
+        if let Some((id_, cb)) = self.obs.iter_mut().next() {
+            id = *id_;
             video_track_unregister_observer(
                 self.inner.pin_mut(),
                 cb.0.pin_mut(),
@@ -1006,14 +999,9 @@ impl AudioTrackInterface {
     }
 
     /// Creates and register observer [`MediaStreamTrackInterface`] events.
-    pub fn register_observer(
-        &mut self,
-        cb: Box<dyn TrackEventCallback>,
-    ) {
-        let mut obs = create_audio_track_event_observer(
-            &self.inner,
-            Box::new(cb),
-        );
+    pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
+        let mut obs =
+            create_audio_track_event_observer(&self.inner, Box::new(cb));
         audio_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
         self.obs.insert(id, TrackEventObserver::from(obs));
@@ -1022,8 +1010,8 @@ impl AudioTrackInterface {
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
     pub fn unregister_observer(&mut self) {
         let mut id = 0;
-        if let Some((_id, cb)) = self.obs.iter_mut().next() {
-            id = *_id;
+        if let Some((id_, cb)) = self.obs.iter_mut().next() {
+            id = *id_;
             audio_track_unregister_observer(
                 self.inner.pin_mut(),
                 cb.0.pin_mut(),

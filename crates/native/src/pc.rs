@@ -7,13 +7,12 @@ use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::{
-    get_audio_track_sourse,
-    get_media_stream_track_kind, get_rtp_receiver_track,
-    get_transceiver_receiver, get_video_track_sourse,
+    get_audio_track_sourse, get_media_stream_track_kind,
+    get_rtp_receiver_track, get_transceiver_receiver, get_video_track_sourse,
     media_stream_track_interface_downcast_audio_track,
-    media_stream_track_interface_downcast_video_track,
-    AudioSourceInterface, AudioTrackInterface, MediaStreamTrackInterface,
-    Sys_RtpReceiverInterface, Sys_RtpTransceiverInterface, VideoTrackInterface,
+    media_stream_track_interface_downcast_video_track, AudioSourceInterface,
+    AudioTrackInterface, MediaStreamTrackInterface, Sys_RtpReceiverInterface,
+    Sys_RtpTransceiverInterface, VideoTrackInterface,
     VideoTrackSourceInterface,
 };
 
@@ -570,12 +569,11 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 HashMap::new(),
             ));
 
-
             let source = get_video_track_sourse(inner.inner());
             let v = VideoTrack::new_from_video_interface(
                 inner,
                 VideoTrackSourceInterface::from(source),
-                "remote".to_owned()
+                "remote".to_owned(),
             );
             self.remote_video_tracks
                 .lock()
@@ -587,12 +585,11 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 HashMap::new(),
             ));
 
-
             let source = get_audio_track_sourse(inner.inner());
             let a = AudioTrack::new_from_audio_interface(
                 inner,
                 AudioSourceInterface::from(source),
-                "audio".to_owned()
+                "audio".to_owned(),
             );
             self.remote_audio_tracks
                 .lock()
@@ -605,7 +602,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             track: TrackInterfaceSerialized::from((
                 &track as &MediaStreamTrackInterface,
                 id,
-                "remote".to_owned()
+                "remote".to_owned(),
             )),
             transceiver: RtpTransceiverInterfaceSerialized::from(
                 &event.pin_mut() as &Sys_RtpTransceiverInterface,

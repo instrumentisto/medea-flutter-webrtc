@@ -348,6 +348,8 @@ impl Webrtc {
 
     /// Registers an events observer for [`AudioTrack`]
     /// or [`VideoTrack`].
+    /// # Panics
+    /// May panic if `video_tracks` or `audio_tracks` is fail.
     pub fn register_observer_track(
         &mut self,
         id: u64,
@@ -372,13 +374,12 @@ impl Webrtc {
         }
     }
 
-    /// Unregisters an events observer 
+    /// Unregisters an events observer
     /// for [`AudioTrack`]
-    /// or [``VideoTrack].
-    pub fn unregister_observer_track(
-        &mut self,
-        id: u64,
-    ) -> String {
+    /// or [`VideoTrack`].
+    /// # Panics
+    /// May panic if `video_tracks` or `audio_tracks` is fail.
+    pub fn unregister_observer_track(&mut self, id: u64) -> String {
         if let Some(track) =
             self.0.video_tracks.lock().unwrap().get_mut(&id.into())
         {
@@ -583,7 +584,7 @@ impl VideoTrack {
             inner: src,
             device_id: VideoDeviceId(device_id),
             is_display: false, // todo ???
-        }; 
+        };
         Self {
             id,
             inner,
@@ -742,23 +743,15 @@ impl VideoSource {
 struct TrackEventHandler(UniquePtr<TrackEventInterface>);
 
 impl sys::TrackEventCallback for TrackEventHandler {
-    fn on_ended(
-        &mut self,
-    ) {
-        self.0
-            .pin_mut()
-            .on_ended();
+    fn on_ended(&mut self) {
+        self.0.pin_mut().on_ended();
     }
 
     fn on_mute(&mut self) {
-        self.0
-            .pin_mut()
-            .on_mute()
+        self.0.pin_mut().on_mute();
     }
 
     fn on_unmute(&mut self) {
-        self.0
-            .pin_mut()
-            .on_unmute()
+        self.0.pin_mut().on_unmute();
     }
 }
