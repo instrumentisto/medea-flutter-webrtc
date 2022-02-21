@@ -411,11 +411,11 @@ pub struct VideoDeviceId(String);
 pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
-#[derive(Clone, Copy, Debug, Display, Eq, Hash, From, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
 pub struct VideoTrackId(u64);
 
 /// ID of an [`AudioTrack`].
-#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
 pub struct AudioTrackId(u64);
 
 /// Label identifying a video track source.
@@ -532,11 +532,13 @@ impl MediaStream {
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].
+#[derive(AsRef)]
 pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
     id: VideoTrackId,
 
     /// Underlying [`sys::VideoTrackInterface`].
+    #[as_ref]
     inner: sys::VideoTrackInterface,
 
     /// [`VideoSource`] that is used by this [`VideoTrack`].
@@ -617,11 +619,13 @@ impl VideoTrack {
 }
 
 /// Representation of a [`sys::AudioSourceInterface`].
+#[derive(AsRef)]
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
     id: AudioTrackId,
 
     /// Underlying [`sys::AudioTrackInterface`].
+    #[as_ref]
     inner: sys::AudioTrackInterface,
 
     /// [`sys::AudioSourceInterface`] that is used by this [`AudioTrack`].

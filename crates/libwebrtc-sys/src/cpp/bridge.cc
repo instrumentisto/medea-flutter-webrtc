@@ -645,6 +645,12 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
+// Calls `RtpTransceiverInterface->media_type()`.
+MediaType get_transceiver_media_type(
+    const RtpTransceiverInterface& transceiver) {
+  return transceiver->media_type();
+}
+
 // Calls `PeerConnectionInterface->direction()`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
@@ -748,12 +754,6 @@ void audio_track_unregister_observer(
     TrackEventObserver& obs) {
       track->UnregisterObserver(&obs);
     }
-
-  // Calls `RtpTransceiverInterface->sender()`.
-std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
-    const RtpTransceiverInterface& transceiver) {
-  return std::make_unique<RtpSenderInterface>(transceiver->sender());
-}
 
 // Calls `RtpSenderInterface->SetTrack()`.
 bool replace_sender_video_track(

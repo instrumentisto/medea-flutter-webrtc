@@ -76,9 +76,8 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("UnregisterObserver") == 0) {
     UnregisterObserver(webrtc, method_call, std::move(result));
   } else if (method.compare("rtpSenderDispose") == 0) {
-  } else if (method.compare("rtpSenderSetTrack") == 0) {
   } else if (method.compare("rtpSenderReplaceTrack") == 0) {
-  } else if (method.compare("rtpSenderSetParameters") == 0) {
+    SenderReplaceTrack(webrtc, method_call, std::move(result));
   } else if (method.compare("rtpTransceiverStop") == 0) {
     StopTransceiver(webrtc, method_call, std::move(result));
   } else if (method.compare("rtpTransceiverDispose") == 0) {

@@ -9,14 +9,14 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
+#include "device_video_capturer.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
 #include "pc/video_track_source.h"
-#include "rust/cxx.h"
-#include "device_video_capturer.h"
 #include "peer_connection_observer.h"
+#include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
 #include <functional>
@@ -92,6 +92,7 @@ using PeerConnectionInterface =
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>;
 using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
+using RtpSenderInterface = rtc::scoped_refptr<webrtc::RtpSenderInterface>;
 using VideoTrackInterface = rtc::scoped_refptr<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface =
     rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>;
@@ -434,6 +435,9 @@ rust::Vec<TransceiverContainer> get_transceivers(
 rust::String get_transceiver_mid(
     const RtpTransceiverInterface& transceiver);
 
+// Returns a `MediaType` of the given `RtpTransceiverInterface`.
+MediaType get_transceiver_media_type(const RtpTransceiverInterface& transceiver);
+
 // Returns a `direction` of the given `RtpTransceiverInterface`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver);
@@ -498,10 +502,6 @@ void audio_track_unregister_observer(
     AudioTrackInterface& track, 
     TrackEventObserver& obs);
 
-// Returns a `RtpSenderInterface` of the given `RtpTransceiverInterface`.
-std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
-    const RtpTransceiverInterface& transceiver);
-
 // Replaces the track currently being used as the `sender`'s source with a new
 // `VideoTrackInterface`.
 bool replace_sender_video_track(
@@ -513,5 +513,4 @@ bool replace_sender_video_track(
 bool replace_sender_audio_track(
     const RtpSenderInterface& sender,
     const std::unique_ptr<AudioTrackInterface>& track);
-    
 }  // namespace bridge
