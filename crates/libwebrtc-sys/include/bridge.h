@@ -23,6 +23,10 @@ namespace bridge {
 
 struct TransceiverContainer;
 struct StringPair;
+struct RtpCodecParametersContainer;
+struct RtpExtensionContainer;
+struct RtpEncodingParametersContainer;
+
 
 using Thread = rtc::Thread;
 using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
@@ -372,5 +376,18 @@ std::unique_ptr<RtpReceiverInterface> transceiver_receiver(
 // of the given `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_parameters(
     const webrtc::RtpCodecParameters& codec);
+
+// Returns `RtpParameters.codecs` field value.
+rust::Vec<RtpCodecParametersContainer> rtp_parameters_codecs(
+    const webrtc::RtpParameters& parameters);
+
+// Returns `RtpParameters.header_extensions` field value.
+rust::Vec<RtpExtensionContainer>
+rtp_parameters_header_extensions(const webrtc::RtpParameters& parameters);
+
+// Returns `RtpParameters.encodings` field value.
+rust::Vec<RtpEncodingParametersContainer>
+rtp_parameters_encodings(const webrtc::RtpParameters& parameters);
+
 
 }  // namespace bridge

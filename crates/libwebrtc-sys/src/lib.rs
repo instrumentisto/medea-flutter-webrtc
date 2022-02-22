@@ -3,7 +3,23 @@
 
 mod bridge;
 
+use std::collections::HashMap;
+
 use anyhow::bail;
+use bridge::webrtc::{
+    rtcp_parameters_cname, rtcp_parameters_reduced_size,
+    rtp_codec_parameters_clock_rate, rtp_codec_parameters_kind,
+    rtp_codec_parameters_name, rtp_codec_parameters_num_channels,
+    rtp_codec_parameters_parameters, rtp_codec_parameters_payload_type,
+    rtp_encoding_parameters_active, rtp_encoding_parameters_maxBitrate,
+    rtp_encoding_parameters_maxFramerate, rtp_encoding_parameters_minBitrate,
+    rtp_encoding_parameters_scale_resolution_down_by,
+    rtp_encoding_parameters_ssrc, rtp_extension_encrypt, rtp_extension_id,
+    rtp_extension_uri, rtp_parameters_codecs, rtp_parameters_encodings,
+    rtp_parameters_header_extensions, rtp_parameters_mid, rtp_parameters_rtcp,
+    rtp_parameters_transaction_id, RtpCodecParametersContainer,
+    RtpEncodingParametersContainer, RtpExtensionContainer,
+};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
@@ -48,7 +64,9 @@ pub trait OnFrameCallback {
 }
 
 /// Handler of events that fire from a [`PeerConnectionInterface`].
-pub trait PeerConnectionEventsHandler: Send + Sync {
+
+// todo Send + Sync
+pub trait PeerConnectionEventsHandler {
     /// Called when a [`signalingstatechange`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc#event-signalingstatechange
@@ -617,9 +635,169 @@ impl RtpReceiverInterface {
     }
 }
 
+/// The [RtpCodecParameters] allows an application to inspect the receipt of a
+/// [RTCRtpParameters][1].
+///
+/// [RtpCodecParameters]: https://www.w3.org/TR/webrtc/#dom-rtcrtpcodecparameters
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpparameters
+pub struct RtpCodecParameters(RtpCodecParametersContainer);
+
+impl RtpCodecParameters {
+
+    /// Returns a `name` of the given [`RtpCodecParameters`].
+    pub fn name(&self) -> String {
+        rtp_codec_parameters_name(&self.0.ptr).to_string()
+    }
+
+    /// Returns a `payload_type` of the given [`RtpCodecParameters`].
+    pub fn payload_type(&self) -> i32 {
+        rtp_codec_parameters_payload_type(&self.0.ptr)
+    }
+
+    /// Returns a `clock_rate` of the given [`RtpCodecParameters`].
+    pub fn clock_rate(&self) -> Option<i32> {
+        rtp_codec_parameters_clock_rate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `num_channels` of the given [`RtpCodecParameters`].
+    pub fn num_channels(&self) -> Option<i32> {
+        rtp_codec_parameters_num_channels(&self.0.ptr).ok()
+    }
+
+    /// Returns a `parameters` of the given [`RtpCodecParameters`].
+    pub fn parameters(&self) -> HashMap<String, String> {
+        let mut result = HashMap::new();
+        let parameters = rtp_codec_parameters_parameters(&self.0.ptr);
+        for pair in parameters.into_iter() {
+            result.insert(pair.first.clone(), pair.second.clone());
+        }
+        result
+    }
+
+    /// Returns a [`MediaType`] of the given [`RtpCodecParameters`].
+    pub fn kind(&self) -> MediaType {
+        rtp_codec_parameters_kind(&self.0.ptr)
+    }
+}
+
+/// The [RTCRtpHeaderExtensionParameters] allows an application to inspect the receipt of a
+/// [RTCRtpParameters][1].
+///
+/// [RTCRtpHeaderExtensionParameters]: https://www.w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpparameters
+pub struct RtpExtension(RtpExtensionContainer);
+
+impl RtpExtension {
+
+    /// Returns a `uri` of the given [`RtpExtension`].
+    pub fn uri(&self) -> String {
+        rtp_extension_uri(&self.0.ptr).to_string()
+    }
+
+    /// Returns a `id` of the given [`RtpExtension`].
+    pub fn id(&self) -> i32 {
+        rtp_extension_id(&self.0.ptr)
+    }
+
+    /// Returns a `encrypt` of the given [`RtpExtension`].
+    pub fn encrypt(&self) -> bool {
+        rtp_extension_encrypt(&self.0.ptr)
+    }
+}
+
+/// The [RtpExtension] allows an application to inspect the receipt of a
+/// [RTCRtpParameters][1].
+///
+/// [RtpExtension]: https://www.w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpparameters
+pub struct RtpEncodingParameters(RtpEncodingParametersContainer);
+
+impl RtpEncodingParameters {
+
+    /// Returns a `active` of the given [`RtpEncodingParameters`].
+    pub fn active(&self) -> bool {
+        rtp_encoding_parameters_active(&self.0.ptr)
+    }
+
+    /// Returns a `maxBitrate` of the given [`RtpEncodingParameters`].
+    pub fn max_bitrate(&self) -> Option<i32> {
+        rtp_encoding_parameters_maxBitrate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `minBitrate` of the given [`RtpEncodingParameters`].
+    pub fn min_bitrate(&self) -> Option<i32> {
+        rtp_encoding_parameters_minBitrate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `maxFramerate` of the given [`RtpEncodingParameters`].
+    pub fn max_framerate(&self) -> Option<f64> {
+        rtp_encoding_parameters_maxFramerate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `ssrc` of the given [`RtpEncodingParameters`].
+    pub fn ssrc(&self) -> Option<i64> {
+        rtp_encoding_parameters_ssrc(&self.0.ptr).ok()
+    }
+
+    /// Returns a `scale_resolution_down_by` of the given [`RtpEncodingParameters`].
+    pub fn scale_resolution_down_by(&self) -> Option<f64> {
+        rtp_encoding_parameters_scale_resolution_down_by(&self.0.ptr).ok()
+    }
+}
+
+/// The [RtpCodecParameters] allows an application to inspect the receipt of a
+/// [RTCRtpParameters][1].
+///
+/// [RtpCodecParameters]: https://www.w3.org/TR/webrtc/#dom-rtcrtpcodecparameters
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpparameters
+pub struct RtcpParameters(UniquePtr<webrtc::RtcpParameters>);
+
+impl RtcpParameters {
+
+    /// Returns a `cname` of the given [`RtcpParameters`].
+    pub fn cname(&self) -> String {
+        rtcp_parameters_cname(&self.0).to_string()
+    }
+
+    /// Returns a `reduced_size` of the given [`RtcpParameters`].
+    pub fn reduced_size(&self) -> bool {
+        rtcp_parameters_reduced_size(&self.0)
+    }
+}
+
 /// Describes the parameters being used by the [`RtpReceiverInterface`]'s RTP
 /// connection to the remote peer.
 pub struct RtpParameters(UniquePtr<webrtc::RtpParameters>);
+
+impl RtpParameters {
+    pub fn transaction_id(&self) -> String {
+        rtp_parameters_transaction_id(&self.0).to_string()
+    }
+    pub fn mid(&self) -> String {
+        rtp_parameters_mid(&self.0).to_string()
+    }
+    pub fn codecs(&self) -> Vec<RtpCodecParameters> {
+        rtp_parameters_codecs(&self.0)
+            .into_iter()
+            .map(|c| RtpCodecParameters(c))
+            .collect()
+    }
+    pub fn header_extensions(&self) -> Vec<RtpExtension> {
+        rtp_parameters_header_extensions(&self.0)
+            .into_iter()
+            .map(|c| RtpExtension(c))
+            .collect()
+    }
+    pub fn encodings(&self) -> Vec<RtpEncodingParameters> {
+        rtp_parameters_encodings(&self.0)
+            .into_iter()
+            .map(|c| RtpEncodingParameters(c))
+            .collect()
+    }
+    pub fn rtcp(&self) -> RtcpParameters {
+        RtcpParameters(rtp_parameters_rtcp(&self.0))
+    }
+}
 
 /// [RTCPeerConnection][1] implementation.
 ///

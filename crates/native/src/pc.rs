@@ -1,4 +1,4 @@
-use std::sync::{Arc, Weak, Mutex};
+use std::sync::{Arc, Mutex, Weak};
 
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use dashmap::DashMap;
@@ -30,13 +30,18 @@ impl Webrtc {
             Arc::clone(&self.0.audio_tracks),
         );
         match peer {
-            Ok(peer) => self
-                .0
-                .peer_connections
-                .entry(peer.id)
-                .or_insert(peer)
-                .id
-                .into(),
+            Ok(peer) => {
+                let id = peer.0.lock().unwrap().id;
+                self.0
+                    .peer_connections
+                    .entry(id)
+                    .or_insert(peer)
+                    .0
+                    .lock()
+                    .unwrap()
+                    .id
+                    .into()
+            }
             Err(err) => {
                 error.push_str(&err.to_string());
                 0
@@ -78,7 +83,7 @@ impl Webrtc {
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(cb),
         ));
-        peer.inner.create_offer(&options, obs);
+        peer.0.lock().unwrap().inner.create_offer(&options, obs);
 
         String::new()
     }
@@ -117,7 +122,7 @@ impl Webrtc {
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(cb),
         ));
-        peer.inner.create_answer(&options, obs);
+        peer.0.lock().unwrap().inner.create_answer(&options, obs);
 
         String::new()
     }
@@ -155,7 +160,11 @@ impl Webrtc {
         let desc = sys::SessionDescriptionInterface::new(sdp_kind, &sdp);
         let obs =
             sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
-        peer.inner.set_local_description(desc, obs);
+        peer.0
+            .lock()
+            .unwrap()
+            .inner
+            .set_local_description(desc, obs);
 
         String::new()
     }
@@ -195,7 +204,11 @@ impl Webrtc {
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(
             SetSdpCallback(cb),
         ));
-        peer.inner.set_remote_description(desc, obs);
+        peer.0
+            .lock()
+            .unwrap()
+            .inner
+            .set_remote_description(desc, obs);
 
         String::new()
     }
@@ -220,22 +233,25 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let _transceiver = peer.inner.add_transceiver(
+        let transceiver = peer.0.lock().unwrap().inner.add_transceiver(
             media_type.try_into().unwrap(),
             direction.try_into().unwrap(),
         );
 
-        // let result = api::RtcRtpTransceiver {
-        //     id: peer.transceivers.len() as u64,
-        //     mid: transceiver.mid().unwrap_or_default(),
-        //     direction: transceiver.direction().to_string(),
-        //     sender: api::RtcRtpSender { id:  }
-        // };
-        //
-        // peer.transceivers.push(transceiver);
-        //
-        // result
-        unimplemented!()
+        let transceivers = &mut peer.0.lock().unwrap().transceivers;
+        let mid = transceiver.mid().unwrap_or_default();
+        let direction = transceiver.direction().to_string();
+        transceivers.push(transceiver);
+        let id = transceivers.len() - 1;
+
+        let result = api::RtcRtpTransceiver {
+            id: id as u64,
+            mid,
+            direction,
+            sender: api::RtcRtpSender { id: id as u64 },
+        };
+
+        result
     }
 
     /// Returns a sequence of [`api::RtcRtpTransceiver`] objects representing
@@ -246,33 +262,28 @@ impl Webrtc {
     /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     pub fn get_transceivers(
         &mut self,
-        _peer_id: u64,
+        peer_id: u64,
     ) -> Vec<api::RtcRtpTransceiver> {
-        // let peer = self
-        //     .0
-        //     .peer_connections
-        //     .get_mut(&PeerConnectionId(peer_id))
-        //     .unwrap();
+        let peer = self
+            .0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap();
 
-        // let transceivers = peer.inner.get_transceivers();
-        // let mut result = Vec::with_capacity(transceivers.len());
+        let transceivers = peer.0.lock().unwrap().inner.get_transceivers();
+        let mut result = Vec::with_capacity(transceivers.len());
 
-        // for (index, transceiver) in transceivers.into_iter().enumerate() {
-        //     let info = api::RtcRtpTransceiver {
-        //         id: index as u64,
-        //         mid: transceiver.mid().unwrap_or_default(),
-        //         direction: transceiver.direction().to_string(),
-        //         sender: api::RtcRtpSender { id:  }
-        //     };
-        //     result.push(info);
-        //
-        //     if index == peer.transceivers.len() {
-        //         peer.transceivers.push(transceiver);
-        //     }
-        // }
-        //
-        // result
-        unimplemented!()
+        for (index, transceiver) in transceivers.into_iter().enumerate() {
+            let info = api::RtcRtpTransceiver {
+                id: index as u64,
+                mid: transceiver.mid().unwrap_or_default(),
+                direction: transceiver.direction().to_string(),
+                sender: api::RtcRtpSender { id: index as u64 },
+            };
+            result.push(info);
+        }
+
+        result
     }
 
     /// Changes the preferred `direction` of the specified
@@ -297,7 +308,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .lock()
+            .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .set_direction(direction.try_into().unwrap())
@@ -325,7 +339,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .lock()
+            .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .mid()
@@ -350,7 +367,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .lock()
+            .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .direction()
@@ -379,7 +399,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .lock()
+            .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .stop()
@@ -397,6 +420,9 @@ impl Webrtc {
         self.0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .0
+            .lock()
             .unwrap()
             .transceivers
             .remove(usize::try_from(transceiver_id).unwrap());
@@ -424,6 +450,7 @@ impl Webrtc {
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
+        let peer = peer.0.lock().unwrap();
         let transceiver = peer
             .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
@@ -496,7 +523,7 @@ impl PeerConnection {
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
                 cb,
-                pc: Arc<Mutex<Option<Weak<Mutex<Inner>>>>,
+                //pc: Arc<Mutex<Option<Weak<Mutex<Inner>>>>,
                 video_tracks,
                 audio_tracks,
             },
@@ -506,11 +533,11 @@ impl PeerConnection {
             sys::PeerConnectionDependencies::new(observer),
         )?;
 
-        let pc = Self(InnerPeer {
+        let pc = Self(Arc::new(Mutex::new(InnerPeer {
             id: PeerConnectionId::from(next_id()),
             inner,
             transceivers: Vec::new(),
-        });
+        })));
 
         Ok(pc)
     }
@@ -549,8 +576,7 @@ struct PeerConnectionObserver {
     /// to.
     cb: UniquePtr<PeerConnectionObserverInterface>,
 
-    pc: Weak<Mutex<InnerPeer>>,
-
+    //pc: Weak<Mutex<InnerPeer>>,
     /// Map of remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
 
@@ -631,16 +657,17 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             _ => unreachable!(),
         };
 
+        
         // TODO(#30): add new transceiver to cached transceivers map
         let result = api::RtcTrackEvent {
             track,
             transceiver: api::RtcRtpTransceiver {
-                id: 0,
+                id: 0, // transceiver index in peerconnection
                 mid: "".to_string(),
                 direction: "".to_string(),
                 sender: api::RtcRtpSender {
-                    id: 0 // TODO(#30): use transceiver index
-                }
+                    id: 0, // TODO(#30): use transceiver index
+                },
             },
         };
         self.cb.pin_mut().on_track(result);

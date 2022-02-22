@@ -539,6 +539,10 @@ impl VideoTrack {
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
     }
+
+    pub fn id(&self) -> VideoTrackId {
+        self.id
+    }
 }
 
 /// Representation of a [`sys::AudioSourceInterface`].
@@ -588,8 +592,8 @@ impl AudioTrack {
             inner: track.try_into().unwrap(),
             source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
             kind: TrackKind::kAudio,
-            label: VideoLabel::from("remote"),
-            sinks: Vec::new(),
+            label: AudioLabel::from("remote"),
+            //sinks: Vec::new(),
         }
     }
 

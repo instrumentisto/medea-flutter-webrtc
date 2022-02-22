@@ -415,29 +415,29 @@ void set_remote_description(PeerConnectionInterface& peer_connection_interface,
 }
 
 // Returns `RtpExtension.uri` field value.
-std::unique_ptr<std::string> get_rtp_extension_uri(
+std::unique_ptr<std::string> rtp_extension_uri(
     const webrtc::RtpExtension& extension) {
   return std::make_unique<std::string>(extension.uri);
 }
 
 // Returns `RtpExtension.id` field value.
-int32_t get_rtp_extension_id(const webrtc::RtpExtension& extension) {
+int32_t rtp_extension_id(const webrtc::RtpExtension& extension) {
   return extension.id;
 }
 
 // Returns `RtpExtension.encrypt` field value.
-bool get_rtp_extension_encrypt(const webrtc::RtpExtension& extension) {
+bool rtp_extension_encrypt(const webrtc::RtpExtension& extension) {
   return extension.encrypt;
 }
 
 // Returns `RtcpParameters.cname` field value.
-std::unique_ptr<std::string> get_rtcp_parameters_cname(
+std::unique_ptr<std::string> rtcp_parameters_cname(
     const webrtc::RtcpParameters& rtcp) {
   return std::make_unique<std::string>(rtcp.cname);
 }
 
 // Returns `RtcpParameters.reduced_size` field value.
-bool get_rtcp_parameters_reduced_size(const webrtc::RtcpParameters& rtcp) {
+bool rtcp_parameters_reduced_size(const webrtc::RtcpParameters& rtcp) {
   return rtcp.reduced_size;
 }
 
@@ -468,26 +468,26 @@ std::unique_ptr<std::string> candidate_to_string(
 };
 
 // Returns `CandidatePairChangeEvent.candidate_pair` field value.
-const cricket::CandidatePair& get_candidate_pair(
+const cricket::CandidatePair& candidate_pair(
     const cricket::CandidatePairChangeEvent& event) {
   return event.selected_candidate_pair;
 };
 
 // Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
-int64_t get_last_data_received_ms(
+int64_t last_data_received_ms(
     const cricket::CandidatePairChangeEvent& event) {
   return event.last_data_received_ms;
 }
 
 // Returns `CandidatePairChangeEvent.reason` field value.
-std::unique_ptr<std::string> get_reason(
+std::unique_ptr<std::string> reason(
     const cricket::CandidatePairChangeEvent& event) {
   return std::make_unique<std::string>(event.reason);
 }
 
 // Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
 // value.
-int64_t get_estimated_disconnected_time_ms(
+int64_t estimated_disconnected_time_ms(
     const cricket::CandidatePairChangeEvent& event) {
   return event.estimated_disconnected_time_ms;
 }
@@ -519,18 +519,18 @@ rust::Vec<TransceiverContainer> get_transceivers(
 }
 
 // Calls `PeerConnectionInterface->mid()`.
-rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
+rust::String transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
 // Calls `RtpTransceiverInterface->media_type()`.
-MediaType get_transceiver_media_type(
+MediaType transceiver_media_type(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->media_type();
 }
 
 // Calls `PeerConnectionInterface->direction()`.
-RtpTransceiverDirection get_transceiver_direction(
+RtpTransceiverDirection transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->direction();
 }
@@ -560,26 +560,62 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
 }
 
 // Calls `RtpTransceiverInterface->sender()`.
-std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
+std::unique_ptr<RtpSenderInterface> transceiver_sender(
     const RtpTransceiverInterface& transceiver) {
   return std::make_unique<RtpSenderInterface>(transceiver->sender());
 }
 
 // Returns a `receiver` of the given `RtpTransceiverInterface`.
-std::unique_ptr<RtpReceiverInterface> get_transceiver_receiver(
+std::unique_ptr<RtpReceiverInterface> transceiver_receiver(
     const RtpTransceiverInterface& transceiver) {
   return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
 }
 
 // Returns a `parameters` as std::vector<(std::string, std::string)>
 // of the given `RtpCodecParameters`.
-std::unique_ptr<std::vector<StringPair>> get_rtp_codec_parameters_parameters(
+std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_parameters(
     const webrtc::RtpCodecParameters& codec) {
   std::vector<StringPair> result;
   for (auto const& p : codec.parameters) {
     result.push_back(new_string_pair(p.first, p.second));
   }
   return std::make_unique<std::vector<StringPair>>(result);
+}
+
+// Returns `RtpParameters.codecs` field value.
+rust::Vec<RtpCodecParametersContainer> rtp_parameters_codecs(
+    const webrtc::RtpParameters& parameters) {
+  rust::Vec<RtpCodecParametersContainer> result;
+  for (int i = 0; i < parameters.codecs.size(); ++i) {
+    RtpCodecParametersContainer codec = {
+        std::make_unique<webrtc::RtpCodecParameters>(parameters.codecs[i])};
+    result.push_back(std::move(codec));
+  }
+  return std::move(result);
+}
+
+// Returns `RtpParameters.header_extensions` field value.
+rust::Vec<RtpExtensionContainer>
+rtp_parameters_header_extensions(const webrtc::RtpParameters& parameters) {
+  rust::Vec<RtpExtensionContainer> result;
+  for (int i = 0; i < parameters.header_extensions.size(); ++i) {
+    RtpExtensionContainer codec = {
+        std::make_unique<webrtc::RtpExtension>(parameters.header_extensions[i])};
+    result.push_back(std::move(codec));
+  }
+  return std::move(result);
+}
+
+// Returns `RtpParameters.encodings` field value.
+rust::Vec<RtpEncodingParametersContainer>
+rtp_parameters_encodings(const webrtc::RtpParameters& parameters) {
+  rust::Vec<RtpEncodingParametersContainer> result;
+  for (int i = 0; i < parameters.encodings.size(); ++i) {
+    RtpEncodingParametersContainer codec = {
+        std::make_unique<webrtc::RtpEncodingParameters>(parameters.encodings[i])};
+    result.push_back(std::move(codec));
+  }
+  return std::move(result);
 }
 
 }  // namespace bridge

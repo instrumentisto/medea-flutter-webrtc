@@ -34,6 +34,29 @@ pub(crate) mod webrtc {
         first: String,
         second: String,
     }
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpEncodingParameters`] that can be used in Rust/C++
+    /// vectors.
+    pub struct RtpEncodingParametersContainer {
+        ptr: UniquePtr<RtpEncodingParameters>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpExtension`] that can be used in Rust/C++
+    /// vectors.
+    pub struct RtpExtensionContainer {
+        ptr: UniquePtr<RtpExtension>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] that can be used in Rust/C++
+    /// vectors.
+    pub struct RtpCodecParametersContainer {
+        ptr: UniquePtr<RtpCodecParameters>,
+    }
 
     /// [MediaStreamTrackState] representation.
     ///
@@ -531,28 +554,28 @@ pub(crate) mod webrtc {
 
         /// Returns a `minBitrate`
         /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then clock_rate is None.
+        /// If Err(_) then `minBitrate` is None.
         pub fn rtp_encoding_parameters_minBitrate(
             encoding: &RtpEncodingParameters,
         ) -> Result<i32>;
 
         /// Returns a `maxFramerate`
         /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then clock_rate is None.
+        /// If Err(_) then `maxFramerate` is None.
         pub fn rtp_encoding_parameters_maxFramerate(
             encoding: &RtpEncodingParameters,
         ) -> Result<f64>;
 
         /// Returns a `ssrc`
         /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then clock_rate is None.
+        /// If Err(_) then `ssrc` is None.
         pub fn rtp_encoding_parameters_ssrc(
             encoding: &RtpEncodingParameters,
         ) -> Result<i64>;
 
         /// Returns a `scale_resolution_down_by`
         /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then clock_rate is None.
+        /// If Err(_) then `scale_resolution_down_by` is None.
         pub fn rtp_encoding_parameters_scale_resolution_down_by(
             encoding: &RtpEncodingParameters,
         ) -> Result<f64>;
@@ -582,21 +605,21 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn rtp_parameters_codecs(
             parameters: &RtpParameters,
-        ) -> UniquePtr<CxxVector<RtpCodecParameters>>;
+        ) -> Vec<RtpCodecParametersContainer>;
 
         /// Returns a [`RtpExtension`]s
         /// of the given [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_header_extensions(
             parameters: &RtpParameters,
-        ) -> UniquePtr<CxxVector<RtpExtension>>;
+        ) -> Vec<RtpExtensionContainer>;
 
         /// Returns a [`RtpEncodingParameters`]s
         /// of the given [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_encodings(
             parameters: &RtpParameters,
-        ) -> UniquePtr<CxxVector<RtpEncodingParameters>>;
+        ) -> Vec<RtpEncodingParametersContainer>;
 
         /// Returns a [`RtcpParameters`] of the given [`RtpParameters`].
         #[must_use]
