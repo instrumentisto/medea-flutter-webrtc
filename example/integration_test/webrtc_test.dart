@@ -151,7 +151,7 @@ void main() {
     var pc2 = await createPeerConnection({});
 
     var tx = StreamController<int>();
-    var rx = StreamIterator(controller.stream);
+    var rx = StreamIterator(tx.stream);
 
     var eventsCount = 0;
     pc1.onRenegotiationNeeded = () async {
@@ -194,7 +194,7 @@ void main() {
     var pc2 = await createPeerConnection({});
 
     var tx = StreamController<RTCPeerConnectionState>();
-    var rx = StreamIterator(controller.stream);
+    var rx = StreamIterator(tx.stream);
 
     pc1.onConnectionState = (RTCPeerConnectionState state) {
       tx.add(state);

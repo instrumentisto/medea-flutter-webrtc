@@ -93,16 +93,16 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   // Dart side.
   //
   // See: https://w3.org/TR/webrtc#dom-rtcicecandidate
-  void OnIceCandidate(const std::string& candidate,
-                      const std::string& mid,
+  void OnIceCandidate(const rust::String candidate,
+                      const rust::String mid,
                       int mline_index) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_) {
       flutter::EncodableMap params;
       params[EncodableValue("event")] = "onIceCandidate";
       flutter::EncodableMap candidate_map;
-      candidate_map[EncodableValue("candidate")] = candidate;
-      candidate_map[EncodableValue("sdpMid")] = mid;
+      candidate_map[EncodableValue("candidate")] = std::string(candidate);
+      candidate_map[EncodableValue("sdpMid")] = std::string(mid);
       candidate_map[EncodableValue("sdpMLineIndex")] = mline_index;
       params[EncodableValue("candidate")] = candidate_map;
       deps_->sink_->Success(flutter::EncodableValue(params));
@@ -247,23 +247,23 @@ void CreateRTCPeerConnection(
       GetValue<EncodableMap>(*method_call.arguments());
   const EncodableMap configuration = findMap(parameters, "configuration");
 
-  RTCConfigurationInfo configuration_info;
+  RtcConfiguration configuration_info;
   configuration_info.ice_transport_policy =
       findString(configuration, "iceTransportPolicy");
   configuration_info.bundle_policy = findString(configuration, "bundlePolicy");
 
   for (auto server_value : findList(configuration, "servers")) {
     auto server = GetValue<EncodableMap>(server_value);
-    IceServerInfo server_info;
+    RtcIceServer ice_server;
 
     for (auto url : findList(server, "urls")) {
-      server_info.urls.push_back(GetValue<std::string>(url));
+      ice_server.urls.push_back(GetValue<std::string>(url));
     }
 
-    server_info.username = findString(server, "username");
-    server_info.password = findString(server, "password");
+    ice_server.username = findString(server, "username");
+    ice_server.credential = findString(server, "password");
 
-    configuration_info.servers.push_back(server_info);
+    configuration_info.ice_servers.push_back(ice_server);
   }
 
   rust::String error;
@@ -693,7 +693,7 @@ void AddIceCandidate(
   webrtc->AddIceCandidate(
       std::stoi(findString(params, "peerConnectionId")),
       findString(candidate, "candidate"), findString(candidate, "sdpMid"),
-      findLongInt(candidate, "sdpMLineIndex"), std::move(callback));
+      findInt(candidate, "sdpMLineIndex"), std::move(callback));
 }
 
 // Calls Rust `RestartIce()`.

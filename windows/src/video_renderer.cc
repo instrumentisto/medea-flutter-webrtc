@@ -28,7 +28,7 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
 
 // Changes a media source of the specific `TextureVideoRenderer`.
 void FlutterVideoRendererManager::SetMediaStream(
-    Box<Webrtc>& webrtc,
+    rust::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
@@ -56,7 +56,7 @@ void FlutterVideoRendererManager::SetMediaStream(
 
 // Disposes the specific `TextureVideoRenderer`.
 void FlutterVideoRendererManager::VideoRendererDispose(
-    Box<Webrtc>& webrtc,
+    rust::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {

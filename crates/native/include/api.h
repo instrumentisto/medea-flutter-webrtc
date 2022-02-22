@@ -4,7 +4,7 @@
 
 namespace rust {
 inline namespace cxxbridge1 {
-struct String;
+class String;
 } // namespace cxxbridge1
 }  // namespace rust
 
