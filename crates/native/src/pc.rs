@@ -496,7 +496,7 @@ impl PeerConnection {
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
                 cb,
-                pc: Default::default(),
+                pc: Arc<Mutex<Option<Weak<Mutex<Inner>>>>,
                 video_tracks,
                 audio_tracks,
             },
@@ -631,13 +631,16 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             _ => unreachable!(),
         };
 
+        // TODO(#30): add new transceiver to cached transceivers map
         let result = api::RtcTrackEvent {
             track,
             transceiver: api::RtcRtpTransceiver {
                 id: 0,
                 mid: "".to_string(),
                 direction: "".to_string(),
-                sender: api::RtcRtpSender { id: 0 }
+                sender: api::RtcRtpSender {
+                    id: 0 // TODO(#30): use transceiver index
+                }
             },
         };
         self.cb.pin_mut().on_track(result);
