@@ -484,7 +484,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .inner
-            .add_ice_candidate(candidate, Box::new(AddIceCandidateCallback(cb)));
+            .add_ice_candidate(
+                candidate,
+                Box::new(AddIceCandidateCallback(cb)),
+            );
     }
 
     /// Tells the [`PeerConnection`] that ICE should be restarted.
@@ -547,10 +550,7 @@ impl PeerConnection {
 
         if !configuration.ice_transport_policy.is_empty() {
             sys_configuration.set_ice_transport_type(
-                configuration
-                    .ice_transport_policy
-                    .as_str()
-                    .try_into()?,
+                configuration.ice_transport_policy.as_str().try_into()?,
             );
         }
 
@@ -572,11 +572,10 @@ impl PeerConnection {
             }
 
             if have_ice_servers {
-                if !server.username.is_empty() || !server.credential.is_empty() {
-                    ice_server.set_credentials(
-                        server.username,
-                        server.credential,
-                    );
+                if !server.username.is_empty() || !server.credential.is_empty()
+                {
+                    ice_server
+                        .set_credentials(server.username, server.credential);
                 }
 
                 sys_configuration.add_server(ice_server);

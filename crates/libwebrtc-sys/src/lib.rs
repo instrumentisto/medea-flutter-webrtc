@@ -368,11 +368,7 @@ impl IceServer {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-username
     /// [2]: https://w3.org/TR/webrtc#dom-rtciceserver-credential
-    pub fn set_credentials(
-        &mut self,
-        username: String,
-        credential: String,
-    ) {
+    pub fn set_credentials(&mut self, username: String, credential: String) {
         webrtc::set_ice_server_credentials(
             self.0.pin_mut(),
             username,
