@@ -191,6 +191,8 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   std::shared_ptr<Dependencies> deps_;
 };
 
+// `AddIceCandidateCallbackInterface` implementation forwarding completion
+// result to the Flutter side via inner `flutter::MethodResult`.
 class AddIceCandidateCallback : public AddIceCandidateCallbackInterface {
  public:
   AddIceCandidateCallback(
@@ -669,7 +671,7 @@ void SenderReplaceTrack(
   }
 }
 
-// Calls Rust `AddIceCandidate`.
+// Calls Rust `AddIceCandidate()`.
 void AddIceCandidate(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -691,10 +693,10 @@ void AddIceCandidate(
   webrtc->AddIceCandidate(
       std::stoi(findString(params, "peerConnectionId")),
       findString(candidate, "candidate"), findString(candidate, "sdpMid"),
-      findInt(candidate, "sdpMLineIndex"), std::move(callback));
+      findLongInt(candidate, "sdpMLineIndex"), std::move(callback));
 }
 
-// Calls Rust `RestartIce`.
+// Calls Rust `RestartIce()`.
 void RestartIce(Box<Webrtc>& webrtc,
                 const flutter::MethodCall<EncodableValue>& method_call,
                 std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
@@ -710,7 +712,7 @@ void RestartIce(Box<Webrtc>& webrtc,
   result->Success();
 }
 
-// Calls Rust `DisposePeerConnection`.
+// Calls Rust `DisposePeerConnection()`.
 void DisposePeerConnection(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,

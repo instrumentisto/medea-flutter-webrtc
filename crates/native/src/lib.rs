@@ -201,31 +201,53 @@ pub mod api {
         pub frame: Box<Frame>,
     }
 
-    /// Representation of some [`RTCConfiguration`] internal settings.
-    pub struct RTCConfigurationInfo {
-        /// Indicates which candidates the `ICE Agent` is allowed to use.
-        ice_transport_policy: String,
+    /// [`PeerConnection`]'s configuration.
+    pub struct RtcConfiguration {
+        /// [iceTransportPolicy][1] configuration.
+        ///
+        /// Indicates which candidates the [ICE Agent][2] is allowed to use.
+        ///
+        /// [1]: https://tinyurl.com/icetransportpolicy
+        /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
+        pub ice_transport_policy: String,
 
+        /// [bundlePolicy][1] configuration.
+        ///
         /// Indicates which media-bundling policy to use when gathering ICE
         /// candidates.
-        bundle_policy: String,
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration-bundlepolicy
+        pub bundle_policy: String,
 
+        /// [iceServers][1] configuration.
+        ///
         /// An array of objects describing servers available to be used by ICE,
         /// such as STUN and TURN servers.
-        servers: Vec<IceServerInfo>,
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration-iceservers
+        pub ice_servers: Vec<RtcIceServer>,
     }
 
-    /// Describes the STUN and TURN servers that can be used by the `ICE Agent`
-    /// to establish a connection with a peer.
-    pub struct IceServerInfo {
+    /// Describes the STUN and TURN servers that can be used by the
+    /// [ICE Agent][1] to establish a connection with a peer.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dfn-ice-agent
+    pub struct RtcIceServer {
         /// STUN or TURN URI(s).
-        urls: Vec<String>,
+        pub urls: Vec<String>,
 
-        /// Specifies the `username` to use with that TURN server.
-        username: String,
+        /// If this [`RtcIceServer`] object represents a TURN server, then this
+        /// attribute specifies the [username][1] to use with that TURN server.
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-username
+        pub username: String,
 
-        /// Specifies the `password` to use with that TURN server.
-        password: String,
+        /// If this [`RtcIceServer`] object represents a TURN server, then this
+        /// attribute specifies the [credential][1] to use with that TURN
+        /// server.
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-credential
+        pub credential: String,
     }
 
     extern "C++" {
@@ -267,7 +289,7 @@ pub mod api {
         pub fn create_peer_connection(
             self: &mut Webrtc,
             cb: UniquePtr<PeerConnectionObserverInterface>,
-            constraints: RTCConfigurationInfo,
+            configuration: RtcConfiguration,
             err: &mut String,
         ) -> u64;
 
@@ -408,7 +430,7 @@ pub mod api {
             track_id: u64,
         ) -> String;
 
-        /// Adds the [`sys::IceCandidateInterface`] to the [`PeerConnection`].
+        /// Adds the new ICE candidate to the given [`PeerConnection`].
         #[cxx_name = "AddIceCandidate"]
         pub fn add_ice_candidate(
             self: &mut Webrtc,
@@ -545,10 +567,4 @@ pub fn init() -> Box<Webrtc> {
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
     })))
-}
-
-impl Drop for Context {
-    fn drop(&mut self) {
-        todo!()
-    }
 }

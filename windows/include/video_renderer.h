@@ -12,7 +12,6 @@
 #include "flutter_webrtc_native.h"
 
 using namespace flutter;
-using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
 
@@ -96,13 +95,13 @@ class FlutterVideoRendererManager {
 
   // Changes a media source of the specific `TextureVideoRenderer`.
   void SetMediaStream(
-      Box<Webrtc>& webrtc,
+      rust::Box<Webrtc>& webrtc,
       const flutter::MethodCall<EncodableValue>& method_call,
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
   // Disposes the specific `TextureVideoRenderer`.
   void VideoRendererDispose(
-      Box<Webrtc>& webrtc,
+      rust::Box<Webrtc>& webrtc,
       const flutter::MethodCall<EncodableValue>& method_call,
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 

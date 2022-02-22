@@ -4,9 +4,9 @@
 
 namespace rust {
 inline namespace cxxbridge1 {
-  struct String;
-}
-}
+struct String;
+} // namespace cxxbridge1
+}  // namespace rust
 
 struct VideoFrame;
 

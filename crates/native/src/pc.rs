@@ -18,7 +18,7 @@ impl Webrtc {
     pub fn create_peer_connection(
         self: &mut Webrtc,
         obs: UniquePtr<PeerConnectionObserverInterface>,
-        configuration: api::RTCConfigurationInfo,
+        configuration: api::RtcConfiguration,
         error: &mut String,
     ) -> u64 {
         let peer = PeerConnection::new(
@@ -459,12 +459,12 @@ impl Webrtc {
         .map_or_else(|e| e.to_string(), |_| String::new())
     }
 
-    /// Adds the [`sys::IceCandidateInterface`] to the [`PeerConnection`].
+    /// Adds a [`sys::IceCandidateInterface`] to the given [`PeerConnection`].
     ///
     /// # Panics
     ///
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
-    /// - If cannot add the `ICE Candidate`.
+    /// - If cannot add the given [`sys::IceCandidateInterface`].
     pub fn add_ice_candidate(
         &mut self,
         peer_id: u64,
@@ -484,7 +484,7 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .inner
-            .add_ice_candidate(candidate, Box::new(AddIceCandidate(cb)));
+            .add_ice_candidate(candidate, Box::new(AddIceCandidateCallback(cb)));
     }
 
     /// Tells the [`PeerConnection`] that ICE should be restarted.
@@ -537,55 +537,54 @@ impl PeerConnection {
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
         observer: UniquePtr<PeerConnectionObserverInterface>,
-        configuration: api::RTCConfigurationInfo,
+        configuration: api::RtcConfiguration,
     ) -> anyhow::Result<Self> {
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver(observer),
         ));
 
-        let mut rtc_config = sys::RTCConfiguration::default();
+        let mut sys_configuration = sys::RtcConfiguration::default();
 
         if !configuration.ice_transport_policy.is_empty() {
-            rtc_config.set_ice_transport_type(
+            sys_configuration.set_ice_transport_type(
                 configuration
                     .ice_transport_policy
                     .as_str()
-                    .try_into()
-                    .unwrap(),
+                    .try_into()?,
             );
         }
 
         if !configuration.bundle_policy.is_empty() {
-            rtc_config.set_bundle_policy(
-                configuration.bundle_policy.as_str().try_into().unwrap(),
+            sys_configuration.set_bundle_policy(
+                configuration.bundle_policy.as_str().try_into()?,
             );
         }
 
-        for mut server in configuration.servers {
+        for server in configuration.ice_servers {
             let mut ice_server = sys::IceServer::default();
-            let mut is_ice_server_not_empty = false;
+            let mut have_ice_servers = false;
 
-            if !server.username.is_empty() || !server.password.is_empty() {
-                ice_server.set_credentials(
-                    &mut server.username,
-                    &mut server.password,
-                );
-            }
-
-            for mut url in server.urls {
+            for url in server.urls {
                 if !url.is_empty() {
-                    ice_server.add_url(&mut url);
-                    is_ice_server_not_empty = true;
+                    ice_server.add_url(url);
+                    have_ice_servers = true;
                 }
             }
 
-            if is_ice_server_not_empty {
-                rtc_config.add_server(ice_server);
+            if have_ice_servers {
+                if !server.username.is_empty() || !server.credential.is_empty() {
+                    ice_server.set_credentials(
+                        server.username,
+                        server.credential,
+                    );
+                }
+
+                sys_configuration.add_server(ice_server);
             }
         }
 
         let inner = factory.create_peer_connection_or_error(
-            &rtc_config,
+            &sys_configuration,
             sys::PeerConnectionDependencies::new(observer),
         )?;
 
@@ -692,9 +691,10 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 }
 
-pub struct AddIceCandidate(UniquePtr<AddIceCandidateCallbackInterface>);
+/// [`sys::AddIceCandidateCallback`] wrapper.
+pub struct AddIceCandidateCallback(UniquePtr<AddIceCandidateCallbackInterface>);
 
-impl sys::AddIceCandidateHandler for AddIceCandidate {
+impl sys::AddIceCandidateCallback for AddIceCandidateCallback {
     fn on_success(&mut self) {
         self.0.pin_mut().on_add_ice_candidate_success();
     }

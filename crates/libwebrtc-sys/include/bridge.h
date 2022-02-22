@@ -98,7 +98,7 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-// Creates a new `Thread` with `socket server`.
+// Creates a new `Thread` with a socket server.
 std::unique_ptr<rtc::Thread> create_thread_with_socket_server();
 
 // Creates a new `VideoTrackSourceInterface` from the specified video input
@@ -202,27 +202,27 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
-// Sets `IceTransportsType` for the `RTCConfiguration`.
+// Sets `IceTransportsType` for the given `RTCConfiguration`.
 void set_rtc_configuration_ice_transport_type(RTCConfiguration& config,
                                               IceTransportsType transport_type);
 
-// Sets `BundlePolicy` for the `RTCConfiguration`.
+// Sets `BundlePolicy` for the given `RTCConfiguration`.
 void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
                                          BundlePolicy bundle_policy);
 
-// Adds `IceServer` to the `RTCConfiguration`.
+// Adds `IceServer` to the given `RTCConfiguration`.
 void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server);
 
 // Creates a new empty `IceServer`.
 std::unique_ptr<IceServer> create_ice_server();
 
-// Adds a `url` to the `IceServer`.
-void add_ice_server_url(IceServer& server, rust::String& url);
+// Adds an `url` to the given `IceServer`.
+void add_ice_server_url(IceServer& server, rust::String url);
 
-// Sets a `credentials` for the `IceServer`.
+// Sets a `credentials` for the given `IceServer`.
 void set_ice_server_credentials(IceServer& server,
-                                rust::String& username,
-                                rust::String& password);
+                                rust::String username,
+                                rust::String password);
 
 // Creates a new `PeerConnectionObserver` backed by the provided
 // `DynPeerConnectionEventsHandler`.
@@ -261,10 +261,6 @@ create_set_local_description_observer(
 std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
     rust::Box<bridge::DynSetDescriptionCallback> cb);
-
-// Calls `IceCandidateInterface->ToString`.
-std::unique_ptr<std::string> ice_candidate_interface_to_string(
-    const IceCandidateInterface& candidate);
 
 // Creates an SDP-ized form of this `Candidate`.
 std::unique_ptr<std::string> candidate_to_string(
@@ -327,13 +323,18 @@ bool replace_sender_audio_track(
     const RtpSenderInterface& sender,
     const std::unique_ptr<AudioTrackInterface>& track);
 
-// Gets a `sdp_mid` from the `IceCandidateInterface`.
+// Calls `IceCandidateInterface->ToString`.
+std::unique_ptr<std::string> ice_candidate_interface_to_string(
+    const IceCandidateInterface& candidate);
+
+// Returns an `sdp_mid` of the given `IceCandidateInterface`.
 std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
     const IceCandidateInterface& candidate);
 
-// Gets a `sdp_mline_index` from the `IceCandidateInterface`.
+// Returns an `sdp_mline_index` of the given `IceCandidateInterface`.
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate);
 
+// Creates a new `IceCandidateInterface`.
 std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
     rust::Str sdp_mid,
     int sdp_mline_index,

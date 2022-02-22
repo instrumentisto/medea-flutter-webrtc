@@ -331,20 +331,21 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   return std::make_unique<RTCConfiguration>(config);
 }
 
-// Sets `IceTransportsType` for the `RTCConfiguration`.
+// Sets the `type` field of the given `RTCConfiguration`.
 void set_rtc_configuration_ice_transport_type(
     RTCConfiguration& config,
     IceTransportsType transport_type) {
   config.type = transport_type;
 }
 
-// Sets `BundlePolicy` for the `RTCConfiguration`.
+// Sets the `bundle_policy` field of the given `RTCConfiguration`.
 void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
                                          BundlePolicy bundle_policy) {
   config.bundle_policy = bundle_policy;
 }
 
-// Adds `IceServer` to the `RTCConfiguration`.
+// Adds the provided `IceServer` to the `servers` list of the given
+// `RTCConfiguration`.
 void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server) {
   config.servers.push_back(server);
 }
@@ -354,17 +355,17 @@ std::unique_ptr<IceServer> create_ice_server() {
   return std::make_unique<IceServer>();
 }
 
-// Adds a `url` to the `IceServer`.
-void add_ice_server_url(IceServer& server, rust::String& url) {
-  server.urls.push_back(url.c_str());
+// Adds the provided `url` to the list of `urls` of the given `IceServer`.
+void add_ice_server_url(IceServer& server, rust::String url) {
+  server.urls.push_back(std::string(url));
 }
 
-// Sets a `creadentials` for the `IceServer`.
+// Sets the `username` and `password` fields of the given `IceServer`.
 void set_ice_server_credentials(IceServer& server,
-                                rust::String& username,
-                                rust::String& password) {
-  server.username = username.c_str();
-  server.password = password.c_str();
+                                rust::String username,
+                                rust::String password) {
+  server.username = std::string(username);
+  server.password = std::string(password);
 }
 
 // Creates a new `PeerConnectionObserver`.
@@ -530,17 +531,18 @@ bool replace_sender_audio_track(
   }
 }
 
-// Calls `IceCandidateInterface::sdp_mid`.
+// Calls `IceCandidateInterface->sdp_mid()`.
 std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
     const IceCandidateInterface& candidate) {
   return std::make_unique<std::string>(candidate.sdp_mid());
 }
 
-// Calls `IceCandidateInterface::sdp_mline_index`.
+// Calls `IceCandidateInterface->sdp_mline_index()`.
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate) {
   return candidate.sdp_mline_index();
 }
 
+// Calls `webrtc::CreateIceCandidate` with the given values.
 std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
     rust::Str sdp_mid,
     int sdp_mline_index,

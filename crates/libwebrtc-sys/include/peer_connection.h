@@ -211,7 +211,8 @@ void add_ice_candidate(const PeerConnectionInterface& peer,
                        std::unique_ptr<webrtc::IceCandidateInterface> candidate,
                        rust::Box<DynAddIceCandidateCallback> cb);
 
-// Tells the `PeerConnectionInterface` that ICE should be restarted.
+// Tells the `PeerConnectionInterface` that ICE should be restarted. Subsequent
+// calls to `create_offer` will create descriptions that will restart ICE
 void restart_ice(const PeerConnectionInterface& peer);
 
 // Closes the `PeerConnectionInterface`.

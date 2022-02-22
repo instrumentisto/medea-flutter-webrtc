@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
-    AddIceCandidateHandler, CreateSdpCallback, IceCandidateInterface,
+    AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
     OnFrameCallback, PeerConnectionEventsHandler, SetDescriptionCallback,
 };
 
@@ -20,8 +20,8 @@ type DynOnFrameCallback = Box<dyn OnFrameCallback>;
 /// [`PeerConnectionEventsHandler`] transferable to the C++ side.
 type DynPeerConnectionEventsHandler = Box<dyn PeerConnectionEventsHandler>;
 
-/// [`AddIceCandidateHandler`] transferable to the C++ side.
-type DynAddIceCandidateCallback = Box<dyn AddIceCandidateHandler>;
+/// [`AddIceCandidateCallback`] transferable to the C++ side.
+type DynAddIceCandidateCallback = Box<dyn AddIceCandidateCallback>;
 
 #[allow(
     clippy::expl_impl_clone_on_copy,
@@ -261,7 +261,14 @@ pub(crate) mod webrtc {
         kIceConnectionMax,
     }
 
-    /// Indicates which candidates the `ICE Agent` is allowed to use.
+    /// [RTCIceTransportPolicy][1] representation.
+    ///
+    /// It defines the ICE candidate policy the [ICE Agent][2] uses to surface
+    /// the permitted candidates to the application; only these candidates will
+    /// be used for connectivity checks.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy
+    /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     enum IceTransportsType {
@@ -273,33 +280,42 @@ pub(crate) mod webrtc {
         /// [1]: https://tinyurl.com/rfhrde4p
         kRelay,
 
+        /// The ICE Agent can't use `typ host` candidates when this value is
+        /// specified.
+        ///
         /// Non-spec-compliant variant.
         kNoHost,
 
         /// [RTCIceTransportPolicy.all][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicetransportpolicy-all
+        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcicetransportpolicy-all
         kAll,
     }
 
-    /// Indicates which media-bundling policy to use when gathering ICE
-    /// candidates.
+    /// [RTCBundlePolicy][1] representation.
+    ///
+    /// Affects which media tracks are negotiated if the remote endpoint is not
+    /// bundle-aware, and what ICE candidates are gathered. If the remote
+    /// endpoint is bundle-aware, all media tracks and data channels are
+    /// bundled onto the same transport.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     enum BundlePolicy {
-        /// [BundlePolicy.balanced][1] representation.
+        /// [RTCBundlePolicy.balanced][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcbundlepolicy-balanced
+        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcbundlepolicy-balanced
         kBundlePolicyBalanced,
 
-        /// [BundlePolicy.max-bundle][1] representation.
+        /// [RTCBundlePolicy.max-bundle][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcbundlepolicy-max-bundle
+        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcbundlepolicy-max-bundle
         kBundlePolicyMaxBundle,
 
-        /// [BundlePolicy.max-compat][1] representation.
+        /// [RTCBundlePolicy.max-compat][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcbundlepolicy-max-compat
+        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcbundlepolicy-max-compat
         kBundlePolicyMaxCompat,
     }
 
@@ -321,7 +337,7 @@ pub(crate) mod webrtc {
         /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
-        /// Creates a new [`Thread`] with `socket server`.
+        /// Creates a new [`Thread`] with attached socket server.
         pub fn create_thread_with_socket_server() -> UniquePtr<Thread>;
 
         /// Starts the current [`Thread`].
@@ -458,23 +474,41 @@ pub(crate) mod webrtc {
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
 
-        /// Sets [`IceTransportsType`] for the [`RTCConfiguration`].
-        pub fn set_rtc_configuration_ice_transport_type(config: Pin<&mut RTCConfiguration>, transport_type: IceTransportsType);
+        /// Changes the configured [`IceTransportsType`] of the given
+        /// [`RTCConfiguration`].
+        pub fn set_rtc_configuration_ice_transport_type(
+            config: Pin<&mut RTCConfiguration>,
+            transport_type: IceTransportsType
+        );
 
-        /// Sets [`BundlePolicy`] for the [`RTCConfiguration`].
-        pub fn set_rtc_configuration_bundle_policy(config: Pin<&mut RTCConfiguration>, bundle_policy: BundlePolicy);
+        /// Changes the configured [`BundlePolicy`] of the given
+        /// [`RTCConfiguration`].
+        pub fn set_rtc_configuration_bundle_policy(
+            config: Pin<&mut RTCConfiguration>,
+            bundle_policy: BundlePolicy
+        );
 
-        /// Adds [`IceServer`] to the [`RTCConfiguration`].
-        pub fn add_rtc_configuration_server(config: Pin<&mut RTCConfiguration>, server: Pin<&mut IceServer>);
+        /// Adds an [`IceServer`] to the given [`RTCConfiguration`].
+        pub fn add_rtc_configuration_server(
+            config: Pin<&mut RTCConfiguration>,
+            server: Pin<&mut IceServer>
+        );
 
         /// Creates a new empty [`IceServer`].
         pub fn create_ice_server() -> UniquePtr<IceServer>;
 
-        /// Adds a `url` to the [`IceServer`].
-        pub fn add_ice_server_url(server: Pin<&mut IceServer>, url: &mut String);
+        /// Adds an `url` to the [`IceServer`].
+        pub fn add_ice_server_url(
+            server: Pin<&mut IceServer>,
+            url: String
+        );
 
         /// Sets `credentials` for the [`IceServer`].
-        pub fn set_ice_server_credentials(server: Pin<&mut IceServer>, username: &mut String, password: &mut String);
+        pub fn set_ice_server_credentials(
+            server: Pin<&mut IceServer>,
+            username: String,
+            password: String
+        );
 
         /// Creates a new [`PeerConnectionInterface`].
         ///
@@ -577,6 +611,7 @@ pub(crate) mod webrtc {
             sdp: &CxxString,
         ) -> UniquePtr<SessionDescriptionInterface>;
 
+        /// Creates a new [`IceCandidateInterface`] from the provided data.
         pub fn create_ice_candidate(
             sdp_mid: &str,
             sdp_mline_index: i32,
@@ -595,19 +630,26 @@ pub(crate) mod webrtc {
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
-        /// Returns the `sdpMid` string of the [`IceCandidateInterface`].
+        /// Returns the [sdpMid][1] string of the [`IceCandidateInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate-sdpmid
         #[must_use]
         pub fn sdp_mid_of_ice_candidate(
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
-        /// Returns the `sdpMLineIndex` of the [`IceCandidateInterface`].
+        /// Returns the [sdpMLineIndex][1] of the [`IceCandidateInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate-sdpmlineindex
         #[must_use]
         pub fn sdp_mline_index_of_ice_candidate(
             candidate: &IceCandidateInterface
         ) -> i32;
 
-        /// Adds an [`IceCandidateInterface`] to the [`PeerConnectionInterface`].
+        /// Adds an [`IceCandidateInterface`] to the underlying [ICE agent][1]
+        /// of the given [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dfn-ice-agent
         pub fn add_ice_candidate(
             peer: &PeerConnectionInterface,
             candidate: UniquePtr<IceCandidateInterface>,
@@ -615,6 +657,8 @@ pub(crate) mod webrtc {
         );
 
         /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.
+        /// Subsequent calls to [`create_offer()`] will create descriptions that
+        /// will restart ICE.
         pub fn restart_ice(peer: &PeerConnectionInterface);
 
         /// Closes the [`PeerConnectionInterface`].

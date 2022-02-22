@@ -225,27 +225,24 @@ rust::Vec<TransceiverContainer> get_transceivers(
 }
 
 // Calls `PeerConnectionInterface::AddIceCandidate`.
-void add_ice_candidate(
-    const PeerConnectionInterface& peer,
-    std::unique_ptr<webrtc::IceCandidateInterface> candidate,
-    rust::Box<bridge::DynAddIceCandidateCallback> cb) {
-
-  peer->AddIceCandidate(
-      std::move(candidate), [&](webrtc::RTCError err) {
-        if (err.ok()) {
-          add_ice_candidate_success(std::move(cb));
-        } else {
-          add_ice_candidate_fail(std::move(cb), err.message());
-        }
-      });
+void add_ice_candidate(const PeerConnectionInterface& peer,
+                       std::unique_ptr<webrtc::IceCandidateInterface> candidate,
+                       rust::Box<bridge::DynAddIceCandidateCallback> cb) {
+  peer->AddIceCandidate(std::move(candidate), [&](webrtc::RTCError err) {
+    if (err.ok()) {
+      add_ice_candidate_success(std::move(cb));
+    } else {
+      add_ice_candidate_fail(std::move(cb), err.message());
+    }
+  });
 }
 
-// Calls `PeerConnectionInterface::RestartIce`.
+// Calls `PeerConnectionInterface->RestartIce`.
 void restart_ice(const PeerConnectionInterface& peer) {
   peer->RestartIce();
 }
 
-// Calls `PeerConnectionInterface::Close`.
+// Calls `PeerConnectionInterface->Close`.
 void close_peer_connection(const PeerConnectionInterface& peer) {
   peer->Close();
 }

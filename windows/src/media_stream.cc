@@ -6,7 +6,7 @@ namespace flutter_webrtc_plugin {
 
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
 /// `MediaDeviceInfo` info for Dart.
-void EnumerateDevice(Box<Webrtc>& webrtc,
+void EnumerateDevice(rust::Box<Webrtc>& webrtc,
                      std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
 
@@ -51,7 +51,7 @@ void EnumerateDevice(Box<Webrtc>& webrtc,
 
 /// Parses the received constraints from Dart and passes them to Rust
 /// `GetMedia()`, then converts the backed `MediaStream` info for Dart.
-void GetMedia(Box<Webrtc>& webrtc,
+void GetMedia(rust::Box<Webrtc>& webrtc,
               const flutter::MethodCall<EncodableValue>& method_call,
               std::unique_ptr<flutter::MethodResult<EncodableValue>> result,
               bool is_display) {
@@ -204,7 +204,7 @@ EncodableList GetParams(TrackKind type, MediaStream& media) {
 /// Changes the `enabled` property of the specified media track calling Rust
 /// `SetTrackEnabled`.
 void SetTrackEnabled(
-    Box<Webrtc>& webrtc,
+    rust::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
@@ -224,7 +224,7 @@ void SetTrackEnabled(
 
 /// Disposes some media stream calling Rust `DisposeStream`.
 void DisposeStream(
-    Box<Webrtc>& webrtc,
+    rust::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());

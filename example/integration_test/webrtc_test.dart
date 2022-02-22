@@ -147,17 +147,16 @@ void main() {
   });
 
   testWidgets('Restart Ice', (WidgetTester tester) async {
-    var negotEvents = 0;
-
     var pc1 = await createPeerConnection({});
     var pc2 = await createPeerConnection({});
 
-    var controller = StreamController<String>();
-    var iterator = StreamIterator(controller.stream);
+    var tx = StreamController<int>();
+    var rx = StreamIterator(controller.stream);
 
+    var eventsCount = 0;
     pc1.onRenegotiationNeeded = () async {
-      negotEvents++;
-      controller.add(negotEvents.toString());
+      eventsCount++;
+      tx.add(eventsCount);
     };
 
     var init = RTCRtpTransceiverInit();
@@ -181,24 +180,24 @@ void main() {
       await pc1.addCandidate(candidate);
     };
 
-    expect(await iterator.moveNext(), isTrue);
-    expect(iterator.current, equals('1'));
+    expect(await rx.moveNext(), isTrue);
+    expect(rx.current, equals(1));
 
     await pc1.restartIce();
 
-    expect(await iterator.moveNext(), isTrue);
-    expect(iterator.current, equals('2'));
+    expect(await rx.moveNext(), isTrue);
+    expect(rx.current, equals(2));
   });
 
   testWidgets('Ice state PeerConnection', (WidgetTester tester) async {
     var pc1 = await createPeerConnection({});
     var pc2 = await createPeerConnection({});
 
-    var controller = StreamController<String>();
-    var iterator = StreamIterator(controller.stream);
+    var tx = StreamController<RTCPeerConnectionState>();
+    var rx = StreamIterator(controller.stream);
 
     pc1.onConnectionState = (RTCPeerConnectionState state) {
-      controller.add(state.toString());
+      tx.add(state);
     };
 
     var init = RTCRtpTransceiverInit();
@@ -222,22 +221,21 @@ void main() {
       await pc1.addCandidate(candidate);
     };
 
-    expect(await iterator.moveNext(), isTrue);
+    expect(await rx.moveNext(), isTrue);
     expect(
-        iterator.current,
-        equals(RTCPeerConnectionState.RTCPeerConnectionStateConnecting
-            .toString()));
+        rx.current,
+        equals(RTCPeerConnectionState.RTCPeerConnectionStateConnecting));
 
-    expect(await iterator.moveNext(), isTrue);
+    expect(await rx.moveNext(), isTrue);
     expect(
-        iterator.current,
-        equals(
-            RTCPeerConnectionState.RTCPeerConnectionStateConnected.toString()));
+        rx.current,
+        equals(RTCPeerConnectionState.RTCPeerConnectionStateConnected));
 
     await pc1.dispose();
 
-    expect(await iterator.moveNext(), isTrue);
-    expect(iterator.current,
-        equals(RTCPeerConnectionState.RTCPeerConnectionStateClosed.toString()));
+    expect(await rx.moveNext(), isTrue);
+    expect(
+        rx.current,
+        equals(RTCPeerConnectionState.RTCPeerConnectionStateClosed));
   });
 }
