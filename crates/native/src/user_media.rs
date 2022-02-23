@@ -459,6 +459,7 @@ impl MediaStream {
     }
 }
 
+/// Possible kinds of media track sourse.
 enum MediaTrackSource<T> {
     Local(Rc<T>),
     Remote(String),
@@ -505,8 +506,9 @@ impl VideoTrack {
         })
     }
 
+    /// Wraps track of the `transceiver.receiver.track()` to [`VideoTrack`].
     pub(crate) fn wrap_remote(
-        transceiver: sys::RtpTransceiverInterface,
+        transceiver: &sys::RtpTransceiverInterface,
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
@@ -540,6 +542,8 @@ impl VideoTrack {
         self.inner.set_enabled(enabled);
     }
 
+    /// Returns a [`VideoTrackId`] of this [`VideoTrack`].
+    #[must_use]
     pub fn id(&self) -> VideoTrackId {
         self.id
     }
@@ -567,6 +571,9 @@ pub struct AudioTrack {
 
 impl AudioTrack {
     /// Creates a new [`AudioTrack`].
+    /// # Errors
+    /// When pointer returned from
+    /// `pc.create_audio_track()` is null.
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Rc<sys::AudioSourceInterface>,
@@ -582,8 +589,9 @@ impl AudioTrack {
         })
     }
 
+    /// Wraps track of the `transceiver.receiver.track()` to [`AudioTrack`].
     pub(crate) fn wrap_remote(
-        transceiver: sys::RtpTransceiverInterface,
+        transceiver: &sys::RtpTransceiverInterface,
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
@@ -593,10 +601,11 @@ impl AudioTrack {
             source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
             kind: TrackKind::kAudio,
             label: AudioLabel::from("remote"),
-            //sinks: Vec::new(),
         }
     }
 
+    /// Returns a [`AudioTrackId`] of this [`AudioTrack`].
+    #[must_use]
     pub fn id(&self) -> AudioTrackId {
         self.id
     }

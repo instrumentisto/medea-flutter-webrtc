@@ -422,7 +422,7 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn media_stream_track_kind(
             track: &MediaStreamTrackInterface,
-        ) -> &CxxString;
+        ) -> UniquePtr<CxxString>;
 
         /// Returns a `id` of the given [`MediaStreamTrackInterface`].
         #[must_use]
@@ -771,6 +771,12 @@ pub(crate) mod webrtc {
         pub unsafe fn ice_candidate_interface_to_string(
             candidate: *const IceCandidateInterface
         ) -> UniquePtr<CxxString>;
+
+        /// Returns true if the two point to the same allocation.
+        pub fn transceiver_eq(
+            a: &RtpTransceiverInterface, 
+            b: &RtpTransceiverInterface
+        ) -> bool;
     }
 
     #[rustfmt::skip]

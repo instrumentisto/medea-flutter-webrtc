@@ -3,9 +3,9 @@
 namespace bridge {
 
 // Returns a `kind` of the given `MediaStreamTrackInterface`.
-const std::string& media_stream_track_kind(
+std::unique_ptr<std::string> media_stream_track_kind(
     const MediaStreamTrackInterface& track) {
-  return track->kind();
+  return std::make_unique<std::string>(track->kind());
 }
 
 // Returns a `id` of the given `MediaStreamTrackInterface`.
