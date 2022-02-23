@@ -5,7 +5,8 @@ use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
     CreateSdpCallback, OnFrameCallback, PeerConnectionEventsHandler,
-    RtpReceiverInterface, RtpTransceiverInterface, SetDescriptionCallback, TrackEventCallback
+    RtpReceiverInterface, RtpTransceiverInterface, SetDescriptionCallback,
+    TrackEventCallback,
 };
 
 /// [`TrackEventCallback`] transferable to the C++ side.

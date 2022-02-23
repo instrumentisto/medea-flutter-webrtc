@@ -7,7 +7,10 @@ use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 
 use crate::{
-    api::{self, AudioConstraints, TrackKind, VideoConstraints, TrackEventInterface},
+    api::{
+        self, AudioConstraints, TrackEventInterface, TrackKind,
+        VideoConstraints,
+    },
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
@@ -312,13 +315,9 @@ impl Webrtc {
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(&mut self, id: u64, enabled: bool) {
-        if let Some(track) =
-            self.0.video_tracks.get(&VideoTrackId(id))
-        {
+        if let Some(track) = self.0.video_tracks.get(&VideoTrackId(id)) {
             track.inner.set_enabled(enabled);
-        } else if let Some(track) =
-            self.0.audio_tracks.get(&AudioTrackId(id))
-        {
+        } else if let Some(track) = self.0.audio_tracks.get(&AudioTrackId(id)) {
             track.set_enabled(enabled);
         } else {
             // TODO: Return error.
@@ -335,15 +334,12 @@ impl Webrtc {
         id: u64,
         cb: UniquePtr<TrackEventInterface>,
     ) -> String {
-        if let Some(mut track) =
-            self.0.video_tracks.get_mut(&id.into())
-        {
+        if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
             track
                 .inner
                 .register_observer(Box::new(TrackEventHandler(cb)));
             String::new()
-        } else if let Some(mut track) =
-            self.0.audio_tracks.get_mut(&id.into())
+        } else if let Some(mut track) = self.0.audio_tracks.get_mut(&id.into())
         {
             track
                 .inner
@@ -360,13 +356,10 @@ impl Webrtc {
     /// # Panics
     /// May panic if `video_tracks` or `audio_tracks` is fail.
     pub fn unregister_observer_track(&mut self, id: u64) -> String {
-        if let Some(mut track) =
-            self.0.video_tracks.get_mut(&id.into())
-        {
+        if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
             track.inner.unregister_observer();
             String::new()
-        } else if let Some(mut track) =
-            self.0.audio_tracks.get_mut(&id.into())
+        } else if let Some(mut track) = self.0.audio_tracks.get_mut(&id.into())
         {
             track.inner.unregister_observer();
             String::new()

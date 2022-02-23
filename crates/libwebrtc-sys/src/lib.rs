@@ -3,10 +3,14 @@
 
 mod bridge;
 
-use std::{collections::HashMap, sync::atomic::{AtomicU64, Ordering},};
 use bridge::webrtc::{
-    audio_track_register_observer, create_audio_track_event_observer,
-    create_video_track_event_observer, video_track_register_observer, video_track_unregister_observer, audio_track_unregister_observer,
+    audio_track_register_observer, audio_track_unregister_observer,
+    create_audio_track_event_observer, create_video_track_event_observer,
+    video_track_register_observer, video_track_unregister_observer,
+};
+use std::{
+    collections::HashMap,
+    sync::atomic::{AtomicU64, Ordering},
 };
 
 use anyhow::bail;
@@ -1307,7 +1311,10 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
                 webrtc::media_stream_track_interface_downcast_video_track(
                     track.0,
                 );
-            Ok(VideoTrackInterface{inner, obs: HashMap::new()})
+            Ok(VideoTrackInterface {
+                inner,
+                obs: HashMap::new(),
+            })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
@@ -1326,7 +1333,6 @@ pub struct AudioTrackInterface {
 }
 
 impl AudioTrackInterface {
-
     /// Changes the [enabled][1] property of this [`AudioTrackInterface`].
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
@@ -1373,7 +1379,10 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
                 webrtc::media_stream_track_interface_downcast_audio_track(
                     track.0,
                 );
-            Ok(AudioTrackInterface{inner, obs: HashMap::new()})
+            Ok(AudioTrackInterface {
+                inner,
+                obs: HashMap::new(),
+            })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
