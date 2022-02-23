@@ -46,7 +46,7 @@ class _PeerOnTrackSample extends State<PeerOnTrackSample> {
       var complete = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail onTrack');
       var complete_ended = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail onEnded');
       pc2.onTrack = (RTCTrackEvent e) => {
-        e.track.onEnded = () => complete_ended = Future.value('Success'),
+        e.track?.onEnded = () => complete_ended = Future.value('Success'),
         complete = Future.value('Success'),
       };
       await pc2.setRemoteDescription(await pc1.createOffer({}));

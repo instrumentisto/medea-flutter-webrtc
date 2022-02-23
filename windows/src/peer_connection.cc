@@ -234,39 +234,6 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   }
 
  private:
-
- // Convert `RtpSenderInterfaceSerialized` to flutter `EncodableMap`.
-EncodableMap rtpSenderToMap(RtpSenderInterfaceSerialized sender) {
-  flutter::EncodableMap info;
-  info[EncodableValue("channelId")] = EncodableValue((long)sender.channel_id);
-  return info;
-}
-
-// Convert `TrackInterfaceSerialized` to flutter `EncodableMap`.
-EncodableMap mediaTrackToMap(TrackInterfaceSerialized track) {
-  flutter::EncodableMap info;
-  info[EncodableValue("channelId")] = EncodableValue((long)track.channel_id);
-  info[EncodableValue("id")] = std::to_string(track.id);
-  if (track.device_id != "") {
-    info[EncodableValue("deviceId")] = std::string(track.device_id);
-  }
-  info[EncodableValue("kind")] = std::string(track.kind);
-  return info;
-}
-
-// Convert `RtpTransceiverInterfaceSerialized` to flutter `EncodableMap`.
-EncodableMap transceiverToMap(RtpTransceiverInterfaceSerialized tranceiver) {
-  flutter::EncodableMap info;
-  info[EncodableValue("channelId")] =
-      EncodableValue((long)tranceiver.channel_id);
-  if (tranceiver.mid != "") {
-    info[EncodableValue("mid")] = std::string(tranceiver.mid);
-  }
-  info[EncodableValue("sender")] =
-      EncodableValue(rtpSenderToMap(tranceiver.sender));
-  return info;
-}
-
   // `PeerConnectionObserver` dependencies.
   std::shared_ptr<Dependencies> deps_;
 };
