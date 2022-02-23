@@ -230,8 +230,16 @@ impl Webrtc {
         let transceivers = &mut peer.0.transceivers.lock().unwrap();
         let mid = transceiver.mid().unwrap_or_default();
         let direction = transceiver.direction().to_string();
-        transceivers.push(transceiver);
-        let id = transceivers.len() - 1;
+        let id = if let Some((id, _)) = transceivers
+            .iter()
+            .enumerate()
+            .find(|(_, a)| transceiver.eq(a))
+        {
+            id
+        } else {
+            transceivers.push(transceiver);
+            transceivers.len() - 1
+        };
 
         api::RtcRtpTransceiver {
             id: id as u64,
@@ -650,16 +658,8 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         };
         let transceivers = self.transceivers.upgrade().unwrap();
         let mut transceivers = transceivers.lock().unwrap();
-        let id = if let Some((id, _)) = transceivers
-            .iter()
-            .enumerate()
-            .find(|(_, a)| transceiver.eq(a))
-        {
-            id
-        } else {
-            transceivers.push(transceiver);
-            transceivers.len() - 1
-        };
+        transceivers.push(transceiver);
+        let id = transceivers.len() - 1;
         let result = api::RtcTrackEvent {
             track,
             transceiver: api::RtcRtpTransceiver {
