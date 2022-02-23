@@ -431,6 +431,7 @@ void video_track_unregister_observer(
 void audio_track_unregister_observer(
     AudioTrackInterface& track, 
     TrackEventObserver& obs);
+    
 // Returns a `RtpSenderInterface` of the given `RtpTransceiverInterface`.
 std::unique_ptr<RtpSenderInterface> transceiver_sender(
     const RtpTransceiverInterface& transceiver);
