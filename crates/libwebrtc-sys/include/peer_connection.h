@@ -195,27 +195,28 @@ void set_remote_description(PeerConnectionInterface& peer,
                             std::unique_ptr<SessionDescriptionInterface> desc,
                             std::unique_ptr<SetRemoteDescriptionObserver> obs);
 
-// Adds a new `RtpTransceiverInterface` to the given `PeerConnectionInterface`.
+// Adds a new `RtpTransceiverInterface` to the provided
+// `PeerConnectionInterface`.
 std::unique_ptr<RtpTransceiverInterface> add_transceiver(
     PeerConnectionInterface& peer,
     cricket::MediaType media_type,
     RtpTransceiverDirection direction);
 
-// Returns a list of `RtpTransceiverInterface`s attached to the given
+// Returns a list of `RtpTransceiverInterface`s attached to the provided
 // `PeerConnectionInterface`.
 rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer);
 
-// Adds the `IceCandidateInterface` to the `PeerConnectionInterface`.
+// Adds the `IceCandidateInterface` to the provided `PeerConnectionInterface`.
 void add_ice_candidate(const PeerConnectionInterface& peer,
                        std::unique_ptr<webrtc::IceCandidateInterface> candidate,
                        rust::Box<DynAddIceCandidateCallback> cb);
 
-// Tells the `PeerConnectionInterface` that ICE should be restarted. Subsequent
-// calls to `create_offer` will create descriptions that will restart ICE
+// Tells the provided `PeerConnectionInterface` that ICE should be restarted.
+// Subsequent calls to `create_offer` will create descriptions restarting ICE.
 void restart_ice(const PeerConnectionInterface& peer);
 
-// Closes the `PeerConnectionInterface`.
+// Closes the provided `PeerConnectionInterface`.
 void close_peer_connection(const PeerConnectionInterface& peer);
 
 }  // namespace bridge

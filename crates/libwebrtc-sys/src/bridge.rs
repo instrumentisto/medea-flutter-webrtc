@@ -263,8 +263,8 @@ pub(crate) mod webrtc {
 
     /// [RTCIceTransportPolicy][1] representation.
     ///
-    /// It defines the ICE candidate policy the [ICE Agent][2] uses to surface
-    /// the permitted candidates to the application; only these candidates will
+    /// It defines an ICE candidate policy the [ICE Agent][2] uses to surface
+    /// the permitted candidates to the application. Only these candidates will
     /// be used for connectivity checks.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy
@@ -277,10 +277,10 @@ pub(crate) mod webrtc {
 
         /// [RTCIceTransportPolicy.relay][1] representation.
         ///
-        /// [1]: https://tinyurl.com/rfhrde4p
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
         kRelay,
 
-        /// The ICE Agent can't use `typ host` candidates when this value is
+        /// ICE Agent can't use `typ host` candidates when this value is
         /// specified.
         ///
         /// Non-spec-compliant variant.
@@ -288,7 +288,7 @@ pub(crate) mod webrtc {
 
         /// [RTCIceTransportPolicy.all][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcicetransportpolicy-all
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
         kAll,
     }
 
@@ -296,8 +296,8 @@ pub(crate) mod webrtc {
     ///
     /// Affects which media tracks are negotiated if the remote endpoint is not
     /// bundle-aware, and what ICE candidates are gathered. If the remote
-    /// endpoint is bundle-aware, all media tracks and data channels are
-    /// bundled onto the same transport.
+    /// endpoint is bundle-aware, all media tracks and data channels are bundled
+    /// onto the same transport.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
     #[derive(Debug, Eq, Hash, PartialEq)]
@@ -305,17 +305,17 @@ pub(crate) mod webrtc {
     enum BundlePolicy {
         /// [RTCBundlePolicy.balanced][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcbundlepolicy-balanced
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-balanced
         kBundlePolicyBalanced,
 
         /// [RTCBundlePolicy.max-bundle][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcbundlepolicy-max-bundle
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-bundle
         kBundlePolicyMaxBundle,
 
         /// [RTCBundlePolicy.max-compat][1] representation.
         ///
-        /// [1]: https://w3c.github.io/webrtc-pc#dom-rtcbundlepolicy-max-compat
+        /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
         kBundlePolicyMaxCompat,
     }
 
@@ -337,7 +337,7 @@ pub(crate) mod webrtc {
         /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
 
-        /// Creates a new [`Thread`] with attached socket server.
+        /// Creates a new [`Thread`] with an attached socket server.
         pub fn create_thread_with_socket_server() -> UniquePtr<Thread>;
 
         /// Starts the current [`Thread`].
@@ -427,12 +427,12 @@ pub(crate) mod webrtc {
     extern "Rust" {
         type DynAddIceCandidateCallback;
 
-        /// Calls the success callback of the [`DynAddIceCandidateCallback`].
+        /// Calls the success [`DynAddIceCandidateCallback`].
         pub fn add_ice_candidate_success(
             mut cb: Box<DynAddIceCandidateCallback>,
         );
 
-        /// Calls the fail callback of the [`DynAddIceCandidateCallback`].
+        /// Calls the fail [`DynAddIceCandidateCallback`].
         pub fn add_ice_candidate_fail(
             mut cb: Box<DynAddIceCandidateCallback>,
             error: &CxxString,
@@ -474,21 +474,21 @@ pub(crate) mod webrtc {
         pub fn create_default_rtc_configuration()
             -> UniquePtr<RTCConfiguration>;
 
-        /// Changes the configured [`IceTransportsType`] of the given
+        /// Changes the configured [`IceTransportsType`] of the provided
         /// [`RTCConfiguration`].
         pub fn set_rtc_configuration_ice_transport_type(
             config: Pin<&mut RTCConfiguration>,
             transport_type: IceTransportsType
         );
 
-        /// Changes the configured [`BundlePolicy`] of the given
+        /// Changes the configured [`BundlePolicy`] of the provided
         /// [`RTCConfiguration`].
         pub fn set_rtc_configuration_bundle_policy(
             config: Pin<&mut RTCConfiguration>,
             bundle_policy: BundlePolicy
         );
 
-        /// Adds an [`IceServer`] to the given [`RTCConfiguration`].
+        /// Adds an [`IceServer`] to the provided [`RTCConfiguration`].
         pub fn add_rtc_configuration_server(
             config: Pin<&mut RTCConfiguration>,
             server: Pin<&mut IceServer>
@@ -497,13 +497,13 @@ pub(crate) mod webrtc {
         /// Creates a new empty [`IceServer`].
         pub fn create_ice_server() -> UniquePtr<IceServer>;
 
-        /// Adds an `url` to the [`IceServer`].
+        /// Adds the spcified `url` to the provided [`IceServer`].
         pub fn add_ice_server_url(
             server: Pin<&mut IceServer>,
             url: String
         );
 
-        /// Sets `credentials` for the [`IceServer`].
+        /// Sets the credentials for the provided [`IceServer`].
         pub fn set_ice_server_credentials(
             server: Pin<&mut IceServer>,
             username: String,
@@ -630,7 +630,8 @@ pub(crate) mod webrtc {
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
-        /// Returns the [sdpMid][1] string of the [`IceCandidateInterface`].
+        /// Returns the [sdpMid][1] string of the provided
+        /// [`IceCandidateInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate-sdpmid
         #[must_use]
@@ -638,7 +639,8 @@ pub(crate) mod webrtc {
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
-        /// Returns the [sdpMLineIndex][1] of the [`IceCandidateInterface`].
+        /// Returns the [sdpMLineIndex][1] of the provided
+        /// [`IceCandidateInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate-sdpmlineindex
         #[must_use]
@@ -646,8 +648,8 @@ pub(crate) mod webrtc {
             candidate: &IceCandidateInterface
         ) -> i32;
 
-        /// Adds an [`IceCandidateInterface`] to the underlying [ICE agent][1]
-        /// of the given [`PeerConnectionInterface`].
+        /// Adds the specified [`IceCandidateInterface`] to the underlying
+        /// [ICE agent][1] of the provided [`PeerConnectionInterface`].
         ///
         /// [1]: https://w3.org/TR/webrtc#dfn-ice-agent
         pub fn add_ice_candidate(
@@ -656,12 +658,14 @@ pub(crate) mod webrtc {
             cb: Box<DynAddIceCandidateCallback>
         );
 
-        /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.
-        /// Subsequent calls to [`create_offer()`] will create descriptions that
-        /// will restart ICE.
+        /// Tells the provided [`PeerConnectionInterface`] that ICE should be
+        /// restarted.
+        ///
+        /// Subsequent calls to [`create_offer()`] will create descriptions
+        /// restarting ICE.
         pub fn restart_ice(peer: &PeerConnectionInterface);
 
-        /// Closes the [`PeerConnectionInterface`].
+        /// Closes the provided [`PeerConnectionInterface`].
         pub fn close_peer_connection(peer: &PeerConnectionInterface);
 
         /// Returns the spec-compliant string representation of the provided
@@ -1242,13 +1246,13 @@ pub fn on_ice_selected_candidate_pair_changed(
     cb.on_ice_selected_candidate_pair_changed(event);
 }
 
-/// Calls the success callback of the [`DynAddIceCandidateCallback`].
+/// Calls the success [`DynAddIceCandidateCallback`].
 #[allow(clippy::boxed_local)]
 pub fn add_ice_candidate_success(mut cb: Box<DynAddIceCandidateCallback>) {
     cb.on_success();
 }
 
-/// Calls the fail callback of the [`DynAddIceCandidateCallback`].
+/// Calls the fail [`DynAddIceCandidateCallback`].
 #[allow(clippy::boxed_local)]
 pub fn add_ice_candidate_fail(
     mut cb: Box<DynAddIceCandidateCallback>,

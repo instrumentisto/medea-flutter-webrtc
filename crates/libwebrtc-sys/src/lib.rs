@@ -109,13 +109,13 @@ pub trait PeerConnectionEventsHandler {
     );
 }
 
-/// Completion callback for [`PeerConnectionInterface::add_ice_candidate()`]
+/// Completion callback for the [`PeerConnectionInterface::add_ice_candidate()`]
 /// function.
 pub trait AddIceCandidateCallback {
     /// Called when the operation is successfully completed.
     fn on_success(&mut self);
 
-    /// Called when the operation is completed with the `error`.
+    /// Called when the operation fails with the `error`.
     fn on_fail(&mut self, error: &CxxString);
 }
 
@@ -309,14 +309,14 @@ impl VideoDeviceInfo {
 /// [RTCConfiguration][1] wrapper.
 ///
 /// Defines a set of parameters to configure how the peer-to-peer communication
-/// via [`PeerConnectionInterface`] is established or re-established.
+/// via a [`PeerConnectionInterface`] is established or re-established.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration
 pub struct RtcConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 
 impl RtcConfiguration {
-    /// Sets the [`IceTransportsType`] configuration for this
-    /// [`RTCConfiguration`].
+    /// Sets the specified [`IceTransportsType`] configuration for this
+    /// [`RtcConfiguration`].
     pub fn set_ice_transport_type(
         &mut self,
         transport_type: webrtc::IceTransportsType,
@@ -327,7 +327,8 @@ impl RtcConfiguration {
         );
     }
 
-    /// Sets the [`BundlePolicy`] configuration for this [`RTCConfiguration`].
+    /// Sets the specified [`BundlePolicy`] configuration for this
+    /// [`RtcConfiguration`].
     pub fn set_bundle_policy(&mut self, bundle_policy: webrtc::BundlePolicy) {
         webrtc::set_rtc_configuration_bundle_policy(
             self.0.pin_mut(),
@@ -335,8 +336,8 @@ impl RtcConfiguration {
         );
     }
 
-    /// Adds an [`IceServer`] to the list of servers of this
-    /// [`RTCConfiguration`].
+    /// Adds the specified [`IceServer`] to the list of servers of this
+    /// [`RtcConfiguration`].
     pub fn add_server(&mut self, mut server: IceServer) {
         webrtc::add_rtc_configuration_server(
             self.0.pin_mut(),
@@ -364,7 +365,7 @@ impl IceServer {
         webrtc::add_ice_server_url(self.0.pin_mut(), url);
     }
 
-    /// Sets the [username][1] and [credential][2] of the given [`IceServer`].
+    /// Sets the [username][1] and [credential][2] of this [`IceServer`].
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-username
     /// [2]: https://w3.org/TR/webrtc#dom-rtciceserver-credential
@@ -630,7 +631,7 @@ impl RtpSenderInterface {
 }
 
 /// This interface describes an ICE candidate, described in
-/// [RFC5245 Section 2][1].
+/// [RFC 5245 Section 2][1].
 ///
 /// [1]: https://datatracker.ietf.org/doc/html/rfc5245#section-2
 pub struct IceCandidateInterface(UniquePtr<webrtc::IceCandidateInterface>);
@@ -640,7 +641,7 @@ impl IceCandidateInterface {
         sdp_mid: &str,
         sdp_mline_index: i32,
         candidate: &str,
-    ) -> anyhow::Result<IceCandidateInterface> {
+    ) -> anyhow::Result<Self> {
         let mut error = String::new();
         let inner = webrtc::create_ice_candidate(
             sdp_mid,
@@ -653,7 +654,7 @@ impl IceCandidateInterface {
             bail!(error);
         }
 
-        Ok(IceCandidateInterface(inner))
+        Ok(Self(inner))
     }
 
     #[must_use]

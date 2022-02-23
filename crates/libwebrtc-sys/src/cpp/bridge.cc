@@ -331,20 +331,20 @@ std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
   return std::make_unique<RTCConfiguration>(config);
 }
 
-// Sets the `type` field of the given `RTCConfiguration`.
+// Sets the `type` field of the provided `RTCConfiguration`.
 void set_rtc_configuration_ice_transport_type(
     RTCConfiguration& config,
     IceTransportsType transport_type) {
   config.type = transport_type;
 }
 
-// Sets the `bundle_policy` field of the given `RTCConfiguration`.
+// Sets the `bundle_policy` field of the provided `RTCConfiguration`.
 void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
                                          BundlePolicy bundle_policy) {
   config.bundle_policy = bundle_policy;
 }
 
-// Adds the provided `IceServer` to the `servers` list of the given
+// Adds the specified `IceServer` to the `servers` list of the provided
 // `RTCConfiguration`.
 void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server) {
   config.servers.push_back(server);
@@ -355,12 +355,13 @@ std::unique_ptr<IceServer> create_ice_server() {
   return std::make_unique<IceServer>();
 }
 
-// Adds the provided `url` to the list of `urls` of the given `IceServer`.
+// Adds the specified `url` to the list of `urls` of the provided `IceServer`.
 void add_ice_server_url(IceServer& server, rust::String url) {
   server.urls.push_back(std::string(url));
 }
 
-// Sets the `username` and `password` fields of the given `IceServer`.
+// Sets the specified `username` and `password` fields of the provided
+// `IceServer`.
 void set_ice_server_credentials(IceServer& server,
                                 rust::String username,
                                 rust::String password) {

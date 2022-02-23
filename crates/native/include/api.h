@@ -3,10 +3,14 @@
 #include <string>
 
 namespace rust {
+
 inline namespace cxxbridge1 {
+
 class String;
+
 } // namespace cxxbridge1
-}  // namespace rust
+
+} // namespace rust
 
 struct VideoFrame;
 
@@ -101,10 +105,10 @@ class PeerConnectionObserverInterface {
 // Completion callback for the `webrtc::AddIceCandidate`.
 class AddIceCandidateCallbackInterface {
  public:
-  // Called when an operation succeeds.
+  // Called when the operation succeeds.
   virtual void OnSuccess() = 0;
 
-  // Called when an operation fails with the `error`.
+  // Called when the operation fails with the `error`.
   virtual void OnFail(const std::string& error) = 0;
 
   virtual ~AddIceCandidateCallbackInterface() = default;

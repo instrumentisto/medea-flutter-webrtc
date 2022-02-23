@@ -202,24 +202,24 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration();
 
-// Sets `IceTransportsType` for the given `RTCConfiguration`.
+// Sets the `IceTransportsType` for the provided `RTCConfiguration`.
 void set_rtc_configuration_ice_transport_type(RTCConfiguration& config,
                                               IceTransportsType transport_type);
 
-// Sets `BundlePolicy` for the given `RTCConfiguration`.
+// Sets the `BundlePolicy` for the provided `RTCConfiguration`.
 void set_rtc_configuration_bundle_policy(RTCConfiguration& config,
                                          BundlePolicy bundle_policy);
 
-// Adds `IceServer` to the given `RTCConfiguration`.
+// Adds the `IceServer` to the provided `RTCConfiguration`.
 void add_rtc_configuration_server(RTCConfiguration& config, IceServer& server);
 
 // Creates a new empty `IceServer`.
 std::unique_ptr<IceServer> create_ice_server();
 
-// Adds an `url` to the given `IceServer`.
+// Adds the specified `url` to the provided `IceServer`.
 void add_ice_server_url(IceServer& server, rust::String url);
 
-// Sets a `credentials` for the given `IceServer`.
+// Sets the specified credentials for the provided `IceServer`.
 void set_ice_server_credentials(IceServer& server,
                                 rust::String username,
                                 rust::String password);
@@ -327,11 +327,11 @@ bool replace_sender_audio_track(
 std::unique_ptr<std::string> ice_candidate_interface_to_string(
     const IceCandidateInterface& candidate);
 
-// Returns an `sdp_mid` of the given `IceCandidateInterface`.
+// Returns an `sdp_mid` of the provided `IceCandidateInterface`.
 std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
     const IceCandidateInterface& candidate);
 
-// Returns an `sdp_mline_index` of the given `IceCandidateInterface`.
+// Returns an `sdp_mline_index` of the provided `IceCandidateInterface`.
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate);
 
 // Creates a new `IceCandidateInterface`.
