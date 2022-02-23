@@ -3,67 +3,38 @@
 
 mod bridge;
 
-extern crate derive_more;
-use std::{
-    collections::HashMap,
-    sync::atomic::{AtomicU64, Ordering},
-};
-
+use std::{collections::HashMap, sync::atomic::{AtomicU64, Ordering},};
 use bridge::webrtc::{
     audio_track_register_observer, create_audio_track_event_observer,
-    create_video_track_event_observer, video_track_register_observer,
-    RtpReceiverInterface,
+    create_video_track_event_observer, video_track_register_observer, video_track_unregister_observer, audio_track_unregister_observer,
 };
-use derive_more::From;
 
 use anyhow::bail;
+use bridge::webrtc::{
+    rtcp_parameters_cname, rtcp_parameters_reduced_size,
+    rtp_codec_parameters_clock_rate, rtp_codec_parameters_kind,
+    rtp_codec_parameters_name, rtp_codec_parameters_num_channels,
+    rtp_codec_parameters_parameters, rtp_codec_parameters_payload_type,
+    rtp_encoding_parameters_active, rtp_encoding_parameters_maxBitrate,
+    rtp_encoding_parameters_maxFramerate, rtp_encoding_parameters_minBitrate,
+    rtp_encoding_parameters_scale_resolution_down_by,
+    rtp_encoding_parameters_ssrc, rtp_extension_encrypt, rtp_extension_id,
+    rtp_extension_uri, rtp_parameters_codecs, rtp_parameters_encodings,
+    rtp_parameters_header_extensions, rtp_parameters_mid, rtp_parameters_rtcp,
+    rtp_parameters_transaction_id, transceiver_eq, RtpCodecParametersContainer,
+    RtpEncodingParametersContainer, RtpExtensionContainer,
+};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
-pub use crate::webrtc::{
-    candidate_to_string, get_candidate_pair,
-    get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
-    ice_candidate_interface_to_string, video_frame_to_abgr, AudioLayer,
-    AudioTrackInterface as Sys_AudioTrackInterface, Candidate,
-    CandidatePairChangeEvent, IceCandidateInterface, IceConnectionState,
-    IceGatheringState, MediaStreamTrackInterface, MediaType,
-    PeerConnectionState, RtpReceiverInterface as Sys_RtpReceiverInterface,
-    RtpSenderInterface as Sys_RtpSenderInterface, RtpTransceiverDirection,
-    RtpTransceiverInterface as Sys_RtpTransceiverInterface, SdpType,
-    SignalingState, VideoFrame, VideoRotation,
-    VideoTrackInterface as Sys_VideoTrackInterface,
-};
 
 pub use crate::webrtc::{
-    audio_track_media_stream_track_upcast, audio_track_unregister_observer,
-    get_audio_track_sourse, get_media_stream_track_id,
-    get_media_stream_track_kind, get_rtp_receiver_track, get_transceiver_mid,
-    get_transceiver_receiver, get_transceiver_sender, get_video_track_sourse,
-    media_stream_track_interface_downcast_audio_track,
-    media_stream_track_interface_downcast_video_track,
-    video_track_media_stream_track_upcast, video_track_unregister_observer,
-};
-
-pub use crate::webrtc::{
-    get_dtmf_sender_duration, get_dtmf_sender_inter_tone_gap,
-    get_media_stream_audio_tracks, get_media_stream_id,
-    get_media_stream_track_enabled, get_media_stream_track_state,
-    get_media_stream_video_tracks, get_rtcp_parameters_cname,
-    get_rtcp_parameters_reduced_size, get_rtp_codec_parameters_clock_rate,
-    get_rtp_codec_parameters_kind, get_rtp_codec_parameters_name,
-    get_rtp_codec_parameters_num_channels, get_rtp_codec_parameters_parameters,
-    get_rtp_codec_parameters_payload_type, get_rtp_encoding_parameters_active,
-    get_rtp_encoding_parameters_maxBitrate,
-    get_rtp_encoding_parameters_maxFramerate,
-    get_rtp_encoding_parameters_minBitrate,
-    get_rtp_encoding_parameters_scale_resolution_down_by,
-    get_rtp_encoding_parameters_ssrc, get_rtp_extension_encrypt,
-    get_rtp_extension_id, get_rtp_extension_uri, get_rtp_parameters_codecs,
-    get_rtp_parameters_encodings, get_rtp_parameters_header_extensions,
-    get_rtp_parameters_mid, get_rtp_parameters_rtcp,
-    get_rtp_parameters_transaction_id, get_rtp_receiver_id,
-    get_rtp_receiver_parameters, get_rtp_receiver_streams, get_rtp_sender_dtmf,
-    get_rtp_sender_id,
+    candidate_pair, candidate_to_string, estimated_disconnected_time_ms,
+    ice_candidate_interface_to_string, last_data_received_ms, reason,
+    video_frame_to_abgr, AudioLayer, Candidate, CandidatePairChangeEvent,
+    IceCandidateInterface, IceConnectionState, IceGatheringState, MediaType,
+    PeerConnectionState, RtpTransceiverDirection, SdpType, SignalingState,
+    TrackState, VideoFrame, VideoRotation,
 };
 
 /// Counter used to generate unique IDs.s
@@ -94,28 +65,34 @@ pub trait TrackEventCallback {
     /// [1]: https://tinyurl.com/event-mediastreamtrack-unmute
     fn on_unmute(&mut self);
 }
-
-/// Completion callback for the [`CreateSessionDescriptionObserver`] that is
-/// used to call [`PeerConnectionInterface::create_offer()`] and
+/// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
+/// [`PeerConnectionInterface::create_offer()`] and
 /// [`PeerConnectionInterface::create_answer()`].
 pub trait CreateSdpCallback {
-    /// Called when the related operation was successfully completed.
+    /// Called when the related operation is successfully completed.
     fn success(&mut self, sdp: &CxxString, kind: webrtc::SdpType);
 
-    /// Called when the related operation was completed with an error.
+    /// Called when the related operation is completed with the `error`.
     fn fail(&mut self, error: &CxxString);
 }
 
-/// Completion callback for the [`SetLocalDescriptionObserver`] and
-/// [`SetRemoteDescriptionObserver`] that are used to call
+/// Completion callback for a [`SetLocalDescriptionObserver`] and
+/// [`SetRemoteDescriptionObserver`], used to call
 /// [`PeerConnectionInterface::set_local_description()`] and
 /// [`PeerConnectionInterface::set_remote_description()`].
 pub trait SetDescriptionCallback {
-    /// Called when the related operation was successfully completed.
+    /// Called when the related operation is successfully completed.
     fn success(&mut self);
 
-    /// Called when the related operation was completed with an error.
+    /// Called when the related operation is completed with the `error`.
     fn fail(&mut self, error: &CxxString);
+}
+
+/// Handler of [`VideoFrame`]s.
+pub trait OnFrameCallback {
+    /// Called when the attached [`VideoTrackInterface`] produces a new
+    /// [`VideoFrame`].
+    fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
 }
 
 /// Handler of events that fire from a [`PeerConnectionInterface`].
@@ -184,18 +161,20 @@ pub trait PeerConnectionEventsHandler {
 
     /// Called when a [`track`][1] event occurs.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#event-track
-    fn on_track(&mut self, event: UniquePtr<webrtc::RtpTransceiverInterface>);
+    /// [1]: https://w3.org/TR/webrtc#event-track
+    fn on_track(&mut self, transceiver: RtpTransceiverInterface);
 
-    // This is a non-spec-compliant event.
-    fn on_remove_track(&mut self, event: &RtpReceiverInterface);
+    /// Called when signaling indicates that media will no longer be received on
+    /// a track.
+    /// With Unified Plan semantics, the receiver will remain but the
+    /// transceiver will have changed direction to either sendonly or inactive.
+    fn on_remove_track(&mut self, receiver: RtpReceiverInterface);
 }
 
-/// Handler of [`VideoFrame`]s.
-pub trait OnFrameCallback {
-    /// Called when the attached [`VideoTrackInterface`] produces a new
-    /// [`VideoFrame`].
-    fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum TrackKind {
+    Audio,
+    Video,
 }
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
@@ -398,7 +377,6 @@ impl Default for RTCConfiguration {
 
 /// Member of [`PeerConnectionDependencies`] containing functions called on
 /// events in a [`PeerConnectionInterface`]
-#[derive(From)]
 pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 /// Member of [`PeerConnectionDependencies`] containing functions called on
@@ -438,8 +416,7 @@ impl PeerConnectionDependencies {
     }
 }
 
-/// Description of the options that can be used to control the offer/answer
-/// creation process
+/// Description of the options used to control an offer/answer creation process.
 pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
@@ -524,9 +501,9 @@ impl SetRemoteDescriptionObserver {
 }
 
 /// Representation of a combination of an [`RtpSenderInterface`] and an
-/// [RTCRtpReceiver] sharing a common [media stream "identification-tag"][1].
+/// [`RtpReceiverInterface`] sharing a common
+/// [media stream "identification-tag"][1].
 ///
-/// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 pub struct RtpTransceiverInterface {
     /// Pointer to the C++ side [`RtpTransceiverInterface`] object.
@@ -541,13 +518,29 @@ pub struct RtpTransceiverInterface {
     media_type: MediaType,
 }
 
+impl PartialEq for RtpTransceiverInterface {
+    fn eq(&self, other: &Self) -> bool {
+        transceiver_eq(&self.inner, &other.inner)
+            && self.media_type == other.media_type
+    }
+}
+
 impl RtpTransceiverInterface {
+    pub(crate) fn from_ptr(
+        inner: UniquePtr<webrtc::RtpTransceiverInterface>,
+    ) -> Self {
+        Self {
+            media_type: webrtc::transceiver_media_type(&inner),
+            inner,
+        }
+    }
+
     /// Returns a [`mid`] of this [`RtpTransceiverInterface`].
     ///
     /// [`mid`]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
     #[must_use]
     pub fn mid(&self) -> Option<String> {
-        let mid = webrtc::get_transceiver_mid(&self.inner);
+        let mid = webrtc::transceiver_mid(&self.inner);
         (!mid.is_empty()).then(|| mid)
     }
 
@@ -556,7 +549,7 @@ impl RtpTransceiverInterface {
     /// [`direction`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
-        webrtc::get_transceiver_direction(&self.inner)
+        webrtc::transceiver_direction(&self.inner)
     }
 
     /// Returns a [`MediaType`] of this [`RtpTransceiverInterface`].
@@ -584,7 +577,14 @@ impl RtpTransceiverInterface {
     /// sending data to the remote peer.
     #[must_use]
     pub fn sender(&self) -> RtpSenderInterface {
-        RtpSenderInterface(webrtc::get_transceiver_sender(&self.inner))
+        RtpSenderInterface(webrtc::transceiver_sender(&self.inner))
+    }
+
+    /// Returns the [`RtpReceiverInterface`] responsible for receiving and
+    /// decoding incoming media data for the transceiver's stream.
+    #[must_use]
+    pub fn receiver(&self) -> RtpReceiverInterface {
+        RtpReceiverInterface(webrtc::transceiver_receiver(&self.inner))
     }
 
     /// Irreversibly marks this [`RtpTransceiverInterface`] as stopping, unless
@@ -648,6 +648,216 @@ impl RtpSenderInterface {
     }
 }
 
+/// The [RTCRtpReceiver] allows an application to inspect the receipt of a
+/// [MediaStreamTrack][1].
+///
+/// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+/// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+pub struct RtpReceiverInterface(UniquePtr<webrtc::RtpReceiverInterface>);
+
+impl RtpReceiverInterface {
+    pub(crate) fn from_ptr(
+        inner: UniquePtr<webrtc::RtpReceiverInterface>,
+    ) -> Self {
+        Self(inner)
+    }
+
+    /// Returns the [`MediaStreamTrackInterface`] attribute is the track that is
+    /// associated with this [`RtpReceiverInterface`] object receiver.
+    #[must_use]
+    pub fn track(&self) -> MediaStreamTrackInterface {
+        MediaStreamTrackInterface(webrtc::rtp_receiver_track(&self.0))
+    }
+
+    /// Returns an [`RtpParameters`] object describing the current configuration
+    /// for the encoding and transmission of media on the receiver's track.
+    #[must_use]
+    pub fn get_parameters(&self) -> RtpParameters {
+        RtpParameters(webrtc::rtp_receiver_parameters(&self.0))
+    }
+}
+
+/// [`RtpCodecParameters`][1].
+///
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpcodecparameters
+pub struct RtpCodecParameters(RtpCodecParametersContainer);
+
+impl RtpCodecParameters {
+    /// Returns a `name` of the given [`RtpCodecParameters`].
+    #[must_use]
+    pub fn name(&self) -> String {
+        rtp_codec_parameters_name(&self.0.ptr).to_string()
+    }
+
+    /// Returns a `payload_type` of the given [`RtpCodecParameters`].
+    #[must_use]
+    pub fn payload_type(&self) -> i32 {
+        rtp_codec_parameters_payload_type(&self.0.ptr)
+    }
+
+    /// Returns a `clock_rate` of the given [`RtpCodecParameters`].
+    #[must_use]
+    pub fn clock_rate(&self) -> Option<i32> {
+        rtp_codec_parameters_clock_rate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `num_channels` of the given [`RtpCodecParameters`].
+    #[must_use]
+    pub fn num_channels(&self) -> Option<i32> {
+        rtp_codec_parameters_num_channels(&self.0.ptr).ok()
+    }
+
+    /// Returns a `parameters` of the given [`RtpCodecParameters`].
+    #[must_use]
+    pub fn parameters(&self) -> HashMap<String, String> {
+        let mut result = HashMap::new();
+        let parameters = rtp_codec_parameters_parameters(&self.0.ptr);
+        for pair in parameters.into_iter() {
+            result.insert(pair.first.clone(), pair.second.clone());
+        }
+        result
+    }
+
+    /// Returns a [`MediaType`] of the given [`RtpCodecParameters`].
+    #[must_use]
+    pub fn kind(&self) -> MediaType {
+        rtp_codec_parameters_kind(&self.0.ptr)
+    }
+}
+
+/// [`RtpExtension`][1].
+///
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters
+pub struct RtpExtension(RtpExtensionContainer);
+
+impl RtpExtension {
+    /// Returns a `uri` of the given [`RtpExtension`].
+    #[must_use]
+    pub fn uri(&self) -> String {
+        rtp_extension_uri(&self.0.ptr).to_string()
+    }
+
+    /// Returns a `id` of the given [`RtpExtension`].
+    #[must_use]
+    pub fn id(&self) -> i32 {
+        rtp_extension_id(&self.0.ptr)
+    }
+
+    /// Returns a `encrypt` of the given [`RtpExtension`].
+    #[must_use]
+    pub fn encrypt(&self) -> bool {
+        rtp_extension_encrypt(&self.0.ptr)
+    }
+}
+
+/// [`RtpEncodingParameters`][1]:
+///
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpencodingparameters
+pub struct RtpEncodingParameters(RtpEncodingParametersContainer);
+
+impl RtpEncodingParameters {
+    /// Returns a `active` of the given [`RtpEncodingParameters`].
+    #[must_use]
+    pub fn active(&self) -> bool {
+        rtp_encoding_parameters_active(&self.0.ptr)
+    }
+
+    /// Returns a `maxBitrate` of the given [`RtpEncodingParameters`].
+    #[must_use]
+    pub fn max_bitrate(&self) -> Option<i32> {
+        rtp_encoding_parameters_maxBitrate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `minBitrate` of the given [`RtpEncodingParameters`].
+    #[must_use]
+    pub fn min_bitrate(&self) -> Option<i32> {
+        rtp_encoding_parameters_minBitrate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `maxFramerate` of the given [`RtpEncodingParameters`].
+    #[must_use]
+    pub fn max_framerate(&self) -> Option<f64> {
+        rtp_encoding_parameters_maxFramerate(&self.0.ptr).ok()
+    }
+
+    /// Returns a `ssrc` of the given [`RtpEncodingParameters`].
+    #[must_use]
+    pub fn ssrc(&self) -> Option<i64> {
+        rtp_encoding_parameters_ssrc(&self.0.ptr).ok()
+    }
+
+    /// Returns a `scale_resolution_down_by`
+    /// of the given [`RtpEncodingParameters`].
+    #[must_use]
+    pub fn scale_resolution_down_by(&self) -> Option<f64> {
+        rtp_encoding_parameters_scale_resolution_down_by(&self.0.ptr).ok()
+    }
+}
+
+/// [`RtpCodecParameters`][1].
+///
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpcodecparameters
+pub struct RtcpParameters(UniquePtr<webrtc::RtcpParameters>);
+
+impl RtcpParameters {
+    /// Returns a `cname` of the given [`RtcpParameters`].
+    #[must_use]
+    pub fn cname(&self) -> String {
+        rtcp_parameters_cname(&self.0).to_string()
+    }
+
+    /// Returns a `reduced_size` of the given [`RtcpParameters`].
+    #[must_use]
+    pub fn reduced_size(&self) -> bool {
+        rtcp_parameters_reduced_size(&self.0)
+    }
+}
+
+/// Describes the parameters being used by the [`RtpReceiverInterface`]'s RTP
+/// connection to the remote peer.
+pub struct RtpParameters(UniquePtr<webrtc::RtpParameters>);
+
+impl RtpParameters {
+    #[must_use]
+    pub fn transaction_id(&self) -> String {
+        rtp_parameters_transaction_id(&self.0).to_string()
+    }
+
+    #[must_use]
+    pub fn mid(&self) -> String {
+        rtp_parameters_mid(&self.0).to_string()
+    }
+
+    #[must_use]
+    pub fn codecs(&self) -> Vec<RtpCodecParameters> {
+        rtp_parameters_codecs(&self.0)
+            .into_iter()
+            .map(RtpCodecParameters)
+            .collect()
+    }
+
+    #[must_use]
+    pub fn header_extensions(&self) -> Vec<RtpExtension> {
+        rtp_parameters_header_extensions(&self.0)
+            .into_iter()
+            .map(RtpExtension)
+            .collect()
+    }
+
+    #[must_use]
+    pub fn encodings(&self) -> Vec<RtpEncodingParameters> {
+        rtp_parameters_encodings(&self.0)
+            .into_iter()
+            .map(RtpEncodingParameters)
+            .collect()
+    }
+
+    #[must_use]
+    pub fn rtcp(&self) -> RtcpParameters {
+        RtcpParameters(rtp_parameters_rtcp(&self.0))
+    }
+}
+
 /// [RTCPeerConnection][1] implementation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
@@ -678,7 +888,7 @@ impl PeerConnectionInterface {
 
     /// [RTCPeerConnection.createAnswer()][1] implementation.
     ///
-    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createanswer
     pub fn create_answer(
         &mut self,
         options: &RTCOfferAnswerOptions,
@@ -689,7 +899,7 @@ impl PeerConnectionInterface {
 
     /// [RTCPeerConnection.setLocalDescription()][1] implementation.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setlocaldescription
+    /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setlocaldescription
     pub fn set_local_description(
         &mut self,
         desc: SessionDescriptionInterface,
@@ -700,7 +910,7 @@ impl PeerConnectionInterface {
 
     /// [RTCPeerConnection.setRemoteDescription()][1] implementation.
     ///
-    /// [1]: https://w3.org/TR/webrtc/#dom-peerconnection-setremotedescription
+    /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setremotedescription
     pub fn set_remote_description(
         &mut self,
         desc: SessionDescriptionInterface,
@@ -733,7 +943,7 @@ impl PeerConnectionInterface {
         webrtc::get_transceivers(&self.inner)
             .into_iter()
             .map(|t| RtpTransceiverInterface {
-                media_type: webrtc::get_transceiver_media_type(&t.ptr),
+                media_type: webrtc::transceiver_media_type(&t.ptr),
                 inner: t.ptr,
             })
             .collect()
@@ -907,7 +1117,6 @@ impl PeerConnectionFactoryInterface {
 ///
 /// It can be later used to create a [`VideoTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_video_track()`].
-#[derive(From)]
 pub struct VideoTrackSourceInterface(
     UniquePtr<webrtc::VideoTrackSourceInterface>,
 );
@@ -984,13 +1193,53 @@ impl VideoTrackSourceInterface {
 ///
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
-#[derive(From)]
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
+
+/// A [MediaStreamTrack] object represents a media source in the User Agent. An
+/// example source is a device connected to the User Agent.
+///
+/// [MediaStreamTrack]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+pub struct MediaStreamTrackInterface(
+    UniquePtr<webrtc::MediaStreamTrackInterface>,
+);
+
+impl MediaStreamTrackInterface {
+    /// Returns a [`String`] containing a unique identifier (GUID) for the
+    /// track.
+    #[must_use]
+    pub fn id(&self) -> String {
+        webrtc::media_stream_track_id(&self.0).to_string()
+    }
+
+    /// Returns the state of the track.
+    #[must_use]
+    pub fn state(&self) -> TrackState {
+        webrtc::media_stream_track_state(&self.0)
+    }
+
+    /// Returns the `enabled` property of the [`MediaStreamTrackInterface`]
+    /// which is a boolean value which is true if the track is allowed to render
+    /// the source stream or false if it is not.
+    #[must_use]
+    pub fn enabled(&self) -> bool {
+        webrtc::media_stream_track_enabled(&self.0)
+    }
+
+    /// Returns  [`TrackKind`] of this [`MediaStreamTrackInterface`].
+    #[must_use]
+    pub fn kind(&self) -> TrackKind {
+        let kind = webrtc::media_stream_track_kind(&self.0).to_string();
+        match kind.as_str() {
+            "audio" => TrackKind::Audio,
+            "video" => TrackKind::Video,
+            _ => unreachable!(),
+        }
+    }
+}
 
 /// Video [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[derive(From)]
 pub struct VideoTrackInterface {
     inner: UniquePtr<webrtc::VideoTrackInterface>,
     obs: HashMap<u64, TrackEventObserver>,
@@ -1012,12 +1261,6 @@ impl VideoTrackInterface {
         webrtc::remove_video_sink(&self.inner, sink.0.pin_mut());
     }
 
-    /// Returns ref [`Sys_VideoTrackInterface`].
-    #[must_use]
-    pub fn inner(&self) -> &Sys_VideoTrackInterface {
-        &self.inner
-    }
-
     /// Changes the [enabled][1] property of this [`VideoTrackInterface`].
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
@@ -1031,7 +1274,7 @@ impl VideoTrackInterface {
             create_video_track_event_observer(&self.inner, Box::new(cb));
         video_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
-        self.obs.insert(id, TrackEventObserver::from(obs));
+        self.obs.insert(id, TrackEventObserver(obs));
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
@@ -1046,23 +1289,43 @@ impl VideoTrackInterface {
         }
         self.obs.remove(&id);
     }
+
+    /// Returns a [`VideoTrackSourceInterface`] attached to this
+    /// [`VideoTrackInterface`].
+    #[must_use]
+    pub fn source(&self) -> VideoTrackSourceInterface {
+        VideoTrackSourceInterface(webrtc::get_video_track_source(&self.inner))
+    }
+}
+
+impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
+    type Error = anyhow::Error;
+
+    fn try_from(track: MediaStreamTrackInterface) -> anyhow::Result<Self> {
+        if track.kind() == TrackKind::Video {
+            let inner =
+                webrtc::media_stream_track_interface_downcast_video_track(
+                    track.0,
+                );
+            Ok(VideoTrackInterface{inner, obs: HashMap::new()})
+        } else {
+            bail!(
+                "The provided `MediaStreamTrackInterface` is not an instance \
+                of `VideoTrackInterface`"
+            );
+        }
+    }
 }
 
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[derive(From)]
 pub struct AudioTrackInterface {
     inner: UniquePtr<webrtc::AudioTrackInterface>,
     obs: HashMap<u64, TrackEventObserver>,
 }
 
 impl AudioTrackInterface {
-    /// Returns ref [`Sys_AudioTrackInterface`].
-    #[must_use]
-    pub fn inner(&self) -> &Sys_AudioTrackInterface {
-        &self.inner
-    }
 
     /// Changes the [enabled][1] property of this [`AudioTrackInterface`].
     ///
@@ -1077,7 +1340,7 @@ impl AudioTrackInterface {
             create_audio_track_event_observer(&self.inner, Box::new(cb));
         audio_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
         let id = next_id();
-        self.obs.insert(id, TrackEventObserver::from(obs));
+        self.obs.insert(id, TrackEventObserver(obs));
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
@@ -1091,6 +1354,32 @@ impl AudioTrackInterface {
             );
         }
         self.obs.remove(&id);
+    }
+
+    /// Returns a [`AudioSourceInterface`] attached to this
+    /// [`AudioTrackInterface`].
+    #[must_use]
+    pub fn source(&self) -> AudioSourceInterface {
+        AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
+    }
+}
+
+impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
+    type Error = anyhow::Error;
+
+    fn try_from(track: MediaStreamTrackInterface) -> anyhow::Result<Self> {
+        if track.kind() == TrackKind::Audio {
+            let inner =
+                webrtc::media_stream_track_interface_downcast_audio_track(
+                    track.0,
+                );
+            Ok(AudioTrackInterface{inner, obs: HashMap::new()})
+        } else {
+            bail!(
+                "The provided `MediaStreamTrackInterface` is not an instance \
+                of `AudioTrackInterface`"
+            );
+        }
     }
 }
 

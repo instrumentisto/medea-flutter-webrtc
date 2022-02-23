@@ -14,7 +14,7 @@ mod cpp_api_bindings {
         pub type TrackEventInterface;
 
         type VideoFrame = crate::api::VideoFrame;
-        type OnTrackSerialized = crate::api::OnTrackSerialized;
+        type RtcTrackEvent = crate::api::RtcTrackEvent;
 
         /// Calls C++ side `CreateSdpCallbackInterface->OnSuccess`.
         #[cxx_name = "OnSuccess"]
@@ -112,7 +112,7 @@ mod cpp_api_bindings {
         #[cxx_name = "OnTrack"]
         pub fn on_track(
             self: Pin<&mut PeerConnectionObserverInterface>,
-            event: OnTrackSerialized,
+            event: RtcTrackEvent,
         );
 
         /// Calls C++ side `TrackEventInterface->OnEnded`.

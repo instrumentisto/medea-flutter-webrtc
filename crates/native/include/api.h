@@ -1,8 +1,9 @@
 #pragma once
+
 #include <string>
-#include <memory>
 
 struct VideoFrame;
+struct RtcTrackEvent;
 
 // Completion callback for the `Webrtc::CreateOffer` and `Webrtc::CreateAnswer`
 // functions.
@@ -29,19 +30,6 @@ class SetDescriptionCallbackInterface {
 
   virtual ~SetDescriptionCallbackInterface() = default;
 };
-
-namespace rust {
-  inline namespace cxxbridge1 {
-    template <typename T>
-    class Vec;
-    class String;
-  }
-}
-struct CandidatePairChangeEventSerialized;
-struct RtpReceiverInterfaceSerialized;
-struct OnTrackSerialized;
-struct TrackInterfaceSerialized;
-
 
 // Callback for video frames handlers provided to the
 // `Webrtc::create_video_sink()` function.
@@ -104,7 +92,7 @@ class PeerConnectionObserverInterface {
   // Called when a `track` event occurs.
   //
   // See: https://w3.org/TR/webrtc/#event-track
-  virtual void OnTrack(OnTrackSerialized event) = 0;
+  virtual void OnTrack(RtcTrackEvent event) = 0;
 
   virtual ~PeerConnectionObserverInterface() = default;
 };

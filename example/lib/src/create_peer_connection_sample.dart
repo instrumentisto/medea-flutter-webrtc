@@ -3,10 +3,6 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-
 
 class PeerConnectionSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
@@ -28,14 +24,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
     'optional': [],
   };
 
-  void eventListener(dynamic event) {
-    print(event.toString());
-  }
-
-  void errorListener(Object obj) {
-    if (obj is Exception) throw obj;
-  }
-
   void _create_peer() async {
     try {
       var pc1 = await createPeerConnection({});
@@ -54,7 +42,9 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       });
 
     } catch (e) {
-      print(e.toString());
+      setState(() {
+        text = e.toString();
+      });
     }
   }
 
@@ -72,7 +62,3 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
     );
   }
 }
-
-
-
-

@@ -7,9 +7,11 @@
 #include "rust/cxx.h"
 
 namespace bridge {
+
 struct DynPeerConnectionEventsHandler;
 struct DynSetDescriptionCallback;
 struct DynCreateSdpCallback;
+
 }  // namespace bridge
 
 namespace observer {

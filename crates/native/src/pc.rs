@@ -1,35 +1,18 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex, Weak};
 
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
+use dashmap::DashMap;
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
-use sys::{
-    get_audio_track_sourse, get_media_stream_track_kind,
-    get_rtp_receiver_track, get_transceiver_receiver, get_video_track_sourse,
-    media_stream_track_interface_downcast_audio_track,
-    media_stream_track_interface_downcast_video_track, AudioSourceInterface,
-    AudioTrackInterface, MediaStreamTrackInterface, Sys_RtpReceiverInterface,
-    Sys_RtpTransceiverInterface, VideoTrackInterface,
-    VideoTrackSourceInterface,
-};
+use sys::RtpTransceiverInterface;
 
 use crate::{
-    api::{
-        self, OnTrackSerialized, RtpTransceiverInterfaceSerialized,
-        TrackInterfaceSerialized,
-    },
-    AudioTrack, VideoTrack,
-};
-
-use crate::{
+    api,
     internal::{
         CreateSdpCallbackInterface, PeerConnectionObserverInterface,
         SetDescriptionCallbackInterface,
     },
-    next_id, AudioTrackId, VideoTrackId, Webrtc,
+    next_id, AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
 
 impl Webrtc {
@@ -44,15 +27,16 @@ impl Webrtc {
         let peer = PeerConnection::new(
             &mut self.0.peer_connection_factory,
             obs,
-            self.0.video_tracks.clone(),
-            self.0.audio_tracks.clone(),
+            Arc::clone(&self.0.video_tracks),
+            Arc::clone(&self.0.audio_tracks),
         );
         match peer {
             Ok(peer) => self
                 .0
                 .peer_connections
-                .entry(peer.id)
+                .entry(peer.0.id)
                 .or_insert(peer)
+                .0
                 .id
                 .into(),
             Err(err) => {
@@ -96,7 +80,7 @@ impl Webrtc {
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(cb),
         ));
-        peer.inner.create_offer(&options, obs);
+        peer.0.inner.create_offer(&options, obs);
 
         String::new()
     }
@@ -135,7 +119,7 @@ impl Webrtc {
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(cb),
         ));
-        peer.inner.create_answer(&options, obs);
+        peer.0.inner.create_answer(&options, obs);
 
         String::new()
     }
@@ -169,10 +153,12 @@ impl Webrtc {
                 return e.to_string();
             }
         };
+
         let desc = sys::SessionDescriptionInterface::new(sdp_kind, &sdp);
         let obs =
             sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
-        peer.inner.set_local_description(desc, obs);
+        peer.0.inner.set_local_description(desc, obs);
+
         String::new()
     }
 
@@ -211,7 +197,7 @@ impl Webrtc {
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(
             SetSdpCallback(cb),
         ));
-        peer.inner.set_remote_description(desc, obs);
+        peer.0.inner.set_remote_description(desc, obs);
 
         String::new()
     }
@@ -236,20 +222,31 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver = peer.inner.add_transceiver(
+        let transceiver = peer.0.inner.add_transceiver(
             media_type.try_into().unwrap(),
             direction.try_into().unwrap(),
         );
 
-        let result = api::RtcRtpTransceiver {
-            id: peer.transceivers.len() as u64,
-            mid: transceiver.mid().unwrap_or_default(),
-            direction: transceiver.direction().to_string(),
+        let transceivers = &mut peer.0.transceivers.lock().unwrap();
+        let mid = transceiver.mid().unwrap_or_default();
+        let direction = transceiver.direction().to_string();
+        let id = if let Some((id, _)) = transceivers
+            .iter()
+            .enumerate()
+            .find(|(_, a)| transceiver.eq(a))
+        {
+            id
+        } else {
+            transceivers.push(transceiver);
+            transceivers.len() - 1
         };
 
-        peer.transceivers.push(transceiver);
-
-        result
+        api::RtcRtpTransceiver {
+            id: id as u64,
+            mid,
+            direction,
+            sender: api::RtcRtpSender { id: id as u64 },
+        }
     }
 
     /// Returns a sequence of [`api::RtcRtpTransceiver`] objects representing
@@ -268,7 +265,7 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceivers = peer.inner.get_transceivers();
+        let transceivers = peer.0.inner.get_transceivers();
         let mut result = Vec::with_capacity(transceivers.len());
 
         for (index, transceiver) in transceivers.into_iter().enumerate() {
@@ -276,12 +273,9 @@ impl Webrtc {
                 id: index as u64,
                 mid: transceiver.mid().unwrap_or_default(),
                 direction: transceiver.direction().to_string(),
+                sender: api::RtcRtpSender { id: index as u64 },
             };
             result.push(info);
-
-            if index == peer.transceivers.len() {
-                peer.transceivers.push(transceiver);
-            }
         }
 
         result
@@ -309,7 +303,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .transceivers
+            .lock()
+            .unwrap()
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .set_direction(direction.try_into().unwrap())
@@ -337,7 +334,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .transceivers
+            .lock()
+            .unwrap()
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .mid()
@@ -362,7 +362,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .transceivers
+            .lock()
+            .unwrap()
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .direction()
@@ -391,7 +394,10 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.transceivers
+        peer.0
+            .transceivers
+            .lock()
+            .unwrap()
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .stop()
@@ -410,7 +416,10 @@ impl Webrtc {
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
+            .0
             .transceivers
+            .lock()
+            .unwrap()
             .remove(usize::try_from(transceiver_id).unwrap());
     }
 
@@ -436,10 +445,13 @@ impl Webrtc {
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
-        let transceiver = peer
-            .transceivers
+
+        let transceivers = peer.0.transceivers.lock().unwrap();
+
+        let transceiver = transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap();
+
         let sender = transceiver.sender();
 
         if track_id == 0 {
@@ -458,8 +470,6 @@ impl Webrtc {
                     sender.replace_video_track(Some(
                         self.0
                             .video_tracks
-                            .lock()
-                            .unwrap()
                             .get(&VideoTrackId::from(track_id))
                             .unwrap()
                             .as_ref(),
@@ -469,8 +479,6 @@ impl Webrtc {
                     sender.replace_audio_track(Some(
                         self.0
                             .audio_tracks
-                            .lock()
-                            .unwrap()
                             .get(&AudioTrackId::from(track_id))
                             .unwrap()
                             .as_ref(),
@@ -487,8 +495,7 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 pub struct PeerConnectionId(u64);
 
-/// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
-pub struct PeerConnection {
+struct InnerPeer {
     /// ID of this [`PeerConnection`].
     id: PeerConnectionId,
 
@@ -496,22 +503,27 @@ pub struct PeerConnection {
     inner: sys::PeerConnectionInterface,
 
     /// [`sys::Transceiver`]s of this [`PeerConnection`].
-    transceivers: Vec<sys::RtpTransceiverInterface>,
+    transceivers: Arc<Mutex<Vec<sys::RtpTransceiverInterface>>>,
 }
+
+/// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
+pub struct PeerConnection(InnerPeer);
 
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
-        observer: UniquePtr<PeerConnectionObserverInterface>,
-        remote_video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
-        remote_audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
+        cb: UniquePtr<PeerConnectionObserverInterface>,
+        video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
+        audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     ) -> anyhow::Result<Self> {
+        let transceivers = Arc::new(Mutex::new(vec![]));
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
-                cb: observer,
-                remote_video_tracks,
-                remote_audio_tracks,
+                cb,
+                transceivers: Arc::downgrade(&transceivers),
+                video_tracks,
+                audio_tracks,
             },
         ));
         let inner = factory.create_peer_connection_or_error(
@@ -519,11 +531,13 @@ impl PeerConnection {
             sys::PeerConnectionDependencies::new(observer),
         )?;
 
-        Ok(Self {
+        let pc = Self(InnerPeer {
             id: PeerConnectionId::from(next_id()),
             inner,
-            transceivers: Vec::new(),
-        })
+            transceivers,
+        });
+
+        Ok(pc)
     }
 }
 
@@ -556,9 +570,18 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 
 /// [`PeerConnectionObserverInterface`] wrapper.
 struct PeerConnectionObserver {
+    /// [`PeerConnectionObserverInterface`] that the events will be forwarded
+    /// to.
     cb: UniquePtr<PeerConnectionObserverInterface>,
-    remote_video_tracks: Arc<Mutex<HashMap<VideoTrackId, VideoTrack>>>,
-    remote_audio_tracks: Arc<Mutex<HashMap<AudioTrackId, AudioTrack>>>,
+
+    /// Vec of [`PeerConnection`] transceivers.
+    transceivers: Weak<Mutex<Vec<RtpTransceiverInterface>>>,
+
+    /// Map of remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
+    video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
+
+    /// Map of remote [`AudioTrack`]s shared with the [`crate::Webrtc`].
+    audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
 }
 
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
@@ -615,6 +638,40 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         self.cb.pin_mut().on_ice_candidate(&string.pin_mut());
     }
 
+    fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
+        let track = match transceiver.media_type() {
+            sys::MediaType::MEDIA_TYPE_AUDIO => {
+                let track = AudioTrack::wrap_remote(&transceiver);
+                let result = api::MediaStreamTrack::from(&track);
+                self.audio_tracks.insert(track.id(), track);
+
+                result
+            }
+            sys::MediaType::MEDIA_TYPE_VIDEO => {
+                let track = VideoTrack::wrap_remote(&transceiver);
+                let result = api::MediaStreamTrack::from(&track);
+                self.video_tracks.insert(track.id(), track);
+
+                result
+            }
+            _ => unreachable!(),
+        };
+        let transceivers = self.transceivers.upgrade().unwrap();
+        let mut transceivers = transceivers.lock().unwrap();
+        transceivers.push(transceiver);
+        let id = transceivers.len() - 1;
+        let result = api::RtcTrackEvent {
+            track,
+            transceiver: api::RtcRtpTransceiver {
+                id: id as u64,
+                mid: "".to_string(),
+                direction: "".to_string(),
+                sender: api::RtcRtpSender { id: id as u64 },
+            },
+        };
+        self.cb.pin_mut().on_track(result);
+    }
+
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
         // This is a non-spec-compliant event.
     }
@@ -626,60 +683,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         // This is a non-spec-compliant event.
     }
 
-    fn on_track(&mut self, mut event: UniquePtr<Sys_RtpTransceiverInterface>) {
-        let receiver = get_transceiver_receiver(&event);
-        let track = get_rtp_receiver_track(&receiver);
-        let id = next_id();
-
-        if get_media_stream_track_kind(&track).to_string() == "video" {
-            let inner = VideoTrackInterface::from((
-                media_stream_track_interface_downcast_video_track(track),
-                HashMap::new(),
-            ));
-
-            let source = get_video_track_sourse(inner.inner());
-            let v = VideoTrack::new_from_video_interface(
-                inner,
-                VideoTrackSourceInterface::from(source),
-                "remote".to_owned(),
-            );
-            self.remote_video_tracks
-                .lock()
-                .unwrap()
-                .insert(id.into(), v);
-        } else {
-            let inner = AudioTrackInterface::from((
-                media_stream_track_interface_downcast_audio_track(track),
-                HashMap::new(),
-            ));
-
-            let source = get_audio_track_sourse(inner.inner());
-            let a = AudioTrack::new_from_audio_interface(
-                inner,
-                AudioSourceInterface::from(source),
-                "audio".to_owned(),
-            );
-            self.remote_audio_tracks
-                .lock()
-                .unwrap()
-                .insert(id.into(), a);
-        }
-
-        let track = get_rtp_receiver_track(&receiver);
-        let result = OnTrackSerialized {
-            track: TrackInterfaceSerialized::from((
-                &track as &MediaStreamTrackInterface,
-                id,
-                "remote".to_owned(),
-            )),
-            transceiver: RtpTransceiverInterfaceSerialized::from(
-                &event.pin_mut() as &Sys_RtpTransceiverInterface,
-            ),
-        };
-        self.cb.pin_mut().on_track(result);
-    }
-
-    fn on_remove_track(&mut self, _: &Sys_RtpReceiverInterface) {
-        // Not required at the moment.
+    fn on_remove_track(&mut self, _: sys::RtpReceiverInterface) {
+        // This is a non-spec-compliant event.
     }
 }

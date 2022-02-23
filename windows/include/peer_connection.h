@@ -1,4 +1,5 @@
 #pragma once
+
 #include "flutter_webrtc.h"
 
 using namespace flutter;
@@ -6,7 +7,7 @@ using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
 
-// Calls Rust `CreatePeerConnection()` and writes newly created Peer ID to the
+// Calls Rust `CreatePeerConnection()` and writes newly created peer ID to the
 // provided `MethodResult`.
 void CreateRTCPeerConnection(
     Box<Webrtc>& webrtc,
