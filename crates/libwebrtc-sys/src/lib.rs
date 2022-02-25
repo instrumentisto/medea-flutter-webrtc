@@ -637,6 +637,7 @@ impl RtpSenderInterface {
 pub struct IceCandidateInterface(UniquePtr<webrtc::IceCandidateInterface>);
 
 impl IceCandidateInterface {
+    /// Creates a new [`IceCandidateInterface`].
     pub fn new(
         sdp_mid: &str,
         sdp_mline_index: i32,
@@ -657,16 +658,25 @@ impl IceCandidateInterface {
         Ok(Self(inner))
     }
 
+    /// Returnts the [`IceCandidateInterface`]'s [`mid`][1].
+    ///
+    /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicecandidate-sdpmid
     #[must_use]
     pub fn mid(&self) -> String {
         webrtc::sdp_mid_of_ice_candidate(&self.0).to_string()
     }
 
+    /// Returnts the [`IceCandidateInterface`]'s in the [`string format`][1].
+    ///
+    /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicecandidate-candidate
     #[must_use]
     pub fn candidate(&self) -> String {
         webrtc::ice_candidate_interface_to_string(&self.0).to_string()
     }
 
+    /// Returnts the [`IceCandidateInterface`]'s [`MLineIndex`][1].
+    ///
+    /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicecandidate-sdpmlineindex
     #[must_use]
     pub fn mline_index(&self) -> i32 {
         webrtc::sdp_mline_index_of_ice_candidate(&self.0)
