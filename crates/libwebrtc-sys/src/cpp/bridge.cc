@@ -491,10 +491,68 @@ rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver) {
   return rust::String(transceiver->mid().value_or(""));
 }
 
+// Calls `RtpTransceiverInterface->media_type()`.
+MediaType get_transceiver_media_type(
+    const RtpTransceiverInterface& transceiver) {
+  return transceiver->media_type();
+}
+
 // Calls `PeerConnectionInterface->direction()`.
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->direction();
+}
+
+// Calls `RtpTransceiverInterface->SetDirectionWithError()`.
+rust::String set_transceiver_direction(
+    const RtpTransceiverInterface& transceiver,
+    webrtc::RtpTransceiverDirection new_direction) {
+  webrtc::RTCError result = transceiver->SetDirectionWithError(new_direction);
+  rust::String error;
+
+  if (!result.ok()) {
+    error = result.message();
+  }
+  return error;
+}
+
+// Calls `RtpTransceiverInterface->StopStandard()`.
+rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
+  webrtc::RTCError result = transceiver->StopStandard();
+  rust::String error;
+
+  if (!result.ok()) {
+    error = result.message();
+  }
+  return error;
+}
+
+// Calls `RtpTransceiverInterface->sender()`.
+std::unique_ptr<RtpSenderInterface> get_transceiver_sender(
+    const RtpTransceiverInterface& transceiver) {
+  return std::make_unique<RtpSenderInterface>(transceiver->sender());
+}
+
+// Calls `RtpSenderInterface->SetTrack()`.
+bool replace_sender_video_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<VideoTrackInterface>& track) {
+  if (!track.get()) {
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
+}
+
+// Calls `RtpSenderInterface->SetTrack()`.
+bool replace_sender_audio_track(
+    const RtpSenderInterface& sender,
+    const std::unique_ptr<AudioTrackInterface>& track) {
+  if (!track.get()) {
+    return sender->SetTrack(nullptr);
+  } else {
+    return sender->SetTrack(track.get()->get());
+  }
 }
 
 }  // namespace bridge

@@ -60,7 +60,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
     this._direction,
     this._mid,
     // TODO: Implement Sender and Receiver.
-    // this._sender,
+    this._sender,
     // this._receiver,
     this._peerConnectionId,
   );
@@ -71,6 +71,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
         map['transceiverId'],
         typeStringToRtpTransceiverDirection[map['direction']]!,
         map['mid']!,
+        RTCRtpSenderNative.fromMap(map, peerConnectionId: peerConnectionId),
         // TODO: Implement Sender and Receiver.
         // RTCRtpSenderNative.fromMap(map['sender'],
         //     peerConnectionId: peerConnectionId),
@@ -173,6 +174,22 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
       _stop = true;
     } on PlatformException catch (e) {
       throw 'Unable to RTCRtpTransceiver::stop: ${e.message}';
+    }
+  }
+
+  // TODO: Used during tests, remove when merging with #31.
+  @override
+  Future<String> getMid() async {
+    try {
+      final response = await WebRTC.invokeMethod(
+          'rtpTransceiverGetMid', <String, dynamic>{
+        'peerConnectionId': _peerConnectionId,
+        'transceiverId': _id
+      });
+
+      return response['mid'];
+    } on PlatformException catch (e) {
+      throw 'Unable to RTCRtpTransceiver::mid: ${e.message}';
     }
   }
 }
