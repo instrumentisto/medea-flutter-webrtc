@@ -658,25 +658,25 @@ impl IceCandidateInterface {
         Ok(Self(inner))
     }
 
-    /// Returnts the [`IceCandidateInterface`]'s [`mid`][1].
+    /// Returns this [`IceCandidateInterface`]'s [`sdpMid`][1].
     ///
-    /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicecandidate-sdpmid
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate-sdpmid
     #[must_use]
     pub fn mid(&self) -> String {
         webrtc::sdp_mid_of_ice_candidate(&self.0).to_string()
     }
 
-    /// Returnts the [`IceCandidateInterface`]'s in the [`string format`][1].
+    /// Returns this [`IceCandidateInterface`] in a [string format][1].
     ///
-    /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicecandidate-candidate
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate-candidate
     #[must_use]
     pub fn candidate(&self) -> String {
         webrtc::ice_candidate_interface_to_string(&self.0).to_string()
     }
 
-    /// Returnts the [`IceCandidateInterface`]'s [`MLineIndex`][1].
+    /// Returns this [`IceCandidateInterface`]'s [`sdpMLineIndex`][1].
     ///
-    /// [1]: https://w3c.github.io/webrtc-pc/#dom-rtcicecandidate-sdpmlineindex
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate-sdpmlineindex
     #[must_use]
     pub fn mline_index(&self) -> i32 {
         webrtc::sdp_mline_index_of_ice_candidate(&self.0)
