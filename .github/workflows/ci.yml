@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: 2.10.1
+  FLUTTER_VER: 2.8.1
   RUST_BACKTRACE: 1
 
 jobs:
