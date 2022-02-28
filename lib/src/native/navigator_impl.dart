@@ -4,6 +4,7 @@ import '../interface/navigator.dart';
 import 'mediadevices_impl.dart';
 
 class NavigatorNative extends Navigator {
+  /// [MediaDeviceNative] singleton.
   MediaDeviceNative? _mediaDevices;
 
   @override
@@ -21,7 +22,7 @@ class NavigatorNative extends Navigator {
     return mediaDevices.getUserMedia(mediaConstraints);
   }
 
-  /// Returns the [MediaDevices], if it exists or creates if it does not.
+  /// Returns the [MediaDevices] singleton.
   @override
   MediaDevices get mediaDevices {
     if (_mediaDevices == null) {

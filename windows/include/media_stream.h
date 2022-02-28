@@ -1,7 +1,6 @@
 #pragma once
 
 #include "flutter_webrtc.h"
-#include "flutter_webrtc.h"
 
 using namespace rust::cxxbridge1;
 using namespace flutter;
@@ -19,20 +18,22 @@ void EnumerateDevice(rust::Box<Webrtc>& webrtc,
 
 // Parses the received constraints from Dart and passes them to Rust
 // `GetMedia()`, then converts the backed `MediaStream` info for Dart.
-void GetMedia(Box<Webrtc>& webrtc,const flutter::MethodCall<EncodableValue>& method_call,
-
+void GetMedia(Box<Webrtc>& webrtc,
+              const flutter::MethodCall<EncodableValue>& method_call,
               std::unique_ptr<flutter::MethodResult<EncodableValue>> result,
               bool is_display = false);
 
 // Changes the `enabled` property of the specified media track.
-void SetTrackEnabled(Box<Webrtc>& webrtc,const flutter::MethodCall<EncodableValue>& method_call,
-
-                     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+void SetTrackEnabled(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Disposes some media stream calling Rust `DisposeStream`.
-void DisposeStream(Box<Webrtc>& webrtc,const flutter::MethodCall<EncodableValue>& method_call,
-
-                   std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+void DisposeStream(
+    Box<Webrtc>& webrtc,
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Parses video constraints received from Dart to Rust `VideoConstraints`.
 VideoConstraints ParseVideoConstraints(const EncodableValue video_arg);
@@ -44,10 +45,11 @@ AudioConstraints ParseAudioConstraints(const EncodableValue audio_arg);
 // for passing to Dart according to `TrackKind`.
 EncodableList GetParams(TrackKind type, MediaStream& user_media);
 
+// TODO: not real reason to declare this in header (e.g. CreateSdpCallback)
 // Handler for changing media devices in system.
 class DeviceChangeHandler : public OnDeviceChangeCallback {
  public:
-  DeviceChangeHandler(flutter::BinaryMessenger* binary_messanger);
+  DeviceChangeHandler(flutter::BinaryMessenger* binary_messenger);
 
   // `OnDeviceChangeCallback` implementation.
   void OnDeviceChange();

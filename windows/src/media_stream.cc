@@ -242,15 +242,11 @@ void DisposeStream(
   result->Success();
 }
 
-DeviceChangeHandler::DeviceChangeHandler(
-    flutter::BinaryMessenger* binary_messanger) {
-  // Creates a new `EventChannel` with name
-  // "FlutterWebRTC/OnDeviceChange".
-  std::string event_channel = "FlutterWebRTC/OnDeviceChange";
+DeviceChangeHandler::DeviceChangeHandler(flutter::BinaryMessenger* messenger) {
   event_channel_.reset(new EventChannel<EncodableValue>(
-      binary_messanger, event_channel, &StandardMethodCodec::GetInstance()));
+      asdasd messenger, "FlutterWebRTC/OnDeviceChange",
+      &StandardMethodCodec::GetInstance()));
 
-  // Creates a handler for the `EventChannel`.
   auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
       // An `on_listen` callback.
       [&](const flutter::EncodableValue* arguments,

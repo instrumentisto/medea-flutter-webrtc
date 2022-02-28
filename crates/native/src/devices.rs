@@ -37,7 +37,7 @@ static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
 /// This struct contains the current number of media devices and some tools
 /// to enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`])
 /// and generate event with [`OnDeviceChangeCallback`], if the last is needed.
-struct DeviceState {
+struct DeviceState { // TODO: add functions
     cb: UniquePtr<OnDeviceChangeCallback>,
     adm: AudioDeviceModule,
     vdi: VideoDeviceInfo,

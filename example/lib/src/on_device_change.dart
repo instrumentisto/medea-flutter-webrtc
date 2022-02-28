@@ -3,7 +3,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class NotifierTest extends StatefulWidget {
   const NotifierTest({Key? key}) : super(key: key);
-  static String tag = 'NotifierTest';
 
   @override
   _NotifierTestState createState() => _NotifierTestState();
@@ -11,7 +10,7 @@ class NotifierTest extends StatefulWidget {
 
 class _NotifierTestState extends State<NotifierTest> {
   int count = 0;
-  String text = 'Notifications here.';
+  String text = '';
   MediaDevices? mediaDevices;
 
   @override
@@ -21,7 +20,7 @@ class _NotifierTestState extends State<NotifierTest> {
     mediaDevices = navigator.mediaDevices;
     mediaDevices?.onDeviceChange = () => {
           setState(() {
-            text = 'Event number $count.';
+            text = 'Count of events fired: $count.';
             count++;
           })
         };

@@ -14,7 +14,7 @@ import 'src/get_user_media_sample.dart'
     if (dart.library.html) 'src/get_user_media_sample_web.dart';
 import 'src/loopback_sample.dart';
 import 'src/renderer.dart';
-import 'src/notifier_test.dart';
+import 'src/on_device_change.dart';
 import 'src/route_item.dart';
 
 void main() {
@@ -141,7 +141,7 @@ class _MyAppState extends State<MyApp> {
                     builder: (BuildContext context) => RendererSample()));
           }),
       RouteItem(
-          title: 'Notifications',
+          title: 'onDeviceChange notifier',
           push: (BuildContext context) {
             Navigator.push(
                 context,
