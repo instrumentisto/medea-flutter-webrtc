@@ -1,6 +1,7 @@
 #pragma once
 
 #include "flutter_webrtc.h"
+#include "flutter_webrtc.h"
 
 using namespace rust::cxxbridge1;
 using namespace flutter;
@@ -18,20 +19,20 @@ void EnumerateDevice(rust::Box<Webrtc>& webrtc,
 
 // Parses the received constraints from Dart and passes them to Rust
 // `GetMedia()`, then converts the backed `MediaStream` info for Dart.
-void GetMedia(const flutter::MethodCall<EncodableValue>& method_call,
-              Box<Webrtc>& webrtc,
-              std::unique_ptr<MethodResult<EncodableValue>> result,
+void GetMedia(Box<Webrtc>& webrtc,const flutter::MethodCall<EncodableValue>& method_call,
+
+              std::unique_ptr<flutter::MethodResult<EncodableValue>> result,
               bool is_display = false);
 
 // Changes the `enabled` property of the specified media track.
-void SetTrackEnabled(const flutter::MethodCall<EncodableValue>& method_call,
-                     Box<Webrtc>& webrtc,
-                     std::unique_ptr<MethodResult<EncodableValue>> result);
+void SetTrackEnabled(Box<Webrtc>& webrtc,const flutter::MethodCall<EncodableValue>& method_call,
+
+                     std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Disposes some media stream calling Rust `DisposeStream`.
-void DisposeStream(const flutter::MethodCall<EncodableValue>& method_call,
-                   Box<Webrtc>& webrtc,
-                   std::unique_ptr<MethodResult<EncodableValue>> result);
+void DisposeStream(Box<Webrtc>& webrtc,const flutter::MethodCall<EncodableValue>& method_call,
+
+                   std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
 // Parses video constraints received from Dart to Rust `VideoConstraints`.
 VideoConstraints ParseVideoConstraints(const EncodableValue video_arg);

@@ -11,6 +11,7 @@ mod cpp_api_bindings {
         pub type SetDescriptionCallbackInterface;
         pub type OnFrameCallbackInterface;
         pub type PeerConnectionObserverInterface;
+        pub type AddIceCandidateCallbackInterface;
         pub type OnDeviceChangeCallback;
 
         type VideoFrame = crate::api::VideoFrame;
@@ -104,7 +105,22 @@ mod cpp_api_bindings {
         #[cxx_name = "OnIceCandidate"]
         pub fn on_ice_candidate(
             self: Pin<&mut PeerConnectionObserverInterface>,
-            candidate: &CxxString,
+            candidate: String,
+            mid: String,
+            mline_index: i32,
+        );
+
+        /// Calls C++ side `AddIceCandidateCallbackInterface->OnSuccess`.
+        #[cxx_name = "OnSuccess"]
+        pub fn on_add_ice_candidate_success(
+            self: Pin<&mut AddIceCandidateCallbackInterface>,
+        );
+
+        /// Calls C++ side `AddIceCandidateCallbackInterface->OnFail`.
+        #[cxx_name = "OnFail"]
+        pub fn on_add_ice_candidate_fail(
+            self: Pin<&mut AddIceCandidateCallbackInterface>,
+            error: &CxxString,
         );
 
         /// Calls C++ side `OnDeviceChangeCallback->OnDeviceChange`.
@@ -124,6 +140,9 @@ mod cpp_api_bindings {
         );
         fn _touch_unique_ptr_peer_connection_on_event_interface(
             i: UniquePtr<PeerConnectionObserverInterface>,
+        );
+        fn _touch_unique_ptr_add_ice_candidate_interface(
+            i: UniquePtr<AddIceCandidateCallbackInterface>,
         );
         fn _touch_unique_ptr_on_device_change(
             i: UniquePtr<OnDeviceChangeCallback>,
@@ -145,6 +164,11 @@ fn _touch_unique_ptr_on_frame_handler(
 
 fn _touch_unique_ptr_peer_connection_on_event_interface(
     _: cxx::UniquePtr<PeerConnectionObserverInterface>,
+) {
+}
+
+fn _touch_unique_ptr_add_ice_candidate_interface(
+    _: cxx::UniquePtr<AddIceCandidateCallbackInterface>,
 ) {
 }
 
