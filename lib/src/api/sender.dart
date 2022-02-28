@@ -4,7 +4,7 @@ import '/src/platform/track.dart';
 import 'channel.dart';
 
 class RtpSender {
-  /// Creates [RtpSender] based on the [Map] received from the native side.
+  /// Creates an [RtpSender] basing on the [Map] received from the native side.
   RtpSender.fromMap(dynamic map) {
     _chan = methodChannel('RtpSender', map['channelId']);
   }
@@ -12,7 +12,7 @@ class RtpSender {
   /// Current [MediaStreamTrack] of this [RtpSender].
   MediaStreamTrack? _track;
 
-  /// [MethodChannel] used for the messaging with a native side.
+  /// [MethodChannel] used for the messaging with the native side.
   late MethodChannel _chan;
 
   /// Getter for the [MediaStreamTrack] currently owned by this [RtpSender].

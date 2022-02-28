@@ -1,7 +1,7 @@
 package com.cloudwebrtc.webrtc.utils
 
 /**
- * Generates unique IDs for the local media tracks.
+ * Generates unique IDs for local media tracks.
  */
 object LocalTrackIdGenerator {
     /**
@@ -10,7 +10,7 @@ object LocalTrackIdGenerator {
     private var lastId: Int = 0
 
     /**
-     * @return new unique ID for the local track.
+     * @return  New unique ID for the local media track.
      */
     fun nextId(): String {
         return "local-" + lastId++.toString()

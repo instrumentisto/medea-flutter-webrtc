@@ -10,10 +10,10 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * Controller for [MediaDevices] functional.
+ * Controller of [MediaDevices] functional.
  *
- * @property messenger messenger used for creating new [MethodChannel]s.
- * @param state will be used for creating new [MediaStreamTrackProxy]s.
+ * @property messenger  Messenger used for creating new [MethodChannel]s.
+ * @param state         State used for creating new [MediaStreamTrackProxy]s.
  */
 class MediaDevicesController(
     private val messenger: BinaryMessenger,
@@ -21,12 +21,12 @@ class MediaDevicesController(
 ) :
     MethodChannel.MethodCallHandler {
     /**
-     * Underlying [MediaDevices] on which method calls will be performed.
+     * Underlying [MediaDevices] to perform [MethodCall]s on.
      */
     private val mediaDevices = MediaDevices(state)
 
     /**
-     * Channel which will be listened for the [MethodCall]s.
+     * Channel listened for [MethodCall]s.
      */
     private val chan =
         MethodChannel(messenger, ChannelNameGenerator.name("MediaDevices", 0))

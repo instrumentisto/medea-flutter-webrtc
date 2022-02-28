@@ -15,32 +15,33 @@ import 'transceiver.dart';
 final _peerConnectionFactoryMethodChannel =
     methodChannel('PeerConnectionFactory', 0);
 
-/// Typedef for the `on_track` callback.
+/// Shortcut for the `on_track` callback.
 typedef OnTrackCallback = void Function(NativeMediaStreamTrack, RtpTransceiver);
 
-/// Typedef for the `on_ice_candidate` callback.
+/// Shortcut for the `on_ice_candidate` callback.
 typedef OnIceCandidateCallback = void Function(IceCandidate);
 
-/// Typedef for the `on_ice_connection_state_change` callback.
+/// Shortcut for the `on_ice_connection_state_change` callback.
 typedef OnIceConnectionStateChangeCallback = void Function(IceConnectionState);
 
-/// Typedef for the `on_connection_state_change` callback.
+/// Shortcut for the `on_connection_state_change` callback.
 typedef OnConnectionStateChangeCallback = void Function(PeerConnectionState);
 
-/// Typedef for the `on_ice_gathering_state_change` callback.
+/// Shortcut for the `on_ice_gathering_state_change` callback.
 typedef OnIceGatheringStateChangeCallback = void Function(IceGatheringState);
 
-/// Typedef for the `on_negotiation_needed` callback.
+/// Shortcut for the `on_negotiation_needed` callback.
 typedef OnNegotiationNeededCallback = void Function();
 
-/// Typedef for the `on_signaling_state_change` callback.
+/// Shortcut for the `on_signaling_state_change` callback.
 typedef OnSignalingStateChangeCallback = void Function(SignalingState);
 
-/// Typedef for the `on_ice_candidate_error` callback.
+/// Shortcut for the `on_ice_candidate_error` callback.
 typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
 class PeerConnection {
-  /// Creates [PeerConnection] based on the [Map] received from the native side.
+  /// Creates a [PeerConnection] based on the [Map] received from the native
+  /// side.
   PeerConnection._fromMap(dynamic map) {
     int channelId = map['channelId'];
     _chan = methodChannel('PeerConnection', channelId);
@@ -48,7 +49,8 @@ class PeerConnection {
     _eventSub = _eventChan.receiveBroadcastStream().listen(eventListener);
   }
 
-  /// Listener for the all [PeerConnection] events received from the native side.
+  /// Listener for the all [PeerConnection] events received from the native
+  /// side.
   void eventListener(dynamic event) {
     final dynamic e = event;
     switch (e['event']) {
@@ -90,7 +92,7 @@ class PeerConnection {
     }
   }
 
-  /// [MethodChannel] used for the messaging with a native side.
+  /// [MethodChannel] used for the messaging with the native side.
   late MethodChannel _chan;
 
   /// [EventChannel] from which all [PeerConnection] events will be received.
@@ -99,52 +101,52 @@ class PeerConnection {
   /// [_eventChan] subscription to the [PeerConnection] events.
   late StreamSubscription<dynamic>? _eventSub;
 
-  /// `on_ice_connection_state_change` event subcriber.
+  /// `on_ice_connection_state_change` event subscriber.
   OnIceConnectionStateChangeCallback? _onIceConnectionStateChange;
 
-  /// `on_ice_candidate` event subcriber.
+  /// `on_ice_candidate` event subscriber.
   OnIceCandidateCallback? _onIceCandidate;
 
-  /// `on_ice_candidate_error` event subcriber.
+  /// `on_ice_candidate_error` event subscriber.
   OnIceCandidateErrorCallback? _onIceCandidateError;
 
-  /// `on_track` event subcriber.
+  /// `on_track` event subscriber.
   OnTrackCallback? _onTrack;
 
-  /// `on_connection_state_change` event subcriber.
+  /// `on_connection_state_change` event subscriber.
   OnConnectionStateChangeCallback? _onConnectionStateChange;
 
-  /// `on_ice_gathering_state_change` event subcriber.
+  /// `on_ice_gathering_state_change` event subscriber.
   OnIceGatheringStateChangeCallback? _onIceGatheringStateChange;
 
-  /// `on_negotiation_needed` event subcriber.
+  /// `on_negotiation_needed` event subscriber.
   OnNegotiationNeededCallback? _onNegotiationNeeded;
 
-  /// `on_signaling_state_change` event subcriber.
+  /// `on_signaling_state_change` event subscriber.
   OnSignalingStateChangeCallback? _onSignalingStateChange;
 
   /// Current [IceConnectionState] of this [PeerConnection].
   ///
-  /// This field will be updated automatically based on the events received
-  /// from the native side.
+  /// This field will be updated automatically based on the events received from
+  /// the native side.
   IceConnectionState _iceConnectionState = IceConnectionState.new_;
 
   /// Current [PeerConnectionState] of this [PeerConnection].
   ///
-  /// This field will be updated automatically based on the events received
-  /// from the native side.
+  /// This field will be updated automatically based on the events received from
+  /// the native side.
   PeerConnectionState _connectionState = PeerConnectionState.new_;
 
   /// All [RtpTransceiver]s owned by this [PeerConnection].
   ///
-  /// This list will be automatically updated call of some action which
+  /// This list will be automatically updated on a call of some action which
   /// theoretically can change it.
   ///
-  /// This allows us, to make some publc APIs synchonous.
+  /// This allows us, to make some public APIs synchronous.
   final List<RtpTransceiver> _transceivers = [];
 
-  /// Creates new [PeerConnection] with a provided [IceTransportType]
-  /// and [IceServer]s.
+  /// Creates a new [PeerConnection] with the provided [IceTransportType] and
+  /// [IceServer]s.
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
     dynamic res =
@@ -156,62 +158,62 @@ class PeerConnection {
     return PeerConnection._fromMap(res);
   }
 
-  /// Subscribes provided callback to the `on_track` events of
-  /// this [PeerConnection]
+  /// Subscribes the provided callback to the `on_track` events of this
+  /// [PeerConnection].
   void onTrack(OnTrackCallback f) {
     _onTrack = f;
   }
 
-  /// Subscribes provided callback to the `on_ice_candidate` events of
-  /// this [PeerConnection]
+  /// Subscribes the provided callback to the `on_ice_candidate` events of this
+  /// [PeerConnection].
   void onIceCandidate(OnIceCandidateCallback f) {
     _onIceCandidate = f;
   }
 
-  /// Subscribes provided callback to the `on_ice_candidate_error` events of
-  /// this [PeerConnection]
+  /// Subscribes the provided callback to the `on_ice_candidate_error` events of
+  /// this [PeerConnection].
   void onIceCandidateError(OnIceCandidateErrorCallback f) {
     _onIceCandidateError = f;
   }
 
-  /// Subscribes provided callback to the `on_ice_connection_state_change`
-  /// events of this [PeerConnection]
+  /// Subscribes the provided callback to the `on_ice_connection_state_change`
+  /// events of this [PeerConnection].
   void onIceConnectionStateChange(OnIceConnectionStateChangeCallback f) {
     _onIceConnectionStateChange = f;
   }
 
-  /// Subscribes provided callback to the `on_connection_state_change`
-  /// events of this [PeerConnection]
+  /// Subscribes the provided callback to the `on_connection_state_change`
+  /// events of this [PeerConnection].
   void onConnectionStateChange(OnConnectionStateChangeCallback f) {
     _onConnectionStateChange = f;
   }
 
-  /// Subscribes provided callback to the `on_ice_gathering_state_change`
-  /// events of this [PeerConnection]
+  /// Subscribes the provided callback to the `on_ice_gathering_state_change`
+  /// events of this [PeerConnection].
   void onIceGatheringStateChange(OnIceGatheringStateChangeCallback f) {
     _onIceGatheringStateChange = f;
   }
 
-  /// Subscribes provided callback to the `on_negotiation_needed`
-  /// events of this [PeerConnection]
+  /// Subscribes the provided callback to the `on_negotiation_needed` events of
+  /// this [PeerConnection].
   void onNegotiationNeeded(OnNegotiationNeededCallback f) {
     _onNegotiationNeeded = f;
   }
 
-  /// Subscribes provided callback to the `on_signaling_state_change`
-  /// events of this [PeerConnection]
+  /// Subscribes the provided callback to the `on_signaling_state_change` events
+  /// of this [PeerConnection].
   void onSignalingStateChange(OnSignalingStateChangeCallback f) {
     _onSignalingStateChange = f;
   }
 
-  /// Synchonizes mids of the [_transceivers] owned by this [PeerConnection].
+  /// Synchronizes mIDs of the [_transceivers] owned by this [PeerConnection].
   Future<void> _syncTransceiversMids() async {
     for (var transceiver in _transceivers) {
       await transceiver.syncMid();
     }
   }
 
-  /// Adds new [RtpTransceiver] to this [PeerConnection].
+  /// Adds a new [RtpTransceiver] to this [PeerConnection].
   Future<RtpTransceiver> addTransceiver(
       MediaKind mediaType, RtpTransceiverInit init) async {
     dynamic res = await _chan.invokeMethod(
@@ -222,7 +224,7 @@ class PeerConnection {
     return transceiver;
   }
 
-  /// Returns all [RtpTransceiver]s owned by this [PeerConnection].
+  /// Returns all the [RtpTransceiver]s owned by this [PeerConnection].
   Future<List<RtpTransceiver>> getTransceivers() async {
     List<dynamic> res = await _chan.invokeMethod('getTransceivers');
     var transceivers = res.map((t) => RtpTransceiver.fromMap(t)).toList();
@@ -231,55 +233,55 @@ class PeerConnection {
     return transceivers;
   }
 
-  /// Sets provided remote [SessionDescription] to the [PeerConnection].
+  /// Sets the provided remote [SessionDescription] to the [PeerConnection].
   Future<void> setRemoteDescription(SessionDescription description) async {
     await _chan.invokeMethod(
         'setRemoteDescription', {'description': description.toMap()});
     await _syncTransceiversMids();
   }
 
-  /// Sets provided local [SessionDescription] to the [PeerConnection].
+  /// Sets the provided local [SessionDescription] to the [PeerConnection].
   Future<void> setLocalDescription(SessionDescription description) async {
     await _chan.invokeMethod(
         'setLocalDescription', {'description': description.toMap()});
     await _syncTransceiversMids();
   }
 
-  /// Creates new [SessionDescription] offer.
+  /// Creates a new [SessionDescription] offer.
   Future<SessionDescription> createOffer() async {
     dynamic res = await _chan.invokeMethod('createOffer');
     return SessionDescription.fromMap(res);
   }
 
-  /// Creates new [SessionDescription] answer.
+  /// Creates a new [SessionDescription] answer.
   Future<SessionDescription> createAnswer() async {
     dynamic res = await _chan.invokeMethod('createAnswer');
     return SessionDescription.fromMap(res);
   }
 
-  /// Adds new [IceCandidate] to the [PeerConnection].
+  /// Adds a new [IceCandidate] to the [PeerConnection].
   Future<void> addIceCandidate(IceCandidate candidate) async {
     await _chan
         .invokeMethod('addIceCandidate', {'candidate': candidate.toMap()});
   }
 
-  /// Requests [PeerConnection] to [IceCandidate] gathering redone.
+  /// Requests the [PeerConnection] to redo [IceCandidate]s gathering.
   Future<void> restartIce() async {
     await _chan.invokeMethod('restartIce');
   }
 
-  /// Returns current [PeerConnectionState] of this [PeerConnection].
+  /// Returns the current [PeerConnectionState] of this [PeerConnection].
   PeerConnectionState connectionState() {
     return _connectionState;
   }
 
-  /// Returns current [IceConnectionState] of this [PeerConnection].
+  /// Returns the current [IceConnectionState] of this [PeerConnection].
   IceConnectionState iceConnectionState() {
     return _iceConnectionState;
   }
 
-  /// Closes this [PeerConnection] and all it's owned entitied (for example
-  /// [RtpTransceiver]).
+  /// Closes this [PeerConnection] and all it's owned entities (for example,
+  /// [RtpTransceiver]s).
   Future<void> close() async {
     for (var e in _transceivers) {
       e.stoppedByPeer();

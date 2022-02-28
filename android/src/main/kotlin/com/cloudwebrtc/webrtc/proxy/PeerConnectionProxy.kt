@@ -17,10 +17,10 @@ import kotlin.coroutines.suspendCoroutine
 import org.webrtc.SessionDescription as WSessionDescription
 
 /**
- * Wrapper around [PeerConnection].
+ * Wrapper around a [PeerConnection].
  *
- * @property id unique ID of this [PeerConnectionProxy].
- * @param peer underlying [PeerConnection].
+ * @property id  Unique ID of this [PeerConnectionProxy].
+ * @param peer   Underlying [PeerConnection].
  */
 class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     Proxy<PeerConnection> {
@@ -63,14 +63,15 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
 
     companion object {
         /**
-         * Observer of the [PeerConnectionProxy] events.
+         * Observer of a [PeerConnectionProxy] events.
          */
         interface EventObserver {
             /**
-             * Notifies observer about new [MediaStreamTrackProxy].
+             * Notifies observer about a new [MediaStreamTrackProxy].
              *
-             * @param track newly added [MediaStreamTrackProxy].
-             * @param transceiver [RtpTransceiverProxy] of this [MediaStreamTrackProxy].
+             * @param track        Newly added [MediaStreamTrackProxy].
+             * @param transceiver  [RtpTransceiverProxy] of this
+             *                     [MediaStreamTrackProxy].
              */
             fun onTrack(
                 track: MediaStreamTrackProxy,
@@ -78,52 +79,59 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
             )
 
             /**
-             * Notifies observer about [IceConnectionState] update.
+             * Notifies observer about an [IceConnectionState] update.
              *
-             * @param iceConnectionState new [IceConnectionState] of the [PeerConnectionProxy].
+             * @param iceConnectionState  New [IceConnectionState] of the
+             *                            [PeerConnectionProxy].
              */
             fun onIceConnectionStateChange(iceConnectionState: IceConnectionState)
 
             /**
-             * Notifies observer about [SignalingState] update.
+             * Notifies observer about a [SignalingState] update.
              *
-             * @param signalingState new [SignalingState] of the [PeerConnectionProxy].
+             * @param signalingState  New [SignalingState] of the
+             *                        [PeerConnectionProxy].
              */
             fun onSignalingStateChange(signalingState: SignalingState)
 
             /**
-             * Notifies observer about [PeerConnectionState] update.
+             * Notifies observer about a [PeerConnectionState] update.
              *
-             * @param peerConnectionState new [PeerConnectionState] of the [PeerConnectionProxy].
+             * @param peerConnectionState  New [PeerConnectionState] of the
+             *                             [PeerConnectionProxy].
              */
             fun onConnectionStateChange(peerConnectionState: PeerConnectionState)
 
             /**
-             * Notifies observer about [IceGatheringState] update.
+             * Notifies observer about an [IceGatheringState] update.
              *
-             * @param iceGatheringState new [IceGatheringState] of the [PeerConnectionProxy].
+             * @param iceGatheringState  New [IceGatheringState] of the
+             *                           [PeerConnectionProxy].
              */
             fun onIceGatheringStateChange(iceGatheringState: IceGatheringState)
 
             /**
-             * Notifies observer about new [IceCandidate].
+             * Notifies observer about a new [IceCandidate].
              *
-             * @param candidate newly added [IceCandidate].
+             * @param candidate  Newly added [IceCandidate].
              */
             fun onIceCandidate(candidate: IceCandidate)
 
             /**
-             * Notifies observer about new necessity to perform renegotiation process.
+             * Notifies observer about the necessity to perform a new
+             * renegotiation process.
              */
             fun onNegotiationNeeded()
         }
 
         /**
-         * Creates [SdpObserver] which will resolve provided [Continuation]
-         * on [SdpObserver.onCreateSuccess] or [SdpObserver.onCreateFailure].
+         * Creates an [SdpObserver] which will resolve the provided
+         * [Continuation] on [SdpObserver.onCreateSuccess] or
+         * [SdpObserver.onCreateFailure] .
          *
-         * @param continuation [Continuation] which will be resumed.
-         * @return new [SdpObserver].
+         * @param continuation  [Continuation] which will be resumed.
+         *
+         * @return  Newly created [SdpObserver].
          */
         private fun createSdpObserver(continuation: Continuation<SessionDescription>): SdpObserver {
             return object : SdpObserver {
@@ -150,11 +158,13 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
         }
 
         /**
-         * Creates [SdpObserver] which will resolve provided [Continuation]
-         * on [SdpObserver.onSetSuccess] or [SdpObserver.onSetFailure].
+         * Creates an [SdpObserver] which will resolve the provided
+         * [Continuation] on [SdpObserver.onSetSuccess] or
+         * [SdpObserver.onSetFailure].
          *
-         * @param continuation [Continuation] which will be resumed.
-         * @return new [SdpObserver].
+         * @param continuation  [Continuation] which will be resumed.
+         *
+         * @return  Newly created [SdpObserver].
          */
         private fun setSdpObserver(continuation: Continuation<Unit>): SdpObserver {
             return object : SdpObserver {
@@ -188,27 +198,28 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Adds [EventObserver] for this [PeerConnectionProxy].
+     * Adds an [EventObserver] for this [PeerConnectionProxy].
      *
-     * @param eventObserver [EventObserver] which will be subscribed.
+     * @param eventObserver  [EventObserver] which will be subscribed.
      */
     fun addEventObserver(eventObserver: EventObserver) {
         eventObservers.add(eventObserver)
     }
 
     /**
-     * Removes [EventObserver] from this [PeerConnectionProxy].
+     * Removes an [EventObserver] from this [PeerConnectionProxy].
      *
-     * @param eventObserver [EventObserver] which will be unsubscribed.
+     * @param eventObserver  [EventObserver] which will be unsubscribed.
      */
     fun removeEventObserver(eventObserver: EventObserver) {
         eventObservers.remove(eventObserver)
     }
 
     /**
-     * Creates broadcaster to the all [eventObservers] of this [PeerConnectionProxy].
+     * Creates a broadcaster to all the [eventObservers] of this
+     * [PeerConnectionProxy].
      *
-     * @return [EventObserver] which will broadcast calls to the all [eventObservers].
+     * @return  [EventObserver] broadcasting calls to all the [eventObservers].
      */
     internal fun observableEventBroadcaster(): EventObserver {
         return object : EventObserver {
@@ -262,8 +273,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Disposes underlying [PeerConnection], [RtpSenderProxy]s, [RtpReceiverProxy] and
-     * notifies all [onDispose] subscribers about it.
+     * Disposes the underlying [PeerConnection], [RtpSenderProxy]s,
+     * [RtpReceiverProxy] and notifies all [onDispose] subscribers about it.
      */
     fun dispose() {
         obj.dispose()
@@ -275,16 +286,17 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     /**
      * Subscribes to the [dispose] event of this [PeerConnectionProxy].
      *
-     * @param f callback which will be called on [dispose].
+     * @param f  Callback which will be called on [dispose].
      */
     fun onDispose(f: (Int) -> Unit) {
         onDisposeSubscribers.add(f)
     }
 
     /**
-     * Synchronizes and returns all [RtpTransceiverProxy]s of this [PeerConnectionProxy].
+     * Synchronizes and returns all the [RtpTransceiverProxy]s of this
+     * [PeerConnectionProxy].
      *
-     * @return all [RtpTransceiverProxy]s of this [PeerConnectionProxy].
+     * @return all  [RtpTransceiverProxy]s of this [PeerConnectionProxy].
      */
     fun getTransceivers(): List<RtpTransceiverProxy> {
         syncTransceivers()
@@ -292,9 +304,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Creates new [SessionDescription] offer.
+     * Creates a new [SessionDescription] offer.
      *
-     * @return newly created [SessionDescription].
+     * @return  Newly created [SessionDescription].
      */
     suspend fun createOffer(): SessionDescription {
         return suspendCoroutine { continuation ->
@@ -303,9 +315,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Creates new [SessionDescription] answer.
+     * Creates a new [SessionDescription] answer.
      *
-     * @return newly created [SessionDescription].
+     * @return  Newly created [SessionDescription].
      */
     suspend fun createAnswer(): SessionDescription {
         return suspendCoroutine { continuation ->
@@ -317,9 +329,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Sets provided local [SessionDescription] to the underlying [PeerConnection].
+     * Sets the provided local [SessionDescription] to the underlying
+     * [PeerConnection].
      *
-     * @param description SDP which will be applied.
+     * @param description  SDP to be applied.
      */
     suspend fun setLocalDescription(description: SessionDescription?) {
         suspendCoroutine<Unit> { continuation ->
@@ -335,9 +348,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Sets provided remote [SessionDescription] to the underlying [PeerConnection].
+     * Sets the provided remote [SessionDescription] to the underlying
+     * [PeerConnection].
      *
-     * @param description SDP which will be applied.
+     * @param description  SDP to be applied.
      */
     suspend fun setRemoteDescription(description: SessionDescription) {
         suspendCoroutine<Unit> { continuation ->
@@ -349,7 +363,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Adds new [IceCandidate] to the underlying [PeerConnection].
+     * Adds a new [IceCandidate] to the underlying [PeerConnection].
      */
     suspend fun addIceCandidate(candidate: IceCandidate) {
         suspendCoroutine<Unit> { continuation ->
@@ -374,11 +388,14 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Creates new [RtpTransceiverProxy] based on the provided config.
+     * Creates a new [RtpTransceiverProxy] based on the provided config.
      *
-     * @param mediaType initial [MediaType] of the newly created [RtpTransceiverProxy].
-     * @param init configuration of the newly created [RtpTransceiverProxy].
-     * @return newly created [RtpTransceiverProxy].
+     * @param mediaType  Initial [MediaType] of the newly created
+     *                   [RtpTransceiverProxy].
+     * @param init       Configuration of the newly created
+     *                   [RtpTransceiverProxy].
+     *
+     * @return  Newly created [RtpTransceiverProxy].
      */
     fun addTransceiver(
         mediaType: MediaType,
@@ -390,15 +407,16 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Requests underlying [PeerConnection] to [IceCandidate] gathering redone.
+     * Requests the underlying [PeerConnection] to redo [IceCandidate]
+     * gathering.
      */
     fun restartIce() {
         obj.restartIce()
     }
 
     /**
-     * Synchronizes underlying pointers of old [RtpSenderProxy]s and
-     * creates [RtpSenderProxy]s for the new [RtpSender]s.
+     * Synchronizes underlying pointers of old [RtpSenderProxy]s and creates
+     * [RtpSenderProxy]s for new [RtpSender]s.
      */
     private fun syncSenders() {
         val peerSenders = obj.senders
@@ -415,8 +433,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Synchronizes underlying pointers of old [RtpReceiverProxy]s and
-     * creates [RtpReceiverProxy]s for the new [RtpReceiver]s.
+     * Synchronizes underlying pointers of old [RtpReceiverProxy]s and creates
+     * [RtpReceiverProxy]s for new [RtpReceiver]s.
      */
     private fun syncReceivers() {
         val peerReceivers = obj.receivers
@@ -434,7 +452,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
 
     /**
      * Synchronizes underlying pointers of old [RtpTransceiverProxy]s and
-     * creates [RtpTransceiverProxy]s for the new [RtpTransceiver]s.
+     * creates [RtpTransceiverProxy]s for new [RtpTransceiver]s.
      */
     private fun syncTransceivers() {
         val peerTransceivers = obj.transceivers.withIndex()

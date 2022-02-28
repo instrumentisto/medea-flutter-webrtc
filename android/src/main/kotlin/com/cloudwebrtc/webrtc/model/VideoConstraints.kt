@@ -3,31 +3,31 @@ package com.cloudwebrtc.webrtc.model
 import org.webrtc.CameraEnumerator
 
 /**
- * Direction in which the camera producing the video.
+ * Direction in which the camera produces the video.
  *
- * @property value [Int] representation of this enum which will be expected on Flutter side.
+ * @property value  [Int] representation of this enum which will be expected on
+ *                  the Flutter side.
  */
 enum class FacingMode(val value: Int) {
     /**
-     * Indicates that video source is facing toward the user;
-     * this includes, for example, the front-facing camera on
-     * a smartphone.
+     * Indicates that the video source is facing toward the user (this includes,
+     * for example, the front-facing camera on a smartphone).
      */
     USER(0),
 
     /**
-     * Indicates that video source is facing away from the user,
-     * thereby viewing their environment.
-     * This is the back camera on a smartphone.
+     * Indicates that the video source is facing away from the user, thereby
+     * viewing their environment. This is the back camera on a smartphone.
      */
     ENVIRONMENT(1);
 
     companion object {
         /**
-         * Tries to create [FacingMode] based on the provided [Int].
+         * Tries to create a [FacingMode] based on the provided [Int].
          *
-         * @param value [Int] value from which [FacingMode] will be created.
-         * @return [FacingMode] based on the provided [Int].
+         * @param value  [Int] value to create the [FacingMode] from.
+         *
+         * @return  [FacingMode] based on the provided [Int].
          */
         fun fromInt(value: Int) = values().first { it.value == value }
     }
@@ -36,35 +36,37 @@ enum class FacingMode(val value: Int) {
 /**
  * Score of [VideoConstraints].
  *
- * This score will be determined by [ConstraintChecker] and based on it, more
- * suitable video device will be selected by gUM request.
+ * This score will be determined by a [ConstraintChecker] and basing on it, more
+ * suitable video device will be selected by `getUserMedia` request.
  */
 enum class ConstraintScore {
     /**
-     * Indicates that constraint is not suitable at all.
+     * Indicates that the constraint is not suitable at all.
      *
-     * So device with this score wouldn't used event if
-     * there is no other devices.
+     * So, the device with this score wouldn't used event if there is no other
+     * devices.
      */
     NO,
 
     /**
-     * Indicates that constraint can be used, but more suitable
-     * devices can be found.
+     * Indicates that the constraint can be used, but more suitable devices can
+     * be found.
      */
     MAYBE,
 
     /**
-     * Indicates that constraint is ideally suits.
+     * Indicates that the constraint suits ideally.
      */
     YES;
 
     companion object {
         /**
-         * Calculates total score based on which media devices will be sorted.
+         * Calculates the total score based on which media devices will be
+         * sorted.
          *
-         * @param scores list of [ConstraintScore]s of some device.
-         * @return total score calculated based on provided list.
+         * @param scores  List of [ConstraintScore]s of some device.
+         *
+         * @return  Total score calculated based on the provided list.
          */
         fun totalScore(scores: List<ConstraintScore>): Int? {
             var total = 1
@@ -83,7 +85,8 @@ enum class ConstraintScore {
 }
 
 /**
- * Interface for the all video constraints which can check suitability of some device.
+ * Interface for all the video constraints which can check suitability of some
+ * device.
  */
 interface ConstraintChecker {
     /**
@@ -92,12 +95,14 @@ interface ConstraintChecker {
     val isMandatory: Boolean
 
     /**
-     * Calculates [ConstraintScore] of device based on on underlying algorithm
-     * of concrete constraint.
+     * Calculates a [ConstraintScore] of the device based on the underlying
+     * algorithm of the concrete constraint.
      *
-     * @param enumerator object for interaction with Camera API.
-     * @param deviceId ID of device which should be checked for this constraint.
-     * @return [ConstraintScore] based on underlying scoring algorithm.
+     * @param enumerator  Object for interaction with Camera API.
+     * @param deviceId    ID of the device which should be checked for this
+     *                    constraint.
+     *
+     * @return  [ConstraintScore] based on the underlying scoring algorithm.
      */
     fun score(enumerator: CameraEnumerator, deviceId: String): ConstraintScore {
         val fits = isFits(enumerator, deviceId)
@@ -115,20 +120,21 @@ interface ConstraintChecker {
     }
 
     /**
-     * Calculates suitability of the provided device.
+     * Calculates suitability to the provided device.
      *
-     * @param enumerator object for interaction with Camera API.
-     * @param deviceId ID of device which suitability should be checked.
-     * @return `true` if device is suitable or `false` if not.
+     * @param enumerator  Object for an interaction with Camera API.
+     * @param deviceId    ID of device which suitability should be checked.
+     *
+     * @return  `true` if device is suitable, or `false` otherwise.
      */
     fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean
 }
 
 /**
- * Constraint which will search for device with some concrete deviceId.
+ * Constraint searching for a device with some concrete `deviceId`.
  *
- * @property id concrete deviceId which will be searched.
- * @property isMandatory indicates that this constraint is mandatory.
+ * @property id           Concrete `deviceId` to be searched.
+ * @property isMandatory  Indicates that this constraint is mandatory.
  */
 data class DeviceIdConstraint(
     val id: String,
@@ -144,10 +150,10 @@ data class DeviceIdConstraint(
 }
 
 /**
- * Constraint which will search for device with some [FacingMode].
+ * Constraint searching for a device with some [FacingMode].
  *
- * @property facingMode [FacingMode] which will be searched.
- * @property isMandatory indicates that this constraint is mandatory.
+ * @property facingMode   [FacingMode] which will be searched.
+ * @property isMandatory  Indicates that this constraint is mandatory.
  */
 data class FacingModeConstraint(
     val facingMode: FacingMode,
@@ -169,10 +175,10 @@ data class FacingModeConstraint(
 /**
  * List of constraints for video devices.
  *
- * @property constraints list of [ConstraintChecker] provided by user.
- * @property width width of the device video.
- * @property height height of the device video.
- * @property fps fps of the device video.
+ * @property constraints  List of the [ConstraintChecker] provided by user.
+ * @property width        Width of the device video.
+ * @property height       Height of the device video.
+ * @property fps          FPS of the device video.
  */
 data class VideoConstraints(
     val constraints: List<ConstraintChecker>,
@@ -183,9 +189,9 @@ data class VideoConstraints(
     companion object {
         /**
          * Creates new [VideoConstraints] object based on the method call
-         * received from the Flutter.
+         * received from the Flutter side.
          *
-         * @return [VideoConstraints] created from the provided [Map].
+         * @return  [VideoConstraints] created from the provided [Map].
          */
         fun fromMap(map: Map<*, *>): VideoConstraints {
             val constraintCheckers = mutableListOf<ConstraintChecker>()
@@ -265,11 +271,11 @@ data class VideoConstraints(
     }
 
     /**
-     * Calculates score for the device with a provided ID.
+     * Calculates a score for the device with the provided ID.
      *
-     * @param enumerator object for interaction with Camera API.
-     * @param deviceId ID of device which suitability should be checked.
-     * @return total score calculated based on provided list.
+     * @param enumerator  Object for interaction with Camera API.
+     * @param deviceId    ID of the device to check suitability with.
+     * @return total      Score calculated based on the provided list.
      */
     fun calculateScoreForDeviceId(
         enumerator: CameraEnumerator,

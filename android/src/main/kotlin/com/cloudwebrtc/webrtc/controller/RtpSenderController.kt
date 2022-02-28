@@ -7,10 +7,10 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * Controller for the [RtpSenderProxy] functional.
+ * Controller of [RtpSenderProxy] functional.
  *
- * @param messenger messenger used for creating new [MethodChannel]s.
- * @property sender underlying [RtpSenderProxy] on which method calls will be performed.
+ * @param messenger  Messenger used for creating new [MethodChannel]s.
+ * @property sender  Underlying [RtpSenderProxy] to perform [MethodCall]s on.
  */
 class RtpSenderController(
     messenger: BinaryMessenger,
@@ -23,7 +23,7 @@ class RtpSenderController(
     private val channelId = nextChannelId()
 
     /**
-     * Channel which will be listened for the [MethodCall]s.
+     * Channel listened for the [MethodCall]s.
      */
     private val chan =
         MethodChannel(
@@ -57,7 +57,8 @@ class RtpSenderController(
     /**
      * Converts this [RtpSenderController] to the Flutter's method call result.
      *
-     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     * @return  [Map] generated from this controller which can be returned to
+     *          the Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf("channelId" to channelId)
 }

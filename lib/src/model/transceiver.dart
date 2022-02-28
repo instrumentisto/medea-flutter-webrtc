@@ -1,33 +1,33 @@
-/// Direction of the Transceiver.
+/// Direction of a transceiver.
 enum TransceiverDirection {
-  /// Indicates that Transceiver is both sending to and receiving from
-  /// the remote peer connection.
+  /// Indicates that the transceiver is both sending to and receiving from the
+  /// remote peer connection.
   sendRecv,
 
-  /// Indicates that Transceiver is sending to the remote peer, but is
-  /// not receiving  any media from the remote peer.
+  /// Indicates that the transceiver is sending to the remote peer, but is not
+  /// receiving any media from the remote peer.
   sendOnly,
 
-  /// Indicates that Transceiver is receiving from the remote peer, but is
+  /// Indicates that the transceiver is receiving from the remote peer, but is
   /// not sending any media to the remote peer.
   recvOnly,
 
-  /// Indicates that Transceiver is inactive, neither sending nor receiving
+  /// Indicates that the transceiver is inactive, neither sending nor receiving
   /// any media data.
   inactive,
 
-  /// The Transceiver will neither send nor receive RTP. It will generate a
+  /// The transceiver will neither send, nor receive RTP. It will generate a
   /// zero port in the offer.
   stopped,
 }
 
-/// Init config for `RtpTransceiver` creation.
+/// Init config for an `RtpTransceiver` creation.
 class RtpTransceiverInit {
-  /// Creates new [RtpTransceiverInit] config with a provided
+  /// Creates a new [RtpTransceiverInit] config with the provided
   /// [TransceiverDirection].
   RtpTransceiverInit(this.direction);
 
-  /// Direction of `RtpTransceiver` which will be created from this config.
+  /// Direction of an `RtpTransceiver` which will be created from this config.
   late TransceiverDirection direction;
 
   /// Converts this model to the [Map] expected by Flutter.

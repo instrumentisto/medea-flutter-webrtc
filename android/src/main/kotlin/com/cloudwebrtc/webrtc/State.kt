@@ -10,22 +10,24 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.audio.JavaAudioDeviceModule
 
 /**
- * Global context for the flutter_webrtc library.
+ * Global context of the `flutter_webrtc` library.
  *
- * Used for creating tracks, peers, perform gUM requests.
+ * Used for creating tracks, peers, and performing `getUserMedia` requests.
  *
- * @property context Android [Context] used, for example, for gUM requests.
+ * @property context  Android [Context] used, for example, for `getUserMedia`
+ *                    requests.
  */
 class State(private val context: Context) {
     /**
-     * Module for the controlling audio devices in context of libwebrtc.
+     * Module for the controlling audio devices in context of `libwebrtc`.
      */
     private var audioDeviceModule: JavaAudioDeviceModule? = null
 
     /**
-     * Factory for the `PeerConnection`s, `MediaStreamTrack`s.
+     * Factory for producing `PeerConnection`s and `MediaStreamTrack`s.
      *
-     * Will be lazily initialized on the first call of [getPeerConnectionFactory].
+     * Will be lazily initialized on the first call of
+     * [getPeerConnectionFactory].
      */
     private var factory: PeerConnectionFactory? = null
 
@@ -38,7 +40,7 @@ class State(private val context: Context) {
     }
 
     /**
-     * Initializes new [factory].
+     * Initializes a new [factory].
      */
     private fun initPeerConnectionFactory() {
         val audioModule = JavaAudioDeviceModule.builder(context)
@@ -63,9 +65,9 @@ class State(private val context: Context) {
     }
 
     /**
-     * Initializes [PeerConnectionFactory] if it wasn't initialized before.
+     * Initializes the [PeerConnectionFactory] if it wasn't initialized before.
      *
-     * @return current [PeerConnectionFactory] of this [State].
+     * @return  Current [PeerConnectionFactory] of this [State].
      */
     fun getPeerConnectionFactory(): PeerConnectionFactory {
         if (factory == null) {
@@ -75,7 +77,7 @@ class State(private val context: Context) {
     }
 
     /**
-     * @return Android SDK [Context].
+     * @return  Android SDK [Context].
      */
     fun getAppContext(): Context {
         return context

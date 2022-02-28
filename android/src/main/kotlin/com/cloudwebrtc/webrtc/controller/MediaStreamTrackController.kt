@@ -6,10 +6,11 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * Controller for the [MediaStreamTrackProxy] functional.
+ * Controller of [MediaStreamTrackProxy] functional.
  *
- * @property messenger messenger used for creating new [MethodChannel]s.
- * @property track underlying [MediaStreamTrackProxy] on which method calls will be performed.
+ * @property messenger  Messenger used for creating new [MethodChannel]s.
+ * @property track      Underlying [MediaStreamTrackProxy] to perform
+ *                      [MethodCall]s on.
  */
 class MediaStreamTrackController(
     private val messenger: BinaryMessenger,
@@ -21,7 +22,7 @@ class MediaStreamTrackController(
     private val channelId: Long = nextChannelId()
 
     /**
-     * Channel which will be listened for the [MethodCall]s.
+     * Channel listened for the [MethodCall]s.
      */
     private val chan: MethodChannel = MethodChannel(
         messenger,
@@ -63,9 +64,11 @@ class MediaStreamTrackController(
     }
 
     /**
-     * Converts this [MediaStreamTrackController] to the Flutter's method call result.
+     * Converts this [MediaStreamTrackController] to the Flutter's method call
+     * result.
      *
-     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     * @return  [Map] generated from this controller which can be returned to
+     *          the Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf(
         "channelId" to channelId,

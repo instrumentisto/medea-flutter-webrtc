@@ -10,10 +10,11 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * Controller for the [FlutterRtcVideoRenderer].
+ * Controller of [FlutterRtcVideoRenderer].
  *
- * @param messenger messenger used for creating new [MethodChannel]s.
- * @property videoRenderer underlying [FlutterRtcVideoRenderer] on which method calls will be performed.
+ * @param messenger         Messenger used for creating new [MethodChannel]s.
+ * @property videoRenderer  Underlying [FlutterRtcVideoRenderer] to perform
+ *                          [MethodCall]s on.
  */
 class VideoRendererController(
     messenger: BinaryMessenger,
@@ -26,7 +27,7 @@ class VideoRendererController(
     private val channelId: Long = nextChannelId()
 
     /**
-     * Channel which will be listened for the [MethodCall]s.
+     * Channel listened for the [MethodCall]s.
      */
     private val chan: MethodChannel = MethodChannel(
         messenger,
@@ -34,7 +35,7 @@ class VideoRendererController(
     )
 
     /**
-     * Event channel into which all [FlutterRtcVideoRenderer] events will be sent.
+     * Event channel into which all [FlutterRtcVideoRenderer] events are sent.
      */
     private val eventChannel: EventChannel =
         EventChannel(
@@ -43,7 +44,7 @@ class VideoRendererController(
         )
 
     /**
-     * Event sink into which all [FlutterRtcVideoRenderer] events will be sent.
+     * Event sink into which all [FlutterRtcVideoRenderer] events are sent.
      */
     private var eventSink: AnyThreadSink? = null
 
@@ -119,9 +120,11 @@ class VideoRendererController(
     }
 
     /**
-     * Converts this [VideoRendererController] to the Flutter's method call result.
+     * Converts this [VideoRendererController] to the Flutter's method call
+     * result.
      *
-     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     * @return  [Map] generated from this controller which can be returned to
+     *          the Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf(
         "channelId" to channelId,

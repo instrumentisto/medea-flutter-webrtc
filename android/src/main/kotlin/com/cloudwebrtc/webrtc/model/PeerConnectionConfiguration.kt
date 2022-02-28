@@ -6,9 +6,10 @@ import org.webrtc.PeerConnection.IceTransportsType as WIceTransportType
 import org.webrtc.PeerConnection.RTCConfiguration as WRTCConfiguration
 
 /**
- * Representation of the [PeerConnection.IceTransportsType].
+ * Representation of a [PeerConnection.IceTransportsType].
  *
- * @property value [Int] representation of this enum which will be expected on Flutter side.
+ * @property value  [Int] representation of this enum which will be expected on
+ *                  the Flutter side.
  */
 enum class IceTransportType(val value: Int) {
     /**
@@ -17,13 +18,13 @@ enum class IceTransportType(val value: Int) {
     ALL(0),
 
     /**
-     * Only advertise relay-type candidates, like TURN servers, to avoid leaking the IP address of
-     * the client.
+     * Only advertise relay-type candidates, like TURN servers, to avoid leaking
+     * IP addresses of the client.
      */
     RELAY(1),
 
     /**
-     * Gather all ICE candidate types except for host candidates.
+     * Gather all ICE candidate types except host candidates.
      */
     NOHOST(2),
 
@@ -34,18 +35,22 @@ enum class IceTransportType(val value: Int) {
 
     companion object {
         /**
-         * Tries to create [IceTransportType] based on the provided [Int].
+         * Tries to create an [IceTransportType] based on the provided [Int].
          *
-         * @param value [Int] value from which [IceTransportType] will be created.
-         * @return [IceTransportType] based on the provided [Int].
+         * @param value  [Int] value from which [IceTransportType] will be
+         *               created.
+         *
+         * @return  [IceTransportType] based on the provided [Int].
          */
         fun fromInt(value: Int) = values().first { it.value == value }
     }
 
     /**
-     * Converts this [IceTransportType] into [PeerConnection.IceTransportsType].
+     * Converts this [IceTransportType] into a
+     * [PeerConnection.IceTransportsType].
      *
-     * @return [PeerConnection.IceTransportsType] based on this [IceTransportType].
+     * @return  [PeerConnection.IceTransportsType] based on this
+     *          [IceTransportType].
      */
     fun intoWebRtc(): WIceTransportType {
         return when (this) {
@@ -58,11 +63,11 @@ enum class IceTransportType(val value: Int) {
 }
 
 /**
- * Representation of the [PeerConnection.IceServer].
+ * Representation of a [PeerConnection.IceServer].
  *
- * @property urls list of URLs of this [IceServer].
- * @property username username for auth on this [IceServer].
- * @property password password for auth on this [IceServer].
+ * @property urls      list of URLs of this [IceServer].
+ * @property username  Username for authentication on this [IceServer].
+ * @property password  Password for authentication on this [IceServer].
  */
 data class IceServer(
     val urls: List<String>,
@@ -70,9 +75,9 @@ data class IceServer(
     val password: String?
 ) {
     /**
-     * Converts this [IceServer] into [PeerConnection.IceServer].
+     * Converts this [IceServer] into a [PeerConnection.IceServer].
      *
-     * @return [PeerConnection.IceServer] based on this [IceServer].
+     * @return  [PeerConnection.IceServer] based on this [IceServer].
      */
     fun intoWebRtc(): WIceServer {
         val iceServerBuilder = WIceServer.builder(urls)
@@ -87,21 +92,24 @@ data class IceServer(
 }
 
 /**
- * Representation of the [PeerConnection.RTCConfiguration].
+ * Representation of a [PeerConnection.RTCConfiguration].
  *
- * @property iceServers list of [IceServer]s which will be used by [PeerConnection] created
- * with this [PeerConnectionConfiguration]
- * @property iceTransportType type of the ICE transport which will be used by [PeerConnection]
- * created with this [PeerConnectionConfiguration].
+ * @property iceServers  List of [IceServer]s, used by the [PeerConnection]
+ *                       created with this [PeerConnectionConfiguration].
+ * @property iceTransportType  Type of the ICE transport, used by the
+ *                             [PeerConnection] created with this
+ *                             [PeerConnectionConfiguration].
  */
 data class PeerConnectionConfiguration(
     val iceServers: List<IceServer>,
     val iceTransportType: IceTransportType
 ) {
     /**
-     * Converts this [PeerConnectionConfiguration] into [PeerConnection.RTCConfiguration].
+     * Converts this [PeerConnectionConfiguration] into a
+     * [PeerConnection.RTCConfiguration].
      *
-     * @return [PeerConnection.RTCConfiguration] based on this [PeerConnectionConfiguration].
+     * @return  [PeerConnection.RTCConfiguration] based on this
+     *          [PeerConnectionConfiguration].
      */
     fun intoWebRtc(): WRTCConfiguration {
         val conf =

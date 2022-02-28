@@ -3,13 +3,13 @@ package com.cloudwebrtc.webrtc.utils
 import org.webrtc.EglBase
 
 /**
- * Lazily creates and returns the one and only [EglBase] which will serve as the root for
- * all contexts that are needed.
+ * Lazily creates and returns the one and only [EglBase] which will serve as the
+ * root for all contexts that are needed.
  */
 object EglUtils {
     /**
-     * The root [EglBase] instance shared by the entire application for the sake of reducing the
-     * utilization of system resources (such as EGL contexts).
+     * Root [EglBase] instance shared by the entire application for the sake of
+     * reducing the utilization of system resources (such as EGL contexts).
      */
     @get:Synchronized
     var rootEglBase: EglBase? = null

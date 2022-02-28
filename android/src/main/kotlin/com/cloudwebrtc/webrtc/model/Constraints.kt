@@ -3,8 +3,8 @@ package com.cloudwebrtc.webrtc.model
 /**
  * Audio and video constraints data.
  *
- * @property audio optional constraints with which audio devices will be looked up.
- * @property video optional constraints with which video devices will be looked up.
+ * @property audio  Optional constraints to lookup audio devices with.
+ * @property video  Optional constraints to lookup video devices with.
  */
 data class Constraints(
     val audio: AudioConstraints?,
@@ -12,9 +12,10 @@ data class Constraints(
 ) {
     companion object {
         /**
-         * Creates new [Constraints] object based on the method call received from the Flutter.
+         * Creates new [Constraints] object based on the method call received
+         * from the Flutter side.
          *
-         * @return [Constraints] created from the provided [Map].
+         * @return  [Constraints] created from the provided [Map].
          */
         fun fromMap(map: Map<String, Any>): Constraints {
             val audioArg = map["audio"] as? Map<*, *>?

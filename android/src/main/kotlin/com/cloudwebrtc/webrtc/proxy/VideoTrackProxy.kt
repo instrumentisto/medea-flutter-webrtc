@@ -4,10 +4,11 @@ import com.cloudwebrtc.webrtc.SurfaceTextureRenderer
 import org.webrtc.VideoTrack as WVideoTrack
 
 /**
- * Wrapper around [MediaStreamTrackProxy] with video kind.
+ * Wrapper around a [MediaStreamTrackProxy] with a video kind.
  *
- * @property track underlying [MediaStreamTrackProxy] with a video kind.
- * @throws Exception if provided [MediaStreamTrackProxy] isn't video.
+ * @property track  Underlying [MediaStreamTrackProxy] with a video kind.
+ *
+ * @throws Exception  If the provided [MediaStreamTrackProxy] isn't a video.
  */
 class VideoTrackProxy(private val track: MediaStreamTrackProxy) {
     init {
@@ -17,21 +18,23 @@ class VideoTrackProxy(private val track: MediaStreamTrackProxy) {
     }
 
     /**
-     * Removes [SurfaceTextureRenderer] from the underlying [WVideoTrack] sinks.
+     * Removes the specified [SurfaceTextureRenderer] from the underlying
+     * [WVideoTrack] sinks.
      */
     fun removeSink(sink: SurfaceTextureRenderer) {
         getVideoTrack().removeSink(sink)
     }
 
     /**
-     * Adds [SurfaceTextureRenderer] to the underlying [WVideoTrack] sinks.
+     * Adds the specified [SurfaceTextureRenderer] to the underlying
+     * [WVideoTrack] sinks.
      */
     fun addSink(sink: SurfaceTextureRenderer) {
         getVideoTrack().addSink(sink)
     }
 
     /**
-     * @return underlying [WVideoTrack].
+     * @return  Underlying [WVideoTrack].
      */
     private fun getVideoTrack(): WVideoTrack {
         return track.obj as WVideoTrack

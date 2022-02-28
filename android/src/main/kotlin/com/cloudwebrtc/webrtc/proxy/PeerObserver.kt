@@ -10,13 +10,12 @@ import org.webrtc.*
 import org.webrtc.IceCandidate as WIceCandidate
 
 /**
- * Implementor of the [PeerConnection.Observer] which notifies [PeerConnectionProxy] about
- * [PeerConnection] events.
- *
+ * Implementor of a [PeerConnection.Observer] notifying a [PeerConnectionProxy]
+ * about [PeerConnection] events.
  */
 class PeerObserver : PeerConnection.Observer {
     /**
-     * [PeerConnectionProxy] which will be notified about all events.
+     * [PeerConnectionProxy] being notified about all events.
      */
     private var peer: PeerConnectionProxy? = null
 
@@ -100,7 +99,7 @@ class PeerObserver : PeerConnection.Observer {
     override fun onDataChannel(chan: DataChannel?) {}
 
     /**
-     * Sets [PeerConnectionProxy] which will be notified about all events.
+     * Sets the [PeerConnectionProxy] to be notified about all events.
      */
     fun setPeerConnection(newPeer: PeerConnectionProxy) {
         peer = newPeer

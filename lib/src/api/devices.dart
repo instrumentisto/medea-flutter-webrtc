@@ -5,12 +5,12 @@ import '/src/model/device.dart';
 import '/src/platform/native/media_stream_track.dart';
 import 'channel.dart';
 
-/// Thrown if the specified constraints resulted in no candidate devices
-/// which met the criteria requested. The error is an object of type
-/// [OverconstrainedException], and has a constraint property whose string
-/// value is the name of a constraint which was impossible to meet.
+/// [Exception] thrown if the specified constraints resulted in no candidate
+/// devices which met the criteria requested. The error is an object of type
+/// [OverconstrainedException], and has a constraint property whose string value
+/// is the name of a constraint which was impossible to meet.
 class OverconstrainedException implements Exception {
-  /// Constructs new [OverconstrainedException].
+  /// Constructs a new [OverconstrainedException].
   OverconstrainedException();
 
   @override
@@ -46,8 +46,8 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
   }
 }
 
-/// Returns list of local display [NativeMediaStreamTrack]s based on
-/// the provided [DisplayConstraints].
+/// Returns list of local display [NativeMediaStreamTrack]s based on the
+/// provided [DisplayConstraints].
 Future<List<NativeMediaStreamTrack>> getDisplayMedia(
     DisplayConstraints constraints) async {
   List<dynamic> res = await _mediaDevicesMethodChannel

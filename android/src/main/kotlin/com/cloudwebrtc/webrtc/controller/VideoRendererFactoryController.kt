@@ -7,10 +7,10 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.TextureRegistry
 
 /**
- * Controller for creating new [FlutterRtcVideoRenderer]s.
+ * Controller of creating new [FlutterRtcVideoRenderer]s.
  *
- * @property messenger messenger used for creating new [MethodChannel]s.
- * @property textureRegistry registry with which new textures will be created.
+ * @property messenger        Messenger used for creating new [MethodChannel]s.
+ * @property textureRegistry  Registry to create new textures with.
  */
 class VideoRendererFactoryController(
     private val messenger: BinaryMessenger,
@@ -18,7 +18,7 @@ class VideoRendererFactoryController(
 ) :
     MethodChannel.MethodCallHandler {
     /**
-     * Channel which will be listened for the [MethodCall]s.
+     * Channel listened for the [MethodCall]s.
      */
     private val chan =
         MethodChannel(

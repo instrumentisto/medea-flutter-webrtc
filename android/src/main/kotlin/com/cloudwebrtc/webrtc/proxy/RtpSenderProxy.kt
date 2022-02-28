@@ -5,9 +5,9 @@ import org.webrtc.RtpReceiver
 import org.webrtc.RtpSender
 
 /**
- * Wrapper around [RtpSender].
+ * Wrapper around an [RtpSender].
  *
- * @param sender actual underlying [RtpSender].
+ * @param sender  Actual underlying [RtpSender].
  */
 class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender> {
     /**
@@ -29,9 +29,11 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender> {
     }
 
     /**
-     * Replaces [MediaStreamTrackProxy] of the underlying [RtpSender] with the provided one.
+     * Replaces [MediaStreamTrackProxy] of the underlying [RtpSender] with the
+     * provided one.
      *
-     * @param t [MediaStreamTrackProxy] which will be set to the underlying [RtpSender].
+     * @param t  [MediaStreamTrackProxy] which will be set to the underlying
+     *           [RtpSender].
      */
     fun replaceTrack(t: MediaStreamTrackProxy?) {
         track = t
@@ -42,8 +44,8 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender> {
     }
 
     /**
-     * Synchronizes [MediaStreamTrackProxy] of this [RtpSenderProxy] with
-     * a underlying [RtpSender].
+     * Synchronizes the [MediaStreamTrackProxy] of this [RtpSenderProxy] with
+     * the underlying [RtpSender].
      */
     private fun syncMediaStreamTrack() {
         val newSenderTrack = obj.track()

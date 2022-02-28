@@ -4,33 +4,35 @@ import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import java.lang.ref.WeakReference
 
 /**
- * Repository for the all [MediaStreamTrackProxy]s.
+ * Repository for all the [MediaStreamTrackProxy]s.
  *
- * All created in the flutter_webrtc [MediaStreamTrackProxy]s will be stored here as weak
- * reference. So if, [MediaStreamTrackProxy] was disposed, then it will be `null` here.
+ * All created in the `flutter_webrtc` [MediaStreamTrackProxy]s will be stored
+ * here under weak references. So if, a [MediaStreamTrackProxy] is disposed,
+ * then it will be `null` here.
  */
 object TrackRepository {
     /**
-     * All [MediaStreamTrackProxy]s created in flutter_webrtc.
+     * All [MediaStreamTrackProxy]s created in `flutter_webrtc`.
      */
     private val tracks: HashMap<String, WeakReference<MediaStreamTrackProxy>> =
         HashMap()
 
     /**
-     * Adds new [MediaStreamTrackProxy].
+     * Adds a new [MediaStreamTrackProxy].
      *
-     * @param track actual [MediaStreamTrackProxy] which will be stored here.
+     * @param track  Actual [MediaStreamTrackProxy] which will be stored here.
      */
     fun addTrack(track: MediaStreamTrackProxy) {
         tracks[track.id()] = WeakReference(track)
     }
 
     /**
-     * Lookups [MediaStreamTrackProxy] with a provided unique ID.
+     * Lookups [MediaStreamTrackProxy] with the provided unique ID.
      *
-     * @param id unique [MediaStreamTrackProxy] ID by which lookup will be performed.
-     * @return found [MediaStreamTrackProxy] with a provided ID.
-     * @return null if [MediaStreamTrackProxy] isn't found or was disposed.
+     * @param id      Unique [MediaStreamTrackProxy] to perform the lookup via.
+     *
+     * @return  Found [MediaStreamTrackProxy] with the provided ID, or `null` if
+     *          the [MediaStreamTrackProxy] isn't found or was disposed.
      */
     fun getTrack(id: String): MediaStreamTrackProxy? {
         return tracks[id]?.get()

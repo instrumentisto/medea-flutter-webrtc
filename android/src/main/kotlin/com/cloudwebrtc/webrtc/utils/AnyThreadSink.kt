@@ -5,9 +5,10 @@ import android.os.Looper
 import io.flutter.plugin.common.EventChannel.EventSink
 
 /**
- * Thread agnostic [EventSink] for sending events from Android side to the Flutter.
+ * Thread agnostic [EventSink] for sending events from Android side to the
+ * Flutter side.
  *
- * @property eventSink underlying socket, into which all events will be sent.
+ * @property eventSink  Underlying socket, into which all events will be sent.
  */
 class AnyThreadSink(private val eventSink: EventSink) : EventSink {
     /**
@@ -28,9 +29,10 @@ class AnyThreadSink(private val eventSink: EventSink) : EventSink {
     }
 
     /**
-     * Schedules provided [Runnable] on the main Android looper using [handler].
+     * Schedules the provided [Runnable] on the main Android looper using the
+     * [handler].
      *
-     * @param r [Runnable] which will be scheduled.
+     * @param r  [Runnable] to be scheduled.
      */
     private fun post(r: Runnable) {
         if (Looper.getMainLooper() == Looper.myLooper()) {

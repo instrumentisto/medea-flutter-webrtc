@@ -3,11 +3,11 @@ package com.cloudwebrtc.webrtc.model
 import org.webrtc.IceCandidate as WIceCandidate
 
 /**
- * Representation of the [org.webrtc.IceCandidate].
+ * Representation of an [org.webrtc.IceCandidate].
  *
- * @property sdpMid mid of this [IceCandidate].
- * @property sdpMLineIndex sdpMLineIndex of this [IceCandidate].
- * @property sdp  SDP of this [IceCandidate].
+ * @property sdpMid         `mid` of this [IceCandidate].
+ * @property sdpMLineIndex  `sdpMLineIndex` of this [IceCandidate].
+ * @property sdp             SDP of this [IceCandidate].
  */
 data class IceCandidate(
     val sdpMid: String,
@@ -16,9 +16,10 @@ data class IceCandidate(
 ) {
     companion object {
         /**
-         * Creates new [IceCandidate] object based on the method call received from the Flutter.
+         * Creates a new [IceCandidate] object based on the method call received
+         * from the Flutter side.
          *
-         * @return [IceCandidate] created from the provided [Map].
+         * @return  [IceCandidate] created from the provided [Map].
          */
         fun fromMap(map: Map<String, Any>): IceCandidate {
             return IceCandidate(
@@ -29,9 +30,11 @@ data class IceCandidate(
         }
 
         /**
-         * Converts provided [org.webrtc.IceCandidate] into [IceCandidate].
+         * Converts the provided [org.webrtc.IceCandidate] into an
+         * [IceCandidate].
          *
-         * @return [IceCandidate] created based on the provided [org.webrtc.IceCandidate].
+         * @return  [IceCandidate] created based on the provided
+         *          [org.webrtc.IceCandidate].
          */
         fun fromWebRtc(from: WIceCandidate): IceCandidate =
             IceCandidate(from.sdpMid, from.sdpMLineIndex, from.sdp)
@@ -39,16 +42,17 @@ data class IceCandidate(
     }
 
     /**
-     * Converts this [IceCandidate] to the [org.webrtc.IceCandidate].
+     * Converts this [IceCandidate] to an [org.webrtc.IceCandidate].
      *
-     * @return [org.webrtc.IceCandidate] created based on this [IceCandidate].
+     * @return  [org.webrtc.IceCandidate] created based on this [IceCandidate].
      */
     fun intoWebRtc(): WIceCandidate {
         return WIceCandidate(sdpMid, sdpMLineIndex, sdp)
     }
 
     /**
-     * Converts this [IceCandidate] into [Map] which can be returned to the Flutter side.
+     * Converts this [IceCandidate] into a [Map] which can be returned to the
+     * Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf(
         "sdpMid" to sdpMid,

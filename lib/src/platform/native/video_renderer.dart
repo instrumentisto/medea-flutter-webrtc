@@ -7,15 +7,15 @@ import '/src/model/track.dart';
 import '/src/platform/track.dart';
 import '/src/platform/video_renderer.dart';
 
-/// Cretes new [NativeVideoRenderer].
+/// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
   return NativeVideoRenderer();
 }
 
-/// [MethodChannel] for factory used for the messaging with a native side.
+/// [MethodChannel] for factory used for the messaging with the native side.
 final _rendererFactoryChannel = methodChannel('VideoRendererFactory', 0);
 
-/// [VideoRenderer] implementation for the native.
+/// [VideoRenderer] implementation for the native platform.
 class NativeVideoRenderer extends VideoRenderer {
   NativeVideoRenderer();
 
@@ -31,8 +31,8 @@ class NativeVideoRenderer extends VideoRenderer {
   /// Subscription to the events of this [NativeVideoRenderer].
   StreamSubscription<dynamic>? _eventChan;
 
-  /// [MethodChannel] for the [NativeVideoRenderer] used for the messaging
-  /// with a native side.
+  /// [MethodChannel] for the [NativeVideoRenderer] used for the messaging with
+  /// the native side.
   late MethodChannel _chan;
 
   @override

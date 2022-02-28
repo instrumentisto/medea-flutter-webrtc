@@ -3,9 +3,9 @@ package com.cloudwebrtc.webrtc.proxy
 import org.webrtc.RtpReceiver
 
 /**
- * Wrapper around [RtpReceiver]
+ * Wrapper around an [RtpReceiver].
  *
- * @param receiver underlying [RtpReceiver].
+ * @param receiver  Underlying [RtpReceiver].
  */
 class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver> {
     /**
@@ -27,15 +27,15 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver> {
     }
 
     /**
-     * @return unique ID of the underlying [RtpReceiver].
+     * @return  Unique ID of the underlying [RtpReceiver].
      */
     fun id(): String {
         return obj.id()
     }
 
     /**
-     * Synchronizes [MediaStreamTrackProxy] of this [RtpReceiverProxy] with
-     * a underlying [RtpReceiver].
+     * Synchronizes the [MediaStreamTrackProxy] of this [RtpReceiverProxy] with
+     * the underlying [RtpReceiver].
      */
     private fun syncMediaStreamTrack() {
         val newReceiverTrack = obj.track()

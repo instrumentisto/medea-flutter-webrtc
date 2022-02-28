@@ -8,19 +8,21 @@ import org.webrtc.VideoCapturer
 import org.webrtc.VideoSource
 
 /**
- * Object which represents source of the input video of the user.
+ * Object representing a source of an input video of an user.
  *
- * This source can create new [MediaStreamTrackProxy]s with the same video source.
+ * This source can create new [MediaStreamTrackProxy]s with the same video
+ * source.
  *
- * Also, this object will track all child [MediaStreamTrackProxy]s and when they all disposed,
- * will dispose underlying [VideoSource].
+ * Also, this object will track all the child [MediaStreamTrackProxy]s and once
+ * they all disposed, it disposes the underlying [VideoSource].
  *
- * @property videoCapturer [VideoCapturer] used in the provided [VideoSource].
- * @property videoSource actual underlying [VideoSource].
- * @property surfaceTextureRenderer [SurfaceTextureRenderer] used in the provided [VideoSource].
- * @property peerConnectionFactoryProxy [PeerConnectionFactoryProxy] with which
- * new [MediaStreamTrackProxy]s will be created.
- * @property deviceId unique device ID of the provided [VideoSource].
+ * @property videoCapturer  [VideoCapturer] used in the provided [VideoSource].
+ * @property videoSource    Actual underlying [VideoSource].
+ * @property surfaceTextureRenderer      [SurfaceTextureRenderer] used in the
+ *                                       provided [VideoSource].
+ * @property peerConnectionFactoryProxy  [PeerConnectionFactoryProxy] to create
+ *                                       new [MediaStreamTrackProxy]s with.
+ * @property deviceId  Unique device ID of the provided [VideoSource].
  */
 class VideoMediaTrackSource(
     private val videoCapturer: VideoCapturer,
@@ -30,14 +32,15 @@ class VideoMediaTrackSource(
     private val deviceId: String
 ) : MediaTrackSource {
     /**
-     * Count of currently alive [MediaStreamTrackProxy] created from this [VideoMediaTrackSource].
+     * Count of currently alive [MediaStreamTrackProxy]ы created from this
+     * [VideoMediaTrackSource].
      */
     private var aliveTracksCount: Int = 0
 
     /**
-     * Creates new [MediaStreamTrackProxy] with the underlying [VideoSource].
+     * Creates a new [MediaStreamTrackProxy] with the underlying [VideoSource].
      *
-     * @return new [MediaStreamTrackProxy]
+     * @return  Newly created [MediaStreamTrackProxy].
      */
     override fun newTrack(): MediaStreamTrackProxy {
         val videoTrack = MediaStreamTrackProxy(
@@ -57,10 +60,10 @@ class VideoMediaTrackSource(
     }
 
     /**
-     * Function which will be called when this [VideoMediaTrackSource] is stopped.
+     * Function, called when this [VideoMediaTrackSource] is stopped.
      *
-     * Decrements [aliveTracksCount] and if no [MediaStreamTrackProxy]s left, then disposes
-     * this [VideoMediaTrackSource].
+     * Decrements the [aliveTracksCount] and if no [MediaStreamTrackProxy]s
+     * left, then disposes this [VideoMediaTrackSource].
      */
     private fun trackStopped() {
         aliveTracksCount--

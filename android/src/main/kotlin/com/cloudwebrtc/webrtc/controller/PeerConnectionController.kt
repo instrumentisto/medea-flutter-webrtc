@@ -15,10 +15,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 /**
- * Controller for the [PeerConnectionProxy] functional.
+ * Controller of [PeerConnectionProxy] functional.
  *
- * @property messenger messenger used for creating new [MethodChannel]s.
- * @property peer underlying [MediaStreamTrackProxy] on which method calls will be performed.
+ * @property messenger  Messenger used for creating new [MethodChannel]s.
+ * @property peer       Underlying [MediaStreamTrackProxy] to perform
+ *                      [MethodCall]s on.
  */
 class PeerConnectionController(
     private val messenger: BinaryMessenger,
@@ -32,7 +33,7 @@ class PeerConnectionController(
     private val channelId = nextChannelId()
 
     /**
-     * Channel which will be listened for the [MethodCall]s.
+     * Channel listened for the [MethodCall]s.
      */
     private val chan: MethodChannel =
         MethodChannel(
@@ -41,7 +42,7 @@ class PeerConnectionController(
         )
 
     /**
-     * Event channel into which all [PeerConnectionProxy] events will be sent.
+     * Event channel into which all [PeerConnectionProxy] events are sent.
      */
     private val eventChannel: EventChannel =
         EventChannel(
@@ -50,12 +51,13 @@ class PeerConnectionController(
         )
 
     /**
-     * Event sink into which all [PeerConnectionProxy] events will be sent.
+     * Event sink into which all [PeerConnectionProxy] events are sent.
      */
     private var eventSink: AnyThreadSink? = null
 
     /**
-     * [PeerConnectionProxy] events observer which will send all events to the [eventSink].
+     * [PeerConnectionProxy] events observer which sends all events to the
+     * [eventSink].
      */
     private val eventObserver =
         object : PeerConnectionProxy.Companion.EventObserver {
@@ -250,9 +252,11 @@ class PeerConnectionController(
     }
 
     /**
-     * Converts this [PeerConnectionController] to the Flutter's method call result.
+     * Converts this [PeerConnectionController] to the Flutter's method call
+     * result.
      *
-     * @return [Map] generated from this controller which can be returned to the Flutter side.
+     * @return  [Map] generated from this controller which can be returned to
+     *          the Flutter side.
      */
     fun asFlutterResult(): Map<String, Any> = mapOf<String, Any>(
         "channelId" to channelId,

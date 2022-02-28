@@ -9,20 +9,21 @@ import io.flutter.view.TextureRegistry
 import org.webrtc.RendererCommon
 
 /**
- * Renders video from a track to the [SurfaceTexture] which can be shown by flutter side.
+ * Renders video from a track to a [SurfaceTexture] which can be shown by the
+ * Flutter side.
  *
- * @param textureRegistry registry with which new [TextureRegistry.SurfaceTextureEntry]
- * will be created.
+ * @param textureRegistry  Registry to create a new
+ *                         [TextureRegistry.SurfaceTextureEntry] with.
  */
 class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     /**
-     * Texture entry on which video will be rendered.
+     * Texture entry on which the video will be rendered.
      */
     private val surfaceTextureEntry: TextureRegistry.SurfaceTextureEntry =
         textureRegistry.createSurfaceTexture()
 
     /**
-     * Texture on which video will be rendered.
+     * Texture on which the video will be rendered.
      */
     private val texture: SurfaceTexture = surfaceTextureEntry.surfaceTexture()
 
@@ -49,36 +50,38 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
         SurfaceTextureRenderer("flutter-video-renderer-$id")
 
     /**
-     * [VideoTrackProxy] from which [FlutterRtcVideoRenderer] obtains video and renders it.
+     * [VideoTrackProxy] from which [FlutterRtcVideoRenderer] obtains video and
+     * renders it.
      */
     private var track: VideoTrackProxy? = null
 
     companion object {
         /**
-         * Listener for the all events of [FlutterRtcVideoRenderer].
+         * Listener for all the events of the [FlutterRtcVideoRenderer].
          */
         interface EventListener {
             /**
-             * Notifies about first frame rendering.
+             * Notifies about a first frame rendering.
              *
-             * @param id unique ID of the texture which produced this event.
+             * @param id  Unique ID of the texture which produced this event.
              */
             fun onFirstFrameRendered(id: Long)
 
             /**
              * Notifies about video size change.
              *
-             * @param id unique ID of the texture which produced this event.
-             * @param height new height of the video.
-             * @param width new width of the video.
+             * @param id      Unique ID of the texture which produced this
+             *                event.
+             * @param height  New height of the video.
+             * @param width   New width of the video.
              */
             fun onTextureChangeVideoSize(id: Long, height: Int, width: Int)
 
             /**
              * Notifies about video rotation change.
              *
-             * @param id unique ID of the texture which produced this event.
-             * @param rotation new rotation of the video.
+             * @param id        Unique ID of the texture producing this event.
+             * @param rotation  New rotation of the video.
              */
             fun onTextureChangeRotation(id: Long, rotation: Int)
         }
@@ -90,25 +93,27 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     }
 
     /**
-     * @return unique ID of the underlying texture.
+     * @return  Unique ID of the underlying texture.
      */
     fun textureId(): Long {
         return surfaceTextureEntry.id()
     }
 
     /**
-     * Subscribes provided [EventListener] to the all events of this [FlutterRtcVideoRenderer].
+     * Subscribes the provided [EventListener] to all the events of this
+     * [FlutterRtcVideoRenderer].
      *
-     * @param listener listener which will receive all events.
+     * @param listener  Listener which will receive all events.
      */
     fun setEventListener(listener: EventListener) {
         eventListener = listener
     }
 
     /**
-     * Sets [VideoTrackProxy] from which video will be rendered on the texture surface.
+     * Sets the [VideoTrackProxy] from which video will be rendered on the
+     * texture surface.
      *
-     * @param newTrack [VideoTrackProxy] for rendering.
+     * @param newTrack  [VideoTrackProxy] for rendering.
      */
     fun setVideoTrack(newTrack: VideoTrackProxy?) {
         if (track != newTrack && newTrack != null) {
@@ -131,7 +136,8 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     /**
      * Disposes this [FlutterRtcVideoRenderer].
      *
-     * Closes [EventListener], releases all related to the surface texture renderer entities.
+     * Closes [EventListener], releases all related to the surface texture
+     * renderer entities.
      */
     fun dispose() {
         eventListener = null
@@ -143,8 +149,8 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     }
 
     /**
-     * @return listener for all renderer events, which will pass
-     * this events to the current [EventListener].
+     * @return  Listener for all renderer events, which will pass this events to
+     *          the current [EventListener].
      */
     private fun rendererEventsListener(): RendererCommon.RendererEvents {
         return object : RendererCommon.RendererEvents {

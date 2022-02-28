@@ -4,9 +4,9 @@ import com.cloudwebrtc.webrtc.State
 import com.cloudwebrtc.webrtc.model.PeerConnectionConfiguration
 
 /**
- * Creator of the new [PeerConnectionProxy]s.
+ * Creator of new [PeerConnectionProxy]s.
  *
- * @property state global state used for creation.
+ * @property state  Global state used for creation.
  */
 class PeerConnectionFactoryProxy(val state: State) {
     /**
@@ -17,15 +17,18 @@ class PeerConnectionFactoryProxy(val state: State) {
     /**
      * All [PeerObserver]s created by this [PeerConnectionFactoryProxy].
      *
-     * [PeerObserver]s will be removed on [PeerConnectionProxy] dispose.
+     * [PeerObserver]s will be removed on a [PeerConnectionProxy] dispose.
      */
     private var peerObservers: HashMap<Int, PeerObserver> = HashMap()
 
     /**
-     * Creates new [PeerConnectionProxy] based on the provided [PeerConnectionConfiguration].
+     * Creates a new [PeerConnectionProxy] based on the provided
+     * [PeerConnectionConfiguration].
      *
-     * @param config config with which new [PeerConnectionProxy] will be created.
-     * @return newly created [PeerConnectionProxy].
+     * @param config  Config with which new [PeerConnectionProxy] will be
+     *                created.
+     *
+     * @return  Newly created [PeerConnectionProxy].
      */
     fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {
         val id = nextId()
@@ -44,16 +47,16 @@ class PeerConnectionFactoryProxy(val state: State) {
     }
 
     /**
-     * Removes [PeerObserver] from the [peerObservers].
+     * Removes the specified [PeerObserver] from the [peerObservers].
      */
     private fun removePeerObserver(id: Int) {
         peerObservers.remove(id)
     }
 
     /**
-     * Generates new [PeerConnectionProxy] ID.
+     * Generates a new [PeerConnectionProxy] ID.
      *
-     * @return newly generated [PeerConnectionProxy] ID.
+     * @return  Newly generated [PeerConnectionProxy] ID.
      */
     private fun nextId(): Int {
         return lastPeerConnectionId++

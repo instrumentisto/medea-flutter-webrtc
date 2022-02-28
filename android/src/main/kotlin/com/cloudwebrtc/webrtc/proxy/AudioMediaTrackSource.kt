@@ -5,30 +5,33 @@ import org.webrtc.AudioSource
 import org.webrtc.PeerConnectionFactory
 
 /**
- * Object which represents source of the input audio of the user.
+ * Object representing a source of an input audio of an user.
  *
- * This source can create new [MediaStreamTrackProxy]s with the same audio source.
+ * This source can create new [MediaStreamTrackProxy]s with the same audio
+ * source.
  *
- * Also, this object will track all child [MediaStreamTrackProxy]s and when they all disposed,
- * will dispose underlying [AudioSource].
+ * Also, this object will track all child [MediaStreamTrackProxy]s and when they
+ * all disposed, will dispose the underlying [AudioSource].
  *
- * @property source underlying [AudioSource] which will be used
- * for [MediaStreamTrackProxy] creation.
- * @property peerConnectionFactory factory with which new [MediaStreamTrackProxy]s will be created.
+ * @property source  Underlying [AudioSource] which will be used for a
+ *                   [MediaStreamTrackProxy] creation.
+ * @property peerConnectionFactory  Factory with which new
+ *                                  [MediaStreamTrackProxy]s will be created.
  */
 class AudioMediaTrackSource(
     private val source: AudioSource,
     private val peerConnectionFactory: PeerConnectionFactory
 ) : MediaTrackSource {
     /**
-     * Count of currently alive [MediaStreamTrackProxy] created from this [AudioMediaTrackSource].
+     * Count of currently alive [MediaStreamTrackProxy]s created from this
+     * [AudioMediaTrackSource].
      */
     private var aliveTracksCount: Int = 0
 
     /**
-     * Creates new [MediaStreamTrackProxy] with the underlying [AudioSource].
+     * Creates a new [MediaStreamTrackProxy] with the underlying [AudioSource].
      *
-     * @return new [MediaStreamTrackProxy]
+     * @return  Newly created [MediaStreamTrackProxy].
      */
     override fun newTrack(): MediaStreamTrackProxy {
         val track = MediaStreamTrackProxy(
@@ -48,10 +51,10 @@ class AudioMediaTrackSource(
     }
 
     /**
-     * Function which will be called when this [AudioMediaTrackSource] is stopped.
+     * Function, called when this [AudioMediaTrackSource] is stopped.
      *
-     * Decrements [aliveTracksCount] and if no [MediaStreamTrackProxy]s left, then disposes
-     * this [AudioMediaTrackSource].
+     * Decrements [aliveTracksCount] and if no [MediaStreamTrackProxy]s left,
+     * then disposes this [AudioMediaTrackSource].
      */
     private fun trackStopped() {
         aliveTracksCount--

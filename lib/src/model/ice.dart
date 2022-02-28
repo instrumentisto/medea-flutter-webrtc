@@ -1,17 +1,18 @@
 /// Represents a candidate Interactive Connectivity Establishment (ICE)
-/// configuration which may be used to establish an PeerConnection.
+/// configuration which may be used to establish a peer connection.
 class IceCandidate {
-  /// Creates new [IceCandidate] with the provided parameters.
+  /// Creates a new [IceCandidate] with the provided parameters.
   IceCandidate(this.sdpMid, this.sdpMLineIndex, this.candidate);
 
-  /// Creates [IceCandidate] based on the [Map] received from the native side.
+  /// Creates an [IceCandidate] basing on the [Map] received from the native
+  /// side.
   IceCandidate.fromMap(dynamic map) {
     sdpMid = map['sdpMid'];
     sdpMLineIndex = map['sdpMLineIndex'];
     candidate = map['candidate'];
   }
 
-  /// Mid of this [IceCandidate].
+  /// mID of this [IceCandidate].
   late String sdpMid;
 
   /// SDP m line index of this [IceCandidate].
@@ -30,10 +31,10 @@ class IceCandidate {
   }
 }
 
-/// Description of the error occurred with ICE candidate from PeerConnection.
+/// Description of the error occurred with ICE candidate from a PeerConnection.
 class IceCandidateErrorEvent {
-  /// Creates [IceCandidateErrorEvent] based on the [Map] received
-  /// from the native side.
+  /// Creates an [IceCandidateErrorEvent] based on the [Map] received from the
+  /// native side.
   IceCandidateErrorEvent.fromMap(dynamic map) {
     address = map['address'];
     port = map['port'];
@@ -42,24 +43,24 @@ class IceCandidateErrorEvent {
     errorText = map['errorText'];
   }
 
-  /// The local IP address used to communicate with the STUN or TURN server.
+  /// Local IP address used to communicate with a STUN or TURN server.
   late String address;
 
-  /// The port used to communicate with the STUN or TURN server.
+  /// Port used to communicate with a STUN or TURN server.
   late int port;
 
-  /// The STUN or TURN URL that identifies the STUN or TURN server for which
-  /// the failure occurred.
+  /// STUN or TURN URL identifying the STUN or TURN server for which the failure
+  /// occurred.
   late String url;
 
-  /// The numeric STUN error code returned by the STUN or TURN server. If no
-  /// host candidate can reach the server, errorCode will be set to the value
-  /// 701 which is outside the STUN error code range. This error is only fired
-  /// once per server URL while in the RTCIceGatheringState of "gathering".
+  /// Numeric STUN error code returned by the STUN or TURN server. If no host
+  /// candidate can reach the server, `errorCode` will be set to the value 701
+  /// which is outside the STUN error code range. This error is only fired once
+  /// per server URL while in the `RTCIceGatheringState` of "gathering".
   late int errorCode;
 
-  /// The STUN reason text returned by the STUN or TURN server. If the server
-  /// could not be reached, errorText will be set to an implementation-specific
+  /// STUN reason text returned by the STUN or TURN server. If the server could
+  /// not be reached, `errorText` will be set to an implementation-specific
   /// value providing details about the error.
   late String errorText;
 }

@@ -1,18 +1,19 @@
 /// Media device kind.
 enum MediaDeviceKind {
-  // Represents an audio input device; for example a microphone.
+  /// Represents an audio input device (for example, a microphone).
   audioinput,
 
-  /// Represents an audio output device; for example a pair of headphones.
+  /// Represents an audio output device (for example, a pair of headphones).
   audiooutput,
 
-  /// Represents a video input device; for example a webcam.
+  /// Represents a video input device (for example, a webcam).
   videoinput,
 }
 
-/// The [MediaDeviceInfo] provides information about some media device.
+/// Information about some media device.
 class MediaDeviceInfo {
-  /// Creates [MediaDeviceInfo] based on the [Map] received from the native side.
+  /// Creates a [MediaDeviceInfo] basing on the [Map] received from the native
+  /// side.
   MediaDeviceInfo.fromMap(dynamic map) {
     deviceId = map['deviceId'];
     label = map['label'];
@@ -22,9 +23,9 @@ class MediaDeviceInfo {
   /// Identifier of the represented device.
   late String deviceId;
 
-  /// Human readable device description (for example "External USB Webcam").
+  /// Human-readable device description (for example, "External USB Webcam").
   late String label;
 
-  /// Media kind of device (for example audioinput for microphone).
+  /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
 }

@@ -1,8 +1,8 @@
 package com.cloudwebrtc.webrtc.exception
 
 /**
- * [Exception] which can be thrown on `PeerConnection.addIceCandidate` action.
+ * [Exception] thrown on `PeerConnection.addIceCandidate` action.
  *
- * @param message description of the [AddIceCandidateException].
+ * @param message  Description of the [AddIceCandidateException].
  */
 class AddIceCandidateException(message: String) : Exception(message)

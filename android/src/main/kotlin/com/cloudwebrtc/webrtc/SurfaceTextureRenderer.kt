@@ -7,10 +7,11 @@ import org.webrtc.RendererCommon.RendererEvents
 import java.util.concurrent.CountDownLatch
 
 /**
- * Displays the video stream on a Surface.
+ * Displays the video stream on a `Surface`.
  */
 class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
-    // Callback for reporting renderer events. Read-only after initialization so no lock required.
+    // Callback for reporting renderer events. Read-only after initialization,
+    // so no lock is required.
     private var rendererEvents: RendererEvents? = null
     private val layoutLock = Any()
 
@@ -23,10 +24,11 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
     private var texture: SurfaceTexture? = null
 
     /**
-     * Initialize this class, sharing resources with |sharedContext|. The custom |drawer| will be used
-     * for drawing frames on the EGLSurface. This class is responsible for calling release() on
-     * |drawer|. It is allowed to call init() to reinitialize the renderer after a previous
-     * init()/release() cycle.
+     * Initialize this class, sharing resources with |sharedContext|. The custom
+     * |drawer| will be used for drawing frames on the `EGLSurface`. This class
+     * is responsible for calling `release()` on the |drawer|. It's allowed to
+     * call `init()` to reinitialize the renderer after the previous
+     * `init()`/`release()` cycle.
      */
     @JvmOverloads
     fun init(
@@ -57,8 +59,8 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
     /**
      * Limit render framerate.
      *
-     * @param fps Limit render framerate to this value, or use Float.POSITIVE_INFINITY to disable fps
-     * reduction.
+     * @param fps  Limit render framerate to this value, or use
+     *             [Float.POSITIVE_INFINITY] to disable FPS reduction.
      */
     override fun setFpsReduction(fps: Float) {
         isRenderingPaused = fps == 0f
@@ -75,7 +77,6 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
         super.pauseVideo()
     }
 
-    // VideoSink interface.
     override fun onFrame(frame: VideoFrame) {
         synchronized(layoutLock) {
             if (isRenderingPaused) {

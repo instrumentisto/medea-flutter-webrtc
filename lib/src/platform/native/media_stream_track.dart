@@ -4,10 +4,10 @@ import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
 
-/// Repesentation of the one media unit.
+/// Representation of a single media unit.
 class NativeMediaStreamTrack extends MediaStreamTrack {
-  /// Creates [NativeMediaStreamTrack] based on the [Map] received
-  /// from the native side.
+  /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
+  /// native side.
   NativeMediaStreamTrack.fromMap(dynamic map) {
     _chan = methodChannel('MediaStreamTrack', map['channelId']);
     _id = map['id'];
@@ -15,9 +15,9 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
     _kind = MediaKind.values[map['kind']];
   }
 
-  /// Indicates that this [NativeMediaStreamTrack] transmits media.
+  /// Indicates whether this [NativeMediaStreamTrack] transmits media.
   ///
-  /// If it's `false` then blank (black screen for video and 0dB for audio)
+  /// If it's `false` then blank (black screen for video and `0dB` for audio)
   /// media will be transmitted.
   bool _enabled = true;
 

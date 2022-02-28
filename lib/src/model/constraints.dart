@@ -8,10 +8,10 @@ class DisplayConstraints {
 
 /// Device audio and video constraints data.
 class DeviceConstraints {
-  /// Optional constraints with which audio devices will be lookuped.
+  /// Optional constraints to lookup audio devices with.
   DeviceConstraintMap<AudioConstraints> audio = DeviceConstraintMap();
 
-  /// Optional constraints with which video devices will be lookuped.
+  /// Optional constraints to lookup video devices with.
   DeviceConstraintMap<DeviceVideoConstraints> video = DeviceConstraintMap();
 
   /// Converts this model to the [Map] expected by Flutter.
@@ -46,7 +46,7 @@ abstract class DeviceMediaConstraints {
   Map<String, dynamic> toMap();
 }
 
-/// [DeviceMediaConstraints] for the audio devices.
+/// [DeviceMediaConstraints] for audio devices.
 class AudioConstraints implements DeviceMediaConstraints {
   String? deviceId;
 
@@ -61,35 +61,32 @@ class AudioConstraints implements DeviceMediaConstraints {
   }
 }
 
-/// Direction in which the camera producing the video.
+/// Directions in which a camera may produce a video.
 enum FacingMode {
-  /// Indicates that video source is facing toward the user;
-  /// this includes, for example, the front-facing camera on
-  /// a smartphone.
+  /// Indicates that video source is facing toward the user (this includes, for
+  /// example, the front-facing camera on a smartphone).
   user,
 
-  /// Indicates that video source is facing away from the user,
-  /// thereby viewing their environment.
-  ///
-  /// This is the back camera on a smartphone.
+  /// Indicates that video source is facing away from the user, thereby viewing
+  /// their environment (the back camera on a smartphone).
   environment,
 }
 
-/// Device constraints related to the video.
+/// Device constraints related to a video.
 class DeviceVideoConstraints implements DeviceMediaConstraints {
-  /// Constraint which will search for device with some concrete device ID.
+  /// Constraint to search for a device with some concrete device ID.
   String? deviceId;
 
-  /// Constraint which will search for device with some [FacingMode].
+  /// Constraint to search for a device with some [FacingMode].
   FacingMode? facingMode;
 
-  /// Constraint which will search for device with concrete height.
+  /// Constraint to search for a device with a concrete height.
   int? height;
 
-  /// Constraint which will search for device with concrete width.
+  /// Constraint to search for a device with a concrete width.
   int? width;
 
-  /// Constraint which will search for device with concrete fps.
+  /// Constraint to search for a device with a concrete FPS.
   int? fps;
 
   /// Converts this model to the [Map] expected by Flutter.
