@@ -39,9 +39,24 @@ class MediaStreamTrackProxy(
      */
     private var isStopped: Boolean = false
 
+    /**
+     * List of [EventObserver] for this [MediaStreamTrackProxy].
+     */
+    private var eventObservers: HashSet<EventObserver> = HashSet()
+
     init {
         TrackRepository.addTrack(this)
     }
+
+    companion object {
+        /**
+         * Observer of the [MediaStreamTrackProxy] events.
+         */
+        interface EventObserver {
+            fun onEnded()
+        }
+    }
+
 
     /**
      * Returns ID of the underlying [MediaStreamTrack].
@@ -68,6 +83,30 @@ class MediaStreamTrackProxy(
      */
     fun deviceId(): String {
         return deviceId
+    }
+
+    /**
+     * Creates broadcaster to the all [eventObservers] of this [MediaStreamTrackProxy].
+     *
+     * @return [EventObserver] which will broadcast calls to the all [eventObservers].
+     */
+    fun observableEventBroadcaster(): EventObserver {
+        return object : EventObserver {
+            override fun onEnded() {
+                eventObservers.forEach {
+                    it.onEnded()
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds [EventObserver] for this [MediaStreamTrackProxy].
+     *
+     * @param eventObserver [EventObserver] which will be subscribed.
+     */
+    fun addEventObserver(eventObserver: EventObserver) {
+        eventObservers.add(eventObserver)
     }
 
     /**

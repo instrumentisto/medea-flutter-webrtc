@@ -34,6 +34,13 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver> {
     }
 
     /**
+     * Notifies [RtpReceiverProxy], that it's [MediaStreamTrackProxy] is ended.
+     */
+    fun ended() {
+        track?.observableEventBroadcaster()?.onEnded()
+    }
+
+    /**
      * Synchronizes the [MediaStreamTrackProxy] of this [RtpReceiverProxy] with
      * the underlying [RtpReceiver].
      */

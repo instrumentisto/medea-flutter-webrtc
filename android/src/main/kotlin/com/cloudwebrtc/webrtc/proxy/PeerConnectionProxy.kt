@@ -273,6 +273,14 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
+     * Notifies [RtpReceiverProxy] that ]
+     */
+    fun receiverEnded(endedReceiver: RtpReceiver) {
+        val receiver = receivers[endedReceiver.id()]
+        receiver?.ended()
+    }
+
+    /**
      * Disposes the underlying [PeerConnection], [RtpSenderProxy]s,
      * [RtpReceiverProxy] and notifies all [onDispose] subscribers about it.
      */
