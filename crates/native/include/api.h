@@ -2,6 +2,16 @@
 
 #include <string>
 
+namespace rust {
+
+inline namespace cxxbridge1 {
+
+class String;
+
+} // namespace cxxbridge1
+
+} // namespace rust
+
 struct VideoFrame;
 struct RtcTrackEvent;
 
@@ -49,7 +59,6 @@ class OnFrameCallbackInterface {
 // Handler of events firing from a `PeerConnectionInterface`.
 class PeerConnectionObserverInterface {
  public:
-
   // Called when a `connectionstatechange` event occurs.
   //
   // See: https://w3.org/TR/webrtc#event-connectionstatechange
@@ -58,7 +67,9 @@ class PeerConnectionObserverInterface {
   // Called when an `icecandidate` event occurs.
   //
   // See: https://w3.org/TR/webrtc#event-icecandidate
-  virtual void OnIceCandidate(const std::string& candidate) = 0;
+  virtual void OnIceCandidate(const rust::String candidate,
+                              const rust::String mid,
+                              int mline_index) = 0;
 
   // Called when an `icecandidateerror` event occurs.
   //
@@ -95,4 +106,16 @@ class PeerConnectionObserverInterface {
   virtual void OnTrack(RtcTrackEvent event) = 0;
 
   virtual ~PeerConnectionObserverInterface() = default;
+};
+
+// Completion callback for the `webrtc::AddIceCandidate`.
+class AddIceCandidateCallbackInterface {
+ public:
+  // Called when the operation succeeds.
+  virtual void OnSuccess() = 0;
+
+  // Called when the operation fails with the `error`.
+  virtual void OnFail(const std::string& error) = 0;
+
+  virtual ~AddIceCandidateCallbackInterface() = default;
 };
