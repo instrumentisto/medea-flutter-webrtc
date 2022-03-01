@@ -243,16 +243,14 @@ impl Webrtc {
             Ordering::SeqCst,
         );
 
-        if !prev.is_null() {
+        if prev.is_null() {
+            unsafe {
+                init();
+            }
+        } else {
             unsafe {
                 drop(Box::from_raw(prev));
             }
-        }
-
-        unsafe {
-            // TODO: why spawn a new thread every time?
-            //       im pretty sure that we should call init only once
-            init();
         }
     }
 }
@@ -295,19 +293,18 @@ unsafe extern "system" fn wndproc(
 /// system message window - [`HWND`].
 pub unsafe fn init() {
     std::thread::spawn(|| {
-        // TODO: I dont think we need random here
-        let lpszClassName = OsStr::new("EventWatcher")
-                .encode_wide()
-                .chain(Some(0).into_iter())
-                .collect::<Vec<u16>>()
-                .as_ptr();
+        let lpsz_class_name = OsStr::new("EventWatcher")
+            .encode_wide()
+            .chain(Some(0).into_iter())
+            .collect::<Vec<u16>>()
+            .as_ptr();
 
         #[allow(clippy::cast_possible_truncation)]
         let class = WNDCLASSEXW {
             cbSize: mem::size_of::<WNDCLASSEXW>() as u32,
             lpfnWndProc: Some(wndproc),
-            lpszClassName,
-            ..Default::default()
+            lpszClassName: lpsz_class_name,
+            ..winapi::um::winuser::WNDCLASSEXW::default()
         };
         RegisterClassExW(&class);
 
