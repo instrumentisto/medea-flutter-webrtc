@@ -293,7 +293,7 @@ unsafe extern "system" fn wndproc(
 /// system message window - [`HWND`].
 pub unsafe fn init() {
     std::thread::spawn(|| {
-        let lpszClassName = OsStr::new("EventWatcher")
+        let lpsz_class_name = OsStr::new("EventWatcher")
             .encode_wide()
             .chain(Some(0).into_iter())
             .collect::<Vec<u16>>()
@@ -303,8 +303,8 @@ pub unsafe fn init() {
         let class = WNDCLASSEXW {
             cbSize: mem::size_of::<WNDCLASSEXW>() as u32,
             lpfnWndProc: Some(wndproc),
-            lpszClassName,
-            ..Default::default()
+            lpszClassName: lpsz_class_name,
+            ..WNDCLASSEXW::default()
         };
         RegisterClassExW(&class);
 
