@@ -45,23 +45,4 @@ AudioConstraints ParseAudioConstraints(const EncodableValue audio_arg);
 // for passing to Dart according to `TrackKind`.
 EncodableList GetParams(TrackKind type, MediaStream& user_media);
 
-// TODO: not real reason to declare this in header (e.g. CreateSdpCallback)
-// Handler for changing media devices in system.
-class DeviceChangeHandler : public OnDeviceChangeCallback {
- public:
-  DeviceChangeHandler(flutter::BinaryMessenger* binary_messenger);
-
-  // `OnDeviceChangeCallback` implementation.
-  void OnDeviceChange();
-
- private:
-  // A named channel for communicating with the Flutter application using
-  // asynchronous event streams.
-  std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
-
-  // Event callback. Events to be sent to Flutter application
-  // act as clients of this interface for sending events.
-  std::unique_ptr<EventSink<EncodableValue>> event_sink_;
-};
-
 }  // namespace flutter_webrtc_plugin

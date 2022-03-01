@@ -7,7 +7,7 @@ use std::{
 };
 
 use cxx::UniquePtr;
-use libwebrtc_sys::{AudioLayer, VideoDeviceInfo};
+use libwebrtc_sys::{AudioLayer, TaskQueueFactory, VideoDeviceInfo};
 use winapi::{
     shared::{
         minwindef::{HINSTANCE, LPARAM, LRESULT, UINT, WPARAM},
@@ -37,11 +37,55 @@ static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
 /// This struct contains the current number of media devices and some tools
 /// to enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`])
 /// and generate event with [`OnDeviceChangeCallback`], if the last is needed.
-struct DeviceState { // TODO: add functions
+struct DeviceState {
     cb: UniquePtr<OnDeviceChangeCallback>,
     adm: AudioDeviceModule,
     vdi: VideoDeviceInfo,
     count: u32,
+}
+
+impl DeviceState {
+    /// Creates a new [`DeviceState`].
+    fn new(
+        cb: UniquePtr<OnDeviceChangeCallback>,
+        tq: &mut TaskQueueFactory,
+    ) -> Self {
+        let adm = AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, tq)
+            .unwrap();
+
+        let vdi = VideoDeviceInfo::create().unwrap();
+
+        let mut ds = Self {
+            cb,
+            adm,
+            vdi,
+            count: 0,
+        };
+
+        let device_count = ds.count_devices();
+        ds.set_count(device_count);
+        ds
+    }
+
+    /// Counts current media device number.
+    fn count_devices(&mut self) -> u32 {
+        TryInto::<u32>::try_into(
+            self.adm.inner.playout_devices().unwrap()
+                + self.adm.inner.recording_devices().unwrap(),
+        )
+        .unwrap()
+            + self.vdi.number_of_devices()
+    }
+
+    /// Fixes some media device count in the [`DeviceState`].
+    fn set_count(&mut self, new_count: u32) {
+        self.count = new_count;
+    }
+
+    /// Triggers the [`OnDeviceChangeCallback`].
+    fn on_device_change(&mut self) {
+        self.cb.pin_mut().on_device_change();
+    }
 }
 
 impl Webrtc {
@@ -192,28 +236,11 @@ impl Webrtc {
         self: &mut Webrtc,
         cb: UniquePtr<OnDeviceChangeCallback>,
     ) {
-        let adm = AudioDeviceModule::new(
-            AudioLayer::kPlatformDefaultAudio,
-            &mut self.0.task_queue_factory,
-        )
-        .unwrap();
-
-        let mut vdi = VideoDeviceInfo::create().unwrap();
-
-        let device_count = TryInto::<u32>::try_into(
-            adm.inner.playout_devices().unwrap()
-                + adm.inner.recording_devices().unwrap(),
-        )
-        .unwrap()
-            + vdi.number_of_devices();
-
         let prev = ON_DEVICE_CHANGE.swap(
-            Box::into_raw(Box::new(DeviceState {
+            Box::into_raw(Box::new(DeviceState::new(
                 cb,
-                adm,
-                vdi,
-                count: device_count,
-            })),
+                &mut self.0.task_queue_factory,
+            ))),
             Ordering::SeqCst,
         );
 
@@ -248,17 +275,11 @@ unsafe extern "system" fn wndproc(
 
             if !state.is_null() {
                 let device_state = &mut *state;
-                let new_count = TryInto::<u32>::try_into(
-                    device_state.adm.inner.playout_devices().unwrap()
-                        + device_state.adm.inner.recording_devices().unwrap(),
-                )
-                .unwrap()
-                    + device_state.vdi.number_of_devices();
+                let new_count = device_state.count_devices();
 
                 if device_state.count != new_count {
-                    device_state.count = new_count;
-
-                    device_state.cb.pin_mut().on_device_change();
+                    device_state.set_count(new_count);
+                    device_state.on_device_change();
                 }
             }
         }

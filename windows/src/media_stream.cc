@@ -242,32 +242,4 @@ void DisposeStream(
   result->Success();
 }
 
-DeviceChangeHandler::DeviceChangeHandler(flutter::BinaryMessenger* messenger) {
-  event_channel_.reset(new EventChannel<EncodableValue>(
-      asdasd messenger, "FlutterWebRTC/OnDeviceChange",
-      &StandardMethodCodec::GetInstance()));
-
-  auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-      // An `on_listen` callback.
-      [&](const flutter::EncodableValue* arguments,
-          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        event_sink_ = std::move(events);
-        return nullptr;
-      },
-      // An `on_cancel` callback.
-      [&](const flutter::EncodableValue* arguments)
-          -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
-        event_sink_ = nullptr;
-        return nullptr;
-      });
-
-  event_channel_->SetStreamHandler(std::move(handler));
-}
-
-// `OnDeviceChangeCallback` implementation.
-void DeviceChangeHandler::OnDeviceChange() {
-  event_sink_->Success();
-}
-
 }  // namespace flutter_webrtc_plugin
