@@ -1,19 +1,20 @@
-use std::sync::{Arc, Mutex, Weak};
-
-use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
-use dashmap::DashMap;
-use derive_more::{Display, From, Into};
-use libwebrtc_sys as sys;
-use sys::RtpTransceiverInterface;
+use std::{
+    sync::{Arc, Mutex},
+    thread,
+};
 
 use crate::{
     api,
     internal::{
-        CreateSdpCallbackInterface, PeerConnectionObserverInterface,
-        SetDescriptionCallbackInterface,
+        AddIceCandidateCallbackInterface, CreateSdpCallbackInterface,
+        PeerConnectionObserverInterface, SetDescriptionCallbackInterface,
     },
     next_id, AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
+use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
+use dashmap::DashMap;
+use derive_more::{Display, From, Into};
+use libwebrtc_sys as sys;
 
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
@@ -22,23 +23,29 @@ impl Webrtc {
     pub fn create_peer_connection(
         self: &mut Webrtc,
         obs: UniquePtr<PeerConnectionObserverInterface>,
+        configuration: api::RtcConfiguration,
         error: &mut String,
     ) -> u64 {
         let peer = PeerConnection::new(
             &mut self.0.peer_connection_factory,
-            obs,
             Arc::clone(&self.0.video_tracks),
             Arc::clone(&self.0.audio_tracks),
+            obs,
+            configuration,
         );
         match peer {
-            Ok(peer) => self
-                .0
-                .peer_connections
-                .entry(peer.0.id)
-                .or_insert(peer)
-                .0
-                .id
-                .into(),
+            Ok(peer) => {
+                let id = peer.0.lock().unwrap().id;
+                self.0
+                    .peer_connections
+                    .entry(id)
+                    .or_insert(peer)
+                    .0
+                    .lock()
+                    .unwrap()
+                    .id
+                    .into()
+            }
             Err(err) => {
                 error.push_str(&err.to_string());
                 0
@@ -80,7 +87,7 @@ impl Webrtc {
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(cb),
         ));
-        peer.0.inner.create_offer(&options, obs);
+        peer.0.lock().unwrap().inner.create_offer(&options, obs);
 
         String::new()
     }
@@ -119,7 +126,7 @@ impl Webrtc {
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(cb),
         ));
-        peer.0.inner.create_answer(&options, obs);
+        peer.0.lock().unwrap().inner.create_answer(&options, obs);
 
         String::new()
     }
@@ -157,7 +164,11 @@ impl Webrtc {
         let desc = sys::SessionDescriptionInterface::new(sdp_kind, &sdp);
         let obs =
             sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
-        peer.0.inner.set_local_description(desc, obs);
+        peer.0
+            .lock()
+            .unwrap()
+            .inner
+            .set_local_description(desc, obs);
 
         String::new()
     }
@@ -197,7 +208,14 @@ impl Webrtc {
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(
             SetSdpCallback(cb),
         ));
-        peer.0.inner.set_remote_description(desc, obs);
+        let mut lock = peer.0.lock().unwrap();
+
+        // very dirty
+        {
+            let ptr: *mut InnerPeer = &mut *lock;
+            drop(lock);
+            unsafe { (*ptr).inner.set_remote_description(desc, obs) };
+        }
 
         String::new()
     }
@@ -222,12 +240,13 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceiver = peer.0.inner.add_transceiver(
+        let transceiver = peer.0.lock().unwrap().inner.add_transceiver(
             media_type.try_into().unwrap(),
             direction.try_into().unwrap(),
         );
 
-        let transceivers = &mut peer.0.transceivers.lock().unwrap();
+        let mut lock = peer.0.lock().unwrap();
+        let transceivers = &mut lock.transceivers;
         let mid = transceiver.mid().unwrap_or_default();
         let direction = transceiver.direction().to_string();
         let id = if let Some((id, _)) = transceivers
@@ -265,7 +284,7 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceivers = peer.0.inner.get_transceivers();
+        let transceivers = peer.0.lock().unwrap().inner.get_transceivers();
         let mut result = Vec::with_capacity(transceivers.len());
 
         for (index, transceiver) in transceivers.into_iter().enumerate() {
@@ -304,9 +323,9 @@ impl Webrtc {
             .unwrap();
 
         peer.0
-            .transceivers
             .lock()
             .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .set_direction(direction.try_into().unwrap())
@@ -335,9 +354,9 @@ impl Webrtc {
             .unwrap();
 
         peer.0
-            .transceivers
             .lock()
             .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .mid()
@@ -363,9 +382,9 @@ impl Webrtc {
             .unwrap();
 
         peer.0
-            .transceivers
             .lock()
             .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .direction()
@@ -395,9 +414,9 @@ impl Webrtc {
             .unwrap();
 
         peer.0
-            .transceivers
             .lock()
             .unwrap()
+            .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
             .stop()
@@ -417,9 +436,9 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
             .0
-            .transceivers
             .lock()
             .unwrap()
+            .transceivers
             .remove(usize::try_from(transceiver_id).unwrap());
     }
 
@@ -446,7 +465,8 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        let transceivers = peer.0.transceivers.lock().unwrap();
+        let lock = peer.0.lock().unwrap();
+        let transceivers = &lock.transceivers;
 
         let transceiver = transceivers
             .get(usize::try_from(transceiver_id).unwrap())
@@ -489,6 +509,74 @@ impl Webrtc {
         }
         .map_or_else(|e| e.to_string(), |_| String::new())
     }
+
+    /// Adds a [`sys::IceCandidateInterface`] to the given [`PeerConnection`].
+    ///
+    /// # Panics
+    ///
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot add the given [`sys::IceCandidateInterface`].
+    pub fn add_ice_candidate(
+        &mut self,
+        peer_id: u64,
+        candidate: &str,
+        sdp_mid: &str,
+        sdp_mline_index: i32,
+        cb: UniquePtr<AddIceCandidateCallbackInterface>,
+    ) {
+        let candidate = sys::IceCandidateInterface::new(
+            sdp_mid,
+            sdp_mline_index,
+            candidate,
+        )
+        .unwrap();
+        self.0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .0
+            .lock()
+            .unwrap()
+            .inner
+            .add_ice_candidate(
+                candidate,
+                Box::new(AddIceCandidateCallback(cb)),
+            );
+    }
+
+    /// Tells the [`PeerConnection`] that ICE should be restarted.
+    ///
+    /// # Panics
+    ///
+    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    pub fn restart_ice(&mut self, peer_id: u64) {
+        self.0
+            .peer_connections
+            .get_mut(&PeerConnectionId(peer_id))
+            .unwrap()
+            .0
+            .lock()
+            .unwrap()
+            .inner
+            .restart_ice();
+    }
+
+    /// Closes the [`PeerConnection`].
+    ///
+    /// # Panics
+    ///
+    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    pub fn dispose_peer_connection(&mut self, peer_id: u64) {
+        self.0
+            .peer_connections
+            .remove(&PeerConnectionId(peer_id))
+            .unwrap()
+            .0
+            .lock()
+            .unwrap()
+            .inner
+            .close();
+    }
 }
 
 /// ID of a [`PeerConnection`].
@@ -503,39 +591,81 @@ struct InnerPeer {
     inner: sys::PeerConnectionInterface,
 
     /// [`sys::Transceiver`]s of this [`PeerConnection`].
-    transceivers: Arc<Mutex<Vec<sys::RtpTransceiverInterface>>>,
+    transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 
+unsafe impl Send for InnerPeer {}
+
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
-pub struct PeerConnection(InnerPeer);
+pub struct PeerConnection(Arc<Mutex<InnerPeer>>);
 
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
         factory: &mut sys::PeerConnectionFactoryInterface,
-        cb: UniquePtr<PeerConnectionObserverInterface>,
         video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
         audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
+        observer: UniquePtr<PeerConnectionObserverInterface>,
+        configuration: api::RtcConfiguration,
     ) -> anyhow::Result<Self> {
-        let transceivers = Arc::new(Mutex::new(vec![]));
+        let inn = Arc::new(Mutex::new(None));
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
-                cb,
-                transceivers: Arc::downgrade(&transceivers),
+                observer: Arc::new(Mutex::new(observer)),
+                pc: inn.clone(),
                 video_tracks,
                 audio_tracks,
             },
         ));
+
+        let mut sys_configuration = sys::RtcConfiguration::default();
+
+        if !configuration.ice_transport_policy.is_empty() {
+            sys_configuration.set_ice_transport_type(
+                configuration.ice_transport_policy.as_str().try_into()?,
+            );
+        }
+
+        if !configuration.bundle_policy.is_empty() {
+            sys_configuration.set_bundle_policy(
+                configuration.bundle_policy.as_str().try_into()?,
+            );
+        }
+
+        for server in configuration.ice_servers {
+            let mut ice_server = sys::IceServer::default();
+            let mut have_ice_servers = false;
+
+            for url in server.urls {
+                if !url.is_empty() {
+                    ice_server.add_url(url);
+                    have_ice_servers = true;
+                }
+            }
+
+            if have_ice_servers {
+                if !server.username.is_empty() || !server.credential.is_empty()
+                {
+                    ice_server
+                        .set_credentials(server.username, server.credential);
+                }
+
+                sys_configuration.add_server(ice_server);
+            }
+        }
+
         let inner = factory.create_peer_connection_or_error(
-            &sys::RTCConfiguration::default(),
+            &sys_configuration,
             sys::PeerConnectionDependencies::new(observer),
         )?;
 
-        let pc = Self(InnerPeer {
+        let inner = Arc::new(Mutex::new(InnerPeer {
             id: PeerConnectionId::from(next_id()),
             inner,
-            transceivers,
-        });
+            transceivers: vec![],
+        }));
+        inn.lock().unwrap().replace(inner.clone());
+        let pc = Self(inner);
 
         Ok(pc)
     }
@@ -572,10 +702,10 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 struct PeerConnectionObserver {
     /// [`PeerConnectionObserverInterface`] that the events will be forwarded
     /// to.
-    cb: UniquePtr<PeerConnectionObserverInterface>,
+    observer: Arc<Mutex<UniquePtr<PeerConnectionObserverInterface>>>,
 
     /// Vec of [`PeerConnection`] transceivers.
-    transceivers: Weak<Mutex<Vec<RtpTransceiverInterface>>>,
+    pc: Arc<Mutex<Option<Arc<Mutex<InnerPeer>>>>>,
 
     /// Map of remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
@@ -587,7 +717,11 @@ struct PeerConnectionObserver {
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_signaling_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_signaling_change(&new_state);
     }
 
     fn on_standardized_ice_connection_change(
@@ -595,21 +729,37 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         new_state: sys::IceConnectionState,
     ) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_ice_connection_state_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_ice_connection_state_change(&new_state);
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_connection_state_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_connection_state_change(&new_state);
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_ice_gathering_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_ice_gathering_change(&new_state);
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
-        self.cb.pin_mut().on_negotiation_needed();
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_negotiation_needed();
     }
 
     fn on_ice_candidate_error(
@@ -620,22 +770,15 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_code: i32,
         error_text: &CxxString,
     ) {
-        self.cb
+        self.observer
+            .lock()
+            .unwrap()
             .pin_mut()
             .on_ice_candidate_error(address, port, url, error_code, error_text);
     }
 
     fn on_ice_connection_receiving_change(&mut self, _: bool) {
         // This is a non-spec-compliant event.
-    }
-
-    fn on_ice_candidate(
-        &mut self,
-        candidate: *const sys::IceCandidateInterface,
-    ) {
-        let mut string =
-            unsafe { sys::ice_candidate_interface_to_string(candidate) };
-        self.cb.pin_mut().on_ice_candidate(&string.pin_mut());
     }
 
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
@@ -656,20 +799,38 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             }
             _ => unreachable!(),
         };
-        let transceivers = self.transceivers.upgrade().unwrap();
-        let mut transceivers = transceivers.lock().unwrap();
-        transceivers.push(transceiver);
-        let id = transceivers.len() - 1;
-        let result = api::RtcTrackEvent {
-            track,
-            transceiver: api::RtcRtpTransceiver {
-                id: id as u64,
-                mid: "".to_string(),
-                direction: "".to_string(),
-                sender: api::RtcRtpSender { id: id as u64 },
-            },
-        };
-        self.cb.pin_mut().on_track(result);
+
+        let pc = self.pc.clone();
+        let observer = self.observer.clone();
+        thread::spawn(move || {
+            let mut lock = pc.lock().unwrap();
+            let mut lock = lock.as_mut().unwrap().lock().unwrap();
+            lock.inner.add_transceiver(
+                transceiver.media_type(),
+                transceiver.direction(),
+            );
+            let transceivers = &mut lock.transceivers;
+            transceivers.push(transceiver);
+            let id = transceivers.len() - 1;
+            let result = api::RtcTrackEvent {
+                track,
+                transceiver: api::RtcRtpTransceiver {
+                    id: id as u64,
+                    mid: "".to_string(),
+                    direction: "".to_string(),
+                    sender: api::RtcRtpSender { id: id as u64 },
+                },
+            };
+            observer.lock().unwrap().pin_mut().on_track(result);
+        });
+    }
+
+    fn on_ice_candidate(&mut self, candidate: sys::IceCandidateInterface) {
+        self.observer.lock().unwrap().pin_mut().on_ice_candidate(
+            candidate.candidate(),
+            candidate.mid(),
+            candidate.mline_index(),
+        );
     }
 
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
@@ -685,5 +846,18 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
     fn on_remove_track(&mut self, _: sys::RtpReceiverInterface) {
         // This is a non-spec-compliant event.
+    }
+}
+
+/// [`sys::AddIceCandidateCallback`] wrapper.
+pub struct AddIceCandidateCallback(UniquePtr<AddIceCandidateCallbackInterface>);
+
+impl sys::AddIceCandidateCallback for AddIceCandidateCallback {
+    fn on_success(&mut self) {
+        self.0.pin_mut().on_add_ice_candidate_success();
+    }
+
+    fn on_fail(&mut self, error: &CxxString) {
+        self.0.pin_mut().on_add_ice_candidate_fail(error);
     }
 }

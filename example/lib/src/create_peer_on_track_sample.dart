@@ -41,28 +41,22 @@ class _PeerOnTrackSample extends State<PeerOnTrackSample> {
       init.direction = TransceiverDirection.SendRecv;
 
       await pc1.addTransceiver(
-        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+          kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
       var pc2 = await createPeerConnection({});
-      var complete = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail onTrack');
-      var complete_ended = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail onEnded');
-      pc2.onTrack = (RTCTrackEvent e) => {
-        e.track?.onEnded = () => complete_ended = Future.value('Success'),
-        complete = Future.value('Success'),
+
+      var t = Timer(Duration(seconds: 5), () {
+        setState(() {
+          text = 'Fail timeout.';
+        });
+      });
+
+      pc2.onTrack = (RTCTrackEvent e) {
+        t.cancel();
+        setState(() {
+          text = 'test is success';
+        });
       };
       await pc2.setRemoteDescription(await pc1.createOffer({}));
-      await complete;
-      await (await pc2.transceivers)[0].stop();
-      var result = await complete_ended;
-
-
-      setState(() {
-        if (result == 'Success') {
-          text = 'test is success';
-        } else {
-          text = result;
-        }
-
-      });
 
     } catch (e) {
       print(e.toString());
