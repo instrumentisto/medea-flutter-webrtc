@@ -4,6 +4,7 @@ use std::{
     os::windows::prelude::OsStrExt,
     ptr,
     sync::atomic::{AtomicPtr, Ordering},
+    thread,
 };
 
 use cxx::UniquePtr;
@@ -30,13 +31,13 @@ use crate::{
     AudioDeviceModule, Webrtc,
 };
 
-/// A static instance of a [`DeviceState`].
+/// Static instance of a [`DeviceState`].
 static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
     AtomicPtr::new(ptr::null_mut());
 
-/// This struct contains the current number of media devices and some tools
-/// to enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`])
-/// and generate event with [`OnDeviceChangeCallback`], if the last is needed.
+/// Struct containing the current number of media devices and some tools to
+/// enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`]), and
+/// generate event with [`OnDeviceChangeCallback`], if the last is needed.
 struct DeviceState {
     cb: UniquePtr<OnDeviceChangeCallback>,
     adm: AudioDeviceModule,
@@ -94,10 +95,10 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// Panics on any error returned from the `libWebRTC`.
+    /// On any error returned from `libWebRTC`.
     #[must_use]
     pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
-        // TODO: Dont panic but propagate errors to API users.
+        // TODO: Don't panic but propagate errors to API users.
         // Returns a list of all available audio devices.
         let mut audio = {
             let count_playout =
@@ -174,14 +175,14 @@ impl Webrtc {
         audio
     }
 
-    /// Returns an index of a specific video device identified by the provided
+    /// Returns an index of the specific video device identified by the provided
     /// [`VideoDeviceId`].
     ///
     /// # Errors
     ///
-    /// Errors if [`VideoDeviceInfo::device_name()`][1] returns error.
+    /// Whenever [`VideoDeviceInfo::device_name()`][1] returns an error.
     ///
-    /// [1]: [`libwebrtc_sys::VideoDeviceInfo::device_name()`]
+    /// [1]: libwebrtc_sys::VideoDeviceInfo::device_name
     pub fn get_index_of_video_device(
         &mut self,
         device_id: &VideoDeviceId,
@@ -196,12 +197,12 @@ impl Webrtc {
         Ok(None)
     }
 
-    /// Returns an index of a specific audio input device identified by the
+    /// Returns an index of the specific audio input device identified by the
     /// provided [`AudioDeviceId`].
     ///
     /// # Errors
     ///
-    /// Errors if [`AudioDeviceModule::recording_devices()`][1] or
+    /// Whenever [`AudioDeviceModule::recording_devices()`][1] or
     /// [`AudioDeviceModule::recording_device_name()`][2] returns an error.
     ///
     /// [1]: libwebrtc_sys::AudioDeviceModule::recording_devices
@@ -223,15 +224,15 @@ impl Webrtc {
     }
 
     /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
-    /// called whenever the set of available media devices has changed.
+    /// called whenever the set of available media devices changes.
     ///
-    /// Only one callback can be set a time, so the previous one will be
+    /// Only one callback can be set at a time, so the previous one will be
     /// dropped, if any.
     ///
     /// # Panics
     ///
-    /// May panic on creating [`AudioDeviceModule`] or [`VideoDeviceInfo`]
-    /// or getting number of `playout` and `recording` devices.
+    /// May panic on creating [`AudioDeviceModule`], [`VideoDeviceInfo`], or
+    /// getting number of `playout` and `recording` devices.
     pub fn set_on_device_changed(
         self: &mut Webrtc,
         cb: UniquePtr<OnDeviceChangeCallback>,
@@ -255,7 +256,7 @@ impl Webrtc {
     }
 }
 
-/// The message handler for the [`HWND`].
+/// Message handler for an [`HWND`].
 unsafe extern "system" fn wndproc(
     hwnd: HWND,
     msg: UINT,
@@ -289,10 +290,12 @@ unsafe extern "system" fn wndproc(
     result
 }
 
-/// Creates a detached [`std::thread::Thread`] that creates and register
-/// system message window - [`HWND`].
+/// Creates a detached [`Thread`] creating and registering a system message
+/// window - [`HWND`].
+///
+/// [`Thread`]: std::thread::Thread
 pub unsafe fn init() {
-    std::thread::spawn(|| {
+    thread::spawn(|| {
         let lpsz_class_name = OsStr::new("EventWatcher")
             .encode_wide()
             .chain(Some(0).into_iter())

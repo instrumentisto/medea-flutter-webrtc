@@ -495,9 +495,9 @@ pub mod api {
         );
 
         /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
-        /// called whenever the set of available media devices has changed.
+        /// called whenever a set of available media devices changes.
         ///
-        /// Only one callback can be set a time, so the previous one will be
+        /// Only one callback can be set at a time, so the previous one will be
         /// dropped, if any.
         #[cxx_name = "SetOnDeviceChanged"]
         pub fn set_on_device_changed(

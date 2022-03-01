@@ -14,17 +14,17 @@ class MediaDeviceNative extends MediaDevices {
         .listen(eventListener, onError: errorListener);
   }
 
-  /// A subscription on events from a [Stream].
+  /// Subscription on events from a [Stream].
   late StreamSubscription<dynamic> _onDeviceChangeSub;
 
-  /// Event receiving success handler.
+  /// Event receiving a success handler.
   void eventListener(dynamic event) {
     if (onDeviceChange != null) {
       onDeviceChange!();
     }
   }
 
-  /// Event receiving error handler.
+  /// Event receiving an error handler.
   void errorListener(Object obj) {
     if (obj is Exception) {
       throw obj;

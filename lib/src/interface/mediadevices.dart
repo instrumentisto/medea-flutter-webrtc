@@ -91,8 +91,8 @@ class MediaTrackSupportedConstraints {
 }
 
 abstract class MediaDevices {
-  /// Callback that is called when a media device has been added to or removed
-  /// from the system.
+  /// Callback, called when a media device has been added to or removed from the
+  /// system.
   void Function()? onDeviceChange;
 
   /// Calling this method will prompts the user to select and grant permission

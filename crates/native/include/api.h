@@ -110,10 +110,10 @@ class AddIceCandidateCallbackInterface {
   virtual ~AddIceCandidateCallbackInterface() = default;
 };
 
-// Callback called whenever the set of available media devices has changed.
+// Callback, called whenever a set of available media devices changes.
 class OnDeviceChangeCallback {
  public:
-  // Called whenever the set of available media devices has changed.
+  // Called whenever a set of available media devices changes.
   virtual void OnDeviceChange() = 0;
 
   virtual ~OnDeviceChangeCallback() = default;

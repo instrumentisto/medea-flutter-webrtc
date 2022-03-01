@@ -23,7 +23,7 @@ class DeviceChangeHandler : public OnDeviceChangeCallback {
         &StandardMethodCodec::GetInstance()));
 
     auto handler = std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-        // An `on_listen` callback.
+        // `on_listen` callback.
         [&](const flutter::EncodableValue* arguments,
             std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&&
                 events)
@@ -31,7 +31,7 @@ class DeviceChangeHandler : public OnDeviceChangeCallback {
           event_sink_ = std::move(events);
           return nullptr;
         },
-        // An `on_cancel` callback.
+        // `on_cancel` callback.
         [&](const flutter::EncodableValue* arguments)
             -> std::unique_ptr<StreamHandlerError<flutter::EncodableValue>> {
           event_sink_ = nullptr;
@@ -45,12 +45,12 @@ class DeviceChangeHandler : public OnDeviceChangeCallback {
   void OnDeviceChange() { event_sink_->Success(); }
 
  private:
-  // A named channel for communicating with the Flutter application using
+  // Named channel for communicating with the Flutter application using
   // asynchronous event streams.
   std::unique_ptr<EventChannel<EncodableValue>> event_channel_;
 
-  // Event callback. Events to be sent to Flutter application
-  // act as clients of this interface for sending events.
+  // Event callback. Events to be sent to Flutter application act as clients of
+  // this interface for sending events.
   std::unique_ptr<EventSink<EncodableValue>> event_sink_;
 };
 
