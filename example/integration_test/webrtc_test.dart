@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:integration_test/integration_test.dart';
@@ -165,11 +167,12 @@ void main() {
     await pc1.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
     var pc2 = await createPeerConnection({});
-    var complete = Future.delayed(const Duration(seconds: 5)).then((value) => 'Fail');
-    pc2.onTrack = (RTCTrackEvent e) => {complete = Future.value('Success')};
+    var result;
+    var timer = Future.delayed(Duration(seconds: 5));
+    var t = Timer(Duration(seconds: 5), () => result = 'Fail');
+    pc2.onTrack = (RTCTrackEvent e) => result = 'Success';
     await pc2.setRemoteDescription(await pc1.createOffer({}));
-
-    var result = await complete;
+    await timer;
     expect(result, equals('Success'));
   });
 }

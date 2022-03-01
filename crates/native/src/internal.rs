@@ -131,6 +131,9 @@ mod cpp_api_bindings {
     }
 }
 
+// todo
+unsafe impl Send for PeerConnectionObserverInterface {}
+
 fn _touch_create_sdp_callback(_: cxx::UniquePtr<CreateSdpCallbackInterface>) {}
 
 fn _touch_set_description_callback(

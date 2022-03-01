@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}};
+use std::{sync::{Arc, Mutex}, thread};
 
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use dashmap::DashMap;
@@ -506,6 +506,9 @@ struct InnerPeer {
     transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 
+// todo
+unsafe impl Send for InnerPeer { }
+
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection(Arc<Mutex<InnerPeer>>);
 
@@ -520,7 +523,7 @@ impl PeerConnection {
         let inn = Arc::new(Mutex::new(None));
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
-                cb,
+                cb: Arc::new(Mutex::new(cb)),
                 pc: inn.clone(),
                 video_tracks,
                 audio_tracks,
@@ -574,7 +577,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 struct PeerConnectionObserver {
     /// [`PeerConnectionObserverInterface`] that the events will be forwarded
     /// to.
-    cb: UniquePtr<PeerConnectionObserverInterface>,
+    cb: Arc<Mutex<UniquePtr<PeerConnectionObserverInterface>>>,
 
     /// Vec of [`PeerConnection`] transceivers.
     pc: Arc<Mutex<Option<Arc<Mutex<InnerPeer>>>>>,
@@ -589,7 +592,7 @@ struct PeerConnectionObserver {
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_signaling_change(&new_state);
+        self.cb.lock().unwrap().pin_mut().on_signaling_change(&new_state);
     }
 
     fn on_standardized_ice_connection_change(
@@ -597,21 +600,21 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         new_state: sys::IceConnectionState,
     ) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_ice_connection_state_change(&new_state);
+        self.cb.lock().unwrap().pin_mut().on_ice_connection_state_change(&new_state);
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_connection_state_change(&new_state);
+        self.cb.lock().unwrap().pin_mut().on_connection_state_change(&new_state);
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.cb.pin_mut().on_ice_gathering_change(&new_state);
+        self.cb.lock().unwrap().pin_mut().on_ice_gathering_change(&new_state);
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
-        self.cb.pin_mut().on_negotiation_needed();
+        self.cb.lock().unwrap().pin_mut().on_negotiation_needed();
     }
 
     fn on_ice_candidate_error(
@@ -622,7 +625,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_code: i32,
         error_text: &CxxString,
     ) {
-        self.cb
+        self.cb.lock().unwrap()
             .pin_mut()
             .on_ice_candidate_error(address, port, url, error_code, error_text);
     }
@@ -637,7 +640,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     ) {
         let mut string =
             unsafe { sys::ice_candidate_interface_to_string(candidate) };
-        self.cb.pin_mut().on_ice_candidate(&string.pin_mut());
+        self.cb.lock().unwrap().pin_mut().on_ice_candidate(&string.pin_mut());
     }
 
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
@@ -658,22 +661,27 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             }
             _ => unreachable!(),
         };
-        let mut lock = self.pc.lock().unwrap();
-        let mut lock = lock.as_mut().unwrap().lock().unwrap();
-        lock.inner.add_transceiver(transceiver.media_type(), transceiver.direction());
-        let transceivers = &mut lock.transceivers;
-        transceivers.push(transceiver);
-        let id = transceivers.len() - 1;
-        let result = api::RtcTrackEvent {
-            track,
-            transceiver: api::RtcRtpTransceiver {
-                id: id as u64,
-                mid: "".to_string(),
-                direction: "".to_string(),
-                sender: api::RtcRtpSender { id: id as u64 },
-            },
-        };
-        self.cb.pin_mut().on_track(result);
+
+        let pc = self.pc.clone();
+        let cb = self.cb.clone();
+        thread::spawn(move || {
+            let mut lock = pc.lock().unwrap();
+            let mut lock = lock.as_mut().unwrap().lock().unwrap();
+            lock.inner.add_transceiver(transceiver.media_type(), transceiver.direction());
+            let transceivers = &mut lock.transceivers;
+            transceivers.push(transceiver);
+            let id = transceivers.len() - 1;
+            let result = api::RtcTrackEvent {
+                track,
+                transceiver: api::RtcRtpTransceiver {
+                    id: id as u64,
+                    mid: "".to_string(),
+                    direction: "".to_string(),
+                    sender: api::RtcRtpSender { id: id as u64 },
+                },
+            };
+            cb.lock().unwrap().pin_mut().on_track(result);
+        });
     }
 
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {

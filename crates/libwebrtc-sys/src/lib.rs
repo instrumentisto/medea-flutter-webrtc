@@ -482,6 +482,9 @@ pub struct RtpTransceiverInterface {
     media_type: MediaType,
 }
 
+//todo
+unsafe impl Send for RtpTransceiverInterface { }
+
 impl PartialEq for RtpTransceiverInterface {
     fn eq(&self, other: &Self) -> bool {
         transceiver_eq(&self.inner, &other.inner)
