@@ -594,7 +594,6 @@ struct InnerPeer {
     transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 
-// todo
 unsafe impl Send for InnerPeer {}
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.

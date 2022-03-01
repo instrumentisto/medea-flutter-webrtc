@@ -556,7 +556,6 @@ pub struct RtpTransceiverInterface {
     media_type: MediaType,
 }
 
-//todo
 unsafe impl Send for RtpTransceiverInterface {}
 
 impl PartialEq for RtpTransceiverInterface {
