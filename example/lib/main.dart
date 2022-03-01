@@ -146,7 +146,7 @@ class _MyAppState extends State<MyApp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => NotifierTest()));
+                    builder: (BuildContext context) => OnDeviceChangeNotifierSample()));
           }),
     ];
   }

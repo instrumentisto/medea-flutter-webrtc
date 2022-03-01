@@ -2,9 +2,6 @@
 #include "flutter_webrtc.h"
 #include "parsing.h"
 
-#include <flutter/standard_message_codec.h>
-#include <flutter/standard_method_codec.h>
-
 namespace flutter_webrtc_plugin {
 
 /// Calls Rust `EnumerateDevices()` and converts the received Rust vector of

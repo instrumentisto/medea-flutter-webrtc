@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-class NotifierTest extends StatefulWidget {
-  const NotifierTest({Key? key}) : super(key: key);
+class OnDeviceChangeNotifierSample extends StatefulWidget {
+  const OnDeviceChangeNotifierSample({Key? key}) : super(key: key);
 
   @override
-  _NotifierTestState createState() => _NotifierTestState();
+  _State createState() => _State();
 }
 
-class _NotifierTestState extends State<NotifierTest> {
+class _State extends State<OnDeviceChangeNotifierSample> {
   int count = 0;
   String text = '';
   MediaDevices? mediaDevices;

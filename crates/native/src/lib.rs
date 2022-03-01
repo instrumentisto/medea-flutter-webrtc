@@ -6,13 +6,13 @@ mod pc;
 mod user_media;
 mod video_sink;
 
-use cxx::UniquePtr;
 use std::{
     collections::HashMap,
     rc::Rc,
     sync::atomic::{AtomicU64, Ordering},
 };
 
+use cxx::UniquePtr;
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,

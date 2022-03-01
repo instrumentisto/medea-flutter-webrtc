@@ -2,6 +2,8 @@
 #include <sstream>
 #include <string>
 
+#include <flutter/standard_message_codec.h>
+#include <flutter/standard_method_codec.h>
 #include "flutter-webrtc-native/include/api.h"
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
@@ -9,12 +11,10 @@
 #include "parsing.h"
 #include "peer_connection.h"
 
-#include <flutter/standard_message_codec.h>
-#include <flutter/standard_method_codec.h>
-
 namespace flutter_webrtc_plugin {
 
-// Handler for changing media devices in system.
+// `OnDeviceChangeCallback` implementation forwarding the event to the Dart
+// side via `EventSink`.
 class DeviceChangeHandler : public OnDeviceChangeCallback {
  public:
   DeviceChangeHandler(flutter::BinaryMessenger* binary_messenger) {

@@ -18,7 +18,7 @@ use winapi::{
         winuser::{
             CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
             RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT, MSG,
-            SW_HIDE, WM_DEVICECHANGE, WNDCLASSEXW, WS_ICONIC,
+            SW_HIDE, WM_DEVICECHANGE, WM_QUIT, WNDCLASSEXW, WS_ICONIC,
         },
     },
 };
@@ -49,11 +49,11 @@ impl DeviceState {
     fn new(
         cb: UniquePtr<OnDeviceChangeCallback>,
         tq: &mut TaskQueueFactory,
-    ) -> Self {
-        let adm = AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, tq)
-            .unwrap();
+    ) -> anyhow::Result<Self> {
+        let adm =
+            AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, tq)?;
 
-        let vdi = VideoDeviceInfo::create().unwrap();
+        let vdi = VideoDeviceInfo::create()?;
 
         let mut ds = Self {
             cb,
@@ -64,7 +64,8 @@ impl DeviceState {
 
         let device_count = ds.count_devices();
         ds.set_count(device_count);
-        ds
+
+        Ok(ds)
     }
 
     /// Counts current media device number.
@@ -201,8 +202,7 @@ impl Webrtc {
     /// # Errors
     ///
     /// Errors if [`AudioDeviceModule::recording_devices()`][1] or
-    /// [`AudioDeviceModule::recording_device_name()`][2]
-    /// returns error.
+    /// [`AudioDeviceModule::recording_device_name()`][2] returns an error.
     ///
     /// [1]: libwebrtc_sys::AudioDeviceModule::recording_devices
     /// [2]: libwebrtc_sys::AudioDeviceModule::recording_device_name
@@ -237,10 +237,9 @@ impl Webrtc {
         cb: UniquePtr<OnDeviceChangeCallback>,
     ) {
         let prev = ON_DEVICE_CHANGE.swap(
-            Box::into_raw(Box::new(DeviceState::new(
-                cb,
-                &mut self.0.task_queue_factory,
-            ))),
+            Box::into_raw(Box::new(
+                DeviceState::new(cb, &mut self.0.task_queue_factory).unwrap(),
+            )),
             Ordering::SeqCst,
         );
 
@@ -251,6 +250,8 @@ impl Webrtc {
         }
 
         unsafe {
+            // TODO: why spawn a new thread every time?
+            //       im pretty sure that we should call init only once
             init();
         }
     }
@@ -294,26 +295,19 @@ unsafe extern "system" fn wndproc(
 /// system message window - [`HWND`].
 pub unsafe fn init() {
     std::thread::spawn(|| {
+        // TODO: I dont think we need random here
+        let lpszClassName = OsStr::new("EventWatcher")
+                .encode_wide()
+                .chain(Some(0).into_iter())
+                .collect::<Vec<u16>>()
+                .as_ptr();
+
         #[allow(clippy::cast_possible_truncation)]
         let class = WNDCLASSEXW {
             cbSize: mem::size_of::<WNDCLASSEXW>() as u32,
-            style: Default::default(),
             lpfnWndProc: Some(wndproc),
-            cbClsExtra: 0,
-            cbWndExtra: 0,
-            hInstance: ptr::null_mut(),
-            hIcon: ptr::null_mut(),
-            hCursor: ptr::null_mut(),
-            hbrBackground: ptr::null_mut(),
-            lpszMenuName: ptr::null_mut(),
-            lpszClassName: OsStr::new(
-                format!("{:?}", std::time::Instant::now()).as_str(),
-            )
-            .encode_wide()
-            .chain(Some(0).into_iter())
-            .collect::<Vec<u16>>()
-            .as_ptr(),
-            hIconSm: ptr::null_mut(),
+            lpszClassName,
+            ..Default::default()
         };
         RegisterClassExW(&class);
 
@@ -341,6 +335,10 @@ pub unsafe fn init() {
         let mut msg: MSG = mem::zeroed();
 
         while GetMessageW(&mut msg, hwnd, 0, 0) > 0 {
+            if msg.message == WM_QUIT {
+                break;
+            }
+
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
