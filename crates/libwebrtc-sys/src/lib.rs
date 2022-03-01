@@ -25,7 +25,8 @@ use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use self::bridge::webrtc;
 
 pub use crate::webrtc::{
-    candidate_to_string,
+    candidate_to_string, get_candidate_pair,
+    get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
     video_frame_to_abgr, AudioLayer, Candidate, CandidatePairChangeEvent,
     IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
     RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
@@ -556,7 +557,7 @@ pub struct RtpTransceiverInterface {
 }
 
 //todo
-unsafe impl Send for RtpTransceiverInterface { }
+unsafe impl Send for RtpTransceiverInterface {}
 
 impl PartialEq for RtpTransceiverInterface {
     fn eq(&self, other: &Self) -> bool {

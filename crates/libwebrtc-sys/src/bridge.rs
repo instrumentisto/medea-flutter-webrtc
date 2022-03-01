@@ -5,8 +5,8 @@ use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
     AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
-    OnFrameCallback, PeerConnectionEventsHandler, SetDescriptionCallback,
-    RtpTransceiverInterface, RtpReceiverInterface,
+    OnFrameCallback, PeerConnectionEventsHandler, RtpReceiverInterface,
+    RtpTransceiverInterface, SetDescriptionCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -1177,18 +1177,21 @@ pub(crate) mod webrtc {
         /// Returns the timestamp of when the last data was received from the
         /// provided [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn last_data_received_ms(event: &CandidatePairChangeEvent) -> i64;
+        pub fn get_last_data_received_ms(
+            event: &CandidatePairChangeEvent,
+        ) -> i64;
 
         /// Returns the reason causing the provided
         /// [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn reason(event: &CandidatePairChangeEvent)
-            -> UniquePtr<CxxString>;
+        pub fn get_reason(
+            event: &CandidatePairChangeEvent,
+        ) -> UniquePtr<CxxString>;
 
         /// Returns the estimated disconnect time in milliseconds from the
         /// provided [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn estimated_disconnected_time_ms(
+        pub fn get_estimated_disconnected_time_ms(
             event: &CandidatePairChangeEvent,
         ) -> i64;
 
@@ -1233,7 +1236,7 @@ pub(crate) mod webrtc {
         /// Returns the [`CandidatePair`] from the provided
         /// [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn candidate_pair(
+        pub fn get_candidate_pair(
             event: &CandidatePairChangeEvent,
         ) -> &CandidatePair;
 

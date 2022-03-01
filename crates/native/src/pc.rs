@@ -1,9 +1,8 @@
-use std::{sync::{Arc, Mutex}, thread};
+use std::{
+    sync::{Arc, Mutex},
+    thread,
+};
 
-use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
-use dashmap::DashMap;
-use derive_more::{Display, From, Into};
-use libwebrtc_sys as sys;
 use crate::{
     api,
     internal::{
@@ -12,6 +11,10 @@ use crate::{
     },
     next_id, AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
+use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
+use dashmap::DashMap;
+use derive_more::{Display, From, Into};
+use libwebrtc_sys as sys;
 
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
@@ -33,14 +36,16 @@ impl Webrtc {
         match peer {
             Ok(peer) => {
                 let id = peer.0.lock().unwrap().id;
-                self
-                .0
-                .peer_connections
-                .entry(id)
-                .or_insert(peer)
-                .0.lock().unwrap()
-                .id
-                .into()}
+                self.0
+                    .peer_connections
+                    .entry(id)
+                    .or_insert(peer)
+                    .0
+                    .lock()
+                    .unwrap()
+                    .id
+                    .into()
+            }
             Err(err) => {
                 error.push_str(&err.to_string());
                 0
@@ -159,7 +164,11 @@ impl Webrtc {
         let desc = sys::SessionDescriptionInterface::new(sdp_kind, &sdp);
         let obs =
             sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
-        peer.0.lock().unwrap().inner.set_local_description(desc, obs);
+        peer.0
+            .lock()
+            .unwrap()
+            .inner
+            .set_local_description(desc, obs);
 
         String::new()
     }
@@ -201,13 +210,12 @@ impl Webrtc {
         ));
         let mut lock = peer.0.lock().unwrap();
 
-        // very dirty 
+        // very dirty
         {
             let ptr: *mut InnerPeer = &mut *lock;
             drop(lock);
-            unsafe {(*ptr).inner.set_remote_description(desc, obs)};
+            unsafe { (*ptr).inner.set_remote_description(desc, obs) };
         }
-
 
         String::new()
     }
@@ -314,7 +322,9 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.0.lock().unwrap()
+        peer.0
+            .lock()
+            .unwrap()
             .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
@@ -343,7 +353,9 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.0.lock().unwrap()
+        peer.0
+            .lock()
+            .unwrap()
             .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
@@ -369,7 +381,9 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.0.lock().unwrap()
+        peer.0
+            .lock()
+            .unwrap()
             .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
@@ -399,7 +413,9 @@ impl Webrtc {
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
 
-        peer.0.lock().unwrap()
+        peer.0
+            .lock()
+            .unwrap()
             .transceivers
             .get(usize::try_from(transceiver_id).unwrap())
             .unwrap()
@@ -419,7 +435,9 @@ impl Webrtc {
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
-            .0.lock().unwrap()
+            .0
+            .lock()
+            .unwrap()
             .transceivers
             .remove(usize::try_from(transceiver_id).unwrap());
     }
@@ -516,7 +534,10 @@ impl Webrtc {
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
-            .0.lock().unwrap().inner
+            .0
+            .lock()
+            .unwrap()
+            .inner
             .add_ice_candidate(
                 candidate,
                 Box::new(AddIceCandidateCallback(cb)),
@@ -532,7 +553,11 @@ impl Webrtc {
         self.0
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
-            .unwrap().0.lock().unwrap().inner
+            .unwrap()
+            .0
+            .lock()
+            .unwrap()
+            .inner
             .restart_ice();
     }
 
@@ -545,7 +570,11 @@ impl Webrtc {
         self.0
             .peer_connections
             .remove(&PeerConnectionId(peer_id))
-            .unwrap().0.lock().unwrap().inner
+            .unwrap()
+            .0
+            .lock()
+            .unwrap()
+            .inner
             .close();
     }
 }
@@ -566,7 +595,7 @@ struct InnerPeer {
 }
 
 // todo
-unsafe impl Send for InnerPeer { }
+unsafe impl Send for InnerPeer {}
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection(Arc<Mutex<InnerPeer>>);
@@ -689,7 +718,11 @@ struct PeerConnectionObserver {
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.observer.lock().unwrap().pin_mut().on_signaling_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_signaling_change(&new_state);
     }
 
     fn on_standardized_ice_connection_change(
@@ -697,21 +730,37 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         new_state: sys::IceConnectionState,
     ) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.observer.lock().unwrap().pin_mut().on_ice_connection_state_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_ice_connection_state_change(&new_state);
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.observer.lock().unwrap().pin_mut().on_connection_state_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_connection_state_change(&new_state);
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
         let_cxx_string!(new_state = new_state.to_string());
-        self.observer.lock().unwrap().pin_mut().on_ice_gathering_change(&new_state);
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_ice_gathering_change(&new_state);
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
-        self.observer.lock().unwrap().pin_mut().on_negotiation_needed();
+        self.observer
+            .lock()
+            .unwrap()
+            .pin_mut()
+            .on_negotiation_needed();
     }
 
     fn on_ice_candidate_error(
@@ -722,7 +771,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_code: i32,
         error_text: &CxxString,
     ) {
-        self.observer.lock().unwrap()
+        self.observer
+            .lock()
+            .unwrap()
             .pin_mut()
             .on_ice_candidate_error(address, port, url, error_code, error_text);
     }
@@ -755,7 +806,10 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         thread::spawn(move || {
             let mut lock = pc.lock().unwrap();
             let mut lock = lock.as_mut().unwrap().lock().unwrap();
-            lock.inner.add_transceiver(transceiver.media_type(), transceiver.direction());
+            lock.inner.add_transceiver(
+                transceiver.media_type(),
+                transceiver.direction(),
+            );
             let transceivers = &mut lock.transceivers;
             transceivers.push(transceiver);
             let id = transceivers.len() - 1;

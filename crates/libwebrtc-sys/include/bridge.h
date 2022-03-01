@@ -302,20 +302,20 @@ std::unique_ptr<AudioSourceInterface> get_audio_track_source(
 // Creates an SDP-ized form of this `Candidate`.
 
 // Returns `CandidatePairChangeEvent.candidate_pair` field value.
-const cricket::CandidatePair& candidate_pair(
+const cricket::CandidatePair& get_candidate_pair(
     const cricket::CandidatePairChangeEvent& event);
 
 // Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
-int64_t last_data_received_ms(
+int64_t get_last_data_received_ms(
     const cricket::CandidatePairChangeEvent& event);
 
 // Returns `CandidatePairChangeEvent.reason` field value.
-std::unique_ptr<std::string> reason(
+std::unique_ptr<std::string> get_reason(
     const cricket::CandidatePairChangeEvent& event);
 
 // Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
 // value.
-int64_t estimated_disconnected_time_ms(
+int64_t get_estimated_disconnected_time_ms(
     const cricket::CandidatePairChangeEvent& event);
 
 // Returns a `mid` of the given `RtpTransceiverInterface`.
