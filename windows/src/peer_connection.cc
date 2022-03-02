@@ -592,25 +592,6 @@ void StopTransceiver(
   }
 }
 
-// Calls Rust `DisposeTransceiver()`.
-void DisposeTransceiver(
-    Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
-  if (!method_call.arguments()) {
-    result->Error("Bad Arguments", "Null constraints arguments received");
-    return;
-  }
-
-  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-
-  webrtc->DisposeTransceiver(std::stoi(findString(params, "peerConnectionId")),
-                             std::stoi(findString(params, "transceiverId")));
-
-  result->Success();
-}
-
 // Calls Rust `SetTransceiverDirection()`.
 void SetTransceiverDirection(
     Box<Webrtc>& webrtc,

@@ -436,14 +436,6 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
-        /// Disposes the specified [`RtcRtpTransceiver`].
-        #[cxx_name = "DisposeTransceiver"]
-        pub fn dispose_transceiver(
-            self: &mut Webrtc,
-            peer_id: u64,
-            transceiver_id: u64,
-        );
-
         /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
         /// the [`sys::Transceiver`]'s `sender`.
         #[cxx_name = "SenderReplaceTrack"]
