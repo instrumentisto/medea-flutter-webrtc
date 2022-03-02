@@ -273,7 +273,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
     }
 
     /**
-     * Notifies [RtpReceiverProxy] that ]
+     * Notifies that [RtpReceiverProxy]'s [MediaStreamTrackProxy] was ended.
+     *
+     * @param endedReceiver [RtpReceiver] which was ended.
      */
     fun receiverEnded(endedReceiver: RtpReceiver) {
         val receiver = receivers[endedReceiver.id()]

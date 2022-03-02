@@ -47,7 +47,7 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   /// [_eventChan] subscription to the [PeerConnection] events.
   late StreamSubscription<dynamic>? _eventSub;
 
-  /// `on_ended` event subcriber.
+  /// `on_ended` event subscriber.
   OnEndedCallback? _onEnded;
 
   /// Listener for the all [MediaStreamTrack] events received from the

@@ -1,6 +1,6 @@
 import '/src/model/track.dart';
 
-/// Typedef for the `on_ended` callback.
+/// Typedef for the `onEnded` callback.
 typedef OnEndedCallback = void Function();
 
 /// Abstract representation of a single media unit on native or web side.
