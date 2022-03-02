@@ -20,6 +20,7 @@ use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
+use threadpool::ThreadPool;
 
 use crate::video_sink::Id as VideoSinkId;
 
@@ -536,6 +537,7 @@ pub struct Context {
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
+    callback_pool: Arc<ThreadPool>,
 }
 
 /// Creates a new instance of [`Webrtc`].
@@ -589,5 +591,6 @@ pub fn init() -> Box<Webrtc> {
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
+        callback_pool: Arc::new(ThreadPool::new(1)),
     })))
 }

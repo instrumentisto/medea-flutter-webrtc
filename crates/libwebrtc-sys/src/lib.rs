@@ -966,6 +966,8 @@ pub struct PeerConnectionInterface {
     _observer: PeerConnectionObserver,
 }
 
+unsafe impl Send for PeerConnectionInterface {}
+
 impl PeerConnectionInterface {
     /// [RTCPeerConnection.createOffer()][1] implementation.
     ///

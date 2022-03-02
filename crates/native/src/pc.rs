@@ -1,7 +1,6 @@
-use std::{
-    sync::{Arc, Mutex},
-    thread,
-};
+use std::sync::{Arc, Mutex};
+
+use threadpool::ThreadPool;
 
 use crate::{
     api,
@@ -20,6 +19,8 @@ impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
     ///
     /// Writes an error to the provided `err` if any.
+    /// # Panics
+    /// Panic when `peer` mutex invalid.
     pub fn create_peer_connection(
         self: &mut Webrtc,
         obs: UniquePtr<PeerConnectionObserverInterface>,
@@ -32,6 +33,7 @@ impl Webrtc {
             Arc::clone(&self.0.audio_tracks),
             obs,
             configuration,
+            self.0.callback_pool.clone(),
         );
         match peer {
             Ok(peer) => {
@@ -57,6 +59,8 @@ impl Webrtc {
     /// WebRTC connection to a remote peer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
+    /// # Panics
+    /// Panic when `peer` mutex invalid.
     pub fn create_offer(
         &mut self,
         peer_id: u64,
@@ -96,6 +100,8 @@ impl Webrtc {
     /// offer/answer negotiation of a WebRTC connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
+    /// # Panics
+    /// Panic when `peer` mutex invalid.
     pub fn create_answer(
         &mut self,
         peer_id: u64,
@@ -134,6 +140,8 @@ impl Webrtc {
     /// Changes the local description associated with the connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
+    /// # Panics
+    /// Panic when `peer` mutex invalid.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
         &mut self,
@@ -177,6 +185,8 @@ impl Webrtc {
     /// offer or answer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
+    /// # Panics
+    /// Panic when `peer` mutex invalid.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
         &mut self,
@@ -209,13 +219,7 @@ impl Webrtc {
             SetSdpCallback(cb),
         ));
         let mut lock = peer.0.lock().unwrap();
-
-        // very dirty
-        {
-            let ptr: *mut InnerPeer = &mut *lock;
-            drop(lock);
-            unsafe { (*ptr).inner.set_remote_description(desc, obs) };
-        }
+        lock.inner.set_remote_description(desc, obs);
 
         String::new()
     }
@@ -594,8 +598,6 @@ struct InnerPeer {
     transceivers: Vec<sys::RtpTransceiverInterface>,
 }
 
-unsafe impl Send for InnerPeer {}
-
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection(Arc<Mutex<InnerPeer>>);
 
@@ -607,14 +609,16 @@ impl PeerConnection {
         audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
         observer: UniquePtr<PeerConnectionObserverInterface>,
         configuration: api::RtcConfiguration,
+        pool: Arc<ThreadPool>,
     ) -> anyhow::Result<Self> {
-        let inn = Arc::new(Mutex::new(None));
+        let obs_inner_peer = Arc::new(Mutex::new(None));
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
                 observer: Arc::new(Mutex::new(observer)),
-                pc: inn.clone(),
+                inner_peer: obs_inner_peer.clone(),
                 video_tracks,
                 audio_tracks,
+                pool,
             },
         ));
 
@@ -659,13 +663,13 @@ impl PeerConnection {
             sys::PeerConnectionDependencies::new(observer),
         )?;
 
-        let inner = Arc::new(Mutex::new(InnerPeer {
+        let inner_peer = Arc::new(Mutex::new(InnerPeer {
             id: PeerConnectionId::from(next_id()),
             inner,
             transceivers: vec![],
         }));
-        inn.lock().unwrap().replace(inner.clone());
-        let pc = Self(inner);
+        obs_inner_peer.lock().unwrap().replace(inner_peer.clone());
+        let pc = Self(inner_peer);
 
         Ok(pc)
     }
@@ -705,13 +709,17 @@ struct PeerConnectionObserver {
     observer: Arc<Mutex<UniquePtr<PeerConnectionObserverInterface>>>,
 
     /// Vec of [`PeerConnection`] transceivers.
-    pc: Arc<Mutex<Option<Arc<Mutex<InnerPeer>>>>>,
+    /// # Warnings
+    /// lock [`InnerPeer`] must be in `pool`.
+    inner_peer: Arc<Mutex<Option<Arc<Mutex<InnerPeer>>>>>,
 
     /// Map of remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
 
     /// Map of remote [`AudioTrack`]s shared with the [`crate::Webrtc`].
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
+
+    pool: Arc<ThreadPool>,
 }
 
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
@@ -800,27 +808,32 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             _ => unreachable!(),
         };
 
-        let pc = self.pc.clone();
+        let inner_peer = self.inner_peer.clone();
         let observer = self.observer.clone();
-        thread::spawn(move || {
-            let mut lock = pc.lock().unwrap();
-            let mut lock = lock.as_mut().unwrap().lock().unwrap();
-            lock.inner.add_transceiver(
+        self.pool.execute(move || {
+            let mut lock = inner_peer.lock().unwrap();
+            let mut inner_peer = lock.as_mut().unwrap().lock().unwrap();
+            inner_peer.inner.add_transceiver(
                 transceiver.media_type(),
                 transceiver.direction(),
             );
-            let transceivers = &mut lock.transceivers;
+
+            let transceivers = &mut inner_peer.transceivers;
+            let mid = transceiver.mid().unwrap_or_default();
+            let direction = transceiver.direction().to_string();
             transceivers.push(transceiver);
             let id = transceivers.len() - 1;
+
             let result = api::RtcTrackEvent {
                 track,
                 transceiver: api::RtcRtpTransceiver {
                     id: id as u64,
-                    mid: "".to_string(),
-                    direction: "".to_string(),
+                    mid,
+                    direction,
                     sender: api::RtcRtpSender { id: id as u64 },
                 },
             };
+
             observer.lock().unwrap().pin_mut().on_track(result);
         });
     }
