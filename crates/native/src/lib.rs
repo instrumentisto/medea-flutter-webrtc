@@ -1,6 +1,6 @@
 #![warn(clippy::pedantic)]
 
-mod device_info;
+mod devices;
 mod internal;
 mod pc;
 mod user_media;
@@ -15,6 +15,7 @@ use std::{
     },
 };
 
+use cxx::UniquePtr;
 use dashmap::DashMap;
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
@@ -289,6 +290,8 @@ pub mod api {
 
         type AddIceCandidateCallbackInterface =
             crate::internal::AddIceCandidateCallbackInterface;
+
+        type OnDeviceChangeCallback = crate::internal::OnDeviceChangeCallback;
     }
 
     extern "Rust" {
@@ -506,6 +509,17 @@ pub mod api {
             track_id: u64,
             enabled: bool,
         );
+
+        /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
+        /// called whenever a set of available media devices changes.
+        ///
+        /// Only one callback can be set at a time, so the previous one will be
+        /// dropped, if any.
+        #[cxx_name = "SetOnDeviceChanged"]
+        pub fn set_on_device_changed(
+            self: &mut Webrtc,
+            cb: UniquePtr<OnDeviceChangeCallback>,
+        );
     }
 }
 
@@ -585,4 +599,10 @@ pub fn init() -> Box<Webrtc> {
         video_sinks: HashMap::new(),
         callback_pool: Arc::new(ThreadPool::new(1)),
     })))
+}
+
+impl Drop for Webrtc {
+    fn drop(&mut self) {
+        self.set_on_device_changed(UniquePtr::null());
+    }
 }
