@@ -19,8 +19,10 @@ impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
     ///
     /// Writes an error to the provided `err` if any.
-    /// # Panics
-    /// Panic when `peer` mutex invalid.
+    ///
+    /// # Panics TODO(alexlapa): proper docs
+    ///
+    /// Panics when `peer` mutex invalid.
     pub fn create_peer_connection(
         self: &mut Webrtc,
         obs: UniquePtr<PeerConnectionObserverInterface>,
@@ -55,7 +57,7 @@ impl Webrtc {
     /// WebRTC connection to a remote peer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics
+    /// # Panics // TODO(alexlapa): proper docs
     /// Panic when `peer` mutex invalid.
     pub fn create_offer(
         &mut self,
@@ -96,7 +98,7 @@ impl Webrtc {
     /// offer/answer negotiation of a WebRTC connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics
+    /// # Panics // TODO(alexlapa): proper docs
     /// Panic when `peer` mutex invalid.
     pub fn create_answer(
         &mut self,
@@ -136,7 +138,7 @@ impl Webrtc {
     /// Changes the local description associated with the connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics
+    /// # Panics // TODO(alexlapa): proper docs
     /// Panic when `peer` mutex invalid.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
@@ -181,7 +183,7 @@ impl Webrtc {
     /// offer or answer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics
+    /// # Panics // TODO(alexlapa): proper docs
     /// Panic when `peer` mutex invalid.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
@@ -565,6 +567,7 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 pub struct PeerConnectionId(u64);
 
+// TODO(alexlapa): add docs
 struct InnerPeer {
     /// ID of this [`PeerConnection`].
     id: PeerConnectionId,
@@ -572,6 +575,9 @@ struct InnerPeer {
     /// Underlying [`sys::PeerConnectionInterface`].
     inner: Mutex<sys::PeerConnectionInterface>,
 }
+
+// TODO(alexlapa): why?
+unsafe impl Send for InnerPeer {}
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection(Arc<InnerPeer>);
@@ -682,6 +688,7 @@ struct PeerConnectionObserver {
     /// to.
     observer: Arc<Mutex<UniquePtr<PeerConnectionObserverInterface>>>,
 
+    // TODO(alexlapa): proper docs
     /// Vec of [`PeerConnection`] transceivers.
     /// # Warnings
     /// lock [`InnerPeer`] must be in `pool`.
@@ -692,7 +699,7 @@ struct PeerConnectionObserver {
 
     /// Map of remote [`AudioTrack`]s shared with the [`crate::Webrtc`].
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
-
+    // TODO(alexlapa): proper docs
     pool: Arc<ThreadPool>,
 }
 
@@ -782,35 +789,38 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             _ => unreachable!(),
         };
 
-        let mid = transceiver.mid();
-        let direction = transceiver.direction().to_string();
-        let inner_peer = self.inner_peer.clone();
-        let observer = self.observer.clone();
-        self.pool.execute(move || {
-            let mut lock = inner_peer.lock().unwrap();
-            let inner_peer = lock.as_mut().unwrap();
-            let id = inner_peer
-                .inner
-                .lock()
-                .unwrap()
-                .get_transceivers()
-                .iter()
-                .enumerate()
-                .find(|(_, t)| t.mid() == mid)
-                .map(|(id, _)| id)
-                .unwrap();
+        self.pool.execute({
+            let mid = transceiver.mid();
+            let direction = transceiver.direction().to_string();
+            let inner_peer = self.inner_peer.clone();
+            let observer = self.observer.clone();
 
-            let result = api::RtcTrackEvent {
-                track,
-                transceiver: api::RtcRtpTransceiver {
-                    id: id as u64,
-                    mid: mid.unwrap_or_default(),
-                    direction,
-                    sender: api::RtcRtpSender { id: id as u64 },
-                },
-            };
+            move || {
+                let mut lock = inner_peer.lock().unwrap();
+                let inner_peer = lock.as_mut().unwrap();
+                let id = inner_peer
+                    .inner
+                    .lock()
+                    .unwrap()
+                    .get_transceivers()
+                    .iter()
+                    .enumerate()
+                    .find(|(_, t)| t.mid() == mid)
+                    .map(|(id, _)| id)
+                    .unwrap();
 
-            observer.lock().unwrap().pin_mut().on_track(result);
+                let result = api::RtcTrackEvent {
+                    track,
+                    transceiver: api::RtcRtpTransceiver {
+                        id: id as u64,
+                        mid: mid.unwrap_or_default(),
+                        direction,
+                        sender: api::RtcRtpSender { id: id as u64 },
+                    },
+                };
+
+                observer.lock().unwrap().pin_mut().on_track(result);
+            }
         });
     }
 

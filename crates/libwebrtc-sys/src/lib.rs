@@ -6,7 +6,7 @@ mod bridge;
 use std::collections::HashMap;
 
 use anyhow::bail;
-use bridge::webrtc::{
+use bridge::webrtc::{ // TODO(alexlapa): dont import, use `webrtc::` prefix.
     rtcp_parameters_cname, rtcp_parameters_reduced_size,
     rtp_codec_parameters_clock_rate, rtp_codec_parameters_kind,
     rtp_codec_parameters_name, rtp_codec_parameters_num_channels,
@@ -132,10 +132,12 @@ pub trait PeerConnectionEventsHandler {
     /// Called when signaling indicates that media will no longer be received on
     /// a track.
     /// With Unified Plan semantics, the receiver will remain but the
-    /// transceiver will have changed direction to either sendonly or inactive.
+    /// transceiver will have changed direction to either `sendonly` or
+    /// `inactive`.
     fn on_remove_track(&mut self, receiver: RtpReceiverInterface);
 }
 
+// TODO(alexlapa): docs?
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TrackKind {
     Audio,
@@ -557,6 +559,7 @@ pub struct RtpTransceiverInterface {
 }
 
 impl RtpTransceiverInterface {
+    // TODO(alexlapa): docs?
     pub(crate) fn from_ptr(
         inner: UniquePtr<webrtc::RtpTransceiverInterface>,
     ) -> Self {
@@ -687,6 +690,7 @@ impl RtpSenderInterface {
 pub struct RtpReceiverInterface(UniquePtr<webrtc::RtpReceiverInterface>);
 
 impl RtpReceiverInterface {
+    // TODO(alexlapa): docs?
     pub(crate) fn from_ptr(
         inner: UniquePtr<webrtc::RtpReceiverInterface>,
     ) -> Self {
@@ -720,6 +724,7 @@ impl RtpCodecParameters {
         rtp_codec_parameters_name(&self.0.ptr).to_string()
     }
 
+    // TODO(alexlapa): add links where possible (https://w3.org/TR/webrtc#dom-rtcrtpcodecparameters-payloadtype)
     /// Returns a `payload_type` of the given [`RtpCodecParameters`].
     #[must_use]
     pub fn payload_type(&self) -> i32 {
@@ -768,7 +773,7 @@ impl RtpExtension {
         rtp_extension_uri(&self.0.ptr).to_string()
     }
 
-    /// Returns a `id` of the given [`RtpExtension`].
+    /// Returns an `id` of the given [`RtpExtension`].
     #[must_use]
     pub fn id(&self) -> i32 {
         rtp_extension_id(&self.0.ptr)
@@ -849,16 +854,17 @@ impl RtcpParameters {
 pub struct RtpParameters(UniquePtr<webrtc::RtpParameters>);
 
 impl RtpParameters {
+    // TODO(alexlapa): docs?
     #[must_use]
     pub fn transaction_id(&self) -> String {
         rtp_parameters_transaction_id(&self.0).to_string()
     }
-
+    // TODO(alexlapa): docs?
     #[must_use]
     pub fn mid(&self) -> String {
         rtp_parameters_mid(&self.0).to_string()
     }
-
+    // TODO(alexlapa): docs?
     #[must_use]
     pub fn codecs(&self) -> Vec<RtpCodecParameters> {
         rtp_parameters_codecs(&self.0)
@@ -866,7 +872,7 @@ impl RtpParameters {
             .map(RtpCodecParameters)
             .collect()
     }
-
+    // TODO(alexlapa): docs?
     #[must_use]
     pub fn header_extensions(&self) -> Vec<RtpExtension> {
         rtp_parameters_header_extensions(&self.0)
@@ -874,7 +880,7 @@ impl RtpParameters {
             .map(RtpExtension)
             .collect()
     }
-
+    // TODO(alexlapa): docs?
     #[must_use]
     pub fn encodings(&self) -> Vec<RtpEncodingParameters> {
         rtp_parameters_encodings(&self.0)
@@ -882,7 +888,7 @@ impl RtpParameters {
             .map(RtpEncodingParameters)
             .collect()
     }
-
+    // TODO(alexlapa): docs?
     #[must_use]
     pub fn rtcp(&self) -> RtcpParameters {
         RtcpParameters(rtp_parameters_rtcp(&self.0))
@@ -957,6 +963,7 @@ pub struct PeerConnectionInterface {
     _observer: PeerConnectionObserver,
 }
 
+// TODO(alexlapa): Add some explanation and links
 unsafe impl Sync for PeerConnectionInterface {}
 unsafe impl Send for PeerConnectionInterface {}
 
@@ -1318,7 +1325,7 @@ impl MediaStreamTrackInterface {
         webrtc::media_stream_track_id(&self.0).to_string()
     }
 
-    /// Returns the state of the track.
+    /// Returns the [`TrackState`] of this [MediaStreamTrackInterface].
     #[must_use]
     pub fn state(&self) -> TrackState {
         webrtc::media_stream_track_state(&self.0)

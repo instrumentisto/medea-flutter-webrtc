@@ -157,6 +157,7 @@ mod cpp_api_bindings {
     }
 }
 
+// TODO(alexlapa): add docs to the api.h that mentions this requirement
 unsafe impl Send for PeerConnectionObserverInterface {}
 
 fn _touch_create_sdp_callback(_: cxx::UniquePtr<CreateSdpCallbackInterface>) {}

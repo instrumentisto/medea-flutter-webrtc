@@ -179,7 +179,7 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
 
       /// Unified-Plan
       case 'onTrack':
-        // Сurrent implementation is incompatible
+        // TODO: Fix after merging with master
         // var params = map['streams'] as List<dynamic>;
         // var streams = params.map((e) => MediaStreamNative.fromMap(e)).toList();
         // var transceiver = map['transceiver'] != null

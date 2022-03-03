@@ -1077,15 +1077,15 @@ pub(crate) mod webrtc {
             track: &VideoTrackInterface,
         ) -> bool;
 
-        /// Returns a `AudioSourceInterface`
-        /// of the given [`AudioTrackInterface`].
+        /// Returns an `AudioSourceInterface` of the given
+        /// [`AudioTrackInterface`].
         #[must_use]
         pub fn get_audio_track_source(
             track: &AudioTrackInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
-        /// Returns a `VideoTrackSourceInterface`
-        /// of the given [`VideoTrackInterface`].
+        /// Returns an `VideoTrackSourceInterface` of the given
+        /// [`VideoTrackInterface`].
         #[must_use]
         pub fn get_video_track_source(
             track: &VideoTrackInterface,
@@ -1189,8 +1189,8 @@ pub(crate) mod webrtc {
             event: &CandidatePairChangeEvent,
         ) -> i64;
 
-        /// Downcasts [`MediaStreamTrackInterface`] to
-        /// [`VideoTrackInterface`].
+        /// Downcasts the given [`MediaStreamTrackInterface`] to
+        /// a [`VideoTrackInterface`].
         #[must_use]
         pub fn media_stream_track_interface_downcast_video_track(
             track: UniquePtr<MediaStreamTrackInterface>,
@@ -1219,11 +1219,11 @@ pub(crate) mod webrtc {
             extension: &RtpExtension,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns a `id` of the given [`RtpExtension`].
+        /// Returns an `id` of the given [`RtpExtension`].
         #[must_use]
         pub fn rtp_extension_id(extension: &RtpExtension) -> i32;
 
-        /// Returns a `encrypt` of the given [`RtpExtension`].
+        /// Returns an `encrypt` of the given [`RtpExtension`].
         #[must_use]
         pub fn rtp_extension_encrypt(extension: &RtpExtension) -> bool;
 
@@ -1259,7 +1259,7 @@ pub(crate) mod webrtc {
         type DynCreateSdpCallback;
         type DynPeerConnectionEventsHandler;
 
-        /// Creates [`StringPair`].
+        /// Creates a new [`StringPair`] from the given [`CxxString`].
         pub fn new_string_pair(f: &CxxString, s: &CxxString) -> StringPair;
 
         /// Successfully completes the provided [`DynSetDescriptionCallback`].
@@ -1390,17 +1390,19 @@ pub(crate) mod webrtc {
         );
 
         /// Forwards the [`RtpTransceiverInterface`] to the given
-        /// [`DynPeerConnectionEventsHandler`] when track have
-        /// been adds.
-        /// [1]: https://www.w3.org/TR/webrtc/#event-track
+        /// [`DynPeerConnectionEventsHandler`] when a [`track`][1] event occurs
+        /// in the attached [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://w3.org/TR/webrtc/#event-track
         pub fn on_track(
             cb: &mut DynPeerConnectionEventsHandler,
             transceiver: UniquePtr<RtpTransceiverInterface>,
         );
 
         /// Forwards the [`RtpTransceiverInterface`] to the given
-        /// [`DynPeerConnectionEventsHandler`] when track have
+        /// [`DynPeerConnectionEventsHandler`] when a track have
         /// been removed.
+        ///
         /// This is a non-spec-compliant event.
         pub fn on_remove_track(
             cb: &mut DynPeerConnectionEventsHandler,
@@ -1602,8 +1604,9 @@ pub fn on_track(
 }
 
 /// Forwards the [`RtpTransceiverInterface`] to the given
-/// [`DynPeerConnectionEventsHandler`] when track have
+/// [`DynPeerConnectionEventsHandler`] when a track have
 /// been removed.
+///
 /// This is a non-spec-compliant event.
 pub fn on_remove_track(
     cb: &mut DynPeerConnectionEventsHandler,
