@@ -265,6 +265,6 @@ void main() {
     pc2.onTrack = (RTCTrackEvent e) => e.track?.onEnded = () => completer.complete();
     await pc2.setRemoteDescription(await pc1.createOffer({}));
     await (await pc2.transceivers)[0].stop();
-    await completer.future.timeout(Duration(seconds: 1));
+    await completer.future.timeout(Duration(seconds: 5));
   });
 }
