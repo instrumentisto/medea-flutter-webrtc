@@ -131,7 +131,7 @@ class WebVideoRenderer extends VideoRenderer {
     value = value.copyWith(renderVideo: renderVideo);
   }
 
-  /// Synchonizes this [WebVideoRenderer]'s output audio sink with
+  /// Synchronizes this [WebVideoRenderer]'s output audio sink with
   /// a [_outputAudioSinkId].
   void _syncSinkId() {
     if (_outputAudioSinkId != null) {

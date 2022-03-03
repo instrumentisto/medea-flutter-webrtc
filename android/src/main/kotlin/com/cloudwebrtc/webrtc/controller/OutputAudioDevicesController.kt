@@ -14,7 +14,11 @@ import io.flutter.plugin.common.MethodChannel
  *
  * @param state  Global state used for output audio devices management.
  */
-class OutputAudioDevicesController(private val messenger: BinaryMessenger, state: State) : MethodChannel.MethodCallHandler {
+class OutputAudioDevicesController(
+    private val messenger: BinaryMessenger,
+    state: State
+) :
+    MethodChannel.MethodCallHandler {
     /**
      * Underlying [MediaDevices] to perform [MethodCall]s on.
      */

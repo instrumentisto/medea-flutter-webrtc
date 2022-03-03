@@ -6,6 +6,9 @@ enum OutputAudioDeviceInfoKind {
   /// Audio will be played on the speakerphone.
   speakerphone,
 
+  /// Audio will be played on the bluetooth headset.
+  bluetoothHeadset,
+
   /// Audio will be played on some audio device which can't be assigned to the
   /// other [OutputAudioDeviceInfoKind]. Speakers in the browser, for example.
   unknown,

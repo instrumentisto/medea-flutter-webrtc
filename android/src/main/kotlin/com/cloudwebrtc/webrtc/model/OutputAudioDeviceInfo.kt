@@ -12,7 +12,12 @@ enum class OutputAudioDeviceKind(val value: Int) {
     /**
      * Audio will be played on the speakerphone.
      */
-    SPEAKERPHONE(1);
+    SPEAKERPHONE(1),
+
+    /**
+     * Audio will be played on the bluetooth headset if it possible.
+     */
+    BLUETOOTH_HEADSET(2);
 }
 
 /**
