@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc_example/src/create_peer_on_track_sample.dart';
 
 import 'src/create_peer_connection_sample.dart';
 import 'src/data_channel_sample.dart';
@@ -140,15 +139,6 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => RendererSample()));
-          }),
-      RouteItem(
-          title: 'OnTrack sample',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        PeerOnTrackSample()));
           }),
       RouteItem(
           title: 'onDeviceChange notifier',
