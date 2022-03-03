@@ -695,7 +695,6 @@ impl RtpCodecParameters {
         webrtc::rtp_codec_parameters_name(&self.0.ptr).to_string()
     }
 
-
     /// Returns a [`payloadType`][1] of this
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcrtpcodecparameters-payloadtype
@@ -745,7 +744,7 @@ pub struct RtpExtension(webrtc::RtpExtensionContainer);
 
 impl RtpExtension {
     /// Returns a [`uri`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters-uri
     #[must_use]
     pub fn uri(&self) -> String {
@@ -753,7 +752,7 @@ impl RtpExtension {
     }
 
     /// Returns a [`id`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters-id
     #[must_use]
     pub fn id(&self) -> i32 {
@@ -761,8 +760,8 @@ impl RtpExtension {
     }
 
     /// Returns a [`encrypted`][1] of this
-    /// 
-    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters-encrypted
+    ///
+    /// [1]: https://tinyurl.com/headerparameters-encrypted
     #[must_use]
     pub fn encrypt(&self) -> bool {
         webrtc::rtp_extension_encrypt(&self.0.ptr)
@@ -776,7 +775,7 @@ pub struct RtpEncodingParameters(webrtc::RtpEncodingParametersContainer);
 
 impl RtpEncodingParameters {
     /// Returns a [`active`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-active
     #[must_use]
     pub fn active(&self) -> bool {
@@ -784,7 +783,7 @@ impl RtpEncodingParameters {
     }
 
     /// Returns a [`maxBitrate`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-maxbitrate
     #[must_use]
     pub fn max_bitrate(&self) -> Option<i32> {
@@ -810,8 +809,8 @@ impl RtpEncodingParameters {
     }
 
     /// Returns a [`scaleResolutionDownBy`][1] of this
-    /// 
-    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-scaleresolutiondownby
+    ///
+    /// [1]: https://tinyurl.com/scaleresolutiondownby
     #[must_use]
     pub fn scale_resolution_down_by(&self) -> Option<f64> {
         webrtc::rtp_encoding_parameters_scale_resolution_down_by(&self.0.ptr)
@@ -826,15 +825,15 @@ pub struct RtcpParameters(UniquePtr<webrtc::RtcpParameters>);
 
 impl RtcpParameters {
     /// Returns a [`cname`][1] of this
-    /// 
-    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtcpparameters-cname 
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtcpparameters-cname
     #[must_use]
     pub fn cname(&self) -> String {
         webrtc::rtcp_parameters_cname(&self.0).to_string()
     }
-    
+
     /// Returns a [`reducedSize`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtcpparameters-reducedsize
     #[must_use]
     pub fn reduced_size(&self) -> bool {
@@ -847,7 +846,6 @@ impl RtcpParameters {
 pub struct RtpParameters(UniquePtr<webrtc::RtpParameters>);
 
 impl RtpParameters {
-
     /// Returns a `parameters` of the given [`RtpParameters`].
     #[must_use]
     pub fn transaction_id(&self) -> String {
@@ -859,9 +857,9 @@ impl RtpParameters {
     pub fn mid(&self) -> String {
         webrtc::rtp_parameters_mid(&self.0).to_string()
     }
-    
+
     /// Returns a [`codecs`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-codecs
     #[must_use]
     pub fn codecs(&self) -> Vec<RtpCodecParameters> {
@@ -872,7 +870,7 @@ impl RtpParameters {
     }
 
     /// Returns a [`headerExtensions`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-headerextensions
     #[must_use]
     pub fn header_extensions(&self) -> Vec<RtpExtension> {
@@ -892,7 +890,7 @@ impl RtpParameters {
     }
 
     /// Returns a [`rtcp`][1] of this
-    /// 
+    ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-rtcp
     #[must_use]
     pub fn rtcp(&self) -> RtcpParameters {
@@ -953,8 +951,8 @@ impl IceCandidateInterface {
 }
 
 /// [RTCPeerConnection][1] implementation.
-/// Calls to the [`PeerConnectionInterface`] APIs will be proxied 
-/// to the signaling thread, which means that an application 
+/// Calls to the [`PeerConnectionInterface`] APIs will be proxied
+/// to the signaling thread, which means that an application
 /// can call those APIs from whatever thread. [Thread safe][2].
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
@@ -971,7 +969,6 @@ pub struct PeerConnectionInterface {
     /// It's stored here since it must outlive the peer connection object.
     _observer: PeerConnectionObserver,
 }
-
 
 unsafe impl Sync for PeerConnectionInterface {}
 unsafe impl Send for PeerConnectionInterface {}

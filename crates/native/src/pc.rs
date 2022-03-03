@@ -53,9 +53,9 @@ impl Webrtc {
     /// WebRTC connection to a remote peer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// 
-    /// # Panics 
-    /// 
+    ///
+    /// # Panics
+    ///
     /// If `peer` mutex has been poisoned in other thread.
     pub fn create_offer(
         &mut self,
@@ -96,9 +96,9 @@ impl Webrtc {
     /// offer/answer negotiation of a WebRTC connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// If `peer` mutex has been poisoned in other thread.
     pub fn create_answer(
         &mut self,
@@ -138,9 +138,9 @@ impl Webrtc {
     /// Changes the local description associated with the connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// If `peer` mutex has been poisoned in other thread.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
@@ -185,9 +185,9 @@ impl Webrtc {
     /// offer or answer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// 
-    /// # Panics 
-    /// 
+    ///
+    /// # Panics
+    ///
     /// If `peer` mutex has been poisoned in other thread.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
@@ -446,8 +446,8 @@ impl Webrtc {
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
     /// - If `peer` mutex has been poisoned in other thread.
-    /// [`AudioTrack`]: crate::AudioTrack
-    /// [`VideoTrack`]: crate::VideoTrack
+    /// [`AudioTrack`]: `crate::AudioTrack`
+    /// [`VideoTrack`]: `crate::VideoTrack`
     pub fn sender_replace_track(
         &mut self,
         peer_id: u64,
@@ -700,12 +700,12 @@ struct PeerConnectionObserver {
 
     /// [`InnerPeer`] of [`PeerConnection`] internally used
     /// in [`PeerConnectionObserver::on_track()`][1]
-    /// 
+    ///
     /// # Warnings
-    /// 
+    ///
     /// Tasks with [`InnerPeer`] must be execute in `pool`,
     /// otherwise it may cause Deadlock.
-    /// 
+    ///
     /// [1]: libwebrtc_sys::PeerConnectionEventsHandler::on_track
     inner_peer: Arc<Mutex<Option<Arc<InnerPeer>>>>,
 

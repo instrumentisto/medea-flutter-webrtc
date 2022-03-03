@@ -572,14 +572,13 @@ pub struct AudioTrack {
 }
 
 impl AudioTrack {
-
     /// Creates a new [`AudioTrack`].
     ///
     /// # Errors
     ///
     /// Whenever [`PeerConnectionFactoryInterface::create_audio_track()`][1]
     /// returns an error.
-    /// 
+    ///
     /// [1]: libwebrtc_sys::PeerConnectionFactoryInterface::create_audio_track
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
