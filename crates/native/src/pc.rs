@@ -19,10 +19,6 @@ impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
     ///
     /// Writes an error to the provided `err` if any.
-    ///
-    /// # Panics TODO(alexlapa): proper docs
-    ///
-    /// Panics when `peer` mutex invalid.
     pub fn create_peer_connection(
         self: &mut Webrtc,
         obs: UniquePtr<PeerConnectionObserverInterface>,
@@ -57,8 +53,10 @@ impl Webrtc {
     /// WebRTC connection to a remote peer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics // TODO(alexlapa): proper docs
-    /// Panic when `peer` mutex invalid.
+    /// 
+    /// # Panics 
+    /// 
+    /// If `peer` mutex has been poisoned in other thread.
     pub fn create_offer(
         &mut self,
         peer_id: u64,
@@ -98,8 +96,10 @@ impl Webrtc {
     /// offer/answer negotiation of a WebRTC connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics // TODO(alexlapa): proper docs
-    /// Panic when `peer` mutex invalid.
+    /// 
+    /// # Panics
+    /// 
+    /// If `peer` mutex has been poisoned in other thread.
     pub fn create_answer(
         &mut self,
         peer_id: u64,
@@ -138,8 +138,10 @@ impl Webrtc {
     /// Changes the local description associated with the connection.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics // TODO(alexlapa): proper docs
-    /// Panic when `peer` mutex invalid.
+    /// 
+    /// # Panics
+    /// 
+    /// If `peer` mutex has been poisoned in other thread.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
         &mut self,
@@ -183,8 +185,10 @@ impl Webrtc {
     /// offer or answer.
     ///
     /// Returns an empty [`String`] in operation succeeds or an error otherwise.
-    /// # Panics // TODO(alexlapa): proper docs
-    /// Panic when `peer` mutex invalid.
+    /// 
+    /// # Panics 
+    /// 
+    /// If `peer` mutex has been poisoned in other thread.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
         &mut self,
@@ -233,6 +237,7 @@ impl Webrtc {
     /// - If cannot parse the given `media_type` and `direction` to a valid
     ///   [`sys::MediaType`] and [`sys::RtpTransceiverDirection`].
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn add_transceiver(
         &mut self,
         peer_id: u64,
@@ -273,7 +278,8 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn get_transceivers(
         &mut self,
         peer_id: u64,
@@ -310,6 +316,7 @@ impl Webrtc {
     ///   `transceiver_id`.
     /// - If cannot parse the given `direction` as a valid
     ///   [`sys::RtpTransceiverDirection`].
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn set_transceiver_direction(
         &mut self,
         peer_id: u64,
@@ -341,6 +348,7 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
+    /// - If `peer` mutex has been poisoned in other thread.
     ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     pub fn get_transceiver_mid(
@@ -372,6 +380,7 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn get_transceiver_direction(
         &mut self,
         peer_id: u64,
@@ -405,6 +414,7 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn stop_transceiver(
         &mut self,
         peer_id: u64,
@@ -435,7 +445,7 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If cannot find any [`RtpTransceiverInterface`]s by the specified
     ///   `transceiver_id`.
-    ///
+    /// - If `peer` mutex has been poisoned in other thread.
     /// [`AudioTrack`]: crate::AudioTrack
     /// [`VideoTrack`]: crate::VideoTrack
     pub fn sender_replace_track(
@@ -500,6 +510,7 @@ impl Webrtc {
     ///
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If cannot add the given [`sys::IceCandidateInterface`].
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn add_ice_candidate(
         &mut self,
         peer_id: u64,
@@ -532,7 +543,8 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn restart_ice(&mut self, peer_id: u64) {
         self.0
             .peer_connections
@@ -549,7 +561,8 @@ impl Webrtc {
     ///
     /// # Panics
     ///
-    /// If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
+    /// - If `peer` mutex has been poisoned in other thread.
     pub fn dispose_peer_connection(&mut self, peer_id: u64) {
         self.0
             .peer_connections
@@ -567,7 +580,7 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 pub struct PeerConnectionId(u64);
 
-// TODO(alexlapa): add docs
+/// Сomposition [`sys::PeerConnectionInterface`] with a unique ID.
 struct InnerPeer {
     /// ID of this [`PeerConnection`].
     id: PeerConnectionId,
@@ -575,9 +588,6 @@ struct InnerPeer {
     /// Underlying [`sys::PeerConnectionInterface`].
     inner: Mutex<sys::PeerConnectionInterface>,
 }
-
-// TODO(alexlapa): why?
-unsafe impl Send for InnerPeer {}
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection(Arc<InnerPeer>);
@@ -688,10 +698,15 @@ struct PeerConnectionObserver {
     /// to.
     observer: Arc<Mutex<UniquePtr<PeerConnectionObserverInterface>>>,
 
-    // TODO(alexlapa): proper docs
-    /// Vec of [`PeerConnection`] transceivers.
+    /// [`InnerPeer`] of [`PeerConnection`] internally used
+    /// in [`PeerConnectionObserver::on_track()`][1]
+    /// 
     /// # Warnings
-    /// lock [`InnerPeer`] must be in `pool`.
+    /// 
+    /// Tasks with [`InnerPeer`] must be execute in `pool`,
+    /// otherwise it may cause Deadlock.
+    /// 
+    /// [1]: libwebrtc_sys::PeerConnectionEventsHandler::on_track
     inner_peer: Arc<Mutex<Option<Arc<InnerPeer>>>>,
 
     /// Map of remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
@@ -699,7 +714,8 @@ struct PeerConnectionObserver {
 
     /// Map of remote [`AudioTrack`]s shared with the [`crate::Webrtc`].
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
-    // TODO(alexlapa): proper docs
+
+    /// Thread pool for execute task with `inner_peer`.
     pool: Arc<ThreadPool>,
 }
 

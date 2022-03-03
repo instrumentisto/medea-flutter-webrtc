@@ -51,8 +51,9 @@ class OnFrameCallbackInterface {
   virtual ~OnFrameCallbackInterface() = default;
 };
 
-// TODO: Add OnTrack event in #30.
 // Handler of events firing from a `PeerConnectionInterface`.
+// The implementation of `PeerConnectionObserverInterface`
+// must be safe to send to another thread.
 class PeerConnectionObserverInterface {
  public:
   // Called when a `connectionstatechange` event occurs.

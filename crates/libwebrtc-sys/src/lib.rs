@@ -6,20 +6,6 @@ mod bridge;
 use std::collections::HashMap;
 
 use anyhow::bail;
-use bridge::webrtc::{ // TODO(alexlapa): dont import, use `webrtc::` prefix.
-    rtcp_parameters_cname, rtcp_parameters_reduced_size,
-    rtp_codec_parameters_clock_rate, rtp_codec_parameters_kind,
-    rtp_codec_parameters_name, rtp_codec_parameters_num_channels,
-    rtp_codec_parameters_parameters, rtp_codec_parameters_payload_type,
-    rtp_encoding_parameters_active, rtp_encoding_parameters_maxBitrate,
-    rtp_encoding_parameters_maxFramerate, rtp_encoding_parameters_minBitrate,
-    rtp_encoding_parameters_scale_resolution_down_by,
-    rtp_encoding_parameters_ssrc, rtp_extension_encrypt, rtp_extension_id,
-    rtp_extension_uri, rtp_parameters_codecs, rtp_parameters_encodings,
-    rtp_parameters_header_extensions, rtp_parameters_mid, rtp_parameters_rtcp,
-    rtp_parameters_transaction_id, RtpCodecParametersContainer,
-    RtpEncodingParametersContainer, RtpExtensionContainer, TrackState,
-};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
@@ -95,7 +81,7 @@ pub trait PeerConnectionEventsHandler {
 
     /// Called when an [`icecandidateerror`][1] event occurs.
     ///
-    /// [1]: https://www.w3.org/TR/webrtc/#event-icecandidateerror
+    /// [1]: https://w3.org/TR/webrtc/#event-icecandidateerror
     fn on_ice_candidate_error(
         &mut self,
         address: &CxxString,
@@ -137,7 +123,9 @@ pub trait PeerConnectionEventsHandler {
     fn on_remove_track(&mut self, receiver: RtpReceiverInterface);
 }
 
-// TODO(alexlapa): docs?
+/// [MediaStreamTrack.kind][1] representation.
+///
+/// [1]: https://w3.org/TR/mediacapture-streams/#dfn-kind
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TrackKind {
     Audio,
@@ -559,28 +547,18 @@ pub struct RtpTransceiverInterface {
 }
 
 impl RtpTransceiverInterface {
-    // TODO(alexlapa): docs?
-    pub(crate) fn from_ptr(
-        inner: UniquePtr<webrtc::RtpTransceiverInterface>,
-    ) -> Self {
-        Self {
-            media_type: webrtc::get_transceiver_media_type(&inner),
-            inner,
-        }
-    }
-
-    /// Returns a [`mid`] of this [`RtpTransceiverInterface`].
+    /// Returns a [`mid`][1] of this [`RtpTransceiverInterface`].
     ///
-    /// [`mid`]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
+    /// [1]: https://w3.org/TR/webrtc#dom-rtptransceiver-mid
     #[must_use]
     pub fn mid(&self) -> Option<String> {
         let mid = webrtc::get_transceiver_mid(&self.inner);
         (!mid.is_empty()).then(|| mid)
     }
 
-    /// Returns a [`direction`] of this [`RtpTransceiverInterface`].
+    /// Returns a [`direction`][1] of this [`RtpTransceiverInterface`].
     ///
-    /// [`direction`]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     #[must_use]
     pub fn direction(&self) -> webrtc::RtpTransceiverDirection {
         webrtc::get_transceiver_direction(&self.inner)
@@ -690,13 +668,6 @@ impl RtpSenderInterface {
 pub struct RtpReceiverInterface(UniquePtr<webrtc::RtpReceiverInterface>);
 
 impl RtpReceiverInterface {
-    // TODO(alexlapa): docs?
-    pub(crate) fn from_ptr(
-        inner: UniquePtr<webrtc::RtpReceiverInterface>,
-    ) -> Self {
-        Self(inner)
-    }
-
     /// Returns the [`MediaStreamTrackInterface`] attribute is the track that is
     /// associated with this [`RtpReceiverInterface`] object receiver.
     #[must_use]
@@ -714,40 +685,46 @@ impl RtpReceiverInterface {
 
 /// [`RtpCodecParameters`][1].
 ///
-/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpcodecparameters
-pub struct RtpCodecParameters(RtpCodecParametersContainer);
+/// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpcodecparameters
+pub struct RtpCodecParameters(webrtc::RtpCodecParametersContainer);
 
 impl RtpCodecParameters {
     /// Returns a `name` of the given [`RtpCodecParameters`].
     #[must_use]
     pub fn name(&self) -> String {
-        rtp_codec_parameters_name(&self.0.ptr).to_string()
+        webrtc::rtp_codec_parameters_name(&self.0.ptr).to_string()
     }
 
-    // TODO(alexlapa): add links where possible (https://w3.org/TR/webrtc#dom-rtcrtpcodecparameters-payloadtype)
-    /// Returns a `payload_type` of the given [`RtpCodecParameters`].
+
+    /// Returns a [`payloadType`][1] of this
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcrtpcodecparameters-payloadtype
     #[must_use]
     pub fn payload_type(&self) -> i32 {
-        rtp_codec_parameters_payload_type(&self.0.ptr)
+        webrtc::rtp_codec_parameters_payload_type(&self.0.ptr)
     }
 
-    /// Returns a `clock_rate` of the given [`RtpCodecParameters`].
+    /// Returns a [`clockRate`][1] of this
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpcodecparameters-clockrate
     #[must_use]
     pub fn clock_rate(&self) -> Option<i32> {
-        rtp_codec_parameters_clock_rate(&self.0.ptr).ok()
+        webrtc::rtp_codec_parameters_clock_rate(&self.0.ptr).ok()
     }
 
-    /// Returns a `num_channels` of the given [`RtpCodecParameters`].
+    /// Returns a [`channels`][1] of this
+    ///
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpcodecparameters-channels
     #[must_use]
     pub fn num_channels(&self) -> Option<i32> {
-        rtp_codec_parameters_num_channels(&self.0.ptr).ok()
+        webrtc::rtp_codec_parameters_num_channels(&self.0.ptr).ok()
     }
 
     /// Returns a `parameters` of the given [`RtpCodecParameters`].
     #[must_use]
     pub fn parameters(&self) -> HashMap<String, String> {
         let mut result = HashMap::new();
-        let parameters = rtp_codec_parameters_parameters(&self.0.ptr);
+        let parameters = webrtc::rtp_codec_parameters_parameters(&self.0.ptr);
         for pair in parameters.into_iter() {
             result.insert(pair.first.clone(), pair.second.clone());
         }
@@ -757,95 +734,111 @@ impl RtpCodecParameters {
     /// Returns a [`MediaType`] of the given [`RtpCodecParameters`].
     #[must_use]
     pub fn kind(&self) -> MediaType {
-        rtp_codec_parameters_kind(&self.0.ptr)
+        webrtc::rtp_codec_parameters_kind(&self.0.ptr)
     }
 }
 
 /// [`RtpExtension`][1].
 ///
-/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters
-pub struct RtpExtension(RtpExtensionContainer);
+/// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters
+pub struct RtpExtension(webrtc::RtpExtensionContainer);
 
 impl RtpExtension {
-    /// Returns a `uri` of the given [`RtpExtension`].
+    /// Returns a [`uri`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters-uri
     #[must_use]
     pub fn uri(&self) -> String {
-        rtp_extension_uri(&self.0.ptr).to_string()
+        webrtc::rtp_extension_uri(&self.0.ptr).to_string()
     }
 
-    /// Returns an `id` of the given [`RtpExtension`].
+    /// Returns a [`id`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters-id
     #[must_use]
     pub fn id(&self) -> i32 {
-        rtp_extension_id(&self.0.ptr)
+        webrtc::rtp_extension_id(&self.0.ptr)
     }
 
-    /// Returns a `encrypt` of the given [`RtpExtension`].
+    /// Returns a [`encrypted`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpheaderextensionparameters-encrypted
     #[must_use]
     pub fn encrypt(&self) -> bool {
-        rtp_extension_encrypt(&self.0.ptr)
+        webrtc::rtp_extension_encrypt(&self.0.ptr)
     }
 }
 
 /// [`RtpEncodingParameters`][1]:
 ///
-/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpencodingparameters
-pub struct RtpEncodingParameters(RtpEncodingParametersContainer);
+/// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters
+pub struct RtpEncodingParameters(webrtc::RtpEncodingParametersContainer);
 
 impl RtpEncodingParameters {
-    /// Returns a `active` of the given [`RtpEncodingParameters`].
+    /// Returns a [`active`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-active
     #[must_use]
     pub fn active(&self) -> bool {
-        rtp_encoding_parameters_active(&self.0.ptr)
+        webrtc::rtp_encoding_parameters_active(&self.0.ptr)
     }
 
-    /// Returns a `maxBitrate` of the given [`RtpEncodingParameters`].
+    /// Returns a [`maxBitrate`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-maxbitrate
     #[must_use]
     pub fn max_bitrate(&self) -> Option<i32> {
-        rtp_encoding_parameters_maxBitrate(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_maxBitrate(&self.0.ptr).ok()
     }
 
     /// Returns a `minBitrate` of the given [`RtpEncodingParameters`].
     #[must_use]
     pub fn min_bitrate(&self) -> Option<i32> {
-        rtp_encoding_parameters_minBitrate(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_minBitrate(&self.0.ptr).ok()
     }
 
     /// Returns a `maxFramerate` of the given [`RtpEncodingParameters`].
     #[must_use]
     pub fn max_framerate(&self) -> Option<f64> {
-        rtp_encoding_parameters_maxFramerate(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_maxFramerate(&self.0.ptr).ok()
     }
 
     /// Returns a `ssrc` of the given [`RtpEncodingParameters`].
     #[must_use]
     pub fn ssrc(&self) -> Option<i64> {
-        rtp_encoding_parameters_ssrc(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_ssrc(&self.0.ptr).ok()
     }
 
-    /// Returns a `scale_resolution_down_by`
-    /// of the given [`RtpEncodingParameters`].
+    /// Returns a [`scaleResolutionDownBy`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-scaleresolutiondownby
     #[must_use]
     pub fn scale_resolution_down_by(&self) -> Option<f64> {
-        rtp_encoding_parameters_scale_resolution_down_by(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_scale_resolution_down_by(&self.0.ptr)
+            .ok()
     }
 }
 
-/// [`RtpCodecParameters`][1].
+/// [`RtcpParameters`][1].
 ///
-/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpcodecparameters
+/// [1]: https://w3.org/TR/webrtc/#dom-rtcrtcpparameters
 pub struct RtcpParameters(UniquePtr<webrtc::RtcpParameters>);
 
 impl RtcpParameters {
-    /// Returns a `cname` of the given [`RtcpParameters`].
+    /// Returns a [`cname`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtcpparameters-cname 
     #[must_use]
     pub fn cname(&self) -> String {
-        rtcp_parameters_cname(&self.0).to_string()
+        webrtc::rtcp_parameters_cname(&self.0).to_string()
     }
-
-    /// Returns a `reduced_size` of the given [`RtcpParameters`].
+    
+    /// Returns a [`reducedSize`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtcpparameters-reducedsize
     #[must_use]
     pub fn reduced_size(&self) -> bool {
-        rtcp_parameters_reduced_size(&self.0)
+        webrtc::rtcp_parameters_reduced_size(&self.0)
     }
 }
 
@@ -854,44 +847,56 @@ impl RtcpParameters {
 pub struct RtpParameters(UniquePtr<webrtc::RtpParameters>);
 
 impl RtpParameters {
-    // TODO(alexlapa): docs?
+
+    /// Returns a `parameters` of the given [`RtpParameters`].
     #[must_use]
     pub fn transaction_id(&self) -> String {
-        rtp_parameters_transaction_id(&self.0).to_string()
+        webrtc::rtp_parameters_transaction_id(&self.0).to_string()
     }
-    // TODO(alexlapa): docs?
+
+    /// Returns a `mid` of the given [`RtpParameters`].
     #[must_use]
     pub fn mid(&self) -> String {
-        rtp_parameters_mid(&self.0).to_string()
+        webrtc::rtp_parameters_mid(&self.0).to_string()
     }
-    // TODO(alexlapa): docs?
+    
+    /// Returns a [`codecs`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-codecs
     #[must_use]
     pub fn codecs(&self) -> Vec<RtpCodecParameters> {
-        rtp_parameters_codecs(&self.0)
+        webrtc::rtp_parameters_codecs(&self.0)
             .into_iter()
             .map(RtpCodecParameters)
             .collect()
     }
-    // TODO(alexlapa): docs?
+
+    /// Returns a [`headerExtensions`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-headerextensions
     #[must_use]
     pub fn header_extensions(&self) -> Vec<RtpExtension> {
-        rtp_parameters_header_extensions(&self.0)
+        webrtc::rtp_parameters_header_extensions(&self.0)
             .into_iter()
             .map(RtpExtension)
             .collect()
     }
-    // TODO(alexlapa): docs?
+
+    /// Returns a `encodings` of the given [`RtpParameters`].
     #[must_use]
     pub fn encodings(&self) -> Vec<RtpEncodingParameters> {
-        rtp_parameters_encodings(&self.0)
+        webrtc::rtp_parameters_encodings(&self.0)
             .into_iter()
             .map(RtpEncodingParameters)
             .collect()
     }
-    // TODO(alexlapa): docs?
+
+    /// Returns a [`rtcp`][1] of this
+    /// 
+    /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-rtcp
     #[must_use]
     pub fn rtcp(&self) -> RtcpParameters {
-        RtcpParameters(rtp_parameters_rtcp(&self.0))
+        RtcpParameters(webrtc::rtp_parameters_rtcp(&self.0))
     }
 }
 /// This interface describes an ICE candidate, described in
@@ -948,8 +953,12 @@ impl IceCandidateInterface {
 }
 
 /// [RTCPeerConnection][1] implementation.
+/// Calls to the [`PeerConnectionInterface`] APIs will be proxied 
+/// to the signaling thread, which means that an application 
+/// can call those APIs from whatever thread. [Thread safe][2].
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+/// [2]: https://webrtc.github.io/webrtc-org/native-code/native-apis/
 pub struct PeerConnectionInterface {
     /// Pointer to the C++ side [`PeerConnectionInterface`] object.
     ///
@@ -963,7 +972,7 @@ pub struct PeerConnectionInterface {
     _observer: PeerConnectionObserver,
 }
 
-// TODO(alexlapa): Add some explanation and links
+
 unsafe impl Sync for PeerConnectionInterface {}
 unsafe impl Send for PeerConnectionInterface {}
 
@@ -1325,9 +1334,9 @@ impl MediaStreamTrackInterface {
         webrtc::media_stream_track_id(&self.0).to_string()
     }
 
-    /// Returns the [`TrackState`] of this [MediaStreamTrackInterface].
+    /// Returns the [`TrackState`] of this [`MediaStreamTrackInterface`].
     #[must_use]
-    pub fn state(&self) -> TrackState {
+    pub fn state(&self) -> webrtc::TrackState {
         webrtc::media_stream_track_state(&self.0)
     }
 

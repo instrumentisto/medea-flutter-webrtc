@@ -247,13 +247,9 @@ void main() {
     await pc1.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
     var pc2 = await createPeerConnection({});
-    // TODO(alexlapa): completer + Future.timeout
-    var result;
-    var timer = Future.delayed(Duration(seconds: 1));
-    var t = Timer(Duration(seconds: 1), () => result = 'Fail');
-    pc2.onTrack = (RTCTrackEvent e) => result = 'Success';
+    final completer = Completer<void>();
+    pc2.onTrack = (RTCTrackEvent e) => {completer.complete()};
     await pc2.setRemoteDescription(await pc1.createOffer({}));
-    await timer;
-    expect(result, equals('Success'));
+    await completer.future.timeout(Duration(seconds: 1));
   });
 }

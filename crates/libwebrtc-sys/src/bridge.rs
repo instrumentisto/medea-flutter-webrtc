@@ -1600,7 +1600,10 @@ pub fn on_track(
     cb: &mut DynPeerConnectionEventsHandler,
     transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
 ) {
-    cb.on_track(RtpTransceiverInterface::from_ptr(transceiver));
+    cb.on_track(RtpTransceiverInterface {
+        media_type: webrtc::get_transceiver_media_type(&transceiver),
+        inner: transceiver,
+    });
 }
 
 /// Forwards the [`RtpTransceiverInterface`] to the given
@@ -1612,7 +1615,7 @@ pub fn on_remove_track(
     cb: &mut DynPeerConnectionEventsHandler,
     receiver: UniquePtr<webrtc::RtpReceiverInterface>,
 ) {
-    cb.on_remove_track(RtpReceiverInterface::from_ptr(receiver));
+    cb.on_remove_track(RtpReceiverInterface(receiver));
 }
 
 /// Creates [`StringPair`].

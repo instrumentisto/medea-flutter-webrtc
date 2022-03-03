@@ -474,7 +474,8 @@ pub struct VideoTrack {
     /// Underlying [`sys::VideoTrackInterface`].
     #[as_ref]
     inner: sys::VideoTrackInterface,
-    // TODO(alexlapa): docs
+
+    /// [`VideoSource`] that is used by this [`VideoTrack`].
     source: MediaTrackSource<VideoSource>,
 
     /// [`api::TrackKind::kVideo`].
@@ -558,7 +559,8 @@ pub struct AudioTrack {
     /// Underlying [`sys::AudioTrackInterface`].
     #[as_ref]
     inner: sys::AudioTrackInterface,
-    // TODO(alexlapa): docs
+
+    /// [`sys::AudioSourceInterface`] that is used by this [`AudioTrack`].
     source: MediaTrackSource<sys::AudioSourceInterface>,
 
     /// [`api::TrackKind::kAudio`].
@@ -570,12 +572,15 @@ pub struct AudioTrack {
 }
 
 impl AudioTrack {
+
     /// Creates a new [`AudioTrack`].
     ///
-    /// # Errors // TODO(alexlapa): proper docs
+    /// # Errors
     ///
-    /// When pointer returned from
-    /// `pc.create_audio_track()` is `null`.
+    /// Whenever [`PeerConnectionFactoryInterface::create_audio_track()`][1]
+    /// returns an error.
+    /// 
+    /// [1]: libwebrtc_sys::PeerConnectionFactoryInterface::create_audio_track
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Rc<sys::AudioSourceInterface>,
