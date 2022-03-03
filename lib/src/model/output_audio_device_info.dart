@@ -23,13 +23,13 @@ class OutputAudioDeviceInfo {
     label = map['label'];
     kind = OutputAudioDeviceInfoKind.values[map['kind']];
   }
-  
+
   /// Identifier of the represented device.
   late String deviceId;
-  
+
   /// Human-readable device description (for example, "Ear speaker").
   late String label;
-  
+
   /// Kind of the device.
   late OutputAudioDeviceInfoKind kind;
 }

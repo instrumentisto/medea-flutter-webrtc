@@ -10,7 +10,7 @@ import 'media_stream_track.dart';
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 
-/// All active [WebVideoRenderer] create by the library user. 
+/// All active [WebVideoRenderer] create by the library user.
 Map<int, WebVideoRenderer> _videoRenderers = {};
 
 /// Current global output audio sink ID.

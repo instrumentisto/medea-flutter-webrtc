@@ -1,5 +1,4 @@
 import 'package:flutter_webrtc/src/model/output_audio_device_info.dart';
-
 import '/src/api/channel.dart';
 import '/src/platform/output_audio_devices.dart';
 
@@ -16,7 +15,7 @@ class NativeOutputAudioDevices implements OutputAudioDevices {
   @override
   Future<List<OutputAudioDeviceInfo>> enumerateDevices() async {
     List<dynamic> res =
-      await _outputAudioDevicesMethodChannel.invokeMethod('enumerateDevices');
+        await _outputAudioDevicesMethodChannel.invokeMethod('enumerateDevices');
     return res.map((i) => OutputAudioDeviceInfo.fromMap(i)).toList();
   }
 
