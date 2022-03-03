@@ -1,6 +1,6 @@
 #![warn(clippy::pedantic)]
 
-mod device_info;
+mod devices;
 mod internal;
 mod pc;
 mod user_media;
@@ -15,11 +15,13 @@ use std::{
     },
 };
 
+use cxx::UniquePtr;
 use dashmap::DashMap;
 use libwebrtc_sys::{
     AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
     TaskQueueFactory, Thread, VideoDeviceInfo,
 };
+use threadpool::ThreadPool;
 
 use crate::video_sink::Id as VideoSinkId;
 
@@ -287,9 +289,11 @@ pub mod api {
             crate::internal::OnFrameCallbackInterface;
 
         type TrackEventInterface = crate::internal::TrackEventInterface;
-        
+
         type AddIceCandidateCallbackInterface =
             crate::internal::AddIceCandidateCallbackInterface;
+
+        type OnDeviceChangeCallback = crate::internal::OnDeviceChangeCallback;
     }
 
     extern "Rust" {
@@ -437,14 +441,6 @@ pub mod api {
             transceiver_id: u64,
         ) -> String;
 
-        /// Disposes the specified [`RtcRtpTransceiver`].
-        #[cxx_name = "DisposeTransceiver"]
-        pub fn dispose_transceiver(
-            self: &mut Webrtc,
-            peer_id: u64,
-            transceiver_id: u64,
-        );
-
         /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
         /// the [`sys::Transceiver`]'s `sender`.
         #[cxx_name = "SenderReplaceTrack"]
@@ -516,6 +512,7 @@ pub mod api {
             enabled: bool,
         );
 
+        // todo
         #[cxx_name = "RegisterObserver"]
         pub fn register_observer_track(
             self: &mut Webrtc,
@@ -523,8 +520,20 @@ pub mod api {
             cb: UniquePtr<TrackEventInterface>,
         ) -> String;
 
+        // todo
         #[cxx_name = "UnregisterObserver"]
         pub fn unregister_observer_track(self: &mut Webrtc, id: u64) -> String;
+
+        /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
+        /// called whenever a set of available media devices changes.
+        ///
+        /// Only one callback can be set at a time, so the previous one will be
+        /// dropped, if any.
+        #[cxx_name = "SetOnDeviceChanged"]
+        pub fn set_on_device_changed(
+            self: &mut Webrtc,
+            cb: UniquePtr<OnDeviceChangeCallback>,
+        );
     }
 }
 
@@ -548,6 +557,7 @@ pub struct Context {
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
+    callback_pool: Arc<ThreadPool>,
 }
 
 /// Creates a new instance of [`Webrtc`].
@@ -601,5 +611,12 @@ pub fn init() -> Box<Webrtc> {
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
+        callback_pool: Arc::new(ThreadPool::new(1)),
     })))
+}
+
+impl Drop for Webrtc {
+    fn drop(&mut self) {
+        self.set_on_device_changed(UniquePtr::null());
+    }
 }

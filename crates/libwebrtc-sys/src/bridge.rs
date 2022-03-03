@@ -901,12 +901,6 @@ pub(crate) mod webrtc {
         pub fn ice_candidate_interface_to_string(
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
-
-        /// Returns true if the two point to the same allocation.
-        pub fn transceiver_eq(
-            a: &RtpTransceiverInterface, 
-            b: &RtpTransceiverInterface
-        ) -> bool;
     }
 
     #[rustfmt::skip]

@@ -703,13 +703,6 @@ rtp_parameters_encodings(const webrtc::RtpParameters& parameters) {
   return std::move(result);
 }
 
-// Returns true if the two point to the same allocation.
-bool transceiver_eq(
-    const RtpTransceiverInterface& a,
-    const RtpTransceiverInterface& b) {
-      return a.get() == b.get();
-    }
-
 // Calls `IceCandidateInterface->sdp_mid()`.
 std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
     const IceCandidateInterface& candidate) {

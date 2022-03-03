@@ -287,8 +287,8 @@ void main() {
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
     var pc2 = await createPeerConnection({});
     var result;
-    var timer = Future.delayed(Duration(seconds: 5));
-    var t = Timer(Duration(seconds: 5), () => result = 'Fail');
+    var timer = Future.delayed(Duration(seconds: 1));
+    var t = Timer(Duration(seconds: 1), () => result = 'Fail');
     pc2.onTrack = (RTCTrackEvent e) => result = 'Success';
     await pc2.setRemoteDescription(await pc1.createOffer({}));
     await timer;

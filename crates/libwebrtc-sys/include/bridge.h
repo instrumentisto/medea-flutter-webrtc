@@ -439,11 +439,6 @@ rtp_parameters_header_extensions(const webrtc::RtpParameters& parameters);
 rust::Vec<RtpEncodingParametersContainer>
 rtp_parameters_encodings(const webrtc::RtpParameters& parameters);
 
-// Returns true if the two point to the same allocation.
-bool transceiver_eq(
-    const RtpTransceiverInterface& a,
-    const RtpTransceiverInterface& b);
-
 // Calls `IceCandidateInterface->ToString`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(
     const IceCandidateInterface& candidate);

@@ -25,7 +25,7 @@ use bridge::webrtc::{
     rtp_encoding_parameters_ssrc, rtp_extension_encrypt, rtp_extension_id,
     rtp_extension_uri, rtp_parameters_codecs, rtp_parameters_encodings,
     rtp_parameters_header_extensions, rtp_parameters_mid, rtp_parameters_rtcp,
-    rtp_parameters_transaction_id, transceiver_eq, RtpCodecParametersContainer,
+    rtp_parameters_transaction_id, RtpCodecParametersContainer,
     RtpEncodingParametersContainer, RtpExtensionContainer, TrackState,
 };
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -596,15 +596,6 @@ pub struct RtpTransceiverInterface {
     media_type: MediaType,
 }
 
-unsafe impl Send for RtpTransceiverInterface {}
-
-impl PartialEq for RtpTransceiverInterface {
-    fn eq(&self, other: &Self) -> bool {
-        transceiver_eq(&self.inner, &other.inner)
-            && self.media_type == other.media_type
-    }
-}
-
 impl RtpTransceiverInterface {
     pub(crate) fn from_ptr(
         inner: UniquePtr<webrtc::RtpTransceiverInterface>,
@@ -1005,6 +996,9 @@ pub struct PeerConnectionInterface {
     /// It's stored here since it must outlive the peer connection object.
     _observer: PeerConnectionObserver,
 }
+
+unsafe impl Sync for PeerConnectionInterface {}
+unsafe impl Send for PeerConnectionInterface {}
 
 impl PeerConnectionInterface {
     /// [RTCPeerConnection.createOffer()][1] implementation.
