@@ -147,8 +147,7 @@ class _MyAppState extends State<MyApp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        PeerOnTrackSample()));
+                    builder: (BuildContext context) => PeerOnTrackSample()));
           }),
       RouteItem(
           title: 'onDeviceChange notifier',

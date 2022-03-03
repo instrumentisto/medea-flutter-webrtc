@@ -6,7 +6,7 @@ use cxx::{CxxString, CxxVector, UniquePtr};
 use crate::{
     AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
     OnFrameCallback, PeerConnectionEventsHandler, RtpReceiverInterface,
-    RtpTransceiverInterface, SetDescriptionCallback, TrackEventCallback, 
+    RtpTransceiverInterface, SetDescriptionCallback, TrackEventCallback,
 };
 
 /// [`TrackEventCallback`] transferable to the C++ side.
