@@ -3,7 +3,6 @@ import 'media_stream_track.dart';
 import 'rtc_rtp_receiver.dart';
 import 'rtc_rtp_transceiver.dart';
 
-// Сurrent implementation is incompatible
 class RTCTrackEvent {
   RTCTrackEvent({
     this.receiver,
@@ -11,7 +10,6 @@ class RTCTrackEvent {
     this.track,
     this.transceiver,
   });
-
   final RTCRtpReceiver? receiver;
   final List<MediaStream>? streams;
   final MediaStreamTrack? track;

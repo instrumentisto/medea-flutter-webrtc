@@ -1,5 +1,4 @@
 #include "libwebrtc-sys/src/bridge.rs.h"
-#include <thread>
 
 namespace bridge {
 
@@ -78,7 +77,6 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
 // Propagates the received `RtpTransceiverInterface` to the Rust side.
 void PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
-  printf("%i\n", (int)std::hash<std::thread::id>{}(std::this_thread::get_id()));
   bridge::on_track(
       *cb_, std::make_unique<bridge::RtpTransceiverInterface>(transceiver));
 }
@@ -219,7 +217,6 @@ std::unique_ptr<RtpTransceiverInterface> add_transceiver(
 // Calls `PeerConnectionInterface->GetTransceivers`.
 rust::Vec<TransceiverContainer> get_transceivers(
     const PeerConnectionInterface& peer) {
-  printf("%i\n", (int)std::hash<std::thread::id>{}(std::this_thread::get_id()));
   rust::Vec<TransceiverContainer> transceivers;
 
   for (auto transceiver : peer->GetTransceivers()) {

@@ -239,45 +239,6 @@ void main() {
         equals(RTCPeerConnectionState.RTCPeerConnectionStateClosed));
   });
 
-  testWidgets('Peer connection', (WidgetTester tester) async {
-    var result = 'Success';
-
-    try {
-      var pc1 = await createPeerConnection({});
-      var pc2 = await createPeerConnection({});
-
-      var offer = await pc1.createOffer();
-      await pc1.setLocalDescription(offer);
-      await pc2.setRemoteDescription(offer);
-
-      var answer = await pc2.createAnswer({});
-      await pc2.setLocalDescription(answer);
-      await pc1.setRemoteDescription(answer);
-    } catch (e) {
-      result = e.toString();
-    }
-    expect(result, equals('Success'));
-  });
-
-  testWidgets('Get transceiver mid', (WidgetTester tester) async {
-    var pc = await createPeerConnection({});
-    var init = RTCRtpTransceiverInit();
-    init.direction = TransceiverDirection.SendRecv;
-    var trans = await pc.addTransceiver(
-        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
-
-    var mid = await trans.getMid();
-
-    expect(mid.isEmpty, isTrue);
-
-    var sess = await pc.createOffer();
-    await pc.setLocalDescription(sess);
-
-    mid = await trans.getMid();
-
-    expect(mid, equals('0'));
-  });
-
   testWidgets('Peer connection event on track', (WidgetTester tester) async {
     var pc1 = await createPeerConnection({});
     var init = RTCRtpTransceiverInit();
@@ -286,13 +247,10 @@ void main() {
     await pc1.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
     var pc2 = await createPeerConnection({});
-    var result;
-    var timer = Future.delayed(Duration(seconds: 1));
-    var t = Timer(Duration(seconds: 1), () => result = 'Fail');
-    pc2.onTrack = (RTCTrackEvent e) => result = 'Success';
+    final completer = Completer<void>();
+    pc2.onTrack = (RTCTrackEvent e) => {completer.complete()};
     await pc2.setRemoteDescription(await pc1.createOffer({}));
-    await timer;
-    expect(result, equals('Success'));
+    await completer.future.timeout(Duration(seconds: 1));
   });
 
   testWidgets('Track Onended', (WidgetTester tester) async {
@@ -303,13 +261,10 @@ void main() {
     await pc1.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
     var pc2 = await createPeerConnection({});
-    var result;
-    var timer = Future.delayed(Duration(seconds: 1));
-    var t = Timer(Duration(seconds: 1), () => result = 'Fail');
-    pc2.onTrack = (RTCTrackEvent e) => e.track?.onEnded = () => result = 'Success';
+    final completer = Completer<void>();
+    pc2.onTrack = (RTCTrackEvent e) => e.track?.onEnded = () => completer.complete();
     await pc2.setRemoteDescription(await pc1.createOffer({}));
     await (await pc2.transceivers)[0].stop();
-    await timer;
-    expect(result, equals('Success'));
+    await completer.future.timeout(Duration(seconds: 1));
   });
 }
