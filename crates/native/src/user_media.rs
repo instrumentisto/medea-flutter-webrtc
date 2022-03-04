@@ -516,6 +516,8 @@ impl VideoTrack {
         Self {
             id: VideoTrackId(next_id()),
             inner: track.try_into().unwrap(),
+            // Safe to unwrap since transceiver is guaranteed to be negotiated
+            // at this point.
             source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
             kind: TrackKind::kAudio,
             label: VideoLabel::from("remote"),

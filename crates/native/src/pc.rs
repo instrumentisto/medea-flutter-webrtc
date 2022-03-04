@@ -1,6 +1,6 @@
-use once_cell::sync::OnceCell;
 use std::sync::{Arc, Mutex};
 
+use once_cell::sync::OnceCell;
 use sys::PeerConnectionInterface;
 use threadpool::ThreadPool;
 
@@ -643,7 +643,7 @@ impl PeerConnection {
         )?;
 
         let inner_peer = Arc::new(Mutex::new(inner));
-        obs_peer.set(Arc::clone(&inner_peer)).unwrap_or_default();
+        obs_peer.set(Arc::clone(&inner_peer)).unwrap();
 
         Ok(Self(inner_peer))
     }
@@ -801,7 +801,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     .get_transceivers()
                     .iter()
                     .enumerate()
-                    .find(|(_, t)| t.mid().unwrap() == mid)
+                    .find(|(_, t)| t.mid().as_ref() == Some(&mid))
                     .map(|(id, _)| id)
                     .unwrap();
 

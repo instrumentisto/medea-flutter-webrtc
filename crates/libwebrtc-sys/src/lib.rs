@@ -116,8 +116,7 @@ pub trait PeerConnectionEventsHandler {
     fn on_track(&mut self, transceiver: RtpTransceiverInterface);
 
     /// Called when signaling indicates that media will no longer be received on
-    /// a track.
-    /// With Unified Plan semantics, the receiver will remain but the
+    /// a track. With Unified Plan semantics, the receiver will remain but the
     /// transceiver will have changed direction to either `sendonly` or
     /// `inactive`.
     fn on_remove_track(&mut self, receiver: RtpReceiverInterface);
@@ -858,7 +857,7 @@ impl RtpParameters {
         webrtc::rtp_parameters_mid(&self.0).to_string()
     }
 
-    /// Returns a [`codecs`][1] of this
+    /// Returns a [`codecs`][1] of the given [`RtcpParameters`].
     ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-codecs
     #[must_use]
@@ -869,7 +868,7 @@ impl RtpParameters {
             .collect()
     }
 
-    /// Returns a [`headerExtensions`][1] of this
+    /// Returns a [`headerExtensions`][1] of the given [`RtcpParameters`].
     ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-headerextensions
     #[must_use]
@@ -889,7 +888,7 @@ impl RtpParameters {
             .collect()
     }
 
-    /// Returns a [`rtcp`][1] of this
+    /// Returns a [`rtcp`][1] of the given [`RtcpParameters`].
     ///
     /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters-rtcp
     #[must_use]
@@ -951,9 +950,11 @@ impl IceCandidateInterface {
 }
 
 /// [RTCPeerConnection][1] implementation.
-/// Calls to the [`PeerConnectionInterface`] APIs will be proxied
-/// to the signaling thread, which means that an application
-/// can call those APIs from whatever thread. [Thread safe][2].
+///
+/// Calls to the [`PeerConnectionInterface`] APIs will be proxied to the
+/// signaling thread, which means that an application can call those APIs from
+/// whatever thread. You can refer to the `Threading Model` section in the
+/// [Native APIs documentation][2].
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [2]: https://webrtc.github.io/webrtc-org/native-code/native-apis/
@@ -1425,7 +1426,7 @@ impl AudioTrackInterface {
         webrtc::set_audio_track_enabled(&self.0, enabled);
     }
 
-    /// Returns a [`AudioSourceInterface`] attached to this
+    /// Returns an [`AudioSourceInterface`] attached to this
     /// [`AudioTrackInterface`].
     #[must_use]
     pub fn source(&self) -> AudioSourceInterface {

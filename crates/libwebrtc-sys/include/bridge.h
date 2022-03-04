@@ -30,7 +30,7 @@ class TrackEventObserver : public webrtc::ObserverInterface {
   // Creates a new `TrackEventObserver`.
   TrackEventObserver(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
                      rust::Box<bridge::DynTrackEventCallback> cb);
-  
+
   // Called when track calls `set_state` or `set_enabled`.
   void OnChanged();
 
@@ -392,24 +392,24 @@ std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
 
 // Calls `VideoTrackInterface->RegisterObserver`.
 void video_track_register_observer(
-    VideoTrackInterface& track, 
+    VideoTrackInterface& track,
     TrackEventObserver& obs);
 
 // Calls `AudioTrackInterface->RegisterObserver`.
 void audio_track_register_observer(
-    AudioTrackInterface& track, 
+    AudioTrackInterface& track,
     TrackEventObserver& obs);
 
 // Calls `VideoTrackInterface->UnregisterObserver`.
 void video_track_unregister_observer(
-    VideoTrackInterface& track, 
+    VideoTrackInterface& track,
     TrackEventObserver& obs);
 
 // Calls `AudioTrackInterface->UnregisterObserver`.
 void audio_track_unregister_observer(
-    AudioTrackInterface& track, 
+    AudioTrackInterface& track,
     TrackEventObserver& obs);
-    
+
 // Returns a `RtpSenderInterface` of the given `RtpTransceiverInterface`.
 std::unique_ptr<RtpSenderInterface> transceiver_sender(
     const RtpTransceiverInterface& transceiver);
