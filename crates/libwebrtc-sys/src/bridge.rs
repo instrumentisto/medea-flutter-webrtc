@@ -544,13 +544,15 @@ pub(crate) mod webrtc {
         ) -> i32;
 
         /// Returns a `clock_rate` of the given [`RtpCodecParameters`].
-        /// If Err(_) then clock_rate is None.
+        ///
+        /// [`Result::Err`] means `None`.
         pub fn rtp_codec_parameters_clock_rate(
             codec: &RtpCodecParameters,
         ) -> Result<i32>;
 
         /// Returns a `num_channels` of the given [`RtpCodecParameters`].
-        /// If Err(_) then clock_rate is None.
+        ///
+        /// [`Result::Err`] means `None`.
         pub fn rtp_codec_parameters_num_channels(
             codec: &RtpCodecParameters,
         ) -> Result<i32>;
@@ -623,32 +625,37 @@ pub(crate) mod webrtc {
         ) -> bool;
 
         /// Returns a `maxBitrate` of the given [`RtpEncodingParameters`].
-        /// If Err(_) then clock_rate is None.
+        ///
+        /// [`Result::Err`] means `None`.
         pub fn rtp_encoding_parameters_maxBitrate(
             encoding: &RtpEncodingParameters,
         ) -> Result<i32>;
 
         /// Returns a `minBitrate` of the given [`RtpEncodingParameters`].
-        /// If Err(_) then `minBitrate` is None.
+        ///
+        /// [`Result::Err`] means `None`.
         pub fn rtp_encoding_parameters_minBitrate(
             encoding: &RtpEncodingParameters,
         ) -> Result<i32>;
 
         /// Returns a `maxFramerate` of the given [`RtpEncodingParameters`].
-        /// If Err(_) then `maxFramerate` is None.
+        ///
+        /// [`Result::Err`] means `None`.
         pub fn rtp_encoding_parameters_maxFramerate(
             encoding: &RtpEncodingParameters,
         ) -> Result<f64>;
 
         /// Returns a `ssrc` of the given [`RtpEncodingParameters`].
-        /// If Err(_) then `ssrc` is None.
+        ///
+        /// [`Result::Err`] means `None`.
         pub fn rtp_encoding_parameters_ssrc(
             encoding: &RtpEncodingParameters,
         ) -> Result<i64>;
 
         /// Returns a `scale_resolution_down_by` of the given
         /// [`RtpEncodingParameters`].
-        /// If Err(_) then `scale_resolution_down_by` is None.
+        ///
+        /// [`Result::Err`] means `None`.
         pub fn rtp_encoding_parameters_scale_resolution_down_by(
             encoding: &RtpEncodingParameters,
         ) -> Result<f64>;

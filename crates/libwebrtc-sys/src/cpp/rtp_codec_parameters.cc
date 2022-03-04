@@ -27,8 +27,7 @@ int32_t rtp_codec_parameters_num_channels(
 }
 
 // Returns `RtpCodecParameters.kind` field value.
-MediaType rtp_codec_parameters_kind(
-    const webrtc::RtpCodecParameters& codec) {
+MediaType rtp_codec_parameters_kind(const webrtc::RtpCodecParameters& codec) {
   return codec.kind;
 }
 

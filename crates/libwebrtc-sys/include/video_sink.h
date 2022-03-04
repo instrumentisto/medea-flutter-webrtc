@@ -20,7 +20,6 @@ namespace video_sink {
 // side via `DynOnFrameCallback`.
 class ForwardingVideoSink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
-
   // Creates a new `ForwardingVideoSink` backed by the provided
   // `DynOnFrameCallback`.
   ForwardingVideoSink(rust::Box<bridge::DynOnFrameCallback> cb_);

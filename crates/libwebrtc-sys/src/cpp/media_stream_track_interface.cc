@@ -15,8 +15,7 @@ std::unique_ptr<std::string> media_stream_track_id(
 }
 
 // Returns a `state` of the given `MediaStreamTrackInterface`.
-TrackState media_stream_track_state(
-    const MediaStreamTrackInterface& track) {
+TrackState media_stream_track_state(const MediaStreamTrackInterface& track) {
   return track->state();
 }
 

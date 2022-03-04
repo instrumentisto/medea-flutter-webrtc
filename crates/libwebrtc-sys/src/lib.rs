@@ -724,7 +724,7 @@ impl RtpCodecParameters {
         let mut result = HashMap::new();
         let parameters = webrtc::rtp_codec_parameters_parameters(&self.0.ptr);
         for pair in parameters.into_iter() {
-            result.insert(pair.first.clone(), pair.second.clone());
+            result.insert(pair.first, pair.second);
         }
         result
     }

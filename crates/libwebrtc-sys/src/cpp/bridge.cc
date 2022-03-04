@@ -579,24 +579,25 @@ rust::Vec<RtpCodecParametersContainer> rtp_parameters_codecs(
 }
 
 // Returns `RtpParameters.header_extensions` field value.
-rust::Vec<RtpExtensionContainer>
-rtp_parameters_header_extensions(const webrtc::RtpParameters& parameters) {
+rust::Vec<RtpExtensionContainer> rtp_parameters_header_extensions(
+    const webrtc::RtpParameters& parameters) {
   rust::Vec<RtpExtensionContainer> result;
   for (int i = 0; i < parameters.header_extensions.size(); ++i) {
-    RtpExtensionContainer codec = {
-        std::make_unique<webrtc::RtpExtension>(parameters.header_extensions[i])};
+    RtpExtensionContainer codec = {std::make_unique<webrtc::RtpExtension>(
+        parameters.header_extensions[i])};
     result.push_back(std::move(codec));
   }
   return std::move(result);
 }
 
 // Returns `RtpParameters.encodings` field value.
-rust::Vec<RtpEncodingParametersContainer>
-rtp_parameters_encodings(const webrtc::RtpParameters& parameters) {
+rust::Vec<RtpEncodingParametersContainer> rtp_parameters_encodings(
+    const webrtc::RtpParameters& parameters) {
   rust::Vec<RtpEncodingParametersContainer> result;
   for (int i = 0; i < parameters.encodings.size(); ++i) {
     RtpEncodingParametersContainer codec = {
-        std::make_unique<webrtc::RtpEncodingParameters>(parameters.encodings[i])};
+        std::make_unique<webrtc::RtpEncodingParameters>(
+            parameters.encodings[i])};
     result.push_back(std::move(codec));
   }
   return std::move(result);
