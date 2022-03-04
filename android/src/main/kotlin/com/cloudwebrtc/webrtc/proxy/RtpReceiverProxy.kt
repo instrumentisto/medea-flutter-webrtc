@@ -1,5 +1,6 @@
 package com.cloudwebrtc.webrtc.proxy
 
+import com.cloudwebrtc.webrtc.model.MediaStreamTrackState
 import org.webrtc.RtpReceiver
 
 /**
@@ -37,7 +38,9 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver> {
      * Notifies [RtpReceiverProxy], that it's [MediaStreamTrackProxy] is ended.
      */
     fun ended() {
-        track?.observableEventBroadcaster()?.onEnded()
+        if (track?.state() == MediaStreamTrackState.ENDED) {
+            track?.observableEventBroadcaster()?.onEnded()
+        }
     }
 
     /**
