@@ -682,7 +682,6 @@ struct PeerConnectionObserver {
     /// to.
     observer: Arc<Mutex<UniquePtr<PeerConnectionObserverInterface>>>,
 
-    // TODO(alexlapa): can we get rid of this mutex somehow?
     /// [`InnerPeer`] of the [`PeerConnection`] internally used in
     /// [`sys::PeerConnectionObserver::on_track()`][1]
     ///
