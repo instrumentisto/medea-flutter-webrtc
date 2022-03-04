@@ -14,6 +14,8 @@ use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use self::bridge::webrtc;
 
 pub use crate::webrtc::{
+    candidate_to_string, get_candidate_pair,
+    get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
     video_frame_to_abgr, AudioLayer, Candidate, CandidatePairChangeEvent,
     IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
     RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
@@ -152,7 +154,6 @@ pub trait PeerConnectionEventsHandler {
     fn on_remove_track(&mut self, receiver: RtpReceiverInterface);
 }
 
-
 /// [MediaStreamTrack.kind][1] representation.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams/#dfn-kind
@@ -171,9 +172,6 @@ pub trait AddIceCandidateCallback {
     /// Called when the operation fails with the `error`.
     fn on_fail(&mut self, error: &CxxString);
 }
-
-//todo
-// struct CandidatePairChangeEvent
 
 /// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.
@@ -1433,9 +1431,14 @@ impl VideoTrackInterface {
 
     /// Creates and register observer [`MediaStreamTrackInterface`] events.
     pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
-        let mut obs =
-            webrtc::create_video_track_event_observer(&self.inner, Box::new(cb));
-        webrtc::video_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
+        let mut obs = webrtc::create_video_track_event_observer(
+            &self.inner,
+            Box::new(cb),
+        );
+        webrtc::video_track_register_observer(
+            self.inner.pin_mut(),
+            obs.pin_mut(),
+        );
         let id = next_id();
         self.obs.insert(id, TrackEventObserver(obs));
     }
@@ -1501,9 +1504,14 @@ impl AudioTrackInterface {
 
     /// Creates and register observer [`MediaStreamTrackInterface`] events.
     pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
-        let mut obs =
-            webrtc::create_audio_track_event_observer(&self.inner, Box::new(cb));
-        webrtc::audio_track_register_observer(self.inner.pin_mut(), obs.pin_mut());
+        let mut obs = webrtc::create_audio_track_event_observer(
+            &self.inner,
+            Box::new(cb),
+        );
+        webrtc::audio_track_register_observer(
+            self.inner.pin_mut(),
+            obs.pin_mut(),
+        );
         let id = next_id();
         self.obs.insert(id, TrackEventObserver(obs));
     }
