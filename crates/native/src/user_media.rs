@@ -576,7 +576,8 @@ impl AudioTrack {
     ///
     /// # Errors
     ///
-    /// Whenever [`sys::PeerConnectionFactoryInterface::create_audio_track()`][1]
+    /// Whenever
+    /// [`sys::PeerConnectionFactoryInterface::create_audio_track()`][1]
     /// returns an error.
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,

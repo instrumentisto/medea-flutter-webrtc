@@ -547,9 +547,10 @@ pub struct Context {
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
+
     /// [`ThreadPool`] used to offload blocking or cpu-intensive tasks so they
     /// won't run on WebRTC of Flutter threads that should avoid blocking.
-    callback_pool: Arc<ThreadPool>,
+    callback_pool: ThreadPool,
 }
 
 /// Creates a new instance of [`Webrtc`].
@@ -603,7 +604,7 @@ pub fn init() -> Box<Webrtc> {
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
-        callback_pool: Arc::new(ThreadPool::new(4)),
+        callback_pool: ThreadPool::new(4),
     })))
 }
 
