@@ -643,7 +643,7 @@ impl PeerConnection {
         )?;
 
         let inner_peer = Arc::new(Mutex::new(inner));
-        obs_peer.set(Arc::clone(&inner_peer)).unwrap();
+        obs_peer.set(Arc::clone(&inner_peer)).unwrap_or_default();
 
         Ok(Self(inner_peer))
     }
