@@ -52,7 +52,7 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
 };
 
 namespace serialize {
-  // Converts `MediaStreamTrack` to `flutter::EncodableMap`.
+  // Converts a `MediaStreamTrack` to a `flutter::EncodableMap`.
   flutter::EncodableMap TrackToMap(MediaStreamTrack track) {
     flutter::EncodableMap map;
     map[EncodableValue("id")] = EncodableValue(std::to_string(track.id));
@@ -64,7 +64,7 @@ namespace serialize {
     return map;
   }
 
-  // Converts `RtcRtpSender` to `flutter::EncodableMap`.
+  // Converts an `RtcRtpSender` to a `flutter::EncodableMap`.
   flutter::EncodableMap SenderToMap(RtcRtpSender sender) {
     flutter::EncodableMap map;
     map[EncodableValue("id")] = EncodableValue(std::to_string(sender.id));
@@ -72,7 +72,7 @@ namespace serialize {
     return map;
   }
 
-  // Converts `RtcRtpTransceiver` to `flutter::EncodableMap`.
+  // Converts an `RtcRtpTransceiver` to a `flutter::EncodableMap`.
    flutter::EncodableMap TransceiverToMap(RtcRtpTransceiver tr) {
      flutter::EncodableMap map;
     map[EncodableValue("transceiverId")] =

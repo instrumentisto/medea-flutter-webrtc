@@ -203,7 +203,11 @@ pub mod api {
     /// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] which is part
     /// of the [`PeerConnection`].
     pub struct RtcTrackEvent {
+        /// [`MediaStreamTrack`] object that is associated with the
+        /// [`RTCRtpReceiver`] identified by receiver.
         pub track: MediaStreamTrack,
+
+        /// [`RtcRtpTransceiver`] object associated with the event.
         pub transceiver: RtcRtpTransceiver,
     }
 
@@ -543,6 +547,8 @@ pub struct Context {
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
+    /// [`ThreadPool`] used to offload blocking or cpu-intensive tasks so they
+    /// won't run on WebRTC of Flutter threads that should avoid blocking.
     callback_pool: Arc<ThreadPool>,
 }
 
@@ -597,7 +603,7 @@ pub fn init() -> Box<Webrtc> {
         local_media_streams: HashMap::new(),
         peer_connections: HashMap::new(),
         video_sinks: HashMap::new(),
-        callback_pool: Arc::new(ThreadPool::new(1)),
+        callback_pool: Arc::new(ThreadPool::new(4)),
     })))
 }
 

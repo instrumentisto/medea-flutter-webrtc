@@ -576,10 +576,8 @@ impl AudioTrack {
     ///
     /// # Errors
     ///
-    /// Whenever [`PeerConnectionFactoryInterface::create_audio_track()`][1]
+    /// Whenever [`sys::PeerConnectionFactoryInterface::create_audio_track()`][1]
     /// returns an error.
-    ///
-    /// [1]: libwebrtc_sys::PeerConnectionFactoryInterface::create_audio_track
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Rc<sys::AudioSourceInterface>,
@@ -604,6 +602,8 @@ impl AudioTrack {
         Self {
             id: AudioTrackId(next_id()),
             inner: track.try_into().unwrap(),
+            // Safe to unwrap since transceiver is guaranteed to be negotiated
+            // at this point.
             source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
             kind: TrackKind::kAudio,
             label: AudioLabel::from("remote"),
