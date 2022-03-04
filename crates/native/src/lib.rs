@@ -512,7 +512,7 @@ pub mod api {
             enabled: bool,
         );
 
-        // todo
+        /// Registers an observer to track events.
         #[cxx_name = "RegisterObserver"]
         pub fn register_observer_track(
             self: &mut Webrtc,
@@ -520,7 +520,7 @@ pub mod api {
             cb: UniquePtr<TrackEventInterface>,
         ) -> String;
 
-        // todo
+        /// Unregisters observer of track events.
         #[cxx_name = "UnregisterObserver"]
         pub fn unregister_observer_track(self: &mut Webrtc, id: u64) -> String;
 

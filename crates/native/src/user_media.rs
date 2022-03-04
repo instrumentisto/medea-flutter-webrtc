@@ -325,10 +325,13 @@ impl Webrtc {
         }
     }
 
+    // todo
     /// Registers an events observer for [`AudioTrack`]
     /// or [`VideoTrack`].
+    /// 
     /// # Panics
-    /// May panic if `video_tracks` or `audio_tracks` is fail.
+    /// 
+    /// If `video_tracks` or `audio_tracks` is fail.
     pub fn register_observer_track(
         &mut self,
         id: u64,
@@ -353,8 +356,10 @@ impl Webrtc {
     /// Unregisters an events observer
     /// for [`AudioTrack`]
     /// or [`VideoTrack`].
+    /// 
     /// # Panics
-    /// May panic if `video_tracks` or `audio_tracks` is fail.
+    /// 
+    /// If `video_tracks` or `audio_tracks` is fail.
     pub fn unregister_observer_track(&mut self, id: u64) -> String {
         if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
             track.inner.unregister_observer();
