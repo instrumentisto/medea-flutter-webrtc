@@ -722,8 +722,8 @@ impl RtpCodecParameters {
     #[must_use]
     pub fn parameters(&self) -> HashMap<String, String> {
         let mut result = HashMap::new();
-        let parameters = webrtc::rtp_codec_parameters_parameters(&self.0.ptr);
-        for pair in parameters.into_iter() {
+        let mut params = webrtc::rtp_codec_parameters_parameters(&self.0.ptr);
+        while let Some(pair) = params.pin_mut().pop() {
             result.insert(pair.first, pair.second);
         }
         result
