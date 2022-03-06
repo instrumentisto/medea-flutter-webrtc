@@ -459,7 +459,7 @@ impl MediaStream {
     }
 }
 
-/// Possible kinds of media track sourse.
+/// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Rc<T>),
     Remote(String),
@@ -507,7 +507,8 @@ impl VideoTrack {
         })
     }
 
-    /// Wraps track of the `transceiver.receiver.track()` to [`VideoTrack`].
+    /// Wraps the track of the `transceiver.receiver.track()` into a
+    /// [`VideoTrack`].
     pub(crate) fn wrap_remote(
         transceiver: &sys::RtpTransceiverInterface,
     ) -> Self {
@@ -523,6 +524,12 @@ impl VideoTrack {
             label: VideoLabel::from("remote"),
             sinks: Vec::new(),
         }
+    }
+
+    /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
+    #[must_use]
+    pub fn id(&self) -> VideoTrackId {
+        self.id
     }
 
     /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
@@ -544,11 +551,16 @@ impl VideoTrack {
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
     }
+}
 
-    /// Returns a [`VideoTrackId`] of this [`VideoTrack`].
-    #[must_use]
-    pub fn id(&self) -> VideoTrackId {
-        self.id
+impl From<&VideoTrack> for api::MediaStreamTrack {
+    fn from(track: &VideoTrack) -> Self {
+        Self {
+            id: track.id.0,
+            label: track.label.0.clone(),
+            kind: track.kind,
+            enabled: true,
+        }
     }
 }
 
@@ -578,8 +590,7 @@ impl AudioTrack {
     ///
     /// # Errors
     ///
-    /// Whenever
-    /// [`sys::PeerConnectionFactoryInterface::create_audio_track()`][1]
+    /// Whenever [`sys::PeerConnectionFactoryInterface::create_audio_track()`]
     /// returns an error.
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
@@ -596,7 +607,8 @@ impl AudioTrack {
         })
     }
 
-    /// Wraps track of the `transceiver.receiver.track()` to [`AudioTrack`].
+    /// Wraps the track of the `transceiver.receiver.track()` into an
+    /// [`AudioTrack`].
     pub(crate) fn wrap_remote(
         transceiver: &sys::RtpTransceiverInterface,
     ) -> Self {
@@ -613,7 +625,7 @@ impl AudioTrack {
         }
     }
 
-    /// Returns a [`AudioTrackId`] of this [`AudioTrack`].
+    /// Returns the [`AudioTrackId`] of this [`AudioTrack`].
     #[must_use]
     pub fn id(&self) -> AudioTrackId {
         self.id
@@ -625,6 +637,17 @@ impl AudioTrack {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
+    }
+}
+
+impl From<&AudioTrack> for api::MediaStreamTrack {
+    fn from(track: &AudioTrack) -> Self {
+        Self {
+            id: track.id.0,
+            label: track.label.0.clone(),
+            kind: track.kind,
+            enabled: true,
+        }
     }
 }
 
@@ -683,27 +706,5 @@ impl VideoSource {
             device_id,
             is_display: true,
         })
-    }
-}
-
-impl From<&AudioTrack> for api::MediaStreamTrack {
-    fn from(track: &AudioTrack) -> Self {
-        Self {
-            id: track.id.0,
-            label: track.label.0.clone(),
-            kind: track.kind,
-            enabled: true,
-        }
-    }
-}
-
-impl From<&VideoTrack> for api::MediaStreamTrack {
-    fn from(track: &VideoTrack) -> Self {
-        Self {
-            id: track.id.0,
-            label: track.label.0.clone(),
-            kind: track.kind,
-            enabled: true,
-        }
     }
 }

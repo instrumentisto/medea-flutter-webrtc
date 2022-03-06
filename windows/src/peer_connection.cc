@@ -52,7 +52,7 @@ class SetDescriptionCallBack : public SetDescriptionCallbackInterface {
 };
 
 namespace serialize {
-// Converts a `MediaStreamTrack` to a `flutter::EncodableMap`.
+// Converts the provided `MediaStreamTrack` into a `flutter::EncodableMap`.
 flutter::EncodableMap TrackToMap(MediaStreamTrack track) {
   flutter::EncodableMap map;
   map[EncodableValue("id")] = EncodableValue(std::to_string(track.id));
@@ -64,7 +64,7 @@ flutter::EncodableMap TrackToMap(MediaStreamTrack track) {
   return map;
 }
 
-// Converts an `RtcRtpSender` to a `flutter::EncodableMap`.
+// Converts the provided `RtcRtpSender` into a `flutter::EncodableMap`.
 flutter::EncodableMap SenderToMap(RtcRtpSender sender) {
   flutter::EncodableMap map;
   map[EncodableValue("id")] = EncodableValue(std::to_string(sender.id));
@@ -72,7 +72,7 @@ flutter::EncodableMap SenderToMap(RtcRtpSender sender) {
   return map;
 }
 
-// Converts an `RtcRtpTransceiver` to a `flutter::EncodableMap`.
+// Converts the provided `RtcRtpTransceiver` into a `flutter::EncodableMap`.
 flutter::EncodableMap TransceiverToMap(RtcRtpTransceiver tr) {
   flutter::EncodableMap map;
   map[EncodableValue("transceiverId")] = EncodableValue(std::to_string(tr.id));
@@ -222,7 +222,7 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   // Sends an `OnTrack` event with the provided `MediaStreamTrack` and
   // `RtcRtpTransceiver` to the Dart side.
   //
-  // See: https://w3.org/TR/webrtc/#event-track
+  // See: https://w3.org/TR/webrtc#event-track
   void OnTrack(RtcTrackEvent event) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_.get() != nullptr) {
