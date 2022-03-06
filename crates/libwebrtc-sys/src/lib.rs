@@ -3,11 +3,7 @@
 
 mod bridge;
 
-use std::{
-    collections::HashMap,
-    mem,
-    sync::atomic::{AtomicU64, Ordering},
-};
+use std::{collections::HashMap, mem};
 
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -1475,7 +1471,10 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
                 webrtc::media_stream_track_interface_downcast_video_track(
                     track.0,
                 );
-            Ok(VideoTrackInterface(inner))
+            Ok(VideoTrackInterface {
+                inner,
+                observers: Vec::new(),
+            })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
@@ -1547,7 +1546,10 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
                 webrtc::media_stream_track_interface_downcast_audio_track(
                     track.0,
                 );
-            Ok(AudioTrackInterface(inner))
+            Ok(AudioTrackInterface {
+                inner,
+                observers: Vec::new(),
+            })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
