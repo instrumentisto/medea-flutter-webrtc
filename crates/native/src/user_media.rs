@@ -7,7 +7,10 @@ use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 
 use crate::{
-    api::{self, TrackEventInterface, AudioConstraints, TrackKind, VideoConstraints},
+    api::{
+        self, AudioConstraints, TrackEventInterface, TrackKind,
+        VideoConstraints,
+    },
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
