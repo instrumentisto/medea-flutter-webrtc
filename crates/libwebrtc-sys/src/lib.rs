@@ -32,24 +32,25 @@ fn next_id() -> u64 {
 
 /// Handler of events that fire from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
-    /// Called when a [`ended`][1]
-    /// event occurs in the attached [`MediaStreamTrackInterface`].
+    /// Called when a [`ended`][1] event occurs in the attached
+    /// [`MediaStreamTrackInterface`].
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-ended
     fn on_ended(&mut self);
 
-    /// Called when a [`mute`][1]
-    /// event occurs in the attached [`MediaStreamTrackInterface`].
+    /// Called when a [`mute`][1] event occurs in the attached
+    /// [`MediaStreamTrackInterface`].
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-mute
     fn on_mute(&mut self);
 
-    /// Called when a [`unmute`][1]
-    /// event occurs in the attached [`MediaStreamTrackInterface`].
+    /// Called when a [`unmute`][1] event occurs in the attached
+    /// [`MediaStreamTrackInterface`].
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-unmute
     fn on_unmute(&mut self);
 }
+
 /// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
 /// [`PeerConnectionInterface::create_offer()`] and
 /// [`PeerConnectionInterface::create_answer()`].
@@ -1225,16 +1226,16 @@ impl PeerConnectionFactoryInterface {
         id: String,
         video_src: &VideoTrackSourceInterface,
     ) -> anyhow::Result<VideoTrackInterface> {
-        let ptr = webrtc::create_video_track(&self.0, id, &video_src.0);
+        let inner = webrtc::create_video_track(&self.0, id, &video_src.0);
 
-        if ptr.is_null() {
+        if inner.is_null() {
             bail!(
                 "`null` pointer returned from \
                  `webrtc::PeerConnectionFactoryInterface::CreateVideoTrack()`",
             );
         }
         Ok(VideoTrackInterface {
-            inner: ptr,
+            inner,
             observers: HashMap::new(),
         })
     }
@@ -1246,16 +1247,16 @@ impl PeerConnectionFactoryInterface {
         id: String,
         audio_src: &AudioSourceInterface,
     ) -> anyhow::Result<AudioTrackInterface> {
-        let ptr = webrtc::create_audio_track(&self.0, id, &audio_src.0);
+        let inner = webrtc::create_audio_track(&self.0, id, &audio_src.0);
 
-        if ptr.is_null() {
+        if inner.is_null() {
             bail!(
                 "`null` pointer returned from \
                  `webrtc::PeerConnectionFactoryInterface::CreateAudioTrack()`",
             );
         }
         Ok(AudioTrackInterface {
-            inner: ptr,
+            inner,
             observers: HashMap::new(),
         })
     }
@@ -1485,35 +1486,6 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
                 webrtc::media_stream_track_interface_downcast_video_track(
                     track.0,
                 );
-            Ok(VideoTrackInterface {
-                inner,
-                observers: HashMap::new(),
-            })
-        } else {
-            bail!(
-                "The provided `MediaStreamTrackInterface` is not an instance \
-                of `VideoTrackInterface`"
-            );
-        }
-    }
-
-    /// Returns the [`VideoTrackSourceInterface`] attached to this
-    /// [`VideoTrackInterface`].
-    #[must_use]
-    pub fn source(&self) -> VideoTrackSourceInterface {
-        VideoTrackSourceInterface(webrtc::get_video_track_source(&self.0))
-    }
-}
-
-impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
-    type Error = anyhow::Error;
-
-    fn try_from(track: MediaStreamTrackInterface) -> anyhow::Result<Self> {
-        if track.kind() == TrackKind::Video {
-            let inner =
-                webrtc::media_stream_track_interface_downcast_video_track(
-                    track.0,
-                );
             Ok(VideoTrackInterface(inner))
         } else {
             bail!(
@@ -1577,35 +1549,6 @@ impl AudioTrackInterface {
     #[must_use]
     pub fn source(&self) -> AudioSourceInterface {
         AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
-    }
-}
-
-impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
-    type Error = anyhow::Error;
-
-    fn try_from(track: MediaStreamTrackInterface) -> anyhow::Result<Self> {
-        if track.kind() == TrackKind::Audio {
-            let inner =
-                webrtc::media_stream_track_interface_downcast_audio_track(
-                    track.0,
-                );
-            Ok(AudioTrackInterface {
-                inner,
-                observers: HashMap::new(),
-            })
-        } else {
-            bail!(
-                "The provided `MediaStreamTrackInterface` is not an instance \
-                of `AudioTrackInterface`"
-            );
-        }
-    }
-
-    /// Returns the [`AudioSourceInterface`] attached to this
-    /// [`AudioTrackInterface`].
-    #[must_use]
-    pub fn source(&self) -> AudioSourceInterface {
-        AudioSourceInterface(webrtc::get_audio_track_source(&self.0))
     }
 }
 
