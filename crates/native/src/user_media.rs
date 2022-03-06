@@ -7,10 +7,7 @@ use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 
 use crate::{
-    api::{
-        self, AudioConstraints, TrackEventInterface, TrackKind,
-        VideoConstraints,
-    },
+    api::{self, TrackEventInterface, AudioConstraints, TrackKind, VideoConstraints},
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
@@ -514,7 +511,7 @@ impl MediaStream {
     }
 }
 
-/// Possible kinds of media track sourse.
+/// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Rc<T>),
     Remote(String),
@@ -578,6 +575,31 @@ impl VideoTrack {
         }
     }
 
+    /// Wraps the track of the `transceiver.receiver.track()` into a
+    /// [`VideoTrack`].
+    pub(crate) fn wrap_remote(
+        transceiver: &sys::RtpTransceiverInterface,
+    ) -> Self {
+        let receiver = transceiver.receiver();
+        let track = receiver.track();
+        Self {
+            id: VideoTrackId(next_id()),
+            inner: track.try_into().unwrap(),
+            // Safe to unwrap since transceiver is guaranteed to be negotiated
+            // at this point.
+            source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
+            kind: TrackKind::kAudio,
+            label: VideoLabel::from("remote"),
+            sinks: Vec::new(),
+        }
+    }
+
+    /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
+    #[must_use]
+    pub fn id(&self) -> VideoTrackId {
+        self.id
+    }
+
     /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
     pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
         self.inner.add_or_update_sink(video_sink.as_mut());
@@ -602,6 +624,17 @@ impl VideoTrack {
     #[must_use]
     pub fn id(&self) -> VideoTrackId {
         self.id
+    }
+}
+
+impl From<&VideoTrack> for api::MediaStreamTrack {
+    fn from(track: &VideoTrack) -> Self {
+        Self {
+            id: track.id.0,
+            label: track.label.0.clone(),
+            kind: track.kind,
+            enabled: true,
+        }
     }
 }
 
@@ -631,8 +664,7 @@ impl AudioTrack {
     ///
     /// # Errors
     ///
-    /// Whenever
-    /// [`sys::PeerConnectionFactoryInterface::create_audio_track()`][1]
+    /// Whenever [`sys::PeerConnectionFactoryInterface::create_audio_track()`]
     /// returns an error.
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
@@ -673,12 +705,47 @@ impl AudioTrack {
         self.id
     }
 
+    /// Wraps the track of the `transceiver.receiver.track()` into an
+    /// [`AudioTrack`].
+    pub(crate) fn wrap_remote(
+        transceiver: &sys::RtpTransceiverInterface,
+    ) -> Self {
+        let receiver = transceiver.receiver();
+        let track = receiver.track();
+        Self {
+            id: AudioTrackId(next_id()),
+            inner: track.try_into().unwrap(),
+            // Safe to unwrap since transceiver is guaranteed to be negotiated
+            // at this point.
+            source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
+            kind: TrackKind::kAudio,
+            label: AudioLabel::from("remote"),
+        }
+    }
+
+    /// Returns the [`AudioTrackId`] of this [`AudioTrack`].
+    #[must_use]
+    pub fn id(&self) -> AudioTrackId {
+        self.id
+    }
+
     /// Changes the [enabled][1] property of the underlying
     /// [`sys::AudioTrackInterface`].
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
+    }
+}
+
+impl From<&AudioTrack> for api::MediaStreamTrack {
+    fn from(track: &AudioTrack) -> Self {
+        Self {
+            id: track.id.0,
+            label: track.label.0.clone(),
+            kind: track.kind,
+            enabled: true,
+        }
     }
 }
 

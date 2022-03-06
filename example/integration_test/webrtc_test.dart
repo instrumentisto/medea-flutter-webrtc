@@ -259,7 +259,7 @@ void main() {
     init.direction = TransceiverDirection.SendRecv;
 
     await pc1.addTransceiver(
-      kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
     var pc2 = await createPeerConnection({});
     final completer = Completer<void>();
     pc2.onTrack = (RTCTrackEvent e) => e.track?.onEnded = () => completer.complete();

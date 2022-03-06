@@ -34,55 +34,47 @@ type DynAddIceCandidateCallback = Box<dyn AddIceCandidateCallback>;
 )]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
-
-    /// Wrapper for an `(string, string)` that can be used in Rust/C++
-    /// vectors.
+    /// Wrapper for a `(String, String)` tuple transferable via FFI boundaries.
     pub struct StringPair {
         first: String,
         second: String,
     }
     // TODO: Remove once `cxx` crate allows using pointers to opaque types in
     //       vectors: https://github.com/dtolnay/cxx/issues/741
-    /// Wrapper for an [`RtpEncodingParameters`] that can be used in Rust/C++
-    /// vectors.
+    /// Wrapper for an [`RtpEncodingParameters`] usable in Rust/C++ vectors.
     pub struct RtpEncodingParametersContainer {
         ptr: UniquePtr<RtpEncodingParameters>,
     }
 
     // TODO: Remove once `cxx` crate allows using pointers to opaque types in
     //       vectors: https://github.com/dtolnay/cxx/issues/741
-    /// Wrapper for an [`RtpExtension`] that can be used in Rust/C++
-    /// vectors.
+    /// Wrapper for an [`RtpExtension`] usable in Rust/C++ vectors.
     pub struct RtpExtensionContainer {
         ptr: UniquePtr<RtpExtension>,
     }
 
     // TODO: Remove once `cxx` crate allows using pointers to opaque types in
     //       vectors: https://github.com/dtolnay/cxx/issues/741
-    /// Wrapper for an [`RtpCodecParameters`] that can be used in Rust/C++
-    /// vectors.
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
     pub struct RtpCodecParametersContainer {
         ptr: UniquePtr<RtpCodecParameters>,
     }
 
-    /// [MediaStreamTrackState] representation.
+    /// [MediaStreamTrackState][0] representation.
     ///
-    /// [MediaStreamTrackState]:
-    /// https://w3.org/TR/mediacapture-streams/#dom-mediastreamtrackstate
+    /// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
     #[rustfmt::skip]
     #[repr(i32)]
     #[derive(Debug, Eq, Hash, PartialEq)]
     pub enum TrackState {
-        /// [MediaStreamTrackState.live][1] representation.
+        /// [MediaStreamTrackState.live][0] representation.
         ///
-        /// [1]:
-        /// https://w3.org/TR/mediacapture-streams/#idl-def-MediaStreamTrackState.live
+        /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.live
         kLive,
 
-        /// [MediaStreamTrackState.ended][1] representation.
+        /// [MediaStreamTrackState.ended][0] representation.
         ///
-        /// [1]:
-        /// https://w3.org/TR/mediacapture-streams/#idl-def-MediaStreamTrackState.ended
+        /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.ended
         kEnded,
     }
 
@@ -501,25 +493,25 @@ pub(crate) mod webrtc {
 
         pub type MediaStreamTrackInterface;
 
-        /// Returns a `kind` of the given [`MediaStreamTrackInterface`].
+        /// Returns the `kind` of the provided [`MediaStreamTrackInterface`].
         #[must_use]
         pub fn media_stream_track_kind(
             track: &MediaStreamTrackInterface,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns a `id` of the given [`MediaStreamTrackInterface`].
+        /// Returns the `id` of the provided [`MediaStreamTrackInterface`].
         #[must_use]
         pub fn media_stream_track_id(
             track: &MediaStreamTrackInterface,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns a `state` of the given [`MediaStreamTrackInterface`].
+        /// Returns the `state` of the provided [`MediaStreamTrackInterface`].
         #[must_use]
         pub fn media_stream_track_state(
             track: &MediaStreamTrackInterface,
         ) -> TrackState;
 
-        /// Returns an `enabled` property of the given
+        /// Returns the `enabled` property of the provided
         /// [`MediaStreamTrackInterface`].
         #[must_use]
         pub fn media_stream_track_enabled(
@@ -534,38 +526,39 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         type RtpCodecParameters;
 
-        /// Returns a `name` of the given [`RtpCodecParameters`].
+        /// Returns the `name` of the provided [`RtpCodecParameters`].
         #[must_use]
         pub fn rtp_codec_parameters_name(
             codec: &RtpCodecParameters,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns a `payload_type` of the given [`RtpCodecParameters`].
+        /// Returns the `payload_type` of the provided [`RtpCodecParameters`].
         #[must_use]
         pub fn rtp_codec_parameters_payload_type(
             codec: &RtpCodecParameters,
         ) -> i32;
 
-        /// Returns a `clock_rate` of the given [`RtpCodecParameters`].
-        /// If Err(_) then clock_rate is None.
+        /// Returns the `clock_rate` of the provided [`RtpCodecParameters`].
+        ///
+        /// [`Result::Err`] means [`None`].
         pub fn rtp_codec_parameters_clock_rate(
             codec: &RtpCodecParameters,
         ) -> Result<i32>;
 
-        /// Returns a `num_channels` of the given [`RtpCodecParameters`].
-        /// If Err(_) then clock_rate is None.
+        /// Returns the `num_channels` of the provided [`RtpCodecParameters`].
+        ///
+        /// [`Result::Err`] means [`None`].
         pub fn rtp_codec_parameters_num_channels(
             codec: &RtpCodecParameters,
         ) -> Result<i32>;
 
-        /// Returns a `parameters` as (string, string)
-        /// of the given [`RtpCodecParameters`].
+        /// Returns the `parameters` of the provided [`RtpCodecParameters`].
         #[must_use]
         pub fn rtp_codec_parameters_parameters(
             codec: &RtpCodecParameters,
         ) -> UniquePtr<CxxVector<StringPair>>;
 
-        /// Returns a [`MediaType`] of the given [`RtpCodecParameters`].
+        /// Returns the [`MediaType`] of the provided [`RtpCodecParameters`].
         #[must_use]
         pub fn rtp_codec_parameters_kind(
             codec: &RtpCodecParameters,
@@ -578,15 +571,15 @@ pub(crate) mod webrtc {
 
         pub type RtpReceiverInterface;
 
-        /// Returns a [`MediaStreamTrackInterface`]
-        /// of the given [`RtpReceiverInterface`].
+        /// Returns the [`MediaStreamTrackInterface`] of the provided
+        /// [`RtpReceiverInterface`].
         #[must_use]
         pub fn rtp_receiver_track(
             receiver: &RtpReceiverInterface,
         ) -> UniquePtr<MediaStreamTrackInterface>;
 
-        /// Returns a [`RtpParameters`]
-        /// of the given [`RtpReceiverInterface`].
+        /// Returns the [`RtpParameters`] of the provided
+        /// [`RtpReceiverInterface`].
         #[must_use]
         pub fn rtp_receiver_parameters(
             receiver: &RtpReceiverInterface,
@@ -621,44 +614,45 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         type RtpEncodingParameters;
 
-        /// Returns a `active`
-        /// of the given [`RtpEncodingParameters`].
+        /// Returns the `active` of the provided [`RtpEncodingParameters`].
         #[must_use]
         pub fn rtp_encoding_parameters_active(
             encoding: &RtpEncodingParameters,
         ) -> bool;
 
-        /// Returns a `maxBitrate`
-        /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then clock_rate is None.
+        /// Returns the `maxBitrate` of the provided [`RtpEncodingParameters`].
+        ///
+        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_maxBitrate(
             encoding: &RtpEncodingParameters,
         ) -> Result<i32>;
 
-        /// Returns a `minBitrate`
-        /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then `minBitrate` is None.
+        /// Returns the `minBitrate` of the provided [`RtpEncodingParameters`].
+        ///
+        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_minBitrate(
             encoding: &RtpEncodingParameters,
         ) -> Result<i32>;
 
-        /// Returns a `maxFramerate`
-        /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then `maxFramerate` is None.
+        /// Returns the `maxFramerate` of the provided
+        /// [`RtpEncodingParameters`].
+        ///
+        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_maxFramerate(
             encoding: &RtpEncodingParameters,
         ) -> Result<f64>;
 
-        /// Returns a `ssrc`
-        /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then `ssrc` is None.
+        /// Returns the `ssrc` of the provided [`RtpEncodingParameters`].
+        ///
+        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_ssrc(
             encoding: &RtpEncodingParameters,
         ) -> Result<i64>;
 
-        /// Returns a `scale_resolution_down_by`
-        /// of the given [`RtpEncodingParameters`].
-        /// If Err(_) then `scale_resolution_down_by` is None.
+        /// Returns the `scale_resolution_down_by` of the provided
+        /// [`RtpEncodingParameters`].
+        ///
+        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_scale_resolution_down_by(
             encoding: &RtpEncodingParameters,
         ) -> Result<f64>;
@@ -671,40 +665,39 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         type RtpParameters;
 
-        /// Returns a `transaction_id` of the given [`RtpParameters`].
+        /// Returns the `transaction_id` of the provided [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_transaction_id(
             parameters: &RtpParameters,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns a `mid` of the given [`RtpParameters`].
+        /// Returns the `mid` of the provided [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_mid(
             parameters: &RtpParameters,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns a [`RtpCodecParameters`]s
-        /// of the given [`RtpParameters`].
+        /// Returns the [`RtpCodecParameters`]s of the provided
+        /// [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_codecs(
             parameters: &RtpParameters,
         ) -> Vec<RtpCodecParametersContainer>;
 
-        /// Returns a [`RtpExtension`]s
-        /// of the given [`RtpParameters`].
+        /// Returns the [`RtpExtension`]s of the provided [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_header_extensions(
             parameters: &RtpParameters,
         ) -> Vec<RtpExtensionContainer>;
 
-        /// Returns a [`RtpEncodingParameters`]s
-        /// of the given [`RtpParameters`].
+        /// Returns the [`RtpEncodingParameters`]s of the provided
+        /// [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_encodings(
             parameters: &RtpParameters,
         ) -> Vec<RtpEncodingParametersContainer>;
 
-        /// Returns a [`RtcpParameters`] of the given [`RtpParameters`].
+        /// Returns the [`RtcpParameters`] of the provided [`RtpParameters`].
         #[must_use]
         pub fn rtp_parameters_rtcp(
             parameters: &RtpParameters,
@@ -998,14 +991,14 @@ pub(crate) mod webrtc {
             transceiver: &RtpTransceiverInterface,
         ) -> String;
 
-        /// Returns a [`RtpSenderInterface`] of the given
+        /// Returns the [`RtpSenderInterface`] of the provided
         /// [`RtpTransceiverInterface`].
         #[must_use]
         pub fn transceiver_sender(
             transceiver: &RtpTransceiverInterface
         ) -> UniquePtr<RtpSenderInterface>;
 
-        /// Returns a [`RtpReceiverInterface`] of the given
+        /// Returns the [`RtpReceiverInterface`] of the provided
         /// [`RtpTransceiverInterface`].
         #[must_use]
         pub fn transceiver_receiver(
@@ -1081,14 +1074,14 @@ pub(crate) mod webrtc {
             track: &VideoTrackInterface,
         ) -> bool;
 
-        /// Returns an `AudioSourceInterface` of the given
+        /// Returns the `AudioSourceInterface` of the provided
         /// [`AudioTrackInterface`].
         #[must_use]
         pub fn get_audio_track_source(
             track: &AudioTrackInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
-        /// Returns an `VideoTrackSourceInterface` of the given
+        /// Returns the `VideoTrackSourceInterface` of the provided
         /// [`VideoTrackInterface`].
         #[must_use]
         pub fn get_video_track_source(
@@ -1193,41 +1186,41 @@ pub(crate) mod webrtc {
             event: &CandidatePairChangeEvent,
         ) -> i64;
 
-        /// Downcasts the given [`MediaStreamTrackInterface`] to
-        /// a [`VideoTrackInterface`].
+        /// Downcasts the provided [`MediaStreamTrackInterface`] to a
+        /// [`VideoTrackInterface`].
         #[must_use]
         pub fn media_stream_track_interface_downcast_video_track(
             track: UniquePtr<MediaStreamTrackInterface>,
         ) -> UniquePtr<VideoTrackInterface>;
 
-        /// Downcasts [`MediaStreamTrackInterface`] to
+        /// Downcasts the provided [`MediaStreamTrackInterface`] to an
         /// [`AudioTrackInterface`].
         #[must_use]
         pub fn media_stream_track_interface_downcast_audio_track(
             track: UniquePtr<MediaStreamTrackInterface>,
         ) -> UniquePtr<AudioTrackInterface>;
 
-        /// Returns a `cname` of the given [`RtcpParameters`].
+        /// Returns the `cname` of the provided [`RtcpParameters`].
         #[must_use]
         pub fn rtcp_parameters_cname(
             rtcp: &RtcpParameters,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns a `reduced_size` of the given [`RtcpParameters`].
+        /// Returns the `reduced_size` of the provided [`RtcpParameters`].
         #[must_use]
         pub fn rtcp_parameters_reduced_size(rtcp: &RtcpParameters) -> bool;
 
-        /// Returns a `uri` of the given [`RtpExtension`].
+        /// Returns the `uri` of the provided [`RtpExtension`].
         #[must_use]
         pub fn rtp_extension_uri(
             extension: &RtpExtension,
         ) -> UniquePtr<CxxString>;
 
-        /// Returns an `id` of the given [`RtpExtension`].
+        /// Returns the `id` of the provided [`RtpExtension`].
         #[must_use]
         pub fn rtp_extension_id(extension: &RtpExtension) -> i32;
 
-        /// Returns an `encrypt` of the given [`RtpExtension`].
+        /// Returns the `encrypt` property of the provided [`RtpExtension`].
         #[must_use]
         pub fn rtp_extension_encrypt(extension: &RtpExtension) -> bool;
 
@@ -1455,19 +1448,18 @@ pub(crate) mod webrtc {
             event: &CandidatePairChangeEvent,
         );
 
-        /// Forwards the [`RtpTransceiverInterface`] to the given
+        /// Forwards the specified [`RtpTransceiverInterface`] to the provided
         /// [`DynPeerConnectionEventsHandler`] when a [`track`][1] event occurs
         /// in the attached [`PeerConnectionInterface`].
         ///
-        /// [1]: https://w3.org/TR/webrtc/#event-track
+        /// [1]: https://w3.org/TR/webrtc#event-track
         pub fn on_track(
             cb: &mut DynPeerConnectionEventsHandler,
             transceiver: UniquePtr<RtpTransceiverInterface>,
         );
 
-        /// Forwards the [`RtpTransceiverInterface`] to the given
-        /// [`DynPeerConnectionEventsHandler`] when a track have
-        /// been removed.
+        /// Forwards the specified [`RtpTransceiverInterface`] to the provided
+        /// [`DynPeerConnectionEventsHandler`] when a track is removed.
         ///
         /// This is a non-spec-compliant event.
         pub fn on_remove_track(
@@ -1657,11 +1649,11 @@ pub fn on_ice_selected_candidate_pair_changed(
     cb.on_ice_selected_candidate_pair_changed(event);
 }
 
-/// Forwards the [`RtpTransceiverInterface`] to the given
-/// [`DynPeerConnectionEventsHandler`] when a [`track`][1]
-/// event occurs in the attached [`PeerConnectionInterface`].
+/// Forwards the specified [`RtpTransceiverInterface`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when a [`track`][1] event occurs in the
+/// attached [`PeerConnectionInterface`].
 ///
-/// [1]: https://w3.org/TR/webrtc/#event-track
+/// [1]: https://w3.org/TR/webrtc#event-track
 pub fn on_track(
     cb: &mut DynPeerConnectionEventsHandler,
     transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
@@ -1672,9 +1664,8 @@ pub fn on_track(
     });
 }
 
-/// Forwards the [`RtpTransceiverInterface`] to the given
-/// [`DynPeerConnectionEventsHandler`] when a track have
-/// been removed.
+/// Forwards the specified [`RtpTransceiverInterface`] to the provided
+/// [`DynPeerConnectionEventsHandler`] when a track is removed.
 ///
 /// This is a non-spec-compliant event.
 pub fn on_remove_track(
@@ -1708,7 +1699,7 @@ pub fn on_unmute(cb: &mut DynTrackEventCallback) {
     cb.on_unmute();
 }
 
-/// Creates [`StringPair`].
+/// Creates a new [`StringPair`].
 fn new_string_pair(f: &CxxString, s: &CxxString) -> webrtc::StringPair {
     webrtc::StringPair {
         first: f.to_string(),
@@ -1803,13 +1794,11 @@ impl TryFrom<&str> for webrtc::BundlePolicy {
 
 impl fmt::Display for webrtc::SdpType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::SdpType as ST;
-
         match *self {
-            ST::kOffer => write!(f, "offer"),
-            ST::kAnswer => write!(f, "answer"),
-            ST::kPrAnswer => write!(f, "pranswer"),
-            ST::kRollback => write!(f, "rollback"),
+            Self::kOffer => write!(f, "offer"),
+            Self::kAnswer => write!(f, "answer"),
+            Self::kPrAnswer => write!(f, "pranswer"),
+            Self::kRollback => write!(f, "rollback"),
             _ => unreachable!(),
         }
     }
@@ -1817,14 +1806,12 @@ impl fmt::Display for webrtc::SdpType {
 
 impl fmt::Display for webrtc::RtpTransceiverDirection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::RtpTransceiverDirection as D;
-
         match *self {
-            D::kSendRecv => write!(f, "sendrecv"),
-            D::kSendOnly => write!(f, "sendonly"),
-            D::kRecvOnly => write!(f, "recvonly"),
-            D::kInactive => write!(f, "inactive"),
-            D::kStopped => write!(f, "stopped"),
+            Self::kSendRecv => write!(f, "sendrecv"),
+            Self::kSendOnly => write!(f, "sendonly"),
+            Self::kRecvOnly => write!(f, "recvonly"),
+            Self::kInactive => write!(f, "inactive"),
+            Self::kStopped => write!(f, "stopped"),
             _ => unreachable!(),
         }
     }
@@ -1832,15 +1819,13 @@ impl fmt::Display for webrtc::RtpTransceiverDirection {
 
 impl fmt::Display for webrtc::SignalingState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::SignalingState as S;
-
         match *self {
-            S::kStable => write!(f, "stable"),
-            S::kHaveLocalOffer => write!(f, "have-local-offer"),
-            S::kHaveLocalPrAnswer => write!(f, "have-local-pranswer"),
-            S::kHaveRemoteOffer => write!(f, "have-remote-offer"),
-            S::kHaveRemotePrAnswer => write!(f, "have-remote-pranswer"),
-            S::kClosed => write!(f, "closed"),
+            Self::kStable => write!(f, "stable"),
+            Self::kHaveLocalOffer => write!(f, "have-local-offer"),
+            Self::kHaveLocalPrAnswer => write!(f, "have-local-pranswer"),
+            Self::kHaveRemoteOffer => write!(f, "have-remote-offer"),
+            Self::kHaveRemotePrAnswer => write!(f, "have-remote-pranswer"),
+            Self::kClosed => write!(f, "closed"),
             _ => unreachable!(),
         }
     }
@@ -1848,12 +1833,10 @@ impl fmt::Display for webrtc::SignalingState {
 
 impl fmt::Display for webrtc::IceGatheringState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::IceGatheringState as S;
-
         match *self {
-            S::kIceGatheringNew => write!(f, "new"),
-            S::kIceGatheringGathering => write!(f, "gathering"),
-            S::kIceGatheringComplete => write!(f, "complete"),
+            Self::kIceGatheringNew => write!(f, "new"),
+            Self::kIceGatheringGathering => write!(f, "gathering"),
+            Self::kIceGatheringComplete => write!(f, "complete"),
             _ => unreachable!(),
         }
     }
@@ -1861,16 +1844,36 @@ impl fmt::Display for webrtc::IceGatheringState {
 
 impl fmt::Display for webrtc::IceConnectionState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::IceConnectionState as S;
-
         match *self {
-            S::kIceConnectionNew => write!(f, "new"),
-            S::kIceConnectionChecking => write!(f, "checking"),
-            S::kIceConnectionConnected => write!(f, "connected"),
-            S::kIceConnectionCompleted => write!(f, "completed"),
-            S::kIceConnectionFailed => write!(f, "failed"),
-            S::kIceConnectionDisconnected => write!(f, "disconnected"),
-            S::kIceConnectionClosed => write!(f, "closed"),
+            Self::kIceConnectionNew => write!(f, "new"),
+            Self::kIceConnectionChecking => write!(f, "checking"),
+            Self::kIceConnectionConnected => write!(f, "connected"),
+            Self::kIceConnectionCompleted => write!(f, "completed"),
+            Self::kIceConnectionFailed => write!(f, "failed"),
+            Self::kIceConnectionDisconnected => write!(f, "disconnected"),
+            Self::kIceConnectionClosed => write!(f, "closed"),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl fmt::Display for webrtc::TrackState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::kLive => write!(f, "live"),
+            Self::kEnded => write!(f, "ended"),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl fmt::Display for webrtc::MediaType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::MEDIA_TYPE_AUDIO => write!(f, "audio"),
+            Self::MEDIA_TYPE_VIDEO => write!(f, "video"),
+            Self::MEDIA_TYPE_DATA => write!(f, "data"),
+            Self::MEDIA_TYPE_UNSUPPORTED => write!(f, "unsupported"),
             _ => unreachable!(),
         }
     }
@@ -1903,15 +1906,13 @@ impl fmt::Display for webrtc::MediaType {
 
 impl fmt::Display for webrtc::PeerConnectionState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::PeerConnectionState as S;
-
         match *self {
-            S::kNew => write!(f, "new"),
-            S::kConnecting => write!(f, "connecting"),
-            S::kConnected => write!(f, "connected"),
-            S::kDisconnected => write!(f, "disconnected"),
-            S::kFailed => write!(f, "failed"),
-            S::kClosed => write!(f, "closed"),
+            Self::kNew => write!(f, "new"),
+            Self::kConnecting => write!(f, "connecting"),
+            Self::kConnected => write!(f, "connected"),
+            Self::kDisconnected => write!(f, "disconnected"),
+            Self::kFailed => write!(f, "failed"),
+            Self::kClosed => write!(f, "closed"),
             _ => unreachable!(),
         }
     }

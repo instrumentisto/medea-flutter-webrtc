@@ -52,8 +52,9 @@ class OnFrameCallbackInterface {
 };
 
 // Handler of events firing from a `PeerConnectionInterface`.
-// Implementations must be thread safe since these methods will be called on the
-// PeerConnection's signalling thread.
+//
+// Implementations must be thread safe, since these methods will be called on
+// the `PeerConnection`'s signalling thread.
 class PeerConnectionObserverInterface {
  public:
   // Called when a `connectionstatechange` event occurs.
@@ -99,7 +100,7 @@ class PeerConnectionObserverInterface {
 
   // Called when a `track` event occurs.
   //
-  // See: https://w3.org/TR/webrtc/#event-track
+  // See: https://w3.org/TR/webrtc#event-track
   virtual void OnTrack(RtcTrackEvent event) = 0;
 
   virtual ~PeerConnectionObserverInterface() = default;
@@ -114,12 +115,12 @@ class TrackEventInterface {
   //
   // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
   virtual void OnEnded() = 0;
-  
+
   // Called when a `Mute` event occurs.
   //
   // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
   virtual void OnMute() = 0;
-  
+
   // Called when a `Unmute` event occurs.
   //
   // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute

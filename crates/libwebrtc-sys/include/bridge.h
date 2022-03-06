@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
@@ -18,7 +19,6 @@
 #include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
-#include <functional>
 
 namespace bridge {
 
@@ -28,27 +28,29 @@ struct DynTrackEventCallback;
 class TrackEventObserver : public webrtc::ObserverInterface {
  public:
   // Creates a new `TrackEventObserver`.
-  TrackEventObserver(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
-                     rust::Box<bridge::DynTrackEventCallback> cb);
-  
-  // Called when track calls `set_state` or `set_enabled`.
+  TrackEventObserver(
+      rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
+      rust::Box<bridge::DynTrackEventCallback> cb);
+
+  // Called whenever the track calls `set_state()` or `set_enabled()`.
   void OnChanged();
 
  private:
-
-  // `SourceEventObserver` propagating mute/unmute track events to the Rust side.
+  // `SourceEventObserver` propagating mute/unmute track events to the Rust
+  // side.
   class SourceEventObserver : public webrtc::ObserverInterface {
-      public:
-      SourceEventObserver(std::function<void()> callback): callback_(callback) {}
-      void OnChanged() {callback_();}
-      private:
-      std::function<void()> callback_;
+   public:
+    SourceEventObserver(std::function<void()> callback) : callback_(callback) {}
+    void OnChanged() { callback_(); }
+
+   private:
+    std::function<void()> callback_;
   };
 
-  // `MediaStreamTrackInterface` for mute/unmute event.
+  // `MediaStreamTrackInterface` for mute/unmute events.
   std::unique_ptr<SourceEventObserver> source_obs;
 
-  // `MediaStreamTrackInterface` for determine the event.
+  // `MediaStreamTrackInterface` to determine the event.
   rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track_;
 
   // Rust side callback.
@@ -60,7 +62,6 @@ struct StringPair;
 struct RtpCodecParametersContainer;
 struct RtpExtensionContainer;
 struct RtpEncodingParametersContainer;
-
 
 using Thread = rtc::Thread;
 using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
@@ -308,28 +309,30 @@ std::unique_ptr<SetRemoteDescriptionObserver>
 create_set_remote_description_observer(
     rust::Box<bridge::DynSetDescriptionCallback> cb);
 
-// Returns `RtpExtension.uri` field value.
+// Returns the `RtpExtension.uri` field value.
 std::unique_ptr<std::string> rtp_extension_uri(
     const webrtc::RtpExtension& extension);
 
-// Returns `RtpExtension.id` field value.
+// Returns the `RtpExtension.id` field value.
 int32_t rtp_extension_id(const webrtc::RtpExtension& extension);
 
-// Returns `RtpExtension.encrypt` field value.
+// Returns the `RtpExtension.encrypt` field value.
 bool rtp_extension_encrypt(const webrtc::RtpExtension& extension);
 
-// Returns `RtcpParameters.cname` field value.
+// Returns the `RtcpParameters.cname` field value.
 std::unique_ptr<std::string> rtcp_parameters_cname(
     const webrtc::RtcpParameters& rtcp);
 
-// Returns `RtcpParameters.reduced_size` field value.
+// Returns the`RtcpParameters.reduced_size` field value.
 bool rtcp_parameters_reduced_size(const webrtc::RtcpParameters& rtcp);
 
-// Returns a `VideoTrackInterface` of the given `VideoTrackSourceInterface`.
+// Returns the `VideoTrackInterface` of the provided
+// `VideoTrackSourceInterface`.
 std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
     const VideoTrackInterface& track);
 
-// Returns a `AudioSourceInterface` of the given `AudioTrackInterface`.
+// Returns the `AudioSourceInterface` of the provided
+// `AudioTrackInterface`.
 std::unique_ptr<AudioSourceInterface> get_audio_track_source(
     const AudioTrackInterface& track);
 
@@ -380,41 +383,35 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 // `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
     const VideoTrackInterface& track,
-    rust::Box<bridge::DynTrackEventCallback> cb
-);
+    rust::Box<bridge::DynTrackEventCallback> cb);
 
 // Creates a new `TrackEventObserver` from the provided
 // `bridge::DynTrackEventCallback`.
 std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
     const AudioTrackInterface& track,
-    rust::Box<bridge::DynTrackEventCallback> cb
-);
+    rust::Box<bridge::DynTrackEventCallback> cb);
 
 // Calls `VideoTrackInterface->RegisterObserver`.
-void video_track_register_observer(
-    VideoTrackInterface& track, 
-    TrackEventObserver& obs);
+void video_track_register_observer(VideoTrackInterface& track,
+                                   TrackEventObserver& obs);
 
 // Calls `AudioTrackInterface->RegisterObserver`.
-void audio_track_register_observer(
-    AudioTrackInterface& track, 
-    TrackEventObserver& obs);
+void audio_track_register_observer(AudioTrackInterface& track,
+                                   TrackEventObserver& obs);
 
 // Calls `VideoTrackInterface->UnregisterObserver`.
-void video_track_unregister_observer(
-    VideoTrackInterface& track, 
-    TrackEventObserver& obs);
+void video_track_unregister_observer(VideoTrackInterface& track,
+                                     TrackEventObserver& obs);
 
 // Calls `AudioTrackInterface->UnregisterObserver`.
-void audio_track_unregister_observer(
-    AudioTrackInterface& track, 
-    TrackEventObserver& obs);
-    
-// Returns a `RtpSenderInterface` of the given `RtpTransceiverInterface`.
+void audio_track_unregister_observer(AudioTrackInterface& track,
+                                     TrackEventObserver& obs);
+
+// Returns the `RtpSenderInterface` of the provided `RtpTransceiverInterface`.
 std::unique_ptr<RtpSenderInterface> transceiver_sender(
     const RtpTransceiverInterface& transceiver);
 
-// Returns a `receiver` of the given `RtpTransceiverInterface`.
+// Returns the `receiver` of the provided `RtpTransceiverInterface`.
 std::unique_ptr<RtpReceiverInterface> transceiver_receiver(
     const RtpTransceiverInterface& transceiver);
 
@@ -422,32 +419,32 @@ std::unique_ptr<RtpReceiverInterface> transceiver_receiver(
 std::unique_ptr<std::string> candidate_to_string(
     const cricket::Candidate& candidate);
 
-// Returns a `parameters` as std::vector<(std::string, std::string)>
-// of the given `RtpCodecParameters`.
+// Returns the `parameters` as `std::vector<(std::string, std::string)>` of the
+// provided `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_parameters(
     const webrtc::RtpCodecParameters& codec);
 
-// Returns `RtpParameters.codecs` field value.
+// Returns the `RtpParameters.codecs` field value.
 rust::Vec<RtpCodecParametersContainer> rtp_parameters_codecs(
     const webrtc::RtpParameters& parameters);
 
-// Returns `RtpParameters.header_extensions` field value.
-rust::Vec<RtpExtensionContainer>
-rtp_parameters_header_extensions(const webrtc::RtpParameters& parameters);
+// Returns the `RtpParameters.header_extensions` field value.
+rust::Vec<RtpExtensionContainer> rtp_parameters_header_extensions(
+    const webrtc::RtpParameters& parameters);
 
-// Returns `RtpParameters.encodings` field value.
-rust::Vec<RtpEncodingParametersContainer>
-rtp_parameters_encodings(const webrtc::RtpParameters& parameters);
+// Returns the `RtpParameters.encodings` field value.
+rust::Vec<RtpEncodingParametersContainer> rtp_parameters_encodings(
+    const webrtc::RtpParameters& parameters);
 
 // Calls `IceCandidateInterface->ToString`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(
     const IceCandidateInterface& candidate);
 
-// Returns an `sdp_mid` of the provided `IceCandidateInterface`.
+// Returns the `sdp_mid` of the provided `IceCandidateInterface`.
 std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
     const IceCandidateInterface& candidate);
 
-// Returns an `sdp_mline_index` of the provided `IceCandidateInterface`.
+// Returns the `sdp_mline_index` of the provided `IceCandidateInterface`.
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate);
 
 // Creates a new `IceCandidateInterface`.

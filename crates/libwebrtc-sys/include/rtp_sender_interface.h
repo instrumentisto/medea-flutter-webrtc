@@ -4,11 +4,11 @@
 
 namespace bridge {
 
-// Returns a `parameters` of the given `RtpSenderInterface`.
+// Returns the `parameters` of the provided `RtpSenderInterface`.
 std::unique_ptr<webrtc::RtpParameters> rtp_sender_parameters(
     const RtpSenderInterface& sender);
 
-// Returns a `track` of the given `RtpSenderInterface`.
+// Returns the `track` of the provided `RtpSenderInterface`.
 std::unique_ptr<MediaStreamTrackInterface> rtp_sender_track(
     const RtpSenderInterface& sender);
 

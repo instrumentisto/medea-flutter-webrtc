@@ -179,7 +179,7 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
 
       /// Unified-Plan
       case 'onTrack':
-        // TODO: Fix after merging with master
+        // TODO: Fix after merging with `master`.
         // var params = map['streams'] as List<dynamic>;
         // var streams = params.map((e) => MediaStreamNative.fromMap(e)).toList();
         // var transceiver = map['transceiver'] != null
@@ -190,13 +190,7 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
             // receiver: RTCRtpReceiverNative.fromMap(map['receiver'],
             //     peerConnectionId: _peerConnectionId),
             // streams: streams,
-            track: MediaStreamTrackNative.fromMap(
-              {
-                'id': map['track']['id'],
-                'label': 'test',
-                'kind': map['track']['kind'],
-                'enabled': false,
-              }),
+            // track: MediaStreamTrackNative.fromMap(map['track']),
             //transceiver: transceiver
             ));
         break;

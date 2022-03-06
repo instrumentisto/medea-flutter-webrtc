@@ -475,40 +475,41 @@ create_set_remote_description_observer(
   return std::make_unique<SetRemoteDescriptionObserver>(std::move(cb));
 }
 
-// Returns `RtpExtension.uri` field value.
+// Returns the `RtpExtension.uri` field value.
 std::unique_ptr<std::string> rtp_extension_uri(
     const webrtc::RtpExtension& extension) {
   return std::make_unique<std::string>(extension.uri);
 }
 
-// Returns `RtpExtension.id` field value.
+// Returns the `RtpExtension.id` field value.
 int32_t rtp_extension_id(const webrtc::RtpExtension& extension) {
   return extension.id;
 }
 
-// Returns `RtpExtension.encrypt` field value.
+// Returns the `RtpExtension.encrypt` field value.
 bool rtp_extension_encrypt(const webrtc::RtpExtension& extension) {
   return extension.encrypt;
 }
 
-// Returns `RtcpParameters.cname` field value.
+// Returns the `RtcpParameters.cname` field value.
 std::unique_ptr<std::string> rtcp_parameters_cname(
     const webrtc::RtcpParameters& rtcp) {
   return std::make_unique<std::string>(rtcp.cname);
 }
 
-// Returns `RtcpParameters.reduced_size` field value.
+// Returns the `RtcpParameters.reduced_size` field value.
 bool rtcp_parameters_reduced_size(const webrtc::RtcpParameters& rtcp) {
   return rtcp.reduced_size;
 }
 
-// Returns a `VideoTrackInterface` of the given `VideoTrackSourceInterface`.
+// Returns the `VideoTrackInterface` of the provided
+// `VideoTrackSourceInterface`.
 std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
     const VideoTrackInterface& track) {
   return std::make_unique<VideoTrackSourceInterface>(track->GetSource());
 }
 
-// Returns a `AudioSourceInterface` of the given `AudioTrackInterface`.
+// Returns the `AudioSourceInterface` of the provided `AudioTrackInterface`.
 std::unique_ptr<AudioSourceInterface> get_audio_track_source(
     const AudioTrackInterface& track) {
   return std::make_unique<AudioSourceInterface>(track->GetSource());
@@ -618,28 +619,28 @@ std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
 
 // Calls `VideoTrackInterface->RegisterObserver`.
 void video_track_register_observer(
-    VideoTrackInterface& track, 
+    VideoTrackInterface& track,
     TrackEventObserver& obs) {
       track->RegisterObserver(&obs);
     }
 
 // Calls `AudioTrackInterface->RegisterObserver`.
 void audio_track_register_observer(
-    AudioTrackInterface& track, 
+    AudioTrackInterface& track,
     TrackEventObserver& obs) {
       track->RegisterObserver(&obs);
     }
 
 // Calls `VideoTrackInterface->UnregisterObserver`.
 void video_track_unregister_observer(
-    VideoTrackInterface& track, 
+    VideoTrackInterface& track,
     TrackEventObserver& obs) {
       track->UnregisterObserver(&obs);
     }
 
 // Calls `AudioTrackInterface->UnregisterObserver`.
 void audio_track_unregister_observer(
-    AudioTrackInterface& track, 
+    AudioTrackInterface& track,
     TrackEventObserver& obs) {
       track->UnregisterObserver(&obs);
     }
@@ -650,14 +651,14 @@ std::unique_ptr<RtpSenderInterface> transceiver_sender(
   return std::make_unique<RtpSenderInterface>(transceiver->sender());
 }
 
-// Returns a `receiver` of the given `RtpTransceiverInterface`.
+// Returns the `receiver` of the provided `RtpTransceiverInterface`.
 std::unique_ptr<RtpReceiverInterface> transceiver_receiver(
     const RtpTransceiverInterface& transceiver) {
   return std::make_unique<RtpReceiverInterface>(transceiver->receiver());
 }
 
-// Returns a `parameters` as std::vector<(std::string, std::string)>
-// of the given `RtpCodecParameters`.
+// Returns the `parameters` as `std::vector<(std::string, std::string)>` of the
+// provided `RtpCodecParameters`.
 std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_parameters(
     const webrtc::RtpCodecParameters& codec) {
   std::vector<StringPair> result;
@@ -667,7 +668,7 @@ std::unique_ptr<std::vector<StringPair>> rtp_codec_parameters_parameters(
   return std::make_unique<std::vector<StringPair>>(result);
 }
 
-// Returns `RtpParameters.codecs` field value.
+// Returns the `RtpParameters.codecs` field value.
 rust::Vec<RtpCodecParametersContainer> rtp_parameters_codecs(
     const webrtc::RtpParameters& parameters) {
   rust::Vec<RtpCodecParametersContainer> result;
@@ -679,25 +680,26 @@ rust::Vec<RtpCodecParametersContainer> rtp_parameters_codecs(
   return std::move(result);
 }
 
-// Returns `RtpParameters.header_extensions` field value.
-rust::Vec<RtpExtensionContainer>
-rtp_parameters_header_extensions(const webrtc::RtpParameters& parameters) {
+// Returns the `RtpParameters.header_extensions` field value.
+rust::Vec<RtpExtensionContainer> rtp_parameters_header_extensions(
+    const webrtc::RtpParameters& parameters) {
   rust::Vec<RtpExtensionContainer> result;
   for (int i = 0; i < parameters.header_extensions.size(); ++i) {
-    RtpExtensionContainer codec = {
-        std::make_unique<webrtc::RtpExtension>(parameters.header_extensions[i])};
+    RtpExtensionContainer codec = {std::make_unique<webrtc::RtpExtension>(
+        parameters.header_extensions[i])};
     result.push_back(std::move(codec));
   }
   return std::move(result);
 }
 
-// Returns `RtpParameters.encodings` field value.
-rust::Vec<RtpEncodingParametersContainer>
-rtp_parameters_encodings(const webrtc::RtpParameters& parameters) {
+// Returns the `RtpParameters.encodings` field value.
+rust::Vec<RtpEncodingParametersContainer> rtp_parameters_encodings(
+    const webrtc::RtpParameters& parameters) {
   rust::Vec<RtpEncodingParametersContainer> result;
   for (int i = 0; i < parameters.encodings.size(); ++i) {
     RtpEncodingParametersContainer codec = {
-        std::make_unique<webrtc::RtpEncodingParameters>(parameters.encodings[i])};
+        std::make_unique<webrtc::RtpEncodingParameters>(
+            parameters.encodings[i])};
     result.push_back(std::move(codec));
   }
   return std::move(result);

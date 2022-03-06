@@ -191,20 +191,22 @@ pub mod api {
         pub sender: RtcRtpSender,
     }
 
-    /// The [`RtcRtpSender`] object allows an application to control how a
-    /// given [`MediaStreamTrack`] is encoded and transmitted to a remote peer.
+    /// [`RtcRtpSender`] object allowing to control how a [`MediaStreamTrack`]
+    /// is encoded and transmitted to a remote peer.
     #[derive(Clone, Debug, Eq, Hash, PartialEq)]
     pub struct RtcRtpSender {
         /// ID of this [`RtcRtpSender`].
         pub id: u64,
     }
 
-    /// [`RtcTrackEvent`] represents the track event, which is sent when a new
-    /// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] which is part
-    /// of the [`PeerConnection`].
+    /// [`RtcTrackEvent`] representing a track event, sent when a new
+    /// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] as part of a
+    /// [`PeerConnection`].
     pub struct RtcTrackEvent {
-        /// [`MediaStreamTrack`] object that is associated with the
-        /// [`RTCRtpReceiver`] identified by receiver.
+        /// [`MediaStreamTrack`] associated with the [RTCRtpReceiver] identified
+        /// by the receiver.
+        ///
+        /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
         pub track: MediaStreamTrack,
 
         /// [`RtcRtpTransceiver`] object associated with the event.
@@ -562,8 +564,8 @@ pub struct Context {
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 
-    /// [`ThreadPool`] used to offload blocking or cpu-intensive tasks so they
-    /// won't run on WebRTC of Flutter threads that should avoid blocking.
+    /// [`ThreadPool`] used to offload blocking or CPU-intensive tasks, so they
+    /// won't block Flutter WebRTC threads.
     callback_pool: ThreadPool,
 }
 
