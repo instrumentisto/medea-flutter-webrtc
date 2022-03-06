@@ -123,8 +123,9 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getTransceivers") == 0) {
     GetTransceivers(webrtc, method_call, std::move(result));
   } else if (method.compare("getReceivers") == 0) {
-  } else if (method.compare("getSenders") == 0) {
   } else if (method.compare("RegisterObserver") == 0) {
+    // TODO(alexlapa): why dont we always register an observer, and unregister
+    //                 it when the track is dropped?
     RegisterObserver(webrtc, messenger_, method_call, std::move(result));
   } else if (method.compare("UnregisterObserver") == 0) {
     UnregisterObserver(webrtc, method_call, std::move(result));

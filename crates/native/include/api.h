@@ -8,9 +8,9 @@ inline namespace cxxbridge1 {
 
 class String;
 
-} // namespace cxxbridge1
+}  // namespace cxxbridge1
 
-} // namespace rust
+}  // namespace rust
 
 struct VideoFrame;
 struct RtcTrackEvent;
@@ -106,22 +106,20 @@ class PeerConnectionObserverInterface {
   virtual ~PeerConnectionObserverInterface() = default;
 };
 
-
 // Handler of events firing from a `MediaStreamTrackInterface`.
 class TrackEventInterface {
  public:
-
-  // Called when a `Ended` event occurs.
+  // Called when an `ended` event occurs.
   //
   // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
   virtual void OnEnded() = 0;
 
-  // Called when a `Mute` event occurs.
+  // Called when a `mute` event occurs.
   //
   // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
   virtual void OnMute() = 0;
 
-  // Called when a `Unmute` event occurs.
+  // Called when an `unmute` event occurs.
   //
   // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
   virtual void OnUnmute() = 0;

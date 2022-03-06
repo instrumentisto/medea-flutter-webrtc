@@ -1,17 +1,15 @@
 #include "media_stream.h"
+#include <mutex>
+#include "flutter/standard_method_codec.h"
 #include "flutter_webrtc.h"
 #include "parsing.h"
-#include "flutter/standard_method_codec.h"
-#include <mutex>
 
 namespace flutter_webrtc_plugin {
 
-  // `CreateSdpCallbackInterface` implementation forwarding completion result to
+// `CreateSdpCallbackInterface` implementation forwarding completion result to
 // the Flutter side via inner `flutter::MethodResult`.
 class TrackEventCallback : public TrackEventInterface {
-
  public:
-
   struct Dependencies {
     // `EventSink` guard.
     std::unique_ptr<std::mutex> lock_ = std::make_unique<std::mutex>();
@@ -22,7 +20,7 @@ class TrackEventCallback : public TrackEventInterface {
   };
 
   TrackEventCallback(std::shared_ptr<Dependencies> deps)
-      : deps_(std::move(deps)) {};
+      : deps_(std::move(deps)){};
 
   ~TrackEventCallback() {
     if (deps_->chan_) {
@@ -56,8 +54,8 @@ class TrackEventCallback : public TrackEventInterface {
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
   }
- private:
 
+ private:
   std::shared_ptr<Dependencies> deps_;
 };
 
@@ -302,7 +300,6 @@ void RegisterObserver(
     flutter::BinaryMessenger* messenger,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -314,12 +311,12 @@ void RegisterObserver(
   auto ctx = std::make_shared<TrackEventCallback::Dependencies>();
   auto observer = std::make_unique<TrackEventCallback>(ctx);
 
-  rust::String error = webrtc->RegisterObserver(std::stoi(track_id), std::move(observer));
+  rust::String error =
+      webrtc->RegisterObserver(std::stoi(track_id), std::move(observer));
 
-  if(error == "") {
+  if (error == "") {
     auto event_channel = std::make_unique<EventChannel<EncodableValue>>(
-        messenger,
-        "MediaStreamTrack/" + track_id,
+        messenger, "MediaStreamTrack/" + track_id,
         &StandardMethodCodec::GetInstance());
 
     std::weak_ptr<TrackEventCallback::Dependencies> weak_deps(ctx);
@@ -351,7 +348,6 @@ void RegisterObserver(
   } else {
     result->Error(std::string(error));
   }
-
 }
 
 // Unregisters observer for `MediaStreamTrackInterface`.
@@ -359,7 +355,6 @@ void UnregisterObserver(
     Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-
   if (!method_call.arguments()) {
     result->Error("Bad Arguments", "Null constraints arguments received");
     return;
@@ -368,8 +363,7 @@ void UnregisterObserver(
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
   const std::string track_id = findString(params, "trackId");
 
-  rust::String error =
-      webrtc->UnregisterObserver(std::stoi(track_id));
+  rust::String error = webrtc->UnregisterObserver(std::stoi(track_id));
   if (error == "") {
     result->Success(nullptr);
   } else {

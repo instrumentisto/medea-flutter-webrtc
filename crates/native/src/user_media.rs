@@ -557,22 +557,6 @@ impl VideoTrack {
         })
     }
 
-    /// Wraps track of the `transceiver.receiver.track()` to [`VideoTrack`].
-    pub(crate) fn wrap_remote(
-        transceiver: &sys::RtpTransceiverInterface,
-    ) -> Self {
-        let receiver = transceiver.receiver();
-        let track = receiver.track();
-        Self {
-            id: VideoTrackId(next_id()),
-            inner: track.try_into().unwrap(),
-            source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
-            kind: TrackKind::kAudio,
-            label: VideoLabel::from("remote"),
-            sinks: Vec::new(),
-        }
-    }
-
     /// Wraps the track of the `transceiver.receiver.track()` into a
     /// [`VideoTrack`].
     pub(crate) fn wrap_remote(
@@ -670,37 +654,13 @@ impl AudioTrack {
         label: AudioLabel,
     ) -> anyhow::Result<Self> {
         let id = AudioTrackId(next_id());
-        let track = Self {
+        Ok(Self {
             id,
             inner: pc.create_audio_track(id.to_string(), &src)?,
             source: MediaTrackSource::Local(src),
             kind: api::TrackKind::kAudio,
             label,
-        };
-        Ok(track)
-    }
-
-    /// Wraps track of the `transceiver.receiver.track()` to [`AudioTrack`].
-    pub(crate) fn wrap_remote(
-        transceiver: &sys::RtpTransceiverInterface,
-    ) -> Self {
-        let receiver = transceiver.receiver();
-        let track = receiver.track();
-        Self {
-            id: AudioTrackId(next_id()),
-            inner: track.try_into().unwrap(),
-            // Safe to unwrap since transceiver is guaranteed to be negotiated
-            // at this point.
-            source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
-            kind: TrackKind::kAudio,
-            label: AudioLabel::from("remote"),
-        }
-    }
-
-    /// Returns a [`AudioTrackId`] of this [`AudioTrack`].
-    #[must_use]
-    pub fn id(&self) -> AudioTrackId {
-        self.id
+        })
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into an
@@ -821,6 +781,7 @@ impl sys::TrackEventCallback for TrackEventHandler {
         self.0.pin_mut().on_unmute();
     }
 }
+
 impl From<&AudioTrack> for api::MediaStreamTrack {
     fn from(track: &AudioTrack) -> Self {
         Self {

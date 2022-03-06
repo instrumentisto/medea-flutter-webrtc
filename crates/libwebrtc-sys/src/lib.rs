@@ -1250,7 +1250,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(AudioTrackInterface {
             inner,
-            observers: HashMap::new(),
+            observers: Vec::new(),
         })
     }
 
