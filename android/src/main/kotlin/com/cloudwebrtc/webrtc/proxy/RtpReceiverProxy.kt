@@ -35,9 +35,10 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver> {
     }
 
     /**
-     * Notifies [RtpReceiverProxy], that it's [MediaStreamTrackProxy] is ended.
+     * Notifies [RtpReceiverProxy], that it's [MediaStreamTrackProxy] has been removed from the
+     * receiver.
      */
-    fun ended() {
+    fun notifyRemoved() {
         if (track?.state() == MediaStreamTrackState.ENDED) {
             track?.observableEventBroadcaster()?.onEnded()
         }

@@ -1,7 +1,5 @@
 package com.cloudwebrtc.webrtc.proxy
 
-import android.os.Handler
-import android.os.Looper
 import com.cloudwebrtc.webrtc.exception.AddIceCandidateException
 import com.cloudwebrtc.webrtc.exception.CreateSdpException
 import com.cloudwebrtc.webrtc.exception.SetSdpException
@@ -279,7 +277,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) :
      */
     fun receiverEnded(endedReceiver: RtpReceiver) {
         val receiver = receivers[endedReceiver.id()]
-        receiver?.ended()
+        receiver?.notifyRemoved()
     }
 
     /**

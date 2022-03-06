@@ -3,9 +3,9 @@ package com.cloudwebrtc.webrtc.controller
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.utils.AnyThreadSink
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.EventChannel
 
 /**
  * Controller of [MediaStreamTrackProxy] functional.
