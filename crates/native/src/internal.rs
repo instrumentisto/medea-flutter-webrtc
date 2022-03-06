@@ -162,13 +162,10 @@ mod cpp_api_bindings {
         fn _touch_unique_ptr_peer_connection_on_event_interface(
             i: UniquePtr<PeerConnectionObserverInterface>,
         );
-
         fn _touch_unique_ptr_add_ice_candidate_interface(
             i: UniquePtr<AddIceCandidateCallbackInterface>,
         );
-
         fn _touch_track_event(i: UniquePtr<TrackEventInterface>);
-
         fn _touch_unique_ptr_on_device_change(
             i: UniquePtr<OnDeviceChangeCallback>,
         );

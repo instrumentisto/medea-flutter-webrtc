@@ -122,8 +122,8 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
   rust::Box<bridge::DynPeerConnectionEventsHandler> cb_;
 };
 
-// `CreateSessionDescriptionObserver` that propagates completion result to the
-// Rust side.
+// `CreateSessionDescriptionObserver` propagating completion result to the Rust
+// side.
 class CreateSessionDescriptionObserver
     : public rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver> {
  public:

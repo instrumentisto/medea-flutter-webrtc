@@ -1239,39 +1239,43 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn remote_candidate(self: &CandidatePair) -> &Candidate;
 
-        /// Creates a new [`DynTrackEventCallback`] backed by the
-        /// provided [`DynOnFrameCallback`].
+        /// Creates a new [`DynTrackEventCallback`] backed by the provided
+        /// [`DynOnFrameCallback`].
         pub fn create_audio_track_event_observer(
             track: &AudioTrackInterface,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
-        /// Creates a new [`DynTrackEventCallback`] backed by the
-        /// provided [`DynOnFrameCallback`].
+        /// Creates a new [`DynTrackEventCallback`] backed by the provided
+        /// [`DynOnFrameCallback`].
         pub fn create_video_track_event_observer(
             track: &VideoTrackInterface,
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
-        /// Calls [`AudioTrackInterface`]->RegisterObserver.
+        /// Registers the given [`TrackEventObserver`] to receive events from
+        /// the provided [`AudioTrackInterface`].
         pub fn audio_track_register_observer(
             track: Pin<&mut AudioTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
 
-        /// Calls [`TrackEventObserver`]->RegisterObserver.
+        /// Registers the given [`TrackEventObserver`] to receive events from
+        /// the provided [`VideoTrackInterface`].
         pub fn video_track_register_observer(
             track: Pin<&mut VideoTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
 
-        /// Calls [`AudioTrackInterface`]->UnregisterObserver.
+        /// Unregisters the given [`TrackEventObserver`] from the specified
+        /// [`AudioTrackInterface`].
         pub fn audio_track_unregister_observer(
             track: Pin<&mut AudioTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
         );
 
-        /// Calls [`VideoTrackInterface`]->UnregisterObserver
+        /// Unregisters the given [`TrackEventObserver`] from the specified
+        /// [`VideoTrackInterface`].
         pub fn video_track_unregister_observer(
             track: Pin<&mut VideoTrackInterface>,
             obs: Pin<&mut TrackEventObserver>,
@@ -1292,24 +1296,22 @@ pub(crate) mod webrtc {
     extern "Rust" {
         type DynTrackEventCallback;
 
-        /// Calls when a [`ended`][1]
-        /// event occurs in the attached [`MediaStreamTrackInterface`].
+        /// Calls when an [`ended`][1] event occurs in the attached
+        /// [`MediaStreamTrackInterface`].
         ///
-        /// [1]:
-        /// https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
+        /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
         fn on_ended(cb: &mut DynTrackEventCallback);
 
-        /// Calls when a [`mute`][1]
-        /// event occurs in the attached [`MediaStreamTrackInterface`].
+        /// Calls when a [`mute`][1] event occurs in the attached
+        /// [`MediaStreamTrackInterface`].
         ///
-        /// [1]:
-        /// https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
+        /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-mute
         fn on_mute(cb: &mut DynTrackEventCallback);
 
-        /// Calls when a [`unmute`][1]
-        /// event occurs in the attached [`MediaStreamTrackInterface`].
+        /// Calls when an [`unmute`][1] event occurs in the attached
+        /// [`MediaStreamTrackInterface`].
         ///
-        /// [1]: https://tinyurl.com/event-mediastreamtrack-unmute
+        /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-unmute
         fn on_unmute(cb: &mut DynTrackEventCallback);
     }
 
@@ -1675,26 +1677,26 @@ pub fn on_remove_track(
     cb.on_remove_track(RtpReceiverInterface(receiver));
 }
 
-/// Calls when a [`ended`][1]
-/// event occurs in the attached [`MediaStreamTrackInterface`].
+/// Calls when a [`ended`][1] event occurs in the attached
+/// [`MediaStreamTrackInterface`].
 ///
-/// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
+/// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
 pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }
 
-/// Calls when a [`mute`][1]
-/// event occurs in the attached [`MediaStreamTrackInterface`].
+/// Calls when a [`mute`][1] event occurs in the attached
+/// [`MediaStreamTrackInterface`].
 ///
-/// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
+/// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-mute
 pub fn on_mute(cb: &mut DynTrackEventCallback) {
     cb.on_mute();
 }
 
-/// Calls when a [`unmute`][1]
-/// event occurs in the attached [`MediaStreamTrackInterface`].
+/// Calls when a [`unmute`][1] event occurs in the attached
+/// [`MediaStreamTrackInterface`].
 ///
-/// [1]: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
+/// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-unmute
 pub fn on_unmute(cb: &mut DynTrackEventCallback) {
     cb.on_unmute();
 }
@@ -1874,31 +1876,6 @@ impl fmt::Display for webrtc::MediaType {
             Self::MEDIA_TYPE_VIDEO => write!(f, "video"),
             Self::MEDIA_TYPE_DATA => write!(f, "data"),
             Self::MEDIA_TYPE_UNSUPPORTED => write!(f, "unsupported"),
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl fmt::Display for webrtc::TrackState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::TrackState as TS;
-        match *self {
-            TS::kLive => write!(f, "live"),
-            TS::kEnded => write!(f, "ended"),
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl fmt::Display for webrtc::MediaType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use webrtc::MediaType as MT;
-
-        match *self {
-            MT::MEDIA_TYPE_AUDIO => write!(f, "audio"),
-            MT::MEDIA_TYPE_VIDEO => write!(f, "video"),
-            MT::MEDIA_TYPE_DATA => write!(f, "data"),
-            MT::MEDIA_TYPE_UNSUPPORTED => write!(f, "unsupport"),
             _ => unreachable!(),
         }
     }

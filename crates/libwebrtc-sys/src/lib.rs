@@ -22,7 +22,7 @@ pub use crate::webrtc::{
     VideoRotation,
 };
 
-/// Counter used to generate unique IDs.s
+/// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// Returns a next unique ID.
@@ -989,9 +989,6 @@ impl IceCandidateInterface {
 }
 
 /// [RTCPeerConnection][1] implementation.
-/// Calls to the [`PeerConnectionInterface`] APIs will be proxied
-/// to the signaling thread, which means that an application
-/// can call those APIs from whatever thread. [Thread safe][2].
 ///
 /// Calls to a [`PeerConnectionInterface`] APIs are proxied to the signaling
 /// thread, meaning that an application can call those APIs from whatever
@@ -1238,7 +1235,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(VideoTrackInterface {
             inner: ptr,
-            obs: HashMap::new(),
+            observers: HashMap::new(),
         })
     }
 
@@ -1259,7 +1256,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(AudioTrackInterface {
             inner: ptr,
-            obs: HashMap::new(),
+            observers: HashMap::new(),
         })
     }
 
@@ -1411,8 +1408,12 @@ impl MediaStreamTrackInterface {
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct VideoTrackInterface {
+    /// Pointer to the C++ side `VideoTrackInterface` object.
     inner: UniquePtr<webrtc::VideoTrackInterface>,
-    obs: HashMap<u64, TrackEventObserver>,
+
+    /// Map of [`TrackEventObserver`]s that are subscribed to track state
+    /// changes.
+    observers: HashMap<u64, TrackEventObserver>,
 }
 
 impl VideoTrackInterface {
@@ -1438,7 +1439,8 @@ impl VideoTrackInterface {
         webrtc::set_video_track_enabled(&self.inner, enabled);
     }
 
-    /// Creates and register observer [`MediaStreamTrackInterface`] events.
+    /// Registers the given [`TrackEventCallback`] as an observer of this
+    /// [`MediaStreamTrackInterface`] events.
     pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
         let mut obs = webrtc::create_video_track_event_observer(
             &self.inner,
@@ -1448,21 +1450,22 @@ impl VideoTrackInterface {
             self.inner.pin_mut(),
             obs.pin_mut(),
         );
+        // TODO(alexlapa): why do we need this id?
         let id = next_id();
-        self.obs.insert(id, TrackEventObserver(obs));
+        self.observers.insert(id, TrackEventObserver(obs));
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
     pub fn unregister_observer(&mut self) {
         let mut id = 0;
-        if let Some((id_, cb)) = self.obs.iter_mut().next() {
+        if let Some((id_, cb)) = self.observers.iter_mut().next() {
             id = *id_;
             webrtc::video_track_unregister_observer(
                 self.inner.pin_mut(),
                 cb.0.pin_mut(),
             );
         }
-        self.obs.remove(&id);
+        self.observers.remove(&id);
     }
 
     /// Returns a [`VideoTrackSourceInterface`] attached to this
@@ -1484,7 +1487,7 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
                 );
             Ok(VideoTrackInterface {
                 inner,
-                obs: HashMap::new(),
+                observers: HashMap::new(),
             })
         } else {
             bail!(
@@ -1525,8 +1528,12 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct AudioTrackInterface {
+    /// Pointer to the C++ side `AudioTrackInterface` object.
     inner: UniquePtr<webrtc::AudioTrackInterface>,
-    obs: HashMap<u64, TrackEventObserver>,
+
+    /// Map of [`TrackEventObserver`]s that are subscribed to track state
+    /// changes.
+    observers: HashMap<u64, TrackEventObserver>,
 }
 
 impl AudioTrackInterface {
@@ -1537,7 +1544,8 @@ impl AudioTrackInterface {
         webrtc::set_audio_track_enabled(&self.inner, enabled);
     }
 
-    /// Creates and register observer [`MediaStreamTrackInterface`] events.
+    /// Registers the given [`TrackEventCallback`] as an observer of this
+    /// [`MediaStreamTrackInterface`] events.
     pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
         let mut obs = webrtc::create_audio_track_event_observer(
             &self.inner,
@@ -1548,20 +1556,20 @@ impl AudioTrackInterface {
             obs.pin_mut(),
         );
         let id = next_id();
-        self.obs.insert(id, TrackEventObserver(obs));
+        self.observers.insert(id, TrackEventObserver(obs));
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
     pub fn unregister_observer(&mut self) {
         let mut id = 0;
-        if let Some((id_, cb)) = self.obs.iter_mut().next() {
+        if let Some((id_, cb)) = self.observers.iter_mut().next() {
             id = *id_;
             webrtc::audio_track_unregister_observer(
                 self.inner.pin_mut(),
                 cb.0.pin_mut(),
             );
         }
-        self.obs.remove(&id);
+        self.observers.remove(&id);
     }
 
     /// Returns a [`AudioSourceInterface`] attached to this
@@ -1583,7 +1591,7 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
                 );
             Ok(AudioTrackInterface {
                 inner,
-                obs: HashMap::new(),
+                observers: HashMap::new(),
             })
         } else {
             bail!(

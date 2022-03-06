@@ -325,13 +325,11 @@ impl Webrtc {
         }
     }
 
-    /// Registers an events observer for [`AudioTrack`]
-    /// or [`VideoTrack`].
+    /// Registers an events observer for [`AudioTrack`] or [`VideoTrack`].
     ///
     /// # Warning
     ///
-    /// Returns error message
-    /// if cannot find any [`AudioTrack`] or
+    /// Returns error message if cannot find any [`AudioTrack`] or
     /// [`VideoTrack`] by the specified `id`.
     pub fn register_observer_track(
         &mut self,
@@ -354,14 +352,11 @@ impl Webrtc {
         }
     }
 
-    /// Unregisters an events observer
-    /// for [`AudioTrack`]
-    /// or [`VideoTrack`].
+    /// Unregisters an events observer for [`AudioTrack`] or [`VideoTrack`].
     ///
     /// # Warning
     ///
-    /// Returns error message
-    /// if cannot find any [`AudioTrack`] or
+    /// Returns error message if cannot find any [`AudioTrack`] or
     /// [`VideoTrack`] by the specified `id`.
     pub fn unregister_observer_track(&mut self, id: u64) -> String {
         if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
