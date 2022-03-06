@@ -360,11 +360,11 @@ impl Webrtc {
     /// [`VideoTrack`] by the specified `id`.
     pub fn unregister_observer_track(&mut self, id: u64) -> String {
         if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
-            track.inner.unregister_observer();
+            track.inner.unregister_observers();
             String::new()
         } else if let Some(mut track) = self.0.audio_tracks.get_mut(&id.into())
         {
-            track.inner.unregister_observer();
+            track.inner.unregister_observers();
             String::new()
         } else {
             format!("Could not find track with `{id}` ID")

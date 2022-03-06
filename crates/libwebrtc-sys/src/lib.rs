@@ -5,6 +5,7 @@ mod bridge;
 
 use std::{
     collections::HashMap,
+    mem,
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -21,14 +22,6 @@ pub use crate::webrtc::{
     RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
     VideoRotation,
 };
-
-/// Counter used to generate unique IDs.
-static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
-
-/// Returns a next unique ID.
-fn next_id() -> u64 {
-    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
-}
 
 /// Handler of events that fire from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
@@ -1236,7 +1229,7 @@ impl PeerConnectionFactoryInterface {
         }
         Ok(VideoTrackInterface {
             inner,
-            observers: HashMap::new(),
+            observers: Vec::new(),
         })
     }
 
@@ -1412,9 +1405,8 @@ pub struct VideoTrackInterface {
     /// Pointer to the C++ side `VideoTrackInterface` object.
     inner: UniquePtr<webrtc::VideoTrackInterface>,
 
-    /// Map of [`TrackEventObserver`]s that are subscribed to track state
-    /// changes.
-    observers: HashMap<u64, TrackEventObserver>,
+    /// [`TrackEventObserver`]s that are subscribed to track state changes.
+    observers: Vec<TrackEventObserver>,
 }
 
 impl VideoTrackInterface {
@@ -1451,22 +1443,19 @@ impl VideoTrackInterface {
             self.inner.pin_mut(),
             obs.pin_mut(),
         );
-        // TODO(alexlapa): why do we need this id?
-        let id = next_id();
-        self.observers.insert(id, TrackEventObserver(obs));
+        self.observers.push(TrackEventObserver(obs));
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
-    pub fn unregister_observer(&mut self) {
-        let mut id = 0;
-        if let Some((id_, cb)) = self.observers.iter_mut().next() {
-            id = *id_;
+    pub fn unregister_observers(&mut self) {
+        let observers = mem::take(&mut self.observers);
+
+        for obs in observers {
             webrtc::video_track_unregister_observer(
                 self.inner.pin_mut(),
-                cb.0.pin_mut(),
+                obs.0.pin_mut(),
             );
         }
-        self.observers.remove(&id);
     }
 
     /// Returns a [`VideoTrackSourceInterface`] attached to this
@@ -1503,9 +1492,8 @@ pub struct AudioTrackInterface {
     /// Pointer to the C++ side `AudioTrackInterface` object.
     inner: UniquePtr<webrtc::AudioTrackInterface>,
 
-    /// Map of [`TrackEventObserver`]s that are subscribed to track state
-    /// changes.
-    observers: HashMap<u64, TrackEventObserver>,
+    /// [`TrackEventObserver`]s that are subscribed to track state changes.
+    observers: Vec<TrackEventObserver>,
 }
 
 impl AudioTrackInterface {
@@ -1527,21 +1515,19 @@ impl AudioTrackInterface {
             self.inner.pin_mut(),
             obs.pin_mut(),
         );
-        let id = next_id();
-        self.observers.insert(id, TrackEventObserver(obs));
+        self.observers.push(TrackEventObserver(obs));
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
-    pub fn unregister_observer(&mut self) {
-        let mut id = 0;
-        if let Some((id_, cb)) = self.observers.iter_mut().next() {
-            id = *id_;
+    pub fn unregister_observers(&mut self) {
+        let observers = mem::take(&mut self.observers);
+
+        for obs in observers {
             webrtc::audio_track_unregister_observer(
                 self.inner.pin_mut(),
-                cb.0.pin_mut(),
+                obs.0.pin_mut(),
             );
         }
-        self.observers.remove(&id);
     }
 
     /// Returns a [`AudioSourceInterface`] attached to this
