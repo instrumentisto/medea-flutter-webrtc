@@ -1458,7 +1458,7 @@ impl VideoTrackInterface {
         }
     }
 
-    /// Returns a [`VideoTrackSourceInterface`] attached to this
+    /// Returns the [`VideoTrackSourceInterface`] attached to this
     /// [`VideoTrackInterface`].
     #[must_use]
     pub fn source(&self) -> VideoTrackSourceInterface {
@@ -1530,7 +1530,7 @@ impl AudioTrackInterface {
         }
     }
 
-    /// Returns a [`AudioSourceInterface`] attached to this
+    /// Returns the [`AudioSourceInterface`] attached to this
     /// [`AudioTrackInterface`].
     #[must_use]
     pub fn source(&self) -> AudioSourceInterface {

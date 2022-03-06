@@ -601,12 +601,6 @@ impl VideoTrack {
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
     }
-
-    /// Returns a [`VideoTrackId`] of this [`VideoTrack`].
-    #[must_use]
-    pub fn id(&self) -> VideoTrackId {
-        self.id
-    }
 }
 
 impl From<&VideoTrack> for api::MediaStreamTrack {
@@ -779,27 +773,5 @@ impl sys::TrackEventCallback for TrackEventHandler {
 
     fn on_unmute(&mut self) {
         self.0.pin_mut().on_unmute();
-    }
-}
-
-impl From<&AudioTrack> for api::MediaStreamTrack {
-    fn from(track: &AudioTrack) -> Self {
-        Self {
-            id: track.id.0,
-            label: track.label.0.clone(),
-            kind: track.kind,
-            enabled: true,
-        }
-    }
-}
-
-impl From<&VideoTrack> for api::MediaStreamTrack {
-    fn from(track: &VideoTrack) -> Self {
-        Self {
-            id: track.id.0,
-            label: track.label.0.clone(),
-            kind: track.kind,
-            enabled: true,
-        }
     }
 }
