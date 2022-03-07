@@ -40,7 +40,7 @@ class MediaStreamTrackProxy(
     private var isStopped: Boolean = false
 
     /**
-     * List of [EventObserver] for this [MediaStreamTrackProxy].
+     * List of [EventObserver]s belonging to this [MediaStreamTrackProxy].
      */
     private var eventObservers: HashSet<EventObserver> = HashSet()
 
@@ -50,7 +50,7 @@ class MediaStreamTrackProxy(
 
     companion object {
         /**
-         * Observer of the [MediaStreamTrackProxy] events.
+         * Observer of [MediaStreamTrackProxy] events.
          */
         interface EventObserver {
             fun onEnded()
@@ -86,9 +86,10 @@ class MediaStreamTrackProxy(
     }
 
     /**
-     * Creates broadcaster to the all [eventObservers] of this [MediaStreamTrackProxy].
+     * Creates a broadcaster to all the [eventObservers] of this
+     * [MediaStreamTrackProxy].
      *
-     * @return [EventObserver] which will broadcast calls to the all [eventObservers].
+     * @return  [EventObserver] broadcasting calls to all the [eventObservers].
      */
     fun observableEventBroadcaster(): EventObserver {
         return object : EventObserver {
@@ -101,9 +102,9 @@ class MediaStreamTrackProxy(
     }
 
     /**
-     * Adds [EventObserver] for this [MediaStreamTrackProxy].
+     * Adds the specified [EventObserver] to this [MediaStreamTrackProxy].
      *
-     * @param eventObserver [EventObserver] which will be subscribed.
+     * @param eventObserver  [EventObserver] to be subscribed.
      */
     fun addEventObserver(eventObserver: EventObserver) {
         eventObservers.add(eventObserver)

@@ -32,7 +32,7 @@ class MediaStreamTrackController(
     )
 
     /**
-     * Event channel into which all [MediaStreamTrackProxy] events will be sent.
+     * Event channel to send all the [MediaStreamTrackProxy] events into.
      */
     private val eventChannel: EventChannel = EventChannel(
         messenger,
@@ -40,12 +40,13 @@ class MediaStreamTrackController(
     )
 
     /**
-     * Event sink into which all [MediaStreamTrackProxy] events will be sent.
+     * Event sink ito send all the [MediaStreamTrackProxy] events into.
      */
     private var eventSink: AnyThreadSink? = null
 
     /**
-     * [MediaStreamTrackProxy] events observer which will send all events to the [eventSink].
+     * [MediaStreamTrackProxy] events observer, sending all the events to the
+     * [eventSink].
      */
     private val eventObserver = object : MediaStreamTrackProxy.Companion.EventObserver {
         override fun onEnded() {

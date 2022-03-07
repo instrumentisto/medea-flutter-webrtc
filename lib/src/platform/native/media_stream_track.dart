@@ -41,7 +41,7 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   /// [MethodChannel] used for the messaging with a native side.
   late MethodChannel _chan;
 
-  /// [EventChannel] from which all [PeerConnection] events will be received.
+  /// [EventChannel] to receive all the [PeerConnection] events from.
   late EventChannel _eventChan;
 
   /// [_eventChan] subscription to the [PeerConnection] events.
@@ -50,8 +50,8 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   /// `on_ended` event subscriber.
   OnEndedCallback? _onEnded;
 
-  /// Listener for the all [MediaStreamTrack] events received from the
-  /// native side.
+  /// Listener for all the [MediaStreamTrack] events received from the native
+  /// side.
   void eventListener(dynamic event) {
     final dynamic e = event;
     switch (e['event']) {
