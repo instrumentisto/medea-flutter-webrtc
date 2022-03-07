@@ -19,8 +19,6 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   }
 
   factory MediaStreamTrackNative.fromMap(Map<dynamic, dynamic> map) {
-    WebRTC.invokeMethod('RegisterObserver',
-         <String, dynamic>{'trackId': map['id']});   
     return MediaStreamTrackNative(
         map['id'], map['label'], map['kind'], map['enabled']);
   }

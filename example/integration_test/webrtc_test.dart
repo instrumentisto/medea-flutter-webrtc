@@ -254,11 +254,6 @@ void main() {
   });
 
   testWidgets('Track Onended', (WidgetTester tester) async {
-    var i = 0;
-    for (; i<1000; ++i) {
-      print(i);
-      await WebRTC.invokeMethod('reset', <String, dynamic>{});
-      
       var pc1 = await createPeerConnection({});
       var init = RTCRtpTransceiverInit();
       init.direction = TransceiverDirection.SendRecv;
@@ -271,7 +266,5 @@ void main() {
       await pc2.setRemoteDescription(await pc1.createOffer({}));
       await (await pc2.transceivers)[0].stop();
       await completer.future.timeout(Duration(seconds: 3));
-    }
-
   });
 }

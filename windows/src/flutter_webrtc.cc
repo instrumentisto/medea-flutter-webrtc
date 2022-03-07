@@ -75,9 +75,9 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getSources") == 0) {
     EnumerateDevice(webrtc, std::move(result));
   } else if (method.compare("getUserMedia") == 0) {
-    GetMedia(webrtc, method_call, std::move(result), false);
+    GetMedia(webrtc, messenger_, method_call, std::move(result), false);
   } else if (method.compare("getDisplayMedia") == 0) {
-    GetMedia(webrtc, method_call, std::move(result), true);
+    GetMedia(webrtc, messenger_, method_call, std::move(result), true);
   } else if (method.compare("mediaStreamGetTracks") == 0) {
   } else if (method.compare("createOffer") == 0) {
     CreateOffer(webrtc, method_call, std::move(result));
@@ -123,12 +123,6 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("getTransceivers") == 0) {
     GetTransceivers(webrtc, method_call, std::move(result));
   } else if (method.compare("getReceivers") == 0) {
-  } else if (method.compare("RegisterObserver") == 0) {
-    // TODO(alexlapa): why dont we always register an observer, and unregister
-    //                 it when the track is dropped?
-    RegisterObserver(webrtc, messenger_, method_call, std::move(result));
-  } else if (method.compare("UnregisterObserver") == 0) {
-    UnregisterObserver(webrtc, method_call, std::move(result));
   } else if (method.compare("rtpSenderDispose") == 0) {
   } else if (method.compare("rtpSenderReplaceTrack") == 0) {
     SenderReplaceTrack(webrtc, method_call, std::move(result));
@@ -142,9 +136,6 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("rtpTransceiverGetMid") == 0) {
     GetTransceiverMid(webrtc, method_call, std::move(result));
   } else if (method.compare("setConfiguration") == 0) {
-  } else if (method.compare("reset") == 0) {
-    //webrtc = std::move(Init());
-    result->Success(nullptr);
   } else {
     result->NotImplemented();
   }

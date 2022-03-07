@@ -19,6 +19,7 @@ void EnumerateDevice(rust::Box<Webrtc>& webrtc,
 // Parses the received constraints from Dart and passes them to Rust
 // `GetMedia()`, then converts the backed `MediaStream` info for Dart.
 void GetMedia(Box<Webrtc>& webrtc,
+              flutter::BinaryMessenger* messenger,
               const flutter::MethodCall<EncodableValue>& method_call,
               std::unique_ptr<flutter::MethodResult<EncodableValue>> result,
               bool is_display = false);
@@ -47,15 +48,8 @@ EncodableList GetParams(TrackKind type, MediaStream& user_media);
 
 // Registers observer for `MediaStreamTrackInterface`.
 void RegisterObserver(
-    Box<Webrtc>& webrtc,
+    Box<Webrtc>* webrtc,
     flutter::BinaryMessenger* messenger,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
-
-// Unregisters observer for `MediaStreamTrackInterface`.
-void UnregisterObserver(
-    Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
+    uint64_t track_id);
 
 }  // namespace flutter_webrtc_plugin

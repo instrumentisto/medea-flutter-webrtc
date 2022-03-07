@@ -337,15 +337,15 @@ impl Webrtc {
         cb: UniquePtr<TrackEventInterface>,
     ) -> String {
         if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
-            track
-                .inner
-                .register_observer(Box::new(TrackEventHandler(cb)));
+            let obs =
+                track.inner.create_observer(Box::new(TrackEventHandler(cb)));
+            track.inner.register_observer(obs);
             String::new()
         } else if let Some(mut track) = self.0.audio_tracks.get_mut(&id.into())
         {
-            track
-                .inner
-                .register_observer(Box::new(TrackEventHandler(cb)));
+            let obs =
+                track.inner.create_observer(Box::new(TrackEventHandler(cb)));
+            track.inner.register_observer(obs);
             String::new()
         } else {
             format!("Could not find track with `{id}` ID")
@@ -767,13 +767,13 @@ impl sys::TrackEventCallback for TrackEventHandler {
         self.0.pin_mut().on_ended();
     }
 
-    // TODO(alexlapa): no need atm
+    // no need atm
     fn on_mute(&mut self) {
-        self.0.pin_mut().on_mute();
+        todo!();
     }
 
-    // TODO(alexlapa): no need atm
+    // no need atm
     fn on_unmute(&mut self) {
-        self.0.pin_mut().on_unmute();
+        todo!();
     }
 }

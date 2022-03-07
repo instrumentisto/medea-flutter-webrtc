@@ -1390,7 +1390,9 @@ impl MediaStreamTrackInterface {
     }
 }
 
-// TODO(alexlapa): do we really need it?
+/// Member of [`VideoTrackInterface`] and [`AudioTrackInterface`]
+/// containing functions called on
+/// events in a [`MediaStreamInterface`]
 pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 /// Video [`MediaStreamTrack`][1].
@@ -1427,18 +1429,26 @@ impl VideoTrackInterface {
         webrtc::set_video_track_enabled(&self.inner, enabled);
     }
 
-    /// Registers the given [`TrackEventCallback`] as an observer of this
-    /// [`MediaStreamTrackInterface`] events.
-    pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
-        let mut obs = webrtc::create_video_track_event_observer(
+    /// Creates a new [`TrackEventObserver`] backed by the provided
+    /// [`TrackEventCallback`]
+    pub fn create_observer(
+        &mut self,
+        cb: Box<dyn TrackEventCallback>,
+    ) -> TrackEventObserver {
+        TrackEventObserver(webrtc::create_video_track_event_observer(
             &self.inner,
             Box::new(cb),
-        );
+        ))
+    }
+
+    /// Registers the given [`TrackEventCallback`] as an observer of this
+    /// [`MediaStreamTrackInterface`] events.
+    pub fn register_observer(&mut self, mut obs: TrackEventObserver) {
         webrtc::video_track_register_observer(
             self.inner.pin_mut(),
-            obs.pin_mut(),
+            obs.0.pin_mut(),
         );
-        self.observers.push(TrackEventObserver(obs));
+        self.observers.push(obs);
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
@@ -1458,6 +1468,12 @@ impl VideoTrackInterface {
     #[must_use]
     pub fn source(&self) -> VideoTrackSourceInterface {
         VideoTrackSourceInterface(webrtc::get_video_track_source(&self.inner))
+    }
+}
+
+impl Drop for VideoTrackInterface {
+    fn drop(&mut self) {
+        self.unregister_observers();
     }
 }
 
@@ -1502,25 +1518,32 @@ impl AudioTrackInterface {
         webrtc::set_audio_track_enabled(&self.inner, enabled);
     }
 
-    /// Registers the given [`TrackEventCallback`] as an observer of this
-    /// [`MediaStreamTrackInterface`] events.
-    pub fn register_observer(&mut self, cb: Box<dyn TrackEventCallback>) {
-        let mut obs = webrtc::create_audio_track_event_observer(
+    /// Creates a new [`TrackEventObserver`] backed by the provided
+    /// [`TrackEventCallback`]
+    pub fn create_observer(
+        &mut self,
+        cb: Box<dyn TrackEventCallback>,
+    ) -> TrackEventObserver {
+        TrackEventObserver(webrtc::create_audio_track_event_observer(
             &self.inner,
             Box::new(cb),
-        );
+        ))
+    }
+
+    /// Registers the given [`TrackEventCallback`] as an observer of this
+    /// [`MediaStreamTrackInterface`] events.
+    pub fn register_observer(&mut self, mut obs: TrackEventObserver) {
         webrtc::audio_track_register_observer(
             self.inner.pin_mut(),
-            obs.pin_mut(),
+            obs.0.pin_mut(),
         );
-        self.observers.push(TrackEventObserver(obs));
+        self.observers.push(obs);
     }
 
     /// Unregisters observer [`MediaStreamTrackInterface`] events.
     pub fn unregister_observers(&mut self) {
         let observers = mem::take(&mut self.observers);
 
-        // todo return observers into track
         for mut obs in observers {
             webrtc::audio_track_unregister_observer(
                 self.inner.pin_mut(),
@@ -1534,6 +1557,12 @@ impl AudioTrackInterface {
     #[must_use]
     pub fn source(&self) -> AudioSourceInterface {
         AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
+    }
+}
+
+impl Drop for AudioTrackInterface {
+    fn drop(&mut self) {
+        self.unregister_observers();
     }
 }
 

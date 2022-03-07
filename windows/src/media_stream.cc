@@ -37,22 +37,12 @@ class TrackEventCallback : public TrackEventInterface {
     }
   }
 
+  /// no need atm.
   void OnMute() {
-    const std::lock_guard<std::mutex> lock(*deps_->lock_);
-    if (deps_->sink_) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "onmute";
-      deps_->sink_->Success(flutter::EncodableValue(params));
-    }
   }
 
+  /// no need atm
   void OnUnmute() {
-    const std::lock_guard<std::mutex> lock(*deps_->lock_);
-    if (deps_->sink_) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "onunmute";
-      deps_->sink_->Success(flutter::EncodableValue(params));
-    }
   }
 
  private:
@@ -107,6 +97,7 @@ void EnumerateDevice(rust::Box<Webrtc>& webrtc,
 /// Parses the received constraints from Dart and passes them to Rust
 /// `GetMedia()`, then converts the backed `MediaStream` info for Dart.
 void GetMedia(rust::Box<Webrtc>& webrtc,
+              flutter::BinaryMessenger* messenger,
               const flutter::MethodCall<EncodableValue>& method_call,
               std::unique_ptr<flutter::MethodResult<EncodableValue>> result,
               bool is_display) {
@@ -127,6 +118,14 @@ void GetMedia(rust::Box<Webrtc>& webrtc,
   constraints.audio = ParseAudioConstraints(audio_arg);
 
   MediaStream media = webrtc->GetMedia(constraints, is_display);
+
+  for (size_t i = 0; i < media.video_tracks.size(); ++i) {
+    RegisterObserver(&webrtc, messenger, media.video_tracks[i].id);
+  }
+
+  for (size_t i = 0; i < media.audio_tracks.size(); ++i) {
+    RegisterObserver(&webrtc, messenger, media.audio_tracks[i].id);
+  }
 
   EncodableMap params;
 
@@ -296,27 +295,19 @@ void DisposeStream(
 
 // Registers observer for `MediaStreamTrackInterface`.
 void RegisterObserver(
-    Box<Webrtc>& webrtc,
+    Box<Webrtc>* webrtc,
     flutter::BinaryMessenger* messenger,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-  if (!method_call.arguments()) {
-    result->Error("Bad Arguments", "Null constraints arguments received");
-    return;
-  }
-
-  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-  const std::string track_id = findString(params, "trackId");
+    uint64_t track_id) {
 
   auto ctx = std::make_shared<TrackEventCallback::Dependencies>();
   auto observer = std::make_unique<TrackEventCallback>(ctx);
 
   rust::String error =
-      webrtc->RegisterObserver(std::stoi(track_id), std::move(observer));
+      (*webrtc)->RegisterObserver(track_id, std::move(observer));
 
   if (error == "") {
     auto event_channel = std::make_unique<EventChannel<EncodableValue>>(
-        messenger, "MediaStreamTrack/" + track_id,
+        messenger, "MediaStreamTrack/" + std::to_string(track_id),
         &StandardMethodCodec::GetInstance());
 
     std::weak_ptr<TrackEventCallback::Dependencies> weak_deps(ctx);
@@ -343,10 +334,6 @@ void RegisterObserver(
         });
     event_channel->SetStreamHandler(std::move(handler));
     ctx->chan_ = std::move(event_channel);
-    result->Success(nullptr);
-
-  } else {
-    result->Error(std::string(error));
   }
 }
 

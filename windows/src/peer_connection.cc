@@ -96,6 +96,10 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
     std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> sink_;
     // Flutter `EventChannel` used to dispose the channel object.
     std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> chan_;
+    // `BinaryMessenger` is used to open `EventChannel`s to the Dart side.
+    flutter::BinaryMessenger* messenger_;
+    // Rust `Webrtc` context is used to register a track event observer.
+    Box<Webrtc>* webrtc_;
   };
 
   // Creates a new `PeerConnectionObserver`.
@@ -226,6 +230,10 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   void OnTrack(RtcTrackEvent event) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_.get() != nullptr) {
+
+      flutter_webrtc_plugin::RegisterObserver(deps_->webrtc_, deps_->messenger_,
+                                              event.track.id);
+
       flutter::EncodableMap map;
       map[EncodableValue("event")] = "onTrack";
       map[EncodableValue("track")] =
@@ -272,6 +280,8 @@ void CreateRTCPeerConnection(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   auto ctx = std::make_shared<PeerConnectionObserver::Dependencies>();
+  ctx->webrtc_ = &webrtc;
+  ctx->messenger_ = messenger;
   auto observer = std::make_unique<PeerConnectionObserver>(ctx);
 
   if (!method_call.arguments()) {

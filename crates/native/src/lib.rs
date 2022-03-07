@@ -558,7 +558,7 @@ pub struct Context {
     audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
-    
+
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 
     peer_connection_factory: PeerConnectionFactoryInterface,
