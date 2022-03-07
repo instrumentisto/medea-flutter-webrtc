@@ -142,6 +142,9 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("rtpTransceiverGetMid") == 0) {
     GetTransceiverMid(webrtc, method_call, std::move(result));
   } else if (method.compare("setConfiguration") == 0) {
+  } else if (method.compare("reset") == 0) {
+    //webrtc = std::move(Init());
+    result->Success(nullptr);
   } else {
     result->NotImplemented();
   }

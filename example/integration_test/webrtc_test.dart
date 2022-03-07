@@ -254,17 +254,24 @@ void main() {
   });
 
   testWidgets('Track Onended', (WidgetTester tester) async {
-    var pc1 = await createPeerConnection({});
-    var init = RTCRtpTransceiverInit();
-    init.direction = TransceiverDirection.SendRecv;
+    var i = 0;
+    for (; i<1000; ++i) {
+      print(i);
+      await WebRTC.invokeMethod('reset', <String, dynamic>{});
+      
+      var pc1 = await createPeerConnection({});
+      var init = RTCRtpTransceiverInit();
+      init.direction = TransceiverDirection.SendRecv;
 
-    await pc1.addTransceiver(
-        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
-    var pc2 = await createPeerConnection({});
-    final completer = Completer<void>();
-    pc2.onTrack = (RTCTrackEvent e) => e.track?.onEnded = () => completer.complete();
-    await pc2.setRemoteDescription(await pc1.createOffer({}));
-    await (await pc2.transceivers)[0].stop();
-    await completer.future.timeout(Duration(seconds: 5));
+      await pc1.addTransceiver(
+          kind: RTCRtpMediaType.RTCRtpMediaTypeVideo, init: init);
+      var pc2 = await createPeerConnection({});
+      final completer = Completer<void>();
+      pc2.onTrack = (RTCTrackEvent e) => {print(e.track), e.track?.onEnded = () => completer.complete()};
+      await pc2.setRemoteDescription(await pc1.createOffer({}));
+      await (await pc2.transceivers)[0].stop();
+      await completer.future.timeout(Duration(seconds: 3));
+    }
+
   });
 }

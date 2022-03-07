@@ -1450,7 +1450,7 @@ impl VideoTrackInterface {
     pub fn unregister_observers(&mut self) {
         let observers = mem::take(&mut self.observers);
 
-        for obs in observers {
+        for mut obs in observers {
             webrtc::video_track_unregister_observer(
                 self.inner.pin_mut(),
                 obs.0.pin_mut(),
@@ -1475,7 +1475,7 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
                 webrtc::media_stream_track_interface_downcast_video_track(
                     track.0,
                 );
-            Ok(VideoTrackInterface(inner))
+            Ok(VideoTrackInterface { inner, observers: vec![] })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
@@ -1522,7 +1522,8 @@ impl AudioTrackInterface {
     pub fn unregister_observers(&mut self) {
         let observers = mem::take(&mut self.observers);
 
-        for obs in observers {
+        // todo return observers into track
+        for mut obs in observers {
             webrtc::audio_track_unregister_observer(
                 self.inner.pin_mut(),
                 obs.0.pin_mut(),
@@ -1547,7 +1548,8 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
                 webrtc::media_stream_track_interface_downcast_audio_track(
                     track.0,
                 );
-            Ok(AudioTrackInterface(inner))
+            Ok(AudioTrackInterface { inner, observers: vec![] }
+            )
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \

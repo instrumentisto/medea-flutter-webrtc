@@ -549,21 +549,25 @@ pub struct Webrtc(Box<Context>);
 /// Application context that manages all dependencies.
 #[allow(dead_code)]
 pub struct Context {
-    task_queue_factory: TaskQueueFactory,
-    worker_thread: Thread,
-    network_thread: Thread,
-    signaling_thread: Thread,
-    audio_device_module: AudioDeviceModule,
+    peer_connections: HashMap<PeerConnectionId, PeerConnection>,
+
     video_device_info: VideoDeviceInfo,
-    peer_connection_factory: PeerConnectionFactoryInterface,
+
     video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
     audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
-    peer_connections: HashMap<PeerConnectionId, PeerConnection>,
+    
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 
+    peer_connection_factory: PeerConnectionFactoryInterface,
+    task_queue_factory: TaskQueueFactory,
+
+    audio_device_module: AudioDeviceModule,
+    worker_thread: Thread,
+    network_thread: Thread,
+    signaling_thread: Thread,
     /// [`ThreadPool`] used to offload blocking or CPU-intensive tasks, so they
     /// won't block Flutter WebRTC threads.
     callback_pool: ThreadPool,

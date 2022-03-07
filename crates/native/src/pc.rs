@@ -808,7 +808,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                         sender: api::RtcRtpSender { id: index as u64 },
                     },
                 };
-
                 observer.lock().unwrap().pin_mut().on_track(result);
             }
         });
