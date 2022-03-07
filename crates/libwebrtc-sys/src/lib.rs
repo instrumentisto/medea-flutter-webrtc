@@ -21,7 +21,7 @@ pub use crate::webrtc::{
 
 /// Handler of events that fire from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
-    /// Called when a [`ended`][1] event occurs in the attached
+    /// Called when an [`ended`][1] event occurs in the attached
     /// [`MediaStreamTrackInterface`].
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-ended
@@ -33,7 +33,7 @@ pub trait TrackEventCallback {
     /// [1]: https://tinyurl.com/event-mediastreamtrack-mute
     fn on_mute(&mut self);
 
-    /// Called when a [`unmute`][1] event occurs in the attached
+    /// Called when an [`unmute`][1] event occurs in the attached
     /// [`MediaStreamTrackInterface`].
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-unmute
@@ -428,10 +428,6 @@ impl Default for IceServer {
         Self(webrtc::create_ice_server())
     }
 }
-
-/// Member of [`PeerConnectionDependencies`] containing functions called on
-/// events in a [`PeerConnectionInterface`]
-pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 /// Member of [`PeerConnectionDependencies`] containing functions called on
 /// events in a [`PeerConnectionInterface`]
@@ -1393,6 +1389,9 @@ impl MediaStreamTrackInterface {
         }
     }
 }
+
+// TODO(alexlapa): do we really need it?
+pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 /// Video [`MediaStreamTrack`][1].
 ///

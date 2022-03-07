@@ -767,10 +767,12 @@ impl sys::TrackEventCallback for TrackEventHandler {
         self.0.pin_mut().on_ended();
     }
 
+    // TODO(alexlapa): no need atm
     fn on_mute(&mut self) {
         self.0.pin_mut().on_mute();
     }
 
+    // TODO(alexlapa): no need atm
     fn on_unmute(&mut self) {
         self.0.pin_mut().on_unmute();
     }
