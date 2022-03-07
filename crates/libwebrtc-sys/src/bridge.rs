@@ -1296,20 +1296,20 @@ pub(crate) mod webrtc {
     extern "Rust" {
         type DynTrackEventCallback;
 
-        /// Calls when an [`ended`][1] event occurs in the attached
-        /// [`MediaStreamTrackInterface`].
+        /// Forwards the [`ended`][1] event to the given
+        /// [`DynTrackEventCallback`].
         ///
         /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
         fn on_ended(cb: &mut DynTrackEventCallback);
 
-        /// Calls when a [`mute`][1] event occurs in the attached
-        /// [`MediaStreamTrackInterface`].
+        /// Forwards the [`mute`][1] event to the given
+        /// [`DynTrackEventCallback`].
         ///
         /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-mute
         fn on_mute(cb: &mut DynTrackEventCallback);
 
-        /// Calls when an [`unmute`][1] event occurs in the attached
-        /// [`MediaStreamTrackInterface`].
+        /// Forwards the [`unmute`][1] event to the given
+        /// [`DynTrackEventCallback`].
         ///
         /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-unmute
         fn on_unmute(cb: &mut DynTrackEventCallback);
@@ -1677,24 +1677,21 @@ pub fn on_remove_track(
     cb.on_remove_track(RtpReceiverInterface(receiver));
 }
 
-/// Calls when a [`ended`][1] event occurs in the attached
-/// [`MediaStreamTrackInterface`].
+/// Forwards the [`ended`][1] event to the given [`DynTrackEventCallback`].
 ///
 /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
 pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }
 
-/// Calls when a [`mute`][1] event occurs in the attached
-/// [`MediaStreamTrackInterface`].
+/// Forwards the [`mute`][1] event to the given [`DynTrackEventCallback`].
 ///
 /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-mute
 pub fn on_mute(cb: &mut DynTrackEventCallback) {
     cb.on_mute();
 }
 
-/// Calls when a [`unmute`][1] event occurs in the attached
-/// [`MediaStreamTrackInterface`].
+/// Forwards the [`unmute`][1] event to the given [`DynTrackEventCallback`].
 ///
 /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-unmute
 pub fn on_unmute(cb: &mut DynTrackEventCallback) {

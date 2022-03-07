@@ -3,11 +3,7 @@
 
 mod bridge;
 
-use std::{
-    collections::HashMap,
-    mem,
-    sync::atomic::{AtomicU64, Ordering},
-};
+use std::{collections::HashMap, mem};
 
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -25,7 +21,7 @@ pub use crate::webrtc::{
 
 /// Handler of events that fire from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
-    /// Called when a [`ended`][1] event occurs in the attached
+    /// Called when an [`ended`][1] event occurs in the attached
     /// [`MediaStreamTrackInterface`].
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-ended
@@ -37,7 +33,7 @@ pub trait TrackEventCallback {
     /// [1]: https://tinyurl.com/event-mediastreamtrack-mute
     fn on_mute(&mut self);
 
-    /// Called when a [`unmute`][1] event occurs in the attached
+    /// Called when an [`unmute`][1] event occurs in the attached
     /// [`MediaStreamTrackInterface`].
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-unmute
@@ -432,10 +428,6 @@ impl Default for IceServer {
         Self(webrtc::create_ice_server())
     }
 }
-
-/// Member of [`PeerConnectionDependencies`] containing functions called on
-/// events in a [`PeerConnectionInterface`]
-pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 /// Member of [`PeerConnectionDependencies`] containing functions called on
 /// events in a [`PeerConnectionInterface`]
@@ -1398,6 +1390,9 @@ impl MediaStreamTrackInterface {
     }
 }
 
+// TODO(alexlapa): do we really need it?
+pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
+
 /// Video [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
@@ -1475,7 +1470,10 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
                 webrtc::media_stream_track_interface_downcast_video_track(
                     track.0,
                 );
-            Ok(VideoTrackInterface { inner, observers: vec![] })
+            Ok(VideoTrackInterface {
+                inner,
+                observers: Vec::new(),
+            })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
@@ -1548,8 +1546,10 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
                 webrtc::media_stream_track_interface_downcast_audio_track(
                     track.0,
                 );
-            Ok(AudioTrackInterface { inner, observers: vec![] }
-            )
+            Ok(AudioTrackInterface {
+                inner,
+                observers: Vec::new(),
+            })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
