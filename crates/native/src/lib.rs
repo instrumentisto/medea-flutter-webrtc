@@ -519,16 +519,12 @@ pub mod api {
         );
 
         /// Registers an observer to track events.
-        #[cxx_name = "RegisterObserver"]
-        pub fn register_observer_track(
+        #[cxx_name = "RegisterTrackObserver"]
+        pub fn register_track_observer(
             self: &mut Webrtc,
             id: u64,
             cb: UniquePtr<TrackEventInterface>,
         ) -> String;
-
-        /// Unregisters observer of track events.
-        #[cxx_name = "UnregisterObserver"]
-        pub fn unregister_observer_track(self: &mut Webrtc, id: u64) -> String;
 
         /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
         /// called whenever a set of available media devices changes.
@@ -550,20 +546,15 @@ pub struct Webrtc(Box<Context>);
 #[allow(dead_code)]
 pub struct Context {
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
-
     video_device_info: VideoDeviceInfo,
-
     video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
     audio_source: Option<Rc<AudioSourceInterface>>,
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
-
     video_sinks: HashMap<VideoSinkId, VideoSink>,
-
     peer_connection_factory: PeerConnectionFactoryInterface,
     task_queue_factory: TaskQueueFactory,
-
     audio_device_module: AudioDeviceModule,
     worker_thread: Thread,
     network_thread: Thread,

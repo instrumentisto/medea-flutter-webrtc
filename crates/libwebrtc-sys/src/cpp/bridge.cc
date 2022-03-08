@@ -11,12 +11,15 @@
 
 namespace bridge {
 
+// TODO(alexlapa): move tracks functionality to a separate file.
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
     rust::Box<bridge::DynTrackEventCallback> cb)
     : track_(track), cb_(std::move(cb)) {
   webrtc::MediaSourceInterface* source;
+
+  // TODO(alexlapa): meh, remove mute unmute or provide more precise api
   if (track->kind() == "video") {
     auto video_track = static_cast<webrtc::VideoTrackInterface*>(track.get());
     source =
@@ -32,7 +35,6 @@ TrackEventObserver::TrackEventObserver(
     if (track->kind() == "video") {
       auto video_track = static_cast<webrtc::VideoTrackInterface*>(track.get());
       state = video_track->GetSource()->state();
-
     } else {
       auto audio_track = static_cast<webrtc::AudioTrackInterface*>(track.get());
       state = audio_track->GetSource()->state();

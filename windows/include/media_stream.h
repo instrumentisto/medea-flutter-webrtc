@@ -47,9 +47,8 @@ AudioConstraints ParseAudioConstraints(const EncodableValue audio_arg);
 EncodableList GetParams(TrackKind type, MediaStream& user_media);
 
 // Registers observer for `MediaStreamTrackInterface`.
-void RegisterObserver(
-    Box<Webrtc>* webrtc,
-    flutter::BinaryMessenger* messenger,
-    uint64_t track_id);
+void RegisterTrackObserver(Box<Webrtc>* webrtc,
+                           flutter::BinaryMessenger* messenger,
+                           uint64_t track_id);
 
 }  // namespace flutter_webrtc_plugin

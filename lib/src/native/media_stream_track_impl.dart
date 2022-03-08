@@ -9,11 +9,9 @@ import '../helper.dart';
 import '../interface/media_stream_track.dart';
 import 'utils.dart';
 
-typedef OnEndedCallback = void Function();
-
 class MediaStreamTrackNative extends MediaStreamTrack {
   MediaStreamTrackNative(this._trackId, this._label, this._kind, this._enabled) {
-  _eventSubscription = _eventChannelFor(_trackId)
+  _eventSubscription = EventChannel('MediaStreamTrack/$_trackId')
     .receiveBroadcastStream()
     .listen(eventListener, onError: errorListener);
   }
@@ -27,7 +25,7 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   final String _kind;
   bool _enabled;
   StreamSubscription<dynamic>? _eventSubscription;
-  
+
 
   bool _muted = false;
 
@@ -42,19 +40,8 @@ class MediaStreamTrackNative extends MediaStreamTrack {
       case 'onended':
         onEnded?.call();
         break;
-      case 'onmute':
-        onMute?.call();
-        break;
-      case 'onunmute':
-        onUnMute?.call();
-        break;
     }
   }
-
-  EventChannel _eventChannelFor(String trackId) {
-    return EventChannel('MediaStreamTrack/$trackId');
-  }
-
 
   @override
   set enabled(bool enabled) {

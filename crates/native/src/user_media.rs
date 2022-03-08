@@ -331,7 +331,7 @@ impl Webrtc {
     ///
     /// Returns error message if cannot find any [`AudioTrack`] or
     /// [`VideoTrack`] by the specified `id`.
-    pub fn register_observer_track(
+    pub fn register_track_observer(
         &mut self,
         id: u64,
         cb: UniquePtr<TrackEventInterface>,
@@ -346,25 +346,6 @@ impl Webrtc {
             let obs =
                 track.inner.create_observer(Box::new(TrackEventHandler(cb)));
             track.inner.register_observer(obs);
-            String::new()
-        } else {
-            format!("Could not find track with `{id}` ID")
-        }
-    }
-
-    /// Unregisters an events observer for [`AudioTrack`] or [`VideoTrack`].
-    ///
-    /// # Warning
-    ///
-    /// Returns error message if cannot find any [`AudioTrack`] or
-    /// [`VideoTrack`] by the specified `id`.
-    pub fn unregister_observer_track(&mut self, id: u64) -> String {
-        if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
-            track.inner.unregister_observers();
-            String::new()
-        } else if let Some(mut track) = self.0.audio_tracks.get_mut(&id.into())
-        {
-            track.inner.unregister_observers();
             String::new()
         } else {
             format!("Could not find track with `{id}` ID")
@@ -767,13 +748,11 @@ impl sys::TrackEventCallback for TrackEventHandler {
         self.0.pin_mut().on_ended();
     }
 
-    // no need atm
     fn on_mute(&mut self) {
-        todo!();
+        // Not required at the moment.
     }
 
-    // no need atm
     fn on_unmute(&mut self) {
-        todo!();
+        // Not required at the moment.
     }
 }

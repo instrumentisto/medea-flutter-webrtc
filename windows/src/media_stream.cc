@@ -37,12 +37,12 @@ class TrackEventCallback : public TrackEventInterface {
     }
   }
 
-  /// no need atm.
   void OnMute() {
+    // Not needed at the moment.
   }
 
-  /// no need atm
   void OnUnmute() {
+    // Not needed at the moment.
   }
 
  private:
@@ -120,11 +120,11 @@ void GetMedia(rust::Box<Webrtc>& webrtc,
   MediaStream media = webrtc->GetMedia(constraints, is_display);
 
   for (size_t i = 0; i < media.video_tracks.size(); ++i) {
-    RegisterObserver(&webrtc, messenger, media.video_tracks[i].id);
+    RegisterTrackObserver(&webrtc, messenger, media.video_tracks[i].id);
   }
 
   for (size_t i = 0; i < media.audio_tracks.size(); ++i) {
-    RegisterObserver(&webrtc, messenger, media.audio_tracks[i].id);
+    RegisterTrackObserver(&webrtc, messenger, media.audio_tracks[i].id);
   }
 
   EncodableMap params;
@@ -294,16 +294,14 @@ void DisposeStream(
 }
 
 // Registers observer for `MediaStreamTrackInterface`.
-void RegisterObserver(
-    Box<Webrtc>* webrtc,
-    flutter::BinaryMessenger* messenger,
-    uint64_t track_id) {
-
+void RegisterTrackObserver(Box<Webrtc>* webrtc,
+                           flutter::BinaryMessenger* messenger,
+                           uint64_t track_id) {
   auto ctx = std::make_shared<TrackEventCallback::Dependencies>();
   auto observer = std::make_unique<TrackEventCallback>(ctx);
 
   rust::String error =
-      (*webrtc)->RegisterObserver(track_id, std::move(observer));
+      (*webrtc)->RegisterTrackObserver(track_id, std::move(observer));
 
   if (error == "") {
     auto event_channel = std::make_unique<EventChannel<EncodableValue>>(
@@ -336,26 +334,4 @@ void RegisterObserver(
     ctx->chan_ = std::move(event_channel);
   }
 }
-
-// Unregisters observer for `MediaStreamTrackInterface`.
-void UnregisterObserver(
-    Box<Webrtc>& webrtc,
-    const flutter::MethodCall<EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
-  if (!method_call.arguments()) {
-    result->Error("Bad Arguments", "Null constraints arguments received");
-    return;
-  }
-
-  const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-  const std::string track_id = findString(params, "trackId");
-
-  rust::String error = webrtc->UnregisterObserver(std::stoi(track_id));
-  if (error == "") {
-    result->Success(nullptr);
-  } else {
-    result->Error(std::string(error));
-  }
-}
-
 }  // namespace flutter_webrtc_plugin

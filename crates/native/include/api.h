@@ -8,9 +8,9 @@ inline namespace cxxbridge1 {
 
 class String;
 
-}  // namespace cxxbridge1
+} // namespace cxxbridge1
 
-}  // namespace rust
+} // namespace rust
 
 struct VideoFrame;
 struct RtcTrackEvent;

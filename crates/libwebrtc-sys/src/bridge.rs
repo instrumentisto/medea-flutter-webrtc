@@ -9,9 +9,6 @@ use crate::{
     RtpTransceiverInterface, SetDescriptionCallback, TrackEventCallback,
 };
 
-/// [`TrackEventCallback`] transferable to the C++ side.
-type DynTrackEventCallback = Box<dyn TrackEventCallback>;
-
 /// [`CreateSdpCallback`] transferable to the C++ side.
 type DynCreateSdpCallback = Box<dyn CreateSdpCallback>;
 
@@ -26,6 +23,9 @@ type DynPeerConnectionEventsHandler = Box<dyn PeerConnectionEventsHandler>;
 
 /// [`AddIceCandidateCallback`] transferable to the C++ side.
 type DynAddIceCandidateCallback = Box<dyn AddIceCandidateCallback>;
+
+/// [`TrackEventCallback`] transferable to the C++ side.
+type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
 #[allow(
     clippy::expl_impl_clone_on_copy,

@@ -230,9 +230,8 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   void OnTrack(RtcTrackEvent event) {
     const std::lock_guard<std::mutex> lock(*deps_->lock_);
     if (deps_->sink_.get() != nullptr) {
-
-      flutter_webrtc_plugin::RegisterObserver(deps_->webrtc_, deps_->messenger_,
-                                              event.track.id);
+      flutter_webrtc_plugin::RegisterTrackObserver(
+          deps_->webrtc_, deps_->messenger_, event.track.id);
 
       flutter::EncodableMap map;
       map[EncodableValue("event")] = "onTrack";
