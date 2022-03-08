@@ -26,18 +26,6 @@ pub trait TrackEventCallback {
     ///
     /// [1]: https://tinyurl.com/event-mediastreamtrack-ended
     fn on_ended(&mut self);
-
-    /// Called when a [`mute`][1] event occurs in the attached
-    /// [`MediaStreamTrackInterface`].
-    ///
-    /// [1]: https://tinyurl.com/event-mediastreamtrack-mute
-    fn on_mute(&mut self);
-
-    /// Called when an [`unmute`][1] event occurs in the attached
-    /// [`MediaStreamTrackInterface`].
-    ///
-    /// [1]: https://tinyurl.com/event-mediastreamtrack-unmute
-    fn on_unmute(&mut self);
 }
 
 /// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
@@ -1395,7 +1383,21 @@ impl MediaStreamTrackInterface {
 pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 impl TrackEventObserver {
+    /// Creates a new [`TrackEventObserver`].
+    #[must_use]
+    pub fn new(cb: Box<dyn TrackEventCallback>) -> Self {
+        TrackEventObserver(webrtc::create_track_event_observer(Box::new(cb)))
+    }
 
+    /// Sets observable track to [`VideoTrackInterface`] `track`.
+    pub fn set_video_track(&mut self, track: &VideoTrackInterface) {
+        webrtc::set_track_observer_video_track(self.0.pin_mut(), &track.inner);
+    }
+
+    /// Sets observable track to [`AudioTrackInterface`] `track`.
+    pub fn set_audio_track(&mut self, track: &AudioTrackInterface) {
+        webrtc::set_track_observer_audio_track(self.0.pin_mut(), &track.inner);
+    }
 }
 
 /// Video [`MediaStreamTrack`][1].
@@ -1430,18 +1432,6 @@ impl VideoTrackInterface {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         webrtc::set_video_track_enabled(&self.inner, enabled);
-    }
-
-    /// Creates a new [`TrackEventObserver`] backed by the provided
-    /// [`TrackEventCallback`].
-    pub fn create_observer(
-        &mut self,
-        cb: Box<dyn TrackEventCallback>,
-    ) -> TrackEventObserver {
-        TrackEventObserver(webrtc::create_video_track_event_observer(
-            &self.inner,
-            Box::new(cb),
-        ))
     }
 
     /// Registers the given [`TrackEventCallback`] as an observer of this
@@ -1514,19 +1504,6 @@ impl AudioTrackInterface {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         webrtc::set_audio_track_enabled(&self.inner, enabled);
-    }
-    // TODO(alexlapa): and what if we call create on one track and register on
-    //                 another.
-    /// Creates a new [`TrackEventObserver`] backed by the provided
-    /// [`TrackEventCallback`]
-    pub fn create_observer(
-        &mut self,
-        cb: Box<dyn TrackEventCallback>,
-    ) -> TrackEventObserver {
-        TrackEventObserver(webrtc::create_audio_track_event_observer(
-            &self.inner,
-            Box::new(cb),
-        ))
     }
 
     /// Registers the given [`TrackEventCallback`] as an observer of this

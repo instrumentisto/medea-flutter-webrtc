@@ -11,55 +11,24 @@
 
 namespace bridge {
 
-// TODO(alexlapa): move tracks functionality to a separate file.
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
-    rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track,
     rust::Box<bridge::DynTrackEventCallback> cb)
-    : track_(track), cb_(std::move(cb)) {
-  webrtc::MediaSourceInterface* source;
-
-  // TODO(alexlapa): meh, remove mute unmute or provide more precise api
-  if (track->kind() == "video") {
-    auto video_track = static_cast<webrtc::VideoTrackInterface*>(track.get());
-    source =
-        static_cast<webrtc::MediaSourceInterface*>(video_track->GetSource());
-  } else {
-    auto audio_track = static_cast<webrtc::AudioTrackInterface*>(track.get());
-    source =
-        static_cast<webrtc::MediaSourceInterface*>(audio_track->GetSource());
-  }
-
-  this->source_obs = std::make_unique<SourceEventObserver>([=] {
-    webrtc::MediaSourceInterface::SourceState state;
-    if (track->kind() == "video") {
-      auto video_track = static_cast<webrtc::VideoTrackInterface*>(track.get());
-      state = video_track->GetSource()->state();
-    } else {
-      auto audio_track = static_cast<webrtc::AudioTrackInterface*>(track.get());
-      state = audio_track->GetSource()->state();
-    }
-
-    if (state == webrtc::MediaSourceInterface::SourceState::kMuted) {
-      bridge::on_mute(*cb_);
-    } else if (state == webrtc::MediaSourceInterface::SourceState::kLive) {
-      bridge::on_unmute(*cb_);
-    }
-  });
-
-  if (source != nullptr) {
-    source->RegisterObserver(this->source_obs.get());
-  }
-}
+    : cb_(std::move(cb)) {};
 
 // Called when track calls `set_state` or `set_enabled`.
 void TrackEventObserver::OnChanged() {
-  if (track_ != nullptr) {
-    if (track_->state() ==
+  if (track_) {
+    if (track_.value()->state() ==
         webrtc::MediaStreamTrackInterface::TrackState::kEnded) {
       bridge::on_ended(*cb_);
     }
   }
+}
+
+void TrackEventObserver::set_track(
+    rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track) {
+    track_ = track;
 }
 
 // Calls `AudioDeviceModule->Create()`.
@@ -597,20 +566,22 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver) {
 
 // Creates a new `TrackEventObserver` from the provided
 // `bridge::DynTrackEventCallback`.
-std::unique_ptr<TrackEventObserver> create_video_track_event_observer(
-    const VideoTrackInterface& track,
+std::unique_ptr<TrackEventObserver> create_track_event_observer(
     rust::Box<bridge::DynTrackEventCallback> cb) {
   return std::make_unique<TrackEventObserver>(
-      TrackEventObserver(track.get(), std::move(cb)));
+      TrackEventObserver(std::move(cb)));
 }
 
-// Creates a new `TrackEventObserver` from the provided
-// `bridge::DynTrackEventCallback`.
-std::unique_ptr<TrackEventObserver> create_audio_track_event_observer(
-    const AudioTrackInterface& track,
-    rust::Box<bridge::DynTrackEventCallback> cb) {
-  return std::make_unique<TrackEventObserver>(
-      TrackEventObserver(track, std::move(cb)));
+// Changes the `track` member of the provided `TrackEventObserver`.
+void set_track_observer_video_track(TrackEventObserver& obs,
+                                    const VideoTrackInterface& track) {
+  obs.set_track(track);
+}
+
+// Changes the `track` member of the provided `TrackEventObserver`.
+void set_track_observer_audio_track(TrackEventObserver& obs,
+                                    const AudioTrackInterface& track) {
+  obs.set_track(track);
 }
 
 // Calls `VideoTrackInterface->RegisterObserver`.

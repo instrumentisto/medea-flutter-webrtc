@@ -5,6 +5,7 @@ use cxx::UniquePtr;
 use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
+use sys::TrackEventObserver;
 
 use crate::{
     api::{
@@ -336,15 +337,14 @@ impl Webrtc {
         id: u64,
         cb: UniquePtr<TrackEventInterface>,
     ) -> String {
+        let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
         if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
-            let obs =
-                track.inner.create_observer(Box::new(TrackEventHandler(cb)));
+            obs.set_video_track(&track.inner);
             track.inner.register_observer(obs);
             String::new()
         } else if let Some(mut track) = self.0.audio_tracks.get_mut(&id.into())
         {
-            let obs =
-                track.inner.create_observer(Box::new(TrackEventHandler(cb)));
+            obs.set_audio_track(&track.inner);
             track.inner.register_observer(obs);
             String::new()
         } else {
@@ -746,13 +746,5 @@ struct TrackEventHandler(UniquePtr<TrackEventInterface>);
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {
         self.0.pin_mut().on_ended();
-    }
-
-    fn on_mute(&mut self) {
-        // Not required at the moment.
-    }
-
-    fn on_unmute(&mut self) {
-        // Not required at the moment.
     }
 }

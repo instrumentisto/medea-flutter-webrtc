@@ -1241,17 +1241,21 @@ pub(crate) mod webrtc {
 
         /// Creates a new [`DynTrackEventCallback`] backed by the provided
         /// [`DynOnFrameCallback`].
-        pub fn create_audio_track_event_observer(
-            track: &AudioTrackInterface,
+        pub fn create_track_event_observer(
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
-        /// Creates a new [`DynTrackEventCallback`] backed by the provided
-        /// [`DynOnFrameCallback`].
-        pub fn create_video_track_event_observer(
+        /// Changes the `track` member of the provided [`TrackEventObserver`].
+        pub fn set_track_observer_video_track(
+            obs: Pin<&mut TrackEventObserver>,
             track: &VideoTrackInterface,
-            cb: Box<DynTrackEventCallback>,
-        ) -> UniquePtr<TrackEventObserver>;
+        );
+
+        // Changes the `track` member of the provided [`TrackEventObserver`].
+        pub fn set_track_observer_audio_track(
+            obs: Pin<&mut TrackEventObserver>,
+            track: &AudioTrackInterface,
+        );
 
         /// Registers the given [`TrackEventObserver`] to receive events from
         /// the provided [`AudioTrackInterface`].
@@ -1301,18 +1305,6 @@ pub(crate) mod webrtc {
         ///
         /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
         fn on_ended(cb: &mut DynTrackEventCallback);
-
-        /// Forwards the [`mute`][1] event to the given
-        /// [`DynTrackEventCallback`].
-        ///
-        /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-mute
-        fn on_mute(cb: &mut DynTrackEventCallback);
-
-        /// Forwards the [`unmute`][1] event to the given
-        /// [`DynTrackEventCallback`].
-        ///
-        /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-unmute
-        fn on_unmute(cb: &mut DynTrackEventCallback);
     }
 
     extern "Rust" {
@@ -1682,20 +1674,6 @@ pub fn on_remove_track(
 /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
 pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
-}
-
-/// Forwards the [`mute`][1] event to the given [`DynTrackEventCallback`].
-///
-/// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-mute
-pub fn on_mute(cb: &mut DynTrackEventCallback) {
-    cb.on_mute();
-}
-
-/// Forwards the [`unmute`][1] event to the given [`DynTrackEventCallback`].
-///
-/// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-unmute
-pub fn on_unmute(cb: &mut DynTrackEventCallback) {
-    cb.on_unmute();
 }
 
 /// Creates a new [`StringPair`].
