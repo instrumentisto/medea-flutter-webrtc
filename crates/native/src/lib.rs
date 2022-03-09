@@ -162,9 +162,10 @@ pub mod api {
         kVideo,
     }
 
-    /// Representation of a permanent pair of an [`RtcRtpSender`] and an
+    /// Representation of a permanent pair of an [RTCRtpSender] and an
     /// [RTCRtpReceiver], along with some shared state.
     ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     #[derive(Clone, Debug, Eq, Hash, PartialEq)]
     pub struct RtcRtpTransceiver {
@@ -518,7 +519,7 @@ pub mod api {
             enabled: bool,
         );
 
-        /// Registers an observer to track events.
+        /// Registers an observer to the media track events.
         #[cxx_name = "RegisterTrackObserver"]
         pub fn register_track_observer(
             self: &mut Webrtc,
@@ -559,6 +560,7 @@ pub struct Context {
     worker_thread: Thread,
     network_thread: Thread,
     signaling_thread: Thread,
+
     /// [`ThreadPool`] used to offload blocking or CPU-intensive tasks, so they
     /// won't block Flutter WebRTC threads.
     callback_pool: ThreadPool,

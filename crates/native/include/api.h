@@ -111,7 +111,7 @@ class TrackObserverInterface {
  public:
   // Called when an `ended` event occurs.
   //
-  // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
+  // See: https://w3.org/TR/mediacapture-streams#event-mediastreamtrack-ended
   virtual void OnEnded() = 0;
 
   virtual ~TrackObserverInterface() = default;

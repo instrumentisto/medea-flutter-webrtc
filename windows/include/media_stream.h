@@ -46,7 +46,7 @@ AudioConstraints ParseAudioConstraints(const EncodableValue audio_arg);
 // for passing to Dart according to `TrackKind`.
 EncodableList GetParams(TrackKind type, MediaStream& user_media);
 
-// Registers observer for `MediaStreamTrackInterface`.
+// Registers an observer for the `MediaStreamTrackInterface`.
 void RegisterTrackObserver(Box<Webrtc>* webrtc,
                            flutter::BinaryMessenger* messenger,
                            uint64_t track_id);

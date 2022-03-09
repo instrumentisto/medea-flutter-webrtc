@@ -19,12 +19,12 @@ pub use crate::webrtc::{
     VideoRotation,
 };
 
-/// Handler of events that fire from a [`MediaStreamTrackInterface`].
+/// Handler of events firing from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
     /// Called when an [`ended`][1] event occurs in the attached
     /// [`MediaStreamTrackInterface`].
     ///
-    /// [1]: https://tinyurl.com/event-mediastreamtrack-ended
+    /// [1]: https://w3.org/TR/mediacapture-streams#event-mediastreamtrack-ended
     fn on_ended(&mut self);
 }
 
@@ -1378,7 +1378,7 @@ impl MediaStreamTrackInterface {
     }
 }
 
-/// C++ side [`TrackEventCallback`] that handles [`MediaStreamTrackInterface`]
+/// C++ side [`TrackEventCallback`] handling [`MediaStreamTrackInterface`]
 /// events.
 pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
@@ -1389,12 +1389,12 @@ impl TrackEventObserver {
         TrackEventObserver(webrtc::create_track_event_observer(Box::new(cb)))
     }
 
-    /// Sets observable track to [`VideoTrackInterface`] `track`.
+    /// Sets the observable track to the specified [`VideoTrackInterface`].
     pub fn set_video_track(&mut self, track: &VideoTrackInterface) {
         webrtc::set_track_observer_video_track(self.0.pin_mut(), &track.inner);
     }
 
-    /// Sets observable track to [`AudioTrackInterface`] `track`.
+    /// Sets the observable track to the specified [`AudioTrackInterface`].
     pub fn set_audio_track(&mut self, track: &AudioTrackInterface) {
         webrtc::set_track_observer_audio_track(self.0.pin_mut(), &track.inner);
     }
@@ -1407,7 +1407,8 @@ pub struct VideoTrackInterface {
     /// Pointer to the C++ side `VideoTrackInterface` object.
     inner: UniquePtr<webrtc::VideoTrackInterface>,
 
-    /// [`TrackEventObserver`]s that are subscribed to this track state changes.
+    /// [`TrackEventObserver`]s subscribed to this [`VideoTrackInterface`] state
+    /// changes.
     observers: Vec<TrackEventObserver>,
 }
 
@@ -1494,7 +1495,8 @@ pub struct AudioTrackInterface {
     /// Pointer to the C++ side `AudioTrackInterface` object.
     inner: UniquePtr<webrtc::AudioTrackInterface>,
 
-    /// [`TrackEventObserver`]s that are subscribed to track state changes.
+    /// [`TrackEventObserver`]s subscribed to this [`AudioTrackInterface`] state
+    /// changes.
     observers: Vec<TrackEventObserver>,
 }
 
@@ -1506,7 +1508,7 @@ impl AudioTrackInterface {
         webrtc::set_audio_track_enabled(&self.inner, enabled);
     }
 
-    /// Registers the given [`TrackEventCallback`] as an observer of this
+    /// Registers the provided [`TrackEventCallback`] as an observer of this
     /// [`MediaStreamTrackInterface`] events.
     pub fn register_observer(&mut self, mut obs: TrackEventObserver) {
         webrtc::audio_track_register_observer(

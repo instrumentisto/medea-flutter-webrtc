@@ -1251,7 +1251,7 @@ pub(crate) mod webrtc {
             track: &VideoTrackInterface,
         );
 
-        // Changes the `track` member of the provided [`TrackEventObserver`].
+        /// Changes the `track` member of the provided [`TrackEventObserver`].
         pub fn set_track_observer_audio_track(
             obs: Pin<&mut TrackEventObserver>,
             track: &AudioTrackInterface,
@@ -1671,7 +1671,7 @@ pub fn on_remove_track(
 
 /// Forwards the [`ended`][1] event to the given [`DynTrackEventCallback`].
 ///
-/// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
+/// [1]: https://w3.org/TR/mediacapture-streams#event-mediastreamtrack-ended
 pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }

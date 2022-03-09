@@ -326,7 +326,7 @@ impl Webrtc {
         }
     }
 
-    /// Registers an events observer for [`AudioTrack`] or [`VideoTrack`].
+    /// Registers an events observer for an [`AudioTrack`] or a [`VideoTrack`].
     ///
     /// # Warning
     ///
@@ -740,7 +740,8 @@ impl VideoSource {
     }
 }
 
-/// [`TrackObserverInterface`] wrapper.
+/// Wrapper around [`TrackObserverInterface`] implementing
+/// [`sys::TrackEventCallback`].
 struct TrackEventHandler(UniquePtr<TrackObserverInterface>);
 
 impl sys::TrackEventCallback for TrackEventHandler {

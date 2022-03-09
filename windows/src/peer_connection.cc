@@ -92,13 +92,13 @@ class PeerConnectionObserver : public PeerConnectionObserverInterface {
   struct Dependencies {
     // `EventSink` guard.
     std::unique_ptr<std::mutex> lock_ = std::make_unique<std::mutex>();
-    // `EventSink` used to send events to the Flutter side.
+    // `EventSink`, used to send events to the Flutter side.
     std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> sink_;
-    // Flutter `EventChannel` used to dispose the channel object.
+    // Flutter `EventChannel`, used to dispose the channel object.
     std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> chan_;
-    // `BinaryMessenger` is used to open `EventChannel`s to the Dart side.
+    // `BinaryMessenger`, used to open `EventChannel`s to the Dart side.
     flutter::BinaryMessenger* messenger_;
-    // Rust `Webrtc` context is used to register a track event observer.
+    // Rust `Webrtc` context, used to register track event observers.
     Box<Webrtc>* webrtc_;
   };
 

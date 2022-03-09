@@ -6,16 +6,16 @@
 
 namespace flutter_webrtc_plugin {
 
-// `TrackObserverInterface` implementation forwarding the events to the Flutter
-// side via inner `flutter::EventSink`.
+// `TrackObserverInterface` implementation forwarding events to the Flutter side
+// via inner `flutter::EventSink`.
 class TrackEventCallback : public TrackObserverInterface {
  public:
   struct Dependencies {
     // `EventSink` guard.
     std::unique_ptr<std::mutex> lock_ = std::make_unique<std::mutex>();
-    // `EventSink` used to send events to the Flutter side.
+    // `EventSink`, used to send events to the Flutter side.
     std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> sink_;
-    // Flutter `EventChannel` used to dispose the channel object.
+    // Flutter `EventChannel`, used to dispose the channel object.
     std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> chan_;
   };
 
@@ -41,8 +41,8 @@ class TrackEventCallback : public TrackObserverInterface {
   std::shared_ptr<Dependencies> deps_;
 };
 
-/// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
-/// `MediaDeviceInfo` info for Dart.
+// Calls Rust `EnumerateDevices()` and converts the received Rust vector of
+// `MediaDeviceInfo` info for Dart.
 void EnumerateDevice(rust::Box<Webrtc>& webrtc,
                      std::unique_ptr<MethodResult<EncodableValue>> result) {
   rust::Vec<MediaDeviceInfo> devices = webrtc->EnumerateDevices();
@@ -86,8 +86,8 @@ void EnumerateDevice(rust::Box<Webrtc>& webrtc,
   result->Success(EncodableValue(params));
 }
 
-/// Parses the received constraints from Dart and passes them to Rust
-/// `GetMedia()`, then converts the backed `MediaStream` info for Dart.
+// Parses the received constraints from Dart and passes them to Rust
+// `GetMedia()`, then converts the backed `MediaStream` info for Dart.
 void GetMedia(rust::Box<Webrtc>& webrtc,
               flutter::BinaryMessenger* messenger,
               const flutter::MethodCall<EncodableValue>& method_call,
@@ -131,7 +131,7 @@ void GetMedia(rust::Box<Webrtc>& webrtc,
   result->Success(EncodableValue(params));
 }
 
-/// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
+// Parses video constraints recieved from Dart to Rust `VideoConstraints`.
 VideoConstraints ParseVideoConstraints(EncodableValue video_arg) {
   EncodableMap video_mandatory;
 
@@ -192,7 +192,7 @@ VideoConstraints ParseVideoConstraints(EncodableValue video_arg) {
   return video_constraints;
 }
 
-/// Parses audio constraints received from Dart to Rust `AudioConstraints`.
+// Parses audio constraints received from Dart to Rust `AudioConstraints`.
 AudioConstraints ParseAudioConstraints(EncodableValue audio_arg) {
   EncodableValue audio_device_id;
   bool audio_required;
@@ -219,8 +219,8 @@ AudioConstraints ParseAudioConstraints(EncodableValue audio_arg) {
   return audio_constraints;
 }
 
-/// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
-/// for passing to Dart according to `TrackKind`.
+// Converts Rust `VideoConstraints` or `AudioConstraints` to `EncodableList`
+// for passing to Dart according to `TrackKind`.
 EncodableList GetParams(TrackKind type, MediaStream& media) {
   auto rust_tracks =
       type == TrackKind::kVideo ? media.video_tracks : media.audio_tracks;
@@ -247,8 +247,8 @@ EncodableList GetParams(TrackKind type, MediaStream& media) {
   return tracks;
 }
 
-/// Changes the `enabled` property of the specified media track calling Rust
-/// `SetTrackEnabled`.
+// Changes the `enabled` property of the specified media track calling Rust
+// `SetTrackEnabled`.
 void SetTrackEnabled(
     rust::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -268,7 +268,7 @@ void SetTrackEnabled(
   result->Success();
 }
 
-/// Disposes some media stream calling Rust `DisposeStream`.
+// Disposes some media stream calling Rust `DisposeStream`.
 void DisposeStream(
     rust::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -285,7 +285,7 @@ void DisposeStream(
   result->Success();
 }
 
-// Registers observer for `MediaStreamTrackInterface`.
+// Registers an observer for the `MediaStreamTrackInterface`.
 void RegisterTrackObserver(Box<Webrtc>* webrtc,
                            flutter::BinaryMessenger* messenger,
                            uint64_t track_id) {
@@ -326,4 +326,5 @@ void RegisterTrackObserver(Box<Webrtc>* webrtc,
     ctx->chan_ = std::move(event_channel);
   }
 }
+
 }  // namespace flutter_webrtc_plugin
