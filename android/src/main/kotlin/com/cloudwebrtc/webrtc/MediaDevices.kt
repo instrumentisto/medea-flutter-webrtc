@@ -77,7 +77,16 @@ class MediaDevices(val state: State) {
     private val cameraEnumerator: CameraEnumerator =
         getCameraEnumerator(state.getAppContext())
 
+    /**
+     * List of [EventObserver] for this [MediaDevices].
+     */
+    private var eventObservers: HashSet<EventObserver> = HashSet()
+
     companion object {
+        interface EventObserver {
+            fun onDeviceChange()
+        }
+
         /**
          * Creates a new [CameraEnumerator] instance based on the supported
          * Camera API version.
@@ -102,11 +111,15 @@ class MediaDevices(val state: State) {
             state.getAppContext(),
             object : BluetoothProfile.ServiceListener {
                 override fun onServiceConnected(profile: Int, proxy: BluetoothProfile?) {
-                    isBluetoothHeadsetConnected = proxy!!.connectedDevices.size > 0
+                    eventBroadcaster().onDeviceChange()
+                    if (proxy!!.connectedDevices.isNotEmpty()) {
+                        isBluetoothHeadsetConnected = true
+                    }
                 }
 
                 override fun onServiceDisconnected(profile: Int) {
                     isBluetoothHeadsetConnected = false
+                    eventBroadcaster().onDeviceChange()
                 }
             },
             BluetoothProfile.HEADSET
@@ -167,6 +180,27 @@ class MediaDevices(val state: State) {
             }
             else -> {
                 throw OverconstrainedException()
+            }
+        }
+    }
+
+    /**
+     * Adds [EventObserver] to the list of event observers of this [MediaDevices].
+     *
+     * @param eventObserver  [EventObserver] which will be subscribed.
+     */
+    fun addObserver(eventObserver: EventObserver) {
+        eventObservers.add(eventObserver)
+    }
+
+    /**
+     * @return  Broadcast [EventObserver] which will send events to the all
+     *          [EventObserver] of this [MediaDevices].
+     */
+    private fun eventBroadcaster(): EventObserver {
+        return object : EventObserver {
+            override fun onDeviceChange() {
+                eventObservers.forEach { it.onDeviceChange() }
             }
         }
     }
