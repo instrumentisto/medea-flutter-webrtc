@@ -102,7 +102,7 @@ class MediaDevices(val state: State) {
             state.getAppContext(),
             object : BluetoothProfile.ServiceListener {
                 override fun onServiceConnected(profile: Int, proxy: BluetoothProfile?) {
-                    isBluetoothHeadsetConnected = true
+                    isBluetoothHeadsetConnected = proxy!!.connectedDevices.size > 0
                 }
 
                 override fun onServiceDisconnected(profile: Int) {
