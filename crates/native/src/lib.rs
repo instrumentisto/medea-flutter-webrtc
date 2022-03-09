@@ -294,7 +294,7 @@ pub mod api {
         type OnFrameCallbackInterface =
             crate::internal::OnFrameCallbackInterface;
 
-        type TrackEventInterface = crate::internal::TrackEventInterface;
+        type TrackObserverInterface = crate::internal::TrackObserverInterface;
 
         type AddIceCandidateCallbackInterface =
             crate::internal::AddIceCandidateCallbackInterface;
@@ -523,7 +523,7 @@ pub mod api {
         pub fn register_track_observer(
             self: &mut Webrtc,
             id: u64,
-            cb: UniquePtr<TrackEventInterface>,
+            cb: UniquePtr<TrackObserverInterface>,
         ) -> String;
 
         /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be

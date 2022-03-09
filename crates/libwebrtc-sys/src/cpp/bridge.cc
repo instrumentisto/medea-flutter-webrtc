@@ -14,7 +14,7 @@ namespace bridge {
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
     rust::Box<bridge::DynTrackEventCallback> cb)
-    : cb_(std::move(cb)) {};
+    : cb_(std::move(cb)){};
 
 // Called when track calls `set_state` or `set_enabled`.
 void TrackEventObserver::OnChanged() {
@@ -26,9 +26,10 @@ void TrackEventObserver::OnChanged() {
   }
 }
 
+// Sets the inner `MediaStreamTrackInterface`.
 void TrackEventObserver::set_track(
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track) {
-    track_ = track;
+  track_ = track;
 }
 
 // Calls `AudioDeviceModule->Create()`.

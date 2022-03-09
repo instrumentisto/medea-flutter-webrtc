@@ -9,7 +9,7 @@ use sys::TrackEventObserver;
 
 use crate::{
     api::{
-        self, AudioConstraints, TrackEventInterface, TrackKind,
+        self, AudioConstraints, TrackKind, TrackObserverInterface,
         VideoConstraints,
     },
     next_id, VideoSink, VideoSinkId, Webrtc,
@@ -335,7 +335,7 @@ impl Webrtc {
     pub fn register_track_observer(
         &mut self,
         id: u64,
-        cb: UniquePtr<TrackEventInterface>,
+        cb: UniquePtr<TrackObserverInterface>,
     ) -> String {
         let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
         if let Some(mut track) = self.0.video_tracks.get_mut(&id.into()) {
@@ -740,8 +740,8 @@ impl VideoSource {
     }
 }
 
-/// [`TrackEventInterface`] wrapper.
-struct TrackEventHandler(UniquePtr<TrackEventInterface>);
+/// [`TrackObserverInterface`] wrapper.
+struct TrackEventHandler(UniquePtr<TrackObserverInterface>);
 
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {

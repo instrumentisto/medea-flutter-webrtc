@@ -6,9 +6,9 @@
 
 namespace flutter_webrtc_plugin {
 
-// `CreateSdpCallbackInterface` implementation forwarding completion result to
-// the Flutter side via inner `flutter::MethodResult`.
-class TrackEventCallback : public TrackEventInterface {
+// `TrackObserverInterface` implementation forwarding the events to the Flutter
+// side via inner `flutter::EventSink`.
+class TrackEventCallback : public TrackObserverInterface {
  public:
   struct Dependencies {
     // `EventSink` guard.
@@ -35,14 +35,6 @@ class TrackEventCallback : public TrackEventInterface {
       params[flutter::EncodableValue("event")] = "onended";
       deps_->sink_->Success(flutter::EncodableValue(params));
     }
-  }
-
-  void OnMute() {
-    // Not needed at the moment.
-  }
-
-  void OnUnmute() {
-    // Not needed at the moment.
   }
 
  private:

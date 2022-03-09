@@ -34,7 +34,7 @@ class TrackEventObserver : public webrtc::ObserverInterface {
   // Called whenever the track calls `set_state()` or `set_enabled()`.
   void OnChanged();
 
-  // Sets observable track.
+  // Sets the inner `MediaStreamTrackInterface`.
   void set_track(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track);
 
  private:

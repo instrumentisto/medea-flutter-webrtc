@@ -107,24 +107,14 @@ class PeerConnectionObserverInterface {
 };
 
 // Handler of events firing from a `MediaStreamTrackInterface`.
-class TrackEventInterface {
+class TrackObserverInterface {
  public:
   // Called when an `ended` event occurs.
   //
   // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-ended
   virtual void OnEnded() = 0;
 
-  // Called when a `mute` event occurs.
-  //
-  // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-mute
-  virtual void OnMute() = 0;
-
-  // Called when an `unmute` event occurs.
-  //
-  // See: https://w3.org/TR/mediacapture-streams/#event-mediastreamtrack-unmute
-  virtual void OnUnmute() = 0;
-
-  virtual ~TrackEventInterface() = default;
+  virtual ~TrackObserverInterface() = default;
 };
 
 // Completion callback for the `webrtc::AddIceCandidate`.
