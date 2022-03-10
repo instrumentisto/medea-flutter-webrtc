@@ -59,4 +59,4 @@ jobs:
             java-version: '17'
 
       - run: wget -O ktfmt.jar https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/${{ env.KTFMT_VERSION }}/ktfmt-${{ env.KTFMT_VERSION }}-jar-with-dependencies.jar
-      - run: java -jar ktfmt-${{ env.KTFMT_VERSION }}-jar-with-dependencies.jar --set-exit-if-changed android/src/main/kotlin/
+      - run: java -jar ktfmt.jar --set-exit-if-changed android/src/main/kotlin/
