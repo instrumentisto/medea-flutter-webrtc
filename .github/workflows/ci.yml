@@ -13,6 +13,7 @@ concurrency:
 env:
   FLUTTER_VERSION: 2.10
   FLUTTER_CHANNEL: stable
+  KTFMT_VERSION: 0.33
 
 jobs:
 
@@ -57,5 +58,5 @@ jobs:
             distribution: 'temurin'
             java-version: '17'
 
-      - run: wget https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/0.33/ktfmt-0.33-jar-with-dependencies.jar
-      - run: java -jar ktfmt-0.33-jar-with-dependencies.jar --set-exit-if-changed android/src/main/kotlin/
+      - run: wget -O ktfmt.jar https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/${{ env.KTFMT_VERSION }}/ktfmt-${{ env.KTFMT_VERSION }}-jar-with-dependencies.jar
+      - run: java -jar ktfmt-${{ env.KTFMT_VERSION }}-jar-with-dependencies.jar --set-exit-if-changed android/src/main/kotlin/
