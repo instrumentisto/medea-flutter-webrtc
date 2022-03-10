@@ -61,7 +61,8 @@ private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
  */
 class MediaDevices(val state: State) {
     /**
-     * [BluetoothAdapter] used for detecting that bluetooth headset is connected or not.
+     * [BluetoothAdapter] used for detecting whether bluetooth headset is
+     * connected or not.
      */
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
@@ -142,9 +143,10 @@ class MediaDevices(val state: State) {
     }
 
     /**
-     * Switches current output audio device to the device with a provided identifier.
+     * Switches the current output audio device to the device with the provided
+     * identifier.
      *
-     * @param deviceId  Identifier for the output audio device which will be selected.
+     * @param deviceId  Identifier for the output audio device to be selected.
      */
     fun setOutputAudioId(deviceId: String) {
         val audioManager =

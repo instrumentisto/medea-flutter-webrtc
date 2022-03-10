@@ -10,13 +10,13 @@ import 'media_stream_track.dart';
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 
-/// All active [WebVideoRenderer] create by the library user.
+/// All active [WebVideoRenderer]s created by the library user.
 Map<int, WebVideoRenderer> _videoRenderers = {};
 
 /// Current global output audio sink ID.
 String? _outputAudioSinkId;
 
-/// Switches audio output sink of all [WebVideoRenderer]s to the
+/// Switches the current audio output sink of all [WebVideoRenderer]s to the
 /// provided [deviceId].
 void setOutputAudioSinkId(String deviceId) {
   _outputAudioSinkId = deviceId;
@@ -131,8 +131,8 @@ class WebVideoRenderer extends VideoRenderer {
     value = value.copyWith(renderVideo: renderVideo);
   }
 
-  /// Synchronizes this [WebVideoRenderer]'s output audio sink with
-  /// a [_outputAudioSinkId].
+  /// Synchronizes this [WebVideoRenderer]'s output audio sink with the
+  /// [_outputAudioSinkId].
   void _syncSinkId() {
     if (_outputAudioSinkId != null) {
       _audioElement?.setSinkId(_outputAudioSinkId!);
