@@ -53,3 +53,5 @@ android/.settings/org.eclipse.buildship.core.prefs
 
 # Rust
 /target/
+crates/native/src/bridge_generated.rs
+example/lib/bridge_generated.dart
