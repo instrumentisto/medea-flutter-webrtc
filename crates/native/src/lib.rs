@@ -303,6 +303,7 @@ pub mod api {
         type OnDeviceChangeCallback = crate::internal::OnDeviceChangeCallback;
     }
 
+    // TODO migrate to ffi.
     extern "Rust" {
         include!("flutter-webrtc-native/include/api.h");
 
@@ -554,6 +555,8 @@ pub struct Context {
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
+
+    // Todo: Add coment Drop Context.
     peer_connection_factory: PeerConnectionFactoryInterface,
     task_queue_factory: TaskQueueFactory,
     audio_device_module: AudioDeviceModule,
