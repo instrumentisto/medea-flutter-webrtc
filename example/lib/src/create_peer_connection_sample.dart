@@ -1,7 +1,24 @@
 import 'dart:core';
+import 'dart:async';
+import 'dart:ffi';
+import 'dart:io';
+import 'dart:typed_data';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'bridge_generated.dart';
+
+
+const base = 'flutter_webrtc_native';
+final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
+late final dylib = Platform.isIOS
+    ? DynamicLibrary.process()
+    : Platform.isMacOS
+        ? DynamicLibrary.executable()
+        : DynamicLibrary.open(path);
+
+late final api = FlutterWebrtcNativeImpl(dylib);
 
 class PeerConnectionSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
@@ -24,6 +41,11 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
   };
 
   void _create_peer() async {
+
+    // todo delete
+
+    await api.test42();
+
     try {
       final mediaConstraints = <String, dynamic>{
         'audio': false,

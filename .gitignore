@@ -55,3 +55,6 @@ android/.settings/org.eclipse.buildship.core.prefs
 /target/
 crates/native/src/bridge_generated.rs
 example/lib/bridge_generated.dart
+
+# todo delete
+flutter_webrtc_native.dll
