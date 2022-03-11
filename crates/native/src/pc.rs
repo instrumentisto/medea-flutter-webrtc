@@ -574,7 +574,8 @@ impl Webrtc {
 pub struct PeerConnectionId(u64);
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
-pub struct PeerConnection(Arc<Mutex<sys::PeerConnectionInterface>>);
+//todo delete pub (crate)
+pub struct PeerConnection(pub (crate)Arc<Mutex<sys::PeerConnectionInterface>>);
 
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].

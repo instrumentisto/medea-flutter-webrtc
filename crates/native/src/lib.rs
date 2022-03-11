@@ -1,5 +1,4 @@
 #![warn(clippy::pedantic)]
-
 mod bridge_generated; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
 mod devices;
 mod internal;
@@ -546,6 +545,8 @@ pub mod api {
 /// [`Context`] wrapper that is exposed to the C++ API clients.
 pub struct Webrtc(Box<Context>);
 
+unsafe impl Sync for Webrtc {}
+
 /// Application context that manages all dependencies.
 #[allow(dead_code)]
 pub struct Context {
@@ -628,6 +629,7 @@ pub fn init() -> Box<Webrtc> {
 
 impl Drop for Webrtc {
     fn drop(&mut self) {
+        println!("Drop");
         self.set_on_device_changed(UniquePtr::null());
     }
 }

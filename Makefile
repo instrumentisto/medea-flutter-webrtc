@@ -105,7 +105,7 @@ lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 codegen: 
 	flutter_rust_bridge_codegen --rust-crate-dir C:/Users/human/Documents/GitHub/flutter-webrtc/crates/native \
 		--rust-input C:/Users/human/Documents/GitHub/flutter-webrtc/crates/native/src/apiDart.rs \
-		--dart-output C:/Users/human/Documents/GitHub/flutter-webrtc/example/lib/bridge_generated.dart 
+		--dart-output C:/Users/human/Documents/GitHub/flutter-webrtc/example/lib/src/bridge_generated.dart 
 
 cargo.build:
 	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)

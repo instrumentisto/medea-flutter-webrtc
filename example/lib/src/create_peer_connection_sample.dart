@@ -42,9 +42,30 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
 
-    // todo delete
-
-    await api.test42();
+    //// todo delete
+    var ctx = await api.webrtcInit();
+    var cfg = RtcConfiguration(
+        iceTransportPolicy: 'all',
+        bundlePolicy: 'maxbundle',
+        iceServers: [
+          RtcIceServer(
+              urls: ['stun:stun.l.google.com:19302'],
+              username: 'username',
+              credential: 'password')
+        ]);
+    var pc = await api.createPc(configuration: cfg);
+    // var _pc1 = RTCPeerConnectionNative(pc.toString(), {
+    //     'iceTransportPolicy': 'all',
+    //     'bundlePolicy': 'maxbundle',
+    //     'servers': [
+    //       {
+    //         'urls': ['stun:stun.l.google.com:19302'],
+    //         'username': 'username',
+    //         'password': 'password'
+    //       }
+    //     ]
+    //   });
+    ////
 
     try {
       final mediaConstraints = <String, dynamic>{

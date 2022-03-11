@@ -12,7 +12,70 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class FlutterWebrtcNative {
-  Future<void> test42({dynamic hint});
+  Future<void> webrtcInit({dynamic hint});
+
+  Future<int> createPc({required RtcConfiguration configuration, dynamic hint});
+}
+
+/// [`PeerConnection`]'s configuration.
+class RtcConfiguration {
+  /// [iceTransportPolicy][1] configuration.
+  ///
+  /// Indicates which candidates the [ICE Agent][2] is allowed to use.
+  ///
+  /// [1]: https://tinyurl.com/icetransportpolicy
+  /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
+  final String iceTransportPolicy;
+
+  /// [bundlePolicy][1] configuration.
+  ///
+  /// Indicates which media-bundling policy to use when gathering ICE
+  /// candidates.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration-bundlepolicy
+  final String bundlePolicy;
+
+  /// [iceServers][1] configuration.
+  ///
+  /// An array of objects describing servers available to be used by ICE,
+  /// such as STUN and TURN servers.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration-iceservers
+  final List<RtcIceServer> iceServers;
+
+  RtcConfiguration({
+    required this.iceTransportPolicy,
+    required this.bundlePolicy,
+    required this.iceServers,
+  });
+}
+
+/// Describes the STUN and TURN servers that can be used by the
+/// [ICE Agent][1] to establish a connection with a peer.
+///
+/// [1]: https://w3.org/TR/webrtc#dfn-ice-agent
+class RtcIceServer {
+  /// STUN or TURN URI(s).
+  final List<String> urls;
+
+  /// If this [`RtcIceServer`] object represents a TURN server, then this
+  /// attribute specifies the [username][1] to use with that TURN server.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-username
+  final String username;
+
+  /// If this [`RtcIceServer`] object represents a TURN server, then this
+  /// attribute specifies the [credential][1] to use with that TURN
+  /// server.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-credential
+  final String credential;
+
+  RtcIceServer({
+    required this.urls,
+    required this.username,
+    required this.credential,
+  });
 }
 
 class FlutterWebrtcNativeImpl
@@ -23,24 +86,98 @@ class FlutterWebrtcNativeImpl
 
   FlutterWebrtcNativeImpl.raw(FlutterWebrtcNativeWire inner) : super(inner);
 
-  Future<void> test42({dynamic hint}) => executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_test42(port_),
+  Future<void> webrtcInit({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_webrtc_init(port_),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "test42",
+          debugName: "webrtc_init",
           argNames: [],
         ),
         argValues: [],
         hint: hint,
       ));
 
+  Future<int> createPc(
+          {required RtcConfiguration configuration, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_create_pc(
+            port_, _api2wire_box_autoadd_rtc_configuration(configuration)),
+        parseSuccessData: _wire2api_u64,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "create_pc",
+          argNames: ["configuration"],
+        ),
+        argValues: [configuration],
+        hint: hint,
+      ));
+
   // Section: api2wire
+  ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
+    return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  ffi.Pointer<wire_StringList> _api2wire_StringList(List<String> raw) {
+    final ans = inner.new_StringList(raw.length);
+    for (var i = 0; i < raw.length; i++) {
+      ans.ref.ptr[i] = _api2wire_String(raw[i]);
+    }
+    return ans;
+  }
+
+  ffi.Pointer<wire_RtcConfiguration> _api2wire_box_autoadd_rtc_configuration(
+      RtcConfiguration raw) {
+    final ptr = inner.new_box_autoadd_rtc_configuration();
+    _api_fill_to_wire_rtc_configuration(raw, ptr.ref);
+    return ptr;
+  }
+
+  ffi.Pointer<wire_list_rtc_ice_server> _api2wire_list_rtc_ice_server(
+      List<RtcIceServer> raw) {
+    final ans = inner.new_list_rtc_ice_server(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      _api_fill_to_wire_rtc_ice_server(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  int _api2wire_u8(int raw) {
+    return raw;
+  }
+
+  ffi.Pointer<wire_uint_8_list> _api2wire_uint_8_list(Uint8List raw) {
+    final ans = inner.new_uint_8_list(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
 
   // Section: api_fill_to_wire
 
+  void _api_fill_to_wire_box_autoadd_rtc_configuration(
+      RtcConfiguration apiObj, ffi.Pointer<wire_RtcConfiguration> wireObj) {
+    _api_fill_to_wire_rtc_configuration(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_rtc_configuration(
+      RtcConfiguration apiObj, wire_RtcConfiguration wireObj) {
+    wireObj.ice_transport_policy = _api2wire_String(apiObj.iceTransportPolicy);
+    wireObj.bundle_policy = _api2wire_String(apiObj.bundlePolicy);
+    wireObj.ice_servers = _api2wire_list_rtc_ice_server(apiObj.iceServers);
+  }
+
+  void _api_fill_to_wire_rtc_ice_server(
+      RtcIceServer apiObj, wire_RtcIceServer wireObj) {
+    wireObj.urls = _api2wire_StringList(apiObj.urls);
+    wireObj.username = _api2wire_String(apiObj.username);
+    wireObj.credential = _api2wire_String(apiObj.credential);
+  }
 }
 
 // Section: wire2api
+int _wire2api_u64(dynamic raw) {
+  return raw as int;
+}
+
 void _wire2api_unit(dynamic raw) {
   return;
 }
@@ -67,17 +204,91 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
-  void wire_test42(
+  void wire_webrtc_init(
     int port_,
   ) {
-    return _wire_test42(
+    return _wire_webrtc_init(
       port_,
     );
   }
 
-  late final _wire_test42Ptr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_test42');
-  late final _wire_test42 = _wire_test42Ptr.asFunction<void Function(int)>();
+  late final _wire_webrtc_initPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_webrtc_init');
+  late final _wire_webrtc_init =
+      _wire_webrtc_initPtr.asFunction<void Function(int)>();
+
+  void wire_create_pc(
+    int port_,
+    ffi.Pointer<wire_RtcConfiguration> configuration,
+  ) {
+    return _wire_create_pc(
+      port_,
+      configuration,
+    );
+  }
+
+  late final _wire_create_pcPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_RtcConfiguration>)>>('wire_create_pc');
+  late final _wire_create_pc = _wire_create_pcPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_RtcConfiguration>)>();
+
+  ffi.Pointer<wire_StringList> new_StringList(
+    int len,
+  ) {
+    return _new_StringList(
+      len,
+    );
+  }
+
+  late final _new_StringListPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_StringList> Function(ffi.Int32)>>(
+      'new_StringList');
+  late final _new_StringList = _new_StringListPtr
+      .asFunction<ffi.Pointer<wire_StringList> Function(int)>();
+
+  ffi.Pointer<wire_RtcConfiguration> new_box_autoadd_rtc_configuration() {
+    return _new_box_autoadd_rtc_configuration();
+  }
+
+  late final _new_box_autoadd_rtc_configurationPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_RtcConfiguration> Function()>>(
+      'new_box_autoadd_rtc_configuration');
+  late final _new_box_autoadd_rtc_configuration =
+      _new_box_autoadd_rtc_configurationPtr
+          .asFunction<ffi.Pointer<wire_RtcConfiguration> Function()>();
+
+  ffi.Pointer<wire_list_rtc_ice_server> new_list_rtc_ice_server(
+    int len,
+  ) {
+    return _new_list_rtc_ice_server(
+      len,
+    );
+  }
+
+  late final _new_list_rtc_ice_serverPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_list_rtc_ice_server> Function(
+              ffi.Int32)>>('new_list_rtc_ice_server');
+  late final _new_list_rtc_ice_server = _new_list_rtc_ice_serverPtr
+      .asFunction<ffi.Pointer<wire_list_rtc_ice_server> Function(int)>();
+
+  ffi.Pointer<wire_uint_8_list> new_uint_8_list(
+    int len,
+  ) {
+    return _new_uint_8_list(
+      len,
+    );
+  }
+
+  late final _new_uint_8_listPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_uint_8_list> Function(
+              ffi.Int32)>>('new_uint_8_list');
+  late final _new_uint_8_list = _new_uint_8_listPtr
+      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
 
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
@@ -106,6 +317,43 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
+}
+
+class wire_uint_8_list extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+class wire_StringList extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_uint_8_list>> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+class wire_RtcIceServer extends ffi.Struct {
+  external ffi.Pointer<wire_StringList> urls;
+
+  external ffi.Pointer<wire_uint_8_list> username;
+
+  external ffi.Pointer<wire_uint_8_list> credential;
+}
+
+class wire_list_rtc_ice_server extends ffi.Struct {
+  external ffi.Pointer<wire_RtcIceServer> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+class wire_RtcConfiguration extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> ice_transport_policy;
+
+  external ffi.Pointer<wire_uint_8_list> bundle_policy;
+
+  external ffi.Pointer<wire_list_rtc_ice_server> ice_servers;
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<
