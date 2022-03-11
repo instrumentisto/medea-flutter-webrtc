@@ -1,0 +1,10 @@
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/data/icudtl.dat
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/flutter_windows.dll
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/flutter_webrtc_plugin.dll
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/flutter_webrtc_native.dll
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/data/flutter_assets/AssetManifest.json
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/data/flutter_assets/FontManifest.json
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/data/flutter_assets/fonts/MaterialIcons-Regular.otf
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/data/flutter_assets/NOTICES.Z
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
+C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/runner/Release/data/app.so
