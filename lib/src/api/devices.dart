@@ -77,7 +77,8 @@ Future<void> setOutputAudioId(String deviceId) async {
 /// Subscribes to the `devicechange` event of the `MediaDevices`.
 void onDeviceChange(OnDeviceChangeCallback f) {
   _mediaDevicesEventSub?.cancel();
-  _mediaDevicesEventSub = _mediaDevicesEventChannel.receiveBroadcastStream().listen((event) {
+  _mediaDevicesEventSub =
+      _mediaDevicesEventChannel.receiveBroadcastStream().listen((event) {
     final dynamic e = event;
     switch (e['event']) {
       case 'onDeviceChange':
