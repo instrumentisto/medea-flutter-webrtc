@@ -66,9 +66,9 @@ Future<List<NativeMediaStreamTrack>> getDisplayMedia(
   return res.map((t) => NativeMediaStreamTrack.fromMap(t)).toList();
 }
 
-/// Switches output audio device to the provided [deviceId].
+/// Switches the current output audio device to the provided [deviceId].
 ///
-/// List of output audio devices can be obtained by [enumerateDevices].
+/// List of output audio devices may be obtained via [enumerateDevices].
 Future<void> setOutputAudioId(String deviceId) async {
   await _mediaDevicesMethodChannel
       .invokeMethod('setOutputAudioId', {'deviceId': deviceId});
@@ -78,11 +78,11 @@ Future<void> setOutputAudioId(String deviceId) async {
 void onDeviceChange(OnDeviceChangeCallback f) {
   _mediaDevicesEventSub?.cancel();
   _mediaDevicesEventSub = _mediaDevicesEventChannel.receiveBroadcastStream().listen((event) {
-      final dynamic e = event;
-      switch (e['event']) {
-        case 'onDeviceChange':
-          f.call();
-          break;
-      }
+    final dynamic e = event;
+    switch (e['event']) {
+      case 'onDeviceChange':
+        f.call();
+        break;
+    }
   });
 }
