@@ -84,7 +84,13 @@ class MediaDevices(val state: State) {
     private var eventObservers: HashSet<EventObserver> = HashSet()
 
     companion object {
+        /**
+         * Observer of [MediaDevices] events.
+         */
         interface EventObserver {
+            /**
+             * Notifies subscriber about [enumerateDevices] list update.
+             */
             fun onDeviceChange()
         }
 
