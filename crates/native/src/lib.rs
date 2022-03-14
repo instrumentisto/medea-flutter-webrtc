@@ -559,7 +559,7 @@ pub struct Context {
     local_media_streams: HashMap<MediaStreamId, MediaStream>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 
-    // todo Add coment Drop Context.
+    /// `peer_connection_factory` must be drops before [`Thread`]s.
     peer_connection_factory: PeerConnectionFactoryInterface,
     task_queue_factory: TaskQueueFactory,
     audio_device_module: AudioDeviceModule,
@@ -629,7 +629,6 @@ pub fn init() -> Box<Webrtc> {
 
 impl Drop for Webrtc {
     fn drop(&mut self) {
-        println!("Drop");
         self.set_on_device_changed(UniquePtr::null());
     }
 }
