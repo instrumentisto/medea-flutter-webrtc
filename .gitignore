@@ -53,3 +53,6 @@ android/.settings/org.eclipse.buildship.core.prefs
 
 # Rust
 /target/
+example/lib/src/bridge_generated.dart
+crates/native/src/bridge_generated.rs
+flutter_webrtc_native.dll
