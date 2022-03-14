@@ -694,9 +694,6 @@ pub struct VideoSource {
     is_display: bool,
 }
 
-//todo
-unsafe impl Send for VideoSource {}
-
 impl VideoSource {
     /// Creates a new [`VideoTrackSourceInterface`] from the video input device
     /// with the specified constraints.

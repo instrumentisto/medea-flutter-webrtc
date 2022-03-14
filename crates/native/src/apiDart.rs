@@ -1,18 +1,22 @@
-use std::{sync::{Mutex, Arc}, cell::RefCell, rc::Rc};
+use std::{
+    cell::RefCell,
+    rc::Rc,
+    sync::{Arc, Mutex},
+};
 
+use crate::{api, init, next_id, PeerConnection, Webrtc};
 use libwebrtc_sys as sys;
 use sys::PeerConnectionEventsHandler;
-use crate::{Webrtc, init, PeerConnection, api, next_id};
 
-use flutter_rust_bridge::{StreamSink};
+use flutter_rust_bridge::StreamSink;
 
 static mut WEBRTC: Option<Rc<RefCell<Box<Webrtc>>>> = None;
 
 pub fn webrtc_init() {
-    unsafe{WEBRTC = Some(Rc::new(RefCell::new(init())))};
+    unsafe { WEBRTC = Some(Rc::new(RefCell::new(init()))) };
 }
 
-// todo option -> onecell
+// todo one enum for all callbacks
 #[derive(Default)]
 pub struct callbacks {
     on_signaling_change: Option<StreamSink<String>>,
@@ -84,7 +88,10 @@ impl PeerConnectionEventsHandler for callbacks {
         todo!()
     }
 
-    fn on_ice_candidates_removed(&mut self, candidates: &cxx::CxxVector<sys::Candidate>) {
+    fn on_ice_candidates_removed(
+        &mut self,
+        candidates: &cxx::CxxVector<sys::Candidate>,
+    ) {
         todo!()
     }
 
@@ -104,56 +111,69 @@ impl PeerConnectionEventsHandler for callbacks {
     }
 }
 
-
 pub fn create_pc(configuration: api::RtcConfiguration) -> anyhow::Result<u64> {
-
     unsafe {
-    let observer = callbacks::default();
+        let observer = callbacks::default();
 
-    let mut sys_configuration = sys::RtcConfiguration::default();
+        let mut sys_configuration = sys::RtcConfiguration::default();
 
-    if !configuration.ice_transport_policy.is_empty() {
-        sys_configuration.set_ice_transport_type(
-            configuration.ice_transport_policy.as_str().try_into()?,
-        );
-    }
+        if !configuration.ice_transport_policy.is_empty() {
+            sys_configuration.set_ice_transport_type(
+                configuration.ice_transport_policy.as_str().try_into()?,
+            );
+        }
 
-    if !configuration.bundle_policy.is_empty() {
-        sys_configuration.set_bundle_policy(
-            configuration.bundle_policy.as_str().try_into()?,
-        );
-    }
+        if !configuration.bundle_policy.is_empty() {
+            sys_configuration.set_bundle_policy(
+                configuration.bundle_policy.as_str().try_into()?,
+            );
+        }
 
-    for server in configuration.ice_servers {
-        let mut ice_server = sys::IceServer::default();
-        let mut have_ice_servers = false;
+        for server in configuration.ice_servers {
+            let mut ice_server = sys::IceServer::default();
+            let mut have_ice_servers = false;
 
-        for url in server.urls {
-            if !url.is_empty() {
-                ice_server.add_url(url);
-                have_ice_servers = true;
+            for url in server.urls {
+                if !url.is_empty() {
+                    ice_server.add_url(url);
+                    have_ice_servers = true;
+                }
+            }
+
+            if have_ice_servers {
+                if !server.username.is_empty() || !server.credential.is_empty()
+                {
+                    ice_server
+                        .set_credentials(server.username, server.credential);
+                }
+
+                sys_configuration.add_server(ice_server);
             }
         }
 
-        if have_ice_servers {
-            if !server.username.is_empty() || !server.credential.is_empty()
-            {
-                ice_server
-                    .set_credentials(server.username, server.credential);
-            }
+        let inner = WEBRTC
+            .clone()
+            .unwrap()
+            .borrow_mut()
+            .0
+            .peer_connection_factory
+            .create_peer_connection_or_error(
+                &sys_configuration,
+                sys::PeerConnectionDependencies::new(
+                    sys::PeerConnectionObserver::new(Box::new(observer)),
+                ),
+            )?;
 
-            sys_configuration.add_server(ice_server);
-        }
+        let id = next_id();
+        let peer = PeerConnection(Arc::new(Mutex::new(inner)));
+        WEBRTC
+            .clone()
+            .unwrap()
+            .borrow_mut()
+            .0
+            .peer_connections
+            .insert(id.into(), peer);
+
+        Ok(id)
     }
-
-    let inner = WEBRTC.clone().unwrap().borrow_mut().0.peer_connection_factory.create_peer_connection_or_error(
-        &sys_configuration,
-        sys::PeerConnectionDependencies::new(sys::PeerConnectionObserver::new(Box::new(observer))),
-    )?;
-
-    let id = next_id();
-    let peer = PeerConnection(Arc::new(Mutex::new(inner)));
-    WEBRTC.clone().unwrap().borrow_mut().0.peer_connections.insert(id.into(), peer);
-
-    Ok(id)}
 }

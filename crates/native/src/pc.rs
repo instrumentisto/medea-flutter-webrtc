@@ -575,7 +575,7 @@ pub struct PeerConnectionId(u64);
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 //todo delete pub (crate)
-pub struct PeerConnection(pub (crate)Arc<Mutex<sys::PeerConnectionInterface>>);
+pub struct PeerConnection(pub(crate) Arc<Mutex<sys::PeerConnectionInterface>>);
 
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].
