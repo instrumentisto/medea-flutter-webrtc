@@ -41,12 +41,18 @@ class RTCVideoRendererNative extends VideoRenderer {
     _srcObject = stream;
     WebRTC.invokeMethod('videoRendererSetSrcObject', <String, dynamic>{
       'textureId': textureId,
-      'streamId': stream?.id ?? '',
-      'ownerTag': stream?.ownerTag ?? ''
-    }).then((_) {
-      value = (stream == null)
-          ? RTCVideoValue.empty
-          : value.copyWith(renderVideo: renderVideo);
+    }).then((result) {
+      var sinkId = textureId ?? 0;
+      if (stream == null) {
+        api.disposeVideoSink(
+                sinkId: sinkId)
+            .then((_) => {value = RTCVideoValue.empty});
+      } else {
+        var streamId = int.parse(stream.id);
+        api.createVideoSink(
+                sinkId: sinkId, streamId: streamId, callbackPtr: result['cb'])
+            .then((_) => {value = value.copyWith(renderVideo: renderVideo)});
+      }
     });
   }
 

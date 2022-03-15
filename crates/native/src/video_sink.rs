@@ -28,9 +28,9 @@ impl Webrtc {
 
         let mut sink = VideoSink {
             id: Id(sink_id),
-            inner: sys::VideoSinkInterface::create_forwarding(Box::new(
-                OnFrameCallback(handler),
-            )),
+            inner: sys::VideoSinkInterface::create_forwarding(Box::new(OnFrameCallback(
+                handler,
+            ))),
             track_id: *track_id,
         };
 
@@ -46,8 +46,7 @@ impl Webrtc {
     /// Destroys a [`VideoSink`] by the given ID.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
         if let Some(sink) = self.0.video_sinks.remove(&Id(sink_id)) {
-            if let Some(mut track) = self.0.video_tracks.get_mut(&sink.track_id)
-            {
+            if let Some(mut track) = self.0.video_tracks.get_mut(&sink.track_id) {
                 track.remove_video_sink(sink);
             }
         }
@@ -56,21 +55,21 @@ impl Webrtc {
 
 /// ID of a [`VideoSink`].
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct Id(i64);
+pub struct Id(pub(crate) i64);
 
 /// Wrapper around a [`sys::VideoSink`] attaching a unique ID to it.
 #[derive(AsRef, AsMut)]
 pub struct VideoSink {
     /// ID of this [`VideoSink`].
-    id: Id,
+    pub(crate) id: Id,
 
     /// Underlying [`sys::VideoSinkInterface`].
     #[as_ref]
     #[as_mut]
-    inner: sys::VideoSinkInterface,
+    pub(crate) inner: sys::VideoSinkInterface,
 
     /// ID of the [`VideoTrack`] attached to this [`VideoSink`].
-    track_id: VideoTrackId,
+    pub(crate) track_id: VideoTrackId,
 }
 
 impl VideoSink {
@@ -120,7 +119,7 @@ impl From<UniquePtr<sys::VideoFrame>> for api::VideoFrame {
 
 /// Wrapper around an [`internal::OnFrameCallbackInterface`] implementing the
 /// required interfaces.
-struct OnFrameCallback(UniquePtr<internal::OnFrameCallbackInterface>);
+pub struct OnFrameCallback(pub(crate) UniquePtr<internal::OnFrameCallbackInterface>);
 
 impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {
     fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {

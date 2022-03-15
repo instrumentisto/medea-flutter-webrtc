@@ -106,10 +106,12 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("restartIce") == 0) {
     RestartIce(webrtc, method_call, std::move(result));
   } else if (method.compare("createVideoRenderer") == 0) {
+    // dont touch
     CreateVideoRendererTexture(std::move(result));
   } else if (method.compare("videoRendererDispose") == 0) {
     VideoRendererDispose(webrtc, method_call, std::move(result));
   } else if (method.compare("videoRendererSetSrcObject") == 0) {
+    // migrate to ffi
     SetMediaStream(webrtc, method_call, std::move(result));
   } else if (method.compare("setVolume") == 0) {
   } else if (method.compare("getLocalDescription") == 0) {
@@ -136,6 +138,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("rtpTransceiverGetMid") == 0) {
     GetTransceiverMid(webrtc, method_call, std::move(result));
   } else if (method.compare("setConfiguration") == 0) {
+  } else if (method.compare("CB") == 0) {
   } else {
     result->NotImplemented();
   }

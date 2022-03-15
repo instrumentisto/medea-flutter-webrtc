@@ -21,9 +21,7 @@ fn main() -> anyhow::Result<()> {
     // TODO: `rustc` always links against non-debug Windows runtime, so we
     //       always use a release build of `libwebrtc`:
     //       https://github.com/rust-lang/rust/issues/39016
-    println!(
-        "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/"
-    );
+    println!("cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/");
     println!("cargo:rustc-link-lib=webrtc");
 
     println!("cargo:rustc-link-lib=dylib=Gdi32");

@@ -27,6 +27,7 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
 }
 
 // Changes a media source of the specific `TextureVideoRenderer`.
+// todo rename create cb
 void FlutterVideoRendererManager::SetMediaStream(
     rust::Box<Webrtc>& webrtc,
     const flutter::MethodCall<EncodableValue>& method_call,
@@ -36,22 +37,24 @@ void FlutterVideoRendererManager::SetMediaStream(
     return;
   }
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-  const std::string stream_id = findString(params, "streamId");
+  // const std::string stream_id = findString(params, "streamId");
   int64_t texture_id = findLongInt(params, "textureId");
 
   auto it = renderers_.find(texture_id);
-  if (it != renderers_.end()) {
-    if (stream_id != "") {
-      webrtc->CreateVideoSink(
-          texture_id, (uint64_t) std::stoi(stream_id),
-          std::make_unique<FrameHandler>(it->second));
-    } else {
-      webrtc->DisposeVideoSink(texture_id);
-      it->second.get()->ResetRenderer();
-    }
-  }
-
-  result->Success();
+  auto cb = std::make_unique<FrameHandler>(it->second).release();
+  // if (it != renderers_.end()) {
+  //   if (stream_id != "") {
+  //     webrtc->CreateVideoSink(
+  //         texture_id, (uint64_t) std::stoi(stream_id),
+  //         std::unique_ptr<FrameHandler>(cb));
+  //   } else {
+  //     webrtc->DisposeVideoSink(texture_id);
+  //     it->second.get()->ResetRenderer();
+  //   }
+  // }
+  EncodableMap res;
+  res[EncodableValue("cb")] = EncodableValue((int64_t) cb);
+  result->Success(EncodableValue(res));
 }
 
 // Disposes the specific `TextureVideoRenderer`.
