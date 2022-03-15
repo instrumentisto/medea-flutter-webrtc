@@ -10,7 +10,7 @@ import 'channel.dart';
 /// Shortcut for the `on_device_change` callback.
 typedef OnDeviceChangeCallback = void Function();
 
-/// Event channel for the `MediaDevices` events.
+/// Event channel for `MediaDevices` events.
 final _mediaDevicesEventChannel = eventChannel('MediaDevicesEvent', 0);
 
 /// Last subscriber of the [_mediaDevicesEventChannel].

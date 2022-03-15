@@ -50,8 +50,8 @@ class MediaDevicesController(
     private var eventSink: AnyThreadSink? = null
 
     /**
-     * Observer for the [MediaDevices] events, which will send all events to the
-     * Flutter side by [EventChannel].
+     * Observer for the [MediaDevices] events, which will send all the events to
+     * the Flutter side via [EventChannel].
      */
     private val eventObserver = object : MediaDevices.Companion.EventObserver {
         override fun onDeviceChange() {

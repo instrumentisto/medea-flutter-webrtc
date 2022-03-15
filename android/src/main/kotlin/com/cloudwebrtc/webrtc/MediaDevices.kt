@@ -79,7 +79,7 @@ class MediaDevices(val state: State) {
         getCameraEnumerator(state.getAppContext())
 
     /**
-     * List of [EventObserver] for this [MediaDevices].
+     * List of [EventObserver]s of these [MediaDevices].
      */
     private var eventObservers: HashSet<EventObserver> = HashSet()
 
@@ -89,7 +89,7 @@ class MediaDevices(val state: State) {
          */
         interface EventObserver {
             /**
-             * Notifies subscriber about [enumerateDevices] list update.
+             * Notifies the subscriber about [enumerateDevices] list update.
              */
             fun onDeviceChange()
         }
@@ -193,17 +193,18 @@ class MediaDevices(val state: State) {
     }
 
     /**
-     * Adds [EventObserver] to the list of event observers of this [MediaDevices].
+     * Adds the provided [EventObserver] to the list of [EventObserver]s of
+     * these [MediaDevices].
      *
-     * @param eventObserver  [EventObserver] which will be subscribed.
+     * @param eventObserver  [EventObserver] to be subscribed.
      */
     fun addObserver(eventObserver: EventObserver) {
         eventObservers.add(eventObserver)
     }
 
     /**
-     * @return  Broadcast [EventObserver] which will send events to the all
-     *          [EventObserver] of this [MediaDevices].
+     * @return  Broadcast [EventObserver] sending events to all the
+     *          [EventObserver]s of these [MediaDevices].
      */
     private fun eventBroadcaster(): EventObserver {
         return object : EventObserver {
