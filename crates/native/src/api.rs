@@ -1,19 +1,12 @@
-use crate::{
-    cpp_api::OnFrameCallbackInterface, AudioDeviceModule, AudioTrack, AudioTrackId, Frame,
-    PeerConnection, PeerConnectionId, VideoDeviceId, VideoSink, VideoSinkId, VideoSource,
-    VideoTrack, VideoTrackId, Webrtc,
-};
-use anyhow::anyhow;
-use cxx::UniquePtr;
+use crate::{AudioDeviceModule, Webrtc};
 use dashmap::DashMap;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory,
-    Thread, VideoDeviceInfo,
+    AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 use std::{
     collections::HashMap,
-    sync::{mpsc::Sender, Arc, Mutex},
+    sync::{Arc, Mutex},
 };
 use threadpool::ThreadPool;
 
@@ -107,7 +100,7 @@ pub struct MediaDeviceInfo {
 /// [`Webrtc::get_users_media()`].
 pub struct MediaStreamConstraints {
     /// Specifies the nature and settings of the video [`MediaStreamTrack`].
-    pub audio: AudioConstraints,
+    // pub audio: AudioConstraints,
     /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
     pub video: VideoConstraints,
 }
@@ -415,7 +408,7 @@ pub fn dispose_peer_connection(peer_id: u64) {
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
 pub fn get_media(
-    constraints: MediaStreamConstraints,
+    // constraints: MediaStreamConstraints,
     is_display: bool,
 ) -> Vec<MediaStreamTrack> {
     unimplemented!()
@@ -455,7 +448,7 @@ pub fn set_track_enabled(track_id: u64, enabled: bool) {
 }
 
 /// Registers an observer to the media track events.
-pub fn register_track_observer(id: u64, cb: StreamSink<()>) -> String {
+pub fn register_track_observer(cb: StreamSink<()>, id: u64) -> anyhow::Result<String> {
     unimplemented!()
 }
 
@@ -464,6 +457,6 @@ pub fn register_track_observer(id: u64, cb: StreamSink<()>) -> String {
 ///
 /// Only one callback can be set at a time, so the previous one will be
 /// dropped, if any.
-pub fn set_on_device_changed(cb: StreamSink<()>) {
+pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
     unimplemented!()
 }

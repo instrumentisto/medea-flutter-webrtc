@@ -2,7 +2,7 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{api, cpp_api, MediaStreamId, VideoTrackId, Webrtc};
+use crate::{cpp_api, VideoTrackId, Webrtc};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -46,8 +46,8 @@ impl Webrtc {
 
     /// Destroys a [`VideoSink`] by the given ID.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
-        if let Some(sink) = self.0.video_sinks.remove(&Id(sink_id)) {
-            if let Some(mut track) = self.0.video_tracks.get_mut(&sink.track_id) {
+        if let Some(sink) = self.video_sinks.remove(&Id(sink_id)) {
+            if let Some(mut track) = self.video_tracks.get_mut(&sink.track_id) {
                 track.remove_video_sink(sink);
             }
         }

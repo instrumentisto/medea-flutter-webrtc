@@ -377,11 +377,7 @@ pub extern "C" fn wire_dispose_peer_connection(port_: i64, peer_id: u64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_get_media(
-    port_: i64,
-    constraints: *mut wire_MediaStreamConstraints,
-    is_display: bool,
-) {
+pub extern "C" fn wire_get_media(port_: i64, is_display: bool) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "get_media",
@@ -389,9 +385,8 @@ pub extern "C" fn wire_get_media(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_constraints = constraints.wire2api();
             let api_is_display = is_display.wire2api();
-            move |task_callback| Ok(get_media(api_constraints, api_is_display))
+            move |task_callback| Ok(get_media(api_is_display))
         },
     )
 }
@@ -489,23 +484,9 @@ pub struct wire_StringList {
 
 #[repr(C)]
 #[derive(Clone)]
-pub struct wire_AudioConstraints {
-    required: bool,
-    device_id: *mut wire_uint_8_list,
-}
-
-#[repr(C)]
-#[derive(Clone)]
 pub struct wire_list_rtc_ice_server {
     ptr: *mut wire_RtcIceServer,
     len: i32,
-}
-
-#[repr(C)]
-#[derive(Clone)]
-pub struct wire_MediaStreamConstraints {
-    audio: wire_AudioConstraints,
-    video: wire_VideoConstraints,
 }
 
 #[repr(C)]
@@ -531,16 +512,6 @@ pub struct wire_uint_8_list {
     len: i32,
 }
 
-#[repr(C)]
-#[derive(Clone)]
-pub struct wire_VideoConstraints {
-    required: bool,
-    device_id: *mut wire_uint_8_list,
-    width: u32,
-    height: u32,
-    frame_rate: u32,
-}
-
 // Section: wrapper structs
 
 // Section: static checks
@@ -554,12 +525,6 @@ pub extern "C" fn new_StringList(len: i32) -> *mut wire_StringList {
         len,
     };
     support::new_leak_box_ptr(wrap)
-}
-
-#[no_mangle]
-pub extern "C" fn new_box_autoadd_media_stream_constraints(
-) -> *mut wire_MediaStreamConstraints {
-    support::new_leak_box_ptr(wire_MediaStreamConstraints::new_with_null_ptr())
 }
 
 #[no_mangle]
@@ -621,25 +586,9 @@ impl Wire2Api<Vec<String>> for *mut wire_StringList {
     }
 }
 
-impl Wire2Api<AudioConstraints> for wire_AudioConstraints {
-    fn wire2api(self) -> AudioConstraints {
-        AudioConstraints {
-            required: self.required.wire2api(),
-            device_id: self.device_id.wire2api(),
-        }
-    }
-}
-
 impl Wire2Api<bool> for bool {
     fn wire2api(self) -> bool {
         self
-    }
-}
-
-impl Wire2Api<MediaStreamConstraints> for *mut wire_MediaStreamConstraints {
-    fn wire2api(self) -> MediaStreamConstraints {
-        let wrap = unsafe { support::box_from_leak_ptr(self) };
-        (*wrap).wire2api().into()
     }
 }
 
@@ -669,15 +618,6 @@ impl Wire2Api<Vec<RtcIceServer>> for *mut wire_list_rtc_ice_server {
             support::vec_from_leak_ptr(wrap.ptr, wrap.len)
         };
         vec.into_iter().map(Wire2Api::wire2api).collect()
-    }
-}
-
-impl Wire2Api<MediaStreamConstraints> for wire_MediaStreamConstraints {
-    fn wire2api(self) -> MediaStreamConstraints {
-        MediaStreamConstraints {
-            audio: self.audio.wire2api(),
-            video: self.video.wire2api(),
-        }
     }
 }
 
@@ -724,12 +664,6 @@ impl Wire2Api<RtpTransceiverDirection> for i32 {
     }
 }
 
-impl Wire2Api<u32> for u32 {
-    fn wire2api(self) -> u32 {
-        self
-    }
-}
-
 impl Wire2Api<u64> for u64 {
     fn wire2api(self) -> u64 {
         self
@@ -751,18 +685,6 @@ impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
     }
 }
 
-impl Wire2Api<VideoConstraints> for wire_VideoConstraints {
-    fn wire2api(self) -> VideoConstraints {
-        VideoConstraints {
-            required: self.required.wire2api(),
-            device_id: self.device_id.wire2api(),
-            width: self.width.wire2api(),
-            height: self.height.wire2api(),
-            frame_rate: self.frame_rate.wire2api(),
-        }
-    }
-}
-
 // Section: impl NewWithNullPtr
 
 pub trait NewWithNullPtr {
@@ -772,24 +694,6 @@ pub trait NewWithNullPtr {
 impl<T> NewWithNullPtr for *mut T {
     fn new_with_null_ptr() -> Self {
         std::ptr::null_mut()
-    }
-}
-
-impl NewWithNullPtr for wire_AudioConstraints {
-    fn new_with_null_ptr() -> Self {
-        Self {
-            required: Default::default(),
-            device_id: core::ptr::null_mut(),
-        }
-    }
-}
-
-impl NewWithNullPtr for wire_MediaStreamConstraints {
-    fn new_with_null_ptr() -> Self {
-        Self {
-            audio: Default::default(),
-            video: Default::default(),
-        }
     }
 }
 
@@ -809,18 +713,6 @@ impl NewWithNullPtr for wire_RtcIceServer {
             urls: core::ptr::null_mut(),
             username: core::ptr::null_mut(),
             credential: core::ptr::null_mut(),
-        }
-    }
-}
-
-impl NewWithNullPtr for wire_VideoConstraints {
-    fn new_with_null_ptr() -> Self {
-        Self {
-            required: Default::default(),
-            device_id: core::ptr::null_mut(),
-            width: Default::default(),
-            height: Default::default(),
-            frame_rate: Default::default(),
         }
     }
 }

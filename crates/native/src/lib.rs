@@ -1,8 +1,8 @@
 #![warn(clippy::pedantic)]
-mod bridge_generated; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
+mod api;
+mod bridge_generated;
+mod cpp_api;
 mod devices;
-mod internal;
-mod dart_api;
 mod pc;
 mod user_media;
 mod video_sink;
@@ -16,12 +16,10 @@ use std::{
     },
 };
 
-use cxx::UniquePtr;
 use dashmap::DashMap;
-use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory,
-    Thread, VideoDeviceInfo,
+    AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
+    VideoDeviceInfo,
 };
 use threadpool::ThreadPool;
 
@@ -66,3 +64,7 @@ struct Webrtc {
     /// won't block Flutter WebRTC threads.
     callback_pool: ThreadPool,
 }
+
+unsafe impl Send for Webrtc {}
+
+unsafe impl Sync for Webrtc {}
