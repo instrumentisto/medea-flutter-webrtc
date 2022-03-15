@@ -1,0 +1,49 @@
+use crate::Frame;
+
+pub use cpp_api_bindings::*;
+
+#[allow(clippy::items_after_statements)]
+#[cxx::bridge]
+mod cpp_api_bindings {
+    /// Single video frame.
+    pub struct VideoFrame {
+        /// Vertical count of pixels in this [`VideoFrame`].
+        pub height: usize,
+
+        /// Horizontal count of pixels in this [`VideoFrame`].
+        pub width: usize,
+
+        /// Rotation of this [`VideoFrame`] in degrees.
+        pub rotation: i32,
+
+        /// Size of the bytes buffer required for allocation of the
+        /// [`VideoFrame::get_abgr_bytes()`] call.
+        pub buffer_size: usize,
+
+        /// Underlying Rust side frame.
+        pub frame: Box<Frame>,
+    }
+
+    extern "Rust" {
+        type Frame;
+    }
+
+    unsafe extern "C++" {
+        include!("flutter-webrtc-native/include/api.h");
+        include!("flutter-webrtc-native/src/lib.rs.h");
+
+        pub type OnFrameCallbackInterface;
+
+        /// Calls C++ side `OnFrameCallbackInterface->OnFrame`.
+        #[cxx_name = "OnFrame"]
+        pub fn on_frame(self: Pin<&mut OnFrameCallbackInterface>, frame: VideoFrame);
+    }
+
+    // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
+    // mentioned types.
+    extern "Rust" {
+        fn _touch_unique_ptr_on_frame_handler(i: UniquePtr<OnFrameCallbackInterface>);
+    }
+}
+
+fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameCallbackInterface>) {}
