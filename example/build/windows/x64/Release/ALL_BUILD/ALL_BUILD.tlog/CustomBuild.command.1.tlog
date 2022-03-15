@@ -1,6 +1,6 @@
-^C:\USERS\HUMAN\DOCUMENTS\GITHUB\FLUTTER-WEBRTC\EXAMPLE\WINDOWS\CMAKELISTS.TXT
+^C:\USERS\USER\DESKTOP\FLUTTER-WEBRTC\EXAMPLE\WINDOWS\CMAKELISTS.TXT
 setlocal
-"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/human/Documents/GitHub/flutter-webrtc/example/windows -BC:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows --check-stamp-file C:/Users/human/Documents/GitHub/flutter-webrtc/example/build/windows/CMakeFiles/generate.stamp
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/User/Desktop/flutter-webrtc/example/windows -BC:/Users/User/Desktop/flutter-webrtc/example/build/windows --check-stamp-file C:/Users/User/Desktop/flutter-webrtc/example/build/windows/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

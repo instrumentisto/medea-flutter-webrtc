@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -7,17 +8,19 @@ import '/src/model/track.dart';
 import '/src/platform/track.dart';
 
 /// Representation of a single media unit.
-class NativeMediaStreamTrack extends MediaStreamTrack {
+abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
-  NativeMediaStreamTrack.fromMap(dynamic map) {
-    var channelId = map['channelId'];
-    _chan = methodChannel('MediaStreamTrack', channelId);
-    _eventChan = eventChannel('MediaStreamTrackEvent', channelId);
-    _eventSub = _eventChan.receiveBroadcastStream().listen(eventListener);
-    _id = map['id'];
-    _deviceId = map['deviceId'];
-    _kind = MediaKind.values[map['kind']];
+  static NativeMediaStreamTrack fromMap(dynamic map) {
+    NativeMediaStreamTrack? track;
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      track = _NativeMediaStreamTrackChannel.fromMap(map);
+    } else {
+      track = _NativeMediaStreamTrackFFI();
+    }
+
+    return track;
   }
 
   /// Indicates whether this [NativeMediaStreamTrack] transmits media.
@@ -37,15 +40,6 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   ///
   /// "remote" - for the remove tracks.
   late String _deviceId;
-
-  /// [MethodChannel] used for the messaging with a native side.
-  late MethodChannel _chan;
-
-  /// [EventChannel] to receive all the [PeerConnection] events from.
-  late EventChannel _eventChan;
-
-  /// [_eventChan] subscription to the [PeerConnection] events.
-  late StreamSubscription<dynamic>? _eventSub;
 
   /// `on_ended` event subscriber.
   OnEndedCallback? _onEnded;
@@ -85,6 +79,29 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   bool isEnabled() {
     return _enabled;
   }
+}
+
+class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
+  /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
+  /// native side.
+  _NativeMediaStreamTrackChannel.fromMap(dynamic map) {
+    var channelId = map['channelId'];
+    _chan = methodChannel('MediaStreamTrack', channelId);
+    _eventChan = eventChannel('MediaStreamTrackEvent', channelId);
+    _eventSub = _eventChan.receiveBroadcastStream().listen(eventListener);
+    _id = map['id'];
+    _deviceId = map['deviceId'];
+    _kind = MediaKind.values[map['kind']];
+  }
+
+  /// [MethodChannel] used for the messaging with a native side.
+  late MethodChannel _chan;
+
+  /// [EventChannel] to receive all the [PeerConnection] events from.
+  late EventChannel _eventChan;
+
+  /// [_eventChan] subscription to the [PeerConnection] events.
+  late StreamSubscription<dynamic>? _eventSub;
 
   @override
   Future<void> setEnabled(bool enabled) async {
@@ -105,5 +122,31 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   @override
   Future<MediaStreamTrack> clone() async {
     return NativeMediaStreamTrack.fromMap(await _chan.invokeMethod('clone'));
+  }
+}
+
+class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
+  @override
+  Future<MediaStreamTrack> clone() {
+    // TODO: implement clone
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> dispose() {
+    // TODO: implement dispose
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setEnabled(bool enabled) {
+    // TODO: implement setEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> stop() {
+    // TODO: implement stop
+    throw UnimplementedError();
   }
 }

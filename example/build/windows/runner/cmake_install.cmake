@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/human/Documents/GitHub/flutter-webrtc/example/windows/runner
+# Install script for directory: C:/Users/User/Desktop/flutter-webrtc/example/windows/runner
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

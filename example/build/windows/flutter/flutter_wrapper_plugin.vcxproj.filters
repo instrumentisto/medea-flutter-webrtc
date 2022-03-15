@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\human\Documents\GitHub\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\core_implementations.cc">
+    <ClCompile Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\core_implementations.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\human\Documents\GitHub\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\standard_codec.cc">
+    <ClCompile Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\standard_codec.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\human\Documents\GitHub\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\plugin_registrar.cc">
+    <ClCompile Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\plugin_registrar.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\human\Documents\GitHub\flutter-webrtc\example\windows\flutter\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{81E395E1-6B99-39E1-917F-5CAA30E027C6}</UniqueIdentifier>
+      <UniqueIdentifier>{FB764990-DE7D-3997-BC81-66BB742B8A1B}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{CAED098A-21CD-362B-9908-3AC592D650AB}</UniqueIdentifier>
+      <UniqueIdentifier>{89989B75-9B9F-3F6C-9DDE-E9AB9AF7254D}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

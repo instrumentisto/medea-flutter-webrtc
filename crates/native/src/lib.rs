@@ -1,8 +1,8 @@
 #![warn(clippy::pedantic)]
-mod api;
-mod bridge_generated;
-mod cpp_api;
+mod bridge_generated; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
 mod devices;
+mod internal;
+mod dart_api;
 mod pc;
 mod user_media;
 mod video_sink;

@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/human/Documents/GitHub/flutter-webrtc/example/windows/flutter/ephemeral/.plugin_symlinks/flutter_webrtc/windows
+# Install script for directory: C:/Users/User/Desktop/flutter-webrtc/example/windows/flutter/ephemeral/.plugin_symlinks/flutter_webrtc/windows
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
