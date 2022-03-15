@@ -30,7 +30,6 @@ mod cpp_api_bindings {
 
     unsafe extern "C++" {
         include!("flutter-webrtc-native/include/api.h");
-        include!("flutter-webrtc-native/src/lib.rs.h");
 
         pub type OnFrameCallbackInterface;
 

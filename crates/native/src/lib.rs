@@ -45,14 +45,7 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-/// [`Context`] wrapper that is exposed to the C++ API clients.
-pub struct Webrtc(Box<Context>);
-
-unsafe impl Sync for Webrtc {}
-
-/// Application context that manages all dependencies.
-#[allow(dead_code)]
-pub struct Context {
+struct Webrtc {
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_device_info: VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
@@ -72,62 +65,4 @@ pub struct Context {
     /// [`ThreadPool`] used to offload blocking or CPU-intensive tasks, so they
     /// won't block Flutter WebRTC threads.
     callback_pool: ThreadPool,
-}
-
-/// Creates a new instance of [`Webrtc`].
-///
-/// # Panics
-///
-/// Panics on any error returned from the `libWebRTC`.
-#[must_use]
-pub fn init() -> Box<Webrtc> {
-    // TODO: Dont panic but propagate errors to API users.
-    let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
-
-    let mut network_thread = Thread::create(true).unwrap();
-    network_thread.start().unwrap();
-
-    let mut worker_thread = Thread::create(false).unwrap();
-    worker_thread.start().unwrap();
-
-    let mut signaling_thread = Thread::create(false).unwrap();
-    signaling_thread.start().unwrap();
-
-    let audio_device_module =
-        AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, &mut task_queue_factory)
-            .unwrap();
-
-    let peer_connection_factory = PeerConnectionFactoryInterface::create(
-        Some(&network_thread),
-        Some(&worker_thread),
-        Some(&signaling_thread),
-        Some(&audio_device_module.inner),
-    )
-    .unwrap();
-
-    let video_device_info = VideoDeviceInfo::create().unwrap();
-
-    Box::new(Webrtc(Box::new(Context {
-        task_queue_factory,
-        network_thread,
-        worker_thread,
-        signaling_thread,
-        audio_device_module,
-        video_device_info,
-        peer_connection_factory,
-        video_sources: HashMap::new(),
-        video_tracks: Arc::new(DashMap::new()),
-        audio_source: None,
-        audio_tracks: Arc::new(DashMap::new()),
-        peer_connections: HashMap::new(),
-        video_sinks: HashMap::new(),
-        callback_pool: ThreadPool::new(4),
-    })))
-}
-
-impl Drop for Webrtc {
-    fn drop(&mut self) {
-        todo!();
-        // self.set_on_device_changed(UniquePtr::null());
-    }
 }

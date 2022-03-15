@@ -1,8 +1,67 @@
-use crate::{cpp_api::OnFrameCallbackInterface, Frame};
+use crate::{
+    cpp_api::OnFrameCallbackInterface, AudioDeviceModule, AudioTrack, AudioTrackId, Frame,
+    PeerConnection, PeerConnectionId, VideoDeviceId, VideoSink, VideoSinkId, VideoSource,
+    VideoTrack, VideoTrackId, Webrtc,
+};
 use anyhow::anyhow;
 use cxx::UniquePtr;
+use dashmap::DashMap;
 use flutter_rust_bridge::StreamSink;
-use std::sync::mpsc::Sender;
+use libwebrtc_sys::{
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory,
+    Thread, VideoDeviceInfo,
+};
+use std::{
+    collections::HashMap,
+    sync::{mpsc::Sender, Arc, Mutex},
+};
+use threadpool::ThreadPool;
+
+lazy_static::lazy_static! {
+    static ref WEBRTC: Mutex<Webrtc> = {
+        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
+
+        let mut network_thread = Thread::create(true).unwrap();
+        network_thread.start().unwrap();
+
+        let mut worker_thread = Thread::create(false).unwrap();
+        worker_thread.start().unwrap();
+
+        let mut signaling_thread = Thread::create(false).unwrap();
+        signaling_thread.start().unwrap();
+
+        let audio_device_module =
+            AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, &mut task_queue_factory)
+                .unwrap();
+
+        let peer_connection_factory = PeerConnectionFactoryInterface::create(
+            Some(&network_thread),
+            Some(&worker_thread),
+            Some(&signaling_thread),
+            Some(&audio_device_module.inner),
+        )
+        .unwrap();
+
+        let video_device_info = VideoDeviceInfo::create().unwrap();
+
+        Mutex::new(Webrtc {
+            task_queue_factory,
+            network_thread,
+            worker_thread,
+            signaling_thread,
+            audio_device_module,
+            video_device_info,
+            peer_connection_factory,
+            video_sources: HashMap::new(),
+            video_tracks: Arc::new(DashMap::new()),
+            audio_source: None,
+            audio_tracks: Arc::new(DashMap::new()),
+            peer_connections: HashMap::new(),
+            video_sinks: HashMap::new(),
+            callback_pool: ThreadPool::new(4),
+        })
+    };
+}
 
 /// Possible kinds of media devices.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
