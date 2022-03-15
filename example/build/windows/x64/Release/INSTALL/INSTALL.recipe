@@ -2,22 +2,22 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\human\Documents\GitHub\flutter-webrtc\example\build\windows\x64\Release\ZERO_CHECK</FullPath>
+      <FullPath>C:\Users\User\Desktop\flutter-webrtc\example\build\windows\x64\Release\ZERO_CHECK</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\human\Documents\GitHub\flutter-webrtc\example\build\windows\flutter\x64\Release\flutter_assemble</FullPath>
+      <FullPath>C:\Users\User\Desktop\flutter-webrtc\example\build\windows\flutter\x64\Release\flutter_assemble</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\human\Documents\GitHub\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\Release\flutter_webrtc_plugin.dll</FullPath>
+      <FullPath>C:\Users\User\Desktop\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\Release\flutter_webrtc_plugin.dll</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\human\Documents\GitHub\flutter-webrtc\example\build\windows\runner\Release\example.exe</FullPath>
+      <FullPath>C:\Users\User\Desktop\flutter-webrtc\example\build\windows\runner\Release\example.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\human\Documents\GitHub\flutter-webrtc\example\build\windows\x64\Release\ALL_BUILD</FullPath>
+      <FullPath>C:\Users\User\Desktop\flutter-webrtc\example\build\windows\x64\Release\ALL_BUILD</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\human\Documents\GitHub\flutter-webrtc\example\build\windows\x64\Release\INSTALL</FullPath>
+      <FullPath>C:\Users\User\Desktop\flutter-webrtc\example\build\windows\x64\Release\INSTALL</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
