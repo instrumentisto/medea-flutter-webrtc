@@ -77,6 +77,11 @@ pub struct VideoFrame {
     extern "Rust" {
         include!("flutter-webrtc-native/include/api.h");
         type Frame;
+
+        /// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
+        /// outputs the result to the provided `buffer`.
+        #[cxx_name = "GetABGRBytes"]
+        unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
     }
 }
 

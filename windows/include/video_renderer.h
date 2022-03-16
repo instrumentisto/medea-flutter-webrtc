@@ -95,13 +95,11 @@ class FlutterVideoRendererManager {
 
   // Changes a media source of the specific `TextureVideoRenderer`.
   void SetMediaStream(
-      rust::Box<Webrtc>& webrtc,
       const flutter::MethodCall<EncodableValue>& method_call,
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
   // Disposes the specific `TextureVideoRenderer`.
   void VideoRendererDispose(
-      rust::Box<Webrtc>& webrtc,
       const flutter::MethodCall<EncodableValue>& method_call,
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 
