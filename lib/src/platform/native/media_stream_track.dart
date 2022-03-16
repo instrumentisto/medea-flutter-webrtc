@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
+import '../../../flutter_webrtc.dart';
 
 /// Representation of a single media unit.
 abstract class NativeMediaStreamTrack extends MediaStreamTrack {
@@ -133,15 +134,13 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   }
 
   @override
-  Future<void> dispose() {
-    // TODO: implement dispose
-    throw UnimplementedError();
+  Future<void> dispose() async {
+    await api.disposeStream(id: 1);
   }
 
   @override
-  Future<void> setEnabled(bool enabled) {
-    // TODO: implement setEnabled
-    throw UnimplementedError();
+  Future<void> setEnabled(bool enabled) async {
+    api.setTrackEnabled(trackId: 1, enabled: enabled);
   }
 
   @override

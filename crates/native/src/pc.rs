@@ -23,6 +23,7 @@ impl Webrtc {
         self: &mut Webrtc,
         obs: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
+        id: u64,
     ) -> anyhow::Result<u64> {
         let peer = PeerConnection::new(
             &mut self.peer_connection_factory,
@@ -32,7 +33,6 @@ impl Webrtc {
             configuration,
             self.callback_pool.clone(),
         )?;
-        let id = next_id();
         self.peer_connections.insert(id.into(), peer);
         Ok(id)
     }

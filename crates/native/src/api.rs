@@ -1,4 +1,5 @@
-use crate::{api::SignalingState::HaveRemoteOffer, AudioDeviceModule, Webrtc};
+use crate::{AudioDeviceModule, Webrtc};
+use anyhow::Ok;
 use dashmap::DashMap;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys::{
@@ -63,18 +64,20 @@ pub enum TrackEvent {
     Ended,
 }
 
-pub enum IceGatheringState {
+pub enum IceGatheringStateFFI {
     New,
     Gathering,
     Complete,
 }
 
-impl From<sys::IceGatheringState> for IceGatheringState {
+impl From<sys::IceGatheringState> for IceGatheringStateFFI {
     fn from(state: sys::IceGatheringState) -> Self {
         match state {
-            sys::IceGatheringState::kIceGatheringNew => IceGatheringState::New,
-            sys::IceGatheringState::kIceGatheringGathering => IceGatheringState::Gathering,
-            sys::IceGatheringState::kIceGatheringComplete => IceGatheringState::Complete,
+            sys::IceGatheringState::kIceGatheringNew => IceGatheringStateFFI::New,
+            sys::IceGatheringState::kIceGatheringGathering => {
+                IceGatheringStateFFI::Gathering
+            }
+            sys::IceGatheringState::kIceGatheringComplete => IceGatheringStateFFI::Complete,
             _ => unreachable!(),
         }
     }
@@ -86,7 +89,7 @@ pub enum PeerConnectionEvent {
         sdp_mline_index: i64,
         candidate: String,
     },
-    OnIceGatheringStateChange(IceGatheringState),
+    OnIceGatheringStateChange(IceGatheringStateFFI),
     OnIceCandidateError {
         address: String,
         port: i64,
@@ -95,13 +98,13 @@ pub enum PeerConnectionEvent {
         error_text: String,
     },
     OnNegotiationNeeded,
-    OnSignallingChange(SignalingState),
-    OnIceConnectionStateChange(IceConnectionState),
-    OnConnectionStateChange(PeerConnectionState),
+    OnSignallingChange(SignalingStateFFI),
+    OnIceConnectionStateChange(IceConnectionStateFFI),
+    OnConnectionStateChange(PeerConnectionStateFFI),
     OnTrack,
 }
 
-pub enum SignalingState {
+pub enum SignalingStateFFI {
     Stable,
     HaveLocalOffer,
     HaveLocalPrAnswer,
@@ -110,21 +113,23 @@ pub enum SignalingState {
     Closed,
 }
 
-impl From<sys::SignalingState> for SignalingState {
+impl From<sys::SignalingState> for SignalingStateFFI {
     fn from(state: sys::SignalingState) -> Self {
         match state {
-            sys::SignalingState::kStable => SignalingState::Stable,
-            sys::SignalingState::kHaveLocalOffer => SignalingState::HaveLocalOffer,
-            sys::SignalingState::kHaveLocalPrAnswer => SignalingState::HaveLocalPrAnswer,
-            sys::SignalingState::kHaveRemoteOffer => SignalingState::HaveRemoteOffer,
-            sys::SignalingState::kHaveRemotePrAnswer => SignalingState::HaveRemotePrAnswer,
-            sys::SignalingState::kClosed => SignalingState::Closed,
+            sys::SignalingState::kStable => SignalingStateFFI::Stable,
+            sys::SignalingState::kHaveLocalOffer => SignalingStateFFI::HaveLocalOffer,
+            sys::SignalingState::kHaveLocalPrAnswer => SignalingStateFFI::HaveLocalPrAnswer,
+            sys::SignalingState::kHaveRemoteOffer => SignalingStateFFI::HaveRemoteOffer,
+            sys::SignalingState::kHaveRemotePrAnswer => {
+                SignalingStateFFI::HaveRemotePrAnswer
+            }
+            sys::SignalingState::kClosed => SignalingStateFFI::Closed,
             _ => unreachable!(),
         }
     }
 }
 
-pub enum IceConnectionState {
+pub enum IceConnectionStateFFI {
     New,
     Checking,
     Connected,
@@ -134,28 +139,30 @@ pub enum IceConnectionState {
     Closed,
 }
 
-impl From<sys::IceConnectionState> for IceConnectionState {
+impl From<sys::IceConnectionState> for IceConnectionStateFFI {
     fn from(state: sys::IceConnectionState) -> Self {
         match state {
-            sys::IceConnectionState::kIceConnectionNew => IceConnectionState::New,
-            sys::IceConnectionState::kIceConnectionChecking => IceConnectionState::Checking,
+            sys::IceConnectionState::kIceConnectionNew => IceConnectionStateFFI::New,
+            sys::IceConnectionState::kIceConnectionChecking => {
+                IceConnectionStateFFI::Checking
+            }
             sys::IceConnectionState::kIceConnectionConnected => {
-                IceConnectionState::Connected
+                IceConnectionStateFFI::Connected
             }
             sys::IceConnectionState::kIceConnectionCompleted => {
-                IceConnectionState::Completed
+                IceConnectionStateFFI::Completed
             }
-            sys::IceConnectionState::kIceConnectionFailed => IceConnectionState::Failed,
+            sys::IceConnectionState::kIceConnectionFailed => IceConnectionStateFFI::Failed,
             sys::IceConnectionState::kIceConnectionDisconnected => {
-                IceConnectionState::Disconnected
+                IceConnectionStateFFI::Disconnected
             }
-            sys::IceConnectionState::kIceConnectionClosed => IceConnectionState::Closed,
+            sys::IceConnectionState::kIceConnectionClosed => IceConnectionStateFFI::Closed,
             _ => unreachable!(),
         }
     }
 }
 
-pub enum PeerConnectionState {
+pub enum PeerConnectionStateFFI {
     New,
     Connecting,
     Connected,
@@ -164,15 +171,15 @@ pub enum PeerConnectionState {
     Closed,
 }
 
-impl From<sys::PeerConnectionState> for PeerConnectionState {
+impl From<sys::PeerConnectionState> for PeerConnectionStateFFI {
     fn from(state: sys::PeerConnectionState) -> Self {
         match state {
-            sys::PeerConnectionState::kNew => PeerConnectionState::New,
-            sys::PeerConnectionState::kConnecting => PeerConnectionState::Connecting,
-            sys::PeerConnectionState::kConnected => PeerConnectionState::Connected,
-            sys::PeerConnectionState::kDisconnected => PeerConnectionState::Disconnected,
-            sys::PeerConnectionState::kFailed => PeerConnectionState::Failed,
-            sys::PeerConnectionState::kClosed => PeerConnectionState::Closed,
+            sys::PeerConnectionState::kNew => PeerConnectionStateFFI::New,
+            sys::PeerConnectionState::kConnecting => PeerConnectionStateFFI::Connecting,
+            sys::PeerConnectionState::kConnected => PeerConnectionStateFFI::Connected,
+            sys::PeerConnectionState::kDisconnected => PeerConnectionStateFFI::Disconnected,
+            sys::PeerConnectionState::kFailed => PeerConnectionStateFFI::Failed,
+            sys::PeerConnectionState::kClosed => PeerConnectionStateFFI::Closed,
             _ => unreachable!(),
         }
     }
@@ -206,7 +213,7 @@ pub enum MediaType {
 
 /// Information describing a single media input or output device.
 #[derive(Debug)]
-pub struct MediaDeviceInfo {
+pub struct MediaDeviceInfoFFI {
     /// Unique identifier for the represented device.
     pub device_id: String,
 
@@ -383,7 +390,7 @@ pub struct RtcIceServer {
 
 /// Returns a list of all available media input and output devices, such
 /// as microphones, cameras, headsets, and so forth.
-pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
+pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
     unimplemented!()
 }
 
@@ -393,11 +400,13 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
 pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
     configuration: RtcConfiguration,
-) -> anyhow::Result<u64> {
+    id: u64,
+) -> anyhow::Result<()> {
     WEBRTC
         .lock()
         .unwrap()
-        .create_peer_connection(cb, configuration)
+        .create_peer_connection(cb, configuration, id);
+    Ok(())
 }
 
 /// Initiates the creation of a SDP offer for the purpose of starting

@@ -32,6 +32,7 @@ pub extern "C" fn wire_enumerate_devices(port_: i64) {
 pub extern "C" fn wire_create_peer_connection(
     port_: i64,
     configuration: *mut wire_RtcConfiguration,
+    id: u64,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -41,8 +42,13 @@ pub extern "C" fn wire_create_peer_connection(
         },
         move || {
             let api_configuration = configuration.wire2api();
+            let api_id = id.wire2api();
             move |task_callback| {
-                create_peer_connection(task_callback.stream_sink(), api_configuration)
+                create_peer_connection(
+                    task_callback.stream_sink(),
+                    api_configuration,
+                    api_id,
+                )
             }
         },
     )
@@ -843,7 +849,7 @@ impl NewWithNullPtr for wire_VideoConstraints {
 
 // Section: impl IntoDart
 
-impl support::IntoDart for IceConnectionState {
+impl support::IntoDart for IceConnectionStateFFI {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::New => 0,
@@ -858,7 +864,7 @@ impl support::IntoDart for IceConnectionState {
     }
 }
 
-impl support::IntoDart for IceGatheringState {
+impl support::IntoDart for IceGatheringStateFFI {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::New => 0,
@@ -869,7 +875,7 @@ impl support::IntoDart for IceGatheringState {
     }
 }
 
-impl support::IntoDart for MediaDeviceInfo {
+impl support::IntoDart for MediaDeviceInfoFFI {
     fn into_dart(self) -> support::DartCObject {
         vec![
             self.device_id.into_dart(),
@@ -879,7 +885,7 @@ impl support::IntoDart for MediaDeviceInfo {
         .into_dart()
     }
 }
-impl support::IntoDartExceptPrimitive for MediaDeviceInfo {}
+impl support::IntoDartExceptPrimitive for MediaDeviceInfoFFI {}
 
 impl support::IntoDart for MediaDeviceKind {
     fn into_dart(self) -> support::DartCObject {
@@ -957,7 +963,7 @@ impl support::IntoDart for PeerConnectionEvent {
     }
 }
 
-impl support::IntoDart for PeerConnectionState {
+impl support::IntoDart for PeerConnectionStateFFI {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::New => 0,
@@ -991,7 +997,7 @@ impl support::IntoDart for RtcRtpTransceiver {
 }
 impl support::IntoDartExceptPrimitive for RtcRtpTransceiver {}
 
-impl support::IntoDart for SignalingState {
+impl support::IntoDart for SignalingStateFFI {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::Stable => 0,

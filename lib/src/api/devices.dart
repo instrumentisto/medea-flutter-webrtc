@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import '/src/model/constraints.dart';
 import '/src/model/device.dart';
 import '/src/platform/native/media_stream_track.dart';
+import 'bridge_generated.dart';
 import 'channel.dart';
+import 'peer.dart';
 
 /// [Exception] thrown if the specified constraints resulted in no candidate
 /// devices which met the criteria requested. The error is an object of type
@@ -26,12 +28,14 @@ final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 
 /// Returns list of [MediaDeviceInfo]s for the currently available devices.
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
-  Future<List<MediaDeviceInfo>> mdInfo;
+  List<MediaDeviceInfo> mdInfo;
 
   if (Platform.isAndroid || Platform.isIOS) {
-    mdInfo = _enumerateDevicesChannel();
+    mdInfo = await _enumerateDevicesChannel();
   } else {
-    mdInfo = _enumerateDevicesFFI();
+    var asd = await _enumerateDevicesFFI();
+
+    mdInfo = asd.map((e) => MediaDeviceInfo.fromMap(e)).toList();
   }
 
   return mdInfo;
@@ -44,8 +48,9 @@ Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
 }
 
 Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
-  // TODO: implement enumerateDevices
-  throw UnimplementedError();
+  var devices = await api.enumerateDevices();
+
+  return devices.map((e) => MediaDeviceInfo.fromMap(e)).toList();
 }
 
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on
@@ -80,8 +85,9 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
-  // TODO: implement getUserMedia
-  throw UnimplementedError();
+  var tracks = await api.getMedia(constraints: MediaStreamConstraints());
+
+  return tracks.map((e) => NativeMediaStreamTrack.fromMap(e)).toList();
 }
 
 /// Returns list of local display [NativeMediaStreamTrack]s based on the
@@ -108,8 +114,9 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
-  // TODO: implement getDisplayMedia
-  throw UnimplementedError();
+  var tracks = await api.getMedia(constraints: MediaStreamConstraints());
+
+  return tracks.map((e) => NativeMediaStreamTrack.fromMap(e)).toList();
 }
 
 /// Switches the current output audio device to the provided [deviceId].

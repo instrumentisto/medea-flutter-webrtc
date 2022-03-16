@@ -17,13 +17,13 @@ part 'bridge_generated.freezed.dart';
 abstract class FlutterWebrtcNative {
   /// Returns a list of all available media input and output devices, such
   /// as microphones, cameras, headsets, and so forth.
-  Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint});
+  Future<List<MediaDeviceInfoFFI>> enumerateDevices({dynamic hint});
 
   /// Creates a new [`PeerConnection`] and returns its ID.
   ///
   /// Writes an error to the provided `err`, if any.
   Stream<PeerConnectionEvent> createPeerConnection(
-      {required RtcConfiguration configuration, dynamic hint});
+      {required RtcConfiguration configuration, required int id, dynamic hint});
 
   /// Initiates the creation of a SDP offer for the purpose of starting
   /// a new WebRTC connection to a remote peer.
@@ -183,7 +183,7 @@ class AudioConstraints {
   });
 }
 
-enum IceConnectionState {
+enum IceConnectionStateFFI {
   New,
   Checking,
   Connected,
@@ -193,14 +193,14 @@ enum IceConnectionState {
   Closed,
 }
 
-enum IceGatheringState {
+enum IceGatheringStateFFI {
   New,
   Gathering,
   Complete,
 }
 
 /// Information describing a single media input or output device.
-class MediaDeviceInfo {
+class MediaDeviceInfoFFI {
   /// Unique identifier for the represented device.
   final String deviceId;
 
@@ -210,7 +210,7 @@ class MediaDeviceInfo {
   /// Label describing the represented device.
   final String label;
 
-  MediaDeviceInfo({
+  MediaDeviceInfoFFI({
     required this.deviceId,
     required this.kind,
     required this.label,
@@ -281,7 +281,7 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
     required String candidate,
   }) = OnIceCandidate;
   const factory PeerConnectionEvent.onIceGatheringStateChange(
-    IceGatheringState field0,
+    IceGatheringStateFFI field0,
   ) = OnIceGatheringStateChange;
   const factory PeerConnectionEvent.onIceCandidateError({
     required String address,
@@ -292,18 +292,18 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
   }) = OnIceCandidateError;
   const factory PeerConnectionEvent.onNegotiationNeeded() = OnNegotiationNeeded;
   const factory PeerConnectionEvent.onSignallingChange(
-    SignalingState field0,
+    SignalingStateFFI field0,
   ) = OnSignallingChange;
   const factory PeerConnectionEvent.onIceConnectionStateChange(
-    IceConnectionState field0,
+    IceConnectionStateFFI field0,
   ) = OnIceConnectionStateChange;
   const factory PeerConnectionEvent.onConnectionStateChange(
-    PeerConnectionState field0,
+    PeerConnectionStateFFI field0,
   ) = OnConnectionStateChange;
   const factory PeerConnectionEvent.onTrack() = OnTrack;
 }
 
-enum PeerConnectionState {
+enum PeerConnectionStateFFI {
   New,
   Connecting,
   Connected,
@@ -431,7 +431,7 @@ enum RtpTransceiverDirection {
   Stopped,
 }
 
-enum SignalingState {
+enum SignalingStateFFI {
   Stable,
   HaveLocalOffer,
   HaveLocalPrAnswer,
@@ -479,10 +479,10 @@ class FlutterWebrtcNativeImpl
 
   FlutterWebrtcNativeImpl.raw(FlutterWebrtcNativeWire inner) : super(inner);
 
-  Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint}) =>
+  Future<List<MediaDeviceInfoFFI>> enumerateDevices({dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_enumerate_devices(port_),
-        parseSuccessData: _wire2api_list_media_device_info,
+        parseSuccessData: _wire2api_list_media_device_info_ffi,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "enumerate_devices",
           argNames: [],
@@ -492,16 +492,20 @@ class FlutterWebrtcNativeImpl
       ));
 
   Stream<PeerConnectionEvent> createPeerConnection(
-          {required RtcConfiguration configuration, dynamic hint}) =>
+          {required RtcConfiguration configuration,
+          required int id,
+          dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_create_peer_connection(
-            port_, _api2wire_box_autoadd_rtc_configuration(configuration)),
+            port_,
+            _api2wire_box_autoadd_rtc_configuration(configuration),
+            _api2wire_u64(id)),
         parseSuccessData: _wire2api_peer_connection_event,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "create_peer_connection",
-          argNames: ["configuration"],
+          argNames: ["configuration", "id"],
         ),
-        argValues: [configuration],
+        argValues: [configuration, id],
         hint: hint,
       ));
 
@@ -1039,16 +1043,16 @@ int _wire2api_i64(dynamic raw) {
   return raw as int;
 }
 
-IceConnectionState _wire2api_ice_connection_state(dynamic raw) {
-  return IceConnectionState.values[raw];
+IceConnectionStateFFI _wire2api_ice_connection_state_ffi(dynamic raw) {
+  return IceConnectionStateFFI.values[raw];
 }
 
-IceGatheringState _wire2api_ice_gathering_state(dynamic raw) {
-  return IceGatheringState.values[raw];
+IceGatheringStateFFI _wire2api_ice_gathering_state_ffi(dynamic raw) {
+  return IceGatheringStateFFI.values[raw];
 }
 
-List<MediaDeviceInfo> _wire2api_list_media_device_info(dynamic raw) {
-  return (raw as List<dynamic>).map(_wire2api_media_device_info).toList();
+List<MediaDeviceInfoFFI> _wire2api_list_media_device_info_ffi(dynamic raw) {
+  return (raw as List<dynamic>).map(_wire2api_media_device_info_ffi).toList();
 }
 
 List<MediaStreamTrack> _wire2api_list_media_stream_track(dynamic raw) {
@@ -1059,11 +1063,11 @@ List<RtcRtpTransceiver> _wire2api_list_rtc_rtp_transceiver(dynamic raw) {
   return (raw as List<dynamic>).map(_wire2api_rtc_rtp_transceiver).toList();
 }
 
-MediaDeviceInfo _wire2api_media_device_info(dynamic raw) {
+MediaDeviceInfoFFI _wire2api_media_device_info_ffi(dynamic raw) {
   final arr = raw as List<dynamic>;
   if (arr.length != 3)
     throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-  return MediaDeviceInfo(
+  return MediaDeviceInfoFFI(
     deviceId: _wire2api_String(arr[0]),
     kind: _wire2api_media_device_kind(arr[1]),
     label: _wire2api_String(arr[2]),
@@ -1100,7 +1104,7 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
       );
     case 1:
       return OnIceGatheringStateChange(
-        _wire2api_ice_gathering_state(raw[1]),
+        _wire2api_ice_gathering_state_ffi(raw[1]),
       );
     case 2:
       return OnIceCandidateError(
@@ -1114,15 +1118,15 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
       return OnNegotiationNeeded();
     case 4:
       return OnSignallingChange(
-        _wire2api_signaling_state(raw[1]),
+        _wire2api_signaling_state_ffi(raw[1]),
       );
     case 5:
       return OnIceConnectionStateChange(
-        _wire2api_ice_connection_state(raw[1]),
+        _wire2api_ice_connection_state_ffi(raw[1]),
       );
     case 6:
       return OnConnectionStateChange(
-        _wire2api_peer_connection_state(raw[1]),
+        _wire2api_peer_connection_state_ffi(raw[1]),
       );
     case 7:
       return OnTrack();
@@ -1131,8 +1135,8 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
   }
 }
 
-PeerConnectionState _wire2api_peer_connection_state(dynamic raw) {
-  return PeerConnectionState.values[raw];
+PeerConnectionStateFFI _wire2api_peer_connection_state_ffi(dynamic raw) {
+  return PeerConnectionStateFFI.values[raw];
 }
 
 RtcRtpSender _wire2api_rtc_rtp_sender(dynamic raw) {
@@ -1156,8 +1160,8 @@ RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
   );
 }
 
-SignalingState _wire2api_signaling_state(dynamic raw) {
-  return SignalingState.values[raw];
+SignalingStateFFI _wire2api_signaling_state_ffi(dynamic raw) {
+  return SignalingStateFFI.values[raw];
 }
 
 TrackEvent _wire2api_track_event(dynamic raw) {
@@ -1219,20 +1223,22 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_create_peer_connection(
     int port_,
     ffi.Pointer<wire_RtcConfiguration> configuration,
+    int id,
   ) {
     return _wire_create_peer_connection(
       port_,
       configuration,
+      id,
     );
   }
 
   late final _wire_create_peer_connectionPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Int64, ffi.Pointer<wire_RtcConfiguration>)>>(
-      'wire_create_peer_connection');
-  late final _wire_create_peer_connection = _wire_create_peer_connectionPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_RtcConfiguration>)>();
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_RtcConfiguration>,
+              ffi.Uint64)>>('wire_create_peer_connection');
+  late final _wire_create_peer_connection =
+      _wire_create_peer_connectionPtr.asFunction<
+          void Function(int, ffi.Pointer<wire_RtcConfiguration>, int)>();
 
   void wire_create_offer(
     int port_,

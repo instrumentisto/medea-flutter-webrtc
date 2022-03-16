@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -9,8 +10,23 @@ import '/src/model/sdp.dart';
 import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
+import 'bridge_generated.dart';
 import 'channel.dart';
 import 'transceiver.dart';
+
+const base = 'flutter_webrtc_native';
+final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
+late final dylib = Platform.isIOS
+    ? DynamicLibrary.process()
+    : Platform.isMacOS
+        ? DynamicLibrary.executable()
+        : DynamicLibrary.open(path);
+
+late final api = FlutterWebrtcNativeImpl(dylib);
+
+int COUNT = 1;
+
+var nextId = () => COUNT++;
 
 /// Shortcut for the `on_track` callback.
 typedef OnTrackCallback = void Function(NativeMediaStreamTrack, RtpTransceiver);
@@ -46,7 +62,7 @@ abstract class PeerConnection {
     if (Platform.isAndroid || Platform.isIOS) {
       pc = await _PeerConnectionChannel.create(iceTransportType, iceServers);
     } else {
-      pc = _PeerConnectionFFI();
+      pc = await _PeerConnectionFFI.create(iceTransportType, iceServers);
     }
 
     return pc;
@@ -240,6 +256,19 @@ final _peerConnectionFactoryMethodChannel =
     methodChannel('PeerConnectionFactory', 0);
 
 class _PeerConnectionChannel extends PeerConnection {
+  /// Creates a new [PeerConnection] with the provided [IceTransportType] and
+  /// [IceServer]s.
+  static Future<PeerConnection> create(
+      IceTransportType iceTransportType, List<IceServer> iceServers) async {
+    dynamic res =
+        await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
+      'iceTransportType': iceTransportType.index,
+      'iceServers': iceServers.map((s) => s.toMap()).toList(),
+    });
+
+    return _PeerConnectionChannel._fromMap(res);
+  }
+
   /// Creates a [PeerConnection] based on the [Map] received from the native
   /// side.
   _PeerConnectionChannel._fromMap(dynamic map) {
@@ -258,20 +287,8 @@ class _PeerConnectionChannel extends PeerConnection {
   /// [_eventChan] subscription to the [PeerConnection] events.
   late StreamSubscription<dynamic>? _eventSub;
 
-  /// Creates a new [PeerConnection] with the provided [IceTransportType] and
-  /// [IceServer]s.
-  static Future<PeerConnection> create(
-      IceTransportType iceTransportType, List<IceServer> iceServers) async {
-    dynamic res =
-        await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
-      'iceTransportType': iceTransportType.index,
-      'iceServers': iceServers.map((s) => s.toMap()).toList(),
-    });
-
-    return _PeerConnectionChannel._fromMap(res);
-  }
-
   /// Synchronizes mIDs of the [_transceivers] owned by this [PeerConnection].
+  @override
   Future<void> _syncTransceiversMids() async {
     for (var transceiver in _transceivers) {
       await transceiver.syncMid();
@@ -368,58 +385,125 @@ class _PeerConnectionChannel extends PeerConnection {
 }
 
 class _PeerConnectionFFI extends PeerConnection {
+  static Future<PeerConnection> create(
+      IceTransportType iceTransportType, List<IceServer> iceServers) async {
+    var cfg = RtcConfiguration(
+        iceTransportPolicy: iceTransportType.toString(),
+        bundlePolicy: 'maxbundle',
+        iceServers: iceServers
+            .map((e) => RtcIceServer(
+                urls: e.urls, username: e.username!, credential: e.password!))
+            .toList());
+
+    var id = nextId();
+
+    var stream = api.createPeerConnection(configuration: cfg, id: id);
+
+    return _PeerConnectionFFI(id, stream);
+  }
+
+  int? _id;
+  Stream<PeerConnectionEvent>? _stream;
+
+  _PeerConnectionFFI(id, stream) {
+    _id = id;
+    _stream = stream;
+  }
+
   @override
-  Future<void> addIceCandidate(IceCandidate candidate) {
-    // TODO: implement addIceCandidate
-    throw UnimplementedError();
+  Future<void> addIceCandidate(IceCandidate candidate) async {
+    api.addIceCandidate(
+        peerId: _id!,
+        candidate: candidate.candidate,
+        sdpMid: candidate.sdpMid,
+        sdpMlineIndex: candidate.sdpMLineIndex);
   }
 
   @override
   Future<RtpTransceiver> addTransceiver(
-      MediaKind mediaType, RtpTransceiverInit init) {
-    // TODO: implement addTransceiver
-    throw UnimplementedError();
+      MediaKind mediaType, RtpTransceiverInit init) async {
+    var type =
+        mediaType.toString() == 'audio' ? MediaType.Audio : MediaType.Video;
+
+    RtpTransceiverDirection direction;
+    switch (init.direction) {
+      case TransceiverDirection.sendOnly:
+        direction = RtpTransceiverDirection.SendOnly;
+        break;
+
+      case TransceiverDirection.sendRecv:
+        direction = RtpTransceiverDirection.SendRecv;
+        break;
+
+      case TransceiverDirection.recvOnly:
+        direction = RtpTransceiverDirection.RecvOnly;
+        break;
+
+      case TransceiverDirection.inactive:
+        direction = RtpTransceiverDirection.Inactive;
+        break;
+
+      case TransceiverDirection.stopped:
+        direction = RtpTransceiverDirection.Stopped;
+        break;
+    }
+
+    return RtpTransceiver.fromMap(await api.addTransceiver(
+        peerId: _id!, mediaType: type, direction: direction));
   }
 
   @override
-  Future<void> close() {
-    // TODO: implement close
-    throw UnimplementedError();
+  Future<void> close() async {
+    api.disposePeerConnection(peerId: _id!);
   }
 
   @override
-  Future<SessionDescription> createAnswer() {
-    // TODO: implement createAnswer
-    throw UnimplementedError();
+  Future<SessionDescription> createAnswer() async {
+    return SessionDescription(
+        SessionDescriptionType.answer,
+        await api.createAnswer(
+            peerConnectionId: _id!,
+            voiceActivityDetection: false,
+            iceRestart: false,
+            useRtpMux: false));
   }
 
   @override
-  Future<SessionDescription> createOffer() {
-    // TODO: implement createOffer
-    throw UnimplementedError();
+  Future<SessionDescription> createOffer() async {
+    return SessionDescription(
+        SessionDescriptionType.offer,
+        await api.createOffer(
+            peerId: _id!,
+            voiceActivityDetection: false,
+            iceRestart: false,
+            useRtpMux: false));
   }
 
   @override
-  Future<List<RtpTransceiver>> getTransceivers() {
-    // TODO: implement getTransceivers
-    throw UnimplementedError();
+  Future<List<RtpTransceiver>> getTransceivers() async {
+    var transceivers = await api.getTransceivers(peerId: _id!);
+
+    return transceivers.map((e) => RtpTransceiver.fromMap(e)).toList();
   }
 
   @override
-  Future<void> restartIce() {
-    // TODO: implement restartIce
-    throw UnimplementedError();
+  Future<void> restartIce() async {
+    return api.restartIce(peerId: _id!);
   }
 
   @override
-  Future<void> setLocalDescription(SessionDescription description) {
-    // TODO: implement setLocalDescription
-    throw UnimplementedError();
+  Future<void> setLocalDescription(SessionDescription description) async {
+    api.setLocalDescription(
+        peerConnectionId: _id!,
+        kind: description.type.toString(),
+        sdp: description.description);
   }
 
   @override
-  Future<void> setRemoteDescription(SessionDescription description) {
-    // TODO: implement setRemoteDescription
-    throw UnimplementedError();
+  Future<void> setRemoteDescription(SessionDescription description) async {
+    api.setRemoteDescription(
+        peerConnectionId: _id!,
+        kind: description.type.toString(),
+        sdp: description.description);
   }
 }

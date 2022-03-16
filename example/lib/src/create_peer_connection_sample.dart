@@ -1,22 +1,8 @@
 import 'dart:core';
-import 'dart:ffi';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc/src/model/peer.dart';
-
-import 'bridge_generated.dart';
-
-const base = 'flutter_webrtc_native';
-final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
-late final dylib = Platform.isIOS
-    ? DynamicLibrary.process()
-    : Platform.isMacOS
-        ? DynamicLibrary.executable()
-        : DynamicLibrary.open(path);
-
-late final api = FlutterWebrtcNativeImpl(dylib);
 
 class PeerConnectionSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
@@ -40,17 +26,17 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
 
   void _create_peer() async {
     //// todo delete
-    var ctx = await api.webrtcInit();
-    var cfg = RtcConfiguration(
-        iceTransportPolicy: 'all',
-        bundlePolicy: 'maxbundle',
-        iceServers: [
-          RtcIceServer(
-              urls: ['stun:stun.l.google.com:19302'],
-              username: 'username',
-              credential: 'password')
-        ]);
-    var pc = await api.createPc(configuration: cfg);
+    // var ctx = await api.webrtcInit();
+    // var cfg = RtcConfiguration(
+    //     iceTransportPolicy: 'all',
+    //     bundlePolicy: 'maxbundle',
+    //     iceServers: [
+    //       RtcIceServer(
+    //           urls: ['stun:stun.l.google.com:19302'],
+    //           username: 'username',
+    //           credential: 'password')
+    //     ]);
+    // var pc = await api.createPc(configuration: cfg);
 
     var pcc = await PeerConnection.create(IceTransportType.all, [
       IceServer(['asd'], 'asd', 'asd')

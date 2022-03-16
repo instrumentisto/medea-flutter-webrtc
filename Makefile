@@ -104,7 +104,7 @@ lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 # todo check and add doc
 codegen:
 	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
-		--dart-output example/lib/src/bridge_generated.dart
+		--dart-output lib/src/api/bridge_generated.dart
 
 cargo.build:
 	make codegen

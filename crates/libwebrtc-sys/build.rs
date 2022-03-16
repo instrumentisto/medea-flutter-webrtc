@@ -39,7 +39,7 @@ fn main() -> anyhow::Result<()> {
         build
             .flag("-DWEBRTC_WIN")
             .flag("-DNOMINMAX")
-            .flag("/std:c++17")
+            .flag("/std:c++17");
     }
     #[cfg(target_os = "linux")]
     {

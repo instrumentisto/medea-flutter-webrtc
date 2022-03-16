@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import '/src/model/transceiver.dart';
+import 'bridge_generated.dart';
 import 'channel.dart';
+import 'peer.dart';
 import 'sender.dart';
 
 abstract class RtpTransceiver {
@@ -110,21 +112,48 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 
 class _RtpTransceiverFFI extends RtpTransceiver {
   @override
-  Future<TransceiverDirection> getDirection() {
-    // TODO: implement getDirection
-    throw UnimplementedError();
+  Future<TransceiverDirection> getDirection() async {
+    TransceiverDirection? direction;
+
+    switch (await api.getTransceiverDirection(peerId: 1, transceiverId: 2)) {
+      default:
+        direction = TransceiverDirection.stopped;
+    }
+
+    return direction;
   }
 
   @override
-  Future<void> setDirection(TransceiverDirection direction) {
-    // TODO: implement setDirection
-    throw UnimplementedError();
+  Future<void> setDirection(TransceiverDirection direction) async {
+    RtpTransceiverDirection? direct;
+
+    switch (direction) {
+      case TransceiverDirection.sendRecv:
+        direct = RtpTransceiverDirection.SendRecv;
+        break;
+
+      case TransceiverDirection.sendOnly:
+        direct = RtpTransceiverDirection.SendOnly;
+        break;
+
+      case TransceiverDirection.recvOnly:
+        direct = RtpTransceiverDirection.RecvOnly;
+        break;
+
+      case TransceiverDirection.stopped:
+        direct = RtpTransceiverDirection.Stopped;
+        break;
+
+      case TransceiverDirection.inactive:
+        direct = RtpTransceiverDirection.Inactive;
+        break;
+    }
+    api.setTransceiverDirection(peerId: 1, transceiverId: 2, direction: direct);
   }
 
   @override
-  Future<void> stop() {
-    // TODO: implement stop
-    throw UnimplementedError();
+  Future<void> stop() async {
+    api.stopTransceiver(peerId: 1, transceiverId: 2);
   }
 
   @override

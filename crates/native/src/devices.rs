@@ -93,7 +93,7 @@ impl Webrtc {
     ///
     /// On any error returned from `libWebRTC`.
     #[must_use]
-    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
+    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfoFFI> {
         // TODO: Don't panic but propagate errors to API users.
         // Returns a list of all available audio devices.
         let mut audio = {
@@ -128,7 +128,7 @@ impl Webrtc {
                             .unwrap()
                     };
 
-                    result.push(api::MediaDeviceInfo {
+                    result.push(api::MediaDeviceInfoFFI {
                         device_id,
                         kind,
                         label,
@@ -147,7 +147,7 @@ impl Webrtc {
             for i in 0..count {
                 let (label, device_id) = self.video_device_info.device_name(i).unwrap();
 
-                result.push(api::MediaDeviceInfo {
+                result.push(api::MediaDeviceInfoFFI {
                     device_id,
                     kind: api::MediaDeviceKind::VideoInput,
                     label,

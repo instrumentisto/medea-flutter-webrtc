@@ -7,14 +7,13 @@ import 'src/create_peer_connection_sample.dart';
 import 'src/route_item.dart';
 
 void main() {
-  // if (Platform.)
-  //
   // if (WebRTC.platformIsDesktop) {
   //   debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   // } else if (WebRTC.platformIsAndroid) {
   //   WidgetsFlutterBinding.ensureInitialized();
   //   startForegroundService();
   // }
+
   runApp(MyApp());
 }
 
