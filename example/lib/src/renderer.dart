@@ -11,8 +11,8 @@ class RendererSample extends StatefulWidget {
 }
 
 class _RendererSampleState extends State<RendererSample> {
-  MediaStream? _stream;
-  final _renderer = RTCVideoRenderer();
+  MediaStreamTrack? _stream;
+  final _renderer = NativeVideoRenderer();
   bool _isRendering = false;
   bool _isEnabled = true;
 
@@ -45,8 +45,8 @@ class _RendererSampleState extends State<RendererSample> {
     };
 
     try {
-      var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-      _stream = stream;
+      // var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      // _stream = stream;
       _renderer.srcObject = _stream;
     } catch (e) {
       print(e.toString());
@@ -75,7 +75,7 @@ class _RendererSampleState extends State<RendererSample> {
 
   void _toggleVideoEnabled() async {
     try {
-      _stream?.getVideoTracks()[0].enabled = _isEnabled;
+      await _stream?.setEnabled(_isEnabled);
       setState(() {
         _isEnabled = !_isEnabled;
       });
@@ -106,7 +106,7 @@ class _RendererSampleState extends State<RendererSample> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               decoration: BoxDecoration(color: Colors.black54),
-              child: RTCVideoView(_renderer, mirror: true),
+              child: VideoView(_renderer, mirror: true),
             ),
           );
         },
