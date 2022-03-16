@@ -6,6 +6,7 @@ import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
 import '/src/platform/video_renderer.dart';
+import 'utils.dart';
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
@@ -37,13 +38,16 @@ class NativeVideoRenderer extends VideoRenderer {
 
   @override
   Future<void> initialize() async {
-    final response = await _rendererFactoryChannel.invokeMethod('create');
-    _textureId = response['textureId'];
-    _channelId = response['channelId'];
-    _eventChan = eventChannel('VideoRendererEvent', _channelId)
-        .receiveBroadcastStream()
-        .listen(eventListener, onError: errorListener);
-    _chan = methodChannel('VideoRenderer', _channelId);
+      final response = await _rendererFactoryChannel.invokeMethod('create');
+      _textureId = response['textureId'];
+      _channelId = response['channelId'];
+      _eventChan = eventChannel('VideoRendererEvent', _channelId)
+          .receiveBroadcastStream()
+          .listen(eventListener, onError: errorListener);
+      _chan = methodChannel('VideoRenderer', _channelId);
+      if (true) { // todo if Windows
+        _chan = methodChannel('VideoRendererFactory', 0);
+      }
   }
 
   @override
@@ -73,20 +77,43 @@ class NativeVideoRenderer extends VideoRenderer {
     }
 
     _srcObject = track;
-    _chan.invokeMethod('setSrcObject', {
-      'trackId': track?.id(),
-    }).then((_) {
-      value = (track == null)
-          ? RTCVideoValue.empty
-          : value.copyWith(renderVideo: renderVideo);
-    });
+    if (true) { // todo if windows
+      _chan.invokeMethod('createCallback', <String, dynamic>{
+        'textureId': textureId,
+      }).then((result) {
+        var sinkId = textureId ?? 0;
+        if (track == null) {
+          api.disposeVideoSink(
+                  sinkId: sinkId)
+              .then((_) => {value = RTCVideoValue.empty});
+        } else {
+          var trackId = int.parse(track.id());
+          api.createVideoSink(
+                  sinkId: sinkId, trackId: trackId, callbackPtr: result['handler_ptr'])
+              .then((_) => {value = value.copyWith(renderVideo: renderVideo)});
+        }
+      });
+    } else {
+      _chan.invokeMethod('setSrcObject', {
+        'trackId': track?.id(),
+      }).then((_) {
+        value = (track == null)
+            ? RTCVideoValue.empty
+            : value.copyWith(renderVideo: renderVideo);
+      });
+    }
+
   }
 
   @override
   Future<void> dispose() async {
     await _eventChan?.cancel();
-    await _chan.invokeMethod('dispose');
-
+    if (true) {
+      // await _chan.invokeMethod('dispose', {textureId: textureId});
+    }
+    else {
+      await _chan.invokeMethod('dispose');
+    }
     await super.dispose();
   }
 
@@ -94,6 +121,7 @@ class NativeVideoRenderer extends VideoRenderer {
   /// side.
   void eventListener(dynamic event) {
     final dynamic map = event;
+    print(event);
     switch (map['event']) {
       case 'onTextureChangeRotation':
         value =

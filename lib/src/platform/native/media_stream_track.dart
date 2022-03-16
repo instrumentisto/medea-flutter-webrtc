@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/src/platform/native/utils.dart';
 
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
@@ -18,6 +19,13 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
     _id = map['id'];
     _deviceId = map['deviceId'];
     _kind = MediaKind.values[map['kind']];
+  }
+
+  //todo
+  NativeMediaStreamTrack.fromApi(MediaStreamTrack_ track) {
+    _id = track.id.toString();
+    _deviceId = track.label.toString();
+    _kind = MediaKind.values[track.kind.index];
   }
 
   /// Indicates whether this [NativeMediaStreamTrack] transmits media.

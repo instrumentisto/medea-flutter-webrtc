@@ -22,6 +22,7 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
   renderers_[texture_id] = std::move(texture);
   EncodableMap params;
   params[EncodableValue("textureId")] = EncodableValue(texture_id);
+  params[EncodableValue("channelId")] = EncodableValue(texture_id);
 
   result->Success(EncodableValue(params));
 }
@@ -36,23 +37,12 @@ void FlutterVideoRendererManager::SetMediaStream(
     return;
   }
   const EncodableMap params = GetValue<EncodableMap>(*method_call.arguments());
-  // const std::string stream_id = findString(params, "streamId");
   int64_t texture_id = findLongInt(params, "textureId");
 
   auto it = renderers_.find(texture_id);
-  auto cb = std::make_unique<FrameHandler>(it->second).release();
-  // if (it != renderers_.end()) {
-  //   if (stream_id != "") {
-  //     webrtc->CreateVideoSink(
-  //         texture_id, (uint64_t) std::stoi(stream_id),
-  //         std::unique_ptr<FrameHandler>(cb));
-  //   } else {
-  //     webrtc->DisposeVideoSink(texture_id);
-  //     it->second.get()->ResetRenderer();
-  //   }
-  // }
+  auto handler_ptr = std::make_unique<FrameHandler>(it->second).release();
   EncodableMap res;
-  res[EncodableValue("cb")] = EncodableValue((int64_t) cb);
+  res[EncodableValue("handler_ptr")] = EncodableValue((int64_t) handler_ptr);
   result->Success(EncodableValue(res));
 }
 
@@ -92,7 +82,7 @@ TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
   texture_id_ = registrar_->RegisterTexture(texture_.get());
 
   std::string event_channel =
-      "FlutterWebRTC/Texture" + std::to_string(texture_id_);
+      "FlutterWebRtc/VideoRendererEvent/" + std::to_string(texture_id_);
   event_channel_.reset(new EventChannel<EncodableValue>(
       messenger, event_channel, &StandardMethodCodec::GetInstance()));
 

@@ -25,13 +25,11 @@ void FlutterWebRTC::HandleMethodCall(
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   const std::string& method = method_call.method_name();
 
-  if (method.compare("createVideoRenderer") == 0) {
-    // dont touch
+  if (method.compare("create") == 0) {
     CreateVideoRendererTexture(std::move(result));
-  } else if (method.compare("videoRendererDispose") == 0) {
+  } else if (method.compare("dispose") == 0) {
     VideoRendererDispose(method_call, std::move(result));
-  } else if (method.compare("videoRendererSetSrcObject") == 0) {
-    // create cb
+  } else if (method.compare("createCallback") == 0) {
     SetMediaStream(method_call, std::move(result));
   } else {
     result->NotImplemented();

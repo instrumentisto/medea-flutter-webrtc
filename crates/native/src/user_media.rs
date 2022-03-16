@@ -21,20 +21,20 @@ impl Webrtc {
         self: &mut Webrtc,
         constraints: &api::MediaStreamConstraints,
         is_display: bool,
-    ) -> Vec<api::MediaStreamTrack> {
+    ) -> Vec<api::MediaStreamTrack_> {
         let mut result = Vec::new();
         if constraints.video.required {
             let source = self
                 .get_or_create_video_source(&constraints.video, is_display)
                 .unwrap();
             let track = self.create_video_track(source).unwrap();
-            result.push(api::MediaStreamTrack::from(&*track));
+            result.push(api::MediaStreamTrack_::from(&*track));
         }
 
         if constraints.audio.required {
             let source = self.get_or_create_audio_source(&constraints.audio).unwrap();
             let track = self.create_audio_track(source).unwrap();
-            result.push(api::MediaStreamTrack::from(&*track));
+            result.push(api::MediaStreamTrack_::from(&*track));
         };
 
         result
@@ -539,7 +539,7 @@ impl VideoTrack {
     }
 }
 
-impl From<&VideoTrack> for api::MediaStreamTrack {
+impl From<&VideoTrack> for api::MediaStreamTrack_ {
     fn from(track: &VideoTrack) -> Self {
         Self {
             id: track.id.0,
@@ -624,7 +624,7 @@ impl AudioTrack {
     }
 }
 
-impl From<&AudioTrack> for api::MediaStreamTrack {
+impl From<&AudioTrack> for api::MediaStreamTrack_ {
     fn from(track: &AudioTrack) -> Self {
         Self {
             id: track.id.0,

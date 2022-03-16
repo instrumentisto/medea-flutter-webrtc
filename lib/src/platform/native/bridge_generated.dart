@@ -16,7 +16,7 @@ abstract class FlutterWebrtcNative {
 
   Future<void> createVideoSink(
       {required int sinkId,
-      required int streamId,
+      required int trackId,
       required int callbackPtr,
       dynamic hint});
 
@@ -24,7 +24,7 @@ abstract class FlutterWebrtcNative {
 
   Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint});
 
-  Future<List<MediaStreamTrack>> getMedia(
+  Future<List<MediaStreamTrack_>> getMedia(
       {required MediaStreamConstraints constraints,
       required bool isDisplay,
       dynamic hint});
@@ -97,7 +97,7 @@ class MediaStreamConstraints {
 ///
 /// Typically, these are audio or video tracks, but other track types may
 /// exist as well.
-class MediaStreamTrack {
+class MediaStreamTrack_ {
   /// Unique identifier (GUID) for the track
   final int id;
 
@@ -113,7 +113,7 @@ class MediaStreamTrack {
   /// intentionally mute a track.
   final bool enabled;
 
-  MediaStreamTrack({
+  MediaStreamTrack_({
     required this.id,
     required this.label,
     required this.kind,
@@ -179,21 +179,21 @@ class FlutterWebrtcNativeImpl
 
   Future<void> createVideoSink(
           {required int sinkId,
-          required int streamId,
+          required int trackId,
           required int callbackPtr,
           dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_create_video_sink(
             port_,
             _api2wire_i64(sinkId),
-            _api2wire_u64(streamId),
+            _api2wire_u64(trackId),
             _api2wire_u64(callbackPtr)),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "create_video_sink",
-          argNames: ["sinkId", "streamId", "callbackPtr"],
+          argNames: ["sinkId", "trackId", "callbackPtr"],
         ),
-        argValues: [sinkId, streamId, callbackPtr],
+        argValues: [sinkId, trackId, callbackPtr],
         hint: hint,
       ));
 
@@ -222,7 +222,7 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<List<MediaStreamTrack>> getMedia(
+  Future<List<MediaStreamTrack_>> getMedia(
           {required MediaStreamConstraints constraints,
           required bool isDisplay,
           dynamic hint}) =>
@@ -346,7 +346,7 @@ List<MediaDeviceInfo> _wire2api_list_media_device_info(dynamic raw) {
   return (raw as List<dynamic>).map(_wire2api_media_device_info).toList();
 }
 
-List<MediaStreamTrack> _wire2api_list_media_stream_track(dynamic raw) {
+List<MediaStreamTrack_> _wire2api_list_media_stream_track(dynamic raw) {
   return (raw as List<dynamic>).map(_wire2api_media_stream_track).toList();
 }
 
@@ -365,11 +365,11 @@ MediaDeviceKind _wire2api_media_device_kind(dynamic raw) {
   return MediaDeviceKind.values[raw];
 }
 
-MediaStreamTrack _wire2api_media_stream_track(dynamic raw) {
+MediaStreamTrack_ _wire2api_media_stream_track(dynamic raw) {
   final arr = raw as List<dynamic>;
   if (arr.length != 4)
     throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-  return MediaStreamTrack(
+  return MediaStreamTrack_(
     id: _wire2api_u64(arr[0]),
     label: _wire2api_String(arr[1]),
     kind: _wire2api_media_type(arr[2]),
@@ -436,13 +436,13 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_create_video_sink(
     int port_,
     int sink_id,
-    int stream_id,
+    int track_id,
     int callback_ptr,
   ) {
     return _wire_create_video_sink(
       port_,
       sink_id,
-      stream_id,
+      track_id,
       callback_ptr,
     );
   }

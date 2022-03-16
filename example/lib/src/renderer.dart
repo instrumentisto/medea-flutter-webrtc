@@ -11,7 +11,7 @@ class RendererSample extends StatefulWidget {
 }
 
 class _RendererSampleState extends State<RendererSample> {
-  MediaStreamTrack? _stream;
+  MediaStreamTrack? _track;
   final _renderer = NativeVideoRenderer();
   bool _isRendering = false;
   bool _isEnabled = true;
@@ -37,17 +37,16 @@ class _RendererSampleState extends State<RendererSample> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   void _start() async {
-    final mediaConstraints = <String, dynamic>{
-      'audio': false,
-      'video': {
-        'mandatory': {},
-      }
-    };
-
     try {
-      // var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-      // _stream = stream;
-      _renderer.srcObject = _stream;
+      var tracks = await api.getMedia(
+        constraints: 
+          MediaStreamConstraints(
+            audio: AudioConstraints(deviceId: '', required: false), 
+            video: VideoConstraints(deviceId: '', required: true, height: 480, width: 640, frameRate: 30)), 
+        isDisplay: false);
+
+      _track = NativeMediaStreamTrack.fromApi(tracks[0]); 
+      _renderer.srcObject = _track;
     } catch (e) {
       print(e.toString());
     }
@@ -62,7 +61,7 @@ class _RendererSampleState extends State<RendererSample> {
 
   void _stop() async {
     try {
-      await _stream?.dispose();
+      await _track?.dispose();
       _renderer.srcObject = null;
       setState(() {
         _isRendering = false;
@@ -75,7 +74,7 @@ class _RendererSampleState extends State<RendererSample> {
 
   void _toggleVideoEnabled() async {
     try {
-      await _stream?.setEnabled(_isEnabled);
+      await _track?.setEnabled(_isEnabled);
       setState(() {
         _isEnabled = !_isEnabled;
       });

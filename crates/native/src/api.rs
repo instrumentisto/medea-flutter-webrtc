@@ -60,6 +60,7 @@ pub struct MediaDeviceInfo {
 /// The [MediaStreamConstraints] is used to instruct what sort of
 /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
 /// [`Webrtc::get_users_media()`].
+#[derive(Debug)]
 pub struct MediaStreamConstraints {
     /// Specifies the nature and settings of the video [`MediaStreamTrack`].
     pub audio: Box<AudioConstraints>,
@@ -69,6 +70,7 @@ pub struct MediaStreamConstraints {
 
 /// Specifies the nature and settings of the video [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
+#[derive(Debug)]
 pub struct VideoConstraints {
     /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
     /// track. All other args will be ignored if `required` is set to
@@ -92,6 +94,7 @@ pub struct VideoConstraints {
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
+#[derive(Debug)]
 pub struct AudioConstraints {
     /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
     /// track. All other args will be ignored if `required` is set to
@@ -111,7 +114,7 @@ pub struct AudioConstraints {
 ///
 /// Typically, these are audio or video tracks, but other track types may
 /// exist as well.
-pub struct MediaStreamTrack {
+pub struct MediaStreamTrack_ {
     /// Unique identifier (GUID) for the track
     pub id: u64,
 
@@ -174,7 +177,7 @@ pub struct RtcTrackEvent {
     /// by the receiver.
     ///
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-    pub track: MediaStreamTrack,
+    pub track: MediaStreamTrack_,
 
     /// [`RtcRtpTransceiver`] object associated with the event.
     pub transceiver: RtcRtpTransceiver,
@@ -230,12 +233,12 @@ pub struct RtcIceServer {
 }
 
 
-pub fn create_video_sink(sink_id: i64, stream_id: u64, callback_ptr: u64) {
+pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
     webrtc_init();
     let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
     let handler: UniquePtr<OnFrameCallbackInterface> =
         unsafe { std::mem::transmute(callback_ptr) };
-    webrtc.create_video_sink(sink_id, stream_id, handler);
+    webrtc.create_video_sink(sink_id, track_id, handler);
 }
 
 pub fn dispose_video_sink(sink_id: i64) {
@@ -253,7 +256,8 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
 pub fn get_media(
     constraints: MediaStreamConstraints,
     is_display: bool,
-) -> Vec<MediaStreamTrack> {
+) -> Vec<MediaStreamTrack_> {
+    println!("{:?}", constraints);
     webrtc_init();
     let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
     webrtc.get_media(&constraints, is_display)
