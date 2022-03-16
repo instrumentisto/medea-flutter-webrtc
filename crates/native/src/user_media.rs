@@ -16,24 +16,22 @@ impl Webrtc {
     #[allow(clippy::too_many_lines, clippy::missing_panics_doc)]
     pub fn get_media(
         self: &mut Webrtc,
-        constraints: &api::MediaStreamConstraints,
+        constraints: api::MediaStreamConstraints,
         is_display: bool,
     ) -> Vec<api::MediaStreamTrack> {
         let mut result = Vec::new();
-        // if constraints.video.required {
-        //     let source = self
-        //         .get_or_create_video_source(&constraints.video, is_display)
-        //         .unwrap();
-        //     let track = self.create_video_track(source).unwrap();
-        //     result.push(api::MediaStreamTrack::from(&*track));
-        // }
-        //
-        // if constraints.audio.required {
-        //     let source = self.get_or_create_audio_source(&constraints.audio).unwrap();
-        //     let track = self.create_audio_track(source).unwrap();
-        //     result.push(api::MediaStreamTrack::from(&*track));
-        // };
-        //
+        if let Some(video) = constraints.video {
+            let source = self.get_or_create_video_source(&video, is_display).unwrap();
+            let track = self.create_video_track(source).unwrap();
+            result.push(api::MediaStreamTrack::from(&*track));
+        }
+
+        if let Some(audio) = constraints.audio {
+            let source = self.get_or_create_audio_source(&audio).unwrap();
+            let track = self.create_audio_track(source).unwrap();
+            result.push(api::MediaStreamTrack::from(&*track));
+        }
+
         result
     }
 
@@ -206,51 +204,50 @@ impl Webrtc {
     /// [`AudioConstraints`].
     fn get_or_create_audio_source(
         &mut self,
-        // caps: &api::AudioConstraints,
+        caps: &api::AudioConstraints,
     ) -> anyhow::Result<Rc<sys::AudioSourceInterface>> {
-        // let device_id = if caps.device_id.is_empty() {
-        //     // No device ID is provided so just pick the currently used.
-        //     if self.audio_device_module.current_device_id.is_none() {
-        //         // `AudioDeviceModule` is not capturing anything at the moment,
-        //         // so we will use first available device (with `0` index).
-        //         if self.audio_device_module.inner.recording_devices()? < 1 {
-        //             bail!("Could not find any available audio input device");
-        //         }
-        //
-        //         AudioDeviceId(self.audio_device_module.inner.recording_device_name(0)?.1)
-        //     } else {
-        //         self.audio_device_module.current_device_id.clone().unwrap()
-        //     }
-        // } else {
-        //     AudioDeviceId(caps.device_id.clone())
-        // };
-        //
-        // let device_index =
-        //     if let Some(index) = self.get_index_of_audio_recording_device(&device_id)? {
-        //         index
-        //     } else {
-        //         bail!(
-        //             "Could not find audio device with the specified ID `{}`",
-        //             device_id,
-        //         );
-        //     };
-        //
-        // if Some(&device_id) != self.audio_device_module.current_device_id.as_ref() {
-        //     self.audio_device_module
-        //         .set_recording_device(device_id, device_index)?;
-        // }
-        //
-        // let src = if let Some(src) = self.audio_source.as_ref() {
-        //     Rc::clone(src)
-        // } else {
-        //     let src = Rc::new(self.peer_connection_factory.create_audio_source()?);
-        //     self.audio_source.replace(Rc::clone(&src));
-        //
-        //     src
-        // };
-        //
-        // Ok(src)
-        unimplemented!()
+        let device_id = if caps.device_id.is_empty() {
+            // No device ID is provided so just pick the currently used.
+            if self.audio_device_module.current_device_id.is_none() {
+                // `AudioDeviceModule` is not capturing anything at the moment,
+                // so we will use first available device (with `0` index).
+                if self.audio_device_module.inner.recording_devices()? < 1 {
+                    bail!("Could not find any available audio input device");
+                }
+
+                AudioDeviceId(self.audio_device_module.inner.recording_device_name(0)?.1)
+            } else {
+                self.audio_device_module.current_device_id.clone().unwrap()
+            }
+        } else {
+            AudioDeviceId(caps.device_id.clone())
+        };
+
+        let device_index =
+            if let Some(index) = self.get_index_of_audio_recording_device(&device_id)? {
+                index
+            } else {
+                bail!(
+                    "Could not find audio device with the specified ID `{}`",
+                    device_id,
+                );
+            };
+
+        if Some(&device_id) != self.audio_device_module.current_device_id.as_ref() {
+            self.audio_device_module
+                .set_recording_device(device_id, device_index)?;
+        }
+
+        let src = if let Some(src) = self.audio_source.as_ref() {
+            Rc::clone(src)
+        } else {
+            let src = Rc::new(self.peer_connection_factory.create_audio_source()?);
+            self.audio_source.replace(Rc::clone(&src));
+
+            src
+        };
+
+        Ok(src)
     }
 
     /// Changes the [enabled][1] property of the media track by its ID.

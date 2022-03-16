@@ -1,8 +1,9 @@
-use crate::{AudioDeviceModule, Webrtc};
+use crate::{api::SignalingState::HaveRemoteOffer, AudioDeviceModule, Webrtc};
 use dashmap::DashMap;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys::{
-    AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory, Thread, VideoDeviceInfo,
+    self as sys, AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
+    VideoDeviceInfo,
 };
 use std::{
     collections::HashMap,
@@ -24,8 +25,10 @@ lazy_static::lazy_static! {
         signaling_thread.start().unwrap();
 
         let audio_device_module =
-            AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, &mut task_queue_factory)
-                .unwrap();
+            AudioDeviceModule::new(
+                AudioLayer::kPlatformDefaultAudio,
+                &mut task_queue_factory
+            ).unwrap();
 
         let peer_connection_factory = PeerConnectionFactoryInterface::create(
             Some(&network_thread),
@@ -54,6 +57,125 @@ lazy_static::lazy_static! {
             callback_pool: ThreadPool::new(4),
         })
     };
+}
+
+pub enum TrackEvent {
+    Ended,
+}
+
+pub enum IceGatheringState {
+    New,
+    Gathering,
+    Complete,
+}
+
+impl From<sys::IceGatheringState> for IceGatheringState {
+    fn from(state: sys::IceGatheringState) -> Self {
+        match state {
+            sys::IceGatheringState::kIceGatheringNew => IceGatheringState::New,
+            sys::IceGatheringState::kIceGatheringGathering => IceGatheringState::Gathering,
+            sys::IceGatheringState::kIceGatheringComplete => IceGatheringState::Complete,
+            _ => unreachable!(),
+        }
+    }
+}
+
+pub enum PeerConnectionEvent {
+    OnIceCandidate {
+        sdp_mid: String,
+        sdp_mline_index: i64,
+        candidate: String,
+    },
+    OnIceGatheringStateChange(IceGatheringState),
+    OnIceCandidateError {
+        address: String,
+        port: i64,
+        url: String,
+        error_code: i64,
+        error_text: String,
+    },
+    OnNegotiationNeeded,
+    OnSignallingChange(SignalingState),
+    OnIceConnectionStateChange(IceConnectionState),
+    OnConnectionStateChange(PeerConnectionState),
+    OnTrack,
+}
+
+pub enum SignalingState {
+    Stable,
+    HaveLocalOffer,
+    HaveLocalPrAnswer,
+    HaveRemoteOffer,
+    HaveRemotePrAnswer,
+    Closed,
+}
+
+impl From<sys::SignalingState> for SignalingState {
+    fn from(state: sys::SignalingState) -> Self {
+        match state {
+            sys::SignalingState::kStable => SignalingState::Stable,
+            sys::SignalingState::kHaveLocalOffer => SignalingState::HaveLocalOffer,
+            sys::SignalingState::kHaveLocalPrAnswer => SignalingState::HaveLocalPrAnswer,
+            sys::SignalingState::kHaveRemoteOffer => SignalingState::HaveRemoteOffer,
+            sys::SignalingState::kHaveRemotePrAnswer => SignalingState::HaveRemotePrAnswer,
+            sys::SignalingState::kClosed => SignalingState::Closed,
+            _ => unreachable!(),
+        }
+    }
+}
+
+pub enum IceConnectionState {
+    New,
+    Checking,
+    Connected,
+    Completed,
+    Failed,
+    Disconnected,
+    Closed,
+}
+
+impl From<sys::IceConnectionState> for IceConnectionState {
+    fn from(state: sys::IceConnectionState) -> Self {
+        match state {
+            sys::IceConnectionState::kIceConnectionNew => IceConnectionState::New,
+            sys::IceConnectionState::kIceConnectionChecking => IceConnectionState::Checking,
+            sys::IceConnectionState::kIceConnectionConnected => {
+                IceConnectionState::Connected
+            }
+            sys::IceConnectionState::kIceConnectionCompleted => {
+                IceConnectionState::Completed
+            }
+            sys::IceConnectionState::kIceConnectionFailed => IceConnectionState::Failed,
+            sys::IceConnectionState::kIceConnectionDisconnected => {
+                IceConnectionState::Disconnected
+            }
+            sys::IceConnectionState::kIceConnectionClosed => IceConnectionState::Closed,
+            _ => unreachable!(),
+        }
+    }
+}
+
+pub enum PeerConnectionState {
+    New,
+    Connecting,
+    Connected,
+    Disconnected,
+    Failed,
+    Closed,
+}
+
+impl From<sys::PeerConnectionState> for PeerConnectionState {
+    fn from(state: sys::PeerConnectionState) -> Self {
+        match state {
+            sys::PeerConnectionState::kNew => PeerConnectionState::New,
+            sys::PeerConnectionState::kConnecting => PeerConnectionState::Connecting,
+            sys::PeerConnectionState::kConnected => PeerConnectionState::Connected,
+            sys::PeerConnectionState::kDisconnected => PeerConnectionState::Disconnected,
+            sys::PeerConnectionState::kFailed => PeerConnectionState::Failed,
+            sys::PeerConnectionState::kClosed => PeerConnectionState::Closed,
+            _ => unreachable!(),
+        }
+    }
 }
 
 /// Possible kinds of media devices.
@@ -100,19 +222,14 @@ pub struct MediaDeviceInfo {
 /// [`Webrtc::get_users_media()`].
 pub struct MediaStreamConstraints {
     /// Specifies the nature and settings of the video [`MediaStreamTrack`].
-    // pub audio: AudioConstraints,
+    pub audio: Option<AudioConstraints>,
     /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
-    pub video: VideoConstraints,
+    pub video: Option<VideoConstraints>,
 }
 
 /// Specifies the nature and settings of the video [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
 pub struct VideoConstraints {
-    /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
-    /// track. All other args will be ignored if `required` is set to
-    /// `false`.
-    pub required: bool,
-
     /// The identifier of the device generating the content of the
     /// [`MediaStreamTrack`]. First device will be chosen if empty
     /// [`String`] is provided.
@@ -126,16 +243,13 @@ pub struct VideoConstraints {
 
     /// The exact frame rate (frames per second).
     pub frame_rate: u32,
+
+    pub is_display: bool,
 }
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
 pub struct AudioConstraints {
-    /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
-    /// track. All other args will be ignored if `required` is set to
-    /// `false`.
-    pub required: bool,
-
     /// The identifier of the device generating the content of the
     /// [`MediaStreamTrack`]. First device will be chosen if empty
     /// [`String`] is provided.
@@ -277,10 +391,13 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
 ///
 /// Writes an error to the provided `err`, if any.
 pub fn create_peer_connection(
-    cb: StreamSink<()>,
+    cb: StreamSink<PeerConnectionEvent>,
     configuration: RtcConfiguration,
 ) -> anyhow::Result<u64> {
-    unimplemented!()
+    WEBRTC
+        .lock()
+        .unwrap()
+        .create_peer_connection(cb, configuration)
 }
 
 /// Initiates the creation of a SDP offer for the purpose of starting
@@ -407,10 +524,7 @@ pub fn dispose_peer_connection(peer_id: u64) {
 
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
-pub fn get_media(
-    // constraints: MediaStreamConstraints,
-    is_display: bool,
-) -> Vec<MediaStreamTrack> {
+pub fn get_media(constraints: MediaStreamConstraints) -> Vec<MediaStreamTrack> {
     unimplemented!()
 }
 
@@ -448,7 +562,10 @@ pub fn set_track_enabled(track_id: u64, enabled: bool) {
 }
 
 /// Registers an observer to the media track events.
-pub fn register_track_observer(cb: StreamSink<()>, id: u64) -> anyhow::Result<String> {
+pub fn register_track_observer(
+    cb: StreamSink<TrackEvent>,
+    id: u64,
+) -> anyhow::Result<String> {
     unimplemented!()
 }
 

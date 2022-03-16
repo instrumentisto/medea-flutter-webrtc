@@ -4,7 +4,10 @@ use once_cell::sync::OnceCell;
 use sys::PeerConnectionInterface;
 use threadpool::ThreadPool;
 
-use crate::{api, next_id, AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc};
+use crate::{
+    api, api::PeerConnectionEvent, next_id, AudioTrack, AudioTrackId, VideoTrack,
+    VideoTrackId, Webrtc,
+};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use dashmap::DashMap;
 use derive_more::{Display, From, Into};
@@ -18,10 +21,9 @@ impl Webrtc {
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
         self: &mut Webrtc,
-        obs: StreamSink<()>,
+        obs: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
-        error: &mut String,
-    ) -> u64 {
+    ) -> anyhow::Result<u64> {
         let peer = PeerConnection::new(
             &mut self.peer_connection_factory,
             Arc::clone(&self.video_tracks),
@@ -29,18 +31,10 @@ impl Webrtc {
             obs,
             configuration,
             self.callback_pool.clone(),
-        );
-        match peer {
-            Ok(peer) => {
-                let id = next_id();
-                self.peer_connections.insert(id.into(), peer);
-                id
-            }
-            Err(err) => {
-                error.push_str(&err.to_string());
-                0
-            }
-        }
+        )?;
+        let id = next_id();
+        self.peer_connections.insert(id.into(), peer);
+        Ok(id)
     }
 
     /// Initiates the creation of a SDP offer for the purpose of starting a new
@@ -520,13 +514,13 @@ impl PeerConnection {
         factory: &mut sys::PeerConnectionFactoryInterface,
         video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
         audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
-        observer: StreamSink<()>,
+        observer: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
         pool: ThreadPool,
     ) -> anyhow::Result<Self> {
         let obs_peer = Arc::new(OnceCell::new());
         let observer = sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver {
-            observer: Arc::new(Mutex::new(observer)),
+            observer,
             peer: Arc::clone(&obs_peer),
             video_tracks,
             audio_tracks,
@@ -612,7 +606,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 /// [`PeerConnectionObserverInterface`] wrapper.
 struct PeerConnectionObserver {
     /// [`PeerConnectionObserverInterface`] to forward the events to.
-    observer: Arc<Mutex<StreamSink<()>>>,
+    observer: StreamSink<api::PeerConnectionEvent>,
 
     /// [`InnerPeer`] of the [`PeerConnection`] internally used in
     /// [`sys::PeerConnectionObserver::on_track()`][1]
@@ -634,52 +628,36 @@ struct PeerConnectionObserver {
 
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
-        // let_cxx_string!(new_state = new_state.to_string());
-        // self.observer
-        //     .lock()
-        //     .unwrap()
-        //     .pin_mut()
-        //     .on_signaling_change(&new_state);
-        todo!();
+        self.observer
+            .add(api::PeerConnectionEvent::OnSignallingChange(
+                new_state.into(),
+            ));
     }
 
     fn on_standardized_ice_connection_change(&mut self, new_state: sys::IceConnectionState) {
-        // let_cxx_string!(new_state = new_state.to_string());
-        // self.observer
-        //     .lock()
-        //     .unwrap()
-        //     .pin_mut()
-        //     .on_ice_connection_state_change(&new_state);
-        todo!();
+        self.observer
+            .add(api::PeerConnectionEvent::OnIceConnectionStateChange(
+                new_state.into(),
+            ));
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
-        // let_cxx_string!(new_state = new_state.to_string());
-        // self.observer
-        //     .lock()
-        //     .unwrap()
-        //     .pin_mut()
-        //     .on_connection_state_change(&new_state);
-        todo!();
+        self.observer
+            .add(api::PeerConnectionEvent::OnConnectionStateChange(
+                new_state.into(),
+            ));
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
-        // let_cxx_string!(new_state = new_state.to_string());
-        // self.observer
-        //     .lock()
-        //     .unwrap()
-        //     .pin_mut()
-        //     .on_ice_gathering_change(&new_state);
-        todo!();
+        self.observer
+            .add(api::PeerConnectionEvent::OnIceGatheringStateChange(
+                new_state.into(),
+            ));
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
-        todo!();
-        // self.observer
-        //     .lock()
-        //     .unwrap()
-        //     .pin_mut()
-        //     .on_negotiation_needed();
+        self.observer
+            .add(api::PeerConnectionEvent::OnNegotiationNeeded);
     }
 
     fn on_ice_candidate_error(
@@ -690,12 +668,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_code: i32,
         error_text: &CxxString,
     ) {
-        todo!();
-        // self.observer
-        //     .lock()
-        //     .unwrap()
-        //     .pin_mut()
-        //     .on_ice_candidate_error(address, port, url, error_code, error_text);
+        self.observer
+            .add(api::PeerConnectionEvent::OnIceCandidateError {
+                address: address.to_string(),
+                port: port as i64,
+                url: url.to_string(),
+                error_code: error_code as i64,
+                error_text: error_text.to_string(),
+            });
     }
 
     fn on_ice_connection_receiving_change(&mut self, _: bool) {
@@ -703,7 +683,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
-        todo!();
         // let track = match transceiver.media_type() {
         //     sys::MediaType::MEDIA_TYPE_AUDIO => {
         //         let track = AudioTrack::wrap_remote(&transceiver);
@@ -721,14 +700,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         //     }
         //     _ => unreachable!(),
         // };
-
+        //
         // self.pool.execute({
         //     // PANIC: Unwrapping is OK, since the transceiver is guaranteed to
         //     //        be negotiated at this point.
         //     let mid = transceiver.mid().unwrap();
         //     let direction = transceiver.direction();
         //     let peer = Arc::clone(&self.peer);
-        //     let observer = Arc::clone(&self.observer);
+        //     let observer = self.observer.clone();
         //
         //     move || {
         //         let peer = peer.get().unwrap().lock().unwrap();
@@ -750,18 +729,17 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         //             },
         //         };
         //
-        //         observer.lock().unwrap().pin_mut().on_track(result);
+        //         observer.add(api::PeerConnectionEvent::OnTrack(result));
         //     }
         // });
     }
 
     fn on_ice_candidate(&mut self, candidate: sys::IceCandidateInterface) {
-        todo!();
-        // self.observer.lock().unwrap().pin_mut().on_ice_candidate(
-        //     candidate.candidate(),
-        //     candidate.mid(),
-        //     candidate.mline_index(),
-        // );
+        self.observer.add(PeerConnectionEvent::OnIceCandidate {
+            sdp_mid: candidate.mid(),
+            sdp_mline_index: candidate.mline_index() as i64,
+            candidate: candidate.candidate(),
+        });
     }
 
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {

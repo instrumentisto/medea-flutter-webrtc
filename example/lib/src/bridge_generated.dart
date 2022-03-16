@@ -5,11 +5,14 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
+
+part 'bridge_generated.freezed.dart';
 
 abstract class FlutterWebrtcNative {
   /// Returns a list of all available media input and output devices, such
@@ -19,7 +22,7 @@ abstract class FlutterWebrtcNative {
   /// Creates a new [`PeerConnection`] and returns its ID.
   ///
   /// Writes an error to the provided `err`, if any.
-  Stream<void> createPeerConnection(
+  Stream<PeerConnectionEvent> createPeerConnection(
       {required RtcConfiguration configuration, dynamic hint});
 
   /// Initiates the creation of a SDP offer for the purpose of starting
@@ -134,7 +137,7 @@ abstract class FlutterWebrtcNative {
   /// Creates a [`MediaStream`] with tracks according to provided
   /// [`MediaStreamConstraints`].
   Future<List<MediaStreamTrack>> getMedia(
-      {required bool isDisplay, dynamic hint});
+      {required MediaStreamConstraints constraints, dynamic hint});
 
   /// Disposes the [`MediaStream`] and all contained tracks.
   Future<void> disposeStream({required int id, dynamic hint});
@@ -154,7 +157,7 @@ abstract class FlutterWebrtcNative {
       {required int trackId, required bool enabled, dynamic hint});
 
   /// Registers an observer to the media track events.
-  Stream<void> registerTrackObserver({required int id, dynamic hint});
+  Stream<TrackEvent> registerTrackObserver({required int id, dynamic hint});
 
   /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
   /// called whenever a set of available media devices changes.
@@ -162,6 +165,38 @@ abstract class FlutterWebrtcNative {
   /// Only one callback can be set at a time, so the previous one will be
   /// dropped, if any.
   Stream<void> setOnDeviceChanged({dynamic hint});
+}
+
+/// Specifies the nature and settings of the audio [`MediaStreamTrack`]
+/// returned by [`Webrtc::get_users_media()`].
+class AudioConstraints {
+  /// The identifier of the device generating the content of the
+  /// [`MediaStreamTrack`]. First device will be chosen if empty
+  /// [`String`] is provided.
+  ///
+  /// __NOTE__: There can be only one active recording device at a time,
+  /// so changing device will affect all previously obtained audio tracks.
+  final String deviceId;
+
+  AudioConstraints({
+    required this.deviceId,
+  });
+}
+
+enum IceConnectionState {
+  New,
+  Checking,
+  Connected,
+  Completed,
+  Failed,
+  Disconnected,
+  Closed,
+}
+
+enum IceGatheringState {
+  New,
+  Gathering,
+  Complete,
 }
 
 /// Information describing a single media input or output device.
@@ -187,6 +222,22 @@ enum MediaDeviceKind {
   AudioInput,
   AudioOutput,
   VideoInput,
+}
+
+/// The [MediaStreamConstraints] is used to instruct what sort of
+/// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
+/// [`Webrtc::get_users_media()`].
+class MediaStreamConstraints {
+  /// Specifies the nature and settings of the video [`MediaStreamTrack`].
+  final AudioConstraints? audio;
+
+  /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
+  final VideoConstraints? video;
+
+  MediaStreamConstraints({
+    this.audio,
+    this.video,
+  });
 }
 
 /// Representation of a single media track within a [`MediaStream`].
@@ -220,6 +271,45 @@ class MediaStreamTrack {
 enum MediaType {
   Audio,
   Video,
+}
+
+@freezed
+class PeerConnectionEvent with _$PeerConnectionEvent {
+  const factory PeerConnectionEvent.onIceCandidate({
+    required String sdpMid,
+    required int sdpMlineIndex,
+    required String candidate,
+  }) = OnIceCandidate;
+  const factory PeerConnectionEvent.onIceGatheringStateChange(
+    IceGatheringState field0,
+  ) = OnIceGatheringStateChange;
+  const factory PeerConnectionEvent.onIceCandidateError({
+    required String address,
+    required int port,
+    required String url,
+    required int errorCode,
+    required String errorText,
+  }) = OnIceCandidateError;
+  const factory PeerConnectionEvent.onNegotiationNeeded() = OnNegotiationNeeded;
+  const factory PeerConnectionEvent.onSignallingChange(
+    SignalingState field0,
+  ) = OnSignallingChange;
+  const factory PeerConnectionEvent.onIceConnectionStateChange(
+    IceConnectionState field0,
+  ) = OnIceConnectionStateChange;
+  const factory PeerConnectionEvent.onConnectionStateChange(
+    PeerConnectionState field0,
+  ) = OnConnectionStateChange;
+  const factory PeerConnectionEvent.onTrack() = OnTrack;
+}
+
+enum PeerConnectionState {
+  New,
+  Connecting,
+  Connected,
+  Disconnected,
+  Failed,
+  Closed,
 }
 
 /// [`PeerConnection`]'s configuration.
@@ -341,6 +431,46 @@ enum RtpTransceiverDirection {
   Stopped,
 }
 
+enum SignalingState {
+  Stable,
+  HaveLocalOffer,
+  HaveLocalPrAnswer,
+  HaveRemoteOffer,
+  HaveRemotePrAnswer,
+  Closed,
+}
+
+enum TrackEvent {
+  Ended,
+}
+
+/// Specifies the nature and settings of the video [`MediaStreamTrack`]
+/// returned by [`Webrtc::get_users_media()`].
+class VideoConstraints {
+  /// The identifier of the device generating the content of the
+  /// [`MediaStreamTrack`]. First device will be chosen if empty
+  /// [`String`] is provided.
+  final String deviceId;
+
+  /// The width, in pixels.
+  final int width;
+
+  /// The height, in pixels.
+  final int height;
+
+  /// The exact frame rate (frames per second).
+  final int frameRate;
+  final bool isDisplay;
+
+  VideoConstraints({
+    required this.deviceId,
+    required this.width,
+    required this.height,
+    required this.frameRate,
+    required this.isDisplay,
+  });
+}
+
 class FlutterWebrtcNativeImpl
     extends FlutterRustBridgeBase<FlutterWebrtcNativeWire>
     implements FlutterWebrtcNative {
@@ -361,12 +491,12 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Stream<void> createPeerConnection(
+  Stream<PeerConnectionEvent> createPeerConnection(
           {required RtcConfiguration configuration, dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_create_peer_connection(
             port_, _api2wire_box_autoadd_rtc_configuration(configuration)),
-        parseSuccessData: _wire2api_unit,
+        parseSuccessData: _wire2api_peer_connection_event,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "create_peer_connection",
           argNames: ["configuration"],
@@ -639,15 +769,16 @@ class FlutterWebrtcNativeImpl
       ));
 
   Future<List<MediaStreamTrack>> getMedia(
-          {required bool isDisplay, dynamic hint}) =>
+          {required MediaStreamConstraints constraints, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_get_media(port_, isDisplay),
+        callFfi: (port_) => inner.wire_get_media(
+            port_, _api2wire_box_autoadd_media_stream_constraints(constraints)),
         parseSuccessData: _wire2api_list_media_stream_track,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_media",
-          argNames: ["isDisplay"],
+          argNames: ["constraints"],
         ),
-        argValues: [isDisplay],
+        argValues: [constraints],
         hint: hint,
       ));
 
@@ -697,11 +828,11 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Stream<void> registerTrackObserver({required int id, dynamic hint}) =>
+  Stream<TrackEvent> registerTrackObserver({required int id, dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) =>
             inner.wire_register_track_observer(port_, _api2wire_u64(id)),
-        parseSuccessData: _wire2api_unit,
+        parseSuccessData: _wire2api_track_event,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "register_track_observer",
           argNames: ["id"],
@@ -739,10 +870,32 @@ class FlutterWebrtcNativeImpl
     return raw ? 1 : 0;
   }
 
+  ffi.Pointer<wire_AudioConstraints> _api2wire_box_autoadd_audio_constraints(
+      AudioConstraints raw) {
+    final ptr = inner.new_box_autoadd_audio_constraints();
+    _api_fill_to_wire_audio_constraints(raw, ptr.ref);
+    return ptr;
+  }
+
+  ffi.Pointer<wire_MediaStreamConstraints>
+      _api2wire_box_autoadd_media_stream_constraints(
+          MediaStreamConstraints raw) {
+    final ptr = inner.new_box_autoadd_media_stream_constraints();
+    _api_fill_to_wire_media_stream_constraints(raw, ptr.ref);
+    return ptr;
+  }
+
   ffi.Pointer<wire_RtcConfiguration> _api2wire_box_autoadd_rtc_configuration(
       RtcConfiguration raw) {
     final ptr = inner.new_box_autoadd_rtc_configuration();
     _api_fill_to_wire_rtc_configuration(raw, ptr.ref);
+    return ptr;
+  }
+
+  ffi.Pointer<wire_VideoConstraints> _api2wire_box_autoadd_video_constraints(
+      VideoConstraints raw) {
+    final ptr = inner.new_box_autoadd_video_constraints();
+    _api_fill_to_wire_video_constraints(raw, ptr.ref);
     return ptr;
   }
 
@@ -767,8 +920,26 @@ class FlutterWebrtcNativeImpl
     return raw.index;
   }
 
+  ffi.Pointer<wire_AudioConstraints>
+      _api2wire_opt_box_autoadd_audio_constraints(AudioConstraints? raw) {
+    return raw == null
+        ? ffi.nullptr
+        : _api2wire_box_autoadd_audio_constraints(raw);
+  }
+
+  ffi.Pointer<wire_VideoConstraints>
+      _api2wire_opt_box_autoadd_video_constraints(VideoConstraints? raw) {
+    return raw == null
+        ? ffi.nullptr
+        : _api2wire_box_autoadd_video_constraints(raw);
+  }
+
   int _api2wire_rtp_transceiver_direction(RtpTransceiverDirection raw) {
     return raw.index;
+  }
+
+  int _api2wire_u32(int raw) {
+    return raw;
   }
 
   int _api2wire_u64(int raw) {
@@ -787,9 +958,48 @@ class FlutterWebrtcNativeImpl
 
   // Section: api_fill_to_wire
 
+  void _api_fill_to_wire_audio_constraints(
+      AudioConstraints apiObj, wire_AudioConstraints wireObj) {
+    wireObj.device_id = _api2wire_String(apiObj.deviceId);
+  }
+
+  void _api_fill_to_wire_box_autoadd_audio_constraints(
+      AudioConstraints apiObj, ffi.Pointer<wire_AudioConstraints> wireObj) {
+    _api_fill_to_wire_audio_constraints(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_media_stream_constraints(
+      MediaStreamConstraints apiObj,
+      ffi.Pointer<wire_MediaStreamConstraints> wireObj) {
+    _api_fill_to_wire_media_stream_constraints(apiObj, wireObj.ref);
+  }
+
   void _api_fill_to_wire_box_autoadd_rtc_configuration(
       RtcConfiguration apiObj, ffi.Pointer<wire_RtcConfiguration> wireObj) {
     _api_fill_to_wire_rtc_configuration(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_video_constraints(
+      VideoConstraints apiObj, ffi.Pointer<wire_VideoConstraints> wireObj) {
+    _api_fill_to_wire_video_constraints(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_media_stream_constraints(
+      MediaStreamConstraints apiObj, wire_MediaStreamConstraints wireObj) {
+    wireObj.audio = _api2wire_opt_box_autoadd_audio_constraints(apiObj.audio);
+    wireObj.video = _api2wire_opt_box_autoadd_video_constraints(apiObj.video);
+  }
+
+  void _api_fill_to_wire_opt_box_autoadd_audio_constraints(
+      AudioConstraints? apiObj, ffi.Pointer<wire_AudioConstraints> wireObj) {
+    if (apiObj != null)
+      _api_fill_to_wire_box_autoadd_audio_constraints(apiObj, wireObj);
+  }
+
+  void _api_fill_to_wire_opt_box_autoadd_video_constraints(
+      VideoConstraints? apiObj, ffi.Pointer<wire_VideoConstraints> wireObj) {
+    if (apiObj != null)
+      _api_fill_to_wire_box_autoadd_video_constraints(apiObj, wireObj);
   }
 
   void _api_fill_to_wire_rtc_configuration(
@@ -805,6 +1015,15 @@ class FlutterWebrtcNativeImpl
     wireObj.username = _api2wire_String(apiObj.username);
     wireObj.credential = _api2wire_String(apiObj.credential);
   }
+
+  void _api_fill_to_wire_video_constraints(
+      VideoConstraints apiObj, wire_VideoConstraints wireObj) {
+    wireObj.device_id = _api2wire_String(apiObj.deviceId);
+    wireObj.width = _api2wire_u32(apiObj.width);
+    wireObj.height = _api2wire_u32(apiObj.height);
+    wireObj.frame_rate = _api2wire_u32(apiObj.frameRate);
+    wireObj.is_display = _api2wire_bool(apiObj.isDisplay);
+  }
 }
 
 // Section: wire2api
@@ -814,6 +1033,18 @@ String _wire2api_String(dynamic raw) {
 
 bool _wire2api_bool(dynamic raw) {
   return raw as bool;
+}
+
+int _wire2api_i64(dynamic raw) {
+  return raw as int;
+}
+
+IceConnectionState _wire2api_ice_connection_state(dynamic raw) {
+  return IceConnectionState.values[raw];
+}
+
+IceGatheringState _wire2api_ice_gathering_state(dynamic raw) {
+  return IceGatheringState.values[raw];
 }
 
 List<MediaDeviceInfo> _wire2api_list_media_device_info(dynamic raw) {
@@ -859,6 +1090,51 @@ MediaType _wire2api_media_type(dynamic raw) {
   return MediaType.values[raw];
 }
 
+PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return OnIceCandidate(
+        sdpMid: _wire2api_String(raw[1]),
+        sdpMlineIndex: _wire2api_i64(raw[2]),
+        candidate: _wire2api_String(raw[3]),
+      );
+    case 1:
+      return OnIceGatheringStateChange(
+        _wire2api_ice_gathering_state(raw[1]),
+      );
+    case 2:
+      return OnIceCandidateError(
+        address: _wire2api_String(raw[1]),
+        port: _wire2api_i64(raw[2]),
+        url: _wire2api_String(raw[3]),
+        errorCode: _wire2api_i64(raw[4]),
+        errorText: _wire2api_String(raw[5]),
+      );
+    case 3:
+      return OnNegotiationNeeded();
+    case 4:
+      return OnSignallingChange(
+        _wire2api_signaling_state(raw[1]),
+      );
+    case 5:
+      return OnIceConnectionStateChange(
+        _wire2api_ice_connection_state(raw[1]),
+      );
+    case 6:
+      return OnConnectionStateChange(
+        _wire2api_peer_connection_state(raw[1]),
+      );
+    case 7:
+      return OnTrack();
+    default:
+      throw Exception("unreachable");
+  }
+}
+
+PeerConnectionState _wire2api_peer_connection_state(dynamic raw) {
+  return PeerConnectionState.values[raw];
+}
+
 RtcRtpSender _wire2api_rtc_rtp_sender(dynamic raw) {
   final arr = raw as List<dynamic>;
   if (arr.length != 1)
@@ -878,6 +1154,14 @@ RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
     direction: _wire2api_String(arr[2]),
     sender: _wire2api_rtc_rtp_sender(arr[3]),
   );
+}
+
+SignalingState _wire2api_signaling_state(dynamic raw) {
+  return SignalingState.values[raw];
+}
+
+TrackEvent _wire2api_track_event(dynamic raw) {
+  return TrackEvent.values[raw];
 }
 
 int _wire2api_u64(dynamic raw) {
@@ -1248,19 +1532,20 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
 
   void wire_get_media(
     int port_,
-    bool is_display,
+    ffi.Pointer<wire_MediaStreamConstraints> constraints,
   ) {
     return _wire_get_media(
       port_,
-      is_display ? 1 : 0,
+      constraints,
     );
   }
 
-  late final _wire_get_mediaPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint8)>>(
-          'wire_get_media');
-  late final _wire_get_media =
-      _wire_get_mediaPtr.asFunction<void Function(int, int)>();
+  late final _wire_get_mediaPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_MediaStreamConstraints>)>>('wire_get_media');
+  late final _wire_get_media = _wire_get_mediaPtr.asFunction<
+      void Function(int, ffi.Pointer<wire_MediaStreamConstraints>)>();
 
   void wire_dispose_stream(
     int port_,
@@ -1362,6 +1647,30 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _new_StringList = _new_StringListPtr
       .asFunction<ffi.Pointer<wire_StringList> Function(int)>();
 
+  ffi.Pointer<wire_AudioConstraints> new_box_autoadd_audio_constraints() {
+    return _new_box_autoadd_audio_constraints();
+  }
+
+  late final _new_box_autoadd_audio_constraintsPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_AudioConstraints> Function()>>(
+      'new_box_autoadd_audio_constraints');
+  late final _new_box_autoadd_audio_constraints =
+      _new_box_autoadd_audio_constraintsPtr
+          .asFunction<ffi.Pointer<wire_AudioConstraints> Function()>();
+
+  ffi.Pointer<wire_MediaStreamConstraints>
+      new_box_autoadd_media_stream_constraints() {
+    return _new_box_autoadd_media_stream_constraints();
+  }
+
+  late final _new_box_autoadd_media_stream_constraintsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_MediaStreamConstraints>
+              Function()>>('new_box_autoadd_media_stream_constraints');
+  late final _new_box_autoadd_media_stream_constraints =
+      _new_box_autoadd_media_stream_constraintsPtr
+          .asFunction<ffi.Pointer<wire_MediaStreamConstraints> Function()>();
+
   ffi.Pointer<wire_RtcConfiguration> new_box_autoadd_rtc_configuration() {
     return _new_box_autoadd_rtc_configuration();
   }
@@ -1372,6 +1681,17 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _new_box_autoadd_rtc_configuration =
       _new_box_autoadd_rtc_configurationPtr
           .asFunction<ffi.Pointer<wire_RtcConfiguration> Function()>();
+
+  ffi.Pointer<wire_VideoConstraints> new_box_autoadd_video_constraints() {
+    return _new_box_autoadd_video_constraints();
+  }
+
+  late final _new_box_autoadd_video_constraintsPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_VideoConstraints> Function()>>(
+      'new_box_autoadd_video_constraints');
+  late final _new_box_autoadd_video_constraints =
+      _new_box_autoadd_video_constraintsPtr
+          .asFunction<ffi.Pointer<wire_VideoConstraints> Function()>();
 
   ffi.Pointer<wire_list_rtc_ice_server> new_list_rtc_ice_server(
     int len,
@@ -1467,6 +1787,32 @@ class wire_RtcConfiguration extends ffi.Struct {
   external ffi.Pointer<wire_uint_8_list> bundle_policy;
 
   external ffi.Pointer<wire_list_rtc_ice_server> ice_servers;
+}
+
+class wire_AudioConstraints extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> device_id;
+}
+
+class wire_VideoConstraints extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> device_id;
+
+  @ffi.Uint32()
+  external int width;
+
+  @ffi.Uint32()
+  external int height;
+
+  @ffi.Uint32()
+  external int frame_rate;
+
+  @ffi.Uint8()
+  external int is_display;
+}
+
+class wire_MediaStreamConstraints extends ffi.Struct {
+  external ffi.Pointer<wire_AudioConstraints> audio;
+
+  external ffi.Pointer<wire_VideoConstraints> video;
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<

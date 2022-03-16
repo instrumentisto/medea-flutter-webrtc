@@ -377,7 +377,7 @@ pub extern "C" fn wire_dispose_peer_connection(port_: i64, peer_id: u64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_get_media(port_: i64, is_display: bool) {
+pub extern "C" fn wire_get_media(port_: i64, constraints: *mut wire_MediaStreamConstraints) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "get_media",
@@ -385,8 +385,8 @@ pub extern "C" fn wire_get_media(port_: i64, is_display: bool) {
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_is_display = is_display.wire2api();
-            move |task_callback| Ok(get_media(api_is_display))
+            let api_constraints = constraints.wire2api();
+            move |task_callback| Ok(get_media(api_constraints))
         },
     )
 }
@@ -484,9 +484,22 @@ pub struct wire_StringList {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct wire_AudioConstraints {
+    device_id: *mut wire_uint_8_list,
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct wire_list_rtc_ice_server {
     ptr: *mut wire_RtcIceServer,
     len: i32,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_MediaStreamConstraints {
+    audio: *mut wire_AudioConstraints,
+    video: *mut wire_VideoConstraints,
 }
 
 #[repr(C)]
@@ -512,6 +525,16 @@ pub struct wire_uint_8_list {
     len: i32,
 }
 
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_VideoConstraints {
+    device_id: *mut wire_uint_8_list,
+    width: u32,
+    height: u32,
+    frame_rate: u32,
+    is_display: bool,
+}
+
 // Section: wrapper structs
 
 // Section: static checks
@@ -528,8 +551,24 @@ pub extern "C" fn new_StringList(len: i32) -> *mut wire_StringList {
 }
 
 #[no_mangle]
+pub extern "C" fn new_box_autoadd_audio_constraints() -> *mut wire_AudioConstraints {
+    support::new_leak_box_ptr(wire_AudioConstraints::new_with_null_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn new_box_autoadd_media_stream_constraints(
+) -> *mut wire_MediaStreamConstraints {
+    support::new_leak_box_ptr(wire_MediaStreamConstraints::new_with_null_ptr())
+}
+
+#[no_mangle]
 pub extern "C" fn new_box_autoadd_rtc_configuration() -> *mut wire_RtcConfiguration {
     support::new_leak_box_ptr(wire_RtcConfiguration::new_with_null_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn new_box_autoadd_video_constraints() -> *mut wire_VideoConstraints {
+    support::new_leak_box_ptr(wire_VideoConstraints::new_with_null_ptr())
 }
 
 #[no_mangle]
@@ -586,14 +625,43 @@ impl Wire2Api<Vec<String>> for *mut wire_StringList {
     }
 }
 
+impl Wire2Api<AudioConstraints> for wire_AudioConstraints {
+    fn wire2api(self) -> AudioConstraints {
+        AudioConstraints {
+            device_id: self.device_id.wire2api(),
+        }
+    }
+}
+
 impl Wire2Api<bool> for bool {
     fn wire2api(self) -> bool {
         self
     }
 }
 
+impl Wire2Api<AudioConstraints> for *mut wire_AudioConstraints {
+    fn wire2api(self) -> AudioConstraints {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        (*wrap).wire2api().into()
+    }
+}
+
+impl Wire2Api<MediaStreamConstraints> for *mut wire_MediaStreamConstraints {
+    fn wire2api(self) -> MediaStreamConstraints {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        (*wrap).wire2api().into()
+    }
+}
+
 impl Wire2Api<RtcConfiguration> for *mut wire_RtcConfiguration {
     fn wire2api(self) -> RtcConfiguration {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        (*wrap).wire2api().into()
+    }
+}
+
+impl Wire2Api<VideoConstraints> for *mut wire_VideoConstraints {
+    fn wire2api(self) -> VideoConstraints {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
         (*wrap).wire2api().into()
     }
@@ -618,6 +686,15 @@ impl Wire2Api<Vec<RtcIceServer>> for *mut wire_list_rtc_ice_server {
             support::vec_from_leak_ptr(wrap.ptr, wrap.len)
         };
         vec.into_iter().map(Wire2Api::wire2api).collect()
+    }
+}
+
+impl Wire2Api<MediaStreamConstraints> for wire_MediaStreamConstraints {
+    fn wire2api(self) -> MediaStreamConstraints {
+        MediaStreamConstraints {
+            audio: self.audio.wire2api(),
+            video: self.video.wire2api(),
+        }
     }
 }
 
@@ -664,6 +741,12 @@ impl Wire2Api<RtpTransceiverDirection> for i32 {
     }
 }
 
+impl Wire2Api<u32> for u32 {
+    fn wire2api(self) -> u32 {
+        self
+    }
+}
+
 impl Wire2Api<u64> for u64 {
     fn wire2api(self) -> u64 {
         self
@@ -685,6 +768,18 @@ impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
     }
 }
 
+impl Wire2Api<VideoConstraints> for wire_VideoConstraints {
+    fn wire2api(self) -> VideoConstraints {
+        VideoConstraints {
+            device_id: self.device_id.wire2api(),
+            width: self.width.wire2api(),
+            height: self.height.wire2api(),
+            frame_rate: self.frame_rate.wire2api(),
+            is_display: self.is_display.wire2api(),
+        }
+    }
+}
+
 // Section: impl NewWithNullPtr
 
 pub trait NewWithNullPtr {
@@ -694,6 +789,23 @@ pub trait NewWithNullPtr {
 impl<T> NewWithNullPtr for *mut T {
     fn new_with_null_ptr() -> Self {
         std::ptr::null_mut()
+    }
+}
+
+impl NewWithNullPtr for wire_AudioConstraints {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            device_id: core::ptr::null_mut(),
+        }
+    }
+}
+
+impl NewWithNullPtr for wire_MediaStreamConstraints {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            audio: core::ptr::null_mut(),
+            video: core::ptr::null_mut(),
+        }
     }
 }
 
@@ -717,7 +829,45 @@ impl NewWithNullPtr for wire_RtcIceServer {
     }
 }
 
+impl NewWithNullPtr for wire_VideoConstraints {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            device_id: core::ptr::null_mut(),
+            width: Default::default(),
+            height: Default::default(),
+            frame_rate: Default::default(),
+            is_display: Default::default(),
+        }
+    }
+}
+
 // Section: impl IntoDart
+
+impl support::IntoDart for IceConnectionState {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::New => 0,
+            Self::Checking => 1,
+            Self::Connected => 2,
+            Self::Completed => 3,
+            Self::Failed => 4,
+            Self::Disconnected => 5,
+            Self::Closed => 6,
+        }
+        .into_dart()
+    }
+}
+
+impl support::IntoDart for IceGatheringState {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::New => 0,
+            Self::Gathering => 1,
+            Self::Complete => 2,
+        }
+        .into_dart()
+    }
+}
 
 impl support::IntoDart for MediaDeviceInfo {
     fn into_dart(self) -> support::DartCObject {
@@ -765,6 +915,62 @@ impl support::IntoDart for MediaType {
     }
 }
 
+impl support::IntoDart for PeerConnectionEvent {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::OnIceCandidate {
+                sdp_mid,
+                sdp_mline_index,
+                candidate,
+            } => vec![
+                0.into_dart(),
+                sdp_mid.into_dart(),
+                sdp_mline_index.into_dart(),
+                candidate.into_dart(),
+            ],
+            Self::OnIceGatheringStateChange(field0) => {
+                vec![1.into_dart(), field0.into_dart()]
+            }
+            Self::OnIceCandidateError {
+                address,
+                port,
+                url,
+                error_code,
+                error_text,
+            } => vec![
+                2.into_dart(),
+                address.into_dart(),
+                port.into_dart(),
+                url.into_dart(),
+                error_code.into_dart(),
+                error_text.into_dart(),
+            ],
+            Self::OnNegotiationNeeded => vec![3.into_dart()],
+            Self::OnSignallingChange(field0) => vec![4.into_dart(), field0.into_dart()],
+            Self::OnIceConnectionStateChange(field0) => {
+                vec![5.into_dart(), field0.into_dart()]
+            }
+            Self::OnConnectionStateChange(field0) => vec![6.into_dart(), field0.into_dart()],
+            Self::OnTrack => vec![7.into_dart()],
+        }
+        .into_dart()
+    }
+}
+
+impl support::IntoDart for PeerConnectionState {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::New => 0,
+            Self::Connecting => 1,
+            Self::Connected => 2,
+            Self::Disconnected => 3,
+            Self::Failed => 4,
+            Self::Closed => 5,
+        }
+        .into_dart()
+    }
+}
+
 impl support::IntoDart for RtcRtpSender {
     fn into_dart(self) -> support::DartCObject {
         vec![self.id.into_dart()].into_dart()
@@ -784,6 +990,29 @@ impl support::IntoDart for RtcRtpTransceiver {
     }
 }
 impl support::IntoDartExceptPrimitive for RtcRtpTransceiver {}
+
+impl support::IntoDart for SignalingState {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Stable => 0,
+            Self::HaveLocalOffer => 1,
+            Self::HaveLocalPrAnswer => 2,
+            Self::HaveRemoteOffer => 3,
+            Self::HaveRemotePrAnswer => 4,
+            Self::Closed => 5,
+        }
+        .into_dart()
+    }
+}
+
+impl support::IntoDart for TrackEvent {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Ended => 0,
+        }
+        .into_dart()
+    }
+}
 
 // Section: executor
 
