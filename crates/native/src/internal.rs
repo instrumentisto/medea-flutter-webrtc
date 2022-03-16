@@ -15,7 +15,7 @@ mod cpp_api_bindings {
         // pub type AddIceCandidateCallbackInterface;
         // pub type OnDeviceChangeCallback;
 
-        type VideoFrame = crate::api::VideoFrame;
+        type VideoFrame = crate::api_::VideoFrame;
         // type RtcTrackEvent = crate::api::RtcTrackEvent;
 
         // /// Calls C++ side `CreateSdpCallbackInterface->OnSuccess`.

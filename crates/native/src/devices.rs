@@ -7,7 +7,6 @@ use std::{
     thread,
 };
 
-use cxx::UniquePtr;
 use libwebrtc_sys::{AudioLayer, TaskQueueFactory, VideoDeviceInfo};
 use winapi::{
     shared::{
@@ -25,9 +24,8 @@ use winapi::{
 };
 
 use crate::{
-    api,
     user_media::{AudioDeviceId, VideoDeviceId},
-    AudioDeviceModule, Webrtc, api_::{MediaDeviceInfo, self},
+    AudioDeviceModule, Webrtc, api,
 };
 
 /// Static instance of a [`DeviceState`].
@@ -94,7 +92,7 @@ impl Webrtc {
     ///
     /// On any error returned from `libWebRTC`.
     #[must_use]
-    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<MediaDeviceInfo> {
+    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
         // TODO: Don't panic but propagate errors to API users.
         // Returns a list of all available audio devices.
         let mut audio = {
@@ -110,17 +108,17 @@ impl Webrtc {
             let mut result = Vec::with_capacity((count_playout + count_recording) as usize);
 
             for kind in [
-                api_::MediaDeviceKind::kAudioOutput,
-                api_::MediaDeviceKind::kAudioInput,
+                api::MediaDeviceKind::AudioOutput,
+                api::MediaDeviceKind::AudioInput,
             ] {
-                let count = if let api_::MediaDeviceKind::kAudioOutput = kind {
+                let count = if let api::MediaDeviceKind::AudioOutput = kind {
                     count_playout
                 } else {
                     count_recording
                 };
 
                 for i in 0..count {
-                    let (label, device_id) = if let api_::MediaDeviceKind::kAudioOutput = kind
+                    let (label, device_id) = if let api::MediaDeviceKind::AudioOutput = kind
                     {
                         self.0
                             .audio_device_module
@@ -135,7 +133,7 @@ impl Webrtc {
                             .unwrap()
                     };
 
-                    result.push(api_::MediaDeviceInfo {
+                    result.push(api::MediaDeviceInfo {
                         device_id,
                         kind,
                         label,
@@ -154,9 +152,9 @@ impl Webrtc {
             for i in 0..count {
                 let (label, device_id) = self.0.video_device_info.device_name(i).unwrap();
 
-                result.push(api_::MediaDeviceInfo {
+                result.push(api::MediaDeviceInfo {
                     device_id,
-                    kind: api_::MediaDeviceKind::kVideoInput,
+                    kind: api::MediaDeviceKind::VideoInput,
                     label,
                 });
             }

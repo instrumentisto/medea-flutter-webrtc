@@ -105,7 +105,7 @@ lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 # --dart-output example/lib/src/bridge_generated.dart
 codegen: 
 	flutter_rust_bridge_codegen --rust-crate-dir crates/native \
-		--rust-input crates/native/src/api_dart.rs \
+		--rust-input crates/native/src/api.rs \
 		--dart-output lib/src/native/bridge_generated.dart
 
 cargo.build:

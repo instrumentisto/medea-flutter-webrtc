@@ -22,7 +22,7 @@ impl Webrtc {
     pub fn create_peer_connection(
         self: &mut Webrtc,
         // obs: UniquePtr<PeerConnectionObserverInterface>,
-        configuration: api_::RtcConfiguration,
+        configuration: api::RtcConfiguration,
         error: &mut String,
     ) -> u64 {
         // let peer = PeerConnection::new(
@@ -221,7 +221,7 @@ impl Webrtc {
         peer_id: u64,
         media_type: &str,
         direction: &str,
-    ) -> api_::RtcRtpTransceiver {
+    ) -> api::RtcRtpTransceiver {
         let peer = self
             .0
             .peer_connections
@@ -244,11 +244,11 @@ impl Webrtc {
             .map(|(id, _)| id)
             .unwrap();
 
-        api_::RtcRtpTransceiver {
+        api::RtcRtpTransceiver {
             id: id as u64,
             mid,
             direction,
-            sender: api_::RtcRtpSender { id: id as u64 },
+            sender: api::RtcRtpSender { id: id as u64 },
         }
     }
 
@@ -260,7 +260,7 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
-    pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<api_::RtcRtpTransceiver> {
+    pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<api::RtcRtpTransceiver> {
         let peer = self
             .0
             .peer_connections
@@ -271,11 +271,11 @@ impl Webrtc {
         let mut result = Vec::with_capacity(transceivers.len());
 
         for (index, transceiver) in transceivers.into_iter().enumerate() {
-            let info = api_::RtcRtpTransceiver {
+            let info = api::RtcRtpTransceiver {
                 id: index as u64,
                 mid: transceiver.mid().unwrap_or_default(),
                 direction: transceiver.direction().to_string(),
-                sender: api_::RtcRtpSender { id: index as u64 },
+                sender: api::RtcRtpSender { id: index as u64 },
             };
             result.push(info);
         }

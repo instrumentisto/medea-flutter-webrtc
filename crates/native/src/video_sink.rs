@@ -2,7 +2,7 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{api, internal, MediaStreamId, VideoTrackId, Webrtc};
+use crate::{internal, MediaStreamId, VideoTrackId, Webrtc, api_};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -83,7 +83,7 @@ impl VideoSink {
 /// Wrapper around a [`sys::VideoFrame`] transferable via FFI.
 pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
 
-impl api::VideoFrame {
+impl api_::VideoFrame {
     /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme and
     /// outputs the result to the provided `buffer`.
     ///
@@ -91,12 +91,12 @@ impl api::VideoFrame {
     ///
     /// The provided `buffer` must be a valid pointer.
     #[allow(clippy::unused_self)]
-    pub unsafe fn get_abgr_bytes(self: &api::VideoFrame, buffer: *mut u8) {
+    pub unsafe fn get_abgr_bytes(self: &api_::VideoFrame, buffer: *mut u8) {
         libwebrtc_sys::video_frame_to_abgr(self.frame.0.as_ref(), buffer);
     }
 }
 
-impl From<UniquePtr<sys::VideoFrame>> for api::VideoFrame {
+impl From<UniquePtr<sys::VideoFrame>> for api_::VideoFrame {
     #[allow(clippy::cast_sign_loss)]
     fn from(frame: UniquePtr<sys::VideoFrame>) -> Self {
         let height = frame.height();
@@ -123,6 +123,6 @@ pub struct OnFrameCallback(pub(crate) UniquePtr<internal::OnFrameCallbackInterfa
 
 impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {
     fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
-        self.0.pin_mut().on_frame(api::VideoFrame::from(frame));
+        self.0.pin_mut().on_frame(api_::VideoFrame::from(frame));
     }
 }

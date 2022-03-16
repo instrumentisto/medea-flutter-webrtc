@@ -8,8 +8,7 @@ use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 
 use crate::{
-    api_::{self, AudioConstraints, TrackKind, VideoConstraints},
-    api_dart::{webrtc_init, WEBRTC},
+    api::{WEBRTC, self},
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
@@ -20,49 +19,23 @@ impl Webrtc {
     #[allow(clippy::too_many_lines, clippy::missing_panics_doc)]
     pub fn get_media(
         self: &mut Webrtc,
-        constraints: &api_::MediaStreamConstraints,
+        constraints: &api::MediaStreamConstraints,
         is_display: bool,
-    ) -> api_::MediaStream {
-        webrtc_init();
-        let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
-
-        let mut stream = MediaStream::new(&webrtc.0.peer_connection_factory).unwrap();
-
-        let mut result = api_::MediaStream {
-            stream_id: stream.id.0,
-            video_tracks: Vec::new(),
-            audio_tracks: Vec::new(),
-        };
-
+    ) -> Vec<api::MediaStreamTrack> {
+        let mut result = Vec::new();
         if constraints.video.required {
-            let source = webrtc
+            let source = self
                 .get_or_create_video_source(&constraints.video, is_display)
                 .unwrap();
-            let track = webrtc.create_video_track(source).unwrap();
-
-            stream.add_video_track(&track).unwrap();
-            result
-                .video_tracks
-                .push(api_::MediaStreamTrack::from(&*track));
+            let track = self.create_video_track(source).unwrap();
+            result.push(api::MediaStreamTrack::from(&*track));
         }
 
         if constraints.audio.required {
-            let source = webrtc
-                .get_or_create_audio_source(&constraints.audio)
-                .unwrap();
-            let track = webrtc.create_audio_track(source).unwrap();
-
-            stream.add_audio_track(&track).unwrap();
-            result
-                .audio_tracks
-                .push(api_::MediaStreamTrack::from(&*track));
+            let source = self.get_or_create_audio_source(&constraints.audio).unwrap();
+            let track = self.create_audio_track(source).unwrap();
+            result.push(api::MediaStreamTrack::from(&*track));
         };
-
-        webrtc
-            .0
-            .local_media_streams
-            .entry(stream.id)
-            .or_insert(stream);
 
         result
     }
@@ -140,7 +113,7 @@ impl Webrtc {
     /// Creates a new [`VideoSource`] based on the given [`VideoConstraints`].
     fn get_or_create_video_source(
         &mut self,
-        caps: &VideoConstraints,
+        caps: &api::VideoConstraints,
         is_display: bool,
     ) -> anyhow::Result<Rc<VideoSource>> {
         let (index, device_id) = if is_display {
@@ -242,7 +215,7 @@ impl Webrtc {
     /// [`AudioConstraints`].
     fn get_or_create_audio_source(
         &mut self,
-        caps: &AudioConstraints,
+        caps: &api::AudioConstraints,
     ) -> anyhow::Result<Rc<sys::AudioSourceInterface>> {
         let device_id = if caps.device_id.is_empty() {
             // No device ID is provided so just pick the currently used.
@@ -494,7 +467,7 @@ pub struct VideoTrack {
     source: MediaTrackSource<VideoSource>,
 
     /// [`api::TrackKind::kVideo`].
-    kind: api_::TrackKind,
+    kind: api::MediaType,
 
     /// [`VideoLabel`] identifying the track source, as in "HD Webcam Analog
     /// Stereo".
@@ -516,7 +489,7 @@ impl VideoTrack {
             id,
             inner: pc.create_video_track(id.to_string(), &src.inner)?,
             source: MediaTrackSource::Local(src),
-            kind: api_::TrackKind::kVideo,
+            kind: api::MediaType::Video,
             label,
             sinks: Vec::new(),
         })
@@ -533,7 +506,7 @@ impl VideoTrack {
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
             source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
-            kind: TrackKind::kAudio,
+            kind: api::MediaType::Audio,
             label: VideoLabel::from("remote"),
             sinks: Vec::new(),
         }
@@ -566,7 +539,7 @@ impl VideoTrack {
     }
 }
 
-impl From<&VideoTrack> for api_::MediaStreamTrack {
+impl From<&VideoTrack> for api::MediaStreamTrack {
     fn from(track: &VideoTrack) -> Self {
         Self {
             id: track.id.0,
@@ -591,7 +564,7 @@ pub struct AudioTrack {
     source: MediaTrackSource<sys::AudioSourceInterface>,
 
     /// [`api::TrackKind::kAudio`].
-    kind: api_::TrackKind,
+    kind: api::MediaType,
 
     /// [`AudioLabel`] identifying the track source, as in "internal
     /// microphone".
@@ -615,7 +588,7 @@ impl AudioTrack {
             id,
             inner: pc.create_audio_track(id.to_string(), &src)?,
             source: MediaTrackSource::Local(src),
-            kind: api_::TrackKind::kAudio,
+            kind: api::MediaType::Audio,
             label,
         })
     }
@@ -631,7 +604,7 @@ impl AudioTrack {
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
             source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
-            kind: TrackKind::kAudio,
+            kind: api::MediaType::Audio,
             label: AudioLabel::from("remote"),
         }
     }
@@ -651,7 +624,7 @@ impl AudioTrack {
     }
 }
 
-impl From<&AudioTrack> for api_::MediaStreamTrack {
+impl From<&AudioTrack> for api::MediaStreamTrack {
     fn from(track: &AudioTrack) -> Self {
         Self {
             id: track.id.0,
@@ -680,7 +653,7 @@ impl VideoSource {
     fn new_device_source(
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
-        caps: &api_::VideoConstraints,
+        caps: &api::VideoConstraints,
         device_index: u32,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
@@ -688,9 +661,9 @@ impl VideoSource {
             inner: sys::VideoTrackSourceInterface::create_proxy_from_device(
                 worker_thread,
                 signaling_thread,
-                caps.width,
-                caps.height,
-                caps.frame_rate,
+                caps.width as usize,
+                caps.height as usize,
+                caps.frame_rate as usize,
                 device_index,
             )?,
             device_id,
@@ -703,16 +676,16 @@ impl VideoSource {
     fn new_display_source(
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
-        caps: &api_::VideoConstraints,
+        caps: &api::VideoConstraints,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
         Ok(Self {
             inner: sys::VideoTrackSourceInterface::create_proxy_from_display(
                 worker_thread,
                 signaling_thread,
-                caps.width,
-                caps.height,
-                caps.frame_rate,
+                caps.width as usize,
+                caps.height as usize,
+                caps.frame_rate as usize,
             )?,
             device_id,
             is_display: true,

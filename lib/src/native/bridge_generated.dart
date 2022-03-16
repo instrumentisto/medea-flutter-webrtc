@@ -23,6 +23,33 @@ abstract class FlutterWebrtcNative {
   Future<void> disposeVideoSink({required int sinkId, dynamic hint});
 
   Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint});
+
+  Future<List<MediaStreamTrack>> getMedia(
+      {required MediaStreamConstraints constraints,
+      required bool isDisplay,
+      dynamic hint});
+}
+
+/// Specifies the nature and settings of the audio [`MediaStreamTrack`]
+/// returned by [`Webrtc::get_users_media()`].
+class AudioConstraints {
+  /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
+  /// track. All other args will be ignored if `required` is set to
+  /// `false`.
+  final bool required;
+
+  /// The identifier of the device generating the content of the
+  /// [`MediaStreamTrack`]. First device will be chosen if empty
+  /// [`String`] is provided.
+  ///
+  /// __NOTE__: There can be only one active recording device at a time,
+  /// so changing device will affect all previously obtained audio tracks.
+  final String deviceId;
+
+  AudioConstraints({
+    required this.required,
+    required this.deviceId,
+  });
 }
 
 /// Information describing a single media input or output device.
@@ -45,9 +72,89 @@ class MediaDeviceInfo {
 
 /// Possible kinds of media devices.
 enum MediaDeviceKind {
-  kAudioInput,
-  kAudioOutput,
-  kVideoInput,
+  AudioInput,
+  AudioOutput,
+  VideoInput,
+}
+
+/// The [MediaStreamConstraints] is used to instruct what sort of
+/// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
+/// [`Webrtc::get_users_media()`].
+class MediaStreamConstraints {
+  /// Specifies the nature and settings of the video [`MediaStreamTrack`].
+  final AudioConstraints audio;
+
+  /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
+  final VideoConstraints video;
+
+  MediaStreamConstraints({
+    required this.audio,
+    required this.video,
+  });
+}
+
+/// Representation of a single media track within a [`MediaStream`].
+///
+/// Typically, these are audio or video tracks, but other track types may
+/// exist as well.
+class MediaStreamTrack {
+  /// Unique identifier (GUID) for the track
+  final int id;
+
+  /// Label that identifies the track source, as in "internal microphone".
+  final String label;
+
+  /// [`MediaType`] of the current [`MediaStreamTrack`].
+  final MediaType kind;
+
+  /// The `enabled` property on the [`MediaStreamTrack`] interface is a
+  /// `enabled` value which is `true` if the track is allowed to render
+  /// the source stream or `false` if it is not. This can be used to
+  /// intentionally mute a track.
+  final bool enabled;
+
+  MediaStreamTrack({
+    required this.id,
+    required this.label,
+    required this.kind,
+    required this.enabled,
+  });
+}
+
+enum MediaType {
+  Audio,
+  Video,
+}
+
+/// Specifies the nature and settings of the video [`MediaStreamTrack`]
+/// returned by [`Webrtc::get_users_media()`].
+class VideoConstraints {
+  /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
+  /// track. All other args will be ignored if `required` is set to
+  /// `false`.
+  final bool required;
+
+  /// The identifier of the device generating the content of the
+  /// [`MediaStreamTrack`]. First device will be chosen if empty
+  /// [`String`] is provided.
+  final String deviceId;
+
+  /// The width, in pixels.
+  final int width;
+
+  /// The height, in pixels.
+  final int height;
+
+  /// The exact frame rate (frames per second).
+  final int frameRate;
+
+  VideoConstraints({
+    required this.required,
+    required this.deviceId,
+    required this.width,
+    required this.height,
+    required this.frameRate,
+  });
 }
 
 class FlutterWebrtcNativeImpl
@@ -115,8 +222,60 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
+  Future<List<MediaStreamTrack>> getMedia(
+          {required MediaStreamConstraints constraints,
+          required bool isDisplay,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_get_media(
+            port_,
+            _api2wire_box_autoadd_media_stream_constraints(constraints),
+            isDisplay),
+        parseSuccessData: _wire2api_list_media_stream_track,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "get_media",
+          argNames: ["constraints", "isDisplay"],
+        ),
+        argValues: [constraints, isDisplay],
+        hint: hint,
+      ));
+
   // Section: api2wire
+  ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
+    return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  int _api2wire_bool(bool raw) {
+    return raw ? 1 : 0;
+  }
+
+  ffi.Pointer<wire_AudioConstraints> _api2wire_box_audio_constraints(
+      AudioConstraints raw) {
+    final ptr = inner.new_box_audio_constraints();
+    _api_fill_to_wire_audio_constraints(raw, ptr.ref);
+    return ptr;
+  }
+
+  ffi.Pointer<wire_MediaStreamConstraints>
+      _api2wire_box_autoadd_media_stream_constraints(
+          MediaStreamConstraints raw) {
+    final ptr = inner.new_box_autoadd_media_stream_constraints();
+    _api_fill_to_wire_media_stream_constraints(raw, ptr.ref);
+    return ptr;
+  }
+
+  ffi.Pointer<wire_VideoConstraints> _api2wire_box_video_constraints(
+      VideoConstraints raw) {
+    final ptr = inner.new_box_video_constraints();
+    _api_fill_to_wire_video_constraints(raw, ptr.ref);
+    return ptr;
+  }
+
   int _api2wire_i64(int raw) {
+    return raw;
+  }
+
+  int _api2wire_u32(int raw) {
     return raw;
   }
 
@@ -124,8 +283,54 @@ class FlutterWebrtcNativeImpl
     return raw;
   }
 
+  int _api2wire_u8(int raw) {
+    return raw;
+  }
+
+  ffi.Pointer<wire_uint_8_list> _api2wire_uint_8_list(Uint8List raw) {
+    final ans = inner.new_uint_8_list(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
   // Section: api_fill_to_wire
 
+  void _api_fill_to_wire_audio_constraints(
+      AudioConstraints apiObj, wire_AudioConstraints wireObj) {
+    wireObj.required = _api2wire_bool(apiObj.required);
+    wireObj.device_id = _api2wire_String(apiObj.deviceId);
+  }
+
+  void _api_fill_to_wire_box_audio_constraints(
+      AudioConstraints apiObj, ffi.Pointer<wire_AudioConstraints> wireObj) {
+    _api_fill_to_wire_audio_constraints(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_autoadd_media_stream_constraints(
+      MediaStreamConstraints apiObj,
+      ffi.Pointer<wire_MediaStreamConstraints> wireObj) {
+    _api_fill_to_wire_media_stream_constraints(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_box_video_constraints(
+      VideoConstraints apiObj, ffi.Pointer<wire_VideoConstraints> wireObj) {
+    _api_fill_to_wire_video_constraints(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_media_stream_constraints(
+      MediaStreamConstraints apiObj, wire_MediaStreamConstraints wireObj) {
+    wireObj.audio = _api2wire_box_audio_constraints(apiObj.audio);
+    wireObj.video = _api2wire_box_video_constraints(apiObj.video);
+  }
+
+  void _api_fill_to_wire_video_constraints(
+      VideoConstraints apiObj, wire_VideoConstraints wireObj) {
+    wireObj.required = _api2wire_bool(apiObj.required);
+    wireObj.device_id = _api2wire_String(apiObj.deviceId);
+    wireObj.width = _api2wire_u32(apiObj.width);
+    wireObj.height = _api2wire_u32(apiObj.height);
+    wireObj.frame_rate = _api2wire_u32(apiObj.frameRate);
+  }
 }
 
 // Section: wire2api
@@ -133,8 +338,16 @@ String _wire2api_String(dynamic raw) {
   return raw as String;
 }
 
+bool _wire2api_bool(dynamic raw) {
+  return raw as bool;
+}
+
 List<MediaDeviceInfo> _wire2api_list_media_device_info(dynamic raw) {
   return (raw as List<dynamic>).map(_wire2api_media_device_info).toList();
+}
+
+List<MediaStreamTrack> _wire2api_list_media_stream_track(dynamic raw) {
+  return (raw as List<dynamic>).map(_wire2api_media_stream_track).toList();
 }
 
 MediaDeviceInfo _wire2api_media_device_info(dynamic raw) {
@@ -150,6 +363,26 @@ MediaDeviceInfo _wire2api_media_device_info(dynamic raw) {
 
 MediaDeviceKind _wire2api_media_device_kind(dynamic raw) {
   return MediaDeviceKind.values[raw];
+}
+
+MediaStreamTrack _wire2api_media_stream_track(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 4)
+    throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+  return MediaStreamTrack(
+    id: _wire2api_u64(arr[0]),
+    label: _wire2api_String(arr[1]),
+    kind: _wire2api_media_type(arr[2]),
+    enabled: _wire2api_bool(arr[3]),
+  );
+}
+
+MediaType _wire2api_media_type(dynamic raw) {
+  return MediaType.values[raw];
+}
+
+int _wire2api_u64(dynamic raw) {
+  return raw as int;
 }
 
 int _wire2api_u8(dynamic raw) {
@@ -251,6 +484,73 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_enumerate_devices =
       _wire_enumerate_devicesPtr.asFunction<void Function(int)>();
 
+  void wire_get_media(
+    int port_,
+    ffi.Pointer<wire_MediaStreamConstraints> constraints,
+    bool is_display,
+  ) {
+    return _wire_get_media(
+      port_,
+      constraints,
+      is_display ? 1 : 0,
+    );
+  }
+
+  late final _wire_get_mediaPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_MediaStreamConstraints>,
+              ffi.Uint8)>>('wire_get_media');
+  late final _wire_get_media = _wire_get_mediaPtr.asFunction<
+      void Function(int, ffi.Pointer<wire_MediaStreamConstraints>, int)>();
+
+  ffi.Pointer<wire_AudioConstraints> new_box_audio_constraints() {
+    return _new_box_audio_constraints();
+  }
+
+  late final _new_box_audio_constraintsPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_AudioConstraints> Function()>>(
+      'new_box_audio_constraints');
+  late final _new_box_audio_constraints = _new_box_audio_constraintsPtr
+      .asFunction<ffi.Pointer<wire_AudioConstraints> Function()>();
+
+  ffi.Pointer<wire_MediaStreamConstraints>
+      new_box_autoadd_media_stream_constraints() {
+    return _new_box_autoadd_media_stream_constraints();
+  }
+
+  late final _new_box_autoadd_media_stream_constraintsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_MediaStreamConstraints>
+              Function()>>('new_box_autoadd_media_stream_constraints');
+  late final _new_box_autoadd_media_stream_constraints =
+      _new_box_autoadd_media_stream_constraintsPtr
+          .asFunction<ffi.Pointer<wire_MediaStreamConstraints> Function()>();
+
+  ffi.Pointer<wire_VideoConstraints> new_box_video_constraints() {
+    return _new_box_video_constraints();
+  }
+
+  late final _new_box_video_constraintsPtr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_VideoConstraints> Function()>>(
+      'new_box_video_constraints');
+  late final _new_box_video_constraints = _new_box_video_constraintsPtr
+      .asFunction<ffi.Pointer<wire_VideoConstraints> Function()>();
+
+  ffi.Pointer<wire_uint_8_list> new_uint_8_list(
+    int len,
+  ) {
+    return _new_uint_8_list(
+      len,
+    );
+  }
+
+  late final _new_uint_8_listPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_uint_8_list> Function(
+              ffi.Int32)>>('new_uint_8_list');
+  late final _new_uint_8_list = _new_uint_8_listPtr
+      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
+
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,
   ) {
@@ -278,6 +578,42 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
+}
+
+class wire_uint_8_list extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+class wire_AudioConstraints extends ffi.Struct {
+  @ffi.Uint8()
+  external int required;
+
+  external ffi.Pointer<wire_uint_8_list> device_id;
+}
+
+class wire_VideoConstraints extends ffi.Struct {
+  @ffi.Uint8()
+  external int required;
+
+  external ffi.Pointer<wire_uint_8_list> device_id;
+
+  @ffi.Uint32()
+  external int width;
+
+  @ffi.Uint32()
+  external int height;
+
+  @ffi.Uint32()
+  external int frame_rate;
+}
+
+class wire_MediaStreamConstraints extends ffi.Struct {
+  external ffi.Pointer<wire_AudioConstraints> audio;
+
+  external ffi.Pointer<wire_VideoConstraints> video;
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<

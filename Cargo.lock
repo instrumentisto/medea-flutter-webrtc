@@ -318,6 +318,7 @@ dependencies = [
  "dashmap",
  "derive_more",
  "flutter_rust_bridge",
+ "lazy_static",
  "libwebrtc-sys",
  "nokhwa",
  "once_cell",
