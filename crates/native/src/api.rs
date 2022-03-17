@@ -1,16 +1,192 @@
-use std::{cell::RefCell, rc::Rc};
-
+use crate::{AudioDeviceModule, Webrtc, cpp_api};
+use anyhow::Ok;
 use cxx::UniquePtr;
+use dashmap::DashMap;
+use flutter_rust_bridge::StreamSink;
+use libwebrtc_sys::{
+    self as sys, AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
+    VideoDeviceInfo,
+};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex}, rc::Rc,
+};
+use threadpool::ThreadPool;
 
-use crate::{api_::OnFrameCallbackInterface, init, Webrtc};
-
-pub static mut WEBRTC: Option<Rc<RefCell<Box<Webrtc>>>> = None;
+static mut WEBRTC: Option<Rc<Mutex<Webrtc>>> = None;
 
 pub fn webrtc_init() {
     unsafe {
         match WEBRTC {
-            None => WEBRTC = Some(Rc::new(RefCell::new(init()))),
+            None => WEBRTC = Some(Rc::new({let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
+
+                let mut network_thread = Thread::create(true).unwrap();
+                network_thread.start().unwrap();
+        
+                let mut worker_thread = Thread::create(false).unwrap();
+                worker_thread.start().unwrap();
+        
+                let mut signaling_thread = Thread::create(false).unwrap();
+                signaling_thread.start().unwrap();
+        
+                let audio_device_module =
+                    AudioDeviceModule::new(
+                        AudioLayer::kPlatformDefaultAudio,
+                        &mut task_queue_factory
+                    ).unwrap();
+        
+                let peer_connection_factory = PeerConnectionFactoryInterface::create(
+                    Some(&network_thread),
+                    Some(&worker_thread),
+                    Some(&signaling_thread),
+                    Some(&audio_device_module.inner),
+                )
+                .unwrap();
+        
+                let video_device_info = VideoDeviceInfo::create().unwrap();
+        
+                Mutex::new(Webrtc {
+                    task_queue_factory,
+                    network_thread,
+                    worker_thread,
+                    signaling_thread,
+                    audio_device_module,
+                    video_device_info,
+                    peer_connection_factory,
+                    video_sources: HashMap::new(),
+                    video_tracks: Arc::new(DashMap::new()),
+                    audio_source: None,
+                    audio_tracks: Arc::new(DashMap::new()),
+                    peer_connections: HashMap::new(),
+                    video_sinks: HashMap::new(),
+                    callback_pool: ThreadPool::new(4),
+                })})),
             _ => (),
+        }
+    }
+}
+
+pub enum TrackEvent {
+    Ended,
+}
+
+pub enum IceGatheringStateFFI {
+    New,
+    Gathering,
+    Complete,
+}
+
+impl From<sys::IceGatheringState> for IceGatheringStateFFI {
+    fn from(state: sys::IceGatheringState) -> Self {
+        match state {
+            sys::IceGatheringState::kIceGatheringNew => IceGatheringStateFFI::New,
+            sys::IceGatheringState::kIceGatheringGathering => {
+                IceGatheringStateFFI::Gathering
+            }
+            sys::IceGatheringState::kIceGatheringComplete => IceGatheringStateFFI::Complete,
+            _ => unreachable!(),
+        }
+    }
+}
+
+pub enum PeerConnectionEvent {
+    OnIceCandidate {
+        sdp_mid: String,
+        sdp_mline_index: i64,
+        candidate: String,
+    },
+    OnIceGatheringStateChange(IceGatheringStateFFI),
+    OnIceCandidateError {
+        address: String,
+        port: i64,
+        url: String,
+        error_code: i64,
+        error_text: String,
+    },
+    OnNegotiationNeeded,
+    OnSignallingChange(SignalingStateFFI),
+    OnIceConnectionStateChange(IceConnectionStateFFI),
+    OnConnectionStateChange(PeerConnectionStateFFI),
+    OnTrack,
+}
+
+pub enum SignalingStateFFI {
+    Stable,
+    HaveLocalOffer,
+    HaveLocalPrAnswer,
+    HaveRemoteOffer,
+    HaveRemotePrAnswer,
+    Closed,
+}
+
+impl From<sys::SignalingState> for SignalingStateFFI {
+    fn from(state: sys::SignalingState) -> Self {
+        match state {
+            sys::SignalingState::kStable => SignalingStateFFI::Stable,
+            sys::SignalingState::kHaveLocalOffer => SignalingStateFFI::HaveLocalOffer,
+            sys::SignalingState::kHaveLocalPrAnswer => SignalingStateFFI::HaveLocalPrAnswer,
+            sys::SignalingState::kHaveRemoteOffer => SignalingStateFFI::HaveRemoteOffer,
+            sys::SignalingState::kHaveRemotePrAnswer => {
+                SignalingStateFFI::HaveRemotePrAnswer
+            }
+            sys::SignalingState::kClosed => SignalingStateFFI::Closed,
+            _ => unreachable!(),
+        }
+    }
+}
+
+pub enum IceConnectionStateFFI {
+    New,
+    Checking,
+    Connected,
+    Completed,
+    Failed,
+    Disconnected,
+    Closed,
+}
+
+impl From<sys::IceConnectionState> for IceConnectionStateFFI {
+    fn from(state: sys::IceConnectionState) -> Self {
+        match state {
+            sys::IceConnectionState::kIceConnectionNew => IceConnectionStateFFI::New,
+            sys::IceConnectionState::kIceConnectionChecking => {
+                IceConnectionStateFFI::Checking
+            }
+            sys::IceConnectionState::kIceConnectionConnected => {
+                IceConnectionStateFFI::Connected
+            }
+            sys::IceConnectionState::kIceConnectionCompleted => {
+                IceConnectionStateFFI::Completed
+            }
+            sys::IceConnectionState::kIceConnectionFailed => IceConnectionStateFFI::Failed,
+            sys::IceConnectionState::kIceConnectionDisconnected => {
+                IceConnectionStateFFI::Disconnected
+            }
+            sys::IceConnectionState::kIceConnectionClosed => IceConnectionStateFFI::Closed,
+            _ => unreachable!(),
+        }
+    }
+}
+
+pub enum PeerConnectionStateFFI {
+    New,
+    Connecting,
+    Connected,
+    Disconnected,
+    Failed,
+    Closed,
+}
+
+impl From<sys::PeerConnectionState> for PeerConnectionStateFFI {
+    fn from(state: sys::PeerConnectionState) -> Self {
+        match state {
+            sys::PeerConnectionState::kNew => PeerConnectionStateFFI::New,
+            sys::PeerConnectionState::kConnecting => PeerConnectionStateFFI::Connecting,
+            sys::PeerConnectionState::kConnected => PeerConnectionStateFFI::Connected,
+            sys::PeerConnectionState::kDisconnected => PeerConnectionStateFFI::Disconnected,
+            sys::PeerConnectionState::kFailed => PeerConnectionStateFFI::Failed,
+            sys::PeerConnectionState::kClosed => PeerConnectionStateFFI::Closed,
+            _ => unreachable!(),
         }
     }
 }
@@ -43,7 +219,7 @@ pub enum MediaType {
 
 /// Information describing a single media input or output device.
 #[derive(Debug)]
-pub struct MediaDeviceInfo {
+pub struct MediaDeviceInfoFFI {
     /// Unique identifier for the represented device.
     pub device_id: String,
 
@@ -80,6 +256,8 @@ pub struct VideoConstraints {
 
     /// The exact frame rate (frames per second).
     pub frame_rate: u32,
+
+    pub is_display: bool,
 }
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
@@ -98,7 +276,7 @@ pub struct AudioConstraints {
 ///
 /// Typically, these are audio or video tracks, but other track types may
 /// exist as well.
-pub struct MediaStreamTrack_ {
+pub struct MediaStreamTrackFFI {
     /// Unique identifier (GUID) for the track
     pub id: u64,
 
@@ -161,7 +339,7 @@ pub struct RtcTrackEvent {
     /// by the receiver.
     ///
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-    pub track: MediaStreamTrack_,
+    pub track: MediaStreamTrackFFI,
 
     /// [`RtcRtpTransceiver`] object associated with the event.
     pub transceiver: RtcRtpTransceiver,
@@ -216,10 +394,212 @@ pub struct RtcIceServer {
     pub credential: String,
 }
 
+// /// Returns a list of all available media input and output devices, such
+// /// as microphones, cameras, headsets, and so forth.
+// pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
+//     unimplemented!()
+// }
+
+/// Creates a new [`PeerConnection`] and returns its ID.
+///
+/// Writes an error to the provided `err`, if any.
+// pub fn create_peer_connection(
+//     cb: StreamSink<PeerConnectionEvent>,
+//     configuration: RtcConfiguration,
+//     id: u64,
+// ) -> anyhow::Result<()> {
+//     let w = unsafe {WEBRTC.clone()};
+//     unsafe 
+// {    
+//     w.unwrap().lock()
+//         .unwrap()
+//         .create_peer_connection(configuration, &mut "".to_owned());
+//     Ok(())}
+// }
+
+/// Initiates the creation of a SDP offer for the purpose of starting
+/// a new WebRTC connection to a remote peer.
+///
+/// Returns an empty [`String`] if operation succeeds or an error
+/// otherwise.
+pub fn create_offer(
+    peer_id: u64,
+    voice_activity_detection: bool,
+    ice_restart: bool,
+    use_rtp_mux: bool,
+) -> String {
+    unimplemented!()
+}
+
+/// Creates a SDP answer to an offer received from a remote peer during
+/// the offer/answer negotiation of a WebRTC connection.
+///
+/// Returns an empty [`String`] in operation succeeds or an error
+/// otherwise.
+#[allow(clippy::too_many_arguments)]
+pub fn create_answer(
+    peer_connection_id: u64,
+    voice_activity_detection: bool,
+    ice_restart: bool,
+    use_rtp_mux: bool,
+) -> String {
+    unimplemented!()
+}
+
+/// Changes the local description associated with the connection.
+///
+/// Returns an empty [`String`] in operation succeeds or an error
+/// otherwise.
+pub fn set_local_description(peer_connection_id: u64, kind: String, sdp: String) -> String {
+    unimplemented!()
+}
+
+/// Sets the specified session description as the remote peer's current
+/// offer or answer.
+///
+/// Returns an empty [`String`] in operation succeeds or an error
+/// otherwise.
+pub fn set_remote_description(peer_connection_id: u64, kind: String, sdp: String) -> String {
+    unimplemented!()
+}
+
+/// Creates a new [`RtcRtpTransceiver`] and adds it to the set of
+/// transceivers of the specified [`PeerConnection`].
+pub fn add_transceiver(
+    peer_id: u64,
+    media_type: MediaType,
+    direction: RtpTransceiverDirection,
+) -> RtcRtpTransceiver {
+    unimplemented!()
+}
+
+/// Returns a sequence of [`RtcRtpTransceiver`] objects representing
+/// the RTP transceivers currently attached to the specified
+/// [`PeerConnection`].
+pub fn get_transceivers(peer_id: u64) -> Vec<RtcRtpTransceiver> {
+    unimplemented!()
+}
+
+/// Changes the preferred `direction` of the specified
+/// [`RtcRtpTransceiver`].
+pub fn set_transceiver_direction(
+    peer_id: u64,
+    transceiver_id: u64,
+    direction: RtpTransceiverDirection,
+) -> String {
+    unimplemented!()
+}
+
+/// Returns the [Negotiated media ID (mid)][1] of the specified
+/// [`RtcRtpTransceiver`].
+///
+/// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
+pub fn get_transceiver_mid(peer_id: u64, transceiver_id: u64) -> String {
+    unimplemented!()
+}
+
+/// Returns the preferred direction of the specified
+/// [`RtcRtpTransceiver`].
+pub fn get_transceiver_direction(peer_id: u64, transceiver_id: u64) -> String {
+    unimplemented!()
+}
+
+/// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
+/// unless it's already stopped.
+///
+/// This will immediately cause the transceiver's sender to no longer
+/// send, and its receiver to no longer receive.
+pub fn stop_transceiver(peer_id: u64, transceiver_id: u64) -> String {
+    unimplemented!()
+}
+
+/// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
+/// the [`sys::Transceiver`]'s `sender`.
+pub fn sender_replace_track(peer_id: u64, transceiver_id: u64, track_id: u64) -> String {
+    unimplemented!()
+}
+
+/// Adds the new ICE candidate to the given [`PeerConnection`].
+pub fn add_ice_candidate(
+    peer_id: u64,
+    candidate: String,
+    sdp_mid: String,
+    sdp_mline_index: i32,
+) {
+    unimplemented!()
+}
+
+/// Tells the [`PeerConnection`] that ICE should be restarted.
+pub fn restart_ice(peer_id: u64) {
+    unimplemented!()
+}
+
+/// Closes the [`PeerConnection`].
+pub fn dispose_peer_connection(peer_id: u64) {
+    unimplemented!()
+}
+
+// /// Creates a [`MediaStream`] with tracks according to provided
+// /// [`MediaStreamConstraints`].
+// pub fn get_media(constraints: MediaStreamConstraints) -> Vec<MediaStreamTrackFFI> {
+//     unimplemented!()
+// }
+
+/// Disposes the [`MediaStream`] and all contained tracks.
+pub fn dispose_stream(id: u64) {
+    unimplemented!()
+}
+
+// /// Creates a new [`VideoSink`] attached to the specified media stream
+// /// backed by the provided [`OnFrameCallbackInterface`].
+// pub fn create_video_sink(
+//     sink_id: i64,
+//     stream_id: u64,
+//     handler: i64, // UniquePtr<OnFrameCallbackInterface>
+// ) {
+//     unimplemented!()
+// }
+
+// /// Destroys the [`VideoSink`] by the given ID.
+// fn dispose_video_sink(sink_id: i64) {
+//     unimplemented!()
+// }
+
+/// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
+/// outputs the result to the provided `buffer`.
+unsafe fn get_abgr_bytes(buffer: *mut u8) {
+    unimplemented!()
+}
+
+/// Changes the [enabled][1] property of the media track by its ID.
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+pub fn set_track_enabled(track_id: u64, enabled: bool) {
+    unimplemented!()
+}
+
+// /// Registers an observer to the media track events.
+// pub fn register_track_observer(
+//     cb: StreamSink<TrackEvent>,
+//     id: u64,
+// ) -> anyhow::Result<String> {
+//     unimplemented!()
+// }
+
+// /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
+// /// called whenever a set of available media devices changes.
+// ///
+// /// Only one callback can be set at a time, so the previous one will be
+// /// dropped, if any.
+// pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
+//     unimplemented!()
+// }
+
+
 pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
     webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
-    let handler: *mut OnFrameCallbackInterface =
+    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
+    let handler: *mut cpp_api::OnFrameCallbackInterface =
         unsafe { std::mem::transmute(callback_ptr) };
     let handler = unsafe { UniquePtr::from_raw(handler) };
     webrtc.create_video_sink(sink_id, track_id, handler);
@@ -227,21 +607,20 @@ pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
 
 pub fn dispose_video_sink(sink_id: i64) {
     webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
+    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
     webrtc.dispose_video_sink(sink_id);
 }
 
-pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
+pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
     webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
+    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
     webrtc.enumerate_devices()
 }
 
 pub fn get_media(
     constraints: MediaStreamConstraints,
-    is_display: bool,
-) -> Vec<MediaStreamTrack_> {
+) -> Vec<MediaStreamTrackFFI> {
     webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
-    webrtc.get_media(&constraints, is_display)
+    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
+    webrtc.get_media(&constraints)
 }

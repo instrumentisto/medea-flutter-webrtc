@@ -41,10 +41,9 @@ class _RendererSampleState extends State<RendererSample> {
       var tracks = await api.getMedia(
           constraints: MediaStreamConstraints(
               video: VideoConstraints(
-                  deviceId: '', height: 480, width: 480, frameRate: 30)),
-          isDisplay: false);
+                  deviceId: '', height: 480, width: 480, frameRate: 30, isDisplay: false)));
 
-      _track = NativeMediaStreamTrack.fromApi(tracks[0]); 
+      _track = NativeMediaStreamTrack.fromFFI(tracks[0]); 
       _renderer.srcObject = _track;
     } catch (e) {
       print(e.toString());

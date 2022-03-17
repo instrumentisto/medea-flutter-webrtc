@@ -93,13 +93,12 @@ impl Webrtc {
     ///
     /// On any error returned from `libWebRTC`.
     #[must_use]
-    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfo> {
+    pub fn enumerate_devices(self: &mut Webrtc) -> Vec<api::MediaDeviceInfoFFI> {
         // TODO: Don't panic but propagate errors to API users.
         // Returns a list of all available audio devices.
         let mut audio = {
-            let count_playout = self.0.audio_device_module.inner.playout_devices().unwrap();
+            let count_playout = self.audio_device_module.inner.playout_devices().unwrap();
             let count_recording = self
-                .0
                 .audio_device_module
                 .inner
                 .recording_devices()
@@ -121,20 +120,20 @@ impl Webrtc {
                 for i in 0..count {
                     let (label, device_id) = if let api::MediaDeviceKind::AudioOutput = kind
                     {
-                        self.0
+                        self
                             .audio_device_module
                             .inner
                             .playout_device_name(i)
                             .unwrap()
                     } else {
-                        self.0
+                        self
                             .audio_device_module
                             .inner
                             .recording_device_name(i)
                             .unwrap()
                     };
 
-                    result.push(api::MediaDeviceInfo {
+                    result.push(api::MediaDeviceInfoFFI {
                         device_id,
                         kind,
                         label,
@@ -147,13 +146,13 @@ impl Webrtc {
 
         // Returns a list of all available video input devices.
         let mut video = {
-            let count = self.0.video_device_info.number_of_devices();
+            let count = self.video_device_info.number_of_devices();
             let mut result = Vec::with_capacity(count as usize);
 
             for i in 0..count {
-                let (label, device_id) = self.0.video_device_info.device_name(i).unwrap();
+                let (label, device_id) = self.video_device_info.device_name(i).unwrap();
 
-                result.push(api::MediaDeviceInfo {
+                result.push(api::MediaDeviceInfoFFI {
                     device_id,
                     kind: api::MediaDeviceKind::VideoInput,
                     label,
@@ -180,9 +179,9 @@ impl Webrtc {
         &mut self,
         device_id: &VideoDeviceId,
     ) -> anyhow::Result<Option<u32>> {
-        let count = self.0.video_device_info.number_of_devices();
+        let count = self.video_device_info.number_of_devices();
         for i in 0..count {
-            let (_, id) = self.0.video_device_info.device_name(i)?;
+            let (_, id) = self.video_device_info.device_name(i)?;
             if id == device_id.to_string() {
                 return Ok(Some(i));
             }
@@ -204,9 +203,9 @@ impl Webrtc {
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.0.audio_device_module.inner.recording_devices()?;
+        let count = self.audio_device_module.inner.recording_devices()?;
         for i in 0..count {
-            let (_, id) = self.0.audio_device_module.inner.recording_device_name(i)?;
+            let (_, id) = self.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));

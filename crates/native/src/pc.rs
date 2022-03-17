@@ -217,7 +217,7 @@ impl Webrtc {
         direction: &str,
     ) -> api::RtcRtpTransceiver {
         let peer = self
-            .0
+            
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
@@ -256,7 +256,7 @@ impl Webrtc {
     ///   poisoned.
     pub fn get_transceivers(&mut self, peer_id: u64) -> Vec<api::RtcRtpTransceiver> {
         let peer = self
-            .0
+            
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
@@ -296,7 +296,7 @@ impl Webrtc {
         direction: &str,
     ) -> String {
         let peer = self
-            .0
+            
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
@@ -325,7 +325,7 @@ impl Webrtc {
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     pub fn get_transceiver_mid(&mut self, peer_id: u64, transceiver_id: u64) -> String {
         let peer = self
-            .0
+            
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
@@ -355,7 +355,7 @@ impl Webrtc {
         transceiver_id: u64,
     ) -> String {
         let peer = self
-            .0
+            
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
@@ -385,7 +385,7 @@ impl Webrtc {
     ///   poisoned.
     pub fn stop_transceiver(&mut self, peer_id: u64, transceiver_id: u64) -> String {
         let peer = self
-            .0
+            
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
@@ -420,7 +420,7 @@ impl Webrtc {
         track_id: u64,
     ) -> String {
         let peer = self
-            .0
+            
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap();
@@ -439,14 +439,14 @@ impl Webrtc {
         } else {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => sender.replace_video_track(Some(
-                    self.0
+                    self
                         .video_tracks
                         .get(&VideoTrackId::from(track_id))
                         .unwrap()
                         .as_ref(),
                 )),
                 sys::MediaType::MEDIA_TYPE_AUDIO => sender.replace_audio_track(Some(
-                    self.0
+                    self
                         .audio_tracks
                         .get(&AudioTrackId::from(track_id))
                         .unwrap()
@@ -494,7 +494,7 @@ impl Webrtc {
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn restart_ice(&mut self, peer_id: u64) {
-        self.0
+        self
             .peer_connections
             .get_mut(&PeerConnectionId(peer_id))
             .unwrap()
@@ -512,7 +512,7 @@ impl Webrtc {
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn dispose_peer_connection(&mut self, peer_id: u64) {
-        self.0
+        self
             .peer_connections
             .remove(&PeerConnectionId(peer_id))
             .unwrap()

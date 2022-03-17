@@ -14,6 +14,127 @@ import 'dart:ffi' as ffi;
 abstract class FlutterWebrtcNative {
   Future<void> webrtcInit({dynamic hint});
 
+  /// Creates a new [`PeerConnection`] and returns its ID.
+  ///
+  /// Writes an error to the provided `err`, if any.
+  /// Initiates the creation of a SDP offer for the purpose of starting
+  /// a new WebRTC connection to a remote peer.
+  ///
+  /// Returns an empty [`String`] if operation succeeds or an error
+  /// otherwise.
+  Future<String> createOffer(
+      {required int peerId,
+      required bool voiceActivityDetection,
+      required bool iceRestart,
+      required bool useRtpMux,
+      dynamic hint});
+
+  /// Creates a SDP answer to an offer received from a remote peer during
+  /// the offer/answer negotiation of a WebRTC connection.
+  ///
+  /// Returns an empty [`String`] in operation succeeds or an error
+  /// otherwise.
+  Future<String> createAnswer(
+      {required int peerConnectionId,
+      required bool voiceActivityDetection,
+      required bool iceRestart,
+      required bool useRtpMux,
+      dynamic hint});
+
+  /// Changes the local description associated with the connection.
+  ///
+  /// Returns an empty [`String`] in operation succeeds or an error
+  /// otherwise.
+  Future<String> setLocalDescription(
+      {required int peerConnectionId,
+      required String kind,
+      required String sdp,
+      dynamic hint});
+
+  /// Sets the specified session description as the remote peer's current
+  /// offer or answer.
+  ///
+  /// Returns an empty [`String`] in operation succeeds or an error
+  /// otherwise.
+  Future<String> setRemoteDescription(
+      {required int peerConnectionId,
+      required String kind,
+      required String sdp,
+      dynamic hint});
+
+  /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of
+  /// transceivers of the specified [`PeerConnection`].
+  Future<RtcRtpTransceiver> addTransceiver(
+      {required int peerId,
+      required MediaType mediaType,
+      required RtpTransceiverDirection direction,
+      dynamic hint});
+
+  /// Returns a sequence of [`RtcRtpTransceiver`] objects representing
+  /// the RTP transceivers currently attached to the specified
+  /// [`PeerConnection`].
+  Future<List<RtcRtpTransceiver>> getTransceivers(
+      {required int peerId, dynamic hint});
+
+  /// Changes the preferred `direction` of the specified
+  /// [`RtcRtpTransceiver`].
+  Future<String> setTransceiverDirection(
+      {required int peerId,
+      required int transceiverId,
+      required RtpTransceiverDirection direction,
+      dynamic hint});
+
+  /// Returns the [Negotiated media ID (mid)][1] of the specified
+  /// [`RtcRtpTransceiver`].
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
+  Future<String> getTransceiverMid(
+      {required int peerId, required int transceiverId, dynamic hint});
+
+  /// Returns the preferred direction of the specified
+  /// [`RtcRtpTransceiver`].
+  Future<String> getTransceiverDirection(
+      {required int peerId, required int transceiverId, dynamic hint});
+
+  /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
+  /// unless it's already stopped.
+  ///
+  /// This will immediately cause the transceiver's sender to no longer
+  /// send, and its receiver to no longer receive.
+  Future<String> stopTransceiver(
+      {required int peerId, required int transceiverId, dynamic hint});
+
+  /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
+  /// the [`sys::Transceiver`]'s `sender`.
+  Future<String> senderReplaceTrack(
+      {required int peerId,
+      required int transceiverId,
+      required int trackId,
+      dynamic hint});
+
+  /// Adds the new ICE candidate to the given [`PeerConnection`].
+  Future<void> addIceCandidate(
+      {required int peerId,
+      required String candidate,
+      required String sdpMid,
+      required int sdpMlineIndex,
+      dynamic hint});
+
+  /// Tells the [`PeerConnection`] that ICE should be restarted.
+  Future<void> restartIce({required int peerId, dynamic hint});
+
+  /// Closes the [`PeerConnection`].
+  Future<void> disposePeerConnection({required int peerId, dynamic hint});
+
+  /// Disposes the [`MediaStream`] and all contained tracks.
+  Future<void> disposeStream({required int id, dynamic hint});
+
+  /// Changes the [enabled][1] property of the media track by its ID.
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
+  Future<void> setTrackEnabled(
+      {required int trackId, required bool enabled, dynamic hint});
+
   Future<void> createVideoSink(
       {required int sinkId,
       required int trackId,
@@ -22,22 +143,15 @@ abstract class FlutterWebrtcNative {
 
   Future<void> disposeVideoSink({required int sinkId, dynamic hint});
 
-  Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint});
+  Future<List<MediaDeviceInfoFFI>> enumerateDevices({dynamic hint});
 
-  Future<List<MediaStreamTrack_>> getMedia(
-      {required MediaStreamConstraints constraints,
-      required bool isDisplay,
-      dynamic hint});
+  Future<List<MediaStreamTrackFFI>> getMedia(
+      {required MediaStreamConstraints constraints, dynamic hint});
 }
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
 class AudioConstraints {
-  /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
-  /// track. All other args will be ignored if `required` is set to
-  /// `false`.
-  final bool required;
-
   /// The identifier of the device generating the content of the
   /// [`MediaStreamTrack`]. First device will be chosen if empty
   /// [`String`] is provided.
@@ -47,13 +161,12 @@ class AudioConstraints {
   final String deviceId;
 
   AudioConstraints({
-    required this.required,
     required this.deviceId,
   });
 }
 
 /// Information describing a single media input or output device.
-class MediaDeviceInfo {
+class MediaDeviceInfoFFI {
   /// Unique identifier for the represented device.
   final String deviceId;
 
@@ -63,7 +176,7 @@ class MediaDeviceInfo {
   /// Label describing the represented device.
   final String label;
 
-  MediaDeviceInfo({
+  MediaDeviceInfoFFI({
     required this.deviceId,
     required this.kind,
     required this.label,
@@ -97,7 +210,7 @@ class MediaStreamConstraints {
 ///
 /// Typically, these are audio or video tracks, but other track types may
 /// exist as well.
-class MediaStreamTrack_ {
+class MediaStreamTrackFFI {
   /// Unique identifier (GUID) for the track
   final int id;
 
@@ -113,7 +226,7 @@ class MediaStreamTrack_ {
   /// intentionally mute a track.
   final bool enabled;
 
-  MediaStreamTrack_({
+  MediaStreamTrackFFI({
     required this.id,
     required this.label,
     required this.kind,
@@ -124,6 +237,64 @@ class MediaStreamTrack_ {
 enum MediaType {
   Audio,
   Video,
+}
+
+/// [`RtcRtpSender`] object allowing to control how a [`MediaStreamTrack`]
+/// is encoded and transmitted to a remote peer.
+class RtcRtpSender {
+  /// ID of this [`RtcRtpSender`].
+  final int id;
+
+  RtcRtpSender({
+    required this.id,
+  });
+}
+
+/// Representation of a permanent pair of an [RTCRtpSender] and an
+/// [RTCRtpReceiver], along with some shared state.
+///
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+/// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+class RtcRtpTransceiver {
+  /// ID of this [`RtcRtpTransceiver`].
+  ///
+  /// It's not unique across all possible [`RtcRtpTransceiver`]s, but only
+  /// within a specific peer.
+  final int id;
+
+  /// [Negotiated media ID (mid)][1] which the local and remote peers have
+  /// agreed upon to uniquely identify the [`MediaStream`]'s pairing of
+  /// sender and receiver.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
+  final String mid;
+
+  /// Preferred [`direction`][1] of this [`RtcRtpTransceiver`].
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
+  final String direction;
+
+  /// [`RtcRtpSender`] responsible for encoding and sending outgoing
+  /// media data for the transceiver's stream.
+  final RtcRtpSender sender;
+
+  RtcRtpTransceiver({
+    required this.id,
+    required this.mid,
+    required this.direction,
+    required this.sender,
+  });
+}
+
+/// [RTCRtpTransceiverDirection][1] representation.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
+enum RtpTransceiverDirection {
+  SendRecv,
+  SendOnly,
+  RecvOnly,
+  Inactive,
+  Stopped,
 }
 
 /// Specifies the nature and settings of the video [`MediaStreamTrack`]
@@ -142,12 +313,14 @@ class VideoConstraints {
 
   /// The exact frame rate (frames per second).
   final int frameRate;
+  final bool isDisplay;
 
   VideoConstraints({
     required this.deviceId,
     required this.width,
     required this.height,
     required this.frameRate,
+    required this.isDisplay,
   });
 }
 
@@ -168,6 +341,295 @@ class FlutterWebrtcNativeImpl
           argNames: [],
         ),
         argValues: [],
+        hint: hint,
+      ));
+
+  Future<String> createOffer(
+          {required int peerId,
+          required bool voiceActivityDetection,
+          required bool iceRestart,
+          required bool useRtpMux,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_create_offer(
+            port_,
+            _api2wire_u64(peerId),
+            voiceActivityDetection,
+            iceRestart,
+            useRtpMux),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "create_offer",
+          argNames: [
+            "peerId",
+            "voiceActivityDetection",
+            "iceRestart",
+            "useRtpMux"
+          ],
+        ),
+        argValues: [peerId, voiceActivityDetection, iceRestart, useRtpMux],
+        hint: hint,
+      ));
+
+  Future<String> createAnswer(
+          {required int peerConnectionId,
+          required bool voiceActivityDetection,
+          required bool iceRestart,
+          required bool useRtpMux,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_create_answer(
+            port_,
+            _api2wire_u64(peerConnectionId),
+            voiceActivityDetection,
+            iceRestart,
+            useRtpMux),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "create_answer",
+          argNames: [
+            "peerConnectionId",
+            "voiceActivityDetection",
+            "iceRestart",
+            "useRtpMux"
+          ],
+        ),
+        argValues: [
+          peerConnectionId,
+          voiceActivityDetection,
+          iceRestart,
+          useRtpMux
+        ],
+        hint: hint,
+      ));
+
+  Future<String> setLocalDescription(
+          {required int peerConnectionId,
+          required String kind,
+          required String sdp,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_local_description(
+            port_,
+            _api2wire_u64(peerConnectionId),
+            _api2wire_String(kind),
+            _api2wire_String(sdp)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_local_description",
+          argNames: ["peerConnectionId", "kind", "sdp"],
+        ),
+        argValues: [peerConnectionId, kind, sdp],
+        hint: hint,
+      ));
+
+  Future<String> setRemoteDescription(
+          {required int peerConnectionId,
+          required String kind,
+          required String sdp,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_remote_description(
+            port_,
+            _api2wire_u64(peerConnectionId),
+            _api2wire_String(kind),
+            _api2wire_String(sdp)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_remote_description",
+          argNames: ["peerConnectionId", "kind", "sdp"],
+        ),
+        argValues: [peerConnectionId, kind, sdp],
+        hint: hint,
+      ));
+
+  Future<RtcRtpTransceiver> addTransceiver(
+          {required int peerId,
+          required MediaType mediaType,
+          required RtpTransceiverDirection direction,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_add_transceiver(
+            port_,
+            _api2wire_u64(peerId),
+            _api2wire_media_type(mediaType),
+            _api2wire_rtp_transceiver_direction(direction)),
+        parseSuccessData: _wire2api_rtc_rtp_transceiver,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "add_transceiver",
+          argNames: ["peerId", "mediaType", "direction"],
+        ),
+        argValues: [peerId, mediaType, direction],
+        hint: hint,
+      ));
+
+  Future<List<RtcRtpTransceiver>> getTransceivers(
+          {required int peerId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_get_transceivers(port_, _api2wire_u64(peerId)),
+        parseSuccessData: _wire2api_list_rtc_rtp_transceiver,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "get_transceivers",
+          argNames: ["peerId"],
+        ),
+        argValues: [peerId],
+        hint: hint,
+      ));
+
+  Future<String> setTransceiverDirection(
+          {required int peerId,
+          required int transceiverId,
+          required RtpTransceiverDirection direction,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_transceiver_direction(
+            port_,
+            _api2wire_u64(peerId),
+            _api2wire_u64(transceiverId),
+            _api2wire_rtp_transceiver_direction(direction)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_transceiver_direction",
+          argNames: ["peerId", "transceiverId", "direction"],
+        ),
+        argValues: [peerId, transceiverId, direction],
+        hint: hint,
+      ));
+
+  Future<String> getTransceiverMid(
+          {required int peerId, required int transceiverId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_get_transceiver_mid(
+            port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "get_transceiver_mid",
+          argNames: ["peerId", "transceiverId"],
+        ),
+        argValues: [peerId, transceiverId],
+        hint: hint,
+      ));
+
+  Future<String> getTransceiverDirection(
+          {required int peerId, required int transceiverId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_get_transceiver_direction(
+            port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "get_transceiver_direction",
+          argNames: ["peerId", "transceiverId"],
+        ),
+        argValues: [peerId, transceiverId],
+        hint: hint,
+      ));
+
+  Future<String> stopTransceiver(
+          {required int peerId, required int transceiverId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_stop_transceiver(
+            port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "stop_transceiver",
+          argNames: ["peerId", "transceiverId"],
+        ),
+        argValues: [peerId, transceiverId],
+        hint: hint,
+      ));
+
+  Future<String> senderReplaceTrack(
+          {required int peerId,
+          required int transceiverId,
+          required int trackId,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_sender_replace_track(
+            port_,
+            _api2wire_u64(peerId),
+            _api2wire_u64(transceiverId),
+            _api2wire_u64(trackId)),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "sender_replace_track",
+          argNames: ["peerId", "transceiverId", "trackId"],
+        ),
+        argValues: [peerId, transceiverId, trackId],
+        hint: hint,
+      ));
+
+  Future<void> addIceCandidate(
+          {required int peerId,
+          required String candidate,
+          required String sdpMid,
+          required int sdpMlineIndex,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_add_ice_candidate(
+            port_,
+            _api2wire_u64(peerId),
+            _api2wire_String(candidate),
+            _api2wire_String(sdpMid),
+            _api2wire_i32(sdpMlineIndex)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "add_ice_candidate",
+          argNames: ["peerId", "candidate", "sdpMid", "sdpMlineIndex"],
+        ),
+        argValues: [peerId, candidate, sdpMid, sdpMlineIndex],
+        hint: hint,
+      ));
+
+  Future<void> restartIce({required int peerId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_restart_ice(port_, _api2wire_u64(peerId)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "restart_ice",
+          argNames: ["peerId"],
+        ),
+        argValues: [peerId],
+        hint: hint,
+      ));
+
+  Future<void> disposePeerConnection({required int peerId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_dispose_peer_connection(port_, _api2wire_u64(peerId)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "dispose_peer_connection",
+          argNames: ["peerId"],
+        ),
+        argValues: [peerId],
+        hint: hint,
+      ));
+
+  Future<void> disposeStream({required int id, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_dispose_stream(port_, _api2wire_u64(id)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "dispose_stream",
+          argNames: ["id"],
+        ),
+        argValues: [id],
+        hint: hint,
+      ));
+
+  Future<void> setTrackEnabled(
+          {required int trackId, required bool enabled, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_track_enabled(
+            port_, _api2wire_u64(trackId), enabled),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_track_enabled",
+          argNames: ["trackId", "enabled"],
+        ),
+        argValues: [trackId, enabled],
         hint: hint,
       ));
 
@@ -204,10 +666,10 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint}) =>
+  Future<List<MediaDeviceInfoFFI>> enumerateDevices({dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_enumerate_devices(port_),
-        parseSuccessData: _wire2api_list_media_device_info,
+        parseSuccessData: _wire2api_list_media_device_info_ffi,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "enumerate_devices",
           argNames: [],
@@ -216,21 +678,17 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<List<MediaStreamTrack_>> getMedia(
-          {required MediaStreamConstraints constraints,
-          required bool isDisplay,
-          dynamic hint}) =>
+  Future<List<MediaStreamTrackFFI>> getMedia(
+          {required MediaStreamConstraints constraints, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_media(
-            port_,
-            _api2wire_box_autoadd_media_stream_constraints(constraints),
-            isDisplay),
-        parseSuccessData: _wire2api_list_media_stream_track,
+            port_, _api2wire_box_autoadd_media_stream_constraints(constraints)),
+        parseSuccessData: _wire2api_list_media_stream_track_ffi,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_media",
-          argNames: ["constraints", "isDisplay"],
+          argNames: ["constraints"],
         ),
-        argValues: [constraints, isDisplay],
+        argValues: [constraints],
         hint: hint,
       ));
 
@@ -265,8 +723,16 @@ class FlutterWebrtcNativeImpl
     return ptr;
   }
 
+  int _api2wire_i32(int raw) {
+    return raw;
+  }
+
   int _api2wire_i64(int raw) {
     return raw;
+  }
+
+  int _api2wire_media_type(MediaType raw) {
+    return raw.index;
   }
 
   ffi.Pointer<wire_AudioConstraints>
@@ -281,6 +747,10 @@ class FlutterWebrtcNativeImpl
     return raw == null
         ? ffi.nullptr
         : _api2wire_box_autoadd_video_constraints(raw);
+  }
+
+  int _api2wire_rtp_transceiver_direction(RtpTransceiverDirection raw) {
+    return raw.index;
   }
 
   int _api2wire_u32(int raw) {
@@ -305,7 +775,6 @@ class FlutterWebrtcNativeImpl
 
   void _api_fill_to_wire_audio_constraints(
       AudioConstraints apiObj, wire_AudioConstraints wireObj) {
-    wireObj.required = _api2wire_bool(apiObj.required);
     wireObj.device_id = _api2wire_String(apiObj.deviceId);
   }
 
@@ -349,6 +818,7 @@ class FlutterWebrtcNativeImpl
     wireObj.width = _api2wire_u32(apiObj.width);
     wireObj.height = _api2wire_u32(apiObj.height);
     wireObj.frame_rate = _api2wire_u32(apiObj.frameRate);
+    wireObj.is_display = _api2wire_bool(apiObj.isDisplay);
   }
 }
 
@@ -361,19 +831,23 @@ bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
 
-List<MediaDeviceInfo> _wire2api_list_media_device_info(dynamic raw) {
-  return (raw as List<dynamic>).map(_wire2api_media_device_info).toList();
+List<MediaDeviceInfoFFI> _wire2api_list_media_device_info_ffi(dynamic raw) {
+  return (raw as List<dynamic>).map(_wire2api_media_device_info_ffi).toList();
 }
 
-List<MediaStreamTrack_> _wire2api_list_media_stream_track(dynamic raw) {
-  return (raw as List<dynamic>).map(_wire2api_media_stream_track).toList();
+List<MediaStreamTrackFFI> _wire2api_list_media_stream_track_ffi(dynamic raw) {
+  return (raw as List<dynamic>).map(_wire2api_media_stream_track_ffi).toList();
 }
 
-MediaDeviceInfo _wire2api_media_device_info(dynamic raw) {
+List<RtcRtpTransceiver> _wire2api_list_rtc_rtp_transceiver(dynamic raw) {
+  return (raw as List<dynamic>).map(_wire2api_rtc_rtp_transceiver).toList();
+}
+
+MediaDeviceInfoFFI _wire2api_media_device_info_ffi(dynamic raw) {
   final arr = raw as List<dynamic>;
   if (arr.length != 3)
     throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-  return MediaDeviceInfo(
+  return MediaDeviceInfoFFI(
     deviceId: _wire2api_String(arr[0]),
     kind: _wire2api_media_device_kind(arr[1]),
     label: _wire2api_String(arr[2]),
@@ -384,11 +858,11 @@ MediaDeviceKind _wire2api_media_device_kind(dynamic raw) {
   return MediaDeviceKind.values[raw];
 }
 
-MediaStreamTrack_ _wire2api_media_stream_track(dynamic raw) {
+MediaStreamTrackFFI _wire2api_media_stream_track_ffi(dynamic raw) {
   final arr = raw as List<dynamic>;
   if (arr.length != 4)
     throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-  return MediaStreamTrack_(
+  return MediaStreamTrackFFI(
     id: _wire2api_u64(arr[0]),
     label: _wire2api_String(arr[1]),
     kind: _wire2api_media_type(arr[2]),
@@ -398,6 +872,27 @@ MediaStreamTrack_ _wire2api_media_stream_track(dynamic raw) {
 
 MediaType _wire2api_media_type(dynamic raw) {
   return MediaType.values[raw];
+}
+
+RtcRtpSender _wire2api_rtc_rtp_sender(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 1)
+    throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+  return RtcRtpSender(
+    id: _wire2api_u64(arr[0]),
+  );
+}
+
+RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 4)
+    throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+  return RtcRtpTransceiver(
+    id: _wire2api_u64(arr[0]),
+    mid: _wire2api_String(arr[1]),
+    direction: _wire2api_String(arr[2]),
+    sender: _wire2api_rtc_rtp_sender(arr[3]),
+  );
 }
 
 int _wire2api_u64(dynamic raw) {
@@ -451,6 +946,337 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'wire_webrtc_init');
   late final _wire_webrtc_init =
       _wire_webrtc_initPtr.asFunction<void Function(int)>();
+
+  void wire_create_offer(
+    int port_,
+    int peer_id,
+    bool voice_activity_detection,
+    bool ice_restart,
+    bool use_rtp_mux,
+  ) {
+    return _wire_create_offer(
+      port_,
+      peer_id,
+      voice_activity_detection ? 1 : 0,
+      ice_restart ? 1 : 0,
+      use_rtp_mux ? 1 : 0,
+    );
+  }
+
+  late final _wire_create_offerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint8, ffi.Uint8,
+              ffi.Uint8)>>('wire_create_offer');
+  late final _wire_create_offer = _wire_create_offerPtr
+      .asFunction<void Function(int, int, int, int, int)>();
+
+  void wire_create_answer(
+    int port_,
+    int peer_connection_id,
+    bool voice_activity_detection,
+    bool ice_restart,
+    bool use_rtp_mux,
+  ) {
+    return _wire_create_answer(
+      port_,
+      peer_connection_id,
+      voice_activity_detection ? 1 : 0,
+      ice_restart ? 1 : 0,
+      use_rtp_mux ? 1 : 0,
+    );
+  }
+
+  late final _wire_create_answerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint8, ffi.Uint8,
+              ffi.Uint8)>>('wire_create_answer');
+  late final _wire_create_answer = _wire_create_answerPtr
+      .asFunction<void Function(int, int, int, int, int)>();
+
+  void wire_set_local_description(
+    int port_,
+    int peer_connection_id,
+    ffi.Pointer<wire_uint_8_list> kind,
+    ffi.Pointer<wire_uint_8_list> sdp,
+  ) {
+    return _wire_set_local_description(
+      port_,
+      peer_connection_id,
+      kind,
+      sdp,
+    );
+  }
+
+  late final _wire_set_local_descriptionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64,
+              ffi.Uint64,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_set_local_description');
+  late final _wire_set_local_description =
+      _wire_set_local_descriptionPtr.asFunction<
+          void Function(int, int, ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_set_remote_description(
+    int port_,
+    int peer_connection_id,
+    ffi.Pointer<wire_uint_8_list> kind,
+    ffi.Pointer<wire_uint_8_list> sdp,
+  ) {
+    return _wire_set_remote_description(
+      port_,
+      peer_connection_id,
+      kind,
+      sdp,
+    );
+  }
+
+  late final _wire_set_remote_descriptionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64,
+              ffi.Uint64,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_set_remote_description');
+  late final _wire_set_remote_description =
+      _wire_set_remote_descriptionPtr.asFunction<
+          void Function(int, int, ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_add_transceiver(
+    int port_,
+    int peer_id,
+    int media_type,
+    int direction,
+  ) {
+    return _wire_add_transceiver(
+      port_,
+      peer_id,
+      media_type,
+      direction,
+    );
+  }
+
+  late final _wire_add_transceiverPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Int32,
+              ffi.Int32)>>('wire_add_transceiver');
+  late final _wire_add_transceiver =
+      _wire_add_transceiverPtr.asFunction<void Function(int, int, int, int)>();
+
+  void wire_get_transceivers(
+    int port_,
+    int peer_id,
+  ) {
+    return _wire_get_transceivers(
+      port_,
+      peer_id,
+    );
+  }
+
+  late final _wire_get_transceiversPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_get_transceivers');
+  late final _wire_get_transceivers =
+      _wire_get_transceiversPtr.asFunction<void Function(int, int)>();
+
+  void wire_set_transceiver_direction(
+    int port_,
+    int peer_id,
+    int transceiver_id,
+    int direction,
+  ) {
+    return _wire_set_transceiver_direction(
+      port_,
+      peer_id,
+      transceiver_id,
+      direction,
+    );
+  }
+
+  late final _wire_set_transceiver_directionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint64,
+              ffi.Int32)>>('wire_set_transceiver_direction');
+  late final _wire_set_transceiver_direction =
+      _wire_set_transceiver_directionPtr
+          .asFunction<void Function(int, int, int, int)>();
+
+  void wire_get_transceiver_mid(
+    int port_,
+    int peer_id,
+    int transceiver_id,
+  ) {
+    return _wire_get_transceiver_mid(
+      port_,
+      peer_id,
+      transceiver_id,
+    );
+  }
+
+  late final _wire_get_transceiver_midPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Uint64, ffi.Uint64)>>('wire_get_transceiver_mid');
+  late final _wire_get_transceiver_mid =
+      _wire_get_transceiver_midPtr.asFunction<void Function(int, int, int)>();
+
+  void wire_get_transceiver_direction(
+    int port_,
+    int peer_id,
+    int transceiver_id,
+  ) {
+    return _wire_get_transceiver_direction(
+      port_,
+      peer_id,
+      transceiver_id,
+    );
+  }
+
+  late final _wire_get_transceiver_directionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64,
+              ffi.Uint64)>>('wire_get_transceiver_direction');
+  late final _wire_get_transceiver_direction =
+      _wire_get_transceiver_directionPtr
+          .asFunction<void Function(int, int, int)>();
+
+  void wire_stop_transceiver(
+    int port_,
+    int peer_id,
+    int transceiver_id,
+  ) {
+    return _wire_stop_transceiver(
+      port_,
+      peer_id,
+      transceiver_id,
+    );
+  }
+
+  late final _wire_stop_transceiverPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Uint64, ffi.Uint64)>>('wire_stop_transceiver');
+  late final _wire_stop_transceiver =
+      _wire_stop_transceiverPtr.asFunction<void Function(int, int, int)>();
+
+  void wire_sender_replace_track(
+    int port_,
+    int peer_id,
+    int transceiver_id,
+    int track_id,
+  ) {
+    return _wire_sender_replace_track(
+      port_,
+      peer_id,
+      transceiver_id,
+      track_id,
+    );
+  }
+
+  late final _wire_sender_replace_trackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint64,
+              ffi.Uint64)>>('wire_sender_replace_track');
+  late final _wire_sender_replace_track = _wire_sender_replace_trackPtr
+      .asFunction<void Function(int, int, int, int)>();
+
+  void wire_add_ice_candidate(
+    int port_,
+    int peer_id,
+    ffi.Pointer<wire_uint_8_list> candidate,
+    ffi.Pointer<wire_uint_8_list> sdp_mid,
+    int sdp_mline_index,
+  ) {
+    return _wire_add_ice_candidate(
+      port_,
+      peer_id,
+      candidate,
+      sdp_mid,
+      sdp_mline_index,
+    );
+  }
+
+  late final _wire_add_ice_candidatePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64,
+              ffi.Uint64,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Int32)>>('wire_add_ice_candidate');
+  late final _wire_add_ice_candidate = _wire_add_ice_candidatePtr.asFunction<
+      void Function(int, int, ffi.Pointer<wire_uint_8_list>,
+          ffi.Pointer<wire_uint_8_list>, int)>();
+
+  void wire_restart_ice(
+    int port_,
+    int peer_id,
+  ) {
+    return _wire_restart_ice(
+      port_,
+      peer_id,
+    );
+  }
+
+  late final _wire_restart_icePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_restart_ice');
+  late final _wire_restart_ice =
+      _wire_restart_icePtr.asFunction<void Function(int, int)>();
+
+  void wire_dispose_peer_connection(
+    int port_,
+    int peer_id,
+  ) {
+    return _wire_dispose_peer_connection(
+      port_,
+      peer_id,
+    );
+  }
+
+  late final _wire_dispose_peer_connectionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_dispose_peer_connection');
+  late final _wire_dispose_peer_connection =
+      _wire_dispose_peer_connectionPtr.asFunction<void Function(int, int)>();
+
+  void wire_dispose_stream(
+    int port_,
+    int id,
+  ) {
+    return _wire_dispose_stream(
+      port_,
+      id,
+    );
+  }
+
+  late final _wire_dispose_streamPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_dispose_stream');
+  late final _wire_dispose_stream =
+      _wire_dispose_streamPtr.asFunction<void Function(int, int)>();
+
+  void wire_set_track_enabled(
+    int port_,
+    int track_id,
+    bool enabled,
+  ) {
+    return _wire_set_track_enabled(
+      port_,
+      track_id,
+      enabled ? 1 : 0,
+    );
+  }
+
+  late final _wire_set_track_enabledPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Uint64, ffi.Uint8)>>('wire_set_track_enabled');
+  late final _wire_set_track_enabled =
+      _wire_set_track_enabledPtr.asFunction<void Function(int, int, int)>();
 
   void wire_create_video_sink(
     int port_,
@@ -506,21 +1332,19 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_get_media(
     int port_,
     ffi.Pointer<wire_MediaStreamConstraints> constraints,
-    bool is_display,
   ) {
     return _wire_get_media(
       port_,
       constraints,
-      is_display ? 1 : 0,
     );
   }
 
   late final _wire_get_mediaPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_MediaStreamConstraints>,
-              ffi.Uint8)>>('wire_get_media');
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_MediaStreamConstraints>)>>('wire_get_media');
   late final _wire_get_media = _wire_get_mediaPtr.asFunction<
-      void Function(int, ffi.Pointer<wire_MediaStreamConstraints>, int)>();
+      void Function(int, ffi.Pointer<wire_MediaStreamConstraints>)>();
 
   ffi.Pointer<wire_AudioConstraints> new_box_autoadd_audio_constraints() {
     return _new_box_autoadd_audio_constraints();
@@ -609,9 +1433,6 @@ class wire_uint_8_list extends ffi.Struct {
 }
 
 class wire_AudioConstraints extends ffi.Struct {
-  @ffi.Uint8()
-  external int required;
-
   external ffi.Pointer<wire_uint_8_list> device_id;
 }
 
@@ -626,6 +1447,9 @@ class wire_VideoConstraints extends ffi.Struct {
 
   @ffi.Uint32()
   external int frame_rate;
+
+  @ffi.Uint8()
+  external int is_display;
 }
 
 class wire_MediaStreamConstraints extends ffi.Struct {
