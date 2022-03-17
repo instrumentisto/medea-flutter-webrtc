@@ -136,6 +136,16 @@ abstract class FlutterWebrtcNative {
   Future<void> setTrackEnabled(
       {required int trackId, required bool enabled, dynamic hint});
 
+  /// Registers an observer to the media track events.
+  Stream<TrackEvent> registerTrackObserver({required int id, dynamic hint});
+
+  /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
+  /// called whenever a set of available media devices changes.
+  ///
+  /// Only one callback can be set at a time, so the previous one will be
+  /// dropped, if any.
+  Stream<void> setOnDeviceChanged({dynamic hint});
+
   Future<void> createVideoSink(
       {required int sinkId,
       required int trackId,
@@ -360,6 +370,10 @@ enum RtpTransceiverDirection {
   RecvOnly,
   Inactive,
   Stopped,
+}
+
+enum TrackEvent {
+  Ended,
 }
 
 /// Specifies the nature and settings of the video [`MediaStreamTrack`]
@@ -704,6 +718,31 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
+  Stream<TrackEvent> registerTrackObserver({required int id, dynamic hint}) =>
+      executeStream(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_register_track_observer(port_, _api2wire_u64(id)),
+        parseSuccessData: _wire2api_track_event,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "register_track_observer",
+          argNames: ["id"],
+        ),
+        argValues: [id],
+        hint: hint,
+      ));
+
+  Stream<void> setOnDeviceChanged({dynamic hint}) =>
+      executeStream(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_on_device_changed(port_),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_on_device_changed",
+          argNames: [],
+        ),
+        argValues: [],
+        hint: hint,
+      ));
+
   Future<void> createVideoSink(
           {required int sinkId,
           required int trackId,
@@ -1037,6 +1076,10 @@ RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
     direction: _wire2api_String(arr[2]),
     sender: _wire2api_rtc_rtp_sender(arr[3]),
   );
+}
+
+TrackEvent _wire2api_track_event(dynamic raw) {
+  return TrackEvent.values[raw];
 }
 
 int _wire2api_u64(dynamic raw) {
@@ -1427,6 +1470,36 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
               ffi.Int64, ffi.Uint64, ffi.Uint8)>>('wire_set_track_enabled');
   late final _wire_set_track_enabled =
       _wire_set_track_enabledPtr.asFunction<void Function(int, int, int)>();
+
+  void wire_register_track_observer(
+    int port_,
+    int id,
+  ) {
+    return _wire_register_track_observer(
+      port_,
+      id,
+    );
+  }
+
+  late final _wire_register_track_observerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_register_track_observer');
+  late final _wire_register_track_observer =
+      _wire_register_track_observerPtr.asFunction<void Function(int, int)>();
+
+  void wire_set_on_device_changed(
+    int port_,
+  ) {
+    return _wire_set_on_device_changed(
+      port_,
+    );
+  }
+
+  late final _wire_set_on_device_changedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_set_on_device_changed');
+  late final _wire_set_on_device_changed =
+      _wire_set_on_device_changedPtr.asFunction<void Function(int)>();
 
   void wire_create_video_sink(
     int port_,

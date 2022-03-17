@@ -565,22 +565,22 @@ pub fn set_track_enabled(track_id: u64, enabled: bool) {
     unimplemented!()
 }
 
-// /// Registers an observer to the media track events.
-// pub fn register_track_observer(
-//     cb: StreamSink<TrackEvent>,
-//     id: u64,
-// ) -> anyhow::Result<String> {
-//     unimplemented!()
-// }
+/// Registers an observer to the media track events.
+pub fn register_track_observer(
+    cb: StreamSink<TrackEvent>,
+    id: u64,
+) -> anyhow::Result<String> {
+    unimplemented!()
+}
 
-// /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
-// /// called whenever a set of available media devices changes.
-// ///
-// /// Only one callback can be set at a time, so the previous one will be
-// /// dropped, if any.
-// pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-//     unimplemented!()
-// }
+/// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
+/// called whenever a set of available media devices changes.
+///
+/// Only one callback can be set at a time, so the previous one will be
+/// dropped, if any.
+pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
+    unimplemented!()
+}
 
 pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
     let handler: *mut cpp_api::OnFrameCallbackInterface =

@@ -13,7 +13,7 @@ class RendererSample extends StatefulWidget {
 
 class _RendererSampleState extends State<RendererSample> {
   MediaStreamTrack? _track;
-  final _renderer = NativeVideoRenderer();
+  final _renderer = createPlatformSpecificVideoRenderer();
   bool _isRendering = false;
   bool _isEnabled = true;
 

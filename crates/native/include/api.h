@@ -1,17 +1,4 @@
 #pragma once
-
-#include <string>
-
-namespace rust {
-
-inline namespace cxxbridge1 {
-
-class String;
-
-} // namespace cxxbridge1
-
-} // namespace rust
-
 struct VideoFrame;
 
 // Callback for video frames handlers provided to the

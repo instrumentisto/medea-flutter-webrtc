@@ -396,6 +396,33 @@ pub extern "C" fn wire_set_track_enabled(port_: i64, track_id: u64, enabled: boo
 }
 
 #[no_mangle]
+pub extern "C" fn wire_register_track_observer(port_: i64, id: u64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "register_track_observer",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || {
+            let api_id = id.wire2api();
+            move |task_callback| register_track_observer(task_callback.stream_sink(), api_id)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_set_on_device_changed(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "set_on_device_changed",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || move |task_callback| set_on_device_changed(task_callback.stream_sink()),
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_create_video_sink(
     port_: i64,
     sink_id: i64,
@@ -932,6 +959,15 @@ impl support::IntoDart for RtcRtpTransceiver {
     }
 }
 impl support::IntoDartExceptPrimitive for RtcRtpTransceiver {}
+
+impl support::IntoDart for TrackEvent {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Ended => 0,
+        }
+        .into_dart()
+    }
+}
 
 // Section: executor
 
