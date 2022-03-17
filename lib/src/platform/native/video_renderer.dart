@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -44,9 +45,11 @@ class NativeVideoRenderer extends VideoRenderer {
       _eventChan = eventChannel('VideoRendererEvent', _channelId)
           .receiveBroadcastStream()
           .listen(eventListener, onError: errorListener);
-      _chan = methodChannel('VideoRenderer', _channelId);
-      if (true) { // todo if Windows
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        // todo recheck
         _chan = methodChannel('VideoRendererFactory', 0);
+      } else {
+        _chan = methodChannel('VideoRenderer', _channelId);
       }
   }
 
@@ -75,24 +78,27 @@ class NativeVideoRenderer extends VideoRenderer {
     if (track?.kind() != MediaKind.video) {
       throw 'VideoRenderer do not supports MediaStreamTrack with video kind!';
     }
-
     _srcObject = track;
-    if (true) { // todo if windows
-      _chan.invokeMethod('createCallback', <String, dynamic>{
-        'textureId': textureId,
-      }).then((result) {
-        var sinkId = textureId ?? 0;
-        if (track == null) {
-          api.disposeVideoSink(
-                  sinkId: sinkId)
-              .then((_) => {value = RTCVideoValue.empty});
-        } else {
+
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      var sinkId = textureId ?? 0;
+      if (track == null) {
+        api
+            .disposeVideoSink(sinkId: sinkId)
+            .then((_) => {value = RTCVideoValue.empty});
+      } else {
+        _chan.invokeMethod('createCallback', <String, dynamic>{
+          'textureId': textureId,
+        }).then((result) {
           var trackId = int.parse(track.id());
-          api.createVideoSink(
-                  sinkId: sinkId, trackId: trackId, callbackPtr: result['handler_ptr'])
+          api
+              .createVideoSink(
+                  sinkId: sinkId,
+                  trackId: trackId,
+                  callbackPtr: result['handler_ptr'])
               .then((_) => {value = value.copyWith(renderVideo: renderVideo)});
-        }
-      });
+        });
+      }
     } else {
       _chan.invokeMethod('setSrcObject', {
         'trackId': track?.id(),
@@ -108,7 +114,7 @@ class NativeVideoRenderer extends VideoRenderer {
   @override
   Future<void> dispose() async {
     await _eventChan?.cancel();
-    if (true) {
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
       await _chan.invokeMethod('dispose', {'textureId': textureId});
     }
     else {
