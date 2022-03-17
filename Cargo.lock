@@ -3,10 +3,28 @@
 version = 3
 
 [[package]]
-name = "anyhow"
-version = "1.0.55"
+name = "allo-isolate"
+version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "159bb86af3a200e19a068f4224eae4c8bb2d0fa054c7e5d1cacd5cef95e684cd"
+checksum = "31644a919a9e4b0188e4569e55bbf5a78b5588ea645acffc15c29240407261bc"
+dependencies = [
+ "atomic",
+]
+
+[[package]]
+name = "anyhow"
+version = "1.0.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4361135be9122e0870de935d7c439aef945b9f9ddd4199a553b5270b49c82a27"
+
+[[package]]
+name = "atomic"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b88d82667eca772c4aa12f0f1348b3ae643424c8876448f3f7bd5787032e234c"
+dependencies = [
+ "autocfg",
+]
 
 [[package]]
 name = "autocfg"
@@ -183,12 +201,34 @@ dependencies = [
  "cxx-build",
  "dashmap",
  "derive_more",
+ "flutter_rust_bridge",
+ "lazy_static",
  "libwebrtc-sys",
  "once_cell",
  "threadpool",
  "walkdir",
  "winapi",
 ]
+
+[[package]]
+name = "flutter_rust_bridge"
+version = "1.22.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24f895274cf43e7b425b2b2c9adbb5b7414d217d0ddb213678eab1098e168982"
+dependencies = [
+ "allo-isolate",
+ "anyhow",
+ "flutter_rust_bridge_macros",
+ "lazy_static",
+ "parking_lot",
+ "threadpool",
+]
+
+[[package]]
+name = "flutter_rust_bridge_macros"
+version = "1.22.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37fbb4691460d9e67d98bb49ca98d69abc5e865fc300a2a98305cf667b55b6da"
 
 [[package]]
 name = "fnv"

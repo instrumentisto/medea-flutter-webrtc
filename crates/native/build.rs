@@ -6,9 +6,7 @@ use anyhow::{anyhow, Context};
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
-    cxx_build::bridge("src/lib.rs").compile("extern_rust_api");
-
-    cxx_build::bridge("src/internal.rs").compile("cpp_api_bindings");
+    cxx_build::bridge("src/cpp_api.rs").compile("cpp_api_bindings");
 
     copy_cxxbridge1_lib()?;
 
@@ -18,8 +16,8 @@ fn main() -> anyhow::Result<()> {
 /// Finds and copies the compiled `cxxbridge1` static library to the
 /// `target/cxxbridge/` directory.
 fn copy_cxxbridge1_lib() -> anyhow::Result<()> {
-    let out_dir = env::var_os("OUT_DIR")
-        .ok_or(anyhow!("`OUT_DIR` environment variable not found"))?;
+    let out_dir =
+        env::var_os("OUT_DIR").ok_or(anyhow!("`OUT_DIR` environment variable not found"))?;
     let out_dir_path = Path::new(&out_dir);
     let cxxbridge_dir = out_dir_path
         .ancestors()

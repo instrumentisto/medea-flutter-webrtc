@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: 2.8.1
-  RUST_BACKTRACE: 1
+  FLUTTER_VERSION: 2.10
+  FLUTTER_CHANNEL: stable
 
 jobs:
 
@@ -20,119 +20,30 @@ jobs:
   # Linting and formatting #
   ##########################
 
-  clippy:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          components: clippy
-      - run: make cargo.lint
-
-  rustfmt:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+  dartanalyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: subosito/flutter-action@v2
         with:
-          profile: minimal
-          toolchain: nightly
-          components: rustfmt
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
 
-      - run: make cargo.fmt check=yes
+      - run: flutter pub get
 
+      - run: flutter analyze
 
-
-
-  ############
-  # Building #
-  ############
-
-  build:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    # TODO: Switch to `windows-latest` when stable Flutter stable will support
-    #       MSVC 2022:
-    #       https://github.com/flutter/flutter/issues/85922
-    #       https://github.com/flutter/flutter/issues/96138
-    runs-on: windows-2019
+  dartfmt:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: subosito/flutter-action@v2
         with:
-          profile: minimal
-          toolchain: stable
-      - uses: subosito/flutter-action@v1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-      - run: flutter config --enable-windows-desktop
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
 
-      - run: make cargo.build
-      - run: make flutter.build
+      - run: flutter format lib/ test/ --set-exit-if-changed
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: build-rust
-          path: windows/rust/
-          retention-days: 1
+      - run: flutter pub get
 
-
-
-
-  ###########
-  # Testing #
-  ###########
-
-  test-rust:
-    name: Test Rust crates
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-
-      - run: make cargo.test
-
-  test-flutter:
-    name: Test Flutter integration
-    needs: ["build"]
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-2019
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-      - run: flutter config --enable-windows-desktop
-
-      - uses: actions/download-artifact@v2
-        with:
-          name: build-rust
-          path: windows/rust/
-
-      - run: make flutter.test device=windows
-
-
-
-
-  #################
-  # Documentation #
-  #################
-
-  rustdoc:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-
-      - run: make cargo.doc
+      - run: flutter pub run import_sorter:main --no-comments --exit-if-changed
