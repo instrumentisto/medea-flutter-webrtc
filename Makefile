@@ -102,11 +102,9 @@ flutter.test:
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 # todo check and add doc
-# --dart-output example/lib/src/bridge_generated.dart
-codegen: 
-	flutter_rust_bridge_codegen --rust-crate-dir crates/native \
-		--rust-input crates/native/src/api.rs \
-		--dart-output lib/src/platform/native/bridge_generated.dart
+codegen:
+	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
+		--dart-output lib/src/api/bridge_generated.dart
 
 cargo.build:
 	make codegen
@@ -121,11 +119,11 @@ cargo.build:
 		windows/rust/lib/flutter_webrtc_native.dll.lib
 	cp -f target/cxxbridge/cxxbridge1.lib \
 		windows/rust/lib/cxxbridge1.lib
-	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.h \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
 	cp -f crates/native/include/api.h \
 		windows/rust/include/flutter-webrtc-native/include/api.h
-	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.cc \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 
 # Generate documentation for project crates.

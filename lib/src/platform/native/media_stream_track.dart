@@ -1,31 +1,27 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_webrtc/src/platform/native/utils.dart';
 
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
+import '../../../flutter_webrtc.dart';
 
 /// Representation of a single media unit.
-class NativeMediaStreamTrack extends MediaStreamTrack {
+abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
-  NativeMediaStreamTrack.fromMap(dynamic map) {
-    var channelId = map['channelId'];
-    _chan = methodChannel('MediaStreamTrack', channelId);
-    _eventChan = eventChannel('MediaStreamTrackEvent', channelId);
-    _eventSub = _eventChan.receiveBroadcastStream().listen(eventListener);
-    _id = map['id'];
-    _deviceId = map['deviceId'];
-    _kind = MediaKind.values[map['kind']];
-  }
+  static NativeMediaStreamTrack from(dynamic map) {
+    NativeMediaStreamTrack? track;
 
-  // todo
-  NativeMediaStreamTrack.fromFFI(MediaStreamTrackFFI track) {
-    _id = track.id.toString();
-    _deviceId = track.label.toString();
-    _kind = MediaKind.values[track.kind.index];
+    if (Platform.isAndroid || Platform.isIOS) {
+      track = _NativeMediaStreamTrackChannel.fromMap(map);
+    } else {
+      track = _NativeMediaStreamTrackFFI.FromFFI(map);
+    }
+
+    return track;
   }
 
   /// Indicates whether this [NativeMediaStreamTrack] transmits media.
@@ -45,15 +41,6 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   ///
   /// "remote" - for the remove tracks.
   late String _deviceId;
-
-  /// [MethodChannel] used for the messaging with a native side.
-  late MethodChannel _chan;
-
-  /// [EventChannel] to receive all the [PeerConnection] events from.
-  late EventChannel _eventChan;
-
-  /// [_eventChan] subscription to the [PeerConnection] events.
-  late StreamSubscription<dynamic>? _eventSub;
 
   /// `on_ended` event subscriber.
   OnEndedCallback? _onEnded;
@@ -93,6 +80,29 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   bool isEnabled() {
     return _enabled;
   }
+}
+
+class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
+  /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
+  /// native side.
+  _NativeMediaStreamTrackChannel.fromMap(dynamic map) {
+    var channelId = map['channelId'];
+    _chan = methodChannel('MediaStreamTrack', channelId);
+    _eventChan = eventChannel('MediaStreamTrackEvent', channelId);
+    _eventSub = _eventChan.receiveBroadcastStream().listen(eventListener);
+    _id = map['id'];
+    _deviceId = map['deviceId'];
+    _kind = MediaKind.values[map['kind']];
+  }
+
+  /// [MethodChannel] used for the messaging with a native side.
+  late MethodChannel _chan;
+
+  /// [EventChannel] to receive all the [PeerConnection] events from.
+  late EventChannel _eventChan;
+
+  /// [_eventChan] subscription to the [PeerConnection] events.
+  late StreamSubscription<dynamic>? _eventSub;
 
   @override
   Future<void> setEnabled(bool enabled) async {
@@ -112,6 +122,41 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
 
   @override
   Future<MediaStreamTrack> clone() async {
-    return NativeMediaStreamTrack.fromMap(await _chan.invokeMethod('clone'));
+    return NativeMediaStreamTrack.from(await _chan.invokeMethod('clone'));
+  }
+}
+
+class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
+
+  /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
+  /// native side.
+  
+  //todo
+  _NativeMediaStreamTrackFFI.FromFFI(MediaStreamTrackFFI track) {
+    _id = track.id.toString();
+    _deviceId = track.label.toString();
+    _kind = MediaKind.values[track.kind.index];
+  }
+
+  @override
+  Future<MediaStreamTrack> clone() {
+    // TODO: implement clone
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> dispose() async {
+    // await api.disposeStream(id: 1);
+  }
+
+  @override
+  Future<void> setEnabled(bool enabled) async {
+    api.setTrackEnabled(trackId: 1, enabled: enabled);
+  }
+
+  @override
+  Future<void> stop() {
+    // TODO: implement stop
+    throw UnimplementedError();
   }
 }

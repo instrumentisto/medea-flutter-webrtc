@@ -24,26 +24,33 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/");
     println!("cargo:rustc-link-lib=webrtc");
 
-    println!("cargo:rustc-link-lib=dylib=Gdi32");
-    println!("cargo:rustc-link-lib=dylib=Secur32");
-    println!("cargo:rustc-link-lib=dylib=amstrmid");
-    println!("cargo:rustc-link-lib=dylib=d3d11");
-    println!("cargo:rustc-link-lib=dylib=dmoguids");
-    println!("cargo:rustc-link-lib=dylib=dxgi");
-    println!("cargo:rustc-link-lib=dylib=msdmo");
-    println!("cargo:rustc-link-lib=dylib=winmm");
-    println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
+    link_libs();
 
-    cxx_build::bridge("src/bridge.rs")
+    let mut build = cxx_build::bridge("src/bridge.rs");
+    build
         .files(&cpp_files)
         .include(path.join("include"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
-        .include(path.join("lib/include/third_party/libyuv/include"))
-        .flag("-DWEBRTC_WIN")
-        .flag("-DNOMINMAX")
-        .flag("/std:c++17")
-        .compile("libwebrtc-sys");
+        .include(path.join("lib/include/third_party/libyuv/include"));
+
+    #[cfg(windows)]
+    {
+        build
+            .flag("-DWEBRTC_WIN")
+            .flag("-DNOMINMAX")
+            .flag("/std:c++17");
+    }
+    #[cfg(target_os = "linux")]
+    {
+        build
+            .flag("-DWEBRTC_LINUX")
+            .flag("-DWEBRTC_POSIX")
+            .flag("-DNOMINMAX")
+            .flag("-std=c++17");
+    }
+
+    build.compile("libwebrtc-sys");
 
     for file in cpp_files {
         println!("cargo:rerun-if-changed={}", file.display());
@@ -152,4 +159,20 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
         .filter(|e| e.file_type().is_file())
         .map(DirEntry::into_path)
         .collect()
+}
+
+/// Emits all required `rustc-link-lib` instructions.
+fn link_libs() {
+    #[cfg(windows)]
+    {
+        println!("cargo:rustc-link-lib=dylib=Gdi32");
+        println!("cargo:rustc-link-lib=dylib=Secur32");
+        println!("cargo:rustc-link-lib=dylib=amstrmid");
+        println!("cargo:rustc-link-lib=dylib=d3d11");
+        println!("cargo:rustc-link-lib=dylib=dmoguids");
+        println!("cargo:rustc-link-lib=dylib=dxgi");
+        println!("cargo:rustc-link-lib=dylib=msdmo");
+        println!("cargo:rustc-link-lib=dylib=winmm");
+        println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
+    }
 }

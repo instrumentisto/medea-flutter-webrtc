@@ -7,7 +7,8 @@ import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
 import '/src/platform/video_renderer.dart';
-import 'utils.dart';
+import '../../api/utils.dart';
+
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
@@ -127,7 +128,6 @@ class NativeVideoRenderer extends VideoRenderer {
   /// side.
   void eventListener(dynamic event) {
     final dynamic map = event;
-
     switch (map['event']) {
       case 'onTextureChangeRotation':
         value =

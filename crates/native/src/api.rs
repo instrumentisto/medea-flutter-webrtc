@@ -1,4 +1,4 @@
-use crate::{AudioDeviceModule, Webrtc, cpp_api};
+use crate::{cpp_api, AudioDeviceModule, Webrtc};
 use anyhow::Ok;
 use cxx::UniquePtr;
 use dashmap::DashMap;
@@ -9,11 +9,9 @@ use libwebrtc_sys::{
 };
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex}, rc::Rc,
+    sync::{Arc, Mutex},
 };
 use threadpool::ThreadPool;
-
-
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = {
@@ -391,28 +389,20 @@ pub struct RtcIceServer {
     pub credential: String,
 }
 
-// /// Returns a list of all available media input and output devices, such
-// /// as microphones, cameras, headsets, and so forth.
-// pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
-//     unimplemented!()
-// }
-
 /// Creates a new [`PeerConnection`] and returns its ID.
 ///
 /// Writes an error to the provided `err`, if any.
-// pub fn create_peer_connection(
-//     cb: StreamSink<PeerConnectionEvent>,
-//     configuration: RtcConfiguration,
-//     id: u64,
-// ) -> anyhow::Result<()> {
-//     let w = unsafe {WEBRTC.clone()};
-//     unsafe 
-// {    
-//     w.unwrap().lock()
-//         .unwrap()
-//         .create_peer_connection(configuration, &mut "".to_owned());
-//     Ok(())}
-// }
+pub fn create_peer_connection(
+    // cb: StreamSink<PeerConnectionEvent>,
+    configuration: RtcConfiguration,
+    id: u64,
+) -> anyhow::Result<()> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .create_peer_connection(configuration, 0);
+    Ok(())
+}
 
 /// Initiates the creation of a SDP offer for the purpose of starting
 /// a new WebRTC connection to a remote peer.
@@ -592,12 +582,14 @@ pub fn set_track_enabled(track_id: u64, enabled: bool) {
 //     unimplemented!()
 // }
 
-
 pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
     let handler: *mut cpp_api::OnFrameCallbackInterface =
         unsafe { std::mem::transmute(callback_ptr) };
     let handler = unsafe { UniquePtr::from_raw(handler) };
-    WEBRTC.lock().unwrap().create_video_sink(sink_id, track_id, handler);
+    WEBRTC
+        .lock()
+        .unwrap()
+        .create_video_sink(sink_id, track_id, handler);
 }
 
 pub fn dispose_video_sink(sink_id: i64) {
@@ -608,8 +600,8 @@ pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
-pub fn get_media(
-    constraints: MediaStreamConstraints,
-) -> Vec<MediaStreamTrackFFI> {
+pub fn get_media(constraints: MediaStreamConstraints) -> Vec<MediaStreamTrackFFI> {
     WEBRTC.lock().unwrap().get_media(&constraints)
 }
+
+pub fn _touch(a: RtcIceServer, b: RtcConfiguration) {}

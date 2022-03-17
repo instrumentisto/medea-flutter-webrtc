@@ -1,16 +1,13 @@
 use std::rc::Rc;
 
 use anyhow::bail;
-use cxx::UniquePtr;
 use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
+use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 
-use crate::{
-    api::{self},
-    next_id, VideoSink, VideoSinkId, Webrtc,
-};
+use crate::{api, next_id, VideoSink, VideoSinkId, Webrtc};
 
 impl Webrtc {
     /// Creates a new local [`MediaStream`] with [`VideoTrack`]s and/or
@@ -22,19 +19,17 @@ impl Webrtc {
         constraints: &api::MediaStreamConstraints,
     ) -> Vec<api::MediaStreamTrackFFI> {
         let mut result = Vec::new();
-        if let Some(constraints) = &constraints.video {
-            let source = self
-                .get_or_create_video_source(&constraints)
-                .unwrap();
+        if let Some(video) = &constraints.video {
+            let source = self.get_or_create_video_source(video).unwrap();
             let track = self.create_video_track(source).unwrap();
             result.push(api::MediaStreamTrackFFI::from(&*track));
         }
 
-        if let Some(constraints) = &constraints.audio {
-            let source = self.get_or_create_audio_source(&constraints).unwrap();
+        if let Some(audio) = &constraints.audio {
+            let source = self.get_or_create_audio_source(audio).unwrap();
             let track = self.create_audio_track(source).unwrap();
             result.push(api::MediaStreamTrackFFI::from(&*track));
-        };
+        }
 
         result
     }
@@ -46,26 +41,27 @@ impl Webrtc {
     /// Panics if tracks from the provided [`MediaStream`] are not found in the
     /// context, as it's an invariant violation.
     pub fn dispose_stream(self: &mut Webrtc, id: u64) {
-        // if let Some(stream) = self.local_media_streams.remove(&MediaStreamId(id)) {
+        todo!();
+        // if let Some(stream) = self.0.local_media_streams.remove(&MediaStreamId(id)) {
         //     let video_tracks = stream.video_tracks;
         //     let audio_tracks = stream.audio_tracks;
-
+        //
         //     for track in video_tracks {
         //         if let MediaTrackSource::Local(src) =
-        //             self.video_tracks.remove(&track).unwrap().1.source
+        //             self.0.video_tracks.remove(&track).unwrap().1.source
         //         {
         //             if Rc::strong_count(&src) == 2 {
-        //                 self.video_sources.remove(&src.device_id);
+        //                 self.0.video_sources.remove(&src.device_id);
         //             };
         //         }
         //     }
-
+        //
         //     for track in audio_tracks {
         //         if let MediaTrackSource::Local(src) =
-        //             self.audio_tracks.remove(&track).unwrap().1.source
+        //             self.0.audio_tracks.remove(&track).unwrap().1.source
         //         {
         //             if Rc::strong_count(&src) == 2 {
-        //                 self.audio_source.take();
+        //                 self.0.audio_source.take();
         //                 // TODO: We should make `AudioDeviceModule` to stop
         //                 //       recording.
         //             };
@@ -159,7 +155,6 @@ impl Webrtc {
             )?
         };
         let source = self
-            
             .video_sources
             .entry(source.device_id.clone())
             .or_insert_with(|| Rc::new(source));
@@ -175,12 +170,7 @@ impl Webrtc {
     ) -> anyhow::Result<RefMut<'_, AudioTrackId, AudioTrack>> {
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
-        let device_id = self
-            
-            .audio_device_module
-            .current_device_id
-            .clone()
-            .unwrap();
+        let device_id = self.audio_device_module.current_device_id.clone().unwrap();
         let device_index =
             if let Some(index) = self.get_index_of_audio_recording_device(&device_id)? {
                 index
@@ -196,8 +186,7 @@ impl Webrtc {
             source,
             AudioLabel(
                 #[allow(clippy::cast_possible_wrap)]
-                self
-                    .audio_device_module
+                self.audio_device_module
                     .inner
                     .recording_device_name(device_index as i16)?
                     .0,
@@ -226,11 +215,7 @@ impl Webrtc {
 
                 AudioDeviceId(self.audio_device_module.inner.recording_device_name(0)?.1)
             } else {
-                self
-                    .audio_device_module
-                    .current_device_id
-                    .clone()
-                    .unwrap()
+                self.audio_device_module.current_device_id.clone().unwrap()
             }
         } else {
             AudioDeviceId(caps.device_id.clone())
@@ -247,8 +232,7 @@ impl Webrtc {
             };
 
         if Some(&device_id) != self.audio_device_module.current_device_id.as_ref() {
-            self
-                .audio_device_module
+            self.audio_device_module
                 .set_recording_device(device_id, device_index)?;
         }
 
@@ -288,24 +272,19 @@ impl Webrtc {
     ///
     /// Returns error message if cannot find any [`AudioTrack`] or
     /// [`VideoTrack`] by the specified `id`.
-    pub fn register_track_observer(
-        &mut self,
-        id: u64,
-        // cb: UniquePtr<TrackObserverInterface>,
-    ) -> String {
-        // let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
-        // if let Some(mut track) = self.video_tracks.get_mut(&id.into()) {
-        //     obs.set_video_track(&track.inner);
-        //     track.inner.register_observer(obs);
-        //     String::new()
-        // } else if let Some(mut track) = self.audio_tracks.get_mut(&id.into()) {
-        //     obs.set_audio_track(&track.inner);
-        //     track.inner.register_observer(obs);
-        //     String::new()
-        // } else {
-        //     format!("Could not find track with `{id}` ID")
-        // }
-        String::new()
+    pub fn register_track_observer(&mut self, id: u64, cb: StreamSink<()>) -> String {
+        let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
+        if let Some(mut track) = self.video_tracks.get_mut(&id.into()) {
+            obs.set_video_track(&track.inner);
+            track.inner.register_observer(obs);
+            String::new()
+        } else if let Some(mut track) = self.audio_tracks.get_mut(&id.into()) {
+            obs.set_audio_track(&track.inner);
+            track.inner.register_observer(obs);
+            String::new()
+        } else {
+            format!("Could not find track with `{id}` ID")
+        }
     }
 }
 
@@ -391,57 +370,6 @@ impl AudioDeviceModule {
         self.current_device_id.replace(id);
 
         Ok(())
-    }
-}
-
-/// [`sys::MediaStreamInterface`] tracking all the added [`VideoTrack`]s and
-/// [`AudioTrack`]s.
-pub struct MediaStream {
-    /// ID of this [`MediaStream`].
-    id: MediaStreamId,
-
-    /// Underlying [`sys::MediaStreamInterface`].
-    inner: sys::MediaStreamInterface,
-
-    /// List of [`VideoTrack`] IDs contained in this [`MediaStream`].
-    video_tracks: Vec<VideoTrackId>,
-
-    /// List of [`AudioTrack`] IDs contained in this [`MediaStream`].
-    audio_tracks: Vec<AudioTrackId>,
-}
-
-impl MediaStream {
-    /// Creates a new [`MediaStream`].
-    fn new(pc: &sys::PeerConnectionFactoryInterface) -> anyhow::Result<Self> {
-        let id = MediaStreamId(next_id());
-        Ok(Self {
-            id,
-            inner: pc.create_local_media_stream(id.to_string())?,
-            video_tracks: Vec::new(),
-            audio_tracks: Vec::new(),
-        })
-    }
-
-    /// Adds the provided [`VideoTrack`] to this [`MediaStream`].
-    fn add_video_track(&mut self, track: &VideoTrack) -> anyhow::Result<()> {
-        self.inner.add_video_track(&track.inner)?;
-        self.video_tracks.push(track.id);
-
-        Ok(())
-    }
-
-    /// Adds the provided [`AudioTrack`] to this [`MediaStream`].
-    fn add_audio_track(&mut self, track: &AudioTrack) -> anyhow::Result<()> {
-        self.inner.add_audio_track(&track.inner)?;
-        self.audio_tracks.push(track.id);
-
-        Ok(())
-    }
-
-    /// Returns an [`Iterator`] over all the [`VideoTrackId`]s belonging to the
-    /// [`VideoTrack`]s that were added to this [`MediaStream`].
-    pub fn video_tracks(&self) -> impl Iterator<Item = &'_ VideoTrackId> {
-        self.video_tracks.iter()
     }
 }
 
@@ -691,12 +619,13 @@ impl VideoSource {
     }
 }
 
-// /// Wrapper around [`TrackObserverInterface`] implementing
-// /// [`sys::TrackEventCallback`].
-// struct TrackEventHandler(UniquePtr<TrackObserverInterface>);
+/// Wrapper around [`TrackObserverInterface`] implementing
+/// [`sys::TrackEventCallback`].
+struct TrackEventHandler(StreamSink<()>);
 
-// impl sys::TrackEventCallback for TrackEventHandler {
-//     fn on_ended(&mut self) {
-//         self.pin_mut().on_ended();
-//     }
-// }
+impl sys::TrackEventCallback for TrackEventHandler {
+    fn on_ended(&mut self) {
+        todo!();
+        // self.0.pin_mut().on_ended();
+    }
+}

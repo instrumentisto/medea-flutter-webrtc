@@ -2,7 +2,7 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{VideoTrackId, Webrtc, cpp_api};
+use crate::{cpp_api, VideoTrackId, Webrtc};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -25,8 +25,7 @@ impl Webrtc {
             track_id: track_id.into(),
         };
 
-        self
-            .video_tracks
+        self.video_tracks
             .get_mut(&track_id.into())
             .unwrap()
             .add_video_sink(&mut sink);
@@ -110,7 +109,7 @@ impl From<UniquePtr<sys::VideoFrame>> for cpp_api::VideoFrame {
 
 /// Wrapper around an [`internal::OnFrameCallbackInterface`] implementing the
 /// required interfaces.
-pub struct OnFrameCallback(pub(crate) UniquePtr<cpp_api::OnFrameCallbackInterface>);
+struct OnFrameCallback(UniquePtr<cpp_api::OnFrameCallbackInterface>);
 
 impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {
     fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
