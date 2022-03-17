@@ -152,15 +152,12 @@ abstract class FlutterWebrtcNative {
       required int callbackPtr,
       dynamic hint});
 
-  Future<void> disposeVideoSink({required int sinkId, dynamic hint});
+  Uint8List disposeVideoSink({required int sinkId, dynamic hint});
 
   Future<List<MediaDeviceInfoFFI>> enumerateDevices({dynamic hint});
 
   Future<List<MediaStreamTrackFFI>> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
-
-  Future<void> touch(
-      {required RtcIceServer a, required RtcConfiguration b, dynamic hint});
 }
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
@@ -763,11 +760,9 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<void> disposeVideoSink({required int sinkId, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_dispose_video_sink(port_, _api2wire_i64(sinkId)),
-        parseSuccessData: _wire2api_unit,
+  Uint8List disposeVideoSink({required int sinkId, dynamic hint}) =>
+      executeSync(FlutterRustBridgeSyncTask(
+        callFfi: () => inner.wire_dispose_video_sink(_api2wire_i64(sinkId)),
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "dispose_video_sink",
           argNames: ["sinkId"],
@@ -799,24 +794,6 @@ class FlutterWebrtcNativeImpl
           argNames: ["constraints"],
         ),
         argValues: [constraints],
-        hint: hint,
-      ));
-
-  Future<void> touch(
-          {required RtcIceServer a,
-          required RtcConfiguration b,
-          dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire__touch(
-            port_,
-            _api2wire_box_autoadd_rtc_ice_server(a),
-            _api2wire_box_autoadd_rtc_configuration(b)),
-        parseSuccessData: _wire2api_unit,
-        constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "_touch",
-          argNames: ["a", "b"],
-        ),
-        argValues: [a, b],
         hint: hint,
       ));
 
@@ -856,13 +833,6 @@ class FlutterWebrtcNativeImpl
       RtcConfiguration raw) {
     final ptr = inner.new_box_autoadd_rtc_configuration();
     _api_fill_to_wire_rtc_configuration(raw, ptr.ref);
-    return ptr;
-  }
-
-  ffi.Pointer<wire_RtcIceServer> _api2wire_box_autoadd_rtc_ice_server(
-      RtcIceServer raw) {
-    final ptr = inner.new_box_autoadd_rtc_ice_server();
-    _api_fill_to_wire_rtc_ice_server(raw, ptr.ref);
     return ptr;
   }
 
@@ -953,11 +923,6 @@ class FlutterWebrtcNativeImpl
     _api_fill_to_wire_rtc_configuration(apiObj, wireObj.ref);
   }
 
-  void _api_fill_to_wire_box_autoadd_rtc_ice_server(
-      RtcIceServer apiObj, ffi.Pointer<wire_RtcIceServer> wireObj) {
-    _api_fill_to_wire_rtc_ice_server(apiObj, wireObj.ref);
-  }
-
   void _api_fill_to_wire_box_autoadd_video_constraints(
       VideoConstraints apiObj, ffi.Pointer<wire_VideoConstraints> wireObj) {
     _api_fill_to_wire_video_constraints(apiObj, wireObj.ref);
@@ -1008,6 +973,10 @@ class FlutterWebrtcNativeImpl
 // Section: wire2api
 String _wire2api_String(dynamic raw) {
   return raw as String;
+}
+
+Uint8List _wire2api_SyncReturnVecU8(dynamic raw) {
+  return raw as Uint8List;
 }
 
 bool _wire2api_bool(dynamic raw) {
@@ -1522,21 +1491,19 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_create_video_sink = _wire_create_video_sinkPtr
       .asFunction<void Function(int, int, int, int)>();
 
-  void wire_dispose_video_sink(
-    int port_,
+  WireSyncReturnStruct wire_dispose_video_sink(
     int sink_id,
   ) {
     return _wire_dispose_video_sink(
-      port_,
       sink_id,
     );
   }
 
   late final _wire_dispose_video_sinkPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int64)>>(
+      _lookup<ffi.NativeFunction<WireSyncReturnStruct Function(ffi.Int64)>>(
           'wire_dispose_video_sink');
-  late final _wire_dispose_video_sink =
-      _wire_dispose_video_sinkPtr.asFunction<void Function(int, int)>();
+  late final _wire_dispose_video_sink = _wire_dispose_video_sinkPtr
+      .asFunction<WireSyncReturnStruct Function(int)>();
 
   void wire_enumerate_devices(
     int port_,
@@ -1568,26 +1535,6 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
               ffi.Pointer<wire_MediaStreamConstraints>)>>('wire_get_media');
   late final _wire_get_media = _wire_get_mediaPtr.asFunction<
       void Function(int, ffi.Pointer<wire_MediaStreamConstraints>)>();
-
-  void wire__touch(
-    int port_,
-    ffi.Pointer<wire_RtcIceServer> a,
-    ffi.Pointer<wire_RtcConfiguration> b,
-  ) {
-    return _wire__touch(
-      port_,
-      a,
-      b,
-    );
-  }
-
-  late final _wire__touchPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_RtcIceServer>,
-              ffi.Pointer<wire_RtcConfiguration>)>>('wire__touch');
-  late final _wire__touch = _wire__touchPtr.asFunction<
-      void Function(int, ffi.Pointer<wire_RtcIceServer>,
-          ffi.Pointer<wire_RtcConfiguration>)>();
 
   ffi.Pointer<wire_StringList> new_StringList(
     int len,
@@ -1637,17 +1584,6 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _new_box_autoadd_rtc_configuration =
       _new_box_autoadd_rtc_configurationPtr
           .asFunction<ffi.Pointer<wire_RtcConfiguration> Function()>();
-
-  ffi.Pointer<wire_RtcIceServer> new_box_autoadd_rtc_ice_server() {
-    return _new_box_autoadd_rtc_ice_server();
-  }
-
-  late final _new_box_autoadd_rtc_ice_serverPtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<wire_RtcIceServer> Function()>>(
-          'new_box_autoadd_rtc_ice_server');
-  late final _new_box_autoadd_rtc_ice_server =
-      _new_box_autoadd_rtc_ice_serverPtr
-          .asFunction<ffi.Pointer<wire_RtcIceServer> Function()>();
 
   ffi.Pointer<wire_VideoConstraints> new_box_autoadd_video_constraints() {
     return _new_box_autoadd_video_constraints();

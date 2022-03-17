@@ -155,9 +155,8 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
     _srcObject = track;
     var sinkId = textureId ?? 0;
     if (track == null) {
-      api
-          .disposeVideoSink(sinkId: sinkId)
-          .then((_) => {value = RTCVideoValue.empty});
+      api.disposeVideoSink(sinkId: sinkId);
+      value = RTCVideoValue.empty;
     } else {
       _chan.invokeMethod('createCallback', <String, dynamic>{
         'textureId': textureId,

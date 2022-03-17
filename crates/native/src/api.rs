@@ -2,7 +2,7 @@ use crate::{cpp_api, AudioDeviceModule, Webrtc};
 use anyhow::Ok;
 use cxx::UniquePtr;
 use dashmap::DashMap;
-use flutter_rust_bridge::StreamSink;
+use flutter_rust_bridge::{StreamSink, SyncReturn};
 use libwebrtc_sys::{
     self as sys, AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
     VideoDeviceInfo,
@@ -592,8 +592,9 @@ pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
         .create_video_sink(sink_id, track_id, handler);
 }
 
-pub fn dispose_video_sink(sink_id: i64) {
+pub fn dispose_video_sink(sink_id: i64) -> SyncReturn<Vec<u8>> {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
+    SyncReturn(vec![])
 }
 
 pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
@@ -604,4 +605,3 @@ pub fn get_media(constraints: MediaStreamConstraints) -> Vec<MediaStreamTrackFFI
     WEBRTC.lock().unwrap().get_media(&constraints)
 }
 
-pub fn _touch(a: RtcIceServer, b: RtcConfiguration) {}

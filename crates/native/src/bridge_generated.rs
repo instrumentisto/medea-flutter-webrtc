@@ -451,16 +451,16 @@ pub extern "C" fn wire_create_video_sink(
 }
 
 #[no_mangle]
-pub extern "C" fn wire_dispose_video_sink(port_: i64, sink_id: i64) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+pub extern "C" fn wire_dispose_video_sink(sink_id: i64) -> support::WireSyncReturnStruct {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(
         WrapInfo {
             debug_name: "dispose_video_sink",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
+            port: None,
+            mode: FfiCallMode::Sync,
         },
         move || {
             let api_sink_id = sink_id.wire2api();
-            move |task_callback| Ok(dispose_video_sink(api_sink_id))
+            Ok(dispose_video_sink(api_sink_id))
         },
     )
 }
@@ -488,26 +488,6 @@ pub extern "C" fn wire_get_media(port_: i64, constraints: *mut wire_MediaStreamC
         move || {
             let api_constraints = constraints.wire2api();
             move |task_callback| Ok(get_media(api_constraints))
-        },
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire__touch(
-    port_: i64,
-    a: *mut wire_RtcIceServer,
-    b: *mut wire_RtcConfiguration,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "_touch",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_a = a.wire2api();
-            let api_b = b.wire2api();
-            move |task_callback| Ok(_touch(api_a, api_b))
         },
     )
 }
@@ -606,11 +586,6 @@ pub extern "C" fn new_box_autoadd_rtc_configuration() -> *mut wire_RtcConfigurat
 }
 
 #[no_mangle]
-pub extern "C" fn new_box_autoadd_rtc_ice_server() -> *mut wire_RtcIceServer {
-    support::new_leak_box_ptr(wire_RtcIceServer::new_with_null_ptr())
-}
-
-#[no_mangle]
 pub extern "C" fn new_box_autoadd_video_constraints() -> *mut wire_VideoConstraints {
     support::new_leak_box_ptr(wire_VideoConstraints::new_with_null_ptr())
 }
@@ -699,13 +674,6 @@ impl Wire2Api<MediaStreamConstraints> for *mut wire_MediaStreamConstraints {
 
 impl Wire2Api<RtcConfiguration> for *mut wire_RtcConfiguration {
     fn wire2api(self) -> RtcConfiguration {
-        let wrap = unsafe { support::box_from_leak_ptr(self) };
-        (*wrap).wire2api().into()
-    }
-}
-
-impl Wire2Api<RtcIceServer> for *mut wire_RtcIceServer {
-    fn wire2api(self) -> RtcIceServer {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
         (*wrap).wire2api().into()
     }
