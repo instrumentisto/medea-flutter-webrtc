@@ -13,57 +13,54 @@ use std::{
 };
 use threadpool::ThreadPool;
 
-static mut WEBRTC: Option<Rc<Mutex<Webrtc>>> = None;
 
-pub fn webrtc_init() {
-    unsafe {
-        match WEBRTC {
-            None => WEBRTC = Some(Rc::new({let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
 
-                let mut network_thread = Thread::create(true).unwrap();
-                network_thread.start().unwrap();
-        
-                let mut worker_thread = Thread::create(false).unwrap();
-                worker_thread.start().unwrap();
-        
-                let mut signaling_thread = Thread::create(false).unwrap();
-                signaling_thread.start().unwrap();
-        
-                let audio_device_module =
-                    AudioDeviceModule::new(
-                        AudioLayer::kPlatformDefaultAudio,
-                        &mut task_queue_factory
-                    ).unwrap();
-        
-                let peer_connection_factory = PeerConnectionFactoryInterface::create(
-                    Some(&network_thread),
-                    Some(&worker_thread),
-                    Some(&signaling_thread),
-                    Some(&audio_device_module.inner),
-                )
-                .unwrap();
-        
-                let video_device_info = VideoDeviceInfo::create().unwrap();
-        
-                Mutex::new(Webrtc {
-                    task_queue_factory,
-                    network_thread,
-                    worker_thread,
-                    signaling_thread,
-                    audio_device_module,
-                    video_device_info,
-                    peer_connection_factory,
-                    video_sources: HashMap::new(),
-                    video_tracks: Arc::new(DashMap::new()),
-                    audio_source: None,
-                    audio_tracks: Arc::new(DashMap::new()),
-                    peer_connections: HashMap::new(),
-                    video_sinks: HashMap::new(),
-                    callback_pool: ThreadPool::new(4),
-                })})),
-            _ => (),
-        }
-    }
+lazy_static::lazy_static! {
+    static ref WEBRTC: Mutex<Webrtc> = {
+        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
+
+        let mut network_thread = Thread::create(true).unwrap();
+        network_thread.start().unwrap();
+
+        let mut worker_thread = Thread::create(false).unwrap();
+        worker_thread.start().unwrap();
+
+        let mut signaling_thread = Thread::create(false).unwrap();
+        signaling_thread.start().unwrap();
+
+        let audio_device_module =
+            AudioDeviceModule::new(
+                AudioLayer::kPlatformDefaultAudio,
+                &mut task_queue_factory
+            ).unwrap();
+
+        let peer_connection_factory = PeerConnectionFactoryInterface::create(
+            Some(&network_thread),
+            Some(&worker_thread),
+            Some(&signaling_thread),
+            Some(&audio_device_module.inner),
+        )
+        .unwrap();
+
+        let video_device_info = VideoDeviceInfo::create().unwrap();
+
+        Mutex::new(Webrtc {
+            task_queue_factory,
+            network_thread,
+            worker_thread,
+            signaling_thread,
+            audio_device_module,
+            video_device_info,
+            peer_connection_factory,
+            video_sources: HashMap::new(),
+            video_tracks: Arc::new(DashMap::new()),
+            audio_source: None,
+            audio_tracks: Arc::new(DashMap::new()),
+            peer_connections: HashMap::new(),
+            video_sinks: HashMap::new(),
+            callback_pool: ThreadPool::new(4),
+        })
+    };
 }
 
 pub enum TrackEvent {
@@ -597,30 +594,22 @@ pub fn set_track_enabled(track_id: u64, enabled: bool) {
 
 
 pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
-    webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
     let handler: *mut cpp_api::OnFrameCallbackInterface =
         unsafe { std::mem::transmute(callback_ptr) };
     let handler = unsafe { UniquePtr::from_raw(handler) };
-    webrtc.create_video_sink(sink_id, track_id, handler);
+    WEBRTC.lock().unwrap().create_video_sink(sink_id, track_id, handler);
 }
 
 pub fn dispose_video_sink(sink_id: i64) {
-    webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
-    webrtc.dispose_video_sink(sink_id);
+    WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
 }
 
 pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
-    webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
-    webrtc.enumerate_devices()
+    WEBRTC.lock().unwrap().enumerate_devices()
 }
 
 pub fn get_media(
     constraints: MediaStreamConstraints,
 ) -> Vec<MediaStreamTrackFFI> {
-    webrtc_init();
-    let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().lock().unwrap() };
-    webrtc.get_media(&constraints)
+    WEBRTC.lock().unwrap().get_media(&constraints)
 }

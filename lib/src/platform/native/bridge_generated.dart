@@ -12,8 +12,6 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class FlutterWebrtcNative {
-  Future<void> webrtcInit({dynamic hint});
-
   /// Creates a new [`PeerConnection`] and returns its ID.
   ///
   /// Writes an error to the provided `err`, if any.
@@ -331,18 +329,6 @@ class FlutterWebrtcNativeImpl
       FlutterWebrtcNativeImpl.raw(FlutterWebrtcNativeWire(dylib));
 
   FlutterWebrtcNativeImpl.raw(FlutterWebrtcNativeWire inner) : super(inner);
-
-  Future<void> webrtcInit({dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_webrtc_init(port_),
-        parseSuccessData: _wire2api_unit,
-        constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "webrtc_init",
-          argNames: [],
-        ),
-        argValues: [],
-        hint: hint,
-      ));
 
   Future<String> createOffer(
           {required int peerId,
@@ -932,20 +918,6 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;
-
-  void wire_webrtc_init(
-    int port_,
-  ) {
-    return _wire_webrtc_init(
-      port_,
-    );
-  }
-
-  late final _wire_webrtc_initPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_webrtc_init');
-  late final _wire_webrtc_init =
-      _wire_webrtc_initPtr.asFunction<void Function(int)>();
 
   void wire_create_offer(
     int port_,

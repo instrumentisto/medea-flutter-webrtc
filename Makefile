@@ -127,10 +127,6 @@ cargo.build:
 		windows/rust/include/flutter-webrtc-native/include/api.h
 	cp -f target/cxxbridge/flutter-webrtc-native/src/lib.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
-# todo delete
-	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
-		./flutter_webrtc_native.dll
-
 
 # Generate documentation for project crates.
 #
