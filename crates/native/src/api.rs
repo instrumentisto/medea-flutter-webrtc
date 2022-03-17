@@ -526,12 +526,6 @@ pub fn dispose_peer_connection(peer_id: u64) {
     unimplemented!()
 }
 
-// /// Creates a [`MediaStream`] with tracks according to provided
-// /// [`MediaStreamConstraints`].
-// pub fn get_media(constraints: MediaStreamConstraints) -> Vec<MediaStreamTrackFFI> {
-//     unimplemented!()
-// }
-
 /// Disposes the [`MediaStream`] and all contained tracks.
 pub fn dispose_stream(id: u64) {
     unimplemented!()
@@ -582,6 +576,8 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
     unimplemented!()
 }
 
+/// Creates a new [`VideoSink`] attached to the specified media stream
+/// backed by the provided [`OnFrameCallbackInterface`].
 pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
     let handler: *mut cpp_api::OnFrameCallbackInterface =
         unsafe { std::mem::transmute(callback_ptr) };
@@ -592,15 +588,21 @@ pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
         .create_video_sink(sink_id, track_id, handler);
 }
 
+/// Destroys the [`VideoSink`] by the given ID.
 pub fn dispose_video_sink(sink_id: i64) -> SyncReturn<Vec<u8>> {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
     SyncReturn(vec![])
 }
 
+
+/// Returns a list of all available media input and output devices, such
+/// as microphones, cameras, headsets, and so forth.
 pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
+/// Creates a [`MediaStream`] with tracks according to provided
+/// [`MediaStreamConstraints`].
 pub fn get_media(constraints: MediaStreamConstraints) -> Vec<MediaStreamTrackFFI> {
     WEBRTC.lock().unwrap().get_media(&constraints)
 }
