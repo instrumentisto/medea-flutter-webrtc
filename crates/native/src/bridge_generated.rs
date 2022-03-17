@@ -17,18 +17,6 @@ use flutter_rust_bridge::*;
 // Section: wire functions
 
 #[no_mangle]
-pub extern "C" fn wire_enumerate_devices(port_: i64) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "enumerate_devices",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || move |task_callback| Ok(enumerate_devices()),
-    )
-}
-
-#[no_mangle]
 pub extern "C" fn wire_create_peer_connection(
     port_: i64,
     configuration: *mut wire_RtcConfiguration,
@@ -38,18 +26,12 @@ pub extern "C" fn wire_create_peer_connection(
         WrapInfo {
             debug_name: "create_peer_connection",
             port: Some(port_),
-            mode: FfiCallMode::Stream,
+            mode: FfiCallMode::Normal,
         },
         move || {
             let api_configuration = configuration.wire2api();
             let api_id = id.wire2api();
-            move |task_callback| {
-                create_peer_connection(
-                    task_callback.stream_sink(),
-                    api_configuration,
-                    api_id,
-                )
-            }
+            move |task_callback| create_peer_connection(api_configuration, api_id)
         },
     )
 }
@@ -383,21 +365,6 @@ pub extern "C" fn wire_dispose_peer_connection(port_: i64, peer_id: u64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_get_media(port_: i64, constraints: *mut wire_MediaStreamConstraints) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "get_media",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_constraints = constraints.wire2api();
-            move |task_callback| Ok(get_media(api_constraints))
-        },
-    )
-}
-
-#[no_mangle]
 pub extern "C" fn wire_dispose_stream(port_: i64, id: u64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -408,30 +375,6 @@ pub extern "C" fn wire_dispose_stream(port_: i64, id: u64) {
         move || {
             let api_id = id.wire2api();
             move |task_callback| Ok(dispose_stream(api_id))
-        },
-    )
-}
-
-#[no_mangle]
-pub extern "C" fn wire_create_video_sink(
-    port_: i64,
-    sink_id: i64,
-    stream_id: u64,
-    handler: i64,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "create_video_sink",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_sink_id = sink_id.wire2api();
-            let api_stream_id = stream_id.wire2api();
-            let api_handler = handler.wire2api();
-            move |task_callback| {
-                Ok(create_video_sink(api_sink_id, api_stream_id, api_handler))
-            }
         },
     )
 }
@@ -453,29 +396,92 @@ pub extern "C" fn wire_set_track_enabled(port_: i64, track_id: u64, enabled: boo
 }
 
 #[no_mangle]
-pub extern "C" fn wire_register_track_observer(port_: i64, id: u64) {
+pub extern "C" fn wire_create_video_sink(
+    port_: i64,
+    sink_id: i64,
+    track_id: u64,
+    callback_ptr: u64,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "register_track_observer",
+            debug_name: "create_video_sink",
             port: Some(port_),
-            mode: FfiCallMode::Stream,
+            mode: FfiCallMode::Normal,
         },
         move || {
-            let api_id = id.wire2api();
-            move |task_callback| register_track_observer(task_callback.stream_sink(), api_id)
+            let api_sink_id = sink_id.wire2api();
+            let api_track_id = track_id.wire2api();
+            let api_callback_ptr = callback_ptr.wire2api();
+            move |task_callback| {
+                Ok(create_video_sink(
+                    api_sink_id,
+                    api_track_id,
+                    api_callback_ptr,
+                ))
+            }
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_set_on_device_changed(port_: i64) {
+pub extern "C" fn wire_dispose_video_sink(port_: i64, sink_id: i64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "set_on_device_changed",
+            debug_name: "dispose_video_sink",
             port: Some(port_),
-            mode: FfiCallMode::Stream,
+            mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| set_on_device_changed(task_callback.stream_sink()),
+        move || {
+            let api_sink_id = sink_id.wire2api();
+            move |task_callback| Ok(dispose_video_sink(api_sink_id))
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_enumerate_devices(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "enumerate_devices",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| Ok(enumerate_devices()),
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_get_media(port_: i64, constraints: *mut wire_MediaStreamConstraints) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "get_media",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_constraints = constraints.wire2api();
+            move |task_callback| Ok(get_media(api_constraints))
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire__touch(
+    port_: i64,
+    a: *mut wire_RtcIceServer,
+    b: *mut wire_RtcConfiguration,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "_touch",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_a = a.wire2api();
+            let api_b = b.wire2api();
+            move |task_callback| Ok(_touch(api_a, api_b))
+        },
     )
 }
 
@@ -573,6 +579,11 @@ pub extern "C" fn new_box_autoadd_rtc_configuration() -> *mut wire_RtcConfigurat
 }
 
 #[no_mangle]
+pub extern "C" fn new_box_autoadd_rtc_ice_server() -> *mut wire_RtcIceServer {
+    support::new_leak_box_ptr(wire_RtcIceServer::new_with_null_ptr())
+}
+
+#[no_mangle]
 pub extern "C" fn new_box_autoadd_video_constraints() -> *mut wire_VideoConstraints {
     support::new_leak_box_ptr(wire_VideoConstraints::new_with_null_ptr())
 }
@@ -661,6 +672,13 @@ impl Wire2Api<MediaStreamConstraints> for *mut wire_MediaStreamConstraints {
 
 impl Wire2Api<RtcConfiguration> for *mut wire_RtcConfiguration {
     fn wire2api(self) -> RtcConfiguration {
+        let wrap = unsafe { support::box_from_leak_ptr(self) };
+        (*wrap).wire2api().into()
+    }
+}
+
+impl Wire2Api<RtcIceServer> for *mut wire_RtcIceServer {
+    fn wire2api(self) -> RtcIceServer {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
         (*wrap).wire2api().into()
     }
@@ -849,32 +867,6 @@ impl NewWithNullPtr for wire_VideoConstraints {
 
 // Section: impl IntoDart
 
-impl support::IntoDart for IceConnectionStateFFI {
-    fn into_dart(self) -> support::DartCObject {
-        match self {
-            Self::New => 0,
-            Self::Checking => 1,
-            Self::Connected => 2,
-            Self::Completed => 3,
-            Self::Failed => 4,
-            Self::Disconnected => 5,
-            Self::Closed => 6,
-        }
-        .into_dart()
-    }
-}
-
-impl support::IntoDart for IceGatheringStateFFI {
-    fn into_dart(self) -> support::DartCObject {
-        match self {
-            Self::New => 0,
-            Self::Gathering => 1,
-            Self::Complete => 2,
-        }
-        .into_dart()
-    }
-}
-
 impl support::IntoDart for MediaDeviceInfoFFI {
     fn into_dart(self) -> support::DartCObject {
         vec![
@@ -898,7 +890,7 @@ impl support::IntoDart for MediaDeviceKind {
     }
 }
 
-impl support::IntoDart for MediaStreamTrack {
+impl support::IntoDart for MediaStreamTrackFFI {
     fn into_dart(self) -> support::DartCObject {
         vec![
             self.id.into_dart(),
@@ -909,69 +901,13 @@ impl support::IntoDart for MediaStreamTrack {
         .into_dart()
     }
 }
-impl support::IntoDartExceptPrimitive for MediaStreamTrack {}
+impl support::IntoDartExceptPrimitive for MediaStreamTrackFFI {}
 
 impl support::IntoDart for MediaType {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::Audio => 0,
             Self::Video => 1,
-        }
-        .into_dart()
-    }
-}
-
-impl support::IntoDart for PeerConnectionEvent {
-    fn into_dart(self) -> support::DartCObject {
-        match self {
-            Self::OnIceCandidate {
-                sdp_mid,
-                sdp_mline_index,
-                candidate,
-            } => vec![
-                0.into_dart(),
-                sdp_mid.into_dart(),
-                sdp_mline_index.into_dart(),
-                candidate.into_dart(),
-            ],
-            Self::OnIceGatheringStateChange(field0) => {
-                vec![1.into_dart(), field0.into_dart()]
-            }
-            Self::OnIceCandidateError {
-                address,
-                port,
-                url,
-                error_code,
-                error_text,
-            } => vec![
-                2.into_dart(),
-                address.into_dart(),
-                port.into_dart(),
-                url.into_dart(),
-                error_code.into_dart(),
-                error_text.into_dart(),
-            ],
-            Self::OnNegotiationNeeded => vec![3.into_dart()],
-            Self::OnSignallingChange(field0) => vec![4.into_dart(), field0.into_dart()],
-            Self::OnIceConnectionStateChange(field0) => {
-                vec![5.into_dart(), field0.into_dart()]
-            }
-            Self::OnConnectionStateChange(field0) => vec![6.into_dart(), field0.into_dart()],
-            Self::OnTrack => vec![7.into_dart()],
-        }
-        .into_dart()
-    }
-}
-
-impl support::IntoDart for PeerConnectionStateFFI {
-    fn into_dart(self) -> support::DartCObject {
-        match self {
-            Self::New => 0,
-            Self::Connecting => 1,
-            Self::Connected => 2,
-            Self::Disconnected => 3,
-            Self::Failed => 4,
-            Self::Closed => 5,
         }
         .into_dart()
     }
@@ -996,29 +932,6 @@ impl support::IntoDart for RtcRtpTransceiver {
     }
 }
 impl support::IntoDartExceptPrimitive for RtcRtpTransceiver {}
-
-impl support::IntoDart for SignalingStateFFI {
-    fn into_dart(self) -> support::DartCObject {
-        match self {
-            Self::Stable => 0,
-            Self::HaveLocalOffer => 1,
-            Self::HaveLocalPrAnswer => 2,
-            Self::HaveRemoteOffer => 3,
-            Self::HaveRemotePrAnswer => 4,
-            Self::Closed => 5,
-        }
-        .into_dart()
-    }
-}
-
-impl support::IntoDart for TrackEvent {
-    fn into_dart(self) -> support::DartCObject {
-        match self {
-            Self::Ended => 0,
-        }
-        .into_dart()
-    }
-}
 
 // Section: executor
 

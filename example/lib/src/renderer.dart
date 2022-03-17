@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:flutter_webrtc/src/platform/native/media_stream_track.dart';
 
 class RendererSample extends StatefulWidget {
   const RendererSample({Key? key}) : super(key: key);
@@ -43,7 +44,7 @@ class _RendererSampleState extends State<RendererSample> {
               video: VideoConstraints(
                   deviceId: '', height: 480, width: 480, frameRate: 30, isDisplay: false)));
 
-      _track = NativeMediaStreamTrack.fromFFI(tracks[0]); 
+      _track = NativeMediaStreamTrack.from(tracks[0]); 
       _renderer.srcObject = _track;
     } catch (e) {
       print(e.toString());
