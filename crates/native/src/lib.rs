@@ -1,7 +1,7 @@
 #![warn(clippy::pedantic)]
-mod bridge_generated; /* AUTO INJECTED BY flutter_rust_bridge. This line may not be accurate, and you can change it according to your needs. */
-mod devices;
+mod bridge_generated;
 mod api;
+mod devices;
 mod internal;
 mod pc;
 mod user_media;
@@ -16,11 +16,10 @@ use std::{
     },
 };
 
-use cxx::UniquePtr;
 use dashmap::DashMap;
 use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo,
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory,
+    Thread, VideoDeviceInfo,
 };
 use threadpool::ThreadPool;
 
@@ -30,9 +29,8 @@ use crate::video_sink::Id as VideoSinkId;
 pub use crate::{
     pc::{PeerConnection, PeerConnectionId},
     user_media::{
-        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
-        MediaStream, MediaStreamId, VideoDeviceId, VideoSource, VideoTrack,
-        VideoTrackId,
+        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStream,
+        MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
     },
     video_sink::{Frame, VideoSink},
 };
@@ -51,27 +49,26 @@ pub(crate) fn next_id() -> u64 {
 pub mod api_ {
 
     /// Single video frame.
-pub struct VideoFrame {
-    /// Vertical count of pixels in this [`VideoFrame`].
-    pub height: usize,
+    pub struct VideoFrame {
+        /// Vertical count of pixels in this [`VideoFrame`].
+        pub height: usize,
 
-    /// Horizontal count of pixels in this [`VideoFrame`].
-    pub width: usize,
+        /// Horizontal count of pixels in this [`VideoFrame`].
+        pub width: usize,
 
-    /// Rotation of this [`VideoFrame`] in degrees.
-    pub rotation: i32,
+        /// Rotation of this [`VideoFrame`] in degrees.
+        pub rotation: i32,
 
-    /// Size of the bytes buffer required for allocation of the
-    /// [`VideoFrame::get_abgr_bytes()`] call.
-    pub buffer_size: usize,
+        /// Size of the bytes buffer required for allocation of the
+        /// [`VideoFrame::get_abgr_bytes()`] call.
+        pub buffer_size: usize,
 
-    /// Underlying Rust side frame.
-    pub frame: Box<Frame>,
-}
-    
+        /// Underlying Rust side frame.
+        pub frame: Box<Frame>,
+    }
+
     extern "C++" {
-        type OnFrameCallbackInterface =
-            crate::internal::OnFrameCallbackInterface;
+        type OnFrameCallbackInterface = crate::internal::OnFrameCallbackInterface;
     }
 
     extern "Rust" {
@@ -119,8 +116,7 @@ pub struct Context {
 #[must_use]
 pub fn init() -> Box<Webrtc> {
     // TODO: Dont panic but propagate errors to API users.
-    let mut task_queue_factory =
-        TaskQueueFactory::create_default_task_queue_factory();
+    let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
 
     let mut network_thread = Thread::create(true).unwrap();
     network_thread.start().unwrap();
@@ -131,11 +127,9 @@ pub fn init() -> Box<Webrtc> {
     let mut signaling_thread = Thread::create(false).unwrap();
     signaling_thread.start().unwrap();
 
-    let audio_device_module = AudioDeviceModule::new(
-        AudioLayer::kPlatformDefaultAudio,
-        &mut task_queue_factory,
-    )
-    .unwrap();
+    let audio_device_module =
+        AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, &mut task_queue_factory)
+            .unwrap();
 
     let peer_connection_factory = PeerConnectionFactoryInterface::create(
         Some(&network_thread),

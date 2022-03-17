@@ -39,11 +39,10 @@ class _RendererSampleState extends State<RendererSample> {
   void _start() async {
     try {
       var tracks = await api.getMedia(
-        constraints: 
-          MediaStreamConstraints(
-            audio: AudioConstraints(deviceId: '', required: false), 
-            video: VideoConstraints(deviceId: '', required: true, height: 480, width: 640, frameRate: 30)), 
-        isDisplay: false);
+          constraints: MediaStreamConstraints(
+              video: VideoConstraints(
+                  deviceId: '', height: 480, width: 480, frameRate: 30)),
+          isDisplay: false);
 
       _track = NativeMediaStreamTrack.fromApi(tracks[0]); 
       _renderer.srcObject = _track;

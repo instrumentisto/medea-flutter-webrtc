@@ -24,8 +24,9 @@ use winapi::{
 };
 
 use crate::{
+    api,
     user_media::{AudioDeviceId, VideoDeviceId},
-    AudioDeviceModule, Webrtc, api,
+    AudioDeviceModule, Webrtc,
 };
 
 /// Static instance of a [`DeviceState`].
@@ -224,7 +225,8 @@ impl Webrtc {
     ///
     /// May panic on creating [`AudioDeviceModule`], [`VideoDeviceInfo`], or
     /// getting number of `playout` and `recording` devices.
-    pub fn set_on_device_changed(self: &mut Webrtc, 
+    pub fn set_on_device_changed(
+        self: &mut Webrtc,
         //cb: UniquePtr<OnDeviceChangeCallback>
     ) {
         // let prev = ON_DEVICE_CHANGE.swap(

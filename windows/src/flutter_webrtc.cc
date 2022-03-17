@@ -30,7 +30,7 @@ void FlutterWebRTC::HandleMethodCall(
   } else if (method.compare("dispose") == 0) {
     VideoRendererDispose(method_call, std::move(result));
   } else if (method.compare("createCallback") == 0) {
-    SetMediaStream(method_call, std::move(result));
+    CreateFrameHandler(method_call, std::move(result));
   } else {
     result->NotImplemented();
   }

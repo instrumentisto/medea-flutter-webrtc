@@ -2,10 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use cxx::UniquePtr;
 
-use crate::{
-    init, Webrtc, api_::OnFrameCallbackInterface,
-};
-
+use crate::{api_::OnFrameCallbackInterface, init, Webrtc};
 
 pub static mut WEBRTC: Option<Rc<RefCell<Box<Webrtc>>>> = None;
 
@@ -60,23 +57,16 @@ pub struct MediaDeviceInfo {
 /// The [MediaStreamConstraints] is used to instruct what sort of
 /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
 /// [`Webrtc::get_users_media()`].
-#[derive(Debug)]
 pub struct MediaStreamConstraints {
     /// Specifies the nature and settings of the video [`MediaStreamTrack`].
-    pub audio: Box<AudioConstraints>,
+    pub audio: Option<AudioConstraints>,
     /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
-    pub video: Box<VideoConstraints>,
+    pub video: Option<VideoConstraints>,
 }
 
 /// Specifies the nature and settings of the video [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
-#[derive(Debug)]
 pub struct VideoConstraints {
-    /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
-    /// track. All other args will be ignored if `required` is set to
-    /// `false`.
-    pub required: bool,
-
     /// The identifier of the device generating the content of the
     /// [`MediaStreamTrack`]. First device will be chosen if empty
     /// [`String`] is provided.
@@ -94,13 +84,7 @@ pub struct VideoConstraints {
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
-#[derive(Debug)]
 pub struct AudioConstraints {
-    /// Indicates whether [`Webrtc::get_users_media()`] should obtain video
-    /// track. All other args will be ignored if `required` is set to
-    /// `false`.
-    pub required: bool,
-
     /// The identifier of the device generating the content of the
     /// [`MediaStreamTrack`]. First device will be chosen if empty
     /// [`String`] is provided.
@@ -232,12 +216,12 @@ pub struct RtcIceServer {
     pub credential: String,
 }
 
-
 pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
     webrtc_init();
     let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
-    let handler: UniquePtr<OnFrameCallbackInterface> =
+    let handler: *mut OnFrameCallbackInterface =
         unsafe { std::mem::transmute(callback_ptr) };
+    let handler = unsafe { UniquePtr::from_raw(handler) };
     webrtc.create_video_sink(sink_id, track_id, handler);
 }
 
@@ -257,7 +241,6 @@ pub fn get_media(
     constraints: MediaStreamConstraints,
     is_display: bool,
 ) -> Vec<MediaStreamTrack_> {
-    println!("{:?}", constraints);
     webrtc_init();
     let mut webrtc = unsafe { WEBRTC.as_mut().unwrap().borrow_mut() };
     webrtc.get_media(&constraints, is_display)

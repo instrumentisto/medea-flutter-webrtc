@@ -56,3 +56,5 @@ android/.settings/org.eclipse.buildship.core.prefs
 example/lib/src/bridge_generated.dart
 crates/native/src/bridge_generated.rs
 flutter_webrtc_native.dll
+lib/src/platform/native/bridge_generated.dart
+lib/src/platform/native/bridge_generated.dart

@@ -4,13 +4,7 @@ use once_cell::sync::OnceCell;
 use sys::PeerConnectionInterface;
 use threadpool::ThreadPool;
 
-use crate::{
-    api,
-    internal::{
-    },
-    next_id, AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc, api_,
-};
-use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
+use crate::{api, AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc};
 use dashmap::DashMap;
 use derive_more::{Display, From, Into};
 use libwebrtc_sys as sys;
@@ -661,7 +655,8 @@ struct PeerConnectionObserver {
 //             .on_signaling_change(&new_state);
 //     }
 
-//     fn on_standardized_ice_connection_change(&mut self, new_state: sys::IceConnectionState) {
+//     fn on_standardized_ice_connection_change(
+//    &mut self, new_state: sys::IceConnectionState) {
 //         let_cxx_string!(new_state = new_state.to_string());
 //         self.observer
 //             .lock()
@@ -779,7 +774,8 @@ struct PeerConnectionObserver {
 //         // This is a non-spec-compliant event.
 //     }
 
-//     fn on_ice_selected_candidate_pair_changed(&mut self, _: &sys::CandidatePairChangeEvent) {
+//     fn on_ice_selected_candidate_pair_changed(
+//    &mut self, _: &sys::CandidatePairChangeEvent) {
 //         // This is a non-spec-compliant event.
 //     }
 

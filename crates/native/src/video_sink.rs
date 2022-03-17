@@ -2,7 +2,7 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{internal, VideoTrackId, Webrtc, api_};
+use crate::{api_, internal, VideoTrackId, Webrtc};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -17,7 +17,6 @@ impl Webrtc {
         track_id: u64,
         handler: UniquePtr<internal::OnFrameCallbackInterface>,
     ) {
-
         let mut sink = VideoSink {
             id: Id(sink_id),
             inner: sys::VideoSinkInterface::create_forwarding(Box::new(OnFrameCallback(

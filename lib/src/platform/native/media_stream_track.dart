@@ -21,7 +21,7 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
     _kind = MediaKind.values[map['kind']];
   }
 
-  //todo
+  // todo
   NativeMediaStreamTrack.fromApi(MediaStreamTrack_ track) {
     _id = track.id.toString();
     _deviceId = track.label.toString();

@@ -94,7 +94,8 @@ class FlutterVideoRendererManager {
       std::unique_ptr<MethodResult<EncodableValue>> result);
 
   // Changes a media source of the specific `TextureVideoRenderer`.
-  void SetMediaStream(
+  // todo doc
+  void CreateFrameHandler(
       const flutter::MethodCall<EncodableValue>& method_call,
       std::unique_ptr<flutter::MethodResult<EncodableValue>> result);
 

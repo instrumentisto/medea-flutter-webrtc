@@ -8,7 +8,7 @@ use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 
 use crate::{
-    api::{WEBRTC, self},
+    api::{self, WEBRTC},
     next_id, VideoSink, VideoSinkId, Webrtc,
 };
 
@@ -23,16 +23,16 @@ impl Webrtc {
         is_display: bool,
     ) -> Vec<api::MediaStreamTrack_> {
         let mut result = Vec::new();
-        if constraints.video.required {
+        if let Some(constraints) = &constraints.video {
             let source = self
-                .get_or_create_video_source(&constraints.video, is_display)
+                .get_or_create_video_source(&constraints, is_display)
                 .unwrap();
             let track = self.create_video_track(source).unwrap();
             result.push(api::MediaStreamTrack_::from(&*track));
         }
 
-        if constraints.audio.required {
-            let source = self.get_or_create_audio_source(&constraints.audio).unwrap();
+        if let Some(constraints) = &constraints.audio {
+            let source = self.get_or_create_audio_source(&constraints).unwrap();
             let track = self.create_audio_track(source).unwrap();
             result.push(api::MediaStreamTrack_::from(&*track));
         };

@@ -28,8 +28,7 @@ void FlutterVideoRendererManager::CreateVideoRendererTexture(
 }
 
 // Changes a media source of the specific `TextureVideoRenderer`.
-// todo rename create cb
-void FlutterVideoRendererManager::SetMediaStream(
+void FlutterVideoRendererManager::CreateFrameHandler(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   if (!method_call.arguments()) {
@@ -134,7 +133,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
   if (!first_frame_rendered) {
     if (event_sink_) {
       EncodableMap params;
-      params[EncodableValue("event")] = "didFirstFrameRendered";
+      params[EncodableValue("event")] = "onFirstFrameRendered";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       event_sink_->Success(EncodableValue(params));
     }
@@ -146,7 +145,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
   if (rotation_ != frame.rotation) {
     if (event_sink_) {
       EncodableMap params;
-      params[EncodableValue("event")] = "didTextureChangeRotation";
+      params[EncodableValue("event")] = "onTextureChangeRotation";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       params[EncodableValue("rotation")] =
           EncodableValue((int32_t) frame.rotation);
@@ -158,7 +157,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       last_frame_size_.height != frame.height) {
     if (event_sink_) {
       EncodableMap params;
-      params[EncodableValue("event")] = "didTextureChangeVideoSize";
+      params[EncodableValue("event")] = "onTextureChangeVideoSize";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       params[EncodableValue("width")] = EncodableValue((int32_t) frame.width);
       params[EncodableValue("height")] =

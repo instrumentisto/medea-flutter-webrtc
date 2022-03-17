@@ -109,7 +109,7 @@ class NativeVideoRenderer extends VideoRenderer {
   Future<void> dispose() async {
     await _eventChan?.cancel();
     if (true) {
-      // await _chan.invokeMethod('dispose', {textureId: textureId});
+      await _chan.invokeMethod('dispose', {'textureId': textureId});
     }
     else {
       await _chan.invokeMethod('dispose');
@@ -121,7 +121,7 @@ class NativeVideoRenderer extends VideoRenderer {
   /// side.
   void eventListener(dynamic event) {
     final dynamic map = event;
-    print(event);
+
     switch (map['event']) {
       case 'onTextureChangeRotation':
         value =
