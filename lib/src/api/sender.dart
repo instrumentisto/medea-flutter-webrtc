@@ -7,13 +7,14 @@ import 'channel.dart';
 import 'peer.dart';
 
 abstract class RtpSender {
-  static RtpSender fromMap(dynamic map) {
+  static RtpSender fromMap(dynamic map,
+      {int peerId = -1, int transceiverId = -1}) {
     RtpSender? sender;
 
     if (Platform.isAndroid || Platform.isIOS) {
       sender = _RtpSenderChannel.fromMap(map);
     } else {
-      sender = _RtpSenderFFI();
+      sender = _RtpSenderFFI(peerId, transceiverId);
     }
 
     return sender;
@@ -47,8 +48,16 @@ class _RtpSenderChannel extends RtpSender {
 }
 
 class _RtpSenderFFI extends RtpSender {
+  final int _peerId;
+  final int _transceiverId;
+
+  _RtpSenderFFI(this._peerId, this._transceiverId);
+
   @override
   Future<void> replaceTrack(MediaStreamTrack? t) async {
-    api.senderReplaceTrack(peerId: 1, transceiverId: 2, trackId: 3);
+    api.senderReplaceTrack(
+        peerId: _peerId,
+        transceiverId: _transceiverId,
+        trackId: t != null ? int.parse(t.id()) : -1);
   }
 }

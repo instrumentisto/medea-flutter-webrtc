@@ -11,13 +11,13 @@ import 'sender.dart';
 abstract class RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
-  static RtpTransceiver fromMap(dynamic map) {
+  static RtpTransceiver fromMap(dynamic map, {int peerId = -1}) {
     RtpTransceiver? transceivers;
 
     if (Platform.isAndroid || Platform.isIOS) {
       transceivers = _RtpTransceiverChannel.fromMap(map);
     } else {
-      transceivers = _RtpTransceiverFFI();
+      transceivers = _RtpTransceiverFFI.fromMap(map, peerId);
     }
 
     return transceivers;
@@ -111,11 +111,23 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 }
 
 class _RtpTransceiverFFI extends RtpTransceiver {
+  _RtpTransceiverFFI.fromMap(dynamic map, int peerId) {
+    _peerId = peerId;
+    _id = map['id'];
+    _sender =
+        RtpSender.fromMap(map['sender'], peerId: _peerId!, transceiverId: _id!);
+    _mid = map['mid'];
+  }
+
+  int? _peerId;
+  int? _id;
+
   @override
   Future<TransceiverDirection> getDirection() async {
     TransceiverDirection? direction;
 
-    switch (await api.getTransceiverDirection(peerId: 1, transceiverId: 2)) {
+    switch (await api.getTransceiverDirection(
+        peerId: _peerId!, transceiverId: _id!)) {
       default:
         direction = TransceiverDirection.stopped;
     }

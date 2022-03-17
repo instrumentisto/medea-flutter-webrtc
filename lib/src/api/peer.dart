@@ -408,6 +408,8 @@ class _PeerConnectionFFI extends PeerConnection {
   _PeerConnectionFFI(id, stream) {
     _id = id;
     _stream = stream;
+
+    _stream?.listen(eventListener);
   }
 
   @override
@@ -483,7 +485,9 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<List<RtpTransceiver>> getTransceivers() async {
     var transceivers = await api.getTransceivers(peerId: _id!);
 
-    return transceivers.map((e) => RtpTransceiver.fromMap(e)).toList();
+    return transceivers
+        .map((e) => RtpTransceiver.fromMap(e, peerId: _id!))
+        .toList();
   }
 
   @override

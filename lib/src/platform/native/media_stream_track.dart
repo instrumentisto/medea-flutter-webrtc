@@ -128,9 +128,8 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
-  Future<MediaStreamTrack> clone() {
-    // TODO: implement clone
-    throw UnimplementedError();
+  Future<MediaStreamTrack> clone() async {
+    return NativeMediaStreamTrack.fromMap({'map': '1'});
   }
 
   @override
