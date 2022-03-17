@@ -1,5 +1,5 @@
-use crate::{AudioDeviceModule, Webrtc};
-use anyhow::Ok;
+use crate::{pc::SdpInfo, AudioDeviceModule, Webrtc};
+use anyhow::{anyhow, Ok};
 use dashmap::DashMap;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys::{
@@ -8,9 +8,15 @@ use libwebrtc_sys::{
 };
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    fmt,
+    sync::{
+        mpsc::{self, Receiver, Sender},
+        Arc, Mutex,
+    },
 };
 use threadpool::ThreadPool;
+
+static TIMEOUT: std::time::Duration = std::time::Duration::from_secs(1);
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = {
@@ -205,10 +211,33 @@ pub enum RtpTransceiverDirection {
     Stopped,
 }
 
+impl fmt::Display for RtpTransceiverDirection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::SendRecv => write!(f, "sendrecv"),
+            Self::SendOnly => write!(f, "sendonly"),
+            Self::RecvOnly => write!(f, "recvonly"),
+            Self::Inactive => write!(f, "inactive"),
+            Self::Stopped => write!(f, "stopped"),
+            _ => unreachable!(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum MediaType {
     Audio,
     Video,
+}
+
+impl fmt::Display for MediaType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            Self::Audio => write!(f, "audio"),
+            Self::Video => write!(f, "video"),
+            _ => unreachable!(),
+        }
+    }
 }
 
 /// Information describing a single media input or output device.
@@ -405,8 +434,7 @@ pub fn create_peer_connection(
     WEBRTC
         .lock()
         .unwrap()
-        .create_peer_connection(cb, configuration, id);
-    Ok(())
+        .create_peer_connection(cb, configuration, id)
 }
 
 /// Initiates the creation of a SDP offer for the purpose of starting
@@ -419,8 +447,21 @@ pub fn create_offer(
     voice_activity_detection: bool,
     ice_restart: bool,
     use_rtp_mux: bool,
-) -> String {
-    unimplemented!()
+) -> anyhow::Result<SdpInfo> {
+    let (tx, rx): (
+        Sender<anyhow::Result<SdpInfo>>,
+        Receiver<anyhow::Result<SdpInfo>>,
+    ) = mpsc::channel();
+
+    WEBRTC.lock().unwrap().create_offer(
+        peer_id,
+        voice_activity_detection,
+        ice_restart,
+        use_rtp_mux,
+        tx,
+    )?;
+
+    rx.recv_timeout(TIMEOUT).unwrap()
 }
 
 /// Creates a SDP answer to an offer received from a remote peer during
@@ -430,20 +471,41 @@ pub fn create_offer(
 /// otherwise.
 #[allow(clippy::too_many_arguments)]
 pub fn create_answer(
-    peer_connection_id: u64,
+    peer_id: u64,
     voice_activity_detection: bool,
     ice_restart: bool,
     use_rtp_mux: bool,
-) -> String {
-    unimplemented!()
+) -> anyhow::Result<SdpInfo> {
+    let (tx, rx): (
+        Sender<anyhow::Result<SdpInfo>>,
+        Receiver<anyhow::Result<SdpInfo>>,
+    ) = mpsc::channel();
+
+    WEBRTC.lock().unwrap().create_answer(
+        peer_id,
+        voice_activity_detection,
+        ice_restart,
+        use_rtp_mux,
+        tx,
+    )?;
+
+    rx.recv_timeout(TIMEOUT).unwrap()
 }
 
 /// Changes the local description associated with the connection.
 ///
 /// Returns an empty [`String`] in operation succeeds or an error
 /// otherwise.
-pub fn set_local_description(peer_connection_id: u64, kind: String, sdp: String) -> String {
-    unimplemented!()
+pub fn set_local_description(peer_id: u64, kind: String, sdp: String) -> anyhow::Result<()> {
+    let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
+        mpsc::channel();
+
+    WEBRTC
+        .lock()
+        .unwrap()
+        .set_local_description(peer_id, kind, sdp, tx)?;
+
+    rx.recv_timeout(TIMEOUT).unwrap()
 }
 
 /// Sets the specified session description as the remote peer's current
@@ -451,8 +513,20 @@ pub fn set_local_description(peer_connection_id: u64, kind: String, sdp: String)
 ///
 /// Returns an empty [`String`] in operation succeeds or an error
 /// otherwise.
-pub fn set_remote_description(peer_connection_id: u64, kind: String, sdp: String) -> String {
-    unimplemented!()
+pub fn set_remote_description(
+    peer_id: u64,
+    kind: String,
+    sdp: String,
+) -> anyhow::Result<()> {
+    let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
+        mpsc::channel();
+
+    WEBRTC
+        .lock()
+        .unwrap()
+        .set_remote_description(peer_id, kind, sdp, tx)?;
+
+    rx.recv_timeout(TIMEOUT).unwrap()
 }
 
 /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of
@@ -461,15 +535,19 @@ pub fn add_transceiver(
     peer_id: u64,
     media_type: MediaType,
     direction: RtpTransceiverDirection,
-) -> RtcRtpTransceiver {
-    unimplemented!()
+) -> anyhow::Result<RtcRtpTransceiver> {
+    WEBRTC.lock().unwrap().add_transceiver(
+        peer_id,
+        media_type.to_string().as_str().try_into().unwrap(),
+        direction.to_string().as_str().try_into().unwrap(),
+    )
 }
 
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing
 /// the RTP transceivers currently attached to the specified
 /// [`PeerConnection`].
-pub fn get_transceivers(peer_id: u64) -> Vec<RtcRtpTransceiver> {
-    unimplemented!()
+pub fn get_transceivers(peer_id: u64) -> anyhow::Result<Vec<RtcRtpTransceiver>> {
+    WEBRTC.lock().unwrap().get_transceivers(peer_id)
 }
 
 /// Changes the preferred `direction` of the specified
@@ -478,8 +556,11 @@ pub fn set_transceiver_direction(
     peer_id: u64,
     transceiver_id: u64,
     direction: RtpTransceiverDirection,
-) -> String {
-    unimplemented!()
+) -> anyhow::Result<RtpTransceiverDirection> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .get_transceiver_direction(peer_id, transceiver_id)
 }
 
 /// Returns the [Negotiated media ID (mid)][1] of the specified
@@ -517,18 +598,29 @@ pub fn add_ice_candidate(
     candidate: String,
     sdp_mid: String,
     sdp_mline_index: i32,
-) {
-    unimplemented!()
+) -> anyhow::Result<()> {
+    let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
+        mpsc::channel();
+
+    WEBRTC.lock().unwrap().add_ice_candidate(
+        peer_id,
+        &candidate,
+        &sdp_mid,
+        sdp_mline_index,
+        tx,
+    )?;
+
+    rx.recv_timeout(TIMEOUT).unwrap()
 }
 
 /// Tells the [`PeerConnection`] that ICE should be restarted.
 pub fn restart_ice(peer_id: u64) {
-    unimplemented!()
+    WEBRTC.lock().unwrap().restart_ice(peer_id);
 }
 
 /// Closes the [`PeerConnection`].
 pub fn dispose_peer_connection(peer_id: u64) {
-    unimplemented!()
+    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id);
 }
 
 /// Creates a [`MediaStream`] with tracks according to provided
