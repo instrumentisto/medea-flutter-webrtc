@@ -710,12 +710,12 @@ struct SetSdpCallback(Sender<anyhow::Result<()>>);
 impl sys::SetDescriptionCallback for SetSdpCallback {
     fn success(&mut self) {
         // self.0.pin_mut().on_set_description_sucess();
-        todo!();
+        self.0.send(Ok(())).unwrap();
     }
 
     fn fail(&mut self, error: &CxxString) {
         // self.0.pin_mut().on_set_description_fail(error);
-        todo!();
+        self.0.send(Err(anyhow!("{}", error.to_string()))).unwrap();
     }
 }
 

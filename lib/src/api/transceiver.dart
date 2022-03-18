@@ -113,10 +113,10 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 class _RtpTransceiverFFI extends RtpTransceiver {
   _RtpTransceiverFFI.fromMap(dynamic map, int peerId) {
     _peerId = peerId;
-    _id = map['id'];
-    _sender =
-        RtpSender.fromMap(map['sender'], peerId: _peerId!, transceiverId: _id!);
-    _mid = map['mid'];
+    // _id = map['id'];
+    // _sender =
+    //     RtpSender.fromMap(map['sender'], peerId: _peerId!, transceiverId: _id!);
+    // _mid = map['mid'];
   }
 
   int? _peerId;

@@ -461,11 +461,11 @@ class _PeerConnectionFFI extends PeerConnection {
 
   @override
   Future<SessionDescription> createAnswer() async {
-    var res = await api.createOffer(
+    var res = await api.createAnswer(
         peerId: _id!,
-        voiceActivityDetection: false,
+        voiceActivityDetection: true,
         iceRestart: false,
-        useRtpMux: false);
+        useRtpMux: true);
 
     return SessionDescription(SessionDescriptionType.answer, res.sdp);
   }
@@ -474,9 +474,9 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<SessionDescription> createOffer() async {
     var res = await api.createOffer(
         peerId: _id!,
-        voiceActivityDetection: false,
+        voiceActivityDetection: true,
         iceRestart: false,
-        useRtpMux: false);
+        useRtpMux: true);
 
     return SessionDescription(SessionDescriptionType.offer, res.sdp);
   }
@@ -499,7 +499,7 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<void> setLocalDescription(SessionDescription description) async {
     api.setLocalDescription(
         peerId: _id!,
-        kind: description.type.toString(),
+        kind: description.type.toString().split('.')[1],
         sdp: description.description);
   }
 
@@ -507,7 +507,7 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<void> setRemoteDescription(SessionDescription description) async {
     api.setRemoteDescription(
         peerId: _id!,
-        kind: description.type.toString().split(),
+        kind: description.type.toString().split('.')[1],
         sdp: description.description);
   }
 }

@@ -527,7 +527,7 @@ pub fn create_offer(
         tx,
     )?;
 
-    rx.recv_timeout(TIMEOUT).unwrap()
+    rx.recv_timeout(TIMEOUT)?
 }
 
 /// Creates a SDP answer to an offer received from a remote peer during
@@ -571,7 +571,7 @@ pub fn set_local_description(peer_id: u64, kind: String, sdp: String) -> anyhow:
         .unwrap()
         .set_local_description(peer_id, kind, sdp, tx)?;
 
-    rx.recv_timeout(TIMEOUT).unwrap()
+    rx.recv_timeout(TIMEOUT)?
 }
 
 /// Sets the specified session description as the remote peer's current
@@ -592,7 +592,7 @@ pub fn set_remote_description(
         .unwrap()
         .set_remote_description(peer_id, kind, sdp, tx)?;
 
-    rx.recv_timeout(TIMEOUT).unwrap()
+    rx.recv_timeout(TIMEOUT)?
 }
 
 /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of

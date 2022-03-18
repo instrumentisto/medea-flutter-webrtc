@@ -1,8 +1,11 @@
 import 'dart:core';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc/src/model/peer.dart';
+import 'package:flutter_webrtc/src/model/track.dart';
+import 'package:flutter_webrtc/src/model/transceiver.dart';
 
 class PeerConnectionSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
@@ -46,14 +49,24 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       IceServer(['stun:stun.l.google.com:19302'], 'username', 'password')
     ]);
 
-    var offer = await pc1.createOffer();
+    sleep(Duration(milliseconds: 500));
+    await pc1.addTransceiver(
+        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
+    var offer = await pc1.createOffer();
+    sleep(Duration(milliseconds: 500));
+
+    await pc1.setLocalDescription(offer);
+    sleep(Duration(milliseconds: 500));
     await pc2.setRemoteDescription(offer);
+    sleep(Duration(milliseconds: 500));
 
     var answer = await pc2.createAnswer();
-    print(answer.description);
+    sleep(Duration(milliseconds: 500));
 
-    await pc1.setLocalDescription(answer);
+    await pc2.setLocalDescription(answer);
+    sleep(Duration(milliseconds: 500));
+    await pc1.setRemoteDescription(answer);
 
     // var _pc1 = RTCPeerConnectionNative(pc.toString(), {
     //     'iceTransportPolicy': 'all',
