@@ -146,16 +146,23 @@ abstract class FlutterWebrtcNative {
   /// dropped, if any.
   Stream<void> setOnDeviceChanged({dynamic hint});
 
+  /// Creates a new [`VideoSink`] attached to the specified media stream
+  /// backed by the provided [`OnFrameCallbackInterface`].
   Future<void> createVideoSink(
       {required int sinkId,
       required int trackId,
       required int callbackPtr,
       dynamic hint});
 
+  /// Destroys the [`VideoSink`] by the given ID.
   Uint8List disposeVideoSink({required int sinkId, dynamic hint});
 
+  /// Returns a list of all available media input and output devices, such
+  /// as microphones, cameras, headsets, and so forth.
   Future<List<MediaDeviceInfoFFI>> enumerateDevices({dynamic hint});
 
+  /// Creates a [`MediaStream`] with tracks according to provided
+  /// [`MediaStreamConstraints`].
   Future<List<MediaStreamTrackFFI>> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
 }

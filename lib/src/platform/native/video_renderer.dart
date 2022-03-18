@@ -175,6 +175,7 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
   @override
   Future<void> dispose() async {
     await _eventChan?.cancel();
+    srcObject = null;
     await _chan.invokeMethod('dispose', {'textureId': textureId});
     await super.dispose();
   }
