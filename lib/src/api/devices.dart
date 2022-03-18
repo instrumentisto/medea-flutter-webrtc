@@ -85,7 +85,8 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
-  var tracks = await api.getMedia(constraints: MediaStreamConstraints());
+  var tracks = await api.getMedia(
+      constraints: MediaStreamConstraints(), isDisplay: false);
 
   return tracks.map((e) => NativeMediaStreamTrack.fromMap(e)).toList();
 }
@@ -114,7 +115,8 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
-  var tracks = await api.getMedia(constraints: MediaStreamConstraints());
+  var tracks = await api.getMedia(
+      constraints: MediaStreamConstraints(), isDisplay: true);
 
   return tracks.map((e) => NativeMediaStreamTrack.fromMap(e)).toList();
 }

@@ -1,4 +1,4 @@
-use crate::{pc::SdpInfo, AudioDeviceModule, Webrtc};
+use crate::{AudioDeviceModule, Webrtc};
 use anyhow::{anyhow, Ok};
 use dashmap::DashMap;
 use flutter_rust_bridge::StreamSink;
@@ -224,6 +224,21 @@ impl fmt::Display for RtpTransceiverDirection {
     }
 }
 
+impl TryFrom<&str> for RtpTransceiverDirection {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "sendrecv" => Ok(Self::SendRecv),
+            "sendonly" => Ok(Self::SendOnly),
+            "recvonly" => Ok(Self::RecvOnly),
+            "stopped" => Ok(Self::Stopped),
+            "inactive" => Ok(Self::Inactive),
+            v => Err(anyhow!("Invalid `RtpTransceiverDirection`: {v}")),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum MediaType {
     Audio,
@@ -236,6 +251,57 @@ impl fmt::Display for MediaType {
             Self::Audio => write!(f, "audio"),
             Self::Video => write!(f, "video"),
             _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum SdpType {
+    /// [RTCSdpType.offer][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-offer
+    Offer,
+
+    /// [RTCSdpType.pranswer][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-pranswer
+    PrAnswer,
+
+    /// [RTCSdpType.answer][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-answer
+    Answer,
+
+    /// [RTCSdpType.rollback][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-rollback
+    Rollback,
+}
+
+impl TryFrom<&str> for SdpType {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "offer" => Ok(Self::Offer),
+            "answer" => Ok(Self::Answer),
+            "pranswer" => Ok(Self::PrAnswer),
+            "rollback" => Ok(Self::Rollback),
+            v => Err(anyhow!("Invalid `SdpType`: {v}")),
+        }
+    }
+}
+
+pub struct SdpInfo {
+    pub sdp: String,
+    pub kind: SdpType,
+}
+
+impl SdpInfo {
+    pub fn new(sdp: String, kind: sys::SdpType) -> Self {
+        Self {
+            sdp,
+            kind: kind.to_string().as_str().try_into().unwrap(),
         }
     }
 }
@@ -556,25 +622,41 @@ pub fn set_transceiver_direction(
     peer_id: u64,
     transceiver_id: u64,
     direction: RtpTransceiverDirection,
-) -> anyhow::Result<RtpTransceiverDirection> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .get_transceiver_direction(peer_id, transceiver_id)
+) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().set_transceiver_direction(
+        peer_id,
+        transceiver_id,
+        direction.to_string().as_str(),
+    )
 }
 
 /// Returns the [Negotiated media ID (mid)][1] of the specified
 /// [`RtcRtpTransceiver`].
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-pub fn get_transceiver_mid(peer_id: u64, transceiver_id: u64) -> String {
-    unimplemented!()
+pub fn get_transceiver_mid(
+    peer_id: u64,
+    transceiver_id: u64,
+) -> anyhow::Result<Option<String>> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .get_transceiver_mid(peer_id, transceiver_id)
 }
 
 /// Returns the preferred direction of the specified
 /// [`RtcRtpTransceiver`].
-pub fn get_transceiver_direction(peer_id: u64, transceiver_id: u64) -> String {
-    unimplemented!()
+pub fn get_transceiver_direction(
+    peer_id: u64,
+    transceiver_id: u64,
+) -> anyhow::Result<RtpTransceiverDirection> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .get_transceiver_direction(peer_id, transceiver_id)?
+        .to_string()
+        .as_str()
+        .try_into()
 }
 
 /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
@@ -582,14 +664,24 @@ pub fn get_transceiver_direction(peer_id: u64, transceiver_id: u64) -> String {
 ///
 /// This will immediately cause the transceiver's sender to no longer
 /// send, and its receiver to no longer receive.
-pub fn stop_transceiver(peer_id: u64, transceiver_id: u64) -> String {
-    unimplemented!()
+pub fn stop_transceiver(peer_id: u64, transceiver_id: u64) -> anyhow::Result<()> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .stop_transceiver(peer_id, transceiver_id)
 }
 
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
 /// the [`sys::Transceiver`]'s `sender`.
-pub fn sender_replace_track(peer_id: u64, transceiver_id: u64, track_id: u64) -> String {
-    unimplemented!()
+pub fn sender_replace_track(
+    peer_id: u64,
+    transceiver_id: u64,
+    track_id: u64,
+) -> anyhow::Result<()> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .sender_replace_track(peer_id, transceiver_id, track_id)
 }
 
 /// Adds the new ICE candidate to the given [`PeerConnection`].
@@ -614,19 +706,22 @@ pub fn add_ice_candidate(
 }
 
 /// Tells the [`PeerConnection`] that ICE should be restarted.
-pub fn restart_ice(peer_id: u64) {
-    WEBRTC.lock().unwrap().restart_ice(peer_id);
+pub fn restart_ice(peer_id: u64) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().restart_ice(peer_id)
 }
 
 /// Closes the [`PeerConnection`].
-pub fn dispose_peer_connection(peer_id: u64) {
-    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id);
+pub fn dispose_peer_connection(peer_id: u64) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id)
 }
 
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
-pub fn get_media(constraints: MediaStreamConstraints) -> Vec<MediaStreamTrack> {
-    unimplemented!()
+pub fn get_media(
+    constraints: MediaStreamConstraints,
+    is_display: bool,
+) -> anyhow::Result<Vec<MediaStreamTrack>> {
+    WEBRTC.lock().unwrap().get_media(constraints, is_display)
 }
 
 /// Disposes the [`MediaStream`] and all contained tracks.
@@ -658,16 +753,13 @@ unsafe fn get_abgr_bytes(buffer: *mut u8) {
 /// Changes the [enabled][1] property of the media track by its ID.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
-pub fn set_track_enabled(track_id: u64, enabled: bool) {
-    unimplemented!()
+pub fn set_track_enabled(track_id: u64, enabled: bool) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().set_track_enabled(track_id, enabled)
 }
 
 /// Registers an observer to the media track events.
-pub fn register_track_observer(
-    cb: StreamSink<TrackEvent>,
-    id: u64,
-) -> anyhow::Result<String> {
-    unimplemented!()
+pub fn register_track_observer(cb: StreamSink<TrackEvent>, id: u64) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().register_track_observer(id, cb)
 }
 
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
@@ -676,5 +768,7 @@ pub fn register_track_observer(
 /// Only one callback can be set at a time, so the previous one will be
 /// dropped, if any.
 pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-    unimplemented!()
+    WEBRTC.lock().unwrap().set_on_device_changed(cb);
+
+    Ok(())
 }

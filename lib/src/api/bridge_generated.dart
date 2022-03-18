@@ -30,7 +30,7 @@ abstract class FlutterWebrtcNative {
   ///
   /// Returns an empty [`String`] if operation succeeds or an error
   /// otherwise.
-  Future<String> createOffer(
+  Future<SdpInfo> createOffer(
       {required int peerId,
       required bool voiceActivityDetection,
       required bool iceRestart,
@@ -42,8 +42,8 @@ abstract class FlutterWebrtcNative {
   ///
   /// Returns an empty [`String`] in operation succeeds or an error
   /// otherwise.
-  Future<String> createAnswer(
-      {required int peerConnectionId,
+  Future<SdpInfo> createAnswer(
+      {required int peerId,
       required bool voiceActivityDetection,
       required bool iceRestart,
       required bool useRtpMux,
@@ -53,8 +53,8 @@ abstract class FlutterWebrtcNative {
   ///
   /// Returns an empty [`String`] in operation succeeds or an error
   /// otherwise.
-  Future<String> setLocalDescription(
-      {required int peerConnectionId,
+  Future<void> setLocalDescription(
+      {required int peerId,
       required String kind,
       required String sdp,
       dynamic hint});
@@ -64,8 +64,8 @@ abstract class FlutterWebrtcNative {
   ///
   /// Returns an empty [`String`] in operation succeeds or an error
   /// otherwise.
-  Future<String> setRemoteDescription(
-      {required int peerConnectionId,
+  Future<void> setRemoteDescription(
+      {required int peerId,
       required String kind,
       required String sdp,
       dynamic hint});
@@ -86,7 +86,7 @@ abstract class FlutterWebrtcNative {
 
   /// Changes the preferred `direction` of the specified
   /// [`RtcRtpTransceiver`].
-  Future<String> setTransceiverDirection(
+  Future<void> setTransceiverDirection(
       {required int peerId,
       required int transceiverId,
       required RtpTransceiverDirection direction,
@@ -96,12 +96,12 @@ abstract class FlutterWebrtcNative {
   /// [`RtcRtpTransceiver`].
   ///
   /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-  Future<String> getTransceiverMid(
+  Future<String?> getTransceiverMid(
       {required int peerId, required int transceiverId, dynamic hint});
 
   /// Returns the preferred direction of the specified
   /// [`RtcRtpTransceiver`].
-  Future<String> getTransceiverDirection(
+  Future<RtpTransceiverDirection> getTransceiverDirection(
       {required int peerId, required int transceiverId, dynamic hint});
 
   /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
@@ -109,12 +109,12 @@ abstract class FlutterWebrtcNative {
   ///
   /// This will immediately cause the transceiver's sender to no longer
   /// send, and its receiver to no longer receive.
-  Future<String> stopTransceiver(
+  Future<void> stopTransceiver(
       {required int peerId, required int transceiverId, dynamic hint});
 
   /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
   /// the [`sys::Transceiver`]'s `sender`.
-  Future<String> senderReplaceTrack(
+  Future<void> senderReplaceTrack(
       {required int peerId,
       required int transceiverId,
       required int trackId,
@@ -137,7 +137,9 @@ abstract class FlutterWebrtcNative {
   /// Creates a [`MediaStream`] with tracks according to provided
   /// [`MediaStreamConstraints`].
   Future<List<MediaStreamTrack>> getMedia(
-      {required MediaStreamConstraints constraints, dynamic hint});
+      {required MediaStreamConstraints constraints,
+      required bool isDisplay,
+      dynamic hint});
 
   /// Disposes the [`MediaStream`] and all contained tracks.
   Future<void> disposeStream({required int id, dynamic hint});
@@ -431,6 +433,38 @@ enum RtpTransceiverDirection {
   Stopped,
 }
 
+class SdpInfo {
+  final String sdp;
+  final SdpType kind;
+
+  SdpInfo({
+    required this.sdp,
+    required this.kind,
+  });
+}
+
+enum SdpType {
+  /// [RTCSdpType.offer][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-offer
+  Offer,
+
+  /// [RTCSdpType.pranswer][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-pranswer
+  PrAnswer,
+
+  /// [RTCSdpType.answer][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-answer
+  Answer,
+
+  /// [RTCSdpType.rollback][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-rollback
+  Rollback,
+}
+
 enum SignalingStateFFI {
   Stable,
   HaveLocalOffer,
@@ -509,7 +543,7 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<String> createOffer(
+  Future<SdpInfo> createOffer(
           {required int peerId,
           required bool voiceActivityDetection,
           required bool iceRestart,
@@ -522,7 +556,7 @@ class FlutterWebrtcNativeImpl
             voiceActivityDetection,
             iceRestart,
             useRtpMux),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_sdp_info,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "create_offer",
           argNames: [
@@ -536,8 +570,8 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<String> createAnswer(
-          {required int peerConnectionId,
+  Future<SdpInfo> createAnswer(
+          {required int peerId,
           required bool voiceActivityDetection,
           required bool iceRestart,
           required bool useRtpMux,
@@ -545,66 +579,61 @@ class FlutterWebrtcNativeImpl
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_create_answer(
             port_,
-            _api2wire_u64(peerConnectionId),
+            _api2wire_u64(peerId),
             voiceActivityDetection,
             iceRestart,
             useRtpMux),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_sdp_info,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "create_answer",
           argNames: [
-            "peerConnectionId",
+            "peerId",
             "voiceActivityDetection",
             "iceRestart",
             "useRtpMux"
           ],
         ),
-        argValues: [
-          peerConnectionId,
-          voiceActivityDetection,
-          iceRestart,
-          useRtpMux
-        ],
+        argValues: [peerId, voiceActivityDetection, iceRestart, useRtpMux],
         hint: hint,
       ));
 
-  Future<String> setLocalDescription(
-          {required int peerConnectionId,
+  Future<void> setLocalDescription(
+          {required int peerId,
           required String kind,
           required String sdp,
           dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_set_local_description(
             port_,
-            _api2wire_u64(peerConnectionId),
+            _api2wire_u64(peerId),
             _api2wire_String(kind),
             _api2wire_String(sdp)),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "set_local_description",
-          argNames: ["peerConnectionId", "kind", "sdp"],
+          argNames: ["peerId", "kind", "sdp"],
         ),
-        argValues: [peerConnectionId, kind, sdp],
+        argValues: [peerId, kind, sdp],
         hint: hint,
       ));
 
-  Future<String> setRemoteDescription(
-          {required int peerConnectionId,
+  Future<void> setRemoteDescription(
+          {required int peerId,
           required String kind,
           required String sdp,
           dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_set_remote_description(
             port_,
-            _api2wire_u64(peerConnectionId),
+            _api2wire_u64(peerId),
             _api2wire_String(kind),
             _api2wire_String(sdp)),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "set_remote_description",
-          argNames: ["peerConnectionId", "kind", "sdp"],
+          argNames: ["peerId", "kind", "sdp"],
         ),
-        argValues: [peerConnectionId, kind, sdp],
+        argValues: [peerId, kind, sdp],
         hint: hint,
       ));
 
@@ -642,7 +671,7 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<String> setTransceiverDirection(
+  Future<void> setTransceiverDirection(
           {required int peerId,
           required int transceiverId,
           required RtpTransceiverDirection direction,
@@ -653,7 +682,7 @@ class FlutterWebrtcNativeImpl
             _api2wire_u64(peerId),
             _api2wire_u64(transceiverId),
             _api2wire_rtp_transceiver_direction(direction)),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "set_transceiver_direction",
           argNames: ["peerId", "transceiverId", "direction"],
@@ -662,12 +691,12 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<String> getTransceiverMid(
+  Future<String?> getTransceiverMid(
           {required int peerId, required int transceiverId, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_transceiver_mid(
             port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_opt_String,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_transceiver_mid",
           argNames: ["peerId", "transceiverId"],
@@ -676,12 +705,12 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<String> getTransceiverDirection(
+  Future<RtpTransceiverDirection> getTransceiverDirection(
           {required int peerId, required int transceiverId, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_transceiver_direction(
             port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_rtp_transceiver_direction,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_transceiver_direction",
           argNames: ["peerId", "transceiverId"],
@@ -690,12 +719,12 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<String> stopTransceiver(
+  Future<void> stopTransceiver(
           {required int peerId, required int transceiverId, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_stop_transceiver(
             port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "stop_transceiver",
           argNames: ["peerId", "transceiverId"],
@@ -704,7 +733,7 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<String> senderReplaceTrack(
+  Future<void> senderReplaceTrack(
           {required int peerId,
           required int transceiverId,
           required int trackId,
@@ -715,7 +744,7 @@ class FlutterWebrtcNativeImpl
             _api2wire_u64(peerId),
             _api2wire_u64(transceiverId),
             _api2wire_u64(trackId)),
-        parseSuccessData: _wire2api_String,
+        parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "sender_replace_track",
           argNames: ["peerId", "transceiverId", "trackId"],
@@ -773,16 +802,20 @@ class FlutterWebrtcNativeImpl
       ));
 
   Future<List<MediaStreamTrack>> getMedia(
-          {required MediaStreamConstraints constraints, dynamic hint}) =>
+          {required MediaStreamConstraints constraints,
+          required bool isDisplay,
+          dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_media(
-            port_, _api2wire_box_autoadd_media_stream_constraints(constraints)),
+            port_,
+            _api2wire_box_autoadd_media_stream_constraints(constraints),
+            isDisplay),
         parseSuccessData: _wire2api_list_media_stream_track,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_media",
-          argNames: ["constraints"],
+          argNames: ["constraints", "isDisplay"],
         ),
-        argValues: [constraints],
+        argValues: [constraints, isDisplay],
         hint: hint,
       ));
 
@@ -1094,6 +1127,10 @@ MediaType _wire2api_media_type(dynamic raw) {
   return MediaType.values[raw];
 }
 
+String? _wire2api_opt_String(dynamic raw) {
+  return raw == null ? null : _wire2api_String(raw);
+}
+
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
   switch (raw[0]) {
     case 0:
@@ -1158,6 +1195,24 @@ RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
     direction: _wire2api_String(arr[2]),
     sender: _wire2api_rtc_rtp_sender(arr[3]),
   );
+}
+
+RtpTransceiverDirection _wire2api_rtp_transceiver_direction(dynamic raw) {
+  return RtpTransceiverDirection.values[raw];
+}
+
+SdpInfo _wire2api_sdp_info(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 2)
+    throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+  return SdpInfo(
+    sdp: _wire2api_String(arr[0]),
+    kind: _wire2api_sdp_type(arr[1]),
+  );
+}
+
+SdpType _wire2api_sdp_type(dynamic raw) {
+  return SdpType.values[raw];
 }
 
 SignalingStateFFI _wire2api_signaling_state_ffi(dynamic raw) {
@@ -1265,14 +1320,14 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
 
   void wire_create_answer(
     int port_,
-    int peer_connection_id,
+    int peer_id,
     bool voice_activity_detection,
     bool ice_restart,
     bool use_rtp_mux,
   ) {
     return _wire_create_answer(
       port_,
-      peer_connection_id,
+      peer_id,
       voice_activity_detection ? 1 : 0,
       ice_restart ? 1 : 0,
       use_rtp_mux ? 1 : 0,
@@ -1288,13 +1343,13 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
 
   void wire_set_local_description(
     int port_,
-    int peer_connection_id,
+    int peer_id,
     ffi.Pointer<wire_uint_8_list> kind,
     ffi.Pointer<wire_uint_8_list> sdp,
   ) {
     return _wire_set_local_description(
       port_,
-      peer_connection_id,
+      peer_id,
       kind,
       sdp,
     );
@@ -1314,13 +1369,13 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
 
   void wire_set_remote_description(
     int port_,
-    int peer_connection_id,
+    int peer_id,
     ffi.Pointer<wire_uint_8_list> kind,
     ffi.Pointer<wire_uint_8_list> sdp,
   ) {
     return _wire_set_remote_description(
       port_,
-      peer_connection_id,
+      peer_id,
       kind,
       sdp,
     );
@@ -1539,19 +1594,21 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_get_media(
     int port_,
     ffi.Pointer<wire_MediaStreamConstraints> constraints,
+    bool is_display,
   ) {
     return _wire_get_media(
       port_,
       constraints,
+      is_display ? 1 : 0,
     );
   }
 
   late final _wire_get_mediaPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_MediaStreamConstraints>)>>('wire_get_media');
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_MediaStreamConstraints>,
+              ffi.Uint8)>>('wire_get_media');
   late final _wire_get_media = _wire_get_mediaPtr.asFunction<
-      void Function(int, ffi.Pointer<wire_MediaStreamConstraints>)>();
+      void Function(int, ffi.Pointer<wire_MediaStreamConstraints>, int)>();
 
   void wire_dispose_stream(
     int port_,

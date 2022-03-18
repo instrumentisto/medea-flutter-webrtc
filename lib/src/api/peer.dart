@@ -388,7 +388,7 @@ class _PeerConnectionFFI extends PeerConnection {
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
     var cfg = RtcConfiguration(
-        iceTransportPolicy: iceTransportType.toString(),
+        iceTransportPolicy: iceTransportType.toString().split('.')[1],
         bundlePolicy: 'maxbundle',
         iceServers: iceServers
             .map((e) => RtcIceServer(
@@ -461,24 +461,24 @@ class _PeerConnectionFFI extends PeerConnection {
 
   @override
   Future<SessionDescription> createAnswer() async {
-    return SessionDescription(
-        SessionDescriptionType.answer,
-        await api.createAnswer(
-            peerConnectionId: _id!,
-            voiceActivityDetection: false,
-            iceRestart: false,
-            useRtpMux: false));
+    var res = await api.createOffer(
+        peerId: _id!,
+        voiceActivityDetection: false,
+        iceRestart: false,
+        useRtpMux: false);
+
+    return SessionDescription(SessionDescriptionType.answer, res.sdp);
   }
 
   @override
   Future<SessionDescription> createOffer() async {
-    return SessionDescription(
-        SessionDescriptionType.offer,
-        await api.createOffer(
-            peerId: _id!,
-            voiceActivityDetection: false,
-            iceRestart: false,
-            useRtpMux: false));
+    var res = await api.createOffer(
+        peerId: _id!,
+        voiceActivityDetection: false,
+        iceRestart: false,
+        useRtpMux: false);
+
+    return SessionDescription(SessionDescriptionType.offer, res.sdp);
   }
 
   @override
@@ -498,7 +498,7 @@ class _PeerConnectionFFI extends PeerConnection {
   @override
   Future<void> setLocalDescription(SessionDescription description) async {
     api.setLocalDescription(
-        peerConnectionId: _id!,
+        peerId: _id!,
         kind: description.type.toString(),
         sdp: description.description);
   }
@@ -506,8 +506,8 @@ class _PeerConnectionFFI extends PeerConnection {
   @override
   Future<void> setRemoteDescription(SessionDescription description) async {
     api.setRemoteDescription(
-        peerConnectionId: _id!,
-        kind: description.type.toString(),
+        peerId: _id!,
+        kind: description.type.toString().split(),
         sdp: description.description);
   }
 }

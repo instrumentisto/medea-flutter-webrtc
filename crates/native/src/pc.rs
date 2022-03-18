@@ -6,8 +6,9 @@ use sys::PeerConnectionInterface;
 use threadpool::ThreadPool;
 
 use crate::{
-    api, api::PeerConnectionEvent, AudioTrack, AudioTrackId, VideoTrack, VideoTrackId,
-    Webrtc,
+    api,
+    api::{PeerConnectionEvent, SdpInfo},
+    AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
 use cxx::{CxxString, CxxVector};
 use dashmap::DashMap;
@@ -305,20 +306,31 @@ impl Webrtc {
         peer_id: u64,
         transceiver_id: u64,
         direction: &str,
-    ) -> String {
-        let peer = self
+    ) -> anyhow::Result<()> {
+        let peer = if let Some(peer) = self
             .peer_connections
-            .get_mut(&PeerConnectionId(peer_id))
-            .unwrap();
+            .get_mut(&PeerConnectionId::from(peer_id))
+        {
+            peer
+        } else {
+            return Err(anyhow!(
+                "`PeerConnection` with ID `{peer_id}` does not exist",
+            ));
+        };
 
-        peer.0
-            .lock()
-            .unwrap()
-            .get_transceivers()
-            .get(usize::try_from(transceiver_id).unwrap())
-            .unwrap()
-            .set_direction(direction.try_into().unwrap())
-            .map_or_else(|err| err.to_string(), |_| String::new())
+        let transceivers = peer.0.lock().unwrap().get_transceivers();
+
+        let transceiver = if let Some(transceiver) =
+            transceivers.get(usize::try_from(transceiver_id).unwrap())
+        {
+            transceiver
+        } else {
+            return Err(anyhow!(
+                "`Transceiver` with ID `{transceiver_id}` does not exist",
+            ));
+        };
+
+        transceiver.set_direction(direction.try_into().unwrap())
     }
 
     /// Returns the [Negotiated media ID (mid)][1] of the specified
@@ -333,20 +345,35 @@ impl Webrtc {
     ///   poisoned.
     ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-    pub fn get_transceiver_mid(&mut self, peer_id: u64, transceiver_id: u64) -> String {
-        let peer = self
+    pub fn get_transceiver_mid(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+    ) -> anyhow::Result<Option<String>> {
+        let peer = if let Some(peer) = self
             .peer_connections
-            .get_mut(&PeerConnectionId(peer_id))
-            .unwrap();
+            .get_mut(&PeerConnectionId::from(peer_id))
+        {
+            peer
+        } else {
+            return Err(anyhow!(
+                "`PeerConnection` with ID `{peer_id}` does not exist",
+            ));
+        };
 
-        peer.0
-            .lock()
-            .unwrap()
-            .get_transceivers()
-            .get(usize::try_from(transceiver_id).unwrap())
-            .unwrap()
-            .mid()
-            .unwrap_or_default()
+        let transceivers = peer.0.lock().unwrap().get_transceivers();
+
+        let transceiver = if let Some(transceiver) =
+            transceivers.get(usize::try_from(transceiver_id).unwrap())
+        {
+            transceiver
+        } else {
+            return Err(anyhow!(
+                "`Transceiver` with ID `{transceiver_id}` does not exist",
+            ));
+        };
+
+        Ok(transceiver.mid())
     }
 
     /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
@@ -362,7 +389,7 @@ impl Webrtc {
         &mut self,
         peer_id: u64,
         transceiver_id: u64,
-    ) -> String {
+    ) -> anyhow::Result<RtpTransceiverDirection> {
         let peer = if let Some(peer) = self
             .peer_connections
             .get_mut(&PeerConnectionId::from(peer_id))
@@ -374,21 +401,19 @@ impl Webrtc {
             ));
         };
 
-        let transceiver = if let Some(transceiver) = peer
-            .0
-            .lock()
-            .unwrap()
-            .get_transceivers()
-            .get(usize::try_from(transceiver_id).unwrap())
+        let transceivers = peer.0.lock().unwrap().get_transceivers();
+
+        let transceiver = if let Some(transceiver) =
+            transceivers.get(usize::try_from(transceiver_id).unwrap())
         {
             transceiver
         } else {
             return Err(anyhow!(
-                "`transceiver` with ID `{transceiver_id}` does not exist",
+                "`Transceiver` with ID `{transceiver_id}` does not exist",
             ));
         };
 
-        transceiver.direction().to_string()
+        Ok(transceiver.direction())
     }
 
     /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
@@ -404,20 +429,35 @@ impl Webrtc {
     ///   `transceiver_id`.
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
-    pub fn stop_transceiver(&mut self, peer_id: u64, transceiver_id: u64) -> String {
-        let peer = self
+    pub fn stop_transceiver(
+        &mut self,
+        peer_id: u64,
+        transceiver_id: u64,
+    ) -> anyhow::Result<()> {
+        let peer = if let Some(peer) = self
             .peer_connections
-            .get_mut(&PeerConnectionId(peer_id))
-            .unwrap();
+            .get_mut(&PeerConnectionId::from(peer_id))
+        {
+            peer
+        } else {
+            return Err(anyhow!(
+                "`PeerConnection` with ID `{peer_id}` does not exist",
+            ));
+        };
 
-        peer.0
-            .lock()
-            .unwrap()
-            .get_transceivers()
-            .get(usize::try_from(transceiver_id).unwrap())
-            .unwrap()
-            .stop()
-            .map_or_else(|err| err.to_string(), |_| String::new())
+        let transceivers = peer.0.lock().unwrap().get_transceivers();
+
+        let transceiver = if let Some(transceiver) =
+            transceivers.get(usize::try_from(transceiver_id).unwrap())
+        {
+            transceiver
+        } else {
+            return Err(anyhow!(
+                "`Transceiver` with ID `{transceiver_id}` does not exist",
+            ));
+        };
+
+        transceiver.stop()
     }
 
     /// Replaces the specified [`AudioTrack`] (or [`crate::VideoTrack`]) on
@@ -438,15 +478,30 @@ impl Webrtc {
         peer_id: u64,
         transceiver_id: u64,
         track_id: u64,
-    ) -> String {
-        let peer = self
+    ) -> anyhow::Result<()> {
+        let peer = if let Some(peer) = self
             .peer_connections
-            .get_mut(&PeerConnectionId(peer_id))
-            .unwrap();
+            .get_mut(&PeerConnectionId::from(peer_id))
+        {
+            peer
+        } else {
+            return Err(anyhow!(
+                "`PeerConnection` with ID `{peer_id}` does not exist",
+            ));
+        };
+
         let transceivers = peer.0.lock().unwrap().get_transceivers();
-        let transceiver = transceivers
-            .get(usize::try_from(transceiver_id).unwrap())
-            .unwrap();
+
+        let transceiver = if let Some(transceiver) =
+            transceivers.get(usize::try_from(transceiver_id).unwrap())
+        {
+            transceiver
+        } else {
+            return Err(anyhow!(
+                "`Transceiver` with ID `{transceiver_id}` does not exist",
+            ));
+        };
+
         let sender = transceiver.sender();
 
         if track_id == 0 {
@@ -472,7 +527,6 @@ impl Webrtc {
                 _ => unreachable!(),
             }
         }
-        .map_or_else(|e| e.to_string(), |_| String::new())
     }
 
     /// Adds a [`sys::IceCandidateInterface`] to the given [`PeerConnection`].
@@ -520,14 +574,21 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
-    pub fn restart_ice(&mut self, peer_id: u64) {
-        self.peer_connections
-            .get_mut(&PeerConnectionId(peer_id))
-            .unwrap()
-            .0
-            .lock()
-            .unwrap()
-            .restart_ice();
+    pub fn restart_ice(&mut self, peer_id: u64) -> anyhow::Result<()> {
+        let peer = if let Some(peer) = self
+            .peer_connections
+            .get_mut(&PeerConnectionId::from(peer_id))
+        {
+            peer
+        } else {
+            return Err(anyhow!(
+                "`PeerConnection` with ID `{peer_id}` does not exist"
+            ));
+        };
+
+        peer.0.lock().unwrap().restart_ice();
+
+        Ok(())
     }
 
     /// Closes the [`PeerConnection`].
@@ -537,14 +598,19 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
-    pub fn dispose_peer_connection(&mut self, peer_id: u64) {
-        self.peer_connections
-            .remove(&PeerConnectionId(peer_id))
-            .unwrap()
-            .0
-            .lock()
-            .unwrap()
-            .close();
+    pub fn dispose_peer_connection(&mut self, peer_id: u64) -> anyhow::Result<()> {
+        let peer =
+            if let Some(peer) = self.peer_connections.remove(&PeerConnectionId(peer_id)) {
+                peer
+            } else {
+                return Err(anyhow!(
+                    "`PeerConnection` with ID `{peer_id}` does not exist"
+                ));
+            };
+
+        peer.0.lock().unwrap().close();
+
+        Ok(())
     }
 }
 
@@ -620,11 +686,6 @@ impl PeerConnection {
     }
 }
 
-pub struct SdpInfo {
-    sdp: String,
-    kind: sys::SdpType,
-}
-
 /// [`CreateSdpCallbackInterface`] wrapper.
 struct CreateSdpCallback(Sender<anyhow::Result<SdpInfo>>);
 
@@ -633,10 +694,7 @@ impl sys::CreateSdpCallback for CreateSdpCallback {
         // let_cxx_string!(kind = kind.to_string());
         // self.0.pin_mut().on_create_sdp_success(sdp, &kind.as_ref());
         self.0
-            .send(Ok(SdpInfo {
-                sdp: sdp.to_string(),
-                kind,
-            }))
+            .send(Ok(SdpInfo::new(sdp.to_string(), kind)))
             .unwrap();
     }
 

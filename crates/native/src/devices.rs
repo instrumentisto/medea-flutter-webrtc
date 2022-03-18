@@ -6,7 +6,6 @@ use std::{
 #[cfg(windows)]
 use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 
-use cxx::UniquePtr;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys::{AudioLayer, TaskQueueFactory, VideoDeviceInfo};
 
@@ -221,24 +220,24 @@ impl Webrtc {
     /// getting number of `playout` and `recording` devices.
     pub fn set_on_device_changed(
         self: &mut Webrtc,
-        // cb: UniquePtr<OnDeviceChangeCallback>
+        cb: StreamSink<()>,
     ) {
-        // let prev = ON_DEVICE_CHANGE.swap(
-        //     Box::into_raw(Box::new(
-        //         DeviceState::new(cb, &mut self.0.task_queue_factory).unwrap(),
-        //     )),
-        //     Ordering::SeqCst,
-        // );
-        //
-        // if prev.is_null() {
-        //     unsafe {
-        //         init();
-        //     }
-        // } else {
-        //     unsafe {
-        //         drop(Box::from_raw(prev));
-        //     }
-        // }
+        let prev = ON_DEVICE_CHANGE.swap(
+            Box::into_raw(Box::new(
+                DeviceState::new(cb, &mut self.task_queue_factory).unwrap(),
+            )),
+            Ordering::SeqCst,
+        );
+
+        if prev.is_null() {
+            unsafe {
+                init();
+            }
+        } else {
+            unsafe {
+                drop(Box::from_raw(prev));
+            }
+        }
     }
 }
 

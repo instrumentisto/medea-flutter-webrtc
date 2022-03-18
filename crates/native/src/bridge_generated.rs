@@ -74,12 +74,12 @@ pub extern "C" fn wire_create_offer(
             let api_ice_restart = ice_restart.wire2api();
             let api_use_rtp_mux = use_rtp_mux.wire2api();
             move |task_callback| {
-                Ok(create_offer(
+                create_offer(
                     api_peer_id,
                     api_voice_activity_detection,
                     api_ice_restart,
                     api_use_rtp_mux,
-                ))
+                )
             }
         },
     )
@@ -88,7 +88,7 @@ pub extern "C" fn wire_create_offer(
 #[no_mangle]
 pub extern "C" fn wire_create_answer(
     port_: i64,
-    peer_connection_id: u64,
+    peer_id: u64,
     voice_activity_detection: bool,
     ice_restart: bool,
     use_rtp_mux: bool,
@@ -100,17 +100,17 @@ pub extern "C" fn wire_create_answer(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_connection_id = peer_connection_id.wire2api();
+            let api_peer_id = peer_id.wire2api();
             let api_voice_activity_detection = voice_activity_detection.wire2api();
             let api_ice_restart = ice_restart.wire2api();
             let api_use_rtp_mux = use_rtp_mux.wire2api();
             move |task_callback| {
-                Ok(create_answer(
-                    api_peer_connection_id,
+                create_answer(
+                    api_peer_id,
                     api_voice_activity_detection,
                     api_ice_restart,
                     api_use_rtp_mux,
-                ))
+                )
             }
         },
     )
@@ -119,7 +119,7 @@ pub extern "C" fn wire_create_answer(
 #[no_mangle]
 pub extern "C" fn wire_set_local_description(
     port_: i64,
-    peer_connection_id: u64,
+    peer_id: u64,
     kind: *mut wire_uint_8_list,
     sdp: *mut wire_uint_8_list,
 ) {
@@ -130,16 +130,10 @@ pub extern "C" fn wire_set_local_description(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_connection_id = peer_connection_id.wire2api();
+            let api_peer_id = peer_id.wire2api();
             let api_kind = kind.wire2api();
             let api_sdp = sdp.wire2api();
-            move |task_callback| {
-                Ok(set_local_description(
-                    api_peer_connection_id,
-                    api_kind,
-                    api_sdp,
-                ))
-            }
+            move |task_callback| set_local_description(api_peer_id, api_kind, api_sdp)
         },
     )
 }
@@ -147,7 +141,7 @@ pub extern "C" fn wire_set_local_description(
 #[no_mangle]
 pub extern "C" fn wire_set_remote_description(
     port_: i64,
-    peer_connection_id: u64,
+    peer_id: u64,
     kind: *mut wire_uint_8_list,
     sdp: *mut wire_uint_8_list,
 ) {
@@ -158,16 +152,10 @@ pub extern "C" fn wire_set_remote_description(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_connection_id = peer_connection_id.wire2api();
+            let api_peer_id = peer_id.wire2api();
             let api_kind = kind.wire2api();
             let api_sdp = sdp.wire2api();
-            move |task_callback| {
-                Ok(set_remote_description(
-                    api_peer_connection_id,
-                    api_kind,
-                    api_sdp,
-                ))
-            }
+            move |task_callback| set_remote_description(api_peer_id, api_kind, api_sdp)
         },
     )
 }
@@ -189,9 +177,7 @@ pub extern "C" fn wire_add_transceiver(
             let api_peer_id = peer_id.wire2api();
             let api_media_type = media_type.wire2api();
             let api_direction = direction.wire2api();
-            move |task_callback| {
-                Ok(add_transceiver(api_peer_id, api_media_type, api_direction))
-            }
+            move |task_callback| add_transceiver(api_peer_id, api_media_type, api_direction)
         },
     )
 }
@@ -206,7 +192,7 @@ pub extern "C" fn wire_get_transceivers(port_: i64, peer_id: u64) {
         },
         move || {
             let api_peer_id = peer_id.wire2api();
-            move |task_callback| Ok(get_transceivers(api_peer_id))
+            move |task_callback| get_transceivers(api_peer_id)
         },
     )
 }
@@ -229,11 +215,7 @@ pub extern "C" fn wire_set_transceiver_direction(
             let api_transceiver_id = transceiver_id.wire2api();
             let api_direction = direction.wire2api();
             move |task_callback| {
-                Ok(set_transceiver_direction(
-                    api_peer_id,
-                    api_transceiver_id,
-                    api_direction,
-                ))
+                set_transceiver_direction(api_peer_id, api_transceiver_id, api_direction)
             }
         },
     )
@@ -250,7 +232,7 @@ pub extern "C" fn wire_get_transceiver_mid(port_: i64, peer_id: u64, transceiver
         move || {
             let api_peer_id = peer_id.wire2api();
             let api_transceiver_id = transceiver_id.wire2api();
-            move |task_callback| Ok(get_transceiver_mid(api_peer_id, api_transceiver_id))
+            move |task_callback| get_transceiver_mid(api_peer_id, api_transceiver_id)
         },
     )
 }
@@ -270,9 +252,7 @@ pub extern "C" fn wire_get_transceiver_direction(
         move || {
             let api_peer_id = peer_id.wire2api();
             let api_transceiver_id = transceiver_id.wire2api();
-            move |task_callback| {
-                Ok(get_transceiver_direction(api_peer_id, api_transceiver_id))
-            }
+            move |task_callback| get_transceiver_direction(api_peer_id, api_transceiver_id)
         },
     )
 }
@@ -288,7 +268,7 @@ pub extern "C" fn wire_stop_transceiver(port_: i64, peer_id: u64, transceiver_id
         move || {
             let api_peer_id = peer_id.wire2api();
             let api_transceiver_id = transceiver_id.wire2api();
-            move |task_callback| Ok(stop_transceiver(api_peer_id, api_transceiver_id))
+            move |task_callback| stop_transceiver(api_peer_id, api_transceiver_id)
         },
     )
 }
@@ -311,11 +291,7 @@ pub extern "C" fn wire_sender_replace_track(
             let api_transceiver_id = transceiver_id.wire2api();
             let api_track_id = track_id.wire2api();
             move |task_callback| {
-                Ok(sender_replace_track(
-                    api_peer_id,
-                    api_transceiver_id,
-                    api_track_id,
-                ))
+                sender_replace_track(api_peer_id, api_transceiver_id, api_track_id)
             }
         },
     )
@@ -341,12 +317,12 @@ pub extern "C" fn wire_add_ice_candidate(
             let api_sdp_mid = sdp_mid.wire2api();
             let api_sdp_mline_index = sdp_mline_index.wire2api();
             move |task_callback| {
-                Ok(add_ice_candidate(
+                add_ice_candidate(
                     api_peer_id,
                     api_candidate,
                     api_sdp_mid,
                     api_sdp_mline_index,
-                ))
+                )
             }
         },
     )
@@ -362,7 +338,7 @@ pub extern "C" fn wire_restart_ice(port_: i64, peer_id: u64) {
         },
         move || {
             let api_peer_id = peer_id.wire2api();
-            move |task_callback| Ok(restart_ice(api_peer_id))
+            move |task_callback| restart_ice(api_peer_id)
         },
     )
 }
@@ -377,13 +353,17 @@ pub extern "C" fn wire_dispose_peer_connection(port_: i64, peer_id: u64) {
         },
         move || {
             let api_peer_id = peer_id.wire2api();
-            move |task_callback| Ok(dispose_peer_connection(api_peer_id))
+            move |task_callback| dispose_peer_connection(api_peer_id)
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_get_media(port_: i64, constraints: *mut wire_MediaStreamConstraints) {
+pub extern "C" fn wire_get_media(
+    port_: i64,
+    constraints: *mut wire_MediaStreamConstraints,
+    is_display: bool,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "get_media",
@@ -392,7 +372,8 @@ pub extern "C" fn wire_get_media(port_: i64, constraints: *mut wire_MediaStreamC
         },
         move || {
             let api_constraints = constraints.wire2api();
-            move |task_callback| Ok(get_media(api_constraints))
+            let api_is_display = is_display.wire2api();
+            move |task_callback| get_media(api_constraints, api_is_display)
         },
     )
 }
@@ -447,7 +428,7 @@ pub extern "C" fn wire_set_track_enabled(port_: i64, track_id: u64, enabled: boo
         move || {
             let api_track_id = track_id.wire2api();
             let api_enabled = enabled.wire2api();
-            move |task_callback| Ok(set_track_enabled(api_track_id, api_enabled))
+            move |task_callback| set_track_enabled(api_track_id, api_enabled)
         },
     )
 }
@@ -996,6 +977,38 @@ impl support::IntoDart for RtcRtpTransceiver {
     }
 }
 impl support::IntoDartExceptPrimitive for RtcRtpTransceiver {}
+
+impl support::IntoDart for RtpTransceiverDirection {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::SendRecv => 0,
+            Self::SendOnly => 1,
+            Self::RecvOnly => 2,
+            Self::Inactive => 3,
+            Self::Stopped => 4,
+        }
+        .into_dart()
+    }
+}
+
+impl support::IntoDart for SdpInfo {
+    fn into_dart(self) -> support::DartCObject {
+        vec![self.sdp.into_dart(), self.kind.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for SdpInfo {}
+
+impl support::IntoDart for SdpType {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Offer => 0,
+            Self::PrAnswer => 1,
+            Self::Answer => 2,
+            Self::Rollback => 3,
+        }
+        .into_dart()
+    }
+}
 
 impl support::IntoDart for SignalingStateFFI {
     fn into_dart(self) -> support::DartCObject {

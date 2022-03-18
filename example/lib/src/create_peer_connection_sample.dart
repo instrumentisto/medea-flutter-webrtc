@@ -38,9 +38,22 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
     //     ]);
     // var pc = await api.createPc(configuration: cfg);
 
-    var pcc = await PeerConnection.create(IceTransportType.all, [
-      IceServer(['asd'], 'asd', 'asd')
+    var pc1 = await PeerConnection.create(IceTransportType.all, [
+      IceServer(['stun:stun.l.google.com:19302'], 'username', 'password')
     ]);
+
+    var pc2 = await PeerConnection.create(IceTransportType.all, [
+      IceServer(['stun:stun.l.google.com:19302'], 'username', 'password')
+    ]);
+
+    var offer = await pc1.createOffer();
+
+    await pc2.setRemoteDescription(offer);
+
+    var answer = await pc2.createAnswer();
+    print(answer.description);
+
+    await pc1.setLocalDescription(answer);
 
     // var _pc1 = RTCPeerConnectionNative(pc.toString(), {
     //     'iceTransportPolicy': 'all',
