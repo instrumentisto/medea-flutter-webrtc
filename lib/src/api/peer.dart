@@ -3,7 +3,6 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_webrtc/src/api/bridge_generated.dart';
 
 import '/src/model/ice.dart';
 import '/src/model/peer.dart';
@@ -533,10 +532,8 @@ class _PeerConnectionFFI extends PeerConnection {
       _onConnectionStateChange?.call(_connectionState);
       return;
     } else if (event is ffi.OnTrack) {
-      dynamic track = e['track'];
-      dynamic transceiver = e['transceiver'];
-      _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
-          RtpTransceiver.fromMap(transceiver));
+      _onTrack?.call(NativeMediaStreamTrack.fromMap(event.field0.track),
+          RtpTransceiver.fromMap(event.field0.transceiver));
       return;
     }
   }

@@ -110,7 +110,7 @@ pub enum PeerConnectionEvent {
     OnSignallingChange(SignalingState),
     OnIceConnectionStateChange(IceConnectionState),
     OnConnectionStateChange(PeerConnectionState),
-    OnTrack,
+    OnTrack(RtcTrackEvent),
 }
 
 pub enum SignalingState {

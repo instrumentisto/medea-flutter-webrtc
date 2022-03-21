@@ -301,7 +301,9 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
   const factory PeerConnectionEvent.onConnectionStateChange(
     PeerConnectionState field0,
   ) = OnConnectionStateChange;
-  const factory PeerConnectionEvent.onTrack() = OnTrack;
+  const factory PeerConnectionEvent.onTrack(
+    RtcTrackEvent field0,
+  ) = OnTrack;
 }
 
 enum PeerConnectionState {
@@ -422,6 +424,25 @@ class RtcRtpTransceiver {
     this.mid,
     required this.direction,
     required this.sender,
+  });
+}
+
+/// [`RtcTrackEvent`] representing a track event, sent when a new
+/// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] as part of a
+/// [`PeerConnection`].
+class RtcTrackEvent {
+  /// [`MediaStreamTrack`] associated with the [RTCRtpReceiver] identified
+  /// by the receiver.
+  ///
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+  final MediaStreamTrack track;
+
+  /// [`RtcRtpTransceiver`] object associated with the event.
+  final RtcRtpTransceiver transceiver;
+
+  RtcTrackEvent({
+    required this.track,
+    required this.transceiver,
   });
 }
 
@@ -1088,6 +1109,10 @@ bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
 
+RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
+  return _wire2api_rtc_track_event(raw);
+}
+
 int _wire2api_i64(dynamic raw) {
   return raw as int;
 }
@@ -1182,7 +1207,9 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
         _wire2api_peer_connection_state(raw[1]),
       );
     case 7:
-      return OnTrack();
+      return OnTrack(
+        _wire2api_box_autoadd_rtc_track_event(raw[1]),
+      );
     default:
       throw Exception("unreachable");
   }
@@ -1211,6 +1238,16 @@ RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
     mid: _wire2api_opt_String(arr[2]),
     direction: _wire2api_rtp_transceiver_direction(arr[3]),
     sender: _wire2api_rtc_rtp_sender(arr[4]),
+  );
+}
+
+RtcTrackEvent _wire2api_rtc_track_event(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 2)
+    throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+  return RtcTrackEvent(
+    track: _wire2api_media_stream_track(arr[0]),
+    transceiver: _wire2api_rtc_rtp_transceiver(arr[1]),
   );
 }
 
