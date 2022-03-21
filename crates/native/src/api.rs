@@ -1,10 +1,10 @@
-use crate::{AudioDeviceModule, Webrtc};
+use crate::{api, AudioDeviceModule, Webrtc};
 use anyhow::{anyhow, Ok};
 use dashmap::DashMap;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys::{
-    self as sys, AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
-    VideoDeviceInfo,
+    self as sys, AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory,
+    Thread, VideoDeviceInfo,
 };
 use std::{
     collections::HashMap,
@@ -20,7 +20,8 @@ static TIMEOUT: std::time::Duration = std::time::Duration::from_secs(1);
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = {
-        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
+        let mut task_queue_factory =
+            TaskQueueFactory::create_default_task_queue_factory();
 
         let mut network_thread = Thread::create(true).unwrap();
         network_thread.start().unwrap();
@@ -70,20 +71,22 @@ pub enum TrackEvent {
     Ended,
 }
 
-pub enum IceGatheringStateFFI {
+pub enum IceGatheringState {
     New,
     Gathering,
     Complete,
 }
 
-impl From<sys::IceGatheringState> for IceGatheringStateFFI {
+impl From<sys::IceGatheringState> for IceGatheringState {
     fn from(state: sys::IceGatheringState) -> Self {
         match state {
-            sys::IceGatheringState::kIceGatheringNew => IceGatheringStateFFI::New,
+            sys::IceGatheringState::kIceGatheringNew => IceGatheringState::New,
             sys::IceGatheringState::kIceGatheringGathering => {
-                IceGatheringStateFFI::Gathering
+                IceGatheringState::Gathering
             }
-            sys::IceGatheringState::kIceGatheringComplete => IceGatheringStateFFI::Complete,
+            sys::IceGatheringState::kIceGatheringComplete => {
+                IceGatheringState::Complete
+            }
             _ => unreachable!(),
         }
     }
@@ -95,7 +98,7 @@ pub enum PeerConnectionEvent {
         sdp_mline_index: i64,
         candidate: String,
     },
-    OnIceGatheringStateChange(IceGatheringStateFFI),
+    OnIceGatheringStateChange(IceGatheringState),
     OnIceCandidateError {
         address: String,
         port: i64,
@@ -104,13 +107,13 @@ pub enum PeerConnectionEvent {
         error_text: String,
     },
     OnNegotiationNeeded,
-    OnSignallingChange(SignalingStateFFI),
-    OnIceConnectionStateChange(IceConnectionStateFFI),
-    OnConnectionStateChange(PeerConnectionStateFFI),
+    OnSignallingChange(SignalingState),
+    OnIceConnectionStateChange(IceConnectionState),
+    OnConnectionStateChange(PeerConnectionState),
     OnTrack,
 }
 
-pub enum SignalingStateFFI {
+pub enum SignalingState {
     Stable,
     HaveLocalOffer,
     HaveLocalPrAnswer,
@@ -119,23 +122,29 @@ pub enum SignalingStateFFI {
     Closed,
 }
 
-impl From<sys::SignalingState> for SignalingStateFFI {
+impl From<sys::SignalingState> for SignalingState {
     fn from(state: sys::SignalingState) -> Self {
         match state {
-            sys::SignalingState::kStable => SignalingStateFFI::Stable,
-            sys::SignalingState::kHaveLocalOffer => SignalingStateFFI::HaveLocalOffer,
-            sys::SignalingState::kHaveLocalPrAnswer => SignalingStateFFI::HaveLocalPrAnswer,
-            sys::SignalingState::kHaveRemoteOffer => SignalingStateFFI::HaveRemoteOffer,
-            sys::SignalingState::kHaveRemotePrAnswer => {
-                SignalingStateFFI::HaveRemotePrAnswer
+            sys::SignalingState::kStable => SignalingState::Stable,
+            sys::SignalingState::kHaveLocalOffer => {
+                SignalingState::HaveLocalOffer
             }
-            sys::SignalingState::kClosed => SignalingStateFFI::Closed,
+            sys::SignalingState::kHaveLocalPrAnswer => {
+                SignalingState::HaveLocalPrAnswer
+            }
+            sys::SignalingState::kHaveRemoteOffer => {
+                SignalingState::HaveRemoteOffer
+            }
+            sys::SignalingState::kHaveRemotePrAnswer => {
+                SignalingState::HaveRemotePrAnswer
+            }
+            sys::SignalingState::kClosed => SignalingState::Closed,
             _ => unreachable!(),
         }
     }
 }
 
-pub enum IceConnectionStateFFI {
+pub enum IceConnectionState {
     New,
     Checking,
     Connected,
@@ -145,30 +154,36 @@ pub enum IceConnectionStateFFI {
     Closed,
 }
 
-impl From<sys::IceConnectionState> for IceConnectionStateFFI {
+impl From<sys::IceConnectionState> for IceConnectionState {
     fn from(state: sys::IceConnectionState) -> Self {
         match state {
-            sys::IceConnectionState::kIceConnectionNew => IceConnectionStateFFI::New,
+            sys::IceConnectionState::kIceConnectionNew => {
+                IceConnectionState::New
+            }
             sys::IceConnectionState::kIceConnectionChecking => {
-                IceConnectionStateFFI::Checking
+                IceConnectionState::Checking
             }
             sys::IceConnectionState::kIceConnectionConnected => {
-                IceConnectionStateFFI::Connected
+                IceConnectionState::Connected
             }
             sys::IceConnectionState::kIceConnectionCompleted => {
-                IceConnectionStateFFI::Completed
+                IceConnectionState::Completed
             }
-            sys::IceConnectionState::kIceConnectionFailed => IceConnectionStateFFI::Failed,
+            sys::IceConnectionState::kIceConnectionFailed => {
+                IceConnectionState::Failed
+            }
             sys::IceConnectionState::kIceConnectionDisconnected => {
-                IceConnectionStateFFI::Disconnected
+                IceConnectionState::Disconnected
             }
-            sys::IceConnectionState::kIceConnectionClosed => IceConnectionStateFFI::Closed,
+            sys::IceConnectionState::kIceConnectionClosed => {
+                IceConnectionState::Closed
+            }
             _ => unreachable!(),
         }
     }
 }
 
-pub enum PeerConnectionStateFFI {
+pub enum PeerConnectionState {
     New,
     Connecting,
     Connected,
@@ -177,15 +192,21 @@ pub enum PeerConnectionStateFFI {
     Closed,
 }
 
-impl From<sys::PeerConnectionState> for PeerConnectionStateFFI {
+impl From<sys::PeerConnectionState> for PeerConnectionState {
     fn from(state: sys::PeerConnectionState) -> Self {
         match state {
-            sys::PeerConnectionState::kNew => PeerConnectionStateFFI::New,
-            sys::PeerConnectionState::kConnecting => PeerConnectionStateFFI::Connecting,
-            sys::PeerConnectionState::kConnected => PeerConnectionStateFFI::Connected,
-            sys::PeerConnectionState::kDisconnected => PeerConnectionStateFFI::Disconnected,
-            sys::PeerConnectionState::kFailed => PeerConnectionStateFFI::Failed,
-            sys::PeerConnectionState::kClosed => PeerConnectionStateFFI::Closed,
+            sys::PeerConnectionState::kNew => PeerConnectionState::New,
+            sys::PeerConnectionState::kConnecting => {
+                PeerConnectionState::Connecting
+            }
+            sys::PeerConnectionState::kConnected => {
+                PeerConnectionState::Connected
+            }
+            sys::PeerConnectionState::kDisconnected => {
+                PeerConnectionState::Disconnected
+            }
+            sys::PeerConnectionState::kFailed => PeerConnectionState::Failed,
+            sys::PeerConnectionState::kClosed => PeerConnectionState::Closed,
             _ => unreachable!(),
         }
     }
@@ -255,7 +276,10 @@ impl fmt::Display for MediaType {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+/// [RTCSdpType] representation.
+///
+/// [RTCSdpType]: https://w3.org/TR/webrtc#dom-rtcsdptype
+#[derive(Debug, Eq, Hash, PartialEq)]
 pub enum SdpType {
     /// [RTCSdpType.offer][1] representation.
     ///
@@ -278,16 +302,25 @@ pub enum SdpType {
     Rollback,
 }
 
-impl TryFrom<&str> for SdpType {
-    type Error = anyhow::Error;
+impl From<SdpType> for sys::SdpType {
+    fn from(kind: SdpType) -> Self {
+        match kind {
+            SdpType::Offer => sys::SdpType::kOffer,
+            SdpType::PrAnswer => sys::SdpType::kPrAnswer,
+            SdpType::Answer => sys::SdpType::kAnswer,
+            SdpType::Rollback => sys::SdpType::kRollback,
+        }
+    }
+}
 
-    fn try_from(val: &str) -> Result<Self, Self::Error> {
-        match val {
-            "offer" => Ok(Self::Offer),
-            "answer" => Ok(Self::Answer),
-            "pranswer" => Ok(Self::PrAnswer),
-            "rollback" => Ok(Self::Rollback),
-            v => Err(anyhow!("Invalid `SdpType`: {v}")),
+impl From<sys::SdpType> for SdpType {
+    fn from(kind: sys::SdpType) -> Self {
+        match kind {
+            sys::SdpType::kOffer => SdpType::Offer,
+            sys::SdpType::kPrAnswer => SdpType::PrAnswer,
+            sys::SdpType::kAnswer => SdpType::Answer,
+            sys::SdpType::kRollback => SdpType::Rollback,
+            _ => unreachable!(),
         }
     }
 }
@@ -301,14 +334,14 @@ impl SdpInfo {
     pub fn new(sdp: String, kind: sys::SdpType) -> Self {
         Self {
             sdp,
-            kind: kind.to_string().as_str().try_into().unwrap(),
+            kind: kind.into(),
         }
     }
 }
 
 /// Information describing a single media input or output device.
 #[derive(Debug)]
-pub struct MediaDeviceInfoFFI {
+pub struct MediaDeviceInfo {
     /// Unique identifier for the represented device.
     pub device_id: String,
 
@@ -370,7 +403,7 @@ pub struct MediaStreamTrack {
     pub id: u64,
 
     /// Label that identifies the track source, as in "internal microphone".
-    pub label: String,
+    pub device_id: String,
 
     /// [`MediaType`] of the current [`MediaStreamTrack`].
     pub kind: MediaType,
@@ -485,8 +518,8 @@ pub struct RtcIceServer {
 
 /// Returns a list of all available media input and output devices, such
 /// as microphones, cameras, headsets, and so forth.
-pub fn enumerate_devices() -> Vec<MediaDeviceInfoFFI> {
-    unimplemented!()
+pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
+    WEBRTC.lock().unwrap().enumerate_devices()
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.
@@ -562,14 +595,20 @@ pub fn create_answer(
 ///
 /// Returns an empty [`String`] in operation succeeds or an error
 /// otherwise.
-pub fn set_local_description(peer_id: u64, kind: String, sdp: String) -> anyhow::Result<()> {
+pub fn set_local_description(
+    peer_id: u64,
+    kind: SdpType,
+    sdp: String,
+) -> anyhow::Result<()> {
     let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
         mpsc::channel();
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .set_local_description(peer_id, kind, sdp, tx)?;
+    WEBRTC.lock().unwrap().set_local_description(
+        peer_id,
+        kind.into(),
+        sdp,
+        tx,
+    )?;
 
     rx.recv_timeout(TIMEOUT)?
 }
@@ -581,16 +620,18 @@ pub fn set_local_description(peer_id: u64, kind: String, sdp: String) -> anyhow:
 /// otherwise.
 pub fn set_remote_description(
     peer_id: u64,
-    kind: String,
+    kind: SdpType,
     sdp: String,
 ) -> anyhow::Result<()> {
     let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
         mpsc::channel();
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .set_remote_description(peer_id, kind, sdp, tx)?;
+    WEBRTC.lock().unwrap().set_remote_description(
+        peer_id,
+        kind.into(),
+        sdp,
+        tx,
+    )?;
 
     rx.recv_timeout(TIMEOUT)?
 }
@@ -612,7 +653,9 @@ pub fn add_transceiver(
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing
 /// the RTP transceivers currently attached to the specified
 /// [`PeerConnection`].
-pub fn get_transceivers(peer_id: u64) -> anyhow::Result<Vec<RtcRtpTransceiver>> {
+pub fn get_transceivers(
+    peer_id: u64,
+) -> anyhow::Result<Vec<RtcRtpTransceiver>> {
     WEBRTC.lock().unwrap().get_transceivers(peer_id)
 }
 
@@ -664,7 +707,10 @@ pub fn get_transceiver_direction(
 ///
 /// This will immediately cause the transceiver's sender to no longer
 /// send, and its receiver to no longer receive.
-pub fn stop_transceiver(peer_id: u64, transceiver_id: u64) -> anyhow::Result<()> {
+pub fn stop_transceiver(
+    peer_id: u64,
+    transceiver_id: u64,
+) -> anyhow::Result<()> {
     WEBRTC
         .lock()
         .unwrap()
@@ -676,12 +722,13 @@ pub fn stop_transceiver(peer_id: u64, transceiver_id: u64) -> anyhow::Result<()>
 pub fn sender_replace_track(
     peer_id: u64,
     transceiver_id: u64,
-    track_id: u64,
+    track_id: Option<u64>,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .sender_replace_track(peer_id, transceiver_id, track_id)
+    WEBRTC.lock().unwrap().sender_replace_track(
+        peer_id,
+        transceiver_id,
+        track_id,
+    )
 }
 
 /// Adds the new ICE candidate to the given [`PeerConnection`].
@@ -719,14 +766,13 @@ pub fn dispose_peer_connection(peer_id: u64) -> anyhow::Result<()> {
 /// [`MediaStreamConstraints`].
 pub fn get_media(
     constraints: MediaStreamConstraints,
-    is_display: bool,
 ) -> anyhow::Result<Vec<MediaStreamTrack>> {
-    WEBRTC.lock().unwrap().get_media(constraints, is_display)
+    WEBRTC.lock().unwrap().get_media(constraints)
 }
 
 /// Disposes the [`MediaStream`] and all contained tracks.
-pub fn dispose_stream(id: u64) {
-    unimplemented!()
+pub fn dispose_track(track_id: u64) {
+    WEBRTC.lock().unwrap().dispose_track(track_id);
 }
 
 /// Creates a new [`VideoSink`] attached to the specified media stream
@@ -741,7 +787,7 @@ pub fn create_video_sink(
 
 /// Destroys the [`VideoSink`] by the given ID.
 fn dispose_video_sink(sink_id: i64) {
-    unimplemented!()
+    WEBRTC.lock().unwrap().dispose_video_sink(sink_id)
 }
 
 /// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
@@ -758,8 +804,11 @@ pub fn set_track_enabled(track_id: u64, enabled: bool) -> anyhow::Result<()> {
 }
 
 /// Registers an observer to the media track events.
-pub fn register_track_observer(cb: StreamSink<TrackEvent>, id: u64) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().register_track_observer(id, cb)
+pub fn register_track_observer(
+    cb: StreamSink<TrackEvent>,
+    track_id: u64,
+) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().register_track_observer(track_id, cb)
 }
 
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be

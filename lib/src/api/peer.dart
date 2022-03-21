@@ -10,19 +10,21 @@ import '/src/model/sdp.dart';
 import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge_generated.dart';
+import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'transceiver.dart';
 
-const base = 'flutter_webrtc_native';
-final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
-late final dylib = Platform.isIOS
-    ? DynamicLibrary.process()
-    : Platform.isMacOS
-        ? DynamicLibrary.executable()
-        : DynamicLibrary.open(path);
+late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
 
-late final api = FlutterWebrtcNativeImpl(dylib);
+ffi.FlutterWebrtcNativeImpl buildBridge() {
+  const base = 'flutter_webrtc_native';
+  final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
+  late final dylib = Platform.isMacOS
+      ? DynamicLibrary.executable()
+      : DynamicLibrary.open(path);
+
+  return ffi.FlutterWebrtcNativeImpl(dylib);
+}
 
 int COUNT = 1;
 
@@ -387,11 +389,11 @@ class _PeerConnectionChannel extends PeerConnection {
 class _PeerConnectionFFI extends PeerConnection {
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
-    var cfg = RtcConfiguration(
+    var cfg = ffi.RtcConfiguration(
         iceTransportPolicy: iceTransportType.toString().split('.')[1],
         bundlePolicy: 'maxbundle',
         iceServers: iceServers
-            .map((e) => RtcIceServer(
+            .map((e) => ffi.RtcIceServer(
                 urls: e.urls, username: e.username!, credential: e.password!))
             .toList());
 
@@ -403,7 +405,7 @@ class _PeerConnectionFFI extends PeerConnection {
   }
 
   int? _id;
-  Stream<PeerConnectionEvent>? _stream;
+  Stream<ffi.PeerConnectionEvent>? _stream;
 
   _PeerConnectionFFI(id, stream) {
     _id = id;
@@ -425,28 +427,28 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<RtpTransceiver> addTransceiver(
       MediaKind mediaType, RtpTransceiverInit init) async {
     var type =
-        mediaType.toString() == 'audio' ? MediaType.Audio : MediaType.Video;
+        mediaType == MediaKind.audio ? ffi.MediaType.Audio : ffi.MediaType.Video;
 
-    RtpTransceiverDirection direction;
+    ffi.RtpTransceiverDirection direction;
     switch (init.direction) {
       case TransceiverDirection.sendOnly:
-        direction = RtpTransceiverDirection.SendOnly;
+        direction = ffi.RtpTransceiverDirection.SendOnly;
         break;
 
       case TransceiverDirection.sendRecv:
-        direction = RtpTransceiverDirection.SendRecv;
+        direction = ffi.RtpTransceiverDirection.SendRecv;
         break;
 
       case TransceiverDirection.recvOnly:
-        direction = RtpTransceiverDirection.RecvOnly;
+        direction = ffi.RtpTransceiverDirection.RecvOnly;
         break;
 
       case TransceiverDirection.inactive:
-        direction = RtpTransceiverDirection.Inactive;
+        direction = ffi.RtpTransceiverDirection.Inactive;
         break;
 
       case TransceiverDirection.stopped:
-        direction = RtpTransceiverDirection.Stopped;
+        direction = ffi.RtpTransceiverDirection.Stopped;
         break;
     }
 
@@ -499,7 +501,7 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<void> setLocalDescription(SessionDescription description) async {
     api.setLocalDescription(
         peerId: _id!,
-        kind: description.type.toString().split('.')[1],
+        kind: ffi.SdpType.values[description.type.index],
         sdp: description.description);
   }
 
@@ -507,7 +509,7 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<void> setRemoteDescription(SessionDescription description) async {
     api.setRemoteDescription(
         peerId: _id!,
-        kind: description.type.toString().split('.')[1],
+        kind: ffi.SdpType.values[description.type.index],
         sdp: description.description);
   }
 }

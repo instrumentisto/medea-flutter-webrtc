@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import '/src/model/constraints.dart';
 import '/src/model/device.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge_generated.dart';
+import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
@@ -85,8 +85,7 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
-  var tracks = await api.getMedia(
-      constraints: MediaStreamConstraints(), isDisplay: false);
+  var tracks = await api.getMedia(constraints: ffi.MediaStreamConstraints());
 
   return tracks.map((e) => NativeMediaStreamTrack.fromMap(e)).toList();
 }
@@ -115,8 +114,7 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
-  var tracks = await api.getMedia(
-      constraints: MediaStreamConstraints(), isDisplay: true);
+  var tracks = await api.getMedia(constraints: ffi.MediaStreamConstraints());
 
   return tracks.map((e) => NativeMediaStreamTrack.fromMap(e)).toList();
 }

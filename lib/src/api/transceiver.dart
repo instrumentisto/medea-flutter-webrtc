@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import '/src/model/transceiver.dart';
-import 'bridge_generated.dart';
+import 'bridge.g.dart';
 import 'channel.dart';
 import 'peer.dart';
 import 'sender.dart';

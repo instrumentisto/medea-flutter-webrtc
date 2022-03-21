@@ -485,6 +485,7 @@ dependencies = [
  "cxx",
  "cxx-build",
  "dotenv",
+ "pkg-config",
  "reqwest",
  "walkdir",
 ]
