@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import '/src/platform/track.dart';
@@ -11,10 +9,10 @@ abstract class RtpSender {
       {int peerId = -1, int transceiverId = -1}) {
     RtpSender? sender;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      sender = _RtpSenderChannel.fromMap(map);
-    } else {
+    if (IS_DESKTOP) {
       sender = _RtpSenderFFI(peerId, transceiverId);
+    } else {
+      sender = _RtpSenderChannel.fromMap(map);
     }
 
     return sender;

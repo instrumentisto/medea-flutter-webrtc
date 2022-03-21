@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import '/src/model/transceiver.dart';
@@ -14,10 +12,10 @@ abstract class RtpTransceiver {
   static RtpTransceiver fromMap(dynamic map, {int peerId = -1}) {
     RtpTransceiver? transceivers;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      transceivers = _RtpTransceiverChannel.fromMap(map);
-    } else {
+    if (IS_DESKTOP) {
       transceivers = _RtpTransceiverFFI.fromMap(map, peerId);
+    } else {
+      transceivers = _RtpTransceiverChannel.fromMap(map);
     }
 
     return transceivers;

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import '/src/model/constraints.dart';
@@ -30,12 +28,12 @@ final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
   List<MediaDeviceInfo> mdInfo;
 
-  if (Platform.isAndroid || Platform.isIOS) {
-    mdInfo = await _enumerateDevicesChannel();
-  } else {
-    var asd = await _enumerateDevicesFFI();
+  if (IS_DESKTOP) {
+    var devices = await _enumerateDevicesFFI();
 
-    mdInfo = asd.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+    mdInfo = devices.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+  } else {
+    mdInfo = await _enumerateDevicesChannel();
   }
 
   return mdInfo;
@@ -59,10 +57,10 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
   Future<List<NativeMediaStreamTrack>> nativeTrack;
 
-  if (Platform.isAndroid || Platform.isIOS) {
-    nativeTrack = _getUserMediaChannel(constraints);
-  } else {
+  if (IS_DESKTOP) {
     nativeTrack = _getUserMediaFFI(constraints);
+  } else {
+    nativeTrack = _getUserMediaChannel(constraints);
   }
 
   return nativeTrack;
@@ -96,10 +94,10 @@ Future<List<NativeMediaStreamTrack>> getDisplayMedia(
     DisplayConstraints constraints) async {
   Future<List<NativeMediaStreamTrack>> nativeTrack;
 
-  if (Platform.isAndroid || Platform.isIOS) {
-    nativeTrack = _getDisplayMediaChannel(constraints);
-  } else {
+  if (IS_DESKTOP) {
     nativeTrack = _getDisplayMediaFFI(constraints);
+  } else {
+    nativeTrack = _getDisplayMediaChannel(constraints);
   }
 
   return nativeTrack;
@@ -123,10 +121,10 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
 ///
 /// List of output audio devices may be obtained via [enumerateDevices].
 Future<void> setOutputAudioId(String deviceId) async {
-  if (Platform.isAndroid || Platform.isIOS) {
-    _setOutputAudioIdChannel(deviceId);
-  } else {
+  if (IS_DESKTOP) {
     _setOutputAudioIdFFI(deviceId);
+  } else {
+    _setOutputAudioIdChannel(deviceId);
   }
 }
 
