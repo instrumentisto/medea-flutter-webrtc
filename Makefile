@@ -106,7 +106,7 @@ codegen:
 	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
 		--dart-output lib/src/api/bridge.g.dart
 
-cargo.build:asdasd
+cargo.build:
 	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
 ifeq ($(platform),windows)
 	@mkdir -p windows/rust/include/
@@ -119,6 +119,8 @@ ifeq ($(platform),windows)
 		windows/rust/lib/flutter_webrtc_native.dll.lib
 endif
 ifeq ($(platform),linux)
+	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
+		linux/lib/libflutter_webrtc_native.so
 endif
 
 # Generate documentation for project crates.
