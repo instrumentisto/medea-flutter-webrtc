@@ -232,30 +232,27 @@ pub enum RtpTransceiverDirection {
     Stopped,
 }
 
-impl fmt::Display for RtpTransceiverDirection {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            Self::SendRecv => write!(f, "sendrecv"),
-            Self::SendOnly => write!(f, "sendonly"),
-            Self::RecvOnly => write!(f, "recvonly"),
-            Self::Inactive => write!(f, "inactive"),
-            Self::Stopped => write!(f, "stopped"),
+impl From<sys::RtpTransceiverDirection> for RtpTransceiverDirection {
+    fn from(state: sys::RtpTransceiverDirection) -> Self {
+        match state {
+            sys::RtpTransceiverDirection::kSendRecv => Self::SendRecv,
+            sys::RtpTransceiverDirection::kSendOnly => Self::SendOnly,
+            sys::RtpTransceiverDirection::kRecvOnly => Self::RecvOnly,
+            sys::RtpTransceiverDirection::kInactive => Self::Inactive,
+            sys::RtpTransceiverDirection::kStopped => Self::Stopped,
             _ => unreachable!(),
         }
     }
 }
 
-impl TryFrom<&str> for RtpTransceiverDirection {
-    type Error = anyhow::Error;
-
-    fn try_from(val: &str) -> Result<Self, Self::Error> {
-        match val {
-            "sendrecv" => Ok(Self::SendRecv),
-            "sendonly" => Ok(Self::SendOnly),
-            "recvonly" => Ok(Self::RecvOnly),
-            "stopped" => Ok(Self::Stopped),
-            "inactive" => Ok(Self::Inactive),
-            v => Err(anyhow!("Invalid `RtpTransceiverDirection`: {v}")),
+impl From<RtpTransceiverDirection> for sys::RtpTransceiverDirection {
+    fn from(state: RtpTransceiverDirection) -> Self {
+        match state {
+            RtpTransceiverDirection::SendRecv => Self::kSendRecv,
+            RtpTransceiverDirection::SendOnly => Self::kSendOnly,
+            RtpTransceiverDirection::RecvOnly => Self::kRecvOnly,
+            RtpTransceiverDirection::Inactive => Self::kInactive,
+            RtpTransceiverDirection::Stopped => Self::kStopped,
         }
     }
 }
@@ -266,12 +263,11 @@ pub enum MediaType {
     Video,
 }
 
-impl fmt::Display for MediaType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            Self::Audio => write!(f, "audio"),
-            Self::Video => write!(f, "video"),
-            _ => unreachable!(),
+impl From<MediaType> for sys::MediaType {
+    fn from(state: MediaType) -> Self {
+        match state {
+            MediaType::Audio => sys::MediaType::MEDIA_TYPE_AUDIO,
+            MediaType::Video => sys::MediaType::MEDIA_TYPE_VIDEO,
         }
     }
 }
@@ -422,6 +418,9 @@ pub struct MediaStreamTrack {
 /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct RtcRtpTransceiver {
+    /// ID of the [`PeerConnection`] that this [`RtcRtpTransceiver`] belongs to.
+    pub peer_id: u64,
+
     /// ID of this [`RtcRtpTransceiver`].
     ///
     /// It's not unique across all possible [`RtcRtpTransceiver`]s, but only
@@ -433,12 +432,12 @@ pub struct RtcRtpTransceiver {
     /// sender and receiver.
     ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-    pub mid: String,
+    pub mid: Option<String>,
 
     /// Preferred [`direction`][1] of this [`RtcRtpTransceiver`].
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
-    pub direction: String,
+    pub direction: RtpTransceiverDirection,
 
     /// [`RtcRtpSender`] responsible for encoding and sending outgoing
     /// media data for the transceiver's stream.
@@ -645,8 +644,8 @@ pub fn add_transceiver(
 ) -> anyhow::Result<RtcRtpTransceiver> {
     WEBRTC.lock().unwrap().add_transceiver(
         peer_id,
-        media_type.to_string().as_str().try_into().unwrap(),
-        direction.to_string().as_str().try_into().unwrap(),
+        media_type.into(),
+        direction.into(),
     )
 }
 
@@ -669,7 +668,7 @@ pub fn set_transceiver_direction(
     WEBRTC.lock().unwrap().set_transceiver_direction(
         peer_id,
         transceiver_id,
-        direction.to_string().as_str(),
+        direction,
     )
 }
 
@@ -696,10 +695,8 @@ pub fn get_transceiver_direction(
     WEBRTC
         .lock()
         .unwrap()
-        .get_transceiver_direction(peer_id, transceiver_id)?
-        .to_string()
-        .as_str()
-        .try_into()
+        .get_transceiver_direction(peer_id, transceiver_id)
+        .map(Into::into)
 }
 
 /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,

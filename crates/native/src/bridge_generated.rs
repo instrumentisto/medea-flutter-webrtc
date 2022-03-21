@@ -1050,6 +1050,7 @@ impl support::IntoDartExceptPrimitive for RtcRtpSender {}
 impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartCObject {
         vec![
+            self.peer_id.into_dart(),
             self.id.into_dart(),
             self.mid.into_dart(),
             self.direction.into_dart(),

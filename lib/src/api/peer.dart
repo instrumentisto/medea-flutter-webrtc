@@ -426,34 +426,10 @@ class _PeerConnectionFFI extends PeerConnection {
   @override
   Future<RtpTransceiver> addTransceiver(
       MediaKind mediaType, RtpTransceiverInit init) async {
-    var type =
-        mediaType == MediaKind.audio ? ffi.MediaType.Audio : ffi.MediaType.Video;
-
-    ffi.RtpTransceiverDirection direction;
-    switch (init.direction) {
-      case TransceiverDirection.sendOnly:
-        direction = ffi.RtpTransceiverDirection.SendOnly;
-        break;
-
-      case TransceiverDirection.sendRecv:
-        direction = ffi.RtpTransceiverDirection.SendRecv;
-        break;
-
-      case TransceiverDirection.recvOnly:
-        direction = ffi.RtpTransceiverDirection.RecvOnly;
-        break;
-
-      case TransceiverDirection.inactive:
-        direction = ffi.RtpTransceiverDirection.Inactive;
-        break;
-
-      case TransceiverDirection.stopped:
-        direction = ffi.RtpTransceiverDirection.Stopped;
-        break;
-    }
-
-    return RtpTransceiver.fromMap(await api.addTransceiver(
-        peerId: _id!, mediaType: type, direction: direction));
+    return RtpTransceiver.fromFFI(await api.addTransceiver(
+        peerId: _id!,
+        mediaType: ffi.MediaType.values[mediaType.index],
+        direction: ffi.RtpTransceiverDirection.values[init.direction.index]));
   }
 
   @override
@@ -487,9 +463,7 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<List<RtpTransceiver>> getTransceivers() async {
     var transceivers = await api.getTransceivers(peerId: _id!);
 
-    return transceivers
-        .map((e) => RtpTransceiver.fromMap(e, peerId: _id!))
-        .toList();
+    return transceivers.map((e) => RtpTransceiver.fromFFI(e)).toList();
   }
 
   @override

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import '/src/platform/track.dart';
@@ -7,17 +5,12 @@ import 'channel.dart';
 import 'peer.dart';
 
 abstract class RtpSender {
-  static RtpSender fromMap(dynamic map,
-      {int peerId = -1, int transceiverId = -1}) {
-    RtpSender? sender;
+  static RtpSender fromMap(dynamic map) {
+    return _RtpSenderChannel.fromMap(map);
+  }
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      sender = _RtpSenderChannel.fromMap(map);
-    } else {
-      sender = _RtpSenderFFI(peerId, transceiverId);
-    }
-
-    return sender;
+  static RtpSender fromFFI(int peerId, int transceiverId) {
+    return _RtpSenderFFI(peerId, transceiverId);
   }
 
   /// Current [MediaStreamTrack] of this [RtpSender].

@@ -391,6 +391,9 @@ class RtcRtpSender {
 /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 class RtcRtpTransceiver {
+  /// ID of the [`PeerConnection`] that this [`RtcRtpTransceiver`] belongs to.
+  final int peerId;
+
   /// ID of this [`RtcRtpTransceiver`].
   ///
   /// It's not unique across all possible [`RtcRtpTransceiver`]s, but only
@@ -402,20 +405,21 @@ class RtcRtpTransceiver {
   /// sender and receiver.
   ///
   /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-  final String mid;
+  final String? mid;
 
   /// Preferred [`direction`][1] of this [`RtcRtpTransceiver`].
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
-  final String direction;
+  final RtpTransceiverDirection direction;
 
   /// [`RtcRtpSender`] responsible for encoding and sending outgoing
   /// media data for the transceiver's stream.
   final RtcRtpSender sender;
 
   RtcRtpTransceiver({
+    required this.peerId,
     required this.id,
-    required this.mid,
+    this.mid,
     required this.direction,
     required this.sender,
   });
@@ -1199,13 +1203,14 @@ RtcRtpSender _wire2api_rtc_rtp_sender(dynamic raw) {
 
 RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
   final arr = raw as List<dynamic>;
-  if (arr.length != 4)
-    throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+  if (arr.length != 5)
+    throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
   return RtcRtpTransceiver(
-    id: _wire2api_u64(arr[0]),
-    mid: _wire2api_String(arr[1]),
-    direction: _wire2api_String(arr[2]),
-    sender: _wire2api_rtc_rtp_sender(arr[3]),
+    peerId: _wire2api_u64(arr[0]),
+    id: _wire2api_u64(arr[1]),
+    mid: _wire2api_opt_String(arr[2]),
+    direction: _wire2api_rtp_transceiver_direction(arr[3]),
+    sender: _wire2api_rtc_rtp_sender(arr[4]),
   );
 }
 

@@ -225,8 +225,6 @@ impl Webrtc {
         let transceiver = peer_ref.add_transceiver(media_type, direction);
 
         let transceivers = peer_ref.get_transceivers();
-        let mid = transceiver.mid().unwrap_or_default();
-        let direction = transceiver.direction().to_string();
         let id = transceivers
             .iter()
             .enumerate()
@@ -235,9 +233,10 @@ impl Webrtc {
             .unwrap();
 
         Ok(api::RtcRtpTransceiver {
+            peer_id,
             id: id as u64,
-            mid,
-            direction,
+            mid: transceiver.mid(),
+            direction: transceiver.direction().into(),
             sender: api::RtcRtpSender { id: id as u64 },
         })
     }
@@ -270,9 +269,10 @@ impl Webrtc {
 
         for (index, transceiver) in transceivers.into_iter().enumerate() {
             let info = api::RtcRtpTransceiver {
+                peer_id,
                 id: index as u64,
-                mid: transceiver.mid().unwrap_or_default(),
-                direction: transceiver.direction().to_string(),
+                mid: transceiver.mid(),
+                direction: transceiver.direction().into(),
                 sender: api::RtcRtpSender { id: index as u64 },
             };
             result.push(info);
@@ -297,7 +297,7 @@ impl Webrtc {
         &mut self,
         peer_id: u64,
         transceiver_id: u64,
-        direction: &str,
+        direction: api::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
         let peer = if let Some(peer) = self
             .peer_connections
@@ -322,7 +322,7 @@ impl Webrtc {
             ));
         };
 
-        transceiver.set_direction(direction.try_into().unwrap())
+        transceiver.set_direction(direction.into())
     }
 
     /// Returns the [Negotiated media ID (mid)][1] of the specified
