@@ -100,15 +100,16 @@ flutter.test:
 #	make cargo.build [debug=(yes|no)]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
+os = $(if $(call eq,$(OS),Windows_NT),windows,)
 
 # todo check and add doc
 codegen:
 	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
 		--dart-output lib/src/api/bridge.g.dart
 
-cargo.build:asdasd
+cargo.build:
 	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
-ifeq ($(platform),windows)
+ifeq ($(if $(call eq,$(platform),),$(os),$(platform)),windows)
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/
@@ -120,6 +121,7 @@ ifeq ($(platform),windows)
 endif
 ifeq ($(platform),linux)
 endif
+
 
 # Generate documentation for project crates.
 #
