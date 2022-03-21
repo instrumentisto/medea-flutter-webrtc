@@ -100,6 +100,7 @@ flutter.test:
 #	make cargo.build [debug=(yes|no)]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
+os = $(if $(call eq,$(OS),Windows_NT),windows,)
 
 # todo check and add doc
 codegen:
@@ -108,7 +109,7 @@ codegen:
 
 cargo.build:
 	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
-ifeq ($(platform),windows)
+ifeq ($(if $(call eq,$(platform),),$(os),$(platform)),windows)
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/
@@ -122,6 +123,7 @@ ifeq ($(platform),linux)
 	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
 		linux/lib/libflutter_webrtc_native.so
 endif
+
 
 # Generate documentation for project crates.
 #
