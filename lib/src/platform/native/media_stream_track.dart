@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/services.dart';
 
+import '/src/api/bridge.g.dart' as ffi;
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
-import '/src/platform/track.dart';
-import '/src/api/bridge.g.dart' as ffi;
 import '../../../flutter_webrtc.dart';
 
 /// Representation of a single media unit.
@@ -16,10 +14,10 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   static NativeMediaStreamTrack fromMap(dynamic map) {
     NativeMediaStreamTrack? track;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      track = _NativeMediaStreamTrackChannel.fromMap(map);
-    } else {
+    if (IS_DESKTOP) {
       track = _NativeMediaStreamTrackFFI.fromMap(map);
+    } else {
+      track = _NativeMediaStreamTrackChannel.fromMap(map);
     }
 
     return track;
@@ -128,7 +126,6 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 }
 
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
-
   late int _handleId;
 
   _NativeMediaStreamTrackFFI.fromMap(ffi.MediaStreamTrack track) {

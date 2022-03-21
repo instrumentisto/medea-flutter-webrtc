@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_webrtc/src/api/bridge_generated.dart';
 
 import '/src/model/ice.dart';
 import '/src/model/peer.dart';
@@ -25,6 +26,8 @@ ffi.FlutterWebrtcNativeImpl buildBridge() {
 
   return ffi.FlutterWebrtcNativeImpl(dylib);
 }
+
+bool IS_DESKTOP = !Platform.isAndroid && !Platform.isIOS;
 
 int COUNT = 1;
 
@@ -61,56 +64,13 @@ abstract class PeerConnection {
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
     PeerConnection? pc;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      pc = await _PeerConnectionChannel.create(iceTransportType, iceServers);
-    } else {
+    if (IS_DESKTOP) {
       pc = await _PeerConnectionFFI.create(iceTransportType, iceServers);
+    } else {
+      pc = await _PeerConnectionChannel.create(iceTransportType, iceServers);
     }
 
     return pc;
-  }
-
-  /// Listener for the all [PeerConnection] events received from the native
-  /// side.
-  void eventListener(dynamic event) {
-    final dynamic e = event;
-    switch (e['event']) {
-      case 'onIceCandidate':
-        dynamic iceCandidate = e['candidate'];
-        _onIceCandidate?.call(IceCandidate.fromMap(iceCandidate));
-        break;
-      case 'onIceGatheringStateChange':
-        var state = IceGatheringState.values[e['state']];
-        _onIceGatheringStateChange?.call(state);
-        break;
-      case 'onIceCandidateError':
-        var errorEvent = IceCandidateErrorEvent.fromMap(e['errorEvent']);
-        _onIceCandidateError?.call(errorEvent);
-        break;
-      case 'onNegotiationNeeded':
-        _onNegotiationNeeded?.call();
-        break;
-      case 'onSignalingStateChange':
-        var state = SignalingState.values[e['state']];
-        _onSignalingStateChange?.call(state);
-        break;
-      case 'onIceConnectionStateChange':
-        var state = IceConnectionState.values[e['state']];
-        _iceConnectionState = state;
-        _onIceConnectionStateChange?.call(state);
-        break;
-      case 'onConnectionStateChange':
-        var state = PeerConnectionState.values[e['state']];
-        _connectionState = state;
-        _onConnectionStateChange?.call(state);
-        break;
-      case 'onTrack':
-        dynamic track = e['track'];
-        dynamic transceiver = e['transceiver'];
-        _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
-            RtpTransceiver.fromMap(transceiver));
-        break;
-    }
   }
 
   /// `on_ice_connection_state_change` event subscriber.
@@ -271,6 +231,51 @@ class _PeerConnectionChannel extends PeerConnection {
     return _PeerConnectionChannel._fromMap(res);
   }
 
+  /// Listener for the all [PeerConnection] events received from the native
+  /// side.
+  @override
+  void eventListener(dynamic event) {
+    dynamic e = event;
+
+    switch (e['event']) {
+      case 'onIceCandidate':
+        dynamic iceCandidate = e['candidate'];
+        _onIceCandidate?.call(IceCandidate.fromMap(iceCandidate));
+        break;
+      case 'onIceGatheringStateChange':
+        var state = IceGatheringState.values[e['state']];
+        _onIceGatheringStateChange?.call(state);
+        break;
+      case 'onIceCandidateError':
+        var errorEvent = IceCandidateErrorEvent.fromMap(e['errorEvent']);
+        _onIceCandidateError?.call(errorEvent);
+        break;
+      case 'onNegotiationNeeded':
+        _onNegotiationNeeded?.call();
+        break;
+      case 'onSignalingStateChange':
+        var state = SignalingState.values[e['state']];
+        _onSignalingStateChange?.call(state);
+        break;
+      case 'onIceConnectionStateChange':
+        var state = IceConnectionState.values[e['state']];
+        _iceConnectionState = state;
+        _onIceConnectionStateChange?.call(state);
+        break;
+      case 'onConnectionStateChange':
+        var state = PeerConnectionState.values[e['state']];
+        _connectionState = state;
+        _onConnectionStateChange?.call(state);
+        break;
+      case 'onTrack':
+        dynamic track = e['track'];
+        dynamic transceiver = e['transceiver'];
+        _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
+            RtpTransceiver.fromMap(transceiver));
+        break;
+    }
+  }
+
   /// Creates a [PeerConnection] based on the [Map] received from the native
   /// side.
   _PeerConnectionChannel._fromMap(dynamic map) {
@@ -412,6 +417,128 @@ class _PeerConnectionFFI extends PeerConnection {
     _stream = stream;
 
     _stream?.listen(eventListener);
+  }
+
+  /// Listener for the all [PeerConnection] events received from the native
+  /// side.
+  void eventListener(ffi.PeerConnectionEvent event) {
+    if (event is ffi.OnIceCandidate) {
+      _onIceCandidate?.call(
+          IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
+      return;
+    } else if (event is ffi.OnIceGatheringStateChange) {
+      IceGatheringState state;
+
+      switch (event.field0) {
+        case ffi.IceGatheringState.New:
+          state = IceGatheringState.new_;
+          break;
+        case ffi.IceGatheringState.Gathering:
+          state = IceGatheringState.gathering;
+          break;
+        case ffi.IceGatheringState.Complete:
+          state = IceGatheringState.complete;
+          break;
+      }
+
+      _onIceGatheringStateChange?.call(state);
+      return;
+    } else if (event is ffi.OnIceCandidateError) {
+      _onIceCandidateError?.call(IceCandidateErrorEvent.fromMap({
+        'address': event.address,
+        'port': event.port,
+        'url': event.url,
+        'errorCode': event.errorCode,
+        'errorText': event.errorText,
+      }));
+      return;
+    } else if (event is ffi.OnNegotiationNeeded) {
+      _onNegotiationNeeded?.call();
+      return;
+    } else if (event is ffi.OnSignallingChange) {
+      SignalingState state;
+
+      switch (event.field0) {
+        case ffi.SignalingState.Stable:
+          state = SignalingState.stable;
+          break;
+        case ffi.SignalingState.HaveLocalOffer:
+          state = SignalingState.haveLocalOffer;
+          break;
+        case ffi.SignalingState.HaveLocalPrAnswer:
+          state = SignalingState.haveLocalPranswer;
+          break;
+        case ffi.SignalingState.HaveRemoteOffer:
+          state = SignalingState.haveRemoteOffer;
+          break;
+        case ffi.SignalingState.HaveRemotePrAnswer:
+          state = SignalingState.haveRemotePranswer;
+          break;
+        case ffi.SignalingState.Closed:
+          state = SignalingState.closed;
+          break;
+      }
+
+      _onSignalingStateChange?.call(state);
+      return;
+    } else if (event is ffi.OnIceConnectionStateChange) {
+      switch (event.field0) {
+        case ffi.IceConnectionState.New:
+          _iceConnectionState = IceConnectionState.new_;
+          break;
+        case ffi.IceConnectionState.Checking:
+          _iceConnectionState = IceConnectionState.checking;
+          break;
+        case ffi.IceConnectionState.Connected:
+          _iceConnectionState = IceConnectionState.connected;
+          break;
+        case ffi.IceConnectionState.Completed:
+          _iceConnectionState = IceConnectionState.completed;
+          break;
+        case ffi.IceConnectionState.Failed:
+          _iceConnectionState = IceConnectionState.failed;
+          break;
+        case ffi.IceConnectionState.Disconnected:
+          _iceConnectionState = IceConnectionState.disconnected;
+          break;
+        case ffi.IceConnectionState.Closed:
+          _iceConnectionState = IceConnectionState.closed;
+          break;
+      }
+
+      _onIceConnectionStateChange?.call(_iceConnectionState);
+      return;
+    } else if (event is ffi.OnConnectionStateChange) {
+      switch (event.field0) {
+        case ffi.PeerConnectionState.New:
+          _connectionState = PeerConnectionState.new_;
+          break;
+        case ffi.PeerConnectionState.Connecting:
+          _connectionState = PeerConnectionState.connecting;
+          break;
+        case ffi.PeerConnectionState.Connected:
+          _connectionState = PeerConnectionState.connected;
+          break;
+        case ffi.PeerConnectionState.Disconnected:
+          _connectionState = PeerConnectionState.disconnected;
+          break;
+        case ffi.PeerConnectionState.Failed:
+          _connectionState = PeerConnectionState.failed;
+          break;
+        case ffi.PeerConnectionState.Closed:
+          _connectionState = PeerConnectionState.closed;
+          break;
+      }
+
+      _onConnectionStateChange?.call(_connectionState);
+      return;
+    } else if (event is ffi.OnTrack) {
+      dynamic track = e['track'];
+      dynamic transceiver = e['transceiver'];
+      _onTrack?.call(NativeMediaStreamTrack.fromMap(track),
+          RtpTransceiver.fromMap(transceiver));
+      return;
+    }
   }
 
   @override
