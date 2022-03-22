@@ -115,7 +115,6 @@ abstract class PeerConnection {
   ///
   /// This allows us, to make some public APIs synchronous.
   final List<RtpTransceiver> _transceivers = [];
-  final List<RtpTransceiver> transceivers = [];
 
   /// Subscribes the provided callback to the `on_track` events of this
   /// [PeerConnection].
@@ -532,8 +531,19 @@ class _PeerConnectionFFI extends PeerConnection {
       _onConnectionStateChange?.call(_connectionState);
       return;
     } else if (event is ffi.OnTrack) {
-      _onTrack?.call(NativeMediaStreamTrack.fromMap(event.field0.track),
-          RtpTransceiver.fromMap(event.field0.transceiver));
+      var transceiver = RtpTransceiver.fromFFI(event.field0.transceiver);
+
+      bool isIn = _transceivers.any((element) =>
+          element is RtpTransceiverFFI && transceiver is RtpTransceiverFFI
+              ? element.id == transceiver.id
+              : false);
+
+      if (!isIn) {
+        _transceivers.add(transceiver);
+      }
+
+      _onTrack?.call(
+          NativeMediaStreamTrack.fromMap(event.field0.track), transceiver);
       return;
     }
   }

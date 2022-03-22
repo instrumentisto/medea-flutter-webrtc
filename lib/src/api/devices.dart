@@ -7,6 +7,34 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
+typedef OnDeviceChangeHandler = void Function();
+
+class DeviceHandler {
+  static final DeviceHandler _instance = DeviceHandler._internal();
+  Stream<void>? _stream;
+
+  factory DeviceHandler() {
+    return _instance;
+  }
+
+  DeviceHandler._internal() {
+    _stream = api.setOnDeviceChanged();
+    _stream!.listen(_listener);
+  }
+
+  void _listener(void event) {
+    if (_handler != null) {
+      _handler!();
+    }
+  }
+
+  void setHandler(OnDeviceChangeHandler? handler) {
+    _handler = handler;
+  }
+
+  OnDeviceChangeHandler? _handler;
+}
+
 /// [Exception] thrown if the specified constraints resulted in no candidate
 /// devices which met the criteria requested. The error is an object of type
 /// [OverconstrainedException], and has a constraint property whose string value
@@ -29,9 +57,7 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
   List<MediaDeviceInfo> mdInfo;
 
   if (IS_DESKTOP) {
-    var devices = await _enumerateDevicesFFI();
-
-    mdInfo = devices.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+    mdInfo = await _enumerateDevicesFFI();
   } else {
     mdInfo = await _enumerateDevicesChannel();
   }
@@ -48,7 +74,7 @@ Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
 Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
   var devices = await api.enumerateDevices();
 
-  return devices.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+  return devices.map((e) => MediaDeviceInfo.fromFFI(e)).toList();
 }
 
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on
@@ -83,7 +109,14 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
-  var tracks = await api.getMedia(constraints: ffi.MediaStreamConstraints());
+  var tracks = await api.getMedia(
+      constraints: ffi.MediaStreamConstraints(
+          video: ffi.VideoConstraints(
+              deviceId: '',
+              height: 380,
+              width: 460,
+              frameRate: 30,
+              isDisplay: false)));
 
   return tracks.map((e) => NativeMediaStreamTrack.fromMap(e)).toList();
 }

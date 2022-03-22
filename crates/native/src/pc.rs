@@ -1,9 +1,6 @@
-use std::sync::{
-    mpsc::{self, Receiver, Sender},
-    Arc, Mutex,
-};
+use std::sync::{mpsc::Sender, Arc, Mutex};
 
-use anyhow::anyhow;
+use anyhow::{anyhow, bail};
 use once_cell::sync::OnceCell;
 use sys::PeerConnectionInterface;
 use threadpool::ThreadPool;
@@ -66,9 +63,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
         let options = sys::RTCOfferAnswerOptions::new(
@@ -107,9 +102,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
         let options = sys::RTCOfferAnswerOptions::new(
@@ -147,9 +140,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
@@ -181,9 +172,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
@@ -215,9 +204,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
         let mut peer_ref = peer.0.lock().unwrap();
 
@@ -258,9 +245,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -304,9 +289,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -316,9 +299,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         transceiver.set_direction(direction.into())
@@ -347,9 +328,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -359,9 +338,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         Ok(transceiver.mid())
@@ -387,9 +364,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -399,9 +374,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         Ok(transceiver.direction())
@@ -431,9 +404,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -443,9 +414,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         transceiver.stop()
@@ -476,9 +445,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -488,9 +455,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         let sender = transceiver.sender();
@@ -545,9 +510,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
         peer.0
@@ -572,9 +535,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
         peer.0.lock().unwrap().restart_ice();
@@ -594,9 +555,7 @@ impl Webrtc {
             if let Some(peer) = self.peer_connections.remove(&PeerConnectionId(peer_id)) {
                 peer
             } else {
-                return Err(anyhow!(
-                    "`PeerConnection` with ID `{peer_id}` does not exist"
-                ));
+                bail!("`PeerConnection` with ID `{peer_id}` does not exist");
             };
 
         peer.0.lock().unwrap().close();
@@ -626,7 +585,7 @@ impl PeerConnection {
     ) -> anyhow::Result<Self> {
         let obs_peer = Arc::new(OnceCell::new());
         let observer = sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver {
-            observer,
+            observer: Arc::new(Mutex::new(observer)),
             peer: Arc::clone(&obs_peer),
             video_tracks,
             audio_tracks,
@@ -712,7 +671,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 /// [`PeerConnectionObserverInterface`] wrapper.
 struct PeerConnectionObserver {
     /// [`PeerConnectionObserverInterface`] to forward the events to.
-    observer: StreamSink<api::PeerConnectionEvent>,
+    observer: Arc<Mutex<StreamSink<api::PeerConnectionEvent>>>,
 
     /// [`InnerPeer`] of the [`PeerConnection`] internally used in
     /// [`sys::PeerConnectionObserver::on_track()`][1]
@@ -735,34 +694,35 @@ struct PeerConnectionObserver {
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         self.observer
+            .lock()
+            .unwrap()
             .add(api::PeerConnectionEvent::OnSignallingChange(
                 new_state.into(),
             ));
     }
 
     fn on_standardized_ice_connection_change(&mut self, new_state: sys::IceConnectionState) {
-        self.observer
-            .add(api::PeerConnectionEvent::OnIceConnectionStateChange(
-                new_state.into(),
-            ));
+        self.observer.lock().unwrap().add(
+            api::PeerConnectionEvent::OnIceConnectionStateChange(new_state.into()),
+        );
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
-        self.observer
-            .add(api::PeerConnectionEvent::OnConnectionStateChange(
-                new_state.into(),
-            ));
+        self.observer.lock().unwrap().add(
+            api::PeerConnectionEvent::OnConnectionStateChange(new_state.into()),
+        );
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
-        self.observer
-            .add(api::PeerConnectionEvent::OnIceGatheringStateChange(
-                new_state.into(),
-            ));
+        self.observer.lock().unwrap().add(
+            api::PeerConnectionEvent::OnIceGatheringStateChange(new_state.into()),
+        );
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
         self.observer
+            .lock()
+            .unwrap()
             .add(api::PeerConnectionEvent::OnNegotiationNeeded);
     }
 
@@ -775,6 +735,8 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_text: &CxxString,
     ) {
         self.observer
+            .lock()
+            .unwrap()
             .add(api::PeerConnectionEvent::OnIceCandidateError {
                 address: address.to_string(),
                 port: port as i64,
@@ -807,15 +769,13 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             _ => unreachable!(),
         };
 
-        let (tx, rx): (Sender<api::RtcTrackEvent>, Receiver<api::RtcTrackEvent>) =
-            mpsc::channel();
-
         self.pool.execute({
             // PANIC: Unwrapping is OK, since the transceiver is guaranteed
             //        to be negotiated at this point.
             let mid = transceiver.mid();
             let direction = transceiver.direction();
             let peer = Arc::clone(&self.peer);
+            let observer = Arc::clone(&self.observer);
 
             move || {
                 let peer = peer.get().unwrap().lock().unwrap();
@@ -840,20 +800,23 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     },
                 };
 
-                tx.send(result).unwrap();
+                observer
+                    .lock()
+                    .unwrap()
+                    .add(api::PeerConnectionEvent::OnTrack(result));
             }
         });
-
-        self.observer
-            .add(api::PeerConnectionEvent::OnTrack(rx.recv().unwrap()));
     }
 
     fn on_ice_candidate(&mut self, candidate: sys::IceCandidateInterface) {
-        self.observer.add(PeerConnectionEvent::OnIceCandidate {
-            sdp_mid: candidate.mid(),
-            sdp_mline_index: candidate.mline_index() as i64,
-            candidate: candidate.candidate(),
-        });
+        self.observer
+            .lock()
+            .unwrap()
+            .add(PeerConnectionEvent::OnIceCandidate {
+                sdp_mid: candidate.mid(),
+                sdp_mline_index: candidate.mline_index() as i64,
+                candidate: candidate.candidate(),
+            });
     }
 
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
