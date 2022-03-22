@@ -8,4 +8,4 @@ export 'src/platform/native/video_view.dart'
     if (dart.library.html) 'src/universal/web/video_view.dart';
 export 'src/platform/track.dart';
 export 'src/platform/video_renderer.dart';
-export 'src/api/utils.dart';
+// export 'src/api/utils.dart';

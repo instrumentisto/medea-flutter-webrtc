@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/services.dart';
 
+import '/src/api/bridge.g.dart' as ffi;
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
-import '/src/platform/track.dart';
 import '../../../flutter_webrtc.dart';
 
 /// Representation of a single media unit.
@@ -15,10 +14,10 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   static NativeMediaStreamTrack from(dynamic map) {
     NativeMediaStreamTrack? track;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      track = _NativeMediaStreamTrackChannel.fromMap(map);
+    if (IS_DESKTOP) {
+      track = _NativeMediaStreamTrackFFI.fromMap(map);
     } else {
-      track = _NativeMediaStreamTrackFFI.FromFFI(map);
+      track = _NativeMediaStreamTrackChannel.fromMap(map);
     }
 
     return track;
@@ -127,31 +126,27 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 }
 
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
+  late int _handleId;
 
-  /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
-  /// native side.
-  
-  //todo
-  _NativeMediaStreamTrackFFI.FromFFI(MediaStreamTrackFFI track) {
+  _NativeMediaStreamTrackFFI.fromMap(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
-    _deviceId = track.label.toString();
+    _deviceId = track.deviceId;
     _kind = MediaKind.values[track.kind.index];
   }
 
   @override
-  Future<MediaStreamTrack> clone() {
-    // TODO: implement clone
-    throw UnimplementedError();
+  Future<MediaStreamTrack> clone() async {
+    return NativeMediaStreamTrack.from({'map': '1'});
   }
 
   @override
   Future<void> dispose() async {
-    // await api.disposeStream(id: 1);
+    await api.disposeTrack(trackId: _handleId);
   }
 
   @override
   Future<void> setEnabled(bool enabled) async {
-    api.setTrackEnabled(trackId: 1, enabled: enabled);
+    api.setTrackEnabled(trackId: _handleId, enabled: enabled);
   }
 
   @override

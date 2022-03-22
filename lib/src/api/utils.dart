@@ -1,17 +1,18 @@
-
-
-import 'dart:ffi';
-import 'dart:io';
-
-export 'bridge_generated.dart';
-import 'bridge_generated.dart';
-
-const base = 'flutter_webrtc_native';
-final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
-late final dylib = Platform.isIOS
-    ? DynamicLibrary.process()
-    : Platform.isMacOS
-        ? DynamicLibrary.executable()
-        : DynamicLibrary.open(path);
-
-late final api = FlutterWebrtcNativeImpl(dylib);
+// import 'dart:ffi';
+// import 'dart:io';
+//
+// import 'bridge.g.dart';
+//
+// export 'bridge.g.dart';
+//
+// late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
+//
+// ffi.FlutterWebrtcNativeImpl buildBridge() {
+//   const base = 'flutter_webrtc_native';
+//   final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
+//   late final dylib = Platform.isMacOS
+//       ? DynamicLibrary.executable()
+//       : DynamicLibrary.open(path);
+//
+//   return ffi.FlutterWebrtcNativeImpl(dylib);
+// }

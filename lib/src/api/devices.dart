@@ -1,14 +1,40 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import '/src/model/constraints.dart';
 import '/src/model/device.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge_generated.dart';
+import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 import 'utils.dart';
+
+typedef OnDeviceChangeHandler = void Function();
+
+class DeviceHandler {
+  static final DeviceHandler _instance = DeviceHandler._internal();
+  Stream<void>? _stream;
+
+  factory DeviceHandler() {
+    return _instance;
+  }
+
+  DeviceHandler._internal() {
+    _stream = api.setOnDeviceChanged();
+    _stream!.listen(_listener);
+  }
+
+  void _listener(void event) {
+    if (_handler != null) {
+      _handler!();
+    }
+  }
+
+  void setHandler(OnDeviceChangeHandler? handler) {
+    _handler = handler;
+  }
+
+  OnDeviceChangeHandler? _handler;
+}
 
 /// [Exception] thrown if the specified constraints resulted in no candidate
 /// devices which met the criteria requested. The error is an object of type
@@ -31,12 +57,10 @@ final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
   List<MediaDeviceInfo> mdInfo;
 
-  if (Platform.isAndroid || Platform.isIOS) {
-    mdInfo = await _enumerateDevicesChannel();
+  if (IS_DESKTOP) {
+    mdInfo = await _enumerateDevicesFFI();
   } else {
-    var asd = await _enumerateDevicesFFI();
-
-    mdInfo = asd.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+    mdInfo = await _enumerateDevicesChannel();
   }
 
   return mdInfo;
@@ -51,7 +75,7 @@ Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
 Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
   var devices = await api.enumerateDevices();
 
-  return devices.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+  return devices.map((e) => MediaDeviceInfo.fromFFI(e)).toList();
 }
 
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on
@@ -60,10 +84,10 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
   Future<List<NativeMediaStreamTrack>> nativeTrack;
 
-  if (Platform.isAndroid || Platform.isIOS) {
-    nativeTrack = _getUserMediaChannel(constraints);
-  } else {
+  if (IS_DESKTOP) {
     nativeTrack = _getUserMediaFFI(constraints);
+  } else {
+    nativeTrack = _getUserMediaChannel(constraints);
   }
 
   return nativeTrack;
@@ -86,7 +110,14 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
-  var tracks = await api.getMedia(constraints: MediaStreamConstraints());
+  var tracks = await api.getMedia(
+      constraints: ffi.MediaStreamConstraints(
+          video: ffi.VideoConstraints(
+              deviceId: '',
+              height: 380,
+              width: 460,
+              frameRate: 30,
+              isDisplay: false)));
 
   return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
 }
@@ -97,10 +128,10 @@ Future<List<NativeMediaStreamTrack>> getDisplayMedia(
     DisplayConstraints constraints) async {
   Future<List<NativeMediaStreamTrack>> nativeTrack;
 
-  if (Platform.isAndroid || Platform.isIOS) {
-    nativeTrack = _getDisplayMediaChannel(constraints);
-  } else {
+  if (IS_DESKTOP) {
     nativeTrack = _getDisplayMediaFFI(constraints);
+  } else {
+    nativeTrack = _getDisplayMediaChannel(constraints);
   }
 
   return nativeTrack;
@@ -115,7 +146,7 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
-  var tracks = await api.getMedia(constraints: MediaStreamConstraints());
+  var tracks = await api.getMedia(constraints: ffi.MediaStreamConstraints());
 
   return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
 }
@@ -124,10 +155,10 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
 ///
 /// List of output audio devices may be obtained via [enumerateDevices].
 Future<void> setOutputAudioId(String deviceId) async {
-  if (Platform.isAndroid || Platform.isIOS) {
-    _setOutputAudioIdChannel(deviceId);
-  } else {
+  if (IS_DESKTOP) {
     _setOutputAudioIdFFI(deviceId);
+  } else {
+    _setOutputAudioIdChannel(deviceId);
   }
 }
 

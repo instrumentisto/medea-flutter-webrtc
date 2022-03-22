@@ -1,8 +1,17 @@
-/// Display media constraints data.
+/// Device audio and video constraints data.
 class DisplayConstraints {
+  /// Optional constraints to lookup audio devices with.
+  DeviceConstraintMap<AudioConstraints> audio = DeviceConstraintMap();
+
+  /// Optional constraints to lookup video devices with.
+  DeviceConstraintMap<DeviceVideoConstraints> video = DeviceConstraintMap();
+
   /// Converts this model to the [Map] expected by Flutter.
-  Map<String, dynamic> toMap() {
-    return {};
+  Map<String, Map<String, dynamic>> toMap() {
+    return {
+      'audio': audio.toMap(),
+      'video': video.toMap(),
+    };
   }
 }
 

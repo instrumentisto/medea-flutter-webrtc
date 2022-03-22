@@ -1,5 +1,6 @@
 #![warn(clippy::pedantic)]
 mod api;
+#[rustfmt::skip]
 mod bridge_generated;
 mod cpp_api;
 mod devices;
@@ -9,7 +10,6 @@ mod video_sink;
 
 use std::{
     collections::HashMap,
-    rc::Rc,
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc,
@@ -46,9 +46,9 @@ pub(crate) fn next_id() -> u64 {
 struct Webrtc {
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_device_info: VideoDeviceInfo,
-    video_sources: HashMap<VideoDeviceId, Rc<VideoSource>>,
+    video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
-    audio_source: Option<Rc<AudioSourceInterface>>,
+    audio_source: Option<Arc<AudioSourceInterface>>,
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 

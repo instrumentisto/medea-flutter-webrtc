@@ -1,9 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import '/src/model/transceiver.dart';
-import 'bridge_generated.dart';
+import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 import 'sender.dart';
@@ -13,15 +11,11 @@ abstract class RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
   static RtpTransceiver fromMap(dynamic map) {
-    RtpTransceiver? transceivers;
+    return _RtpTransceiverChannel.fromMap(map);
+  }
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      transceivers = _RtpTransceiverChannel.fromMap(map);
-    } else {
-      transceivers = _RtpTransceiverFFI();
-    }
-
-    return transceivers;
+  static RtpTransceiver fromFFI(ffi.RtcRtpTransceiver transceiver) {
+    return RtpTransceiverFFI(transceiver);
   }
 
   /// [RtpSender] owned by this [RtpTransceiver].
@@ -111,12 +105,25 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   }
 }
 
-class _RtpTransceiverFFI extends RtpTransceiver {
+class RtpTransceiverFFI extends RtpTransceiver {
+  RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
+    _peerId = transceiver.peerId;
+    _id = transceiver.id;
+    _sender = RtpSender.fromFFI(_peerId, _id);
+    _mid = transceiver.mid;
+  }
+
+  late final int _peerId;
+  late final int _id;
+
+  int get id => _id;
+
   @override
   Future<TransceiverDirection> getDirection() async {
     TransceiverDirection? direction;
 
-    switch (await api.getTransceiverDirection(peerId: 1, transceiverId: 2)) {
+    switch (await api.getTransceiverDirection(
+        peerId: _peerId, transceiverId: _id)) {
       default:
         direction = TransceiverDirection.stopped;
     }
@@ -126,35 +133,15 @@ class _RtpTransceiverFFI extends RtpTransceiver {
 
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
-    RtpTransceiverDirection? direct;
-
-    switch (direction) {
-      case TransceiverDirection.sendRecv:
-        direct = RtpTransceiverDirection.SendRecv;
-        break;
-
-      case TransceiverDirection.sendOnly:
-        direct = RtpTransceiverDirection.SendOnly;
-        break;
-
-      case TransceiverDirection.recvOnly:
-        direct = RtpTransceiverDirection.RecvOnly;
-        break;
-
-      case TransceiverDirection.stopped:
-        direct = RtpTransceiverDirection.Stopped;
-        break;
-
-      case TransceiverDirection.inactive:
-        direct = RtpTransceiverDirection.Inactive;
-        break;
-    }
-    api.setTransceiverDirection(peerId: 1, transceiverId: 2, direction: direct);
+    api.setTransceiverDirection(
+        peerId: _peerId,
+        transceiverId: _id,
+        direction: ffi.RtpTransceiverDirection.values[direction.index]);
   }
 
   @override
   Future<void> stop() async {
-    api.stopTransceiver(peerId: 1, transceiverId: 2);
+    api.stopTransceiver(peerId: _peerId, transceiverId: _id);
   }
 
   @override

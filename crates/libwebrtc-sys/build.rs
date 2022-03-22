@@ -7,6 +7,7 @@ use std::{
 
 use anyhow::anyhow;
 use dotenv::dotenv;
+use pkg_config;
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
@@ -18,10 +19,6 @@ fn main() -> anyhow::Result<()> {
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let cpp_files = get_cpp_files()?;
 
-    // TODO: `rustc` always links against non-debug Windows runtime, so we
-    //       always use a release build of `libwebrtc`:
-    //       https://github.com/rust-lang/rust/issues/39016
-    println!("cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/");
     println!("cargo:rustc-link-lib=webrtc");
 
     link_libs();
@@ -47,6 +44,7 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
             .flag("-DNOMINMAX")
+            .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
 
@@ -165,14 +163,50 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
 fn link_libs() {
     #[cfg(windows)]
     {
-        println!("cargo:rustc-link-lib=dylib=Gdi32");
-        println!("cargo:rustc-link-lib=dylib=Secur32");
-        println!("cargo:rustc-link-lib=dylib=amstrmid");
-        println!("cargo:rustc-link-lib=dylib=d3d11");
-        println!("cargo:rustc-link-lib=dylib=dmoguids");
-        println!("cargo:rustc-link-lib=dylib=dxgi");
-        println!("cargo:rustc-link-lib=dylib=msdmo");
-        println!("cargo:rustc-link-lib=dylib=winmm");
-        println!("cargo:rustc-link-lib=dylib=wmcodecdspuuid");
+        let deps = [
+            "Gdi32",
+            "Secur32",
+            "amstrmid",
+            "d3d11",
+            "dmoguids",
+            "dxgi",
+            "msdmo",
+            "winmm",
+            "wmcodecdspuuid",
+        ];
+
+        for &dep in deps.iter() {
+            println!("cargo:rustc-link-lib=dylib={dep}");
+        }
+
+        // TODO: `rustc` always links against non-debug Windows runtime, so we
+        //       always use a release build of `libwebrtc`:
+        //       https://github.com/rust-lang/rust/issues/39016
+        println!(
+            "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/"
+        );
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let deps = ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr"];
+
+        for dep in deps {
+            pkg_config::Config::new().probe(dep).unwrap();
+        }
+        match std::env::var("PROFILE").unwrap().as_str() {
+            "debug" => {
+                println!(
+                    "cargo:rustc-link-search=native=\
+                crates/libwebrtc-sys/lib/debug/"
+                );
+            }
+            "release" => {
+                println!(
+                    "cargo:rustc-link-search=native=\
+                crates/libwebrtc-sys/lib/release/"
+                );
+            }
+            _ => (),
+        }
     }
 }

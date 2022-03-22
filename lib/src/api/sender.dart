@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 import '/src/platform/track.dart';
@@ -9,15 +7,11 @@ import 'utils.dart';
 
 abstract class RtpSender {
   static RtpSender fromMap(dynamic map) {
-    RtpSender? sender;
+    return _RtpSenderChannel.fromMap(map);
+  }
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      sender = _RtpSenderChannel.fromMap(map);
-    } else {
-      sender = _RtpSenderFFI();
-    }
-
-    return sender;
+  static RtpSender fromFFI(int peerId, int transceiverId) {
+    return _RtpSenderFFI(peerId, transceiverId);
   }
 
   /// Current [MediaStreamTrack] of this [RtpSender].
@@ -48,8 +42,16 @@ class _RtpSenderChannel extends RtpSender {
 }
 
 class _RtpSenderFFI extends RtpSender {
+  final int _peerId;
+  final int _transceiverId;
+
+  _RtpSenderFFI(this._peerId, this._transceiverId);
+
   @override
   Future<void> replaceTrack(MediaStreamTrack? t) async {
-    api.senderReplaceTrack(peerId: 1, transceiverId: 2, trackId: 3);
+    api.senderReplaceTrack(
+        peerId: _peerId,
+        transceiverId: _transceiverId,
+        trackId: t != null ? int.parse(t.id()) : -1);
   }
 }

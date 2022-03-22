@@ -7,7 +7,8 @@ import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
 import '/src/platform/video_renderer.dart';
-import '../../api/utils.dart';
+import '../../api/peer.dart';
+// import '../../api/utils.dart';
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
@@ -23,7 +24,6 @@ final _rendererFactoryChannel = methodChannel('VideoRendererFactory', 0);
 
 /// [VideoRenderer] implementation for the native platform.
 abstract class NativeVideoRenderer extends VideoRenderer {
-
   /// Unique ID for the texture on which video will be rendered.
   int? _textureId;
 
@@ -131,7 +131,6 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 }
 
 class _NativeVideoRendererFFI extends NativeVideoRenderer {
-
   @override
   Future<void> initialize() async {
     final response = await _rendererFactoryChannel.invokeMethod('create');

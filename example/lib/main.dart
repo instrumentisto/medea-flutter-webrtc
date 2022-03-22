@@ -1,32 +1,24 @@
 import 'dart:core';
 
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import 'src/renderer.dart';
 import 'src/create_peer_connection_sample.dart';
+import 'src/get_display_media_sample.dart';
+import 'src/get_sources_sample.dart';
+import 'src/get_user_media_sample.dart'
+    if (dart.library.html) 'src/get_user_media_sample_web.dart';
+import 'src/loopback_sample.dart';
+import 'src/renderer.dart';
+import 'src/on_device_change.dart';
 import 'src/route_item.dart';
 
 void main() {
-  // if (WebRTC.platformIsDesktop) {
-  //   debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-  // } else if (WebRTC.platformIsAndroid) {
-  //   WidgetsFlutterBinding.ensureInitialized();
-  //   startForegroundService();
-  // }
   runApp(MyApp());
-}
-
-Future<bool> startForegroundService() async {
-  final androidConfig = FlutterBackgroundAndroidConfig(
-    notificationTitle: 'Title of the notification',
-    notificationText: 'Text of the notification',
-    notificationImportance: AndroidNotificationImportance.Default,
-    notificationIcon: AndroidResource(
-        name: 'background_icon',
-        defType: 'drawable'), // Default is ic_launcher from folder mipmap
-  );
-  return FlutterBackground.initialize(androidConfig: androidConfig);
 }
 
 class MyApp extends StatefulWidget {
@@ -73,47 +65,39 @@ class _MyAppState extends State<MyApp> {
 
   void _initItems() {
     items = <RouteItem>[
-      // RouteItem(
-      //     title: 'GetUserMedia',
-      //     push: (BuildContext context) {
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //               builder: (BuildContext context) => GetUserMediaSample()));
-      //     }),
-      // RouteItem(
-      //     title: 'GetDisplayMedia',
-      //     push: (BuildContext context) {
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //               builder: (BuildContext context) =>
-      //                   GetDisplayMediaSample()));
-      //     }),
-      // RouteItem(
-      //     title: 'LoopBack Sample',
-      //     push: (BuildContext context) {
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //               builder: (BuildContext context) => LoopBackSample()));
-      //     }),
-      // RouteItem(
-      //     title: 'DataChannel',
-      //     push: (BuildContext context) {
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //               builder: (BuildContext context) => DataChannelSample()));
-      //     }),
-      // RouteItem(
-      //     title: 'getSources',
-      //     push: (BuildContext context) {
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //               builder: (BuildContext context) => GetSourcesSample()));
-      //     }),
+      RouteItem(
+          title: 'GetUserMedia',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => GetUserMediaSample()));
+          }),
+      RouteItem(
+          title: 'GetDisplayMedia',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        GetDisplayMediaSample()));
+          }),
+      RouteItem(
+          title: 'LoopBack Sample',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => LoopBackSample()));
+          }),
+      RouteItem(
+          title: 'getSources',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => GetSourcesSample()));
+          }),
       RouteItem(
           title: 'Basic RtcPeerConnection',
           push: (BuildContext context) {
@@ -130,15 +114,15 @@ class _MyAppState extends State<MyApp> {
                 MaterialPageRoute(
                     builder: (BuildContext context) => RendererSample()));
           }),
-      // RouteItem(
-      //     title: 'onDeviceChange notifier',
-      //     push: (BuildContext context) {
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //               builder: (BuildContext context) =>
-      //                   OnDeviceChangeNotifierSample()));
-      //     }),
+      RouteItem(
+          title: 'onDeviceChange notifier',
+          push: (BuildContext context) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        OnDeviceChangeNotifierSample()));
+          }),
     ];
   }
 }

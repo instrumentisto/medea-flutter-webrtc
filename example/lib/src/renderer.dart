@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:flutter_webrtc/src/api/bridge.g.dart' as ffi;
 import 'package:flutter_webrtc/src/platform/native/media_stream_track.dart';
 
 class RendererSample extends StatefulWidget {
@@ -40,11 +41,15 @@ class _RendererSampleState extends State<RendererSample> {
   void _start() async {
     try {
       var tracks = await api.getMedia(
-          constraints: MediaStreamConstraints(
-              video: VideoConstraints(
-                  deviceId: '', height: 480, width: 480, frameRate: 30, isDisplay: false)));
+          constraints: ffi.MediaStreamConstraints(
+              video: ffi.VideoConstraints(
+                  deviceId: '',
+                  height: 480,
+                  width: 480,
+                  frameRate: 30,
+                  isDisplay: false)));
 
-      _track = NativeMediaStreamTrack.from(tracks[0]); 
+      _track = NativeMediaStreamTrack.from(tracks[0]);
       _renderer.srcObject = _track;
     } catch (e) {
       print(e.toString());
