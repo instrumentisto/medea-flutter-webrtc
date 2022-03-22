@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -12,7 +11,7 @@ import '../../api/peer.dart';
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  if (IS_DESKTOP) {
     return _NativeVideoRendererFFI();
   } else {
     return _NativeVideoRendererChannel();

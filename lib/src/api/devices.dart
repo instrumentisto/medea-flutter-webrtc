@@ -6,7 +6,6 @@ import '/src/platform/native/media_stream_track.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
-import 'utils.dart';
 
 typedef OnDeviceChangeHandler = void Function();
 
@@ -110,14 +109,23 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
+  var audioConstraints = constraints.audio.mandatory != null
+      ? ffi.AudioConstraints(
+          deviceId: constraints.audio.mandatory?.deviceId ?? '')
+      : null;
+
+  var videoConstraints = constraints.video.mandatory != null
+      ? ffi.VideoConstraints(
+          deviceId: constraints.video.mandatory?.deviceId ?? '',
+          height: constraints.video.mandatory?.height ?? 640,
+          width: constraints.video.mandatory?.width ?? 480,
+          frameRate: constraints.video.mandatory?.fps ?? 30,
+          isDisplay: false)
+      : null;
+
   var tracks = await api.getMedia(
       constraints: ffi.MediaStreamConstraints(
-          video: ffi.VideoConstraints(
-              deviceId: '',
-              height: 380,
-              width: 460,
-              frameRate: 30,
-              isDisplay: false)));
+          audio: audioConstraints, video: videoConstraints));
 
   return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
 }
@@ -146,7 +154,23 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
 
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
-  var tracks = await api.getMedia(constraints: ffi.MediaStreamConstraints());
+  var audioConstraints = constraints.audio.mandatory != null
+      ? ffi.AudioConstraints(
+          deviceId: constraints.audio.mandatory?.deviceId ?? '')
+      : null;
+
+  var videoConstraints = constraints.video.mandatory != null
+      ? ffi.VideoConstraints(
+          deviceId: constraints.video.mandatory?.deviceId ?? '',
+          height: constraints.video.mandatory?.height ?? 1920,
+          width: constraints.video.mandatory?.width ?? 1080,
+          frameRate: constraints.video.mandatory?.fps ?? 30,
+          isDisplay: true)
+      : null;
+
+  var tracks = await api.getMedia(
+      constraints: ffi.MediaStreamConstraints(
+          audio: audioConstraints, video: videoConstraints));
 
   return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
 }
