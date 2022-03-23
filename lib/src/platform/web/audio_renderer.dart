@@ -9,30 +9,34 @@ import '/src/platform/web/media_stream_track.dart';
 
 /// Creates new [AudioRenderer] for Web platform.
 AudioRenderer createPlatformSpecificAudioRenderer() {
-  return AudioRendererWeb();
+  return WebAudioRenderer();
 }
 
-class AudioRendererWeb extends AudioRenderer {
-  AudioRendererWeb() : _id = _textureCounter++;
+class WebAudioRenderer extends AudioRenderer {
+  /// Constructs new [WebAudioRenderer].
+  WebAudioRenderer() : _id = _textureCounter++;
 
+  /// HTML element ID for audio manager's [html.DivElement].
   static const _elementIdForAudioManager = 'html_webrtc_audio_manager_list';
 
-  html.AudioElement? _element;
-
-  WebMediaStreamTrack? _src;
-
-  final int _id;
-
-  String get _elementId => 'audio-renderer-$_id';
-
+  /// Counter for the [_id].
   static int _textureCounter = 1;
 
+  /// Unique ID of this [WebAudioRenderer].
+  final int _id;
+
+  /// [html.AudioElement] which play [_srcObject].
+  html.AudioElement? _element;
+
+  /// ID of the `audio` HTML element of this [WebAudioRenderer].
+  String get _elementId => 'audio-renderer-$_id';
+
+  /// Audio [MediaStreamTrack] currently played by this [WebAudioRenderer].
   MediaStreamTrack? _srcObject;
 
   @override
   Future<void> dispose() async {
-    await _src?.dispose();
-    _src = null;
+    _srcObject = null;
     _element?.srcObject = null;
     final audioManager = html.document.getElementById(_elementIdForAudioManager)
         as html.DivElement?;
@@ -46,17 +50,19 @@ class AudioRendererWeb extends AudioRenderer {
 
   @override
   set srcObject(MediaStreamTrack? srcObject) {
-    if (_srcObject == null) {
+    if (srcObject == null) {
       _element?.srcObject = null;
       _srcObject = null;
       return;
     }
-    if (srcObject!.kind() != MediaKind.audio) {
+
+    if (srcObject.kind() != MediaKind.audio) {
       throw Exception(
           "MediaStreamTracks with video kind isn't supported in AudioRenderer");
     }
+    srcObject as WebMediaStreamTrack;
 
-    _srcObject = srcObject as WebMediaStreamTrack;
+    _srcObject = srcObject;
 
     var stream = html.MediaStream();
     stream.addTrack(srcObject.jsTrack);
@@ -65,19 +71,25 @@ class AudioRendererWeb extends AudioRenderer {
       _element = html.AudioElement()
         ..id = _elementId
         ..autoplay = true;
-      _ensureAudioManagerDiv().append(_element!);
+      _getAudioManagerDiv().append(_element!);
     }
     _element!.srcObject = stream;
   }
 
-  html.DivElement _ensureAudioManagerDiv() {
+  /// Returns [html.DivElement] for the audio manager.
+  ///
+  /// If [html.DivElement] is not exist, then creates and returns it.
+  html.DivElement _getAudioManagerDiv() {
     var div = html.document.getElementById(_elementIdForAudioManager);
-    if (null != div) return div as html.DivElement;
+    if (div != null) {
+      return div as html.DivElement;
+    }
 
     div = html.DivElement()
       ..id = _elementIdForAudioManager
       ..style.display = 'none';
     html.document.body?.append(div);
+
     return div as html.DivElement;
   }
 }
