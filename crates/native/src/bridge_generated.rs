@@ -691,9 +691,7 @@ impl Wire2Api<IceTransportsType> for i32 {
             0 => IceTransportsType::Relay,
             1 => IceTransportsType::NoHost,
             2 => IceTransportsType::All,
-            _ => {
-                unreachable!("Invalid variant for IceTransportsType: {}", self)
-            }
+            _ => unreachable!("Invalid variant for IceTransportsType: {}", self),
         }
     }
 }
