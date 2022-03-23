@@ -1,8 +1,8 @@
 import 'dart:html' as html;
 
 import '/src/model/track.dart';
-import '/src/platform/track.dart';
 import '/src/platform/audio_renderer.dart';
+import '/src/platform/track.dart';
 import '/src/platform/web/media_stream_track.dart';
 
 // ignore_for_file: avoid_web_libraries_in_flutter

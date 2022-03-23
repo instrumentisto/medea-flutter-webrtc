@@ -1,5 +1,5 @@
-import '/src/platform/track.dart';
 import '/src/platform/audio_renderer.dart';
+import '/src/platform/track.dart';
 
 AudioRenderer createPlatformSpecificAudioRenderer() {
   return AudioRendererNative();
