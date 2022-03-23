@@ -385,9 +385,9 @@ pub struct MediaStreamId(u64);
 pub struct VideoDeviceId(String);
 
 /// ID of an `AudioDevice`.
-#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq)]
+#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq, Into)]
 #[as_ref(forward)]
-pub struct AudioDeviceId(pub(crate) String);
+pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
 #[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
@@ -672,15 +672,13 @@ impl Drop for AudioDeviceModule {
     }
 }
 
-struct RemoteSource {
-    transceiver_mid: String,
-    peer_id: u64,
-}
-
 /// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Arc<T>),
-    Remote(RemoteSource),
+    Remote {
+        mid: String,
+        peer_id: u64,
+    },
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].

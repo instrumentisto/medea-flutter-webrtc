@@ -11,20 +11,20 @@ typedef OnDeviceChangeHandler = void Function();
 
 class DeviceHandler {
   static final DeviceHandler _instance = DeviceHandler._internal();
-  Stream<void>? _stream;
 
   factory DeviceHandler() {
     return _instance;
   }
 
   DeviceHandler._internal() {
-    _stream = api.setOnDeviceChanged();
-    _stream!.listen(_listener);
+    _listen();
   }
 
-  void _listener(void event) {
-    if (_handler != null) {
-      _handler!();
+  void _listen() async {
+    await for (_ in api.setOnDeviceChanged()) {
+      if (_handler != null) {
+        _handler!();
+      }
     }
   }
 
@@ -54,15 +54,11 @@ final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 
 /// Returns list of [MediaDeviceInfo]s for the currently available devices.
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
-  List<MediaDeviceInfo> mdInfo;
-
   if (IS_DESKTOP) {
-    mdInfo = await _enumerateDevicesFFI();
+    return await _enumerateDevicesFFI();
   } else {
-    mdInfo = await _enumerateDevicesChannel();
+    return await _enumerateDevicesChannel();
   }
-
-  return mdInfo;
 }
 
 Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
@@ -81,15 +77,11 @@ Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
 /// the provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
-  Future<List<NativeMediaStreamTrack>> nativeTrack;
-
   if (IS_DESKTOP) {
-    nativeTrack = _getUserMediaFFI(constraints);
+    return _getUserMediaFFI(constraints);
   } else {
-    nativeTrack = _getUserMediaChannel(constraints);
+    return _getUserMediaChannel(constraints);
   }
-
-  return nativeTrack;
 }
 
 Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
@@ -117,7 +109,7 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? 640,
+          height: constraints.video.mandatory?.height ?? 640, // TODO(alexlapa): as const
           width: constraints.video.mandatory?.width ?? 480,
           frameRate: constraints.video.mandatory?.fps ?? 30,
           isDisplay: false)

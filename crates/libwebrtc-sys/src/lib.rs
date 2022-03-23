@@ -935,6 +935,7 @@ impl IceCandidateInterface {
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [2]: https://webrtc.github.io/webrtc-org/native-code/native-apis
 pub struct PeerConnectionInterface {
+    // TODO(alexlapa): move to native
     /// Internal identificator.
     id: u64,
 

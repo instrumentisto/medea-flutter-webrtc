@@ -1,3 +1,5 @@
+// TODO(alexlapa): add logger, log::error!(asdasd);
+
 use std::sync::{mpsc::Sender, Arc, Mutex};
 
 use anyhow::{anyhow, bail};
@@ -422,7 +424,7 @@ impl Webrtc {
     pub fn sender_replace_track(
         &self,
         peer_id: u64,
-        transceiver_id: u64,
+        transceiver_id: u64, // TODO(alexlapa): index
         track_id: Option<u64>,
     ) -> anyhow::Result<()> {
         let peer = if let Some(peer) =
@@ -549,10 +551,10 @@ impl Webrtc {
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct PeerConnectionId(pub(crate) u64);
+pub struct PeerConnectionId(pub(crate) u64);// TODO(alexlapa): why pub when we have into?
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
-//todo delete pub (crate)
+// TODO(alexlapa): delete pub (crate)
 pub struct PeerConnection(pub(crate) Arc<Mutex<sys::PeerConnectionInterface>>);
 
 impl PeerConnection {
@@ -564,7 +566,7 @@ impl PeerConnection {
         observer: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
         pool: ThreadPool,
-        id: u64,
+        id: u64, // TODO(alexlapa): should be first arg
     ) -> anyhow::Result<Self> {
         let obs_peer = Arc::new(OnceCell::new());
         let observer = sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver {
@@ -619,13 +621,15 @@ struct CreateSdpCallback(Sender<anyhow::Result<SdpInfo>>);
 
 impl sys::CreateSdpCallback for CreateSdpCallback {
     fn success(&mut self, sdp: &CxxString, kind: sys::SdpType) {
+        // TODO(alexlapa): dont unwrap, just log
         self.0
             .send(Ok(SdpInfo::new(sdp.to_string(), kind)))
             .unwrap();
     }
 
     fn fail(&mut self, error: &CxxString) {
-        self.0.send(Err(anyhow!("{}", error.to_string()))).unwrap();
+        // TODO(alexlapa): dont unwrap, just log
+        self.0.send(Err(anyhow!("{}", error))).unwrap();
     }
 }
 
@@ -634,13 +638,13 @@ struct SetSdpCallback(Sender<anyhow::Result<()>>);
 
 impl sys::SetDescriptionCallback for SetSdpCallback {
     fn success(&mut self) {
-        // self.0.pin_mut().on_set_description_sucess();
+        // TODO(alexlapa): dont unwrap, just log
         self.0.send(Ok(())).unwrap();
     }
 
     fn fail(&mut self, error: &CxxString) {
-        // self.0.pin_mut().on_set_description_fail(error);
-        self.0.send(Err(anyhow!("{}", error.to_string()))).unwrap();
+        // TODO(alexlapa): dont unwrap, just log
+        self.0.send(Err(anyhow!("{}", error))).unwrap();
     }
 }
 
@@ -722,9 +726,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             });
     }
 
-    //     fn on_ice_connection_receiving_change(&mut self, _: bool) {
-    //         // This is a non-spec-compliant event.
-    //     }
+    fn on_ice_connection_receiving_change(&mut self, _: bool) {
+        // This is a non-spec-compliant event.
+    }
 
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
         let track = match transceiver.media_type() {
@@ -754,7 +758,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         self.pool.execute({
             // PANIC: Unwrapping is OK, since the transceiver is guaranteed
             //        to be negotiated at this point.
-            let mid = transceiver.mid();
+            let mid = transceiver.mid().unwrap();
             let direction = transceiver.direction();
             let peer = Arc::clone(&self.peer);
             let observer = Arc::clone(&self.observer);
@@ -765,9 +769,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     .get_transceivers()
                     .iter()
                     .enumerate()
-                    .find(|(_, t)| {
-                        t.mid().as_ref() == Some(&mid.as_ref().unwrap().to_string())
-                    })
+                    .find(|(_, t)| t.mid().as_ref() == Some(&mid))
                     .map(|(id, _)| id)
                     .unwrap();
 
@@ -775,8 +777,8 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     track,
                     transceiver: api::RtcRtpTransceiver {
                         id: index as u64,
-                        mid,
-                        direction: direction.try_into().unwrap(),
+                        mid: Some(mid),
+                        direction: direction.try_into().unwrap(), // TODO(alexlapa): into()?
                         sender: api::RtcRtpSender { id: index as u64 },
                         peer_id: peer.id(),
                     },
@@ -809,10 +811,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         // This is a non-spec-compliant event.
     }
 
-    fn on_ice_connection_receiving_change(&mut self, _: bool) {
-        // This is a non-spec-compliant event.
-    }
-
     fn on_remove_track(&mut self, _: sys::RtpReceiverInterface) {
         // This is a non-spec-compliant event.
     }
@@ -823,12 +821,12 @@ pub struct AddIceCandidateCallback(Sender<anyhow::Result<()>>);
 
 impl sys::AddIceCandidateCallback for AddIceCandidateCallback {
     fn on_success(&mut self) {
-        // self.0.pin_mut().on_add_ice_candidate_success();
+        // TODO(alexlapa): dont unwrap, just log
         self.0.send(Ok(())).unwrap();
     }
 
     fn on_fail(&mut self, error: &CxxString) {
-        // self.0.pin_mut().on_add_ice_candidate_fail(error);
-        self.0.send(Err(anyhow!("{}", error.to_string()))).unwrap();
+        // TODO(alexlapa): dont unwrap, just log
+        self.0.send(Err(anyhow!("{}", error))).unwrap();
     }
 }

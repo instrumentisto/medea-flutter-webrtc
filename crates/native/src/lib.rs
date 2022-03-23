@@ -57,7 +57,8 @@ struct Webrtc {
     task_queue_factory: Arc<Mutex<TaskQueueFactory>>,
     audio_device_module: AudioDeviceModule,
     worker_thread: Thread,
-    // TODO: recheck whether do we really need to create network thread manually
+    // TODO(alexlapa): recheck whether do we really need to create network
+    //                 thread manually
     network_thread: Thread,
     signaling_thread: Thread,
 

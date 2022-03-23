@@ -1,5 +1,4 @@
 use crate::{cpp_api, Webrtc};
-use anyhow::Ok;
 use cxx::UniquePtr;
 
 use flutter_rust_bridge::{StreamSink, SyncReturn};
@@ -243,6 +242,7 @@ impl From<sys::SdpType> for SdpType {
     }
 }
 
+// TODO(alexlapa): RtcSessionDescription
 pub struct SdpInfo {
     pub sdp: String,
     pub kind: SdpType,
@@ -331,7 +331,7 @@ pub struct MediaStreamTrack {
     /// the source stream or `false` if it is not. This can be used to
     /// intentionally mute a track.
     pub enabled: bool,
-
+    // TODO(alexlapa): not used in rust
     pub stopped: bool,
 }
 
@@ -349,7 +349,7 @@ pub struct RtcRtpTransceiver {
     ///
     /// It's not unique across all possible [`RtcRtpTransceiver`]s, but only
     /// within a specific peer.
-    pub id: u64,
+    pub id: u64, // TODO(alexlapa): rename to index
 
     /// [Negotiated media ID (mid)][1] which the local and remote peers have
     /// agreed upon to uniquely identify the [`MediaStream`]'s pairing of
@@ -368,12 +368,13 @@ pub struct RtcRtpTransceiver {
     pub sender: RtcRtpSender,
 }
 
+// TODO(alexlapa): probably we doesnt need this
 /// [`RtcRtpSender`] object allowing to control how a [`MediaStreamTrack`]
 /// is encoded and transmitted to a remote peer.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct RtcRtpSender {
     /// ID of this [`RtcRtpSender`].
-    pub id: u64,
+    pub id: u64, // TODO(alexlapa): rename to index
 }
 
 /// [`RtcTrackEvent`] representing a track event, sent when a new
@@ -486,7 +487,7 @@ impl From<BundlePolicy> for sys::BundlePolicy {
         match policy {
             BundlePolicy::Balanced => Self::kBundlePolicyBalanced,
             BundlePolicy::MaxBundle => Self::kBundlePolicyMaxBundle,
-            BundlePolicy::MaxCompat => Self::kBundlePolicyMaxBundle,
+            BundlePolicy::MaxCompat => Self::kBundlePolicyMaxCompat,
         }
     }
 }
@@ -516,6 +517,7 @@ pub struct RtcIceServer {
 /// Returns a list of all available media input and output devices, such
 /// as microphones, cameras, headsets, and so forth.
 pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
+    // TODO(alexlapa): propagate errors if any
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
@@ -565,7 +567,6 @@ pub fn create_offer(
 ///
 /// Returns an empty [`String`] in operation succeeds or an error
 /// otherwise.
-#[allow(clippy::too_many_arguments)]
 pub fn create_answer(
     peer_id: u64,
     voice_activity_detection: bool,
@@ -742,6 +743,7 @@ pub fn restart_ice(peer_id: u64) -> anyhow::Result<()> {
 
 /// Closes the [`PeerConnection`].
 pub fn dispose_peer_connection(peer_id: u64) -> anyhow::Result<()> {
+    // TODO(alexlapa): dont error
     WEBRTC.lock().unwrap().dispose_peer_connection(peer_id)
 }
 
@@ -757,6 +759,7 @@ pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
 }
 
+// TODO(alexlapa): docs
 /// Disposes the [`MediaStream`] and all contained tracks.
 pub fn dispose_track(track_id: u64) {
     WEBRTC.lock().unwrap().dispose_track(track_id);

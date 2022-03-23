@@ -50,21 +50,21 @@ impl Webrtc {
 
 /// ID of a [`VideoSink`].
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct Id(pub(crate) i64);
+pub struct Id(i64);
 
 /// Wrapper around a [`sys::VideoSink`] attaching a unique ID to it.
 #[derive(AsRef, AsMut)]
 pub struct VideoSink {
     /// ID of this [`VideoSink`].
-    pub(crate) id: Id,
+    id: Id,
 
     /// Underlying [`sys::VideoSinkInterface`].
     #[as_ref]
     #[as_mut]
-    pub(crate) inner: sys::VideoSinkInterface,
+    inner: sys::VideoSinkInterface,
 
     /// ID of the [`VideoTrack`] attached to this [`VideoSink`].
-    pub(crate) track_id: VideoTrackId,
+    track_id: VideoTrackId,
 }
 
 impl VideoSink {

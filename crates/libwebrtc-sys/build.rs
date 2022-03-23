@@ -7,7 +7,7 @@ use std::{
 
 use anyhow::anyhow;
 use dotenv::dotenv;
-#[cfg(windows)]
+#[cfg(linux)]
 use pkg_config;
 use walkdir::{DirEntry, WalkDir};
 
