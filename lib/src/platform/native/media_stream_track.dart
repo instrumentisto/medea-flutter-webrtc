@@ -130,6 +130,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   _NativeMediaStreamTrackFFI.fromMap(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
+    _handleId = track.id;
     _deviceId = track.deviceId;
     _kind = MediaKind.values[track.kind.index];
   }
