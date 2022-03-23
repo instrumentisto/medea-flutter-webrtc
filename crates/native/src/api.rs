@@ -19,52 +19,7 @@ use threadpool::ThreadPool;
 static TIMEOUT: std::time::Duration = std::time::Duration::from_secs(1);
 
 lazy_static::lazy_static! {
-    static ref WEBRTC: Mutex<Webrtc> = {
-        let mut task_queue_factory =
-            TaskQueueFactory::create_default_task_queue_factory();
-
-        let mut network_thread = Thread::create(true).unwrap();
-        network_thread.start().unwrap();
-
-        let mut worker_thread = Thread::create(false).unwrap();
-        worker_thread.start().unwrap();
-
-        let mut signaling_thread = Thread::create(false).unwrap();
-        signaling_thread.start().unwrap();
-
-        let audio_device_module =
-            AudioDeviceModule::new(
-                AudioLayer::kPlatformDefaultAudio,
-                &mut task_queue_factory
-            ).unwrap();
-
-        let peer_connection_factory = PeerConnectionFactoryInterface::create(
-            Some(&network_thread),
-            Some(&worker_thread),
-            Some(&signaling_thread),
-            Some(&audio_device_module.inner),
-        )
-        .unwrap();
-
-        let video_device_info = VideoDeviceInfo::create().unwrap();
-
-        Mutex::new(Webrtc {
-            task_queue_factory,
-            network_thread,
-            worker_thread,
-            signaling_thread,
-            audio_device_module,
-            video_device_info,
-            peer_connection_factory,
-            video_sources: HashMap::new(),
-            video_tracks: Arc::new(DashMap::new()),
-            audio_source: None,
-            audio_tracks: Arc::new(DashMap::new()),
-            peer_connections: HashMap::new(),
-            video_sinks: HashMap::new(),
-            callback_pool: ThreadPool::new(4),
-        })
-    };
+    static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
 }
 
 pub enum TrackEvent {
@@ -448,7 +403,7 @@ pub struct RtcConfiguration {
     ///
     /// [1]: https://tinyurl.com/icetransportpolicy
     /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
-    pub ice_transport_policy: String,
+    pub ice_transport_policy: IceTransportsType,
 
     /// [bundlePolicy][1] configuration.
     ///
@@ -456,7 +411,7 @@ pub struct RtcConfiguration {
     /// candidates.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration-bundlepolicy
-    pub bundle_policy: String,
+    pub bundle_policy: BundlePolicy,
 
     /// [iceServers][1] configuration.
     ///
@@ -465,6 +420,80 @@ pub struct RtcConfiguration {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration-iceservers
     pub ice_servers: Vec<RtcIceServer>,
+}
+
+/// [RTCIceTransportPolicy][1] representation.
+///
+/// It defines an ICE candidate policy the [ICE Agent][2] uses to surface
+/// the permitted candidates to the application. Only these candidates will
+/// be used for connectivity checks.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy
+/// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
+#[derive(Debug, Eq, Hash, PartialEq)]
+pub enum IceTransportsType {
+    /// [RTCIceTransportPolicy.relay][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
+    Relay,
+
+    /// ICE Agent can't use `typ host` candidates when this value is
+    /// specified.
+    ///
+    /// Non-spec-compliant variant.
+    NoHost,
+
+    /// [RTCIceTransportPolicy.all][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
+    All,
+}
+
+impl From<IceTransportsType> for sys::IceTransportsType {
+    fn from(kind: IceTransportsType) -> Self {
+        match kind {
+            IceTransportsType::Relay => Self::kRelay,
+            IceTransportsType::NoHost => Self::kNoHost,
+            IceTransportsType::All => Self::kAll,
+        }
+    }
+}
+
+/// [RTCBundlePolicy][1] representation.
+///
+/// Affects which media tracks are negotiated if the remote endpoint is not
+/// bundle-aware, and what ICE candidates are gathered. If the remote
+/// endpoint is bundle-aware, all media tracks and data channels are bundled
+/// onto the same transport.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
+#[derive(Debug, Eq, Hash, PartialEq)]
+#[repr(i32)]
+pub enum BundlePolicy {
+    /// [RTCBundlePolicy.balanced][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-balanced
+    Balanced,
+
+    /// [RTCBundlePolicy.max-bundle][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-bundle
+    MaxBundle,
+
+    /// [RTCBundlePolicy.max-compat][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
+    MaxCompat,
+}
+
+impl From<BundlePolicy> for sys::BundlePolicy {
+    fn from(policy: BundlePolicy) -> Self {
+        match policy {
+            BundlePolicy::Balanced => Self::kBundlePolicyBalanced,
+            BundlePolicy::MaxBundle => Self::kBundlePolicyMaxBundle,
+            BundlePolicy::MaxCompat => Self::kBundlePolicyMaxBundle,
+        }
+    }
 }
 
 /// Describes the STUN and TURN servers that can be used by the
@@ -782,4 +811,18 @@ pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
 pub fn dispose_video_sink(sink_id: i64) -> SyncReturn<Vec<u8>> {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
     SyncReturn(vec![])
+}
+
+#[cfg(test)]
+mod test {
+    use std::thread;
+
+    use super::Webrtc;
+
+    #[test]
+    fn webrtc_drops_on_another_thread() {
+        let webrtc = thread::spawn(|| Webrtc::new()).join().unwrap().unwrap();
+
+        drop(webrtc);
+    }
 }

@@ -319,7 +319,7 @@ pub(crate) mod webrtc {
     /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
-    enum IceTransportsType {
+    pub enum IceTransportsType {
         /// Non-spec-compliant variant.
         kNone,
 
@@ -350,7 +350,7 @@ pub(crate) mod webrtc {
     /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
-    enum BundlePolicy {
+    pub enum BundlePolicy {
         /// [RTCBundlePolicy.balanced][1] representation.
         ///
         /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-balanced
@@ -1869,3 +1869,21 @@ impl fmt::Display for webrtc::PeerConnectionState {
         }
     }
 }
+
+unsafe impl Send for webrtc::VideoDeviceInfo {}
+unsafe impl Sync for webrtc::VideoDeviceInfo {}
+
+unsafe impl Send for webrtc::TaskQueueFactory {}
+unsafe impl Sync for webrtc::TaskQueueFactory {}
+
+unsafe impl Send for webrtc::Thread {}
+unsafe impl Sync for webrtc::Thread {}
+
+unsafe impl Send for webrtc::AudioDeviceModule {}
+unsafe impl Sync for webrtc::AudioDeviceModule {}
+
+unsafe impl Send for webrtc::AudioSourceInterface {}
+unsafe impl Sync for webrtc::AudioSourceInterface {}
+
+unsafe impl Send for webrtc::VideoSinkInterface {}
+unsafe impl Sync for webrtc::VideoSinkInterface {}

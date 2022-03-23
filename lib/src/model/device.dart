@@ -1,4 +1,4 @@
-import '../api/bridge.g.dart' as ffi;
+import '/src/api/bridge.g.dart' as ffi;
 
 /// Media device kind.
 enum MediaDeviceKind {
@@ -22,10 +22,10 @@ class MediaDeviceInfo {
     kind = MediaDeviceKind.values[map['kind']];
   }
 
-  MediaDeviceInfo.fromFFI(ffi.MediaDeviceInfo map) {
-    deviceId = map.deviceId;
-    label = map.label;
-    kind = MediaDeviceKind.values[map.kind.index];
+  MediaDeviceInfo.fromFFI(ffi.MediaDeviceInfo info) {
+    deviceId = info.deviceId;
+    label = info.label;
+    kind = MediaDeviceKind.values[info.kind.index];
   }
 
   /// Identifier of the represented device.

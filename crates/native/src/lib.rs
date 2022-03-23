@@ -12,14 +12,14 @@ use std::{
     collections::HashMap,
     sync::{
         atomic::{AtomicU64, Ordering},
-        Arc,
+        Arc, Mutex,
     },
 };
 
 use dashmap::DashMap;
 use libwebrtc_sys::{
-    AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
-    VideoDeviceInfo,
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory,
+    Thread, VideoDeviceInfo,
 };
 use threadpool::ThreadPool;
 
@@ -54,9 +54,10 @@ struct Webrtc {
 
     /// `peer_connection_factory` must be drops before [`Thread`]s.
     peer_connection_factory: PeerConnectionFactoryInterface,
-    task_queue_factory: TaskQueueFactory,
+    task_queue_factory: Arc<Mutex<TaskQueueFactory>>,
     audio_device_module: AudioDeviceModule,
     worker_thread: Thread,
+    // TODO: recheck whether do we really need to create network thread manually
     network_thread: Thread,
     signaling_thread: Thread,
 
@@ -65,4 +66,35 @@ struct Webrtc {
     callback_pool: ThreadPool,
 }
 
-unsafe impl Send for Webrtc {}
+impl Webrtc {
+    fn new() -> anyhow::Result<Self> {
+        let task_queue_factory = Arc::new(Mutex::new(
+            TaskQueueFactory::create_default_task_queue_factory(),
+        ));
+        let audio_device_module = AudioDeviceModule::new(
+            AudioLayer::kPlatformDefaultAudio,
+            Arc::clone(&task_queue_factory),
+        )
+        .unwrap();
+        let create_result = audio_device_module
+            .create_peer_connection_factory()
+            .unwrap();
+        let video_device_info = VideoDeviceInfo::create().unwrap();
+        Ok(Webrtc {
+            task_queue_factory,
+            network_thread: create_result.network_thread,
+            worker_thread: create_result.worker_thread,
+            signaling_thread: create_result.signaling_thread,
+            audio_device_module,
+            video_device_info,
+            peer_connection_factory: create_result.peer_connection_factory,
+            video_sources: HashMap::new(),
+            video_tracks: Arc::new(DashMap::new()),
+            audio_source: None,
+            audio_tracks: Arc::new(DashMap::new()),
+            peer_connections: HashMap::new(),
+            video_sinks: HashMap::new(),
+            callback_pool: ThreadPool::new(4),
+        })
+    }
+}
