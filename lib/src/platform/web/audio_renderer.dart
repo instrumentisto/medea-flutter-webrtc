@@ -7,6 +7,7 @@ import '/src/platform/web/media_stream_track.dart';
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 
+/// Creates new [AudioRenderer] for Web platform.
 AudioRenderer createPlatformSpecificAudioRenderer() {
   return AudioRendererWeb();
 }
@@ -79,7 +80,4 @@ class AudioRendererWeb extends AudioRenderer {
     html.document.body?.append(div);
     return div as html.DivElement;
   }
-
-  @override
-  Future<void> initialize() => Future.value();
 }
