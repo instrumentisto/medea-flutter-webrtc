@@ -192,6 +192,5 @@ Future<void> _setOutputAudioIdChannel(String deviceId) async {
 }
 
 Future<void> _setOutputAudioIdFFI(String deviceId) async {
-  // TODO: implement setOutputAudioId
-  throw UnimplementedError();
+  await api.setAudioPlayoutDevice(deviceId: deviceId);
 }

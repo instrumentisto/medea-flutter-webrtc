@@ -1,20 +1,13 @@
-use crate::{cpp_api, AudioDeviceModule, Webrtc};
+use crate::{cpp_api, Webrtc};
 use anyhow::Ok;
 use cxx::UniquePtr;
-use dashmap::DashMap;
+
 use flutter_rust_bridge::{StreamSink, SyncReturn};
-use libwebrtc_sys::{
-    self as sys, AudioLayer, PeerConnectionFactoryInterface, TaskQueueFactory, Thread,
-    VideoDeviceInfo,
+use libwebrtc_sys::{self as sys};
+use std::sync::{
+    mpsc::{self, Receiver, Sender},
+    Mutex,
 };
-use std::{
-    collections::HashMap,
-    sync::{
-        mpsc::{self, Receiver, Sender},
-        Arc, Mutex,
-    },
-};
-use threadpool::ThreadPool;
 
 static TIMEOUT: std::time::Duration = std::time::Duration::from_secs(1);
 
@@ -338,6 +331,8 @@ pub struct MediaStreamTrack {
     /// the source stream or `false` if it is not. This can be used to
     /// intentionally mute a track.
     pub enabled: bool,
+
+    pub stopped: bool,
 }
 
 /// Representation of a permanent pair of an [RTCRtpSender] and an
@@ -758,15 +753,13 @@ pub fn get_media(
     WEBRTC.lock().unwrap().get_media(constraints)
 }
 
+pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
+}
+
 /// Disposes the [`MediaStream`] and all contained tracks.
 pub fn dispose_track(track_id: u64) {
     WEBRTC.lock().unwrap().dispose_track(track_id);
-}
-
-/// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
-/// outputs the result to the provided `buffer`.
-unsafe fn get_abgr_bytes(buffer: *mut u8) {
-    unimplemented!()
 }
 
 /// Changes the [enabled][1] property of the media track by its ID.
@@ -774,6 +767,10 @@ unsafe fn get_abgr_bytes(buffer: *mut u8) {
 /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
 pub fn set_track_enabled(track_id: u64, enabled: bool) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_track_enabled(track_id, enabled)
+}
+
+pub fn clone_track(track_id: u64) -> anyhow::Result<MediaStreamTrack> {
+    WEBRTC.lock().unwrap().clone_track(track_id)
 }
 
 /// Registers an observer to the media track events.

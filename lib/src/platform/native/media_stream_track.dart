@@ -128,6 +128,8 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   late int _handleId;
 
+  bool _stopped = false;
+
   _NativeMediaStreamTrackFFI.fromMap(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
     _handleId = track.id;
@@ -137,22 +139,34 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   Future<MediaStreamTrack> clone() async {
-    return NativeMediaStreamTrack.from({'map': '1'});
+    if (!_stopped) {
+      return NativeMediaStreamTrack.from(
+          await api.cloneTrack(trackId: _handleId));
+    }
+
+    return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
+        deviceId: _deviceId,
+        enabled: _enabled,
+        id: _handleId,
+        kind: ffi.MediaType.values[_kind.index],
+        stopped: _stopped));
   }
 
   @override
-  Future<void> dispose() async {
-    await api.disposeTrack(trackId: _handleId);
-  }
+  Future<void> dispose() async {}
 
   @override
   Future<void> setEnabled(bool enabled) async {
-    api.setTrackEnabled(trackId: _handleId, enabled: enabled);
+    if (!_stopped) {
+      api.setTrackEnabled(trackId: _handleId, enabled: enabled);
+    }
+
+    _enabled = enabled;
   }
 
   @override
-  Future<void> stop() {
-    // TODO: implement stop
-    throw UnimplementedError();
+  Future<void> stop() async {
+    await api.disposeTrack(trackId: _handleId);
+    _stopped = true;
   }
 }

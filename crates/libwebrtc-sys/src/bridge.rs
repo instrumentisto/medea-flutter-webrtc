@@ -449,6 +449,14 @@ pub(crate) mod webrtc {
             audio_device_module: &AudioDeviceModule,
             index: u16,
         ) -> i32;
+
+        /// Specifies which audio device to use for playout audio using an
+        /// index retrieved by the corresponding enumeration method which is
+        /// [`AudiDeviceModule::RecordingDeviceName`].
+        pub fn set_audio_playout_device(
+            audio_device_module: &AudioDeviceModule,
+            index: u16,
+        ) -> i32;
     }
 
     unsafe extern "C++" {

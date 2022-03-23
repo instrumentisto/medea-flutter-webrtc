@@ -139,6 +139,8 @@ abstract class FlutterWebrtcNative {
   Future<List<MediaStreamTrack>> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
 
+  Future<void> setAudioPlayoutDevice({required String deviceId, dynamic hint});
+
   /// Disposes the [`MediaStream`] and all contained tracks.
   Future<void> disposeTrack({required int trackId, dynamic hint});
 
@@ -147,6 +149,8 @@ abstract class FlutterWebrtcNative {
   /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
   Future<void> setTrackEnabled(
       {required int trackId, required bool enabled, dynamic hint});
+
+  Future<MediaStreamTrack> cloneTrack({required int trackId, dynamic hint});
 
   /// Registers an observer to the media track events.
   Stream<TrackEvent> registerTrackObserver(
@@ -314,12 +318,14 @@ class MediaStreamTrack {
   /// the source stream or `false` if it is not. This can be used to
   /// intentionally mute a track.
   final bool enabled;
+  final bool stopped;
 
   MediaStreamTrack({
     required this.id,
     required this.deviceId,
     required this.kind,
     required this.enabled,
+    required this.stopped,
   });
 }
 
@@ -896,6 +902,20 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
+  Future<void> setAudioPlayoutDevice(
+          {required String deviceId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_audio_playout_device(
+            port_, _api2wire_String(deviceId)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_audio_playout_device",
+          argNames: ["deviceId"],
+        ),
+        argValues: [deviceId],
+        hint: hint,
+      ));
+
   Future<void> disposeTrack({required int trackId, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) =>
@@ -920,6 +940,19 @@ class FlutterWebrtcNativeImpl
           argNames: ["trackId", "enabled"],
         ),
         argValues: [trackId, enabled],
+        hint: hint,
+      ));
+
+  Future<MediaStreamTrack> cloneTrack({required int trackId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_clone_track(port_, _api2wire_u64(trackId)),
+        parseSuccessData: _wire2api_media_stream_track,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "clone_track",
+          argNames: ["trackId"],
+        ),
+        argValues: [trackId],
         hint: hint,
       ));
 
@@ -1232,13 +1265,14 @@ MediaDeviceKind _wire2api_media_device_kind(dynamic raw) {
 
 MediaStreamTrack _wire2api_media_stream_track(dynamic raw) {
   final arr = raw as List<dynamic>;
-  if (arr.length != 4)
-    throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+  if (arr.length != 5)
+    throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
   return MediaStreamTrack(
     id: _wire2api_u64(arr[0]),
     deviceId: _wire2api_String(arr[1]),
     kind: _wire2api_media_type(arr[2]),
     enabled: _wire2api_bool(arr[3]),
+    stopped: _wire2api_bool(arr[4]),
   );
 }
 
@@ -1732,6 +1766,23 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_get_media = _wire_get_mediaPtr.asFunction<
       void Function(int, ffi.Pointer<wire_MediaStreamConstraints>)>();
 
+  void wire_set_audio_playout_device(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> device_id,
+  ) {
+    return _wire_set_audio_playout_device(
+      port_,
+      device_id,
+    );
+  }
+
+  late final _wire_set_audio_playout_devicePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_set_audio_playout_device');
+  late final _wire_set_audio_playout_device = _wire_set_audio_playout_devicePtr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
   void wire_dispose_track(
     int port_,
     int track_id,
@@ -1766,6 +1817,22 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
               ffi.Int64, ffi.Uint64, ffi.Uint8)>>('wire_set_track_enabled');
   late final _wire_set_track_enabled =
       _wire_set_track_enabledPtr.asFunction<void Function(int, int, int)>();
+
+  void wire_clone_track(
+    int port_,
+    int track_id,
+  ) {
+    return _wire_clone_track(
+      port_,
+      track_id,
+    );
+  }
+
+  late final _wire_clone_trackPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_clone_track');
+  late final _wire_clone_track =
+      _wire_clone_trackPtr.asFunction<void Function(int, int)>();
 
   void wire_register_track_observer(
     int port_,

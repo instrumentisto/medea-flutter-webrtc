@@ -374,6 +374,24 @@ pub extern "C" fn wire_get_media(port_: i64, constraints: *mut wire_MediaStreamC
 }
 
 #[no_mangle]
+pub extern "C" fn wire_set_audio_playout_device(
+    port_: i64,
+    device_id: *mut wire_uint_8_list,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "set_audio_playout_device",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_device_id = device_id.wire2api();
+            move |task_callback| set_audio_playout_device(api_device_id)
+        },
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_dispose_track(port_: i64, track_id: u64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -400,6 +418,21 @@ pub extern "C" fn wire_set_track_enabled(port_: i64, track_id: u64, enabled: boo
             let api_track_id = track_id.wire2api();
             let api_enabled = enabled.wire2api();
             move |task_callback| set_track_enabled(api_track_id, api_enabled)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_clone_track(port_: i64, track_id: u64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "clone_track",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_track_id = track_id.wire2api();
+            move |task_callback| clone_track(api_track_id)
         },
     )
 }
@@ -947,6 +980,7 @@ impl support::IntoDart for MediaStreamTrack {
             self.device_id.into_dart(),
             self.kind.into_dart(),
             self.enabled.into_dart(),
+            self.stopped.into_dart(),
         ]
         .into_dart()
     }

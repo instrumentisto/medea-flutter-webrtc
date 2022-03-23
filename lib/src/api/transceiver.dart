@@ -5,7 +5,6 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 import 'sender.dart';
-import 'utils.dart';
 
 abstract class RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
@@ -145,8 +144,7 @@ class RtpTransceiverFFI extends RtpTransceiver {
   }
 
   @override
-  Future<void> syncMid() {
-    // TODO: implement syncMid
-    throw UnimplementedError();
+  Future<void> syncMid() async {
+    _mid = await api.getTransceiverMid(peerId: _peerId, transceiverId: _id);
   }
 }

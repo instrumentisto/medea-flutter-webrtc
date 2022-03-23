@@ -11,7 +11,9 @@ use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 
-use crate::{api, api::TrackEvent, next_id, VideoSink, VideoSinkId, Webrtc};
+use crate::{
+    api, api::TrackEvent, next_id, PeerConnectionId, VideoSink, VideoSinkId, Webrtc,
+};
 
 impl Webrtc {
     /// Creates a new local [`MediaStream`] with [`VideoTrack`]s and/or
@@ -259,6 +261,92 @@ impl Webrtc {
         Ok(())
     }
 
+    pub fn clone_track(&mut self, id: u64) -> anyhow::Result<api::MediaStreamTrack> {
+        if self.video_tracks.contains_key(&VideoTrackId(id)) {
+            let source = match &self.video_tracks.get(&VideoTrackId(id)).unwrap().source {
+                MediaTrackSource::Local(source) => {
+                    MediaTrackSource::Local(Arc::clone(&source))
+                }
+                MediaTrackSource::Remote(source) => MediaTrackSource::Remote(RemoteSource {
+                    transceiver_mid: source.transceiver_mid.to_string(),
+                    peer_id: id,
+                }),
+            };
+
+            match source {
+                MediaTrackSource::Local(source) => Ok(api::MediaStreamTrack::from(
+                    self.create_video_track(source).unwrap().value(),
+                )),
+                MediaTrackSource::Remote(source) => {
+                    let peer = self
+                        .peer_connections
+                        .get(&PeerConnectionId(source.peer_id))
+                        .unwrap();
+
+                    let mut transceivers = peer.0.lock().unwrap().get_transceivers();
+
+                    transceivers.retain(|transceiver| {
+                        transceiver.mid().unwrap() == source.transceiver_mid
+                    });
+
+                    if transceivers.len() > 0 {
+                        let track =
+                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), id);
+
+                        Ok(api::MediaStreamTrack::from(&track))
+                    } else {
+                        bail!(
+                            "No `transceiver` has been found with this `mid: {}`.",
+                            source.transceiver_mid
+                        );
+                    }
+                }
+            }
+        } else if self.audio_tracks.contains_key(&AudioTrackId(id)) {
+            let source = match &self.audio_tracks.get(&AudioTrackId(id)).unwrap().source {
+                MediaTrackSource::Local(source) => {
+                    MediaTrackSource::Local(Arc::clone(&source))
+                }
+                MediaTrackSource::Remote(source) => MediaTrackSource::Remote(RemoteSource {
+                    transceiver_mid: source.transceiver_mid.to_string(),
+                    peer_id: id,
+                }),
+            };
+
+            match source {
+                MediaTrackSource::Local(source) => Ok(api::MediaStreamTrack::from(
+                    self.create_audio_track(source).unwrap().value(),
+                )),
+                MediaTrackSource::Remote(source) => {
+                    let peer = self
+                        .peer_connections
+                        .get(&PeerConnectionId(source.peer_id))
+                        .unwrap();
+
+                    let mut transceivers = peer.0.lock().unwrap().get_transceivers();
+
+                    transceivers.retain(|transceiver| {
+                        transceiver.mid().unwrap() == source.transceiver_mid
+                    });
+
+                    if transceivers.len() > 0 {
+                        let track =
+                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), id);
+
+                        Ok(api::MediaStreamTrack::from(&track))
+                    } else {
+                        bail!(
+                            "No `transceiver` has been found with this `mid: {}`.",
+                            source.transceiver_mid
+                        );
+                    }
+                }
+            }
+        } else {
+            bail!("There is no `track` with this `id: {id}`.")
+        }
+    }
+
     /// Registers an events observer for an [`AudioTrack`] or a [`VideoTrack`].
     ///
     /// # Warning
@@ -299,7 +387,7 @@ pub struct VideoDeviceId(String);
 /// ID of an `AudioDevice`.
 #[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq)]
 #[as_ref(forward)]
-pub struct AudioDeviceId(String);
+pub struct AudioDeviceId(pub(crate) String);
 
 /// ID of a [`VideoTrack`].
 #[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
@@ -326,6 +414,10 @@ enum Message {
         index: u16,
         tx: mpsc::Sender<anyhow::Result<()>>,
     },
+    SetPlayoutDevice {
+        index: u16,
+        tx: mpsc::Sender<anyhow::Result<()>>,
+    },
     PlayoutDevices(mpsc::Sender<anyhow::Result<i16>>),
     RecordingDevices(mpsc::Sender<anyhow::Result<i16>>),
     RecordingDeviceName {
@@ -342,12 +434,15 @@ enum Message {
 }
 
 impl Message {
-    fn set_recording_device(
-        index: u16,
-    ) -> (Self, mpsc::Receiver<anyhow::Result<()>>) {
+    fn set_recording_device(index: u16) -> (Self, mpsc::Receiver<anyhow::Result<()>>) {
         let (tx, rx) = mpsc::channel();
 
         (Message::SetRecordingDevice { index, tx }, rx)
+    }
+    fn set_playout_device(index: u16) -> (Self, mpsc::Receiver<anyhow::Result<()>>) {
+        let (tx, rx) = mpsc::channel();
+
+        (Message::SetPlayoutDevice { index, tx }, rx)
     }
     pub fn playout_devices() -> (Self, mpsc::Receiver<anyhow::Result<i16>>) {
         let (tx, rx) = mpsc::channel();
@@ -377,10 +472,10 @@ impl Message {
         (Message::PlayoutDeviceName { index, tx }, rx)
     }
 
-    pub fn create_peer_connection_factory() -> ((
+    pub fn create_peer_connection_factory() -> (
         Self,
         mpsc::Receiver<anyhow::Result<CreatePeerConnectionFactoryResult>>,
-    )) {
+    ) {
         let (tx, rx) = mpsc::channel();
 
         (Message::CreatePeerConnectionFactory(tx), rx)
@@ -396,6 +491,8 @@ pub struct AudioDeviceModule {
     /// [`None`] if the [`AudioDeviceModule`] was not used yet to record data
     /// from the audio input device.
     current_device_id: Option<AudioDeviceId>,
+
+    current_playout_device_id: Option<AudioDeviceId>,
 
     thread: Option<JoinHandle<()>>,
 
@@ -427,6 +524,9 @@ impl AudioDeviceModule {
                     Message::SetRecordingDevice { index, tx } => {
                         tx.send(inner.set_recording_device(index)).unwrap();
                     }
+                    Message::SetPlayoutDevice { index, tx } => {
+                        tx.send(inner.set_playout_device(index)).unwrap();
+                    }
                     Message::PlayoutDevices(tx) => {
                         tx.send(inner.playout_devices()).unwrap();
                     }
@@ -447,8 +547,7 @@ impl AudioDeviceModule {
                             let mut worker_thread = sys::Thread::create(false)?;
                             worker_thread.start()?;
 
-                            let mut signaling_thread =
-                                sys::Thread::create(false)?;
+                            let mut signaling_thread = sys::Thread::create(false)?;
                             signaling_thread.start()?;
 
                             let peer_connection_factory =
@@ -474,6 +573,7 @@ impl AudioDeviceModule {
 
         Ok(Self {
             current_device_id: None,
+            current_playout_device_id: None,
             thread: Some(thread),
             tx: Some(tx),
         })
@@ -499,6 +599,21 @@ impl AudioDeviceModule {
         result
     }
 
+    pub fn set_playout_device(
+        &mut self,
+        id: AudioDeviceId,
+        index: u16,
+    ) -> anyhow::Result<()> {
+        let (msg, rx) = Message::set_playout_device(index);
+        self.tx.as_ref().unwrap().send(msg).unwrap();
+        let result = rx.recv()?;
+        if result.is_ok() {
+            self.current_playout_device_id.replace(id);
+        }
+
+        result
+    }
+
     /// Returns count of available audio playout devices.
     pub fn playout_devices(&self) -> anyhow::Result<i16> {
         let (msg, rx) = Message::playout_devices();
@@ -517,10 +632,7 @@ impl AudioDeviceModule {
 
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
-    pub fn playout_device_name(
-        &self,
-        index: i16,
-    ) -> anyhow::Result<(String, String)> {
+    pub fn playout_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
         let (msg, rx) = Message::playout_device_name(index);
         self.tx.as_ref().unwrap().send(msg).unwrap();
 
@@ -529,10 +641,7 @@ impl AudioDeviceModule {
 
     /// Returns the `(label, id)` tuple for the given audio recording device
     /// `index`.
-    pub fn recording_device_name(
-        &self,
-        index: i16,
-    ) -> anyhow::Result<(String, String)> {
+    pub fn recording_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
         let (msg, rx) = Message::recording_device_name(index);
         self.tx.as_ref().unwrap().send(msg).unwrap();
 
@@ -563,10 +672,15 @@ impl Drop for AudioDeviceModule {
     }
 }
 
+struct RemoteSource {
+    transceiver_mid: String,
+    peer_id: u64,
+}
+
 /// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Arc<T>),
-    Remote(String),
+    Remote(RemoteSource),
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].
@@ -613,7 +727,10 @@ impl VideoTrack {
 
     /// Wraps the track of the `transceiver.receiver.track()` into a
     /// [`VideoTrack`].
-    pub(crate) fn wrap_remote(transceiver: &sys::RtpTransceiverInterface) -> Self {
+    pub(crate) fn wrap_remote(
+        transceiver: &sys::RtpTransceiverInterface,
+        peer_id: u64,
+    ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {
@@ -621,7 +738,10 @@ impl VideoTrack {
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
-            source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
+            source: MediaTrackSource::Remote(RemoteSource {
+                transceiver_mid: transceiver.mid().unwrap(),
+                peer_id,
+            }),
             kind: api::MediaType::Audio,
             label: VideoLabel::from("remote"),
             sinks: Vec::new(),
@@ -662,6 +782,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             device_id: track.label.0.clone(),
             kind: track.kind,
             enabled: true,
+            stopped: false,
         }
     }
 }
@@ -711,7 +832,10 @@ impl AudioTrack {
 
     /// Wraps the track of the `transceiver.receiver.track()` into an
     /// [`AudioTrack`].
-    pub(crate) fn wrap_remote(transceiver: &sys::RtpTransceiverInterface) -> Self {
+    pub(crate) fn wrap_remote(
+        transceiver: &sys::RtpTransceiverInterface,
+        peer_id: u64,
+    ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {
@@ -719,7 +843,10 @@ impl AudioTrack {
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
-            source: MediaTrackSource::Remote(transceiver.mid().unwrap()),
+            source: MediaTrackSource::Remote(RemoteSource {
+                transceiver_mid: transceiver.mid().unwrap(),
+                peer_id,
+            }),
             kind: api::MediaType::Audio,
             label: AudioLabel::from("remote"),
         }
@@ -747,6 +874,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
             device_id: track.label.0.clone(),
             kind: track.kind,
             enabled: true,
+            stopped: false,
         }
     }
 }
@@ -823,7 +951,7 @@ impl sys::TrackEventCallback for TrackEventHandler {
 mod test {
     use std::sync::{Arc, Mutex};
 
-    use libwebrtc_sys::{AudioLayer, TaskQueueFactory, Thread};
+    use libwebrtc_sys::{AudioLayer, TaskQueueFactory};
 
     use crate::AudioDeviceId;
 
@@ -831,7 +959,7 @@ mod test {
 
     #[test]
     fn adm_thread_safety() {
-        let mut task_queue_factory = Arc::new(Mutex::new(
+        let task_queue_factory = Arc::new(Mutex::new(
             TaskQueueFactory::create_default_task_queue_factory(),
         ));
 

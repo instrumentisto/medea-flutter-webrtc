@@ -384,11 +384,7 @@ impl Webrtc {
     ///   `transceiver_id`.
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
-    pub fn stop_transceiver(
-        &self,
-        peer_id: u64,
-        transceiver_id: u64,
-    ) -> anyhow::Result<()> {
+    pub fn stop_transceiver(&self, peer_id: u64, transceiver_id: u64) -> anyhow::Result<()> {
         let peer = if let Some(peer) =
             self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
@@ -553,7 +549,7 @@ impl Webrtc {
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct PeerConnectionId(u64);
+pub struct PeerConnectionId(pub(crate) u64);
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 //todo delete pub (crate)
@@ -581,8 +577,7 @@ impl PeerConnection {
 
         let mut sys_configuration = sys::RtcConfiguration::default();
 
-        sys_configuration
-            .set_ice_transport_type(configuration.ice_transport_policy.into());
+        sys_configuration.set_ice_transport_type(configuration.ice_transport_policy.into());
 
         sys_configuration.set_bundle_policy(configuration.bundle_policy.into());
 
@@ -734,14 +729,20 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
         let track = match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_AUDIO => {
-                let track = AudioTrack::wrap_remote(&transceiver);
+                let track = AudioTrack::wrap_remote(
+                    &transceiver,
+                    self.peer.get().unwrap().lock().unwrap().id(),
+                );
                 let result = api::MediaStreamTrack::from(&track);
                 self.audio_tracks.insert(track.id(), track);
 
                 result
             }
             sys::MediaType::MEDIA_TYPE_VIDEO => {
-                let track = VideoTrack::wrap_remote(&transceiver);
+                let track = VideoTrack::wrap_remote(
+                    &transceiver,
+                    self.peer.get().unwrap().lock().unwrap().id(),
+                );
                 let result = api::MediaStreamTrack::from(&track);
                 self.video_tracks.insert(track.id(), track);
 
