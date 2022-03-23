@@ -37,7 +37,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       caps.video.mandatory!.fps = 30;
       caps.video.mandatory!.facingMode = FacingMode.user;
 
-      // _track = (await getUserMedia(caps))[0];
+      _track = (await getUserMedia(caps))[0];
 
       var server =
           IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
@@ -61,8 +61,6 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       var trans = await pc1.addTransceiver(
           MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
-      // await trans.sender.replaceTrack(_track!);
-
       var offer = await pc1.createOffer();
       await pc1.setLocalDescription(offer);
       await pc2.setRemoteDescription(offer);
@@ -80,6 +78,13 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
         print(candidate.candidate.toString());
         await pc1.addIceCandidate(candidate);
       });
+
+      await trans.sender.replaceTrack(_track!);
+
+      var trans2 = await pc1.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+      await trans2.sender.replaceTrack(_track!);
 
       setState(() {
         text = 'test is success';

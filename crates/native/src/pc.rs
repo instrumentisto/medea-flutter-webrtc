@@ -1,6 +1,6 @@
 use std::sync::{mpsc::Sender, Arc, Mutex};
 
-use anyhow::anyhow;
+use anyhow::{anyhow, bail};
 use once_cell::sync::OnceCell;
 use sys::PeerConnectionInterface;
 use threadpool::ThreadPool;
@@ -34,6 +34,7 @@ impl Webrtc {
             obs,
             configuration,
             self.callback_pool.clone(),
+            id,
         )?;
         self.peer_connections.insert(id.into(), peer);
 
@@ -61,9 +62,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
         let options = sys::RTCOfferAnswerOptions::new(
@@ -73,9 +72,8 @@ impl Webrtc {
             ice_restart,
             use_rtp_mux,
         );
-        let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
-            CreateSdpCallback(cb),
-        ));
+        let obs =
+            sys::CreateSessionDescriptionObserver::new(Box::new(CreateSdpCallback(cb)));
         peer.0.lock().unwrap().create_offer(&options, obs);
 
         Ok(())
@@ -102,9 +100,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
         let options = sys::RTCOfferAnswerOptions::new(
@@ -114,9 +110,8 @@ impl Webrtc {
             ice_restart,
             use_rtp_mux,
         );
-        let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
-            CreateSdpCallback(cb),
-        ));
+        let obs =
+            sys::CreateSessionDescriptionObserver::new(Box::new(CreateSdpCallback(cb)));
         peer.0.lock().unwrap().create_answer(&options, obs);
 
         Ok(())
@@ -142,14 +137,11 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
-        let obs =
-            sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
+        let obs = sys::SetLocalDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
         peer.0.lock().unwrap().set_local_description(desc, obs);
 
         Ok(())
@@ -176,15 +168,11 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
-        let obs = sys::SetRemoteDescriptionObserver::new(Box::new(
-            SetSdpCallback(cb),
-        ));
+        let obs = sys::SetRemoteDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
         peer.0.lock().unwrap().set_remote_description(desc, obs);
 
         Ok(())
@@ -211,9 +199,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
         let mut peer_ref = peer.0.lock().unwrap();
 
@@ -253,9 +239,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -298,9 +282,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -310,9 +292,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         transceiver.set_direction(direction.into())
@@ -340,9 +320,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -352,9 +330,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         Ok(transceiver.mid())
@@ -379,9 +355,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -391,9 +365,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         Ok(transceiver.direction())
@@ -422,9 +394,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -434,9 +404,7 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         transceiver.stop()
@@ -466,9 +434,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist",
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
 
         let transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -478,41 +444,31 @@ impl Webrtc {
         {
             transceiver
         } else {
-            return Err(anyhow!(
-                "`Transceiver` with ID `{transceiver_id}` does not exist",
-            ));
+            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
         };
 
         let sender = transceiver.sender();
 
         if let Some(track_id) = track_id {
             match transceiver.media_type() {
-                sys::MediaType::MEDIA_TYPE_VIDEO => {
-                    sender.replace_video_track(Some(
-                        self.video_tracks
-                            .get(&VideoTrackId::from(track_id))
-                            .unwrap()
-                            .as_ref(),
-                    ))
-                }
-                sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    sender.replace_audio_track(Some(
-                        self.audio_tracks
-                            .get(&AudioTrackId::from(track_id))
-                            .unwrap()
-                            .as_ref(),
-                    ))
-                }
+                sys::MediaType::MEDIA_TYPE_VIDEO => sender.replace_video_track(Some(
+                    self.video_tracks
+                        .get(&VideoTrackId::from(track_id))
+                        .unwrap()
+                        .as_ref(),
+                )),
+                sys::MediaType::MEDIA_TYPE_AUDIO => sender.replace_audio_track(Some(
+                    self.audio_tracks
+                        .get(&AudioTrackId::from(track_id))
+                        .unwrap()
+                        .as_ref(),
+                )),
                 _ => unreachable!(),
             }
         } else {
             match transceiver.media_type() {
-                sys::MediaType::MEDIA_TYPE_VIDEO => {
-                    sender.replace_video_track(None)
-                }
-                sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    sender.replace_audio_track(None)
-                }
+                sys::MediaType::MEDIA_TYPE_VIDEO => sender.replace_video_track(None),
+                sys::MediaType::MEDIA_TYPE_AUDIO => sender.replace_audio_track(None),
                 _ => unreachable!(),
             }
         }
@@ -534,27 +490,21 @@ impl Webrtc {
         sdp_mline_index: i32,
         cb: Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
-        let candidate = sys::IceCandidateInterface::new(
-            sdp_mid,
-            sdp_mline_index,
-            candidate,
-        )
-        .unwrap();
+        let candidate =
+            sys::IceCandidateInterface::new(sdp_mid, sdp_mline_index, candidate).unwrap();
 
         let peer = if let Some(peer) =
             self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
-        peer.0.lock().unwrap().add_ice_candidate(
-            candidate,
-            Box::new(AddIceCandidateCallback(cb)),
-        );
+        peer.0
+            .lock()
+            .unwrap()
+            .add_ice_candidate(candidate, Box::new(AddIceCandidateCallback(cb)));
 
         Ok(())
     }
@@ -572,9 +522,7 @@ impl Webrtc {
         {
             peer
         } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
+            bail!("`PeerConnection` with ID `{peer_id}` does not exist");
         };
 
         peer.0.lock().unwrap().restart_ice();
@@ -589,19 +537,13 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
-    pub fn dispose_peer_connection(
-        &mut self,
-        peer_id: u64,
-    ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) =
-            self.peer_connections.remove(&PeerConnectionId(peer_id))
-        {
-            peer
-        } else {
-            return Err(anyhow!(
-                "`PeerConnection` with ID `{peer_id}` does not exist"
-            ));
-        };
+    pub fn dispose_peer_connection(&mut self, peer_id: u64) -> anyhow::Result<()> {
+        let peer =
+            if let Some(peer) = self.peer_connections.remove(&PeerConnectionId(peer_id)) {
+                peer
+            } else {
+                bail!("`PeerConnection` with ID `{peer_id}` does not exist");
+            };
 
         peer.0.lock().unwrap().close();
 
@@ -626,17 +568,16 @@ impl PeerConnection {
         observer: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
         pool: ThreadPool,
+        id: u64,
     ) -> anyhow::Result<Self> {
         let obs_peer = Arc::new(OnceCell::new());
-        let observer = sys::PeerConnectionObserver::new(Box::new(
-            PeerConnectionObserver {
-                observer,
-                peer: Arc::clone(&obs_peer),
-                video_tracks,
-                audio_tracks,
-                pool,
-            },
-        ));
+        let observer = sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver {
+            observer: Arc::new(Mutex::new(observer)),
+            peer: Arc::clone(&obs_peer),
+            video_tracks,
+            audio_tracks,
+            pool,
+        }));
 
         let mut sys_configuration = sys::RtcConfiguration::default();
 
@@ -657,10 +598,8 @@ impl PeerConnection {
             }
 
             if have_ice_servers {
-                if !server.username.is_empty() || !server.credential.is_empty()
-                {
-                    ice_server
-                        .set_credentials(server.username, server.credential);
+                if !server.username.is_empty() || !server.credential.is_empty() {
+                    ice_server.set_credentials(server.username, server.credential);
                 }
 
                 sys_configuration.add_server(ice_server);
@@ -670,6 +609,7 @@ impl PeerConnection {
         let inner = factory.create_peer_connection_or_error(
             &sys_configuration,
             sys::PeerConnectionDependencies::new(observer),
+            id,
         )?;
 
         let inner_peer = Arc::new(Mutex::new(inner));
@@ -712,7 +652,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 /// [`PeerConnectionObserverInterface`] wrapper.
 struct PeerConnectionObserver {
     /// [`PeerConnectionObserverInterface`] to forward the events to.
-    observer: StreamSink<api::PeerConnectionEvent>,
+    observer: Arc<Mutex<StreamSink<api::PeerConnectionEvent>>>,
 
     /// [`InnerPeer`] of the [`PeerConnection`] internally used in
     /// [`sys::PeerConnectionObserver::on_track()`][1]
@@ -735,38 +675,35 @@ struct PeerConnectionObserver {
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
         self.observer
+            .lock()
+            .unwrap()
             .add(api::PeerConnectionEvent::OnSignallingChange(
                 new_state.into(),
             ));
     }
 
-    fn on_standardized_ice_connection_change(
-        &mut self,
-        new_state: sys::IceConnectionState,
-    ) {
-        self.observer.add(
-            api::PeerConnectionEvent::OnIceConnectionStateChange(
-                new_state.into(),
-            ),
+    fn on_standardized_ice_connection_change(&mut self, new_state: sys::IceConnectionState) {
+        self.observer.lock().unwrap().add(
+            api::PeerConnectionEvent::OnIceConnectionStateChange(new_state.into()),
         );
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
-        self.observer
-            .add(api::PeerConnectionEvent::OnConnectionStateChange(
-                new_state.into(),
-            ));
+        self.observer.lock().unwrap().add(
+            api::PeerConnectionEvent::OnConnectionStateChange(new_state.into()),
+        );
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
-        self.observer
-            .add(api::PeerConnectionEvent::OnIceGatheringStateChange(
-                new_state.into(),
-            ));
+        self.observer.lock().unwrap().add(
+            api::PeerConnectionEvent::OnIceGatheringStateChange(new_state.into()),
+        );
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
         self.observer
+            .lock()
+            .unwrap()
             .add(api::PeerConnectionEvent::OnNegotiationNeeded);
     }
 
@@ -779,6 +716,8 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_text: &CxxString,
     ) {
         self.observer
+            .lock()
+            .unwrap()
             .add(api::PeerConnectionEvent::OnIceCandidateError {
                 address: address.to_string(),
                 port: port as i64,
@@ -793,73 +732,79 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
-        // let track = match transceiver.media_type() {
-        //     sys::MediaType::MEDIA_TYPE_AUDIO => {
-        //         let track = AudioTrack::wrap_remote(&transceiver);
-        //         let result = api::MediaStreamTrack::from(&track);
-        //         self.audio_tracks.insert(track.id(), track);
-        //
-        //         result
-        //     }
-        //     sys::MediaType::MEDIA_TYPE_VIDEO => {
-        //         let track = VideoTrack::wrap_remote(&transceiver);
-        //         let result = api::MediaStreamTrack::from(&track);
-        //         self.video_tracks.insert(track.id(), track);
-        //
-        //         result
-        //     }
-        //     _ => unreachable!(),
-        // };
-        //
-        // self.pool.execute({
-        //     // PANIC: Unwrapping is OK, since the transceiver is guaranteed
-        //     //        to be negotiated at this point.
-        //     let mid = transceiver.mid().unwrap();
-        //     let direction = transceiver.direction();
-        //     let peer = Arc::clone(&self.peer);
-        //     let observer = self.observer.clone();
-        //
-        //     move || {
-        //         let peer = peer.get().unwrap().lock().unwrap();
-        //         let index = peer
-        //             .get_transceivers()
-        //             .iter()
-        //             .enumerate()
-        //             .find(|(_, t)| t.mid().as_ref() == Some(&mid))
-        //             .map(|(id, _)| id)
-        //             .unwrap();
-        //
-        //         let result = api::RtcTrackEvent {
-        //             track,
-        //             transceiver: api::RtcRtpTransceiver {
-        //                 id: index as u64,
-        //                 mid,
-        //                 direction: direction.to_string(),
-        //                 sender: api::RtcRtpSender { id: index as u64 },
-        //             },
-        //         };
-        //
-        //         observer.add(api::PeerConnectionEvent::OnTrack(result));
-        //     }
-        // });
+        let track = match transceiver.media_type() {
+            sys::MediaType::MEDIA_TYPE_AUDIO => {
+                let track = AudioTrack::wrap_remote(&transceiver);
+                let result = api::MediaStreamTrack::from(&track);
+                self.audio_tracks.insert(track.id(), track);
+
+                result
+            }
+            sys::MediaType::MEDIA_TYPE_VIDEO => {
+                let track = VideoTrack::wrap_remote(&transceiver);
+                let result = api::MediaStreamTrack::from(&track);
+                self.video_tracks.insert(track.id(), track);
+
+                result
+            }
+            _ => unreachable!(),
+        };
+
+        self.pool.execute({
+            // PANIC: Unwrapping is OK, since the transceiver is guaranteed
+            //        to be negotiated at this point.
+            let mid = transceiver.mid();
+            let direction = transceiver.direction();
+            let peer = Arc::clone(&self.peer);
+            let observer = Arc::clone(&self.observer);
+
+            move || {
+                let peer = peer.get().unwrap().lock().unwrap();
+                let index = peer
+                    .get_transceivers()
+                    .iter()
+                    .enumerate()
+                    .find(|(_, t)| {
+                        t.mid().as_ref() == Some(&mid.as_ref().unwrap().to_string())
+                    })
+                    .map(|(id, _)| id)
+                    .unwrap();
+
+                let result = api::RtcTrackEvent {
+                    track,
+                    transceiver: api::RtcRtpTransceiver {
+                        id: index as u64,
+                        mid,
+                        direction: direction.try_into().unwrap(),
+                        sender: api::RtcRtpSender { id: index as u64 },
+                        peer_id: peer.id(),
+                    },
+                };
+
+                observer
+                    .lock()
+                    .unwrap()
+                    .add(api::PeerConnectionEvent::OnTrack(result));
+            }
+        });
     }
 
     fn on_ice_candidate(&mut self, candidate: sys::IceCandidateInterface) {
-        self.observer.add(PeerConnectionEvent::OnIceCandidate {
-            sdp_mid: candidate.mid(),
-            sdp_mline_index: candidate.mline_index() as i64,
-            candidate: candidate.candidate(),
-        });
+        self.observer
+            .lock()
+            .unwrap()
+            .add(PeerConnectionEvent::OnIceCandidate {
+                sdp_mid: candidate.mid(),
+                sdp_mline_index: candidate.mline_index() as i64,
+                candidate: candidate.candidate(),
+            });
     }
 
     fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
         // This is a non-spec-compliant event.
     }
 
-    fn on_ice_selected_candidate_pair_changed(
-        &mut self,
-        _: &sys::CandidatePairChangeEvent,
-    ) {
+    fn on_ice_selected_candidate_pair_changed(&mut self, _: &sys::CandidatePairChangeEvent) {
         // This is a non-spec-compliant event.
     }
 

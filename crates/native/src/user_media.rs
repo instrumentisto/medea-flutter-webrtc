@@ -4,7 +4,7 @@ use std::{
     thread::JoinHandle,
 };
 
-use anyhow::{anyhow, bail};
+use anyhow::bail;
 use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
 use flutter_rust_bridge::StreamSink;
@@ -25,8 +25,7 @@ impl Webrtc {
         let mut result = Vec::new();
 
         if let Some(video) = constraints.video {
-            let source =
-                self.get_or_create_video_source(&video, video.is_display)?;
+            let source = self.get_or_create_video_source(&video, video.is_display)?;
             let track = self.create_video_track(source)?;
             result.push(api::MediaStreamTrack::from(&*track));
         }
@@ -42,9 +41,7 @@ impl Webrtc {
 
     /// Disposes the [`MediaStream`] and all the contained tracks in it.
     pub fn dispose_track(&mut self, track_id: u64) {
-        if let Some((_, track)) =
-            self.video_tracks.remove(&VideoTrackId::from(track_id))
-        {
+        if let Some((_, track)) = self.video_tracks.remove(&VideoTrackId::from(track_id)) {
             if let MediaTrackSource::Local(src) = track.source {
                 if Arc::strong_count(&src) == 2 {
                     self.video_sources.remove(&src.device_id);
@@ -76,16 +73,15 @@ impl Webrtc {
                 VideoLabel::from("screen:0"),
             )?
         } else {
-            let device_index = if let Some(index) =
-                self.get_index_of_video_device(&source.device_id)?
-            {
-                index
-            } else {
-                return Err(anyhow!(
-                    "Could not find video device with the specified ID `{}`",
-                    &source.device_id,
-                ));
-            };
+            let device_index =
+                if let Some(index) = self.get_index_of_video_device(&source.device_id)? {
+                    index
+                } else {
+                    bail!(
+                        "Could not find video device with the specified ID `{}`",
+                        &source.device_id,
+                    );
+                };
 
             VideoTrack::create_local(
                 &self.peer_connection_factory,
@@ -112,23 +108,20 @@ impl Webrtc {
             // No device ID is provided so just pick the first available
             // device
             if self.video_device_info.number_of_devices() < 1 {
-                return Err(anyhow!(
-                    "Could not find any available video input device"
-                ));
+                bail!("Could not find any available video input device");
             }
 
-            let device_id =
-                VideoDeviceId(self.video_device_info.device_name(0)?.1);
+            let device_id = VideoDeviceId(self.video_device_info.device_name(0)?.1);
             (0, device_id)
         } else {
             let device_id = VideoDeviceId(caps.device_id.clone());
             if let Some(index) = self.get_index_of_video_device(&device_id)? {
                 (index, device_id)
             } else {
-                return Err(anyhow!(
+                bail!(
                     "Could not find video device with the specified ID `{}`",
                     device_id,
-                ));
+                );
             }
         };
 
@@ -168,18 +161,16 @@ impl Webrtc {
     ) -> anyhow::Result<RefMut<'_, AudioTrackId, AudioTrack>> {
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
-        let device_id =
-            self.audio_device_module.current_device_id.clone().unwrap();
-        let device_index = if let Some(index) =
-            self.get_index_of_audio_recording_device(&device_id)?
-        {
-            index
-        } else {
-            return Err(anyhow!(
-                "Could not find video device with the specified ID `{}`",
-                device_id,
-            ));
-        };
+        let device_id = self.audio_device_module.current_device_id.clone().unwrap();
+        let device_index =
+            if let Some(index) = self.get_index_of_audio_recording_device(&device_id)? {
+                index
+            } else {
+                bail!(
+                    "Could not find video device with the specified ID `{}`",
+                    device_id,
+                );
+            };
 
         let track = AudioTrack::new(
             &self.peer_connection_factory,
@@ -209,14 +200,10 @@ impl Webrtc {
                 // `AudioDeviceModule` is not capturing anything at the moment,
                 // so we will use first available device (with `0` index).
                 if self.audio_device_module.recording_devices()? < 1 {
-                    return Err(anyhow!(
-                        "Could not find any available audio input device"
-                    ));
+                    bail!("Could not find any available audio input device");
                 }
 
-                AudioDeviceId(
-                    self.audio_device_module.recording_device_name(0)?.1,
-                )
+                AudioDeviceId(self.audio_device_module.recording_device_name(0)?.1)
             } else {
                 // PANIC: If there is a `sys::AudioSourceInterface` then we are
                 //        sure that `current_device_id` is set in the
@@ -227,20 +214,17 @@ impl Webrtc {
             AudioDeviceId(caps.device_id.clone())
         };
 
-        let device_index = if let Some(index) =
-            self.get_index_of_audio_recording_device(&device_id)?
-        {
-            index
-        } else {
-            return Err(anyhow!(
-                "Could not find audio device with the specified ID `{}`",
-                device_id,
-            ));
-        };
+        let device_index =
+            if let Some(index) = self.get_index_of_audio_recording_device(&device_id)? {
+                index
+            } else {
+                bail!(
+                    "Could not find audio device with the specified ID `{}`",
+                    device_id,
+                );
+            };
 
-        if Some(&device_id)
-            != self.audio_device_module.current_device_id.as_ref()
-        {
+        if Some(&device_id) != self.audio_device_module.current_device_id.as_ref() {
             self.audio_device_module
                 .set_recording_device(device_id, device_index)?;
         }
@@ -248,8 +232,7 @@ impl Webrtc {
         let src = if let Some(src) = self.audio_source.as_ref() {
             Arc::clone(src)
         } else {
-            let src =
-                Arc::new(self.peer_connection_factory.create_audio_source()?);
+            let src = Arc::new(self.peer_connection_factory.create_audio_source()?);
             self.audio_source.replace(Arc::clone(&src));
 
             src
@@ -265,11 +248,7 @@ impl Webrtc {
     /// If cannot find any track with the provided ID.
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
-    pub fn set_track_enabled(
-        &self,
-        id: u64,
-        enabled: bool,
-    ) -> anyhow::Result<()> {
+    pub fn set_track_enabled(&self, id: u64, enabled: bool) -> anyhow::Result<()> {
         if let Some(track) = self.video_tracks.get(&VideoTrackId(id)) {
             track.inner.set_enabled(enabled);
         } else if let Some(track) = self.audio_tracks.get(&AudioTrackId(id)) {
@@ -293,9 +272,7 @@ impl Webrtc {
         cb: StreamSink<TrackEvent>,
     ) -> anyhow::Result<()> {
         let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
-        if let Some(mut track) =
-            self.video_tracks.get_mut(&VideoTrackId::from(track_id))
-        {
+        if let Some(mut track) = self.video_tracks.get_mut(&VideoTrackId::from(track_id)) {
             obs.set_video_track(&track.inner);
             track.inner.register_observer(obs);
         } else if let Some(mut track) =
@@ -637,9 +614,7 @@ impl VideoTrack {
 
     /// Wraps the track of the `transceiver.receiver.track()` into a
     /// [`VideoTrack`].
-    pub(crate) fn wrap_remote(
-        transceiver: &sys::RtpTransceiverInterface,
-    ) -> Self {
+    pub(crate) fn wrap_remote(transceiver: &sys::RtpTransceiverInterface) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {
@@ -737,9 +712,7 @@ impl AudioTrack {
 
     /// Wraps the track of the `transceiver.receiver.track()` into an
     /// [`AudioTrack`].
-    pub(crate) fn wrap_remote(
-        transceiver: &sys::RtpTransceiverInterface,
-    ) -> Self {
+    pub(crate) fn wrap_remote(transceiver: &sys::RtpTransceiverInterface) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {

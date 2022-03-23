@@ -977,6 +977,9 @@ impl IceCandidateInterface {
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [2]: https://webrtc.github.io/webrtc-org/native-code/native-apis
 pub struct PeerConnectionInterface {
+    /// Internal identificator.
+    id: u64,
+
     /// Pointer to the C++ side [`PeerConnectionInterface`] object.
     ///
     /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
@@ -993,6 +996,10 @@ unsafe impl Sync for PeerConnectionInterface {}
 unsafe impl Send for PeerConnectionInterface {}
 
 impl PeerConnectionInterface {
+    pub fn id(&self) -> u64 {
+        self.id
+    }
+
     /// [RTCPeerConnection.createOffer()][1] implementation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createoffer
@@ -1158,6 +1165,7 @@ impl PeerConnectionFactoryInterface {
         &mut self,
         configuration: &RtcConfiguration,
         dependencies: PeerConnectionDependencies,
+        id: u64,
     ) -> anyhow::Result<PeerConnectionInterface> {
         let mut error = String::new();
         let inner = webrtc::create_peer_connection_or_error(
@@ -1178,6 +1186,7 @@ impl PeerConnectionFactoryInterface {
             );
         }
         Ok(PeerConnectionInterface {
+            id,
             inner,
             _observer: dependencies.observer,
         })

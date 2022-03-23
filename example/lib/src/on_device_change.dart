@@ -10,25 +10,24 @@ class OnDeviceChangeNotifierSample extends StatefulWidget {
 
 class _State extends State<OnDeviceChangeNotifierSample> {
   int count = 0;
-  String text = '';
-  // MediaDevices? mediaDevices;
+  String text = 'Add devices!!!';
 
   @override
   void initState() {
     super.initState();
 
-    // mediaDevices = navigator.mediaDevices;
-    // mediaDevices?.onDeviceChange = () => {
-    //       setState(() {
-    //         text = 'Count of events fired: $count.';
-    //         count++;
-    //       })
-    //     };
+    DeviceHandler().setHandler(() {
+      count++;
+
+      setState(() {
+        text = 'Events: $count.';
+      });
+    });
   }
 
   @override
   void dispose() {
-    // mediaDevices?.onDeviceChange = null;
+    DeviceHandler().setHandler(null);
 
     super.dispose();
   }

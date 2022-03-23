@@ -14,7 +14,7 @@ abstract class RtpTransceiver {
   }
 
   static RtpTransceiver fromFFI(ffi.RtcRtpTransceiver transceiver) {
-    return _RtpTransceiverFFI(transceiver);
+    return RtpTransceiverFFI(transceiver);
   }
 
   /// [RtpSender] owned by this [RtpTransceiver].
@@ -104,8 +104,8 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   }
 }
 
-class _RtpTransceiverFFI extends RtpTransceiver {
-  _RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
+class RtpTransceiverFFI extends RtpTransceiver {
+  RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
     _peerId = transceiver.peerId;
     _id = transceiver.id;
     _sender = RtpSender.fromFFI(_peerId, _id);
@@ -114,6 +114,8 @@ class _RtpTransceiverFFI extends RtpTransceiver {
 
   late final int _peerId;
   late final int _id;
+
+  int get id => _id;
 
   @override
   Future<TransceiverDirection> getDirection() async {

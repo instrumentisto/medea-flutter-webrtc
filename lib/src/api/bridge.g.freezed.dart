@@ -74,8 +74,10 @@ class _$PeerConnectionEventTearOff {
     );
   }
 
-  OnTrack onTrack() {
-    return const OnTrack();
+  OnTrack onTrack(RtcTrackEvent field0) {
+    return OnTrack(
+      field0,
+    );
   }
 }
 
@@ -100,7 +102,7 @@ mixin _$PeerConnectionEvent {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -115,7 +117,7 @@ mixin _$PeerConnectionEvent {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -130,7 +132,7 @@ mixin _$PeerConnectionEvent {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -299,7 +301,7 @@ class _$OnIceCandidate implements OnIceCandidate {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
     return onIceCandidate(sdpMid, sdpMlineIndex, candidate);
   }
@@ -317,7 +319,7 @@ class _$OnIceCandidate implements OnIceCandidate {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
     return onIceCandidate?.call(sdpMid, sdpMlineIndex, candidate);
   }
@@ -335,7 +337,7 @@ class _$OnIceCandidate implements OnIceCandidate {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onIceCandidate != null) {
@@ -496,7 +498,7 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
     return onIceGatheringStateChange(field0);
   }
@@ -514,7 +516,7 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
     return onIceGatheringStateChange?.call(field0);
   }
@@ -532,7 +534,7 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onIceGatheringStateChange != null) {
@@ -730,7 +732,7 @@ class _$OnIceCandidateError implements OnIceCandidateError {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
     return onIceCandidateError(address, port, url, errorCode, errorText);
   }
@@ -748,7 +750,7 @@ class _$OnIceCandidateError implements OnIceCandidateError {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
     return onIceCandidateError?.call(address, port, url, errorCode, errorText);
   }
@@ -766,7 +768,7 @@ class _$OnIceCandidateError implements OnIceCandidateError {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onIceCandidateError != null) {
@@ -905,7 +907,7 @@ class _$OnNegotiationNeeded implements OnNegotiationNeeded {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
     return onNegotiationNeeded();
   }
@@ -923,7 +925,7 @@ class _$OnNegotiationNeeded implements OnNegotiationNeeded {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
     return onNegotiationNeeded?.call();
   }
@@ -941,7 +943,7 @@ class _$OnNegotiationNeeded implements OnNegotiationNeeded {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onNegotiationNeeded != null) {
@@ -1090,7 +1092,7 @@ class _$OnSignallingChange implements OnSignallingChange {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
     return onSignallingChange(field0);
   }
@@ -1108,7 +1110,7 @@ class _$OnSignallingChange implements OnSignallingChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
     return onSignallingChange?.call(field0);
   }
@@ -1126,7 +1128,7 @@ class _$OnSignallingChange implements OnSignallingChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onSignallingChange != null) {
@@ -1284,7 +1286,7 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
     return onIceConnectionStateChange(field0);
   }
@@ -1302,7 +1304,7 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
     return onIceConnectionStateChange?.call(field0);
   }
@@ -1320,7 +1322,7 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onIceConnectionStateChange != null) {
@@ -1476,7 +1478,7 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
     return onConnectionStateChange(field0);
   }
@@ -1494,7 +1496,7 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
     return onConnectionStateChange?.call(field0);
   }
@@ -1512,7 +1514,7 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onConnectionStateChange != null) {
@@ -1592,6 +1594,7 @@ abstract class OnConnectionStateChange implements PeerConnectionEvent {
 abstract class $OnTrackCopyWith<$Res> {
   factory $OnTrackCopyWith(OnTrack value, $Res Function(OnTrack) then) =
       _$OnTrackCopyWithImpl<$Res>;
+  $Res call({RtcTrackEvent field0});
 }
 
 /// @nodoc
@@ -1603,26 +1606,49 @@ class _$OnTrackCopyWithImpl<$Res>
 
   @override
   OnTrack get _value => super._value as OnTrack;
+
+  @override
+  $Res call({
+    Object? field0 = freezed,
+  }) {
+    return _then(OnTrack(
+      field0 == freezed
+          ? _value.field0
+          : field0 // ignore: cast_nullable_to_non_nullable
+              as RtcTrackEvent,
+    ));
+  }
 }
 
 /// @nodoc
 
 class _$OnTrack implements OnTrack {
-  const _$OnTrack();
+  const _$OnTrack(this.field0);
+
+  @override
+  final RtcTrackEvent field0;
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onTrack()';
+    return 'PeerConnectionEvent.onTrack(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is OnTrack);
+        (other.runtimeType == runtimeType &&
+            other is OnTrack &&
+            const DeepCollectionEquality().equals(other.field0, field0));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+
+  @JsonKey(ignore: true)
+  @override
+  $OnTrackCopyWith<OnTrack> get copyWith =>
+      _$OnTrackCopyWithImpl<OnTrack>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -1641,9 +1667,9 @@ class _$OnTrack implements OnTrack {
         onIceConnectionStateChange,
     required TResult Function(PeerConnectionState field0)
         onConnectionStateChange,
-    required TResult Function() onTrack,
+    required TResult Function(RtcTrackEvent field0) onTrack,
   }) {
-    return onTrack();
+    return onTrack(field0);
   }
 
   @override
@@ -1659,9 +1685,9 @@ class _$OnTrack implements OnTrack {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
   }) {
-    return onTrack?.call();
+    return onTrack?.call(field0);
   }
 
   @override
@@ -1677,11 +1703,11 @@ class _$OnTrack implements OnTrack {
     TResult Function(SignalingState field0)? onSignallingChange,
     TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
     TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function()? onTrack,
+    TResult Function(RtcTrackEvent field0)? onTrack,
     required TResult orElse(),
   }) {
     if (onTrack != null) {
-      return onTrack();
+      return onTrack(field0);
     }
     return orElse();
   }
@@ -1744,5 +1770,9 @@ class _$OnTrack implements OnTrack {
 }
 
 abstract class OnTrack implements PeerConnectionEvent {
-  const factory OnTrack() = _$OnTrack;
+  const factory OnTrack(RtcTrackEvent field0) = _$OnTrack;
+
+  RtcTrackEvent get field0;
+  @JsonKey(ignore: true)
+  $OnTrackCopyWith<OnTrack> get copyWith => throw _privateConstructorUsedError;
 }

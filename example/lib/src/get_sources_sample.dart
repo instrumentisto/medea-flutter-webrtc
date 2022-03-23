@@ -22,7 +22,10 @@ class _GetSourcesSampleState extends State<GetSourcesSample> {
     var mediaDeviceInfos = await enumerateDevices();
     setState(() {
       var devicesInfo = '';
-      mediaDeviceInfos.forEach((device) { devicesInfo = devicesInfo + 'Kind: ${device.kind}\nName: ${device.label}\nId: ${device.deviceId}\n\n'; });
+      mediaDeviceInfos.forEach((device) {
+        devicesInfo = devicesInfo +
+            'Kind: ${device.kind}\nName: ${device.label}\nId: ${device.deviceId}\n\n';
+      });
       text = devicesInfo;
     });
   }
