@@ -22,7 +22,7 @@ impl Webrtc {
     ///
     /// Writes an error to the provided `err` if any.
     pub fn create_peer_connection(
-        self: &mut Webrtc,
+        &mut self,
         obs: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
         id: u64,
@@ -49,16 +49,15 @@ impl Webrtc {
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn create_offer(
-        &mut self,
+        &self,
         peer_id: u64,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
         cb: Sender<anyhow::Result<SdpInfo>>,
     ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -91,16 +90,15 @@ impl Webrtc {
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn create_answer(
-        &mut self,
+        &self,
         peer_id: u64,
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
         cb: Sender<anyhow::Result<SdpInfo>>,
     ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -133,15 +131,14 @@ impl Webrtc {
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
-        &mut self,
+        &self,
         peer_id: u64,
         kind: sys::SdpType,
         sdp: String,
         cb: Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -168,15 +165,14 @@ impl Webrtc {
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
-        &mut self,
+        &self,
         peer_id: u64,
         kind: sys::SdpType,
         sdp: String,
         cb: Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -205,14 +201,13 @@ impl Webrtc {
     /// - If the mutex that guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn add_transceiver(
-        &mut self,
+        &self,
         peer_id: u64,
         media_type: MediaType,
         direction: RtpTransceiverDirection,
     ) -> anyhow::Result<api::RtcRtpTransceiver> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -250,12 +245,11 @@ impl Webrtc {
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn get_transceivers(
-        &mut self,
+        &self,
         peer_id: u64,
     ) -> anyhow::Result<Vec<api::RtcRtpTransceiver>> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -294,14 +288,13 @@ impl Webrtc {
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn set_transceiver_direction(
-        &mut self,
+        &self,
         peer_id: u64,
         transceiver_id: u64,
         direction: api::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -338,13 +331,12 @@ impl Webrtc {
     ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     pub fn get_transceiver_mid(
-        &mut self,
+        &self,
         peer_id: u64,
         transceiver_id: u64,
     ) -> anyhow::Result<Option<String>> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -378,13 +370,12 @@ impl Webrtc {
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn get_transceiver_direction(
-        &mut self,
+        &self,
         peer_id: u64,
         transceiver_id: u64,
     ) -> anyhow::Result<RtpTransceiverDirection> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -422,13 +413,12 @@ impl Webrtc {
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn stop_transceiver(
-        &mut self,
+        &self,
         peer_id: u64,
         transceiver_id: u64,
     ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -466,14 +456,13 @@ impl Webrtc {
     /// [`AudioTrack`]: crate::AudioTrack
     /// [`VideoTrack`]: crate::VideoTrack
     pub fn sender_replace_track(
-        &mut self,
+        &self,
         peer_id: u64,
         transceiver_id: u64,
         track_id: Option<u64>,
     ) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -538,7 +527,7 @@ impl Webrtc {
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
     pub fn add_ice_candidate(
-        &mut self,
+        &self,
         peer_id: u64,
         candidate: &str,
         sdp_mid: &str,
@@ -552,9 +541,8 @@ impl Webrtc {
         )
         .unwrap();
 
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -578,10 +566,9 @@ impl Webrtc {
     /// - If cannot find any [`PeerConnection`]s by the specified `peer_id`.
     /// - If the mutex guarding the [`sys::PeerConnectionInterface`] is
     ///   poisoned.
-    pub fn restart_ice(&mut self, peer_id: u64) -> anyhow::Result<()> {
-        let peer = if let Some(peer) = self
-            .peer_connections
-            .get_mut(&PeerConnectionId::from(peer_id))
+    pub fn restart_ice(&self, peer_id: u64) -> anyhow::Result<()> {
+        let peer = if let Some(peer) =
+            self.peer_connections.get(&PeerConnectionId::from(peer_id))
         {
             peer
         } else {
@@ -653,17 +640,10 @@ impl PeerConnection {
 
         let mut sys_configuration = sys::RtcConfiguration::default();
 
-        if !configuration.ice_transport_policy.is_empty() {
-            sys_configuration.set_ice_transport_type(
-                configuration.ice_transport_policy.as_str().try_into()?,
-            );
-        }
+        sys_configuration
+            .set_ice_transport_type(configuration.ice_transport_policy.into());
 
-        if !configuration.bundle_policy.is_empty() {
-            sys_configuration.set_bundle_policy(
-                configuration.bundle_policy.as_str().try_into()?,
-            );
-        }
+        sys_configuration.set_bundle_policy(configuration.bundle_policy.into());
 
         for server in configuration.ice_servers {
             let mut ice_server = sys::IceServer::default();

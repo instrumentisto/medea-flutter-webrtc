@@ -3,7 +3,11 @@
 
 mod bridge;
 
-use std::{collections::HashMap, mem};
+use std::{
+    collections::HashMap,
+    mem,
+    sync::{Arc, Mutex},
+};
 
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -13,10 +17,10 @@ use self::bridge::webrtc;
 pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
-    video_frame_to_abgr, AudioLayer, Candidate, CandidatePairChangeEvent,
-    IceConnectionState, IceGatheringState, MediaType, PeerConnectionState,
-    RtpTransceiverDirection, SdpType, SignalingState, VideoFrame,
-    VideoRotation,
+    video_frame_to_abgr, AudioLayer, BundlePolicy, Candidate,
+    CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
+    IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
+    SdpType, SignalingState, VideoFrame, VideoRotation,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -170,7 +174,8 @@ impl TaskQueueFactory {
 /// Available audio devices manager that is responsible for driving input
 /// (microphone) and output (speaker) audio in WebRTC.
 ///
-/// Backed by WebRTC's [Audio Device Module].
+/// Backed by WebRTC's [Audio Device Module]. It is not thread safe and __MUST__
+/// be only used and dropped on the thread it was created on.
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
 pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
@@ -1252,6 +1257,10 @@ impl PeerConnectionFactoryInterface {
     }
 }
 
+unsafe impl Send for PeerConnectionFactoryInterface {}
+
+unsafe impl Sync for PeerConnectionFactoryInterface {}
+
 /// [`VideoTrackSourceInterface`] captures data from the specific video input
 /// device.
 ///
@@ -1327,6 +1336,10 @@ impl VideoTrackSourceInterface {
         Ok(VideoTrackSourceInterface(ptr))
     }
 }
+
+unsafe impl Send for VideoTrackSourceInterface {}
+
+unsafe impl Sync for VideoTrackSourceInterface {}
 
 /// [`VideoTrackSourceInterface`] captures data from the specific audio input
 /// device.
@@ -1466,6 +1479,10 @@ impl Drop for VideoTrackInterface {
     }
 }
 
+unsafe impl Send for VideoTrackInterface {}
+
+unsafe impl Sync for VideoTrackInterface {}
+
 impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
     type Error = anyhow::Error;
 
@@ -1538,6 +1555,10 @@ impl Drop for AudioTrackInterface {
         }
     }
 }
+
+unsafe impl Send for AudioTrackInterface {}
+
+unsafe impl Sync for AudioTrackInterface {}
 
 impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
     type Error = anyhow::Error;

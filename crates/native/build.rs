@@ -17,16 +17,16 @@ fn main() -> anyhow::Result<()> {
 /// `target/cxxbridge/` directory.
 fn copy_cxxbridge1_lib() -> anyhow::Result<()> {
     let out_dir = env::var_os("OUT_DIR")
-        .ok_or(anyhow!("`OUT_DIR` environment variable not found"))?;
+        .ok_or_else(|| anyhow!("`OUT_DIR` environment variable not found"))?;
     let out_dir_path = Path::new(&out_dir);
     let cxxbridge_dir = out_dir_path
         .ancestors()
         .nth(4)
-        .ok_or(anyhow!("Could not find `target/` directory"))?
+        .ok_or_else(|| anyhow!("Could not find `target/` directory"))?
         .join("cxxbridge");
-    let build_dir = out_dir_path.ancestors().nth(2).ok_or(anyhow!(
-        "Could not find `target/debug/`|`release/build/` directory",
-    ))?;
+    let build_dir = out_dir_path.ancestors().nth(2).ok_or_else(|| {
+        anyhow!("Could not find `target/debug/`|`release/build/` directory",)
+    })?;
     let target_env = env::var("CARGO_CFG_TARGET_ENV")?;
     let lib_name = if target_env == "msvc" {
         "cxxbridge1.lib"

@@ -29,9 +29,7 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
   List<MediaDeviceInfo> mdInfo;
 
   if (IS_DESKTOP) {
-    var devices = await _enumerateDevicesFFI();
-
-    mdInfo = devices.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+    mdInfo = await _enumerateDevicesFFI();
   } else {
     mdInfo = await _enumerateDevicesChannel();
   }
@@ -48,7 +46,7 @@ Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
 Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
   var devices = await api.enumerateDevices();
 
-  return devices.map((e) => MediaDeviceInfo.fromMap(e)).toList();
+  return devices.map((e) => MediaDeviceInfo.fromFFI(e)).toList();
 }
 
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on

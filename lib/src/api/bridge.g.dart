@@ -184,6 +184,31 @@ class AudioConstraints {
   });
 }
 
+/// [RTCBundlePolicy][1] representation.
+///
+/// Affects which media tracks are negotiated if the remote endpoint is not
+/// bundle-aware, and what ICE candidates are gathered. If the remote
+/// endpoint is bundle-aware, all media tracks and data channels are bundled
+/// onto the same transport.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
+enum BundlePolicy {
+  /// [RTCBundlePolicy.balanced][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-balanced
+  Balanced,
+
+  /// [RTCBundlePolicy.max-bundle][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-bundle
+  MaxBundle,
+
+  /// [RTCBundlePolicy.max-compat][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
+  MaxCompat,
+}
+
 enum IceConnectionState {
   New,
   Checking,
@@ -198,6 +223,32 @@ enum IceGatheringState {
   New,
   Gathering,
   Complete,
+}
+
+/// [RTCIceTransportPolicy][1] representation.
+///
+/// It defines an ICE candidate policy the [ICE Agent][2] uses to surface
+/// the permitted candidates to the application. Only these candidates will
+/// be used for connectivity checks.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy
+/// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
+enum IceTransportsType {
+  /// [RTCIceTransportPolicy.relay][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
+  Relay,
+
+  /// ICE Agent can't use `typ host` candidates when this value is
+  /// specified.
+  ///
+  /// Non-spec-compliant variant.
+  NoHost,
+
+  /// [RTCIceTransportPolicy.all][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
+  All,
 }
 
 /// Information describing a single media input or output device.
@@ -321,7 +372,7 @@ class RtcConfiguration {
   ///
   /// [1]: https://tinyurl.com/icetransportpolicy
   /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
-  final String iceTransportPolicy;
+  final IceTransportsType iceTransportPolicy;
 
   /// [bundlePolicy][1] configuration.
   ///
@@ -329,7 +380,7 @@ class RtcConfiguration {
   /// candidates.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration-bundlepolicy
-  final String bundlePolicy;
+  final BundlePolicy bundlePolicy;
 
   /// [iceServers][1] configuration.
   ///
@@ -944,12 +995,20 @@ class FlutterWebrtcNativeImpl
     return ptr;
   }
 
+  int _api2wire_bundle_policy(BundlePolicy raw) {
+    return raw.index;
+  }
+
   int _api2wire_i32(int raw) {
     return raw;
   }
 
   int _api2wire_i64(int raw) {
     return raw;
+  }
+
+  int _api2wire_ice_transports_type(IceTransportsType raw) {
+    return raw.index;
   }
 
   ffi.Pointer<wire_list_rtc_ice_server> _api2wire_list_rtc_ice_server(
@@ -1057,8 +1116,9 @@ class FlutterWebrtcNativeImpl
 
   void _api_fill_to_wire_rtc_configuration(
       RtcConfiguration apiObj, wire_RtcConfiguration wireObj) {
-    wireObj.ice_transport_policy = _api2wire_String(apiObj.iceTransportPolicy);
-    wireObj.bundle_policy = _api2wire_String(apiObj.bundlePolicy);
+    wireObj.ice_transport_policy =
+        _api2wire_ice_transports_type(apiObj.iceTransportPolicy);
+    wireObj.bundle_policy = _api2wire_bundle_policy(apiObj.bundlePolicy);
     wireObj.ice_servers = _api2wire_list_rtc_ice_server(apiObj.iceServers);
   }
 
@@ -1866,9 +1926,11 @@ class wire_list_rtc_ice_server extends ffi.Struct {
 }
 
 class wire_RtcConfiguration extends ffi.Struct {
-  external ffi.Pointer<wire_uint_8_list> ice_transport_policy;
+  @ffi.Int32()
+  external int ice_transport_policy;
 
-  external ffi.Pointer<wire_uint_8_list> bundle_policy;
+  @ffi.Int32()
+  external int bundle_policy;
 
   external ffi.Pointer<wire_list_rtc_ice_server> ice_servers;
 }

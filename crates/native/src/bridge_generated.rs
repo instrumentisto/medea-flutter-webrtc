@@ -533,8 +533,8 @@ pub struct wire_MediaStreamConstraints {
 #[repr(C)]
 #[derive(Clone)]
 pub struct wire_RtcConfiguration {
-    ice_transport_policy: *mut wire_uint_8_list,
-    bundle_policy: *mut wire_uint_8_list,
+    ice_transport_policy: i32,
+    bundle_policy: i32,
     ice_servers: *mut wire_list_rtc_ice_server,
 }
 
@@ -717,6 +717,17 @@ impl Wire2Api<VideoConstraints> for *mut wire_VideoConstraints {
     }
 }
 
+impl Wire2Api<BundlePolicy> for i32 {
+    fn wire2api(self) -> BundlePolicy {
+        match self {
+            0 => BundlePolicy::Balanced,
+            1 => BundlePolicy::MaxBundle,
+            2 => BundlePolicy::MaxCompat,
+            _ => unreachable!("Invalid variant for BundlePolicy: {}", self),
+        }
+    }
+}
+
 impl Wire2Api<i32> for i32 {
     fn wire2api(self) -> i32 {
         self
@@ -726,6 +737,19 @@ impl Wire2Api<i32> for i32 {
 impl Wire2Api<i64> for i64 {
     fn wire2api(self) -> i64 {
         self
+    }
+}
+
+impl Wire2Api<IceTransportsType> for i32 {
+    fn wire2api(self) -> IceTransportsType {
+        match self {
+            0 => IceTransportsType::Relay,
+            1 => IceTransportsType::NoHost,
+            2 => IceTransportsType::All,
+            _ => {
+                unreachable!("Invalid variant for IceTransportsType: {}", self)
+            }
+        }
     }
 }
 
@@ -877,8 +901,8 @@ impl NewWithNullPtr for wire_MediaStreamConstraints {
 impl NewWithNullPtr for wire_RtcConfiguration {
     fn new_with_null_ptr() -> Self {
         Self {
-            ice_transport_policy: core::ptr::null_mut(),
-            bundle_policy: core::ptr::null_mut(),
+            ice_transport_policy: Default::default(),
+            bundle_policy: Default::default(),
             ice_servers: core::ptr::null_mut(),
         }
     }

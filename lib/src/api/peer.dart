@@ -3,7 +3,6 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_webrtc/src/api/bridge_generated.dart';
 
 import '/src/model/ice.dart';
 import '/src/model/peer.dart';
@@ -393,10 +392,10 @@ class _PeerConnectionChannel extends PeerConnection {
 
 class _PeerConnectionFFI extends PeerConnection {
   static Future<PeerConnection> create(
-      IceTransportType iceTransportType, List<IceServer> iceServers) async {
+      IceTransportType iceType, List<IceServer> iceServers) async {
     var cfg = ffi.RtcConfiguration(
-        iceTransportPolicy: iceTransportType.toString().split('.')[1],
-        bundlePolicy: 'maxbundle',
+        iceTransportPolicy: ffi.IceTransportsType.values[iceType.index],
+        bundlePolicy: ffi.BundlePolicy.MaxBundle,
         iceServers: iceServers
             .map((e) => ffi.RtcIceServer(
                 urls: e.urls, username: e.username!, credential: e.password!))

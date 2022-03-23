@@ -1,3 +1,5 @@
+import '/src/api/bridge.g.dart' as ffi;
+
 /// Media device kind.
 enum MediaDeviceKind {
   /// Represents an audio input device (for example, a microphone).
@@ -18,6 +20,12 @@ class MediaDeviceInfo {
     deviceId = map['deviceId'];
     label = map['label'];
     kind = MediaDeviceKind.values[map['kind']];
+  }
+
+  MediaDeviceInfo.fromFFI(ffi.MediaDeviceInfo info) {
+    deviceId = info.deviceId;
+    label = info.label;
+    kind = MediaDeviceKind.values[info.kind.index];
   }
 
   /// Identifier of the represented device.
