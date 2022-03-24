@@ -37,7 +37,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       caps.video.mandatory!.fps = 30;
       caps.video.mandatory!.facingMode = FacingMode.user;
 
-      // _track = (await getUserMedia(caps))[0];
+      _track = (await getUserMedia(caps))[0];
 
       var server =
           IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
