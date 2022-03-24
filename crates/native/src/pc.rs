@@ -172,7 +172,6 @@ impl Webrtc {
         } else {
             bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
-        panic!("asd");
 
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(SetSdpCallback(cb)));

@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc/src/model/constraints.dart';
+import 'package:flutter_webrtc/src/model/ice.dart';
 import 'package:flutter_webrtc/src/model/peer.dart';
 import 'package:flutter_webrtc/src/model/track.dart';
 import 'package:flutter_webrtc/src/model/transceiver.dart';
@@ -57,28 +58,35 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       pc1.onConnectionStateChange(pccb);
       pc2.onConnectionStateChange(pccb);
 
+      pc1.onIceCandidateError((p0) {
+        print(p0.errorText);
+      });
+      pc2.onIceCandidateError((p0) {
+        print(p0.errorText);
+      });
+
       var trans = await pc1.addTransceiver(
           MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-      // await trans.sender.replaceTrack(_track!);
+      await trans.sender.replaceTrack(_track!);
 
       var offer = await pc1.createOffer();
       await pc1.setLocalDescription(offer);
       await pc2.setRemoteDescription(offer);
 
-      // var answer = await pc2.createAnswer();
-      // await pc2.setLocalDescription(answer);
-      // await pc1.setRemoteDescription(answer);
-      //
-      // pc1.onIceCandidate((IceCandidate candidate) async {
-      //   print(candidate.candidate.toString());
-      //   await pc2.addIceCandidate(candidate);
-      // });
-      //
-      // pc2.onIceCandidate((IceCandidate candidate) async {
-      //   print(candidate.candidate.toString());
-      //   await pc1.addIceCandidate(candidate);
-      // });
+      var answer = await pc2.createAnswer();
+      await pc2.setLocalDescription(answer);
+      await pc1.setRemoteDescription(answer);
+
+      pc1.onIceCandidate((IceCandidate candidate) async {
+        print(candidate.candidate.toString());
+        await pc2.addIceCandidate(candidate);
+      });
+
+      pc2.onIceCandidate((IceCandidate candidate) async {
+        print(candidate.candidate.toString());
+        await pc1.addIceCandidate(candidate);
+      });
 
       setState(() {
         text = 'test is success';
