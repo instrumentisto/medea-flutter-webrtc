@@ -7,16 +7,16 @@ import '/src/platform/web/media_stream_track.dart';
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 
-/// Creates new [AudioRenderer] for Web platform.
+/// Creates a new [AudioRenderer] for the web platform.
 AudioRenderer createPlatformSpecificAudioRenderer() {
   return WebAudioRenderer();
 }
 
 class WebAudioRenderer extends AudioRenderer {
-  /// Constructs new [WebAudioRenderer].
+  /// Constructs a new [WebAudioRenderer].
   WebAudioRenderer() : _id = _textureCounter++;
 
-  /// HTML element ID for audio manager's [html.DivElement].
+  /// HTML element ID for the audio manager's [html.DivElement].
   static const _elementIdForAudioManager = 'html_webrtc_audio_manager_list';
 
   /// Counter for the [_id].
@@ -25,13 +25,13 @@ class WebAudioRenderer extends AudioRenderer {
   /// Unique ID of this [WebAudioRenderer].
   final int _id;
 
-  /// [html.AudioElement] which play [_srcObject].
+  /// [html.AudioElement] playing the [_srcObject].
   html.AudioElement? _element;
 
   /// ID of the `audio` HTML element of this [WebAudioRenderer].
   String get _elementId => 'audio-renderer-$_id';
 
-  /// Audio [MediaStreamTrack] currently played by this [WebAudioRenderer].
+  /// Audio [MediaStreamTrack], currently played by this [WebAudioRenderer].
   MediaStreamTrack? _srcObject;
 
   @override
@@ -76,9 +76,9 @@ class WebAudioRenderer extends AudioRenderer {
     _element!.srcObject = stream;
   }
 
-  /// Returns [html.DivElement] for the audio manager.
+  /// Returns the [html.DivElement] for the audio manager.
   ///
-  /// If [html.DivElement] is not exist, then creates and returns it.
+  /// If [html.DivElement] doesn't exist, then creates and returns it.
   html.DivElement _getAudioManagerDiv() {
     var div = html.document.getElementById(_elementIdForAudioManager);
     if (div != null) {

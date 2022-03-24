@@ -1,13 +1,13 @@
 import '/src/platform/audio_renderer.dart';
 import '/src/platform/track.dart';
 
-/// Creates new [AudioRenderer] for native platform.
+/// Creates a new [AudioRenderer] for the native platform.
 AudioRenderer createPlatformSpecificAudioRenderer() {
   return NativeAudioRenderer();
 }
 
 class NativeAudioRenderer extends AudioRenderer {
-  /// Audio [MediaStreamTrack] currently played by this [NativeAudioRenderer].
+  /// Audio [MediaStreamTrack], currently played by this [NativeAudioRenderer].
   MediaStreamTrack? _srcObject;
 
   @override
