@@ -280,7 +280,7 @@ impl Webrtc {
                 MediaTrackSource::Remote { mid, peer_id } => {
                     let peer = self
                         .peer_connections
-                        .get(&PeerConnectionId(peer_id))
+                        .get(&peer_id)
                         .unwrap();
 
                     let mut transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -289,7 +289,7 @@ impl Webrtc {
 
                     if transceivers.len() > 0 {
                         let track =
-                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), id);
+                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), peer_id);
 
                         Ok(api::MediaStreamTrack::from(&track))
                     } else {
@@ -315,7 +315,7 @@ impl Webrtc {
                 MediaTrackSource::Remote { mid, peer_id } => {
                     let peer = self
                         .peer_connections
-                        .get(&PeerConnectionId(peer_id))
+                        .get(&peer_id)
                         .unwrap();
 
                     let mut transceivers = peer.0.lock().unwrap().get_transceivers();
@@ -324,7 +324,7 @@ impl Webrtc {
 
                     if transceivers.len() > 0 {
                         let track =
-                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), id);
+                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), peer_id);
 
                         Ok(api::MediaStreamTrack::from(&track))
                     } else {
@@ -665,7 +665,7 @@ impl Drop for AudioDeviceModule {
 /// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Arc<T>),
-    Remote { mid: String, peer_id: u64 },
+    Remote { mid: String, peer_id: PeerConnectionId },
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].
@@ -714,7 +714,7 @@ impl VideoTrack {
     /// [`VideoTrack`].
     pub(crate) fn wrap_remote(
         transceiver: &sys::RtpTransceiverInterface,
-        peer_id: u64,
+        peer_id: PeerConnectionId,
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
@@ -818,7 +818,7 @@ impl AudioTrack {
     /// [`AudioTrack`].
     pub(crate) fn wrap_remote(
         transceiver: &sys::RtpTransceiverInterface,
-        peer_id: u64,
+        peer_id: PeerConnectionId,
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();

@@ -568,6 +568,7 @@ impl PeerConnection {
     ) -> anyhow::Result<Self> {
         let obs_peer = Arc::new(OnceCell::new());
         let observer = sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver {
+            peer_id: PeerConnectionId::from(id),
             observer: Arc::new(Mutex::new(observer)),
             peer: Arc::clone(&obs_peer),
             video_tracks,
@@ -645,6 +646,8 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 
 /// [`PeerConnectionObserverInterface`] wrapper.
 struct PeerConnectionObserver {
+    peer_id: PeerConnectionId,
+
     /// [`PeerConnectionObserverInterface`] to forward the events to.
     observer: Arc<Mutex<StreamSink<api::PeerConnectionEvent>>>,
 
@@ -730,7 +733,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             sys::MediaType::MEDIA_TYPE_AUDIO => {
                 let track = AudioTrack::wrap_remote(
                     &transceiver,
-                    self.peer.get().unwrap().lock().unwrap().id(),
+                    self.peer_id,
                 );
                 let result = api::MediaStreamTrack::from(&track);
                 self.audio_tracks.insert(track.id(), track);
@@ -740,7 +743,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             sys::MediaType::MEDIA_TYPE_VIDEO => {
                 let track = VideoTrack::wrap_remote(
                     &transceiver,
-                    self.peer.get().unwrap().lock().unwrap().id(),
+                    self.peer_id,
                 );
                 let result = api::MediaStreamTrack::from(&track);
                 self.video_tracks.insert(track.id(), track);
