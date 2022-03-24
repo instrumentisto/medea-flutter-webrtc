@@ -148,8 +148,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
         deviceId: _deviceId,
         enabled: _enabled,
         id: _handleId,
-        kind: ffi.MediaType.values[_kind.index],
-        stopped: _stopped));
+        kind: ffi.MediaType.values[_kind.index]));
   }
 
   @override

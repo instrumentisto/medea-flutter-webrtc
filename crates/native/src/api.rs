@@ -242,13 +242,12 @@ impl From<sys::SdpType> for SdpType {
     }
 }
 
-// TODO(alexlapa): RtcSessionDescription
-pub struct SdpInfo {
+pub struct RtcSessionDescription {
     pub sdp: String,
     pub kind: SdpType,
 }
 
-impl SdpInfo {
+impl RtcSessionDescription {
     pub fn new(sdp: String, kind: sys::SdpType) -> Self {
         Self {
             sdp,
@@ -331,8 +330,6 @@ pub struct MediaStreamTrack {
     /// the source stream or `false` if it is not. This can be used to
     /// intentionally mute a track.
     pub enabled: bool,
-    // TODO(alexlapa): not used in rust
-    pub stopped: bool,
 }
 
 /// Representation of a permanent pair of an [RTCRtpSender] and an
@@ -349,7 +346,7 @@ pub struct RtcRtpTransceiver {
     ///
     /// It's not unique across all possible [`RtcRtpTransceiver`]s, but only
     /// within a specific peer.
-    pub id: u64, // TODO(alexlapa): rename to index
+    pub index: u64,
 
     /// [Negotiated media ID (mid)][1] which the local and remote peers have
     /// agreed upon to uniquely identify the [`MediaStream`]'s pairing of
@@ -362,19 +359,6 @@ pub struct RtcRtpTransceiver {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     pub direction: RtpTransceiverDirection,
-
-    /// [`RtcRtpSender`] responsible for encoding and sending outgoing
-    /// media data for the transceiver's stream.
-    pub sender: RtcRtpSender,
-}
-
-// TODO(alexlapa): probably we doesnt need this
-/// [`RtcRtpSender`] object allowing to control how a [`MediaStreamTrack`]
-/// is encoded and transmitted to a remote peer.
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct RtcRtpSender {
-    /// ID of this [`RtcRtpSender`].
-    pub id: u64, // TODO(alexlapa): rename to index
 }
 
 /// [`RtcTrackEvent`] representing a track event, sent when a new
@@ -516,8 +500,7 @@ pub struct RtcIceServer {
 
 /// Returns a list of all available media input and output devices, such
 /// as microphones, cameras, headsets, and so forth.
-pub fn enumerate_devices() -> Vec<MediaDeviceInfo> {
-    // TODO(alexlapa): propagate errors if any
+pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
@@ -545,10 +528,10 @@ pub fn create_offer(
     voice_activity_detection: bool,
     ice_restart: bool,
     use_rtp_mux: bool,
-) -> anyhow::Result<SdpInfo> {
+) -> anyhow::Result<RtcSessionDescription> {
     let (tx, rx): (
-        Sender<anyhow::Result<SdpInfo>>,
-        Receiver<anyhow::Result<SdpInfo>>,
+        Sender<anyhow::Result<RtcSessionDescription>>,
+        Receiver<anyhow::Result<RtcSessionDescription>>,
     ) = mpsc::channel();
 
     WEBRTC.lock().unwrap().create_offer(
@@ -572,10 +555,10 @@ pub fn create_answer(
     voice_activity_detection: bool,
     ice_restart: bool,
     use_rtp_mux: bool,
-) -> anyhow::Result<SdpInfo> {
+) -> anyhow::Result<RtcSessionDescription> {
     let (tx, rx): (
-        Sender<anyhow::Result<SdpInfo>>,
-        Receiver<anyhow::Result<SdpInfo>>,
+        Sender<anyhow::Result<RtcSessionDescription>>,
+        Receiver<anyhow::Result<RtcSessionDescription>>,
     ) = mpsc::channel();
 
     WEBRTC.lock().unwrap().create_answer(
@@ -586,7 +569,7 @@ pub fn create_answer(
         tx,
     )?;
 
-    rx.recv_timeout(TIMEOUT).unwrap()
+    rx.recv_timeout(TIMEOUT)?
 }
 
 /// Changes the local description associated with the connection.
@@ -742,9 +725,8 @@ pub fn restart_ice(peer_id: u64) -> anyhow::Result<()> {
 }
 
 /// Closes the [`PeerConnection`].
-pub fn dispose_peer_connection(peer_id: u64) -> anyhow::Result<()> {
-    // TODO(alexlapa): dont error
-    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id)
+pub fn dispose_peer_connection(peer_id: u64) {
+    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id);
 }
 
 /// Creates a [`MediaStream`] with tracks according to provided
@@ -759,8 +741,7 @@ pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
 }
 
-// TODO(alexlapa): docs
-/// Disposes the [`MediaStream`] and all contained tracks.
+/// Disposes the specified [`MediaStreamTrack`].
 pub fn dispose_track(track_id: u64) {
     WEBRTC.lock().unwrap().dispose_track(track_id);
 }

@@ -21,11 +21,13 @@ class DeviceHandler {
   }
 
   void _listen() async {
-    await for (_ in api.setOnDeviceChanged()) {
-      if (_handler != null) {
-        _handler!();
-      }
-    }
+    api.setOnDeviceChanged().listen(
+      (event) {
+        if (_handler != null) {
+          _handler!();
+        }
+      },
+    );
   }
 
   void setHandler(OnDeviceChangeHandler? handler) {
@@ -109,7 +111,8 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? 640, // TODO(alexlapa): as const
+          height: constraints.video.mandatory?.height ??
+              640, // TODO(alexlapa): as const
           width: constraints.video.mandatory?.width ?? 480,
           frameRate: constraints.video.mandatory?.fps ?? 30,
           isDisplay: false)

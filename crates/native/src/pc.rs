@@ -9,7 +9,7 @@ use threadpool::ThreadPool;
 
 use crate::{
     api,
-    api::{PeerConnectionEvent, SdpInfo},
+    api::{PeerConnectionEvent, RtcSessionDescription},
     AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
 use cxx::{CxxString, CxxVector};
@@ -57,7 +57,7 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        cb: Sender<anyhow::Result<SdpInfo>>,
+        cb: Sender<anyhow::Result<RtcSessionDescription>>,
     ) -> anyhow::Result<()> {
         let peer = if let Some(peer) =
             self.peer_connections.get(&PeerConnectionId::from(peer_id))
@@ -95,7 +95,7 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        cb: Sender<anyhow::Result<SdpInfo>>,
+        cb: Sender<anyhow::Result<RtcSessionDescription>>,
     ) -> anyhow::Result<()> {
         let peer = if let Some(peer) =
             self.peer_connections.get(&PeerConnectionId::from(peer_id))
@@ -172,6 +172,7 @@ impl Webrtc {
         } else {
             bail!("`PeerConnection` with ID `{peer_id}` does not exist",);
         };
+        panic!("asd");
 
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(SetSdpCallback(cb)));
@@ -208,7 +209,7 @@ impl Webrtc {
         let transceiver = peer_ref.add_transceiver(media_type, direction);
 
         let transceivers = peer_ref.get_transceivers();
-        let id = transceivers
+        let index = transceivers
             .iter()
             .enumerate()
             .find(|(_, t)| transceiver.mid() == t.mid())
@@ -217,10 +218,9 @@ impl Webrtc {
 
         Ok(api::RtcRtpTransceiver {
             peer_id,
-            id: id as u64,
+            index: index as u64,
             mid: transceiver.mid(),
             direction: transceiver.direction().into(),
-            sender: api::RtcRtpSender { id: id as u64 },
         })
     }
 
@@ -250,10 +250,9 @@ impl Webrtc {
         for (index, transceiver) in transceivers.into_iter().enumerate() {
             let info = api::RtcRtpTransceiver {
                 peer_id,
-                id: index as u64,
+                index: index as u64,
                 mid: transceiver.mid(),
                 direction: transceiver.direction().into(),
-                sender: api::RtcRtpSender { id: index as u64 },
             };
             result.push(info);
         }
@@ -551,7 +550,7 @@ impl Webrtc {
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct PeerConnectionId(pub(crate) u64);// TODO(alexlapa): why pub when we have into?
+pub struct PeerConnectionId(pub(crate) u64); // TODO(alexlapa): why pub when we have into?
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 // TODO(alexlapa): delete pub (crate)
@@ -617,19 +616,16 @@ impl PeerConnection {
 }
 
 /// [`CreateSdpCallbackInterface`] wrapper.
-struct CreateSdpCallback(Sender<anyhow::Result<SdpInfo>>);
+struct CreateSdpCallback(Sender<anyhow::Result<RtcSessionDescription>>);
 
 impl sys::CreateSdpCallback for CreateSdpCallback {
     fn success(&mut self, sdp: &CxxString, kind: sys::SdpType) {
-        // TODO(alexlapa): dont unwrap, just log
         self.0
-            .send(Ok(SdpInfo::new(sdp.to_string(), kind)))
-            .unwrap();
+            .send(Ok(RtcSessionDescription::new(sdp.to_string(), kind)));
     }
 
     fn fail(&mut self, error: &CxxString) {
-        // TODO(alexlapa): dont unwrap, just log
-        self.0.send(Err(anyhow!("{}", error))).unwrap();
+        self.0.send(Err(anyhow!("{}", error)));
     }
 }
 
@@ -776,10 +772,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 let result = api::RtcTrackEvent {
                     track,
                     transceiver: api::RtcRtpTransceiver {
-                        id: index as u64,
+                        index: index as u64,
                         mid: Some(mid),
                         direction: direction.try_into().unwrap(), // TODO(alexlapa): into()?
-                        sender: api::RtcRtpSender { id: index as u64 },
                         peer_id: peer.id(),
                     },
                 };

@@ -107,7 +107,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 class RtpTransceiverFFI extends RtpTransceiver {
   RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
     _peerId = transceiver.peerId;
-    _id = transceiver.id;
+    _id = transceiver.index;
     _sender = RtpSender.fromFFI(_peerId, _id);
     _mid = transceiver.mid;
   }

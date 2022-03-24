@@ -24,7 +24,7 @@ pub extern "C" fn wire_enumerate_devices(port_: i64) {
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| Ok(enumerate_devices()),
+        move || move |task_callback| enumerate_devices(),
     )
 }
 
@@ -353,7 +353,7 @@ pub extern "C" fn wire_dispose_peer_connection(port_: i64, peer_id: u64) {
         },
         move || {
             let api_peer_id = peer_id.wire2api();
-            move |task_callback| dispose_peer_connection(api_peer_id)
+            move |task_callback| Ok(dispose_peer_connection(api_peer_id))
         },
     )
 }
@@ -980,7 +980,6 @@ impl support::IntoDart for MediaStreamTrack {
             self.device_id.into_dart(),
             self.kind.into_dart(),
             self.enabled.into_dart(),
-            self.stopped.into_dart(),
         ]
         .into_dart()
     }
@@ -1053,26 +1052,25 @@ impl support::IntoDart for PeerConnectionState {
     }
 }
 
-impl support::IntoDart for RtcRtpSender {
-    fn into_dart(self) -> support::DartCObject {
-        vec![self.id.into_dart()].into_dart()
-    }
-}
-impl support::IntoDartExceptPrimitive for RtcRtpSender {}
-
 impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartCObject {
         vec![
             self.peer_id.into_dart(),
-            self.id.into_dart(),
+            self.index.into_dart(),
             self.mid.into_dart(),
             self.direction.into_dart(),
-            self.sender.into_dart(),
         ]
         .into_dart()
     }
 }
 impl support::IntoDartExceptPrimitive for RtcRtpTransceiver {}
+
+impl support::IntoDart for RtcSessionDescription {
+    fn into_dart(self) -> support::DartCObject {
+        vec![self.sdp.into_dart(), self.kind.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RtcSessionDescription {}
 
 impl support::IntoDart for RtcTrackEvent {
     fn into_dart(self) -> support::DartCObject {
@@ -1093,13 +1091,6 @@ impl support::IntoDart for RtpTransceiverDirection {
         .into_dart()
     }
 }
-
-impl support::IntoDart for SdpInfo {
-    fn into_dart(self) -> support::DartCObject {
-        vec![self.sdp.into_dart(), self.kind.into_dart()].into_dart()
-    }
-}
-impl support::IntoDartExceptPrimitive for SdpInfo {}
 
 impl support::IntoDart for SdpType {
     fn into_dart(self) -> support::DartCObject {

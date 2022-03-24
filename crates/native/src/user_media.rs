@@ -267,27 +267,25 @@ impl Webrtc {
                 MediaTrackSource::Local(source) => {
                     MediaTrackSource::Local(Arc::clone(&source))
                 }
-                MediaTrackSource::Remote(source) => MediaTrackSource::Remote(RemoteSource {
-                    transceiver_mid: source.transceiver_mid.to_string(),
-                    peer_id: id,
-                }),
+                MediaTrackSource::Remote { mid, peer_id } => MediaTrackSource::Remote {
+                    mid: mid.to_string(),
+                    peer_id: *peer_id,
+                },
             };
 
             match source {
                 MediaTrackSource::Local(source) => Ok(api::MediaStreamTrack::from(
                     self.create_video_track(source).unwrap().value(),
                 )),
-                MediaTrackSource::Remote(source) => {
+                MediaTrackSource::Remote { mid, peer_id } => {
                     let peer = self
                         .peer_connections
-                        .get(&PeerConnectionId(source.peer_id))
+                        .get(&PeerConnectionId(peer_id))
                         .unwrap();
 
                     let mut transceivers = peer.0.lock().unwrap().get_transceivers();
 
-                    transceivers.retain(|transceiver| {
-                        transceiver.mid().unwrap() == source.transceiver_mid
-                    });
+                    transceivers.retain(|transceiver| transceiver.mid().unwrap() == mid);
 
                     if transceivers.len() > 0 {
                         let track =
@@ -295,10 +293,7 @@ impl Webrtc {
 
                         Ok(api::MediaStreamTrack::from(&track))
                     } else {
-                        bail!(
-                            "No `transceiver` has been found with this `mid: {}`.",
-                            source.transceiver_mid
-                        );
+                        bail!("No `transceiver` has been found with this `mid: {mid}`.");
                     }
                 }
             }
@@ -307,27 +302,25 @@ impl Webrtc {
                 MediaTrackSource::Local(source) => {
                     MediaTrackSource::Local(Arc::clone(&source))
                 }
-                MediaTrackSource::Remote(source) => MediaTrackSource::Remote(RemoteSource {
-                    transceiver_mid: source.transceiver_mid.to_string(),
-                    peer_id: id,
-                }),
+                MediaTrackSource::Remote { mid, peer_id } => MediaTrackSource::Remote {
+                    mid: mid.to_string(),
+                    peer_id: *peer_id,
+                },
             };
 
             match source {
                 MediaTrackSource::Local(source) => Ok(api::MediaStreamTrack::from(
                     self.create_audio_track(source).unwrap().value(),
                 )),
-                MediaTrackSource::Remote(source) => {
+                MediaTrackSource::Remote { mid, peer_id } => {
                     let peer = self
                         .peer_connections
-                        .get(&PeerConnectionId(source.peer_id))
+                        .get(&PeerConnectionId(peer_id))
                         .unwrap();
 
                     let mut transceivers = peer.0.lock().unwrap().get_transceivers();
 
-                    transceivers.retain(|transceiver| {
-                        transceiver.mid().unwrap() == source.transceiver_mid
-                    });
+                    transceivers.retain(|transceiver| transceiver.mid().unwrap() == mid);
 
                     if transceivers.len() > 0 {
                         let track =
@@ -335,10 +328,7 @@ impl Webrtc {
 
                         Ok(api::MediaStreamTrack::from(&track))
                     } else {
-                        bail!(
-                            "No `transceiver` has been found with this `mid: {}`.",
-                            source.transceiver_mid
-                        );
+                        bail!("No `transceiver` has been found with this `mid: {mid}`.");
                     }
                 }
             }
@@ -385,7 +375,7 @@ pub struct MediaStreamId(u64);
 pub struct VideoDeviceId(String);
 
 /// ID of an `AudioDevice`.
-#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq, Into)]
+#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq, From)]
 #[as_ref(forward)]
 pub struct AudioDeviceId(String);
 
@@ -675,10 +665,7 @@ impl Drop for AudioDeviceModule {
 /// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Arc<T>),
-    Remote {
-        mid: String,
-        peer_id: u64,
-    },
+    Remote { mid: String, peer_id: u64 },
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].
@@ -736,10 +723,10 @@ impl VideoTrack {
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
-            source: MediaTrackSource::Remote(RemoteSource {
-                transceiver_mid: transceiver.mid().unwrap(),
+            source: MediaTrackSource::Remote {
+                mid: transceiver.mid().unwrap(),
                 peer_id,
-            }),
+            },
             kind: api::MediaType::Audio,
             label: VideoLabel::from("remote"),
             sinks: Vec::new(),
@@ -780,7 +767,6 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             device_id: track.label.0.clone(),
             kind: track.kind,
             enabled: true,
-            stopped: false,
         }
     }
 }
@@ -841,10 +827,10 @@ impl AudioTrack {
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
-            source: MediaTrackSource::Remote(RemoteSource {
-                transceiver_mid: transceiver.mid().unwrap(),
+            source: MediaTrackSource::Remote {
+                mid: transceiver.mid().unwrap(),
                 peer_id,
-            }),
+            },
             kind: api::MediaType::Audio,
             label: AudioLabel::from("remote"),
         }
@@ -872,7 +858,6 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
             device_id: track.label.0.clone(),
             kind: track.kind,
             enabled: true,
-            stopped: false,
         }
     }
 }

@@ -421,6 +421,9 @@ class _PeerConnectionFFI extends PeerConnection {
   /// Listener for the all [PeerConnection] events received from the native
   /// side.
   void eventListener(ffi.PeerConnectionEvent event) {
+    print(_id);
+    print(event.toString());
+
     if (event is ffi.OnIceCandidate) {
       _onIceCandidate?.call(
           IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));

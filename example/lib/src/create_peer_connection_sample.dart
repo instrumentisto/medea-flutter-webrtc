@@ -3,7 +3,6 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc/src/model/constraints.dart';
-import 'package:flutter_webrtc/src/model/ice.dart';
 import 'package:flutter_webrtc/src/model/peer.dart';
 import 'package:flutter_webrtc/src/model/track.dart';
 import 'package:flutter_webrtc/src/model/transceiver.dart';
@@ -37,7 +36,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       caps.video.mandatory!.fps = 30;
       caps.video.mandatory!.facingMode = FacingMode.user;
 
-      _track = (await getUserMedia(caps))[0];
+      // _track = (await getUserMedia(caps))[0];
 
       var server =
           IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
@@ -59,32 +58,27 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       pc2.onConnectionStateChange(pccb);
 
       var trans = await pc1.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+
+      // await trans.sender.replaceTrack(_track!);
 
       var offer = await pc1.createOffer();
       await pc1.setLocalDescription(offer);
       await pc2.setRemoteDescription(offer);
 
-      var answer = await pc2.createAnswer();
-      await pc2.setLocalDescription(answer);
-      await pc1.setRemoteDescription(answer);
-
-      pc1.onIceCandidate((IceCandidate candidate) async {
-        print(candidate.candidate.toString());
-        await pc2.addIceCandidate(candidate);
-      });
-
-      pc2.onIceCandidate((IceCandidate candidate) async {
-        print(candidate.candidate.toString());
-        await pc1.addIceCandidate(candidate);
-      });
-
-      await trans.sender.replaceTrack(_track!);
-
-      var trans2 = await pc1.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
-
-      await trans2.sender.replaceTrack(_track!);
+      // var answer = await pc2.createAnswer();
+      // await pc2.setLocalDescription(answer);
+      // await pc1.setRemoteDescription(answer);
+      //
+      // pc1.onIceCandidate((IceCandidate candidate) async {
+      //   print(candidate.candidate.toString());
+      //   await pc2.addIceCandidate(candidate);
+      // });
+      //
+      // pc2.onIceCandidate((IceCandidate candidate) async {
+      //   print(candidate.candidate.toString());
+      //   await pc1.addIceCandidate(candidate);
+      // });
 
       setState(() {
         text = 'test is success';
