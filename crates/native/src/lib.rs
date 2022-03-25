@@ -12,7 +12,7 @@ use std::{
     collections::HashMap,
     sync::{
         atomic::{AtomicU64, Ordering},
-        Arc, Mutex,
+        Arc,
     },
 };
 
@@ -74,11 +74,11 @@ impl Webrtc {
         ;
 
         let mut wt = Thread::create(false).unwrap();
-        wt.start();
+        wt.start().unwrap();
         let mut st = Thread::create(false).unwrap();
-        st.start();
+        st.start().unwrap();
         let mut nt = Thread::create(true).unwrap();
-        nt.start();
+        nt.start().unwrap();
 
 
         let audio_device_module = AudioDeviceModule::new(

@@ -224,7 +224,7 @@ impl Webrtc {
         let index = self.get_index_of_audio_playout_device(&id).unwrap();
 
         self.audio_device_module
-            .set_playout_device(id, index.unwrap_or(0))
+            .set_playout_device(index.unwrap_or(0))
     }
 
     /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be

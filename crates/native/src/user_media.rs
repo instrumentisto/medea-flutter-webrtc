@@ -1,7 +1,5 @@
 use std::{
-    ops::DerefMut,
-    sync::{mpsc, Arc, Mutex},
-    thread::JoinHandle,
+    sync::Arc,
 };
 
 use anyhow::bail;
@@ -227,7 +225,7 @@ impl Webrtc {
 
         if Some(&device_id) != self.audio_device_module.current_device_id.as_ref() {
             self.audio_device_module
-                .set_recording_device(device_id, device_index)?;
+                .set_recording_device(device_index)?;
         }
 
         let src = if let Some(src) = self.audio_source.as_ref() {
@@ -399,79 +397,6 @@ pub struct VideoLabel(String);
 #[from(forward)]
 pub struct AudioLabel(String);
 
-enum Message {
-    SetRecordingDevice {
-        index: u16,
-        tx: mpsc::Sender<anyhow::Result<()>>,
-    },
-    SetPlayoutDevice {
-        index: u16,
-        tx: mpsc::Sender<anyhow::Result<()>>,
-    },
-    PlayoutDevices(mpsc::Sender<anyhow::Result<i16>>),
-    RecordingDevices(mpsc::Sender<anyhow::Result<i16>>),
-    RecordingDeviceName {
-        index: i16,
-        tx: mpsc::Sender<anyhow::Result<(String, String)>>,
-    },
-    PlayoutDeviceName {
-        index: i16,
-        tx: mpsc::Sender<anyhow::Result<(String, String)>>,
-    },
-    CreatePeerConnectionFactory(
-        mpsc::Sender<anyhow::Result<CreatePeerConnectionFactoryResult>>,
-    ),
-}
-
-impl Message {
-    fn set_recording_device(index: u16) -> (Self, mpsc::Receiver<anyhow::Result<()>>) {
-        let (tx, rx) = mpsc::channel();
-
-        (Message::SetRecordingDevice { index, tx }, rx)
-    }
-    fn set_playout_device(index: u16) -> (Self, mpsc::Receiver<anyhow::Result<()>>) {
-        let (tx, rx) = mpsc::channel();
-
-        (Message::SetPlayoutDevice { index, tx }, rx)
-    }
-    pub fn playout_devices() -> (Self, mpsc::Receiver<anyhow::Result<i16>>) {
-        let (tx, rx) = mpsc::channel();
-
-        (Message::PlayoutDevices(tx), rx)
-    }
-
-    pub fn recording_devices() -> (Self, mpsc::Receiver<anyhow::Result<i16>>) {
-        let (tx, rx) = mpsc::channel();
-
-        (Message::RecordingDevices(tx), rx)
-    }
-
-    pub fn recording_device_name(
-        index: i16,
-    ) -> (Self, mpsc::Receiver<anyhow::Result<(String, String)>>) {
-        let (tx, rx) = mpsc::channel();
-
-        (Message::RecordingDeviceName { index, tx }, rx)
-    }
-
-    pub fn playout_device_name(
-        index: i16,
-    ) -> (Self, mpsc::Receiver<anyhow::Result<(String, String)>>) {
-        let (tx, rx) = mpsc::channel();
-
-        (Message::PlayoutDeviceName { index, tx }, rx)
-    }
-
-    pub fn create_peer_connection_factory() -> (
-        Self,
-        mpsc::Receiver<anyhow::Result<CreatePeerConnectionFactoryResult>>,
-    ) {
-        let (tx, rx) = mpsc::channel();
-
-        (Message::CreatePeerConnectionFactory(tx), rx)
-    }
-}
-
 /// [`sys::AudioDeviceModule`] wrapper tracking the currently used audio input
 /// device.
 pub struct AudioDeviceModule {
@@ -515,104 +440,38 @@ impl AudioDeviceModule {
     /// If [`sys::AudioDeviceModule::set_recording_device()`] fails.
     pub fn set_recording_device(
         &mut self,
-        id: AudioDeviceId,
         index: u16,
     ) -> anyhow::Result<()> {
-        self.set_playout_device(id, index)
+        self.inner.set_recording_device(index)
     }
 
     pub fn set_playout_device(
         &mut self,
-        id: AudioDeviceId,
         index: u16,
     ) -> anyhow::Result<()> {
-        // let (msg, rx) = Message::set_playout_device(index);
-        // self.tx.as_ref().unwrap().send(msg).unwrap();
-        // let result = rx.recv()?;
-        // if result.is_ok() {
-        //     self.current_playout_device_id.replace(id);
-        // }
-
-        // result
-        Ok(())
-    }
-
-    pub fn set_playout_device(
-        &mut self,
-        id: AudioDeviceId,
-        index: u16,
-    ) -> anyhow::Result<()> {
-        let (msg, rx) = Message::set_playout_device(index);
-        self.tx.as_ref().unwrap().send(msg).unwrap();
-        let result = rx.recv()?;
-        if result.is_ok() {
-            self.current_playout_device_id.replace(id);
-        }
-
-        result
+        self.inner.set_playout_device(index)
     }
 
     /// Returns count of available audio playout devices.
     pub fn playout_devices(&self) -> anyhow::Result<i16> {
-        // let (msg, rx) = Message::playout_devices();
-        // self.tx.as_ref().unwrap().send(msg).unwrap();
-
-        // rx.recv()?
-        Ok(42)
+        self.inner.playout_devices()
     }
 
     /// Returns count of available audio recording devices.
     pub fn recording_devices(&self) -> anyhow::Result<i16> {
-        // let (msg, rx) = Message::recording_devices();
-        // self.tx.as_ref().unwrap().send(msg).unwrap();
-
-        // rx.recv()?
-        Ok(42)
+        self.inner.recording_devices()
     }
 
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
     pub fn playout_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
-        // let (msg, rx) = Message::playout_device_name(index);
-        // self.tx.as_ref().unwrap().send(msg).unwrap();
-
-        // rx.recv()?
-        Ok(("42".to_owned(),"42".to_owned()))
+        self.inner.playout_device_name(index)
     }
 
     /// Returns the `(label, id)` tuple for the given audio recording device
     /// `index`.
     pub fn recording_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
-        // let (msg, rx) = Message::recording_device_name(index);
-        // self.tx.as_ref().unwrap().send(msg).unwrap();
-
-        // rx.recv()?
-        Ok(("42".to_owned(),"42".to_owned()))
-
-    }
-
-    pub fn create_peer_connection_factory(
-        &self,
-    ) -> anyhow::Result<CreatePeerConnectionFactoryResult> {
-        // let (msg, rx) = Message::create_peer_connection_factory();
-        // self.tx.as_ref().unwrap().send(msg).unwrap();
-
-        // rx.recv()?
-        anyhow::bail!("")
-    }
-}
-
-pub struct CreatePeerConnectionFactoryResult {
-    pub worker_thread: sys::Thread,
-    pub network_thread: sys::Thread,
-    pub signaling_thread: sys::Thread,
-    pub peer_connection_factory: sys::PeerConnectionFactoryInterface,
-}
-
-impl Drop for AudioDeviceModule {
-    fn drop(&mut self) {
-        // self.tx.take();
-        // self.thread.take().unwrap().join().unwrap();
+        self.inner.recording_device_name(index)
     }
 }
 
@@ -881,40 +740,5 @@ struct TrackEventHandler(StreamSink<TrackEvent>);
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {
         self.0.add(TrackEvent::Ended);
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use std::sync::{Arc, Mutex};
-
-    use libwebrtc_sys::{AudioLayer, TaskQueueFactory};
-
-    use crate::AudioDeviceId;
-
-    use super::AudioDeviceModule;
-
-    #[test]
-    fn adm_thread_safety() {
-        // let task_queue_factory = Arc::new(Mutex::new(
-        //     TaskQueueFactory::create_default_task_queue_factory(),
-        // ));
-
-        // let handle = std::thread::spawn(move || {
-        //     let audio_device_module = AudioDeviceModule::new(
-        //         AudioLayer::kPlatformDefaultAudio,
-        //         Arc::clone(&task_queue_factory),
-        //     )
-        //     .unwrap();
-
-        //     audio_device_module
-        // });
-
-        // let mut module = handle.join().unwrap();
-        // module.playout_devices().unwrap();
-        // module.recording_devices().unwrap();
-        // module
-        //     .set_recording_device(AudioDeviceId::default(), 0)
-        //     .unwrap();
     }
 }
