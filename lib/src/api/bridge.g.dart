@@ -172,7 +172,7 @@ abstract class FlutterWebrtcNative {
       dynamic hint});
 
   /// Destroys the [`VideoSink`] by the given ID.
-  Uint8List disposeVideoSink({required int sinkId, dynamic hint});
+  Future<void> disposeVideoSink({required int sinkId, dynamic hint});
 }
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
@@ -251,11 +251,12 @@ enum IceTransportsType {
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
   Relay,
 
-  /// ICE Agent can't use `typ host` candidates when this value is
-  /// specified.
+  /// ICE Agent can't use `typ host` candidates when this value is specified.
   ///
   /// Non-spec-compliant variant.
   NoHost,
+
+  /// No ICE candidate offered.
   None,
 }
 
@@ -340,29 +341,29 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
     required int sdpMlineIndex,
     required String candidate,
   }) = OnIceCandidate;
-  const factory PeerConnectionEvent.onIceGatheringStateChange(
+  const factory PeerConnectionEvent.iceGatheringStateChange(
     IceGatheringState field0,
-  ) = OnIceGatheringStateChange;
-  const factory PeerConnectionEvent.onIceCandidateError({
+  ) = IceGatheringStateChange;
+  const factory PeerConnectionEvent.iceCandidateError({
     required String address,
     required int port,
     required String url,
     required int errorCode,
     required String errorText,
-  }) = OnIceCandidateError;
-  const factory PeerConnectionEvent.onNegotiationNeeded() = OnNegotiationNeeded;
-  const factory PeerConnectionEvent.onSignallingChange(
+  }) = IceCandidateError;
+  const factory PeerConnectionEvent.negotiationNeeded() = NegotiationNeeded;
+  const factory PeerConnectionEvent.signallingChange(
     SignalingState field0,
-  ) = OnSignallingChange;
-  const factory PeerConnectionEvent.onIceConnectionStateChange(
+  ) = SignallingChange;
+  const factory PeerConnectionEvent.iceConnectionStateChange(
     IceConnectionState field0,
-  ) = OnIceConnectionStateChange;
-  const factory PeerConnectionEvent.onConnectionStateChange(
+  ) = IceConnectionStateChange;
+  const factory PeerConnectionEvent.connectionStateChange(
     PeerConnectionState field0,
-  ) = OnConnectionStateChange;
-  const factory PeerConnectionEvent.onTrack(
+  ) = ConnectionStateChange;
+  const factory PeerConnectionEvent.track(
     RtcTrackEvent field0,
-  ) = OnTrack;
+  ) = Track;
 }
 
 enum PeerConnectionState {
@@ -985,9 +986,11 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Uint8List disposeVideoSink({required int sinkId, dynamic hint}) =>
-      executeSync(FlutterRustBridgeSyncTask(
-        callFfi: () => inner.wire_dispose_video_sink(_api2wire_i64(sinkId)),
+  Future<void> disposeVideoSink({required int sinkId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_dispose_video_sink(port_, _api2wire_i64(sinkId)),
+        parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "dispose_video_sink",
           argNames: ["sinkId"],
@@ -1195,10 +1198,6 @@ String _wire2api_String(dynamic raw) {
   return raw as String;
 }
 
-Uint8List _wire2api_SyncReturnVecU8(dynamic raw) {
-  return raw as Uint8List;
-}
-
 bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
@@ -1207,7 +1206,7 @@ RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
   return _wire2api_rtc_track_event(raw);
 }
 
-int _wire2api_i64(dynamic raw) {
+int _wire2api_i32(dynamic raw) {
   return raw as int;
 }
 
@@ -1271,37 +1270,37 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
     case 0:
       return OnIceCandidate(
         sdpMid: _wire2api_String(raw[1]),
-        sdpMlineIndex: _wire2api_i64(raw[2]),
+        sdpMlineIndex: _wire2api_i32(raw[2]),
         candidate: _wire2api_String(raw[3]),
       );
     case 1:
-      return OnIceGatheringStateChange(
+      return IceGatheringStateChange(
         _wire2api_ice_gathering_state(raw[1]),
       );
     case 2:
-      return OnIceCandidateError(
+      return IceCandidateError(
         address: _wire2api_String(raw[1]),
-        port: _wire2api_i64(raw[2]),
+        port: _wire2api_i32(raw[2]),
         url: _wire2api_String(raw[3]),
-        errorCode: _wire2api_i64(raw[4]),
+        errorCode: _wire2api_i32(raw[4]),
         errorText: _wire2api_String(raw[5]),
       );
     case 3:
-      return OnNegotiationNeeded();
+      return NegotiationNeeded();
     case 4:
-      return OnSignallingChange(
+      return SignallingChange(
         _wire2api_signaling_state(raw[1]),
       );
     case 5:
-      return OnIceConnectionStateChange(
+      return IceConnectionStateChange(
         _wire2api_ice_connection_state(raw[1]),
       );
     case 6:
-      return OnConnectionStateChange(
+      return ConnectionStateChange(
         _wire2api_peer_connection_state(raw[1]),
       );
     case 7:
-      return OnTrack(
+      return Track(
         _wire2api_box_autoadd_rtc_track_event(raw[1]),
       );
     default:
@@ -1857,19 +1856,21 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_create_video_sink = _wire_create_video_sinkPtr
       .asFunction<void Function(int, int, int, int)>();
 
-  WireSyncReturnStruct wire_dispose_video_sink(
+  void wire_dispose_video_sink(
+    int port_,
     int sink_id,
   ) {
     return _wire_dispose_video_sink(
+      port_,
       sink_id,
     );
   }
 
   late final _wire_dispose_video_sinkPtr =
-      _lookup<ffi.NativeFunction<WireSyncReturnStruct Function(ffi.Int64)>>(
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int64)>>(
           'wire_dispose_video_sink');
-  late final _wire_dispose_video_sink = _wire_dispose_video_sinkPtr
-      .asFunction<WireSyncReturnStruct Function(int)>();
+  late final _wire_dispose_video_sink =
+      _wire_dispose_video_sinkPtr.asFunction<void Function(int, int)>();
 
   ffi.Pointer<wire_StringList> new_StringList(
     int len,

@@ -1,5 +1,11 @@
 #![warn(clippy::pedantic)]
 mod api;
+#[allow(
+    clippy::wildcard_imports,
+    clippy::semicolon_if_nothing_returned,
+    clippy::default_trait_access,
+    clippy::let_underscore_drop)
+]
 #[rustfmt::skip]
 mod bridge_generated;
 mod cpp_api;
@@ -18,8 +24,8 @@ use std::{
 
 use dashmap::DashMap;
 use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory,
-    Thread, VideoDeviceInfo,
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 use threadpool::ThreadPool;
 
@@ -29,8 +35,8 @@ use crate::video_sink::Id as VideoSinkId;
 pub use crate::{
     pc::{PeerConnection, PeerConnectionId},
     user_media::{
-        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStreamId,
-        VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
+        MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
     },
     video_sink::{Frame, VideoSink},
 };
@@ -66,28 +72,28 @@ struct Webrtc {
 
 impl Webrtc {
     fn new() -> anyhow::Result<Self> {
-        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
+        let mut task_queue_factory =
+            TaskQueueFactory::create_default_task_queue_factory();
 
-        let mut worker_thread = Thread::create().unwrap();
-        worker_thread.start().unwrap();
+        let mut worker_thread = Thread::create(false)?;
+        worker_thread.start()?;
 
-        let mut signaling_thread = Thread::create().unwrap();
-        signaling_thread.start().unwrap();
+        let mut signaling_thread = Thread::create(false)?;
+        signaling_thread.start()?;
 
         let audio_device_module = AudioDeviceModule::new(
             AudioLayer::kPlatformDefaultAudio,
             &mut task_queue_factory,
-        )
-        .unwrap();
+        )?;
 
         let peer_connection_factory = PeerConnectionFactoryInterface::create(
+            None,
             Some(&worker_thread),
             Some(&signaling_thread),
             Some(&audio_device_module.inner),
-        )
-        .unwrap();
+        )?;
 
-        let video_device_info = VideoDeviceInfo::create().unwrap();
+        let video_device_info = VideoDeviceInfo::create()?;
 
         Ok(Self {
             task_queue_factory,

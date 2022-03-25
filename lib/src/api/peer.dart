@@ -211,7 +211,7 @@ abstract class PeerConnection {
 
 /// [MethodChannel] used for the messaging with a native side.
 final _peerConnectionFactoryMethodChannel =
-    methodChannel('PeerConnectionFactory', 0);
+methodChannel('PeerConnectionFactory', 0);
 
 class _PeerConnectionChannel extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
@@ -219,7 +219,7 @@ class _PeerConnectionChannel extends PeerConnection {
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
     dynamic res =
-        await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
+    await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
       'iceTransportType': iceTransportType.index,
       'iceServers': iceServers.map((s) => s.toMap()).toList(),
     });
@@ -394,9 +394,9 @@ class _PeerConnectionFFI extends PeerConnection {
         bundlePolicy: ffi.BundlePolicy.MaxBundle,
         iceServers: iceServers
             .map((server) => ffi.RtcIceServer(
-                urls: server.urls,
-                username: server.username!,
-                credential: server.password!))
+            urls: server.urls,
+            username: server.username!,
+            credential: server.password!))
             .toList());
 
     var id = nextId();
@@ -423,11 +423,11 @@ class _PeerConnectionFFI extends PeerConnection {
       _onIceCandidate?.call(
           IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
       return;
-    } else if (event is ffi.OnIceGatheringStateChange) {
+    } else if (event is ffi.IceGatheringStateChange) {
       _onIceGatheringStateChange
           ?.call(IceGatheringState.values[event.field0.index]);
       return;
-    } else if (event is ffi.OnIceCandidateError) {
+    } else if (event is ffi.IceCandidateError) {
       _onIceCandidateError?.call(IceCandidateErrorEvent.fromMap({
         'address': event.address,
         'port': event.port,
@@ -436,27 +436,27 @@ class _PeerConnectionFFI extends PeerConnection {
         'errorText': event.errorText,
       }));
       return;
-    } else if (event is ffi.OnNegotiationNeeded) {
+    } else if (event is ffi.NegotiationNeeded) {
       _onNegotiationNeeded?.call();
       return;
-    } else if (event is ffi.OnSignallingChange) {
+    } else if (event is ffi.SignallingChange) {
       _onSignalingStateChange?.call(SignalingState.values[event.field0.index]);
       return;
-    } else if (event is ffi.OnIceConnectionStateChange) {
+    } else if (event is ffi.IceConnectionStateChange) {
       _iceConnectionState = IceConnectionState.values[event.field0.index];
       _onIceConnectionStateChange?.call(_iceConnectionState);
       return;
-    } else if (event is ffi.OnConnectionStateChange) {
+    } else if (event is ffi.ConnectionStateChange) {
       _connectionState = PeerConnectionState.values[event.field0.index];
       _onConnectionStateChange?.call(_connectionState);
       return;
-    } else if (event is ffi.OnTrack) {
+    } else if (event is ffi.Track) {
       var transceiver = RtpTransceiver.fromFFI(event.field0.transceiver);
 
       final isIn = _transceivers.any((element) =>
-          element is RtpTransceiverFFI && transceiver is RtpTransceiverFFI
-              ? element.id == transceiver.id
-              : false);
+      element is RtpTransceiverFFI && transceiver is RtpTransceiverFFI
+          ? element.id == transceiver.id
+          : false);
 
       if (!isIn) {
         _transceivers.add(transceiver);

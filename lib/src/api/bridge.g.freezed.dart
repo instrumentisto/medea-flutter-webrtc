@@ -29,20 +29,19 @@ class _$PeerConnectionEventTearOff {
     );
   }
 
-  OnIceGatheringStateChange onIceGatheringStateChange(
-      IceGatheringState field0) {
-    return OnIceGatheringStateChange(
+  IceGatheringStateChange iceGatheringStateChange(IceGatheringState field0) {
+    return IceGatheringStateChange(
       field0,
     );
   }
 
-  OnIceCandidateError onIceCandidateError(
+  IceCandidateError iceCandidateError(
       {required String address,
       required int port,
       required String url,
       required int errorCode,
       required String errorText}) {
-    return OnIceCandidateError(
+    return IceCandidateError(
       address: address,
       port: port,
       url: url,
@@ -51,31 +50,30 @@ class _$PeerConnectionEventTearOff {
     );
   }
 
-  OnNegotiationNeeded onNegotiationNeeded() {
-    return const OnNegotiationNeeded();
+  NegotiationNeeded negotiationNeeded() {
+    return const NegotiationNeeded();
   }
 
-  OnSignallingChange onSignallingChange(SignalingState field0) {
-    return OnSignallingChange(
+  SignallingChange signallingChange(SignalingState field0) {
+    return SignallingChange(
       field0,
     );
   }
 
-  OnIceConnectionStateChange onIceConnectionStateChange(
-      IceConnectionState field0) {
-    return OnIceConnectionStateChange(
+  IceConnectionStateChange iceConnectionStateChange(IceConnectionState field0) {
+    return IceConnectionStateChange(
       field0,
     );
   }
 
-  OnConnectionStateChange onConnectionStateChange(PeerConnectionState field0) {
-    return OnConnectionStateChange(
+  ConnectionStateChange connectionStateChange(PeerConnectionState field0) {
+    return ConnectionStateChange(
       field0,
     );
   }
 
-  OnTrack onTrack(RtcTrackEvent field0) {
-    return OnTrack(
+  Track track(RtcTrackEvent field0) {
+    return Track(
       field0,
     );
   }
@@ -91,92 +89,86 @@ mixin _$PeerConnectionEvent {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -290,18 +282,16 @@ class _$OnIceCandidate implements OnIceCandidate {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
     return onIceCandidate(sdpMid, sdpMlineIndex, candidate);
   }
@@ -311,15 +301,15 @@ class _$OnIceCandidate implements OnIceCandidate {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
     return onIceCandidate?.call(sdpMid, sdpMlineIndex, candidate);
   }
@@ -329,15 +319,15 @@ class _$OnIceCandidate implements OnIceCandidate {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
     if (onIceCandidate != null) {
@@ -350,16 +340,16 @@ class _$OnIceCandidate implements OnIceCandidate {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
     return onIceCandidate(this);
   }
@@ -368,15 +358,13 @@ class _$OnIceCandidate implements OnIceCandidate {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
     return onIceCandidate?.call(this);
   }
@@ -385,15 +373,13 @@ class _$OnIceCandidate implements OnIceCandidate {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
     if (onIceCandidate != null) {
@@ -418,30 +404,29 @@ abstract class OnIceCandidate implements PeerConnectionEvent {
 }
 
 /// @nodoc
-abstract class $OnIceGatheringStateChangeCopyWith<$Res> {
-  factory $OnIceGatheringStateChangeCopyWith(OnIceGatheringStateChange value,
-          $Res Function(OnIceGatheringStateChange) then) =
-      _$OnIceGatheringStateChangeCopyWithImpl<$Res>;
+abstract class $IceGatheringStateChangeCopyWith<$Res> {
+  factory $IceGatheringStateChangeCopyWith(IceGatheringStateChange value,
+          $Res Function(IceGatheringStateChange) then) =
+      _$IceGatheringStateChangeCopyWithImpl<$Res>;
   $Res call({IceGatheringState field0});
 }
 
 /// @nodoc
-class _$OnIceGatheringStateChangeCopyWithImpl<$Res>
+class _$IceGatheringStateChangeCopyWithImpl<$Res>
     extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnIceGatheringStateChangeCopyWith<$Res> {
-  _$OnIceGatheringStateChangeCopyWithImpl(OnIceGatheringStateChange _value,
-      $Res Function(OnIceGatheringStateChange) _then)
-      : super(_value, (v) => _then(v as OnIceGatheringStateChange));
+    implements $IceGatheringStateChangeCopyWith<$Res> {
+  _$IceGatheringStateChangeCopyWithImpl(IceGatheringStateChange _value,
+      $Res Function(IceGatheringStateChange) _then)
+      : super(_value, (v) => _then(v as IceGatheringStateChange));
 
   @override
-  OnIceGatheringStateChange get _value =>
-      super._value as OnIceGatheringStateChange;
+  IceGatheringStateChange get _value => super._value as IceGatheringStateChange;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(OnIceGatheringStateChange(
+    return _then(IceGatheringStateChange(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -452,22 +437,22 @@ class _$OnIceGatheringStateChangeCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
-  const _$OnIceGatheringStateChange(this.field0);
+class _$IceGatheringStateChange implements IceGatheringStateChange {
+  const _$IceGatheringStateChange(this.field0);
 
   @override
   final IceGatheringState field0;
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onIceGatheringStateChange(field0: $field0)';
+    return 'PeerConnectionEvent.iceGatheringStateChange(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is OnIceGatheringStateChange &&
+            other is IceGatheringStateChange &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -477,8 +462,8 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
 
   @JsonKey(ignore: true)
   @override
-  $OnIceGatheringStateChangeCopyWith<OnIceGatheringStateChange> get copyWith =>
-      _$OnIceGatheringStateChangeCopyWithImpl<OnIceGatheringStateChange>(
+  $IceGatheringStateChangeCopyWith<IceGatheringStateChange> get copyWith =>
+      _$IceGatheringStateChangeCopyWithImpl<IceGatheringStateChange>(
           this, _$identity);
 
   @override
@@ -487,20 +472,18 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onIceGatheringStateChange(field0);
+    return iceGatheringStateChange(field0);
   }
 
   @override
@@ -508,17 +491,17 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onIceGatheringStateChange?.call(field0);
+    return iceGatheringStateChange?.call(field0);
   }
 
   @override
@@ -526,19 +509,19 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onIceGatheringStateChange != null) {
-      return onIceGatheringStateChange(field0);
+    if (iceGatheringStateChange != null) {
+      return iceGatheringStateChange(field0);
     }
     return orElse();
   }
@@ -547,88 +530,84 @@ class _$OnIceGatheringStateChange implements OnIceGatheringStateChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
-    return onIceGatheringStateChange(this);
+    return iceGatheringStateChange(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
-    return onIceGatheringStateChange?.call(this);
+    return iceGatheringStateChange?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onIceGatheringStateChange != null) {
-      return onIceGatheringStateChange(this);
+    if (iceGatheringStateChange != null) {
+      return iceGatheringStateChange(this);
     }
     return orElse();
   }
 }
 
-abstract class OnIceGatheringStateChange implements PeerConnectionEvent {
-  const factory OnIceGatheringStateChange(IceGatheringState field0) =
-      _$OnIceGatheringStateChange;
+abstract class IceGatheringStateChange implements PeerConnectionEvent {
+  const factory IceGatheringStateChange(IceGatheringState field0) =
+      _$IceGatheringStateChange;
 
   IceGatheringState get field0;
   @JsonKey(ignore: true)
-  $OnIceGatheringStateChangeCopyWith<OnIceGatheringStateChange> get copyWith =>
+  $IceGatheringStateChangeCopyWith<IceGatheringStateChange> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $OnIceCandidateErrorCopyWith<$Res> {
-  factory $OnIceCandidateErrorCopyWith(
-          OnIceCandidateError value, $Res Function(OnIceCandidateError) then) =
-      _$OnIceCandidateErrorCopyWithImpl<$Res>;
+abstract class $IceCandidateErrorCopyWith<$Res> {
+  factory $IceCandidateErrorCopyWith(
+          IceCandidateError value, $Res Function(IceCandidateError) then) =
+      _$IceCandidateErrorCopyWithImpl<$Res>;
   $Res call(
       {String address, int port, String url, int errorCode, String errorText});
 }
 
 /// @nodoc
-class _$OnIceCandidateErrorCopyWithImpl<$Res>
+class _$IceCandidateErrorCopyWithImpl<$Res>
     extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnIceCandidateErrorCopyWith<$Res> {
-  _$OnIceCandidateErrorCopyWithImpl(
-      OnIceCandidateError _value, $Res Function(OnIceCandidateError) _then)
-      : super(_value, (v) => _then(v as OnIceCandidateError));
+    implements $IceCandidateErrorCopyWith<$Res> {
+  _$IceCandidateErrorCopyWithImpl(
+      IceCandidateError _value, $Res Function(IceCandidateError) _then)
+      : super(_value, (v) => _then(v as IceCandidateError));
 
   @override
-  OnIceCandidateError get _value => super._value as OnIceCandidateError;
+  IceCandidateError get _value => super._value as IceCandidateError;
 
   @override
   $Res call({
@@ -638,7 +617,7 @@ class _$OnIceCandidateErrorCopyWithImpl<$Res>
     Object? errorCode = freezed,
     Object? errorText = freezed,
   }) {
-    return _then(OnIceCandidateError(
+    return _then(IceCandidateError(
       address: address == freezed
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
@@ -665,8 +644,8 @@ class _$OnIceCandidateErrorCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OnIceCandidateError implements OnIceCandidateError {
-  const _$OnIceCandidateError(
+class _$IceCandidateError implements IceCandidateError {
+  const _$IceCandidateError(
       {required this.address,
       required this.port,
       required this.url,
@@ -686,14 +665,14 @@ class _$OnIceCandidateError implements OnIceCandidateError {
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onIceCandidateError(address: $address, port: $port, url: $url, errorCode: $errorCode, errorText: $errorText)';
+    return 'PeerConnectionEvent.iceCandidateError(address: $address, port: $port, url: $url, errorCode: $errorCode, errorText: $errorText)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is OnIceCandidateError &&
+            other is IceCandidateError &&
             const DeepCollectionEquality().equals(other.address, address) &&
             const DeepCollectionEquality().equals(other.port, port) &&
             const DeepCollectionEquality().equals(other.url, url) &&
@@ -712,8 +691,8 @@ class _$OnIceCandidateError implements OnIceCandidateError {
 
   @JsonKey(ignore: true)
   @override
-  $OnIceCandidateErrorCopyWith<OnIceCandidateError> get copyWith =>
-      _$OnIceCandidateErrorCopyWithImpl<OnIceCandidateError>(this, _$identity);
+  $IceCandidateErrorCopyWith<IceCandidateError> get copyWith =>
+      _$IceCandidateErrorCopyWithImpl<IceCandidateError>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -721,20 +700,18 @@ class _$OnIceCandidateError implements OnIceCandidateError {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onIceCandidateError(address, port, url, errorCode, errorText);
+    return iceCandidateError(address, port, url, errorCode, errorText);
   }
 
   @override
@@ -742,17 +719,17 @@ class _$OnIceCandidateError implements OnIceCandidateError {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onIceCandidateError?.call(address, port, url, errorCode, errorText);
+    return iceCandidateError?.call(address, port, url, errorCode, errorText);
   }
 
   @override
@@ -760,19 +737,19 @@ class _$OnIceCandidateError implements OnIceCandidateError {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onIceCandidateError != null) {
-      return onIceCandidateError(address, port, url, errorCode, errorText);
+    if (iceCandidateError != null) {
+      return iceCandidateError(address, port, url, errorCode, errorText);
     }
     return orElse();
   }
@@ -781,66 +758,62 @@ class _$OnIceCandidateError implements OnIceCandidateError {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
-    return onIceCandidateError(this);
+    return iceCandidateError(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
-    return onIceCandidateError?.call(this);
+    return iceCandidateError?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onIceCandidateError != null) {
-      return onIceCandidateError(this);
+    if (iceCandidateError != null) {
+      return iceCandidateError(this);
     }
     return orElse();
   }
 }
 
-abstract class OnIceCandidateError implements PeerConnectionEvent {
-  const factory OnIceCandidateError(
+abstract class IceCandidateError implements PeerConnectionEvent {
+  const factory IceCandidateError(
       {required String address,
       required int port,
       required String url,
       required int errorCode,
-      required String errorText}) = _$OnIceCandidateError;
+      required String errorText}) = _$IceCandidateError;
 
   String get address;
   int get port;
@@ -848,43 +821,43 @@ abstract class OnIceCandidateError implements PeerConnectionEvent {
   int get errorCode;
   String get errorText;
   @JsonKey(ignore: true)
-  $OnIceCandidateErrorCopyWith<OnIceCandidateError> get copyWith =>
+  $IceCandidateErrorCopyWith<IceCandidateError> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $OnNegotiationNeededCopyWith<$Res> {
-  factory $OnNegotiationNeededCopyWith(
-          OnNegotiationNeeded value, $Res Function(OnNegotiationNeeded) then) =
-      _$OnNegotiationNeededCopyWithImpl<$Res>;
+abstract class $NegotiationNeededCopyWith<$Res> {
+  factory $NegotiationNeededCopyWith(
+          NegotiationNeeded value, $Res Function(NegotiationNeeded) then) =
+      _$NegotiationNeededCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$OnNegotiationNeededCopyWithImpl<$Res>
+class _$NegotiationNeededCopyWithImpl<$Res>
     extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnNegotiationNeededCopyWith<$Res> {
-  _$OnNegotiationNeededCopyWithImpl(
-      OnNegotiationNeeded _value, $Res Function(OnNegotiationNeeded) _then)
-      : super(_value, (v) => _then(v as OnNegotiationNeeded));
+    implements $NegotiationNeededCopyWith<$Res> {
+  _$NegotiationNeededCopyWithImpl(
+      NegotiationNeeded _value, $Res Function(NegotiationNeeded) _then)
+      : super(_value, (v) => _then(v as NegotiationNeeded));
 
   @override
-  OnNegotiationNeeded get _value => super._value as OnNegotiationNeeded;
+  NegotiationNeeded get _value => super._value as NegotiationNeeded;
 }
 
 /// @nodoc
 
-class _$OnNegotiationNeeded implements OnNegotiationNeeded {
-  const _$OnNegotiationNeeded();
+class _$NegotiationNeeded implements NegotiationNeeded {
+  const _$NegotiationNeeded();
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onNegotiationNeeded()';
+    return 'PeerConnectionEvent.negotiationNeeded()';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is OnNegotiationNeeded);
+        (other.runtimeType == runtimeType && other is NegotiationNeeded);
   }
 
   @override
@@ -896,20 +869,18 @@ class _$OnNegotiationNeeded implements OnNegotiationNeeded {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onNegotiationNeeded();
+    return negotiationNeeded();
   }
 
   @override
@@ -917,17 +888,17 @@ class _$OnNegotiationNeeded implements OnNegotiationNeeded {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onNegotiationNeeded?.call();
+    return negotiationNeeded?.call();
   }
 
   @override
@@ -935,19 +906,19 @@ class _$OnNegotiationNeeded implements OnNegotiationNeeded {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onNegotiationNeeded != null) {
-      return onNegotiationNeeded();
+    if (negotiationNeeded != null) {
+      return negotiationNeeded();
     }
     return orElse();
   }
@@ -956,87 +927,83 @@ class _$OnNegotiationNeeded implements OnNegotiationNeeded {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
-    return onNegotiationNeeded(this);
+    return negotiationNeeded(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
-    return onNegotiationNeeded?.call(this);
+    return negotiationNeeded?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onNegotiationNeeded != null) {
-      return onNegotiationNeeded(this);
+    if (negotiationNeeded != null) {
+      return negotiationNeeded(this);
     }
     return orElse();
   }
 }
 
-abstract class OnNegotiationNeeded implements PeerConnectionEvent {
-  const factory OnNegotiationNeeded() = _$OnNegotiationNeeded;
+abstract class NegotiationNeeded implements PeerConnectionEvent {
+  const factory NegotiationNeeded() = _$NegotiationNeeded;
 }
 
 /// @nodoc
-abstract class $OnSignallingChangeCopyWith<$Res> {
-  factory $OnSignallingChangeCopyWith(
-          OnSignallingChange value, $Res Function(OnSignallingChange) then) =
-      _$OnSignallingChangeCopyWithImpl<$Res>;
+abstract class $SignallingChangeCopyWith<$Res> {
+  factory $SignallingChangeCopyWith(
+          SignallingChange value, $Res Function(SignallingChange) then) =
+      _$SignallingChangeCopyWithImpl<$Res>;
   $Res call({SignalingState field0});
 }
 
 /// @nodoc
-class _$OnSignallingChangeCopyWithImpl<$Res>
+class _$SignallingChangeCopyWithImpl<$Res>
     extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnSignallingChangeCopyWith<$Res> {
-  _$OnSignallingChangeCopyWithImpl(
-      OnSignallingChange _value, $Res Function(OnSignallingChange) _then)
-      : super(_value, (v) => _then(v as OnSignallingChange));
+    implements $SignallingChangeCopyWith<$Res> {
+  _$SignallingChangeCopyWithImpl(
+      SignallingChange _value, $Res Function(SignallingChange) _then)
+      : super(_value, (v) => _then(v as SignallingChange));
 
   @override
-  OnSignallingChange get _value => super._value as OnSignallingChange;
+  SignallingChange get _value => super._value as SignallingChange;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(OnSignallingChange(
+    return _then(SignallingChange(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -1047,22 +1014,22 @@ class _$OnSignallingChangeCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OnSignallingChange implements OnSignallingChange {
-  const _$OnSignallingChange(this.field0);
+class _$SignallingChange implements SignallingChange {
+  const _$SignallingChange(this.field0);
 
   @override
   final SignalingState field0;
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onSignallingChange(field0: $field0)';
+    return 'PeerConnectionEvent.signallingChange(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is OnSignallingChange &&
+            other is SignallingChange &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -1072,8 +1039,8 @@ class _$OnSignallingChange implements OnSignallingChange {
 
   @JsonKey(ignore: true)
   @override
-  $OnSignallingChangeCopyWith<OnSignallingChange> get copyWith =>
-      _$OnSignallingChangeCopyWithImpl<OnSignallingChange>(this, _$identity);
+  $SignallingChangeCopyWith<SignallingChange> get copyWith =>
+      _$SignallingChangeCopyWithImpl<SignallingChange>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -1081,20 +1048,18 @@ class _$OnSignallingChange implements OnSignallingChange {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onSignallingChange(field0);
+    return signallingChange(field0);
   }
 
   @override
@@ -1102,17 +1067,17 @@ class _$OnSignallingChange implements OnSignallingChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onSignallingChange?.call(field0);
+    return signallingChange?.call(field0);
   }
 
   @override
@@ -1120,19 +1085,19 @@ class _$OnSignallingChange implements OnSignallingChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onSignallingChange != null) {
-      return onSignallingChange(field0);
+    if (signallingChange != null) {
+      return signallingChange(field0);
     }
     return orElse();
   }
@@ -1141,94 +1106,89 @@ class _$OnSignallingChange implements OnSignallingChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
-    return onSignallingChange(this);
+    return signallingChange(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
-    return onSignallingChange?.call(this);
+    return signallingChange?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onSignallingChange != null) {
-      return onSignallingChange(this);
+    if (signallingChange != null) {
+      return signallingChange(this);
     }
     return orElse();
   }
 }
 
-abstract class OnSignallingChange implements PeerConnectionEvent {
-  const factory OnSignallingChange(SignalingState field0) =
-      _$OnSignallingChange;
+abstract class SignallingChange implements PeerConnectionEvent {
+  const factory SignallingChange(SignalingState field0) = _$SignallingChange;
 
   SignalingState get field0;
   @JsonKey(ignore: true)
-  $OnSignallingChangeCopyWith<OnSignallingChange> get copyWith =>
+  $SignallingChangeCopyWith<SignallingChange> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $OnIceConnectionStateChangeCopyWith<$Res> {
-  factory $OnIceConnectionStateChangeCopyWith(OnIceConnectionStateChange value,
-          $Res Function(OnIceConnectionStateChange) then) =
-      _$OnIceConnectionStateChangeCopyWithImpl<$Res>;
+abstract class $IceConnectionStateChangeCopyWith<$Res> {
+  factory $IceConnectionStateChangeCopyWith(IceConnectionStateChange value,
+          $Res Function(IceConnectionStateChange) then) =
+      _$IceConnectionStateChangeCopyWithImpl<$Res>;
   $Res call({IceConnectionState field0});
 }
 
 /// @nodoc
-class _$OnIceConnectionStateChangeCopyWithImpl<$Res>
+class _$IceConnectionStateChangeCopyWithImpl<$Res>
     extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnIceConnectionStateChangeCopyWith<$Res> {
-  _$OnIceConnectionStateChangeCopyWithImpl(OnIceConnectionStateChange _value,
-      $Res Function(OnIceConnectionStateChange) _then)
-      : super(_value, (v) => _then(v as OnIceConnectionStateChange));
+    implements $IceConnectionStateChangeCopyWith<$Res> {
+  _$IceConnectionStateChangeCopyWithImpl(IceConnectionStateChange _value,
+      $Res Function(IceConnectionStateChange) _then)
+      : super(_value, (v) => _then(v as IceConnectionStateChange));
 
   @override
-  OnIceConnectionStateChange get _value =>
-      super._value as OnIceConnectionStateChange;
+  IceConnectionStateChange get _value =>
+      super._value as IceConnectionStateChange;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(OnIceConnectionStateChange(
+    return _then(IceConnectionStateChange(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -1239,22 +1199,22 @@ class _$OnIceConnectionStateChangeCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
-  const _$OnIceConnectionStateChange(this.field0);
+class _$IceConnectionStateChange implements IceConnectionStateChange {
+  const _$IceConnectionStateChange(this.field0);
 
   @override
   final IceConnectionState field0;
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onIceConnectionStateChange(field0: $field0)';
+    return 'PeerConnectionEvent.iceConnectionStateChange(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is OnIceConnectionStateChange &&
+            other is IceConnectionStateChange &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -1264,10 +1224,9 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
 
   @JsonKey(ignore: true)
   @override
-  $OnIceConnectionStateChangeCopyWith<OnIceConnectionStateChange>
-      get copyWith =>
-          _$OnIceConnectionStateChangeCopyWithImpl<OnIceConnectionStateChange>(
-              this, _$identity);
+  $IceConnectionStateChangeCopyWith<IceConnectionStateChange> get copyWith =>
+      _$IceConnectionStateChangeCopyWithImpl<IceConnectionStateChange>(
+          this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -1275,20 +1234,18 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onIceConnectionStateChange(field0);
+    return iceConnectionStateChange(field0);
   }
 
   @override
@@ -1296,17 +1253,17 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onIceConnectionStateChange?.call(field0);
+    return iceConnectionStateChange?.call(field0);
   }
 
   @override
@@ -1314,19 +1271,19 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onIceConnectionStateChange != null) {
-      return onIceConnectionStateChange(field0);
+    if (iceConnectionStateChange != null) {
+      return iceConnectionStateChange(field0);
     }
     return orElse();
   }
@@ -1335,93 +1292,89 @@ class _$OnIceConnectionStateChange implements OnIceConnectionStateChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
-    return onIceConnectionStateChange(this);
+    return iceConnectionStateChange(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
-    return onIceConnectionStateChange?.call(this);
+    return iceConnectionStateChange?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onIceConnectionStateChange != null) {
-      return onIceConnectionStateChange(this);
+    if (iceConnectionStateChange != null) {
+      return iceConnectionStateChange(this);
     }
     return orElse();
   }
 }
 
-abstract class OnIceConnectionStateChange implements PeerConnectionEvent {
-  const factory OnIceConnectionStateChange(IceConnectionState field0) =
-      _$OnIceConnectionStateChange;
+abstract class IceConnectionStateChange implements PeerConnectionEvent {
+  const factory IceConnectionStateChange(IceConnectionState field0) =
+      _$IceConnectionStateChange;
 
   IceConnectionState get field0;
   @JsonKey(ignore: true)
-  $OnIceConnectionStateChangeCopyWith<OnIceConnectionStateChange>
-      get copyWith => throw _privateConstructorUsedError;
+  $IceConnectionStateChangeCopyWith<IceConnectionStateChange> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $OnConnectionStateChangeCopyWith<$Res> {
-  factory $OnConnectionStateChangeCopyWith(OnConnectionStateChange value,
-          $Res Function(OnConnectionStateChange) then) =
-      _$OnConnectionStateChangeCopyWithImpl<$Res>;
+abstract class $ConnectionStateChangeCopyWith<$Res> {
+  factory $ConnectionStateChangeCopyWith(ConnectionStateChange value,
+          $Res Function(ConnectionStateChange) then) =
+      _$ConnectionStateChangeCopyWithImpl<$Res>;
   $Res call({PeerConnectionState field0});
 }
 
 /// @nodoc
-class _$OnConnectionStateChangeCopyWithImpl<$Res>
+class _$ConnectionStateChangeCopyWithImpl<$Res>
     extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnConnectionStateChangeCopyWith<$Res> {
-  _$OnConnectionStateChangeCopyWithImpl(OnConnectionStateChange _value,
-      $Res Function(OnConnectionStateChange) _then)
-      : super(_value, (v) => _then(v as OnConnectionStateChange));
+    implements $ConnectionStateChangeCopyWith<$Res> {
+  _$ConnectionStateChangeCopyWithImpl(
+      ConnectionStateChange _value, $Res Function(ConnectionStateChange) _then)
+      : super(_value, (v) => _then(v as ConnectionStateChange));
 
   @override
-  OnConnectionStateChange get _value => super._value as OnConnectionStateChange;
+  ConnectionStateChange get _value => super._value as ConnectionStateChange;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(OnConnectionStateChange(
+    return _then(ConnectionStateChange(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -1432,22 +1385,22 @@ class _$OnConnectionStateChangeCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OnConnectionStateChange implements OnConnectionStateChange {
-  const _$OnConnectionStateChange(this.field0);
+class _$ConnectionStateChange implements ConnectionStateChange {
+  const _$ConnectionStateChange(this.field0);
 
   @override
   final PeerConnectionState field0;
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onConnectionStateChange(field0: $field0)';
+    return 'PeerConnectionEvent.connectionStateChange(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is OnConnectionStateChange &&
+            other is ConnectionStateChange &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -1457,8 +1410,8 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
 
   @JsonKey(ignore: true)
   @override
-  $OnConnectionStateChangeCopyWith<OnConnectionStateChange> get copyWith =>
-      _$OnConnectionStateChangeCopyWithImpl<OnConnectionStateChange>(
+  $ConnectionStateChangeCopyWith<ConnectionStateChange> get copyWith =>
+      _$ConnectionStateChangeCopyWithImpl<ConnectionStateChange>(
           this, _$identity);
 
   @override
@@ -1467,20 +1420,18 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onConnectionStateChange(field0);
+    return connectionStateChange(field0);
   }
 
   @override
@@ -1488,17 +1439,17 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onConnectionStateChange?.call(field0);
+    return connectionStateChange?.call(field0);
   }
 
   @override
@@ -1506,19 +1457,19 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onConnectionStateChange != null) {
-      return onConnectionStateChange(field0);
+    if (connectionStateChange != null) {
+      return connectionStateChange(field0);
     }
     return orElse();
   }
@@ -1527,91 +1478,86 @@ class _$OnConnectionStateChange implements OnConnectionStateChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
-    return onConnectionStateChange(this);
+    return connectionStateChange(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
-    return onConnectionStateChange?.call(this);
+    return connectionStateChange?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onConnectionStateChange != null) {
-      return onConnectionStateChange(this);
+    if (connectionStateChange != null) {
+      return connectionStateChange(this);
     }
     return orElse();
   }
 }
 
-abstract class OnConnectionStateChange implements PeerConnectionEvent {
-  const factory OnConnectionStateChange(PeerConnectionState field0) =
-      _$OnConnectionStateChange;
+abstract class ConnectionStateChange implements PeerConnectionEvent {
+  const factory ConnectionStateChange(PeerConnectionState field0) =
+      _$ConnectionStateChange;
 
   PeerConnectionState get field0;
   @JsonKey(ignore: true)
-  $OnConnectionStateChangeCopyWith<OnConnectionStateChange> get copyWith =>
+  $ConnectionStateChangeCopyWith<ConnectionStateChange> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $OnTrackCopyWith<$Res> {
-  factory $OnTrackCopyWith(OnTrack value, $Res Function(OnTrack) then) =
-      _$OnTrackCopyWithImpl<$Res>;
+abstract class $TrackCopyWith<$Res> {
+  factory $TrackCopyWith(Track value, $Res Function(Track) then) =
+      _$TrackCopyWithImpl<$Res>;
   $Res call({RtcTrackEvent field0});
 }
 
 /// @nodoc
-class _$OnTrackCopyWithImpl<$Res>
-    extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnTrackCopyWith<$Res> {
-  _$OnTrackCopyWithImpl(OnTrack _value, $Res Function(OnTrack) _then)
-      : super(_value, (v) => _then(v as OnTrack));
+class _$TrackCopyWithImpl<$Res> extends _$PeerConnectionEventCopyWithImpl<$Res>
+    implements $TrackCopyWith<$Res> {
+  _$TrackCopyWithImpl(Track _value, $Res Function(Track) _then)
+      : super(_value, (v) => _then(v as Track));
 
   @override
-  OnTrack get _value => super._value as OnTrack;
+  Track get _value => super._value as Track;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(OnTrack(
+    return _then(Track(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -1622,22 +1568,22 @@ class _$OnTrackCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OnTrack implements OnTrack {
-  const _$OnTrack(this.field0);
+class _$Track implements Track {
+  const _$Track(this.field0);
 
   @override
   final RtcTrackEvent field0;
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onTrack(field0: $field0)';
+    return 'PeerConnectionEvent.track(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is OnTrack &&
+            other is Track &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -1647,8 +1593,8 @@ class _$OnTrack implements OnTrack {
 
   @JsonKey(ignore: true)
   @override
-  $OnTrackCopyWith<OnTrack> get copyWith =>
-      _$OnTrackCopyWithImpl<OnTrack>(this, _$identity);
+  $TrackCopyWith<Track> get copyWith =>
+      _$TrackCopyWithImpl<Track>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -1656,20 +1602,18 @@ class _$OnTrack implements OnTrack {
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
         onIceCandidate,
-    required TResult Function(IceGatheringState field0)
-        onIceGatheringStateChange,
+    required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
-        onIceCandidateError,
-    required TResult Function() onNegotiationNeeded,
-    required TResult Function(SignalingState field0) onSignallingChange,
+        iceCandidateError,
+    required TResult Function() negotiationNeeded,
+    required TResult Function(SignalingState field0) signallingChange,
     required TResult Function(IceConnectionState field0)
-        onIceConnectionStateChange,
-    required TResult Function(PeerConnectionState field0)
-        onConnectionStateChange,
-    required TResult Function(RtcTrackEvent field0) onTrack,
+        iceConnectionStateChange,
+    required TResult Function(PeerConnectionState field0) connectionStateChange,
+    required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onTrack(field0);
+    return track(field0);
   }
 
   @override
@@ -1677,17 +1621,17 @@ class _$OnTrack implements OnTrack {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onTrack?.call(field0);
+    return track?.call(field0);
   }
 
   @override
@@ -1695,19 +1639,19 @@ class _$OnTrack implements OnTrack {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
         onIceCandidate,
-    TResult Function(IceGatheringState field0)? onIceGatheringStateChange,
+    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
-        onIceCandidateError,
-    TResult Function()? onNegotiationNeeded,
-    TResult Function(SignalingState field0)? onSignallingChange,
-    TResult Function(IceConnectionState field0)? onIceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? onConnectionStateChange,
-    TResult Function(RtcTrackEvent field0)? onTrack,
+        iceCandidateError,
+    TResult Function()? negotiationNeeded,
+    TResult Function(SignalingState field0)? signallingChange,
+    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
+    TResult Function(PeerConnectionState field0)? connectionStateChange,
+    TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onTrack != null) {
-      return onTrack(field0);
+    if (track != null) {
+      return track(field0);
     }
     return orElse();
   }
@@ -1716,63 +1660,59 @@ class _$OnTrack implements OnTrack {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(OnIceCandidate value) onIceCandidate,
-    required TResult Function(OnIceGatheringStateChange value)
-        onIceGatheringStateChange,
-    required TResult Function(OnIceCandidateError value) onIceCandidateError,
-    required TResult Function(OnNegotiationNeeded value) onNegotiationNeeded,
-    required TResult Function(OnSignallingChange value) onSignallingChange,
-    required TResult Function(OnIceConnectionStateChange value)
-        onIceConnectionStateChange,
-    required TResult Function(OnConnectionStateChange value)
-        onConnectionStateChange,
-    required TResult Function(OnTrack value) onTrack,
+    required TResult Function(IceGatheringStateChange value)
+        iceGatheringStateChange,
+    required TResult Function(IceCandidateError value) iceCandidateError,
+    required TResult Function(NegotiationNeeded value) negotiationNeeded,
+    required TResult Function(SignallingChange value) signallingChange,
+    required TResult Function(IceConnectionStateChange value)
+        iceConnectionStateChange,
+    required TResult Function(ConnectionStateChange value)
+        connectionStateChange,
+    required TResult Function(Track value) track,
   }) {
-    return onTrack(this);
+    return track(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
   }) {
-    return onTrack?.call(this);
+    return track?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(OnIceCandidate value)? onIceCandidate,
-    TResult Function(OnIceGatheringStateChange value)?
-        onIceGatheringStateChange,
-    TResult Function(OnIceCandidateError value)? onIceCandidateError,
-    TResult Function(OnNegotiationNeeded value)? onNegotiationNeeded,
-    TResult Function(OnSignallingChange value)? onSignallingChange,
-    TResult Function(OnIceConnectionStateChange value)?
-        onIceConnectionStateChange,
-    TResult Function(OnConnectionStateChange value)? onConnectionStateChange,
-    TResult Function(OnTrack value)? onTrack,
+    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
+    TResult Function(IceCandidateError value)? iceCandidateError,
+    TResult Function(NegotiationNeeded value)? negotiationNeeded,
+    TResult Function(SignallingChange value)? signallingChange,
+    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
+    TResult Function(ConnectionStateChange value)? connectionStateChange,
+    TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onTrack != null) {
-      return onTrack(this);
+    if (track != null) {
+      return track(this);
     }
     return orElse();
   }
 }
 
-abstract class OnTrack implements PeerConnectionEvent {
-  const factory OnTrack(RtcTrackEvent field0) = _$OnTrack;
+abstract class Track implements PeerConnectionEvent {
+  const factory Track(RtcTrackEvent field0) = _$Track;
 
   RtcTrackEvent get field0;
   @JsonKey(ignore: true)
-  $OnTrackCopyWith<OnTrack> get copyWith => throw _privateConstructorUsedError;
+  $TrackCopyWith<Track> get copyWith => throw _privateConstructorUsedError;
 }

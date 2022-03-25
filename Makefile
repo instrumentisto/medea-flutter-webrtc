@@ -106,7 +106,7 @@ os = $(if $(call eq,$(OS),Windows_NT),windows,)
 codegen:
 	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
 		--dart-output lib/src/api/bridge.g.dart \
-		--dart-format-line-length 80
+		--skip-add-mod-to-lib --dart-format-line-length 80
 
 cargo.build:
 	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
