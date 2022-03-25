@@ -15,6 +15,8 @@ import 'channel.dart';
 import 'transceiver.dart';
 // import 'utils.dart';
 
+// TODO(logist322): Check and add docs all over the Dart.
+
 late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
 
 ffi.FlutterWebrtcNativeImpl buildBridge() {
