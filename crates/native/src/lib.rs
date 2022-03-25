@@ -54,7 +54,7 @@ struct Webrtc {
 
     /// `peer_connection_factory` must be drops before [`Thread`]s.
     peer_connection_factory: PeerConnectionFactoryInterface,
-    task_queue_factory: Arc<Mutex<TaskQueueFactory>>,
+    task_queue_factory: TaskQueueFactory,
     audio_device_module: AudioDeviceModule,
     worker_thread: Thread,
     // TODO(alexlapa): recheck whether do we really need to create network
@@ -69,26 +69,39 @@ struct Webrtc {
 
 impl Webrtc {
     fn new() -> anyhow::Result<Self> {
-        let task_queue_factory = Arc::new(Mutex::new(
-            TaskQueueFactory::create_default_task_queue_factory(),
-        ));
+        let mut task_queue_factory = 
+            TaskQueueFactory::create_default_task_queue_factory()
+        ;
+
+        let mut wt = Thread::create(false).unwrap();
+        wt.start();
+        let mut st = Thread::create(false).unwrap();
+        st.start();
+        let mut nt = Thread::create(true).unwrap();
+        nt.start();
+
+
         let audio_device_module = AudioDeviceModule::new(
+            &mut wt,
+            &mut st,
             AudioLayer::kPlatformDefaultAudio,
-            Arc::clone(&task_queue_factory),
-        )
-        .unwrap();
-        let create_result = audio_device_module
-            .create_peer_connection_factory()
-            .unwrap();
+            &mut task_queue_factory,
+        ).unwrap();
+
+        let pcf = PeerConnectionFactoryInterface::create(Some(&nt), Some(&wt), Some(&st), Some(&audio_device_module.inner));
+
+        // let create_result = audio_device_module
+        //     .create_peer_connection_factory()
+        //     .unwrap();
         let video_device_info = VideoDeviceInfo::create().unwrap();
         Ok(Webrtc {
             task_queue_factory,
-            network_thread: create_result.network_thread,
-            worker_thread: create_result.worker_thread,
-            signaling_thread: create_result.signaling_thread,
+            network_thread: nt,
+            worker_thread: wt,
+            signaling_thread: st,
             audio_device_module,
             video_device_info,
-            peer_connection_factory: create_result.peer_connection_factory,
+            peer_connection_factory: pcf.unwrap(),
             video_sources: HashMap::new(),
             video_tracks: Arc::new(DashMap::new()),
             audio_source: None,

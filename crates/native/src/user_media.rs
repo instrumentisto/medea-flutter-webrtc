@@ -9,7 +9,7 @@ use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
-use sys::TrackEventObserver;
+use sys::{TrackEventObserver, Thread};
 
 use crate::{
     api, api::TrackEvent, next_id, PeerConnectionId, VideoSink, VideoSinkId, Webrtc,
@@ -475,18 +475,15 @@ impl Message {
 /// [`sys::AudioDeviceModule`] wrapper tracking the currently used audio input
 /// device.
 pub struct AudioDeviceModule {
+    /// [`sys::AudioDeviceModule`] backing this [`AudioDeviceModule`].
+    pub(crate) inner: sys::AudioDeviceModule,
+
     /// ID of the audio input device currently used by this
     /// [`sys::AudioDeviceModule`].
     ///
     /// [`None`] if the [`AudioDeviceModule`] was not used yet to record data
     /// from the audio input device.
     current_device_id: Option<AudioDeviceId>,
-
-    current_playout_device_id: Option<AudioDeviceId>,
-
-    thread: Option<JoinHandle<()>>,
-
-    tx: Option<mpsc::Sender<Message>>,
 }
 
 impl AudioDeviceModule {
@@ -497,75 +494,17 @@ impl AudioDeviceModule {
     ///
     /// If could not find any available recording device.
     pub fn new(
+        worker_thread: &mut Thread,
+        sign_thread: &mut Thread,
         audio_layer: sys::AudioLayer,
-        task_queue_factory: Arc<Mutex<sys::TaskQueueFactory>>,
+        task_queue_factory: &mut sys::TaskQueueFactory,
     ) -> anyhow::Result<Self> {
-        let (tx, rx) = mpsc::channel();
-        let thread = std::thread::spawn(move || {
-            let inner = sys::AudioDeviceModule::create(
-                audio_layer,
-                task_queue_factory.lock().unwrap().deref_mut(),
-            )
-            .unwrap();
-            inner.init().unwrap();
-
-            while let Ok(msg) = rx.recv() {
-                match msg {
-                    Message::SetRecordingDevice { index, tx } => {
-                        tx.send(inner.set_recording_device(index)).unwrap();
-                    }
-                    Message::SetPlayoutDevice { index, tx } => {
-                        tx.send(inner.set_playout_device(index)).unwrap();
-                    }
-                    Message::PlayoutDevices(tx) => {
-                        tx.send(inner.playout_devices()).unwrap();
-                    }
-                    Message::RecordingDevices(tx) => {
-                        tx.send(inner.recording_devices()).unwrap();
-                    }
-                    Message::RecordingDeviceName { index, tx } => {
-                        tx.send(inner.recording_device_name(index)).unwrap();
-                    }
-                    Message::PlayoutDeviceName { index, tx } => {
-                        tx.send(inner.playout_device_name(index)).unwrap();
-                    }
-                    Message::CreatePeerConnectionFactory(tx) => {
-                        let create = || {
-                            let mut network_thread = sys::Thread::create(true)?;
-                            network_thread.start()?;
-
-                            let mut worker_thread = sys::Thread::create(false)?;
-                            worker_thread.start()?;
-
-                            let mut signaling_thread = sys::Thread::create(false)?;
-                            signaling_thread.start()?;
-
-                            let peer_connection_factory =
-                                sys::PeerConnectionFactoryInterface::create(
-                                    Some(&network_thread),
-                                    Some(&worker_thread),
-                                    Some(&signaling_thread),
-                                    Some(&inner),
-                                )?;
-
-                            Ok(CreatePeerConnectionFactoryResult {
-                                worker_thread,
-                                network_thread,
-                                signaling_thread,
-                                peer_connection_factory,
-                            })
-                        };
-                        tx.send(create()).unwrap();
-                    }
-                }
-            }
-        });
+        let inner = sys::AudioDeviceModule::create(worker_thread,sign_thread, audio_layer, task_queue_factory)?;
+        inner.init()?;
 
         Ok(Self {
+            inner,
             current_device_id: None,
-            current_playout_device_id: None,
-            thread: Some(thread),
-            tx: Some(tx),
         })
     }
 
@@ -579,14 +518,7 @@ impl AudioDeviceModule {
         id: AudioDeviceId,
         index: u16,
     ) -> anyhow::Result<()> {
-        let (msg, rx) = Message::set_recording_device(index);
-        self.tx.as_ref().unwrap().send(msg).unwrap();
-        let result = rx.recv()?;
-        if result.is_ok() {
-            self.current_device_id.replace(id);
-        }
-
-        result
+        self.set_playout_device(id, index)
     }
 
     pub fn set_playout_device(
@@ -594,57 +526,64 @@ impl AudioDeviceModule {
         id: AudioDeviceId,
         index: u16,
     ) -> anyhow::Result<()> {
-        let (msg, rx) = Message::set_playout_device(index);
-        self.tx.as_ref().unwrap().send(msg).unwrap();
-        let result = rx.recv()?;
-        if result.is_ok() {
-            self.current_playout_device_id.replace(id);
-        }
+        // let (msg, rx) = Message::set_playout_device(index);
+        // self.tx.as_ref().unwrap().send(msg).unwrap();
+        // let result = rx.recv()?;
+        // if result.is_ok() {
+        //     self.current_playout_device_id.replace(id);
+        // }
 
-        result
+        // result
+        Ok(())
     }
 
     /// Returns count of available audio playout devices.
     pub fn playout_devices(&self) -> anyhow::Result<i16> {
-        let (msg, rx) = Message::playout_devices();
-        self.tx.as_ref().unwrap().send(msg).unwrap();
+        // let (msg, rx) = Message::playout_devices();
+        // self.tx.as_ref().unwrap().send(msg).unwrap();
 
-        rx.recv()?
+        // rx.recv()?
+        Ok(42)
     }
 
     /// Returns count of available audio recording devices.
     pub fn recording_devices(&self) -> anyhow::Result<i16> {
-        let (msg, rx) = Message::recording_devices();
-        self.tx.as_ref().unwrap().send(msg).unwrap();
+        // let (msg, rx) = Message::recording_devices();
+        // self.tx.as_ref().unwrap().send(msg).unwrap();
 
-        rx.recv()?
+        // rx.recv()?
+        Ok(42)
     }
 
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
     pub fn playout_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
-        let (msg, rx) = Message::playout_device_name(index);
-        self.tx.as_ref().unwrap().send(msg).unwrap();
+        // let (msg, rx) = Message::playout_device_name(index);
+        // self.tx.as_ref().unwrap().send(msg).unwrap();
 
-        rx.recv()?
+        // rx.recv()?
+        Ok(("42".to_owned(),"42".to_owned()))
     }
 
     /// Returns the `(label, id)` tuple for the given audio recording device
     /// `index`.
     pub fn recording_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
-        let (msg, rx) = Message::recording_device_name(index);
-        self.tx.as_ref().unwrap().send(msg).unwrap();
+        // let (msg, rx) = Message::recording_device_name(index);
+        // self.tx.as_ref().unwrap().send(msg).unwrap();
 
-        rx.recv()?
+        // rx.recv()?
+        Ok(("42".to_owned(),"42".to_owned()))
+
     }
 
     pub fn create_peer_connection_factory(
         &self,
     ) -> anyhow::Result<CreatePeerConnectionFactoryResult> {
-        let (msg, rx) = Message::create_peer_connection_factory();
-        self.tx.as_ref().unwrap().send(msg).unwrap();
+        // let (msg, rx) = Message::create_peer_connection_factory();
+        // self.tx.as_ref().unwrap().send(msg).unwrap();
 
-        rx.recv()?
+        // rx.recv()?
+        anyhow::bail!("")
     }
 }
 
@@ -657,8 +596,8 @@ pub struct CreatePeerConnectionFactoryResult {
 
 impl Drop for AudioDeviceModule {
     fn drop(&mut self) {
-        self.tx.take();
-        self.thread.take().unwrap().join().unwrap();
+        // self.tx.take();
+        // self.thread.take().unwrap().join().unwrap();
     }
 }
 
@@ -942,25 +881,25 @@ mod test {
 
     #[test]
     fn adm_thread_safety() {
-        let task_queue_factory = Arc::new(Mutex::new(
-            TaskQueueFactory::create_default_task_queue_factory(),
-        ));
+        // let task_queue_factory = Arc::new(Mutex::new(
+        //     TaskQueueFactory::create_default_task_queue_factory(),
+        // ));
 
-        let handle = std::thread::spawn(move || {
-            let audio_device_module = AudioDeviceModule::new(
-                AudioLayer::kPlatformDefaultAudio,
-                Arc::clone(&task_queue_factory),
-            )
-            .unwrap();
+        // let handle = std::thread::spawn(move || {
+        //     let audio_device_module = AudioDeviceModule::new(
+        //         AudioLayer::kPlatformDefaultAudio,
+        //         Arc::clone(&task_queue_factory),
+        //     )
+        //     .unwrap();
 
-            audio_device_module
-        });
+        //     audio_device_module
+        // });
 
-        let mut module = handle.join().unwrap();
-        module.playout_devices().unwrap();
-        module.recording_devices().unwrap();
-        module
-            .set_recording_device(AudioDeviceId::default(), 0)
-            .unwrap();
+        // let mut module = handle.join().unwrap();
+        // module.playout_devices().unwrap();
+        // module.recording_devices().unwrap();
+        // module
+        //     .set_recording_device(AudioDeviceId::default(), 0)
+        //     .unwrap();
     }
 }
