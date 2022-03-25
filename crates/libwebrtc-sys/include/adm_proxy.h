@@ -3,17 +3,12 @@
 #include "modules/audio_device/include/audio_device.h"
 #include "pc/proxy.h"
 #include "rtc_base/ref_count.h"
-
+//rtc::RefCountedObject<webrtc::CreateSessionDescriptionObserver>
 namespace webrtc {
-class AudioDeviceModule_Interface : public AudioDeviceModule {
+class AudioDeviceModule_Interface : public rtc::RefCountedObject<AudioDeviceModule> {
   public:
     virtual void init_(webrtc::AudioDeviceModule::AudioLayer audio_layer,
              webrtc::TaskQueueFactory* task_queue_factory) = 0;
-
-    void AddRef() const {}
-    rtc::RefCountReleaseStatus Release() const {
-      return rtc::RefCountReleaseStatus::kDroppedLastRef;
-    }
 };
 
 class AudioDeviceModule_ : public AudioDeviceModule_Interface {
