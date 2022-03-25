@@ -1056,16 +1056,8 @@ pub struct Thread(UniquePtr<webrtc::Thread>);
 
 impl Thread {
     /// Creates a new [`Thread`].
-    ///
-    /// If `with_socket_server` is `true`, then the created thread will have a
-    /// socket server attached, thus it will be capable of serving as a network
-    /// thread.
-    pub fn create(with_socket_server: bool) -> anyhow::Result<Self> {
-        let ptr = if with_socket_server {
-            webrtc::create_thread_with_socket_server()
-        } else {
-            webrtc::create_thread()
-        };
+    pub fn create() -> anyhow::Result<Self> {
+        let ptr = webrtc::create_thread();
 
         if ptr.is_null() {
             bail!("`null` pointer returned from `rtc::Thread::Create()`");
@@ -1092,13 +1084,11 @@ pub struct PeerConnectionFactoryInterface(UniquePtr<webrtc::PeerConnectionFactor
 impl PeerConnectionFactoryInterface {
     /// Creates a new [`PeerConnectionFactoryInterface`].
     pub fn create(
-        network_thread: Option<&Thread>,
         worker_thread: Option<&Thread>,
         signaling_thread: Option<&Thread>,
         default_adm: Option<&AudioDeviceModule>,
     ) -> anyhow::Result<Self> {
         let inner = webrtc::create_peer_connection_factory(
-            network_thread.map_or(&UniquePtr::null(), |t| &t.0),
             worker_thread.map_or(&UniquePtr::null(), |t| &t.0),
             signaling_thread.map_or(&UniquePtr::null(), |t| &t.0),
             default_adm.map_or(&UniquePtr::null(), |t| &t.0),

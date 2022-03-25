@@ -1,9 +1,6 @@
 use std::{
     ptr,
-    sync::{
-        atomic::{AtomicPtr, Ordering},
-        Arc, Mutex,
-    },
+    sync::atomic::{AtomicPtr, Ordering},
 };
 
 #[cfg(windows)]
@@ -49,7 +46,7 @@ struct DeviceState {
 
 impl DeviceState {
     /// Creates a new [`DeviceState`].
-    fn new(cb: StreamSink<()>, tq: Arc<Mutex<TaskQueueFactory>>) -> anyhow::Result<Self> {
+    fn new(cb: StreamSink<()>, tq: &mut TaskQueueFactory) -> anyhow::Result<Self> {
         let adm = AudioDeviceModule::new(AudioLayer::kPlatformDefaultAudio, tq)?;
 
         let vdi = VideoDeviceInfo::create()?;
@@ -70,7 +67,8 @@ impl DeviceState {
     /// Counts current media device number.
     fn count_devices(&mut self) -> u32 {
         TryInto::<u32>::try_into(
-            self.adm.playout_devices().unwrap() + self.adm.recording_devices().unwrap(),
+            self.adm.inner.playout_devices().unwrap()
+                + self.adm.inner.recording_devices().unwrap(),
         )
         .unwrap()
             + self.vdi.number_of_devices()
@@ -96,8 +94,8 @@ impl Webrtc {
     #[must_use]
     pub fn enumerate_devices(&mut self) -> anyhow::Result<Vec<api::MediaDeviceInfo>> {
         let mut audio = {
-            let count_playout = self.audio_device_module.playout_devices()?;
-            let count_recording = self.audio_device_module.recording_devices()?;
+            let count_playout = self.audio_device_module.inner.playout_devices()?;
+            let count_recording = self.audio_device_module.inner.recording_devices()?;
 
             #[allow(clippy::cast_sign_loss)]
             let mut result = Vec::with_capacity((count_playout + count_recording) as usize);
@@ -115,9 +113,9 @@ impl Webrtc {
                 for i in 0..count {
                     let (label, device_id) = if let api::MediaDeviceKind::AudioOutput = kind
                     {
-                        self.audio_device_module.playout_device_name(i)?
+                        self.audio_device_module.inner.playout_device_name(i)?
                     } else {
-                        self.audio_device_module.recording_device_name(i)?
+                        self.audio_device_module.inner.recording_device_name(i)?
                     };
 
                     result.push(api::MediaDeviceInfo {
@@ -190,9 +188,9 @@ impl Webrtc {
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.audio_device_module.recording_devices()?;
+        let count = self.audio_device_module.inner.recording_devices()?;
         for i in 0..count {
-            let (_, id) = self.audio_device_module.recording_device_name(i)?;
+            let (_, id) = self.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
@@ -205,9 +203,9 @@ impl Webrtc {
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.audio_device_module.playout_devices()?;
+        let count = self.audio_device_module.inner.playout_devices()?;
         for i in 0..count {
-            let (_, id) = self.audio_device_module.playout_device_name(i)?;
+            let (_, id) = self.audio_device_module.inner.playout_device_name(i)?;
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
@@ -235,10 +233,10 @@ impl Webrtc {
     ///
     /// May panic on creating [`AudioDeviceModule`], [`VideoDeviceInfo`], or
     /// getting number of `playout` and `recording` devices.
-    pub fn set_on_device_changed(&self, cb: StreamSink<()>) {
+    pub fn set_on_device_changed(&mut self, cb: StreamSink<()>) {
         let prev = ON_DEVICE_CHANGE.swap(
             Box::into_raw(Box::new(
-                DeviceState::new(cb, Arc::clone(&self.task_queue_factory)).unwrap(),
+                DeviceState::new(cb, &mut self.task_queue_factory).unwrap(),
             )),
             Ordering::SeqCst,
         );

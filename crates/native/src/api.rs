@@ -1,5 +1,5 @@
 use crate::{cpp_api, Webrtc};
-use anyhow::bail;
+
 use cxx::UniquePtr;
 
 use flutter_rust_bridge::{StreamSink, SyncReturn};
@@ -413,6 +413,11 @@ pub struct RtcConfiguration {
 /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
 #[derive(Debug, Eq, Hash, PartialEq)]
 pub enum IceTransportsType {
+    /// [RTCIceTransportPolicy.all][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
+    All,
+
     /// [RTCIceTransportPolicy.relay][1] representation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
@@ -424,18 +429,16 @@ pub enum IceTransportsType {
     /// Non-spec-compliant variant.
     NoHost,
 
-    /// [RTCIceTransportPolicy.all][1] representation.
-    ///
-    /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
-    All,
+    None,
 }
 
 impl From<IceTransportsType> for sys::IceTransportsType {
     fn from(kind: IceTransportsType) -> Self {
         match kind {
+            IceTransportsType::All => Self::kAll,
             IceTransportsType::Relay => Self::kRelay,
             IceTransportsType::NoHost => Self::kNoHost,
-            IceTransportsType::All => Self::kAll,
+            IceTransportsType::None => Self::kNone,
         }
     }
 }
@@ -793,18 +796,4 @@ pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
 pub fn dispose_video_sink(sink_id: i64) -> SyncReturn<Vec<u8>> {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
     SyncReturn(vec![])
-}
-
-#[cfg(test)]
-mod test {
-    use std::thread;
-
-    use super::Webrtc;
-
-    #[test]
-    fn webrtc_drops_on_another_thread() {
-        let webrtc = thread::spawn(|| Webrtc::new()).join().unwrap().unwrap();
-
-        drop(webrtc);
-    }
 }

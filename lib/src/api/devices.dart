@@ -7,6 +7,12 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
+const DEFAULT_USER_WIDTH = 480;
+const DEFAULT_USER_HEIGHT = 640;
+const DEFAULT_DISPLAY_WIDTH = 1920;
+const DEFAULT_DISPLAY_HEIGHT = 1080;
+const DEFAULT_FPS = 30;
+
 typedef OnDeviceChangeHandler = void Function();
 
 class DeviceHandler {
@@ -64,15 +70,15 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
 }
 
 Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
-  List<dynamic> res =
-      await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices');
-  return res.map((i) => MediaDeviceInfo.fromMap(i)).toList();
+  return (await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices'))
+      .map((i) => MediaDeviceInfo.fromMap(i))
+      .toList();
 }
 
 Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
-  var devices = await api.enumerateDevices();
-
-  return devices.map((e) => MediaDeviceInfo.fromFFI(e)).toList();
+  return (await api.enumerateDevices())
+      .map((e) => MediaDeviceInfo.fromFFI(e))
+      .toList();
 }
 
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on
@@ -111,10 +117,9 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ??
-              640, // TODO(alexlapa): as const
-          width: constraints.video.mandatory?.width ?? 480,
-          frameRate: constraints.video.mandatory?.fps ?? 30,
+          height: constraints.video.mandatory?.height ?? DEFAULT_USER_HEIGHT,
+          width: constraints.video.mandatory?.width ?? DEFAULT_USER_WIDTH,
+          frameRate: constraints.video.mandatory?.fps ?? DEFAULT_FPS,
           isDisplay: false)
       : null;
 
@@ -129,15 +134,11 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
 /// provided [DisplayConstraints].
 Future<List<NativeMediaStreamTrack>> getDisplayMedia(
     DisplayConstraints constraints) async {
-  Future<List<NativeMediaStreamTrack>> nativeTrack;
-
   if (IS_DESKTOP) {
-    nativeTrack = _getDisplayMediaFFI(constraints);
+    return _getDisplayMediaFFI(constraints);
   } else {
-    nativeTrack = _getDisplayMediaChannel(constraints);
+    return _getDisplayMediaChannel(constraints);
   }
-
-  return nativeTrack;
 }
 
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
@@ -157,9 +158,9 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? 1920,
-          width: constraints.video.mandatory?.width ?? 1080,
-          frameRate: constraints.video.mandatory?.fps ?? 30,
+          height: constraints.video.mandatory?.height ?? DEFAULT_DISPLAY_HEIGHT,
+          width: constraints.video.mandatory?.width ?? DEFAULT_DISPLAY_WIDTH,
+          frameRate: constraints.video.mandatory?.fps ?? DEFAULT_FPS,
           isDisplay: true)
       : null;
 

@@ -30,13 +30,13 @@ impl Webrtc {
         id: u64,
     ) -> anyhow::Result<()> {
         let peer = PeerConnection::new(
+            id,
             &mut self.peer_connection_factory,
             Arc::clone(&self.video_tracks),
             Arc::clone(&self.audio_tracks),
             obs,
             configuration,
             self.callback_pool.clone(),
-            id,
         )?;
         self.peer_connections.insert(id.into(), peer);
 
@@ -422,7 +422,7 @@ impl Webrtc {
     pub fn sender_replace_track(
         &self,
         peer_id: u64,
-        transceiver_id: u64, // TODO(alexlapa): index
+        transceiver_index: u64,
         track_id: Option<u64>,
     ) -> anyhow::Result<()> {
         let peer = if let Some(peer) =
@@ -436,11 +436,11 @@ impl Webrtc {
         let transceivers = peer.0.lock().unwrap().get_transceivers();
 
         let transceiver = if let Some(transceiver) =
-            transceivers.get(usize::try_from(transceiver_id).unwrap())
+            transceivers.get(usize::try_from(transceiver_index).unwrap())
         {
             transceiver
         } else {
-            bail!("`Transceiver` with ID `{transceiver_id}` does not exist",);
+            bail!("`Transceiver` with ID `{transceiver_index}` does not exist",);
         };
 
         let sender = transceiver.sender();
@@ -549,22 +549,21 @@ impl Webrtc {
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct PeerConnectionId(pub(crate) u64); // TODO(alexlapa): why pub when we have into?
+pub struct PeerConnectionId(u64);
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
-// TODO(alexlapa): delete pub (crate)
-pub struct PeerConnection(pub(crate) Arc<Mutex<sys::PeerConnectionInterface>>);
+pub struct PeerConnection(Arc<Mutex<sys::PeerConnectionInterface>>);
 
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
+        id: u64,
         factory: &mut sys::PeerConnectionFactoryInterface,
         video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
         audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
         observer: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
         pool: ThreadPool,
-        id: u64, // TODO(alexlapa): should be first arg
     ) -> anyhow::Result<Self> {
         let obs_peer = Arc::new(OnceCell::new());
         let observer = sys::PeerConnectionObserver::new(Box::new(PeerConnectionObserver {
@@ -612,6 +611,10 @@ impl PeerConnection {
         obs_peer.set(Arc::clone(&inner_peer)).unwrap_or_default();
 
         Ok(Self(inner_peer))
+    }
+
+    pub fn inner(&self) -> &Arc<Mutex<sys::PeerConnectionInterface>> {
+        &self.0
     }
 }
 
@@ -731,20 +734,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
         let track = match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_AUDIO => {
-                let track = AudioTrack::wrap_remote(
-                    &transceiver,
-                    self.peer_id,
-                );
+                let track = AudioTrack::wrap_remote(&transceiver, self.peer_id);
                 let result = api::MediaStreamTrack::from(&track);
                 self.audio_tracks.insert(track.id(), track);
 
                 result
             }
             sys::MediaType::MEDIA_TYPE_VIDEO => {
-                let track = VideoTrack::wrap_remote(
-                    &transceiver,
-                    self.peer_id,
-                );
+                let track = VideoTrack::wrap_remote(&transceiver, self.peer_id);
                 let result = api::MediaStreamTrack::from(&track);
                 self.video_tracks.insert(track.id(), track);
 
@@ -776,7 +773,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     transceiver: api::RtcRtpTransceiver {
                         index: index as u64,
                         mid: Some(mid),
-                        direction: direction.try_into().unwrap(), // TODO(alexlapa): into()?
+                        direction: direction.into(),
                         peer_id: peer.id(),
                     },
                 };

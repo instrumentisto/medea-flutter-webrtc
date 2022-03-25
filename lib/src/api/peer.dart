@@ -28,7 +28,6 @@ ffi.FlutterWebrtcNativeImpl buildBridge() {
 }
 
 bool IS_DESKTOP = !Platform.isAndroid && !Platform.isIOS;
-
 int COUNT = 1;
 
 var nextId = () => COUNT++;
@@ -62,15 +61,11 @@ abstract class PeerConnection {
   /// [IceServer]s.
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
-    PeerConnection? pc;
-
     if (IS_DESKTOP) {
-      pc = await _PeerConnectionFFI.create(iceTransportType, iceServers);
+      return _PeerConnectionFFI.create(iceTransportType, iceServers);
     } else {
-      pc = await _PeerConnectionChannel.create(iceTransportType, iceServers);
+      return _PeerConnectionChannel.create(iceTransportType, iceServers);
     }
-
-    return pc;
   }
 
   /// `on_ice_connection_state_change` event subscriber.
@@ -232,7 +227,6 @@ class _PeerConnectionChannel extends PeerConnection {
 
   /// Listener for the all [PeerConnection] events received from the native
   /// side.
-  @override
   void eventListener(dynamic event) {
     dynamic e = event;
 
@@ -397,8 +391,10 @@ class _PeerConnectionFFI extends PeerConnection {
         iceTransportPolicy: ffi.IceTransportsType.values[iceType.index],
         bundlePolicy: ffi.BundlePolicy.MaxBundle,
         iceServers: iceServers
-            .map((e) => ffi.RtcIceServer(
-                urls: e.urls, username: e.username!, credential: e.password!))
+            .map((server) => ffi.RtcIceServer(
+                urls: server.urls,
+                username: server.username!,
+                credential: server.password!))
             .toList());
 
     var id = nextId();
@@ -421,29 +417,13 @@ class _PeerConnectionFFI extends PeerConnection {
   /// Listener for the all [PeerConnection] events received from the native
   /// side.
   void eventListener(ffi.PeerConnectionEvent event) {
-    print(_id);
-    print('event: ${event.toString()}');
-
     if (event is ffi.OnIceCandidate) {
       _onIceCandidate?.call(
           IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
       return;
     } else if (event is ffi.OnIceGatheringStateChange) {
-      IceGatheringState state;
-
-      switch (event.field0) {
-        case ffi.IceGatheringState.New:
-          state = IceGatheringState.new_;
-          break;
-        case ffi.IceGatheringState.Gathering:
-          state = IceGatheringState.gathering;
-          break;
-        case ffi.IceGatheringState.Complete:
-          state = IceGatheringState.complete;
-          break;
-      }
-
-      _onIceGatheringStateChange?.call(state);
+      _onIceGatheringStateChange
+          ?.call(IceGatheringState.values[event.field0.index]);
       return;
     } else if (event is ffi.OnIceCandidateError) {
       _onIceCandidateError?.call(IceCandidateErrorEvent.fromMap({
@@ -458,86 +438,20 @@ class _PeerConnectionFFI extends PeerConnection {
       _onNegotiationNeeded?.call();
       return;
     } else if (event is ffi.OnSignallingChange) {
-      SignalingState state;
-
-      switch (event.field0) {
-        case ffi.SignalingState.Stable:
-          state = SignalingState.stable;
-          break;
-        case ffi.SignalingState.HaveLocalOffer:
-          state = SignalingState.haveLocalOffer;
-          break;
-        case ffi.SignalingState.HaveLocalPrAnswer:
-          state = SignalingState.haveLocalPranswer;
-          break;
-        case ffi.SignalingState.HaveRemoteOffer:
-          state = SignalingState.haveRemoteOffer;
-          break;
-        case ffi.SignalingState.HaveRemotePrAnswer:
-          state = SignalingState.haveRemotePranswer;
-          break;
-        case ffi.SignalingState.Closed:
-          state = SignalingState.closed;
-          break;
-      }
-
-      _onSignalingStateChange?.call(state);
+      _onSignalingStateChange?.call(SignalingState.values[event.field0.index]);
       return;
     } else if (event is ffi.OnIceConnectionStateChange) {
-      switch (event.field0) {
-        case ffi.IceConnectionState.New:
-          _iceConnectionState = IceConnectionState.new_;
-          break;
-        case ffi.IceConnectionState.Checking:
-          _iceConnectionState = IceConnectionState.checking;
-          break;
-        case ffi.IceConnectionState.Connected:
-          _iceConnectionState = IceConnectionState.connected;
-          break;
-        case ffi.IceConnectionState.Completed:
-          _iceConnectionState = IceConnectionState.completed;
-          break;
-        case ffi.IceConnectionState.Failed:
-          _iceConnectionState = IceConnectionState.failed;
-          break;
-        case ffi.IceConnectionState.Disconnected:
-          _iceConnectionState = IceConnectionState.disconnected;
-          break;
-        case ffi.IceConnectionState.Closed:
-          _iceConnectionState = IceConnectionState.closed;
-          break;
-      }
-
+      _iceConnectionState = IceConnectionState.values[event.field0.index];
       _onIceConnectionStateChange?.call(_iceConnectionState);
       return;
     } else if (event is ffi.OnConnectionStateChange) {
-      switch (event.field0) {
-        case ffi.PeerConnectionState.New:
-          _connectionState = PeerConnectionState.new_;
-          break;
-        case ffi.PeerConnectionState.Connecting:
-          _connectionState = PeerConnectionState.connecting;
-          break;
-        case ffi.PeerConnectionState.Connected:
-          _connectionState = PeerConnectionState.connected;
-          break;
-        case ffi.PeerConnectionState.Disconnected:
-          _connectionState = PeerConnectionState.disconnected;
-          break;
-        case ffi.PeerConnectionState.Failed:
-          _connectionState = PeerConnectionState.failed;
-          break;
-        case ffi.PeerConnectionState.Closed:
-          _connectionState = PeerConnectionState.closed;
-          break;
-      }
-
+      _connectionState = PeerConnectionState.values[event.field0.index];
       _onConnectionStateChange?.call(_connectionState);
       return;
     } else if (event is ffi.OnTrack) {
       var transceiver = RtpTransceiver.fromFFI(event.field0.transceiver);
 
-      bool isIn = _transceivers.any((element) =>
+      final isIn = _transceivers.any((element) =>
           element is RtpTransceiverFFI && transceiver is RtpTransceiverFFI
               ? element.id == transceiver.id
               : false);
@@ -599,9 +513,9 @@ class _PeerConnectionFFI extends PeerConnection {
 
   @override
   Future<List<RtpTransceiver>> getTransceivers() async {
-    var transceivers = await api.getTransceivers(peerId: _id!);
-
-    return transceivers.map((e) => RtpTransceiver.fromFFI(e)).toList();
+    return (await api.getTransceivers(peerId: _id!))
+        .map((transceiver) => RtpTransceiver.fromFFI(transceiver))
+        .toList();
   }
 
   @override

@@ -740,9 +740,10 @@ impl Wire2Api<i64> for i64 {
 impl Wire2Api<IceTransportsType> for i32 {
     fn wire2api(self) -> IceTransportsType {
         match self {
-            0 => IceTransportsType::Relay,
-            1 => IceTransportsType::NoHost,
-            2 => IceTransportsType::All,
+            0 => IceTransportsType::All,
+            1 => IceTransportsType::Relay,
+            2 => IceTransportsType::NoHost,
+            3 => IceTransportsType::None,
             _ => unreachable!("Invalid variant for IceTransportsType: {}", self),
         }
     }

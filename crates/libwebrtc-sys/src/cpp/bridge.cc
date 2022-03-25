@@ -137,11 +137,6 @@ std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
-// Calls `Thread->CreateWithSocketServer()`.
-std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
-  return rtc::Thread::CreateWithSocketServer();
-}
-
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
@@ -317,12 +312,11 @@ void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
 
 // Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
   auto factory = webrtc::CreatePeerConnectionFactory(
-      network_thread.get(), worker_thread.get(), signaling_thread.get(),
+      nullptr, worker_thread.get(), signaling_thread.get(),
       default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),

@@ -138,9 +138,6 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-// Creates a new `Thread` with a socket server.
-std::unique_ptr<rtc::Thread> create_thread_with_socket_server();
-
 // Creates a new `VideoTrackSourceInterface` from the specified video input
 // device according to the specified constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
@@ -227,7 +224,6 @@ void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr);
 
 // Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
-    const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm);

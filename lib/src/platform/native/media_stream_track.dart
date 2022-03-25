@@ -12,15 +12,11 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
   static NativeMediaStreamTrack from(dynamic map) {
-    NativeMediaStreamTrack? track;
-
     if (IS_DESKTOP) {
-      track = _NativeMediaStreamTrackFFI.fromMap(map);
+      return _NativeMediaStreamTrackFFI.fromMap(map);
     } else {
-      track = _NativeMediaStreamTrackChannel.fromMap(map);
+      return _NativeMediaStreamTrackChannel.fromMap(map);
     }
-
-    return track;
   }
 
   /// Indicates whether this [NativeMediaStreamTrack] transmits media.
@@ -152,7 +148,12 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   }
 
   @override
-  Future<void> dispose() async {}
+  Future<void> dispose() async {
+    if (!_stopped) {
+      await api.disposeTrack(trackId: _handleId);
+    }
+    _stopped = true;
+  }
 
   @override
   Future<void> setEnabled(bool enabled) async {
@@ -165,7 +166,9 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   Future<void> stop() async {
-    await api.disposeTrack(trackId: _handleId);
+    if (!_stopped) {
+      await api.disposeTrack(trackId: _handleId);
+    }
     _stopped = true;
   }
 }
