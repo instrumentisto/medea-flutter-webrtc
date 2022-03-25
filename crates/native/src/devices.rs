@@ -232,7 +232,7 @@ impl Webrtc {
         let index = self.get_index_of_audio_playout_device(&id).unwrap();
 
         self.audio_device_module
-            .set_playout_device(index.unwrap_or(0))
+            .set_playout_device(id, index.unwrap_or(0))
     }
 
     /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
@@ -248,14 +248,12 @@ impl Webrtc {
     pub fn set_on_device_changed(
         &mut self,
         cb: StreamSink<()>,
-        worker_thread: &mut Thread,
-        signaling_thread: &mut Thread,
     ) {
         let prev = ON_DEVICE_CHANGE.swap(
             Box::into_raw(Box::new(
                 DeviceState::new(
-                    worker_thread,
-                    signaling_thread,
+                    &mut self.worker_thread,
+                    &mut self.signaling_thread,
                     cb,
                     &mut self.task_queue_factory,
                 )

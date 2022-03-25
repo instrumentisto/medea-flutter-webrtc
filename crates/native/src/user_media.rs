@@ -223,7 +223,7 @@ impl Webrtc {
 
         if Some(&device_id) != self.audio_device_module.current_device_id.as_ref() {
             self.audio_device_module
-                .set_recording_device(device_index)?;
+                .set_recording_device(device_id, device_index)?;
         }
 
         let src = if let Some(src) = self.audio_source.as_ref() {
@@ -401,6 +401,8 @@ pub struct AudioDeviceModule {
     /// [`None`] if the [`AudioDeviceModule`] was not used yet to record data
     /// from the audio input device.
     current_device_id: Option<AudioDeviceId>,
+
+    current_playout_device_id: Option<AudioDeviceId>,
 }
 
 impl AudioDeviceModule {
@@ -427,6 +429,7 @@ impl AudioDeviceModule {
         Ok(Self {
             inner,
             current_device_id: None,
+            current_playout_device_id: None,
         })
     }
 
@@ -435,12 +438,20 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::set_recording_device()`] fails.
-    pub fn set_recording_device(&mut self, index: u16) -> anyhow::Result<()> {
-        self.inner.set_recording_device(index)
+    pub fn set_recording_device(&mut self, id: AudioDeviceId, index: u16) -> anyhow::Result<()> {
+        let result = self.inner.set_recording_device(index);
+        if result.is_ok() {
+            self.current_device_id.replace(id);
+        }
+        result
     }
 
-    pub fn set_playout_device(&mut self, index: u16) -> anyhow::Result<()> {
-        self.inner.set_playout_device(index)
+    pub fn set_playout_device(&mut self, id: AudioDeviceId, index: u16) -> anyhow::Result<()> {
+        let result = self.inner.set_playout_device(index);
+        if result.is_ok() {
+            self.current_playout_device_id.replace(id);
+        }
+        result
     }
 
     /// Returns count of available audio playout devices.

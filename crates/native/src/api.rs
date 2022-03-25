@@ -772,8 +772,7 @@ pub fn register_track_observer(
 /// Only one callback can be set at a time, so the previous one will be
 /// dropped, if any.
 pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-    // WEBRTC.lock().unwrap().set_on_device_changed(cb);
-
+    WEBRTC.lock().unwrap().set_on_device_changed(cb);
     Ok(())
 }
 
@@ -805,8 +804,8 @@ mod test {
     fn webrtc_drops_on_another_thread() {
         let webrtc = thread::spawn(|| Webrtc::new()).join().unwrap().unwrap();
 
-        let temp = webrtc.audio_device_module.playout_devices();
-        println!("{:?}", temp);
+        let temp = webrtc.audio_device_module.recording_device_name(0);
+        println!("\n\n\n\n{:?}\n\n\n\n", temp);
         drop(webrtc);
     }
 }
