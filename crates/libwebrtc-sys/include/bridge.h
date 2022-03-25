@@ -19,6 +19,8 @@
 #include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
+#include <optional>
+#include "adm_proxy.h"
 
 namespace bridge {
 
@@ -92,6 +94,8 @@ using MediaStreamTrackInterface =
 
 // Creates a new `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
+    Thread& worker_thread,
+    Thread& sign_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory);
 

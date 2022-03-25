@@ -189,7 +189,7 @@ fn link_libs() {
     }
     #[cfg(target_os = "linux")]
     {
-        let deps = ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr"];
+        let deps = ["x11"];
 
         for dep in deps {
             pkg_config::Config::new().probe(dep).unwrap();

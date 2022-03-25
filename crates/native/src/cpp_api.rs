@@ -26,6 +26,11 @@ mod cpp_api_bindings {
 
     extern "Rust" {
         type Frame;
+
+        /// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
+        /// outputs the result to the provided `buffer`.
+        #[cxx_name = "GetABGRBytes"]
+        unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
     }
 
     unsafe extern "C++" {
@@ -35,22 +40,14 @@ mod cpp_api_bindings {
 
         /// Calls C++ side `OnFrameCallbackInterface->OnFrame`.
         #[cxx_name = "OnFrame"]
-        pub fn on_frame(
-            self: Pin<&mut OnFrameCallbackInterface>,
-            frame: VideoFrame,
-        );
+        pub fn on_frame(self: Pin<&mut OnFrameCallbackInterface>, frame: VideoFrame);
     }
 
     // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
     // mentioned types.
     extern "Rust" {
-        fn _touch_unique_ptr_on_frame_handler(
-            i: UniquePtr<OnFrameCallbackInterface>,
-        );
+        fn _touch_unique_ptr_on_frame_handler(i: UniquePtr<OnFrameCallbackInterface>);
     }
 }
 
-fn _touch_unique_ptr_on_frame_handler(
-    _: cxx::UniquePtr<OnFrameCallbackInterface>,
-) {
-}
+fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameCallbackInterface>) {}

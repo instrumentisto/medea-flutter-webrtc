@@ -35,16 +35,26 @@ void TrackEventObserver::set_track(
 
 // Calls `AudioDeviceModule->Create()`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
+    Thread& worker_thread,
+    Thread& sign_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
-  auto adm =
-      webrtc::AudioDeviceModule::Create(audio_layer, &task_queue_factory);
 
-  if (adm == nullptr) {
+  webrtc::AudioDeviceModule_Interface* aa = new webrtc::AudioDeviceModule_();
+  auto gg = webrtc::AudioDeviceModule_Proxy::Create(
+      &worker_thread,
+      &sign_thread,
+      aa);
+  gg->init_(audio_layer, &task_queue_factory);
+
+  rtc::scoped_refptr<webrtc::AudioDeviceModule> ss =
+      static_cast<rtc::scoped_refptr<webrtc::AudioDeviceModule>>(gg);
+
+  if (ss == nullptr) {
     return nullptr;
   }
 
-  return std::make_unique<AudioDeviceModule>(adm);
+  return std::make_unique<AudioDeviceModule>(ss);
 }
 
 // Calls `AudioDeviceModule->Init()`.
