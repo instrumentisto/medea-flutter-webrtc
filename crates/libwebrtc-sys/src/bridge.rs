@@ -4,9 +4,9 @@ use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
-    AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
-    OnFrameCallback, PeerConnectionEventsHandler, RtpReceiverInterface,
-    RtpTransceiverInterface, SetDescriptionCallback, TrackEventCallback,
+    AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface, OnFrameCallback,
+    PeerConnectionEventsHandler, RtpReceiverInterface, RtpTransceiverInterface,
+    SetDescriptionCallback, TrackEventCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -414,17 +414,13 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<AudioDeviceModule>;
 
         /// Initializes the given [`AudioDeviceModule`].
-        pub fn init_audio_device_module(
-            audio_device_module: &AudioDeviceModule,
-        ) -> i32;
+        pub fn init_audio_device_module(audio_device_module: &AudioDeviceModule) -> i32;
 
         /// Returns count of available audio playout devices.
         pub fn playout_devices(audio_device_module: &AudioDeviceModule) -> i16;
 
         /// Returns count of available audio recording devices.
-        pub fn recording_devices(
-            audio_device_module: &AudioDeviceModule,
-        ) -> i16;
+        pub fn recording_devices(audio_device_module: &AudioDeviceModule) -> i16;
 
         /// Writes device info to the provided `name` and `id` for the given
         /// audio playout device `index`.
@@ -486,9 +482,7 @@ pub(crate) mod webrtc {
         pub type DynAddIceCandidateCallback;
 
         /// Calls the success [`DynAddIceCandidateCallback`].
-        pub fn add_ice_candidate_success(
-            mut cb: Box<DynAddIceCandidateCallback>,
-        );
+        pub fn add_ice_candidate_success(mut cb: Box<DynAddIceCandidateCallback>);
 
         /// Calls the fail [`DynAddIceCandidateCallback`].
         pub fn add_ice_candidate_fail(
@@ -1122,19 +1116,13 @@ pub(crate) mod webrtc {
         /// [`VideoTrackInterface`].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
-        pub fn set_video_track_enabled(
-            track: &VideoTrackInterface,
-            enabled: bool,
-        );
+        pub fn set_video_track_enabled(track: &VideoTrackInterface, enabled: bool);
 
         /// Changes the [enabled][1] property of the specified
         /// [`AudioTrackInterface`].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
-        pub fn set_audio_track_enabled(
-            track: &AudioTrackInterface,
-            enabled: bool,
-        );
+        pub fn set_audio_track_enabled(track: &AudioTrackInterface, enabled: bool);
 
         /// Registers the provided [`VideoSinkInterface`] for the given
         /// [`VideoTrackInterface`].
@@ -1178,23 +1166,17 @@ pub(crate) mod webrtc {
         /// Returns the timestamp of when the last data was received from the
         /// provided [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn get_last_data_received_ms(
-            event: &CandidatePairChangeEvent,
-        ) -> i64;
+        pub fn get_last_data_received_ms(event: &CandidatePairChangeEvent) -> i64;
 
         /// Returns the reason causing the provided
         /// [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn get_reason(
-            event: &CandidatePairChangeEvent,
-        ) -> UniquePtr<CxxString>;
+        pub fn get_reason(event: &CandidatePairChangeEvent) -> UniquePtr<CxxString>;
 
         /// Returns the estimated disconnect time in milliseconds from the
         /// provided [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn get_estimated_disconnected_time_ms(
-            event: &CandidatePairChangeEvent,
-        ) -> i64;
+        pub fn get_estimated_disconnected_time_ms(event: &CandidatePairChangeEvent) -> i64;
 
         /// Downcasts the provided [`MediaStreamTrackInterface`] to a
         /// [`VideoTrackInterface`].
@@ -1212,9 +1194,7 @@ pub(crate) mod webrtc {
 
         /// Returns the `cname` of the provided [`RtcpParameters`].
         #[must_use]
-        pub fn rtcp_parameters_cname(
-            rtcp: &RtcpParameters,
-        ) -> UniquePtr<CxxString>;
+        pub fn rtcp_parameters_cname(rtcp: &RtcpParameters) -> UniquePtr<CxxString>;
 
         /// Returns the `reduced_size` of the provided [`RtcpParameters`].
         #[must_use]
@@ -1222,9 +1202,7 @@ pub(crate) mod webrtc {
 
         /// Returns the `uri` of the provided [`RtpExtension`].
         #[must_use]
-        pub fn rtp_extension_uri(
-            extension: &RtpExtension,
-        ) -> UniquePtr<CxxString>;
+        pub fn rtp_extension_uri(extension: &RtpExtension) -> UniquePtr<CxxString>;
 
         /// Returns the `id` of the provided [`RtpExtension`].
         #[must_use]
@@ -1237,9 +1215,7 @@ pub(crate) mod webrtc {
         /// Returns the [`CandidatePair`] from the provided
         /// [`CandidatePairChangeEvent`].
         #[must_use]
-        pub fn get_candidate_pair(
-            event: &CandidatePairChangeEvent,
-        ) -> &CandidatePair;
+        pub fn get_candidate_pair(event: &CandidatePairChangeEvent) -> &CandidatePair;
 
         /// Returns the local [`Candidate`] of the provided [`CandidatePair`].
         #[must_use]
@@ -1301,10 +1277,7 @@ pub(crate) mod webrtc {
 
         /// Forwards the given [`webrtc::VideoFrame`] the the provided
         /// [`DynOnFrameCallback`].
-        pub fn on_frame(
-            cb: &mut DynOnFrameCallback,
-            frame: UniquePtr<VideoFrame>,
-        );
+        pub fn on_frame(cb: &mut DynOnFrameCallback, frame: UniquePtr<VideoFrame>);
     }
 
     extern "Rust" {
@@ -1333,19 +1306,13 @@ pub(crate) mod webrtc {
         );
 
         /// Completes the provided [`DynCreateSdpCallback`] with an error.
-        pub fn create_sdp_fail(
-            cb: Box<DynCreateSdpCallback>,
-            error: &CxxString,
-        );
+        pub fn create_sdp_fail(cb: Box<DynCreateSdpCallback>, error: &CxxString);
 
         /// Successfully completes the provided [`DynSetDescriptionCallback`].
         pub fn set_description_success(cb: Box<DynSetDescriptionCallback>);
 
         /// Completes the provided [`DynSetDescriptionCallback`] with an error.
-        pub fn set_description_fail(
-            cb: Box<DynSetDescriptionCallback>,
-            error: &CxxString,
-        );
+        pub fn set_description_fail(cb: Box<DynSetDescriptionCallback>, error: &CxxString);
 
         /// Forwards the new [`SignalingState`] to the provided
         /// [`DynPeerConnectionEventsHandler`] when a
@@ -1497,10 +1464,7 @@ pub fn set_description_success(mut cb: Box<DynSetDescriptionCallback>) {
 
 /// Completes the provided [`DynSetDescriptionCallback`] with the given `error`.
 #[allow(clippy::boxed_local)]
-pub fn set_description_fail(
-    mut cb: Box<DynSetDescriptionCallback>,
-    error: &CxxString,
-) {
+pub fn set_description_fail(mut cb: Box<DynSetDescriptionCallback>, error: &CxxString) {
     cb.fail(error);
 }
 
@@ -1572,10 +1536,7 @@ pub fn on_ice_gathering_change(
 ///
 /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
 /// [1]: https://w3.org/TR/webrtc#event-negotiation
-pub fn on_negotiation_needed_event(
-    cb: &mut DynPeerConnectionEventsHandler,
-    event_id: u32,
-) {
+pub fn on_negotiation_needed_event(cb: &mut DynPeerConnectionEventsHandler, event_id: u32) {
     cb.on_negotiation_needed_event(event_id);
 }
 
@@ -1702,10 +1663,7 @@ pub fn add_ice_candidate_success(mut cb: Box<DynAddIceCandidateCallback>) {
 
 /// Calls the fail [`DynAddIceCandidateCallback`].
 #[allow(clippy::boxed_local)]
-pub fn add_ice_candidate_fail(
-    mut cb: Box<DynAddIceCandidateCallback>,
-    error: &CxxString,
-) {
+pub fn add_ice_candidate_fail(mut cb: Box<DynAddIceCandidateCallback>, error: &CxxString) {
     cb.on_fail(error);
 }
 

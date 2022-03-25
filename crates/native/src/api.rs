@@ -805,6 +805,8 @@ mod test {
     fn webrtc_drops_on_another_thread() {
         let webrtc = thread::spawn(|| Webrtc::new()).join().unwrap().unwrap();
 
+        let temp = webrtc.audio_device_module.playout_devices();
+        println!("{:?}", temp);
         drop(webrtc);
     }
 }

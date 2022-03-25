@@ -731,20 +731,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
         let track = match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_AUDIO => {
-                let track = AudioTrack::wrap_remote(
-                    &transceiver,
-                    self.peer_id,
-                );
+                let track = AudioTrack::wrap_remote(&transceiver, self.peer_id);
                 let result = api::MediaStreamTrack::from(&track);
                 self.audio_tracks.insert(track.id(), track);
 
                 result
             }
             sys::MediaType::MEDIA_TYPE_VIDEO => {
-                let track = VideoTrack::wrap_remote(
-                    &transceiver,
-                    self.peer_id,
-                );
+                let track = VideoTrack::wrap_remote(&transceiver, self.peer_id);
                 let result = api::MediaStreamTrack::from(&track);
                 self.video_tracks.insert(track.id(), track);
 

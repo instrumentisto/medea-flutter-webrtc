@@ -10,7 +10,7 @@ use std::{
 use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 
 use flutter_rust_bridge::StreamSink;
-use libwebrtc_sys::{AudioLayer, TaskQueueFactory, VideoDeviceInfo, Thread};
+use libwebrtc_sys::{AudioLayer, TaskQueueFactory, Thread, VideoDeviceInfo};
 
 #[cfg(windows)]
 use winapi::{
@@ -49,10 +49,18 @@ struct DeviceState {
 
 impl DeviceState {
     /// Creates a new [`DeviceState`].
-    fn new(worker_thread: &mut Thread,
+    fn new(
+        worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
-        cb: StreamSink<()>, tq: &mut TaskQueueFactory) -> anyhow::Result<Self> {
-        let adm = AudioDeviceModule::new(worker_thread, signaling_thread, AudioLayer::kPlatformDefaultAudio, tq)?;
+        cb: StreamSink<()>,
+        tq: &mut TaskQueueFactory,
+    ) -> anyhow::Result<Self> {
+        let adm = AudioDeviceModule::new(
+            worker_thread,
+            signaling_thread,
+            AudioLayer::kPlatformDefaultAudio,
+            tq,
+        )?;
 
         let vdi = VideoDeviceInfo::create()?;
 
@@ -237,11 +245,21 @@ impl Webrtc {
     ///
     /// May panic on creating [`AudioDeviceModule`], [`VideoDeviceInfo`], or
     /// getting number of `playout` and `recording` devices.
-    pub fn set_on_device_changed(&mut self, cb: StreamSink<()>, worker_thread: &mut Thread,
-    signaling_thread: &mut Thread,) {
+    pub fn set_on_device_changed(
+        &mut self,
+        cb: StreamSink<()>,
+        worker_thread: &mut Thread,
+        signaling_thread: &mut Thread,
+    ) {
         let prev = ON_DEVICE_CHANGE.swap(
             Box::into_raw(Box::new(
-                DeviceState::new(worker_thread, signaling_thread, cb, &mut self.task_queue_factory).unwrap(),
+                DeviceState::new(
+                    worker_thread,
+                    signaling_thread,
+                    cb,
+                    &mut self.task_queue_factory,
+                )
+                .unwrap(),
             )),
             Ordering::SeqCst,
         );

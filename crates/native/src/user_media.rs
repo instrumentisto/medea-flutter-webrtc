@@ -1,13 +1,11 @@
-use std::{
-    sync::Arc,
-};
+use std::sync::Arc;
 
 use anyhow::bail;
 use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
-use sys::{TrackEventObserver, Thread};
+use sys::{Thread, TrackEventObserver};
 
 use crate::{
     api, api::TrackEvent, next_id, PeerConnectionId, VideoSink, VideoSinkId, Webrtc,
@@ -276,10 +274,7 @@ impl Webrtc {
                     self.create_video_track(source).unwrap().value(),
                 )),
                 MediaTrackSource::Remote { mid, peer_id } => {
-                    let peer = self
-                        .peer_connections
-                        .get(&peer_id)
-                        .unwrap();
+                    let peer = self.peer_connections.get(&peer_id).unwrap();
 
                     let mut transceivers = peer.0.lock().unwrap().get_transceivers();
 
@@ -311,10 +306,7 @@ impl Webrtc {
                     self.create_audio_track(source).unwrap().value(),
                 )),
                 MediaTrackSource::Remote { mid, peer_id } => {
-                    let peer = self
-                        .peer_connections
-                        .get(&peer_id)
-                        .unwrap();
+                    let peer = self.peer_connections.get(&peer_id).unwrap();
 
                     let mut transceivers = peer.0.lock().unwrap().get_transceivers();
 
@@ -424,7 +416,12 @@ impl AudioDeviceModule {
         audio_layer: sys::AudioLayer,
         task_queue_factory: &mut sys::TaskQueueFactory,
     ) -> anyhow::Result<Self> {
-        let inner = sys::AudioDeviceModule::create(worker_thread,sign_thread, audio_layer, task_queue_factory)?;
+        let inner = sys::AudioDeviceModule::create(
+            worker_thread,
+            sign_thread,
+            audio_layer,
+            task_queue_factory,
+        )?;
         inner.init()?;
 
         Ok(Self {
@@ -438,17 +435,11 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::set_recording_device()`] fails.
-    pub fn set_recording_device(
-        &mut self,
-        index: u16,
-    ) -> anyhow::Result<()> {
+    pub fn set_recording_device(&mut self, index: u16) -> anyhow::Result<()> {
         self.inner.set_recording_device(index)
     }
 
-    pub fn set_playout_device(
-        &mut self,
-        index: u16,
-    ) -> anyhow::Result<()> {
+    pub fn set_playout_device(&mut self, index: u16) -> anyhow::Result<()> {
         self.inner.set_playout_device(index)
     }
 
@@ -478,7 +469,10 @@ impl AudioDeviceModule {
 /// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Arc<T>),
-    Remote { mid: String, peer_id: PeerConnectionId },
+    Remote {
+        mid: String,
+        peer_id: PeerConnectionId,
+    },
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].

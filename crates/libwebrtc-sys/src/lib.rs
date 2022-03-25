@@ -6,7 +6,8 @@ mod bridge;
 use std::{
     collections::HashMap,
     mem,
-    sync::{Arc, Mutex}, pin::Pin,
+    pin::Pin,
+    sync::{Arc, Mutex},
 };
 
 use anyhow::bail;

@@ -69,9 +69,7 @@ struct Webrtc {
 
 impl Webrtc {
     fn new() -> anyhow::Result<Self> {
-        let mut task_queue_factory = 
-            TaskQueueFactory::create_default_task_queue_factory()
-        ;
+        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
 
         let mut wt = Thread::create(false).unwrap();
         wt.start().unwrap();
@@ -80,15 +78,20 @@ impl Webrtc {
         let mut nt = Thread::create(true).unwrap();
         nt.start().unwrap();
 
-
         let audio_device_module = AudioDeviceModule::new(
             &mut wt,
             &mut st,
             AudioLayer::kPlatformDefaultAudio,
             &mut task_queue_factory,
-        ).unwrap();
+        )
+        .unwrap();
 
-        let pcf = PeerConnectionFactoryInterface::create(Some(&nt), Some(&wt), Some(&st), Some(&audio_device_module.inner));
+        let pcf = PeerConnectionFactoryInterface::create(
+            Some(&nt),
+            Some(&wt),
+            Some(&st),
+            Some(&audio_device_module.inner),
+        );
 
         // let create_result = audio_device_module
         //     .create_peer_connection_factory()
