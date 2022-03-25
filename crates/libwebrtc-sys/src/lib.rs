@@ -3,7 +3,11 @@
 
 mod bridge;
 
-use std::{collections::HashMap, mem};
+use std::{
+    collections::HashMap,
+    mem,
+    sync::{Arc, Mutex}, pin::Pin,
+};
 
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -172,11 +176,17 @@ pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
 impl AudioDeviceModule {
     /// Creates a new [`AudioDeviceModule`] for the given [`AudioLayer`].
     pub fn create(
+        worker_thread: &mut Thread,
+        sign_thread: &mut Thread,
         audio_layer: AudioLayer,
         task_queue_factory: &mut TaskQueueFactory,
     ) -> anyhow::Result<Self> {
-        let ptr =
-            webrtc::create_audio_device_module(audio_layer, task_queue_factory.0.pin_mut());
+        let ptr = webrtc::create_audio_device_module(
+            worker_thread.0.pin_mut(),
+            sign_thread.0.pin_mut(),
+            audio_layer,
+            task_queue_factory.0.pin_mut(),
+        );
 
         if ptr.is_null() {
             bail!("`null` pointer returned from `AudioDeviceModule::Create()`");

@@ -772,7 +772,7 @@ pub fn register_track_observer(
 /// Only one callback can be set at a time, so the previous one will be
 /// dropped, if any.
 pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_on_device_changed(cb);
+    // WEBRTC.lock().unwrap().set_on_device_changed(cb);
 
     Ok(())
 }

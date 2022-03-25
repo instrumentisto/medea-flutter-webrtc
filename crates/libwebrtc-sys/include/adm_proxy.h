@@ -3,7 +3,6 @@
 #include "modules/audio_device/include/audio_device.h"
 #include "pc/proxy.h"
 #include "rtc_base/ref_count.h"
-
 namespace webrtc {
 class AudioDeviceModule_Interface : public rtc::RefCountedObject<AudioDeviceModule> {
   public:
@@ -266,5 +265,4 @@ PROXY_METHOD1(int32_t, EnableBuiltInAEC, bool)
 PROXY_METHOD1(int32_t, EnableBuiltInAGC, bool)
 PROXY_METHOD1(int32_t, EnableBuiltInNS, bool)
 END_PROXY_MAP(AudioDeviceModule_)
-
 }  // namespace webrtc
