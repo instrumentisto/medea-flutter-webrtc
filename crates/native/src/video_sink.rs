@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
@@ -16,7 +17,7 @@ impl Webrtc {
         sink_id: i64,
         track_id: u64,
         handler: UniquePtr<cpp_api::OnFrameCallbackInterface>,
-    ) {
+    ) -> anyhow::Result<()> {
         let mut sink = VideoSink {
             id: Id(sink_id),
             inner: sys::VideoSinkInterface::create_forwarding(Box::new(OnFrameCallback(
@@ -25,12 +26,16 @@ impl Webrtc {
             track_id: track_id.into(),
         };
 
-        self.video_tracks
+        let mut track = self
+            .video_tracks
             .get_mut(&track_id.into())
-            .unwrap()
-            .add_video_sink(&mut sink);
+            .ok_or_else(|| anyhow!("Could not find track with `{track_id}` ID"))?;
+
+        track.add_video_sink(&mut sink);
 
         self.video_sinks.insert(Id(sink_id), sink);
+
+        Ok(())
     }
 
     /// Destroys a [`VideoSink`] by the given ID.
@@ -45,21 +50,21 @@ impl Webrtc {
 
 /// ID of a [`VideoSink`].
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct Id(pub(crate) i64);
+pub struct Id(i64);
 
 /// Wrapper around a [`sys::VideoSink`] attaching a unique ID to it.
 #[derive(AsRef, AsMut)]
 pub struct VideoSink {
     /// ID of this [`VideoSink`].
-    pub(crate) id: Id,
+    id: Id,
 
     /// Underlying [`sys::VideoSinkInterface`].
     #[as_ref]
     #[as_mut]
-    pub(crate) inner: sys::VideoSinkInterface,
+    inner: sys::VideoSinkInterface,
 
     /// ID of the [`VideoTrack`] attached to this [`VideoSink`].
-    pub(crate) track_id: VideoTrackId,
+    track_id: VideoTrackId,
 }
 
 impl VideoSink {
