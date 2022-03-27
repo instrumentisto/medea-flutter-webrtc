@@ -13,10 +13,12 @@ const DEFAULT_DISPLAY_WIDTH = 1920;
 const DEFAULT_DISPLAY_HEIGHT = 1080;
 const DEFAULT_FPS = 30;
 
-typedef OnDeviceChangeHandler = void Function();
+/// Shortcut for the `on_device_change` callback.
+typedef OnDeviceChangeCallback = void Function();
 
 class DeviceHandler {
   static final DeviceHandler _instance = DeviceHandler._internal();
+  OnDeviceChangeCallback? _handler;
 
   factory DeviceHandler() {
     return _instance;
@@ -27,20 +29,32 @@ class DeviceHandler {
   }
 
   void _listen() async {
-    api.setOnDeviceChanged().listen(
-      (event) {
-        if (_handler != null) {
-          _handler!();
+    if (is_desktop) { // TODO: asdasd
+      api.setOnDeviceChanged().listen(
+            (event) {
+          if (_handler != null) {
+            _handler!();
+          }
+        },
+      );
+    } else {
+      eventChannel('MediaDevicesEvent', 0).listen((event) {
+        final dynamic e = event;
+        switch (e['event']) {
+          case 'onDeviceChange':
+            if (_handler != null) {
+              _handler!();
+            }
+            break;
         }
-      },
-    );
+      });
+    }
   }
 
-  void setHandler(OnDeviceChangeHandler? handler) {
+  /// Subscribes to the `devicechange` event of the `MediaDevices`.
+  void setHandler(OnDeviceChangeCallback? handler) {
     _handler = handler;
   }
-
-  OnDeviceChangeHandler? _handler;
 }
 
 /// [Exception] thrown if the specified constraints resulted in no candidate

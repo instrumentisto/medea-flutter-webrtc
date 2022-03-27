@@ -13,7 +13,6 @@ import '/src/platform/native/media_stream_track.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'transceiver.dart';
-// import 'utils.dart';
 
 // TODO(logist322): Check and add docs all over the Dart.
 
