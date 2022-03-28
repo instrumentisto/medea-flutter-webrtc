@@ -171,6 +171,7 @@ abstract class FlutterWebrtcNative {
       required int callbackPtr,
       dynamic hint});
 
+  /// Destroys the [`VideoSink`] by the given ID.
   Uint8List disposeVideoSink({required int sinkId, dynamic hint});
 }
 
@@ -279,8 +280,13 @@ class MediaDeviceInfo {
 
 /// Possible kinds of media devices.
 enum MediaDeviceKind {
+  /// Audio input device (for example, a microphone).
   AudioInput,
+
+  /// Audio output device (for example, a pair of headphones).
   AudioOutput,
+
+  /// Video input device (for example, a webcam).
   VideoInput,
 }
 
@@ -328,8 +334,12 @@ class MediaStreamTrack {
   });
 }
 
+/// Possible media types of a [`MediaStreamTrack`].
 enum MediaType {
+  /// Audio [`MediaStreamTrack`].
   Audio,
+
+  /// Video [`MediaStreamTrack`].
   Video,
 }
 
@@ -368,12 +378,36 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
   ) = Track;
 }
 
+/// Indicates the current state of a peer connection.
 enum PeerConnectionState {
+  /// At least one of the connection's ICE transports is in the new state,
+  /// and none of them are in one of the following states: `connecting`,
+  /// `checking`, `failed`, `disconnected`, or all of the connection's
+  /// transports are in the `closed` state.
   New,
+
+  /// One or more of the ICE transports are currently in the process of
+  /// establishing a connection. That is, their [`IceConnectionState`] is
+  /// either [`IceConnectionState::Checking`] or
+  /// [`IceConnectionState::Connected`], and no transports are in the
+  /// `failed` state.
   Connecting,
+
+  /// Every ICE transport used by the connection is either in use (state
+  /// `connected` or `completed`) or is closed (state `closed`). In addition,
+  /// at least one transport is either `connected` or `completed`.
   Connected,
+
+  /// At least one of the ICE transports for the connection is in the
+  /// `disconnected` state and none of the other transports are in the state
+  /// `failed`, `connecting` or `checking`.
   Disconnected,
+
+  /// One or more of the ICE transports on the connection is in the `failed`
+  /// state.
   Failed,
+
+  /// Peer connection is closed.
   Closed,
 }
 
@@ -473,8 +507,14 @@ class RtcRtpTransceiver {
   });
 }
 
+/// [RTCSessionDescription] representation.
+///
+/// [RTCSessionDescription]: https://w3.org/TR/webrtc#dom-rtcsessiondescription
 class RtcSessionDescription {
+  /// The string representation of the SDP.
   final String sdp;
+
+  /// The type of this session description.
   final SdpType kind;
 
   RtcSessionDescription({
@@ -506,10 +546,47 @@ class RtcTrackEvent {
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
 enum RtpTransceiverDirection {
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
+  /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+  /// [RTCRtpReceiver] will offer to receive RTP, and will receive RTP if the
+  /// remote peer accepts.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   SendRecv,
+
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
+  /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+  /// [RTCRtpReceiver] will not offer to receive RTP, and will not receive
+  /// RTP.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   SendOnly,
+
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
+  /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+  /// offer to receive RTP, and will receive RTP if the remote peer accepts.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   RecvOnly,
+
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
+  /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+  /// not offer to receive RTP, and will not receive RTP.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   Inactive,
+
+  /// The [`RTCRtpTransceiver`] will neither send nor receive RTP. It will
+  /// generate a zero port in the offer. In answers, its [RTCRtpSender] will
+  /// not offer to send RTP, and its [RTCRtpReceiver] will not offer to
+  /// receive RTP. This is a terminal state.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   Stopped,
 }
 
@@ -567,6 +644,9 @@ class VideoConstraints {
 
   /// The exact frame rate (frames per second).
   final int frameRate;
+
+  /// Indicates whether the request video track should be acquired via
+  /// screen capturing.
   final bool isDisplay;
 
   VideoConstraints({

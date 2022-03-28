@@ -51,6 +51,6 @@ class _RtpSenderFFI extends RtpSender {
     await api.senderReplaceTrack(
         peerId: _peerId,
         transceiverId: _transceiverId,
-        trackId: t != null ? int.parse(t.id()) : -1);
+        trackId: t != null ? int.parse(t.id()) : null);
   }
 }

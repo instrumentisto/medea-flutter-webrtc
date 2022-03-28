@@ -1,28 +1,32 @@
-// TODO(alexlapa): make 2 peer and fix
-
-import 'dart:async';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/src/model/peer.dart';
+import 'package:flutter_webrtc/src/model/constraints.dart';
+import 'package:flutter_webrtc/src/model/device.dart';
 import 'package:flutter_webrtc/src/model/ice.dart';
+import 'package:flutter_webrtc/src/model/peer.dart';
 import 'package:flutter_webrtc/src/model/track.dart';
+import 'package:flutter_webrtc/src/model/transceiver.dart';
 
-class LoopBackSample extends StatefulWidget {
-  static String tag = 'loopback_sample';
+class Loopback extends StatefulWidget {
+  static String tag = 'get_usermedia_sample';
 
   @override
-  _MyAppState createState() => _MyAppState();
+  _LoopbackState createState() => _LoopbackState();
 }
 
-class _MyAppState extends State<LoopBackSample> {
+class _LoopbackState extends State<Loopback> {
   List<MediaStreamTrack>? _tracks;
-  PeerConnection? _peerConnection;
+
+  PeerConnection? _pc1;
+  PeerConnection? _pc2;
+
   final _localRenderer = createVideoRenderer();
   final _remoteRenderer = createVideoRenderer();
-  final bool _inCalling = false;
-  Timer? _timer;
+  bool _inCalling = false;
+
+  List<MediaDeviceInfo>? _mediaDevicesList;
 
   @override
   void initState() {
@@ -45,125 +49,153 @@ class _MyAppState extends State<LoopBackSample> {
     await _remoteRenderer.initialize();
   }
 
-  void _onSignalingState(SignalingState state) {
-    print(state);
-  }
-
-  void _onIceGatheringState(IceGatheringState state) {
-    print(state);
-  }
-
-  void _onIceConnectionState(IceConnectionState state) {
-    print(state);
-  }
-
-  void _onPeerConnectionState(PeerConnectionState state) {
-    print(state);
-  }
-
-  void _onCandidate(IceCandidate candidate) {
-    print('onCandidate: ${candidate.candidate}');
-    _peerConnection?.addIceCandidate(candidate);
-  }
-
-  // void _onTrack(NativeMediaStreamTrack track, RtpTransceiver transceiver) {
-  //   if (track.kind() == MediaKind.video) {
-  //     _remoteRenderer.srcObject = track;
-  //   }
-  // }
-
   // Platform messages are asynchronous, so we initialize in an async method.
   void _makeCall() async {
-    // final mediaConstraints = <String, dynamic>{
-    //   'audio': true,
-    //   'video': {
-    //     'mandatory': {
-    //       'minWidth':
-    //           '640', // Provide your own width, height and frame rate here
-    //       'minHeight': '480',
-    //       'minFrameRate': '30',
-    //     },
-    //     'facingMode': 'user',
-    //     'optional': [],
-    //   }
-    // };
-    //
-    // if (_peerConnection != null) return;
-    //
-    // try {
-    //   _peerConnection = await createPeerConnection(configuration, loopbackConstraints);
-    //
-    //   _peerConnection!.onSignalingStateChange(_onSignalingState);
-    //   _peerConnection!.onIceGatheringStateChange(_onIceGatheringState);
-    //   _peerConnection!.onIceConnectionStateChange(_onIceConnectionState);
-    //   _peerConnection!.onConnectionStateChange(_onPeerConnectionState);
-    //   _peerConnection!.onIceCandidate(_onCandidate);
-    //
-    //   _tracks = await getUserMedia(mediaConstraints);
-    //   _localRenderer.srcObject = _tracks;
-    //
-    //   _peerConnection!.onTrack(_onTrack);
-    //   _tracks!.getTracks().forEach((track) {
-    //     _peerConnection!.addTrack(track, _tracks!);
-    //   });
-    //
-    //   var description = await _peerConnection!.createOffer(offerSdpConstraints);
-    //   var sdp = description.sdp;
-    //   print('sdp = $sdp');
-    //   await _peerConnection!.setLocalDescription(description);
-    //   description.type = 'answer';
-    //   await _peerConnection!.setRemoteDescription(description);
-    // } catch (e) {
-    //   print(e.toString());
-    // }
-    // if (!mounted) return;
-    //
-    // setState(() {
-    //   _inCalling = true;
-    // });
+    var caps = DeviceConstraints();
+    caps.audio.mandatory = AudioConstraints();
+    caps.video.mandatory = DeviceVideoConstraints();
+    caps.video.mandatory!.width = 640;
+    caps.video.mandatory!.height = 480;
+    caps.video.mandatory!.fps = 30;
+
+    try {
+      _mediaDevicesList = await enumerateDevices();
+      _tracks = await getUserMedia(caps);
+      _localRenderer.srcObject =
+          _tracks!.firstWhere((track) => track.kind() == MediaKind.video);
+
+      var server =
+          IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
+      _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
+      _pc2 = await PeerConnection.create(IceTransportType.all, [server]);
+
+      final icecb = (IceConnectionState state) {
+        print(state.toString());
+      };
+
+      final pccb = (PeerConnectionState state) {
+        print(state.toString());
+      };
+
+      _pc1?.onIceConnectionStateChange(icecb);
+      _pc2?.onIceConnectionStateChange(icecb);
+
+      _pc1?.onConnectionStateChange(pccb);
+      _pc2?.onConnectionStateChange(pccb);
+
+      _pc1?.onIceCandidateError((p0) {
+        print(p0.errorText);
+      });
+      _pc2?.onIceCandidateError((p0) {
+        print(p0.errorText);
+      });
+
+      _pc2?.onTrack((track, trans) {
+        if (track.kind() == MediaKind.video) {
+          _remoteRenderer.srcObject = track;
+        }
+      });
+
+      var trans = await _pc1?.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+
+      var offer = await _pc1?.createOffer();
+      await _pc1?.setLocalDescription(offer!);
+      await _pc2?.setRemoteDescription(offer!);
+
+      var answer = await _pc2?.createAnswer();
+      await _pc2?.setLocalDescription(answer!);
+      await _pc1?.setRemoteDescription(answer!);
+
+      _pc1?.onIceCandidate((IceCandidate candidate) async {
+        print(candidate.candidate.toString());
+        await _pc2?.addIceCandidate(candidate);
+      });
+
+      _pc2?.onIceCandidate((IceCandidate candidate) async {
+        print(candidate.candidate.toString());
+        await _pc1?.addIceCandidate(candidate);
+      });
+
+      await trans?.sender.replaceTrack(
+          _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+    } catch (e) {
+      print(e.toString());
+    }
+    if (!mounted) return;
+
+    setState(() {
+      _inCalling = true;
+    });
   }
 
   void _hangUp() async {
-    // try {
-    //   await _tracks?.dispose();
-    //   await _peerConnection?.close();
-    //   _peerConnection = null;
-    //   _localRenderer.srcObject = null;
-    //   _remoteRenderer.srcObject = null;
-    // } catch (e) {
-    //   print(e.toString());
-    // }
-    // setState(() {
-    //   _inCalling = false;
-    // });
-    // _timer?.cancel();
+    try {
+      _localRenderer.srcObject = null;
+      _remoteRenderer.srcObject = null;
+
+      _tracks!.forEach((track) async {
+        await track.dispose();
+      });
+
+      await _pc1?.close();
+      await _pc2?.close();
+
+      setState(() {
+        _inCalling = false;
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    var widgets = <Widget>[
-      // Expanded(
-      //   child: RTCVideoView(_localRenderer, mirror: true),
-      // ),
-      // Expanded(
-      //   child: RTCVideoView(_remoteRenderer),
-      // )
-    ];
     return Scaffold(
+      appBar: AppBar(
+        title: Text('GetUserMedia API Test'),
+        actions: _inCalling
+            ? <Widget>[
+                PopupMenuButton<String>(
+                  onSelected: _selectAudioOutput,
+                  itemBuilder: (BuildContext context) {
+                    if (_mediaDevicesList != null) {
+                      return _mediaDevicesList!
+                          .where((device) => device.kind == 'audiooutput')
+                          .map((device) {
+                        return PopupMenuItem<String>(
+                          value: device.deviceId,
+                          child: Text(device.label),
+                        );
+                      }).toList();
+                    }
+                    return [];
+                  },
+                ),
+              ]
+            : null,
+      ),
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Center(
-            child: Container(
-              decoration: BoxDecoration(color: Colors.black54),
-              child: orientation == Orientation.portrait
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: widgets)
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: widgets),
-            ),
-          );
+              child: Row(
+            children: [
+              Container(
+                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.height,
+                decoration: BoxDecoration(color: Colors.black54),
+                child: VideoView(_localRenderer, mirror: true),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.height,
+                decoration: BoxDecoration(color: Colors.black54),
+                child: VideoView(_remoteRenderer, mirror: true),
+              ),
+            ],
+          ));
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -172,5 +204,9 @@ class _MyAppState extends State<LoopBackSample> {
         child: Icon(_inCalling ? Icons.call_end : Icons.phone),
       ),
     );
+  }
+
+  void _selectAudioOutput(String deviceId) {
+    setOutputAudioId(deviceId);
   }
 }

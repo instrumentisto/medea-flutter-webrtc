@@ -206,7 +206,8 @@ abstract class PeerConnection {
 }
 
 /// [MethodChannel] used for the messaging with a native side.
-final _peerConnectionFactoryMethodChannel =  methodChannel('PeerConnectionFactory', 0);
+final _peerConnectionFactoryMethodChannel =
+    methodChannel('PeerConnectionFactory', 0);
 
 class _PeerConnectionChannel extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
@@ -214,7 +215,7 @@ class _PeerConnectionChannel extends PeerConnection {
   static Future<PeerConnection> create(
       IceTransportType iceTransportType, List<IceServer> iceServers) async {
     dynamic res =
-    await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
+        await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
       'iceTransportType': iceTransportType.index,
       'iceServers': iceServers.map((s) => s.toMap()).toList(),
     });
@@ -389,9 +390,9 @@ class _PeerConnectionFFI extends PeerConnection {
         bundlePolicy: ffi.BundlePolicy.MaxBundle,
         iceServers: iceServers
             .map((server) => ffi.RtcIceServer(
-            urls: server.urls,
-            username: server.username!,
-            credential: server.password!))
+                urls: server.urls,
+                username: server.username!,
+                credential: server.password!))
             .toList());
 
     var peer = _PeerConnectionFFI();
@@ -448,10 +449,8 @@ class _PeerConnectionFFI extends PeerConnection {
       _onConnectionStateChange?.call(_connectionState);
       return;
     } else if (event is ffi.Track) {
-      _onTrack?.call(
-          NativeMediaStreamTrack.from(event.field0.track),
-          RtpTransceiver.fromFFI(event.field0.transceiver)
-      );
+      _onTrack?.call(NativeMediaStreamTrack.from(event.field0.track),
+          RtpTransceiver.fromFFI(event.field0.transceiver));
       return;
     }
   }
@@ -468,7 +467,7 @@ class _PeerConnectionFFI extends PeerConnection {
   @override
   Future<RtpTransceiver> addTransceiver(
       MediaKind mediaType, RtpTransceiverInit init) async {
-    var transceiver =  RtpTransceiver.fromFFI(await api.addTransceiver(
+    var transceiver = RtpTransceiver.fromFFI(await api.addTransceiver(
         peerId: _id!,
         mediaType: ffi.MediaType.values[mediaType.index],
         direction: ffi.RtpTransceiverDirection.values[init.direction.index]));
@@ -509,7 +508,7 @@ class _PeerConnectionFFI extends PeerConnection {
 
   @override
   Future<List<RtpTransceiver>> getTransceivers() async {
-    var transceivers =  (await api.getTransceivers(peerId: _id!))
+    var transceivers = (await api.getTransceivers(peerId: _id!))
         .map((transceiver) => RtpTransceiver.fromFFI(transceiver))
         .toList();
     _transceivers.addAll(transceivers);

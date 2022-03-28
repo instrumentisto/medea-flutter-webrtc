@@ -147,7 +147,7 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
       throw 'Renderer should be initialize before setting src';
     }
     if (track != null && track.kind() != MediaKind.video) {
-      throw 'VideoRenderer do not supports MediaStreamTrack with video kind!';
+      throw 'VideoRenderer do not supports MediaStreamTrack with audio kind!';
     }
 
     _srcObject = track;
