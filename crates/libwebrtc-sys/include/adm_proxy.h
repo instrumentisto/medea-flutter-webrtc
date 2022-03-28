@@ -182,6 +182,16 @@ class AudioDeviceModule_ : public AudioDeviceModule_Interface {
 
   int32_t GetPlayoutUnderrunCount() const { return adm->GetPlayoutUnderrunCount(); }
 
+  // Only supported on iOS.
+  #if defined(WEBRTC_IOS)
+    int GetPlayoutAudioParameters(AudioParameters* params) const {
+      return adm->GetPlayoutAudioParameters(params);
+    }
+    int GetRecordAudioParameters(AudioParameters* params) const {
+      return adm->GetRecordAudioParameters(params);
+    }
+  #endif  // WEBRTC_IOS
+
  private:
   rtc::scoped_refptr<AudioDeviceModule> adm;
 };
@@ -199,6 +209,11 @@ PROXY_METHOD1(int32_t, SpeakerMuteIsAvailable, bool*)
 PROXY_CONSTMETHOD0(int32_t, GetPlayoutUnderrunCount)
 PROXY_CONSTMETHOD1(int32_t, MicrophoneMute, bool*)
 PROXY_CONSTMETHOD1(int32_t, SpeakerMute, bool*)
+
+#if defined(WEBRTC_IOS)
+PROXY_CONSTMETHOD1(int, GetPlayoutAudioParameters, AudioParameters*)
+PROXY_CONSTMETHOD1(int, GetRecordAudioParameters, AudioParameters*)
+#endif  // WEBRTC_IOS
 
 PROXY_CONSTMETHOD1(int32_t, SpeakerVolume, uint32_t* )
 PROXY_CONSTMETHOD1(int32_t, MaxSpeakerVolume, uint32_t* )

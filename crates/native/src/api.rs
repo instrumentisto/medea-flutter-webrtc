@@ -796,16 +796,41 @@ pub fn dispose_video_sink(sink_id: i64) -> SyncReturn<Vec<u8>> {
 
 #[cfg(test)]
 mod test {
-    use std::thread;
+    use std::{thread, time::Duration};
+
+    use libwebrtc_sys::{
+        AudioLayer, PeerConnectionFactoryInterface, PeerConnectionInterface,
+        TaskQueueFactory, Thread,
+    };
+
+    use crate::AudioDeviceModule;
 
     use super::Webrtc;
 
     #[test]
-    fn webrtc_drops_on_another_thread() {
-        let webrtc = thread::spawn(|| Webrtc::new()).join().unwrap().unwrap();
+    fn webrtc_drops() {
 
-        let temp = webrtc.audio_device_module.recording_device_name(0);
-        println!("\n\n\n\n{:?}\n\n\n\n", temp);
-        drop(webrtc);
+        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
+
+        let mut wt = Thread::create(false).unwrap();
+        wt.start().unwrap();
+        let mut st = Thread::create(false).unwrap();
+        st.start().unwrap();
+
+        let audio_device_module = AudioDeviceModule::new(
+            &mut wt,
+            &mut st,
+            AudioLayer::kPlatformDefaultAudio,
+            &mut task_queue_factory,
+        )
+        .unwrap();
+        let _ = audio_device_module.playout_devices();
+        let pcf = PeerConnectionFactoryInterface::create(
+            None,
+            Some(&wt),
+            Some(&st),
+            Some(&audio_device_module.inner),
+        );
+        drop(pcf);
     }
 }

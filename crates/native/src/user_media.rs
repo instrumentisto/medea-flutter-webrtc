@@ -438,7 +438,11 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::set_recording_device()`] fails.
-    pub fn set_recording_device(&mut self, id: AudioDeviceId, index: u16) -> anyhow::Result<()> {
+    pub fn set_recording_device(
+        &mut self,
+        id: AudioDeviceId,
+        index: u16,
+    ) -> anyhow::Result<()> {
         let result = self.inner.set_recording_device(index);
         if result.is_ok() {
             self.current_device_id.replace(id);
@@ -446,7 +450,11 @@ impl AudioDeviceModule {
         result
     }
 
-    pub fn set_playout_device(&mut self, id: AudioDeviceId, index: u16) -> anyhow::Result<()> {
+    pub fn set_playout_device(
+        &mut self,
+        id: AudioDeviceId,
+        index: u16,
+    ) -> anyhow::Result<()> {
         let result = self.inner.set_playout_device(index);
         if result.is_ok() {
             self.current_playout_device_id.replace(id);

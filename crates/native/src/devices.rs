@@ -245,10 +245,7 @@ impl Webrtc {
     ///
     /// May panic on creating [`AudioDeviceModule`], [`VideoDeviceInfo`], or
     /// getting number of `playout` and `recording` devices.
-    pub fn set_on_device_changed(
-        &mut self,
-        cb: StreamSink<()>,
-    ) {
+    pub fn set_on_device_changed(&mut self, cb: StreamSink<()>) {
         let prev = ON_DEVICE_CHANGE.swap(
             Box::into_raw(Box::new(
                 DeviceState::new(
