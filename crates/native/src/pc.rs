@@ -475,7 +475,15 @@ impl Webrtc {
                     }
                 });
             }
-            sys::MediaType::MEDIA_TYPE_AUDIO => {}
+            sys::MediaType::MEDIA_TYPE_AUDIO => {
+                self.audio_tracks.iter_mut().for_each(|mut track| {
+                    let senders = track.senders();
+
+                    if let Some(transceivers) = senders.get_mut(&peer_connection_id) {
+                        transceivers.retain(|index| index != &transceiver_index);
+                    }
+                });
+            }
             _ => unreachable!(),
         }
 
@@ -500,12 +508,23 @@ impl Webrtc {
 
                     sender.replace_video_track(Some(track.as_ref()))
                 }
-                sys::MediaType::MEDIA_TYPE_AUDIO => sender.replace_audio_track(Some(
-                    self.audio_tracks
-                        .get(&AudioTrackId::from(track_id))
-                        .unwrap()
-                        .as_ref(),
-                )),
+                sys::MediaType::MEDIA_TYPE_AUDIO => {
+                    let mut track = self
+                        .audio_tracks
+                        .get_mut(&AudioTrackId::from(track_id))
+                        .unwrap();
+
+                    let senders = track.value_mut().senders();
+
+                    if let Some(transceivers) = senders.get_mut(&peer_connection_id) {
+                        transceivers.insert(transceiver_index);
+                    } else {
+                        senders
+                            .insert(peer_connection_id, HashSet::from([transceiver_index]));
+                    }
+
+                    sender.replace_audio_track(Some(track.as_ref()))
+                }
                 _ => unreachable!(),
             }
         } else {

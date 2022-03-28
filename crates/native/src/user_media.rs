@@ -675,6 +675,10 @@ impl AudioTrack {
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
     }
+
+    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u64>> {
+        &mut self.senders
+    }
 }
 
 impl From<&AudioTrack> for api::MediaStreamTrack {
