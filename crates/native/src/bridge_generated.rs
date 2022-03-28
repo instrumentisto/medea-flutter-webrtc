@@ -32,7 +32,6 @@ pub extern "C" fn wire_enumerate_devices(port_: i64) {
 pub extern "C" fn wire_create_peer_connection(
     port_: i64,
     configuration: *mut wire_RtcConfiguration,
-    id: u64,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -42,12 +41,10 @@ pub extern "C" fn wire_create_peer_connection(
         },
         move || {
             let api_configuration = configuration.wire2api();
-            let api_id = id.wire2api();
             move |task_callback| {
                 create_peer_connection(
                     task_callback.stream_sink(),
                     api_configuration,
-                    api_id,
                 )
             }
         },
@@ -535,16 +532,18 @@ pub extern "C" fn wire_create_video_sink(
 }
 
 #[no_mangle]
-pub extern "C" fn wire_dispose_video_sink(port_: i64, sink_id: i64) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+pub extern "C" fn wire_dispose_video_sink(
+    sink_id: i64,
+) -> support::WireSyncReturnStruct {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(
         WrapInfo {
             debug_name: "dispose_video_sink",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
+            port: None,
+            mode: FfiCallMode::Sync,
         },
         move || {
             let api_sink_id = sink_id.wire2api();
-            move |task_callback| Ok(dispose_video_sink(api_sink_id))
+            Ok(dispose_video_sink(api_sink_id))
         },
     )
 }
@@ -1056,18 +1055,19 @@ impl support::IntoDart for MediaType {
 impl support::IntoDart for PeerConnectionEvent {
     fn into_dart(self) -> support::DartCObject {
         match self {
+            Self::PeerCreated { id } => vec![0.into_dart(), id.into_dart()],
             Self::OnIceCandidate {
                 sdp_mid,
                 sdp_mline_index,
                 candidate,
             } => vec![
-                0.into_dart(),
+                1.into_dart(),
                 sdp_mid.into_dart(),
                 sdp_mline_index.into_dart(),
                 candidate.into_dart(),
             ],
             Self::IceGatheringStateChange(field0) => {
-                vec![1.into_dart(), field0.into_dart()]
+                vec![2.into_dart(), field0.into_dart()]
             }
             Self::IceCandidateError {
                 address,
@@ -1076,24 +1076,24 @@ impl support::IntoDart for PeerConnectionEvent {
                 error_code,
                 error_text,
             } => vec![
-                2.into_dart(),
+                3.into_dart(),
                 address.into_dart(),
                 port.into_dart(),
                 url.into_dart(),
                 error_code.into_dart(),
                 error_text.into_dart(),
             ],
-            Self::NegotiationNeeded => vec![3.into_dart()],
+            Self::NegotiationNeeded => vec![4.into_dart()],
             Self::SignallingChange(field0) => {
-                vec![4.into_dart(), field0.into_dart()]
-            }
-            Self::IceConnectionStateChange(field0) => {
                 vec![5.into_dart(), field0.into_dart()]
             }
-            Self::ConnectionStateChange(field0) => {
+            Self::IceConnectionStateChange(field0) => {
                 vec![6.into_dart(), field0.into_dart()]
             }
-            Self::Track(field0) => vec![7.into_dart(), field0.into_dart()],
+            Self::ConnectionStateChange(field0) => {
+                vec![7.into_dart(), field0.into_dart()]
+            }
+            Self::Track(field0) => vec![8.into_dart(), field0.into_dart()],
         }
         .into_dart()
     }

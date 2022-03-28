@@ -11,7 +11,7 @@ import '../../api/peer.dart';
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     return _NativeVideoRendererFFI();
   } else {
     return _NativeVideoRendererChannel();

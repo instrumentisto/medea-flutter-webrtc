@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import '/src/platform/track.dart';
 import 'channel.dart';
 import 'peer.dart';
-import 'utils.dart';
 
 abstract class RtpSender {
   static RtpSender fromMap(dynamic map) {
@@ -49,7 +48,7 @@ class _RtpSenderFFI extends RtpSender {
 
   @override
   Future<void> replaceTrack(MediaStreamTrack? t) async {
-    api.senderReplaceTrack(
+    await api.senderReplaceTrack(
         peerId: _peerId,
         transceiverId: _transceiverId,
         trackId: t != null ? int.parse(t.id()) : -1);

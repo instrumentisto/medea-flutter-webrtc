@@ -23,7 +23,7 @@ abstract class FlutterWebrtcNative {
   ///
   /// Writes an error to the provided `err`, if any.
   Stream<PeerConnectionEvent> createPeerConnection(
-      {required RtcConfiguration configuration, required int id, dynamic hint});
+      {required RtcConfiguration configuration, dynamic hint});
 
   /// Initiates the creation of a SDP offer for the purpose of starting
   /// a new WebRTC connection to a remote peer.
@@ -171,8 +171,7 @@ abstract class FlutterWebrtcNative {
       required int callbackPtr,
       dynamic hint});
 
-  /// Destroys the [`VideoSink`] by the given ID.
-  Future<void> disposeVideoSink({required int sinkId, dynamic hint});
+  Uint8List disposeVideoSink({required int sinkId, dynamic hint});
 }
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
@@ -336,6 +335,9 @@ enum MediaType {
 
 @freezed
 class PeerConnectionEvent with _$PeerConnectionEvent {
+  const factory PeerConnectionEvent.peerCreated({
+    required int id,
+  }) = PeerCreated;
   const factory PeerConnectionEvent.onIceCandidate({
     required String sdpMid,
     required int sdpMlineIndex,
@@ -597,20 +599,16 @@ class FlutterWebrtcNativeImpl
       ));
 
   Stream<PeerConnectionEvent> createPeerConnection(
-          {required RtcConfiguration configuration,
-          required int id,
-          dynamic hint}) =>
+          {required RtcConfiguration configuration, dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_create_peer_connection(
-            port_,
-            _api2wire_box_autoadd_rtc_configuration(configuration),
-            _api2wire_u64(id)),
+            port_, _api2wire_box_autoadd_rtc_configuration(configuration)),
         parseSuccessData: _wire2api_peer_connection_event,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "create_peer_connection",
-          argNames: ["configuration", "id"],
+          argNames: ["configuration"],
         ),
-        argValues: [configuration, id],
+        argValues: [configuration],
         hint: hint,
       ));
 
@@ -986,11 +984,9 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<void> disposeVideoSink({required int sinkId, dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_dispose_video_sink(port_, _api2wire_i64(sinkId)),
-        parseSuccessData: _wire2api_unit,
+  Uint8List disposeVideoSink({required int sinkId, dynamic hint}) =>
+      executeSync(FlutterRustBridgeSyncTask(
+        callFfi: () => inner.wire_dispose_video_sink(_api2wire_i64(sinkId)),
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "dispose_video_sink",
           argNames: ["sinkId"],
@@ -1198,6 +1194,10 @@ String _wire2api_String(dynamic raw) {
   return raw as String;
 }
 
+Uint8List _wire2api_SyncReturnVecU8(dynamic raw) {
+  return raw as Uint8List;
+}
+
 bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
@@ -1268,16 +1268,20 @@ String? _wire2api_opt_String(dynamic raw) {
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
   switch (raw[0]) {
     case 0:
+      return PeerCreated(
+        id: _wire2api_u64(raw[1]),
+      );
+    case 1:
       return OnIceCandidate(
         sdpMid: _wire2api_String(raw[1]),
         sdpMlineIndex: _wire2api_i32(raw[2]),
         candidate: _wire2api_String(raw[3]),
       );
-    case 1:
+    case 2:
       return IceGatheringStateChange(
         _wire2api_ice_gathering_state(raw[1]),
       );
-    case 2:
+    case 3:
       return IceCandidateError(
         address: _wire2api_String(raw[1]),
         port: _wire2api_i32(raw[2]),
@@ -1285,21 +1289,21 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
         errorCode: _wire2api_i32(raw[4]),
         errorText: _wire2api_String(raw[5]),
       );
-    case 3:
-      return NegotiationNeeded();
     case 4:
+      return NegotiationNeeded();
+    case 5:
       return SignallingChange(
         _wire2api_signaling_state(raw[1]),
       );
-    case 5:
+    case 6:
       return IceConnectionStateChange(
         _wire2api_ice_connection_state(raw[1]),
       );
-    case 6:
+    case 7:
       return ConnectionStateChange(
         _wire2api_peer_connection_state(raw[1]),
       );
-    case 7:
+    case 8:
       return Track(
         _wire2api_box_autoadd_rtc_track_event(raw[1]),
       );
@@ -1415,22 +1419,20 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_create_peer_connection(
     int port_,
     ffi.Pointer<wire_RtcConfiguration> configuration,
-    int id,
   ) {
     return _wire_create_peer_connection(
       port_,
       configuration,
-      id,
     );
   }
 
   late final _wire_create_peer_connectionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_RtcConfiguration>,
-              ffi.Uint64)>>('wire_create_peer_connection');
-  late final _wire_create_peer_connection =
-      _wire_create_peer_connectionPtr.asFunction<
-          void Function(int, ffi.Pointer<wire_RtcConfiguration>, int)>();
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Int64, ffi.Pointer<wire_RtcConfiguration>)>>(
+      'wire_create_peer_connection');
+  late final _wire_create_peer_connection = _wire_create_peer_connectionPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_RtcConfiguration>)>();
 
   void wire_create_offer(
     int port_,
@@ -1856,21 +1858,19 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_create_video_sink = _wire_create_video_sinkPtr
       .asFunction<void Function(int, int, int, int)>();
 
-  void wire_dispose_video_sink(
-    int port_,
+  WireSyncReturnStruct wire_dispose_video_sink(
     int sink_id,
   ) {
     return _wire_dispose_video_sink(
-      port_,
       sink_id,
     );
   }
 
   late final _wire_dispose_video_sinkPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int64)>>(
+      _lookup<ffi.NativeFunction<WireSyncReturnStruct Function(ffi.Int64)>>(
           'wire_dispose_video_sink');
-  late final _wire_dispose_video_sink =
-      _wire_dispose_video_sinkPtr.asFunction<void Function(int, int)>();
+  late final _wire_dispose_video_sink = _wire_dispose_video_sinkPtr
+      .asFunction<WireSyncReturnStruct Function(int)>();
 
   ffi.Pointer<wire_StringList> new_StringList(
     int len,

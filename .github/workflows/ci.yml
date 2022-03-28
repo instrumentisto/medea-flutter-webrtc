@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches: ["windows-rework"]
@@ -43,6 +44,7 @@ jobs:
           channel: ${{ env.FLUTTER_CHANNEL }}
 
       - run: flutter pub get
+
       - run: flutter analyze
 
   rustfmt:
@@ -68,7 +70,9 @@ jobs:
           channel: ${{ env.FLUTTER_CHANNEL }}
 
       - run: flutter format lib/ test/ --set-exit-if-changed
+
       - run: flutter pub get
+
       - run: flutter pub run import_sorter:main --no-comments --exit-if-changed
 
   ktfmt:

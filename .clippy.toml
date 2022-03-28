@@ -19,6 +19,7 @@ doc-valid-idents = [
     "MediaTrackConstraints",
     "MessageEvent",
     "RTCAudioSenderStats", "RTCSenderAudioTrackAttachmentStats",
+    "RTCSessionDescription",
     "RTCBundlePolicy",
     "RTCConfiguration",
     "RTCDataChannel",

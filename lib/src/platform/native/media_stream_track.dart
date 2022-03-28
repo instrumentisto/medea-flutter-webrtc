@@ -12,8 +12,8 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
   static NativeMediaStreamTrack from(dynamic map) {
-    if (IS_DESKTOP) {
-      return _NativeMediaStreamTrackFFI.fromMap(map);
+    if (isDesktop) {
+      return _NativeMediaStreamTrackFFI(map);
     } else {
       return _NativeMediaStreamTrackChannel.fromMap(map);
     }
@@ -39,6 +39,9 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
 
   /// `on_ended` event subscriber.
   OnEndedCallback? _onEnded;
+
+  /// [_eventChan] subscription to the [PeerConnection] events.
+  late StreamSubscription<dynamic>? _eventSub;
 
   /// Listener for all the [MediaStreamTrack] events received from the native
   /// side.
@@ -96,9 +99,6 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   /// [EventChannel] to receive all the [PeerConnection] events from.
   late EventChannel _eventChan;
 
-  /// [_eventChan] subscription to the [PeerConnection] events.
-  late StreamSubscription<dynamic>? _eventSub;
-
   @override
   Future<void> setEnabled(bool enabled) async {
     await _chan.invokeMethod('setEnabled', {'enabled': enabled});
@@ -126,11 +126,16 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   bool _stopped = false;
 
-  _NativeMediaStreamTrackFFI.fromMap(ffi.MediaStreamTrack track) {
+  _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
     _handleId = track.id;
     _deviceId = track.deviceId;
     _kind = MediaKind.values[track.kind.index];
+    _eventSub = api.registerTrackObserver(trackId: track.id).listen((event) {
+      if (_onEnded != null) {
+        _onEnded!();
+      }
+    });
   }
 
   @override
@@ -138,17 +143,18 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
     if (!_stopped) {
       return NativeMediaStreamTrack.from(
           await api.cloneTrack(trackId: _handleId));
+    } else {
+      return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
+          deviceId: _deviceId,
+          enabled: _enabled,
+          id: _handleId,
+          kind: ffi.MediaType.values[_kind.index]));
     }
-
-    return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
-        deviceId: _deviceId,
-        enabled: _enabled,
-        id: _handleId,
-        kind: ffi.MediaType.values[_kind.index]));
   }
 
   @override
   Future<void> dispose() async {
+    await _eventSub?.cancel();
     if (!_stopped) {
       await api.disposeTrack(trackId: _handleId);
     }

@@ -1878,6 +1878,8 @@ impl fmt::Display for webrtc::PeerConnectionState {
     }
 }
 
+unsafe impl Send for IceCandidateInterface {}
+
 unsafe impl Send for webrtc::VideoDeviceInfo {}
 unsafe impl Sync for webrtc::VideoDeviceInfo {}
 

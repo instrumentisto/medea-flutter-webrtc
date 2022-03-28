@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 
 import '/src/model/constraints.dart';
@@ -7,11 +9,11 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
-const DEFAULT_USER_WIDTH = 480;
-const DEFAULT_USER_HEIGHT = 640;
-const DEFAULT_DISPLAY_WIDTH = 1920;
-const DEFAULT_DISPLAY_HEIGHT = 1080;
-const DEFAULT_FPS = 30;
+const defaultUserMediaWidth = 480;
+const defaultUserMediaHeight = 640;
+const defaultDisplayMediaWidth = 1280;
+const defaultDisplayMediaHeight = 720;
+const defaultFrameRate = 30;
 
 /// Shortcut for the `on_device_change` callback.
 typedef OnDeviceChangeCallback = void Function();
@@ -29,7 +31,7 @@ class DeviceHandler {
   }
 
   void _listen() async {
-    if (is_desktop) { // TODO: asdasd
+    if (isDesktop) {
       api.setOnDeviceChanged().listen(
             (event) {
           if (_handler != null) {
@@ -38,7 +40,7 @@ class DeviceHandler {
         },
       );
     } else {
-      eventChannel('MediaDevicesEvent', 0).listen((event) {
+      eventChannel('MediaDevicesEvent', 0).receiveBroadcastStream().listen((event) {
         final dynamic e = event;
         switch (e['event']) {
           case 'onDeviceChange':
@@ -76,7 +78,7 @@ final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 
 /// Returns list of [MediaDeviceInfo]s for the currently available devices.
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     return await _enumerateDevicesFFI();
   } else {
     return await _enumerateDevicesChannel();
@@ -99,7 +101,7 @@ Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
 /// the provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     return _getUserMediaFFI(constraints);
   } else {
     return _getUserMediaChannel(constraints);
@@ -131,9 +133,9 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? DEFAULT_USER_HEIGHT,
-          width: constraints.video.mandatory?.width ?? DEFAULT_USER_WIDTH,
-          frameRate: constraints.video.mandatory?.fps ?? DEFAULT_FPS,
+          height: constraints.video.mandatory?.height ?? defaultUserMediaHeight,
+          width: constraints.video.mandatory?.width ?? defaultUserMediaWidth,
+          frameRate: constraints.video.mandatory?.fps ?? defaultFrameRate,
           isDisplay: false)
       : null;
 
@@ -148,7 +150,7 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
 /// provided [DisplayConstraints].
 Future<List<NativeMediaStreamTrack>> getDisplayMedia(
     DisplayConstraints constraints) async {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     return _getDisplayMediaFFI(constraints);
   } else {
     return _getDisplayMediaChannel(constraints);
@@ -172,9 +174,9 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? DEFAULT_DISPLAY_HEIGHT,
-          width: constraints.video.mandatory?.width ?? DEFAULT_DISPLAY_WIDTH,
-          frameRate: constraints.video.mandatory?.fps ?? DEFAULT_FPS,
+          height: constraints.video.mandatory?.height ?? defaultDisplayMediaHeight,
+          width: constraints.video.mandatory?.width ?? defaultDisplayMediaWidth,
+          frameRate: constraints.video.mandatory?.fps ?? defaultFrameRate,
           isDisplay: true)
       : null;
 
@@ -189,7 +191,7 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
 ///
 /// List of output audio devices may be obtained via [enumerateDevices].
 Future<void> setOutputAudioId(String deviceId) async {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     _setOutputAudioIdFFI(deviceId);
   } else {
     _setOutputAudioIdChannel(deviceId);

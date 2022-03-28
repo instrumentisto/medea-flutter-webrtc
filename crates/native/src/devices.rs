@@ -3,6 +3,7 @@ use std::{
     sync::atomic::{AtomicPtr, Ordering},
 };
 
+use anyhow::anyhow;
 #[cfg(windows)]
 use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 
@@ -234,12 +235,14 @@ impl Webrtc {
         &mut self,
         device_id: String,
     ) -> anyhow::Result<()> {
-        let id = device_id.into();
+        let device_id = AudioDeviceId::from(device_id);
+        let index = self.get_index_of_audio_playout_device(&device_id)?;
 
-        let index = self.get_index_of_audio_playout_device(&id).unwrap();
-
-        self.audio_device_module
-            .set_playout_device(id, index.unwrap_or(0))
+        if let Some(index) = index {
+            self.audio_device_module.set_playout_device(index)
+        } else {
+            Err(anyhow!("Can not find playout device with id {device_id}"))
+        }
     }
 
     /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be

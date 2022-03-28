@@ -448,11 +448,6 @@ pub struct AudioDeviceModule {
     /// [`None`] if the [`AudioDeviceModule`] was not used yet to record data
     /// from the audio input device.
     current_device_id: Option<AudioDeviceId>,
-
-    current_playout_device_id: Option<AudioDeviceId>,
-    // thread: Option<JoinHandle<()>>,
-
-    // tx: Option<mpsc::Sender<Message>>,
 }
 
 impl AudioDeviceModule {
@@ -473,7 +468,6 @@ impl AudioDeviceModule {
         Ok(Self {
             inner,
             current_device_id: None,
-            current_playout_device_id: None,
         })
     }
 
@@ -498,13 +492,8 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::set_playout_device()`] fails.
-    pub fn set_playout_device(
-        &mut self,
-        id: AudioDeviceId,
-        index: u16,
-    ) -> anyhow::Result<()> {
+    pub fn set_playout_device(&mut self, index: u16) -> anyhow::Result<()> {
         self.inner.set_playout_device(index)?;
-        self.current_playout_device_id.replace(id);
 
         Ok(())
     }
