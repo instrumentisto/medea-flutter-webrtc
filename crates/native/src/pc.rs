@@ -14,7 +14,6 @@ use derive_more::{Display, From, Into};
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
 use once_cell::sync::OnceCell;
-use sys::PeerConnectionInterface;
 use threadpool::ThreadPool;
 
 use crate::{
@@ -765,10 +764,7 @@ impl sys::CreateSdpCallback for CreateSdpCallback {
 
     fn fail(&mut self, error: &CxxString) {
         if let Err(err) = self.0.send(Err(anyhow!("{}", error))) {
-            log::warn!(
-                "Failed to send SDP error in CreateSdpCallback: {}",
-                err
-            );
+            log::warn!("Failed to send SDP error in CreateSdpCallback: {err}");
         }
     }
 }
@@ -785,7 +781,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 
     fn fail(&mut self, error: &CxxString) {
         if let Err(err) = self.0.send(Err(anyhow!("{}", error))) {
-            log::warn!("Failed to send SDP error in SetSdpCallback: {}", err);
+            log::warn!("Failed to send SDP error in SetSdpCallback: {err}");
         }
     }
 }
@@ -802,7 +798,7 @@ struct PeerConnectionObserver {
     ///
     /// Tasks with [`InnerPeer`] must be offloaded to a separate [`ThreadPool`],
     /// so the signalling thread wouldn't be blocked.
-    peer: Arc<OnceCell<Arc<Mutex<PeerConnectionInterface>>>>,
+    peer: Arc<OnceCell<Arc<Mutex<sys::PeerConnectionInterface>>>>,
 
     /// Map of the remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
@@ -934,7 +930,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
     fn on_ice_candidate(&mut self, candidate: sys::IceCandidateInterface) {
         self.observer.lock().unwrap().add(
-            api::PeerConnectionEvent::OnIceCandidate {
+            api::PeerConnectionEvent::IceCandidate {
                 sdp_mid: candidate.mid(),
                 sdp_mline_index: candidate.mline_index(),
                 candidate: candidate.candidate(),

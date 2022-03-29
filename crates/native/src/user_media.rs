@@ -73,11 +73,16 @@ impl Webrtc {
 
         for peer in senders {
             for transceiver_index in peer.1 {
-                self.sender_replace_track(
-                    peer.0.into(),
-                    transceiver_index,
-                    None,
-                );
+                if let Some(err) = self
+                    .sender_replace_track(
+                        peer.0.into(),
+                        transceiver_index,
+                        None,
+                    )
+                    .err()
+                {
+                    log::error!("{err}");
+                }
             }
         }
     }
@@ -296,6 +301,7 @@ impl Webrtc {
         Ok(())
     }
 
+    /// Clones the specified [`api::MediaStreamTrack`].
     pub fn clone_track(
         &mut self,
         id: u64,
@@ -552,6 +558,9 @@ pub struct VideoTrack {
     /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
 
+    /// Caching [`PeerConnectionId`] and set of `transceiver index`s
+    /// in every [`crate::PeerConnection`] where this [`VideoTrack`]
+    /// is used to be sent.
     senders: HashMap<PeerConnectionId, HashSet<u64>>,
 }
 
@@ -624,6 +633,7 @@ impl VideoTrack {
         self.inner.set_enabled(enabled);
     }
 
+    /// Returns [`VideoTrack`]'s `senders`.
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u64>> {
         &mut self.senders
     }
@@ -660,6 +670,9 @@ pub struct AudioTrack {
     /// microphone".
     label: AudioLabel,
 
+    /// Caching [`PeerConnectionId`] and set of `transceiver index`s
+    /// in every [`crate::PeerConnection`] where this [`AudioTrack`]
+    /// is used to be sent.
     senders: HashMap<PeerConnectionId, HashSet<u64>>,
 }
 
@@ -723,6 +736,7 @@ impl AudioTrack {
         self.inner.set_enabled(enabled);
     }
 
+    /// Returns [`AudioTrack`]'s `senders`.
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u64>> {
         &mut self.senders
     }

@@ -46,6 +46,7 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
+/// The global context for the application.
 struct Webrtc {
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_device_info: sys::VideoDeviceInfo,
@@ -68,6 +69,7 @@ struct Webrtc {
 }
 
 impl Webrtc {
+    /// creates a new [`Webrtc`].
     fn new() -> anyhow::Result<Self> {
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();

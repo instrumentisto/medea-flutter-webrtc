@@ -1,6 +1,3 @@
-// TODO(logist322): Check and add docs all over the Rust.
-// TODO(logist322): Check is refactor needed.
-
 use std::{sync::Mutex, time::Duration};
 
 use cxx::UniquePtr;
@@ -15,15 +12,33 @@ lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
 }
 
+/// Indicates current state of [`MediaStreamTrack`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackEvent {
+    /// The ended event of the [`MediaStreamTrack`] interface is fired when playback
+    /// or streaming has stopped because the end of the media was reached
+    /// or because no further data is available.
     Ended,
 }
 
+/// [RTCIceGatheringState][1] representation.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum IceGatheringState {
+    /// [RTCIceGatheringState.new][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-new
     New,
+
+    /// [RTCIceGatheringState.gathering][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-gathering
     Gathering,
+
+    /// [RTCIceGatheringState.complete][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-complete
     Complete,
 }
 
@@ -38,17 +53,28 @@ impl From<sys::IceGatheringState> for IceGatheringState {
     }
 }
 
+/// Representation of the [`PeerConnection`]'s events.
 #[derive(Clone, Debug)]
 pub enum PeerConnectionEvent {
-    PeerCreated {
-        id: u64,
-    },
-    OnIceCandidate {
+    /// A custom `event` indicates that a [`PeerConnection`] has been created.
+    /// Provides the [`PeerConnection`]'s `id`.
+    PeerCreated { id: u64 },
+
+    /// A new [`ICE candidate`][1] has been discovered.
+    ///
+    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
+    IceCandidate {
         sdp_mid: String,
         sdp_mline_index: i32,
         candidate: String,
     },
+
+    /// The [`PeerConnection`]'s ICE gathering state has changed.
     IceGatheringStateChange(IceGatheringState),
+
+    /// A failure occured when gathering [`ICE candidate`][1].
+    ///
+    /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
     IceCandidateError {
         address: String,
         port: i32,
@@ -56,20 +82,57 @@ pub enum PeerConnectionEvent {
         error_code: i32,
         error_text: String,
     },
+
+    /// Negotiation or renegotiation of the [`PeerConnection`] needs
+    /// to be performed.
     NegotiationNeeded,
+
+    /// [`PeerConnection`]'s [`SignalingState`] has been changed.
     SignallingChange(SignalingState),
+
+    /// [`PeerConnection`]'s [`IceConnectionState`] has been changed.
     IceConnectionStateChange(IceConnectionState),
+
+    /// [`PeerConnection`]'s [`PeerConnectionState`] has been changed.
     ConnectionStateChange(PeerConnectionState),
+
+    /// New incoming media has been negotiated.
     Track(RtcTrackEvent),
 }
 
+/// [RTCSignalingState] representation.
+///
+/// [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SignalingState {
+    /// [RTCSignalingState.stable][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-stable
     Stable,
+
+    /// [RTCSignalingState.have-local-offer][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-have-local-offer
     HaveLocalOffer,
+
+    /// [RTCSignalingState.have-local-pranswer][1] representation.
+    ///
+    /// [1]: https://tinyurl.com/have-local-pranswer
     HaveLocalPrAnswer,
+
+    /// [RTCSignalingState.have-remote-offer][1] representation.
+    ///
+    /// [1]: https://tinyurl.com/have-remote-offer
     HaveRemoteOffer,
+
+    /// [RTCSignalingState.have-remote-pranswer][1] representation.
+    ///
+    /// [1]: https://tinyurl.com/have-remote-pranswer
     HaveRemotePrAnswer,
+
+    /// [RTCSignalingState.closed][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-closed
     Closed,
 }
 
@@ -89,14 +152,44 @@ impl From<sys::SignalingState> for SignalingState {
     }
 }
 
+/// [RTCIceConnectionState][1] representation.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum IceConnectionState {
+    /// [RTCIceConnectionState.new][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-new
     New,
+
+    /// [RTCIceConnectionState.checking][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-checking
     Checking,
+
+    /// [RTCIceConnectionState.connected][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-connected
     Connected,
+
+    /// [RTCIceConnectionState.completed][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-completed
     Completed,
+
+    /// [RTCIceConnectionState.failed][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-failed
     Failed,
+
+    /// [RTCIceConnectionState.disconnected][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-disconnected
     Disconnected,
+
+    /// [RTCIceConnectionState.closed][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-closed
     Closed,
 }
 
@@ -331,6 +424,7 @@ pub struct RtcSessionDescription {
 }
 
 impl RtcSessionDescription {
+    /// Creates a new [`RtcSessionDescription`].
     pub fn new(sdp: String, kind: sys::SdpType) -> Self {
         Self {
             sdp,
@@ -808,6 +902,7 @@ pub fn get_media(
     WEBRTC.lock().unwrap().get_media(constraints)
 }
 
+/// Sets the specified `audio playuot` device.
 pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
 }
@@ -824,6 +919,7 @@ pub fn set_track_enabled(track_id: u64, enabled: bool) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_track_enabled(track_id, enabled)
 }
 
+/// Clones the specified [`MediaStreamTrack`].
 pub fn clone_track(track_id: u64) -> anyhow::Result<MediaStreamTrack> {
     WEBRTC.lock().unwrap().clone_track(track_id)
 }

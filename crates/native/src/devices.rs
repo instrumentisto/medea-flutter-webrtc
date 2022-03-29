@@ -1,15 +1,13 @@
+#[cfg(windows)]
+use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 use std::{
     ptr,
     sync::atomic::{AtomicPtr, Ordering},
 };
 
-#[cfg(windows)]
-use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
-
 use anyhow::anyhow;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
-
 #[cfg(windows)]
 use winapi::{
     shared::{
@@ -215,6 +213,16 @@ impl Webrtc {
         Ok(None)
     }
 
+    /// Returns an index of the specific audio input device identified by the
+    /// provided [`AudioDeviceId`].
+    ///
+    /// # Errors
+    ///
+    /// Whenever [`AudioDeviceModule::playout_devices()`][1] or
+    /// [`AudioDeviceModule::playout_device_name()`][2] returns an error.
+    ///
+    /// [1]: libwebrtc_sys::AudioDeviceModule::playout_devices
+    /// [2]: libwebrtc_sys::AudioDeviceModule::playout_device_name
     pub fn get_index_of_audio_playout_device(
         &mut self,
         device_id: &AudioDeviceId,
@@ -231,6 +239,7 @@ impl Webrtc {
         Ok(None)
     }
 
+    /// Sets the specified `audio playuot` device.
     pub fn set_audio_playout_device(
         &mut self,
         device_id: String,
@@ -363,8 +372,6 @@ pub unsafe fn init() {
             DispatchMessageW(&msg);
         }
     });
-
-    Ok(())
 }
 
 #[cfg(target_os = "linux")]
