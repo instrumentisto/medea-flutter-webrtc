@@ -15,13 +15,13 @@ lazy_static::lazy_static! {
 /// Indicates current state of [`MediaStreamTrack`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackEvent {
-    /// The ended event of the [`MediaStreamTrack`] interface is fired when playback
-    /// or streaming has stopped because the end of the media was reached
-    /// or because no further data is available.
+    /// The ended event of the [`MediaStreamTrack`] interface is fired when
+    /// playback or streaming has stopped because the end of the media was
+    /// reached or because no further data is available.
     Ended,
 }
 
-/// [RTCIceGatheringState][1] representation.
+/// [`RTCIceGatheringState`][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -100,7 +100,7 @@ pub enum PeerConnectionEvent {
     Track(RtcTrackEvent),
 }
 
-/// [RTCSignalingState] representation.
+/// [`RTCSignalingState`] representation.
 ///
 /// [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -152,7 +152,7 @@ impl From<sys::SignalingState> for SignalingState {
     }
 }
 
-/// [RTCIceConnectionState][1] representation.
+/// [`RTCIceConnectionState`][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

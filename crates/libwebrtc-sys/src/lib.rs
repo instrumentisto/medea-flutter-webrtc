@@ -559,6 +559,7 @@ impl SetRemoteDescriptionObserver {
 /// [media stream "identification-tag"][1].
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct RtpTransceiverInterface {
     /// Pointer to the C++ side [`RtpTransceiverInterface`] object.
     ///
@@ -649,6 +650,7 @@ unsafe impl Sync for RtpTransceiverInterface {}
 ///
 /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct RtpSenderInterface(UniquePtr<webrtc::RtpSenderInterface>);
 
 impl RtpSenderInterface {
@@ -697,6 +699,7 @@ unsafe impl Sync for RtpSenderInterface {}
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct RtpReceiverInterface(UniquePtr<webrtc::RtpReceiverInterface>);
 
 impl RtpReceiverInterface {
@@ -996,6 +999,7 @@ impl IceCandidateInterface {
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [2]: https://webrtc.github.io/webrtc-org/native-code/native-apis
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct PeerConnectionInterface {
     /// Pointer to the C++ side [`PeerConnectionInterface`] object.
     ///
@@ -1145,6 +1149,7 @@ impl Thread {
 /// [`AudioSourceInterface`], tracks ([`VideoTrackInterface`],
 /// [`AudioTrackInterface`]), [`MediaStreamInterface`] and the
 /// `PeerConnection`s.
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct PeerConnectionFactoryInterface(
     UniquePtr<webrtc::PeerConnectionFactoryInterface>,
 );
@@ -1285,6 +1290,7 @@ unsafe impl Sync for PeerConnectionFactoryInterface {}
 ///
 /// It can be later used to create a [`VideoTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_video_track()`].
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct VideoTrackSourceInterface(
     UniquePtr<webrtc::VideoTrackSourceInterface>,
 );
@@ -1434,6 +1440,7 @@ impl TrackEventObserver {
 /// Video [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct VideoTrackInterface {
     /// Pointer to the C++ side `VideoTrackInterface` object.
     inner: UniquePtr<webrtc::VideoTrackInterface>,
@@ -1525,6 +1532,7 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct AudioTrackInterface {
     /// Pointer to the C++ side `AudioTrackInterface` object.
     inner: UniquePtr<webrtc::AudioTrackInterface>,
@@ -1601,6 +1609,7 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
 /// [`MediaStreamInterface`][1] representation.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastream
+#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct MediaStreamInterface(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl MediaStreamInterface {

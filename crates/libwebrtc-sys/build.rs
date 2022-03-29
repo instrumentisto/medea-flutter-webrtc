@@ -174,7 +174,7 @@ fn link_libs() {
             "wmcodecdspuuid",
         ];
 
-        for &dep in deps.iter() {
+        for &dep in &deps {
             println!("cargo:rustc-link-lib=dylib={dep}");
         }
 
