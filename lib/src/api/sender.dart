@@ -5,10 +5,12 @@ import 'channel.dart';
 import 'peer.dart';
 
 abstract class RtpSender {
+  /// Create a new [RtpSender] from channel result.
   static RtpSender fromMap(dynamic map) {
     return _RtpSenderChannel.fromMap(map);
   }
 
+  /// Create a new [RtpSender] from FFI result.
   static RtpSender fromFFI(int peerId, int transceiverId) {
     return _RtpSenderFFI(peerId, transceiverId);
   }
@@ -32,7 +34,6 @@ class _RtpSenderChannel extends RtpSender {
   /// [MethodChannel] used for the messaging with the native side.
   late MethodChannel _chan;
 
-  /// Replaces [MediaStreamTrack] of this [RtpSender].
   @override
   Future<void> replaceTrack(MediaStreamTrack? t) async {
     _track = t;
@@ -41,7 +42,10 @@ class _RtpSenderChannel extends RtpSender {
 }
 
 class _RtpSenderFFI extends RtpSender {
+  /// `Id` of the native `PeerConnection`.
   final int _peerId;
+
+  /// `Id` of the native `Transceiver`.
   final int _transceiverId;
 
   _RtpSenderFFI(this._peerId, this._transceiverId);

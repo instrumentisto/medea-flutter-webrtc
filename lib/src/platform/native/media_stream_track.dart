@@ -124,6 +124,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   late int _handleId;
 
+  /// Indicates whether ths [NativeMediaStreamTrack] is `stopped`.
   bool _stopped = false;
 
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {

@@ -18,6 +18,7 @@ const defaultFrameRate = 30;
 /// Shortcut for the `on_device_change` callback.
 typedef OnDeviceChangeCallback = void Function();
 
+/// Singleton for listening changing devices.
 class DeviceHandler {
   static final DeviceHandler _instance = DeviceHandler._internal();
   OnDeviceChangeCallback? _handler;
@@ -33,14 +34,16 @@ class DeviceHandler {
   void _listen() async {
     if (isDesktop) {
       api.setOnDeviceChanged().listen(
-            (event) {
+        (event) {
           if (_handler != null) {
             _handler!();
           }
         },
       );
     } else {
-      eventChannel('MediaDevicesEvent', 0).receiveBroadcastStream().listen((event) {
+      eventChannel('MediaDevicesEvent', 0)
+          .receiveBroadcastStream()
+          .listen((event) {
         final dynamic e = event;
         switch (e['event']) {
           case 'onDeviceChange':
@@ -85,12 +88,14 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
   }
 }
 
+/// Channel implementation of [enumerateDevices].
 Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
   return (await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices'))
       .map((i) => MediaDeviceInfo.fromMap(i))
       .toList();
 }
 
+/// FFI implementation of [enumerateDevices].
 Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
   return (await api.enumerateDevices())
       .map((e) => MediaDeviceInfo.fromFFI(e))
@@ -108,6 +113,7 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
   }
 }
 
+/// Channel implementation of [getUserMedia].
 Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
     DeviceConstraints constraints) async {
   try {
@@ -123,6 +129,7 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
   }
 }
 
+/// FFI implementation of [getUserMedia].
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
   var audioConstraints = constraints.audio.mandatory != null
@@ -157,6 +164,7 @@ Future<List<NativeMediaStreamTrack>> getDisplayMedia(
   }
 }
 
+/// Channel implementation of [getDisplayMedia].
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
     DisplayConstraints constraints) async {
   List<dynamic> res = await _mediaDevicesMethodChannel
@@ -164,6 +172,7 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
   return res.map((t) => NativeMediaStreamTrack.from(t)).toList();
 }
 
+/// FFI implementation of [getDisplayMedia].
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
   var audioConstraints = constraints.audio.mandatory != null
@@ -174,7 +183,8 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? defaultDisplayMediaHeight,
+          height:
+              constraints.video.mandatory?.height ?? defaultDisplayMediaHeight,
           width: constraints.video.mandatory?.width ?? defaultDisplayMediaWidth,
           frameRate: constraints.video.mandatory?.fps ?? defaultFrameRate,
           isDisplay: true)
@@ -198,11 +208,13 @@ Future<void> setOutputAudioId(String deviceId) async {
   }
 }
 
+/// Channel implementation of [setOutputAudioId].
 Future<void> _setOutputAudioIdChannel(String deviceId) async {
   await _mediaDevicesMethodChannel
       .invokeMethod('setOutputAudioId', {'deviceId': deviceId});
 }
 
+/// FFI implementation of [setOutputAudioId].
 Future<void> _setOutputAudioIdFFI(String deviceId) async {
   await api.setAudioPlayoutDevice(deviceId: deviceId);
 }

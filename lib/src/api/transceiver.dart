@@ -74,29 +74,22 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   /// [MethodChannel] used for the messaging with the native side.
   late MethodChannel _chan;
 
-  /// Changes the [TransceiverDirection] of this [RtpTransceiver].
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
     await _chan.invokeMethod('setDirection', {'direction': direction.index});
   }
 
-  /// Returns current preferred [TransceiverDirection] of this [RtpTransceiver].
   @override
   Future<TransceiverDirection> getDirection() async {
     return TransceiverDirection
         .values[await _chan.invokeMethod('getDirection')];
   }
 
-  /// Synchronizes [_mid] of this [RtpTransceiver] with the native side.
   @override
   Future<void> syncMid() async {
     _mid = await _chan.invokeMethod('getMid');
   }
 
-  /// Stops this [RtpTransceiver].
-  ///
-  /// After this action, no media will be transferred from/to this
-  /// [RtpTransceiver].
   @override
   Future<void> stop() async {
     _isStopped = true;
@@ -112,9 +105,13 @@ class RtpTransceiverFFI extends RtpTransceiver {
     _mid = transceiver.mid;
   }
 
+  /// `Id` of the native `PeerConnection`.
   late final int _peerId;
+
+  /// `Id` of the native `Transceiver`.
   late final int _id;
 
+  /// Returns the `Id` of the native `PeerConnection`.
   int get id => _id;
 
   @override
