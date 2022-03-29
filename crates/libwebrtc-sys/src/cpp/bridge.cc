@@ -33,20 +33,19 @@ void TrackEventObserver::set_track(
   track_ = track;
 }
 
-// Calls `AudioDeviceModule->Create()`.
+// Creates `WrapAudioDeviceModuleProxy`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     Thread& sign_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
 
-  webrtc::AudioDeviceModule_Interface* adm = new webrtc::AudioDeviceModule_();
-  auto adm_proxy = webrtc::AudioDeviceModule_Proxy::Create(
+  webrtc::WrapAudioDeviceModuleInterface* adm = new webrtc::WrapAudioDeviceModule();
+  auto adm_proxy = webrtc::WrapAudioDeviceModuleProxy::Create(
       &worker_thread,
       &sign_thread,
       adm);
-
-  adm_proxy->init_(audio_layer, &task_queue_factory);
+  adm_proxy->create_local_adm(audio_layer, &task_queue_factory);
 
   rtc::scoped_refptr<webrtc::AudioDeviceModule> result =
       static_cast<rtc::scoped_refptr<webrtc::AudioDeviceModule>>(adm_proxy);

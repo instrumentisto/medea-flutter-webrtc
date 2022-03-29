@@ -93,9 +93,6 @@ impl Webrtc {
             Some(&audio_device_module.inner),
         );
 
-        // let create_result = audio_device_module
-        //     .create_peer_connection_factory()
-        //     .unwrap();
         let video_device_info = VideoDeviceInfo::create().unwrap();
         Ok(Webrtc {
             task_queue_factory,
