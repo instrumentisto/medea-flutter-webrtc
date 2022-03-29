@@ -1,0 +1,28 @@
+^C:\USERS\USER\DESKTOP\FLUTTER-WEBRTC\EXAMPLE\BUILD\WINDOWS\CMAKEFILES\4A0EFDCBC20917F3F7E049AE298FE885\FLUTTER_WINDOWS.DLL.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E env FLUTTER_ROOT=C:\flutter PROJECT_DIR=C:\Users\User\Desktop\flutter-webrtc\example FLUTTER_ROOT=C:\flutter FLUTTER_EPHEMERAL_DIR=C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral PROJECT_DIR=C:\Users\User\Desktop\flutter-webrtc\example FLUTTER_TARGET=C:\Users\User\Desktop\flutter-webrtc\example\lib\main.dart DART_DEFINES=RkxVVFRFUl9XRUJfQVVUT19ERVRFQ1Q9dHJ1ZQ== DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=C:\Users\User\Desktop\flutter-webrtc\example\.dart_tool\package_config.json C:/flutter/packages/flutter_tools/bin/tool_backend.bat windows-x64 Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\USER\DESKTOP\FLUTTER-WEBRTC\EXAMPLE\BUILD\WINDOWS\CMAKEFILES\641C29895594C0AA54E633AC789C268E\FLUTTER_ASSEMBLE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\USER\DESKTOP\FLUTTER-WEBRTC\EXAMPLE\WINDOWS\FLUTTER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/User/Desktop/flutter-webrtc/example/windows -BC:/Users/User/Desktop/flutter-webrtc/example/build/windows --check-stamp-file C:/Users/User/Desktop/flutter-webrtc/example/build/windows/flutter/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -11,7 +11,7 @@ import '../../api/peer.dart';
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     return _NativeVideoRendererFFI();
   } else {
     return _NativeVideoRendererChannel();
@@ -147,7 +147,7 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
       throw 'Renderer should be initialize before setting src';
     }
     if (track != null && track.kind() != MediaKind.video) {
-      throw 'VideoRenderer do not supports MediaStreamTrack with video kind!';
+      throw 'VideoRenderer do not supports MediaStreamTrack with audio kind!';
     }
 
     _srcObject = track;

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\User\Desktop\flutter-webrtc\example\build\windows\CMakeFiles\b03fdb4667e4b2a00cc477b49b22f48a\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{FB764990-DE7D-3997-BC81-66BB742B8A1B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

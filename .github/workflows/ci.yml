@@ -1,5 +1,5 @@
 name: CI
-# TODO(alexlapa): add dartfmt and dartanalyze
+
 on:
   push:
     branches: ["windows-rework"]
@@ -11,7 +11,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: 2.8.1
+  FLUTTER_VERSION: 2.10
+  FLUTTER_CHANNEL: stable
+  KTFMT_VERSION: 0.33
   RUST_BACKTRACE: 1
 
 jobs:
@@ -32,6 +34,19 @@ jobs:
           components: clippy
       - run: make cargo.lint
 
+  dartanalyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+
+      - run: flutter pub get
+
+      - run: flutter analyze
+
   rustfmt:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
@@ -45,8 +60,35 @@ jobs:
 
       - run: make cargo.fmt check=yes
 
+  dartfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
 
+      - run: flutter format lib/ test/ --set-exit-if-changed
 
+      - run: flutter pub get
+
+      - run: flutter pub run import_sorter:main --no-comments --exit-if-changed
+
+  ktfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install ktfmt
+        run: wget -O ktfmt.jar https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/${{ env.KTFMT_VERSION }}/ktfmt-${{ env.KTFMT_VERSION }}-jar-with-dependencies.jar
+
+      - name: Check ktfmt
+        run: java -jar ktfmt.jar --set-exit-if-changed android/src/main/kotlin/
 
   ############
   # Building #

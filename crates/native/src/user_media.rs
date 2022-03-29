@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use anyhow::bail;
 use dashmap::mapref::one::RefMut;
@@ -39,7 +42,11 @@ impl Webrtc {
 
     /// Disposes the [`MediaStream`] and all the contained tracks in it.
     pub fn dispose_track(&mut self, track_id: u64) {
+        let senders;
+
         if let Some((_, track)) = self.video_tracks.remove(&VideoTrackId::from(track_id)) {
+            senders = track.senders;
+
             if let MediaTrackSource::Local(src) = track.source {
                 if Arc::strong_count(&src) == 2 {
                     self.video_sources.remove(&src.device_id);
@@ -48,12 +55,22 @@ impl Webrtc {
         } else if let Some((_, track)) =
             self.audio_tracks.remove(&AudioTrackId::from(track_id))
         {
+            senders = track.senders;
+
             if let MediaTrackSource::Local(src) = track.source {
                 if Arc::strong_count(&src) == 2 {
                     self.audio_source.take();
                     // TODO: We should make `AudioDeviceModule` to stop
                     //       recording.
                 };
+            }
+        } else {
+            return;
+        }
+
+        for peer in senders {
+            for transceiver_index in peer.1 {
+                self.sender_replace_track(peer.0.into(), transceiver_index, None);
             }
         }
     }
@@ -175,6 +192,7 @@ impl Webrtc {
             AudioLabel(
                 #[allow(clippy::cast_possible_wrap)]
                 self.audio_device_module
+                    .inner
                     .recording_device_name(device_index as i16)?
                     .0,
             ),
@@ -196,11 +214,11 @@ impl Webrtc {
             if self.audio_device_module.current_device_id.is_none() {
                 // `AudioDeviceModule` is not capturing anything at the moment,
                 // so we will use first available device (with `0` index).
-                if self.audio_device_module.recording_devices()? < 1 {
+                if self.audio_device_module.inner.recording_devices()? < 1 {
                     bail!("Could not find any available audio input device");
                 }
 
-                AudioDeviceId(self.audio_device_module.recording_device_name(0)?.1)
+                AudioDeviceId(self.audio_device_module.inner.recording_device_name(0)?.1)
             } else {
                 // PANIC: If there is a `sys::AudioSourceInterface` then we are
                 //        sure that `current_device_id` is set in the
@@ -261,7 +279,7 @@ impl Webrtc {
         if self.video_tracks.contains_key(&VideoTrackId(id)) {
             let source = match &self.video_tracks.get(&VideoTrackId(id)).unwrap().source {
                 MediaTrackSource::Local(source) => {
-                    MediaTrackSource::Local(Arc::clone(&source))
+                    MediaTrackSource::Local(Arc::clone(source))
                 }
                 MediaTrackSource::Remote { mid, peer_id } => MediaTrackSource::Remote {
                     mid: mid.to_string(),
@@ -276,24 +294,26 @@ impl Webrtc {
                 MediaTrackSource::Remote { mid, peer_id } => {
                     let peer = self.peer_connections.get(&peer_id).unwrap();
 
-                    let mut transceivers = peer.0.lock().unwrap().get_transceivers();
+                    let mut transceivers = peer.get_transceivers();
 
                     transceivers.retain(|transceiver| transceiver.mid().unwrap() == mid);
 
-                    if transceivers.len() > 0 {
-                        let track =
-                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), peer_id);
-
-                        Ok(api::MediaStreamTrack::from(&track))
-                    } else {
-                        bail!("No `transceiver` has been found with this `mid: {mid}`.");
+                    if transceivers.is_empty() {
+                        bail!(
+                            "No `transceiver` has been found with this \
+                            `mid: {mid}`."
+                        );
                     }
+                    let track =
+                        VideoTrack::wrap_remote(transceivers.get(0).unwrap(), peer_id);
+
+                    Ok(api::MediaStreamTrack::from(&track))
                 }
             }
         } else if self.audio_tracks.contains_key(&AudioTrackId(id)) {
             let source = match &self.audio_tracks.get(&AudioTrackId(id)).unwrap().source {
                 MediaTrackSource::Local(source) => {
-                    MediaTrackSource::Local(Arc::clone(&source))
+                    MediaTrackSource::Local(Arc::clone(source))
                 }
                 MediaTrackSource::Remote { mid, peer_id } => MediaTrackSource::Remote {
                     mid: mid.to_string(),
@@ -308,18 +328,20 @@ impl Webrtc {
                 MediaTrackSource::Remote { mid, peer_id } => {
                     let peer = self.peer_connections.get(&peer_id).unwrap();
 
-                    let mut transceivers = peer.0.lock().unwrap().get_transceivers();
+                    let mut transceivers = peer.get_transceivers();
 
                     transceivers.retain(|transceiver| transceiver.mid().unwrap() == mid);
 
-                    if transceivers.len() > 0 {
-                        let track =
-                            VideoTrack::wrap_remote(transceivers.get(0).unwrap(), peer_id);
-
-                        Ok(api::MediaStreamTrack::from(&track))
-                    } else {
-                        bail!("No `transceiver` has been found with this `mid: {mid}`.");
+                    if transceivers.is_empty() {
+                        bail!(
+                            "No `transceiver` has been found with this \
+                            `mid: {mid}`."
+                        );
                     }
+                    let track =
+                        VideoTrack::wrap_remote(transceivers.get(0).unwrap(), peer_id);
+
+                    Ok(api::MediaStreamTrack::from(&track))
                 }
             }
         } else {
@@ -450,6 +472,11 @@ impl AudioDeviceModule {
         result
     }
 
+    /// Changes the playout device for this [`AudioDeviceModule`].
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::set_playout_device()`] fails.
     pub fn set_playout_device(
         &mut self,
         id: AudioDeviceId,
@@ -516,6 +543,8 @@ pub struct VideoTrack {
 
     /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
+
+    senders: HashMap<PeerConnectionId, HashSet<u64>>,
 }
 
 impl VideoTrack {
@@ -533,6 +562,7 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             label,
             sinks: Vec::new(),
+            senders: HashMap::new(),
         })
     }
 
@@ -553,9 +583,10 @@ impl VideoTrack {
                 mid: transceiver.mid().unwrap(),
                 peer_id,
             },
-            kind: api::MediaType::Audio,
+            kind: api::MediaType::Video,
             label: VideoLabel::from("remote"),
             sinks: Vec::new(),
+            senders: HashMap::new(),
         }
     }
 
@@ -583,6 +614,10 @@ impl VideoTrack {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
+    }
+
+    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u64>> {
+        &mut self.senders
     }
 }
 
@@ -616,6 +651,8 @@ pub struct AudioTrack {
     /// [`AudioLabel`] identifying the track source, as in "internal
     /// microphone".
     label: AudioLabel,
+
+    senders: HashMap<PeerConnectionId, HashSet<u64>>,
 }
 
 impl AudioTrack {
@@ -637,6 +674,7 @@ impl AudioTrack {
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Audio,
             label,
+            senders: HashMap::new(),
         })
     }
 
@@ -659,6 +697,7 @@ impl AudioTrack {
             },
             kind: api::MediaType::Audio,
             label: AudioLabel::from("remote"),
+            senders: HashMap::new(),
         }
     }
 
@@ -674,6 +713,10 @@ impl AudioTrack {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
+    }
+
+    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u64>> {
+        &mut self.senders
     }
 }
 

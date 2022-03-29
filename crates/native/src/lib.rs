@@ -1,5 +1,11 @@
 #![warn(clippy::pedantic)]
 mod api;
+#[allow(
+    clippy::wildcard_imports,
+    clippy::semicolon_if_nothing_returned,
+    clippy::default_trait_access,
+    clippy::let_underscore_drop)
+]
 #[rustfmt::skip]
 mod bridge_generated;
 mod cpp_api;
@@ -18,8 +24,8 @@ use std::{
 
 use dashmap::DashMap;
 use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface, TaskQueueFactory,
-    Thread, VideoDeviceInfo,
+    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
+    TaskQueueFactory, Thread, VideoDeviceInfo,
 };
 use threadpool::ThreadPool;
 
@@ -29,8 +35,8 @@ use crate::video_sink::Id as VideoSinkId;
 pub use crate::{
     pc::{PeerConnection, PeerConnectionId},
     user_media::{
-        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStreamId,
-        VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
+        MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
     },
     video_sink::{Frame, VideoSink},
 };
@@ -57,9 +63,6 @@ struct Webrtc {
     task_queue_factory: TaskQueueFactory,
     audio_device_module: AudioDeviceModule,
     worker_thread: Thread,
-    // TODO(alexlapa): recheck whether do we really need to create network
-    //                 thread manually
-    network_thread: Thread,
     signaling_thread: Thread,
 
     /// [`ThreadPool`] used to offload blocking or CPU-intensive tasks, so they
@@ -69,39 +72,38 @@ struct Webrtc {
 
 impl Webrtc {
     fn new() -> anyhow::Result<Self> {
-        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
+        let mut task_queue_factory =
+            TaskQueueFactory::create_default_task_queue_factory();
 
-        let mut wt = Thread::create(false).unwrap();
-        wt.start().unwrap();
-        let mut st = Thread::create(false).unwrap();
-        st.start().unwrap();
-        let mut nt = Thread::create(true).unwrap();
-        nt.start().unwrap();
+        let mut worker_thread = Thread::create(false)?;
+        worker_thread.start()?;
+
+        let mut signaling_thread = Thread::create(false)?;
+        signaling_thread.start()?;
 
         let audio_device_module = AudioDeviceModule::new(
-            &mut wt,
-            &mut st,
+            &mut worker_thread,
+            &mut signaling_thread,
             AudioLayer::kPlatformDefaultAudio,
             &mut task_queue_factory,
-        )
-        .unwrap();
+        )?;
 
-        let pcf = PeerConnectionFactoryInterface::create(
-            Some(&nt),
-            Some(&wt),
-            Some(&st),
+        let peer_connection_factory = PeerConnectionFactoryInterface::create(
+            None,
+            Some(&worker_thread),
+            Some(&signaling_thread),
             Some(&audio_device_module.inner),
-        );
+        )?;
 
-        let video_device_info = VideoDeviceInfo::create().unwrap();
-        Ok(Webrtc {
+        let video_device_info = VideoDeviceInfo::create()?;
+
+        Ok(Self {
             task_queue_factory,
-            network_thread: nt,
-            worker_thread: wt,
-            signaling_thread: st,
+            worker_thread,
+            signaling_thread,
             audio_device_module,
             video_device_info,
-            peer_connection_factory: pcf.unwrap(),
+            peer_connection_factory,
             video_sources: HashMap::new(),
             video_tracks: Arc::new(DashMap::new()),
             audio_source: None,

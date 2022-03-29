@@ -23,7 +23,7 @@ abstract class FlutterWebrtcNative {
   ///
   /// Writes an error to the provided `err`, if any.
   Stream<PeerConnectionEvent> createPeerConnection(
-      {required RtcConfiguration configuration, required int id, dynamic hint});
+      {required RtcConfiguration configuration, dynamic hint});
 
   /// Initiates the creation of a SDP offer for the purpose of starting
   /// a new WebRTC connection to a remote peer.
@@ -241,21 +241,23 @@ enum IceGatheringState {
 /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy
 /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
 enum IceTransportsType {
+  /// [RTCIceTransportPolicy.all][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
+  All,
+
   /// [RTCIceTransportPolicy.relay][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
   Relay,
 
-  /// ICE Agent can't use `typ host` candidates when this value is
-  /// specified.
+  /// ICE Agent can't use `typ host` candidates when this value is specified.
   ///
   /// Non-spec-compliant variant.
   NoHost,
 
-  /// [RTCIceTransportPolicy.all][1] representation.
-  ///
-  /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
-  All,
+  /// No ICE candidate offered.
+  None,
 }
 
 /// Information describing a single media input or output device.
@@ -278,8 +280,13 @@ class MediaDeviceInfo {
 
 /// Possible kinds of media devices.
 enum MediaDeviceKind {
+  /// Audio input device (for example, a microphone).
   AudioInput,
+
+  /// Audio output device (for example, a pair of headphones).
   AudioOutput,
+
+  /// Video input device (for example, a webcam).
   VideoInput,
 }
 
@@ -327,49 +334,80 @@ class MediaStreamTrack {
   });
 }
 
+/// Possible media types of a [`MediaStreamTrack`].
 enum MediaType {
+  /// Audio [`MediaStreamTrack`].
   Audio,
+
+  /// Video [`MediaStreamTrack`].
   Video,
 }
 
 @freezed
 class PeerConnectionEvent with _$PeerConnectionEvent {
+  const factory PeerConnectionEvent.peerCreated({
+    required int id,
+  }) = PeerCreated;
   const factory PeerConnectionEvent.onIceCandidate({
     required String sdpMid,
     required int sdpMlineIndex,
     required String candidate,
   }) = OnIceCandidate;
-  const factory PeerConnectionEvent.onIceGatheringStateChange(
+  const factory PeerConnectionEvent.iceGatheringStateChange(
     IceGatheringState field0,
-  ) = OnIceGatheringStateChange;
-  const factory PeerConnectionEvent.onIceCandidateError({
+  ) = IceGatheringStateChange;
+  const factory PeerConnectionEvent.iceCandidateError({
     required String address,
     required int port,
     required String url,
     required int errorCode,
     required String errorText,
-  }) = OnIceCandidateError;
-  const factory PeerConnectionEvent.onNegotiationNeeded() = OnNegotiationNeeded;
-  const factory PeerConnectionEvent.onSignallingChange(
+  }) = IceCandidateError;
+  const factory PeerConnectionEvent.negotiationNeeded() = NegotiationNeeded;
+  const factory PeerConnectionEvent.signallingChange(
     SignalingState field0,
-  ) = OnSignallingChange;
-  const factory PeerConnectionEvent.onIceConnectionStateChange(
+  ) = SignallingChange;
+  const factory PeerConnectionEvent.iceConnectionStateChange(
     IceConnectionState field0,
-  ) = OnIceConnectionStateChange;
-  const factory PeerConnectionEvent.onConnectionStateChange(
+  ) = IceConnectionStateChange;
+  const factory PeerConnectionEvent.connectionStateChange(
     PeerConnectionState field0,
-  ) = OnConnectionStateChange;
-  const factory PeerConnectionEvent.onTrack(
+  ) = ConnectionStateChange;
+  const factory PeerConnectionEvent.track(
     RtcTrackEvent field0,
-  ) = OnTrack;
+  ) = Track;
 }
 
+/// Indicates the current state of a peer connection.
 enum PeerConnectionState {
+  /// At least one of the connection's ICE transports is in the new state,
+  /// and none of them are in one of the following states: `connecting`,
+  /// `checking`, `failed`, `disconnected`, or all of the connection's
+  /// transports are in the `closed` state.
   New,
+
+  /// One or more of the ICE transports are currently in the process of
+  /// establishing a connection. That is, their [`IceConnectionState`] is
+  /// either [`IceConnectionState::Checking`] or
+  /// [`IceConnectionState::Connected`], and no transports are in the
+  /// `failed` state.
   Connecting,
+
+  /// Every ICE transport used by the connection is either in use (state
+  /// `connected` or `completed`) or is closed (state `closed`). In addition,
+  /// at least one transport is either `connected` or `completed`.
   Connected,
+
+  /// At least one of the ICE transports for the connection is in the
+  /// `disconnected` state and none of the other transports are in the state
+  /// `failed`, `connecting` or `checking`.
   Disconnected,
+
+  /// One or more of the ICE transports on the connection is in the `failed`
+  /// state.
   Failed,
+
+  /// Peer connection is closed.
   Closed,
 }
 
@@ -469,8 +507,14 @@ class RtcRtpTransceiver {
   });
 }
 
+/// [RTCSessionDescription] representation.
+///
+/// [RTCSessionDescription]: https://w3.org/TR/webrtc#dom-rtcsessiondescription
 class RtcSessionDescription {
+  /// The string representation of the SDP.
   final String sdp;
+
+  /// The type of this session description.
   final SdpType kind;
 
   RtcSessionDescription({
@@ -502,10 +546,47 @@ class RtcTrackEvent {
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
 enum RtpTransceiverDirection {
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
+  /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+  /// [RTCRtpReceiver] will offer to receive RTP, and will receive RTP if the
+  /// remote peer accepts.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   SendRecv,
+
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
+  /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+  /// [RTCRtpReceiver] will not offer to receive RTP, and will not receive
+  /// RTP.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   SendOnly,
+
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
+  /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+  /// offer to receive RTP, and will receive RTP if the remote peer accepts.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   RecvOnly,
+
+  /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
+  /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+  /// not offer to receive RTP, and will not receive RTP.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   Inactive,
+
+  /// The [`RTCRtpTransceiver`] will neither send nor receive RTP. It will
+  /// generate a zero port in the offer. In answers, its [RTCRtpSender] will
+  /// not offer to send RTP, and its [RTCRtpReceiver] will not offer to
+  /// receive RTP. This is a terminal state.
+  ///
+  /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
   Stopped,
 }
 
@@ -563,6 +644,9 @@ class VideoConstraints {
 
   /// The exact frame rate (frames per second).
   final int frameRate;
+
+  /// Indicates whether the request video track should be acquired via
+  /// screen capturing.
   final bool isDisplay;
 
   VideoConstraints({
@@ -595,20 +679,16 @@ class FlutterWebrtcNativeImpl
       ));
 
   Stream<PeerConnectionEvent> createPeerConnection(
-          {required RtcConfiguration configuration,
-          required int id,
-          dynamic hint}) =>
+          {required RtcConfiguration configuration, dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_create_peer_connection(
-            port_,
-            _api2wire_box_autoadd_rtc_configuration(configuration),
-            _api2wire_u64(id)),
+            port_, _api2wire_box_autoadd_rtc_configuration(configuration)),
         parseSuccessData: _wire2api_peer_connection_event,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "create_peer_connection",
-          argNames: ["configuration", "id"],
+          argNames: ["configuration"],
         ),
-        argValues: [configuration, id],
+        argValues: [configuration],
         hint: hint,
       ));
 
@@ -1206,7 +1286,7 @@ RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
   return _wire2api_rtc_track_event(raw);
 }
 
-int _wire2api_i64(dynamic raw) {
+int _wire2api_i32(dynamic raw) {
   return raw as int;
 }
 
@@ -1268,39 +1348,43 @@ String? _wire2api_opt_String(dynamic raw) {
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
   switch (raw[0]) {
     case 0:
-      return OnIceCandidate(
-        sdpMid: _wire2api_String(raw[1]),
-        sdpMlineIndex: _wire2api_i64(raw[2]),
-        candidate: _wire2api_String(raw[3]),
+      return PeerCreated(
+        id: _wire2api_u64(raw[1]),
       );
     case 1:
-      return OnIceGatheringStateChange(
-        _wire2api_ice_gathering_state(raw[1]),
+      return OnIceCandidate(
+        sdpMid: _wire2api_String(raw[1]),
+        sdpMlineIndex: _wire2api_i32(raw[2]),
+        candidate: _wire2api_String(raw[3]),
       );
     case 2:
-      return OnIceCandidateError(
-        address: _wire2api_String(raw[1]),
-        port: _wire2api_i64(raw[2]),
-        url: _wire2api_String(raw[3]),
-        errorCode: _wire2api_i64(raw[4]),
-        errorText: _wire2api_String(raw[5]),
+      return IceGatheringStateChange(
+        _wire2api_ice_gathering_state(raw[1]),
       );
     case 3:
-      return OnNegotiationNeeded();
+      return IceCandidateError(
+        address: _wire2api_String(raw[1]),
+        port: _wire2api_i32(raw[2]),
+        url: _wire2api_String(raw[3]),
+        errorCode: _wire2api_i32(raw[4]),
+        errorText: _wire2api_String(raw[5]),
+      );
     case 4:
-      return OnSignallingChange(
+      return NegotiationNeeded();
+    case 5:
+      return SignallingChange(
         _wire2api_signaling_state(raw[1]),
       );
-    case 5:
-      return OnIceConnectionStateChange(
+    case 6:
+      return IceConnectionStateChange(
         _wire2api_ice_connection_state(raw[1]),
       );
-    case 6:
-      return OnConnectionStateChange(
+    case 7:
+      return ConnectionStateChange(
         _wire2api_peer_connection_state(raw[1]),
       );
-    case 7:
-      return OnTrack(
+    case 8:
+      return Track(
         _wire2api_box_autoadd_rtc_track_event(raw[1]),
       );
     default:
@@ -1415,22 +1499,20 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_create_peer_connection(
     int port_,
     ffi.Pointer<wire_RtcConfiguration> configuration,
-    int id,
   ) {
     return _wire_create_peer_connection(
       port_,
       configuration,
-      id,
     );
   }
 
   late final _wire_create_peer_connectionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_RtcConfiguration>,
-              ffi.Uint64)>>('wire_create_peer_connection');
-  late final _wire_create_peer_connection =
-      _wire_create_peer_connectionPtr.asFunction<
-          void Function(int, ffi.Pointer<wire_RtcConfiguration>, int)>();
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Int64, ffi.Pointer<wire_RtcConfiguration>)>>(
+      'wire_create_peer_connection');
+  late final _wire_create_peer_connection = _wire_create_peer_connectionPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_RtcConfiguration>)>();
 
   void wire_create_offer(
     int port_,

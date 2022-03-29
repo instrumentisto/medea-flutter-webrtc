@@ -7,8 +7,6 @@ use std::{
 
 use anyhow::anyhow;
 use dotenv::dotenv;
-#[cfg(linux)]
-use pkg_config;
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {

@@ -32,7 +32,6 @@ pub extern "C" fn wire_enumerate_devices(port_: i64) {
 pub extern "C" fn wire_create_peer_connection(
     port_: i64,
     configuration: *mut wire_RtcConfiguration,
-    id: u64,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -42,13 +41,8 @@ pub extern "C" fn wire_create_peer_connection(
         },
         move || {
             let api_configuration = configuration.wire2api();
-            let api_id = id.wire2api();
             move |task_callback| {
-                create_peer_connection(
-                    task_callback.stream_sink(),
-                    api_configuration,
-                    api_id,
-                )
+                create_peer_connection(task_callback.stream_sink(), api_configuration)
             }
         },
     )
@@ -353,7 +347,7 @@ pub extern "C" fn wire_dispose_peer_connection(port_: i64, peer_id: u64) {
         },
         move || {
             let api_peer_id = peer_id.wire2api();
-            move |task_callback| Ok(dispose_peer_connection(api_peer_id))
+            move |task_callback| dispose_peer_connection(api_peer_id)
         },
     )
 }
@@ -484,11 +478,7 @@ pub extern "C" fn wire_create_video_sink(
             let api_track_id = track_id.wire2api();
             let api_callback_ptr = callback_ptr.wire2api();
             move |task_callback| {
-                Ok(create_video_sink(
-                    api_sink_id,
-                    api_track_id,
-                    api_callback_ptr,
-                ))
+                create_video_sink(api_sink_id, api_track_id, api_callback_ptr)
             }
         },
     )
@@ -740,9 +730,10 @@ impl Wire2Api<i64> for i64 {
 impl Wire2Api<IceTransportsType> for i32 {
     fn wire2api(self) -> IceTransportsType {
         match self {
-            0 => IceTransportsType::Relay,
-            1 => IceTransportsType::NoHost,
-            2 => IceTransportsType::All,
+            0 => IceTransportsType::All,
+            1 => IceTransportsType::Relay,
+            2 => IceTransportsType::NoHost,
+            3 => IceTransportsType::None,
             _ => unreachable!("Invalid variant for IceTransportsType: {}", self),
         }
     }
@@ -999,40 +990,39 @@ impl support::IntoDart for MediaType {
 impl support::IntoDart for PeerConnectionEvent {
     fn into_dart(self) -> support::DartCObject {
         match self {
+            Self::PeerCreated { id } => vec![0.into_dart(), id.into_dart()],
             Self::OnIceCandidate {
                 sdp_mid,
                 sdp_mline_index,
                 candidate,
             } => vec![
-                0.into_dart(),
+                1.into_dart(),
                 sdp_mid.into_dart(),
                 sdp_mline_index.into_dart(),
                 candidate.into_dart(),
             ],
-            Self::OnIceGatheringStateChange(field0) => {
-                vec![1.into_dart(), field0.into_dart()]
-            }
-            Self::OnIceCandidateError {
+            Self::IceGatheringStateChange(field0) => vec![2.into_dart(), field0.into_dart()],
+            Self::IceCandidateError {
                 address,
                 port,
                 url,
                 error_code,
                 error_text,
             } => vec![
-                2.into_dart(),
+                3.into_dart(),
                 address.into_dart(),
                 port.into_dart(),
                 url.into_dart(),
                 error_code.into_dart(),
                 error_text.into_dart(),
             ],
-            Self::OnNegotiationNeeded => vec![3.into_dart()],
-            Self::OnSignallingChange(field0) => vec![4.into_dart(), field0.into_dart()],
-            Self::OnIceConnectionStateChange(field0) => {
-                vec![5.into_dart(), field0.into_dart()]
+            Self::NegotiationNeeded => vec![4.into_dart()],
+            Self::SignallingChange(field0) => vec![5.into_dart(), field0.into_dart()],
+            Self::IceConnectionStateChange(field0) => {
+                vec![6.into_dart(), field0.into_dart()]
             }
-            Self::OnConnectionStateChange(field0) => vec![6.into_dart(), field0.into_dart()],
-            Self::OnTrack(field0) => vec![7.into_dart(), field0.into_dart()],
+            Self::ConnectionStateChange(field0) => vec![7.into_dart(), field0.into_dart()],
+            Self::Track(field0) => vec![8.into_dart(), field0.into_dart()],
         }
         .into_dart()
     }

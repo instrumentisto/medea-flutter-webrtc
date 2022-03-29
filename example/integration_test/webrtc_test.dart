@@ -15,7 +15,7 @@ void main() {
     var trans = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-    expect(trans.mid, equals(null));
+    expect(trans.mid, isNull);
 
     var response = await pc.createOffer();
 
@@ -32,8 +32,8 @@ void main() {
 
     var before = await pc.getTransceivers();
 
-    expect(before[0].mid, equals(null));
-    expect(before[1].mid, equals(null));
+    expect(before[0].mid, isNull);
+    expect(before[1].mid, isNull);
 
     var offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
@@ -42,6 +42,8 @@ void main() {
 
     expect(after[0].mid, equals('0'));
     expect(after[1].mid, equals('1'));
+    expect(before[0].mid, equals('0'));
+    expect(before[1].mid, equals('1'));
   });
 
   testWidgets('Get transceiver direction', (WidgetTester tester) async {
@@ -96,7 +98,7 @@ void main() {
     var trans = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-    expect(trans.mid, equals(true));
+    expect(trans.mid, isNull);
 
     var sess = await pc.createOffer();
     await pc.setLocalDescription(sess);
@@ -115,7 +117,6 @@ void main() {
     pc2.onIceCandidate((candidate) async {
       await pc1.addIceCandidate(candidate);
     });
-
     await pc1.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
@@ -238,7 +239,7 @@ void main() {
     });
 
     await pc2.setRemoteDescription(await pc1.createOffer());
-    await (await pc2.transceivers)[0].stop();
+    await (await pc2.getTransceivers())[0].stop();
     await completer.future.timeout(Duration(seconds: 3));
   });
 }

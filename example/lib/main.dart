@@ -1,19 +1,13 @@
 import 'dart:core';
 
-import 'package:flutter/foundation.dart'
-    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
-import 'package:flutter_background/flutter_background.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-import 'src/renderer.dart';
-import 'src/create_peer_connection_sample.dart';
-import 'src/get_display_media_sample.dart';
-import 'src/get_sources_sample.dart';
-import 'src/get_user_media_sample.dart'
+import 'src/create_peer_connection.dart';
+import 'src/get_display_media.dart';
+import 'src/get_sources.dart';
+import 'src/get_user_media.dart'
     if (dart.library.html) 'src/get_user_media_sample_web.dart';
-import 'src/loopback_sample.dart';
-import 'src/renderer.dart';
+import 'src/loopback.dart';
 import 'src/on_device_change.dart';
 import 'src/route_item.dart';
 
@@ -88,7 +82,7 @@ class _MyAppState extends State<MyApp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => LoopBackSample()));
+                    builder: (BuildContext context) => Loopback()));
           }),
       RouteItem(
           title: 'getSources',
@@ -105,14 +99,6 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => PeerConnectionSample()));
-          }),
-      RouteItem(
-          title: 'Renderer sample',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => RendererSample()));
           }),
       RouteItem(
           title: 'onDeviceChange notifier',

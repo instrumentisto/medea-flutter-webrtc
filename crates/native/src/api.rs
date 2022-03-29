@@ -1,24 +1,26 @@
-use crate::{cpp_api, Webrtc};
-use anyhow::bail;
+// TODO(logist322): Check and add docs all over the Rust.
+// TODO(logist322): Check is refactor needed.
+
+use std::sync::Mutex;
+
 use cxx::UniquePtr;
-
 use flutter_rust_bridge::{StreamSink, SyncReturn};
-use libwebrtc_sys::{self as sys};
-use std::sync::{
-    mpsc::{self, Receiver, Sender},
-    Mutex,
-};
+use libwebrtc_sys as sys;
 
-static TIMEOUT: std::time::Duration = std::time::Duration::from_secs(1);
+use crate::{cpp_api, Webrtc};
+
+pub static TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackEvent {
     Ended,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum IceGatheringState {
     New,
     Gathering,
@@ -28,35 +30,40 @@ pub enum IceGatheringState {
 impl From<sys::IceGatheringState> for IceGatheringState {
     fn from(state: sys::IceGatheringState) -> Self {
         match state {
-            sys::IceGatheringState::kIceGatheringNew => IceGatheringState::New,
-            sys::IceGatheringState::kIceGatheringGathering => IceGatheringState::Gathering,
-            sys::IceGatheringState::kIceGatheringComplete => IceGatheringState::Complete,
+            sys::IceGatheringState::kIceGatheringNew => Self::New,
+            sys::IceGatheringState::kIceGatheringGathering => Self::Gathering,
+            sys::IceGatheringState::kIceGatheringComplete => Self::Complete,
             _ => unreachable!(),
         }
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum PeerConnectionEvent {
+    PeerCreated {
+        id: u64,
+    },
     OnIceCandidate {
         sdp_mid: String,
-        sdp_mline_index: i64,
+        sdp_mline_index: i32,
         candidate: String,
     },
-    OnIceGatheringStateChange(IceGatheringState),
-    OnIceCandidateError {
+    IceGatheringStateChange(IceGatheringState),
+    IceCandidateError {
         address: String,
-        port: i64,
+        port: i32,
         url: String,
-        error_code: i64,
+        error_code: i32,
         error_text: String,
     },
-    OnNegotiationNeeded,
-    OnSignallingChange(SignalingState),
-    OnIceConnectionStateChange(IceConnectionState),
-    OnConnectionStateChange(PeerConnectionState),
-    OnTrack(RtcTrackEvent),
+    NegotiationNeeded,
+    SignallingChange(SignalingState),
+    IceConnectionStateChange(IceConnectionState),
+    ConnectionStateChange(PeerConnectionState),
+    Track(RtcTrackEvent),
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SignalingState {
     Stable,
     HaveLocalOffer,
@@ -69,17 +76,18 @@ pub enum SignalingState {
 impl From<sys::SignalingState> for SignalingState {
     fn from(state: sys::SignalingState) -> Self {
         match state {
-            sys::SignalingState::kStable => SignalingState::Stable,
-            sys::SignalingState::kHaveLocalOffer => SignalingState::HaveLocalOffer,
-            sys::SignalingState::kHaveLocalPrAnswer => SignalingState::HaveLocalPrAnswer,
-            sys::SignalingState::kHaveRemoteOffer => SignalingState::HaveRemoteOffer,
-            sys::SignalingState::kHaveRemotePrAnswer => SignalingState::HaveRemotePrAnswer,
-            sys::SignalingState::kClosed => SignalingState::Closed,
+            sys::SignalingState::kStable => Self::Stable,
+            sys::SignalingState::kHaveLocalOffer => Self::HaveLocalOffer,
+            sys::SignalingState::kHaveLocalPrAnswer => Self::HaveLocalPrAnswer,
+            sys::SignalingState::kHaveRemoteOffer => Self::HaveRemoteOffer,
+            sys::SignalingState::kHaveRemotePrAnswer => Self::HaveRemotePrAnswer,
+            sys::SignalingState::kClosed => Self::Closed,
             _ => unreachable!(),
         }
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum IceConnectionState {
     New,
     Checking,
@@ -93,64 +101,125 @@ pub enum IceConnectionState {
 impl From<sys::IceConnectionState> for IceConnectionState {
     fn from(state: sys::IceConnectionState) -> Self {
         match state {
-            sys::IceConnectionState::kIceConnectionNew => IceConnectionState::New,
-            sys::IceConnectionState::kIceConnectionChecking => IceConnectionState::Checking,
-            sys::IceConnectionState::kIceConnectionConnected => {
-                IceConnectionState::Connected
-            }
-            sys::IceConnectionState::kIceConnectionCompleted => {
-                IceConnectionState::Completed
-            }
-            sys::IceConnectionState::kIceConnectionFailed => IceConnectionState::Failed,
-            sys::IceConnectionState::kIceConnectionDisconnected => {
-                IceConnectionState::Disconnected
-            }
-            sys::IceConnectionState::kIceConnectionClosed => IceConnectionState::Closed,
+            sys::IceConnectionState::kIceConnectionNew => Self::New,
+            sys::IceConnectionState::kIceConnectionChecking => Self::Checking,
+            sys::IceConnectionState::kIceConnectionConnected => Self::Connected,
+            sys::IceConnectionState::kIceConnectionCompleted => Self::Completed,
+            sys::IceConnectionState::kIceConnectionFailed => Self::Failed,
+            sys::IceConnectionState::kIceConnectionDisconnected => Self::Disconnected,
+            sys::IceConnectionState::kIceConnectionClosed => Self::Closed,
             _ => unreachable!(),
         }
     }
 }
 
+/// Indicates the current state of a peer connection.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PeerConnectionState {
+    /// At least one of the connection's ICE transports is in the new state,
+    /// and none of them are in one of the following states: `connecting`,
+    /// `checking`, `failed`, `disconnected`, or all of the connection's
+    /// transports are in the `closed` state.
     New,
+
+    /// One or more of the ICE transports are currently in the process of
+    /// establishing a connection. That is, their [`IceConnectionState`] is
+    /// either [`IceConnectionState::Checking`] or
+    /// [`IceConnectionState::Connected`], and no transports are in the
+    /// `failed` state.
     Connecting,
+
+    /// Every ICE transport used by the connection is either in use (state
+    /// `connected` or `completed`) or is closed (state `closed`). In addition,
+    /// at least one transport is either `connected` or `completed`.
     Connected,
+
+    /// At least one of the ICE transports for the connection is in the
+    /// `disconnected` state and none of the other transports are in the state
+    /// `failed`, `connecting` or `checking`.
     Disconnected,
+
+    /// One or more of the ICE transports on the connection is in the `failed`
+    /// state.
     Failed,
+
+    /// Peer connection is closed.
     Closed,
 }
 
 impl From<sys::PeerConnectionState> for PeerConnectionState {
     fn from(state: sys::PeerConnectionState) -> Self {
         match state {
-            sys::PeerConnectionState::kNew => PeerConnectionState::New,
-            sys::PeerConnectionState::kConnecting => PeerConnectionState::Connecting,
-            sys::PeerConnectionState::kConnected => PeerConnectionState::Connected,
-            sys::PeerConnectionState::kDisconnected => PeerConnectionState::Disconnected,
-            sys::PeerConnectionState::kFailed => PeerConnectionState::Failed,
-            sys::PeerConnectionState::kClosed => PeerConnectionState::Closed,
+            sys::PeerConnectionState::kNew => Self::New,
+            sys::PeerConnectionState::kConnecting => Self::Connecting,
+            sys::PeerConnectionState::kConnected => Self::Connected,
+            sys::PeerConnectionState::kDisconnected => Self::Disconnected,
+            sys::PeerConnectionState::kFailed => Self::Failed,
+            sys::PeerConnectionState::kClosed => Self::Closed,
             _ => unreachable!(),
         }
     }
 }
 
 /// Possible kinds of media devices.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MediaDeviceKind {
+    /// Audio input device (for example, a microphone).
     AudioInput,
+
+    /// Audio output device (for example, a pair of headphones).
     AudioOutput,
+
+    /// Video input device (for example, a webcam).
     VideoInput,
 }
 
 /// [RTCRtpTransceiverDirection][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RtpTransceiverDirection {
+    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
+    /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+    /// [RTCRtpReceiver] will offer to receive RTP, and will receive RTP if the
+    /// remote peer accepts.
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     SendRecv,
+
+    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
+    /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+    /// [RTCRtpReceiver] will not offer to receive RTP, and will not receive
+    /// RTP.
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     SendOnly,
+
+    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
+    /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+    /// offer to receive RTP, and will receive RTP if the remote peer accepts.
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     RecvOnly,
+
+    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
+    /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+    /// not offer to receive RTP, and will not receive RTP.
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     Inactive,
+
+    /// The [`RTCRtpTransceiver`] will neither send nor receive RTP. It will
+    /// generate a zero port in the offer. In answers, its [RTCRtpSender] will
+    /// not offer to send RTP, and its [RTCRtpReceiver] will not offer to
+    /// receive RTP. This is a terminal state.
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
     Stopped,
 }
 
@@ -179,9 +248,12 @@ impl From<RtpTransceiverDirection> for sys::RtpTransceiverDirection {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+/// Possible media types of a [`MediaStreamTrack`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MediaType {
+    /// Audio [`MediaStreamTrack`].
     Audio,
+    /// Video [`MediaStreamTrack`].
     Video,
 }
 
@@ -197,7 +269,7 @@ impl From<MediaType> for sys::MediaType {
 /// [RTCSdpType] representation.
 ///
 /// [RTCSdpType]: https://w3.org/TR/webrtc#dom-rtcsdptype
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SdpType {
     /// [RTCSdpType.offer][1] representation.
     ///
@@ -243,8 +315,14 @@ impl From<sys::SdpType> for SdpType {
     }
 }
 
+/// [RTCSessionDescription] representation.
+///
+/// [RTCSessionDescription]: https://w3.org/TR/webrtc#dom-rtcsessiondescription
+#[derive(Debug)]
 pub struct RtcSessionDescription {
+    /// The string representation of the SDP.
     pub sdp: String,
+    /// The type of this session description.
     pub kind: SdpType,
 }
 
@@ -273,6 +351,7 @@ pub struct MediaDeviceInfo {
 /// The [MediaStreamConstraints] is used to instruct what sort of
 /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
 /// [`Webrtc::get_users_media()`].
+#[derive(Debug)]
 pub struct MediaStreamConstraints {
     /// Specifies the nature and settings of the video [`MediaStreamTrack`].
     pub audio: Option<AudioConstraints>,
@@ -282,6 +361,7 @@ pub struct MediaStreamConstraints {
 
 /// Specifies the nature and settings of the video [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
+#[derive(Debug)]
 pub struct VideoConstraints {
     /// The identifier of the device generating the content of the
     /// [`MediaStreamTrack`]. First device will be chosen if empty
@@ -297,11 +377,14 @@ pub struct VideoConstraints {
     /// The exact frame rate (frames per second).
     pub frame_rate: u32,
 
+    /// Indicates whether the request video track should be acquired via
+    /// screen capturing.
     pub is_display: bool,
 }
 
 /// Specifies the nature and settings of the audio [`MediaStreamTrack`]
 /// returned by [`Webrtc::get_users_media()`].
+#[derive(Debug)]
 pub struct AudioConstraints {
     /// The identifier of the device generating the content of the
     /// [`MediaStreamTrack`]. First device will be chosen if empty
@@ -316,6 +399,7 @@ pub struct AudioConstraints {
 ///
 /// Typically, these are audio or video tracks, but other track types may
 /// exist as well.
+#[derive(Clone, Debug)]
 pub struct MediaStreamTrack {
     /// Unique identifier (GUID) for the track
     pub id: u64,
@@ -338,7 +422,7 @@ pub struct MediaStreamTrack {
 ///
 /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct RtcRtpTransceiver {
     /// ID of the [`PeerConnection`] that this [`RtcRtpTransceiver`] belongs to.
     pub peer_id: u64,
@@ -365,6 +449,7 @@ pub struct RtcRtpTransceiver {
 /// [`RtcTrackEvent`] representing a track event, sent when a new
 /// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] as part of a
 /// [`PeerConnection`].
+#[derive(Clone, Debug)]
 pub struct RtcTrackEvent {
     /// [`MediaStreamTrack`] associated with the [RTCRtpReceiver] identified
     /// by the receiver.
@@ -377,6 +462,7 @@ pub struct RtcTrackEvent {
 }
 
 /// [`PeerConnection`]'s configuration.
+#[derive(Debug)]
 pub struct RtcConfiguration {
     /// [iceTransportPolicy][1] configuration.
     ///
@@ -411,31 +497,34 @@ pub struct RtcConfiguration {
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy
 /// [2]: https://w3.org/TR/webrtc#dfn-ice-agent
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum IceTransportsType {
+    /// [RTCIceTransportPolicy.all][1] representation.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
+    All,
+
     /// [RTCIceTransportPolicy.relay][1] representation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
     Relay,
 
-    /// ICE Agent can't use `typ host` candidates when this value is
-    /// specified.
+    /// ICE Agent can't use `typ host` candidates when this value is specified.
     ///
     /// Non-spec-compliant variant.
     NoHost,
 
-    /// [RTCIceTransportPolicy.all][1] representation.
-    ///
-    /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
-    All,
+    /// No ICE candidate offered.
+    None,
 }
 
 impl From<IceTransportsType> for sys::IceTransportsType {
     fn from(kind: IceTransportsType) -> Self {
         match kind {
+            IceTransportsType::All => Self::kAll,
             IceTransportsType::Relay => Self::kRelay,
             IceTransportsType::NoHost => Self::kNoHost,
-            IceTransportsType::All => Self::kAll,
+            IceTransportsType::None => Self::kNone,
         }
     }
 }
@@ -448,8 +537,7 @@ impl From<IceTransportsType> for sys::IceTransportsType {
 /// onto the same transport.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
-#[derive(Debug, Eq, Hash, PartialEq)]
-#[repr(i32)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BundlePolicy {
     /// [RTCBundlePolicy.balanced][1] representation.
     ///
@@ -481,6 +569,7 @@ impl From<BundlePolicy> for sys::BundlePolicy {
 /// [ICE Agent][1] to establish a connection with a peer.
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-ice-agent
+#[derive(Debug)]
 pub struct RtcIceServer {
     /// STUN or TURN URI(s).
     pub urls: Vec<String>,
@@ -508,15 +597,15 @@ pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
 /// Creates a new [`PeerConnection`] and returns its ID.
 ///
 /// Writes an error to the provided `err`, if any.
+#[allow(clippy::needless_pass_by_value)]
 pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
     configuration: RtcConfiguration,
-    id: u64,
 ) -> anyhow::Result<()> {
     WEBRTC
         .lock()
         .unwrap()
-        .create_peer_connection(cb, configuration, id)
+        .create_peer_connection(&cb, configuration)
 }
 
 /// Initiates the creation of a SDP offer for the purpose of starting
@@ -530,20 +619,12 @@ pub fn create_offer(
     ice_restart: bool,
     use_rtp_mux: bool,
 ) -> anyhow::Result<RtcSessionDescription> {
-    let (tx, rx): (
-        Sender<anyhow::Result<RtcSessionDescription>>,
-        Receiver<anyhow::Result<RtcSessionDescription>>,
-    ) = mpsc::channel();
-
     WEBRTC.lock().unwrap().create_offer(
         peer_id,
         voice_activity_detection,
         ice_restart,
         use_rtp_mux,
-        tx,
-    )?;
-
-    rx.recv_timeout(TIMEOUT)?
+    )
 }
 
 /// Creates a SDP answer to an offer received from a remote peer during
@@ -557,20 +638,12 @@ pub fn create_answer(
     ice_restart: bool,
     use_rtp_mux: bool,
 ) -> anyhow::Result<RtcSessionDescription> {
-    let (tx, rx): (
-        Sender<anyhow::Result<RtcSessionDescription>>,
-        Receiver<anyhow::Result<RtcSessionDescription>>,
-    ) = mpsc::channel();
-
     WEBRTC.lock().unwrap().create_answer(
         peer_id,
         voice_activity_detection,
         ice_restart,
         use_rtp_mux,
-        tx,
-    )?;
-
-    rx.recv_timeout(TIMEOUT)?
+    )
 }
 
 /// Changes the local description associated with the connection.
@@ -582,15 +655,10 @@ pub fn set_local_description(
     kind: SdpType,
     sdp: String,
 ) -> anyhow::Result<()> {
-    let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
-        mpsc::channel();
-
     WEBRTC
         .lock()
         .unwrap()
-        .set_local_description(peer_id, kind.into(), sdp, tx)?;
-
-    rx.recv_timeout(TIMEOUT)?
+        .set_local_description(peer_id, kind.into(), sdp)
 }
 
 /// Sets the specified session description as the remote peer's current
@@ -603,15 +671,10 @@ pub fn set_remote_description(
     kind: SdpType,
     sdp: String,
 ) -> anyhow::Result<()> {
-    let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
-        mpsc::channel();
-
     WEBRTC
         .lock()
         .unwrap()
-        .set_remote_description(peer_id, kind.into(), sdp, tx)?;
-
-    rx.recv_timeout(TIMEOUT)?
+        .set_remote_description(peer_id, kind.into(), sdp)
 }
 
 /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of
@@ -700,24 +763,17 @@ pub fn sender_replace_track(
 }
 
 /// Adds the new ICE candidate to the given [`PeerConnection`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn add_ice_candidate(
     peer_id: u64,
     candidate: String,
     sdp_mid: String,
     sdp_mline_index: i32,
 ) -> anyhow::Result<()> {
-    let (tx, rx): (Sender<anyhow::Result<()>>, Receiver<anyhow::Result<()>>) =
-        mpsc::channel();
-
-    WEBRTC.lock().unwrap().add_ice_candidate(
-        peer_id,
-        &candidate,
-        &sdp_mid,
-        sdp_mline_index,
-        tx,
-    )?;
-
-    rx.recv_timeout(TIMEOUT).unwrap()
+    WEBRTC
+        .lock()
+        .unwrap()
+        .add_ice_candidate(peer_id, &candidate, &sdp_mid, sdp_mline_index)
 }
 
 /// Tells the [`PeerConnection`] that ICE should be restarted.
@@ -726,8 +782,8 @@ pub fn restart_ice(peer_id: u64) -> anyhow::Result<()> {
 }
 
 /// Closes the [`PeerConnection`].
-pub fn dispose_peer_connection(peer_id: u64) {
-    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id);
+pub fn dispose_peer_connection(peer_id: u64) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id)
 }
 
 /// Creates a [`MediaStream`] with tracks according to provided
@@ -772,65 +828,27 @@ pub fn register_track_observer(
 /// Only one callback can be set at a time, so the previous one will be
 /// dropped, if any.
 pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_on_device_changed(cb);
-    Ok(())
+    WEBRTC.lock().unwrap().set_on_device_changed(cb)
 }
 
 /// Creates a new [`VideoSink`] attached to the specified media stream
 /// backed by the provided [`OnFrameCallbackInterface`].
-pub fn create_video_sink(sink_id: i64, track_id: u64, callback_ptr: u64) {
+pub fn create_video_sink(
+    sink_id: i64,
+    track_id: u64,
+    callback_ptr: u64,
+) -> anyhow::Result<()> {
     let handler: *mut cpp_api::OnFrameCallbackInterface =
         unsafe { std::mem::transmute(callback_ptr) };
     let handler = unsafe { UniquePtr::from_raw(handler) };
     WEBRTC
         .lock()
         .unwrap()
-        .create_video_sink(sink_id, track_id, handler);
+        .create_video_sink(sink_id, track_id, handler)
 }
 
 /// Destroys the [`VideoSink`] by the given ID.
 pub fn dispose_video_sink(sink_id: i64) -> SyncReturn<Vec<u8>> {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
     SyncReturn(vec![])
-}
-
-#[cfg(test)]
-mod test {
-    use std::{thread, time::Duration};
-
-    use libwebrtc_sys::{
-        AudioLayer, PeerConnectionFactoryInterface, PeerConnectionInterface,
-        TaskQueueFactory, Thread,
-    };
-
-    use crate::AudioDeviceModule;
-
-    use super::Webrtc;
-
-    #[test]
-    fn webrtc_drops() {
-
-        let mut task_queue_factory = TaskQueueFactory::create_default_task_queue_factory();
-
-        let mut wt = Thread::create(false).unwrap();
-        wt.start().unwrap();
-        let mut st = Thread::create(false).unwrap();
-        st.start().unwrap();
-
-        let audio_device_module = AudioDeviceModule::new(
-            &mut wt,
-            &mut st,
-            AudioLayer::kPlatformDefaultAudio,
-            &mut task_queue_factory,
-        )
-        .unwrap();
-        let _ = audio_device_module.playout_devices();
-        let pcf = PeerConnectionFactoryInterface::create(
-            None,
-            Some(&wt),
-            Some(&st),
-            Some(&audio_device_module.inner),
-        );
-        drop(pcf);
-    }
 }

@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Profile|x64">
+      <Configuration>Profile</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{495F14EC-88EA-321F-A7B7-BFD6585C1952}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>flutter_webrtc_plugin</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\User\Desktop\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">flutter_webrtc_plugin.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">flutter_webrtc_plugin</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">C:\Users\User\Desktop\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\Profile\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">flutter_webrtc_plugin.dir\Profile\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">flutter_webrtc_plugin</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\User\Desktop\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">flutter_webrtc_plugin.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">flutter_webrtc_plugin</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>"4100"</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;_DEBUG;FLUTTER_PLUGIN_IMPL;UNICODE;_UNICODE;LIB_WEBRTC_API_DLL;CMAKE_INTDIR="Debug";flutter_webrtc_plugin_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_HAS_EXCEPTIONS=0;FLUTTER_PLUGIN_IMPL;UNICODE;_UNICODE;LIB_WEBRTC_API_DLL;CMAKE_INTDIR=\"Debug\";flutter_webrtc_plugin_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>..\..\flutter\Debug\flutter_wrapper_plugin.lib;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\lib\flutter_webrtc_native.dll.lib;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\flutter_windows.dll.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/Debug/flutter_webrtc_plugin.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/Debug/flutter_webrtc_plugin.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>"4100"</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_HAS_EXCEPTIONS=0;FLUTTER_PLUGIN_IMPL;UNICODE;_UNICODE;LIB_WEBRTC_API_DLL;CMAKE_INTDIR="Profile";flutter_webrtc_plugin_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_HAS_EXCEPTIONS=0;FLUTTER_PLUGIN_IMPL;UNICODE;_UNICODE;LIB_WEBRTC_API_DLL;CMAKE_INTDIR=\"Profile\";flutter_webrtc_plugin_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>..\..\flutter\Profile\flutter_wrapper_plugin.lib;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\lib\flutter_webrtc_native.dll.lib;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\flutter_windows.dll.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/Profile/flutter_webrtc_plugin.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/Profile/flutter_webrtc_plugin.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>"4100"</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_HAS_EXCEPTIONS=0;FLUTTER_PLUGIN_IMPL;UNICODE;_UNICODE;LIB_WEBRTC_API_DLL;CMAKE_INTDIR="Release";flutter_webrtc_plugin_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_HAS_EXCEPTIONS=0;FLUTTER_PLUGIN_IMPL;UNICODE;_UNICODE;LIB_WEBRTC_API_DLL;CMAKE_INTDIR=\"Release\";flutter_webrtc_plugin_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\include;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\cpp_client_wrapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>..\..\flutter\Release\flutter_wrapper_plugin.lib;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\lib\flutter_webrtc_native.dll.lib;C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\flutter_windows.dll.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/Release/flutter_webrtc_plugin.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/Release/flutter_webrtc_plugin.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\CMakeLists.txt">
+      <StdOutEncoding>UTF-8</StdOutEncoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/User/Desktop/flutter-webrtc/example/windows/flutter/ephemeral/.plugin_symlinks/flutter_webrtc/windows/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/User/Desktop/flutter-webrtc/example/windows -BC:/Users/User/Desktop/flutter-webrtc/example/build/windows --check-stamp-file C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\User\Desktop\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Building Custom Rule C:/Users/User/Desktop/flutter-webrtc/example/windows/flutter/ephemeral/.plugin_symlinks/flutter_webrtc/windows/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/User/Desktop/flutter-webrtc/example/windows -BC:/Users/User/Desktop/flutter-webrtc/example/build/windows --check-stamp-file C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">C:\Users\User\Desktop\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/User/Desktop/flutter-webrtc/example/windows/flutter/ephemeral/.plugin_symlinks/flutter_webrtc/windows/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/User/Desktop/flutter-webrtc/example/windows -BC:/Users/User/Desktop/flutter-webrtc/example/build/windows --check-stamp-file C:/Users/User/Desktop/flutter-webrtc/example/build/windows/plugins/flutter_webrtc/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\User\Desktop\flutter-webrtc\example\build\windows\plugins\flutter_webrtc\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\flutter_webrtc_plugin.cc" />
+    <ClCompile Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\src\flutter_webrtc.cc" />
+    <ClCompile Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\src\video_renderer.cc" />
+    <ClCompile Include="C:\Users\User\Desktop\flutter-webrtc\example\windows\flutter\ephemeral\.plugin_symlinks\flutter_webrtc\windows\rust\src\flutter_webrtc_native.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\User\Desktop\flutter-webrtc\example\build\windows\ZERO_CHECK.vcxproj">
+      <Project>{DAC0CB92-3B68-3BE8-AA55-BB00C57CA9DF}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\User\Desktop\flutter-webrtc\example\build\windows\flutter\flutter_assemble.vcxproj">
+      <Project>{3CE99604-A974-3496-9F62-EB01C47BAE16}</Project>
+      <Name>flutter_assemble</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\User\Desktop\flutter-webrtc\example\build\windows\flutter\flutter_wrapper_plugin.vcxproj">
+      <Project>{510557D1-5525-3F38-93EE-9A8AF55E5747}</Project>
+      <Name>flutter_wrapper_plugin</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

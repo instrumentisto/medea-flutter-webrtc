@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 
 import '/src/model/constraints.dart';
@@ -7,10 +9,18 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
-typedef OnDeviceChangeHandler = void Function();
+const defaultUserMediaWidth = 480;
+const defaultUserMediaHeight = 640;
+const defaultDisplayMediaWidth = 1280;
+const defaultDisplayMediaHeight = 720;
+const defaultFrameRate = 30;
+
+/// Shortcut for the `on_device_change` callback.
+typedef OnDeviceChangeCallback = void Function();
 
 class DeviceHandler {
   static final DeviceHandler _instance = DeviceHandler._internal();
+  OnDeviceChangeCallback? _handler;
 
   factory DeviceHandler() {
     return _instance;
@@ -21,20 +31,32 @@ class DeviceHandler {
   }
 
   void _listen() async {
-    api.setOnDeviceChanged().listen(
-      (event) {
-        if (_handler != null) {
-          _handler!();
+    if (isDesktop) {
+      api.setOnDeviceChanged().listen(
+            (event) {
+          if (_handler != null) {
+            _handler!();
+          }
+        },
+      );
+    } else {
+      eventChannel('MediaDevicesEvent', 0).receiveBroadcastStream().listen((event) {
+        final dynamic e = event;
+        switch (e['event']) {
+          case 'onDeviceChange':
+            if (_handler != null) {
+              _handler!();
+            }
+            break;
         }
-      },
-    );
+      });
+    }
   }
 
-  void setHandler(OnDeviceChangeHandler? handler) {
+  /// Subscribes to the `devicechange` event of the `MediaDevices`.
+  void setHandler(OnDeviceChangeCallback? handler) {
     _handler = handler;
   }
-
-  OnDeviceChangeHandler? _handler;
 }
 
 /// [Exception] thrown if the specified constraints resulted in no candidate
@@ -56,7 +78,7 @@ final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 
 /// Returns list of [MediaDeviceInfo]s for the currently available devices.
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     return await _enumerateDevicesFFI();
   } else {
     return await _enumerateDevicesChannel();
@@ -64,22 +86,22 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
 }
 
 Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
-  List<dynamic> res =
-      await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices');
-  return res.map((i) => MediaDeviceInfo.fromMap(i)).toList();
+  return (await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices'))
+      .map((i) => MediaDeviceInfo.fromMap(i))
+      .toList();
 }
 
 Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
-  var devices = await api.enumerateDevices();
-
-  return devices.map((e) => MediaDeviceInfo.fromFFI(e)).toList();
+  return (await api.enumerateDevices())
+      .map((e) => MediaDeviceInfo.fromFFI(e))
+      .toList();
 }
 
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on
 /// the provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     return _getUserMediaFFI(constraints);
   } else {
     return _getUserMediaChannel(constraints);
@@ -111,10 +133,9 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ??
-              640, // TODO(alexlapa): as const
-          width: constraints.video.mandatory?.width ?? 480,
-          frameRate: constraints.video.mandatory?.fps ?? 30,
+          height: constraints.video.mandatory?.height ?? defaultUserMediaHeight,
+          width: constraints.video.mandatory?.width ?? defaultUserMediaWidth,
+          frameRate: constraints.video.mandatory?.fps ?? defaultFrameRate,
           isDisplay: false)
       : null;
 
@@ -129,15 +150,11 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
 /// provided [DisplayConstraints].
 Future<List<NativeMediaStreamTrack>> getDisplayMedia(
     DisplayConstraints constraints) async {
-  Future<List<NativeMediaStreamTrack>> nativeTrack;
-
-  if (IS_DESKTOP) {
-    nativeTrack = _getDisplayMediaFFI(constraints);
+  if (isDesktop) {
+    return _getDisplayMediaFFI(constraints);
   } else {
-    nativeTrack = _getDisplayMediaChannel(constraints);
+    return _getDisplayMediaChannel(constraints);
   }
-
-  return nativeTrack;
 }
 
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
@@ -157,9 +174,9 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? 1920,
-          width: constraints.video.mandatory?.width ?? 1080,
-          frameRate: constraints.video.mandatory?.fps ?? 30,
+          height: constraints.video.mandatory?.height ?? defaultDisplayMediaHeight,
+          width: constraints.video.mandatory?.width ?? defaultDisplayMediaWidth,
+          frameRate: constraints.video.mandatory?.fps ?? defaultFrameRate,
           isDisplay: true)
       : null;
 
@@ -174,7 +191,7 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
 ///
 /// List of output audio devices may be obtained via [enumerateDevices].
 Future<void> setOutputAudioId(String deviceId) async {
-  if (IS_DESKTOP) {
+  if (isDesktop) {
     _setOutputAudioIdFFI(deviceId);
   } else {
     _setOutputAudioIdChannel(deviceId);

@@ -448,9 +448,9 @@ pub(crate) mod webrtc {
             index: u16,
         ) -> i32;
 
-        /// Specifies which audio device to use for playout audio using an
-        /// index retrieved by the corresponding enumeration method which is
-        /// [`AudiDeviceModule::RecordingDeviceName`].
+        /// Specifies which speaker to use for playing out audio using an
+        /// index retrieved by the corresponding enumeration method
+        /// [`AudiDeviceModule::PlayoutDeviceName`].
         pub fn set_audio_playout_device(
             audio_device_module: &AudioDeviceModule,
             index: u16,
@@ -1837,6 +1837,8 @@ impl fmt::Display for webrtc::PeerConnectionState {
         }
     }
 }
+
+unsafe impl Send for IceCandidateInterface {}
 
 unsafe impl Send for webrtc::VideoDeviceInfo {}
 unsafe impl Sync for webrtc::VideoDeviceInfo {}

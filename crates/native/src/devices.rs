@@ -1,11 +1,9 @@
 use std::{
     ptr,
-    sync::{
-        atomic::{AtomicPtr, Ordering},
-        Arc, Mutex,
-    },
+    sync::atomic::{AtomicPtr, Ordering},
 };
 
+use anyhow::anyhow;
 #[cfg(windows)]
 use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 
@@ -80,7 +78,8 @@ impl DeviceState {
     /// Counts current media device number.
     fn count_devices(&mut self) -> u32 {
         TryInto::<u32>::try_into(
-            self.adm.playout_devices().unwrap() + self.adm.recording_devices().unwrap(),
+            self.adm.inner.playout_devices().unwrap()
+                + self.adm.inner.recording_devices().unwrap(),
         )
         .unwrap()
             + self.vdi.number_of_devices()
@@ -103,11 +102,10 @@ impl Webrtc {
     /// # Panics
     ///
     /// On any error returned from `libWebRTC`.
-    #[must_use]
     pub fn enumerate_devices(&mut self) -> anyhow::Result<Vec<api::MediaDeviceInfo>> {
         let mut audio = {
-            let count_playout = self.audio_device_module.playout_devices()?;
-            let count_recording = self.audio_device_module.recording_devices()?;
+            let count_playout = self.audio_device_module.inner.playout_devices()?;
+            let count_recording = self.audio_device_module.inner.recording_devices()?;
 
             #[allow(clippy::cast_sign_loss)]
             let mut result = Vec::with_capacity((count_playout + count_recording) as usize);
@@ -125,9 +123,9 @@ impl Webrtc {
                 for i in 0..count {
                     let (label, device_id) = if let api::MediaDeviceKind::AudioOutput = kind
                     {
-                        self.audio_device_module.playout_device_name(i)?
+                        self.audio_device_module.inner.playout_device_name(i)?
                     } else {
-                        self.audio_device_module.recording_device_name(i)?
+                        self.audio_device_module.inner.recording_device_name(i)?
                     };
 
                     result.push(api::MediaDeviceInfo {
@@ -200,9 +198,9 @@ impl Webrtc {
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.audio_device_module.recording_devices()?;
+        let count = self.audio_device_module.inner.recording_devices()?;
         for i in 0..count {
-            let (_, id) = self.audio_device_module.recording_device_name(i)?;
+            let (_, id) = self.audio_device_module.inner.recording_device_name(i)?;
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
@@ -215,9 +213,9 @@ impl Webrtc {
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.audio_device_module.playout_devices()?;
+        let count = self.audio_device_module.inner.playout_devices()?;
         for i in 0..count {
-            let (_, id) = self.audio_device_module.playout_device_name(i)?;
+            let (_, id) = self.audio_device_module.inner.playout_device_name(i)?;
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
@@ -227,12 +225,14 @@ impl Webrtc {
     }
 
     pub fn set_audio_playout_device(&mut self, device_id: String) -> anyhow::Result<()> {
-        let id = device_id.into();
+        let device_id = AudioDeviceId::from(device_id);
+        let index = self.get_index_of_audio_playout_device(&device_id)?;
 
-        let index = self.get_index_of_audio_playout_device(&id).unwrap();
-
-        self.audio_device_module
-            .set_playout_device(id, index.unwrap_or(0))
+        if let Some(index) = index {
+            self.audio_device_module.set_playout_device(device_id, index)
+        } else {
+            Err(anyhow!("Can not find playout device with id {device_id}"))
+        }
     }
 
     /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
@@ -245,7 +245,7 @@ impl Webrtc {
     ///
     /// May panic on creating [`AudioDeviceModule`], [`VideoDeviceInfo`], or
     /// getting number of `playout` and `recording` devices.
-    pub fn set_on_device_changed(&mut self, cb: StreamSink<()>) {
+    pub fn set_on_device_changed(&mut self, cb: StreamSink<()>) -> anyhow::Result<()> {
         let prev = ON_DEVICE_CHANGE.swap(
             Box::into_raw(Box::new(
                 DeviceState::new(
@@ -260,14 +260,14 @@ impl Webrtc {
         );
 
         if prev.is_null() {
-            unsafe {
-                init();
-            }
+            unsafe { init()? }
         } else {
             unsafe {
                 drop(Box::from_raw(prev));
             }
         }
+
+        Ok(())
     }
 }
 
@@ -362,4 +362,20 @@ pub unsafe fn init() {
 }
 
 #[cfg(target_os = "linux")]
-pub unsafe fn init() {}
+#[allow(clippy::unnecessary_wraps)]
+pub unsafe fn init() -> anyhow::Result<()> {
+    // Dummy implementation.
+    let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+
+    if !state.is_null() {
+        let device_state = &mut *state;
+        let new_count = device_state.count_devices();
+
+        if device_state.count != new_count {
+            device_state.set_count(new_count);
+            device_state.on_device_change();
+        }
+    }
+
+    Ok(())
+}
