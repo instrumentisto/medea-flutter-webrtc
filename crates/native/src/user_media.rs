@@ -424,6 +424,11 @@ pub struct AudioDeviceModule {
     /// from the audio input device.
     current_device_id: Option<AudioDeviceId>,
 
+    /// ID of the audio playout device currently used by this
+    /// [`sys::AudioDeviceModule`].
+    ///
+    /// [`None`] if the [`AudioDeviceModule`] was not used yet to record data
+    /// to the audio playout device.
     current_playout_device_id: Option<AudioDeviceId>,
 }
 
