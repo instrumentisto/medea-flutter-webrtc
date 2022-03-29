@@ -418,7 +418,7 @@ impl AudioDeviceModule {
         audio_layer: sys::AudioLayer,
         task_queue_factory: &mut sys::TaskQueueFactory,
     ) -> anyhow::Result<Self> {
-        let inner = sys::AudioDeviceModule::create(
+        let inner = sys::AudioDeviceModule::create_proxy(
             worker_thread,
             sign_thread,
             audio_layer,
