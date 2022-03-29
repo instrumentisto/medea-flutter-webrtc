@@ -139,6 +139,7 @@ abstract class FlutterWebrtcNative {
   Future<List<MediaStreamTrack>> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
 
+  /// Sets the specified `audio playuot` device.
   Future<void> setAudioPlayoutDevice({required String deviceId, dynamic hint});
 
   /// Disposes the specified [`MediaStreamTrack`].
@@ -150,6 +151,7 @@ abstract class FlutterWebrtcNative {
   Future<void> setTrackEnabled(
       {required int trackId, required bool enabled, dynamic hint});
 
+  /// Clones the specified [`MediaStreamTrack`].
   Future<MediaStreamTrack> cloneTrack({required int trackId, dynamic hint});
 
   /// Registers an observer to the media track events.
@@ -216,19 +218,63 @@ enum BundlePolicy {
   MaxCompat,
 }
 
+/// [RTCIceConnectionState][1] representation.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
 enum IceConnectionState {
+  /// [RTCIceConnectionState.new][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-new
   New,
+
+  /// [RTCIceConnectionState.checking][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-checking
   Checking,
+
+  /// [RTCIceConnectionState.connected][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-connected
   Connected,
+
+  /// [RTCIceConnectionState.completed][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-completed
   Completed,
+
+  /// [RTCIceConnectionState.failed][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-failed
   Failed,
+
+  /// [RTCIceConnectionState.disconnected][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-disconnected
   Disconnected,
+
+  /// [RTCIceConnectionState.closed][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-closed
   Closed,
 }
 
+/// [RTCIceGatheringState][1] representation.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
 enum IceGatheringState {
+  /// [RTCIceGatheringState.new][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-new
   New,
+
+  /// [RTCIceGatheringState.gathering][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-gathering
   Gathering,
+
+  /// [RTCIceGatheringState.complete][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-complete
   Complete,
 }
 
@@ -345,17 +391,29 @@ enum MediaType {
 
 @freezed
 class PeerConnectionEvent with _$PeerConnectionEvent {
+  /// A custom `event` indicates that a [`PeerConnection`] has been created.
+  /// Provides the [`PeerConnection`]'s `id`.
   const factory PeerConnectionEvent.peerCreated({
     required int id,
   }) = PeerCreated;
-  const factory PeerConnectionEvent.onIceCandidate({
+
+  /// A new [`ICE candidate`][1] has been discovered.
+  ///
+  /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
+  const factory PeerConnectionEvent.iceCandidate({
     required String sdpMid,
     required int sdpMlineIndex,
     required String candidate,
-  }) = OnIceCandidate;
+  }) = IceCandidate;
+
+  /// The [`PeerConnection`]'s ICE gathering state has changed.
   const factory PeerConnectionEvent.iceGatheringStateChange(
     IceGatheringState field0,
   ) = IceGatheringStateChange;
+
+  /// A failure occured when gathering [`ICE candidate`][1].
+  ///
+  /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
   const factory PeerConnectionEvent.iceCandidateError({
     required String address,
     required int port,
@@ -363,16 +421,27 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
     required int errorCode,
     required String errorText,
   }) = IceCandidateError;
+
+  /// Negotiation or renegotiation of the [`PeerConnection`] needs
+  /// to be performed.
   const factory PeerConnectionEvent.negotiationNeeded() = NegotiationNeeded;
+
+  /// [`PeerConnection`]'s [`SignalingState`] has been changed.
   const factory PeerConnectionEvent.signallingChange(
     SignalingState field0,
   ) = SignallingChange;
+
+  /// [`PeerConnection`]'s [`IceConnectionState`] has been changed.
   const factory PeerConnectionEvent.iceConnectionStateChange(
     IceConnectionState field0,
   ) = IceConnectionStateChange;
+
+  /// [`PeerConnection`]'s [`PeerConnectionState`] has been changed.
   const factory PeerConnectionEvent.connectionStateChange(
     PeerConnectionState field0,
   ) = ConnectionStateChange;
+
+  /// New incoming media has been negotiated.
   const factory PeerConnectionEvent.track(
     RtcTrackEvent field0,
   ) = Track;
@@ -615,16 +684,46 @@ enum SdpType {
   Rollback,
 }
 
+/// [RTCSignalingState] representation.
+///
+/// [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
 enum SignalingState {
+  /// [RTCSignalingState.stable][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-stable
   Stable,
+
+  /// [RTCSignalingState.have-local-offer][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-have-local-offer
   HaveLocalOffer,
+
+  /// [RTCSignalingState.have-local-pranswer][1] representation.
+  ///
+  /// [1]: https://tinyurl.com/have-local-pranswer
   HaveLocalPrAnswer,
+
+  /// [RTCSignalingState.have-remote-offer][1] representation.
+  ///
+  /// [1]: https://tinyurl.com/have-remote-offer
   HaveRemoteOffer,
+
+  /// [RTCSignalingState.have-remote-pranswer][1] representation.
+  ///
+  /// [1]: https://tinyurl.com/have-remote-pranswer
   HaveRemotePrAnswer,
+
+  /// [RTCSignalingState.closed][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-closed
   Closed,
 }
 
+/// Indicates current state of [`MediaStreamTrack`].
 enum TrackEvent {
+  /// The ended event of the [`MediaStreamTrack`] interface is fired when playback
+  /// or streaming has stopped because the end of the media was reached
+  /// or because no further data is available.
   Ended,
 }
 
@@ -1352,7 +1451,7 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
         id: _wire2api_u64(raw[1]),
       );
     case 1:
-      return OnIceCandidate(
+      return IceCandidate(
         sdpMid: _wire2api_String(raw[1]),
         sdpMlineIndex: _wire2api_i32(raw[2]),
         candidate: _wire2api_String(raw[3]),

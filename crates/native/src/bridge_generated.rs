@@ -991,7 +991,7 @@ impl support::IntoDart for PeerConnectionEvent {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::PeerCreated { id } => vec![0.into_dart(), id.into_dart()],
-            Self::OnIceCandidate {
+            Self::IceCandidate {
                 sdp_mid,
                 sdp_mline_index,
                 candidate,

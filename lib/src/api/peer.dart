@@ -406,7 +406,7 @@ class _PeerConnectionFFI extends PeerConnection {
       _id = event.id;
       _initialized.complete();
       return;
-    } else if (event is ffi.OnIceCandidate) {
+    } else if (event is ffi.IceCandidate) {
       _onIceCandidate?.call(
           IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
       return;

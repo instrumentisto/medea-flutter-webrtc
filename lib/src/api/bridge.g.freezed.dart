@@ -24,11 +24,11 @@ class _$PeerConnectionEventTearOff {
     );
   }
 
-  OnIceCandidate onIceCandidate(
+  IceCandidate iceCandidate(
       {required String sdpMid,
       required int sdpMlineIndex,
       required String candidate}) {
-    return OnIceCandidate(
+    return IceCandidate(
       sdpMid: sdpMid,
       sdpMlineIndex: sdpMlineIndex,
       candidate: candidate,
@@ -95,7 +95,7 @@ mixin _$PeerConnectionEvent {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -112,7 +112,7 @@ mixin _$PeerConnectionEvent {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -128,7 +128,7 @@ mixin _$PeerConnectionEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -144,7 +144,7 @@ mixin _$PeerConnectionEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -160,7 +160,7 @@ mixin _$PeerConnectionEvent {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -173,7 +173,7 @@ mixin _$PeerConnectionEvent {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -271,7 +271,7 @@ class _$PeerCreated implements PeerCreated {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -291,7 +291,7 @@ class _$PeerCreated implements PeerCreated {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -310,7 +310,7 @@ class _$PeerCreated implements PeerCreated {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -332,7 +332,7 @@ class _$PeerCreated implements PeerCreated {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -351,7 +351,7 @@ class _$PeerCreated implements PeerCreated {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -367,7 +367,7 @@ class _$PeerCreated implements PeerCreated {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -394,23 +394,23 @@ abstract class PeerCreated implements PeerConnectionEvent {
 }
 
 /// @nodoc
-abstract class $OnIceCandidateCopyWith<$Res> {
-  factory $OnIceCandidateCopyWith(
-          OnIceCandidate value, $Res Function(OnIceCandidate) then) =
-      _$OnIceCandidateCopyWithImpl<$Res>;
+abstract class $IceCandidateCopyWith<$Res> {
+  factory $IceCandidateCopyWith(
+          IceCandidate value, $Res Function(IceCandidate) then) =
+      _$IceCandidateCopyWithImpl<$Res>;
   $Res call({String sdpMid, int sdpMlineIndex, String candidate});
 }
 
 /// @nodoc
-class _$OnIceCandidateCopyWithImpl<$Res>
+class _$IceCandidateCopyWithImpl<$Res>
     extends _$PeerConnectionEventCopyWithImpl<$Res>
-    implements $OnIceCandidateCopyWith<$Res> {
-  _$OnIceCandidateCopyWithImpl(
-      OnIceCandidate _value, $Res Function(OnIceCandidate) _then)
-      : super(_value, (v) => _then(v as OnIceCandidate));
+    implements $IceCandidateCopyWith<$Res> {
+  _$IceCandidateCopyWithImpl(
+      IceCandidate _value, $Res Function(IceCandidate) _then)
+      : super(_value, (v) => _then(v as IceCandidate));
 
   @override
-  OnIceCandidate get _value => super._value as OnIceCandidate;
+  IceCandidate get _value => super._value as IceCandidate;
 
   @override
   $Res call({
@@ -418,7 +418,7 @@ class _$OnIceCandidateCopyWithImpl<$Res>
     Object? sdpMlineIndex = freezed,
     Object? candidate = freezed,
   }) {
-    return _then(OnIceCandidate(
+    return _then(IceCandidate(
       sdpMid: sdpMid == freezed
           ? _value.sdpMid
           : sdpMid // ignore: cast_nullable_to_non_nullable
@@ -437,8 +437,8 @@ class _$OnIceCandidateCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$OnIceCandidate implements OnIceCandidate {
-  const _$OnIceCandidate(
+class _$IceCandidate implements IceCandidate {
+  const _$IceCandidate(
       {required this.sdpMid,
       required this.sdpMlineIndex,
       required this.candidate});
@@ -452,14 +452,14 @@ class _$OnIceCandidate implements OnIceCandidate {
 
   @override
   String toString() {
-    return 'PeerConnectionEvent.onIceCandidate(sdpMid: $sdpMid, sdpMlineIndex: $sdpMlineIndex, candidate: $candidate)';
+    return 'PeerConnectionEvent.iceCandidate(sdpMid: $sdpMid, sdpMlineIndex: $sdpMlineIndex, candidate: $candidate)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is OnIceCandidate &&
+            other is IceCandidate &&
             const DeepCollectionEquality().equals(other.sdpMid, sdpMid) &&
             const DeepCollectionEquality()
                 .equals(other.sdpMlineIndex, sdpMlineIndex) &&
@@ -475,8 +475,8 @@ class _$OnIceCandidate implements OnIceCandidate {
 
   @JsonKey(ignore: true)
   @override
-  $OnIceCandidateCopyWith<OnIceCandidate> get copyWith =>
-      _$OnIceCandidateCopyWithImpl<OnIceCandidate>(this, _$identity);
+  $IceCandidateCopyWith<IceCandidate> get copyWith =>
+      _$IceCandidateCopyWithImpl<IceCandidate>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -484,7 +484,7 @@ class _$OnIceCandidate implements OnIceCandidate {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -496,7 +496,7 @@ class _$OnIceCandidate implements OnIceCandidate {
     required TResult Function(PeerConnectionState field0) connectionStateChange,
     required TResult Function(RtcTrackEvent field0) track,
   }) {
-    return onIceCandidate(sdpMid, sdpMlineIndex, candidate);
+    return iceCandidate(sdpMid, sdpMlineIndex, candidate);
   }
 
   @override
@@ -504,7 +504,7 @@ class _$OnIceCandidate implements OnIceCandidate {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -515,7 +515,7 @@ class _$OnIceCandidate implements OnIceCandidate {
     TResult Function(PeerConnectionState field0)? connectionStateChange,
     TResult Function(RtcTrackEvent field0)? track,
   }) {
-    return onIceCandidate?.call(sdpMid, sdpMlineIndex, candidate);
+    return iceCandidate?.call(sdpMid, sdpMlineIndex, candidate);
   }
 
   @override
@@ -523,7 +523,7 @@ class _$OnIceCandidate implements OnIceCandidate {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -535,8 +535,8 @@ class _$OnIceCandidate implements OnIceCandidate {
     TResult Function(RtcTrackEvent field0)? track,
     required TResult orElse(),
   }) {
-    if (onIceCandidate != null) {
-      return onIceCandidate(sdpMid, sdpMlineIndex, candidate);
+    if (iceCandidate != null) {
+      return iceCandidate(sdpMid, sdpMlineIndex, candidate);
     }
     return orElse();
   }
@@ -545,7 +545,7 @@ class _$OnIceCandidate implements OnIceCandidate {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -557,14 +557,14 @@ class _$OnIceCandidate implements OnIceCandidate {
         connectionStateChange,
     required TResult Function(Track value) track,
   }) {
-    return onIceCandidate(this);
+    return iceCandidate(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -573,14 +573,14 @@ class _$OnIceCandidate implements OnIceCandidate {
     TResult Function(ConnectionStateChange value)? connectionStateChange,
     TResult Function(Track value)? track,
   }) {
-    return onIceCandidate?.call(this);
+    return iceCandidate?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -590,24 +590,24 @@ class _$OnIceCandidate implements OnIceCandidate {
     TResult Function(Track value)? track,
     required TResult orElse(),
   }) {
-    if (onIceCandidate != null) {
-      return onIceCandidate(this);
+    if (iceCandidate != null) {
+      return iceCandidate(this);
     }
     return orElse();
   }
 }
 
-abstract class OnIceCandidate implements PeerConnectionEvent {
-  const factory OnIceCandidate(
+abstract class IceCandidate implements PeerConnectionEvent {
+  const factory IceCandidate(
       {required String sdpMid,
       required int sdpMlineIndex,
-      required String candidate}) = _$OnIceCandidate;
+      required String candidate}) = _$IceCandidate;
 
   String get sdpMid;
   int get sdpMlineIndex;
   String get candidate;
   @JsonKey(ignore: true)
-  $OnIceCandidateCopyWith<OnIceCandidate> get copyWith =>
+  $IceCandidateCopyWith<IceCandidate> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -680,7 +680,7 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -700,7 +700,7 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -719,7 +719,7 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -741,7 +741,7 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -760,7 +760,7 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -776,7 +776,7 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -914,7 +914,7 @@ class _$IceCandidateError implements IceCandidateError {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -934,7 +934,7 @@ class _$IceCandidateError implements IceCandidateError {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -953,7 +953,7 @@ class _$IceCandidateError implements IceCandidateError {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -975,7 +975,7 @@ class _$IceCandidateError implements IceCandidateError {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -994,7 +994,7 @@ class _$IceCandidateError implements IceCandidateError {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1010,7 +1010,7 @@ class _$IceCandidateError implements IceCandidateError {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1089,7 +1089,7 @@ class _$NegotiationNeeded implements NegotiationNeeded {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -1109,7 +1109,7 @@ class _$NegotiationNeeded implements NegotiationNeeded {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1128,7 +1128,7 @@ class _$NegotiationNeeded implements NegotiationNeeded {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1150,7 +1150,7 @@ class _$NegotiationNeeded implements NegotiationNeeded {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -1169,7 +1169,7 @@ class _$NegotiationNeeded implements NegotiationNeeded {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1185,7 +1185,7 @@ class _$NegotiationNeeded implements NegotiationNeeded {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1274,7 +1274,7 @@ class _$SignallingChange implements SignallingChange {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -1294,7 +1294,7 @@ class _$SignallingChange implements SignallingChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1313,7 +1313,7 @@ class _$SignallingChange implements SignallingChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1335,7 +1335,7 @@ class _$SignallingChange implements SignallingChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -1354,7 +1354,7 @@ class _$SignallingChange implements SignallingChange {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1370,7 +1370,7 @@ class _$SignallingChange implements SignallingChange {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1466,7 +1466,7 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -1486,7 +1486,7 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1505,7 +1505,7 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1527,7 +1527,7 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -1546,7 +1546,7 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1562,7 +1562,7 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1658,7 +1658,7 @@ class _$ConnectionStateChange implements ConnectionStateChange {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -1678,7 +1678,7 @@ class _$ConnectionStateChange implements ConnectionStateChange {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1697,7 +1697,7 @@ class _$ConnectionStateChange implements ConnectionStateChange {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1719,7 +1719,7 @@ class _$ConnectionStateChange implements ConnectionStateChange {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -1738,7 +1738,7 @@ class _$ConnectionStateChange implements ConnectionStateChange {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1754,7 +1754,7 @@ class _$ConnectionStateChange implements ConnectionStateChange {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1846,7 +1846,7 @@ class _$Track implements Track {
     required TResult Function(int id) peerCreated,
     required TResult Function(
             String sdpMid, int sdpMlineIndex, String candidate)
-        onIceCandidate,
+        iceCandidate,
     required TResult Function(IceGatheringState field0) iceGatheringStateChange,
     required TResult Function(String address, int port, String url,
             int errorCode, String errorText)
@@ -1866,7 +1866,7 @@ class _$Track implements Track {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1885,7 +1885,7 @@ class _$Track implements Track {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        onIceCandidate,
+        iceCandidate,
     TResult Function(IceGatheringState field0)? iceGatheringStateChange,
     TResult Function(String address, int port, String url, int errorCode,
             String errorText)?
@@ -1907,7 +1907,7 @@ class _$Track implements Track {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(PeerCreated value) peerCreated,
-    required TResult Function(OnIceCandidate value) onIceCandidate,
+    required TResult Function(IceCandidate value) iceCandidate,
     required TResult Function(IceGatheringStateChange value)
         iceGatheringStateChange,
     required TResult Function(IceCandidateError value) iceCandidateError,
@@ -1926,7 +1926,7 @@ class _$Track implements Track {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
@@ -1942,7 +1942,7 @@ class _$Track implements Track {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(OnIceCandidate value)? onIceCandidate,
+    TResult Function(IceCandidate value)? iceCandidate,
     TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
     TResult Function(IceCandidateError value)? iceCandidateError,
     TResult Function(NegotiationNeeded value)? negotiationNeeded,
