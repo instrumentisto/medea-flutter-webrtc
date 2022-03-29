@@ -971,8 +971,7 @@ impl sys::AddIceCandidateCallback for AddIceCandidateCallback {
     fn on_fail(&mut self, error: &CxxString) {
         if let Err(err) = self.0.send(Err(anyhow!("{}", error))) {
             log::warn!(
-                "Failed to send error in AddIceCandidateCallback: {}",
-                err
+                "Failed to send error in AddIceCandidateCallback: {err}"
             );
         }
     }
