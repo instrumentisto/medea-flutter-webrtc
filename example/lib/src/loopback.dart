@@ -22,6 +22,8 @@ class _LoopbackState extends State<Loopback> {
   final _localRenderer = createVideoRenderer();
   final _remoteRenderer = createVideoRenderer();
   bool _inCalling = false;
+  bool _mic = true;
+  bool _cam = true;
 
   List<MediaDeviceInfo>? _mediaDevicesList;
 
@@ -79,8 +81,11 @@ class _LoopbackState extends State<Loopback> {
         }
       });
 
-      var trans = await _pc1?.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+      var vtrans = await _pc1?.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+      var atrans = await _pc1?.addTransceiver(
+          MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
       var offer = await _pc1?.createOffer();
       await _pc1?.setLocalDescription(offer!);
@@ -100,8 +105,11 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
-      await trans?.sender.replaceTrack(
+      await vtrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+
+      await atrans?.sender.replaceTrack(
+          _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
     } catch (e) {
       print(e.toString());
     }
@@ -126,6 +134,8 @@ class _LoopbackState extends State<Loopback> {
 
       setState(() {
         _inCalling = false;
+        _mic = true;
+        _cam = true;
       });
     } catch (e) {
       print(e.toString());
@@ -139,21 +149,31 @@ class _LoopbackState extends State<Loopback> {
         title: const Text('GetUserMedia API Test'),
         actions: _inCalling
             ? <Widget>[
-                PopupMenuButton<String>(
-                  onSelected: _selectAudioOutput,
-                  itemBuilder: (BuildContext context) {
-                    if (_mediaDevicesList != null) {
-                      return _mediaDevicesList!
-                          .where((device) =>
-                              device.kind == MediaDeviceKind.audiooutput)
-                          .map((device) {
-                        return PopupMenuItem<String>(
-                          value: device.deviceId,
-                          child: Text(device.label),
-                        );
-                      }).toList();
-                    }
-                    return [];
+                IconButton(
+                  icon:
+                      _mic ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
+                  tooltip: _mic ? 'Disable audio rec' : 'Enable audio rec',
+                  onPressed: () {
+                    setState(() {
+                      _mic = !_mic;
+                    });
+                    _tracks!
+                        .firstWhere((track) => track.kind() == MediaKind.audio)
+                        .setEnabled(_mic);
+                  },
+                ),
+                IconButton(
+                  icon: _cam
+                      ? const Icon(Icons.videocam_off)
+                      : const Icon(Icons.videocam),
+                  tooltip: _cam ? 'Disable video rec' : 'Enable video rec',
+                  onPressed: () {
+                    setState(() {
+                      _cam = !_cam;
+                    });
+                    _tracks!
+                        .firstWhere((track) => track.kind() == MediaKind.video)
+                        .setEnabled(_cam);
                   },
                 ),
               ]
