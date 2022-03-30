@@ -22,6 +22,8 @@ class MediaDeviceInfo {
     kind = MediaDeviceKind.values[map['kind']];
   }
 
+  /// Creates a [MediaDeviceInfo] basing on the [ffi.MediaDeviceInfo] received
+  /// from the native side.
   MediaDeviceInfo.fromFFI(ffi.MediaDeviceInfo info) {
     deviceId = info.deviceId;
     label = info.label;

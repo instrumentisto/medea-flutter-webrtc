@@ -9,18 +9,30 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
+/// Default `video frame` width when capturing user's camera.
 const defaultUserMediaWidth = 480;
+
+/// Default `video frame` height when capturing user's camera.
 const defaultUserMediaHeight = 640;
+
+/// Default `video frame` width when capturing user's display.
 const defaultDisplayMediaWidth = 1280;
+
+/// Default `video frame` height when capturing user's display.
 const defaultDisplayMediaHeight = 720;
+
+/// Default `fps` for any `video frame`.
 const defaultFrameRate = 30;
 
 /// Shortcut for the `on_device_change` callback.
 typedef OnDeviceChangeCallback = void Function();
 
-/// Singleton for listening changing devices.
+/// Singleton for listening device change.
 class DeviceHandler {
+  /// The initialized instanse of this singleton.
   static final DeviceHandler _instance = DeviceHandler._internal();
+
+  /// A callback is used for handling device change.
   OnDeviceChangeCallback? _handler;
 
   factory DeviceHandler() {
@@ -31,6 +43,8 @@ class DeviceHandler {
     _listen();
   }
 
+  /// This method initializes listening to [Stream] or [EventChannel] depending
+  /// on [isDesktop].
   void _listen() async {
     if (isDesktop) {
       api.setOnDeviceChanged().listen(

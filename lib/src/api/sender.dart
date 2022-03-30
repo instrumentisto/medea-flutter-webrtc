@@ -4,6 +4,7 @@ import '/src/platform/track.dart';
 import 'channel.dart';
 import 'peer.dart';
 
+/// [RTCSender](https://www.w3.org/TR/webrtc/#dom-rtcrtpsender) implementation.
 abstract class RtpSender {
   /// Create a new [RtpSender] from channel result.
   static RtpSender fromMap(dynamic map) {
@@ -25,6 +26,7 @@ abstract class RtpSender {
   Future<void> replaceTrack(MediaStreamTrack? t);
 }
 
+/// Channel realization of the [RtpSender].
 class _RtpSenderChannel extends RtpSender {
   /// Creates an [RtpSender] basing on the [Map] received from the native side.
   _RtpSenderChannel.fromMap(dynamic map) {
@@ -41,6 +43,7 @@ class _RtpSenderChannel extends RtpSender {
   }
 }
 
+/// FFI realization of the [RtpSender].
 class _RtpSenderFFI extends RtpSender {
   /// `Id` of the native `PeerConnection`.
   final int _peerId;

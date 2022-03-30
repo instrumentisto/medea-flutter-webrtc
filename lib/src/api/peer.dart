@@ -14,8 +14,10 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'transceiver.dart';
 
+/// Dart representation of the Rust side.
 late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
 
+/// Discovers and build the Rust-Flutter bridge.
 ffi.FlutterWebrtcNativeImpl buildBridge() {
   const base = 'flutter_webrtc_native';
   final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
@@ -26,6 +28,7 @@ ffi.FlutterWebrtcNativeImpl buildBridge() {
   return ffi.FlutterWebrtcNativeImpl(dylib);
 }
 
+/// Checks whether running platform is desktop.
 bool isDesktop = !Platform.isAndroid && !Platform.isIOS;
 
 /// Shortcut for the `on_track` callback.
@@ -52,6 +55,8 @@ typedef OnSignalingStateChangeCallback = void Function(SignalingState);
 /// Shortcut for the `on_ice_candidate_error` callback.
 typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
+/// [RTCPeerConnection](https://w3.org/TR/webrtc#dom-rtcpeerconnection)
+/// implementation.
 abstract class PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
@@ -207,6 +212,7 @@ abstract class PeerConnection {
 final _peerConnectionFactoryMethodChannel =
     methodChannel('PeerConnectionFactory', 0);
 
+/// Channel realization of the [PeerConnection].
 class _PeerConnectionChannel extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
@@ -367,6 +373,7 @@ class _PeerConnectionChannel extends PeerConnection {
   }
 }
 
+/// FFI realization of the [PeerConnection].
 class _PeerConnectionFFI extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
@@ -391,10 +398,14 @@ class _PeerConnectionFFI extends PeerConnection {
     return peer;
   }
 
+  /// This [Completer] is used to wait the [ffi.PeerCreated] `event` when
+  /// creating a new [PeerConnection].
   final Completer _initialized = Completer();
 
   /// `Id` of the native `PeerConnection`.
   int? _id;
+
+  /// This [Stream] is used for handling [PeerConnection] `event`s.
   Stream<ffi.PeerConnectionEvent>? _stream;
 
   _PeerConnectionFFI();

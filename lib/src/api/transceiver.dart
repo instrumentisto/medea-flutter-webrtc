@@ -6,6 +6,8 @@ import 'channel.dart';
 import 'peer.dart';
 import 'sender.dart';
 
+/// [RTCTransceiver](https://www.w3.org/TR/webrtc/#dom-rtcrtptransceiver)
+/// implementation.
 abstract class RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
@@ -13,6 +15,8 @@ abstract class RtpTransceiver {
     return _RtpTransceiverChannel.fromMap(map);
   }
 
+  /// Creates an [RtpTransceiver] basing on the [ffi.RtcRtpTransceiver] received
+  /// from the native side.
   static RtpTransceiver fromFFI(ffi.RtcRtpTransceiver transceiver) {
     return RtpTransceiverFFI(transceiver);
   }
@@ -61,6 +65,7 @@ abstract class RtpTransceiver {
   }
 }
 
+/// Channel realization of the [RtpTransceiver].
 class _RtpTransceiverChannel extends RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
@@ -97,6 +102,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   }
 }
 
+/// FFI realization of the [RtpTransceiver].
 class RtpTransceiverFFI extends RtpTransceiver {
   RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
     _peerId = transceiver.peerId;

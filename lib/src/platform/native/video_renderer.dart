@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import '../../api/peer.dart';
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
 import '/src/platform/video_renderer.dart';
+import '../../api/peer.dart';
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
@@ -89,6 +89,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   bool get renderVideo => srcObject != null;
 }
 
+/// Channel realization of the [NativeVideoRenderer].
 class _NativeVideoRendererChannel extends NativeVideoRenderer {
   @override
   Future<void> initialize() async {
@@ -128,6 +129,7 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
   }
 }
 
+/// FFI realization of the [NativeVideoRenderer].
 class _NativeVideoRendererFFI extends NativeVideoRenderer {
   @override
   Future<void> initialize() async {
