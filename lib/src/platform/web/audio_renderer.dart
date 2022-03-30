@@ -1,5 +1,7 @@
+// Dart imports:
 import 'dart:html' as html;
 
+// Project imports:
 import '/src/model/track.dart';
 import '/src/platform/audio_renderer.dart';
 import '/src/platform/track.dart';

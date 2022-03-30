@@ -1,5 +1,7 @@
+// Flutter imports:
 import 'package:flutter/foundation.dart';
 
+// Project imports:
 import '/src/platform/native/video_renderer.dart';
 import 'track.dart';
 

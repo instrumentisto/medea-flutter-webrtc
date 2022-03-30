@@ -1,5 +1,7 @@
+// Flutter imports:
 import 'package:flutter/services.dart';
 
+// Project imports:
 import '/src/model/transceiver.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
