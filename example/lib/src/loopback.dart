@@ -25,8 +25,6 @@ class _LoopbackState extends State<Loopback> {
   bool _mic = true;
   bool _cam = true;
 
-  List<MediaDeviceInfo>? _mediaDevicesList;
-
   @override
   void initState() {
     super.initState();
@@ -58,7 +56,6 @@ class _LoopbackState extends State<Loopback> {
     caps.video.mandatory!.fps = 30;
 
     try {
-      _mediaDevicesList = await enumerateDevices();
       _tracks = await getUserMedia(caps);
       _localRenderer.srcObject =
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video);
@@ -208,9 +205,5 @@ class _LoopbackState extends State<Loopback> {
         child: Icon(_inCalling ? Icons.call_end : Icons.phone),
       ),
     );
-  }
-
-  void _selectAudioOutput(String deviceId) {
-    setOutputAudioId(deviceId);
   }
 }

@@ -8,6 +8,8 @@ import '../track.dart';
 import '../video_renderer.dart';
 import 'media_stream_track.dart';
 
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 /// All active [WebVideoRenderer]s created by the library user.
 Map<int, WebVideoRenderer> _videoRenderers = {};
 
