@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: 2.10
+  FLUTTER_VERSION: 2.10.4
   FLUTTER_CHANNEL: stable
   KTFMT_VERSION: 0.33
   RUST_BACKTRACE: 1

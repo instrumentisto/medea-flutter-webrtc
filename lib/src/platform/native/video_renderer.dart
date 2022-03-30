@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import '../../api/peer.dart';
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
 import '/src/platform/track.dart';
 import '/src/platform/video_renderer.dart';
-import '../../api/peer.dart';
-// import '../../api/utils.dart';
 
 /// Creates a new [NativeVideoRenderer].
 VideoRenderer createPlatformSpecificVideoRenderer() {
