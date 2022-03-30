@@ -119,8 +119,6 @@ ifeq ($(if $(call eq,$(platform),),$(os),$(platform)),windows)
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
 		windows/rust/lib/flutter_webrtc_native.dll.lib
-	cp -f target/cxxbridge/cxxbridge1.lib \
-		windows/rust/lib/cxxbridge1.lib
 	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
 	cp -f crates/native/include/api.h \

@@ -6,7 +6,6 @@
 #include <flutter/standard_method_codec.h>
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
-#include "parsing.h"
 
 namespace flutter_webrtc_plugin {
 
