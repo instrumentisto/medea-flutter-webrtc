@@ -1,14 +1,16 @@
+// ignore_for_file: avoid_print
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/src/model/constraints.dart';
 
 /*
  * getDisplayMedia sample
  */
 class GetDisplayMediaSample extends StatefulWidget {
   static String tag = 'get_display_media_sample';
+
+  const GetDisplayMediaSample({Key? key}) : super(key: key);
 
   @override
   _GetDisplayMediaSampleState createState() => _GetDisplayMediaSampleState();
@@ -83,18 +85,18 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GetDisplayMedia API Test'),
-        actions: [],
+        title: const Text('GetDisplayMedia API Test'),
+        actions: const [],
       ),
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Center(
             child: Stack(children: <Widget>[
               Container(
-                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(color: Colors.black54),
+                decoration: const BoxDecoration(color: Colors.black54),
                 child: VideoView(_localRenderer),
               )
             ]),

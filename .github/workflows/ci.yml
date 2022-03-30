@@ -11,8 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: 2.10.4
-  FLUTTER_CHANNEL: stable
   KTFMT_VERSION: 0.33
   RUST_BACKTRACE: 1
 
@@ -39,9 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: ${{ env.FLUTTER_CHANNEL }}
 
       - run: flutter pub get
 
@@ -65,11 +60,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: ${{ env.FLUTTER_CHANNEL }}
 
-      - run: flutter format lib/ test/ --set-exit-if-changed
+      - run: flutter format . --set-exit-if-changed
 
       - run: flutter pub get
 

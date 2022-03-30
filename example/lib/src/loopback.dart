@@ -1,16 +1,13 @@
+// ignore_for_file: avoid_print
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/src/model/constraints.dart';
-import 'package:flutter_webrtc/src/model/device.dart';
-import 'package:flutter_webrtc/src/model/ice.dart';
-import 'package:flutter_webrtc/src/model/peer.dart';
-import 'package:flutter_webrtc/src/model/track.dart';
-import 'package:flutter_webrtc/src/model/transceiver.dart';
 
 class Loopback extends StatefulWidget {
   static String tag = 'get_usermedia_sample';
+
+  const Loopback({Key? key}) : super(key: key);
 
   @override
   _LoopbackState createState() => _LoopbackState();
@@ -69,20 +66,6 @@ class _LoopbackState extends State<Loopback> {
       _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
       _pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
-      final icecb = (IceConnectionState state) {
-        print(state.toString());
-      };
-
-      final pccb = (PeerConnectionState state) {
-        print(state.toString());
-      };
-
-      _pc1?.onIceConnectionStateChange(icecb);
-      _pc2?.onIceConnectionStateChange(icecb);
-
-      _pc1?.onConnectionStateChange(pccb);
-      _pc2?.onConnectionStateChange(pccb);
-
       _pc1?.onIceCandidateError((p0) {
         print(p0.errorText);
       });
@@ -134,9 +117,9 @@ class _LoopbackState extends State<Loopback> {
       _localRenderer.srcObject = null;
       _remoteRenderer.srcObject = null;
 
-      _tracks!.forEach((track) async {
+      for (var track in _tracks!) {
         await track.dispose();
-      });
+      }
 
       await _pc1?.close();
       await _pc2?.close();
@@ -153,7 +136,7 @@ class _LoopbackState extends State<Loopback> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GetUserMedia API Test'),
+        title: const Text('GetUserMedia API Test'),
         actions: _inCalling
             ? <Widget>[
                 PopupMenuButton<String>(
@@ -161,7 +144,8 @@ class _LoopbackState extends State<Loopback> {
                   itemBuilder: (BuildContext context) {
                     if (_mediaDevicesList != null) {
                       return _mediaDevicesList!
-                          .where((device) => device.kind == 'audiooutput')
+                          .where((device) =>
+                              device.kind == MediaDeviceKind.audiooutput)
                           .map((device) {
                         return PopupMenuItem<String>(
                           value: device.deviceId,
@@ -181,17 +165,17 @@ class _LoopbackState extends State<Loopback> {
               child: Row(
             children: [
               Container(
-                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(color: Colors.black54),
+                decoration: const BoxDecoration(color: Colors.black54),
                 child: VideoView(_localRenderer, mirror: true),
               ),
               Container(
-                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(color: Colors.black54),
+                decoration: const BoxDecoration(color: Colors.black54),
                 child: VideoView(_remoteRenderer, mirror: true),
               ),
             ],

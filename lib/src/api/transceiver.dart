@@ -116,9 +116,9 @@ class RtpTransceiverFFI extends RtpTransceiver {
 
   @override
   Future<TransceiverDirection> getDirection() async {
-    return TransceiverDirection.values[
-        (await api.getTransceiverDirection(peerId: _peerId, transceiverIndex: _id))
-            .index];
+    return TransceiverDirection.values[(await api.getTransceiverDirection(
+            peerId: _peerId, transceiverIndex: _id))
+        .index];
   }
 
   @override

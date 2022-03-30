@@ -2,9 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/src/model/peer.dart';
-import 'package:flutter_webrtc/src/model/track.dart';
-import 'package:flutter_webrtc/src/model/transceiver.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
@@ -222,7 +219,7 @@ void main() {
       completer.complete();
     });
     await pc2.setRemoteDescription(await pc1.createOffer());
-    await completer.future.timeout(Duration(seconds: 1));
+    await completer.future.timeout(const Duration(seconds: 1));
   });
 
   testWidgets('Track Onended', (WidgetTester tester) async {
@@ -240,6 +237,6 @@ void main() {
 
     await pc2.setRemoteDescription(await pc1.createOffer());
     await (await pc2.getTransceivers())[0].stop();
-    await completer.future.timeout(Duration(seconds: 3));
+    await completer.future.timeout(const Duration(seconds: 3));
   });
 }

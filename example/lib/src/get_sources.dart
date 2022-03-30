@@ -6,6 +6,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 class GetSourcesSample extends StatefulWidget {
   static String tag = 'get_sources_sample';
 
+  const GetSourcesSample({Key? key}) : super(key: key);
+
   @override
   _GetSourcesSampleState createState() => _GetSourcesSampleState();
 }
@@ -22,10 +24,10 @@ class _GetSourcesSampleState extends State<GetSourcesSample> {
     var mediaDeviceInfos = await enumerateDevices();
     setState(() {
       var devicesInfo = '';
-      mediaDeviceInfos.forEach((device) {
+      for (var device in mediaDeviceInfos) {
         devicesInfo = devicesInfo +
             'Kind: ${device.kind}\nName: ${device.label}\nId: ${device.deviceId}\n\n';
-      });
+      }
       text = devicesInfo;
     });
   }
@@ -34,12 +36,12 @@ class _GetSourcesSampleState extends State<GetSourcesSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('getSources'),
+        title: const Text('getSources'),
       ),
       body: Center(child: Text(text)),
       floatingActionButton: FloatingActionButton(
         onPressed: _getSources,
-        child: Icon(Icons.phone),
+        child: const Icon(Icons.phone),
       ),
     );
   }
