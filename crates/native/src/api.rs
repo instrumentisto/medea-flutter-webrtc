@@ -1,12 +1,10 @@
-use std::{sync::Mutex, time::Duration};
+use std::sync::Mutex;
 
 use cxx::UniquePtr;
 use flutter_rust_bridge::{StreamSink, SyncReturn};
 use libwebrtc_sys as sys;
 
 use crate::{cpp_api, Webrtc};
-
-pub static TIMEOUT: Duration = Duration::from_secs(5);
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
@@ -802,12 +800,12 @@ pub fn get_transceivers(
 /// [`RtcRtpTransceiver`].
 pub fn set_transceiver_direction(
     peer_id: u64,
-    transceiver_id: u64,
+    transceiver_index: u32,
     direction: RtpTransceiverDirection,
 ) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_transceiver_direction(
         peer_id,
-        transceiver_id,
+        transceiver_index,
         direction,
     )
 }
@@ -818,24 +816,24 @@ pub fn set_transceiver_direction(
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 pub fn get_transceiver_mid(
     peer_id: u64,
-    transceiver_id: u64,
+    transceiver_index: u32,
 ) -> anyhow::Result<Option<String>> {
     WEBRTC
         .lock()
         .unwrap()
-        .get_transceiver_mid(peer_id, transceiver_id)
+        .get_transceiver_mid(peer_id, transceiver_index)
 }
 
 /// Returns the preferred direction of the specified
 /// [`RtcRtpTransceiver`].
 pub fn get_transceiver_direction(
     peer_id: u64,
-    transceiver_id: u64,
+    transceiver_index: u32,
 ) -> anyhow::Result<RtpTransceiverDirection> {
     WEBRTC
         .lock()
         .unwrap()
-        .get_transceiver_direction(peer_id, transceiver_id)
+        .get_transceiver_direction(peer_id, transceiver_index)
         .map(Into::into)
 }
 
@@ -846,24 +844,24 @@ pub fn get_transceiver_direction(
 /// send, and its receiver to no longer receive.
 pub fn stop_transceiver(
     peer_id: u64,
-    transceiver_id: u64,
+    transceiver_index: u32,
 ) -> anyhow::Result<()> {
     WEBRTC
         .lock()
         .unwrap()
-        .stop_transceiver(peer_id, transceiver_id)
+        .stop_transceiver(peer_id, transceiver_index)
 }
 
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
 /// the [`sys::Transceiver`]'s `sender`.
 pub fn sender_replace_track(
     peer_id: u64,
-    transceiver_id: u64,
+    transceiver_index: u32,
     track_id: Option<u64>,
 ) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().sender_replace_track(
         peer_id,
-        transceiver_id,
+        transceiver_index,
         track_id,
     )
 }
@@ -878,8 +876,8 @@ pub fn add_ice_candidate(
 ) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().add_ice_candidate(
         peer_id,
-        &candidate,
-        &sdp_mid,
+        candidate,
+        sdp_mid,
         sdp_mline_index,
     )
 }
@@ -960,8 +958,9 @@ pub fn create_video_sink(
         .create_video_sink(sink_id, track_id, handler)
 }
 
+// TODO: Fix return type when SyncReturn allows other types.
 /// Destroys the [`VideoSink`] by the given ID.
 pub fn dispose_video_sink(sink_id: i64) -> SyncReturn<Vec<u8>> {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
-    SyncReturn(vec![])
+    SyncReturn(Vec::new())
 }

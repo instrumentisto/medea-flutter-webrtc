@@ -167,11 +167,13 @@ impl TaskQueueFactory {
     }
 }
 
+unsafe impl Send for webrtc::TaskQueueFactory {}
+unsafe impl Sync for webrtc::TaskQueueFactory {}
+
 /// Available audio devices manager that is responsible for driving input
 /// (microphone) and output (speaker) audio in WebRTC.
 ///
-/// Backed by WebRTC's [Audio Device Module]. It is not thread safe and __MUST__
-/// be only used and dropped on the thread it was created on.
+/// Backed by WebRTC's [Audio Device Module].
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
 pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
@@ -307,6 +309,9 @@ impl AudioDeviceModule {
     }
 }
 
+unsafe impl Send for webrtc::AudioDeviceModule {}
+unsafe impl Sync for webrtc::AudioDeviceModule {}
+
 /// Interface for receiving information about available camera devices.
 pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
@@ -354,6 +359,9 @@ impl VideoDeviceInfo {
         Ok((name, guid))
     }
 }
+
+unsafe impl Send for webrtc::VideoDeviceInfo {}
+unsafe impl Sync for webrtc::VideoDeviceInfo {}
 
 /// [RTCConfiguration][1] wrapper.
 ///
@@ -445,6 +453,9 @@ impl PeerConnectionObserver {
         Self(webrtc::create_peer_connection_observer(Box::new(cb)))
     }
 }
+
+unsafe impl Send for webrtc::PeerConnectionObserver {}
+unsafe impl Sync for webrtc::PeerConnectionObserver {}
 
 /// Contains all the [`PeerConnectionInterface`] dependencies.
 pub struct PeerConnectionDependencies {
@@ -559,7 +570,6 @@ impl SetRemoteDescriptionObserver {
 /// [media stream "identification-tag"][1].
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct RtpTransceiverInterface {
     /// Pointer to the C++ side [`RtpTransceiverInterface`] object.
     ///
@@ -642,15 +652,14 @@ impl RtpTransceiverInterface {
     }
 }
 
-unsafe impl Send for RtpTransceiverInterface {}
-unsafe impl Sync for RtpTransceiverInterface {}
+unsafe impl Send for webrtc::RtpTransceiverInterface {}
+unsafe impl Sync for webrtc::RtpTransceiverInterface {}
 
 /// [RTCRtpSender] allowing to control how a [MediaStreamTrack][1] is encoded
 /// and transmitted to a remote peer.
 ///
 /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct RtpSenderInterface(UniquePtr<webrtc::RtpSenderInterface>);
 
 impl RtpSenderInterface {
@@ -691,15 +700,14 @@ impl RtpSenderInterface {
     }
 }
 
-unsafe impl Send for RtpSenderInterface {}
-unsafe impl Sync for RtpSenderInterface {}
+unsafe impl Send for webrtc::RtpSenderInterface {}
+unsafe impl Sync for webrtc::RtpSenderInterface {}
 
 /// [RTCRtpReceiver][0] allowing to inspect the receipt of a
 /// [MediaStreamTrack][1].
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct RtpReceiverInterface(UniquePtr<webrtc::RtpReceiverInterface>);
 
 impl RtpReceiverInterface {
@@ -719,8 +727,8 @@ impl RtpReceiverInterface {
     }
 }
 
-unsafe impl Send for RtpReceiverInterface {}
-unsafe impl Sync for RtpReceiverInterface {}
+unsafe impl Send for webrtc::RtpReceiverInterface {}
+unsafe impl Sync for webrtc::RtpReceiverInterface {}
 
 /// [RTCRtpCodecParameters][0] representation.
 ///
@@ -999,7 +1007,6 @@ impl IceCandidateInterface {
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [2]: https://webrtc.github.io/webrtc-org/native-code/native-apis
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct PeerConnectionInterface {
     /// Pointer to the C++ side [`PeerConnectionInterface`] object.
     ///
@@ -1013,8 +1020,8 @@ pub struct PeerConnectionInterface {
     _observer: PeerConnectionObserver,
 }
 
-unsafe impl Sync for PeerConnectionInterface {}
-unsafe impl Send for PeerConnectionInterface {}
+unsafe impl Sync for webrtc::PeerConnectionInterface {}
+unsafe impl Send for webrtc::PeerConnectionInterface {}
 
 impl PeerConnectionInterface {
     /// [RTCPeerConnection.createOffer()][1] implementation.
@@ -1144,12 +1151,14 @@ impl Thread {
     }
 }
 
+unsafe impl Send for webrtc::Thread {}
+unsafe impl Sync for webrtc::Thread {}
+
 /// [`PeerConnectionFactoryInterface`] is the main entry point to the
 /// `PeerConnection API` for clients it is responsible for creating
 /// [`AudioSourceInterface`], tracks ([`VideoTrackInterface`],
 /// [`AudioTrackInterface`]), [`MediaStreamInterface`] and the
 /// `PeerConnection`s.
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct PeerConnectionFactoryInterface(
     UniquePtr<webrtc::PeerConnectionFactoryInterface>,
 );
@@ -1282,15 +1291,14 @@ impl PeerConnectionFactoryInterface {
     }
 }
 
-unsafe impl Send for PeerConnectionFactoryInterface {}
-unsafe impl Sync for PeerConnectionFactoryInterface {}
+unsafe impl Send for webrtc::PeerConnectionFactoryInterface {}
+unsafe impl Sync for webrtc::PeerConnectionFactoryInterface {}
 
 /// [`VideoTrackSourceInterface`] captures data from the specific video input
 /// device.
 ///
 /// It can be later used to create a [`VideoTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_video_track()`].
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct VideoTrackSourceInterface(
     UniquePtr<webrtc::VideoTrackSourceInterface>,
 );
@@ -1362,8 +1370,8 @@ impl VideoTrackSourceInterface {
     }
 }
 
-unsafe impl Send for VideoTrackSourceInterface {}
-unsafe impl Sync for VideoTrackSourceInterface {}
+unsafe impl Send for webrtc::VideoTrackSourceInterface {}
+unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 
 /// [`VideoTrackSourceInterface`] captures data from the specific audio input
 /// device.
@@ -1371,6 +1379,9 @@ unsafe impl Sync for VideoTrackSourceInterface {}
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
+
+unsafe impl Send for webrtc::AudioSourceInterface {}
+unsafe impl Sync for webrtc::AudioSourceInterface {}
 
 /// [MediaStreamTrack] object representing a media source in an User Agent.
 ///
@@ -1437,10 +1448,12 @@ impl TrackEventObserver {
     }
 }
 
+unsafe impl Send for webrtc::TrackEventObserver {}
+unsafe impl Sync for webrtc::TrackEventObserver {}
+
 /// Video [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct VideoTrackInterface {
     /// Pointer to the C++ side `VideoTrackInterface` object.
     inner: UniquePtr<webrtc::VideoTrackInterface>,
@@ -1504,8 +1517,8 @@ impl Drop for VideoTrackInterface {
     }
 }
 
-unsafe impl Send for VideoTrackInterface {}
-unsafe impl Sync for VideoTrackInterface {}
+unsafe impl Send for webrtc::VideoTrackInterface {}
+unsafe impl Sync for webrtc::VideoTrackInterface {}
 
 impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
     type Error = anyhow::Error;
@@ -1532,7 +1545,6 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct AudioTrackInterface {
     /// Pointer to the C++ side `AudioTrackInterface` object.
     inner: UniquePtr<webrtc::AudioTrackInterface>,
@@ -1581,8 +1593,8 @@ impl Drop for AudioTrackInterface {
     }
 }
 
-unsafe impl Send for AudioTrackInterface {}
-unsafe impl Sync for AudioTrackInterface {}
+unsafe impl Send for webrtc::AudioTrackInterface {}
+unsafe impl Sync for webrtc::AudioTrackInterface {}
 
 impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
     type Error = anyhow::Error;
@@ -1609,7 +1621,6 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
 /// [`MediaStreamInterface`][1] representation.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastream
-#[allow(clippy::non_send_fields_in_send_ty)]
 pub struct MediaStreamInterface(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl MediaStreamInterface {
@@ -1670,8 +1681,8 @@ impl MediaStreamInterface {
     }
 }
 
-unsafe impl Send for MediaStreamInterface {}
-unsafe impl Sync for MediaStreamInterface {}
+unsafe impl Send for webrtc::MediaStreamInterface {}
+unsafe impl Sync for webrtc::MediaStreamInterface {}
 
 /// End point of a video pipeline.
 pub struct VideoSinkInterface(UniquePtr<webrtc::VideoSinkInterface>);
@@ -1684,3 +1695,6 @@ impl VideoSinkInterface {
         Self(webrtc::create_forwarding_video_sink(Box::new(cb)))
     }
 }
+
+unsafe impl Send for webrtc::VideoSinkInterface {}
+unsafe impl Sync for webrtc::VideoSinkInterface {}

@@ -93,6 +93,15 @@ flutter.test:
 # Cargo commands #
 ##################
 
+# Generates Rust and Dart side interop bridge.
+#
+# Usage:
+#	make codegen
+codegen:
+	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
+		--dart-output lib/src/api/bridge.g.dart \
+		--skip-add-mod-to-lib --dart-format-line-length 80
+
 # Build `flutter-webrtc-native` crate and copy final artifacts to appropriate
 # platform-specific directories.
 #
@@ -100,13 +109,7 @@ flutter.test:
 #	make cargo.build [debug=(yes|no)]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
-os = $(if $(call eq,$(OS),Windows_NT),windows,)
-
-# todo check and add doc
-codegen:
-	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
-		--dart-output lib/src/api/bridge.g.dart \
-		--skip-add-mod-to-lib --dart-format-line-length 80
+os = $(if $(call eq,$(OS),Windows_NT),windows,linux)
 
 cargo.build:
 	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)

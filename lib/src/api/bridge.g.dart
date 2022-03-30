@@ -88,7 +88,7 @@ abstract class FlutterWebrtcNative {
   /// [`RtcRtpTransceiver`].
   Future<void> setTransceiverDirection(
       {required int peerId,
-      required int transceiverId,
+      required int transceiverIndex,
       required RtpTransceiverDirection direction,
       dynamic hint});
 
@@ -97,12 +97,12 @@ abstract class FlutterWebrtcNative {
   ///
   /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
   Future<String?> getTransceiverMid(
-      {required int peerId, required int transceiverId, dynamic hint});
+      {required int peerId, required int transceiverIndex, dynamic hint});
 
   /// Returns the preferred direction of the specified
   /// [`RtcRtpTransceiver`].
   Future<RtpTransceiverDirection> getTransceiverDirection(
-      {required int peerId, required int transceiverId, dynamic hint});
+      {required int peerId, required int transceiverIndex, dynamic hint});
 
   /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
   /// unless it's already stopped.
@@ -110,13 +110,13 @@ abstract class FlutterWebrtcNative {
   /// This will immediately cause the transceiver's sender to no longer
   /// send, and its receiver to no longer receive.
   Future<void> stopTransceiver(
-      {required int peerId, required int transceiverId, dynamic hint});
+      {required int peerId, required int transceiverIndex, dynamic hint});
 
   /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
   /// the [`sys::Transceiver`]'s `sender`.
   Future<void> senderReplaceTrack(
       {required int peerId,
-      required int transceiverId,
+      required int transceiverIndex,
       int? trackId,
       dynamic hint});
 
@@ -218,7 +218,7 @@ enum BundlePolicy {
   MaxCompat,
 }
 
-/// [RTCIceConnectionState][1] representation.
+/// [`RTCIceConnectionState`][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
 enum IceConnectionState {
@@ -258,7 +258,7 @@ enum IceConnectionState {
   Closed,
 }
 
-/// [RTCIceGatheringState][1] representation.
+/// [`RTCIceGatheringState`][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
 enum IceGatheringState {
@@ -684,7 +684,7 @@ enum SdpType {
   Rollback,
 }
 
-/// [RTCSignalingState] representation.
+/// [`RTCSignalingState`] representation.
 ///
 /// [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
 enum SignalingState {
@@ -721,9 +721,9 @@ enum SignalingState {
 
 /// Indicates current state of [`MediaStreamTrack`].
 enum TrackEvent {
-  /// The ended event of the [`MediaStreamTrack`] interface is fired when playback
-  /// or streaming has stopped because the end of the media was reached
-  /// or because no further data is available.
+  /// The ended event of the [`MediaStreamTrack`] interface is fired when
+  /// playback or streaming has stopped because the end of the media was
+  /// reached or because no further data is available.
   Ended,
 }
 
@@ -921,83 +921,83 @@ class FlutterWebrtcNativeImpl
 
   Future<void> setTransceiverDirection(
           {required int peerId,
-          required int transceiverId,
+          required int transceiverIndex,
           required RtpTransceiverDirection direction,
           dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_set_transceiver_direction(
             port_,
             _api2wire_u64(peerId),
-            _api2wire_u64(transceiverId),
+            _api2wire_u32(transceiverIndex),
             _api2wire_rtp_transceiver_direction(direction)),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "set_transceiver_direction",
-          argNames: ["peerId", "transceiverId", "direction"],
+          argNames: ["peerId", "transceiverIndex", "direction"],
         ),
-        argValues: [peerId, transceiverId, direction],
+        argValues: [peerId, transceiverIndex, direction],
         hint: hint,
       ));
 
   Future<String?> getTransceiverMid(
-          {required int peerId, required int transceiverId, dynamic hint}) =>
+          {required int peerId, required int transceiverIndex, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_transceiver_mid(
-            port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
+            port_, _api2wire_u64(peerId), _api2wire_u32(transceiverIndex)),
         parseSuccessData: _wire2api_opt_String,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_transceiver_mid",
-          argNames: ["peerId", "transceiverId"],
+          argNames: ["peerId", "transceiverIndex"],
         ),
-        argValues: [peerId, transceiverId],
+        argValues: [peerId, transceiverIndex],
         hint: hint,
       ));
 
   Future<RtpTransceiverDirection> getTransceiverDirection(
-          {required int peerId, required int transceiverId, dynamic hint}) =>
+          {required int peerId, required int transceiverIndex, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_transceiver_direction(
-            port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
+            port_, _api2wire_u64(peerId), _api2wire_u32(transceiverIndex)),
         parseSuccessData: _wire2api_rtp_transceiver_direction,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_transceiver_direction",
-          argNames: ["peerId", "transceiverId"],
+          argNames: ["peerId", "transceiverIndex"],
         ),
-        argValues: [peerId, transceiverId],
+        argValues: [peerId, transceiverIndex],
         hint: hint,
       ));
 
   Future<void> stopTransceiver(
-          {required int peerId, required int transceiverId, dynamic hint}) =>
+          {required int peerId, required int transceiverIndex, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_stop_transceiver(
-            port_, _api2wire_u64(peerId), _api2wire_u64(transceiverId)),
+            port_, _api2wire_u64(peerId), _api2wire_u32(transceiverIndex)),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "stop_transceiver",
-          argNames: ["peerId", "transceiverId"],
+          argNames: ["peerId", "transceiverIndex"],
         ),
-        argValues: [peerId, transceiverId],
+        argValues: [peerId, transceiverIndex],
         hint: hint,
       ));
 
   Future<void> senderReplaceTrack(
           {required int peerId,
-          required int transceiverId,
+          required int transceiverIndex,
           int? trackId,
           dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_sender_replace_track(
             port_,
             _api2wire_u64(peerId),
-            _api2wire_u64(transceiverId),
+            _api2wire_u32(transceiverIndex),
             _api2wire_opt_box_autoadd_u64(trackId)),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "sender_replace_track",
-          argNames: ["peerId", "transceiverId", "trackId"],
+          argNames: ["peerId", "transceiverIndex", "trackId"],
         ),
-        argValues: [peerId, transceiverId, trackId],
+        argValues: [peerId, transceiverIndex, trackId],
         hint: hint,
       ));
 
@@ -1743,20 +1743,20 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_set_transceiver_direction(
     int port_,
     int peer_id,
-    int transceiver_id,
+    int transceiver_index,
     int direction,
   ) {
     return _wire_set_transceiver_direction(
       port_,
       peer_id,
-      transceiver_id,
+      transceiver_index,
       direction,
     );
   }
 
   late final _wire_set_transceiver_directionPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint64,
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32,
               ffi.Int32)>>('wire_set_transceiver_direction');
   late final _wire_set_transceiver_direction =
       _wire_set_transceiver_directionPtr
@@ -1765,38 +1765,38 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_get_transceiver_mid(
     int port_,
     int peer_id,
-    int transceiver_id,
+    int transceiver_index,
   ) {
     return _wire_get_transceiver_mid(
       port_,
       peer_id,
-      transceiver_id,
+      transceiver_index,
     );
   }
 
   late final _wire_get_transceiver_midPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(
-              ffi.Int64, ffi.Uint64, ffi.Uint64)>>('wire_get_transceiver_mid');
+              ffi.Int64, ffi.Uint64, ffi.Uint32)>>('wire_get_transceiver_mid');
   late final _wire_get_transceiver_mid =
       _wire_get_transceiver_midPtr.asFunction<void Function(int, int, int)>();
 
   void wire_get_transceiver_direction(
     int port_,
     int peer_id,
-    int transceiver_id,
+    int transceiver_index,
   ) {
     return _wire_get_transceiver_direction(
       port_,
       peer_id,
-      transceiver_id,
+      transceiver_index,
     );
   }
 
   late final _wire_get_transceiver_directionPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int64, ffi.Uint64,
-              ffi.Uint64)>>('wire_get_transceiver_direction');
+              ffi.Uint32)>>('wire_get_transceiver_direction');
   late final _wire_get_transceiver_direction =
       _wire_get_transceiver_directionPtr
           .asFunction<void Function(int, int, int)>();
@@ -1804,39 +1804,39 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_stop_transceiver(
     int port_,
     int peer_id,
-    int transceiver_id,
+    int transceiver_index,
   ) {
     return _wire_stop_transceiver(
       port_,
       peer_id,
-      transceiver_id,
+      transceiver_index,
     );
   }
 
   late final _wire_stop_transceiverPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(
-              ffi.Int64, ffi.Uint64, ffi.Uint64)>>('wire_stop_transceiver');
+              ffi.Int64, ffi.Uint64, ffi.Uint32)>>('wire_stop_transceiver');
   late final _wire_stop_transceiver =
       _wire_stop_transceiverPtr.asFunction<void Function(int, int, int)>();
 
   void wire_sender_replace_track(
     int port_,
     int peer_id,
-    int transceiver_id,
+    int transceiver_index,
     ffi.Pointer<ffi.Uint64> track_id,
   ) {
     return _wire_sender_replace_track(
       port_,
       peer_id,
-      transceiver_id,
+      transceiver_index,
       track_id,
     );
   }
 
   late final _wire_sender_replace_trackPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint64,
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32,
               ffi.Pointer<ffi.Uint64>)>>('wire_sender_replace_track');
   late final _wire_sender_replace_track = _wire_sender_replace_trackPtr
       .asFunction<void Function(int, int, int, ffi.Pointer<ffi.Uint64>)>();

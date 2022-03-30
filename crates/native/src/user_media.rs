@@ -16,10 +16,8 @@ use crate::{
 };
 
 impl Webrtc {
-    /// Creates a new local [`MediaStream`] with [`VideoTrack`]s and/or
-    /// [`AudioTrack`]s according to the provided accepted
-    /// [`api::MediaStreamConstraints`].
-    #[allow(clippy::too_many_lines, clippy::missing_panics_doc)]
+    /// Creates a new [`VideoTrack`]s and/or [`AudioTrack`]s according to the
+    /// provided accepted [`api::MediaStreamConstraints`].
     pub fn get_media(
         &mut self,
         constraints: api::MediaStreamConstraints,
@@ -41,25 +39,21 @@ impl Webrtc {
         Ok(result)
     }
 
-    /// Disposes the [`MediaStream`] and all the contained tracks in it.
+    /// Disposes the [`VideoTrack`] or [`AudioTrack`] by the provided
+    /// `track_id`.
     pub fn dispose_track(&mut self, track_id: u64) {
-        let senders;
-
-        if let Some((_, track)) =
+        let senders = if let Some((_, track)) =
             self.video_tracks.remove(&VideoTrackId::from(track_id))
         {
-            senders = track.senders;
-
             if let MediaTrackSource::Local(src) = track.source {
                 if Arc::strong_count(&src) == 2 {
                     self.video_sources.remove(&src.device_id);
                 };
-            }
+            };
+            track.senders
         } else if let Some((_, track)) =
             self.audio_tracks.remove(&AudioTrackId::from(track_id))
         {
-            senders = track.senders;
-
             if let MediaTrackSource::Local(src) = track.source {
                 if Arc::strong_count(&src) == 2 {
                     self.audio_source.take();
@@ -67,21 +61,17 @@ impl Webrtc {
                     //       recording.
                 };
             }
+            track.senders
         } else {
             return;
-        }
+        };
 
-        for peer in senders {
-            for transceiver_index in peer.1 {
-                if let Some(err) = self
-                    .sender_replace_track(
-                        peer.0.into(),
-                        transceiver_index,
-                        None,
-                    )
-                    .err()
+        for (id, senders) in senders {
+            for transceiver in senders {
+                if let Err(err) =
+                    self.sender_replace_track(id.into(), transceiver, None)
                 {
-                    log::error!("{err}");
+                    log::error!("Failed to remove track for the sender: {err}");
                 }
             }
         }
@@ -561,7 +551,7 @@ pub struct VideoTrack {
     /// Caching [`PeerConnectionId`] and set of `transceiver index`s
     /// in every [`crate::PeerConnection`] where this [`VideoTrack`]
     /// is used to be sent.
-    senders: HashMap<PeerConnectionId, HashSet<u64>>,
+    senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl VideoTrack {
@@ -634,7 +624,7 @@ impl VideoTrack {
     }
 
     /// Returns [`VideoTrack`]'s `senders`.
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u64>> {
+    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }
 }
@@ -670,10 +660,9 @@ pub struct AudioTrack {
     /// microphone".
     label: AudioLabel,
 
-    /// Caching [`PeerConnectionId`] and set of `transceiver index`s
-    /// in every [`crate::PeerConnection`] where this [`AudioTrack`]
-    /// is used to be sent.
-    senders: HashMap<PeerConnectionId, HashSet<u64>>,
+    /// Caching [`PeerConnectionId`] and set of `transceiver index`s in every
+    /// [`crate::PeerConnection`] where this [`AudioTrack`]cis used to be sent.
+    senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl AudioTrack {
@@ -737,7 +726,7 @@ impl AudioTrack {
     }
 
     /// Returns [`AudioTrack`]'s `senders`.
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u64>> {
+    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }
 }

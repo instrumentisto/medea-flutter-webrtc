@@ -7,27 +7,23 @@ use crate::{cpp_api, VideoTrackId, Webrtc};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
-    ///
-    /// # Panics
-    ///
-    /// If the specified [`MediaStream`] cannot be found, or if it's found
-    /// without any [`VideoTrack`]s.
     pub fn create_video_sink(
         &mut self,
         sink_id: i64,
         track_id: u64,
         handler: UniquePtr<cpp_api::OnFrameCallbackInterface>,
     ) -> anyhow::Result<()> {
+        let track_id = VideoTrackId::from(track_id);
         let mut sink = VideoSink {
             id: Id(sink_id),
             inner: sys::VideoSinkInterface::create_forwarding(Box::new(
                 OnFrameCallback(handler),
             )),
-            track_id: track_id.into(),
+            track_id,
         };
 
         let mut track =
-            self.video_tracks.get_mut(&track_id.into()).ok_or_else(|| {
+            self.video_tracks.get_mut(&track_id).ok_or_else(|| {
                 anyhow!("Could not find track with `{track_id}` ID")
             })?;
 
@@ -85,8 +81,7 @@ impl cpp_api::VideoFrame {
     /// # Safety
     ///
     /// The provided `buffer` must be a valid pointer.
-    #[allow(clippy::unused_self)]
-    pub unsafe fn get_abgr_bytes(self: &cpp_api::VideoFrame, buffer: *mut u8) {
+    pub unsafe fn get_abgr_bytes(&self, buffer: *mut u8) {
         libwebrtc_sys::video_frame_to_abgr(self.frame.0.as_ref(), buffer);
     }
 }

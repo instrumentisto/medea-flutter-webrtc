@@ -374,6 +374,7 @@ pub unsafe fn init() {
     });
 }
 
+// TODO: Implement OnDeviceChange for Linux
 #[cfg(target_os = "linux")]
 #[allow(clippy::unnecessary_wraps)]
 pub unsafe fn init() {

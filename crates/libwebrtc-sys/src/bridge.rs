@@ -30,8 +30,7 @@ type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 #[allow(
     clippy::expl_impl_clone_on_copy,
     clippy::items_after_statements,
-    clippy::ptr_as_ptr,
-    clippy::non_send_fields_in_send_ty
+    clippy::ptr_as_ptr
 )]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
@@ -1917,23 +1916,3 @@ impl fmt::Display for webrtc::PeerConnectionState {
         }
     }
 }
-
-unsafe impl Send for webrtc::IceCandidateInterface {}
-
-unsafe impl Send for webrtc::VideoDeviceInfo {}
-unsafe impl Sync for webrtc::VideoDeviceInfo {}
-
-unsafe impl Send for webrtc::TaskQueueFactory {}
-unsafe impl Sync for webrtc::TaskQueueFactory {}
-
-unsafe impl Send for webrtc::Thread {}
-unsafe impl Sync for webrtc::Thread {}
-
-unsafe impl Send for webrtc::AudioDeviceModule {}
-unsafe impl Sync for webrtc::AudioDeviceModule {}
-
-unsafe impl Send for webrtc::AudioSourceInterface {}
-unsafe impl Sync for webrtc::AudioSourceInterface {}
-
-unsafe impl Send for webrtc::VideoSinkInterface {}
-unsafe impl Sync for webrtc::VideoSinkInterface {}

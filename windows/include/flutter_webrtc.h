@@ -5,11 +5,9 @@
 #include "flutter/method_result.h"
 #include "flutter/plugin_registrar.h"
 #include "flutter/texture_registrar.h"
-// #include "flutter_webrtc_native.h"
 #include "video_renderer.h"
 
 using namespace flutter;
-// using namespace rust::cxxbridge1;
 
 namespace flutter_webrtc_plugin {
 
