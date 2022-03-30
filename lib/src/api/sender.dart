@@ -1,19 +1,17 @@
-// Flutter imports:
 import 'package:flutter/services.dart';
 
-// Project imports:
 import '/src/platform/track.dart';
 import 'channel.dart';
 import 'peer.dart';
 
 /// [RTCSender](https://www.w3.org/TR/webrtc/#dom-rtcrtpsender) implementation.
 abstract class RtpSender {
-  /// Create a new [RtpSender] from channel result.
+  /// Creates an [RtpSender] basing on the [Map] received from the native side.
   static RtpSender fromMap(dynamic map) {
     return _RtpSenderChannel.fromMap(map);
   }
 
-  /// Create a new [RtpSender] from FFI result.
+  /// Create a new [RtpSender] from the provided [peerId] and [transceiverId].
   static RtpSender fromFFI(int peerId, int transceiverId) {
     return _RtpSenderFFI(peerId, transceiverId);
   }
@@ -28,7 +26,7 @@ abstract class RtpSender {
   Future<void> replaceTrack(MediaStreamTrack? t);
 }
 
-/// Channel realization of the [RtpSender].
+/// [MethodChannel]-based implementation of a [RtpSender].
 class _RtpSenderChannel extends RtpSender {
   /// Creates an [RtpSender] basing on the [Map] received from the native side.
   _RtpSenderChannel.fromMap(dynamic map) {
@@ -45,12 +43,12 @@ class _RtpSenderChannel extends RtpSender {
   }
 }
 
-/// FFI realization of the [RtpSender].
+/// FFI-based implementation of a [RtpSender].
 class _RtpSenderFFI extends RtpSender {
-  /// `Id` of the native `PeerConnection`.
+  /// `ID` of the native side peer.
   final int _peerId;
 
-  /// `Id` of the native `Transceiver`.
+  /// `ID` of the native side transceiver.
   final int _transceiverId;
 
   _RtpSenderFFI(this._peerId, this._transceiverId);

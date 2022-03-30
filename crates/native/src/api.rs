@@ -1,10 +1,10 @@
-use std::sync::Mutex;
+use std::{mem, sync::Mutex};
 
 use cxx::UniquePtr;
 use flutter_rust_bridge::{StreamSink, SyncReturn};
 use libwebrtc_sys as sys;
 
-use crate::{cpp_api, Webrtc};
+use crate::{cpp_api::OnFrameCallbackInterface, Webrtc};
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
@@ -58,26 +58,65 @@ pub enum PeerConnectionEvent {
     /// Provides the [`PeerConnection`]'s `id`.
     PeerCreated { id: u64 },
 
-    /// A new [`ICE candidate`][1] has been discovered.
+    /// A new [`RTCIceCandidate`][1] has been discovered.
     ///
     /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
     IceCandidate {
+        /// Contains the media stream "identification-tag" defined in
+        /// [RFC5888][1] for the media component this candidate is associated
+        /// with.
+        ///
+        /// [1]: https://tools.ietf.org/html/rfc5888
         sdp_mid: String,
+
+        /// Indicates the index (starting at zero) of the media description in
+        /// the SDP this candidate is associated with.
         sdp_mline_index: i32,
+
+        /// This carries the candidate-attribute as defined in section 15.1 of
+        /// [RFC5245][1]. If this RTCIceCandidate represents an
+        /// end-of-candidates indication or a peer reflexive remote candidate,
+        /// candidate is an empty string.
+        ///
+        /// [1]: https://tools.ietf.org/html/rfc5245
         candidate: String,
     },
 
     /// The [`PeerConnection`]'s ICE gathering state has changed.
     IceGatheringStateChange(IceGatheringState),
 
-    /// A failure occured when gathering [`ICE candidate`][1].
+    /// A failure occurred when gathering [`ICE candidate`][1].
     ///
     /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
     IceCandidateError {
+        /// The address attribute is the local IP address used to communicate
+        /// with the STUN or TURN server.
         address: String,
+
+        /// The port attribute is the port used to communicate with the STUN or
+        /// TURN server.
         port: i32,
+
+        /// The url attribute is the STUN or TURN URL that identifies the STUN
+        /// or TURN server for which the failure occurred.
         url: String,
+
+        /// The numeric STUN error code returned by the STUN or TURN server
+        /// [`STUN-PARAMETERS`][1].
+        ///
+        /// If no host candidate can reach the server, errorCode will be set to
+        /// the value 701 which is outside the STUN error code range.
+        ///
+        /// [1]: https://tinyurl.com/stun-parameters-6
         error_code: i32,
+
+        /// The STUN reason text returned by the STUN or TURN server
+        /// [`STUN-PARAMETERS`][1].
+        ///
+        /// If the server could not be reached, this will be set to an
+        /// implementation-specific value providing details about the error.
+        ///
+        /// [1]: https://tinyurl.com/stun-parameters-6
         error_text: String,
     },
 
@@ -462,7 +501,7 @@ pub struct VideoConstraints {
     /// The identifier of the device generating the content of the
     /// [`MediaStreamTrack`]. First device will be chosen if empty
     /// [`String`] is provided.
-    pub device_id: String,
+    pub device_id: Option<String>,
 
     /// The width, in pixels.
     pub width: u32,
@@ -488,7 +527,7 @@ pub struct AudioConstraints {
     ///
     /// __NOTE__: There can be only one active recording device at a time,
     /// so changing device will affect all previously obtained audio tracks.
-    pub device_id: String,
+    pub device_id: Option<String>,
 }
 
 /// Representation of a single media track within a [`MediaStream`].
@@ -888,8 +927,8 @@ pub fn restart_ice(peer_id: u64) -> anyhow::Result<()> {
 }
 
 /// Closes the [`PeerConnection`].
-pub fn dispose_peer_connection(peer_id: u64) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id)
+pub fn dispose_peer_connection(peer_id: u64) {
+    WEBRTC.lock().unwrap().dispose_peer_connection(peer_id);
 }
 
 /// Creates a [`MediaStream`] with tracks according to provided
@@ -935,23 +974,23 @@ pub fn register_track_observer(
 ///
 /// Only one callback can be set at a time, so the previous one will be
 /// dropped, if any.
-#[allow(clippy::unnecessary_wraps)]
 pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_on_device_changed(cb);
-
-    Ok(())
+    WEBRTC.lock().unwrap().set_on_device_changed(cb)
 }
 
-/// Creates a new [`VideoSink`] attached to the specified media stream
-/// backed by the provided [`OnFrameCallbackInterface`].
+/// Creates a new [`VideoSink`] attached to the specified video track.
+///
+/// `callback_ptr` argument should be a pointer to a [`UniquePtr`] pointing to
+/// a [`OnFrameCallbackInterface`].
 pub fn create_video_sink(
     sink_id: i64,
     track_id: u64,
     callback_ptr: u64,
 ) -> anyhow::Result<()> {
-    let handler: *mut cpp_api::OnFrameCallbackInterface =
-        unsafe { std::mem::transmute(callback_ptr) };
-    let handler = unsafe { UniquePtr::from_raw(handler) };
+    let handler = unsafe {
+        let ptr: *mut OnFrameCallbackInterface = mem::transmute(callback_ptr);
+        UniquePtr::from_raw(ptr)
+    };
     WEBRTC
         .lock()
         .unwrap()

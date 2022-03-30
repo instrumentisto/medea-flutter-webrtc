@@ -121,7 +121,17 @@ impl Webrtc {
         let (index, device_id) = if caps.is_display {
             // TODO: Support screens enumeration.
             (0, VideoDeviceId("screen:0".into()))
-        } else if caps.device_id.is_empty() {
+        } else if let Some(device_id) = caps.device_id.clone() {
+            let device_id = VideoDeviceId(device_id);
+            if let Some(index) = self.get_index_of_video_device(&device_id)? {
+                (index, device_id)
+            } else {
+                bail!(
+                    "Could not find video device with the specified ID `{}`",
+                    device_id,
+                );
+            }
+        } else {
             // No device ID is provided so just pick the first available
             // device
             if self.video_device_info.number_of_devices() < 1 {
@@ -131,16 +141,6 @@ impl Webrtc {
             let device_id =
                 VideoDeviceId(self.video_device_info.device_name(0)?.1);
             (0, device_id)
-        } else {
-            let device_id = VideoDeviceId(caps.device_id.clone());
-            if let Some(index) = self.get_index_of_video_device(&device_id)? {
-                (index, device_id)
-            } else {
-                bail!(
-                    "Could not find video device with the specified ID `{}`",
-                    device_id,
-                );
-            }
         };
 
         if let Some(src) = self.video_sources.get(&device_id) {
@@ -215,7 +215,9 @@ impl Webrtc {
         &mut self,
         caps: &api::AudioConstraints,
     ) -> anyhow::Result<Arc<sys::AudioSourceInterface>> {
-        let device_id = if caps.device_id.is_empty() {
+        let device_id = if let Some(device_id) = caps.device_id.clone() {
+            AudioDeviceId(device_id)
+        } else {
             // No device ID is provided so just pick the currently used.
             if self.audio_device_module.current_device_id.is_none() {
                 // `AudioDeviceModule` is not capturing anything at the moment,
@@ -233,8 +235,6 @@ impl Webrtc {
                 //        `AudioDeviceModule`.
                 self.audio_device_module.current_device_id.clone().unwrap()
             }
-        } else {
-            AudioDeviceId(caps.device_id.clone())
         };
 
         let device_index = if let Some(index) =

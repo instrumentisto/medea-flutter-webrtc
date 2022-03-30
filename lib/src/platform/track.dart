@@ -1,4 +1,3 @@
-// Project imports:
 import '/src/model/track.dart';
 
 /// Representation of the `onEnded` callback.

@@ -1,4 +1,3 @@
-// Project imports:
 import '/src/platform/audio_renderer.dart';
 import '/src/platform/track.dart';
 

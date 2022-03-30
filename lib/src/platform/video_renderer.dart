@@ -1,7 +1,5 @@
-// Flutter imports:
 import 'package:flutter/foundation.dart';
 
-// Project imports:
 import '/src/platform/native/video_renderer.dart';
 import 'track.dart';
 
@@ -86,7 +84,7 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
   /// Using to initialize the [VideoRenderer].
   Future<void> initialize();
 
-  /// Reutrns the source of [VideoRenderer] as [MediaStreamTrack].
+  /// Returns the source of [VideoRenderer] as [MediaStreamTrack].
   MediaStreamTrack? get srcObject;
 
   /// Sets the source of [VideoRenderer].

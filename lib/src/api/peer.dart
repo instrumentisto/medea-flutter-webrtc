@@ -1,12 +1,9 @@
-// Dart imports:
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
-// Flutter imports:
 import 'package:flutter/services.dart';
 
-// Project imports:
 import '/src/model/ice.dart';
 import '/src/model/peer.dart';
 import '/src/model/sdp.dart';
@@ -17,10 +14,10 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'transceiver.dart';
 
-/// Dart representation of the Rust side.
+/// Bindings to the Rust side API.
 late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
 
-/// Discovers and build the Rust-Flutter bridge.
+/// Opens the dynamic library and instantiates [ffi.FlutterWebrtcNativeImpl].
 ffi.FlutterWebrtcNativeImpl buildBridge() {
   const base = 'flutter_webrtc_native';
   final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
@@ -58,8 +55,9 @@ typedef OnSignalingStateChangeCallback = void Function(SignalingState);
 /// Shortcut for the `on_ice_candidate_error` callback.
 typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
-/// [RTCPeerConnection](https://w3.org/TR/webrtc#dom-rtcpeerconnection)
-/// implementation.
+/// [RTCPeerConnection][1] representation.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 abstract class PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
@@ -215,7 +213,7 @@ abstract class PeerConnection {
 final _peerConnectionFactoryMethodChannel =
     methodChannel('PeerConnectionFactory', 0);
 
-/// Channel realization of the [PeerConnection].
+/// [MethodChannel]-based implementation of a [PeerConnection].
 class _PeerConnectionChannel extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
@@ -376,7 +374,7 @@ class _PeerConnectionChannel extends PeerConnection {
   }
 }
 
-/// FFI realization of the [PeerConnection].
+/// FFI-based implementation of a [PeerConnection].
 class _PeerConnectionFFI extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.

@@ -1,15 +1,14 @@
-// Flutter imports:
 import 'package:flutter/services.dart';
 
-// Project imports:
 import '/src/model/transceiver.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 import 'sender.dart';
 
-/// [RTCTransceiver](https://www.w3.org/TR/webrtc/#dom-rtcrtptransceiver)
-/// implementation.
+/// [RTCTransceiver][1] representation
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
 abstract class RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
@@ -67,7 +66,7 @@ abstract class RtpTransceiver {
   }
 }
 
-/// Channel realization of the [RtpTransceiver].
+/// [MethodChannel]-based implementation of a [RtpTransceiver].
 class _RtpTransceiverChannel extends RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
@@ -104,7 +103,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   }
 }
 
-/// FFI realization of the [RtpTransceiver].
+/// FFI-based implementation of a [RtpTransceiver].
 class RtpTransceiverFFI extends RtpTransceiver {
   RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
     _peerId = transceiver.peerId;
@@ -113,13 +112,13 @@ class RtpTransceiverFFI extends RtpTransceiver {
     _mid = transceiver.mid;
   }
 
-  /// `Id` of the native `PeerConnection`.
+  /// `ID` of the native side peer.
   late final int _peerId;
 
-  /// `Id` of the native `Transceiver`.
+  /// `ID` of the native side transceiver`.
   late final int _id;
 
-  /// Returns the `Id` of the native `PeerConnection`.
+  /// Returns an `ID` of the native side peer.
   int get id => _id;
 
   @override

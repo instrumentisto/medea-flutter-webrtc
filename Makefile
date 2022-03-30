@@ -31,9 +31,9 @@ deps: flutter.pub
 
 docs: cargo.doc
 
-fmt: cargo.fmt
+fmt: cargo.fmt flutter.fmt
 
-lint: cargo.lint
+lint: cargo.lint flutter.analyze
 
 run: flutter.run
 
@@ -89,6 +89,43 @@ flutter.test:
 
 
 
+# Format Flutter Dart sources with dartfmt.
+#
+# Usage:
+#	make flutter.fmt [check=(no|yes)] [dockerized=(no|yes)]
+
+flutter.fmt:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make flutter.fmt check=$(check) dockerized=no
+else
+	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
+	flutter pub run import_sorter:main --no-comments \
+		$(if $(call eq,$(check),yes),--exit-if-changed,)
+endif
+
+
+
+
+# Lint Flutter Dart sources with dartanalyzer.
+#
+# Usage:
+#	make flutter.analyze [dockerized=(no|yes)]
+
+flutter.analyze:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+		-v "$(HOME)/.pub-cache":/root/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make flutter.analyze dockerized=no
+else
+	flutter analyze
+endif
+
+
+
+
 ##################
 # Cargo commands #
 ##################
@@ -129,7 +166,7 @@ ifeq ($(if $(call eq,$(platform),),$(os),$(platform)),windows)
 	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 endif
-ifeq ($(platform),linux)
+ifeq ($(if $(call eq,$(platform),),$(os),$(platform)),linux)
 	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
 		linux/lib/libflutter_webrtc_native.so
 endif
@@ -221,5 +258,6 @@ test.flutter: flutter.test
 .PHONY: build deps docs fmt lint run test \
         cargo.build cargo.doc cargo.fmt cargo.lint cargo.test \
         docs.rust \
-        flutter.build flutter.pub flutter.run flutter.test \
+        flutter.analyze flutter.build flutter.fmt flutter.pub flutter.run \
+        flutter.test \
         test.cargo test.flutter
