@@ -54,7 +54,7 @@ impl From<sys::IceGatheringState> for IceGatheringState {
 /// Representation of the [`PeerConnection`]'s events.
 #[derive(Clone, Debug)]
 pub enum PeerConnectionEvent {
-    /// A custom `event` indicates that a [`PeerConnection`] has been created.
+    /// Event that indicates that a [`PeerConnection`] has been created.
     /// Provides the [`PeerConnection`]'s `id`.
     PeerCreated { id: u64 },
 

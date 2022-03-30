@@ -548,9 +548,7 @@ pub struct VideoTrack {
     /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
 
-    /// Caching [`PeerConnectionId`] and set of `transceiver index`s
-    /// in every [`crate::PeerConnection`] where this [`VideoTrack`]
-    /// is used to be sent.
+    /// Peers and transceivers that are sending this track.
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
@@ -623,7 +621,7 @@ impl VideoTrack {
         self.inner.set_enabled(enabled);
     }
 
-    /// Returns [`VideoTrack`]'s `senders`.
+    /// Returns peers and transceivers that are sending this track.
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }
@@ -660,8 +658,7 @@ pub struct AudioTrack {
     /// microphone".
     label: AudioLabel,
 
-    /// Caching [`PeerConnectionId`] and set of `transceiver index`s in every
-    /// [`crate::PeerConnection`] where this [`AudioTrack`]cis used to be sent.
+    /// Peers and transceivers that are sending this track.
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
@@ -725,7 +722,7 @@ impl AudioTrack {
         self.inner.set_enabled(enabled);
     }
 
-    /// Returns [`AudioTrack`]'s `senders`.
+    /// Returns peers and transceivers that are sending this track.
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }
