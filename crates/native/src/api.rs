@@ -316,7 +316,7 @@ pub enum MediaDeviceKind {
 /// [RTCRtpTransceiverDirection][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
-#[derive(Clone, Copy, Debug, Eq, PartialE)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RtpTransceiverDirection {
     /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
     /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
