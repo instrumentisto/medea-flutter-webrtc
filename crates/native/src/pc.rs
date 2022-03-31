@@ -687,7 +687,7 @@ impl sys::CreateSdpCallback for CreateSdpCallback {
     }
 
     fn fail(&mut self, error: &CxxString) {
-        if let Err(e) = self.0.send(Err(anyhow::Error::from(error))) {
+        if let Err(e) = self.0.send(Err(anyhow!("{error}"))) {
             log::warn!("Failed to send SDP error in `CreateSdpCallback`: {e}");
         }
     }
@@ -704,7 +704,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     }
 
     fn fail(&mut self, error: &CxxString) {
-        if let Err(e) = self.0.send(Err(anyhow::Error::from(error))) {
+        if let Err(e) = self.0.send(Err(anyhow!("{error}"))) {
             log::warn!("Failed to send SDP error in `SetSdpCallback`: {e}");
         }
     }
@@ -892,7 +892,7 @@ impl sys::AddIceCandidateCallback for AddIceCandidateCallback {
     }
 
     fn on_fail(&mut self, error: &CxxString) {
-        if let Err(e) = self.0.send(Err(anyhow::Error::from(error))) {
+        if let Err(e) = self.0.send(Err(anyhow!("{error}"))) {
             log::warn!(
                 "Failed to send error in `AddIceCandidateCallback`: {e}",
             );
