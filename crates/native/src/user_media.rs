@@ -270,10 +270,6 @@ impl Webrtc {
 
     /// Changes the [enabled][1] property of the media track by its ID.
     ///
-    /// # Panics
-    ///
-    /// If cannot find any track with the provided ID.
-    ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(
         &self,

@@ -631,7 +631,7 @@ impl PeerConnection {
     ///
     /// # Panics
     ///
-    /// Panics if the underlying [`Mutex`] is poisoned.
+    /// If the underlying [`Mutex`] is poisoned.
     #[must_use]
     pub fn get_transceivers(&self) -> Vec<sys::RtpTransceiverInterface> {
         self.inner.lock().unwrap().get_transceivers()
