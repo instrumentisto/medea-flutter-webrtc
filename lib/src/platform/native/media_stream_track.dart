@@ -1,10 +1,7 @@
-// Dart imports:
 import 'dart:async';
 
-// Flutter imports:
 import 'package:flutter/services.dart';
 
-// Project imports:
 import '../../../flutter_webrtc.dart';
 import '/src/api/bridge.g.dart' as ffi;
 import '/src/api/channel.dart';
@@ -39,7 +36,9 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// "remote" - for the remove tracks.
   late String _deviceId;
 
-  /// `on_ended` event subscriber.
+  /// [ended][1] event subscriber.
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#event-mediastreamtrack-ended
   OnEndedCallback? _onEnded;
 
   /// [_eventChan] subscription to the [PeerConnection] events.
@@ -82,7 +81,7 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   }
 }
 
-/// Channel realization of the [NativeMediaStreamTrack].
+/// [MethodChannel]-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
@@ -124,11 +123,13 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   }
 }
 
-/// FFI realization of the [NativeMediaStreamTrack].
+/// FFI-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
-  /// Indicates whether ths [NativeMediaStreamTrack] is `stopped`.
+  /// Indicates whether this [NativeMediaStreamTrack] has been stopped.
   bool _stopped = false;
 
+  /// Creates a [NativeMediaStreamTrack] basing on the provided
+  /// [ffi.MediaStreamTrack].
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
     _deviceId = track.deviceId;

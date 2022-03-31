@@ -1,35 +1,25 @@
-// Dart imports:
 import 'dart:math';
 
-// Flutter imports:
 import 'package:flutter/material.dart';
 
-// Project imports:
 import '../video_renderer.dart';
 
-/// [StatelessWidget] for displaying [VideoRenderer] content.
 class VideoView extends StatelessWidget {
   const VideoView(
     this._renderer, {
     Key? key,
     this.objectFit = VideoViewObjectFit.contain,
     this.mirror = false,
+    this.enableContextMenu = true,
     this.filterQuality = FilterQuality.low,
   }) : super(key: key);
 
-  /// An instance of a [VideoRenderer].
   final VideoRenderer _renderer;
-
-  /// Fitting of the [_renderer].
   final VideoViewObjectFit objectFit;
-
-  /// Vertical reflection of the [_renderer].
   final bool mirror;
-
-  /// Quality of filter.
+  final bool enableContextMenu;
   final FilterQuality filterQuality;
 
-  /// Returns the [_renderer].
   NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;
 
   @override
@@ -39,7 +29,6 @@ class VideoView extends StatelessWidget {
             _buildVideoView(constraints));
   }
 
-  /// Builds a new `video view` [Widget].
   Widget _buildVideoView(BoxConstraints constraints) {
     return Center(
       child: SizedBox(

@@ -7,8 +7,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+<<<<<<< HEAD
 import 'dart:convert';
 import 'dart:typed_data';
+=======
+>>>>>>> migration-to-ffi
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
@@ -165,8 +168,10 @@ abstract class FlutterWebrtcNative {
   /// dropped, if any.
   Stream<void> setOnDeviceChanged({dynamic hint});
 
-  /// Creates a new [`VideoSink`] attached to the specified media stream
-  /// backed by the provided [`OnFrameCallbackInterface`].
+  /// Creates a new [`VideoSink`] attached to the specified video track.
+  ///
+  /// `callback_ptr` argument should be a pointer to a [`UniquePtr`] pointing to
+  /// a [`OnFrameCallbackInterface`].
   Future<void> createVideoSink(
       {required int sinkId,
       required int trackId,
@@ -186,10 +191,10 @@ class AudioConstraints {
   ///
   /// __NOTE__: There can be only one active recording device at a time,
   /// so changing device will affect all previously obtained audio tracks.
-  final String deviceId;
+  final String? deviceId;
 
   AudioConstraints({
-    required this.deviceId,
+    this.deviceId,
   });
 }
 
@@ -397,12 +402,27 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
     required int id,
   }) = PeerCreated;
 
-  /// A new [`ICE candidate`][1] has been discovered.
+  /// A new [`RTCIceCandidate`][1] has been discovered.
   ///
   /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
   const factory PeerConnectionEvent.iceCandidate({
+    /// Contains the media stream "identification-tag" defined in
+    /// [RFC5888][1] for the media component this candidate is associated
+    /// with.
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5888
     required String sdpMid,
+
+    /// Indicates the index (starting at zero) of the media description in
+    /// the SDP this candidate is associated with.
     required int sdpMlineIndex,
+
+    /// This carries the candidate-attribute as defined in section 15.1 of
+    /// [RFC5245][1]. If this RTCIceCandidate represents an
+    /// end-of-candidates indication or a peer reflexive remote candidate,
+    /// candidate is an empty string.
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245
     required String candidate,
   }) = IceCandidate;
 
@@ -411,14 +431,38 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
     IceGatheringState field0,
   ) = IceGatheringStateChange;
 
-  /// A failure occured when gathering [`ICE candidate`][1].
+  /// A failure occurred when gathering [`ICE candidate`][1].
   ///
   /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
   const factory PeerConnectionEvent.iceCandidateError({
+    /// The address attribute is the local IP address used to communicate
+    /// with the STUN or TURN server.
     required String address,
+
+    /// The port attribute is the port used to communicate with the STUN or
+    /// TURN server.
     required int port,
+
+    /// The url attribute is the STUN or TURN URL that identifies the STUN
+    /// or TURN server for which the failure occurred.
     required String url,
+
+    /// The numeric STUN error code returned by the STUN or TURN server
+    /// [`STUN-PARAMETERS`][1].
+    ///
+    /// If no host candidate can reach the server, errorCode will be set to
+    /// the value 701 which is outside the STUN error code range.
+    ///
+    /// [1]: https://tinyurl.com/stun-parameters-6
     required int errorCode,
+
+    /// The STUN reason text returned by the STUN or TURN server
+    /// [`STUN-PARAMETERS`][1].
+    ///
+    /// If the server could not be reached, this will be set to an
+    /// implementation-specific value providing details about the error.
+    ///
+    /// [1]: https://tinyurl.com/stun-parameters-6
     required String errorText,
   }) = IceCandidateError;
 
@@ -733,7 +777,7 @@ class VideoConstraints {
   /// The identifier of the device generating the content of the
   /// [`MediaStreamTrack`]. First device will be chosen if empty
   /// [`String`] is provided.
-  final String deviceId;
+  final String? deviceId;
 
   /// The width, in pixels.
   final int width;
@@ -749,7 +793,7 @@ class VideoConstraints {
   final bool isDisplay;
 
   VideoConstraints({
-    required this.deviceId,
+    this.deviceId,
     required this.width,
     required this.height,
     required this.frameRate,
@@ -1253,6 +1297,10 @@ class FlutterWebrtcNativeImpl
     return raw.index;
   }
 
+  ffi.Pointer<wire_uint_8_list> _api2wire_opt_String(String? raw) {
+    return raw == null ? ffi.nullptr : _api2wire_String(raw);
+  }
+
   ffi.Pointer<wire_AudioConstraints>
       _api2wire_opt_box_autoadd_audio_constraints(AudioConstraints? raw) {
     return raw == null
@@ -1301,7 +1349,7 @@ class FlutterWebrtcNativeImpl
 
   void _api_fill_to_wire_audio_constraints(
       AudioConstraints apiObj, wire_AudioConstraints wireObj) {
-    wireObj.device_id = _api2wire_String(apiObj.deviceId);
+    wireObj.device_id = _api2wire_opt_String(apiObj.deviceId);
   }
 
   void _api_fill_to_wire_box_autoadd_audio_constraints(
@@ -1360,7 +1408,7 @@ class FlutterWebrtcNativeImpl
 
   void _api_fill_to_wire_video_constraints(
       VideoConstraints apiObj, wire_VideoConstraints wireObj) {
-    wireObj.device_id = _api2wire_String(apiObj.deviceId);
+    wireObj.device_id = _api2wire_opt_String(apiObj.deviceId);
     wireObj.width = _api2wire_u32(apiObj.width);
     wireObj.height = _api2wire_u32(apiObj.height);
     wireObj.frame_rate = _api2wire_u32(apiObj.frameRate);

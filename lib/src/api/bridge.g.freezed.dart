@@ -378,10 +378,26 @@ class _$IceCandidate implements IceCandidate {
       required this.candidate});
 
   @override
+
+  /// Contains the media stream "identification-tag" defined in
+  /// [RFC5888][1] for the media component this candidate is associated
+  /// with.
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc5888
   final String sdpMid;
   @override
+
+  /// Indicates the index (starting at zero) of the media description in
+  /// the SDP this candidate is associated with.
   final int sdpMlineIndex;
   @override
+
+  /// This carries the candidate-attribute as defined in section 15.1 of
+  /// [RFC5245][1]. If this RTCIceCandidate represents an
+  /// end-of-candidates indication or a peer reflexive remote candidate,
+  /// candidate is an empty string.
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc5245
   final String candidate;
 
   @override
@@ -505,9 +521,24 @@ abstract class IceCandidate implements PeerConnectionEvent {
       required int sdpMlineIndex,
       required String candidate}) = _$IceCandidate;
 
-  String get sdpMid => throw _privateConstructorUsedError;
-  int get sdpMlineIndex => throw _privateConstructorUsedError;
-  String get candidate => throw _privateConstructorUsedError;
+  /// Contains the media stream "identification-tag" defined in
+  /// [RFC5888][1] for the media component this candidate is associated
+  /// with.
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc5888
+  String get sdpMid;
+
+  /// Indicates the index (starting at zero) of the media description in
+  /// the SDP this candidate is associated with.
+  int get sdpMlineIndex;
+
+  /// This carries the candidate-attribute as defined in section 15.1 of
+  /// [RFC5245][1]. If this RTCIceCandidate represents an
+  /// end-of-candidates indication or a peer reflexive remote candidate,
+  /// candidate is an empty string.
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc5245
+  String get candidate;
   @JsonKey(ignore: true)
   $IceCandidateCopyWith<IceCandidate> get copyWith =>
       throw _privateConstructorUsedError;
@@ -734,14 +765,39 @@ class _$IceCandidateError implements IceCandidateError {
       required this.errorText});
 
   @override
+
+  /// The address attribute is the local IP address used to communicate
+  /// with the STUN or TURN server.
   final String address;
   @override
+
+  /// The port attribute is the port used to communicate with the STUN or
+  /// TURN server.
   final int port;
   @override
+
+  /// The url attribute is the STUN or TURN URL that identifies the STUN
+  /// or TURN server for which the failure occurred.
   final String url;
   @override
+
+  /// The numeric STUN error code returned by the STUN or TURN server
+  /// [`STUN-PARAMETERS`][1].
+  ///
+  /// If no host candidate can reach the server, errorCode will be set to
+  /// the value 701 which is outside the STUN error code range.
+  ///
+  /// [1]: https://tinyurl.com/stun-parameters-6
   final int errorCode;
   @override
+
+  /// The STUN reason text returned by the STUN or TURN server
+  /// [`STUN-PARAMETERS`][1].
+  ///
+  /// If the server could not be reached, this will be set to an
+  /// implementation-specific value providing details about the error.
+  ///
+  /// [1]: https://tinyurl.com/stun-parameters-6
   final String errorText;
 
   @override
@@ -874,11 +930,35 @@ abstract class IceCandidateError implements PeerConnectionEvent {
       required int errorCode,
       required String errorText}) = _$IceCandidateError;
 
-  String get address => throw _privateConstructorUsedError;
-  int get port => throw _privateConstructorUsedError;
-  String get url => throw _privateConstructorUsedError;
-  int get errorCode => throw _privateConstructorUsedError;
-  String get errorText => throw _privateConstructorUsedError;
+  /// The address attribute is the local IP address used to communicate
+  /// with the STUN or TURN server.
+  String get address;
+
+  /// The port attribute is the port used to communicate with the STUN or
+  /// TURN server.
+  int get port;
+
+  /// The url attribute is the STUN or TURN URL that identifies the STUN
+  /// or TURN server for which the failure occurred.
+  String get url;
+
+  /// The numeric STUN error code returned by the STUN or TURN server
+  /// [`STUN-PARAMETERS`][1].
+  ///
+  /// If no host candidate can reach the server, errorCode will be set to
+  /// the value 701 which is outside the STUN error code range.
+  ///
+  /// [1]: https://tinyurl.com/stun-parameters-6
+  int get errorCode;
+
+  /// The STUN reason text returned by the STUN or TURN server
+  /// [`STUN-PARAMETERS`][1].
+  ///
+  /// If the server could not be reached, this will be set to an
+  /// implementation-specific value providing details about the error.
+  ///
+  /// [1]: https://tinyurl.com/stun-parameters-6
+  String get errorText;
   @JsonKey(ignore: true)
   $IceCandidateErrorCopyWith<IceCandidateError> get copyWith =>
       throw _privateConstructorUsedError;

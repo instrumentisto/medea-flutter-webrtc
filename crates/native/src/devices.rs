@@ -259,16 +259,15 @@ impl Webrtc {
     ///
     /// Only one callback can be set at a time, so the previous one will be
     /// dropped, if any.
-    ///
-    /// # Panics
-    ///
-    /// May panic on creating [`AudioDeviceModule`], [`VideoDeviceInfo`], or
-    /// getting number of `playout` and `recording` devices.
-    pub fn set_on_device_changed(&mut self, cb: StreamSink<()>) {
+    pub fn set_on_device_changed(
+        &mut self,
+        cb: StreamSink<()>,
+    ) -> anyhow::Result<()> {
         let prev = ON_DEVICE_CHANGE.swap(
-            Box::into_raw(Box::new(
-                DeviceState::new(cb, &mut self.task_queue_factory).unwrap(),
-            )),
+            Box::into_raw(Box::new(DeviceState::new(
+                cb,
+                &mut self.task_queue_factory,
+            )?)),
             Ordering::SeqCst,
         );
 
@@ -281,6 +280,8 @@ impl Webrtc {
                 drop(Box::from_raw(prev));
             }
         }
+
+        Ok(())
     }
 }
 
@@ -376,7 +377,6 @@ pub unsafe fn init() {
 
 // TODO: Implement OnDeviceChange for Linux
 #[cfg(target_os = "linux")]
-#[allow(clippy::unnecessary_wraps)]
 pub unsafe fn init() {
     // Dummy implementation.
     let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);

@@ -1,10 +1,7 @@
-// Dart imports:
 import 'dart:async';
 
-// Flutter imports:
 import 'package:flutter/services.dart';
 
-// Project imports:
 import '../../api/peer.dart';
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
@@ -92,7 +89,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   bool get renderVideo => srcObject != null;
 }
 
-/// Channel realization of the [NativeVideoRenderer].
+/// [MethodChannel]-based implementation of a [NativeVideoRenderer].
 class _NativeVideoRendererChannel extends NativeVideoRenderer {
   @override
   Future<void> initialize() async {
@@ -132,7 +129,7 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
   }
 }
 
-/// FFI realization of the [NativeVideoRenderer].
+/// FFI-based implementation of a [NativeVideoRenderer].
 class _NativeVideoRendererFFI extends NativeVideoRenderer {
   @override
   Future<void> initialize() async {

@@ -121,7 +121,17 @@ impl Webrtc {
         let (index, device_id) = if caps.is_display {
             // TODO: Support screens enumeration.
             (0, VideoDeviceId("screen:0".into()))
-        } else if caps.device_id.is_empty() {
+        } else if let Some(device_id) = caps.device_id.clone() {
+            let device_id = VideoDeviceId(device_id);
+            if let Some(index) = self.get_index_of_video_device(&device_id)? {
+                (index, device_id)
+            } else {
+                bail!(
+                    "Could not find video device with the specified ID `{}`",
+                    device_id,
+                );
+            }
+        } else {
             // No device ID is provided so just pick the first available
             // device
             if self.video_device_info.number_of_devices() < 1 {
@@ -131,16 +141,6 @@ impl Webrtc {
             let device_id =
                 VideoDeviceId(self.video_device_info.device_name(0)?.1);
             (0, device_id)
-        } else {
-            let device_id = VideoDeviceId(caps.device_id.clone());
-            if let Some(index) = self.get_index_of_video_device(&device_id)? {
-                (index, device_id)
-            } else {
-                bail!(
-                    "Could not find video device with the specified ID `{}`",
-                    device_id,
-                );
-            }
         };
 
         if let Some(src) = self.video_sources.get(&device_id) {
@@ -215,7 +215,9 @@ impl Webrtc {
         &mut self,
         caps: &api::AudioConstraints,
     ) -> anyhow::Result<Arc<sys::AudioSourceInterface>> {
-        let device_id = if caps.device_id.is_empty() {
+        let device_id = if let Some(device_id) = caps.device_id.clone() {
+            AudioDeviceId(device_id)
+        } else {
             // No device ID is provided so just pick the currently used.
             if self.audio_device_module.current_device_id.is_none() {
                 // `AudioDeviceModule` is not capturing anything at the moment,
@@ -233,8 +235,6 @@ impl Webrtc {
                 //        `AudioDeviceModule`.
                 self.audio_device_module.current_device_id.clone().unwrap()
             }
-        } else {
-            AudioDeviceId(caps.device_id.clone())
         };
 
         let device_index = if let Some(index) =
@@ -269,10 +269,6 @@ impl Webrtc {
     }
 
     /// Changes the [enabled][1] property of the media track by its ID.
-    ///
-    /// # Panics
-    ///
-    /// If cannot find any track with the provided ID.
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(
@@ -548,9 +544,7 @@ pub struct VideoTrack {
     /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
 
-    /// Caching [`PeerConnectionId`] and set of `transceiver index`s
-    /// in every [`crate::PeerConnection`] where this [`VideoTrack`]
-    /// is used to be sent.
+    /// Peers and transceivers that are sending this track.
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
@@ -623,7 +617,7 @@ impl VideoTrack {
         self.inner.set_enabled(enabled);
     }
 
-    /// Returns [`VideoTrack`]'s `senders`.
+    /// Returns peers and transceivers that are sending this track.
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }
@@ -660,8 +654,7 @@ pub struct AudioTrack {
     /// microphone".
     label: AudioLabel,
 
-    /// Caching [`PeerConnectionId`] and set of `transceiver index`s in every
-    /// [`crate::PeerConnection`] where this [`AudioTrack`]cis used to be sent.
+    /// Peers and transceivers that are sending this track.
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
@@ -725,7 +718,7 @@ impl AudioTrack {
         self.inner.set_enabled(enabled);
     }
 
-    /// Returns [`AudioTrack`]'s `senders`.
+    /// Returns peers and transceivers that are sending this track.
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }
