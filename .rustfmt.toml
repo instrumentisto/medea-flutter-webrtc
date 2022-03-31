@@ -2,7 +2,7 @@
 # See full list of configurations at:
 # https://github.com/rust-lang/rustfmt/blob/master/Configurations.md
 
-max_width = 80
+max_width = 93
 format_strings = false
 imports_granularity = "Crate"
 

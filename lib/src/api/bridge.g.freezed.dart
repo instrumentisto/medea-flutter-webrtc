@@ -1,7 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
 
 part of 'bridge.g.dart';
 
@@ -109,22 +107,6 @@ mixin _$PeerConnectionEvent {
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int id)? peerCreated,
     TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
@@ -155,19 +137,6 @@ mixin _$PeerConnectionEvent {
     required TResult Function(ConnectionStateChange value)
         connectionStateChange,
     required TResult Function(Track value) track,
-  }) =>
-      throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -251,14 +220,14 @@ class _$PeerCreated implements PeerCreated {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is PeerCreated &&
-            const DeepCollectionEquality().equals(other.id, id));
+        (other is PeerCreated &&
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(id));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(id);
 
   @JsonKey(ignore: true)
   @override
@@ -284,25 +253,6 @@ class _$PeerCreated implements PeerCreated {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return peerCreated(id);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return peerCreated?.call(id);
   }
 
   @override
@@ -349,22 +299,6 @@ class _$PeerCreated implements PeerCreated {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return peerCreated?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -387,7 +321,7 @@ class _$PeerCreated implements PeerCreated {
 abstract class PeerCreated implements PeerConnectionEvent {
   const factory PeerCreated({required int id}) = _$PeerCreated;
 
-  int get id;
+  int get id => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $PeerCreatedCopyWith<PeerCreated> get copyWith =>
       throw _privateConstructorUsedError;
@@ -458,20 +392,23 @@ class _$IceCandidate implements IceCandidate {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is IceCandidate &&
-            const DeepCollectionEquality().equals(other.sdpMid, sdpMid) &&
-            const DeepCollectionEquality()
-                .equals(other.sdpMlineIndex, sdpMlineIndex) &&
-            const DeepCollectionEquality().equals(other.candidate, candidate));
+        (other is IceCandidate &&
+            (identical(other.sdpMid, sdpMid) ||
+                const DeepCollectionEquality().equals(other.sdpMid, sdpMid)) &&
+            (identical(other.sdpMlineIndex, sdpMlineIndex) ||
+                const DeepCollectionEquality()
+                    .equals(other.sdpMlineIndex, sdpMlineIndex)) &&
+            (identical(other.candidate, candidate) ||
+                const DeepCollectionEquality()
+                    .equals(other.candidate, candidate)));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(sdpMid),
-      const DeepCollectionEquality().hash(sdpMlineIndex),
-      const DeepCollectionEquality().hash(candidate));
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(sdpMid) ^
+      const DeepCollectionEquality().hash(sdpMlineIndex) ^
+      const DeepCollectionEquality().hash(candidate);
 
   @JsonKey(ignore: true)
   @override
@@ -497,25 +434,6 @@ class _$IceCandidate implements IceCandidate {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return iceCandidate(sdpMid, sdpMlineIndex, candidate);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return iceCandidate?.call(sdpMid, sdpMlineIndex, candidate);
   }
 
   @override
@@ -562,22 +480,6 @@ class _$IceCandidate implements IceCandidate {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return iceCandidate?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -603,9 +505,9 @@ abstract class IceCandidate implements PeerConnectionEvent {
       required int sdpMlineIndex,
       required String candidate}) = _$IceCandidate;
 
-  String get sdpMid;
-  int get sdpMlineIndex;
-  String get candidate;
+  String get sdpMid => throw _privateConstructorUsedError;
+  int get sdpMlineIndex => throw _privateConstructorUsedError;
+  String get candidate => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $IceCandidateCopyWith<IceCandidate> get copyWith =>
       throw _privateConstructorUsedError;
@@ -659,14 +561,14 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is IceGatheringStateChange &&
-            const DeepCollectionEquality().equals(other.field0, field0));
+        (other is IceGatheringStateChange &&
+            (identical(other.field0, field0) ||
+                const DeepCollectionEquality().equals(other.field0, field0)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(field0);
 
   @JsonKey(ignore: true)
   @override
@@ -693,25 +595,6 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return iceGatheringStateChange(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return iceGatheringStateChange?.call(field0);
   }
 
   @override
@@ -758,22 +641,6 @@ class _$IceGatheringStateChange implements IceGatheringStateChange {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return iceGatheringStateChange?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -797,7 +664,7 @@ abstract class IceGatheringStateChange implements PeerConnectionEvent {
   const factory IceGatheringStateChange(IceGatheringState field0) =
       _$IceGatheringStateChange;
 
-  IceGatheringState get field0;
+  IceGatheringState get field0 => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $IceGatheringStateChangeCopyWith<IceGatheringStateChange> get copyWith =>
       throw _privateConstructorUsedError;
@@ -885,23 +752,30 @@ class _$IceCandidateError implements IceCandidateError {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is IceCandidateError &&
-            const DeepCollectionEquality().equals(other.address, address) &&
-            const DeepCollectionEquality().equals(other.port, port) &&
-            const DeepCollectionEquality().equals(other.url, url) &&
-            const DeepCollectionEquality().equals(other.errorCode, errorCode) &&
-            const DeepCollectionEquality().equals(other.errorText, errorText));
+        (other is IceCandidateError &&
+            (identical(other.address, address) ||
+                const DeepCollectionEquality()
+                    .equals(other.address, address)) &&
+            (identical(other.port, port) ||
+                const DeepCollectionEquality().equals(other.port, port)) &&
+            (identical(other.url, url) ||
+                const DeepCollectionEquality().equals(other.url, url)) &&
+            (identical(other.errorCode, errorCode) ||
+                const DeepCollectionEquality()
+                    .equals(other.errorCode, errorCode)) &&
+            (identical(other.errorText, errorText) ||
+                const DeepCollectionEquality()
+                    .equals(other.errorText, errorText)));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(address),
-      const DeepCollectionEquality().hash(port),
-      const DeepCollectionEquality().hash(url),
-      const DeepCollectionEquality().hash(errorCode),
-      const DeepCollectionEquality().hash(errorText));
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(address) ^
+      const DeepCollectionEquality().hash(port) ^
+      const DeepCollectionEquality().hash(url) ^
+      const DeepCollectionEquality().hash(errorCode) ^
+      const DeepCollectionEquality().hash(errorText);
 
   @JsonKey(ignore: true)
   @override
@@ -927,25 +801,6 @@ class _$IceCandidateError implements IceCandidateError {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return iceCandidateError(address, port, url, errorCode, errorText);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return iceCandidateError?.call(address, port, url, errorCode, errorText);
   }
 
   @override
@@ -992,22 +847,6 @@ class _$IceCandidateError implements IceCandidateError {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return iceCandidateError?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -1035,11 +874,11 @@ abstract class IceCandidateError implements PeerConnectionEvent {
       required int errorCode,
       required String errorText}) = _$IceCandidateError;
 
-  String get address;
-  int get port;
-  String get url;
-  int get errorCode;
-  String get errorText;
+  String get address => throw _privateConstructorUsedError;
+  int get port => throw _privateConstructorUsedError;
+  String get url => throw _privateConstructorUsedError;
+  int get errorCode => throw _privateConstructorUsedError;
+  String get errorText => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $IceCandidateErrorCopyWith<IceCandidateError> get copyWith =>
       throw _privateConstructorUsedError;
@@ -1076,8 +915,7 @@ class _$NegotiationNeeded implements NegotiationNeeded {
 
   @override
   bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is NegotiationNeeded);
+    return identical(this, other) || (other is NegotiationNeeded);
   }
 
   @override
@@ -1102,25 +940,6 @@ class _$NegotiationNeeded implements NegotiationNeeded {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return negotiationNeeded();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return negotiationNeeded?.call();
   }
 
   @override
@@ -1163,22 +982,6 @@ class _$NegotiationNeeded implements NegotiationNeeded {
     required TResult Function(Track value) track,
   }) {
     return negotiationNeeded(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return negotiationNeeded?.call(this);
   }
 
   @override
@@ -1254,14 +1057,14 @@ class _$SignallingChange implements SignallingChange {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is SignallingChange &&
-            const DeepCollectionEquality().equals(other.field0, field0));
+        (other is SignallingChange &&
+            (identical(other.field0, field0) ||
+                const DeepCollectionEquality().equals(other.field0, field0)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(field0);
 
   @JsonKey(ignore: true)
   @override
@@ -1287,25 +1090,6 @@ class _$SignallingChange implements SignallingChange {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return signallingChange(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return signallingChange?.call(field0);
   }
 
   @override
@@ -1352,22 +1136,6 @@ class _$SignallingChange implements SignallingChange {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return signallingChange?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -1390,7 +1158,7 @@ class _$SignallingChange implements SignallingChange {
 abstract class SignallingChange implements PeerConnectionEvent {
   const factory SignallingChange(SignalingState field0) = _$SignallingChange;
 
-  SignalingState get field0;
+  SignalingState get field0 => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $SignallingChangeCopyWith<SignallingChange> get copyWith =>
       throw _privateConstructorUsedError;
@@ -1445,14 +1213,14 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is IceConnectionStateChange &&
-            const DeepCollectionEquality().equals(other.field0, field0));
+        (other is IceConnectionStateChange &&
+            (identical(other.field0, field0) ||
+                const DeepCollectionEquality().equals(other.field0, field0)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(field0);
 
   @JsonKey(ignore: true)
   @override
@@ -1479,25 +1247,6 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return iceConnectionStateChange(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return iceConnectionStateChange?.call(field0);
   }
 
   @override
@@ -1544,22 +1293,6 @@ class _$IceConnectionStateChange implements IceConnectionStateChange {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return iceConnectionStateChange?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -1583,7 +1316,7 @@ abstract class IceConnectionStateChange implements PeerConnectionEvent {
   const factory IceConnectionStateChange(IceConnectionState field0) =
       _$IceConnectionStateChange;
 
-  IceConnectionState get field0;
+  IceConnectionState get field0 => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $IceConnectionStateChangeCopyWith<IceConnectionStateChange> get copyWith =>
       throw _privateConstructorUsedError;
@@ -1637,14 +1370,14 @@ class _$ConnectionStateChange implements ConnectionStateChange {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is ConnectionStateChange &&
-            const DeepCollectionEquality().equals(other.field0, field0));
+        (other is ConnectionStateChange &&
+            (identical(other.field0, field0) ||
+                const DeepCollectionEquality().equals(other.field0, field0)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(field0);
 
   @JsonKey(ignore: true)
   @override
@@ -1671,25 +1404,6 @@ class _$ConnectionStateChange implements ConnectionStateChange {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return connectionStateChange(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return connectionStateChange?.call(field0);
   }
 
   @override
@@ -1736,22 +1450,6 @@ class _$ConnectionStateChange implements ConnectionStateChange {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return connectionStateChange?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -1775,7 +1473,7 @@ abstract class ConnectionStateChange implements PeerConnectionEvent {
   const factory ConnectionStateChange(PeerConnectionState field0) =
       _$ConnectionStateChange;
 
-  PeerConnectionState get field0;
+  PeerConnectionState get field0 => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $ConnectionStateChangeCopyWith<ConnectionStateChange> get copyWith =>
       throw _privateConstructorUsedError;
@@ -1826,14 +1524,14 @@ class _$Track implements Track {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is Track &&
-            const DeepCollectionEquality().equals(other.field0, field0));
+        (other is Track &&
+            (identical(other.field0, field0) ||
+                const DeepCollectionEquality().equals(other.field0, field0)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(field0);
 
   @JsonKey(ignore: true)
   @override
@@ -1859,25 +1557,6 @@ class _$Track implements Track {
     required TResult Function(RtcTrackEvent field0) track,
   }) {
     return track(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int id)? peerCreated,
-    TResult Function(String sdpMid, int sdpMlineIndex, String candidate)?
-        iceCandidate,
-    TResult Function(IceGatheringState field0)? iceGatheringStateChange,
-    TResult Function(String address, int port, String url, int errorCode,
-            String errorText)?
-        iceCandidateError,
-    TResult Function()? negotiationNeeded,
-    TResult Function(SignalingState field0)? signallingChange,
-    TResult Function(IceConnectionState field0)? iceConnectionStateChange,
-    TResult Function(PeerConnectionState field0)? connectionStateChange,
-    TResult Function(RtcTrackEvent field0)? track,
-  }) {
-    return track?.call(field0);
   }
 
   @override
@@ -1924,22 +1603,6 @@ class _$Track implements Track {
 
   @override
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(PeerCreated value)? peerCreated,
-    TResult Function(IceCandidate value)? iceCandidate,
-    TResult Function(IceGatheringStateChange value)? iceGatheringStateChange,
-    TResult Function(IceCandidateError value)? iceCandidateError,
-    TResult Function(NegotiationNeeded value)? negotiationNeeded,
-    TResult Function(SignallingChange value)? signallingChange,
-    TResult Function(IceConnectionStateChange value)? iceConnectionStateChange,
-    TResult Function(ConnectionStateChange value)? connectionStateChange,
-    TResult Function(Track value)? track,
-  }) {
-    return track?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(PeerCreated value)? peerCreated,
     TResult Function(IceCandidate value)? iceCandidate,
@@ -1962,7 +1625,7 @@ class _$Track implements Track {
 abstract class Track implements PeerConnectionEvent {
   const factory Track(RtcTrackEvent field0) = _$Track;
 
-  RtcTrackEvent get field0;
+  RtcTrackEvent get field0 => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $TrackCopyWith<Track> get copyWith => throw _privateConstructorUsedError;
 }
