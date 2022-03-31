@@ -481,16 +481,16 @@ pub(crate) mod webrtc {
             id: &mut String,
         ) -> i32;
 
-        /// Specifies which microphone to use for recording audio using an
-        /// index retrieved by the corresponding enumeration method which is
+        /// Specifies which microphone to use for recording audio using an index
+        /// retrieved by the corresponding enumeration method which is
         /// [`AudiDeviceModule::RecordingDeviceName`].
         pub fn set_audio_recording_device(
             audio_device_module: &AudioDeviceModule,
             index: u16,
         ) -> i32;
 
-        /// Specifies which speaker to use for playing out audio using an
-        /// index retrieved by the corresponding enumeration method
+        /// Specifies which speaker to use for playing out audio using an index
+        /// retrieved by the corresponding enumeration method
         /// [`AudiDeviceModule::PlayoutDeviceName`].
         pub fn set_audio_playout_device(
             audio_device_module: &AudioDeviceModule,

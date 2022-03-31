@@ -199,7 +199,7 @@ impl AudioDeviceModule {
     pub fn init(&self) -> anyhow::Result<()> {
         let result = webrtc::init_audio_device_module(&self.0);
         if result != 0 {
-            bail!("`AudioDeviceModule::Init()` failed with `{}` code", result);
+            bail!("`AudioDeviceModule::Init()` failed with `{result}` code");
         }
         Ok(())
     }
@@ -210,8 +210,8 @@ impl AudioDeviceModule {
 
         if count < 0 {
             bail!(
-                "`AudioDeviceModule::PlayoutDevices()` failed with `{}` code",
-                count,
+                "`AudioDeviceModule::PlayoutDevices()` failed with `{count}` \
+                 code",
             );
         }
 
@@ -224,8 +224,8 @@ impl AudioDeviceModule {
 
         if count < 0 {
             bail!(
-                "`AudioDeviceModule::RecordingDevices()` failed with `{}` code",
-                count
+                "`AudioDeviceModule::RecordingDevices()` failed with `{count}` \
+                 code",
             );
         }
 
@@ -246,9 +246,8 @@ impl AudioDeviceModule {
 
         if result != 0 {
             bail!(
-                "`AudioDeviceModule::PlayoutDeviceName()` failed with `{}` \
-                 code",
-                result,
+                "`AudioDeviceModule::PlayoutDeviceName()` failed with \
+                 `{result}` code",
             );
         }
 
@@ -270,8 +269,7 @@ impl AudioDeviceModule {
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::RecordingDeviceName()` failed with \
-                 `{}` code",
-                result,
+                 `{result}` code",
             );
         }
 
@@ -285,8 +283,7 @@ impl AudioDeviceModule {
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::SetRecordingDevice()` failed with \
-                 `{}` code.",
-                result,
+                 `{result}` code",
             );
         }
 
@@ -300,8 +297,7 @@ impl AudioDeviceModule {
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::SetPlayoutDevice()` failed with \
-                 `{}` code.",
-                result,
+                 `{result}` code",
             );
         }
 
@@ -351,8 +347,8 @@ impl VideoDeviceInfo {
 
         if result != 0 {
             bail!(
-                "`AudioDeviceModule::GetDeviceName()` failed with `{}` code",
-                result,
+                "`AudioDeviceModule::GetDeviceName()` failed with `{result}` \
+                 code",
             );
         }
 

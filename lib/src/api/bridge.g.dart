@@ -4,32 +4,27 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes
 
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:ffi' as ffi;
 import 'dart:typed_data';
-import 'dart:typed_data';
-
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'dart:ffi' as ffi;
 
 part 'bridge.g.freezed.dart';
 
 abstract class FlutterWebrtcNative {
-  /// Returns a list of all available media input and output devices, such
-  /// as microphones, cameras, headsets, and so forth.
+  /// Returns a list of all available media input and output devices, such as
+  /// microphones, cameras, headsets, and so forth.
   Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint});
 
   /// Creates a new [`PeerConnection`] and returns its ID.
-  ///
-  /// Writes an error to the provided `err`, if any.
   Stream<PeerConnectionEvent> createPeerConnection(
       {required RtcConfiguration configuration, dynamic hint});
 
-  /// Initiates the creation of a SDP offer for the purpose of starting
-  /// a new WebRTC connection to a remote peer.
-  ///
-  /// Returns an empty [`String`] if operation succeeds or an error
-  /// otherwise.
+  /// Initiates the creation of an SDP offer for the purpose of starting a new
+  /// WebRTC connection to a remote peer.
   Future<RtcSessionDescription> createOffer(
       {required int peerId,
       required bool voiceActivityDetection,
@@ -37,11 +32,8 @@ abstract class FlutterWebrtcNative {
       required bool useRtpMux,
       dynamic hint});
 
-  /// Creates a SDP answer to an offer received from a remote peer during
-  /// the offer/answer negotiation of a WebRTC connection.
-  ///
-  /// Returns an empty [`String`] in operation succeeds or an error
-  /// otherwise.
+  /// Creates an SDP answer to an offer received from a remote peer during an
+  /// offer/answer negotiation of a WebRTC connection.
   Future<RtcSessionDescription> createAnswer(
       {required int peerId,
       required bool voiceActivityDetection,
@@ -50,77 +42,68 @@ abstract class FlutterWebrtcNative {
       dynamic hint});
 
   /// Changes the local description associated with the connection.
-  ///
-  /// Returns an empty [`String`] in operation succeeds or an error
-  /// otherwise.
   Future<void> setLocalDescription(
       {required int peerId,
       required SdpType kind,
       required String sdp,
       dynamic hint});
 
-  /// Sets the specified session description as the remote peer's current
-  /// offer or answer.
-  ///
-  /// Returns an empty [`String`] in operation succeeds or an error
-  /// otherwise.
+  /// Sets the specified session description as the remote peer's current offer or
+  /// answer.
   Future<void> setRemoteDescription(
       {required int peerId,
       required SdpType kind,
       required String sdp,
       dynamic hint});
 
-  /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of
-  /// transceivers of the specified [`PeerConnection`].
+  /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of transceivers
+  /// of the specified [`PeerConnection`].
   Future<RtcRtpTransceiver> addTransceiver(
       {required int peerId,
       required MediaType mediaType,
       required RtpTransceiverDirection direction,
       dynamic hint});
 
-  /// Returns a sequence of [`RtcRtpTransceiver`] objects representing
-  /// the RTP transceivers currently attached to the specified
-  /// [`PeerConnection`].
+  /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
+  /// transceivers currently attached to the specified [`PeerConnection`].
   Future<List<RtcRtpTransceiver>> getTransceivers(
       {required int peerId, dynamic hint});
 
-  /// Changes the preferred `direction` of the specified
-  /// [`RtcRtpTransceiver`].
+  /// Changes the preferred `direction` of the specified [`RtcRtpTransceiver`].
   Future<void> setTransceiverDirection(
       {required int peerId,
       required int transceiverIndex,
       required RtpTransceiverDirection direction,
       dynamic hint});
 
-  /// Returns the [Negotiated media ID (mid)][1] of the specified
+  /// Returns the [negotiated media ID (mid)][1] of the specified
   /// [`RtcRtpTransceiver`].
   ///
   /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
   Future<String?> getTransceiverMid(
       {required int peerId, required int transceiverIndex, dynamic hint});
 
-  /// Returns the preferred direction of the specified
-  /// [`RtcRtpTransceiver`].
+  /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
   Future<RtpTransceiverDirection> getTransceiverDirection(
       {required int peerId, required int transceiverIndex, dynamic hint});
 
-  /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
-  /// unless it's already stopped.
+  /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping, unless
+  /// it's already stopped.
   ///
-  /// This will immediately cause the transceiver's sender to no longer
-  /// send, and its receiver to no longer receive.
+  /// This will immediately cause the transceiver's sender to no longer send, and
+  /// its receiver to no longer receive.
   Future<void> stopTransceiver(
       {required int peerId, required int transceiverIndex, dynamic hint});
 
-  /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on
-  /// the [`sys::Transceiver`]'s `sender`.
+  /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
+  /// [`sys::Transceiver`]'s `sender`.
   Future<void> senderReplaceTrack(
       {required int peerId,
       required int transceiverIndex,
       int? trackId,
       dynamic hint});
 
-  /// Adds the new ICE candidate to the given [`PeerConnection`].
+  /// Adds the new ICE `candidate` to the given [`PeerConnection`].
   Future<void> addIceCandidate(
       {required int peerId,
       required String candidate,
@@ -139,13 +122,13 @@ abstract class FlutterWebrtcNative {
   Future<List<MediaStreamTrack>> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
 
-  /// Sets the specified `audio playuot` device.
+  /// Sets the specified `audio playout` device.
   Future<void> setAudioPlayoutDevice({required String deviceId, dynamic hint});
 
   /// Disposes the specified [`MediaStreamTrack`].
   Future<void> disposeTrack({required int trackId, dynamic hint});
 
-  /// Changes the [enabled][1] property of the media track by its ID.
+  /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID.
   ///
   /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
   Future<void> setTrackEnabled(
@@ -154,40 +137,42 @@ abstract class FlutterWebrtcNative {
   /// Clones the specified [`MediaStreamTrack`].
   Future<MediaStreamTrack> cloneTrack({required int trackId, dynamic hint});
 
-  /// Registers an observer to the media track events.
+  /// Registers an observer to the [`MediaStreamTrack`] events.
   Stream<TrackEvent> registerTrackObserver(
       {required int trackId, dynamic hint});
 
-  /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
-  /// called whenever a set of available media devices changes.
+  /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
+  /// whenever a set of available media devices changes.
   ///
-  /// Only one callback can be set at a time, so the previous one will be
-  /// dropped, if any.
+  /// Only one callback can be set at a time, so the previous one will be dropped,
+  /// if any.
   Stream<void> setOnDeviceChanged({dynamic hint});
 
   /// Creates a new [`VideoSink`] attached to the specified video track.
   ///
-  /// `callback_ptr` argument should be a pointer to a [`UniquePtr`] pointing to
-  /// a [`OnFrameCallbackInterface`].
+  /// `callback_ptr` argument should be a pointer to an [`UniquePtr`] pointing to
+  /// an [`OnFrameCallbackInterface`].
   Future<void> createVideoSink(
       {required int sinkId,
       required int trackId,
       required int callbackPtr,
       dynamic hint});
 
-  /// Destroys the [`VideoSink`] by the given ID.
+  /// Destroys the [`VideoSink`] by the provided ID.
   Uint8List disposeVideoSink({required int sinkId, dynamic hint});
 }
 
-/// Specifies the nature and settings of the audio [`MediaStreamTrack`]
-/// returned by [`Webrtc::get_users_media()`].
+/// Nature and settings of the audio [`MediaStreamTrack`] returned by
+/// [`Webrtc::get_users_media()`].
 class AudioConstraints {
-  /// The identifier of the device generating the content of the
-  /// [`MediaStreamTrack`]. First device will be chosen if empty
-  /// [`String`] is provided.
+  /// Identifier of the device generating the content of the
+  /// [`MediaStreamTrack`].
   ///
-  /// __NOTE__: There can be only one active recording device at a time,
-  /// so changing device will affect all previously obtained audio tracks.
+  /// First device will be chosen if an empty [`String`] is provided.
+  ///
+  /// __NOTE__: There can be only one active recording device at a time, so
+  ///           changing device will affect all previously obtained audio
+  ///           tracks.
   final String? deviceId;
 
   AudioConstraints({
@@ -198,9 +183,9 @@ class AudioConstraints {
 /// [RTCBundlePolicy][1] representation.
 ///
 /// Affects which media tracks are negotiated if the remote endpoint is not
-/// bundle-aware, and what ICE candidates are gathered. If the remote
-/// endpoint is bundle-aware, all media tracks and data channels are bundled
-/// onto the same transport.
+/// bundle-aware, and what ICE candidates are gathered. If the remote endpoint
+/// is bundle-aware, all media tracks and data channels are bundled onto the
+/// same transport.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
 enum BundlePolicy {
@@ -220,7 +205,7 @@ enum BundlePolicy {
   MaxCompat,
 }
 
-/// [`RTCIceConnectionState`][1] representation.
+/// [RTCIceConnectionState][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
 enum IceConnectionState {
@@ -260,7 +245,7 @@ enum IceConnectionState {
   Closed,
 }
 
-/// [`RTCIceGatheringState`][1] representation.
+/// [RTCIceGatheringState][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
 enum IceGatheringState {
@@ -338,14 +323,16 @@ enum MediaDeviceKind {
   VideoInput,
 }
 
-/// The [MediaStreamConstraints] is used to instruct what sort of
+/// [MediaStreamConstraints], used to instruct what sort of
 /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
 /// [`Webrtc::get_users_media()`].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamconstraints
 class MediaStreamConstraints {
-  /// Specifies the nature and settings of the video [`MediaStreamTrack`].
+  /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
   final AudioConstraints? audio;
 
-  /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
+  /// Specifies the nature and settings of the video [`MediaStreamTrack`].
   final VideoConstraints? video;
 
   MediaStreamConstraints({
@@ -356,22 +343,22 @@ class MediaStreamConstraints {
 
 /// Representation of a single media track within a [`MediaStream`].
 ///
-/// Typically, these are audio or video tracks, but other track types may
-/// exist as well.
+/// Typically, these are audio or video tracks, but other track types may exist
+/// as well.
 class MediaStreamTrack {
-  /// Unique identifier (GUID) for the track
+  /// Unique identifier (GUID) of this [`MediaStreamTrack`].
   final int id;
 
-  /// Label that identifies the track source, as in "internal microphone".
+  /// Label identifying the track source, as in "internal microphone".
   final String deviceId;
 
-  /// [`MediaType`] of the current [`MediaStreamTrack`].
+  /// [`MediaType`] of this [`MediaStreamTrack`].
   final MediaType kind;
 
-  /// The `enabled` property on the [`MediaStreamTrack`] interface is a
-  /// `enabled` value which is `true` if the track is allowed to render
-  /// the source stream or `false` if it is not. This can be used to
-  /// intentionally mute a track.
+  /// Indicator whether this [`MediaStreamTrack`] is allowed to render the
+  /// source stream.
+  ///
+  /// This can be used to intentionally mute a track.
   final bool enabled;
 
   MediaStreamTrack({
@@ -393,78 +380,81 @@ enum MediaType {
 
 @freezed
 class PeerConnectionEvent with _$PeerConnectionEvent {
-  /// A custom `event` indicates that a [`PeerConnection`] has been created.
-  /// Provides the [`PeerConnection`]'s `id`.
+  /// [`PeerConnection`] has been created.
   const factory PeerConnectionEvent.peerCreated({
+    /// ID of the created [`PeerConnection`].
     required int id,
   }) = PeerCreated;
 
-  /// A new [`RTCIceCandidate`][1] has been discovered.
+  /// [RTCIceCandidate][1] has been discovered.
   ///
-  /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
   const factory PeerConnectionEvent.iceCandidate({
-    /// Contains the media stream "identification-tag" defined in
-    /// [RFC5888][1] for the media component this candidate is associated
+    /// Media stream "identification-tag" defined in [RFC 5888] for the
+    /// media component the discovered [RTCIceCandidate][1] is associated
     /// with.
     ///
-    /// [1]: https://tools.ietf.org/html/rfc5888
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
+    /// [RFC 5888]: https://tools.ietf.org/html/rfc5888
     required String sdpMid,
 
-    /// Indicates the index (starting at zero) of the media description in
-    /// the SDP this candidate is associated with.
+    /// Index (starting at zero) of the media description in the SDP this
+    /// [RTCIceCandidate][1] is associated with.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
     required int sdpMlineIndex,
 
-    /// This carries the candidate-attribute as defined in section 15.1 of
-    /// [RFC5245][1]. If this RTCIceCandidate represents an
-    /// end-of-candidates indication or a peer reflexive remote candidate,
-    /// candidate is an empty string.
+    /// Candidate-attribute as defined in Section 15.1 of [RFC 5245].
     ///
-    /// [1]: https://tools.ietf.org/html/rfc5245
+    /// If this [RTCIceCandidate][1] represents an end-of-candidates
+    /// indication or a peer reflexive remote candidate, candidate is an
+    /// empty string.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
+    /// [RFC 5245]: https://tools.ietf.org/html/rfc5245
     required String candidate,
   }) = IceCandidate;
 
-  /// The [`PeerConnection`]'s ICE gathering state has changed.
+  /// [`PeerConnection`]'s ICE gathering state has changed.
   const factory PeerConnectionEvent.iceGatheringStateChange(
     IceGatheringState field0,
   ) = IceGatheringStateChange;
 
-  /// A failure occurred when gathering [`ICE candidate`][1].
+  /// Failure occurred when gathering [RTCIceCandidate][1].
   ///
-  /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcicecandidate
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
   const factory PeerConnectionEvent.iceCandidateError({
-    /// The address attribute is the local IP address used to communicate
-    /// with the STUN or TURN server.
+    /// Local IP address used to communicate with the STUN or TURN server.
     required String address,
 
-    /// The port attribute is the port used to communicate with the STUN or
-    /// TURN server.
+    /// Port used to communicate with the STUN or TURN server.
     required int port,
 
-    /// The url attribute is the STUN or TURN URL that identifies the STUN
-    /// or TURN server for which the failure occurred.
+    /// STUN or TURN URL identifying the STUN or TURN server for which the
+    /// failure occurred.
     required String url,
 
-    /// The numeric STUN error code returned by the STUN or TURN server
+    /// Numeric STUN error code returned by the STUN or TURN server
     /// [`STUN-PARAMETERS`][1].
     ///
-    /// If no host candidate can reach the server, errorCode will be set to
-    /// the value 701 which is outside the STUN error code range.
+    /// If no host candidate can reach the server, it will be set to the
+    /// value `701` which is outside the STUN error code range.
     ///
     /// [1]: https://tinyurl.com/stun-parameters-6
     required int errorCode,
 
-    /// The STUN reason text returned by the STUN or TURN server
+    /// STUN reason text returned by the STUN or TURN server
     /// [`STUN-PARAMETERS`][1].
     ///
-    /// If the server could not be reached, this will be set to an
+    /// If the server could not be reached, it will be set to an
     /// implementation-specific value providing details about the error.
     ///
     /// [1]: https://tinyurl.com/stun-parameters-6
     required String errorText,
   }) = IceCandidateError;
 
-  /// Negotiation or renegotiation of the [`PeerConnection`] needs
-  /// to be performed.
+  /// Negotiation or renegotiation of the [`PeerConnection`] needs to be
+  /// performed.
   const factory PeerConnectionEvent.negotiationNeeded() = NegotiationNeeded;
 
   /// [`PeerConnection`]'s [`SignalingState`] has been changed.
@@ -488,7 +478,7 @@ class PeerConnectionEvent with _$PeerConnectionEvent {
   ) = Track;
 }
 
-/// Indicates the current state of a peer connection.
+/// Indicator of the current state of a [`PeerConnection`].
 enum PeerConnectionState {
   /// At least one of the connection's ICE transports is in the new state,
   /// and none of them are in one of the following states: `connecting`,
@@ -554,8 +544,8 @@ class RtcConfiguration {
   });
 }
 
-/// Describes the STUN and TURN servers that can be used by the
-/// [ICE Agent][1] to establish a connection with a peer.
+/// Description of STUN and TURN servers that can be used by an [ICE Agent][1]
+/// to establish a connection with a peer.
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-ice-agent
 class RtcIceServer {
@@ -621,10 +611,10 @@ class RtcRtpTransceiver {
 ///
 /// [RTCSessionDescription]: https://w3.org/TR/webrtc#dom-rtcsessiondescription
 class RtcSessionDescription {
-  /// The string representation of the SDP.
+  /// String representation of the SDP.
   final String sdp;
 
-  /// The type of this session description.
+  /// Type of this [`RtcSessionDescription`].
   final SdpType kind;
 
   RtcSessionDescription({
@@ -633,9 +623,8 @@ class RtcSessionDescription {
   });
 }
 
-/// [`RtcTrackEvent`] representing a track event, sent when a new
-/// [`MediaStreamTrack`] is added to an [`RtcRtpTransceiver`] as part of a
-/// [`PeerConnection`].
+/// Representation of a track event, sent when a new [`MediaStreamTrack`] is
+/// added to an [`RtcRtpTransceiver`] as part of a [`PeerConnection`].
 class RtcTrackEvent {
   /// [`MediaStreamTrack`] associated with the [RTCRtpReceiver] identified
   /// by the receiver.
@@ -725,7 +714,7 @@ enum SdpType {
   Rollback,
 }
 
-/// [`RTCSignalingState`] representation.
+/// [RTCSignalingState] representation.
 ///
 /// [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
 enum SignalingState {
@@ -760,33 +749,34 @@ enum SignalingState {
   Closed,
 }
 
-/// Indicates current state of [`MediaStreamTrack`].
+/// Indicator of the current state of a [`MediaStreamTrack`].
 enum TrackEvent {
-  /// The ended event of the [`MediaStreamTrack`] interface is fired when
-  /// playback or streaming has stopped because the end of the media was
-  /// reached or because no further data is available.
+  /// Ended event of the [`MediaStreamTrack`] interface is fired when playback
+  /// or streaming has stopped because the end of the media was reached or
+  /// because no further data is available.
   Ended,
 }
 
-/// Specifies the nature and settings of the video [`MediaStreamTrack`]
-/// returned by [`Webrtc::get_users_media()`].
+/// Nature and settings of the video [`MediaStreamTrack`] returned by
+/// [`Webrtc::get_users_media()`].
 class VideoConstraints {
-  /// The identifier of the device generating the content of the
-  /// [`MediaStreamTrack`]. First device will be chosen if empty
-  /// [`String`] is provided.
+  /// Identifier of the device generating the content of the
+  /// [`MediaStreamTrack`].
+  ///
+  /// First device will be chosen if an empty [`String`] is provided.
   final String? deviceId;
 
-  /// The width, in pixels.
+  /// Width in pixels.
   final int width;
 
-  /// The height, in pixels.
+  /// Height in pixels.
   final int height;
 
-  /// The exact frame rate (frames per second).
+  /// Exact frame rate (frames per second).
   final int frameRate;
 
-  /// Indicates whether the request video track should be acquired via
-  /// screen capturing.
+  /// Indicator whether the request video track should be acquired via screen
+  /// capturing.
   final bool isDisplay;
 
   VideoConstraints({

@@ -66,7 +66,7 @@ abstract class RtpTransceiver {
   }
 }
 
-/// [MethodChannel]-based implementation of a [RtpTransceiver].
+/// [MethodChannel]-based implementation of an [RtpTransceiver].
 class _RtpTransceiverChannel extends RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
@@ -103,7 +103,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   }
 }
 
-/// FFI-based implementation of a [RtpTransceiver].
+/// FFI-based implementation of an [RtpTransceiver].
 class RtpTransceiverFFI extends RtpTransceiver {
   RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
     _peerId = transceiver.peerId;
@@ -112,13 +112,13 @@ class RtpTransceiverFFI extends RtpTransceiver {
     _mid = transceiver.mid;
   }
 
-  /// `ID` of the native side peer.
+  /// ID of the native side peer.
   late final int _peerId;
 
-  /// `ID` of the native side transceiver`.
+  /// ID of the native side transceiver.
   late final int _id;
 
-  /// Returns an `ID` of the native side peer.
+  /// Returns ID of the native side peer.
   int get id => _id;
 
   @override

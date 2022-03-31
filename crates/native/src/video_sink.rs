@@ -22,11 +22,10 @@ impl Webrtc {
             track_id,
         };
 
-        let mut track =
-            self.video_tracks.get_mut(&track_id).ok_or_else(|| {
-                anyhow!("Could not find track with `{track_id}` ID")
-            })?;
-
+        let mut track = self
+            .video_tracks
+            .get_mut(&track_id)
+            .ok_or_else(|| anyhow!("Cannot find track with ID `{track_id}`"))?;
         track.add_video_sink(&mut sink);
 
         self.video_sinks.insert(Id(sink_id), sink);

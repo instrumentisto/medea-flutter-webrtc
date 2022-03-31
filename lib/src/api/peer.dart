@@ -28,7 +28,7 @@ ffi.FlutterWebrtcNativeImpl buildBridge() {
   return ffi.FlutterWebrtcNativeImpl(dylib);
 }
 
-/// Checks whether running platform is desktop.
+/// Checks whether running platform is a desktop.
 bool isDesktop = !Platform.isAndroid && !Platform.isIOS;
 
 /// Shortcut for the `on_track` callback.
@@ -111,7 +111,7 @@ abstract class PeerConnection {
   /// This list will be automatically updated on a call of some action which
   /// theoretically can change it.
   ///
-  /// This allows us, to make some public APIs synchronous.
+  /// This allows us to make some public APIs synchronous.
   final List<RtpTransceiver> _transceivers = [];
 
   /// Subscribes the provided callback to the `on_track` events of this
@@ -403,10 +403,10 @@ class _PeerConnectionFFI extends PeerConnection {
   /// creating a new [PeerConnection].
   final Completer _initialized = Completer();
 
-  /// `Id` of the native `PeerConnection`.
+  /// ID of the native `PeerConnection`.
   int? _id;
 
-  /// This [Stream] is used for handling [PeerConnection] `event`s.
+  /// [Stream] for handling [PeerConnection] `event`s.
   Stream<ffi.PeerConnectionEvent>? _stream;
 
   _PeerConnectionFFI();

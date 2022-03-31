@@ -1,4 +1,4 @@
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 use std::{
     ptr,
@@ -8,7 +8,7 @@ use std::{
 use anyhow::anyhow;
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 use winapi::{
     shared::{
         minwindef::{HINSTANCE, LPARAM, LRESULT, UINT, WPARAM},
@@ -239,7 +239,7 @@ impl Webrtc {
         Ok(None)
     }
 
-    /// Sets the specified `audio playuot` device.
+    /// Sets the specified `audio playout` device.
     pub fn set_audio_playout_device(
         &mut self,
         device_id: String,
@@ -250,7 +250,7 @@ impl Webrtc {
         if let Some(index) = index {
             self.audio_device_module.set_playout_device(index)
         } else {
-            Err(anyhow!("Can not find playout device with id {device_id}"))
+            Err(anyhow!("Cannot find playout device with ID `{device_id}`"))
         }
     }
 
@@ -285,11 +285,11 @@ impl Webrtc {
     }
 }
 
+#[cfg(target_os = "windows")]
 /// Creates a detached [`Thread`] creating and registering a system message
 /// window - [`HWND`].
 ///
-/// [`Thread`]: std::thread::Thread
-#[cfg(windows)]
+/// [`Thread`]: thread::Thread
 pub unsafe fn init() {
     /// Message handler for an [`HWND`].
     unsafe extern "system" fn wndproc(
@@ -375,8 +375,8 @@ pub unsafe fn init() {
     });
 }
 
-// TODO: Implement OnDeviceChange for Linux
 #[cfg(target_os = "linux")]
+// TODO: Implement `OnDeviceChange` for Linux.
 pub unsafe fn init() {
     // Dummy implementation.
     let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);

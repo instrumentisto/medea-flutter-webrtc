@@ -1,6 +1,6 @@
 use crate::Frame;
 
-pub use cpp_api_bindings::*;
+pub use self::cpp_api_bindings::*;
 
 #[allow(clippy::items_after_statements)]
 #[cxx::bridge]

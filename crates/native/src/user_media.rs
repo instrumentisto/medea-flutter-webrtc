@@ -39,8 +39,7 @@ impl Webrtc {
         Ok(result)
     }
 
-    /// Disposes the [`VideoTrack`] or [`AudioTrack`] by the provided
-    /// `track_id`.
+    /// Disposes a [`VideoTrack`] or [`AudioTrack`] by the provided `track_id`.
     pub fn dispose_track(&mut self, track_id: u64) {
         let senders = if let Some((_, track)) =
             self.video_tracks.remove(&VideoTrackId::from(track_id))
@@ -68,10 +67,10 @@ impl Webrtc {
 
         for (id, senders) in senders {
             for transceiver in senders {
-                if let Err(err) =
+                if let Err(e) =
                     self.sender_replace_track(id.into(), transceiver, None)
                 {
-                    log::error!("Failed to remove track for the sender: {err}");
+                    log::error!("Failed to remove track for the sender: {e}");
                 }
             }
         }
@@ -96,7 +95,7 @@ impl Webrtc {
                 index
             } else {
                 bail!(
-                    "Could not find video device with the specified ID `{}`",
+                    "Cannot find video device with the specified ID `{}`",
                     &source.device_id,
                 );
             };
@@ -127,15 +126,15 @@ impl Webrtc {
                 (index, device_id)
             } else {
                 bail!(
-                    "Could not find video device with the specified ID `{}`",
-                    device_id,
+                    "Cannot find video device with the specified ID \
+                     `{device_id}`",
                 );
             }
         } else {
             // No device ID is provided so just pick the first available
             // device
             if self.video_device_info.number_of_devices() < 1 {
-                bail!("Could not find any available video input device");
+                bail!("Cannot find any available video input device");
             }
 
             let device_id =
@@ -187,8 +186,7 @@ impl Webrtc {
             index
         } else {
             bail!(
-                "Could not find video device with the specified ID `{}`",
-                device_id,
+                "Cannot find video device with the specified ID `{device_id}`",
             );
         };
 
@@ -223,7 +221,7 @@ impl Webrtc {
                 // `AudioDeviceModule` is not capturing anything at the moment,
                 // so we will use first available device (with `0` index).
                 if self.audio_device_module.inner.recording_devices()? < 1 {
-                    bail!("Could not find any available audio input device");
+                    bail!("Cannot find any available audio input device");
                 }
 
                 AudioDeviceId(
@@ -243,8 +241,7 @@ impl Webrtc {
             index
         } else {
             bail!(
-                "Could not find audio device with the specified ID `{}`",
-                device_id,
+                "Cannot find audio device with the specified ID `{device_id}`",
             );
         };
 
@@ -281,7 +278,7 @@ impl Webrtc {
         } else if let Some(track) = self.audio_tracks.get(&AudioTrackId(id)) {
             track.set_enabled(enabled);
         } else {
-            bail!("Could not find track with `{id}` ID");
+            bail!("Cannot find track with `{id}` ID");
         }
 
         Ok(())
@@ -324,8 +321,7 @@ impl Webrtc {
 
                     if transceivers.is_empty() {
                         bail!(
-                            "No `transceiver` has been found with this \
-                            `mid: {mid}`."
+                            "No `transceiver` has been found with mid `{mid}`",
                         );
                     }
                     let track = VideoTrack::wrap_remote(
@@ -368,8 +364,7 @@ impl Webrtc {
 
                     if transceivers.is_empty() {
                         bail!(
-                            "No `transceiver` has been found with this \
-                            `mid: {mid}`."
+                            "No `transceiver` has been found with mid `{mid}`",
                         );
                     }
                     let track = VideoTrack::wrap_remote(
@@ -381,7 +376,7 @@ impl Webrtc {
                 }
             }
         } else {
-            bail!("There is no `track` with this `id: {id}`.")
+            bail!("Cannot find track with ID `{id}`")
         }
     }
 
@@ -408,7 +403,7 @@ impl Webrtc {
             obs.set_audio_track(&track.inner);
             track.inner.register_observer(obs);
         } else {
-            bail!("Could not find track with `{track_id}` ID")
+            bail!("Cannot find track with ID `{track_id}`")
         }
 
         Ok(())
@@ -425,7 +420,7 @@ pub struct MediaStreamId(u64);
 pub struct VideoDeviceId(String);
 
 /// ID of an `AudioDevice`.
-#[derive(AsRef, Clone, Debug, Default, Display, Eq, Hash, PartialEq, From)]
+#[derive(AsRef, Clone, Debug, Default, Display, Eq, From, Hash, PartialEq)]
 #[as_ref(forward)]
 pub struct AudioDeviceId(String);
 
@@ -544,7 +539,7 @@ pub struct VideoTrack {
     /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
 
-    /// Peers and transceivers that are sending this track.
+    /// Peers and transceivers sending this [`VideoTrack`].
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
@@ -617,7 +612,7 @@ impl VideoTrack {
         self.inner.set_enabled(enabled);
     }
 
-    /// Returns peers and transceivers that are sending this track.
+    /// Returns peers and transceivers sending this [`VideoTrack`].
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }
@@ -654,7 +649,7 @@ pub struct AudioTrack {
     /// microphone".
     label: AudioLabel,
 
-    /// Peers and transceivers that are sending this track.
+    /// Peers and transceivers sending this [`VideoTrack`].
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
@@ -718,7 +713,7 @@ impl AudioTrack {
         self.inner.set_enabled(enabled);
     }
 
-    /// Returns peers and transceivers that are sending this track.
+    /// Returns peers and transceivers sending this [`VideoTrack`].
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
     }

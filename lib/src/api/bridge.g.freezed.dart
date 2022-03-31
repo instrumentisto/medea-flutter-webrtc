@@ -241,6 +241,8 @@ class _$PeerCreated implements PeerCreated {
   const _$PeerCreated({required this.id});
 
   @override
+
+  /// ID of the created [`PeerConnection`].
   final int id;
 
   @override
@@ -387,6 +389,7 @@ class _$PeerCreated implements PeerCreated {
 abstract class PeerCreated implements PeerConnectionEvent {
   const factory PeerCreated({required int id}) = _$PeerCreated;
 
+  /// ID of the created [`PeerConnection`].
   int get id;
   @JsonKey(ignore: true)
   $PeerCreatedCopyWith<PeerCreated> get copyWith =>
@@ -445,25 +448,30 @@ class _$IceCandidate implements IceCandidate {
 
   @override
 
-  /// Contains the media stream "identification-tag" defined in
-  /// [RFC5888][1] for the media component this candidate is associated
+  /// Media stream "identification-tag" defined in [RFC 5888] for the
+  /// media component the discovered [RTCIceCandidate][1] is associated
   /// with.
   ///
-  /// [1]: https://tools.ietf.org/html/rfc5888
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
+  /// [RFC 5888]: https://tools.ietf.org/html/rfc5888
   final String sdpMid;
   @override
 
-  /// Indicates the index (starting at zero) of the media description in
-  /// the SDP this candidate is associated with.
+  /// Index (starting at zero) of the media description in the SDP this
+  /// [RTCIceCandidate][1] is associated with.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
   final int sdpMlineIndex;
   @override
 
-  /// This carries the candidate-attribute as defined in section 15.1 of
-  /// [RFC5245][1]. If this RTCIceCandidate represents an
-  /// end-of-candidates indication or a peer reflexive remote candidate,
-  /// candidate is an empty string.
+  /// Candidate-attribute as defined in Section 15.1 of [RFC 5245].
   ///
-  /// [1]: https://tools.ietf.org/html/rfc5245
+  /// If this [RTCIceCandidate][1] represents an end-of-candidates
+  /// indication or a peer reflexive remote candidate, candidate is an
+  /// empty string.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
+  /// [RFC 5245]: https://tools.ietf.org/html/rfc5245
   final String candidate;
 
   @override
@@ -619,23 +627,28 @@ abstract class IceCandidate implements PeerConnectionEvent {
       required int sdpMlineIndex,
       required String candidate}) = _$IceCandidate;
 
-  /// Contains the media stream "identification-tag" defined in
-  /// [RFC5888][1] for the media component this candidate is associated
+  /// Media stream "identification-tag" defined in [RFC 5888] for the
+  /// media component the discovered [RTCIceCandidate][1] is associated
   /// with.
   ///
-  /// [1]: https://tools.ietf.org/html/rfc5888
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
+  /// [RFC 5888]: https://tools.ietf.org/html/rfc5888
   String get sdpMid;
 
-  /// Indicates the index (starting at zero) of the media description in
-  /// the SDP this candidate is associated with.
+  /// Index (starting at zero) of the media description in the SDP this
+  /// [RTCIceCandidate][1] is associated with.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
   int get sdpMlineIndex;
 
-  /// This carries the candidate-attribute as defined in section 15.1 of
-  /// [RFC5245][1]. If this RTCIceCandidate represents an
-  /// end-of-candidates indication or a peer reflexive remote candidate,
-  /// candidate is an empty string.
+  /// Candidate-attribute as defined in Section 15.1 of [RFC 5245].
   ///
-  /// [1]: https://tools.ietf.org/html/rfc5245
+  /// If this [RTCIceCandidate][1] represents an end-of-candidates
+  /// indication or a peer reflexive remote candidate, candidate is an
+  /// empty string.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
+  /// [RFC 5245]: https://tools.ietf.org/html/rfc5245
   String get candidate;
   @JsonKey(ignore: true)
   $IceCandidateCopyWith<IceCandidate> get copyWith =>
@@ -899,35 +912,33 @@ class _$IceCandidateError implements IceCandidateError {
 
   @override
 
-  /// The address attribute is the local IP address used to communicate
-  /// with the STUN or TURN server.
+  /// Local IP address used to communicate with the STUN or TURN server.
   final String address;
   @override
 
-  /// The port attribute is the port used to communicate with the STUN or
-  /// TURN server.
+  /// Port used to communicate with the STUN or TURN server.
   final int port;
   @override
 
-  /// The url attribute is the STUN or TURN URL that identifies the STUN
-  /// or TURN server for which the failure occurred.
+  /// STUN or TURN URL identifying the STUN or TURN server for which the
+  /// failure occurred.
   final String url;
   @override
 
-  /// The numeric STUN error code returned by the STUN or TURN server
+  /// Numeric STUN error code returned by the STUN or TURN server
   /// [`STUN-PARAMETERS`][1].
   ///
-  /// If no host candidate can reach the server, errorCode will be set to
-  /// the value 701 which is outside the STUN error code range.
+  /// If no host candidate can reach the server, it will be set to the
+  /// value `701` which is outside the STUN error code range.
   ///
   /// [1]: https://tinyurl.com/stun-parameters-6
   final int errorCode;
   @override
 
-  /// The STUN reason text returned by the STUN or TURN server
+  /// STUN reason text returned by the STUN or TURN server
   /// [`STUN-PARAMETERS`][1].
   ///
-  /// If the server could not be reached, this will be set to an
+  /// If the server could not be reached, it will be set to an
   /// implementation-specific value providing details about the error.
   ///
   /// [1]: https://tinyurl.com/stun-parameters-6
@@ -1091,31 +1102,29 @@ abstract class IceCandidateError implements PeerConnectionEvent {
       required int errorCode,
       required String errorText}) = _$IceCandidateError;
 
-  /// The address attribute is the local IP address used to communicate
-  /// with the STUN or TURN server.
+  /// Local IP address used to communicate with the STUN or TURN server.
   String get address;
 
-  /// The port attribute is the port used to communicate with the STUN or
-  /// TURN server.
+  /// Port used to communicate with the STUN or TURN server.
   int get port;
 
-  /// The url attribute is the STUN or TURN URL that identifies the STUN
-  /// or TURN server for which the failure occurred.
+  /// STUN or TURN URL identifying the STUN or TURN server for which the
+  /// failure occurred.
   String get url;
 
-  /// The numeric STUN error code returned by the STUN or TURN server
+  /// Numeric STUN error code returned by the STUN or TURN server
   /// [`STUN-PARAMETERS`][1].
   ///
-  /// If no host candidate can reach the server, errorCode will be set to
-  /// the value 701 which is outside the STUN error code range.
+  /// If no host candidate can reach the server, it will be set to the
+  /// value `701` which is outside the STUN error code range.
   ///
   /// [1]: https://tinyurl.com/stun-parameters-6
   int get errorCode;
 
-  /// The STUN reason text returned by the STUN or TURN server
+  /// STUN reason text returned by the STUN or TURN server
   /// [`STUN-PARAMETERS`][1].
   ///
-  /// If the server could not be reached, this will be set to an
+  /// If the server could not be reached, it will be set to an
   /// implementation-specific value providing details about the error.
   ///
   /// [1]: https://tinyurl.com/stun-parameters-6

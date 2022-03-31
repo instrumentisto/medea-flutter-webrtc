@@ -32,8 +32,8 @@ class DeviceHandler {
   /// Instance of a [DeviceHandler] singleton.
   static final DeviceHandler _instance = DeviceHandler._internal();
 
-  /// A callback that is called whenever a media device such as a camera,
-  /// microphone, or speaker is connected to or removed from the system.
+  /// Callback, called whenever a media device such as a camera, microphone, or
+  /// speaker is connected to or removed from the system.
   OnDeviceChangeCallback? _handler;
 
   /// Returns [DeviceHandler] singleton instance.
@@ -46,7 +46,7 @@ class DeviceHandler {
     _listen();
   }
 
-  /// Subscribes to the platform [Stream] that emits device change events.
+  /// Subscribes to the platform [Stream] emitting device change events.
   void _listen() async {
     if (isDesktop) {
       api.setOnDeviceChanged().listen(
@@ -108,8 +108,8 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
   }
 }
 
-/// Returns list of local audio and video [NativeMediaStreamTrack]s based on
-/// the provided [DeviceConstraints].
+/// Returns list of local audio and video [NativeMediaStreamTrack]s based on the
+/// provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
   if (isDesktop) {

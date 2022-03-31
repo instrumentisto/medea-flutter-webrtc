@@ -2,6 +2,7 @@
 name = "flutter-webrtc-native"
 version = "0.0.0"
 edition = "2021"
+rust-version = "1.58"
 publish = false
 
 [lib]
@@ -19,8 +20,8 @@ log = "0.4"
 once_cell = "1.10"
 threadpool = "1.8"
 
-[target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3", features = ["winuser", "dbt"] }
+[target.'cfg(target_os = "windows")'.dependencies]
+winapi = { version = "0.3", features = ["dbt", "winuser"] }
 
 [build-dependencies]
 cxx-build = "1.0"

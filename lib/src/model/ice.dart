@@ -1,5 +1,5 @@
-/// Represents a candidate Interactive Connectivity Establishment (ICE)
-/// configuration which may be used to establish a peer connection.
+/// Candidate Interactive Connectivity Establishment (ICE) configuration which
+/// may be used to establish a peer connection.
 class IceCandidate {
   /// Creates a new [IceCandidate] with the provided parameters.
   IceCandidate(this.sdpMid, this.sdpMLineIndex, this.candidate);
@@ -31,7 +31,7 @@ class IceCandidate {
   }
 }
 
-/// Description of the error occurred with ICE candidate from a PeerConnection.
+/// Description of the error occurred with ICE candidate from a peer connection.
 class IceCandidateErrorEvent {
   /// Creates an [IceCandidateErrorEvent] based on the [Map] received from the
   /// native side.
