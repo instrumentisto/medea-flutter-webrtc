@@ -25,21 +25,21 @@ const defaultFrameRate = 30;
 typedef OnDeviceChangeCallback = void Function();
 
 /// Singleton for listening device change.
-class DeviceHandler {
+class _DeviceHandler {
   /// Instance of a [DeviceHandler] singleton.
-  static final DeviceHandler _instance = DeviceHandler._internal();
+  static final _DeviceHandler _instance = _DeviceHandler._internal();
 
   /// A callback that is called whenever a media device such as a camera,
   /// microphone, or speaker is connected to or removed from the system.
   OnDeviceChangeCallback? _handler;
 
   /// Returns [DeviceHandler] singleton instance.
-  factory DeviceHandler() {
+  factory _DeviceHandler() {
     return _instance;
   }
 
   /// Creates a new [DeviceHandler].
-  DeviceHandler._internal() {
+  _DeviceHandler._internal() {
     _listen();
   }
 
@@ -119,4 +119,8 @@ Future<List<NativeMediaStreamTrack>> getDisplayMedia(
 /// List of output audio devices may be obtained via [enumerateDevices].
 Future<void> setOutputAudioId(String deviceId) async {
   await api.setAudioPlayoutDevice(deviceId: deviceId);
+}
+
+void onDeviceChange(OnDeviceChangeCallback? cb) {
+  _DeviceHandler().setHandler(cb);
 }
