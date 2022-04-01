@@ -1,16 +1,13 @@
+// ignore_for_file: avoid_print
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/src/model/constraints.dart';
-import 'package:flutter_webrtc/src/model/device.dart';
-import 'package:flutter_webrtc/src/model/ice.dart';
-import 'package:flutter_webrtc/src/model/peer.dart';
-import 'package:flutter_webrtc/src/model/track.dart';
-import 'package:flutter_webrtc/src/model/transceiver.dart';
 
 class Loopback extends StatefulWidget {
   static String tag = 'get_usermedia_sample';
+
+  const Loopback({Key? key}) : super(key: key);
 
   @override
   _LoopbackState createState() => _LoopbackState();
@@ -25,8 +22,8 @@ class _LoopbackState extends State<Loopback> {
   final _localRenderer = createVideoRenderer();
   final _remoteRenderer = createVideoRenderer();
   bool _inCalling = false;
-
-  List<MediaDeviceInfo>? _mediaDevicesList;
+  bool _mic = true;
+  bool _cam = true;
 
   @override
   void initState() {
@@ -59,7 +56,6 @@ class _LoopbackState extends State<Loopback> {
     caps.video.mandatory!.fps = 30;
 
     try {
-      _mediaDevicesList = await enumerateDevices();
       _tracks = await getUserMedia(caps);
       _localRenderer.srcObject =
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video);
@@ -68,20 +64,6 @@ class _LoopbackState extends State<Loopback> {
           IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
       _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
       _pc2 = await PeerConnection.create(IceTransportType.all, [server]);
-
-      final icecb = (IceConnectionState state) {
-        print(state.toString());
-      };
-
-      final pccb = (PeerConnectionState state) {
-        print(state.toString());
-      };
-
-      _pc1?.onIceConnectionStateChange(icecb);
-      _pc2?.onIceConnectionStateChange(icecb);
-
-      _pc1?.onConnectionStateChange(pccb);
-      _pc2?.onConnectionStateChange(pccb);
 
       _pc1?.onIceCandidateError((p0) {
         print(p0.errorText);
@@ -96,8 +78,11 @@ class _LoopbackState extends State<Loopback> {
         }
       });
 
-      var trans = await _pc1?.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+      var vtrans = await _pc1?.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+      var atrans = await _pc1?.addTransceiver(
+          MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
       var offer = await _pc1?.createOffer();
       await _pc1?.setLocalDescription(offer!);
@@ -117,8 +102,11 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
-      await trans?.sender.replaceTrack(
+      await vtrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+
+      await atrans?.sender.replaceTrack(
+          _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
     } catch (e) {
       print(e.toString());
     }
@@ -134,15 +122,17 @@ class _LoopbackState extends State<Loopback> {
       _localRenderer.srcObject = null;
       _remoteRenderer.srcObject = null;
 
-      _tracks!.forEach((track) async {
+      for (var track in _tracks!) {
         await track.dispose();
-      });
+      }
 
       await _pc1?.close();
       await _pc2?.close();
 
       setState(() {
         _inCalling = false;
+        _mic = true;
+        _cam = true;
       });
     } catch (e) {
       print(e.toString());
@@ -153,23 +143,34 @@ class _LoopbackState extends State<Loopback> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GetUserMedia API Test'),
+        title: const Text('GetUserMedia API Test'),
         actions: _inCalling
             ? <Widget>[
-                PopupMenuButton<String>(
-                  onSelected: _selectAudioOutput,
-                  itemBuilder: (BuildContext context) {
-                    if (_mediaDevicesList != null) {
-                      return _mediaDevicesList!
-                          .where((device) => device.kind == 'audiooutput')
-                          .map((device) {
-                        return PopupMenuItem<String>(
-                          value: device.deviceId,
-                          child: Text(device.label),
-                        );
-                      }).toList();
-                    }
-                    return [];
+                IconButton(
+                  icon:
+                      _mic ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
+                  tooltip: _mic ? 'Disable audio rec' : 'Enable audio rec',
+                  onPressed: () {
+                    setState(() {
+                      _mic = !_mic;
+                    });
+                    _tracks!
+                        .firstWhere((track) => track.kind() == MediaKind.audio)
+                        .setEnabled(_mic);
+                  },
+                ),
+                IconButton(
+                  icon: _cam
+                      ? const Icon(Icons.videocam_off)
+                      : const Icon(Icons.videocam),
+                  tooltip: _cam ? 'Disable video rec' : 'Enable video rec',
+                  onPressed: () {
+                    setState(() {
+                      _cam = !_cam;
+                    });
+                    _tracks!
+                        .firstWhere((track) => track.kind() == MediaKind.video)
+                        .setEnabled(_cam);
                   },
                 ),
               ]
@@ -181,17 +182,17 @@ class _LoopbackState extends State<Loopback> {
               child: Row(
             children: [
               Container(
-                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(color: Colors.black54),
+                decoration: const BoxDecoration(color: Colors.black54),
                 child: VideoView(_localRenderer, mirror: true),
               ),
               Container(
-                margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(color: Colors.black54),
+                decoration: const BoxDecoration(color: Colors.black54),
                 child: VideoView(_remoteRenderer, mirror: true),
               ),
             ],
@@ -204,9 +205,5 @@ class _LoopbackState extends State<Loopback> {
         child: Icon(_inCalling ? Icons.call_end : Icons.phone),
       ),
     );
-  }
-
-  void _selectAudioOutput(String deviceId) {
-    setOutputAudioId(deviceId);
   }
 }

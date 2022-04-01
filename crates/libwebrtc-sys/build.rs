@@ -3,6 +3,7 @@
 use std::{
     env, fs, io,
     path::{Path, PathBuf},
+    process,
 };
 
 use anyhow::anyhow;
@@ -29,8 +30,7 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
-
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     {
         build
             .flag("-DWEBRTC_WIN")
@@ -46,7 +46,6 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
-
     build.compile("libwebrtc-sys");
 
     for file in cpp_files {
@@ -114,7 +113,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     }
 
     // Untar the downloaded archive.
-    std::process::Command::new("tar")
+    process::Command::new("tar")
         .args(&[
             "-xf",
             archive
@@ -158,11 +157,11 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
         .collect()
 }
 
-/// Emits all required `rustc-link-lib` instructions.
+/// Emits all the required `rustc-link-lib` instructions.
 fn link_libs() {
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     {
-        let deps = [
+        for dep in [
             "Gdi32",
             "Secur32",
             "amstrmid",
@@ -172,35 +171,32 @@ fn link_libs() {
             "msdmo",
             "winmm",
             "wmcodecdspuuid",
-        ];
-
-        for &dep in deps.iter() {
+        ] {
             println!("cargo:rustc-link-lib=dylib={dep}");
         }
-
         // TODO: `rustc` always links against non-debug Windows runtime, so we
         //       always use a release build of `libwebrtc`:
         //       https://github.com/rust-lang/rust/issues/39016
-        println!("cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/");
+        println!(
+            "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/",
+        );
     }
     #[cfg(target_os = "linux")]
     {
-        let deps = ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr"];
-
-        for dep in deps {
+        for dep in ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr"] {
             pkg_config::Config::new().probe(dep).unwrap();
         }
-        match std::env::var("PROFILE").unwrap().as_str() {
+        match env::var("PROFILE").unwrap().as_str() {
             "debug" => {
                 println!(
-                    "cargo:rustc-link-search=native=\
-                crates/libwebrtc-sys/lib/debug/"
+                    "cargo:rustc-link-search=\
+                     native=crates/libwebrtc-sys/lib/debug/",
                 );
             }
             "release" => {
                 println!(
-                    "cargo:rustc-link-search=native=\
-                crates/libwebrtc-sys/lib/release/"
+                    "cargo:rustc-link-search=\
+                     native=crates/libwebrtc-sys/lib/release/",
                 );
             }
             _ => (),

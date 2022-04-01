@@ -14,10 +14,10 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'transceiver.dart';
 
-// TODO(logist322): Check and add docs all over the Dart.
-
+/// Bindings to the Rust side API.
 late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
 
+/// Opens the dynamic library and instantiates [ffi.FlutterWebrtcNativeImpl].
 ffi.FlutterWebrtcNativeImpl buildBridge() {
   const base = 'flutter_webrtc_native';
   final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
@@ -28,6 +28,7 @@ ffi.FlutterWebrtcNativeImpl buildBridge() {
   return ffi.FlutterWebrtcNativeImpl(dylib);
 }
 
+/// Checks whether running platform is a desktop.
 bool isDesktop = !Platform.isAndroid && !Platform.isIOS;
 
 /// Shortcut for the `on_track` callback.
@@ -54,6 +55,9 @@ typedef OnSignalingStateChangeCallback = void Function(SignalingState);
 /// Shortcut for the `on_ice_candidate_error` callback.
 typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
+/// [RTCPeerConnection][1] representation.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 abstract class PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
@@ -107,7 +111,7 @@ abstract class PeerConnection {
   /// This list will be automatically updated on a call of some action which
   /// theoretically can change it.
   ///
-  /// This allows us, to make some public APIs synchronous.
+  /// This allows us to make some public APIs synchronous.
   final List<RtpTransceiver> _transceivers = [];
 
   /// Subscribes the provided callback to the `on_track` events of this
@@ -209,6 +213,7 @@ abstract class PeerConnection {
 final _peerConnectionFactoryMethodChannel =
     methodChannel('PeerConnectionFactory', 0);
 
+/// [MethodChannel]-based implementation of a [PeerConnection].
 class _PeerConnectionChannel extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
@@ -285,7 +290,6 @@ class _PeerConnectionChannel extends PeerConnection {
   /// [_eventChan] subscription to the [PeerConnection] events.
   late StreamSubscription<dynamic>? _eventSub;
 
-  /// Synchronizes mIDs of the [_transceivers] owned by this [PeerConnection].
   @override
   Future<void> _syncTransceiversMids() async {
     for (var transceiver in _transceivers) {
@@ -293,7 +297,6 @@ class _PeerConnectionChannel extends PeerConnection {
     }
   }
 
-  /// Adds a new [RtpTransceiver] to this [PeerConnection].
   @override
   Future<RtpTransceiver> addTransceiver(
       MediaKind mediaType, RtpTransceiverInit init) async {
@@ -305,7 +308,6 @@ class _PeerConnectionChannel extends PeerConnection {
     return transceiver;
   }
 
-  /// Returns all the [RtpTransceiver]s owned by this [PeerConnection].
   @override
   Future<List<RtpTransceiver>> getTransceivers() async {
     List<dynamic> res = await _chan.invokeMethod('getTransceivers');
@@ -315,7 +317,6 @@ class _PeerConnectionChannel extends PeerConnection {
     return transceivers;
   }
 
-  /// Sets the provided remote [SessionDescription] to the [PeerConnection].
   @override
   Future<void> setRemoteDescription(SessionDescription description) async {
     await _chan.invokeMethod(
@@ -323,7 +324,6 @@ class _PeerConnectionChannel extends PeerConnection {
     await _syncTransceiversMids();
   }
 
-  /// Sets the provided local [SessionDescription] to the [PeerConnection].
   @override
   Future<void> setLocalDescription(SessionDescription description) async {
     await _chan.invokeMethod(
@@ -331,47 +331,39 @@ class _PeerConnectionChannel extends PeerConnection {
     await _syncTransceiversMids();
   }
 
-  /// Creates a new [SessionDescription] offer.
   @override
   Future<SessionDescription> createOffer() async {
     dynamic res = await _chan.invokeMethod('createOffer');
     return SessionDescription.fromMap(res);
   }
 
-  /// Creates a new [SessionDescription] answer.
   @override
   Future<SessionDescription> createAnswer() async {
     dynamic res = await _chan.invokeMethod('createAnswer');
     return SessionDescription.fromMap(res);
   }
 
-  /// Adds a new [IceCandidate] to the [PeerConnection].
   @override
   Future<void> addIceCandidate(IceCandidate candidate) async {
     await _chan
         .invokeMethod('addIceCandidate', {'candidate': candidate.toMap()});
   }
 
-  /// Requests the [PeerConnection] to redo [IceCandidate]s gathering.
   @override
   Future<void> restartIce() async {
     await _chan.invokeMethod('restartIce');
   }
 
-  /// Returns the current [PeerConnectionState] of this [PeerConnection].
   @override
   PeerConnectionState connectionState() {
     return _connectionState;
   }
 
-  /// Returns the current [IceConnectionState] of this [PeerConnection].
   @override
   IceConnectionState iceConnectionState() {
     return _iceConnectionState;
   }
 
-  /// Closes this [PeerConnection] and all it's owned entities (for example,
-  /// [RtpTransceiver]s).
   @override
   Future<void> close() async {
     for (var e in _transceivers) {
@@ -382,7 +374,10 @@ class _PeerConnectionChannel extends PeerConnection {
   }
 }
 
+/// FFI-based implementation of a [PeerConnection].
 class _PeerConnectionFFI extends PeerConnection {
+  /// Creates a new [PeerConnection] with the provided [IceTransportType] and
+  /// [IceServer]s.
   static Future<PeerConnection> create(
       IceTransportType iceType, List<IceServer> iceServers) async {
     var cfg = ffi.RtcConfiguration(
@@ -404,8 +399,14 @@ class _PeerConnectionFFI extends PeerConnection {
     return peer;
   }
 
+  /// This [Completer] is used to wait the [ffi.PeerCreated] `event` when
+  /// creating a new [PeerConnection].
   final Completer _initialized = Completer();
+
+  /// ID of the native `PeerConnection`.
   int? _id;
+
+  /// [Stream] for handling [PeerConnection] `event`s.
   Stream<ffi.PeerConnectionEvent>? _stream;
 
   _PeerConnectionFFI();
@@ -417,7 +418,7 @@ class _PeerConnectionFFI extends PeerConnection {
       _id = event.id;
       _initialized.complete();
       return;
-    } else if (event is ffi.OnIceCandidate) {
+    } else if (event is ffi.IceCandidate) {
       _onIceCandidate?.call(
           IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
       return;

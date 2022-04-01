@@ -1,11 +1,12 @@
 #![warn(clippy::pedantic)]
+
 mod api;
 #[allow(
-    clippy::wildcard_imports,
-    clippy::semicolon_if_nothing_returned,
     clippy::default_trait_access,
-    clippy::let_underscore_drop)
-]
+    clippy::let_underscore_drop,
+    clippy::semicolon_if_nothing_returned,
+    clippy::wildcard_imports
+)]
 #[rustfmt::skip]
 mod bridge_generated;
 mod cpp_api;
@@ -23,10 +24,7 @@ use std::{
 };
 
 use dashmap::DashMap;
-use libwebrtc_sys::{
-    AudioLayer, AudioSourceInterface, PeerConnectionFactoryInterface,
-    TaskQueueFactory, Thread, VideoDeviceInfo,
-};
+use libwebrtc_sys as sys;
 use threadpool::ThreadPool;
 
 use crate::video_sink::Id as VideoSinkId;
@@ -49,21 +47,22 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
+/// Global context for an application.
 struct Webrtc {
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
-    video_device_info: VideoDeviceInfo,
+    video_device_info: sys::VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
-    audio_source: Option<Arc<AudioSourceInterface>>,
+    audio_source: Option<Arc<sys::AudioSourceInterface>>,
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 
-    /// `peer_connection_factory` must be drops before [`Thread`]s.
-    peer_connection_factory: PeerConnectionFactoryInterface,
-    task_queue_factory: TaskQueueFactory,
+    /// `peer_connection_factory` must be dropped before [`Thread`]s.
+    peer_connection_factory: sys::PeerConnectionFactoryInterface,
+    task_queue_factory: sys::TaskQueueFactory,
     audio_device_module: AudioDeviceModule,
-    worker_thread: Thread,
-    signaling_thread: Thread,
+    worker_thread: sys::Thread,
+    signaling_thread: sys::Thread,
 
     /// [`ThreadPool`] used to offload blocking or CPU-intensive tasks, so they
     /// won't block Flutter WebRTC threads.
@@ -71,31 +70,33 @@ struct Webrtc {
 }
 
 impl Webrtc {
+    /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
         let mut task_queue_factory =
-            TaskQueueFactory::create_default_task_queue_factory();
+            sys::TaskQueueFactory::create_default_task_queue_factory();
 
-        let mut worker_thread = Thread::create(false)?;
+        let mut worker_thread = sys::Thread::create(false)?;
         worker_thread.start()?;
 
-        let mut signaling_thread = Thread::create(false)?;
+        let mut signaling_thread = sys::Thread::create(false)?;
         signaling_thread.start()?;
 
         let audio_device_module = AudioDeviceModule::new(
             &mut worker_thread,
             &mut signaling_thread,
-            AudioLayer::kPlatformDefaultAudio,
+            sys::AudioLayer::kPlatformDefaultAudio,
             &mut task_queue_factory,
         )?;
 
-        let peer_connection_factory = PeerConnectionFactoryInterface::create(
-            None,
-            Some(&worker_thread),
-            Some(&signaling_thread),
-            Some(&audio_device_module.inner),
-        )?;
+        let peer_connection_factory =
+            sys::PeerConnectionFactoryInterface::create(
+                None,
+                Some(&worker_thread),
+                Some(&signaling_thread),
+                Some(&audio_device_module.inner),
+            )?;
 
-        let video_device_info = VideoDeviceInfo::create()?;
+        let video_device_info = sys::VideoDeviceInfo::create()?;
 
         Ok(Self {
             task_queue_factory,

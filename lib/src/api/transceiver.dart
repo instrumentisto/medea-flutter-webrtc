@@ -6,6 +6,9 @@ import 'channel.dart';
 import 'peer.dart';
 import 'sender.dart';
 
+/// [RTCTransceiver][1] representation
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
 abstract class RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
@@ -13,6 +16,8 @@ abstract class RtpTransceiver {
     return _RtpTransceiverChannel.fromMap(map);
   }
 
+  /// Creates an [RtpTransceiver] basing on the [ffi.RtcRtpTransceiver] received
+  /// from the native side.
   static RtpTransceiver fromFFI(ffi.RtcRtpTransceiver transceiver) {
     return RtpTransceiverFFI(transceiver);
   }
@@ -61,6 +66,7 @@ abstract class RtpTransceiver {
   }
 }
 
+/// [MethodChannel]-based implementation of an [RtpTransceiver].
 class _RtpTransceiverChannel extends RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
@@ -74,29 +80,22 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   /// [MethodChannel] used for the messaging with the native side.
   late MethodChannel _chan;
 
-  /// Changes the [TransceiverDirection] of this [RtpTransceiver].
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
     await _chan.invokeMethod('setDirection', {'direction': direction.index});
   }
 
-  /// Returns current preferred [TransceiverDirection] of this [RtpTransceiver].
   @override
   Future<TransceiverDirection> getDirection() async {
     return TransceiverDirection
         .values[await _chan.invokeMethod('getDirection')];
   }
 
-  /// Synchronizes [_mid] of this [RtpTransceiver] with the native side.
   @override
   Future<void> syncMid() async {
     _mid = await _chan.invokeMethod('getMid');
   }
 
-  /// Stops this [RtpTransceiver].
-  ///
-  /// After this action, no media will be transferred from/to this
-  /// [RtpTransceiver].
   @override
   Future<void> stop() async {
     _isStopped = true;
@@ -104,6 +103,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   }
 }
 
+/// FFI-based implementation of an [RtpTransceiver].
 class RtpTransceiverFFI extends RtpTransceiver {
   RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
     _peerId = transceiver.peerId;
@@ -112,33 +112,37 @@ class RtpTransceiverFFI extends RtpTransceiver {
     _mid = transceiver.mid;
   }
 
+  /// ID of the native side peer.
   late final int _peerId;
+
+  /// ID of the native side transceiver.
   late final int _id;
 
+  /// Returns ID of the native side peer.
   int get id => _id;
 
   @override
   Future<TransceiverDirection> getDirection() async {
-    return TransceiverDirection.values[
-        (await api.getTransceiverDirection(peerId: _peerId, transceiverId: _id))
-            .index];
+    return TransceiverDirection.values[(await api.getTransceiverDirection(
+            peerId: _peerId, transceiverIndex: _id))
+        .index];
   }
 
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
     await api.setTransceiverDirection(
         peerId: _peerId,
-        transceiverId: _id,
+        transceiverIndex: _id,
         direction: ffi.RtpTransceiverDirection.values[direction.index]);
   }
 
   @override
   Future<void> stop() async {
-    await api.stopTransceiver(peerId: _peerId, transceiverId: _id);
+    await api.stopTransceiver(peerId: _peerId, transceiverIndex: _id);
   }
 
   @override
   Future<void> syncMid() async {
-    _mid = await api.getTransceiverMid(peerId: _peerId, transceiverId: _id);
+    _mid = await api.getTransceiverMid(peerId: _peerId, transceiverIndex: _id);
   }
 }

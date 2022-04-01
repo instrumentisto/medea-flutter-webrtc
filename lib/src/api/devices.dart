@@ -9,38 +9,57 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
+/// Default video width when capturing user's camera.
 const defaultUserMediaWidth = 480;
+
+/// Default video height when capturing user's camera.
 const defaultUserMediaHeight = 640;
+
+/// Default video width when capturing user's display.
 const defaultDisplayMediaWidth = 1280;
+
+/// Default video height when capturing user's display.
 const defaultDisplayMediaHeight = 720;
+
+/// Default video framerate.
 const defaultFrameRate = 30;
 
 /// Shortcut for the `on_device_change` callback.
 typedef OnDeviceChangeCallback = void Function();
 
+/// Singleton for listening device change.
 class DeviceHandler {
+  /// Instance of a [DeviceHandler] singleton.
   static final DeviceHandler _instance = DeviceHandler._internal();
+
+  /// Callback, called whenever a media device such as a camera, microphone, or
+  /// speaker is connected to or removed from the system.
   OnDeviceChangeCallback? _handler;
 
+  /// Returns [DeviceHandler] singleton instance.
   factory DeviceHandler() {
     return _instance;
   }
 
+  /// Creates a new [DeviceHandler].
   DeviceHandler._internal() {
     _listen();
   }
 
+  /// Subscribes to the platform [Stream] emitting device change events.
   void _listen() async {
     if (isDesktop) {
       api.setOnDeviceChanged().listen(
-            (event) {
+        (event) {
           if (_handler != null) {
             _handler!();
           }
         },
       );
     } else {
-      eventChannel('MediaDevicesEvent', 0).receiveBroadcastStream().listen((event) {
+      eventChannel('MediaDevicesEvent', 0)
+          .receiveBroadcastStream()
+          .listen((event) {
         final dynamic e = event;
         switch (e['event']) {
           case 'onDeviceChange':
@@ -53,7 +72,7 @@ class DeviceHandler {
     }
   }
 
-  /// Subscribes to the `devicechange` event of the `MediaDevices`.
+  /// Sets the [OnDeviceChangeCallback] callback.
   void setHandler(OnDeviceChangeCallback? handler) {
     _handler = handler;
   }
@@ -79,26 +98,18 @@ final _mediaDevicesMethodChannel = methodChannel('MediaDevices', 0);
 /// Returns list of [MediaDeviceInfo]s for the currently available devices.
 Future<List<MediaDeviceInfo>> enumerateDevices() async {
   if (isDesktop) {
-    return await _enumerateDevicesFFI();
+    return (await api.enumerateDevices())
+        .map((e) => MediaDeviceInfo.fromFFI(e))
+        .toList();
   } else {
-    return await _enumerateDevicesChannel();
+    return (await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices'))
+        .map((i) => MediaDeviceInfo.fromMap(i))
+        .toList();
   }
 }
 
-Future<List<MediaDeviceInfo>> _enumerateDevicesChannel() async {
-  return (await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices'))
-      .map((i) => MediaDeviceInfo.fromMap(i))
-      .toList();
-}
-
-Future<List<MediaDeviceInfo>> _enumerateDevicesFFI() async {
-  return (await api.enumerateDevices())
-      .map((e) => MediaDeviceInfo.fromFFI(e))
-      .toList();
-}
-
-/// Returns list of local audio and video [NativeMediaStreamTrack]s based on
-/// the provided [DeviceConstraints].
+/// Returns list of local audio and video [NativeMediaStreamTrack]s based on the
+/// provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
   if (isDesktop) {
@@ -108,6 +119,30 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
   }
 }
 
+/// Returns list of local display [NativeMediaStreamTrack]s based on the
+/// provided [DisplayConstraints].
+Future<List<NativeMediaStreamTrack>> getDisplayMedia(
+    DisplayConstraints constraints) async {
+  if (isDesktop) {
+    return _getDisplayMediaFFI(constraints);
+  } else {
+    return _getDisplayMediaChannel(constraints);
+  }
+}
+
+/// Switches the current output audio device to the provided [deviceId].
+///
+/// List of output audio devices may be obtained via [enumerateDevices].
+Future<void> setOutputAudioId(String deviceId) async {
+  if (isDesktop) {
+    await api.setAudioPlayoutDevice(deviceId: deviceId);
+  } else {
+    await _mediaDevicesMethodChannel
+        .invokeMethod('setOutputAudioId', {'deviceId': deviceId});
+  }
+}
+
+/// [MethodChannel]-based implementation of a [getUserMedia] function.
 Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
     DeviceConstraints constraints) async {
   try {
@@ -123,16 +158,16 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
   }
 }
 
+/// FFI-based implementation of a [getUserMedia] function.
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
   var audioConstraints = constraints.audio.mandatory != null
-      ? ffi.AudioConstraints(
-          deviceId: constraints.audio.mandatory?.deviceId ?? '')
+      ? ffi.AudioConstraints(deviceId: constraints.audio.mandatory?.deviceId)
       : null;
 
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
-          deviceId: constraints.video.mandatory?.deviceId ?? '',
+          deviceId: constraints.video.mandatory?.deviceId,
           height: constraints.video.mandatory?.height ?? defaultUserMediaHeight,
           width: constraints.video.mandatory?.width ?? defaultUserMediaWidth,
           frameRate: constraints.video.mandatory?.fps ?? defaultFrameRate,
@@ -146,17 +181,7 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
   return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
 }
 
-/// Returns list of local display [NativeMediaStreamTrack]s based on the
-/// provided [DisplayConstraints].
-Future<List<NativeMediaStreamTrack>> getDisplayMedia(
-    DisplayConstraints constraints) async {
-  if (isDesktop) {
-    return _getDisplayMediaFFI(constraints);
-  } else {
-    return _getDisplayMediaChannel(constraints);
-  }
-}
-
+/// [MethodChannel]-based implementation of a [getDisplayMedia] function.
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
     DisplayConstraints constraints) async {
   List<dynamic> res = await _mediaDevicesMethodChannel
@@ -164,17 +189,18 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
   return res.map((t) => NativeMediaStreamTrack.from(t)).toList();
 }
 
+/// FFI-based implementation of a [getDisplayMedia] function.
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
   var audioConstraints = constraints.audio.mandatory != null
-      ? ffi.AudioConstraints(
-          deviceId: constraints.audio.mandatory?.deviceId ?? '')
+      ? ffi.AudioConstraints(deviceId: constraints.audio.mandatory?.deviceId)
       : null;
 
   var videoConstraints = constraints.video.mandatory != null
       ? ffi.VideoConstraints(
-          deviceId: constraints.video.mandatory?.deviceId ?? '',
-          height: constraints.video.mandatory?.height ?? defaultDisplayMediaHeight,
+          deviceId: constraints.video.mandatory?.deviceId,
+          height:
+              constraints.video.mandatory?.height ?? defaultDisplayMediaHeight,
           width: constraints.video.mandatory?.width ?? defaultDisplayMediaWidth,
           frameRate: constraints.video.mandatory?.fps ?? defaultFrameRate,
           isDisplay: true)
@@ -185,24 +211,4 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
           audio: audioConstraints, video: videoConstraints));
 
   return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
-}
-
-/// Switches the current output audio device to the provided [deviceId].
-///
-/// List of output audio devices may be obtained via [enumerateDevices].
-Future<void> setOutputAudioId(String deviceId) async {
-  if (isDesktop) {
-    _setOutputAudioIdFFI(deviceId);
-  } else {
-    _setOutputAudioIdChannel(deviceId);
-  }
-}
-
-Future<void> _setOutputAudioIdChannel(String deviceId) async {
-  await _mediaDevicesMethodChannel
-      .invokeMethod('setOutputAudioId', {'deviceId': deviceId});
-}
-
-Future<void> _setOutputAudioIdFFI(String deviceId) async {
-  await api.setAudioPlayoutDevice(deviceId: deviceId);
 }

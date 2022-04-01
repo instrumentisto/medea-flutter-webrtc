@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import '../../../flutter_webrtc.dart';
 import '/src/api/bridge.g.dart' as ffi;
 import '/src/api/channel.dart';
-import '/src/model/track.dart';
-import '../../../flutter_webrtc.dart';
 
 /// Representation of a single media unit.
 abstract class NativeMediaStreamTrack extends MediaStreamTrack {
@@ -37,7 +36,9 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// "remote" - for the remove tracks.
   late String _deviceId;
 
-  /// `on_ended` event subscriber.
+  /// [ended][1] event subscriber.
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#event-mediastreamtrack-ended
   OnEndedCallback? _onEnded;
 
   /// [_eventChan] subscription to the [PeerConnection] events.
@@ -80,6 +81,7 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   }
 }
 
+/// [MethodChannel]-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
@@ -121,14 +123,15 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   }
 }
 
+/// FFI-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
-  late int _handleId;
-
+  /// Indicates whether this [NativeMediaStreamTrack] has been stopped.
   bool _stopped = false;
 
+  /// Creates a [NativeMediaStreamTrack] basing on the provided
+  /// [ffi.MediaStreamTrack].
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
-    _handleId = track.id;
     _deviceId = track.deviceId;
     _kind = MediaKind.values[track.kind.index];
     _eventSub = api.registerTrackObserver(trackId: track.id).listen((event) {
@@ -142,23 +145,23 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   Future<MediaStreamTrack> clone() async {
     if (!_stopped) {
       return NativeMediaStreamTrack.from(
-          await api.cloneTrack(trackId: _handleId));
+          await api.cloneTrack(trackId: int.parse(_id)));
     } else {
       return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
           deviceId: _deviceId,
           enabled: _enabled,
-          id: _handleId,
+          id: int.parse(_id),
           kind: ffi.MediaType.values[_kind.index]));
     }
   }
 
   @override
   Future<void> dispose() async {
-    // TODO(logist322): Stucks on canceling StreamSubscription.
+    // TODO(logist322): Stuck on canceling `StreamSubscription`.
     // await _eventSub?.cancel();
 
     if (!_stopped) {
-      await api.disposeTrack(trackId: _handleId);
+      await api.disposeTrack(trackId: int.parse(_id));
     }
     _stopped = true;
   }
@@ -166,7 +169,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> setEnabled(bool enabled) async {
     if (!_stopped) {
-      api.setTrackEnabled(trackId: _handleId, enabled: enabled);
+      api.setTrackEnabled(trackId: int.parse(_id), enabled: enabled);
     }
 
     _enabled = enabled;
@@ -175,7 +178,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> stop() async {
     if (!_stopped) {
-      await api.disposeTrack(trackId: _handleId);
+      await api.disposeTrack(trackId: int.parse(_id));
     }
     _stopped = true;
   }

@@ -53,8 +53,3 @@ android/.settings/org.eclipse.buildship.core.prefs
 
 # Rust
 /target/
-
-# todo delete
-flutter_webrtc_native.dll
-example/lib/src/bridge_generated.dart
-

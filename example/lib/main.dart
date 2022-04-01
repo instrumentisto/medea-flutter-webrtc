@@ -12,10 +12,12 @@ import 'src/on_device_change.dart';
 import 'src/route_item.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -34,9 +36,9 @@ class _MyAppState extends State<MyApp> {
       ListTile(
         title: Text(item.title),
         onTap: () => item.push(context),
-        trailing: Icon(Icons.arrow_right),
+        trailing: const Icon(Icons.arrow_right),
       ),
-      Divider()
+      const Divider()
     ]);
   }
 
@@ -45,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
           appBar: AppBar(
-            title: Text('Flutter-WebRTC example'),
+            title: const Text('Flutter-WebRTC example'),
           ),
           body: ListView.builder(
               shrinkWrap: true,
@@ -65,7 +67,8 @@ class _MyAppState extends State<MyApp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => GetUserMediaSample()));
+                    builder: (BuildContext context) =>
+                        const GetUserMediaSample()));
           }),
       RouteItem(
           title: 'GetDisplayMedia',
@@ -74,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) =>
-                        GetDisplayMediaSample()));
+                        const GetDisplayMediaSample()));
           }),
       RouteItem(
           title: 'LoopBack Sample',
@@ -82,7 +85,7 @@ class _MyAppState extends State<MyApp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => Loopback()));
+                    builder: (BuildContext context) => const Loopback()));
           }),
       RouteItem(
           title: 'getSources',
@@ -90,7 +93,8 @@ class _MyAppState extends State<MyApp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => GetSourcesSample()));
+                    builder: (BuildContext context) =>
+                        const GetSourcesSample()));
           }),
       RouteItem(
           title: 'Basic RtcPeerConnection',
@@ -98,7 +102,8 @@ class _MyAppState extends State<MyApp> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => PeerConnectionSample()));
+                    builder: (BuildContext context) =>
+                        const PeerConnectionSample()));
           }),
       RouteItem(
           title: 'onDeviceChange notifier',
@@ -107,7 +112,7 @@ class _MyAppState extends State<MyApp> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) =>
-                        OnDeviceChangeNotifierSample()));
+                        const OnDeviceChangeNotifierSample()));
           }),
     ];
   }

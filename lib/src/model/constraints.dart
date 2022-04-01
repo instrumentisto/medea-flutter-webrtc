@@ -1,9 +1,10 @@
 /// Device audio and video constraints data.
 class DisplayConstraints {
-  /// Optional constraints to lookup audio devices with.
+  /// Desired processing options to be applied to the video track rendition of
+  /// the display surface chosen by the user.
   DeviceConstraintMap<AudioConstraints> audio = DeviceConstraintMap();
 
-  /// Optional constraints to lookup video devices with.
+  /// Desired processing options to be applied to the audio track.
   DeviceConstraintMap<DeviceVideoConstraints> video = DeviceConstraintMap();
 
   /// Converts this model to the [Map] expected by Flutter.

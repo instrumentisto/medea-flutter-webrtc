@@ -1,16 +1,16 @@
+// ignore_for_file: avoid_print
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/src/model/constraints.dart';
-import 'package:flutter_webrtc/src/model/device.dart';
-import 'package:flutter_webrtc/src/model/track.dart';
 
 /*
  * getUserMedia sample
  */
 class GetUserMediaSample extends StatefulWidget {
   static String tag = 'get_usermedia_sample';
+
+  const GetUserMediaSample({Key? key}) : super(key: key);
 
   @override
   _GetUserMediaSampleState createState() => _GetUserMediaSampleState();
@@ -55,7 +55,8 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
       var stream = await getUserMedia(caps);
       _mediaDevicesList = await enumerateDevices();
       _tracks = stream;
-      _localRenderer.srcObject = _tracks!.firstWhere((track) => track.kind() == MediaKind.video);
+      _localRenderer.srcObject =
+          _tracks!.firstWhere((track) => track.kind() == MediaKind.video);
     } catch (e) {
       print(e.toString());
     }
@@ -68,9 +69,9 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
 
   void _hangUp() async {
     try {
-      _tracks!.forEach((track) {
+      for (var track in _tracks!) {
         track.dispose();
-      });
+      }
       _localRenderer.srcObject = null;
       setState(() {
         _inCalling = false;
@@ -84,7 +85,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GetUserMedia API Test'),
+        title: const Text('GetUserMedia API Test'),
         actions: _inCalling
             ? <Widget>[
                 PopupMenuButton<String>(
@@ -92,7 +93,8 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
                   itemBuilder: (BuildContext context) {
                     if (_mediaDevicesList != null) {
                       return _mediaDevicesList!
-                          .where((device) => device.kind == 'audiooutput')
+                          .where((device) =>
+                              device.kind == MediaDeviceKind.audiooutput)
                           .map((device) {
                         return PopupMenuItem<String>(
                           value: device.deviceId,
@@ -110,10 +112,10 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
         builder: (context, orientation) {
           return Center(
             child: Container(
-              margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(color: Colors.black54),
+              decoration: const BoxDecoration(color: Colors.black54),
               child: VideoView(_localRenderer, mirror: true),
             ),
           );

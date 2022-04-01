@@ -1,15 +1,13 @@
+// ignore_for_file: avoid_print
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/src/model/constraints.dart';
-import 'package:flutter_webrtc/src/model/ice.dart';
-import 'package:flutter_webrtc/src/model/peer.dart';
-import 'package:flutter_webrtc/src/model/track.dart';
-import 'package:flutter_webrtc/src/model/transceiver.dart';
 
 class PeerConnectionSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
+
+  const PeerConnectionSample({Key? key}) : super(key: key);
 
   @override
   _PeerConnectionSampleState createState() => _PeerConnectionSampleState();
@@ -28,7 +26,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
     'optional': [],
   };
 
-  void _create_peer() async {
+  void _createPeer() async {
     try {
       final caps = DeviceConstraints();
       caps.video.mandatory = DeviceVideoConstraints();
@@ -44,25 +42,25 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
       var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
-      final icecb = (IceConnectionState state) {
-        print(state.toString());
-      };
-
-      final pccb = (PeerConnectionState state) {
-        print(state.toString());
-      };
-
-      pc1.onIceConnectionStateChange(icecb);
-      pc2.onIceConnectionStateChange(icecb);
-
-      pc1.onConnectionStateChange(pccb);
-      pc2.onConnectionStateChange(pccb);
-
-      pc1.onIceCandidateError((p0) {
-        print(p0.errorText);
+      pc1.onIceConnectionStateChange((IceConnectionState state) {
+        print(state);
       });
-      pc2.onIceCandidateError((p0) {
-        print(p0.errorText);
+      pc2.onIceConnectionStateChange((IceConnectionState state) {
+        print(state);
+      });
+
+      pc1.onConnectionStateChange((PeerConnectionState state) {
+        print(state);
+      });
+      pc2.onConnectionStateChange((PeerConnectionState state) {
+        print(state);
+      });
+
+      pc1.onIceCandidateError((err) {
+        print(err.errorText);
+      });
+      pc2.onIceCandidateError((err) {
+        print(err.errorText);
       });
 
       var trans = await pc1.addTransceiver(
@@ -102,12 +100,12 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PeerConnection'),
+        title: const Text('PeerConnection'),
       ),
       body: Center(child: Text(text)),
       floatingActionButton: FloatingActionButton(
-        onPressed: _create_peer,
-        child: Icon(Icons.phone),
+        onPressed: _createPeer,
+        child: const Icon(Icons.phone),
       ),
     );
   }

@@ -6,7 +6,6 @@
 #include <flutter/standard_method_codec.h>
 #include "flutter_webrtc.h"
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
-#include "parsing.h"
 
 namespace flutter_webrtc_plugin {
 
@@ -28,7 +27,7 @@ void FlutterWebRTC::HandleMethodCall(
     CreateVideoRendererTexture(std::move(result));
   } else if (method.compare("dispose") == 0) {
     VideoRendererDispose(method_call, std::move(result));
-  } else if (method.compare("createCallback") == 0) {
+  } else if (method.compare("createFrameHandler") == 0) {
     CreateFrameHandler(method_call, std::move(result));
   } else {
     result->NotImplemented();

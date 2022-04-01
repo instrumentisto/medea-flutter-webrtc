@@ -36,7 +36,7 @@ class _State extends State<OnDeviceChangeNotifierSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notifier'),
+        title: const Text('Notifier'),
       ),
       body: Center(child: Text(text)),
     );
