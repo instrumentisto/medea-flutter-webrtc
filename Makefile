@@ -136,7 +136,7 @@ endif
 #	make codegen
 codegen:
 	flutter_rust_bridge_codegen --rust-input crates/native/src/api.rs \
-		--dart-output lib/src/api/bridge.g.dart \
+		--dart-output lib/src/api/ffi/bridge.g.dart \
 		--skip-add-mod-to-lib --dart-format-line-length 80
 
 # Build `flutter-webrtc-native` crate and copy final artifacts to appropriate
