@@ -33,28 +33,25 @@ void TrackEventObserver::set_track(
   track_ = track;
 }
 
-// Creates `WrapAudioDeviceModuleProxy`.
+// Creates a new `AudioDeviceModuleProxy`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
-    Thread& sign_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
+  AudioDeviceModule adm = worker_thread.Invoke<AudioDeviceModule>(
+      RTC_FROM_HERE, [audio_layer, &task_queue_factory] {
+        return webrtc::AudioDeviceModule::Create(audio_layer,
+                                                 &task_queue_factory);
+      });
 
-  webrtc::WrapAudioDeviceModuleInterface* adm = new webrtc::WrapAudioDeviceModule();
-  auto adm_proxy = webrtc::WrapAudioDeviceModuleProxy::Create(
-      &worker_thread,
-      &sign_thread,
-      adm);
-  adm_proxy->create_local_adm(audio_layer, &task_queue_factory);
-
-  rtc::scoped_refptr<webrtc::AudioDeviceModule> result =
-      static_cast<rtc::scoped_refptr<webrtc::AudioDeviceModule>>(adm_proxy);
-
-  if (result == nullptr) {
+  if (adm == nullptr) {
     return nullptr;
   }
 
-  return std::make_unique<AudioDeviceModule>(result);
+  AudioDeviceModule proxied =
+      webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
+
+  return std::make_unique<AudioDeviceModule>(proxied);
 }
 
 // Calls `AudioDeviceModule->Init()`.

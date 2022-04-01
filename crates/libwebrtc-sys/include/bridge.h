@@ -89,10 +89,9 @@ using RtpReceiverInterface = rtc::scoped_refptr<webrtc::RtpReceiverInterface>;
 using MediaStreamTrackInterface =
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface>;
 
-// Creates `WrapAudioDeviceModuleProxy`.
+// Creates a new proxied `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
-    Thread& sign_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory);
 

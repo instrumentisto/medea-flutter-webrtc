@@ -83,7 +83,6 @@ impl Webrtc {
 
         let audio_device_module = AudioDeviceModule::new(
             &mut worker_thread,
-            &mut signaling_thread,
             sys::AudioLayer::kPlatformDefaultAudio,
             &mut task_queue_factory,
         )?;

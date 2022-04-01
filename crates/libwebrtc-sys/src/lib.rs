@@ -181,19 +181,15 @@ pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
 impl AudioDeviceModule {
     /// Creates a new [`AudioDeviceModule`] for the given [`AudioLayer`].
     ///
-    /// The created [`AudioDeviceModule`] is wrapped in the
-    /// `AudioDeviceModule_Proxy` that makes sure the real [`AudioDeviceModule`]
-    /// implementation is destroyed on the worker thread and marshals all method
-    /// calls to the worker thread.
+    /// All invocations will be proxied to the provided `worker_thred`, thus
+    /// making it thread-safe.
     pub fn create_proxy(
         worker_thread: &mut Thread,
-        sign_thread: &mut Thread,
         audio_layer: AudioLayer,
         task_queue_factory: &mut TaskQueueFactory,
     ) -> anyhow::Result<Self> {
         let ptr = webrtc::create_audio_device_module(
             worker_thread.0.pin_mut(),
-            sign_thread.0.pin_mut(),
             audio_layer,
             task_queue_factory.0.pin_mut(),
         );

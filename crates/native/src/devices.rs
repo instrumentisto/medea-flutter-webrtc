@@ -40,6 +40,7 @@ static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
 struct DeviceState {
     cb: StreamSink<()>,
     adm: AudioDeviceModule,
+    _thread: sys::Thread,
     vdi: sys::VideoDeviceInfo,
     count: u32,
 }
@@ -47,14 +48,13 @@ struct DeviceState {
 impl DeviceState {
     /// Creates a new [`DeviceState`].
     fn new(
-        worker_thread: &mut sys::Thread,
-        signaling_thread: &mut sys::Thread,
         cb: StreamSink<()>,
         tq: &mut sys::TaskQueueFactory,
     ) -> anyhow::Result<Self> {
+        let mut thread = sys::Thread::create(false)?;
+        thread.start()?;
         let adm = AudioDeviceModule::new(
-            worker_thread,
-            signaling_thread,
+            &mut thread,
             sys::AudioLayer::kPlatformDefaultAudio,
             tq,
         )?;
@@ -63,6 +63,7 @@ impl DeviceState {
 
         let mut ds = Self {
             adm,
+            _thread: thread,
             vdi,
             count: 0,
             cb,
@@ -271,8 +272,6 @@ impl Webrtc {
     ) -> anyhow::Result<()> {
         let prev = ON_DEVICE_CHANGE.swap(
             Box::into_raw(Box::new(DeviceState::new(
-                &mut self.worker_thread,
-                &mut self.signaling_thread,
                 cb,
                 &mut self.task_queue_factory,
             )?)),
