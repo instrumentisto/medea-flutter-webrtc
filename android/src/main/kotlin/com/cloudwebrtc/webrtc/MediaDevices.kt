@@ -99,8 +99,9 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
   }
 
   init {
-    val filter = IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
-    state.getAppContext().registerReceiver(this, filter)
+    state
+        .getAppContext()
+        .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
     bluetoothAdapter.getProfileProxy(
         state.getAppContext(),
         object : BluetoothProfile.ServiceListener {
@@ -118,7 +119,8 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
   }
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
-    val bluetoothHeadsetState = intent?.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED)
+    val bluetoothHeadsetState =
+        intent?.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED)
     if (bluetoothHeadsetState == BluetoothHeadset.STATE_CONNECTED) {
       setHeadsetState(true)
     } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED) {
