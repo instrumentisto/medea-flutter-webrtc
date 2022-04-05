@@ -59,6 +59,18 @@ test: cargo.test flutter.test
 # Flutter commands #
 ####################
 
+# Lint Flutter Dart sources with dartanalyzer.
+#
+# Usage:
+#	make flutter.analyze
+
+flutter.analyze:
+ifeq ($(wildcard .packages),)
+	flutter pub get
+endif
+	flutter analyze
+
+
 # Clean built Flutter artifacts and cache.
 #
 # Usage:
@@ -76,6 +88,20 @@ flutter.clean:
 flutter.build:
 	cd example/ && \
 	flutter build windows
+
+
+# Format Flutter Dart sources with dartfmt.
+#
+# Usage:
+#	make flutter.fmt [check=(no|yes)]
+
+flutter.fmt:
+	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
+ifeq ($(wildcard .packages),)
+	flutter pub get
+endif
+	flutter pub run import_sorter:main --no-comments \
+		$(if $(call eq,$(check),yes),--exit-if-changed,)
 
 
 # Install Flutter Pub dependencies.
@@ -112,43 +138,6 @@ flutter.test:
 
 
 
-# Format Flutter Dart sources with dartfmt.
-#
-# Usage:
-#	make flutter.fmt [check=(no|yes)] [dockerized=(no|yes)]
-
-flutter.fmt:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make flutter.fmt check=$(check) dockerized=no
-else
-	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
-	flutter pub run import_sorter:main --no-comments \
-		$(if $(call eq,$(check),yes),--exit-if-changed,)
-endif
-
-
-
-
-# Lint Flutter Dart sources with dartanalyzer.
-#
-# Usage:
-#	make flutter.analyze [dockerized=(no|yes)]
-
-flutter.analyze:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-		-v "$(HOME)/.pub-cache":/root/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make flutter.analyze dockerized=no
-else
-	flutter analyze
-endif
-
-
-
-
 ##################
 # Cargo commands #
 ##################
@@ -169,7 +158,6 @@ cargo.clean:
 #	make cargo.build [debug=(yes|no)]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
-os = $(if $(call eq,$(OS),Windows_NT),windows,linux)
 
 cargo.build:
 	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
