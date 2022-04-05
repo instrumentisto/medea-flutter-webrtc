@@ -1,3 +1,6 @@
+// TODO(alexlapa):
+//    i assume that this won't work on android
+//    and we need none of this for web build
 export '/src/model/ffi/device.dart'
     if (dart.library.html) '/src/model/channel/device.dart';
 

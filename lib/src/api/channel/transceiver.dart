@@ -4,6 +4,10 @@ import '/src/model/transceiver.dart';
 import 'channel.dart';
 import 'sender.dart';
 
+// TODO(alexlapa):
+//  this is a dumb copy+paste, we should consider doing something more DRY'ish
+//  maybe we can use @protected from https://pub.dev/packages/meta?
+
 /// [RTCTransceiver][1] representation
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver

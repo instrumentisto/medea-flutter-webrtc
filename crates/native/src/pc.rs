@@ -38,6 +38,7 @@ impl Webrtc {
             self.callback_pool.clone(),
         )?;
         self.peer_connections.insert(id, peer);
+
         obs.add(api::PeerConnectionEvent::PeerCreated { id: id.into() });
 
         Ok(())
