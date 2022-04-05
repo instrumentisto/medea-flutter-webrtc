@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import '../../../../flutter_webrtc.dart';
 import '/src/api/ffi/bridge.g.dart' as ffi;
 import '/src/api/ffi/peer.dart';
-import '../../../../flutter_webrtc.dart';
 
 /// Representation of a single media unit.
 class NativeMediaStreamTrack extends MediaStreamTrack {

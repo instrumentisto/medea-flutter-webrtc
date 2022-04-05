@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 
+import 'track.dart';
+
 import '/src/platform/native/video_renderer.dart'
     if (dart.library.html) 'web/video_renderer.dart';
-import 'track.dart';
 
 export 'native/video_renderer.dart'
     if (dart.library.html) 'web/video_renderer.dart';

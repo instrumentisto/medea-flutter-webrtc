@@ -1,11 +1,12 @@
 #![warn(clippy::pedantic)]
+
 mod api;
 #[allow(
-    clippy::wildcard_imports,
-    clippy::semicolon_if_nothing_returned,
     clippy::default_trait_access,
-    clippy::let_underscore_drop)
-]
+    clippy::let_underscore_drop,
+    clippy::semicolon_if_nothing_returned,
+    clippy::wildcard_imports
+)]
 #[rustfmt::skip]
 mod bridge_generated;
 mod cpp_api;
@@ -32,8 +33,8 @@ use crate::video_sink::Id as VideoSinkId;
 pub use crate::{
     pc::{PeerConnection, PeerConnectionId},
     user_media::{
-        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
-        MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
+        AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId, MediaStreamId,
+        VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
     },
     video_sink::{Frame, VideoSink},
 };
@@ -46,7 +47,7 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-/// The global context for the application.
+/// Global context for an application.
 struct Webrtc {
     peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_device_info: sys::VideoDeviceInfo,
@@ -56,7 +57,7 @@ struct Webrtc {
     audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
 
-    /// `peer_connection_factory` must be drops before [`Thread`]s.
+    /// `peer_connection_factory` must be dropped before [`Thread`]s.
     peer_connection_factory: sys::PeerConnectionFactoryInterface,
     task_queue_factory: sys::TaskQueueFactory,
     audio_device_module: AudioDeviceModule,
@@ -69,7 +70,7 @@ struct Webrtc {
 }
 
 impl Webrtc {
-    /// creates a new [`Webrtc`].
+    /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();
@@ -85,13 +86,12 @@ impl Webrtc {
             &mut task_queue_factory,
         )?;
 
-        let peer_connection_factory =
-            sys::PeerConnectionFactoryInterface::create(
-                None,
-                Some(&worker_thread),
-                Some(&signaling_thread),
-                Some(&audio_device_module.inner),
-            )?;
+        let peer_connection_factory = sys::PeerConnectionFactoryInterface::create(
+            None,
+            Some(&worker_thread),
+            Some(&signaling_thread),
+            Some(&audio_device_module.inner),
+        )?;
 
         let video_device_info = sys::VideoDeviceInfo::create()?;
 

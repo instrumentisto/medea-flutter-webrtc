@@ -1,4 +1,4 @@
-/// Direction of a transceiver.
+/// Direction of an `RtpTransceiver`.
 enum TransceiverDirection {
   /// Indicates that the transceiver is both sending to and receiving from the
   /// remote peer connection.

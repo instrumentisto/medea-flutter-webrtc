@@ -16,7 +16,7 @@ enum IceTransportType {
 
 /// ICE server which should be used by some peer connection.
 class IceServer {
-  /// Creates a new ICE server with the provided parameters.
+  /// Creates a new [IceServer] with the provided parameters.
   IceServer(this.urls, this.username, this.password);
 
   /// List of URLs of this [IceServer].
@@ -38,7 +38,7 @@ class IceServer {
   }
 }
 
-/// Current state of the ICE agent and its connection.
+/// Current state of an ICE agent and its connection.
 enum IceConnectionState {
   /// ICE agent is gathering addresses or is waiting to be given remote
   /// candidates through calls to `PeerConnection.addIceCandidate()` (or both).
@@ -129,7 +129,7 @@ enum SignalingState {
   closed,
 }
 
-/// Indicates the current state of a peer connection.
+/// Current state of a peer connection.
 enum PeerConnectionState {
   /// At least one of the connection's ICE transports is in the new state, and
   /// none of them are in one of the following states: `connecting`, `checking`,

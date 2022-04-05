@@ -16,17 +16,16 @@ impl Webrtc {
         let track_id = VideoTrackId::from(track_id);
         let mut sink = VideoSink {
             id: Id(sink_id),
-            inner: sys::VideoSinkInterface::create_forwarding(Box::new(
-                OnFrameCallback(handler),
-            )),
+            inner: sys::VideoSinkInterface::create_forwarding(Box::new(OnFrameCallback(
+                handler,
+            ))),
             track_id,
         };
 
-        let mut track =
-            self.video_tracks.get_mut(&track_id).ok_or_else(|| {
-                anyhow!("Could not find track with `{track_id}` ID")
-            })?;
-
+        let mut track = self
+            .video_tracks
+            .get_mut(&track_id)
+            .ok_or_else(|| anyhow!("Cannot find track with ID `{track_id}`"))?;
         track.add_video_sink(&mut sink);
 
         self.video_sinks.insert(Id(sink_id), sink);

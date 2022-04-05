@@ -23,20 +23,11 @@ class _State extends State<OnDeviceChangeNotifierSample> {
         text = 'Events: $count.';
       });
     });
-
-    // DeviceHandler().setHandler(() {
-    //   count++;
-
-    //   setState(() {
-    //     text = 'Events: $count.';
-    //   });
-    // });
   }
 
   @override
   void dispose() {
     onDeviceChange(null);
-    // DeviceHandler().setHandler(null);
 
     super.dispose();
   }
