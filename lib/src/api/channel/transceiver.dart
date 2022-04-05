@@ -10,7 +10,7 @@ import 'sender.dart';
 class RtpTransceiver {
   /// Creates an [RtpTransceiver] basing on the [Map] received from the native
   /// side.
-  RtpTransceiver.fromMap(dynamic map) {
+  RtpTransceiver(dynamic map) {
     int channelId = map['channelId'];
     _chan = methodChannel('RtpTransceiver', channelId);
     _sender = RtpSender.fromMap(map['sender']);

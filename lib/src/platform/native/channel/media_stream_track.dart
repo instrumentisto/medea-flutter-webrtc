@@ -9,7 +9,7 @@ import '../../../../flutter_webrtc.dart';
 class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
-  NativeMediaStreamTrack.fromMap(dynamic map) {
+  NativeMediaStreamTrack.from(dynamic map) {
     var channelId = map['channelId'];
     _chan = methodChannel('MediaStreamTrack', channelId);
     _eventChan = eventChannel('MediaStreamTrackEvent', channelId);
@@ -105,6 +105,6 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
 
   @override
   Future<MediaStreamTrack> clone() async {
-    return NativeMediaStreamTrack.fromMap(await _chan.invokeMethod('clone'));
+    return NativeMediaStreamTrack.from(await _chan.invokeMethod('clone'));
   }
 }

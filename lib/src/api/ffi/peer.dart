@@ -63,8 +63,8 @@ class PeerConnection {
         iceServers: iceServers
             .map((server) => ffi.RtcIceServer(
                 urls: server.urls,
-                username: server.username!,
-                credential: server.password!))
+                username: server.username != null ? server.username! : '',
+                credential: server.password != null ? server.password! : ''))
             .toList());
 
     var peer = PeerConnection();
@@ -89,6 +89,8 @@ class PeerConnection {
   // Listener for the all [PeerConnection] events received from the native
   /// side.
   void eventListener(ffi.PeerConnectionEvent event) {
+    print(event);
+
     if (event is ffi.PeerCreated) {
       _id = event.id;
       _initialized.complete();
