@@ -8,8 +8,6 @@ import 'sender.dart';
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
 class RtpTransceiver {
-  /// Creates an [RtpTransceiver] basing on the [Map] received from the native
-  /// side.
   RtpTransceiver(dynamic map) {
     int channelId = map['channelId'];
     _chan = methodChannel('RtpTransceiver', channelId);

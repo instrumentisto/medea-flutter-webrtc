@@ -16,9 +16,9 @@ impl Webrtc {
         let track_id = VideoTrackId::from(track_id);
         let mut sink = VideoSink {
             id: Id(sink_id),
-            inner: sys::VideoSinkInterface::create_forwarding(Box::new(OnFrameCallback(
-                handler,
-            ))),
+            inner: sys::VideoSinkInterface::create_forwarding(Box::new(
+                OnFrameCallback(handler),
+            )),
             track_id,
         };
 

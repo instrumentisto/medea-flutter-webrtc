@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
+import '/src/api/peer.dart';
 import '/src/model/ice.dart';
 import '/src/model/peer.dart';
 import '/src/model/sdp.dart';
@@ -11,7 +12,7 @@ import '/src/platform/native/media_stream_track.dart';
 import 'bridge.g.dart' as ffi;
 import 'transceiver.dart';
 
-// Bindings 'channel/channel.dart'de API.
+/// Bindings 'channel/channel.dart'de API.
 late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
 
 /// Opens the dynamic library and instantiates [ffi.FlutterWebrtcNativeImpl].
@@ -24,30 +25,6 @@ ffi.FlutterWebrtcNativeImpl buildBridge() {
 
   return ffi.FlutterWebrtcNativeImpl(dylib);
 }
-
-/// Shortcut for the `on_track` callback.
-typedef OnTrackCallback = void Function(NativeMediaStreamTrack, RtpTransceiver);
-
-/// Shortcut for the `on_ice_candidate` callback.
-typedef OnIceCandidateCallback = void Function(IceCandidate);
-
-/// Shortcut for the `on_ice_connection_state_change` callback.
-typedef OnIceConnectionStateChangeCallback = void Function(IceConnectionState);
-
-/// Shortcut for the `on_connection_state_change` callback.
-typedef OnConnectionStateChangeCallback = void Function(PeerConnectionState);
-
-/// Shortcut for the `on_ice_gathering_state_change` callback.
-typedef OnIceGatheringStateChangeCallback = void Function(IceGatheringState);
-
-/// Shortcut for the `on_negotiation_needed` callback.
-typedef OnNegotiationNeededCallback = void Function();
-
-/// Shortcut for the `on_signaling_state_change` callback.
-typedef OnSignalingStateChangeCallback = void Function(SignalingState);
-
-/// Shortcut for the `on_ice_candidate_error` callback.
-typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
 /// [RTCPeerConnection][1] representation.
 ///
@@ -85,53 +62,6 @@ class PeerConnection {
 
   /// This [Stream] is used for handling [PeerConnection] `event`s.
   Stream<ffi.PeerConnectionEvent>? _stream;
-
-  // Listener for the all [PeerConnection] events received from the native
-  /// side.
-  void eventListener(ffi.PeerConnectionEvent event) {
-    print(event);
-
-    if (event is ffi.PeerCreated) {
-      _id = event.id;
-      _initialized.complete();
-      return;
-    } else if (event is ffi.IceCandidate) {
-      _onIceCandidate?.call(
-          IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
-      return;
-    } else if (event is ffi.IceGatheringStateChange) {
-      _onIceGatheringStateChange
-          ?.call(IceGatheringState.values[event.field0.index]);
-      return;
-    } else if (event is ffi.IceCandidateError) {
-      _onIceCandidateError?.call(IceCandidateErrorEvent.fromMap({
-        'address': event.address,
-        'port': event.port,
-        'url': event.url,
-        'errorCode': event.errorCode,
-        'errorText': event.errorText,
-      }));
-      return;
-    } else if (event is ffi.NegotiationNeeded) {
-      _onNegotiationNeeded?.call();
-      return;
-    } else if (event is ffi.SignallingChange) {
-      _onSignalingStateChange?.call(SignalingState.values[event.field0.index]);
-      return;
-    } else if (event is ffi.IceConnectionStateChange) {
-      _iceConnectionState = IceConnectionState.values[event.field0.index];
-      _onIceConnectionStateChange?.call(_iceConnectionState);
-      return;
-    } else if (event is ffi.ConnectionStateChange) {
-      _connectionState = PeerConnectionState.values[event.field0.index];
-      _onConnectionStateChange?.call(_connectionState);
-      return;
-    } else if (event is ffi.Track) {
-      _onTrack?.call(NativeMediaStreamTrack.from(event.field0.track),
-          RtpTransceiver(event.field0.transceiver));
-      return;
-    }
-  }
 
   /// `on_ice_connection_state_change` event subscriber.
   OnIceConnectionStateChangeCallback? _onIceConnectionStateChange;
@@ -325,5 +255,50 @@ class PeerConnection {
       e.stoppedByPeer();
     }
     await api.disposePeerConnection(peerId: _id!);
+  }
+
+  /// Listener for the all [PeerConnection] events received from the native
+  /// side.
+  void eventListener(ffi.PeerConnectionEvent event) {
+    if (event is ffi.PeerCreated) {
+      _id = event.id;
+      _initialized.complete();
+      return;
+    } else if (event is ffi.IceCandidate) {
+      _onIceCandidate?.call(
+          IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
+      return;
+    } else if (event is ffi.IceGatheringStateChange) {
+      _onIceGatheringStateChange
+          ?.call(IceGatheringState.values[event.field0.index]);
+      return;
+    } else if (event is ffi.IceCandidateError) {
+      _onIceCandidateError?.call(IceCandidateErrorEvent.fromMap({
+        'address': event.address,
+        'port': event.port,
+        'url': event.url,
+        'errorCode': event.errorCode,
+        'errorText': event.errorText,
+      }));
+      return;
+    } else if (event is ffi.NegotiationNeeded) {
+      _onNegotiationNeeded?.call();
+      return;
+    } else if (event is ffi.SignallingChange) {
+      _onSignalingStateChange?.call(SignalingState.values[event.field0.index]);
+      return;
+    } else if (event is ffi.IceConnectionStateChange) {
+      _iceConnectionState = IceConnectionState.values[event.field0.index];
+      _onIceConnectionStateChange?.call(_iceConnectionState);
+      return;
+    } else if (event is ffi.ConnectionStateChange) {
+      _connectionState = PeerConnectionState.values[event.field0.index];
+      _onConnectionStateChange?.call(_connectionState);
+      return;
+    } else if (event is ffi.Track) {
+      _onTrack?.call(NativeMediaStreamTrack.from(event.field0.track),
+          RtpTransceiver(event.field0.transceiver));
+      return;
+    }
   }
 }

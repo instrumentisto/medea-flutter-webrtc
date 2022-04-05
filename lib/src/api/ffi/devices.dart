@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '/src/api/devices.dart';
 import '/src/model/constraints.dart';
 import '/src/model/device.dart';
 import '/src/platform/native/media_stream_track.dart';
@@ -20,9 +21,6 @@ const defaultDisplayMediaHeight = 720;
 
 /// Default video framerate.
 const defaultFrameRate = 30;
-
-/// Shortcut for the `on_device_change` callback.
-typedef OnDeviceChangeCallback = void Function();
 
 /// Singleton for listening device change.
 class _DeviceHandler {
@@ -121,6 +119,8 @@ Future<void> setOutputAudioId(String deviceId) async {
   await api.setAudioPlayoutDevice(deviceId: deviceId);
 }
 
+/// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
+/// whenever a set of available media devices changes.
 void onDeviceChange(OnDeviceChangeCallback? cb) {
   _DeviceHandler().setHandler(cb);
 }

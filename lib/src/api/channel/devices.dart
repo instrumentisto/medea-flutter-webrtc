@@ -2,13 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import '/src/api/devices.dart';
 import '/src/model/constraints.dart';
 import '/src/model/device.dart';
 import '/src/platform/native/media_stream_track.dart';
 import 'channel.dart';
-
-/// Shortcut for the `on_device_change` callback.
-typedef OnDeviceChangeCallback = void Function();
 
 /// Singleton for listening device change.
 class _DeviceHandler {
@@ -75,7 +73,8 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
       .toList();
 }
 
-/// [MethodChannel]-based implementation of a [getUserMedia] function.
+/// Returns list of local audio and video [NativeMediaStreamTrack]s based on
+/// the provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(
     DeviceConstraints constraints) async {
   try {
@@ -91,7 +90,8 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
   }
 }
 
-/// [MethodChannel]-based implementation of a [getDisplayMedia] function.
+/// Returns list of local display [NativeMediaStreamTrack]s based on the
+/// provided [DisplayConstraints].
 Future<List<NativeMediaStreamTrack>> getDisplayMedia(
     DisplayConstraints constraints) async {
   List<dynamic> res = await _mediaDevicesMethodChannel
@@ -107,6 +107,8 @@ Future<void> setOutputAudioId(String deviceId) async {
       .invokeMethod('setOutputAudioId', {'deviceId': deviceId});
 }
 
+/// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
+/// whenever a set of available media devices changes.
 void onDeviceChange(OnDeviceChangeCallback? cb) {
   _DeviceHandler().setHandler(cb);
 }

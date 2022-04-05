@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import '../../../../flutter_webrtc.dart';
+import '/flutter_webrtc.dart';
 import '/src/api/channel/channel.dart';
 
 /// Representation of a single media unit.

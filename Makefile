@@ -232,25 +232,25 @@ endif
 #	make cargo.gen
 
 cargo.gen:
-# ifeq ($(shell which flutter_rust_bridge_codegen),)
-# 	cargo install flutter_rust_bridge_codegen --vers=$(FLUTTER_RUST_BRIDGE_VER)
-# else
-# ifneq ($(strip $(shell flutter_rust_bridge_codegen --version | cut -d ' ' -f2)),$(FLUTTER_RUST_BRIDGE_VER))
-# 	cargo install flutter_rust_bridge_codegen --force \
-# 	                                          --vers=$(FLUTTER_RUST_BRIDGE_VER)
-# endif
-# endif
-# ifeq ($(shell which cbindgen),)
-# 	cargo install cbindgen
-# endif
-# ifeq ($(shell dart pub global list | grep 'ffigen '),)
-# 	dart pub global activate ffigen
-# endif
-# ifeq ($(CURRENT_OS),macos)
-# ifeq ($(shell brew list | grep -Fx llvm),)
-# 	brew install llvm
-# endif
-# endif
+ifeq ($(shell which flutter_rust_bridge_codegen),)
+	cargo install flutter_rust_bridge_codegen --vers=$(FLUTTER_RUST_BRIDGE_VER)
+else
+ifneq ($(strip $(shell flutter_rust_bridge_codegen --version | cut -d ' ' -f2)),$(FLUTTER_RUST_BRIDGE_VER))
+	cargo install flutter_rust_bridge_codegen --force \
+	                                          --vers=$(FLUTTER_RUST_BRIDGE_VER)
+endif
+endif
+ifeq ($(shell which cbindgen),)
+	cargo install cbindgen
+endif
+ifeq ($(shell dart pub global list | grep 'ffigen '),)
+	dart pub global activate ffigen
+endif
+ifeq ($(CURRENT_OS),macos)
+ifeq ($(shell brew list | grep -Fx llvm),)
+	brew install llvm
+endif
+endif
 	flutter_rust_bridge_codegen --rust-input=crates/native/src/api.rs \
 		--dart-output=lib/src/api/ffi/bridge.g.dart \
 		--skip-add-mod-to-lib \

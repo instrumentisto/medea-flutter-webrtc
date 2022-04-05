@@ -2,7 +2,6 @@ import 'dart:async';
 
 import '../../../../flutter_webrtc.dart';
 import '/src/api/ffi/bridge.g.dart' as ffi;
-import '/src/api/ffi/peer.dart';
 
 /// Representation of a single media unit.
 class NativeMediaStreamTrack extends MediaStreamTrack {
@@ -43,6 +42,7 @@ class NativeMediaStreamTrack extends MediaStreamTrack {
   OnEndedCallback? _onEnded;
 
   /// [_eventChan] subscription to the [PeerConnection] events.
+  // ignore: unused_field
   late StreamSubscription<dynamic>? _eventSub;
 
   /// Listener for all the [MediaStreamTrack] events received from the native

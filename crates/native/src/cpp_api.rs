@@ -40,14 +40,22 @@ mod cpp_api_bindings {
 
         /// Calls C++ side `OnFrameCallbackInterface->OnFrame`.
         #[cxx_name = "OnFrame"]
-        pub fn on_frame(self: Pin<&mut OnFrameCallbackInterface>, frame: VideoFrame);
+        pub fn on_frame(
+            self: Pin<&mut OnFrameCallbackInterface>,
+            frame: VideoFrame,
+        );
     }
 
     // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
     // mentioned types.
     extern "Rust" {
-        fn _touch_unique_ptr_on_frame_handler(i: UniquePtr<OnFrameCallbackInterface>);
+        fn _touch_unique_ptr_on_frame_handler(
+            i: UniquePtr<OnFrameCallbackInterface>,
+        );
     }
 }
 
-fn _touch_unique_ptr_on_frame_handler(_: cxx::UniquePtr<OnFrameCallbackInterface>) {}
+fn _touch_unique_ptr_on_frame_handler(
+    _: cxx::UniquePtr<OnFrameCallbackInterface>,
+) {
+}
