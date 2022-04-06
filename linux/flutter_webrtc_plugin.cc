@@ -65,6 +65,11 @@ class TextureVideoRenderer {
     );
   }
 
+  void ResetRenderer() {
+    last_frame_size_ = {0, 0};
+    first_frame_rendered = false;
+  } 
+
   // Called when a new `VideoFrame` is produced by the underlying source.
   void OnFrame(VideoFrame frame) {
     auto pixel_buffer_ = DART_VIDEO_TEXTURE_GET_CLASS(texture_);
@@ -81,8 +86,6 @@ class TextureVideoRenderer {
         fl_event_channel_send(event_channel_, set, nullptr, nullptr);
       }
 
-      delete pixel_buffer_->buffer;
-      pixel_buffer_->buffer = nullptr;
       pixel_buffer_->video_width = 0;
       pixel_buffer_->video_height = 0;
       first_frame_rendered = true;
@@ -117,13 +120,13 @@ class TextureVideoRenderer {
         fl_value_set_string_take(set, "height",
                      fl_value_new_int((int32_t)frame.height));
 
-        pixel_buffer_->buffer = new uint8_t[frame.width * frame.height * 4];
-        pixel_buffer_->video_width = frame.width;
-        pixel_buffer_->video_height = frame.height;
-
-        g_autoptr(GError) error = nullptr;
-        fl_event_channel_send(event_channel_, set, nullptr, &error);
+        fl_event_channel_send(event_channel_, set, nullptr, nullptr);
       }
+
+      delete pixel_buffer_->buffer;
+      pixel_buffer_->buffer = new uint8_t[frame.width * frame.height * 4];
+      pixel_buffer_->video_width = frame.width;
+      pixel_buffer_->video_height = frame.height;
       last_frame_size_ = {frame.width, frame.height};
     }
 
@@ -232,6 +235,7 @@ class FlutterVideoRendererManager {
     int64_t texture_id =
         fl_value_get_int(fl_value_lookup_string(arguments, "textureId"));
     auto renderer = renderers_[texture_id];
+    renderer->ResetRenderer();
 
     FrameHandler* handler_ptr = new FrameHandler(renderer);
     g_autoptr(FlValue) set = fl_value_new_map();
