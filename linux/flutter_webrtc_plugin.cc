@@ -293,7 +293,7 @@ static void flutter_webrtc_plugin_handle_method_call(
       self->video_renderer_manager->CreateVideoRendererTexture(&response);
     } else if (strcmp(method, "dispose") == 0) {
       self->video_renderer_manager->VideoRendererDispose(&response, method_call);
-    } else if (strcmp(method, "createCallback") == 0) {
+    } else if (strcmp(method, "createFrameHandler") == 0) {
       self->video_renderer_manager->CreateFrameHandler(&response, method_call);
     } else {
       response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
