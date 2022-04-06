@@ -5,8 +5,6 @@ import 'package:flutter/services.dart';
 import '/flutter_webrtc.dart';
 import '/src/api/bridge.g.dart' as ffi;
 import '/src/api/channel.dart';
-import '/src/api/peer.dart';
-import '/src/model/track.dart';
 
 /// Representation of a single media unit.
 abstract class NativeMediaStreamTrack extends MediaStreamTrack {

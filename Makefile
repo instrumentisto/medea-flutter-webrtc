@@ -240,7 +240,7 @@ ifeq ($(shell brew list | grep -Fx llvm),)
 endif
 endif
 	flutter_rust_bridge_codegen --rust-input=crates/native/src/api.rs \
-		--dart-output=lib/src/api/ffi/bridge.g.dart \
+		--dart-output=lib/src/api/bridge.g.dart \
 		--skip-add-mod-to-lib \
 		--no-build-runner \
 		--dart-format-line-length=80
