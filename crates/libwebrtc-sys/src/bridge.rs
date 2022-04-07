@@ -30,8 +30,7 @@ type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 #[allow(
     clippy::expl_impl_clone_on_copy,
     clippy::items_after_statements,
-    clippy::ptr_as_ptr,
-    clippy::non_send_fields_in_send_ty
+    clippy::ptr_as_ptr
 )]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
