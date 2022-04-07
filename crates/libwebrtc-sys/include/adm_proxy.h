@@ -7,7 +7,7 @@ namespace webrtc {
 
 using AudioDeviceModuleInterface = AudioDeviceModule;
 
-// Define proxy for AudioDeviceModule.
+// Define proxy for `AudioDeviceModule`.
 BEGIN_PRIMARY_PROXY_MAP(AudioDeviceModule)
 PROXY_PRIMARY_THREAD_DESTRUCTOR()
 PROXY_CONSTMETHOD1(int32_t, ActiveAudioLayer, AudioDeviceModule::AudioLayer*)
