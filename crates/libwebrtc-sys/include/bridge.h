@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include "adm_proxy.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
@@ -20,6 +19,8 @@
 #include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
+
+#include "adm_proxy.h"
 
 namespace bridge {
 
