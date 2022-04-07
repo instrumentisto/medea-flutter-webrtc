@@ -28,12 +28,14 @@ class TextureVideoRenderer {
                        FlBinaryMessenger* messenger)
       : registrar_(registrar) {
     texture_ = video_texture_new();
+
     FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(texture_)->copy_pixels =
         video_texture_copy_pixels;
     fl_texture_registrar_register_texture(registrar, FL_TEXTURE(texture_));
 
     DART_VIDEO_TEXTURE_GET_CLASS(texture_)->texture_id =
         reinterpret_cast<int64_t>(FL_TEXTURE(texture_));
+    DART_VIDEO_TEXTURE_GET_CLASS(texture_)->mutex = mutex_;
 
     texture_id_ = DART_VIDEO_TEXTURE_GET_CLASS(texture_)->texture_id;
 
@@ -85,9 +87,6 @@ class TextureVideoRenderer {
 
         fl_event_channel_send(event_channel_, set, nullptr, nullptr);
       }
-
-      pixel_buffer_->video_width = 0;
-      pixel_buffer_->video_height = 0;
       first_frame_rendered = true;
     }
     if (rotation_ != frame.rotation) {
@@ -123,16 +122,21 @@ class TextureVideoRenderer {
         fl_event_channel_send(event_channel_, set, nullptr, nullptr);
       }
 
+      last_frame_size_ = {frame.width, frame.height};
+    }
+
+    mutex_->lock();
+
+    if (pixel_buffer_->video_width != frame.width ||
+        pixel_buffer_->video_height != frame.height) {
       delete pixel_buffer_->buffer;
       pixel_buffer_->buffer = new uint8_t[frame.width * frame.height * 4];
       pixel_buffer_->video_width = frame.width;
       pixel_buffer_->video_height = frame.height;
-      last_frame_size_ = {frame.width, frame.height};
     }
 
-    mutex_.lock();
     frame.GetABGRBytes(pixel_buffer_->buffer);
-    mutex_.unlock();
+    mutex_->unlock();
 
     fl_texture_registrar_mark_texture_frame_available(registrar_,
                                                       FL_TEXTURE(texture_));
@@ -180,7 +184,7 @@ class TextureVideoRenderer {
 
   // Protects the `texture_` fields that are
   // accessed from multiple threads.
-  std::mutex mutex_;
+  std::shared_ptr<std::mutex> mutex_ = std::make_shared<std::mutex>();
 
   // Rotation of the current `VideoFrame`.
   int32_t rotation_ = 0;

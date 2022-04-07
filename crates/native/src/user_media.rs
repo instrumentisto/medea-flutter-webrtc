@@ -142,10 +142,6 @@ impl Webrtc {
             (0, device_id)
         };
 
-        if let Some(src) = self.video_sources.get(&device_id) {
-            return Ok(Arc::clone(src));
-        }
-
         let source = if caps.is_display {
             VideoSource::new_display_source(
                 &mut self.worker_thread,
