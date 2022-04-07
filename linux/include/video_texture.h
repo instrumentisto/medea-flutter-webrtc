@@ -1,6 +1,8 @@
 #pragma once
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
+#include <mutex>
+#include <memory>
 
 #include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
 
@@ -10,6 +12,12 @@ struct _VideoTextureClass {
   uint8_t* buffer = nullptr;
   int32_t video_width = 0;
   int32_t video_height = 0;
+
+  uint8_t* buffer_ = nullptr;
+  int32_t video_width_ = 0;
+  int32_t video_height_ = 0;
+
+  std::shared_ptr<std::mutex> mutex;
 };
 
 G_DECLARE_DERIVABLE_TYPE(VideoTexture,
@@ -25,9 +33,20 @@ static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
                                           uint32_t* width,
                                           uint32_t* height,
                                           GError** error) {
-  *out_buffer = DART_VIDEO_TEXTURE_GET_CLASS(texture)->buffer;
-  *width = DART_VIDEO_TEXTURE_GET_CLASS(texture)->video_width;
-  *height = DART_VIDEO_TEXTURE_GET_CLASS(texture)->video_height;
+
+  
+
+  auto v_texture = DART_VIDEO_TEXTURE_GET_CLASS(texture);
+  const std::lock_guard<std::mutex> lock(*v_texture->mutex);
+
+  *out_buffer = v_texture->buffer;
+  *width = v_texture->video_width;
+  *height = v_texture->video_height;
+
+  std::swap(v_texture->buffer, v_texture->buffer_);
+  std::swap(v_texture->video_height, v_texture->video_height_);
+  std::swap(v_texture->video_width, v_texture->video_width_);
+
   return TRUE;
 }
 
