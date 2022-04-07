@@ -152,9 +152,11 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t fps,
     uint32_t device) {
   auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
+
   if (dvc == nullptr) {
     return nullptr;
   }
+
   auto src = webrtc::CreateVideoTrackSourceProxy(
     &signaling_thread,
     &worker_thread, dvc);
