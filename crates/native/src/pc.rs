@@ -533,6 +533,38 @@ impl Webrtc {
     pub fn dispose_peer_connection(&mut self, peer_id: u64) {
         let peer_id = PeerConnectionId::from(peer_id);
         if let Some(peer) = self.peer_connections.get(&peer_id) {
+            for mut track in self.video_tracks.iter_mut() {
+                let senders = track.senders();
+                senders.remove(&peer_id);
+            }
+
+            for mut track in self.audio_tracks.iter_mut() {
+                let senders = track.senders();
+                senders.remove(&peer_id);
+            }
+
+            let transceivers = peer.inner.lock().unwrap().get_transceivers();
+
+            for transceiver in transceivers {
+                match transceiver.media_type() {
+                    sys::MediaType::MEDIA_TYPE_VIDEO => {
+                        if let Err(e) =
+                            transceiver.sender().replace_video_track(None)
+                        {
+                            log::error!("{e}");
+                        }
+                    }
+                    sys::MediaType::MEDIA_TYPE_AUDIO => {
+                        if let Err(e) =
+                            transceiver.sender().replace_audio_track(None)
+                        {
+                            log::error!("{e}");
+                        }
+                    }
+                    _ => unreachable!(),
+                }
+            }
+
             peer.inner.lock().unwrap().close();
         }
     }

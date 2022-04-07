@@ -482,6 +482,7 @@ class _PeerConnectionFFI extends PeerConnection {
     for (var e in _transceivers) {
       e.stoppedByPeer();
     }
+
     await api.disposePeerConnection(peerId: _id!);
   }
 
