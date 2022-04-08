@@ -69,8 +69,7 @@ class TextureVideoRenderer {
 
     const std::lock_guard<std::mutex> lock(pixel_buffer_->mutex);
 
-    pixel_buffer_->video_width = 0;
-    pixel_buffer_->video_height = 0;
+    pixel_buffer_->frame_.reset();
     first_frame_rendered = false;
   }
 
@@ -104,7 +103,8 @@ class TextureVideoRenderer {
       }
       rotation_ = frame.rotation;
     }
-    if (sizeof(pixel_buffer_->buffer) != frame.buffer_size) {
+    if (!pixel_buffer_->frame_ ||
+        pixel_buffer_->frame_->buffer_size != frame.buffer_size) {
       if (send_events_) {
         g_autoptr(FlValue) map = fl_value_new_map();
 
@@ -121,15 +121,7 @@ class TextureVideoRenderer {
     }
 
     pixel_buffer_->mutex.lock();
-
-    if (sizeof(pixel_buffer_->buffer) != frame.buffer_size) {
-      delete pixel_buffer_->buffer;
-      pixel_buffer_->buffer = new uint8_t[frame.buffer_size];
-      pixel_buffer_->video_width = frame.width;
-      pixel_buffer_->video_height = frame.height;
-    }
-
-    frame.GetABGRBytes(pixel_buffer_->buffer);
+    pixel_buffer_->frame_.emplace(std::move(frame));
     pixel_buffer_->mutex.unlock();
 
     fl_texture_registrar_mark_texture_frame_available(registrar_,
