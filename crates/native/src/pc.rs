@@ -533,39 +533,41 @@ impl Webrtc {
     pub fn dispose_peer_connection(&mut self, peer_id: u64) {
         let peer_id = PeerConnectionId::from(peer_id);
         if let Some(peer) = self.peer_connections.get(&peer_id) {
+            // Remove all tracks from this Peer's senders.
             for mut track in self.video_tracks.iter_mut() {
-                let senders = track.senders();
-                senders.remove(&peer_id);
+                track.senders().remove(&peer_id);
             }
 
             for mut track in self.audio_tracks.iter_mut() {
-                let senders = track.senders();
-                senders.remove(&peer_id);
+                track.senders().remove(&peer_id);
             }
 
-            let transceivers = peer.inner.lock().unwrap().get_transceivers();
+            let peer = peer.inner.lock().unwrap();
 
-            for transceiver in transceivers {
-                match transceiver.media_type() {
+            for trnscvr in peer.get_transceivers() {
+                let sender = trnscvr.sender();
+                match trnscvr.media_type() {
                     sys::MediaType::MEDIA_TYPE_VIDEO => {
-                        if let Err(e) =
-                            transceiver.sender().replace_video_track(None)
-                        {
-                            log::error!("{e}");
+                        if let Err(err) = sender.replace_video_track(None) {
+                            log::error!(
+                                "Failed to remove video track from \
+                                    sender: {err}"
+                            );
                         }
                     }
                     sys::MediaType::MEDIA_TYPE_AUDIO => {
-                        if let Err(e) =
-                            transceiver.sender().replace_audio_track(None)
-                        {
-                            log::error!("{e}");
+                        if let Err(err) = sender.replace_audio_track(None) {
+                            log::error!(
+                                "Failed to remove audio track from \
+                                    sender: {err}"
+                            );
                         }
                     }
                     _ => unreachable!(),
                 }
             }
 
-            peer.inner.lock().unwrap().close();
+            peer.close();
         }
     }
 }
