@@ -1,2 +1,2 @@
-/// A dummy that is used in conditional exports in cases when we dont want to
-/// export anything.
+/// Dummy module to use in conditional exports in case we don't want to export
+/// anything.

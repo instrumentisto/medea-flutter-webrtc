@@ -533,7 +533,7 @@ impl Webrtc {
     pub fn dispose_peer_connection(&mut self, peer_id: u64) {
         let peer_id = PeerConnectionId::from(peer_id);
         if let Some(peer) = self.peer_connections.get(&peer_id) {
-            // Remove all tracks from this Peer's senders.
+            // Remove all tracks from this `Peer`'s senders.
             for mut track in self.video_tracks.iter_mut() {
                 track.senders().remove(&peer_id);
             }
@@ -548,18 +548,16 @@ impl Webrtc {
                 let sender = trnscvr.sender();
                 match trnscvr.media_type() {
                     sys::MediaType::MEDIA_TYPE_VIDEO => {
-                        if let Err(err) = sender.replace_video_track(None) {
+                        if let Err(e) = sender.replace_video_track(None) {
                             log::error!(
-                                "Failed to remove video track from \
-                                    sender: {err}"
+                                "Failed to remove video track from sender: {e}",
                             );
                         }
                     }
                     sys::MediaType::MEDIA_TYPE_AUDIO => {
-                        if let Err(err) = sender.replace_audio_track(None) {
+                        if let Err(e) = sender.replace_audio_track(None) {
                             log::error!(
-                                "Failed to remove audio track from \
-                                    sender: {err}"
+                                "Failed to remove audio track from sender: {e}",
                             );
                         }
                     }
