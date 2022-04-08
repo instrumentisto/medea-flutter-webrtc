@@ -35,7 +35,6 @@ class TextureVideoRenderer {
 
     DART_VIDEO_TEXTURE_GET_CLASS(texture_)->texture_id =
         reinterpret_cast<int64_t>(FL_TEXTURE(texture_));
-    DART_VIDEO_TEXTURE_GET_CLASS(texture_)->mutex = mutex_;
 
     texture_id_ = DART_VIDEO_TEXTURE_GET_CLASS(texture_)->texture_id;
 
@@ -47,30 +46,33 @@ class TextureVideoRenderer {
             .c_str(),
         FL_METHOD_CODEC(codec));
     event_channel_ = channel;
-    
+
     fl_event_channel_set_stream_handlers(
-      channel, 
-      [](FlEventChannel* channel, FlValue* args, gpointer user_data) {
-        bool* send_events = (bool*)user_data;
-        *send_events = true;
-        FlMethodErrorResponse* res = nullptr;
-        return res;
-      },
-      [](FlEventChannel* channel, FlValue* args, gpointer user_data) {
-        bool* send_events = (bool*)user_data;
-        *send_events = false;
-        FlMethodErrorResponse* res = nullptr;
-        return res;
-      },
-      &send_events_,
-      NULL
-    );
+        channel,
+        [](FlEventChannel* channel, FlValue* args, gpointer user_data) {
+          bool* send_events = (bool*)user_data;
+          *send_events = true;
+          FlMethodErrorResponse* res = nullptr;
+          return res;
+        },
+        [](FlEventChannel* channel, FlValue* args, gpointer user_data) {
+          bool* send_events = (bool*)user_data;
+          *send_events = false;
+          FlMethodErrorResponse* res = nullptr;
+          return res;
+        },
+        &send_events_, NULL);
   }
 
   void ResetRenderer() {
-    last_frame_size_ = {0, 0};
+    auto pixel_buffer_ = DART_VIDEO_TEXTURE_GET_CLASS(texture_);
+
+    const std::lock_guard<std::mutex> lock(pixel_buffer_->mutex);
+
+    pixel_buffer_->video_width = 0;
+    pixel_buffer_->video_height = 0;
     first_frame_rendered = false;
-  } 
+  }
 
   // Called when a new `VideoFrame` is produced by the underlying source.
   void OnFrame(VideoFrame frame) {
@@ -78,65 +80,57 @@ class TextureVideoRenderer {
 
     if (!first_frame_rendered) {
       if (send_events_) {
-        g_autoptr(FlValue) set = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
 
-        fl_value_set_string_take(set, "event",
-                     fl_value_new_string("onFirstFrameRendered"));
-        fl_value_set_string_take(set, "id",
-                     fl_value_new_int(texture_id_));
+        fl_value_set_string_take(map, "event",
+                                 fl_value_new_string("onFirstFrameRendered"));
+        fl_value_set_string_take(map, "id", fl_value_new_int(texture_id_));
 
-        fl_event_channel_send(event_channel_, set, nullptr, nullptr);
+        fl_event_channel_send(event_channel_, map, nullptr, nullptr);
       }
       first_frame_rendered = true;
     }
     if (rotation_ != frame.rotation) {
       if (send_events_) {
-        g_autoptr(FlValue) set = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
 
-        fl_value_set_string_take(set, "event",
-                     fl_value_new_string("onTextureChangeRotation"));
-        fl_value_set_string_take(set, "id",
-                     fl_value_new_int(texture_id_));
-        fl_value_set_string_take(set, "rotation",
-                     fl_value_new_int((int32_t)frame.rotation));
+        fl_value_set_string_take(
+            map, "event", fl_value_new_string("onTextureChangeRotation"));
+        fl_value_set_string_take(map, "id", fl_value_new_int(texture_id_));
+        fl_value_set_string_take(map, "rotation",
+                                 fl_value_new_int((int32_t)frame.rotation));
 
-        g_autoptr(GError) error = nullptr;
-        fl_event_channel_send(event_channel_, set, nullptr, &error);
+        fl_event_channel_send(event_channel_, map, nullptr, nullptr);
       }
       rotation_ = frame.rotation;
     }
-    if (last_frame_size_.width != frame.width ||
-        last_frame_size_.height != frame.height) {
+    if (sizeof(pixel_buffer_->buffer) != frame.buffer_size) {
       if (send_events_) {
-        g_autoptr(FlValue) set = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
 
-        fl_value_set_string_take(set, "event",
-                     fl_value_new_string("onTextureChangeVideoSize"));
-        fl_value_set_string_take(set, "id",
-                     fl_value_new_int(texture_id_));
-        fl_value_set_string_take(set, "width",
-                     fl_value_new_int((int32_t)frame.width));
-        fl_value_set_string_take(set, "height",
-                     fl_value_new_int((int32_t)frame.height));
+        fl_value_set_string_take(
+            map, "event", fl_value_new_string("onTextureChangeVideoSize"));
+        fl_value_set_string_take(map, "id", fl_value_new_int(texture_id_));
+        fl_value_set_string_take(map, "width",
+                                 fl_value_new_int((int32_t)frame.width));
+        fl_value_set_string_take(map, "height",
+                                 fl_value_new_int((int32_t)frame.height));
 
-        fl_event_channel_send(event_channel_, set, nullptr, nullptr);
+        fl_event_channel_send(event_channel_, map, nullptr, nullptr);
       }
-
-      last_frame_size_ = {frame.width, frame.height};
     }
 
-    mutex_->lock();
+    pixel_buffer_->mutex.lock();
 
-    if (pixel_buffer_->video_width != frame.width ||
-        pixel_buffer_->video_height != frame.height) {
+    if (sizeof(pixel_buffer_->buffer) != frame.buffer_size) {
       delete pixel_buffer_->buffer;
-      pixel_buffer_->buffer = new uint8_t[frame.width * frame.height * 4];
+      pixel_buffer_->buffer = new uint8_t[frame.buffer_size];
       pixel_buffer_->video_width = frame.width;
       pixel_buffer_->video_height = frame.height;
     }
 
     frame.GetABGRBytes(pixel_buffer_->buffer);
-    mutex_->unlock();
+    pixel_buffer_->mutex.unlock();
 
     fl_texture_registrar_mark_texture_frame_available(registrar_,
                                                       FL_TEXTURE(texture_));
@@ -148,30 +142,18 @@ class TextureVideoRenderer {
   }
 
   // Returns Flutter texture associated with this renderer.
-  VideoTexture* texture() {
-    return texture_;
-  }
+  VideoTexture* texture() { return texture_; }
 
  private:
-  // Struct which describes `VideoFrame`'s dimensions.
-  struct FrameSize {
-    size_t width;
-    size_t height;
-  };
-
   // Named channel for communicating with the Flutter application using
   // asynchronous event streams.
   FlEventChannel* event_channel_;
 
-  // Pointer to the `VideoTexture` that is passed to the Flutter
-  // texture.
+  // Pointer to the `VideoTexture` that is passed to the Flutter texture.
   VideoTexture* texture_ = 0;
 
   // flag to indicate flutter events subscription.
   bool send_events_ = false;
-
-  // `FrameSize` of the last processed `VideoFrame`.
-  FrameSize last_frame_size_ = {0, 0};
 
   // Indicates if at least one `VideoFrame` has been rendered.
   bool first_frame_rendered = false;
@@ -181,10 +163,6 @@ class TextureVideoRenderer {
 
   // ID of the Flutter texture.
   int64_t texture_id_ = -1;
-
-  // Protects the `texture_` fields that are
-  // accessed from multiple threads.
-  std::shared_ptr<std::mutex> mutex_ = std::make_shared<std::mutex>();
 
   // Rotation of the current `VideoFrame`.
   int32_t rotation_ = 0;
@@ -219,12 +197,12 @@ class FlutterVideoRendererManager {
     auto texture_id = renderer->texture_id();
     renderers_[texture_id] = renderer;
 
-    g_autoptr(FlValue) set = fl_value_new_map();
-    fl_value_set_string_take(set, "textureId",
-                 fl_value_new_int((int64_t)texture_id));
-    fl_value_set_string_take(set, "channelId",
-                 fl_value_new_int((int64_t)texture_id));
-    (*response) = FL_METHOD_RESPONSE(fl_method_success_response_new(set));
+    g_autoptr(FlValue) map = fl_value_new_map();
+    fl_value_set_string_take(map, "textureId",
+                             fl_value_new_int((int64_t)texture_id));
+    fl_value_set_string_take(map, "channelId",
+                             fl_value_new_int((int64_t)texture_id));
+    (*response) = FL_METHOD_RESPONSE(fl_method_success_response_new(map));
   }
 
   // Changes a media source of the specific `TextureVideoRenderer`.
@@ -242,16 +220,15 @@ class FlutterVideoRendererManager {
     renderer->ResetRenderer();
 
     FrameHandler* handler_ptr = new FrameHandler(renderer);
-    g_autoptr(FlValue) set = fl_value_new_map();
-    fl_value_set_string_take(set, "handler_ptr",
-                 fl_value_new_int((int64_t)handler_ptr));
-    (*response) = FL_METHOD_RESPONSE(fl_method_success_response_new(set));
+    g_autoptr(FlValue) map = fl_value_new_map();
+    fl_value_set_string_take(map, "handler_ptr",
+                             fl_value_new_int((int64_t)handler_ptr));
+    (*response) = FL_METHOD_RESPONSE(fl_method_success_response_new(map));
   }
 
   // Disposes the specific `TextureVideoRenderer`.
   void VideoRendererDispose(FlMethodResponse** response,
                             FlMethodCall* method_call) {
-
     auto arguments = fl_method_call_get_args(method_call);
     if (fl_value_get_type(arguments) == FL_VALUE_TYPE_NULL) {
       (*response) = FL_METHOD_RESPONSE(fl_method_error_response_new(
@@ -263,17 +240,18 @@ class FlutterVideoRendererManager {
 
     auto it = renderers_.find(texture_id);
     if (it != renderers_.end()) {
-      fl_texture_registrar_unregister_texture(registrar_,
-                                              FL_TEXTURE(it->second->texture()));
+      fl_texture_registrar_unregister_texture(
+          registrar_, FL_TEXTURE(it->second->texture()));
       renderers_.erase(it);
       (*response) = FL_METHOD_RESPONSE(fl_method_success_response_new(NULL));
       return;
     }
     (*response) = FL_METHOD_RESPONSE(fl_method_error_response_new(
-    "VideoRendererDisposeFailed", "VideoRendererDispose() texture not found!", NULL));
+        "VideoRendererDisposeFailed",
+        "VideoRendererDispose() texture not found!", NULL));
   }
 
-  private:
+ private:
   // Object keeping track of external textures.
   FlTextureRegistrar* registrar_;
 
@@ -293,21 +271,21 @@ G_DEFINE_TYPE(FlutterWebrtcPlugin, flutter_webrtc_plugin, g_object_get_type())
 
 // Called when a method call is received from Flutter.
 static void flutter_webrtc_plugin_handle_method_call(
-  FlutterWebrtcPlugin* self,
-  FlMethodCall* method_call) {
-    g_autoptr(FlMethodResponse) response = nullptr;
-    const gchar* method = fl_method_call_get_name(method_call);
-    if (strcmp(method, "create") == 0) {
-      self->video_renderer_manager->CreateVideoRendererTexture(&response);
-    } else if (strcmp(method, "dispose") == 0) {
-      self->video_renderer_manager->VideoRendererDispose(&response, method_call);
-    } else if (strcmp(method, "createFrameHandler") == 0) {
-      self->video_renderer_manager->CreateFrameHandler(&response, method_call);
-    } else {
-      response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
-    }
+    FlutterWebrtcPlugin* self,
+    FlMethodCall* method_call) {
+  g_autoptr(FlMethodResponse) response = nullptr;
+  const gchar* method = fl_method_call_get_name(method_call);
+  if (strcmp(method, "create") == 0) {
+    self->video_renderer_manager->CreateVideoRendererTexture(&response);
+  } else if (strcmp(method, "dispose") == 0) {
+    self->video_renderer_manager->VideoRendererDispose(&response, method_call);
+  } else if (strcmp(method, "createFrameHandler") == 0) {
+    self->video_renderer_manager->CreateFrameHandler(&response, method_call);
+  } else {
+    response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+  }
 
-    fl_method_call_respond(method_call, response, nullptr);
+  fl_method_call_respond(method_call, response, nullptr);
 }
 
 static void flutter_webrtc_plugin_dispose(GObject* object) {
@@ -332,9 +310,10 @@ void flutter_web_r_t_c_plugin_register_with_registrar(
   FlutterWebrtcPlugin* plugin = FLUTTER_WEBRTC_PLUGIN(
       g_object_new(flutter_webrtc_plugin_get_type(), nullptr));
 
-  plugin->video_renderer_manager = std::make_unique<FlutterVideoRendererManager>(
-      fl_plugin_registrar_get_texture_registrar(registrar),
-      fl_plugin_registrar_get_messenger(registrar));
+  plugin->video_renderer_manager =
+      std::make_unique<FlutterVideoRendererManager>(
+          fl_plugin_registrar_get_texture_registrar(registrar),
+          fl_plugin_registrar_get_messenger(registrar));
 
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
   g_autoptr(FlMethodChannel) channel =
