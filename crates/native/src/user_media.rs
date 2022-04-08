@@ -41,9 +41,14 @@ impl Webrtc {
 
     /// Disposes a [`VideoTrack`] or [`AudioTrack`] by the provided `track_id`.
     pub fn dispose_track(&mut self, track_id: u64) {
-        let senders = if let Some((_, track)) =
+        let senders = if let Some((_, mut track)) =
             self.video_tracks.remove(&VideoTrackId::from(track_id))
         {
+            for i in track.sinks.clone().into_iter() {
+                if let Some(sink) = self.video_sinks.remove(&i) {
+                    track.remove_video_sink(sink);
+                }
+            }
             if let MediaTrackSource::Local(src) = track.source {
                 if Arc::strong_count(&src) == 2 {
                     self.video_sources.remove(&src.device_id);
