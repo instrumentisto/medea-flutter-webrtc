@@ -45,9 +45,9 @@ static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
                                           uint32_t* height,
                                           GError** error) {
   auto v_texture = VIDEO_TEXTURE(texture);
-  
+
   const std::lock_guard<std::mutex> lock(v_texture->mutex);
-  
+
   if (v_texture->frame_) {
     if (v_texture->buffer_ == nullptr) {
       // Allocate buffer on first run.

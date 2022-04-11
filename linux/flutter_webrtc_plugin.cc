@@ -1,18 +1,14 @@
-#include "include/flutter_webrtc/flutter_web_r_t_c_plugin.h"
+#include <map>
+#include <mutex>
+#include <optional>
 
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
 #include <sys/utsname.h>
 
-#include <string>
-
-#include <cstring>
-#include <map>
-#include <mutex>
-#include <optional>
-#include "flutter_webrtc_native.h"
-
-#include "video_texture.h"
+#include "include/flutter_webrtc/flutter_web_r_t_c_plugin.h"
+#include <flutter_webrtc_native.h>
+#include <video_texture.h>
 
 const char* kChannelName = "FlutterWebRtc/VideoRendererFactory/0";
 
@@ -64,7 +60,6 @@ class TextureVideoRenderer {
   }
 
   void ResetRenderer() {
-
     const std::lock_guard<std::mutex> lock(texture_->mutex);
 
     texture_->frame_.reset();

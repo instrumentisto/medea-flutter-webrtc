@@ -44,8 +44,8 @@ impl Webrtc {
         let senders = if let Some((_, mut track)) =
             self.video_tracks.remove(&VideoTrackId::from(track_id))
         {
-            for i in track.sinks.clone().into_iter() {
-                if let Some(sink) = self.video_sinks.remove(&i) {
+            for id in track.sinks.clone() {
+                if let Some(sink) = self.video_sinks.remove(&id) {
                     track.remove_video_sink(sink);
                 }
             }
