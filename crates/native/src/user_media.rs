@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use anyhow::bail;
+use anyhow::{bail, Context};
 use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
 use flutter_rust_bridge::StreamSink;
@@ -761,15 +761,20 @@ impl VideoSource {
         device_index: u32,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
+        let inner = sys::VideoTrackSourceInterface::create_proxy_from_device(
+            worker_thread,
+            signaling_thread,
+            caps.width as usize,
+            caps.height as usize,
+            caps.frame_rate as usize,
+            device_index,
+        )
+        .with_context(|| {
+            format!("Failed to acquire device with ID {}", device_id)
+        })?;
+
         Ok(Self {
-            inner: sys::VideoTrackSourceInterface::create_proxy_from_device(
-                worker_thread,
-                signaling_thread,
-                caps.width as usize,
-                caps.height as usize,
-                caps.frame_rate as usize,
-                device_index,
-            )?,
+            inner,
             device_id,
             is_display: false,
         })
