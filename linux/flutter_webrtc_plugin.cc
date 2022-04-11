@@ -27,16 +27,15 @@ class TextureVideoRenderer {
   TextureVideoRenderer(FlTextureRegistrar* registrar,
                        FlBinaryMessenger* messenger)
       : registrar_(registrar) {
+
     texture_ = video_texture_new();
 
-    FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(texture_)->copy_pixels =
-        video_texture_copy_pixels;
     fl_texture_registrar_register_texture(registrar, FL_TEXTURE(texture_));
 
-    DART_VIDEO_TEXTURE_GET_CLASS(texture_)->texture_id =
+    texture_->texture_id =
         reinterpret_cast<int64_t>(FL_TEXTURE(texture_));
 
-    texture_id_ = DART_VIDEO_TEXTURE_GET_CLASS(texture_)->texture_id;
+    texture_id_ = texture_->texture_id;
 
     g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
 
@@ -65,18 +64,15 @@ class TextureVideoRenderer {
   }
 
   void ResetRenderer() {
-    auto pixel_buffer_ = DART_VIDEO_TEXTURE_GET_CLASS(texture_);
 
-    const std::lock_guard<std::mutex> lock(pixel_buffer_->mutex);
+    const std::lock_guard<std::mutex> lock(texture_->mutex);
 
-    pixel_buffer_->frame_.reset();
+    texture_->frame_.reset();
     first_frame_rendered = false;
   }
 
   // Called when a new `VideoFrame` is produced by the underlying source.
   void OnFrame(VideoFrame frame) {
-    auto pixel_buffer_ = DART_VIDEO_TEXTURE_GET_CLASS(texture_);
-
     if (!first_frame_rendered) {
       if (send_events_) {
         g_autoptr(FlValue) map = fl_value_new_map();
@@ -103,8 +99,8 @@ class TextureVideoRenderer {
       }
       rotation_ = frame.rotation;
     }
-    if (!pixel_buffer_->frame_ ||
-        pixel_buffer_->frame_->buffer_size != frame.buffer_size) {
+    if (!texture_->frame_ ||
+        texture_->frame_->buffer_size != frame.buffer_size) {
       if (send_events_) {
         g_autoptr(FlValue) map = fl_value_new_map();
 
@@ -120,9 +116,9 @@ class TextureVideoRenderer {
       }
     }
 
-    pixel_buffer_->mutex.lock();
-    pixel_buffer_->frame_.emplace(std::move(frame));
-    pixel_buffer_->mutex.unlock();
+    texture_->mutex.lock();
+    texture_->frame_.emplace(std::move(frame));
+    texture_->mutex.unlock();
 
     fl_texture_registrar_mark_texture_frame_available(registrar_,
                                                       FL_TEXTURE(texture_));
@@ -130,7 +126,7 @@ class TextureVideoRenderer {
 
   // Returns an ID of the Flutter texture associated with this renderer.
   int64_t texture_id() {
-    return DART_VIDEO_TEXTURE_GET_CLASS(texture_)->texture_id;
+    return texture_id_;
   }
 
   // Returns Flutter texture associated with this renderer.
