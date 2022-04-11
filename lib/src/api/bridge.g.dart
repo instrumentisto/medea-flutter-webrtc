@@ -323,8 +323,12 @@ enum MediaDeviceKind {
   VideoInput,
 }
 
+/// Possible media source kind of a [`MediaStreamTrack`].
 enum MediaSourceKind {
+  /// [`MediaStreamTrack`]'s source captured from the external device.
   Device,
+
+  /// [`MediaStreamTrack`]'s source captured from the system display.
   Display,
 }
 
@@ -365,6 +369,8 @@ class MediaStreamTrack {
   ///
   /// This can be used to intentionally mute a track.
   final bool enabled;
+
+  /// [`MediaSourceKind`] of this [`MediaStreamTrack`].
   final MediaSourceKind sourceKind;
 
   MediaStreamTrack({

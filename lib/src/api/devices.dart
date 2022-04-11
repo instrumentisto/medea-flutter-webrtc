@@ -29,19 +29,19 @@ typedef OnDeviceChangeCallback = void Function();
 
 /// Singleton for listening device change.
 class _DeviceHandler {
-  /// Instance of a [DeviceHandler] singleton.
+  /// Instance of a [_DeviceHandler] singleton.
   static final _DeviceHandler _instance = _DeviceHandler._internal();
 
   /// Callback, called whenever a media device such as a camera, microphone, or
   /// speaker is connected to or removed from the system.
   OnDeviceChangeCallback? _handler;
 
-  /// Returns [DeviceHandler] singleton instance.
+  /// Returns [_DeviceHandler] singleton instance.
   factory _DeviceHandler() {
     return _instance;
   }
 
-  /// Creates a new [DeviceHandler].
+  /// Creates a new [_DeviceHandler].
   _DeviceHandler._internal() {
     _listen();
   }
