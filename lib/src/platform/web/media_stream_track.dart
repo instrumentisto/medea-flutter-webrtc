@@ -60,4 +60,9 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   Future<MediaStreamTrack> clone() async {
     return WebMediaStreamTrack(jsTrack.clone());
   }
+
+  @override
+  MediaSourceKind sourceKind() {
+    return MediaSourceKind.device;
+  }
 }

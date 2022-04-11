@@ -406,6 +406,12 @@ impl From<MediaType> for sys::MediaType {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum MediaSourceKind {
+    Device,
+    Display,
+}
+
 /// [RTCSdpType] representation.
 ///
 /// [RTCSdpType]: https://w3.org/TR/webrtc#dom-rtcsdptype
@@ -563,6 +569,8 @@ pub struct MediaStreamTrack {
     ///
     /// This can be used to intentionally mute a track.
     pub enabled: bool,
+
+    pub source_kind: MediaSourceKind,
 }
 
 /// Representation of a permanent pair of an [RTCRtpSender] and an

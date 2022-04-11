@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes
 
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:ffi' as ffi;
 import 'dart:typed_data';
-import 'dart:typed_data';
-
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'dart:ffi' as ffi;
 
 part 'bridge.g.freezed.dart';
 
@@ -323,6 +323,11 @@ enum MediaDeviceKind {
   VideoInput,
 }
 
+enum MediaSourceKind {
+  Device,
+  Display,
+}
+
 /// [MediaStreamConstraints], used to instruct what sort of
 /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
 /// [`Webrtc::get_users_media()`].
@@ -360,12 +365,14 @@ class MediaStreamTrack {
   ///
   /// This can be used to intentionally mute a track.
   final bool enabled;
+  final MediaSourceKind sourceKind;
 
   MediaStreamTrack({
     required this.id,
     required this.deviceId,
     required this.kind,
     required this.enabled,
+    required this.sourceKind,
   });
 }
 
@@ -1459,15 +1466,20 @@ MediaDeviceKind _wire2api_media_device_kind(dynamic raw) {
   return MediaDeviceKind.values[raw];
 }
 
+MediaSourceKind _wire2api_media_source_kind(dynamic raw) {
+  return MediaSourceKind.values[raw];
+}
+
 MediaStreamTrack _wire2api_media_stream_track(dynamic raw) {
   final arr = raw as List<dynamic>;
-  if (arr.length != 4)
-    throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+  if (arr.length != 5)
+    throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
   return MediaStreamTrack(
     id: _wire2api_u64(arr[0]),
     deviceId: _wire2api_String(arr[1]),
     kind: _wire2api_media_type(arr[2]),
     enabled: _wire2api_bool(arr[3]),
+    sourceKind: _wire2api_media_source_kind(arr[4]),
   );
 }
 

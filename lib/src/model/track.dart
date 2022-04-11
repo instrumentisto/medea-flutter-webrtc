@@ -17,3 +17,9 @@ enum MediaKind {
   /// Video data.
   video
 }
+
+enum MediaSourceKind {
+  device,
+
+  display
+}

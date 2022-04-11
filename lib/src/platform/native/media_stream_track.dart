@@ -121,6 +121,11 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   Future<MediaStreamTrack> clone() async {
     return NativeMediaStreamTrack.from(await _chan.invokeMethod('clone'));
   }
+
+  @override
+  MediaSourceKind sourceKind() {
+    return MediaSourceKind.device;
+  }
 }
 
 /// FFI-based implementation of a [NativeMediaStreamTrack].
@@ -128,12 +133,15 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   /// Indicates whether this [NativeMediaStreamTrack] has been stopped.
   bool _stopped = false;
 
+  late MediaSourceKind _sourceKind;
+
   /// Creates a [NativeMediaStreamTrack] basing on the provided
   /// [ffi.MediaStreamTrack].
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
     _deviceId = track.deviceId;
     _kind = MediaKind.values[track.kind.index];
+    _sourceKind = MediaSourceKind.values[track.sourceKind.index];
     _eventSub = api.registerTrackObserver(trackId: track.id).listen((event) {
       if (_onEnded != null) {
         _onEnded!();
@@ -151,7 +159,8 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
           deviceId: _deviceId,
           enabled: _enabled,
           id: int.parse(_id),
-          kind: ffi.MediaType.values[_kind.index]));
+          kind: ffi.MediaType.values[_kind.index],
+          sourceKind: ffi.MediaSourceKind.values[_sourceKind.index]));
     }
   }
 
@@ -181,5 +190,10 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
       await api.disposeTrack(trackId: int.parse(_id));
     }
     _stopped = true;
+  }
+
+  @override
+  MediaSourceKind sourceKind() {
+    return _sourceKind;
   }
 }

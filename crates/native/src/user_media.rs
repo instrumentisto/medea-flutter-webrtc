@@ -26,7 +26,7 @@ impl Webrtc {
 
         if let Some(video) = constraints.video {
             let source = self.get_or_create_video_source(&video)?;
-            let track = self.create_video_track(source)?;
+            let track = self.create_video_track(source, video.is_display)?;
             result.push(api::MediaStreamTrack::from(&*track));
         }
 
@@ -80,6 +80,7 @@ impl Webrtc {
     fn create_video_track(
         &mut self,
         source: Arc<VideoSource>,
+        is_display: bool,
     ) -> anyhow::Result<RefMut<'_, VideoTrackId, VideoTrack>> {
         let track = if source.is_display {
             // TODO: Support screens enumeration.
@@ -87,6 +88,7 @@ impl Webrtc {
                 &self.peer_connection_factory,
                 source,
                 VideoLabel::from("screen:0"),
+                is_display,
             )?
         } else {
             let device_index = if let Some(index) =
@@ -104,6 +106,7 @@ impl Webrtc {
                 &self.peer_connection_factory,
                 source,
                 VideoLabel(self.video_device_info.device_name(device_index)?.0),
+                is_display,
             )?
         };
 
@@ -290,6 +293,11 @@ impl Webrtc {
         id: u64,
     ) -> anyhow::Result<api::MediaStreamTrack> {
         if self.video_tracks.contains_key(&VideoTrackId(id)) {
+            let src_kind = self
+                .video_tracks
+                .get(&VideoTrackId(id))
+                .unwrap()
+                .source_kind;
             let source =
                 match &self.video_tracks.get(&VideoTrackId(id)).unwrap().source
                 {
@@ -307,7 +315,12 @@ impl Webrtc {
             match source {
                 MediaTrackSource::Local(source) => {
                     Ok(api::MediaStreamTrack::from(
-                        self.create_video_track(source).unwrap().value(),
+                        self.create_video_track(
+                            source,
+                            src_kind == api::MediaSourceKind::Display,
+                        )
+                        .unwrap()
+                        .value(),
                     ))
                 }
                 MediaTrackSource::Remote { mid, peer_id } => {
@@ -541,6 +554,8 @@ pub struct VideoTrack {
 
     /// Peers and transceivers sending this [`VideoTrack`].
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
+
+    source_kind: api::MediaSourceKind,
 }
 
 impl VideoTrack {
@@ -549,6 +564,7 @@ impl VideoTrack {
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<VideoSource>,
         label: VideoLabel,
+        is_display: bool,
     ) -> anyhow::Result<Self> {
         let id = VideoTrackId(next_id());
         Ok(Self {
@@ -559,6 +575,11 @@ impl VideoTrack {
             label,
             sinks: Vec::new(),
             senders: HashMap::new(),
+            source_kind: if is_display {
+                api::MediaSourceKind::Display
+            } else {
+                api::MediaSourceKind::Device
+            },
         })
     }
 
@@ -583,6 +604,7 @@ impl VideoTrack {
             label: VideoLabel::from("remote"),
             sinks: Vec::new(),
             senders: HashMap::new(),
+            source_kind: api::MediaSourceKind::Display,
         }
     }
 
@@ -625,6 +647,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             device_id: track.label.0.clone(),
             kind: track.kind,
             enabled: true,
+            source_kind: track.source_kind,
         }
     }
 }
@@ -726,6 +749,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
             device_id: track.label.0.clone(),
             kind: track.kind,
             enabled: true,
+            source_kind: api::MediaSourceKind::Device,
         }
     }
 }
