@@ -11,6 +11,7 @@ abstract class MediaStreamTrack {
   /// Returns the [MediaKind] of this [MediaStreamTrack].
   MediaKind kind();
 
+  /// Returns the [MediaSourceKind] of this [MediaStreamTrack].
   MediaSourceKind sourceKind();
 
   /// Returns unique ID of the device from which this [MediaStreamTrack] was

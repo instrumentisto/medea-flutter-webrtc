@@ -18,8 +18,11 @@ enum MediaKind {
   video
 }
 
+/// Media source kind.
 enum MediaSourceKind {
+  /// Captured from the external device.
   device,
 
+  /// Captured from the system display.
   display
 }

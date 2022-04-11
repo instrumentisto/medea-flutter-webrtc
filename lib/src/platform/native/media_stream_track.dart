@@ -133,6 +133,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   /// Indicates whether this [NativeMediaStreamTrack] has been stopped.
   bool _stopped = false;
 
+  /// [MediaSourceKind] of this [NativeMediaStreamTrack].
   late MediaSourceKind _sourceKind;
 
   /// Creates a [NativeMediaStreamTrack] basing on the provided
