@@ -574,6 +574,7 @@ pub struct MediaStreamTrack {
     /// This can be used to intentionally mute a track.
     pub enabled: bool,
 
+    /// [`MediaSourceKind`] of this [`MediaStreamTrack`].
     pub source_kind: MediaSourceKind,
 }
 

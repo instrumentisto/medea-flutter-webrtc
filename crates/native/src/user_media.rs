@@ -555,6 +555,7 @@ pub struct VideoTrack {
     /// Peers and transceivers sending this [`VideoTrack`].
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 
+    /// [`api::MediaSourceKind`] of this [`VideoTrack`].
     source_kind: api::MediaSourceKind,
 }
 
