@@ -92,7 +92,7 @@ impl Webrtc {
                 None,
                 Some(&worker_thread),
                 Some(&signaling_thread),
-                Some(&audio_device_module.inner),
+                Some(audio_device_module.as_ref()),
             )?;
 
         let video_device_info = sys::VideoDeviceInfo::create()?;

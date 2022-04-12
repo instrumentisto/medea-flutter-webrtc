@@ -1,5 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
+    hash::Hash,
     sync::Arc,
 };
 
@@ -451,9 +452,11 @@ pub struct AudioLabel(String);
 
 /// [`sys::AudioDeviceModule`] wrapper tracking the currently used audio input
 /// device.
+#[derive(AsRef)]
 pub struct AudioDeviceModule {
     /// [`sys::AudioDeviceModule`] backing this [`AudioDeviceModule`].
-    pub(crate) inner: sys::AudioDeviceModule,
+    #[as_ref]
+    inner: sys::AudioDeviceModule,
 
     /// ID of the audio input device currently used by this
     /// [`sys::AudioDeviceModule`].
@@ -488,11 +491,75 @@ impl AudioDeviceModule {
         })
     }
 
+    /// Returns the `(label, id)` tuple for the given audio playout device
+    /// `index`.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::playout_device_name()`] call fails.
+    pub fn playout_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
+        let (label, mut device_id) = self.inner.playout_device_name(index)?;
+
+        if device_id.is_empty() {
+            let hash = md5::compute(
+                [label.as_bytes(), &[api::MediaDeviceKind::AudioOutput as u8]]
+                    .concat(),
+            );
+            device_id = format!("{hash:?}");
+        }
+
+        Ok((label, device_id))
+    }
+
+    /// Returns the `(label, id)` tuple for the given audio recording device
+    /// `index`.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::recording_device_name()`] call fails.
+    pub fn recording_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
+        let (label, mut device_id) = self.inner.recording_device_name(index)?;
+
+        if device_id.is_empty() {
+            let hash = md5::compute(
+                [label.as_bytes(), &[api::MediaDeviceKind::AudioInput as u8]]
+                    .concat(),
+            );
+            device_id = format!("{hash:?}");
+        }
+
+        Ok((label, device_id))
+    }
+
+    /// Returns count of available audio playout devices.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::playout_devices()`] call fails.
+    pub fn playout_devices(&self) -> anyhow::Result<i16> {
+        self.inner.playout_devices()
+    }
+
+    /// Returns count of available audio recording devices.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::recording_devices()`] call fails.
+    pub fn recording_devices(&self) -> anyhow::Result<i16> {
+        self.inner.recording_devices()
+    }
+
     /// Changes the recording device for this [`AudioDeviceModule`].
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::set_recording_device()`] fails.
+    /// If [`sys::AudioDeviceModule::set_recording_device()`] call fails.
     pub fn set_recording_device(
         &mut self,
         id: AudioDeviceId,
@@ -508,7 +575,7 @@ impl AudioDeviceModule {
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::set_playout_device()`] fails.
+    /// If [`sys::AudioDeviceModule::set_playout_device()`] call fails.
     pub fn set_playout_device(&self, index: u16) -> anyhow::Result<()> {
         self.inner.set_playout_device(index)?;
 
