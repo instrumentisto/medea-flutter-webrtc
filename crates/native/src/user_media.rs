@@ -6,13 +6,12 @@ use std::{
 use anyhow::bail;
 use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
-use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 
 use crate::{
-    api, api::TrackEvent, next_id, PeerConnectionId, VideoSink, VideoSinkId,
-    Webrtc,
+    api, api::TrackEvent, next_id, stream_sink::StreamSink, PeerConnectionId,
+    VideoSink, VideoSinkId, Webrtc,
 };
 
 impl Webrtc {

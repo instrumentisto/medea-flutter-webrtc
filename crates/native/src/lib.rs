@@ -12,6 +12,7 @@ mod bridge_generated;
 mod cpp_api;
 mod devices;
 mod pc;
+mod stream_sink;
 mod user_media;
 mod video_sink;
 

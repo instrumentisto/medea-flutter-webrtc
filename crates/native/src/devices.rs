@@ -6,7 +6,6 @@ use std::{
 };
 
 use anyhow::anyhow;
-use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
 #[cfg(target_os = "windows")]
 use winapi::{
@@ -26,6 +25,7 @@ use winapi::{
 
 use crate::{
     api,
+    stream_sink::StreamSink,
     user_media::{AudioDeviceId, VideoDeviceId},
     AudioDeviceModule, Webrtc,
 };
