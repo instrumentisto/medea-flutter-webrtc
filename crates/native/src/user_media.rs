@@ -770,7 +770,7 @@ impl VideoSource {
             device_index,
         )
         .with_context(|| {
-            format!("Failed to acquire device with ID {}", device_id)
+            format!("Failed to acquire device with ID `{device_id}`")
         })?;
 
         Ok(Self {

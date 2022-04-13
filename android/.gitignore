@@ -1,7 +1,7 @@
-.gradle/
-.idea/
+/.gradle/
+/.idea/
 /captures/
-gradle-wrapper.jar
+/gradle-wrapper.jar
 /gradlew
 /gradlew.bat
 

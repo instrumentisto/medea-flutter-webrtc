@@ -124,7 +124,7 @@ class TextureVideoRenderer {
     return texture_id_;
   }
 
-  // Returns Flutter texture associated with this renderer.
+  // Returns the Flutter texture associated with this renderer.
   VideoTexture* texture() { return texture_; }
 
  private:
@@ -135,10 +135,10 @@ class TextureVideoRenderer {
   // Pointer to the `VideoTexture` that is passed to the Flutter texture.
   VideoTexture* texture_ = 0;
 
-  // flag to indicate flutter events subscription.
+  // Flag indicating Flutter events subscription.
   bool send_events_ = false;
 
-  // Indicates if at least one `VideoFrame` has been rendered.
+  // Indicator whether at least one `VideoFrame` has been rendered.
   bool first_frame_rendered = false;
 
   // Object keeping track of external textures.
@@ -238,7 +238,7 @@ class FlutterVideoRendererManager {
   // Object keeping track of external textures.
   FlTextureRegistrar* registrar_;
 
-  // Channel to the Dart side renderers.
+  // Channel to the Flutter side renderers.
   FlBinaryMessenger* messenger_;
 
   // Map containing all the `TextureVideoRenderer`s.
