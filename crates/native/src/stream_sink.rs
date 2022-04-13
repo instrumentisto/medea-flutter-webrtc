@@ -3,10 +3,10 @@ use std::sync::Arc;
 use derive_more::{Deref, DerefMut};
 use flutter_rust_bridge::{self as frb, support::IntoDart};
 
-/// [`flutter_rust_bridge`]'s [`StreamSink`][1] wrapper that is automatically
-/// closed when if is [`Drop`]ped .
+/// [`flutter_rust_bridge`]'s [`StreamSink`] wrapper that is automatically
+/// closed when [`Drop`]ped .
 ///
-/// [1]: frb::StreamSink
+/// [`StreamSink`]: frb::StreamSink
 #[derive(Clone, Deref, DerefMut)]
 pub struct StreamSink<T: IntoDart>(Arc<frb::StreamSink<T>>);
 
