@@ -309,7 +309,7 @@ pub unsafe fn init() -> anyhow::Result<()> {
 
                 if !state.is_null() {
                     let device_state = &mut *state;
-                    let new_count = device_state.count_devices();
+                    let new_count = device_state.count_devices().unwrap();
 
                     if device_state.count != new_count {
                         device_state.set_count(new_count);
