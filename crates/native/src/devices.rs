@@ -383,14 +383,14 @@ pub unsafe fn init() {
 }
 
 #[cfg(target_os = "linux")]
-/// Creates a detached [`Thread`] creating a devices monitor 
+/// Creates a detached [`Thread`] creating a devices monitor
 /// and polls for events.
 ///
 /// [`Thread`]: thread::Thread
 pub unsafe fn init() {
-    use libc::{c_int, c_short, c_void, c_ulong, timespec};
+    use libc::{c_int, c_short, c_ulong, c_void, timespec};
     use libudev::EventType;
-    use std::{io, thread, os::unix::prelude::AsRawFd};
+    use std::{io, os::unix::prelude::AsRawFd, thread};
 
     #[repr(C)]
     struct pollfd {
