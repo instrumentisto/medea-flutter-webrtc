@@ -420,7 +420,7 @@ pub unsafe fn init() {
 
     fn monitor(context: &libudev::Context) -> io::Result<()> {
         let mut monitor = libudev::Monitor::new(context)?;
-        monitor.match_subsystem_devtype("sound", "usb_device")?;
+        monitor.match_subsystem_devtype("usb", "usb_device")?;
         monitor.match_subsystem_devtype("bluetooth", "link")?;
         let mut socket = monitor.listen()?;
 
