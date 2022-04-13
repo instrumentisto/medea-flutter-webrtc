@@ -383,18 +383,89 @@ pub unsafe fn init() {
 }
 
 #[cfg(target_os = "linux")]
-// TODO: Implement `OnDeviceChange` for Linux.
+/// Creates a detached [`Thread`] creating a devices monitor 
+/// and polls for events.
+///
+/// [`Thread`]: thread::Thread
 pub unsafe fn init() {
-    // Dummy implementation.
-    let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+    use libc::{c_int, c_short, c_void, c_ulong, timespec};
+    use libudev::EventType;
+    use std::{io, thread, os::unix::prelude::AsRawFd};
 
-    if !state.is_null() {
-        let device_state = &mut *state;
-        let new_count = device_state.count_devices();
+    #[repr(C)]
+    struct pollfd {
+        fd: c_int,
+        events: c_short,
+        revents: c_short,
+    }
 
-        if device_state.count != new_count {
-            device_state.set_count(new_count);
-            device_state.on_device_change();
+    #[repr(C)]
+    struct sigset_t {
+        __private: c_void,
+    }
+
+    #[allow(non_camel_case_types)]
+    type nfds_t = c_ulong;
+
+    const POLLIN: c_short = 0x0001;
+
+    extern "C" {
+        fn ppoll(
+            fds: *mut pollfd,
+            nfds: nfds_t,
+            timeout_ts: *mut timespec,
+            sigmask: *const sigset_t,
+        ) -> c_int;
+    }
+
+    fn monitor(context: &libudev::Context) -> io::Result<()> {
+        let mut monitor = libudev::Monitor::new(context)?;
+        monitor.match_subsystem_devtype("usb", "usb_device")?;
+        monitor.match_subsystem_devtype("bluetooth", "link")?;
+        let mut socket = monitor.listen()?;
+
+        let mut fds = vec![pollfd {
+            fd: socket.as_raw_fd(),
+            events: POLLIN,
+            revents: 0,
+        }];
+
+        loop {
+            let result = unsafe {
+                ppoll(
+                    (&mut fds[..]).as_mut_ptr(),
+                    fds.len() as nfds_t,
+                    ptr::null_mut(),
+                    ptr::null(),
+                )
+            };
+
+            if result < 0 {
+                return Err(io::Error::last_os_error());
+            }
+
+            let event = match socket.receive_event() {
+                Some(evt) => evt,
+                None => {
+                    continue;
+                }
+            };
+
+            if event.event_type() == EventType::Add
+                || event.event_type() == EventType::Remove
+            {
+                let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+
+                if !state.is_null() {
+                    let device_state = unsafe { &mut *state };
+                    device_state.on_device_change();
+                }
+            }
         }
     }
+
+    thread::spawn(move || {
+        let context = libudev::Context::new().unwrap();
+        monitor(&context).unwrap();
+    });
 }
