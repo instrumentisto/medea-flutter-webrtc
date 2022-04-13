@@ -201,7 +201,6 @@ impl Webrtc {
             AudioLabel(
                 #[allow(clippy::cast_possible_wrap)]
                 self.audio_device_module
-                    .inner
                     .recording_device_name(device_index as i16)?
                     .0,
             ),
@@ -225,12 +224,12 @@ impl Webrtc {
             if self.audio_device_module.current_device_id.is_none() {
                 // `AudioDeviceModule` is not capturing anything at the moment,
                 // so we will use first available device (with `0` index).
-                if self.audio_device_module.inner.recording_devices()? < 1 {
+                if self.audio_device_module.recording_devices()? < 1 {
                     bail!("Cannot find any available audio input device");
                 }
 
                 AudioDeviceId(
-                    self.audio_device_module.inner.recording_device_name(0)?.1,
+                    self.audio_device_module.recording_device_name(0)?.1,
                 )
             } else {
                 // PANIC: If there is a `sys::AudioSourceInterface` then we are
