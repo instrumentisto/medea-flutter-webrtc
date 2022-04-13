@@ -69,20 +69,19 @@ impl DeviceState {
             cb,
         };
 
-        let device_count = ds.count_devices();
+        let device_count = ds.count_devices()?;
         ds.set_count(device_count);
 
         Ok(ds)
     }
 
     /// Counts current media device number.
-    fn count_devices(&mut self) -> u32 {
-        TryInto::<u32>::try_into(
-            self.adm.inner.playout_devices().unwrap()
-                + self.adm.inner.recording_devices().unwrap(),
-        )
-        .unwrap()
-            + self.vdi.number_of_devices()
+    fn count_devices(&mut self) -> anyhow::Result<u32> {
+        let count = TryInto::<u32>::try_into(
+            self.adm.playout_devices()? + self.adm.recording_devices()?,
+        )? + self.vdi.number_of_devices();
+
+        Ok(count)
     }
 
     /// Fixes some media device count in the [`DeviceState`].
@@ -106,10 +105,9 @@ impl Webrtc {
         &mut self,
     ) -> anyhow::Result<Vec<api::MediaDeviceInfo>> {
         let mut audio = {
-            let count_playout =
-                self.audio_device_module.inner.playout_devices()?;
+            let count_playout = self.audio_device_module.playout_devices()?;
             let count_recording =
-                self.audio_device_module.inner.recording_devices()?;
+                self.audio_device_module.recording_devices()?;
 
             #[allow(clippy::cast_sign_loss)]
             let mut result =
@@ -128,13 +126,9 @@ impl Webrtc {
                 for i in 0..count {
                     let (label, device_id) =
                         if let api::MediaDeviceKind::AudioOutput = kind {
-                            self.audio_device_module
-                                .inner
-                                .playout_device_name(i)?
+                            self.audio_device_module.playout_device_name(i)?
                         } else {
-                            self.audio_device_module
-                                .inner
-                                .recording_device_name(i)?
+                            self.audio_device_module.recording_device_name(i)?
                         };
 
                     result.push(api::MediaDeviceInfo {
@@ -208,10 +202,9 @@ impl Webrtc {
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.audio_device_module.inner.recording_devices()?;
+        let count = self.audio_device_module.recording_devices()?;
         for i in 0..count {
-            let (_, id) =
-                self.audio_device_module.inner.recording_device_name(i)?;
+            let (_, id) = self.audio_device_module.recording_device_name(i)?;
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
@@ -234,10 +227,9 @@ impl Webrtc {
         &mut self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
-        let count = self.audio_device_module.inner.playout_devices()?;
+        let count = self.audio_device_module.playout_devices()?;
         for i in 0..count {
-            let (_, id) =
-                self.audio_device_module.inner.playout_device_name(i)?;
+            let (_, id) = self.audio_device_module.playout_device_name(i)?;
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
@@ -280,7 +272,7 @@ impl Webrtc {
 
         if prev.is_null() {
             unsafe {
-                init();
+                init()?;
             }
         } else {
             unsafe {
@@ -297,7 +289,7 @@ impl Webrtc {
 /// window - [`HWND`].
 ///
 /// [`Thread`]: thread::Thread
-pub unsafe fn init() {
+pub unsafe fn init() -> anyhow::Result<()> {
     /// Message handler for an [`HWND`].
     unsafe extern "system" fn wndproc(
         hwnd: HWND,
@@ -380,21 +372,25 @@ pub unsafe fn init() {
             DispatchMessageW(&msg);
         }
     });
+
+    Ok(())
 }
 
 #[cfg(target_os = "linux")]
 // TODO: Implement `OnDeviceChange` for Linux.
-pub unsafe fn init() {
+pub unsafe fn init() -> anyhow::Result<()> {
     // Dummy implementation.
     let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
 
     if !state.is_null() {
         let device_state = &mut *state;
-        let new_count = device_state.count_devices();
+        let new_count = device_state.count_devices()?;
 
         if device_state.count != new_count {
             device_state.set_count(new_count);
             device_state.on_device_change();
         }
     }
+
+    Ok(())
 }

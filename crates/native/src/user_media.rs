@@ -1,9 +1,10 @@
 use std::{
     collections::{HashMap, HashSet},
+    hash::Hash,
     sync::Arc,
 };
 
-use anyhow::bail;
+use anyhow::{bail, Context};
 use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
@@ -40,9 +41,14 @@ impl Webrtc {
 
     /// Disposes a [`VideoTrack`] or [`AudioTrack`] by the provided `track_id`.
     pub fn dispose_track(&mut self, track_id: u64) {
-        let senders = if let Some((_, track)) =
+        let senders = if let Some((_, mut track)) =
             self.video_tracks.remove(&VideoTrackId::from(track_id))
         {
+            for id in track.sinks.clone() {
+                if let Some(sink) = self.video_sinks.remove(&id) {
+                    track.remove_video_sink(sink);
+                }
+            }
             if let MediaTrackSource::Local(src) = track.source {
                 if Arc::strong_count(&src) == 2 {
                     self.video_sources.remove(&src.device_id);
@@ -445,9 +451,11 @@ pub struct AudioLabel(String);
 
 /// [`sys::AudioDeviceModule`] wrapper tracking the currently used audio input
 /// device.
+#[derive(AsRef)]
 pub struct AudioDeviceModule {
     /// [`sys::AudioDeviceModule`] backing this [`AudioDeviceModule`].
-    pub(crate) inner: sys::AudioDeviceModule,
+    #[as_ref]
+    inner: sys::AudioDeviceModule,
 
     /// ID of the audio input device currently used by this
     /// [`sys::AudioDeviceModule`].
@@ -482,11 +490,75 @@ impl AudioDeviceModule {
         })
     }
 
+    /// Returns the `(label, id)` tuple for the given audio playout device
+    /// `index`.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::playout_device_name()`] call fails.
+    pub fn playout_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
+        let (label, mut device_id) = self.inner.playout_device_name(index)?;
+
+        if device_id.is_empty() {
+            let hash = md5::compute(
+                [label.as_bytes(), &[api::MediaDeviceKind::AudioOutput as u8]]
+                    .concat(),
+            );
+            device_id = format!("{hash:?}");
+        }
+
+        Ok((label, device_id))
+    }
+
+    /// Returns the `(label, id)` tuple for the given audio recording device
+    /// `index`.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::recording_device_name()`] call fails.
+    pub fn recording_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
+        let (label, mut device_id) = self.inner.recording_device_name(index)?;
+
+        if device_id.is_empty() {
+            let hash = md5::compute(
+                [label.as_bytes(), &[api::MediaDeviceKind::AudioInput as u8]]
+                    .concat(),
+            );
+            device_id = format!("{hash:?}");
+        }
+
+        Ok((label, device_id))
+    }
+
+    /// Returns count of available audio playout devices.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::playout_devices()`] call fails.
+    pub fn playout_devices(&self) -> anyhow::Result<i16> {
+        self.inner.playout_devices()
+    }
+
+    /// Returns count of available audio recording devices.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::recording_devices()`] call fails.
+    pub fn recording_devices(&self) -> anyhow::Result<i16> {
+        self.inner.recording_devices()
+    }
+
     /// Changes the recording device for this [`AudioDeviceModule`].
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::set_recording_device()`] fails.
+    /// If [`sys::AudioDeviceModule::set_recording_device()`] call fails.
     pub fn set_recording_device(
         &mut self,
         id: AudioDeviceId,
@@ -502,7 +574,7 @@ impl AudioDeviceModule {
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::set_playout_device()`] fails.
+    /// If [`sys::AudioDeviceModule::set_playout_device()`] call fails.
     pub fn set_playout_device(&self, index: u16) -> anyhow::Result<()> {
         self.inner.set_playout_device(index)?;
 
@@ -755,15 +827,20 @@ impl VideoSource {
         device_index: u32,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
+        let inner = sys::VideoTrackSourceInterface::create_proxy_from_device(
+            worker_thread,
+            signaling_thread,
+            caps.width as usize,
+            caps.height as usize,
+            caps.frame_rate as usize,
+            device_index,
+        )
+        .with_context(|| {
+            format!("Failed to acquire device with ID {}", device_id)
+        })?;
+
         Ok(Self {
-            inner: sys::VideoTrackSourceInterface::create_proxy_from_device(
-                worker_thread,
-                signaling_thread,
-                caps.width as usize,
-                caps.height as usize,
-                caps.frame_rate as usize,
-                device_index,
-            )?,
+            inner,
             device_id,
             is_display: false,
         })
