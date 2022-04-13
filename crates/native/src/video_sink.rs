@@ -14,6 +14,7 @@ impl Webrtc {
         handler: UniquePtr<cpp_api::OnFrameCallbackInterface>,
     ) -> anyhow::Result<()> {
         self.dispose_video_sink(sink_id);
+
         let track_id = VideoTrackId::from(track_id);
         let mut sink = VideoSink {
             id: Id(sink_id),

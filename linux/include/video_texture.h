@@ -19,16 +19,16 @@ struct _VideoTexture {
 
   FlPixelBufferTexture parent_instance;
 
-  // Mutex that guards `frame_` field accessed from multiple threads.
+  // Mutex guarding `frame_` field accessed from multiple threads.
   std::mutex mutex = std::mutex();
 
-  // ID of this texture
+  // ID of this texture.
   int64_t texture_id = 0;
 
   // Frame that should be rendered.
   std::optional<VideoFrame> frame_;
 
-  // Buffer that contains the actual `ARGB` bytes that we pass to the Flutter.
+  // Buffer containing the actual `ARGB` bytes being passed to Flutter.
   uint8_t* buffer_ = nullptr;
 };
 
@@ -53,7 +53,7 @@ static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
       // Allocate buffer on first run.
       v_texture->buffer_ = new uint8_t[v_texture->frame_->buffer_size];
     } else if (sizeof(v_texture->buffer_) != v_texture->frame_->buffer_size) {
-      // Recreate buffer if image was resized.
+      // Recreate buffer if the image was resized.
       delete v_texture->buffer_;
       v_texture->buffer_ = new uint8_t[v_texture->frame_->buffer_size];
     }
