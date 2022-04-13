@@ -420,7 +420,7 @@ pub unsafe fn init() {
 
     fn monitor(context: &libudev::Context) -> io::Result<()> {
         let mut monitor = libudev::Monitor::new(context)?;
-        monitor.match_subsystem_devtype("usb", "usb_device")?;
+        monitor.match_subsystem_devtype("sound", "usb_device")?;
         monitor.match_subsystem_devtype("bluetooth", "link")?;
         let mut socket = monitor.listen()?;
 
@@ -455,10 +455,14 @@ pub unsafe fn init() {
                 || event.event_type() == EventType::Remove
             {
                 let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
-
                 if !state.is_null() {
                     let device_state = unsafe { &mut *state };
-                    device_state.on_device_change();
+                    let new_count = device_state.count_devices();
+
+                    if device_state.count != new_count {
+                        device_state.set_count(new_count);
+                        device_state.on_device_change();
+                    }
                 }
             }
         }
