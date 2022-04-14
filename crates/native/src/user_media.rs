@@ -87,31 +87,8 @@ impl Webrtc {
         &mut self,
         source: Arc<VideoSource>,
     ) -> anyhow::Result<RefMut<'_, VideoTrackId, VideoTrack>> {
-        let track = if source.is_display {
-            // TODO: Support screens enumeration.
-            VideoTrack::create_local(
-                &self.peer_connection_factory,
-                source,
-                VideoLabel::from("screen:0"),
-            )?
-        } else {
-            let device_index = if let Some(index) =
-                self.get_index_of_video_device(&source.device_id)?
-            {
-                index
-            } else {
-                bail!(
-                    "Cannot find video device with the specified ID `{}`",
-                    &source.device_id,
-                );
-            };
-
-            VideoTrack::create_local(
-                &self.peer_connection_factory,
-                source,
-                VideoLabel(self.video_device_info.device_name(device_index)?.0),
-            )?
-        };
+        let track =
+            VideoTrack::create_local(&self.peer_connection_factory, source)?;
 
         let track = self.video_tracks.entry(track.id).or_insert(track);
 
@@ -186,26 +163,9 @@ impl Webrtc {
         //        that `current_device_id` is set in the `AudioDeviceModule`.
         let device_id =
             self.audio_device_module.current_device_id.clone().unwrap();
-        let device_index = if let Some(index) =
-            self.get_index_of_audio_recording_device(&device_id)?
-        {
-            index
-        } else {
-            bail!(
-                "Cannot find video device with the specified ID `{device_id}`",
-            );
-        };
 
-        let track = AudioTrack::new(
-            &self.peer_connection_factory,
-            source,
-            AudioLabel(
-                #[allow(clippy::cast_possible_wrap)]
-                self.audio_device_module
-                    .recording_device_name(device_index as i16)?
-                    .0,
-            ),
-        )?;
+        let track =
+            AudioTrack::new(&self.peer_connection_factory, source, device_id)?;
 
         let track = self.audio_tracks.entry(track.id).or_insert(track);
 
@@ -427,6 +387,7 @@ pub struct VideoDeviceId(String);
 /// ID of an `AudioDevice`.
 #[derive(AsRef, Clone, Debug, Default, Display, Eq, From, Hash, PartialEq)]
 #[as_ref(forward)]
+#[from(forward)]
 pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
@@ -611,10 +572,6 @@ pub struct VideoTrack {
     /// [`api::TrackKind::kVideo`].
     kind: api::MediaType,
 
-    /// [`VideoLabel`] identifying the track source, as in "HD Webcam Analog
-    /// Stereo".
-    label: VideoLabel,
-
     /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
 
@@ -627,7 +584,6 @@ impl VideoTrack {
     fn create_local(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<VideoSource>,
-        label: VideoLabel,
     ) -> anyhow::Result<Self> {
         let id = VideoTrackId(next_id());
         Ok(Self {
@@ -635,7 +591,6 @@ impl VideoTrack {
             inner: pc.create_video_track(id.to_string(), &src.inner)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Video,
-            label,
             sinks: Vec::new(),
             senders: HashMap::new(),
         })
@@ -659,7 +614,6 @@ impl VideoTrack {
                 peer_id,
             },
             kind: api::MediaType::Video,
-            label: VideoLabel::from("remote"),
             sinks: Vec::new(),
             senders: HashMap::new(),
         }
@@ -701,7 +655,12 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
     fn from(track: &VideoTrack) -> Self {
         Self {
             id: track.id.0,
-            device_id: track.label.0.clone(),
+            device_id: match &track.source {
+                MediaTrackSource::Local(src) => src.device_id.to_string(),
+                MediaTrackSource::Remote { mid: _, peer_id: _ } => {
+                    String::from("remote")
+                }
+            },
             kind: track.kind,
             enabled: true,
         }
@@ -724,9 +683,8 @@ pub struct AudioTrack {
     /// [`api::TrackKind::kAudio`].
     kind: api::MediaType,
 
-    /// [`AudioLabel`] identifying the track source, as in "internal
-    /// microphone".
-    label: AudioLabel,
+    /// Device ID of the [`AudioTrack`]'s [`sys::AudioSourceInterface`].
+    device_id: AudioDeviceId,
 
     /// Peers and transceivers sending this [`VideoTrack`].
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
@@ -742,7 +700,7 @@ impl AudioTrack {
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<sys::AudioSourceInterface>,
-        label: AudioLabel,
+        device_id: AudioDeviceId,
     ) -> anyhow::Result<Self> {
         let id = AudioTrackId(next_id());
         Ok(Self {
@@ -750,7 +708,7 @@ impl AudioTrack {
             inner: pc.create_audio_track(id.to_string(), &src)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Audio,
-            label,
+            device_id,
             senders: HashMap::new(),
         })
     }
@@ -773,7 +731,7 @@ impl AudioTrack {
                 peer_id,
             },
             kind: api::MediaType::Audio,
-            label: AudioLabel::from("remote"),
+            device_id: AudioDeviceId::from("remote"),
             senders: HashMap::new(),
         }
     }
@@ -802,7 +760,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
     fn from(track: &AudioTrack) -> Self {
         Self {
             id: track.id.0,
-            device_id: track.label.0.clone(),
+            device_id: track.device_id.to_string(),
             kind: track.kind,
             enabled: true,
         }
@@ -816,9 +774,6 @@ pub struct VideoSource {
 
     /// ID of an video input device that provides data to this [`VideoSource`].
     device_id: VideoDeviceId,
-
-    /// Indicates whether this [`VideoSource`] is backed by screen capturing.
-    is_display: bool,
 }
 
 impl VideoSource {
@@ -843,11 +798,7 @@ impl VideoSource {
             format!("Failed to acquire device with ID `{device_id}`")
         })?;
 
-        Ok(Self {
-            inner,
-            device_id,
-            is_display: false,
-        })
+        Ok(Self { inner, device_id })
     }
 
     /// Starts screen capturing and creates a new [`VideoTrackSourceInterface`]
@@ -867,7 +818,6 @@ impl VideoSource {
                 caps.frame_rate as usize,
             )?,
             device_id,
-            is_display: true,
         })
     }
 }
