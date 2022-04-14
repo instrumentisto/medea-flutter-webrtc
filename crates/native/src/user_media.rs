@@ -204,6 +204,7 @@ impl Webrtc {
                     .recording_device_name(device_index as i16)?
                     .0,
             ),
+            device_id.clone(),
         )?;
 
         let track = self.audio_tracks.entry(track.id).or_insert(track);
@@ -426,6 +427,7 @@ pub struct VideoDeviceId(String);
 /// ID of an `AudioDevice`.
 #[derive(AsRef, Clone, Debug, Default, Display, Eq, From, Hash, PartialEq)]
 #[as_ref(forward)]
+#[from(forward)]
 pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
@@ -696,7 +698,12 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
     fn from(track: &VideoTrack) -> Self {
         Self {
             id: track.id.0,
-            device_id: track.label.0.clone(),
+            device_id: match &track.source {
+                MediaTrackSource::Local(src) => src.device_id.to_string(),
+                MediaTrackSource::Remote { mid: _, peer_id: _ } => {
+                    String::from("remote")
+                }
+            },
             kind: track.kind,
             enabled: true,
         }
@@ -719,6 +726,8 @@ pub struct AudioTrack {
     /// [`api::TrackKind::kAudio`].
     kind: api::MediaType,
 
+    device_id: AudioDeviceId,
+
     /// [`AudioLabel`] identifying the track source, as in "internal
     /// microphone".
     label: AudioLabel,
@@ -738,6 +747,7 @@ impl AudioTrack {
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<sys::AudioSourceInterface>,
         label: AudioLabel,
+        device_id: AudioDeviceId,
     ) -> anyhow::Result<Self> {
         let id = AudioTrackId(next_id());
         Ok(Self {
@@ -745,6 +755,7 @@ impl AudioTrack {
             inner: pc.create_audio_track(id.to_string(), &src)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Audio,
+            device_id,
             label,
             senders: HashMap::new(),
         })
@@ -768,6 +779,7 @@ impl AudioTrack {
                 peer_id,
             },
             kind: api::MediaType::Audio,
+            device_id: AudioDeviceId::from("remote"),
             label: AudioLabel::from("remote"),
             senders: HashMap::new(),
         }
@@ -797,7 +809,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
     fn from(track: &AudioTrack) -> Self {
         Self {
             id: track.id.0,
-            device_id: track.label.0.clone(),
+            device_id: track.device_id.to_string(),
             kind: track.kind,
             enabled: true,
         }
