@@ -9,6 +9,7 @@ use dashmap::mapref::one::RefMut;
 use derive_more::{AsRef, Display, From};
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
+use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
     api, api::TrackEvent, next_id, stream_sink::StreamSink, PeerConnectionId,
@@ -224,7 +225,7 @@ impl Webrtc {
             if self.audio_device_module.current_device_id.is_none() {
                 // `AudioDeviceModule` is not capturing anything at the moment,
                 // so we will use first available device (with `0` index).
-                if self.audio_device_module.recording_devices()? < 1 {
+                if self.audio_device_module.recording_devices() < 1 {
                     bail!("Cannot find any available audio input device");
                 }
 
@@ -502,11 +503,12 @@ impl AudioDeviceModule {
         let (label, mut device_id) = self.inner.playout_device_name(index)?;
 
         if device_id.is_empty() {
-            let hash = md5::compute(
+            let hash = xxh3_64(
                 [label.as_bytes(), &[api::MediaDeviceKind::AudioOutput as u8]]
-                    .concat(),
+                    .concat()
+                    .as_slice(),
             );
-            device_id = format!("{hash:?}");
+            device_id = hash.to_string();
         }
 
         Ok((label, device_id))
@@ -525,11 +527,12 @@ impl AudioDeviceModule {
         let (label, mut device_id) = self.inner.recording_device_name(index)?;
 
         if device_id.is_empty() {
-            let hash = md5::compute(
-                [label.as_bytes(), &[api::MediaDeviceKind::AudioInput as u8]]
-                    .concat(),
+            let hash = xxh3_64(
+                [label.as_bytes(), &[api::MediaDeviceKind::AudioOutput as u8]]
+                    .concat()
+                    .as_slice(),
             );
-            device_id = format!("{hash:?}");
+            device_id = hash.to_string();
         }
 
         Ok((label, device_id))
@@ -540,7 +543,8 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::playout_devices()`] call fails.
-    pub fn playout_devices(&self) -> anyhow::Result<i16> {
+    #[must_use]
+    pub fn playout_devices(&self) -> u32 {
         self.inner.playout_devices()
     }
 
@@ -549,7 +553,8 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::recording_devices()`] call fails.
-    pub fn recording_devices(&self) -> anyhow::Result<i16> {
+    #[must_use]
+    pub fn recording_devices(&self) -> u32 {
         self.inner.recording_devices()
     }
 
