@@ -213,18 +213,14 @@ impl AudioDeviceModule {
     #[must_use]
     #[allow(clippy::cast_sign_loss)]
     pub fn playout_devices(&self) -> u32 {
-        let count = webrtc::playout_devices(&self.0);
-
-        std::cmp::max(0, count) as u32
+        webrtc::playout_devices(&self.0).max(0) as u32
     }
 
     /// Returns count of available audio recording devices.
     #[must_use]
     #[allow(clippy::cast_sign_loss)]
     pub fn recording_devices(&self) -> u32 {
-        let count = webrtc::recording_devices(&self.0);
-
-        std::cmp::max(0, count) as u32
+        webrtc::recording_devices(&self.0).max(0) as u32
     }
 
     /// Returns the `(label, id)` tuple for the given audio playout device

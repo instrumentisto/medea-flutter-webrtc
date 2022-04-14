@@ -658,7 +658,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             device_id: match &track.source {
                 MediaTrackSource::Local(src) => src.device_id.to_string(),
                 MediaTrackSource::Remote { mid: _, peer_id: _ } => {
-                    String::from("remote")
+                    "remote".into()
                 }
             },
             kind: track.kind,
