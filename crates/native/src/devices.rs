@@ -290,7 +290,6 @@ impl Webrtc {
 /// window - [`HWND`].
 ///
 /// [`Thread`]: thread::Thread
-#[allow(clippy::unnecessary_wraps)]
 pub unsafe fn init() {
     /// Message handler for an [`HWND`].
     unsafe extern "system" fn wndproc(
@@ -374,8 +373,6 @@ pub unsafe fn init() {
             DispatchMessageW(&msg);
         }
     });
-
-    Ok(())
 }
 
 #[cfg(target_os = "linux")]
