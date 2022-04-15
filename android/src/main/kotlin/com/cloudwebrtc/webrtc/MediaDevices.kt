@@ -1,9 +1,21 @@
 package com.cloudwebrtc.webrtc
 
 import android.bluetooth.BluetoothAdapter
+<<<<<<< HEAD
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.media.AudioManager
+=======
+import android.bluetooth.BluetoothHeadset
+import android.bluetooth.BluetoothProfile
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.media.AudioManager
+import android.os.Handler
+import android.os.Looper
+>>>>>>> master
 import com.cloudwebrtc.webrtc.exception.OverconstrainedException
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.AudioMediaTrackSource
@@ -53,7 +65,11 @@ private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
  * @property state Global state used for enumerating devices and creation new
  * [MediaStreamTrackProxy]s.
  */
+<<<<<<< HEAD
 class MediaDevices(val state: State) {
+=======
+class MediaDevices(val state: State) : BroadcastReceiver() {
+>>>>>>> master
   /** [BluetoothAdapter] used for detecting whether bluetooth headset is connected or not. */
   private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
@@ -93,24 +109,64 @@ class MediaDevices(val state: State) {
   }
 
   init {
+<<<<<<< HEAD
+=======
+    state
+        .getAppContext()
+        .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
+>>>>>>> master
     bluetoothAdapter.getProfileProxy(
         state.getAppContext(),
         object : BluetoothProfile.ServiceListener {
           override fun onServiceConnected(profile: Int, proxy: BluetoothProfile?) {
+<<<<<<< HEAD
             eventBroadcaster().onDeviceChange()
             if (proxy!!.connectedDevices.isNotEmpty()) {
               isBluetoothHeadsetConnected = true
+=======
+            if (proxy!!.connectedDevices.isNotEmpty()) {
+              setHeadsetState(true)
+>>>>>>> master
             }
           }
 
           override fun onServiceDisconnected(profile: Int) {
+<<<<<<< HEAD
             isBluetoothHeadsetConnected = false
             eventBroadcaster().onDeviceChange()
+=======
+            setHeadsetState(false)
+>>>>>>> master
           }
         },
         BluetoothProfile.HEADSET)
   }
 
+<<<<<<< HEAD
+=======
+  override fun onReceive(ctx: Context?, intent: Intent?) {
+    val bluetoothHeadsetState =
+        intent?.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED)
+    if (bluetoothHeadsetState == BluetoothHeadset.STATE_CONNECTED) {
+      setHeadsetState(true)
+    } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED) {
+      setHeadsetState(false)
+    }
+  }
+
+  /**
+   * Sets [isBluetoothHeadsetConnected] to the provided value.
+   *
+   * Fires [EventObserver.onDeviceChange] notification if it changed.
+   */
+  private fun setHeadsetState(isConnected: Boolean) {
+    if (isBluetoothHeadsetConnected != isConnected) {
+      isBluetoothHeadsetConnected = isConnected
+      Handler(Looper.getMainLooper()).post { eventBroadcaster().onDeviceChange() }
+    }
+  }
+
+>>>>>>> master
   /**
    * Creates local audio and video [MediaStreamTrackProxy]s based on the provided [Constraints].
    *
