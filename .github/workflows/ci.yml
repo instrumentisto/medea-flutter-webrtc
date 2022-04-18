@@ -105,7 +105,6 @@ jobs:
           profile: minimal
           toolchain: stable
       - uses: subosito/flutter-action@v1
-
       - run: flutter config --enable-windows-desktop
 
       - run: make cargo.build
@@ -145,7 +144,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v1
-
       - run: flutter config --enable-windows-desktop
 
       - uses: actions/download-artifact@v2
