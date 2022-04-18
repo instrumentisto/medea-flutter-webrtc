@@ -294,6 +294,23 @@ impl AudioDeviceModule {
 
         Ok(())
     }
+
+    pub fn init_microphone(&self) -> anyhow::Result<()> {
+        let result = webrtc::init_microphone(&self.0);
+
+        if result != 0 {
+            bail!(
+                "`AudioDeviceModule::SetPlayoutDevice()` failed with \
+                 `{result}` code",
+            );
+        }
+
+        Ok(())
+    }
+
+    pub fn microphone_is_initialized(&self) -> bool {
+        webrtc::microphone_is_initialized(&self.0)
+    }
 }
 
 unsafe impl Send for webrtc::AudioDeviceModule {}
