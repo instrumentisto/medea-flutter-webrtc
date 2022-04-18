@@ -99,6 +99,16 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
 // Initializes the native audio parts required for each platform.
 int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module);
 
+// Initializes the microphone in the audio device module.
+int32_t init_microphone(const AudioDeviceModule& audio_device_module);
+
+// Indicates if the microphone of the audio device module is initialized.
+bool microphone_is_initialized(const AudioDeviceModule& audio_device_module);
+
+// Sets the volume of the initialized microphone.
+int32_t set_microphone_volume(const AudioDeviceModule& audio_device_module,
+                              uint32_t volume);
+
 // Returns count of the available playout audio devices.
 int16_t playout_devices(const AudioDeviceModule& audio_device_module);
 
