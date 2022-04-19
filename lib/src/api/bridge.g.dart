@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes
 
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:ffi' as ffi;
 import 'dart:typed_data';
-import 'dart:typed_data';
-
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'dart:ffi' as ffi;
 
 part 'bridge.g.freezed.dart';
 
@@ -124,6 +124,8 @@ abstract class FlutterWebrtcNative {
 
   /// Sets the specified `audio playout` device.
   Future<void> setAudioPlayoutDevice({required String deviceId, dynamic hint});
+
+  Future<void> setMicrophoneVolume({required int volume, dynamic hint});
 
   /// Disposes the specified [`MediaStreamTrack`].
   Future<void> disposeTrack({required int trackId, dynamic hint});
@@ -1108,6 +1110,19 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
+  Future<void> setMicrophoneVolume({required int volume, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_set_microphone_volume(port_, _api2wire_u64(volume)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_microphone_volume",
+          argNames: ["volume"],
+        ),
+        argValues: [volume],
+        hint: hint,
+      ));
+
   Future<void> disposeTrack({required int trackId, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) =>
@@ -1969,6 +1984,22 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
               ffi.Pointer<wire_uint_8_list>)>>('wire_set_audio_playout_device');
   late final _wire_set_audio_playout_device = _wire_set_audio_playout_devicePtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_set_microphone_volume(
+    int port_,
+    int volume,
+  ) {
+    return _wire_set_microphone_volume(
+      port_,
+      volume,
+    );
+  }
+
+  late final _wire_set_microphone_volumePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_set_microphone_volume');
+  late final _wire_set_microphone_volume =
+      _wire_set_microphone_volumePtr.asFunction<void Function(int, int)>();
 
   void wire_dispose_track(
     int port_,

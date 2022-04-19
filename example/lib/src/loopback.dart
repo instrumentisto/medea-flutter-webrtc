@@ -24,6 +24,7 @@ class _LoopbackState extends State<Loopback> {
   bool _inCalling = false;
   bool _mic = true;
   bool _cam = true;
+  int _volume = 250;
 
   @override
   void initState() {
@@ -143,9 +144,29 @@ class _LoopbackState extends State<Loopback> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('GetUserMedia API Test'),
+        title: Text('GetUserMedia API Test. Micro volume: $_volume.'),
         actions: _inCalling
             ? <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  tooltip: 'Micro lower',
+                  onPressed: () async {
+                    setState(() {
+                      _volume = _volume >= 25 ? _volume - 25 : 0;
+                    });
+                    await setMicrophoneVolume(_volume);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Micro louder',
+                  onPressed: () async {
+                    setState(() {
+                      _volume = _volume <= 225 ? _volume + 25 : 250;
+                    });
+                    await setMicrophoneVolume(_volume);
+                  },
+                ),
                 IconButton(
                   icon:
                       _mic ? const Icon(Icons.mic_off) : const Icon(Icons.mic),

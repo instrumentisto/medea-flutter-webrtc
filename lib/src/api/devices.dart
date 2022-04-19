@@ -142,6 +142,12 @@ Future<void> setOutputAudioId(String deviceId) async {
   }
 }
 
+Future<void> setMicrophoneVolume(int volume) async {
+  if (isDesktop) {
+    await api.setMicrophoneVolume(volume: volume);
+  } else {}
+}
+
 /// [MethodChannel]-based implementation of a [getUserMedia] function.
 Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
     DeviceConstraints constraints) async {

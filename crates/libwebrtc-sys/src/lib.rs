@@ -300,7 +300,7 @@ impl AudioDeviceModule {
 
         if result != 0 {
             bail!(
-                "`AudioDeviceModule::SetPlayoutDevice()` failed with \
+                "`AudioDeviceModule::InitMicrophone()` failed with \
                  `{result}` code",
             );
         }
@@ -310,6 +310,19 @@ impl AudioDeviceModule {
 
     pub fn microphone_is_initialized(&self) -> bool {
         webrtc::microphone_is_initialized(&self.0)
+    }
+
+    pub fn set_microphone_volume(&self, volume: u32) -> anyhow::Result<()> {
+        let result = webrtc::set_microphone_volume(&self.0, volume);
+
+        if result != 0 {
+            bail!(
+                "`AudioDeviceModule::SetMicrophoneVolume()` failed with \
+                 `{result}` code",
+            );
+        }
+
+        Ok(())
     }
 }
 
