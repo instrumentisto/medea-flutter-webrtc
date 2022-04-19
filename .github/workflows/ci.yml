@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["windows-rework"]
+    branches: ["master"]
   pull_request:
-    branches: ["windows-rework"]
+    branches: ["master"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: "17"
@@ -105,14 +105,12 @@ jobs:
           profile: minimal
           toolchain: stable
       - uses: subosito/flutter-action@v1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
       - run: flutter config --enable-windows-desktop
 
       - run: make cargo.build
       - run: make flutter.build
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: build-rust
           path: windows/rust/
@@ -146,11 +144,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
       - run: flutter config --enable-windows-desktop
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: build-rust
           path: windows/rust/
