@@ -26,14 +26,20 @@ impl Webrtc {
         let mut result = Vec::new();
 
         if let Some(video) = constraints.video {
+            println!("in video");
             let source = self.get_or_create_video_source(&video)?;
+            println!("after vsource");
             let track = self.create_video_track(source)?;
+            println!("after vtrack");
             result.push(api::MediaStreamTrack::from(&*track));
         }
 
         if let Some(audio) = constraints.audio {
+            println!("in audio");
             let source = self.get_or_create_audio_source(&audio)?;
+            println!("after asource");
             let track = self.create_audio_track(source)?;
+            println!("after atrack");
             result.push(api::MediaStreamTrack::from(&*track));
         }
 
@@ -181,11 +187,14 @@ impl Webrtc {
         let device_id = if let Some(device_id) = caps.device_id.clone() {
             AudioDeviceId(device_id)
         } else {
+            println!("no caps");
             // No device ID is provided so just pick the currently used.
             if self.audio_device_module.current_device_id.is_none() {
                 // `AudioDeviceModule` is not capturing anything at the moment,
                 // so we will use first available device (with `0` index).
+                println!("is none");
                 if self.audio_device_module.recording_devices() < 1 {
+                    println!("no devices");
                     bail!("Cannot find any available audio input device");
                 }
 
@@ -193,18 +202,21 @@ impl Webrtc {
                     self.audio_device_module.recording_device_name(0)?.1,
                 )
             } else {
+                println!("not none");
                 // PANIC: If there is a `sys::AudioSourceInterface` then we are
                 //        sure that `current_device_id` is set in the
                 //        `AudioDeviceModule`.
                 self.audio_device_module.current_device_id.clone().unwrap()
             }
         };
+        println!("device id here");
 
         let device_index = if let Some(index) =
             self.get_index_of_audio_recording_device(&device_id)?
         {
             index
         } else {
+            println!("no index");
             bail!(
                 "Cannot find audio device with the specified ID `{device_id}`",
             );
@@ -226,6 +238,8 @@ impl Webrtc {
 
             src
         };
+
+        println!("all is ok");
 
         Ok(src)
     }
