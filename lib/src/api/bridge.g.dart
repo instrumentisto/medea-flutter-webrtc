@@ -126,20 +126,25 @@ abstract class FlutterWebrtcNative {
   Future<void> setAudioPlayoutDevice({required String deviceId, dynamic hint});
 
   /// Disposes the specified [`MediaStreamTrack`].
-  Future<void> disposeTrack({required String trackId, dynamic hint});
+  Future<void> disposeTrack(
+      {required String trackId, required MediaType kind, dynamic hint});
 
   /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID.
   ///
   /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
   Future<void> setTrackEnabled(
-      {required String trackId, required bool enabled, dynamic hint});
+      {required String trackId,
+      required MediaType kind,
+      required bool enabled,
+      dynamic hint});
 
   /// Clones the specified [`MediaStreamTrack`].
-  Future<MediaStreamTrack> cloneTrack({required String trackId, dynamic hint});
+  Future<MediaStreamTrack> cloneTrack(
+      {required String trackId, required MediaType kind, dynamic hint});
 
   /// Registers an observer to the [`MediaStreamTrack`] events.
   Stream<TrackEvent> registerTrackObserver(
-      {required String trackId, dynamic hint});
+      {required String trackId, required MediaType kind, dynamic hint});
 
   /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
   /// whenever a set of available media devices changes.
@@ -1108,58 +1113,62 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<void> disposeTrack({required String trackId, dynamic hint}) =>
+  Future<void> disposeTrack(
+          {required String trackId, required MediaType kind, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_dispose_track(port_, _api2wire_String(trackId)),
+        callFfi: (port_) => inner.wire_dispose_track(
+            port_, _api2wire_String(trackId), _api2wire_media_type(kind)),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "dispose_track",
-          argNames: ["trackId"],
+          argNames: ["trackId", "kind"],
         ),
-        argValues: [trackId],
+        argValues: [trackId, kind],
         hint: hint,
       ));
 
   Future<void> setTrackEnabled(
-          {required String trackId, required bool enabled, dynamic hint}) =>
+          {required String trackId,
+          required MediaType kind,
+          required bool enabled,
+          dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_set_track_enabled(
-            port_, _api2wire_String(trackId), enabled),
+        callFfi: (port_) => inner.wire_set_track_enabled(port_,
+            _api2wire_String(trackId), _api2wire_media_type(kind), enabled),
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "set_track_enabled",
-          argNames: ["trackId", "enabled"],
+          argNames: ["trackId", "kind", "enabled"],
         ),
-        argValues: [trackId, enabled],
+        argValues: [trackId, kind, enabled],
         hint: hint,
       ));
 
   Future<MediaStreamTrack> cloneTrack(
-          {required String trackId, dynamic hint}) =>
+          {required String trackId, required MediaType kind, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) =>
-            inner.wire_clone_track(port_, _api2wire_String(trackId)),
+        callFfi: (port_) => inner.wire_clone_track(
+            port_, _api2wire_String(trackId), _api2wire_media_type(kind)),
         parseSuccessData: _wire2api_media_stream_track,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "clone_track",
-          argNames: ["trackId"],
+          argNames: ["trackId", "kind"],
         ),
-        argValues: [trackId],
+        argValues: [trackId, kind],
         hint: hint,
       ));
 
   Stream<TrackEvent> registerTrackObserver(
-          {required String trackId, dynamic hint}) =>
+          {required String trackId, required MediaType kind, dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_register_track_observer(
-            port_, _api2wire_String(trackId)),
+            port_, _api2wire_String(trackId), _api2wire_media_type(kind)),
         parseSuccessData: _wire2api_track_event,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "register_track_observer",
-          argNames: ["trackId"],
+          argNames: ["trackId", "kind"],
         ),
-        argValues: [trackId],
+        argValues: [trackId, kind],
         hint: hint,
       ));
 
@@ -1967,72 +1976,80 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_dispose_track(
     int port_,
     ffi.Pointer<wire_uint_8_list> track_id,
+    int kind,
   ) {
     return _wire_dispose_track(
       port_,
       track_id,
+      kind,
     );
   }
 
   late final _wire_dispose_trackPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_dispose_track');
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              ffi.Int32)>>('wire_dispose_track');
   late final _wire_dispose_track = _wire_dispose_trackPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>, int)>();
 
   void wire_set_track_enabled(
     int port_,
     ffi.Pointer<wire_uint_8_list> track_id,
+    int kind,
     bool enabled,
   ) {
     return _wire_set_track_enabled(
       port_,
       track_id,
+      kind,
       enabled ? 1 : 0,
     );
   }
 
   late final _wire_set_track_enabledPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>, ffi.Int32,
               ffi.Uint8)>>('wire_set_track_enabled');
-  late final _wire_set_track_enabled = _wire_set_track_enabledPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>, int)>();
+  late final _wire_set_track_enabled = _wire_set_track_enabledPtr.asFunction<
+      void Function(int, ffi.Pointer<wire_uint_8_list>, int, int)>();
 
   void wire_clone_track(
     int port_,
     ffi.Pointer<wire_uint_8_list> track_id,
+    int kind,
   ) {
     return _wire_clone_track(
       port_,
       track_id,
+      kind,
     );
   }
 
   late final _wire_clone_trackPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_clone_track');
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              ffi.Int32)>>('wire_clone_track');
   late final _wire_clone_track = _wire_clone_trackPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>, int)>();
 
   void wire_register_track_observer(
     int port_,
     ffi.Pointer<wire_uint_8_list> track_id,
+    int kind,
   ) {
     return _wire_register_track_observer(
       port_,
       track_id,
+      kind,
     );
   }
 
   late final _wire_register_track_observerPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>)>>('wire_register_track_observer');
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              ffi.Int32)>>('wire_register_track_observer');
   late final _wire_register_track_observer = _wire_register_track_observerPtr
-      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>, int)>();
 
   void wire_set_on_device_changed(
     int port_,

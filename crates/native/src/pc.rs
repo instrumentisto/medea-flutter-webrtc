@@ -423,9 +423,10 @@ impl Webrtc {
         if let Some(track_id) = track_id {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
+                    let track_id = VideoTrackId::from(track_id);
                     let mut track = self
                         .video_tracks
-                        .get_mut(&VideoTrackId::from(track_id.clone()))
+                        .get_mut(&track_id)
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -440,9 +441,10 @@ impl Webrtc {
                     sender.replace_video_track(Some(track.as_ref()))
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
+                    let track_id = AudioTrackId::from(track_id);
                     let mut track = self
                         .audio_tracks
-                        .get_mut(&AudioTrackId::from(track_id.clone()))
+                        .get_mut(&track_id)
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -852,14 +854,12 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
         let track_id = transceiver.receiver().track().id();
-
-        if self
-            .video_tracks
-            .contains_key(&VideoTrackId::from(track_id.clone()))
-            || self
-                .audio_tracks
-                .contains_key(&AudioTrackId::from(track_id))
-        {
+        let track_id = VideoTrackId::from(track_id);
+        if self.video_tracks.contains_key(&track_id) {
+            return;
+        }
+        let track_id = AudioTrackId::from(String::from(track_id));
+        if self.audio_tracks.contains_key(&track_id) {
             return;
         }
 

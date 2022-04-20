@@ -940,36 +940,42 @@ pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
 }
 
 /// Disposes the specified [`MediaStreamTrack`].
-pub fn dispose_track(track_id: String) {
-    WEBRTC.lock().unwrap().dispose_track(track_id);
+pub fn dispose_track(track_id: String, kind: MediaType) {
+    WEBRTC.lock().unwrap().dispose_track(track_id, kind);
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
-#[allow(clippy::needless_pass_by_value)]
 pub fn set_track_enabled(
     track_id: String,
+    kind: MediaType,
     enabled: bool,
-) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_track_enabled(&track_id, enabled)
-}
-
-/// Clones the specified [`MediaStreamTrack`].
-pub fn clone_track(track_id: String) -> anyhow::Result<MediaStreamTrack> {
-    WEBRTC.lock().unwrap().clone_track(track_id)
-}
-
-/// Registers an observer to the [`MediaStreamTrack`] events.
-#[allow(clippy::needless_pass_by_value)]
-pub fn register_track_observer(
-    cb: StreamSink<TrackEvent>,
-    track_id: String,
 ) -> anyhow::Result<()> {
     WEBRTC
         .lock()
         .unwrap()
-        .register_track_observer(&track_id, cb.into())
+        .set_track_enabled(track_id, kind, enabled)
+}
+
+/// Clones the specified [`MediaStreamTrack`].
+pub fn clone_track(
+    track_id: String,
+    kind: MediaType,
+) -> anyhow::Result<MediaStreamTrack> {
+    WEBRTC.lock().unwrap().clone_track(track_id, kind)
+}
+
+/// Registers an observer to the [`MediaStreamTrack`] events.
+pub fn register_track_observer(
+    cb: StreamSink<TrackEvent>,
+    track_id: String,
+    kind: MediaType,
+) -> anyhow::Result<()> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .register_track_observer(track_id, kind, cb.into())
 }
 
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
