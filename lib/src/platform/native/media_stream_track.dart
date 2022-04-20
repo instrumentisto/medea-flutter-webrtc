@@ -144,8 +144,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<MediaStreamTrack> clone() async {
     if (!_stopped) {
-      return NativeMediaStreamTrack.from(
-          await api.cloneTrack(trackId: _id));
+      return NativeMediaStreamTrack.from(await api.cloneTrack(trackId: _id));
     } else {
       return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
           deviceId: _deviceId,
