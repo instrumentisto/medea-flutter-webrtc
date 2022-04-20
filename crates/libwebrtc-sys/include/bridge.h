@@ -109,6 +109,15 @@ bool microphone_is_initialized(const AudioDeviceModule& audio_device_module);
 int32_t set_microphone_volume(const AudioDeviceModule& audio_device_module,
                               uint32_t volume);
 
+bool microphone_volume_is_available(
+    const AudioDeviceModule& audio_device_module);
+
+int32_t min_microphone_volume(const AudioDeviceModule& audio_device_module,
+                              uint32_t& volume);
+
+int32_t max_microphone_volume(const AudioDeviceModule& audio_device_module,
+                              uint32_t& volume);
+
 // Returns count of the available playout audio devices.
 int16_t playout_devices(const AudioDeviceModule& audio_device_module);
 
