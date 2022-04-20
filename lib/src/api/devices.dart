@@ -142,6 +142,14 @@ Future<void> setOutputAudioId(String deviceId) async {
   }
 }
 
+Future<bool> microphoneVolumeIsAvailable() async {
+  if (isDesktop) {
+    return await api.microphoneVolumeIsAvailable();
+  } else {
+    return true;
+  }
+}
+
 Future<void> setMicrophoneVolume(int volume) async {
   if (isDesktop) {
     await api.setMicrophoneVolume(volume: volume);

@@ -929,6 +929,10 @@ pub fn set_microphone_volume(volume: u64) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_microphone_volume(volume)
 }
 
+pub fn microphone_volume_is_available() -> anyhow::Result<bool> {
+    WEBRTC.lock().unwrap().microphone_volume_is_available()
+}
+
 /// Disposes the specified [`MediaStreamTrack`].
 pub fn dispose_track(track_id: u64) {
     WEBRTC.lock().unwrap().dispose_track(track_id);

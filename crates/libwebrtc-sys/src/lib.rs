@@ -310,8 +310,19 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    pub fn microphone_volume_is_available(&self) -> bool {
-        webrtc::microphone_volume_is_available(&self.0)
+    pub fn microphone_volume_is_available(&self) -> anyhow::Result<bool> {
+        let mut is_available = false;
+
+        let result = webrtc::microphone_volume_is_available(&self.0, &mut is_available);
+
+        if result != 0 {
+            bail!(
+                "`AudioDeviceModule::MicrophoneVolumeIsAvailable()` failed with \
+                 `{result}` code",
+            );
+        }
+
+        Ok(is_available)
     }
 
     pub fn min_microphone_volume(&self) -> anyhow::Result<u32> {

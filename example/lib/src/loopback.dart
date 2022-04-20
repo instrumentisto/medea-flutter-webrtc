@@ -24,7 +24,8 @@ class _LoopbackState extends State<Loopback> {
   bool _inCalling = false;
   bool _mic = true;
   bool _cam = true;
-  int _volume = 250;
+  int _volume = 100;
+  bool _microIsAvailable = false;
 
   @override
   void initState() {
@@ -113,8 +114,10 @@ class _LoopbackState extends State<Loopback> {
     }
     if (!mounted) return;
 
-    setState(() {
+    setState(() async {
       _inCalling = true;
+      _microIsAvailable = true;
+      // _microIsAvailable = await microphoneVolumeIsAvailable();
     });
   }
 
@@ -144,28 +147,33 @@ class _LoopbackState extends State<Loopback> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GetUserMedia API Test. Micro volume: $_volume.'),
+        title: Text(
+            'GetUserMedia API Test. ${_inCalling ? (_microIsAvailable ? 'Micro volume: ' + _volume.toString() + '.' : 'Microphone is not available!') : ''}'),
         actions: _inCalling
             ? <Widget>[
                 IconButton(
                   icon: const Icon(Icons.remove),
                   tooltip: 'Micro lower',
-                  onPressed: () async {
-                    setState(() {
-                      _volume = _volume >= 25 ? _volume - 25 : 0;
-                    });
-                    await setMicrophoneVolume(_volume);
-                  },
+                  onPressed: _microIsAvailable
+                      ? () async {
+                          setState(() {
+                            _volume = _volume >= 10 ? _volume - 10 : 0;
+                          });
+                          await setMicrophoneVolume(_volume);
+                        }
+                      : null,
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
                   tooltip: 'Micro louder',
-                  onPressed: () async {
-                    setState(() {
-                      _volume = _volume <= 225 ? _volume + 25 : 250;
-                    });
-                    await setMicrophoneVolume(_volume);
-                  },
+                  onPressed: _microIsAvailable
+                      ? () async {
+                          setState(() {
+                            _volume = _volume <= 90 ? _volume + 10 : 100;
+                          });
+                          await setMicrophoneVolume(_volume);
+                        }
+                      : null,
                 ),
                 IconButton(
                   icon:

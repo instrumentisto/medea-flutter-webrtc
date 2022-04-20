@@ -469,7 +469,8 @@ pub(crate) mod webrtc {
 
         pub fn microphone_volume_is_available(
             audio_device_module: &AudioDeviceModule,
-        ) -> bool;
+            is_available: &mut bool,
+        ) -> i32;
 
         pub fn min_microphone_volume(
             audio_device_module: &AudioDeviceModule,

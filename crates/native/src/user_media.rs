@@ -486,18 +486,27 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    pub fn set_microphone_volume(&mut self, volume: u64) -> anyhow::Result<()> {
+    pub fn set_microphone_volume(&self, volume: u64) -> anyhow::Result<()> {
+        if !self.microphone_volume_is_available()? {
+            bail!("The microphone volume is unavailable.")
+        }
+
         if volume > 100 {
-            bail!("The volume level must be in a range of [0;100].");
+            bail!("The microphone volume level must be in a range of [0;100].");
         }
 
         let min_volume = self.inner.min_microphone_volume()?;
         let max_volume = self.inner.max_microphone_volume()?;
 
-        let final_volume =
-            (min_volume + (max_volume - min_volume) * (volume / 100) as u32) as u32;
+        let final_volume = (min_volume as f64
+            + (max_volume - min_volume) as f64 * (volume as f64 / 100 as f64))
+            as u32;
 
         self.inner.set_microphone_volume(final_volume)
+    }
+
+    pub fn microphone_volume_is_available(&self) -> anyhow::Result<bool> {
+        self.inner.microphone_volume_is_available()
     }
 
     /// Changes the playout device for this [`AudioDeviceModule`].

@@ -407,6 +407,18 @@ pub extern "C" fn wire_set_microphone_volume(port_: i64, volume: u64) {
 }
 
 #[no_mangle]
+pub extern "C" fn wire_microphone_volume_is_available(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "microphone_volume_is_available",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| microphone_volume_is_available(),
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_dispose_track(port_: i64, track_id: u64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {

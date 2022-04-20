@@ -75,12 +75,10 @@ int32_t set_microphone_volume(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetMicrophoneVolume(volume);
 }
 
-bool microphone_volume_is_available(
-    const AudioDeviceModule& audio_device_module) {
-  bool is_available;
-  audio_device_module->MicrophoneVolumeIsAvailable(&is_available);
-
-  return is_available;
+int32_t microphone_volume_is_available(
+    const AudioDeviceModule& audio_device_module,
+    bool& is_available) {
+  return audio_device_module->MicrophoneVolumeIsAvailable(&is_available);
 }
 
 int32_t min_microphone_volume(const AudioDeviceModule& audio_device_module,

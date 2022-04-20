@@ -241,6 +241,10 @@ impl Webrtc {
         self.audio_device_module.set_microphone_volume(volume)
     }
 
+    pub fn microphone_volume_is_available(&mut self) -> anyhow::Result<bool> {
+        self.audio_device_module.microphone_volume_is_available()
+    }
+
     /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
     /// called whenever the set of available media devices changes.
     ///
