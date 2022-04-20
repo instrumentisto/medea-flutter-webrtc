@@ -382,7 +382,7 @@ impl Webrtc {
         &self,
         peer_id: u64,
         transceiver_index: u32,
-        track_id: Option<u64>,
+        track_id: Option<String>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
@@ -425,7 +425,7 @@ impl Webrtc {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
                     let mut track = self
                         .video_tracks
-                        .get_mut(&VideoTrackId::from(track_id))
+                        .get_mut(&VideoTrackId::from(track_id.clone()))
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -442,7 +442,7 @@ impl Webrtc {
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
                     let mut track = self
                         .audio_tracks
-                        .get_mut(&AudioTrackId::from(track_id))
+                        .get_mut(&AudioTrackId::from(track_id.clone()))
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -854,6 +854,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         let track = match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_AUDIO => {
                 let track = AudioTrack::wrap_remote(&transceiver, self.peer_id);
+                if self.audio_tracks.contains_key(&track.id()) {
+                    return;
+                }
                 let result = api::MediaStreamTrack::from(&track);
                 self.audio_tracks.insert(track.id(), track);
 
@@ -861,6 +864,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             }
             sys::MediaType::MEDIA_TYPE_VIDEO => {
                 let track = VideoTrack::wrap_remote(&transceiver, self.peer_id);
+                if self.video_tracks.contains_key(&track.id()) {
+                    return;
+                }
                 let result = api::MediaStreamTrack::from(&track);
                 self.video_tracks.insert(track.id(), track);
 

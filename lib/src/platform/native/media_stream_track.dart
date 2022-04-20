@@ -145,12 +145,12 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   Future<MediaStreamTrack> clone() async {
     if (!_stopped) {
       return NativeMediaStreamTrack.from(
-          await api.cloneTrack(trackId: int.parse(_id)));
+          await api.cloneTrack(trackId: _id));
     } else {
       return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
           deviceId: _deviceId,
           enabled: _enabled,
-          id: int.parse(_id),
+          id: _id,
           kind: ffi.MediaType.values[_kind.index]));
     }
   }
@@ -158,7 +158,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> dispose() async {
     if (!_stopped) {
-      await api.disposeTrack(trackId: int.parse(_id));
+      await api.disposeTrack(trackId: _id);
       await _eventSub?.cancel();
     }
     _stopped = true;
@@ -167,7 +167,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> setEnabled(bool enabled) async {
     if (!_stopped) {
-      await api.setTrackEnabled(trackId: int.parse(_id), enabled: enabled);
+      await api.setTrackEnabled(trackId: _id, enabled: enabled);
     }
 
     _enabled = enabled;
@@ -176,7 +176,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> stop() async {
     if (!_stopped) {
-      await api.disposeTrack(trackId: int.parse(_id));
+      await api.disposeTrack(trackId: _id);
     }
     _stopped = true;
   }

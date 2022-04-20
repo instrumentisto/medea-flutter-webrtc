@@ -41,9 +41,10 @@ impl Webrtc {
     }
 
     /// Disposes a [`VideoTrack`] or [`AudioTrack`] by the provided `track_id`.
-    pub fn dispose_track(&mut self, track_id: u64) {
-        let senders = if let Some((_, mut track)) =
-            self.video_tracks.remove(&VideoTrackId::from(track_id))
+    pub fn dispose_track(&mut self, track_id: String) {
+        let senders = if let Some((_, mut track)) = self
+            .video_tracks
+            .remove(&VideoTrackId::from(track_id.clone()))
         {
             for id in track.sinks.clone() {
                 if let Some(sink) = self.video_sinks.remove(&id) {
@@ -90,7 +91,7 @@ impl Webrtc {
         let track =
             VideoTrack::create_local(&self.peer_connection_factory, source)?;
 
-        let track = self.video_tracks.entry(track.id).or_insert(track);
+        let track = self.video_tracks.entry(track.id.clone()).or_insert(track);
 
         Ok(track)
     }
@@ -167,7 +168,7 @@ impl Webrtc {
         let track =
             AudioTrack::new(&self.peer_connection_factory, source, device_id)?;
 
-        let track = self.audio_tracks.entry(track.id).or_insert(track);
+        let track = self.audio_tracks.entry(track.id.clone()).or_insert(track);
 
         Ok(track)
     }
@@ -235,12 +236,16 @@ impl Webrtc {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(
         &self,
-        id: u64,
+        id: &str,
         enabled: bool,
     ) -> anyhow::Result<()> {
-        if let Some(track) = self.video_tracks.get(&VideoTrackId(id)) {
+        if let Some(track) =
+            self.video_tracks.get(&VideoTrackId(id.to_string()))
+        {
             track.inner.set_enabled(enabled);
-        } else if let Some(track) = self.audio_tracks.get(&AudioTrackId(id)) {
+        } else if let Some(track) =
+            self.audio_tracks.get(&AudioTrackId(id.to_string()))
+        {
             track.set_enabled(enabled);
         } else {
             bail!("Cannot find track with `{id}` ID");
@@ -252,9 +257,9 @@ impl Webrtc {
     /// Clones the specified [`api::MediaStreamTrack`].
     pub fn clone_track(
         &mut self,
-        id: u64,
+        id: String,
     ) -> anyhow::Result<api::MediaStreamTrack> {
-        if self.video_tracks.contains_key(&VideoTrackId(id)) {
+        if self.video_tracks.contains_key(&VideoTrackId(id.clone())) {
             let source =
                 match &self.video_tracks.get(&VideoTrackId(id)).unwrap().source
                 {
@@ -297,7 +302,7 @@ impl Webrtc {
                     Ok(api::MediaStreamTrack::from(&track))
                 }
             }
-        } else if self.audio_tracks.contains_key(&AudioTrackId(id)) {
+        } else if self.audio_tracks.contains_key(&AudioTrackId(id.clone())) {
             let source =
                 match &self.audio_tracks.get(&AudioTrackId(id)).unwrap().source
                 {
@@ -353,17 +358,19 @@ impl Webrtc {
     /// [`VideoTrack`] by the specified `id`.
     pub fn register_track_observer(
         &self,
-        track_id: u64,
+        track_id: &str,
         cb: StreamSink<TrackEvent>,
     ) -> anyhow::Result<()> {
         let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
-        if let Some(mut track) =
-            self.video_tracks.get_mut(&VideoTrackId::from(track_id))
+        if let Some(mut track) = self
+            .video_tracks
+            .get_mut(&VideoTrackId::from(track_id.to_string()))
         {
             obs.set_video_track(&track.inner);
             track.inner.register_observer(obs);
-        } else if let Some(mut track) =
-            self.audio_tracks.get_mut(&AudioTrackId::from(track_id))
+        } else if let Some(mut track) = self
+            .audio_tracks
+            .get_mut(&AudioTrackId::from(track_id.to_string()))
         {
             obs.set_audio_track(&track.inner);
             track.inner.register_observer(obs);
@@ -391,12 +398,12 @@ pub struct VideoDeviceId(String);
 pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
-#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
-pub struct VideoTrackId(u64);
+#[derive(Clone, Debug, Display, From, Eq, Hash, PartialEq)]
+pub struct VideoTrackId(String);
 
 /// ID of an [`AudioTrack`].
-#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
-pub struct AudioTrackId(u64);
+#[derive(Clone, Debug, Display, From, Eq, Hash, PartialEq)]
+pub struct AudioTrackId(String);
 
 /// Label identifying a video track source.
 #[derive(AsRef, Clone, Debug, Default, Display, Eq, From, Hash, PartialEq)]
@@ -585,9 +592,9 @@ impl VideoTrack {
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<VideoSource>,
     ) -> anyhow::Result<Self> {
-        let id = VideoTrackId(next_id());
+        let id = VideoTrackId(next_id().to_string());
         Ok(Self {
-            id,
+            id: id.clone(),
             inner: pc.create_video_track(id.to_string(), &src.inner)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Video,
@@ -605,7 +612,7 @@ impl VideoTrack {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {
-            id: VideoTrackId(next_id()),
+            id: VideoTrackId(track.id()),
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
@@ -622,7 +629,7 @@ impl VideoTrack {
     /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
     #[must_use]
     pub fn id(&self) -> VideoTrackId {
-        self.id
+        self.id.clone()
     }
 
     /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
@@ -654,7 +661,7 @@ impl VideoTrack {
 impl From<&VideoTrack> for api::MediaStreamTrack {
     fn from(track: &VideoTrack) -> Self {
         Self {
-            id: track.id.0,
+            id: track.id.0.clone(),
             device_id: match &track.source {
                 MediaTrackSource::Local(src) => src.device_id.to_string(),
                 MediaTrackSource::Remote { mid: _, peer_id: _ } => {
@@ -702,9 +709,9 @@ impl AudioTrack {
         src: Arc<sys::AudioSourceInterface>,
         device_id: AudioDeviceId,
     ) -> anyhow::Result<Self> {
-        let id = AudioTrackId(next_id());
+        let id = AudioTrackId(next_id().to_string());
         Ok(Self {
-            id,
+            id: id.clone(),
             inner: pc.create_audio_track(id.to_string(), &src)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Audio,
@@ -722,7 +729,7 @@ impl AudioTrack {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {
-            id: AudioTrackId(next_id()),
+            id: AudioTrackId(track.id()),
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
@@ -739,7 +746,7 @@ impl AudioTrack {
     /// Returns the [`AudioTrackId`] of this [`AudioTrack`].
     #[must_use]
     pub fn id(&self) -> AudioTrackId {
-        self.id
+        self.id.clone()
     }
 
     /// Changes the [enabled][1] property of the underlying
@@ -759,7 +766,7 @@ impl AudioTrack {
 impl From<&AudioTrack> for api::MediaStreamTrack {
     fn from(track: &AudioTrack) -> Self {
         Self {
-            id: track.id.0,
+            id: track.id.0.clone(),
             device_id: track.device_id.to_string(),
             kind: track.kind,
             enabled: true,
