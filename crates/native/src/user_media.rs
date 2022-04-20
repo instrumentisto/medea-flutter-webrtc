@@ -398,9 +398,18 @@ impl AudioDeviceModule {
         )?;
         inner.init()?;
 
+        let current_device_id = if inner.recording_devices() > 0 {
+            inner.set_recording_device(0)?;
+            inner.init_microphone()?;
+
+            Some(AudioDeviceId(inner.recording_device_name(0)?.1))
+        } else {
+            None
+        };
+
         Ok(Self {
             inner,
-            current_device_id: None,
+            current_device_id,
         })
     }
 

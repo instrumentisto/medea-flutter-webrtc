@@ -116,8 +116,7 @@ class _LoopbackState extends State<Loopback> {
 
     setState(() async {
       _inCalling = true;
-      _microIsAvailable = true;
-      // _microIsAvailable = await microphoneVolumeIsAvailable();
+      _microIsAvailable = await microphoneVolumeIsAvailable();
     });
   }
 
