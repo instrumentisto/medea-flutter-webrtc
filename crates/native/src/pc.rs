@@ -853,8 +853,12 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
         let track_id = transceiver.receiver().track().id();
 
-        if self.video_tracks.contains_key(&VideoTrackId::from(track_id.clone()))
-            || self.audio_tracks.contains_key(&AudioTrackId::from(track_id))
+        if self
+            .video_tracks
+            .contains_key(&VideoTrackId::from(track_id.clone()))
+            || self
+                .audio_tracks
+                .contains_key(&AudioTrackId::from(track_id))
         {
             return;
         }
