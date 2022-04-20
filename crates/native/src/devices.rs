@@ -203,10 +203,8 @@ impl Webrtc {
     ) -> anyhow::Result<Option<u16>> {
         let count: i16 =
             self.audio_device_module.recording_devices().try_into()?;
-        println!("after count: {count}");
         for i in 0..count {
             let (_, id) = self.audio_device_module.recording_device_name(i)?;
-            println!("after device name");
             if id == device_id.to_string() {
                 #[allow(clippy::cast_sign_loss)]
                 return Ok(Some(i as u16));
