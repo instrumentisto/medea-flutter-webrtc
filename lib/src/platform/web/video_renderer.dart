@@ -69,7 +69,13 @@ class WebVideoRenderer extends VideoRenderer {
 
   bool mirror = false;
 
-  bool enableContextMenu = true;
+  bool _enableContextMenu = true;
+
+  set enableContextMenu(bool value) {
+    if (_enableContextMenu == value) return;
+    _enableContextMenu = value;
+    findHtmlView()?.setAttribute('oncontextmenu', value ? '' : 'return false;');
+  }
 
   final _subscriptions = <StreamSubscription>[];
 
@@ -191,7 +197,7 @@ class WebVideoRenderer extends VideoRenderer {
         ..id = _elementIdForVideo
         ..setAttribute('playsinline', 'true')
         ..setAttribute(
-            'oncontextmenu', enableContextMenu ? '' : 'return false;');
+            'oncontextmenu', _enableContextMenu ? '' : 'return false;');
 
       _subscriptions.add(
         element.onCanPlay.listen((dynamic _) {
