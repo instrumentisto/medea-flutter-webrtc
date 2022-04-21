@@ -278,7 +278,7 @@ pub extern "C" fn wire_sender_replace_track(
     port_: i64,
     peer_id: u64,
     transceiver_index: u32,
-    track_id: *mut u64,
+    track_id: *mut wire_uint_8_list,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -431,7 +431,11 @@ pub extern "C" fn wire_microphone_volume(port_: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_dispose_track(port_: i64, track_id: u64) {
+pub extern "C" fn wire_dispose_track(
+    port_: i64,
+    track_id: *mut wire_uint_8_list,
+    kind: i32,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "dispose_track",
@@ -440,13 +444,19 @@ pub extern "C" fn wire_dispose_track(port_: i64, track_id: u64) {
         },
         move || {
             let api_track_id = track_id.wire2api();
-            move |task_callback| Ok(dispose_track(api_track_id))
+            let api_kind = kind.wire2api();
+            move |task_callback| Ok(dispose_track(api_track_id, api_kind))
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_set_track_enabled(port_: i64, track_id: u64, enabled: bool) {
+pub extern "C" fn wire_set_track_enabled(
+    port_: i64,
+    track_id: *mut wire_uint_8_list,
+    kind: i32,
+    enabled: bool,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "set_track_enabled",
@@ -455,14 +465,21 @@ pub extern "C" fn wire_set_track_enabled(port_: i64, track_id: u64, enabled: boo
         },
         move || {
             let api_track_id = track_id.wire2api();
+            let api_kind = kind.wire2api();
             let api_enabled = enabled.wire2api();
-            move |task_callback| set_track_enabled(api_track_id, api_enabled)
+            move |task_callback| {
+                set_track_enabled(api_track_id, api_kind, api_enabled)
+            }
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_clone_track(port_: i64, track_id: u64) {
+pub extern "C" fn wire_clone_track(
+    port_: i64,
+    track_id: *mut wire_uint_8_list,
+    kind: i32,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "clone_track",
@@ -471,13 +488,18 @@ pub extern "C" fn wire_clone_track(port_: i64, track_id: u64) {
         },
         move || {
             let api_track_id = track_id.wire2api();
-            move |task_callback| clone_track(api_track_id)
+            let api_kind = kind.wire2api();
+            move |task_callback| clone_track(api_track_id, api_kind)
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_register_track_observer(port_: i64, track_id: u64) {
+pub extern "C" fn wire_register_track_observer(
+    port_: i64,
+    track_id: *mut wire_uint_8_list,
+    kind: i32,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "register_track_observer",
@@ -486,8 +508,13 @@ pub extern "C" fn wire_register_track_observer(port_: i64, track_id: u64) {
         },
         move || {
             let api_track_id = track_id.wire2api();
+            let api_kind = kind.wire2api();
             move |task_callback| {
-                register_track_observer(task_callback.stream_sink(), api_track_id)
+                register_track_observer(
+                    task_callback.stream_sink(),
+                    api_track_id,
+                    api_kind,
+                )
             }
         },
     )
@@ -509,7 +536,7 @@ pub extern "C" fn wire_set_on_device_changed(port_: i64) {
 pub extern "C" fn wire_create_video_sink(
     port_: i64,
     sink_id: i64,
-    track_id: u64,
+    track_id: *mut wire_uint_8_list,
     callback_ptr: u64,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -733,12 +760,6 @@ impl Wire2Api<RtcConfiguration> for *mut wire_RtcConfiguration {
     fn wire2api(self) -> RtcConfiguration {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
         (*wrap).wire2api().into()
-    }
-}
-
-impl Wire2Api<u64> for *mut u64 {
-    fn wire2api(self) -> u64 {
-        unsafe { *support::box_from_leak_ptr(self) }
     }
 }
 
