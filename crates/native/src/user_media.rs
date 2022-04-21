@@ -344,8 +344,8 @@ impl Webrtc {
 
                         if transceivers.is_empty() {
                             bail!(
-                                "No `transceiver` has been found with \
-                                    mid `{mid}`"
+                                "No `transceiver` has been found with mid \
+                                 `{mid}`",
                             );
                         }
 
@@ -393,8 +393,8 @@ impl Webrtc {
 
                         if transceivers.is_empty() {
                             bail!(
-                                "No `transceiver` has been found with \
-                                    mid `{mid}`"
+                                "No `transceiver` has been found with mid \
+                                 `{mid}`",
                             );
                         }
 
@@ -466,11 +466,11 @@ pub struct VideoDeviceId(String);
 pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
-#[derive(Clone, Debug, Display, From, Eq, Hash, PartialEq, Into)]
+#[derive(Clone, Debug, Display, From, Eq, Hash, Into, PartialEq)]
 pub struct VideoTrackId(String);
 
 /// ID of an [`AudioTrack`].
-#[derive(Clone, Debug, Display, From, Eq, Hash, PartialEq, Into)]
+#[derive(Clone, Debug, Display, From, Eq, Hash, Into, PartialEq)]
 pub struct AudioTrackId(String);
 
 /// Label identifying a video track source.

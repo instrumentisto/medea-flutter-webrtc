@@ -944,7 +944,8 @@ pub fn dispose_track(track_id: String, kind: MediaType) {
     WEBRTC.lock().unwrap().dispose_track(track_id, kind);
 }
 
-/// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID.
+/// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
+/// [`MediaType`].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
 pub fn set_track_enabled(
