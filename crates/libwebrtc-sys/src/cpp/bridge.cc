@@ -75,20 +75,29 @@ int32_t set_microphone_volume(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetMicrophoneVolume(volume);
 }
 
+// Calls `AudioDeviceModule->MicrophoneVolumeIsAvailable()`.
 int32_t microphone_volume_is_available(
     const AudioDeviceModule& audio_device_module,
     bool& is_available) {
   return audio_device_module->MicrophoneVolumeIsAvailable(&is_available);
 }
 
+// Calls `AudioDeviceModule->MinMicrophoneVolume()`.
 int32_t min_microphone_volume(const AudioDeviceModule& audio_device_module,
                               uint32_t& volume) {
   return audio_device_module->MinMicrophoneVolume(&volume);
 }
 
+// Calls `AudioDeviceModule->MaxMicrophoneVolume()`.
 int32_t max_microphone_volume(const AudioDeviceModule& audio_device_module,
                               uint32_t& volume) {
   return audio_device_module->MaxMicrophoneVolume(&volume);
+}
+
+// Calls `AudioDeviceModule->MicrophoneVolume()`.
+int32_t microphone_volume(const AudioDeviceModule& audio_device_module,
+                          uint32_t& volume) {
+  return audio_device_module->MicrophoneVolume(&volume);
 }
 
 // Calls `AudioDeviceModule->PlayoutDevices()`.

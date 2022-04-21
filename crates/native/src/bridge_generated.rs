@@ -392,7 +392,7 @@ pub extern "C" fn wire_set_audio_playout_device(
 }
 
 #[no_mangle]
-pub extern "C" fn wire_set_microphone_volume(port_: i64, volume: u64) {
+pub extern "C" fn wire_set_microphone_volume(port_: i64, level: u8) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "set_microphone_volume",
@@ -400,8 +400,8 @@ pub extern "C" fn wire_set_microphone_volume(port_: i64, volume: u64) {
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_volume = volume.wire2api();
-            move |task_callback| set_microphone_volume(api_volume)
+            let api_level = level.wire2api();
+            move |task_callback| set_microphone_volume(api_level)
         },
     )
 }
@@ -415,6 +415,18 @@ pub extern "C" fn wire_microphone_volume_is_available(port_: i64) {
             mode: FfiCallMode::Normal,
         },
         move || move |task_callback| microphone_volume_is_available(),
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_microphone_volume(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "microphone_volume",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| microphone_volume(),
     )
 }
 

@@ -11,11 +11,12 @@ use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use self::bridge::webrtc;
 
 pub use crate::webrtc::{
-    candidate_to_string, get_candidate_pair, get_estimated_disconnected_time_ms,
-    get_last_data_received_ms, get_reason, video_frame_to_abgr, AudioLayer, BundlePolicy,
-    Candidate, CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
-    IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection, SdpType,
-    SignalingState, VideoFrame, VideoRotation,
+    candidate_to_string, get_candidate_pair,
+    get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
+    video_frame_to_abgr, AudioLayer, BundlePolicy, Candidate,
+    CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
+    IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
+    SdpType, SignalingState, VideoFrame, VideoRotation,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -67,7 +68,10 @@ pub trait PeerConnectionEventsHandler {
     /// Called when an [`iceconnectionstatechange`][1] event occurs.
     ///
     /// [1]: https://w3.org/TR/webrtc#event-iceconnectionstatechange
-    fn on_standardized_ice_connection_change(&mut self, new_state: IceConnectionState);
+    fn on_standardized_ice_connection_change(
+        &mut self,
+        new_state: IceConnectionState,
+    );
 
     /// Called when a [`connectionstatechange`][1] event occurs.
     ///
@@ -110,7 +114,10 @@ pub trait PeerConnectionEventsHandler {
     /// Called when a [`selectedcandidatepairchange`][1] event occurs.
     ///
     /// [1]: https://tinyurl.com/w3-selectedcandidatepairchange
-    fn on_ice_selected_candidate_pair_changed(&mut self, event: &CandidatePairChangeEvent);
+    fn on_ice_selected_candidate_pair_changed(
+        &mut self,
+        event: &CandidatePairChangeEvent,
+    );
 
     /// Called when a [`track`][1] event occurs.
     ///
@@ -218,11 +225,15 @@ impl AudioDeviceModule {
 
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
-    pub fn playout_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
+    pub fn playout_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
-        let result = webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
+        let result =
+            webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
 
         if result != 0 {
             bail!(
@@ -236,11 +247,15 @@ impl AudioDeviceModule {
 
     /// Returns the `(label, id)` tuple for the given audio recording device
     /// `index`.
-    pub fn recording_device_name(&self, index: i16) -> anyhow::Result<(String, String)> {
+    pub fn recording_device_name(
+        &self,
+        index: i16,
+    ) -> anyhow::Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
-        let result = webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
+        let result =
+            webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
 
         if result != 0 {
             bail!(
@@ -280,6 +295,7 @@ impl AudioDeviceModule {
         Ok(())
     }
 
+    /// Initializes the microphone in the [`AudioDeviceModule`].
     pub fn init_microphone(&self) -> anyhow::Result<()> {
         let result = webrtc::init_microphone(&self.0);
 
@@ -293,10 +309,14 @@ impl AudioDeviceModule {
         Ok(())
     }
 
+    /// Indicates if the microphone of the [`AudioDeviceModule`] is
+    /// initialized.
+    #[must_use]
     pub fn microphone_is_initialized(&self) -> bool {
         webrtc::microphone_is_initialized(&self.0)
     }
 
+    /// Sets the volume of the initialized microphone.
     pub fn set_microphone_volume(&self, volume: u32) -> anyhow::Result<()> {
         let result = webrtc::set_microphone_volume(&self.0, volume);
 
@@ -310,21 +330,24 @@ impl AudioDeviceModule {
         Ok(())
     }
 
+    /// Indicates if the microphone is available to set volume.
     pub fn microphone_volume_is_available(&self) -> anyhow::Result<bool> {
         let mut is_available = false;
 
-        let result = webrtc::microphone_volume_is_available(&self.0, &mut is_available);
+        let result =
+            webrtc::microphone_volume_is_available(&self.0, &mut is_available);
 
         if result != 0 {
             bail!(
-                "`AudioDeviceModule::MicrophoneVolumeIsAvailable()` failed with \
-                 `{result}` code",
+                "`AudioDeviceModule::MicrophoneVolumeIsAvailable()` failed \
+                with `{result}` code",
             );
         }
 
         Ok(is_available)
     }
 
+    /// Returns the lowest possible level of the microphone volume.
     pub fn min_microphone_volume(&self) -> anyhow::Result<u32> {
         let mut volume = 0;
 
@@ -340,6 +363,7 @@ impl AudioDeviceModule {
         Ok(volume)
     }
 
+    /// Returns the highest possible level of the microphone volume.
     pub fn max_microphone_volume(&self) -> anyhow::Result<u32> {
         let mut volume = 0;
 
@@ -348,6 +372,22 @@ impl AudioDeviceModule {
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::MaxMicrophoneVolume()` failed with \
+                 `{result}` code",
+            );
+        }
+
+        Ok(volume)
+    }
+
+    /// Returns the current level of the microphone volume.
+    pub fn microphone_volume(&self) -> anyhow::Result<u32> {
+        let mut volume = 0;
+
+        let result = webrtc::microphone_volume(&self.0, &mut volume);
+
+        if result != 0 {
+            bail!(
+                "`AudioDeviceModule::MicrophoneVolume()` failed with \
                  `{result}` code",
             );
         }
@@ -382,12 +422,19 @@ impl VideoDeviceInfo {
     }
 
     /// Returns the `(label, id)` tuple for the given video device `index`.
-    pub fn device_name(&mut self, index: u32) -> anyhow::Result<(String, String)> {
+    pub fn device_name(
+        &mut self,
+        index: u32,
+    ) -> anyhow::Result<(String, String)> {
         let mut name = String::new();
         let mut guid = String::new();
 
-        let result =
-            webrtc::video_device_name(self.0.pin_mut(), index, &mut name, &mut guid);
+        let result = webrtc::video_device_name(
+            self.0.pin_mut(),
+            index,
+            &mut name,
+            &mut guid,
+        );
 
         if result != 0 {
             bail!(
@@ -414,20 +461,32 @@ pub struct RtcConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 impl RtcConfiguration {
     /// Sets the specified [`IceTransportsType`] configuration for this
     /// [`RtcConfiguration`].
-    pub fn set_ice_transport_type(&mut self, transport_type: webrtc::IceTransportsType) {
-        webrtc::set_rtc_configuration_ice_transport_type(self.0.pin_mut(), transport_type);
+    pub fn set_ice_transport_type(
+        &mut self,
+        transport_type: webrtc::IceTransportsType,
+    ) {
+        webrtc::set_rtc_configuration_ice_transport_type(
+            self.0.pin_mut(),
+            transport_type,
+        );
     }
 
     /// Sets the specified [`BundlePolicy`] configuration for this
     /// [`RtcConfiguration`].
     pub fn set_bundle_policy(&mut self, bundle_policy: webrtc::BundlePolicy) {
-        webrtc::set_rtc_configuration_bundle_policy(self.0.pin_mut(), bundle_policy);
+        webrtc::set_rtc_configuration_bundle_policy(
+            self.0.pin_mut(),
+            bundle_policy,
+        );
     }
 
     /// Adds the specified [`IceServer`] to the list of servers of this
     /// [`RtcConfiguration`].
     pub fn add_server(&mut self, mut server: IceServer) {
-        webrtc::add_rtc_configuration_server(self.0.pin_mut(), server.0.pin_mut());
+        webrtc::add_rtc_configuration_server(
+            self.0.pin_mut(),
+            server.0.pin_mut(),
+        );
     }
 }
 
@@ -455,7 +514,11 @@ impl IceServer {
     /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-username
     /// [2]: https://w3.org/TR/webrtc#dom-rtciceserver-credential
     pub fn set_credentials(&mut self, username: String, credential: String) {
-        webrtc::set_ice_server_credentials(self.0.pin_mut(), username, credential);
+        webrtc::set_ice_server_credentials(
+            self.0.pin_mut(),
+            username,
+            credential,
+        );
     }
 }
 
@@ -536,7 +599,9 @@ impl RTCOfferAnswerOptions {
 
 /// [`SessionDescriptionInterface`] class, used by a [`PeerConnectionInterface`]
 /// to expose local and remote session descriptions.
-pub struct SessionDescriptionInterface(UniquePtr<webrtc::SessionDescriptionInterface>);
+pub struct SessionDescriptionInterface(
+    UniquePtr<webrtc::SessionDescriptionInterface>,
+);
 
 impl SessionDescriptionInterface {
     /// Creates a new [`SessionDescriptionInterface`].
@@ -562,7 +627,9 @@ impl CreateSessionDescriptionObserver {
 }
 
 /// [`PeerConnectionInterface::set_local_description()`] completion callback.
-pub struct SetLocalDescriptionObserver(UniquePtr<webrtc::SetLocalDescriptionObserver>);
+pub struct SetLocalDescriptionObserver(
+    UniquePtr<webrtc::SetLocalDescriptionObserver>,
+);
 
 impl SetLocalDescriptionObserver {
     /// Creates a new [`SetLocalDescriptionObserver`].
@@ -573,7 +640,9 @@ impl SetLocalDescriptionObserver {
 }
 
 /// [`PeerConnectionInterface::set_remote_description()`] completion callback.
-pub struct SetRemoteDescriptionObserver(UniquePtr<webrtc::SetRemoteDescriptionObserver>);
+pub struct SetRemoteDescriptionObserver(
+    UniquePtr<webrtc::SetRemoteDescriptionObserver>,
+);
 
 impl SetRemoteDescriptionObserver {
     /// Creates a new [`SetRemoteDescriptionObserver`].
@@ -662,7 +731,9 @@ impl RtpTransceiverInterface {
     pub fn stop(&self) -> anyhow::Result<()> {
         let err = webrtc::stop_transceiver(&self.inner);
         if !err.is_empty() {
-            bail!("`RtpTransceiverInterface->StopStandard()` call failed: {err}",);
+            bail!(
+                "`RtpTransceiverInterface->StopStandard()` call failed: {err}",
+            );
         }
         Ok(())
     }
@@ -877,7 +948,8 @@ impl RtpEncodingParameters {
     /// [0]: https://tinyurl.com/scaleresolutiondownby
     #[must_use]
     pub fn scale_resolution_down_by(&self) -> Option<f64> {
-        webrtc::rtp_encoding_parameters_scale_resolution_down_by(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_scale_resolution_down_by(&self.0.ptr)
+            .ok()
     }
 }
 
@@ -974,8 +1046,12 @@ impl IceCandidateInterface {
         candidate: &str,
     ) -> anyhow::Result<Self> {
         let mut error = String::new();
-        let inner =
-            webrtc::create_ice_candidate(sdp_mid, sdp_mline_index, candidate, &mut error);
+        let inner = webrtc::create_ice_candidate(
+            sdp_mid,
+            sdp_mline_index,
+            candidate,
+            &mut error,
+        );
 
         if !error.is_empty() {
             bail!(error);
@@ -1086,7 +1162,11 @@ impl PeerConnectionInterface {
         media_type: MediaType,
         direction: RtpTransceiverDirection,
     ) -> RtpTransceiverInterface {
-        let inner = webrtc::add_transceiver(self.inner.pin_mut(), media_type, direction);
+        let inner = webrtc::add_transceiver(
+            self.inner.pin_mut(),
+            media_type,
+            direction,
+        );
 
         RtpTransceiverInterface { inner, media_type }
     }
@@ -1166,7 +1246,9 @@ unsafe impl Sync for webrtc::Thread {}
 /// [`AudioSourceInterface`], tracks ([`VideoTrackInterface`],
 /// [`AudioTrackInterface`]), [`MediaStreamInterface`] and the
 /// `PeerConnection`s.
-pub struct PeerConnectionFactoryInterface(UniquePtr<webrtc::PeerConnectionFactoryInterface>);
+pub struct PeerConnectionFactoryInterface(
+    UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+);
 
 impl PeerConnectionFactoryInterface {
     /// Creates a new [`PeerConnectionFactoryInterface`].
@@ -1304,7 +1386,9 @@ unsafe impl Sync for webrtc::PeerConnectionFactoryInterface {}
 ///
 /// It can be later used to create a [`VideoTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_video_track()`].
-pub struct VideoTrackSourceInterface(UniquePtr<webrtc::VideoTrackSourceInterface>);
+pub struct VideoTrackSourceInterface(
+    UniquePtr<webrtc::VideoTrackSourceInterface>,
+);
 
 impl VideoTrackSourceInterface {
     /// Creates a new [`VideoTrackSourceInterface`] from the video input device
@@ -1391,7 +1475,9 @@ unsafe impl Sync for webrtc::AudioSourceInterface {}
 /// An example source is a device connected to the User Agent.
 ///
 /// [MediaStreamTrack]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
-pub struct MediaStreamTrackInterface(UniquePtr<webrtc::MediaStreamTrackInterface>);
+pub struct MediaStreamTrackInterface(
+    UniquePtr<webrtc::MediaStreamTrackInterface>,
+);
 
 impl MediaStreamTrackInterface {
     /// Returns the [`String`] containing the unique identifier (GUID) of this
@@ -1490,7 +1576,10 @@ impl VideoTrackInterface {
     /// Registers the given [`TrackEventCallback`] as an observer of this
     /// [`MediaStreamTrackInterface`] events.
     pub fn register_observer(&mut self, mut obs: TrackEventObserver) {
-        webrtc::video_track_register_observer(self.inner.pin_mut(), obs.0.pin_mut());
+        webrtc::video_track_register_observer(
+            self.inner.pin_mut(),
+            obs.0.pin_mut(),
+        );
         self.observers.push(obs);
     }
 
@@ -1507,7 +1596,10 @@ impl Drop for VideoTrackInterface {
         let observers = mem::take(&mut self.observers);
 
         for mut obs in observers {
-            webrtc::video_track_unregister_observer(self.inner.pin_mut(), obs.0.pin_mut());
+            webrtc::video_track_unregister_observer(
+                self.inner.pin_mut(),
+                obs.0.pin_mut(),
+            );
         }
     }
 }
@@ -1520,7 +1612,10 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
 
     fn try_from(track: MediaStreamTrackInterface) -> anyhow::Result<Self> {
         if track.kind() == TrackKind::Video {
-            let inner = webrtc::media_stream_track_interface_downcast_video_track(track.0);
+            let inner =
+                webrtc::media_stream_track_interface_downcast_video_track(
+                    track.0,
+                );
             Ok(VideoTrackInterface {
                 inner,
                 observers: Vec::new(),
@@ -1557,7 +1652,10 @@ impl AudioTrackInterface {
     /// Registers the provided [`TrackEventCallback`] as an observer of this
     /// [`MediaStreamTrackInterface`] events.
     pub fn register_observer(&mut self, mut obs: TrackEventObserver) {
-        webrtc::audio_track_register_observer(self.inner.pin_mut(), obs.0.pin_mut());
+        webrtc::audio_track_register_observer(
+            self.inner.pin_mut(),
+            obs.0.pin_mut(),
+        );
         self.observers.push(obs);
     }
 
@@ -1574,7 +1672,10 @@ impl Drop for AudioTrackInterface {
         let observers = mem::take(&mut self.observers);
 
         for mut obs in observers {
-            webrtc::audio_track_unregister_observer(self.inner.pin_mut(), obs.0.pin_mut());
+            webrtc::audio_track_unregister_observer(
+                self.inner.pin_mut(),
+                obs.0.pin_mut(),
+            );
         }
     }
 }
@@ -1587,7 +1688,10 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
 
     fn try_from(track: MediaStreamTrackInterface) -> anyhow::Result<Self> {
         if track.kind() == TrackKind::Audio {
-            let inner = webrtc::media_stream_track_interface_downcast_audio_track(track.0);
+            let inner =
+                webrtc::media_stream_track_interface_downcast_audio_track(
+                    track.0,
+                );
             Ok(AudioTrackInterface {
                 inner,
                 observers: Vec::new(),
@@ -1609,7 +1713,10 @@ pub struct MediaStreamInterface(UniquePtr<webrtc::MediaStreamInterface>);
 impl MediaStreamInterface {
     /// Adds the provided [`VideoTrackInterface`] to this
     /// [`MediaStreamInterface`].
-    pub fn add_video_track(&self, track: &VideoTrackInterface) -> anyhow::Result<()> {
+    pub fn add_video_track(
+        &self,
+        track: &VideoTrackInterface,
+    ) -> anyhow::Result<()> {
         let result = webrtc::add_video_track(&self.0, &track.inner);
 
         if !result {
@@ -1620,7 +1727,10 @@ impl MediaStreamInterface {
 
     /// Adds the provided  [`AudioTrackInterface`] to this
     /// [`MediaStreamInterface`].
-    pub fn add_audio_track(&self, track: &AudioTrackInterface) -> anyhow::Result<()> {
+    pub fn add_audio_track(
+        &self,
+        track: &AudioTrackInterface,
+    ) -> anyhow::Result<()> {
         let result = webrtc::add_audio_track(&self.0, &track.inner);
 
         if !result {
@@ -1631,7 +1741,10 @@ impl MediaStreamInterface {
 
     /// Removes the provided [`VideoTrackInterface`] from this
     /// [`MediaStreamInterface`].
-    pub fn remove_video_track(&self, track: &VideoTrackInterface) -> anyhow::Result<()> {
+    pub fn remove_video_track(
+        &self,
+        track: &VideoTrackInterface,
+    ) -> anyhow::Result<()> {
         let result = webrtc::remove_video_track(&self.0, &track.inner);
 
         if !result {
@@ -1642,7 +1755,10 @@ impl MediaStreamInterface {
 
     /// Removes the provided [`AudioTrackInterface`] from this
     /// [`MediaStreamInterface`].
-    pub fn remove_audio_track(&self, track: &AudioTrackInterface) -> anyhow::Result<()> {
+    pub fn remove_audio_track(
+        &self,
+        track: &AudioTrackInterface,
+    ) -> anyhow::Result<()> {
         let result = webrtc::remove_audio_track(&self.0, &track.inner);
 
         if !result {

@@ -24,13 +24,17 @@ class _LoopbackState extends State<Loopback> {
   bool _inCalling = false;
   bool _mic = true;
   bool _cam = true;
-  int _volume = 100;
+  int _volume = -1;
   bool _microIsAvailable = false;
 
   @override
   void initState() {
     super.initState();
     initRenderers();
+
+    setState(() async {
+      _volume = await microphoneVolume();
+    });
   }
 
   @override
