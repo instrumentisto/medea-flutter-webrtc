@@ -142,7 +142,7 @@ Future<void> setOutputAudioId(String deviceId) async {
   }
 }
 
-/// Indicates if the microphone is available to set volume.
+/// Indicates whether the microphone is available to set volume.
 Future<bool> microphoneVolumeIsAvailable() async {
   if (isDesktop) {
     return await api.microphoneVolumeIsAvailable();
@@ -152,7 +152,8 @@ Future<bool> microphoneVolumeIsAvailable() async {
   }
 }
 
-/// Sets the microphone system volume according to the given level in percents.
+/// Sets the microphone system volume according to the specified [level] in
+/// percents.
 Future<void> setMicrophoneVolume(int level) async {
   await api.setMicrophoneVolume(level: level);
 }

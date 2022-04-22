@@ -125,10 +125,12 @@ abstract class FlutterWebrtcNative {
   /// Sets the specified `audio playout` device.
   Future<void> setAudioPlayoutDevice({required String deviceId, dynamic hint});
 
-  /// Indicates if the microphone is available to set volume.
+  /// Indicates whether the microphone is available to set volume.
   Future<bool> microphoneVolumeIsAvailable({dynamic hint});
 
-  /// Sets the microphone system volume according to the given level in percents.
+  /// Sets the microphone system volume according to the specified `level` in
+  /// percents.
+  ///
   /// Valid values range is `[0; 100]`.
   Future<void> setMicrophoneVolume({required int level, dynamic hint});
 

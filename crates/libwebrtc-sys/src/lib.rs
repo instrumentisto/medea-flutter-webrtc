@@ -298,18 +298,17 @@ impl AudioDeviceModule {
     /// Initializes the microphone in the [`AudioDeviceModule`].
     pub fn init_microphone(&self) -> anyhow::Result<()> {
         let result = webrtc::init_microphone(&self.0);
-
         if result != 0 {
             bail!(
-                "`AudioDeviceModule::InitMicrophone()` failed with \
-                 `{result}` code",
+                "`AudioDeviceModule::InitMicrophone()` failed with `{result}` \
+                 code",
             );
         }
 
         Ok(())
     }
 
-    /// Indicates if the microphone of the [`AudioDeviceModule`] is
+    /// Indicates whether the microphone of the [`AudioDeviceModule`] is
     /// initialized.
     #[must_use]
     pub fn microphone_is_initialized(&self) -> bool {
@@ -319,7 +318,6 @@ impl AudioDeviceModule {
     /// Sets the volume of the initialized microphone.
     pub fn set_microphone_volume(&self, volume: u32) -> anyhow::Result<()> {
         let result = webrtc::set_microphone_volume(&self.0, volume);
-
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::SetMicrophoneVolume()` failed with \
@@ -330,17 +328,16 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    /// Indicates if the microphone is available to set volume.
+    /// Indicates whether the microphone is available to set volume.
     pub fn microphone_volume_is_available(&self) -> anyhow::Result<bool> {
         let mut is_available = false;
 
         let result =
             webrtc::microphone_volume_is_available(&self.0, &mut is_available);
-
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::MicrophoneVolumeIsAvailable()` failed \
-                with `{result}` code",
+                 with `{result}` code",
             );
         }
 
@@ -352,7 +349,6 @@ impl AudioDeviceModule {
         let mut volume = 0;
 
         let result = webrtc::min_microphone_volume(&self.0, &mut volume);
-
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::MinMicrophoneVolume()` failed with \
@@ -368,7 +364,6 @@ impl AudioDeviceModule {
         let mut volume = 0;
 
         let result = webrtc::max_microphone_volume(&self.0, &mut volume);
-
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::MaxMicrophoneVolume()` failed with \
@@ -384,7 +379,6 @@ impl AudioDeviceModule {
         let mut volume = 0;
 
         let result = webrtc::microphone_volume(&self.0, &mut volume);
-
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::MicrophoneVolume()` failed with \

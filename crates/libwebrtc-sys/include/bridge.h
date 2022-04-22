@@ -102,14 +102,14 @@ int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module);
 // Initializes the microphone in the audio device module.
 int32_t init_microphone(const AudioDeviceModule& audio_device_module);
 
-// Indicates if the microphone of the audio device module is initialized.
+// Indicates whether the microphone of the audio device module is initialized.
 bool microphone_is_initialized(const AudioDeviceModule& audio_device_module);
 
 // Sets the volume of the initialized microphone.
 int32_t set_microphone_volume(const AudioDeviceModule& audio_device_module,
                               uint32_t volume);
 
-// Indicates if the microphone is available to set volume.
+// Indicates whether the microphone is available to set volume.
 int32_t microphone_volume_is_available(
     const AudioDeviceModule& audio_device_module,
     bool& is_available);

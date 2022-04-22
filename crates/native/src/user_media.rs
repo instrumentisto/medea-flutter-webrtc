@@ -524,14 +524,12 @@ impl AudioDeviceModule {
             inner,
             current_device_id: None,
         };
-
         if adm.recording_devices() > 0 {
             adm.set_recording_device(
                 AudioDeviceId(adm.recording_device_name(0)?.1),
                 0,
             )?;
         }
-
         Ok(adm)
     }
 

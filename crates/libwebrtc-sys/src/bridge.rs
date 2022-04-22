@@ -459,7 +459,7 @@ pub(crate) mod webrtc {
         /// Initializes the microphone in the [`AudioDeviceModule`].
         pub fn init_microphone(audio_device_module: &AudioDeviceModule) -> i32;
 
-        /// Indicates if the microphone of the [`AudioDeviceModule`] is
+        /// Indicates whether the microphone of the [`AudioDeviceModule`] is
         /// initialized.
         pub fn microphone_is_initialized(
             audio_device_module: &AudioDeviceModule,
@@ -471,7 +471,7 @@ pub(crate) mod webrtc {
             volume: u32,
         ) -> i32;
 
-        /// Indicates if the microphone is available to set volume.
+        /// Indicates whether the microphone is available to set volume.
         pub fn microphone_volume_is_available(
             audio_device_module: &AudioDeviceModule,
             is_available: &mut bool,

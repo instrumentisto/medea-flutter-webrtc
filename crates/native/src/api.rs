@@ -939,12 +939,14 @@ pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
 }
 
-/// Indicates if the microphone is available to set volume.
+/// Indicates whether the microphone is available to set volume.
 pub fn microphone_volume_is_available() -> anyhow::Result<bool> {
     WEBRTC.lock().unwrap().microphone_volume_is_available()
 }
 
-/// Sets the microphone system volume according to the given level in percents.
+/// Sets the microphone system volume according to the specified `level` in
+/// percents.
+///
 /// Valid values range is `[0; 100]`.
 pub fn set_microphone_volume(level: u8) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_microphone_volume(level)

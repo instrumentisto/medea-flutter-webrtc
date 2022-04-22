@@ -254,7 +254,7 @@ impl Webrtc {
         }
     }
 
-    /// Sets the microphone system volume according to the given level in
+    /// Sets the microphone system volume according to the specified `level` in
     /// percents.
     pub fn set_microphone_volume(&mut self, level: u8) -> anyhow::Result<()> {
         self.audio_device_module.set_microphone_volume(level)
