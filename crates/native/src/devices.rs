@@ -31,13 +31,13 @@ use crate::{
 };
 
 /// Static instance of a [`DeviceState`].
-static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
+pub (crate) static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
     AtomicPtr::new(ptr::null_mut());
 
 /// Struct containing the current number of media devices and some tools to
 /// enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`]), and
 /// generate event with [`OnDeviceChangeCallback`], if the last is needed.
-struct DeviceState {
+pub (crate) struct DeviceState {
     cb: StreamSink<()>,
     adm: AudioDeviceModule,
     _thread: sys::Thread,
@@ -76,19 +76,22 @@ impl DeviceState {
     }
 
     /// Counts current media device number.
-    fn count_devices(&mut self) -> u32 {
+    pub (crate) fn count_devices(&mut self) -> u32 {
         self.adm.playout_devices()
             + self.adm.recording_devices()
             + self.vdi.number_of_devices()
     }
 
+    pub (crate) fn count(&self) -> u32 {
+        self.count
+    }
     /// Fixes some media device count in the [`DeviceState`].
-    fn set_count(&mut self, new_count: u32) {
+    pub (crate) fn set_count(&mut self, new_count: u32) {
         self.count = new_count;
     }
 
     /// Triggers the [`OnDeviceChangeCallback`].
-    fn on_device_change(&mut self) {
+    pub (crate) fn on_device_change(&mut self) {
         self.cb.add(());
     }
 }
@@ -385,6 +388,7 @@ pub unsafe fn init() {
     use libudev::EventType;
     use std::{io, os::unix::prelude::AsRawFd, thread};
 
+    use crate::linux_device_manager::Monitor;
     #[repr(C)]
     struct pollfd {
         fd: c_int,
@@ -413,8 +417,7 @@ pub unsafe fn init() {
 
     fn monitor(context: &libudev::Context) -> io::Result<()> {
         let mut monitor = libudev::Monitor::new(context)?;
-        monitor.match_subsystem_devtype("usb", "usb_device")?;
-        monitor.match_subsystem_devtype("bluetooth", "link")?;
+        monitor.match_subsystem("video4linux")?;
         let mut socket = monitor.listen()?;
 
         let mut fds = vec![pollfd {
@@ -464,5 +467,14 @@ pub unsafe fn init() {
     thread::spawn(move || {
         let context = libudev::Context::new().unwrap();
         monitor(&context).unwrap();
+    });
+
+    thread::spawn(move || { 
+        let mut m  = Monitor::new(42).unwrap();
+        loop {
+            if let Err(e) = m.iterate() {
+                println!("{e}");
+            }
+        }
     });
 }

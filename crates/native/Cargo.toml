@@ -26,6 +26,7 @@ winapi = { version = "0.3", features = ["dbt", "winuser"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libudev = "0.3.0"
+libpulse-sys = "1.19.3"
 libc = "0.2.123"
 
 [build-dependencies]
