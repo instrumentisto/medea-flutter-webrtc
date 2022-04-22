@@ -628,31 +628,28 @@ impl AudioDeviceModule {
     ///
     /// # Errors
     ///
-    /// If fails on:
-    ///     - [`sys::AudioDeviceModule::microphone_volume_is_available()`] call
-    ///     - [`sys::AudioDeviceModule::min_microphone_volume()`] call
-    ///     - [`sys::AudioDeviceModule::max_microphone_volume()`] call
-    ///     - [`sys::AudioDeviceModule::set_microphone_volume()`] call
-    pub fn set_microphone_volume(&self, level: u8) -> anyhow::Result<()> {
+    /// Errors if any of the following calls fail:
+    ///     - [`sys::AudioDeviceModule::microphone_volume_is_available()`];
+    ///     - [`sys::AudioDeviceModule::min_microphone_volume()`];
+    ///     - [`sys::AudioDeviceModule::max_microphone_volume()`];
+    ///     - [`sys::AudioDeviceModule::set_microphone_volume()`].
+    pub fn set_microphone_volume(&self, mut level: u8) -> anyhow::Result<()> {
         if !self.microphone_volume_is_available()? {
             bail!("The microphone volume is unavailable.")
         }
 
         if level > 100 {
-            bail!("The microphone volume level must be in a range of [0;100].");
+            level = 100;
         }
 
         let min_volume = self.inner.min_microphone_volume()?;
         let max_volume = self.inner.max_microphone_volume()?;
 
-        let volume = unsafe {
-            min_volume
-                + (f64::from(max_volume - min_volume)
-                    * (f64::from(level) / 100.0))
-                    .to_int_unchecked::<u32>()
-        };
+        let volume = f64::from(min_volume)
+            + (f64::from(max_volume - min_volume) * (f64::from(level) / 100.0));
 
-        self.inner.set_microphone_volume(volume)
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        self.inner.set_microphone_volume(volume as u32)
     }
 
     /// Indicates if the microphone is available to set volume.
@@ -686,12 +683,10 @@ impl AudioDeviceModule {
         let min_volume = self.inner.min_microphone_volume()?;
         let max_volume = self.inner.max_microphone_volume()?;
 
-        let level = unsafe {
-            (f64::from(volume - min_volume)
-                / f64::from(max_volume - min_volume)
-                * 100.0)
-                .to_int_unchecked()
-        };
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let level = (f64::from(volume - min_volume)
+            / f64::from(max_volume - min_volume)
+            * 100.0) as u32;
 
         Ok(level)
     }

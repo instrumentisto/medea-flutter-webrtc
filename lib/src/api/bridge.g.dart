@@ -125,20 +125,22 @@ abstract class FlutterWebrtcNative {
   /// Sets the specified `audio playout` device.
   Future<void> setAudioPlayoutDevice({required String deviceId, dynamic hint});
 
-  /// Sets the microphone system volume according to the given level in percents.
-  Future<void> setMicrophoneVolume({required int level, dynamic hint});
-
   /// Indicates if the microphone is available to set volume.
   Future<bool> microphoneVolumeIsAvailable({dynamic hint});
 
-  /// Returns the current level of the microphone volume in percents.
+  /// Sets the microphone system volume according to the given level in percents.
+  /// Valid values range is `[0; 100]`.
+  Future<void> setMicrophoneVolume({required int level, dynamic hint});
+
+  /// Returns the current level of the microphone volume in `[0; 100]` range.
   Future<int> microphoneVolume({dynamic hint});
 
   /// Disposes the specified [`MediaStreamTrack`].
   Future<void> disposeTrack(
       {required String trackId, required MediaType kind, dynamic hint});
 
-  /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID.
+  /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
+  /// [`MediaType`].
   ///
   /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
   Future<void> setTrackEnabled(
@@ -1122,6 +1124,18 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
+  Future<bool> microphoneVolumeIsAvailable({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_microphone_volume_is_available(port_),
+        parseSuccessData: _wire2api_bool,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "microphone_volume_is_available",
+          argNames: [],
+        ),
+        argValues: [],
+        hint: hint,
+      ));
+
   Future<void> setMicrophoneVolume({required int level, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) =>
@@ -1132,18 +1146,6 @@ class FlutterWebrtcNativeImpl
           argNames: ["level"],
         ),
         argValues: [level],
-        hint: hint,
-      ));
-
-  Future<bool> microphoneVolumeIsAvailable({dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_microphone_volume_is_available(port_),
-        parseSuccessData: _wire2api_bool,
-        constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "microphone_volume_is_available",
-          argNames: [],
-        ),
-        argValues: [],
         hint: hint,
       ));
 
@@ -2023,6 +2025,20 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_set_audio_playout_device = _wire_set_audio_playout_devicePtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
+  void wire_microphone_volume_is_available(
+    int port_,
+  ) {
+    return _wire_microphone_volume_is_available(
+      port_,
+    );
+  }
+
+  late final _wire_microphone_volume_is_availablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_microphone_volume_is_available');
+  late final _wire_microphone_volume_is_available =
+      _wire_microphone_volume_is_availablePtr.asFunction<void Function(int)>();
+
   void wire_set_microphone_volume(
     int port_,
     int level,
@@ -2038,20 +2054,6 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'wire_set_microphone_volume');
   late final _wire_set_microphone_volume =
       _wire_set_microphone_volumePtr.asFunction<void Function(int, int)>();
-
-  void wire_microphone_volume_is_available(
-    int port_,
-  ) {
-    return _wire_microphone_volume_is_available(
-      port_,
-    );
-  }
-
-  late final _wire_microphone_volume_is_availablePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_microphone_volume_is_available');
-  late final _wire_microphone_volume_is_available =
-      _wire_microphone_volume_is_availablePtr.asFunction<void Function(int)>();
 
   void wire_microphone_volume(
     int port_,

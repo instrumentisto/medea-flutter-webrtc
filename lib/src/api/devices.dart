@@ -147,28 +147,19 @@ Future<bool> microphoneVolumeIsAvailable() async {
   if (isDesktop) {
     return await api.microphoneVolumeIsAvailable();
   } else {
-    // TODO(logist322): Implement for `channel`.
-    return true;
+    // TODO(logist322): Implement for Channel-based implementation.
+    return false;
   }
 }
 
 /// Sets the microphone system volume according to the given level in percents.
 Future<void> setMicrophoneVolume(int level) async {
-  if (isDesktop) {
-    await api.setMicrophoneVolume(level: level);
-  } else {
-    // TODO(logist322): Implement for `channel`.
-  }
+  await api.setMicrophoneVolume(level: level);
 }
 
 /// Returns the current level of the microphone volume in percents.
 Future<int> microphoneVolume() async {
-  if (isDesktop) {
-    return await api.microphoneVolume();
-  } else {
-    // TODO(logist322): Implement for `channel`.
-    return -1;
-  }
+  return await api.microphoneVolume();
 }
 
 /// [MethodChannel]-based implementation of a [getUserMedia] function.

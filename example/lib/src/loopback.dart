@@ -32,8 +32,10 @@ class _LoopbackState extends State<Loopback> {
     super.initState();
     initRenderers();
 
-    setState(() async {
-      _volume = await microphoneVolume();
+    microphoneVolume().then((value) {
+      setState(() {
+        _volume = value;
+      });
     });
   }
 
@@ -118,9 +120,11 @@ class _LoopbackState extends State<Loopback> {
     }
     if (!mounted) return;
 
-    setState(() async {
-      _inCalling = true;
-      _microIsAvailable = await microphoneVolumeIsAvailable();
+    _inCalling = true;
+    microphoneVolumeIsAvailable().then((value) {
+      setState(() {
+        _microIsAvailable = value;
+      });
     });
   }
 
