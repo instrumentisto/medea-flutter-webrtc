@@ -418,9 +418,12 @@ mod linux_device_change {
         #[allow(non_camel_case_types)]
         type nfds_t = c_ulong;
 
+        /// There is data to read.
         const POLLIN: c_short = 0x0001;
 
         extern "C" {
+            /// It waits for one of a set of file
+            /// descriptors to become ready.
             fn ppoll(
                 fds: *mut pollfd,
                 nfds: nfds_t,
@@ -429,7 +432,8 @@ mod linux_device_change {
             ) -> c_int;
         }
 
-        pub fn monitor(context: &libudev::Context) -> io::Result<()> {
+        /// Video device monitoring.
+        pub fn monitoring(context: &libudev::Context) -> io::Result<()> {
             let mut monitor = libudev::Monitor::new(context)?;
             monitor.match_subsystem("video4linux")?;
             let mut socket = monitor.listen()?;
@@ -480,7 +484,7 @@ mod linux_device_change {
     }
 
     pub mod pulse_audio {
-        use std::{ffi::CString, mem, ptr, sync::atomic::Ordering};
+        use std::{ffi::CString, ptr, sync::atomic::Ordering};
 
         use libc::{c_char, c_void};
         use libpulse_sys::{
@@ -502,6 +506,8 @@ mod linux_device_change {
 
         use crate::devices::ON_DEVICE_CHANGE;
 
+        /// Call back function that is called whenever
+        /// the state of the daemon changes.
         extern "C" fn context_subscribe_cb(
             context: *mut pa_context,
             type_: pa_subscription_event_type_t,
@@ -527,8 +533,6 @@ mod linux_device_change {
                 }
 
                 if event_type == PA_SUBSCRIPTION_EVENT_NEW {
-                    /* Microphone in the source output has changed */
-
                     if facility == PA_SUBSCRIPTION_EVENT_SOURCE {
                         pa_context_get_source_info_by_index(
                             context,
@@ -559,6 +563,8 @@ mod linux_device_change {
             }
         }
 
+        /// Call back getting information about
+        /// a source by its index.
         extern "C" fn get_source_info_cb(
             _ctx: *mut pa_context,
             _info: *const pa_source_info,
@@ -580,6 +586,8 @@ mod linux_device_change {
             }
         }
 
+        /// Call back getting information about
+        /// a sink by its index.
         extern "C" fn get_sink_info_cb(
             _ctx: *mut pa_context,
             _info: *const pa_sink_info,
@@ -602,31 +610,38 @@ mod linux_device_change {
             }
         }
 
+        /// Structure for monitoring audio device.
         pub struct AudioMonitor {
             context: *mut pa_context,
             main_loop: *mut pa_mainloop,
         }
 
         impl AudioMonitor {
+            /// Iterate pulse audio mainloop.
             pub fn iterate(&mut self) -> anyhow::Result<()> {
                 let mut retval = 0;
                 unsafe {
                     if pa_mainloop_iterate(self.main_loop, 1, &mut retval) < 0 {
-                        anyhow::bail!("pulse audio mainloop iterate error {retval}");
+                        anyhow::bail!(
+                            "pulse audio mainloop iterate error {retval}"
+                        );
                     }
                 }
                 Ok(())
             }
 
+            /// Creates a new [`AudioMonitor`].
             pub unsafe fn new() -> anyhow::Result<Self> {
                 let ml = pa_mainloop_new();
                 if ml.is_null() {
                     anyhow::bail!("pulse audio mainloop is null");
                 }
 
-                let name = format!("webrtc-desktop");
+                // TODO(rogurotus):  add support multiple instances
+                let name = "webrtc-desktop".to_owned();
+
                 let c_str = CString::new(name).unwrap();
-                let c_world: *const c_char = c_str.as_ptr() as *const c_char;
+                let c_world: *const c_char = c_str.as_ptr().cast::<i8>();
 
                 let api = pa_mainloop_get_api(ml);
                 let ctx = pa_context_new(api, c_world);
@@ -634,7 +649,7 @@ mod linux_device_change {
                     anyhow::bail!("pulse audio context start error");
                 }
 
-                let ud: *mut c_void = mem::transmute(ctx);
+                let ud: *mut c_void = ctx.cast::<libc::c_void>();
 
                 pa_context_set_subscribe_callback(
                     ctx,
@@ -647,9 +662,7 @@ mod linux_device_change {
                 }
 
                 loop {
-                    let state: pa_context_state_t;
-
-                    state = pa_context_get_state(ctx);
+                    let state: pa_context_state_t = pa_context_get_state(ctx);
 
                     if !pa_context_is_good(state) {
                         anyhow::bail!("context connect error");
@@ -672,10 +685,10 @@ mod linux_device_change {
 
                 pa_context_subscribe(ctx, mask, None, ptr::null_mut());
 
-                return Ok(Self {
+                Ok(Self {
                     context: ctx,
                     main_loop: ml,
-                });
+                })
             }
         }
 
@@ -700,16 +713,16 @@ pub unsafe fn init() {
     use std::thread;
 
     use crate::devices::linux_device_change::{
-        pulse_audio::AudioMonitor, udev::monitor,
+        pulse_audio::AudioMonitor, udev::monitoring,
     };
 
-    // todo
+    // Monotoring video device.
     thread::spawn(move || {
         let context = libudev::Context::new().unwrap();
-        monitor(&context).unwrap();
+        monitoring(&context).unwrap();
     });
 
-    // todo
+    // Monotoring audio device.
     thread::spawn(move || {
         let mut m = AudioMonitor::new().unwrap();
         loop {
