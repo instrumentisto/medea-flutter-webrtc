@@ -31,13 +31,13 @@ use crate::{
 };
 
 /// Static instance of a [`DeviceState`].
-pub (crate) static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
+static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
     AtomicPtr::new(ptr::null_mut());
 
 /// Struct containing the current number of media devices and some tools to
 /// enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`]), and
 /// generate event with [`OnDeviceChangeCallback`], if the last is needed.
-pub (crate) struct DeviceState {
+struct DeviceState {
     cb: StreamSink<()>,
     adm: AudioDeviceModule,
     _thread: sys::Thread,
@@ -76,22 +76,19 @@ impl DeviceState {
     }
 
     /// Counts current media device number.
-    pub (crate) fn count_devices(&mut self) -> u32 {
+    fn count_devices(&mut self) -> u32 {
         self.adm.playout_devices()
             + self.adm.recording_devices()
             + self.vdi.number_of_devices()
     }
 
-    pub (crate) fn count(&self) -> u32 {
-        self.count
-    }
     /// Fixes some media device count in the [`DeviceState`].
-    pub (crate) fn set_count(&mut self, new_count: u32) {
+    fn set_count(&mut self, new_count: u32) {
         self.count = new_count;
     }
 
     /// Triggers the [`OnDeviceChangeCallback`].
-    pub (crate) fn on_device_change(&mut self) {
+    fn on_device_change(&mut self) {
         self.cb.add(());
     }
 }
@@ -379,98 +376,323 @@ pub unsafe fn init() {
 }
 
 #[cfg(target_os = "linux")]
-/// Creates a detached [`Thread`] creating a devices monitor
-/// and polls for events.
-///
-/// [`Thread`]: thread::Thread
-pub unsafe fn init() {
-    use libc::{c_int, c_short, c_ulong, c_void, timespec};
-    use libudev::EventType;
-    use std::{io, os::unix::prelude::AsRawFd, thread};
+mod linux_device_change {
+    pub mod udev {
+        use libc::{c_int, c_short, c_ulong, c_void, timespec};
+        use libudev::EventType;
+        use std::{
+            io, os::unix::prelude::AsRawFd, ptr, sync::atomic::Ordering,
+        };
 
-    use crate::linux_device_manager::Monitor;
-    #[repr(C)]
-    struct pollfd {
-        fd: c_int,
-        events: c_short,
-        revents: c_short,
-    }
+        use crate::devices::ON_DEVICE_CHANGE;
 
-    #[repr(C)]
-    struct sigset_t {
-        __private: c_void,
-    }
+        #[repr(C)]
+        struct pollfd {
+            fd: c_int,
+            events: c_short,
+            revents: c_short,
+        }
 
-    #[allow(non_camel_case_types)]
-    type nfds_t = c_ulong;
+        #[repr(C)]
+        struct sigset_t {
+            __private: c_void,
+        }
 
-    const POLLIN: c_short = 0x0001;
+        #[allow(non_camel_case_types)]
+        type nfds_t = c_ulong;
 
-    extern "C" {
-        fn ppoll(
-            fds: *mut pollfd,
-            nfds: nfds_t,
-            timeout_ts: *mut timespec,
-            sigmask: *const sigset_t,
-        ) -> c_int;
-    }
+        const POLLIN: c_short = 0x0001;
 
-    fn monitor(context: &libudev::Context) -> io::Result<()> {
-        let mut monitor = libudev::Monitor::new(context)?;
-        monitor.match_subsystem("video4linux")?;
-        let mut socket = monitor.listen()?;
+        extern "C" {
+            fn ppoll(
+                fds: *mut pollfd,
+                nfds: nfds_t,
+                timeout_ts: *mut timespec,
+                sigmask: *const sigset_t,
+            ) -> c_int;
+        }
 
-        let mut fds = vec![pollfd {
-            fd: socket.as_raw_fd(),
-            events: POLLIN,
-            revents: 0,
-        }];
+        pub fn monitor(context: &libudev::Context) -> io::Result<()> {
+            let mut monitor = libudev::Monitor::new(context)?;
+            monitor.match_subsystem("video4linux")?;
+            let mut socket = monitor.listen()?;
 
-        loop {
-            let result = unsafe {
-                ppoll(
-                    (&mut fds[..]).as_mut_ptr(),
-                    fds.len() as nfds_t,
-                    ptr::null_mut(),
-                    ptr::null(),
-                )
-            };
+            let mut fds = vec![pollfd {
+                fd: socket.as_raw_fd(),
+                events: POLLIN,
+                revents: 0,
+            }];
 
-            if result < 0 {
-                return Err(io::Error::last_os_error());
-            }
+            loop {
+                let result = unsafe {
+                    ppoll(
+                        (&mut fds[..]).as_mut_ptr(),
+                        fds.len() as nfds_t,
+                        ptr::null_mut(),
+                        ptr::null(),
+                    )
+                };
 
-            let event = match socket.receive_event() {
-                Some(evt) => evt,
-                None => {
-                    continue;
+                if result < 0 {
+                    return Err(io::Error::last_os_error());
                 }
-            };
 
-            if event.event_type() == EventType::Add
-                || event.event_type() == EventType::Remove
-            {
-                let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
-                if !state.is_null() {
-                    let device_state = unsafe { &mut *state };
-                    let new_count = device_state.count_devices();
+                let event = match socket.receive_event() {
+                    Some(evt) => evt,
+                    None => {
+                        continue;
+                    }
+                };
 
-                    if device_state.count != new_count {
-                        device_state.set_count(new_count);
-                        device_state.on_device_change();
+                if event.event_type() == EventType::Add
+                    || event.event_type() == EventType::Remove
+                {
+                    let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+                    if !state.is_null() {
+                        let device_state = unsafe { &mut *state };
+                        let new_count = device_state.count_devices();
+
+                        if device_state.count != new_count {
+                            device_state.set_count(new_count);
+                            device_state.on_device_change();
+                        }
                     }
                 }
             }
         }
     }
 
+    pub mod pulse_audio {
+        use std::{ffi::CString, mem, ptr, sync::atomic::Ordering};
+
+        use libc::{c_char, c_void};
+        use libpulse_sys::{
+            pa_context, pa_context_connect, pa_context_disconnect,
+            pa_context_get_server_info, pa_context_get_sink_info_by_index,
+            pa_context_get_source_info_by_index, pa_context_get_state,
+            pa_context_is_good, pa_context_new,
+            pa_context_set_subscribe_callback, pa_context_state_t,
+            pa_context_subscribe, pa_context_unref, pa_mainloop,
+            pa_mainloop_free, pa_mainloop_get_api, pa_mainloop_iterate,
+            pa_mainloop_new, pa_sink_info, pa_source_info,
+            pa_subscription_event_type_t, pa_subscription_mask_t,
+            PA_SUBSCRIPTION_EVENT_CHANGE, PA_SUBSCRIPTION_EVENT_FACILITY_MASK,
+            PA_SUBSCRIPTION_EVENT_NEW, PA_SUBSCRIPTION_EVENT_REMOVE,
+            PA_SUBSCRIPTION_EVENT_SERVER, PA_SUBSCRIPTION_EVENT_SINK,
+            PA_SUBSCRIPTION_EVENT_SOURCE, PA_SUBSCRIPTION_EVENT_TYPE_MASK,
+            PA_SUBSCRIPTION_MASK_SINK, PA_SUBSCRIPTION_MASK_SOURCE,
+        };
+
+        use crate::devices::ON_DEVICE_CHANGE;
+
+        extern "C" fn context_subscribe_cb(
+            context: *mut pa_context,
+            type_: pa_subscription_event_type_t,
+            idx: u32,
+            userdata: *mut c_void,
+        ) {
+            unsafe {
+                let facility: pa_subscription_event_type_t =
+                    type_ & PA_SUBSCRIPTION_EVENT_FACILITY_MASK;
+                let event_type: pa_subscription_event_type_t =
+                    type_ & PA_SUBSCRIPTION_EVENT_TYPE_MASK;
+
+                if facility == PA_SUBSCRIPTION_EVENT_SERVER
+                    || facility != PA_SUBSCRIPTION_EVENT_CHANGE
+                {
+                    pa_context_get_server_info(context, None, userdata);
+                }
+
+                if facility != PA_SUBSCRIPTION_EVENT_SOURCE
+                    && facility != PA_SUBSCRIPTION_EVENT_SINK
+                {
+                    return;
+                }
+
+                if event_type == PA_SUBSCRIPTION_EVENT_NEW {
+                    /* Microphone in the source output has changed */
+
+                    if facility == PA_SUBSCRIPTION_EVENT_SOURCE {
+                        pa_context_get_source_info_by_index(
+                            context,
+                            idx,
+                            Some(get_source_info_cb),
+                            userdata,
+                        );
+                    } else if facility == PA_SUBSCRIPTION_EVENT_SINK {
+                        pa_context_get_sink_info_by_index(
+                            context,
+                            idx,
+                            Some(get_sink_info_cb),
+                            userdata,
+                        );
+                    }
+                } else if event_type == PA_SUBSCRIPTION_EVENT_REMOVE {
+                    let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+                    if !state.is_null() {
+                        let device_state = &mut *state;
+                        let new_count = device_state.count_devices();
+
+                        if device_state.count != new_count {
+                            device_state.set_count(new_count);
+                            device_state.on_device_change();
+                        }
+                    }
+                }
+            }
+        }
+
+        extern "C" fn get_source_info_cb(
+            _ctx: *mut pa_context,
+            _info: *const pa_source_info,
+            eol: i32,
+            _userdata: *mut c_void,
+        ) {
+            if eol != 0 {
+                return;
+            }
+            let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+            if !state.is_null() {
+                let device_state = unsafe { &mut *state };
+                let new_count = device_state.count_devices();
+
+                if device_state.count != new_count {
+                    device_state.set_count(new_count);
+                    device_state.on_device_change();
+                }
+            }
+        }
+
+        extern "C" fn get_sink_info_cb(
+            _ctx: *mut pa_context,
+            _info: *const pa_sink_info,
+            eol: i32,
+            _userdata: *mut c_void,
+        ) {
+            if eol != 0 {
+                return;
+            }
+
+            let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+            if !state.is_null() {
+                let device_state = unsafe { &mut *state };
+                let new_count = device_state.count_devices();
+
+                if device_state.count != new_count {
+                    device_state.set_count(new_count);
+                    device_state.on_device_change();
+                }
+            }
+        }
+
+        pub struct AudioMonitor {
+            context: *mut pa_context,
+            main_loop: *mut pa_mainloop,
+        }
+
+        impl AudioMonitor {
+            pub fn iterate(&mut self) -> anyhow::Result<()> {
+                let mut retval = 0;
+                unsafe {
+                    if pa_mainloop_iterate(self.main_loop, 1, &mut retval) < 0 {
+                        anyhow::bail!("mainloop iterate error {retval}");
+                    }
+                }
+                Ok(())
+            }
+
+            pub unsafe fn new(id: u64) -> anyhow::Result<Self> {
+                let ml = pa_mainloop_new();
+                if ml.is_null() {
+                    anyhow::bail!("mainloop is null");
+                }
+
+                let name = format!("webrtc-desktop{id}");
+                let c_str = CString::new(name).unwrap();
+                let c_world: *const c_char = c_str.as_ptr() as *const c_char;
+
+                let api = pa_mainloop_get_api(ml);
+                let ctx = pa_context_new(api, c_world);
+                if ctx.is_null() {
+                    anyhow::bail!("context start error");
+                }
+
+                let ud: *mut c_void = mem::transmute(ctx);
+
+                pa_context_set_subscribe_callback(
+                    ctx,
+                    Some(context_subscribe_cb),
+                    ud,
+                );
+
+                if pa_context_connect(ctx, ptr::null(), 0, ptr::null()) < 0 {
+                    anyhow::bail!("context connect error");
+                }
+
+                loop {
+                    let state: pa_context_state_t;
+
+                    state = pa_context_get_state(ctx);
+
+                    if !pa_context_is_good(state) {
+                        anyhow::bail!("context connect error");
+                    }
+
+                    if state == pa_context_state_t::Ready {
+                        break;
+                    }
+
+                    let mut retval = 0;
+                    if pa_mainloop_iterate(ml, 1, &mut retval) < 0 {
+                        anyhow::bail!("mainloop iterate error");
+                    }
+                }
+
+                let mask: pa_subscription_mask_t = PA_SUBSCRIPTION_MASK_SOURCE
+                    | PA_SUBSCRIPTION_MASK_SINK
+                    | PA_SUBSCRIPTION_EVENT_SERVER
+                    | PA_SUBSCRIPTION_EVENT_CHANGE;
+
+                pa_context_subscribe(ctx, mask, None, ptr::null_mut());
+
+                return Ok(Self {
+                    context: ctx,
+                    main_loop: ml,
+                });
+            }
+        }
+
+        impl Drop for AudioMonitor {
+            fn drop(&mut self) {
+                unsafe {
+                    pa_context_disconnect(self.context);
+                    pa_context_unref(self.context);
+                    pa_mainloop_free(self.main_loop);
+                }
+            }
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+/// Creates a detached [`Thread`] creating a devices monitor
+/// and polls for events.
+///
+/// [`Thread`]: thread::Thread
+pub unsafe fn init() {
+    use std::thread;
+
+    use crate::devices::linux_device_change::{
+        pulse_audio::AudioMonitor, udev::monitor,
+    };
+
     thread::spawn(move || {
         let context = libudev::Context::new().unwrap();
         monitor(&context).unwrap();
     });
 
-    thread::spawn(move || { 
-        let mut m  = Monitor::new(42).unwrap();
+    thread::spawn(move || {
+        let mut m = AudioMonitor::new(42).unwrap();
         loop {
             if let Err(e) = m.iterate() {
                 println!("{e}");

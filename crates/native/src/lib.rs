@@ -11,7 +11,6 @@ mod api;
 mod bridge_generated;
 mod cpp_api;
 mod devices;
-mod linux_device_manager;
 mod pc;
 mod stream_sink;
 mod user_media;
