@@ -4,16 +4,18 @@ use std::{
     sync::Arc,
 };
 
-use anyhow::{bail, Context};
-use dashmap::mapref::one::RefMut;
-use derive_more::{AsRef, Display, From};
+use anyhow::{anyhow, bail, Context};
+use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
-    api, api::TrackEvent, next_id, stream_sink::StreamSink, PeerConnectionId,
-    VideoSink, VideoSinkId, Webrtc,
+    api,
+    api::{MediaType, TrackEvent},
+    next_id,
+    stream_sink::StreamSink,
+    PeerConnectionId, VideoSink, VideoSinkId, Webrtc,
 };
 
 impl Webrtc {
@@ -25,50 +27,85 @@ impl Webrtc {
     ) -> anyhow::Result<Vec<api::MediaStreamTrack>> {
         let mut result = Vec::new();
 
-        if let Some(video) = constraints.video {
-            let source = self.get_or_create_video_source(&video)?;
-            let track = self.create_video_track(source)?;
-            result.push(api::MediaStreamTrack::from(&*track));
-        }
+        let inner_get_media = || -> anyhow::Result<()> {
+            if let Some(video) = constraints.video {
+                let src = self.get_or_create_video_source(&video)?;
+                let track = self.create_video_track(Arc::clone(&src));
+                if let Err(err) = track {
+                    if Arc::strong_count(&src) == 2 {
+                        self.video_sources.remove(&src.device_id);
+                    };
+                    return Err(err);
+                }
+                result.push(track?);
+            }
 
-        if let Some(audio) = constraints.audio {
-            let source = self.get_or_create_audio_source(&audio)?;
-            let track = self.create_audio_track(source)?;
-            result.push(api::MediaStreamTrack::from(&*track));
-        }
+            if let Some(audio) = constraints.audio {
+                let src = self.get_or_create_audio_source(&audio)?;
+                let track = self.create_audio_track(src);
+                if let Err(err) = track {
+                    if Arc::get_mut(self.audio_source.as_mut().unwrap())
+                        .is_some()
+                    {
+                        self.audio_source.take();
+                    }
+                    return Err(err);
+                }
+                result.push(track?);
+            }
 
-        Ok(result)
+            Ok(())
+        };
+
+        if let Err(err) = inner_get_media() {
+            for track in result {
+                self.dispose_track(track.id, track.kind);
+            }
+
+            Err(err)
+        } else {
+            Ok(result)
+        }
     }
 
     /// Disposes a [`VideoTrack`] or [`AudioTrack`] by the provided `track_id`.
-    pub fn dispose_track(&mut self, track_id: u64) {
-        let senders = if let Some((_, mut track)) =
-            self.video_tracks.remove(&VideoTrackId::from(track_id))
-        {
-            for id in track.sinks.clone() {
-                if let Some(sink) = self.video_sinks.remove(&id) {
-                    track.remove_video_sink(sink);
+    pub fn dispose_track(&mut self, track_id: String, kind: api::MediaType) {
+        let senders = match kind {
+            MediaType::Audio => {
+                if let Some((_, track)) =
+                    self.audio_tracks.remove(&AudioTrackId::from(track_id))
+                {
+                    if let MediaTrackSource::Local(src) = track.source {
+                        if Arc::strong_count(&src) == 2 {
+                            self.audio_source.take();
+                            // TODO: We should make `AudioDeviceModule` to stop
+                            //       recording.
+                        };
+                    }
+                    track.senders
+                } else {
+                    return;
                 }
             }
-            if let MediaTrackSource::Local(src) = track.source {
-                if Arc::strong_count(&src) == 2 {
-                    self.video_sources.remove(&src.device_id);
-                };
-            };
-            track.senders
-        } else if let Some((_, track)) =
-            self.audio_tracks.remove(&AudioTrackId::from(track_id))
-        {
-            if let MediaTrackSource::Local(src) = track.source {
-                if Arc::strong_count(&src) == 2 {
-                    self.audio_source.take();
-                    // TODO: We should make `AudioDeviceModule` to stop
-                    //       recording.
-                };
+            MediaType::Video => {
+                if let Some((_, mut track)) =
+                    self.video_tracks.remove(&VideoTrackId::from(track_id))
+                {
+                    for id in track.sinks.clone() {
+                        if let Some(sink) = self.video_sinks.remove(&id) {
+                            track.remove_video_sink(sink);
+                        }
+                    }
+                    if let MediaTrackSource::Local(src) = track.source {
+                        if Arc::strong_count(&src) == 2 {
+                            self.video_sources.remove(&src.device_id);
+                        };
+                    }
+                    track.senders
+                } else {
+                    return;
+                }
             }
-            track.senders
-        } else {
-            return;
         };
 
         for (id, senders) in senders {
@@ -86,13 +123,15 @@ impl Webrtc {
     fn create_video_track(
         &mut self,
         source: Arc<VideoSource>,
-    ) -> anyhow::Result<RefMut<'_, VideoTrackId, VideoTrack>> {
+    ) -> anyhow::Result<api::MediaStreamTrack> {
         let track =
             VideoTrack::create_local(&self.peer_connection_factory, source)?;
 
-        let track = self.video_tracks.entry(track.id).or_insert(track);
+        let api_track = api::MediaStreamTrack::from(&track);
 
-        Ok(track)
+        self.video_tracks.insert(track.id.clone(), track);
+
+        Ok(api_track)
     }
 
     /// Creates a new [`VideoSource`] based on the given [`VideoConstraints`].
@@ -158,7 +197,7 @@ impl Webrtc {
     fn create_audio_track(
         &mut self,
         source: Arc<sys::AudioSourceInterface>,
-    ) -> anyhow::Result<RefMut<'_, AudioTrackId, AudioTrack>> {
+    ) -> anyhow::Result<api::MediaStreamTrack> {
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
         let device_id =
@@ -167,9 +206,11 @@ impl Webrtc {
         let track =
             AudioTrack::new(&self.peer_connection_factory, source, device_id)?;
 
-        let track = self.audio_tracks.entry(track.id).or_insert(track);
+        let api_track = api::MediaStreamTrack::from(&track);
 
-        Ok(track)
+        self.audio_tracks.insert(track.id.clone(), track);
+
+        Ok(api_track)
     }
 
     /// Creates a new [`sys::AudioSourceInterface`] based on the given
@@ -235,15 +276,27 @@ impl Webrtc {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_track_enabled(
         &self,
-        id: u64,
+        id: String,
+        kind: api::MediaType,
         enabled: bool,
     ) -> anyhow::Result<()> {
-        if let Some(track) = self.video_tracks.get(&VideoTrackId(id)) {
-            track.inner.set_enabled(enabled);
-        } else if let Some(track) = self.audio_tracks.get(&AudioTrackId(id)) {
-            track.set_enabled(enabled);
-        } else {
-            bail!("Cannot find track with `{id}` ID");
+        match kind {
+            MediaType::Audio => {
+                let id = AudioTrackId::from(id);
+                let track = self.audio_tracks.get(&id).ok_or_else(|| {
+                    anyhow!("Cannot find track with ID `{id}`")
+                })?;
+
+                track.set_enabled(enabled);
+            }
+            MediaType::Video => {
+                let id = VideoTrackId::from(id);
+                let track = self.video_tracks.get(&id).ok_or_else(|| {
+                    anyhow!("Cannot find track with ID `{id}`")
+                })?;
+
+                track.set_enabled(enabled);
+            }
         }
 
         Ok(())
@@ -252,96 +305,108 @@ impl Webrtc {
     /// Clones the specified [`api::MediaStreamTrack`].
     pub fn clone_track(
         &mut self,
-        id: u64,
+        id: String,
+        kind: api::MediaType,
     ) -> anyhow::Result<api::MediaStreamTrack> {
-        if self.video_tracks.contains_key(&VideoTrackId(id)) {
-            let source =
-                match &self.video_tracks.get(&VideoTrackId(id)).unwrap().source
-                {
+        match kind {
+            MediaType::Audio => {
+                let id = AudioTrackId::from(id);
+                let source = self
+                    .audio_tracks
+                    .get(&id)
+                    .map(|track| match &track.source {
+                        MediaTrackSource::Local(source) => {
+                            MediaTrackSource::Local(Arc::clone(source))
+                        }
+                        MediaTrackSource::Remote { mid, peer_id } => {
+                            MediaTrackSource::Remote {
+                                mid: mid.to_string(),
+                                peer_id: *peer_id,
+                            }
+                        }
+                    })
+                    .ok_or_else(|| {
+                        anyhow!("Cannot find track with ID `{id}`")
+                    })?;
+
+                match source {
                     MediaTrackSource::Local(source) => {
-                        MediaTrackSource::Local(Arc::clone(source))
+                        Ok(self.create_audio_track(source)?)
                     }
                     MediaTrackSource::Remote { mid, peer_id } => {
-                        MediaTrackSource::Remote {
-                            mid: mid.to_string(),
-                            peer_id: *peer_id,
+                        let peer = self.peer_connections.get(&peer_id).unwrap();
+
+                        let mut transceivers = peer.get_transceivers();
+
+                        transceivers.retain(|transceiver| {
+                            transceiver.mid().unwrap() == mid
+                        });
+
+                        if transceivers.is_empty() {
+                            bail!(
+                                "No `transceiver` has been found with mid \
+                                 `{mid}`",
+                            );
                         }
-                    }
-                };
 
-            match source {
-                MediaTrackSource::Local(source) => {
-                    Ok(api::MediaStreamTrack::from(
-                        self.create_video_track(source).unwrap().value(),
-                    ))
-                }
-                MediaTrackSource::Remote { mid, peer_id } => {
-                    let peer = self.peer_connections.get(&peer_id).unwrap();
-
-                    let mut transceivers = peer.get_transceivers();
-
-                    transceivers.retain(|transceiver| {
-                        transceiver.mid().unwrap() == mid
-                    });
-
-                    if transceivers.is_empty() {
-                        bail!(
-                            "No `transceiver` has been found with mid `{mid}`",
+                        let track = AudioTrack::wrap_remote(
+                            transceivers.get(0).unwrap(),
+                            peer_id,
                         );
-                    }
-                    let track = VideoTrack::wrap_remote(
-                        transceivers.get(0).unwrap(),
-                        peer_id,
-                    );
 
-                    Ok(api::MediaStreamTrack::from(&track))
+                        Ok(api::MediaStreamTrack::from(&track))
+                    }
                 }
             }
-        } else if self.audio_tracks.contains_key(&AudioTrackId(id)) {
-            let source =
-                match &self.audio_tracks.get(&AudioTrackId(id)).unwrap().source
-                {
+            MediaType::Video => {
+                let id = VideoTrackId::from(id);
+                let source = self
+                    .video_tracks
+                    .get(&id)
+                    .map(|track| match &track.source {
+                        MediaTrackSource::Local(source) => {
+                            MediaTrackSource::Local(Arc::clone(source))
+                        }
+                        MediaTrackSource::Remote { mid, peer_id } => {
+                            MediaTrackSource::Remote {
+                                mid: mid.to_string(),
+                                peer_id: *peer_id,
+                            }
+                        }
+                    })
+                    .ok_or_else(|| {
+                        anyhow!("Cannot find track with ID `{id}`")
+                    })?;
+
+                match source {
                     MediaTrackSource::Local(source) => {
-                        MediaTrackSource::Local(Arc::clone(source))
+                        Ok(self.create_video_track(source)?)
                     }
                     MediaTrackSource::Remote { mid, peer_id } => {
-                        MediaTrackSource::Remote {
-                            mid: mid.to_string(),
-                            peer_id: *peer_id,
+                        let peer = self.peer_connections.get(&peer_id).unwrap();
+
+                        let mut transceivers = peer.get_transceivers();
+
+                        transceivers.retain(|transceiver| {
+                            transceiver.mid().unwrap() == mid
+                        });
+
+                        if transceivers.is_empty() {
+                            bail!(
+                                "No `transceiver` has been found with mid \
+                                 `{mid}`",
+                            );
                         }
-                    }
-                };
 
-            match source {
-                MediaTrackSource::Local(source) => {
-                    Ok(api::MediaStreamTrack::from(
-                        self.create_audio_track(source).unwrap().value(),
-                    ))
-                }
-                MediaTrackSource::Remote { mid, peer_id } => {
-                    let peer = self.peer_connections.get(&peer_id).unwrap();
-
-                    let mut transceivers = peer.get_transceivers();
-
-                    transceivers.retain(|transceiver| {
-                        transceiver.mid().unwrap() == mid
-                    });
-
-                    if transceivers.is_empty() {
-                        bail!(
-                            "No `transceiver` has been found with mid `{mid}`",
+                        let track = VideoTrack::wrap_remote(
+                            transceivers.get(0).unwrap(),
+                            peer_id,
                         );
-                    }
-                    let track = VideoTrack::wrap_remote(
-                        transceivers.get(0).unwrap(),
-                        peer_id,
-                    );
 
-                    Ok(api::MediaStreamTrack::from(&track))
+                        Ok(api::MediaStreamTrack::from(&track))
+                    }
                 }
             }
-        } else {
-            bail!("Cannot find track with ID `{id}`")
         }
     }
 
@@ -353,22 +418,32 @@ impl Webrtc {
     /// [`VideoTrack`] by the specified `id`.
     pub fn register_track_observer(
         &self,
-        track_id: u64,
+        id: String,
+        kind: api::MediaType,
         cb: StreamSink<TrackEvent>,
     ) -> anyhow::Result<()> {
         let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
-        if let Some(mut track) =
-            self.video_tracks.get_mut(&VideoTrackId::from(track_id))
-        {
-            obs.set_video_track(&track.inner);
-            track.inner.register_observer(obs);
-        } else if let Some(mut track) =
-            self.audio_tracks.get_mut(&AudioTrackId::from(track_id))
-        {
-            obs.set_audio_track(&track.inner);
-            track.inner.register_observer(obs);
-        } else {
-            bail!("Cannot find track with ID `{track_id}`")
+        match kind {
+            MediaType::Audio => {
+                let id = AudioTrackId::from(id);
+                let mut track =
+                    self.audio_tracks.get_mut(&id).ok_or_else(|| {
+                        anyhow!("Cannot find track with ID `{id}`")
+                    })?;
+
+                obs.set_audio_track(&track.inner);
+                track.inner.register_observer(obs);
+            }
+            MediaType::Video => {
+                let id = VideoTrackId::from(id);
+                let mut track =
+                    self.video_tracks.get_mut(&id).ok_or_else(|| {
+                        anyhow!("Cannot find track with ID `{id}`")
+                    })?;
+
+                obs.set_video_track(&track.inner);
+                track.inner.register_observer(obs);
+            }
         }
 
         Ok(())
@@ -391,12 +466,12 @@ pub struct VideoDeviceId(String);
 pub struct AudioDeviceId(String);
 
 /// ID of a [`VideoTrack`].
-#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
-pub struct VideoTrackId(u64);
+#[derive(Clone, Debug, Display, From, Eq, Hash, Into, PartialEq)]
+pub struct VideoTrackId(String);
 
 /// ID of an [`AudioTrack`].
-#[derive(Clone, Copy, Debug, Display, From, Eq, Hash, PartialEq)]
-pub struct AudioTrackId(u64);
+#[derive(Clone, Debug, Display, From, Eq, Hash, Into, PartialEq)]
+pub struct AudioTrackId(String);
 
 /// Label identifying a video track source.
 #[derive(AsRef, Clone, Debug, Default, Display, Eq, From, Hash, PartialEq)]
@@ -445,10 +520,17 @@ impl AudioDeviceModule {
         )?;
         inner.init()?;
 
-        Ok(Self {
+        let mut adm = Self {
             inner,
             current_device_id: None,
-        })
+        };
+        if adm.recording_devices() > 0 {
+            adm.set_recording_device(
+                AudioDeviceId(adm.recording_device_name(0)?.1),
+                0,
+            )?;
+        }
+        Ok(adm)
     }
 
     /// Returns the `(label, id)` tuple for the given audio playout device
@@ -532,7 +614,79 @@ impl AudioDeviceModule {
         self.inner.set_recording_device(index)?;
         self.current_device_id.replace(id);
 
+        if !self.inner.microphone_is_initialized() {
+            self.inner.init_microphone()?;
+        }
+
         Ok(())
+    }
+
+    /// Sets the microphone system volume according to the given level in
+    /// percents.
+    ///
+    /// # Errors
+    ///
+    /// Errors if any of the following calls fail:
+    ///     - [`sys::AudioDeviceModule::microphone_volume_is_available()`];
+    ///     - [`sys::AudioDeviceModule::min_microphone_volume()`];
+    ///     - [`sys::AudioDeviceModule::max_microphone_volume()`];
+    ///     - [`sys::AudioDeviceModule::set_microphone_volume()`].
+    pub fn set_microphone_volume(&self, mut level: u8) -> anyhow::Result<()> {
+        if !self.microphone_volume_is_available()? {
+            bail!("The microphone volume is unavailable.")
+        }
+
+        if level > 100 {
+            level = 100;
+        }
+
+        let min_volume = self.inner.min_microphone_volume()?;
+        let max_volume = self.inner.max_microphone_volume()?;
+
+        let volume = f64::from(min_volume)
+            + (f64::from(max_volume - min_volume) * (f64::from(level) / 100.0));
+
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        self.inner.set_microphone_volume(volume as u32)
+    }
+
+    /// Indicates if the microphone is available to set volume.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::microphone_volume_is_available()`] call
+    /// fails.
+    pub fn microphone_volume_is_available(&self) -> anyhow::Result<bool> {
+        Ok(
+            if let Ok(is_available) =
+                self.inner.microphone_volume_is_available()
+            {
+                is_available
+            } else {
+                false
+            },
+        )
+    }
+
+    /// Returns the current level of the microphone volume in percents.
+    ///
+    /// # Errors
+    ///
+    /// If fails on:
+    ///     - [`sys::AudioDeviceModule::microphone_volume()`] call
+    ///     - [`sys::AudioDeviceModule::min_microphone_volume()`] call
+    ///     - [`sys::AudioDeviceModule::max_microphone_volume()`] call
+    pub fn microphone_volume(&self) -> anyhow::Result<u32> {
+        let volume = self.inner.microphone_volume()?;
+        let min_volume = self.inner.min_microphone_volume()?;
+        let max_volume = self.inner.max_microphone_volume()?;
+
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let level = (f64::from(volume - min_volume)
+            / f64::from(max_volume - min_volume)
+            * 100.0) as u32;
+
+        Ok(level)
     }
 
     /// Changes the playout device for this [`AudioDeviceModule`].
@@ -585,10 +739,10 @@ impl VideoTrack {
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<VideoSource>,
     ) -> anyhow::Result<Self> {
-        let id = VideoTrackId(next_id());
+        let id = VideoTrackId(next_id().to_string());
         Ok(Self {
-            id,
-            inner: pc.create_video_track(id.to_string(), &src.inner)?,
+            id: id.clone(),
+            inner: pc.create_video_track(id.into(), &src.inner)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Video,
             sinks: Vec::new(),
@@ -605,7 +759,7 @@ impl VideoTrack {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {
-            id: VideoTrackId(next_id()),
+            id: VideoTrackId(track.id()),
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
@@ -622,7 +776,7 @@ impl VideoTrack {
     /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
     #[must_use]
     pub fn id(&self) -> VideoTrackId {
-        self.id
+        self.id.clone()
     }
 
     /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
@@ -654,7 +808,7 @@ impl VideoTrack {
 impl From<&VideoTrack> for api::MediaStreamTrack {
     fn from(track: &VideoTrack) -> Self {
         Self {
-            id: track.id.0,
+            id: track.id.0.clone(),
             device_id: match &track.source {
                 MediaTrackSource::Local(src) => src.device_id.to_string(),
                 MediaTrackSource::Remote { mid: _, peer_id: _ } => {
@@ -702,10 +856,10 @@ impl AudioTrack {
         src: Arc<sys::AudioSourceInterface>,
         device_id: AudioDeviceId,
     ) -> anyhow::Result<Self> {
-        let id = AudioTrackId(next_id());
+        let id = AudioTrackId(next_id().to_string());
         Ok(Self {
-            id,
-            inner: pc.create_audio_track(id.to_string(), &src)?,
+            id: id.clone(),
+            inner: pc.create_audio_track(id.into(), &src)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Audio,
             device_id,
@@ -722,7 +876,7 @@ impl AudioTrack {
         let receiver = transceiver.receiver();
         let track = receiver.track();
         Self {
-            id: AudioTrackId(next_id()),
+            id: AudioTrackId(track.id()),
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
             // at this point.
@@ -739,7 +893,7 @@ impl AudioTrack {
     /// Returns the [`AudioTrackId`] of this [`AudioTrack`].
     #[must_use]
     pub fn id(&self) -> AudioTrackId {
-        self.id
+        self.id.clone()
     }
 
     /// Changes the [enabled][1] property of the underlying
@@ -759,7 +913,7 @@ impl AudioTrack {
 impl From<&AudioTrack> for api::MediaStreamTrack {
     fn from(track: &AudioTrack) -> Self {
         Self {
-            id: track.id.0,
+            id: track.id.0.clone(),
             device_id: track.device_id.to_string(),
             kind: track.kind,
             enabled: true,

@@ -550,7 +550,7 @@ pub struct AudioConstraints {
 #[derive(Clone, Debug)]
 pub struct MediaStreamTrack {
     /// Unique identifier (GUID) of this [`MediaStreamTrack`].
-    pub id: u64,
+    pub id: String,
 
     /// Label identifying the track source, as in "internal microphone".
     pub device_id: String,
@@ -891,7 +891,7 @@ pub fn stop_transceiver(
 pub fn sender_replace_track(
     peer_id: u64,
     transceiver_index: u32,
-    track_id: Option<u64>,
+    track_id: Option<String>,
 ) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().sender_replace_track(
         peer_id,
@@ -939,32 +939,62 @@ pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
 }
 
-/// Disposes the specified [`MediaStreamTrack`].
-pub fn dispose_track(track_id: u64) {
-    WEBRTC.lock().unwrap().dispose_track(track_id);
+/// Indicates whether the microphone is available to set volume.
+pub fn microphone_volume_is_available() -> anyhow::Result<bool> {
+    WEBRTC.lock().unwrap().microphone_volume_is_available()
 }
 
-/// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID.
+/// Sets the microphone system volume according to the specified `level` in
+/// percents.
+///
+/// Valid values range is `[0; 100]`.
+pub fn set_microphone_volume(level: u8) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().set_microphone_volume(level)
+}
+
+/// Returns the current level of the microphone volume in `[0; 100]` range.
+pub fn microphone_volume() -> anyhow::Result<u32> {
+    WEBRTC.lock().unwrap().microphone_volume()
+}
+
+/// Disposes the specified [`MediaStreamTrack`].
+pub fn dispose_track(track_id: String, kind: MediaType) {
+    WEBRTC.lock().unwrap().dispose_track(track_id, kind);
+}
+
+/// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
+/// [`MediaType`].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
-pub fn set_track_enabled(track_id: u64, enabled: bool) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_track_enabled(track_id, enabled)
+pub fn set_track_enabled(
+    track_id: String,
+    kind: MediaType,
+    enabled: bool,
+) -> anyhow::Result<()> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .set_track_enabled(track_id, kind, enabled)
 }
 
 /// Clones the specified [`MediaStreamTrack`].
-pub fn clone_track(track_id: u64) -> anyhow::Result<MediaStreamTrack> {
-    WEBRTC.lock().unwrap().clone_track(track_id)
+pub fn clone_track(
+    track_id: String,
+    kind: MediaType,
+) -> anyhow::Result<MediaStreamTrack> {
+    WEBRTC.lock().unwrap().clone_track(track_id, kind)
 }
 
 /// Registers an observer to the [`MediaStreamTrack`] events.
 pub fn register_track_observer(
     cb: StreamSink<TrackEvent>,
-    track_id: u64,
+    track_id: String,
+    kind: MediaType,
 ) -> anyhow::Result<()> {
     WEBRTC
         .lock()
         .unwrap()
-        .register_track_observer(track_id, cb.into())
+        .register_track_observer(track_id, kind, cb.into())
 }
 
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
@@ -982,7 +1012,7 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
 /// an [`OnFrameCallbackInterface`].
 pub fn create_video_sink(
     sink_id: i64,
-    track_id: u64,
+    track_id: String,
     callback_ptr: u64,
 ) -> anyhow::Result<()> {
     let handler = unsafe {
