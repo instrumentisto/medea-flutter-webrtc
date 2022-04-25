@@ -42,7 +42,8 @@ struct DeviceState {
     adm: AudioDeviceModule,
     _thread: sys::Thread,
     vdi: sys::VideoDeviceInfo,
-    count: u32,
+    audio_count: u32,
+    video_count: u32,
 }
 
 impl DeviceState {
@@ -65,26 +66,38 @@ impl DeviceState {
             adm,
             _thread: thread,
             vdi,
-            count: 0,
+            audio_count: 0,
+            video_count: 0,
             cb,
         };
 
-        let device_count = ds.count_devices();
-        ds.set_count(device_count);
+        let audio_device_count = ds.count_audio_devices();
+        ds.set_audio_count(audio_device_count);
+
+        let video_device_count = ds.count_video_devices();
+        ds.set_video_count(video_device_count);
 
         Ok(ds)
     }
 
-    /// Counts current media device number.
-    fn count_devices(&mut self) -> u32 {
-        self.adm.playout_devices()
-            + self.adm.recording_devices()
-            + self.vdi.number_of_devices()
+    /// Counts current audio media device number.
+    fn count_audio_devices(&mut self) -> u32 {
+        self.adm.playout_devices() + self.adm.recording_devices()
     }
 
-    /// Fixes some media device count in the [`DeviceState`].
-    fn set_count(&mut self, new_count: u32) {
-        self.count = new_count;
+    /// Counts current video media device number.
+    fn count_video_devices(&mut self) -> u32 {
+        self.vdi.number_of_devices()
+    }
+
+    /// Fixes some audio media device count in the [`DeviceState`].
+    fn set_audio_count(&mut self, new_count: u32) {
+        self.audio_count = new_count;
+    }
+
+    /// Fixes some video media device count in the [`DeviceState`].
+    fn set_video_count(&mut self, new_count: u32) {
+        self.video_count = new_count;
     }
 
     /// Triggers the [`OnDeviceChangeCallback`].
@@ -310,10 +323,14 @@ pub unsafe fn init() {
 
                 if !state.is_null() {
                     let device_state = &mut *state;
-                    let new_count = device_state.count_devices();
+                    let new_video_count = device_state.count_video_devices();
+                    let new_audio_count = device_state.count_audio_devices();
 
-                    if device_state.count != new_count {
-                        device_state.set_count(new_count);
+                    if device_state.video_count != new_video_count
+                        || device_state.audio_count != new_audio_count
+                    {
+                        device_state.set_video_count(new_video_count);
+                        device_state.set_audio_count(new_audio_count);
                         device_state.on_device_change();
                     }
                 }
@@ -450,10 +467,10 @@ mod linux_device_change {
                     let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
                     if !state.is_null() {
                         let device_state = unsafe { &mut *state };
-                        let new_count = device_state.count_devices();
+                        let new_count = device_state.count_video_devices();
 
-                        if device_state.count != new_count {
-                            device_state.set_count(new_count);
+                        if device_state.video_count != new_count {
+                            device_state.set_video_count(new_count);
                             device_state.on_device_change();
                         }
                     }
@@ -531,10 +548,10 @@ mod linux_device_change {
                     let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
                     if !state.is_null() {
                         let device_state = &mut *state;
-                        let new_count = device_state.count_devices();
+                        let new_count = device_state.count_audio_devices();
 
-                        if device_state.count != new_count {
-                            device_state.set_count(new_count);
+                        if device_state.audio_count != new_count {
+                            device_state.set_audio_count(new_count);
                             device_state.on_device_change();
                         }
                     }
@@ -554,10 +571,10 @@ mod linux_device_change {
             let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
             if !state.is_null() {
                 let device_state = unsafe { &mut *state };
-                let new_count = device_state.count_devices();
+                let new_count = device_state.count_audio_devices();
 
-                if device_state.count != new_count {
-                    device_state.set_count(new_count);
+                if device_state.audio_count != new_count {
+                    device_state.set_audio_count(new_count);
                     device_state.on_device_change();
                 }
             }
@@ -576,10 +593,10 @@ mod linux_device_change {
             let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
             if !state.is_null() {
                 let device_state = unsafe { &mut *state };
-                let new_count = device_state.count_devices();
+                let new_count = device_state.count_audio_devices();
 
-                if device_state.count != new_count {
-                    device_state.set_count(new_count);
+                if device_state.audio_count != new_count {
+                    device_state.set_audio_count(new_count);
                     device_state.on_device_change();
                 }
             }
@@ -595,26 +612,26 @@ mod linux_device_change {
                 let mut retval = 0;
                 unsafe {
                     if pa_mainloop_iterate(self.main_loop, 1, &mut retval) < 0 {
-                        anyhow::bail!("mainloop iterate error {retval}");
+                        anyhow::bail!("pulse audio mainloop iterate error {retval}");
                     }
                 }
                 Ok(())
             }
 
-            pub unsafe fn new(id: u64) -> anyhow::Result<Self> {
+            pub unsafe fn new() -> anyhow::Result<Self> {
                 let ml = pa_mainloop_new();
                 if ml.is_null() {
-                    anyhow::bail!("mainloop is null");
+                    anyhow::bail!("pulse audio mainloop is null");
                 }
 
-                let name = format!("webrtc-desktop{id}");
+                let name = format!("webrtc-desktop");
                 let c_str = CString::new(name).unwrap();
                 let c_world: *const c_char = c_str.as_ptr() as *const c_char;
 
                 let api = pa_mainloop_get_api(ml);
                 let ctx = pa_context_new(api, c_world);
                 if ctx.is_null() {
-                    anyhow::bail!("context start error");
+                    anyhow::bail!("pulse audio context start error");
                 }
 
                 let ud: *mut c_void = mem::transmute(ctx);
@@ -626,7 +643,7 @@ mod linux_device_change {
                 );
 
                 if pa_context_connect(ctx, ptr::null(), 0, ptr::null()) < 0 {
-                    anyhow::bail!("context connect error");
+                    anyhow::bail!("pulse audio context connect error");
                 }
 
                 loop {
@@ -644,7 +661,7 @@ mod linux_device_change {
 
                     let mut retval = 0;
                     if pa_mainloop_iterate(ml, 1, &mut retval) < 0 {
-                        anyhow::bail!("mainloop iterate error");
+                        anyhow::bail!("pulse audio mainloop iterate error");
                     }
                 }
 
@@ -686,16 +703,18 @@ pub unsafe fn init() {
         pulse_audio::AudioMonitor, udev::monitor,
     };
 
+    // todo
     thread::spawn(move || {
         let context = libudev::Context::new().unwrap();
         monitor(&context).unwrap();
     });
 
+    // todo
     thread::spawn(move || {
-        let mut m = AudioMonitor::new(42).unwrap();
+        let mut m = AudioMonitor::new().unwrap();
         loop {
             if let Err(e) = m.iterate() {
-                println!("{e}");
+                log::error!("pulse audio mainloop iterate error: {e}");
             }
         }
     });
