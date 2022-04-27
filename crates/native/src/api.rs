@@ -712,24 +712,22 @@ impl From<BundlePolicy> for sys::BundlePolicy {
     }
 }
 
-/// Error of getting the media.
-pub enum GetMediaError {
-    /// The [`GetMediaError`] is caused while creating [`crate::VideoSource`]
-    /// or [`crate::VideoTrack`].
-    Audio(String),
-
-    /// The [`GetMediaError`] is caused while creating
-    /// [`crate::sys::AudioSourceInterface`] or [`crate::AudioTrack`].
-    Video(String),
-}
-
-/// The result of getting the media.
+/// [`get_media()`] function result.
 pub enum GetMediaResult {
-    /// Getting the media is ok.
+    /// The requested media tracks.
     Ok(Vec<MediaStreamTrack>),
 
-    /// Getting the media is failed.
+    /// Could not get requested media.
     Err(GetMediaError),
+}
+
+/// Media acquisition error.
+pub enum GetMediaError {
+    /// Could not acquire audio track.
+    Audio(String),
+
+    /// Could not acquire video track.
+    Video(String),
 }
 
 /// Description of STUN and TURN servers that can be used by an [ICE Agent][1]
@@ -949,7 +947,10 @@ pub fn dispose_peer_connection(peer_id: u64) {
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
-    WEBRTC.lock().unwrap().get_media(constraints)
+    match WEBRTC.lock().unwrap().get_media(constraints) {
+        Ok(tracks) => GetMediaResult::Ok(tracks),
+        Err(err) => GetMediaResult::Err(err),
+    }
 }
 
 /// Sets the specified `audio playout` device.

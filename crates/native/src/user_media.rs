@@ -24,71 +24,57 @@ impl Webrtc {
     pub fn get_media(
         &mut self,
         constraints: api::MediaStreamConstraints,
-    ) -> api::GetMediaResult {
+    ) -> Result<Vec<api::MediaStreamTrack>, api::GetMediaError> {
         let mut tracks = Vec::new();
-        let mut err = None;
 
-        let inner_get_video = || {
+        let inner_get_media = || -> Result<(), api::GetMediaError> {
             if let Some(video) = constraints.video {
                 let src =
-                    if let Ok(src) = self.get_or_create_video_source(&video) {
-                        src
-                    } else {
-                        err.replace(api::GetMediaError::Video(
-                            "Unable to create a `video source`.".to_string(),
-                        ));
-                        return;
-                    };
-
-                if let Ok(track) = self.create_video_track(Arc::clone(&src)) {
-                    tracks.push(track);
-                } else {
+                    self.get_or_create_video_source(&video).map_err(|err| {
+                        api::GetMediaError::Video(err.to_string())
+                    })?;
+                let track = self
+                    .create_video_track(Arc::clone(&src))
+                    .map_err(|err| api::GetMediaError::Video(err.to_string()));
+                if let Err(err) = track {
                     if Arc::strong_count(&src) == 2 {
                         self.video_sources.remove(&src.device_id);
                     };
-
-                    err.replace(api::GetMediaError::Video(
-                        "Unable to create a `video track`.".to_string(),
-                    ));
-                    return;
+                    return Err(err);
                 }
+                tracks.push(track?);
             }
 
             if let Some(audio) = constraints.audio {
                 let src =
-                    if let Ok(src) = self.get_or_create_audio_source(&audio) {
-                        src
-                    } else {
-                        err.replace(api::GetMediaError::Audio(
-                            "Unable to create a `audio source`.".to_string(),
-                        ));
-                        return;
-                    };
-                if let Ok(track) = self.create_audio_track(src) {
-                    tracks.push(track);
-                } else {
+                    self.get_or_create_audio_source(&audio).map_err(|err| {
+                        api::GetMediaError::Audio(err.to_string())
+                    })?;
+                let track = self
+                    .create_audio_track(src)
+                    .map_err(|err| api::GetMediaError::Audio(err.to_string()));
+                if let Err(err) = track {
                     if Arc::get_mut(self.audio_source.as_mut().unwrap())
                         .is_some()
                     {
                         self.audio_source.take();
                     }
-
-                    err.replace(api::GetMediaError::Audio(
-                        "Unable to create a `audio track`.".to_string(),
-                    ));
+                    return Err(err);
                 }
+                tracks.push(track?);
             }
+
+            Ok(())
         };
 
-        inner_get_video();
-
-        if let Some(err) = err {
+        if let Err(err) = inner_get_media() {
             for track in tracks {
                 self.dispose_track(track.id, track.kind);
             }
-            api::GetMediaResult::Err(err)
+
+            Err(err)
         } else {
-            api::GetMediaResult::Ok(tracks)
+            Ok(tracks)
         }
     }
 

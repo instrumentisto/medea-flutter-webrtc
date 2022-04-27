@@ -225,12 +225,14 @@ enum BundlePolicy {
 
 @freezed
 class GetMediaError with _$GetMediaError {
-  /// The [`GetMediaError`] is caused while creating [`crate::VideoSource`] or [`crate::VideoTrack`].
+  /// The [`GetMediaError`] is caused while creating [`crate::VideoSource`]
+  /// or [`crate::VideoTrack`].
   const factory GetMediaError.audio(
     String field0,
   ) = Audio;
 
-  /// The [`GetMediaError`] is caused while creating [`crate::sys::AudioSourceInterface`] or [`crate::AudioTrack`].
+  /// The [`GetMediaError`] is caused while creating
+  /// [`crate::sys::AudioSourceInterface`] or [`crate::AudioTrack`].
   const factory GetMediaError.video(
     String field0,
   ) = Video;
