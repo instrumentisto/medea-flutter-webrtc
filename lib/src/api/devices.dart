@@ -200,7 +200,7 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
       constraints: ffi.MediaStreamConstraints(
           audio: audioConstraints, video: videoConstraints));
 
-  return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
+  return tracks.res.map((e) => NativeMediaStreamTrack.from(e)).toList();
 }
 
 /// [MethodChannel]-based implementation of a [getDisplayMedia] function.

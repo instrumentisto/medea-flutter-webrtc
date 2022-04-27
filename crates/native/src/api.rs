@@ -1,6 +1,8 @@
 use std::{mem, sync::Mutex};
 
+use anyhow::Ok;
 use cxx::UniquePtr;
+use derive_more::Display;
 use flutter_rust_bridge::{StreamSink, SyncReturn};
 use libwebrtc_sys as sys;
 
@@ -185,9 +187,7 @@ impl From<sys::SignalingState> for SignalingState {
             sys::SignalingState::kHaveLocalOffer => Self::HaveLocalOffer,
             sys::SignalingState::kHaveLocalPrAnswer => Self::HaveLocalPrAnswer,
             sys::SignalingState::kHaveRemoteOffer => Self::HaveRemoteOffer,
-            sys::SignalingState::kHaveRemotePrAnswer => {
-                Self::HaveRemotePrAnswer
-            }
+            sys::SignalingState::kHaveRemotePrAnswer => Self::HaveRemotePrAnswer,
             sys::SignalingState::kClosed => Self::Closed,
             _ => unreachable!(),
         }
@@ -243,9 +243,7 @@ impl From<sys::IceConnectionState> for IceConnectionState {
             sys::IceConnectionState::kIceConnectionConnected => Self::Connected,
             sys::IceConnectionState::kIceConnectionCompleted => Self::Completed,
             sys::IceConnectionState::kIceConnectionFailed => Self::Failed,
-            sys::IceConnectionState::kIceConnectionDisconnected => {
-                Self::Disconnected
-            }
+            sys::IceConnectionState::kIceConnectionDisconnected => Self::Disconnected,
             sys::IceConnectionState::kIceConnectionClosed => Self::Closed,
             _ => unreachable!(),
         }
@@ -817,18 +815,15 @@ pub fn add_transceiver(
     media_type: MediaType,
     direction: RtpTransceiverDirection,
 ) -> anyhow::Result<RtcRtpTransceiver> {
-    WEBRTC.lock().unwrap().add_transceiver(
-        peer_id,
-        media_type.into(),
-        direction.into(),
-    )
+    WEBRTC
+        .lock()
+        .unwrap()
+        .add_transceiver(peer_id, media_type.into(), direction.into())
 }
 
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
 /// transceivers currently attached to the specified [`PeerConnection`].
-pub fn get_transceivers(
-    peer_id: u64,
-) -> anyhow::Result<Vec<RtcRtpTransceiver>> {
+pub fn get_transceivers(peer_id: u64) -> anyhow::Result<Vec<RtcRtpTransceiver>> {
     WEBRTC.lock().unwrap().get_transceivers(peer_id)
 }
 
@@ -838,11 +833,10 @@ pub fn set_transceiver_direction(
     transceiver_index: u32,
     direction: RtpTransceiverDirection,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_transceiver_direction(
-        peer_id,
-        transceiver_index,
-        direction,
-    )
+    WEBRTC
+        .lock()
+        .unwrap()
+        .set_transceiver_direction(peer_id, transceiver_index, direction)
 }
 
 /// Returns the [negotiated media ID (mid)][1] of the specified
@@ -876,10 +870,7 @@ pub fn get_transceiver_direction(
 ///
 /// This will immediately cause the transceiver's sender to no longer send, and
 /// its receiver to no longer receive.
-pub fn stop_transceiver(
-    peer_id: u64,
-    transceiver_index: u32,
-) -> anyhow::Result<()> {
+pub fn stop_transceiver(peer_id: u64, transceiver_index: u32) -> anyhow::Result<()> {
     WEBRTC
         .lock()
         .unwrap()
@@ -893,11 +884,10 @@ pub fn sender_replace_track(
     transceiver_index: u32,
     track_id: Option<String>,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().sender_replace_track(
-        peer_id,
-        transceiver_index,
-        track_id,
-    )
+    WEBRTC
+        .lock()
+        .unwrap()
+        .sender_replace_track(peer_id, transceiver_index, track_id)
 }
 
 /// Adds the new ICE `candidate` to the given [`PeerConnection`].
@@ -908,12 +898,10 @@ pub fn add_ice_candidate(
     sdp_mid: String,
     sdp_mline_index: i32,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().add_ice_candidate(
-        peer_id,
-        candidate,
-        sdp_mid,
-        sdp_mline_index,
-    )
+    WEBRTC
+        .lock()
+        .unwrap()
+        .add_ice_candidate(peer_id, candidate, sdp_mid, sdp_mline_index)
 }
 
 /// Tells the [`PeerConnection`] that ICE should be restarted.
@@ -926,11 +914,19 @@ pub fn dispose_peer_connection(peer_id: u64) {
     WEBRTC.lock().unwrap().dispose_peer_connection(peer_id);
 }
 
+pub enum CustomErr {
+    Audio,
+    Video,
+}
+
+pub struct CustomResult {
+    pub res: Vec<MediaStreamTrack>,
+    pub err: Option<CustomErr>,
+}
+
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
-pub fn get_media(
-    constraints: MediaStreamConstraints,
-) -> anyhow::Result<Vec<MediaStreamTrack>> {
+pub fn get_media(constraints: MediaStreamConstraints) -> CustomResult {
     WEBRTC.lock().unwrap().get_media(constraints)
 }
 
@@ -978,10 +974,7 @@ pub fn set_track_enabled(
 }
 
 /// Clones the specified [`MediaStreamTrack`].
-pub fn clone_track(
-    track_id: String,
-    kind: MediaType,
-) -> anyhow::Result<MediaStreamTrack> {
+pub fn clone_track(track_id: String, kind: MediaType) -> anyhow::Result<MediaStreamTrack> {
     WEBRTC.lock().unwrap().clone_track(track_id, kind)
 }
 

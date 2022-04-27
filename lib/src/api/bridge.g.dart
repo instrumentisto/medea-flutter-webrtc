@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes
 
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:ffi' as ffi;
 import 'dart:typed_data';
-import 'dart:typed_data';
-
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'dart:ffi' as ffi;
 
 part 'bridge.g.freezed.dart';
 
@@ -119,7 +119,7 @@ abstract class FlutterWebrtcNative {
 
   /// Creates a [`MediaStream`] with tracks according to provided
   /// [`MediaStreamConstraints`].
-  Future<List<MediaStreamTrack>> getMedia(
+  Future<CustomResult> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
 
   /// Sets the specified `audio playout` device.
@@ -221,6 +221,21 @@ enum BundlePolicy {
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
   MaxCompat,
+}
+
+enum CustomErr {
+  Audio,
+  Video,
+}
+
+class CustomResult {
+  final List<MediaStreamTrack> res;
+  final CustomErr? err;
+
+  CustomResult({
+    required this.res,
+    this.err,
+  });
 }
 
 /// [RTCIceConnectionState][1] representation.
@@ -1098,12 +1113,12 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<List<MediaStreamTrack>> getMedia(
+  Future<CustomResult> getMedia(
           {required MediaStreamConstraints constraints, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_media(
             port_, _api2wire_box_autoadd_media_stream_constraints(constraints)),
-        parseSuccessData: _wire2api_list_media_stream_track,
+        parseSuccessData: _wire2api_custom_result,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_media",
           argNames: ["constraints"],
@@ -1472,6 +1487,20 @@ RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
   return _wire2api_rtc_track_event(raw);
 }
 
+CustomErr _wire2api_custom_err(dynamic raw) {
+  return CustomErr.values[raw];
+}
+
+CustomResult _wire2api_custom_result(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 2)
+    throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+  return CustomResult(
+    res: _wire2api_list_media_stream_track(arr[0]),
+    err: _wire2api_opt_custom_err(arr[1]),
+  );
+}
+
 int _wire2api_i32(dynamic raw) {
   return raw as int;
 }
@@ -1529,6 +1558,10 @@ MediaType _wire2api_media_type(dynamic raw) {
 
 String? _wire2api_opt_String(dynamic raw) {
   return raw == null ? null : _wire2api_String(raw);
+}
+
+CustomErr? _wire2api_opt_custom_err(dynamic raw) {
+  return raw == null ? null : _wire2api_custom_err(raw);
 }
 
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
