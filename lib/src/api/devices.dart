@@ -196,11 +196,15 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
           isDisplay: false)
       : null;
 
-  var tracks = await api.getMedia(
+  var result = await api.getMedia(
       constraints: ffi.MediaStreamConstraints(
           audio: audioConstraints, video: videoConstraints));
 
-  return tracks.res.map((e) => NativeMediaStreamTrack.from(e)).toList();
+  if (result is ffi.Ok) {
+    return result.field0.map((e) => NativeMediaStreamTrack.from(e)).toList();
+  } else {
+    throw Exception((result as ffi.Err).field0.field0);
+  }
 }
 
 /// [MethodChannel]-based implementation of a [getDisplayMedia] function.
@@ -228,11 +232,15 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
           isDisplay: true)
       : null;
 
-  var tracks = await api.getMedia(
+  var result = await api.getMedia(
       constraints: ffi.MediaStreamConstraints(
           audio: audioConstraints, video: videoConstraints));
 
-  return tracks.map((e) => NativeMediaStreamTrack.from(e)).toList();
+  if (result is ffi.Ok) {
+    return result.field0.map((e) => NativeMediaStreamTrack.from(e)).toList();
+  } else {
+    throw Exception((result as ffi.Err).field0.field0);
+  }
 }
 
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called

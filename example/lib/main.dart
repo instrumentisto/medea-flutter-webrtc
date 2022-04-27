@@ -1,7 +1,6 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc_example/src/test.dart';
 
 import 'src/create_peer_connection.dart';
 import 'src/get_display_media.dart';
@@ -114,14 +113,6 @@ class _MyAppState extends State<MyApp> {
                 MaterialPageRoute(
                     builder: (BuildContext context) =>
                         const OnDeviceChangeNotifierSample()));
-          }),
-      RouteItem(
-          title: 'test',
-          push: (BuildContext context) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => const TestSample()));
           }),
     ];
   }

@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes
 
 import 'dart:convert';
-import 'dart:typed_data';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'dart:convert';
-import 'dart:typed_data';
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
+import 'dart:typed_data';
+import 'dart:typed_data';
+
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'bridge.g.freezed.dart';
 
@@ -119,7 +119,7 @@ abstract class FlutterWebrtcNative {
 
   /// Creates a [`MediaStream`] with tracks according to provided
   /// [`MediaStreamConstraints`].
-  Future<CustomResult> getMedia(
+  Future<GetMediaResult> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
 
   /// Sets the specified `audio playout` device.
@@ -223,19 +223,30 @@ enum BundlePolicy {
   MaxCompat,
 }
 
-enum CustomErr {
-  Audio,
-  Video,
+@freezed
+class GetMediaError with _$GetMediaError {
+  /// The [`GetMediaError`] is caused while creating [`crate::VideoSource`] or [`crate::VideoTrack`].
+  const factory GetMediaError.audio(
+    String field0,
+  ) = Audio;
+
+  /// The [`GetMediaError`] is caused while creating [`crate::sys::AudioSourceInterface`] or [`crate::AudioTrack`].
+  const factory GetMediaError.video(
+    String field0,
+  ) = Video;
 }
 
-class CustomResult {
-  final List<MediaStreamTrack> res;
-  final CustomErr? err;
+@freezed
+class GetMediaResult with _$GetMediaResult {
+  /// Getting the media is ok.
+  const factory GetMediaResult.ok(
+    List<MediaStreamTrack> field0,
+  ) = Ok;
 
-  CustomResult({
-    required this.res,
-    this.err,
-  });
+  /// Getting the media is failed.
+  const factory GetMediaResult.err(
+    GetMediaError field0,
+  ) = Err;
 }
 
 /// [RTCIceConnectionState][1] representation.
@@ -1113,12 +1124,12 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<CustomResult> getMedia(
+  Future<GetMediaResult> getMedia(
           {required MediaStreamConstraints constraints, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_media(
             port_, _api2wire_box_autoadd_media_stream_constraints(constraints)),
-        parseSuccessData: _wire2api_custom_result,
+        parseSuccessData: _wire2api_get_media_result,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_media",
           argNames: ["constraints"],
@@ -1483,22 +1494,42 @@ bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
 
+GetMediaError _wire2api_box_autoadd_get_media_error(dynamic raw) {
+  return _wire2api_get_media_error(raw);
+}
+
 RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
   return _wire2api_rtc_track_event(raw);
 }
 
-CustomErr _wire2api_custom_err(dynamic raw) {
-  return CustomErr.values[raw];
+GetMediaError _wire2api_get_media_error(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return Audio(
+        _wire2api_String(raw[1]),
+      );
+    case 1:
+      return Video(
+        _wire2api_String(raw[1]),
+      );
+    default:
+      throw Exception("unreachable");
+  }
 }
 
-CustomResult _wire2api_custom_result(dynamic raw) {
-  final arr = raw as List<dynamic>;
-  if (arr.length != 2)
-    throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-  return CustomResult(
-    res: _wire2api_list_media_stream_track(arr[0]),
-    err: _wire2api_opt_custom_err(arr[1]),
-  );
+GetMediaResult _wire2api_get_media_result(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return Ok(
+        _wire2api_list_media_stream_track(raw[1]),
+      );
+    case 1:
+      return Err(
+        _wire2api_box_autoadd_get_media_error(raw[1]),
+      );
+    default:
+      throw Exception("unreachable");
+  }
 }
 
 int _wire2api_i32(dynamic raw) {
@@ -1558,10 +1589,6 @@ MediaType _wire2api_media_type(dynamic raw) {
 
 String? _wire2api_opt_String(dynamic raw) {
   return raw == null ? null : _wire2api_String(raw);
-}
-
-CustomErr? _wire2api_opt_custom_err(dynamic raw) {
-  return raw == null ? null : _wire2api_custom_err(raw);
 }
 
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
