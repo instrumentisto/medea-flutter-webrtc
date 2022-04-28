@@ -113,14 +113,14 @@ flutter.pub:
 	flutter pub $(or $(cmd),get)
 
 
-# Run Flutter example application for Windows.
+# Run Flutter example application for current OS.
 #
 # Usage:
 #	make flutter.run
 
 flutter.run:
 	cd example/ && \
-	flutter run -d windows --release
+	flutter run -d $(CURRENT_OS) --release
 
 
 # Run Flutter plugin integration tests on an attached device.
