@@ -46,6 +46,12 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
+
+    #[cfg(feature = "fake_test")]
+    {
+        build.flag("-DFAKE_TEST");
+    }
+
     build.compile("libwebrtc-sys");
 
     for file in cpp_files {

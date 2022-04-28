@@ -155,12 +155,12 @@ cargo.clean:
 # platform-specific directories.
 #
 # Usage:
-#	make cargo.build [debug=(yes|no)]
+#	make cargo.build [debug=(yes|no)] todo args
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
-	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,)
+	cargo build -p flutter-webrtc-native $(if $(call eq,$(debug),no),--release,) $(args)
 ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
 	@mkdir -p linux/rust/lib/
