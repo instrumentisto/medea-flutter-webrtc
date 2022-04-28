@@ -239,4 +239,63 @@ void main() {
     await (await pc2.getTransceivers())[0].stop();
     await completer.future.timeout(const Duration(seconds: 3));
   });
+
+  testWidgets('e2e test', (WidgetTester tester) async {
+      var caps = DeviceConstraints();
+      caps.audio.mandatory = AudioConstraints();
+      caps.video.mandatory = DeviceVideoConstraints();
+      caps.video.mandatory!.width = 640;
+      caps.video.mandatory!.height = 480;
+      caps.video.mandatory!.fps = 30;
+
+      var trackspc1 = await getUserMedia(caps);
+      var trackspc2 = await getUserMedia(caps);
+
+
+      var server =
+          IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
+      var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
+      var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
+
+      var allFutures = List<Completer>.generate(2, (_) => Completer());
+
+      pc2.onTrack((track, trans) async {
+        if (track.kind() == MediaKind.video) {
+          allFutures[0].complete();
+        } else {
+          allFutures[1].complete();
+        }
+      });
+
+      var pc1vtrans = await pc1.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+      var pc1atrans = await pc1.addTransceiver(
+          MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+      var offer = await pc1.createOffer();
+      await pc1.setLocalDescription(offer);
+      await pc2.setRemoteDescription(offer);
+
+      var answer = await pc2.createAnswer();
+      await pc2.setLocalDescription(answer);
+      await pc1.setRemoteDescription(answer);
+
+      pc1.onIceCandidate((IceCandidate candidate) async {
+        await pc2.addIceCandidate(candidate);
+      });
+
+      pc2.onIceCandidate((IceCandidate candidate) async {
+        await pc1.addIceCandidate(candidate);
+      });
+
+      await pc1vtrans.sender.replaceTrack(
+          trackspc1.firstWhere((track) => track.kind() == MediaKind.video));
+
+      await pc1atrans.sender.replaceTrack(
+          trackspc1.firstWhere((track) => track.kind() == MediaKind.audio));
+
+      await Future.wait(allFutures.map((e) => e.future))
+        .timeout(Duration(seconds: 5));
+  });
 }
