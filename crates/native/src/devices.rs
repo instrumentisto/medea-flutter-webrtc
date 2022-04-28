@@ -1,12 +1,16 @@
-#[cfg(target_os = "windows")]
-use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 use std::{
     ptr,
     sync::atomic::{AtomicPtr, Ordering},
 };
 
+#[cfg(target_os = "windows")]
+use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
+
 use anyhow::anyhow;
 use libwebrtc_sys as sys;
+
+#[cfg(target_os = "linux")]
+use pulse::mainloop::standard::IterateResult;
 
 #[cfg(target_os = "windows")]
 use winapi::{
@@ -23,9 +27,6 @@ use winapi::{
         },
     },
 };
-
-#[cfg(target_os = "linux")]
-use pulse::mainloop::standard::IterateResult;
 
 use crate::{
     api,
@@ -84,24 +85,24 @@ impl DeviceState {
         Ok(ds)
     }
 
-    /// Counts current audio media devices number.
+    /// Counts current number of audio media devices.
     fn count_audio_devices(&mut self) -> u32 {
         self.adm.playout_devices() + self.adm.recording_devices()
     }
 
-    /// Counts current video media devices number.
+    /// Counts current number on video media devices.
     fn count_video_devices(&mut self) -> u32 {
         self.vdi.number_of_devices()
     }
 
-    /// Fixes some audio media devices count in the [`DeviceState`].
-    fn set_audio_count(&mut self, new_count: u32) {
-        self.audio_count = new_count;
+    /// Fixes some audio media devices `count` in this [`DeviceState`].
+    fn set_audio_count(&mut self, count: u32) {
+        self.audio_count = count;
     }
 
-    /// Fixes some video media devices count in the [`DeviceState`].
-    fn set_video_count(&mut self, new_count: u32) {
-        self.video_count = new_count;
+    /// Fixes some video media devices `count` in this [`DeviceState`].
+    fn set_video_count(&mut self, count: u32) {
+        self.video_count = count;
     }
 
     /// Triggers the [`OnDeviceChangeCallback`].
@@ -318,6 +319,200 @@ impl Webrtc {
     }
 }
 
+#[cfg(target_os = "linux")]
+/// Creates a detached [`Thread`] creating a devices monitor which polls for
+/// events.
+///
+/// [`Thread`]: std::thread::Thread
+pub unsafe fn init() {
+    use std::thread;
+
+    use crate::devices::linux_device_change::{
+        pulse_audio::AudioMonitor, udev::monitoring,
+    };
+
+    // Video devices monitoring via `libudev`.
+    thread::spawn(move || {
+        let context = libudev::Context::new().unwrap();
+        monitoring(&context).unwrap();
+    });
+
+    // Audio devices monitoring via PulseAudio.
+    thread::spawn(move || {
+        let mut m = AudioMonitor::new().unwrap();
+        loop {
+            match m.main_loop.iterate(true) {
+                IterateResult::Success(_) => {}
+                IterateResult::Quit(_) => {
+                    break;
+                }
+                IterateResult::Err(e) => {
+                    log::error!("pulse audio mainloop iterate error: {e}");
+                }
+            }
+        }
+    });
+}
+
+#[cfg(target_os = "linux")]
+pub mod linux_device_change {
+    //! Tools for monitoring devices on [Linux].
+    //!
+    //! [Linux]: https://linux.org
+
+    pub mod udev {
+        //! [libudev] tools for monitoring devices.
+        //!
+        //! [libudev]: https://freedesktop.org/software/systemd/man/libudev.html
+
+        use std::{io, os::unix::prelude::AsRawFd, sync::atomic::Ordering};
+
+        use libudev::EventType;
+        use nix::{
+            poll::{ppoll, PollFd, PollFlags},
+            sys::signal::SigSet,
+        };
+
+        use crate::devices::ON_DEVICE_CHANGE;
+
+        /// Monitors video devices via [libudev].
+        ///
+        /// [libudev]: https://freedesktop.org/software/systemd/man/libudev.html
+        pub fn monitoring(context: &libudev::Context) -> io::Result<()> {
+            let mut monitor = libudev::Monitor::new(context)?;
+            monitor.match_subsystem("video4linux")?;
+            let mut socket = monitor.listen()?;
+
+            let fds = PollFd::new(socket.as_raw_fd(), PollFlags::POLLIN);
+            loop {
+                ppoll(&mut [fds], None, SigSet::empty())?;
+
+                let event = match socket.receive_event() {
+                    Some(evt) => evt,
+                    None => continue,
+                };
+
+                if matches!(
+                    event.event_type(),
+                    EventType::Add | EventType::Remove,
+                ) {
+                    let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+                    if !state.is_null() {
+                        let device_state = unsafe { &mut *state };
+                        let new_count = device_state.count_video_devices();
+
+                        if device_state.video_count != new_count {
+                            device_state.set_video_count(new_count);
+                            device_state.on_device_change();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub mod pulse_audio {
+        //! [PulseAudio] tools for monitoring devices.
+        //!
+        //! [PulseAudio]: https://freedesktop.org/wiki/Software/PulseAudio
+
+        use std::sync::atomic::Ordering;
+
+        use anyhow::anyhow;
+        use pulse::{
+            context::{
+                subscribe::{Facility, InterestMaskSet, Operation},
+                Context, FlagSet, State,
+            },
+            mainloop::standard::{IterateResult, Mainloop},
+        };
+
+        use crate::devices::ON_DEVICE_CHANGE;
+
+        /// Monitor of audio devices via [PulseAudio].
+        ///
+        /// [PulseAudio]: https://freedesktop.org/wiki/Software/PulseAudio
+        pub struct AudioMonitor {
+            /// [PulseAudio] context.
+            ///
+            /// [PulseAudio]: https://freedesktop.org/wiki/Software/PulseAudio
+            pub context: Context,
+
+            /// [PulseAudio] main loop.
+            ///
+            /// [PulseAudio]: https://freedesktop.org/wiki/Software/PulseAudio
+            pub main_loop: Mainloop,
+        }
+
+        impl AudioMonitor {
+            /// Creates a new [`AudioMonitor`].
+            pub fn new() -> anyhow::Result<Self> {
+                use Facility::{Sink, Source};
+                use Operation::{New, Removed};
+
+                let mut main_loop = Mainloop::new()
+                    .ok_or_else(|| anyhow!("PulseAudio mainloop is `null`"))?;
+                let mut context =
+                    Context::new(&main_loop, "flutter-audio-monitor")
+                        .ok_or_else(|| {
+                            anyhow!("PulseAudio context failed to start")
+                        })?;
+
+                context.set_subscribe_callback(Some(Box::new(
+                    |facility, operation, _| {
+                        if let Some(New | Removed) = operation {
+                            if let Some(Sink | Source) = facility {
+                                let state =
+                                    ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+                                if !state.is_null() {
+                                    let device_state = unsafe { &mut *state };
+                                    let new_count =
+                                        device_state.count_audio_devices();
+
+                                    if device_state.audio_count != new_count {
+                                        device_state.set_audio_count(new_count);
+                                        device_state.on_device_change();
+                                    }
+                                }
+                            }
+                        }
+                    },
+                )));
+
+                context.connect(None, FlagSet::empty(), None)?;
+                loop {
+                    let state = context.get_state();
+
+                    if !state.is_good() {
+                        anyhow::bail!("PulseAudio context connection failed");
+                    }
+
+                    if state == State::Ready {
+                        break;
+                    }
+
+                    match main_loop.iterate(true) {
+                        IterateResult::Success(_) => {
+                            continue;
+                        }
+                        IterateResult::Quit(c) => {
+                            anyhow::bail!("PulseAudio quit with code: {}", c.0);
+                        }
+                        IterateResult::Err(e) => {
+                            anyhow::bail!("PulseAudio errored: {e}");
+                        }
+                    }
+                }
+
+                let mask = InterestMaskSet::SOURCE | InterestMaskSet::SINK;
+                context.subscribe(mask, |_| {});
+
+                Ok(Self { context, main_loop })
+            }
+        }
+    }
+}
+
 #[cfg(target_os = "windows")]
 /// Creates a detached [`Thread`] creating and registering a system message
 /// window - [`HWND`].
@@ -410,177 +605,4 @@ pub unsafe fn init() {
             DispatchMessageW(&msg);
         }
     });
-}
-
-#[cfg(target_os = "linux")]
-/// Creates a detached [`Thread`] creating a devices monitor
-/// and polls for events.
-///
-/// [`Thread`]: thread::Thread
-pub unsafe fn init() {
-    use std::thread;
-
-    use crate::devices::linux_device_change::{
-        pulse_audio::AudioMonitor, udev::monitoring,
-    };
-
-    // Video devices monitoring.
-    thread::spawn(move || {
-        let context = libudev::Context::new().unwrap();
-        monitoring(&context).unwrap();
-    });
-
-    // Audio devices monitoring
-    thread::spawn(move || {
-        let mut m = AudioMonitor::new().unwrap();
-        loop {
-            match m.main_loop.iterate(true) {
-                IterateResult::Success(_) => {}
-                IterateResult::Quit(_) => {
-                    break;
-                }
-                IterateResult::Err(err) => {
-                    log::error!("pulse audio mainloop iterate error: {err}");
-                }
-            }
-        }
-    });
-}
-
-#[cfg(target_os = "linux")]
-mod linux_device_change {
-    pub mod udev {
-        use std::{io, os::unix::prelude::AsRawFd, sync::atomic::Ordering};
-
-        use libudev::EventType;
-        use nix::{
-            poll::{ppoll, PollFd, PollFlags},
-            sys::signal::SigSet,
-        };
-
-        use crate::devices::ON_DEVICE_CHANGE;
-
-        /// Video device monitoring.
-        pub fn monitoring(context: &libudev::Context) -> io::Result<()> {
-            let mut monitor = libudev::Monitor::new(context)?;
-            monitor.match_subsystem("video4linux")?;
-            let mut socket = monitor.listen()?;
-
-            let fds = PollFd::new(socket.as_raw_fd(), PollFlags::POLLIN);
-            loop {
-                ppoll(&mut [fds], None, SigSet::empty())?;
-
-                let event = match socket.receive_event() {
-                    Some(evt) => evt,
-                    None => {
-                        continue;
-                    }
-                };
-
-                if event.event_type() == EventType::Add
-                    || event.event_type() == EventType::Remove
-                {
-                    let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
-                    if !state.is_null() {
-                        let device_state = unsafe { &mut *state };
-                        let new_count = device_state.count_video_devices();
-
-                        if device_state.video_count != new_count {
-                            device_state.set_video_count(new_count);
-                            device_state.on_device_change();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    pub mod pulse_audio {
-        use std::sync::atomic::Ordering;
-
-        use anyhow::anyhow;
-
-        use pulse::{
-            context::{
-                subscribe::{Facility, InterestMaskSet, Operation},
-                Context, FlagSet, State,
-            },
-            mainloop::standard::{IterateResult, Mainloop},
-        };
-
-        use crate::devices::ON_DEVICE_CHANGE;
-
-        /// Structure for monitoring audio device.
-        pub struct AudioMonitor {
-            pub context: Context,
-            pub main_loop: Mainloop,
-        }
-
-        impl AudioMonitor {
-            /// Creates a new [`AudioMonitor`].
-            pub fn new() -> anyhow::Result<Self> {
-                use Facility::{Sink, Source};
-                use Operation::{New, Removed};
-
-                let mut main_loop = Mainloop::new()
-                    .ok_or_else(|| anyhow!("pulse audio mainloop is null"))?;
-                let mut context =
-                    Context::new(&main_loop, "flutter-audio-monitor")
-                        .ok_or_else(|| {
-                            anyhow!("pulse audio context start error")
-                        })?;
-
-                context.set_subscribe_callback(Some(Box::new(
-                    |facility, operation, _| {
-                        if let Some(New | Removed) = operation {
-                            if let Some(Sink | Source) = facility {
-                                let state =
-                                    ON_DEVICE_CHANGE.load(Ordering::SeqCst);
-                                if !state.is_null() {
-                                    let device_state = unsafe { &mut *state };
-                                    let new_count =
-                                        device_state.count_audio_devices();
-
-                                    if device_state.audio_count != new_count {
-                                        device_state.set_audio_count(new_count);
-                                        device_state.on_device_change();
-                                    }
-                                }
-                            }
-                        }
-                    },
-                )));
-
-                context.connect(None, FlagSet::empty(), None)?;
-                loop {
-                    let state = context.get_state();
-
-                    if !state.is_good() {
-                        anyhow::bail!("context connect error");
-                    }
-
-                    if state == State::Ready {
-                        break;
-                    }
-
-                    match main_loop.iterate(true) {
-                        IterateResult::Success(_) => {
-                            continue;
-                        }
-                        IterateResult::Quit(ret) => {
-                            anyhow::bail!("PulseAudio quit with ret: {ret:?}");
-                        }
-                        IterateResult::Err(err) => {
-                            anyhow::bail!("PulseAudio err: {err}");
-                        }
-                    }
-                }
-
-                let mask = InterestMaskSet::SOURCE | InterestMaskSet::SINK;
-                context.subscribe(mask, |_| {});
-
-                Ok(Self { context, main_loop })
-            }
-        }
-    }
 }
