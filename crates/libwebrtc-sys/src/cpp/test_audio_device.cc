@@ -16,7 +16,9 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <mutex>
 #include <vector>
+#include <functional>
 
 #include "api/array_view.h"
 #include "common_audio/wav_file.h"
@@ -26,16 +28,32 @@
 #include "rtc_base/event.h"
 #include "rtc_base/logging.h"
 #include "rtc_base/numerics/safe_conversions.h"
-#include "rtc_base/platform_thread.h"
+// #include "rtc_base/platform_thread.h"
 #include "rtc_base/random.h"
 #include "rtc_base/ref_counted_object.h"
-#include "rtc_base/synchronization/mutex.h"
-#include "rtc_base/task_queue.h"
-#include "rtc_base/task_utils/repeating_task.h"
+// #include "rtc_base/synchronization/mutex.h"
+
+// #include "rtc_base/task_queue.h"
+#include "api/task_queue/task_queue_base.h"
+// #include "rtc_base/task_utils/pending_task_safety_flag.h"
+// #include "rtc_base/task_utils/repeating_task.h"
+
+// #include "rtc_base/task_utils/repeating_task.h"
 #include "rtc_base/thread_annotations.h"
 #include "rtc_base/time_utils.h"
 
+
+
 namespace webrtc {
+
+class costyle : public QueuedTask {
+  public:
+  costyle(std::function<bool(void)> fn) : test(fn) {}
+  bool Run() {
+    return test();
+  }
+  std::function<bool(void)> test;
+};
 
 namespace {
 
@@ -88,56 +106,64 @@ class TestAudioDeviceModuleImpl
 
   int32_t Init() override {
     task_queue_ =
-        std::make_unique<rtc::TaskQueue>(task_queue_factory_->CreateTaskQueue(
-            "TestAudioDeviceModuleImpl", TaskQueueFactory::Priority::NORMAL));
+        task_queue_factory_->CreateTaskQueue(
+            "TestAudioDeviceModuleImpl", TaskQueueFactory::Priority::NORMAL);
 
-    RepeatingTaskHandle::Start(task_queue_->Get(), [this]() {
-      ProcessAudio();
-      return TimeDelta::Micros(process_interval_us_);
+    auto th = std::thread([this]() {
+      while (true) {
+        task_queue_->PostTask(std::unique_ptr<QueuedTask>(new costyle([this]() {
+          ProcessAudio();
+          return true;
+        })));
+        std::this_thread::sleep_for(
+            std::chrono::microseconds(process_interval_us_));
+      }
     });
+    th.detach();
+
     return 0;
   }
 
   int32_t RegisterAudioCallback(AudioTransport* callback) override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     RTC_DCHECK(callback || audio_callback_);
     audio_callback_ = callback;
     return 0;
   }
 
   int32_t StartPlayout() override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     RTC_CHECK(renderer_);
     rendering_ = true;
     return 0;
   }
 
   int32_t StopPlayout() override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     rendering_ = false;
     return 0;
   }
 
   int32_t StartRecording() override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     RTC_CHECK(capturer_);
     capturing_ = true;
     return 0;
   }
 
   int32_t StopRecording() override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     capturing_ = false;
     return 0;
   }
 
   bool Playing() const override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return rendering_;
   }
 
   bool Recording() const override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return capturing_;
   }
 
@@ -155,7 +181,7 @@ class TestAudioDeviceModuleImpl
 
  private:
   void ProcessAudio() {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     if (capturing_) {
       // Capture 10ms of audio. 2 bytes per sample.
       const bool keep_capturing = capturer_->Capture(&recording_buffer_);
@@ -194,7 +220,7 @@ class TestAudioDeviceModuleImpl
   const std::unique_ptr<Renderer> renderer_ RTC_GUARDED_BY(lock_);
   const int64_t process_interval_us_;
 
-  mutable Mutex lock_;
+  mutable std::mutex lock_;
   AudioTransport* audio_callback_ RTC_GUARDED_BY(lock_);
   bool rendering_ RTC_GUARDED_BY(lock_);
   bool capturing_ RTC_GUARDED_BY(lock_);
@@ -203,7 +229,7 @@ class TestAudioDeviceModuleImpl
 
   std::vector<int16_t> playout_buffer_ RTC_GUARDED_BY(lock_);
   rtc::BufferT<int16_t> recording_buffer_ RTC_GUARDED_BY(lock_);
-  std::unique_ptr<rtc::TaskQueue> task_queue_;
+  std::unique_ptr<TaskQueueBase, TaskQueueDeleter> task_queue_;
 };
 
 // A fake capturer that generates pulses with random samples between
@@ -231,7 +257,7 @@ class PulsedNoiseCapturerImpl final
     fill_with_zero_ = !fill_with_zero_;
     int16_t max_amplitude;
     {
-      MutexLock lock(&lock_);
+      std::lock_guard<std::mutex> guard(lock_);
       max_amplitude = max_amplitude_;
     }
     buffer->SetData(
@@ -251,7 +277,7 @@ class PulsedNoiseCapturerImpl final
   }
 
   void SetMaxAmplitude(int16_t amplitude) override {
-    MutexLock lock(&lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     max_amplitude_ = amplitude;
   }
 
@@ -259,7 +285,7 @@ class PulsedNoiseCapturerImpl final
   int sampling_frequency_in_hz_;
   bool fill_with_zero_;
   Random random_generator_;
-  Mutex lock_;
+  std::mutex lock_;
   int16_t max_amplitude_ RTC_GUARDED_BY(lock_);
   const int num_channels_;
 };
