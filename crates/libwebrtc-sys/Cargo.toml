@@ -7,7 +7,7 @@ publish = false
 links = "webrtc"
 
 [features]
-fake_test = []
+fake_media = []
 
 [dependencies]
 anyhow = "1.0"

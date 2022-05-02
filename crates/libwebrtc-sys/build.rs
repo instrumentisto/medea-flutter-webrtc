@@ -47,9 +47,9 @@ fn main() -> anyhow::Result<()> {
             .flag("-std=c++17");
     }
 
-    #[cfg(feature = "fake_test")]
+    #[cfg(feature = "fake_media")]
     {
-        build.flag("-DFAKE_TEST");
+        build.flag("-DFAKE_MEDIA");
     }
 
     build.compile("libwebrtc-sys");

@@ -135,7 +135,7 @@ impl Webrtc {
     }
 
     /// Creates a new [`VideoSource`] based on the given [`VideoConstraints`].
-    #[cfg(not(feature = "fake_test"))]
+    #[cfg(not(feature = "fake_media"))]
     fn get_or_create_video_source(
         &mut self,
         caps: &api::VideoConstraints,
@@ -194,7 +194,7 @@ impl Webrtc {
     }
 
     /// Creates a new fake [`VideoSource`].
-    #[cfg(feature = "fake_test")]
+    #[cfg(feature = "fake_media")]
     fn get_or_create_video_source(
         &mut self,
         caps: &api::VideoConstraints,
@@ -233,9 +233,10 @@ impl Webrtc {
         Ok(Arc::clone(source))
     }
 
-    #[cfg(not(feature = "fake_test"))]
+
     /// Creates a new [`AudioTrack`] from the given
     /// [`sys::AudioSourceInterface`].
+    #[cfg(not(feature = "fake_media"))]
     fn create_audio_track(
         &mut self,
         source: Arc<sys::AudioSourceInterface>,
@@ -255,9 +256,10 @@ impl Webrtc {
         Ok(api_track)
     }
 
-    #[cfg(feature = "fake_test")]
-    /// Creates a new [`AudioTrack`] from the given
+
+    /// Creates a new fake [`AudioTrack`] from the given
     /// [`sys::AudioSourceInterface`].
+    #[cfg(feature = "fake_media")]
     fn create_audio_track(
         &mut self,
         source: Arc<sys::AudioSourceInterface>,
@@ -274,9 +276,9 @@ impl Webrtc {
         Ok(api_track)
     }
 
-    /// Creates a new [`sys::AudioSourceInterface`] based on the given
+    /// Creates a new fake [`sys::AudioSourceInterface`] based on the given
     /// [`AudioConstraints`].
-    #[cfg(feature = "fake_test")]
+    #[cfg(feature = "fake_media")]
     fn get_or_create_audio_source(
         &mut self,
         caps: &api::AudioConstraints,
@@ -295,7 +297,7 @@ impl Webrtc {
 
     /// Creates a new [`sys::AudioSourceInterface`] based on the given
     /// [`AudioConstraints`].
-    #[cfg(not(feature = "fake_test"))]
+    #[cfg(not(feature = "fake_media"))]
     fn get_or_create_audio_source(
         &mut self,
         caps: &api::AudioConstraints,

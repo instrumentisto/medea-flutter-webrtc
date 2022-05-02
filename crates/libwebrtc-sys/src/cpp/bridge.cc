@@ -37,10 +37,8 @@ void TrackEventObserver::set_track(
 }
 
 
-#ifdef FAKE_TEST
-
-//todo
-// Creates a new `DeviceVideoCapturer` with the specified constraints and
+#ifdef FAKE_MEDIA
+// Creates a new fake `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     Thread& worker_thread,
@@ -72,8 +70,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
   return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
-// todo
-// Creates a new `ScreenVideoCapturer` with the specified constraints and
+// Creates a new fake `ScreenVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
@@ -105,7 +102,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 }
 
 // Creates a new fake `AudioDeviceModule` 
-// with file `AudioSourceInterface` and without audio renderer.
+// with `PulsedNoiseCapturer` and without audio renderer.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
@@ -121,9 +118,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   return std::make_unique<AudioDeviceModule>(adm_fake);
 }
 
-
 #else
-
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
