@@ -249,24 +249,49 @@ void main() {
       caps.video.mandatory!.fps = 30;
 
       var trackspc1 = await getUserMedia(caps);
-      var trackspc2 = await getUserMedia(caps);
-
 
       var server =
           IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
       var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
       var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
-      var allFutures = List<Completer>.generate(2, (_) => Completer());
-
-      pc2.onTrack((track, trans) async {
-        if (track.kind() == MediaKind.video) {
+      var allFutures = List<Completer>.generate(6, (_) => Completer());
+      pc1.onConnectionStateChange((state) {
+        if(state == PeerConnectionState.connected)
+        {
           allFutures[0].complete();
-        } else {
+        }
+      });
+            
+      pc1.onIceConnectionStateChange((state) {
+        if(state == IceConnectionState.connected)
+        {
           allFutures[1].complete();
         }
       });
 
+      pc2.onConnectionStateChange((state) {
+        if(state == PeerConnectionState.connected)
+        {
+          allFutures[2].complete();
+        }
+      });
+
+      pc2.onIceConnectionStateChange((state) {
+        if(state == IceConnectionState.connected)
+        {
+          allFutures[3].complete();
+        }
+      });
+
+      pc2.onTrack((track, trans) async {
+        if (track.kind() == MediaKind.video) {
+          allFutures[4].complete();
+        } else {
+          allFutures[5].complete();
+        }
+      });
+      
       var pc1vtrans = await pc1.addTransceiver(
           MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
@@ -296,6 +321,6 @@ void main() {
           trackspc1.firstWhere((track) => track.kind() == MediaKind.audio));
 
       await Future.wait(allFutures.map((e) => e.future))
-        .timeout(Duration(seconds: 5));
+        .timeout(const Duration(seconds: 5));
   });
 }

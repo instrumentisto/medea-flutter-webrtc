@@ -111,8 +111,8 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
 
-    auto capture = webrtc::TestAudioDeviceModule::CreateWavFileReader("audio_test.wav", true);
-    auto renderer = webrtc::TestAudioDeviceModule::CreateWavFileWriter("test.wav", 8000);
+    auto capture = webrtc::TestAudioDeviceModule::CreatePulsedNoiseCapturer(1024, 8000);
+    auto renderer = webrtc::TestAudioDeviceModule::CreateDiscardRenderer(8000);
     
     auto adm_fake = webrtc::TestAudioDeviceModule::Create(
       &task_queue_factory,
