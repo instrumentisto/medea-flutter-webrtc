@@ -233,7 +233,6 @@ impl Webrtc {
         Ok(Arc::clone(source))
     }
 
-
     /// Creates a new [`AudioTrack`] from the given
     /// [`sys::AudioSourceInterface`].
     #[cfg(not(feature = "fake_media"))]
@@ -255,7 +254,6 @@ impl Webrtc {
 
         Ok(api_track)
     }
-
 
     /// Creates a new fake [`AudioTrack`] from the given
     /// [`sys::AudioSourceInterface`].
