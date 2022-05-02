@@ -255,36 +255,24 @@ void main() {
     var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
     var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
-    var allFutures = List<Completer>.generate(6, (_) => Completer());
+    var allFutures = List<Completer>.generate(4, (_) => Completer());
     pc1.onConnectionStateChange((state) {
       if (state == PeerConnectionState.connected) {
         allFutures[0].complete();
       }
     });
 
-    pc1.onIceConnectionStateChange((state) {
-      if (state == IceConnectionState.connected) {
-        allFutures[1].complete();
-      }
-    });
-
     pc2.onConnectionStateChange((state) {
       if (state == PeerConnectionState.connected) {
-        allFutures[2].complete();
-      }
-    });
-
-    pc2.onIceConnectionStateChange((state) {
-      if (state == IceConnectionState.connected) {
-        allFutures[3].complete();
+        allFutures[1].complete();
       }
     });
 
     pc2.onTrack((track, trans) async {
       if (track.kind() == MediaKind.video) {
-        allFutures[4].complete();
+        allFutures[2].complete();
       } else {
-        allFutures[5].complete();
+        allFutures[3].complete();
       }
     });
 
