@@ -276,6 +276,25 @@ impl Webrtc {
 
     /// Creates a new [`sys::AudioSourceInterface`] based on the given
     /// [`AudioConstraints`].
+    #[cfg(feature = "fake_test")]
+    fn get_or_create_audio_source(
+        &mut self,
+        caps: &api::AudioConstraints,
+    ) -> anyhow::Result<Arc<sys::AudioSourceInterface>> {
+        let src = if let Some(src) = self.audio_source.as_ref() {
+            Arc::clone(src)
+        } else {
+            let src =
+                Arc::new(self.peer_connection_factory.create_audio_source()?);
+            self.audio_source.replace(Arc::clone(&src));
+            src
+        };
+
+        Ok(src)
+    }
+
+    /// Creates a new [`sys::AudioSourceInterface`] based on the given
+    /// [`AudioConstraints`].
     #[cfg(not(feature = "fake_test"))]
     fn get_or_create_audio_source(
         &mut self,
@@ -319,40 +338,6 @@ impl Webrtc {
             self.audio_device_module
                 .set_recording_device(device_id, device_index)?;
         }
-
-        let src = if let Some(src) = self.audio_source.as_ref() {
-            Arc::clone(src)
-        } else {
-            let src =
-                Arc::new(self.peer_connection_factory.create_audio_source()?);
-            self.audio_source.replace(Arc::clone(&src));
-
-            src
-        };
-
-        Ok(src)
-    }
-
-    // / Creates a new [`sys::AudioSourceInterface`] based on the given
-    // / [`AudioConstraints`].
-    #[cfg(feature = "fake_test")]
-    fn get_or_create_audio_source(
-        &mut self,
-        caps: &api::AudioConstraints,
-    ) -> anyhow::Result<Arc<sys::AudioSourceInterface>> {
-        let device_id = if let Some(device_id) = caps.device_id.clone() {
-            AudioDeviceId(device_id)
-        } else {
-            // No device ID is provided so just pick the currently used.
-            if self.audio_device_module.current_device_id.is_none() {
-                AudioDeviceId("Test fake audio".to_owned())
-            } else {
-                // PANIC: If there is a `sys::AudioSourceInterface` then we are
-                //        sure that `current_device_id` is set in the
-                //        `AudioDeviceModule`.
-                self.audio_device_module.current_device_id.clone().unwrap()
-            }
-        };
 
         let src = if let Some(src) = self.audio_source.as_ref() {
             Arc::clone(src)
