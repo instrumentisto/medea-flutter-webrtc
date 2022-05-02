@@ -155,7 +155,7 @@ cargo.clean:
 # platform-specific directories.
 #
 # Usage:
-#	make cargo.build [debug=(yes|no)] todo args
+#	make cargo.build [debug=(yes|no)] [args=<cargo-build-args>]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
