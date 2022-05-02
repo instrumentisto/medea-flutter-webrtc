@@ -24,7 +24,6 @@
 
 #include "fake_frame_source.h"
 #include "fake_video_track_source.h"
-#include "fake_audio_capture_module.h"
 #include "test_audio_device.h"
 
 namespace bridge {
