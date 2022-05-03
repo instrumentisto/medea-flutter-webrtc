@@ -1,4 +1,4 @@
-package android.src.main.kotlin.com.cloudwebrtc.webrtc.exception
+package com.cloudwebrtc.webrtc.exception
 
 /**
  * [Exception] thrown on `GetUserMedia` action.
