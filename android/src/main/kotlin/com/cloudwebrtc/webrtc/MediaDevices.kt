@@ -10,7 +10,8 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
-import com.cloudwebrtc.webrtc.exception.OverconstrainedException
+import com.cloudwebrtc.webrtc.exception.GetUserMediaAudioException
+import com.cloudwebrtc.webrtc.exception.GetUserMediaVideoException
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.AudioMediaTrackSource
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
@@ -150,10 +151,18 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
   fun getUserMedia(constraints: Constraints): List<MediaStreamTrackProxy> {
     val tracks = mutableListOf<MediaStreamTrackProxy>()
     if (constraints.audio != null) {
-      tracks.add(getUserAudioTrack(constraints.audio))
+        try {
+            tracks.add(getUserAudioTrack(constraints.audio))
+        } catch (e: Exception) {
+            throw GetUserMediaAudioException(e.message)
+        }
     }
     if (constraints.video != null) {
-      tracks.add(getUserVideoTrack(constraints.video))
+        try {
+            tracks.add(getUserVideoTrack(constraints.video))
+        } catch (e: Exception) {
+            throw GetUserMediaVideoException(e.message)
+        }
     }
     return tracks
   }
@@ -264,7 +273,7 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
    * @return Most suitable [MediaStreamTrackProxy] for the provided [VideoConstraints].
    */
   private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
-    val deviceId = findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
+    val deviceId = findDeviceMatchingConstraints(constraints) ?: throw Exception("Overconstrained")
     val width = constraints.width ?: DEFAULT_WIDTH
     val height = constraints.height ?: DEFAULT_HEIGHT
     val fps = constraints.fps ?: DEFAULT_FPS
