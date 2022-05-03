@@ -145,7 +145,7 @@ jobs:
       matrix:
         include:
           - platform: android
-            os: macos
+            os: macos-latest
           - platform: windows
             os: windows-2019
     runs-on: ${{ matrix.os }}
