@@ -240,7 +240,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   fun dispose() {
     obj.dispose()
     for (receiver in receivers.values) {
-        receiver.notifyRemoved()
+      receiver.notifyRemoved()
     }
     senders = HashMap()
     receivers = HashMap()

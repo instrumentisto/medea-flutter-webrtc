@@ -1,6 +1,5 @@
 package com.cloudwebrtc.webrtc.proxy
 
-import com.cloudwebrtc.webrtc.model.MediaStreamTrackState
 import org.webrtc.RtpReceiver
 
 /**
@@ -28,9 +27,9 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver> {
     return obj.id()
   }
 
-    /** @return [MediaStreamTrackProxy] of this [RtpReceiverProxy]. */
+  /** @return [MediaStreamTrackProxy] of this [RtpReceiverProxy]. */
   fun getTrack(): MediaStreamTrackProxy {
-      return track
+    return track
   }
 
   /**

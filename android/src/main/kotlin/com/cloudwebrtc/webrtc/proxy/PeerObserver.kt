@@ -38,10 +38,10 @@ class PeerObserver : PeerConnection.Observer {
 
   override fun onConnectionChange(pcState: PeerConnection.PeerConnectionState?) {
     if (pcState != null) {
-        Handler(Looper.getMainLooper()).post {
-            peer?.observableEventBroadcaster()
-                ?.onConnectionStateChange(PeerConnectionState.fromWebRtc(pcState))
-        }
+      Handler(Looper.getMainLooper()).post {
+        peer?.observableEventBroadcaster()
+            ?.onConnectionStateChange(PeerConnectionState.fromWebRtc(pcState))
+      }
     }
   }
 
