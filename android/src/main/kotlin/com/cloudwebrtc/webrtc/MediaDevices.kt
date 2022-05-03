@@ -151,18 +151,18 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
   fun getUserMedia(constraints: Constraints): List<MediaStreamTrackProxy> {
     val tracks = mutableListOf<MediaStreamTrackProxy>()
     if (constraints.audio != null) {
-        try {
-            tracks.add(getUserAudioTrack(constraints.audio))
-        } catch (e: Exception) {
-            throw GetUserMediaAudioException(e.message)
-        }
+      try {
+        tracks.add(getUserAudioTrack(constraints.audio))
+      } catch (e: Exception) {
+        throw GetUserMediaAudioException(e.message)
+      }
     }
     if (constraints.video != null) {
-        try {
-            tracks.add(getUserVideoTrack(constraints.video))
-        } catch (e: Exception) {
-            throw GetUserMediaVideoException(e.message)
-        }
+      try {
+        tracks.add(getUserVideoTrack(constraints.video))
+      } catch (e: Exception) {
+        throw GetUserMediaVideoException(e.message)
+      }
     }
     return tracks
   }
