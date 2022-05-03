@@ -140,18 +140,40 @@ jobs:
     name: Test Flutter integration
     needs: ["build"]
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: android
+            os: macos
+          - platform: windows
+            os: windows
+    runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
+
       - run: flutter config --enable-windows-desktop
+        if: ${{ matrix.platform == 'windows' }}
 
       - uses: actions/download-artifact@v3
+        if: ${{ matrix.platform == 'windows' }}
         with:
           name: build-rust
           path: windows/rust/
 
-      - run: make flutter.test device=windows
+      - run: make flutter.test
+        if: ${{ matrix.platform != 'android' }}
+
+      - name: Test on min Android NDK version
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ steps.ndk-version.outputs.min }}
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: make flutter.test
+        if: ${{ matrix.platform == 'android' }}
 
 
 

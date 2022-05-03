@@ -5,6 +5,7 @@ import android.os.Looper
 import com.cloudwebrtc.webrtc.model.IceCandidate
 import com.cloudwebrtc.webrtc.model.IceConnectionState
 import com.cloudwebrtc.webrtc.model.IceGatheringState
+import com.cloudwebrtc.webrtc.model.PeerConnectionState
 import com.cloudwebrtc.webrtc.model.SignalingState
 import org.webrtc.*
 import org.webrtc.IceCandidate as WIceCandidate
@@ -35,6 +36,15 @@ class PeerObserver : PeerConnection.Observer {
     }
   }
 
+  override fun onConnectionChange(pcState: PeerConnection.PeerConnectionState?) {
+    if (pcState != null) {
+        Handler(Looper.getMainLooper()).post {
+            peer?.observableEventBroadcaster()
+                ?.onConnectionStateChange(PeerConnectionState.fromWebRtc(pcState))
+        }
+    }
+  }
+
   override fun onIceGatheringChange(iceGatheringState: PeerConnection.IceGatheringState?) {
     if (iceGatheringState != null) {
       Handler(Looper.getMainLooper()).post {
@@ -61,7 +71,7 @@ class PeerObserver : PeerConnection.Observer {
           val transceivers = peer?.getTransceivers()!!
           for (trans in transceivers) {
             if (trans.getReceiver().id() == receiver.id()) {
-              peer?.observableEventBroadcaster()?.onTrack(MediaStreamTrackProxy(track), trans)
+              peer?.observableEventBroadcaster()?.onTrack(trans.getReceiver().getTrack(), trans)
             }
           }
         }
