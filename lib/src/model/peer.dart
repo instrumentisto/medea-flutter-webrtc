@@ -14,6 +14,31 @@ enum IceTransportType {
   none,
 }
 
+/// [RTCBundlePolicy][1] representation.
+///
+/// Affects which media tracks are negotiated if the remote endpoint is not
+/// bundle-aware, and what ICE candidates are gathered. If the remote endpoint
+/// is bundle-aware, all media tracks and data channels are bundled onto the
+/// same transport.
+///
+/// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
+enum BundlePolicy {
+  /// [RTCBundlePolicy.balanced][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-balanced
+  balanced,
+
+  /// [RTCBundlePolicy.max-bundle][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-bundle
+  maxBundle,
+
+  /// [RTCBundlePolicy.max-compat][1] representation.
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
+  maxCompat,
+}
+
 /// ICE server which should be used by some peer connection.
 class IceServer {
   /// Creates a new [IceServer] with the provided parameters.
