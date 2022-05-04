@@ -864,6 +864,7 @@ pub fn get_transceiver_direction(
     peer_id: u64,
     transceiver_index: u32,
 ) -> anyhow::Result<RtpTransceiverDirection> {
+    println!("{transceiver_index}+++\n");
     WEBRTC
         .lock()
         .unwrap()
@@ -975,6 +976,17 @@ pub fn set_track_enabled(
         .lock()
         .unwrap()
         .set_track_enabled(track_id, kind, enabled)
+}
+
+///todo
+pub fn track_muted(
+    track_id: String,
+    kind: MediaType,
+) -> anyhow::Result<bool> {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .track_muted(track_id, kind)
 }
 
 /// Clones the specified [`MediaStreamTrack`].

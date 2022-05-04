@@ -406,6 +406,16 @@ pub(crate) mod webrtc {
         kBundlePolicyMaxCompat,
     }
 
+    /// todo
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    pub enum SourceState {
+        kInitializing, 
+        kLive, 
+        kEnded, 
+        kMuted,
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -812,6 +822,7 @@ pub(crate) mod webrtc {
         pub type RTCConfiguration;
         pub type IceTransportsType;
         pub type BundlePolicy;
+        pub type SourceState;
         pub type IceServer;
         pub type RTCOfferAnswerOptions;
         pub type RtpTransceiverDirection;
@@ -1168,6 +1179,10 @@ pub(crate) mod webrtc {
             track: &AudioTrackInterface,
         ) -> UniquePtr<AudioSourceInterface>;
 
+        /// todo
+        pub fn get_audio_source_state(source:
+            &AudioSourceInterface) -> SourceState;
+
         /// Returns the `VideoTrackSourceInterface` of the provided
         /// [`VideoTrackInterface`].
         #[must_use]
@@ -1175,6 +1190,10 @@ pub(crate) mod webrtc {
             track: &VideoTrackInterface,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
+        /// todo
+        pub fn get_video_source_state(source:
+            &VideoTrackSourceInterface) -> SourceState;
+        
         /// Adds the [`AudioTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_audio_track(
             peer_connection_factory: &MediaStreamInterface,

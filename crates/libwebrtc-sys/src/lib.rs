@@ -16,7 +16,7 @@ pub use crate::webrtc::{
     video_frame_to_abgr, AudioLayer, BundlePolicy, Candidate,
     CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
     IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
-    SdpType, SignalingState, VideoFrame, VideoRotation,
+    SdpType, SignalingState, VideoFrame, VideoRotation, SourceState
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -1449,6 +1449,10 @@ impl VideoTrackSourceInterface {
         }
         Ok(VideoTrackSourceInterface(ptr))
     }
+
+    pub fn state(&self) -> SourceState {
+        webrtc::get_video_source_state(&self.0)
+    }
 }
 
 unsafe impl Send for webrtc::VideoTrackSourceInterface {}
@@ -1460,6 +1464,12 @@ unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
+
+impl AudioSourceInterface {
+    pub fn state(&self) -> SourceState {
+        webrtc::get_audio_source_state(&self.0)
+    }
+}
 
 unsafe impl Send for webrtc::AudioSourceInterface {}
 unsafe impl Sync for webrtc::AudioSourceInterface {}
@@ -1583,6 +1593,12 @@ impl VideoTrackInterface {
     pub fn source(&self) -> VideoTrackSourceInterface {
         VideoTrackSourceInterface(webrtc::get_video_track_source(&self.inner))
     }
+
+    // todo
+    pub fn muted(&self) -> bool {
+        println!("!!!{:?}", self.source().state());
+        self.source().state() == SourceState::kMuted
+    }
 }
 
 impl Drop for VideoTrackInterface {
@@ -1658,6 +1674,12 @@ impl AudioTrackInterface {
     #[must_use]
     pub fn source(&self) -> AudioSourceInterface {
         AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
+    }
+
+    //todo
+    pub fn muted(&self) -> bool {
+        println!("!!!{:?}", self.source().state());
+        self.source().state() == SourceState::kMuted
     }
 }
 
