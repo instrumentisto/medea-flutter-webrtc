@@ -332,7 +332,8 @@ void main() {
 
     var tracks = await getUserMedia(caps);
 
-    var videoTrack = tracks.firstWhere((track) => track.kind() == MediaKind.video);
+    var videoTrack =
+        tracks.firstWhere((track) => track.kind() == MediaKind.video);
     var cloneVideoTrack = await videoTrack.clone();
     await cloneVideoTrack.setEnabled(false);
 
@@ -372,20 +373,26 @@ void main() {
     capsVideoAudio.video.mandatory!.fps = 30;
 
     var tracksAudioOnly = await getUserMedia(capsAudioOnly);
-    bool video = tracksAudioOnly.any((track) => track.kind() == MediaKind.video);
-    bool audio = tracksAudioOnly.any((track) => track.kind() == MediaKind.audio);
+    bool video =
+        tracksAudioOnly.any((track) => track.kind() == MediaKind.video);
+    bool audio =
+        tracksAudioOnly.any((track) => track.kind() == MediaKind.audio);
     expect(video, isFalse);
     expect(audio, isTrue);
 
     var tracksVideoDeviceOnly = await getUserMedia(capsVideoDeviceOnly);
-    video = tracksVideoDeviceOnly.any((track) => track.kind() == MediaKind.video);
-    audio = tracksVideoDeviceOnly.any((track) => track.kind() == MediaKind.audio);
+    video =
+        tracksVideoDeviceOnly.any((track) => track.kind() == MediaKind.video);
+    audio =
+        tracksVideoDeviceOnly.any((track) => track.kind() == MediaKind.audio);
     expect(video, isTrue);
     expect(audio, isFalse);
 
     var tracksVideoDisplayOnly = await getDisplayMedia(capsVideoDisplayOnly);
-    video = tracksVideoDisplayOnly.any((track) => track.kind() == MediaKind.video);
-    audio = tracksVideoDisplayOnly.any((track) => track.kind() == MediaKind.audio);
+    video =
+        tracksVideoDisplayOnly.any((track) => track.kind() == MediaKind.video);
+    audio =
+        tracksVideoDisplayOnly.any((track) => track.kind() == MediaKind.audio);
     expect(video, isTrue);
     expect(audio, isFalse);
 
@@ -394,154 +401,90 @@ void main() {
     audio = tracksVideoAudio.any((track) => track.kind() == MediaKind.audio);
     expect(video, isTrue);
     expect(audio, isTrue);
-
   });
 
-  testWidgets('Boundle politic', (WidgetTester tester) async {
-    var pc1 = await PeerConnection.create(IceTransportType.all, []);
-    var pc2 = await PeerConnection.create(IceTransportType.all, []);
+  testWidgets('ice candidate', (WidgetTester tester) async {
+    final typeCandidate = RegExp(r'typ (host|srflx|relay)');
+    // IceTransportType.all, STUN server
+    {
+      var server =
+        IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
+      var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
+      var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
-    var count1 = 0;
-    var count2 = 0;
-    var c1 = Completer();
-    var c2 = Completer();
-    pc1.onIceCandidate((candidate) async {
-      ++count1;
-      if (count1 == 1) {
-        c1.complete();
-      }
-    });
+      var countPc1 = 0;
+      var countPc2 = 0;
+      var countComplete1 = Completer();
+      var countComplete2 = Completer();
 
-    pc2.onIceCandidate((candidate) async {
-      ++count2;
-      if (count2 == 1) {
-        c2.complete();
-      }
-    });
-    await pc1.addTransceiver(
-        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
-    await pc1.addTransceiver(
-        MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendRecv));
+      pc1.onIceCandidate((candidate) async {
+        var type = typeCandidate.stringMatch(candidate.candidate);
+        expect(type == 'typ relay', isFalse);
+        ++countPc1;
+        if (countPc1 == 3) {
+          countComplete1.complete();
+        }
+      });
 
-    await pc2.addTransceiver(
-        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
-    await pc2.addTransceiver(
-        MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendRecv));
+      pc2.onIceCandidate((candidate) async {
+        var type = typeCandidate.stringMatch(candidate.candidate);
+        expect(type == 'typ relay', isFalse);
+        ++countPc2;
+        if (countPc2 == 2) {
+          countComplete2.complete();
+        }
+      });
 
-    var offer = await pc2.createOffer();
-    await pc2.setLocalDescription(offer);
-    await pc1.setRemoteDescription(offer); 
+      await pc1.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+      await pc1.addTransceiver(
+          MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-    var answer = await pc1.createAnswer();
-    await pc1.setLocalDescription(answer);
-    await pc2.setRemoteDescription(answer);
+      var offer = await pc1.createOffer();
+      await pc1.setLocalDescription(offer);
+      await pc2.setRemoteDescription(offer);
 
-    // await c1.future;
-    // await c2.future;
+      var answer = await pc2.createAnswer();
+      await pc2.setLocalDescription(answer);
+      await pc1.setRemoteDescription(answer);
 
-    print('___________________');
-    print(count1);
-    print(count2);
-  });
+      await countComplete1.future;
+      await countComplete2.future;
+    }
 
-    testWidgets('transceiver direction', (WidgetTester tester) async {
-    var caps = DeviceConstraints();
-    caps.audio.mandatory = AudioConstraints();
-    caps.video.mandatory = DeviceVideoConstraints();
-    caps.video.mandatory!.width = 640;
-    caps.video.mandatory!.height = 480;
-    caps.video.mandatory!.fps = 30;
+    // IceTransportType.relay without server
+    {
+      var pc1 = await PeerConnection.create(IceTransportType.relay, []);
+      var pc2 = await PeerConnection.create(IceTransportType.relay, []);
 
-    var trackspc1 = await getUserMedia(caps);
+      var countPc1 = 0;
+      var countPc2 = 0;
 
-    var server =
-      IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
-    var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
-    var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
+      pc1.onIceCandidate((candidate) async {
+        ++countPc1;
+      });
 
-    var allFutures = List<Completer>.generate(2, (_) => Completer());
+      pc2.onIceCandidate((candidate) async {
+        ++countPc2;
+      });
 
+      await pc1.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+      await pc1.addTransceiver(
+          MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-    pc2.onTrack((track, trans) async {
-      if (track.kind() == MediaKind.video) {
-        // allFutures[0].complete();
-      } else {
-        allFutures[0].complete();
-        allFutures[1].complete();
-      }
-    });
+      var offer = await pc1.createOffer();
+      await pc1.setLocalDescription(offer);
+      await pc2.setRemoteDescription(offer);
 
-    var pc1vtrans = await pc1.addTransceiver(
-        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));    
+      var answer = await pc2.createAnswer();
+      await pc2.setLocalDescription(answer);
+      await pc1.setRemoteDescription(answer);
 
-    var pc1atrans = await pc1.addTransceiver(
-        MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendRecv));
+      await Future.delayed(const Duration(seconds: 3));
 
-    var offer = await pc1.createOffer();
-    await pc1.setLocalDescription(offer);
-    await pc2.setRemoteDescription(offer);
-
-    var answer = await pc2.createAnswer();
-    await pc2.setLocalDescription(answer);
-    await pc1.setRemoteDescription(answer);
-
-
-    await pc1vtrans.sender.replaceTrack(
-        trackspc1.firstWhere((track) => track.kind() == MediaKind.video));
-
-    await pc1atrans.sender.replaceTrack(
-        trackspc1.firstWhere((track) => track.kind() == MediaKind.audio));
-
-    var complete = Completer();
-    // pc1.onNegotiationNeeded(() => complete.complete());
-    pc2.onNegotiationNeeded(() => complete.complete());
-
+      expect(countPc1 == 0 && countPc2 == 0, isTrue);
+    }
     
-    // await (await pc1.getTransceivers())[1].setDirection(TransceiverDirection.recvOnly);
-    // await (await pc1.getTransceivers())[0].stop();
-
-    // // await pc1vtrans.setDirection(TransceiverDirection.recvOnly);
-    // print(await (await pc1.getTransceivers())[0].getDirection());
-    // print(await (await pc1.getTransceivers())[1].getDirection());
-    // print(await pc1vtrans.getDirection());
-    // print(await pc1atrans.getDirection());
-    await (await pc1.getTransceivers())[0].setDirection(TransceiverDirection.sendOnly);
-    await (await pc1.getTransceivers())[1].setDirection(TransceiverDirection.sendOnly);
-    // await (await pc1.getTransceivers())[2].setDirection(TransceiverDirection.sendOnly);
-
-    var pc1vtrans2 = await pc1.addTransceiver(
-      MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));    
-
-    offer = await pc1.createOffer();
-    await pc1.setLocalDescription(offer);
-    await pc2.setRemoteDescription(offer);
-
-    answer = await pc2.createAnswer();
-    await pc2.setLocalDescription(answer);
-    await pc1.setRemoteDescription(answer);
-
-    offer = await pc2.createOffer();
-    await pc2.setLocalDescription(offer);
-    await pc1.setRemoteDescription(offer);
-
-    answer = await pc1.createAnswer();
-    await pc1.setLocalDescription(answer);
-    await pc2.setRemoteDescription(answer);
-
-    await (await pc1.getTransceivers())[2].setDirection(TransceiverDirection.sendOnly);
-
-    // await complete.future;
-    print(await (await pc2.getTransceivers())[0].getDirection());
-    print(await (await pc2.getTransceivers())[1].getDirection());
-    print(await (await pc2.getTransceivers())[2].getDirection());
-    print(await (await pc1.getTransceivers())[0].getDirection());
-    print(await (await pc1.getTransceivers())[1].getDirection());
-    print(await (await pc1.getTransceivers())[2].getDirection());
-
-
-    await Future.wait(allFutures.map((e) => e.future))
-        .timeout(const Duration(seconds: 5));
   });
-
-  
 }

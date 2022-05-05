@@ -978,17 +978,6 @@ pub fn set_track_enabled(
         .set_track_enabled(track_id, kind, enabled)
 }
 
-///todo
-pub fn track_muted(
-    track_id: String,
-    kind: MediaType,
-) -> anyhow::Result<bool> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .track_muted(track_id, kind)
-}
-
 /// Clones the specified [`MediaStreamTrack`].
 pub fn clone_track(
     track_id: String,

@@ -50,7 +50,4 @@ abstract class MediaStreamTrack {
 
   /// Disposes this [MediaStreamTrack] instance.
   Future<void> dispose();
-
-  //todo 
-  Future<bool> muted();
 }

@@ -93,7 +93,6 @@ using VideoTrackSourceInterface =
 using RtpReceiverInterface = rtc::scoped_refptr<webrtc::RtpReceiverInterface>;
 using MediaStreamTrackInterface =
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface>;
-using SourceState = webrtc::MediaSourceInterface::SourceState;
 
 // Creates a new proxied `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
@@ -359,18 +358,10 @@ bool rtcp_parameters_reduced_size(const webrtc::RtcpParameters& rtcp);
 std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
     const VideoTrackInterface& track);
 
-// todo
-SourceState get_video_source_state(
-    const VideoTrackSourceInterface& source);
-
 // Returns the `AudioSourceInterface` of the provided
 // `AudioTrackInterface`.
 std::unique_ptr<AudioSourceInterface> get_audio_track_source(
     const AudioTrackInterface& track);
-
-// todo
-SourceState get_audio_source_state(
-    const AudioSourceInterface& source);
 
 // Creates an SDP-ized form of this `Candidate`.
 

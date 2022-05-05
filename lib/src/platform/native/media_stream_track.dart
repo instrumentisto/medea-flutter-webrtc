@@ -191,10 +191,4 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
     }
     _stopped = true;
   }
-
-  @override
-  Future<bool> muted() async {
-    return api.trackMuted(
-        trackId: _id, kind: ffi.MediaType.values[_kind.index]);
-  }
 }

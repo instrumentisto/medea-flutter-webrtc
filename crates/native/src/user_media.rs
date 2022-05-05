@@ -383,31 +383,6 @@ impl Webrtc {
         Ok(())
     }
 
-    ///todo
-    pub fn track_muted(
-        &self,
-        id: String,
-        kind: api::MediaType,
-    ) -> anyhow::Result<bool> {
-        match kind {
-            MediaType::Audio => {
-                let id = AudioTrackId::from(id);
-                let track = self.audio_tracks.get(&id).ok_or_else(|| {
-                    anyhow!("Cannot find track with ID `{id}`")
-                })?;
-
-                Ok(track.as_ref().muted())
-            }
-            MediaType::Video => {
-                let id = VideoTrackId::from(id);
-                let track = self.video_tracks.get(&id).ok_or_else(|| {
-                    anyhow!("Cannot find track with ID `{id}`")
-                })?;
-
-                Ok(track.as_ref().muted())
-            }
-        }
-    }
 
     /// Clones the specified [`api::MediaStreamTrack`].
     pub fn clone_track(

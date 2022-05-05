@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 
-#include <thread> 
+#include <thread>
 #include <chrono>
 
 #include "api/video/i420_buffer.h"
@@ -625,22 +625,10 @@ std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
   return std::make_unique<VideoTrackSourceInterface>(track->GetSource());
 }
 
-// todo
-SourceState get_video_source_state(
-    const VideoTrackSourceInterface& source) {
-  return source->state();
-}
-
 // Returns the `AudioSourceInterface` of the provided `AudioTrackInterface`.
 std::unique_ptr<AudioSourceInterface> get_audio_track_source(
     const AudioTrackInterface& track) {
   return std::make_unique<AudioSourceInterface>(track->GetSource());
-}
-
-// todo
-SourceState get_audio_source_state(
-    const AudioSourceInterface& source) {
-  return source->state();
 }
 
 // Calls `IceCandidateInterface->ToString`.
