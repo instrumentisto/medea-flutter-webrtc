@@ -196,7 +196,7 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
         audioManager.startBluetoothSco()
       }
       else -> {
-        throw RuntimeException("Overconstrained")
+        throw IllegalArgumentException("Unknown output device `deviceId`")
       }
     }
   }
