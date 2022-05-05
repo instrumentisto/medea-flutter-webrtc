@@ -178,9 +178,7 @@ jobs:
       - run: make cargo.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform != 'android' }}
 
-      - run: |
-          make cargo.build platfom=${{ matrix.platform }} \
-               args="--features fake_media"
+      - run: make cargo.build platfom=${{ matrix.platform }} args="--features fake_media"
         if: ${{ matrix.platform != 'android' }}
 
       - name: Test on Android
