@@ -33,7 +33,8 @@ jobs:
       - rustfmt
       - test-flutter
       - test-rust
-    steps: []
+    steps:
+      - run: true
 
 
 
