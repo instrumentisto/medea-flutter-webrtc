@@ -2,8 +2,7 @@ package com.cloudwebrtc.webrtc.controller
 
 import com.cloudwebrtc.webrtc.MediaDevices
 import com.cloudwebrtc.webrtc.State
-import com.cloudwebrtc.webrtc.exception.GetUserMediaAudioException
-import com.cloudwebrtc.webrtc.exception.GetUserMediaVideoException
+import com.cloudwebrtc.webrtc.exception.GetUserMediaException
 import com.cloudwebrtc.webrtc.model.Constraints
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
@@ -61,10 +60,13 @@ class MediaDevicesController(private val messenger: BinaryMessenger, state: Stat
         try {
           val tracks = mediaDevices.getUserMedia(Constraints.fromMap(constraintsArg))
           result.success(tracks.map { MediaStreamTrackController(messenger, it).asFlutterResult() })
-        } catch (e: GetUserMediaAudioException) {
-          result.error("GetUserMediaAudioException", e.message, null)
-        } catch (e: GetUserMediaVideoException) {
-          result.error("GetUserMediaVideoException", e.message, null)
+        } catch (e: GetUserMediaException) {
+          when (e.kind) {
+            GetUserMediaException.Kind.Audio ->
+                result.error("GetUserMediaAudioException", e.message, null)
+            GetUserMediaException.Kind.Video ->
+                result.error("GetUserMediaVideoException", e.message, null)
+          }
         }
       }
       "setOutputAudioId" -> {
