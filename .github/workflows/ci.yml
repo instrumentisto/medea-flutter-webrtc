@@ -104,10 +104,10 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
       - run: flutter config --enable-windows-desktop
 
-      - run: make cargo.build args="--features fake_media"
+      - run: make cargo.build
       - run: make flutter.build
 
       - uses: actions/upload-artifact@v3
@@ -115,6 +115,9 @@ jobs:
           name: build-rust
           path: windows/rust/
           retention-days: 1
+
+
+
 
   ###########
   # Testing #
@@ -137,18 +140,48 @@ jobs:
     name: Test Flutter integration
     needs: ["build"]
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: android
+            os: macos-latest
+          - platform: windows
+            os: windows-2019
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v1
-      - run: flutter config --enable-windows-desktop
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: subosito/flutter-action@v2
+
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
+        if: ${{ matrix.platform != 'android' }}
+
+      - run: make cargo.build platform=${{ matrix.platform }} \
+                args="--features fake_media"
+        if: ${{ matrix.platform != 'android' }}
 
       - uses: actions/download-artifact@v3
         with:
           name: build-rust
-          path: windows/rust/
+          path: ${{ matrix.platform }}/rust/
+        if: ${{ matrix.platform != 'android' }}
+
+      - name: Test on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 21
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: make flutter.test
+        if: ${{ matrix.platform == 'android' }}
 
       - run: make flutter.test device=windows
+        if: ${{ matrix.platform == 'windows' }}
 
 
 

@@ -16,7 +16,7 @@
 #include "pc/video_track_source.h"
 
 namespace webrtc {
-
+// TODO(alexlapa): add to NOTICE?
 // A minimal implementation of VideoTrackSource. Includes a VideoBroadcaster for
 // injection of frames.
 class FakeVideoTrackSource : public VideoTrackSource {

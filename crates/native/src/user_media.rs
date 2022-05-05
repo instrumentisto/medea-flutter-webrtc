@@ -135,7 +135,6 @@ impl Webrtc {
     }
 
     /// Creates a new [`VideoSource`] based on the given [`VideoConstraints`].
-    #[cfg(not(feature = "fake_media"))]
     fn get_or_create_video_source(
         &mut self,
         caps: &api::VideoConstraints,
@@ -193,49 +192,8 @@ impl Webrtc {
         Ok(Arc::clone(source))
     }
 
-    /// Creates a new fake [`VideoSource`].
-    #[cfg(feature = "fake_media")]
-    fn get_or_create_video_source(
-        &mut self,
-        caps: &api::VideoConstraints,
-    ) -> anyhow::Result<Arc<VideoSource>> {
-        let (index, device_id) = if caps.is_display {
-            (0, VideoDeviceId("fake_screen".into()))
-        } else {
-            (0, VideoDeviceId("fake_camera".into()))
-        };
-
-        if let Some(src) = self.video_sources.get(&device_id) {
-            return Ok(Arc::clone(src));
-        }
-
-        let source = if caps.is_display {
-            VideoSource::new_display_source(
-                &mut self.worker_thread,
-                &mut self.signaling_thread,
-                caps,
-                device_id,
-            )?
-        } else {
-            VideoSource::new_device_source(
-                &mut self.worker_thread,
-                &mut self.signaling_thread,
-                caps,
-                index,
-                device_id,
-            )?
-        };
-        let source = self
-            .video_sources
-            .entry(source.device_id.clone())
-            .or_insert_with(|| Arc::new(source));
-
-        Ok(Arc::clone(source))
-    }
-
     /// Creates a new [`AudioTrack`] from the given
     /// [`sys::AudioSourceInterface`].
-    #[cfg(not(feature = "fake_media"))]
     fn create_audio_track(
         &mut self,
         source: Arc<sys::AudioSourceInterface>,
@@ -255,47 +213,8 @@ impl Webrtc {
         Ok(api_track)
     }
 
-    /// Creates a new fake [`AudioTrack`] from the given
-    /// [`sys::AudioSourceInterface`].
-    #[cfg(feature = "fake_media")]
-    fn create_audio_track(
-        &mut self,
-        source: Arc<sys::AudioSourceInterface>,
-    ) -> anyhow::Result<api::MediaStreamTrack> {
-        let device_id = AudioDeviceId("fake_audio_device_id".to_owned());
-
-        let track =
-            AudioTrack::new(&self.peer_connection_factory, source, device_id)?;
-
-        let api_track = api::MediaStreamTrack::from(&track);
-
-        self.audio_tracks.insert(track.id.clone(), track);
-
-        Ok(api_track)
-    }
-
-    /// Creates a new fake [`sys::AudioSourceInterface`] based on the given
-    /// [`AudioConstraints`].
-    #[cfg(feature = "fake_media")]
-    fn get_or_create_audio_source(
-        &mut self,
-        caps: &api::AudioConstraints,
-    ) -> anyhow::Result<Arc<sys::AudioSourceInterface>> {
-        let src = if let Some(src) = self.audio_source.as_ref() {
-            Arc::clone(src)
-        } else {
-            let src =
-                Arc::new(self.peer_connection_factory.create_audio_source()?);
-            self.audio_source.replace(Arc::clone(&src));
-            src
-        };
-
-        Ok(src)
-    }
-
     /// Creates a new [`sys::AudioSourceInterface`] based on the given
     /// [`AudioConstraints`].
-    #[cfg(not(feature = "fake_media"))]
     fn get_or_create_audio_source(
         &mut self,
         caps: &api::AudioConstraints,

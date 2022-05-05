@@ -22,9 +22,9 @@
 
 #include "adm_proxy.h"
 
-#include "fake_frame_source.h"
+#include "media/base/fake_frame_source.h"
 #include "fake_video_track_source.h"
-#include "test_audio_device.h"
+#include "modules/audio_device/include/test_audio_device.h"
 
 namespace bridge {
 
