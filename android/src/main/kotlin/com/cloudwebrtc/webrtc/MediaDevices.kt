@@ -10,6 +10,7 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.cloudwebrtc.webrtc.exception.OverconstrainedException
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.AudioMediaTrackSource
@@ -264,6 +265,7 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
    * @return Most suitable [MediaStreamTrackProxy] for the provided [VideoConstraints].
    */
   private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
+    Log.w("getUserVideoTrack", "11111111111111111111111111")
     val deviceId = findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
     val width = constraints.width ?: DEFAULT_WIDTH
     val height = constraints.height ?: DEFAULT_HEIGHT
@@ -271,24 +273,37 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
 
     val videoSource = state.getPeerConnectionFactory().createVideoSource(false)
     videoSource.adaptOutputFormat(width, height, fps)
-
+    Log.w("getUserVideoTrack", "22222222222222222222222")
     val surfaceTextureRenderer =
         SurfaceTextureHelper.create(Thread.currentThread().name, EglUtils.rootEglBaseContext)
     val videoCapturer =
         cameraEnumerator.createCapturer(
             deviceId,
             object : CameraVideoCapturer.CameraEventsHandler {
-              override fun onCameraError(p0: String?) {}
-              override fun onCameraDisconnected() {}
-              override fun onCameraFreezed(p0: String?) {}
-              override fun onCameraOpening(p0: String?) {}
-              override fun onFirstFrameAvailable() {}
-              override fun onCameraClosed() {}
+              override fun onCameraError(p0: String?) {
+                  Log.w("CameraEventsHandler", "onCameraError")
+              }
+              override fun onCameraDisconnected() {
+                  Log.w("CameraEventsHandler", "onCameraDisconnected")
+              }
+              override fun onCameraFreezed(p0: String?) {
+                  Log.w("CameraEventsHandler", "onCameraFreezed")
+              }
+              override fun onCameraOpening(p0: String?) {
+                  Log.w("CameraEventsHandler", "onCameraOpening")
+              }
+              override fun onFirstFrameAvailable() {
+                  Log.w("CameraEventsHandler", "onFirstFrameAvailable")
+              }
+              override fun onCameraClosed() {
+                  Log.w("CameraEventsHandler", "onCameraClosed")
+              }
             })
+    Log.w("getUserVideoTrack", "33333333333333333333333")
     videoCapturer.initialize(
         surfaceTextureRenderer, state.getAppContext(), videoSource.capturerObserver)
     videoCapturer.startCapture(width, height, fps)
-
+    Log.w("getUserVideoTrack", "44444444444444444444444")
     val videoTrackSource =
         VideoMediaTrackSource(
             videoCapturer,
@@ -296,8 +311,13 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
             surfaceTextureRenderer,
             state.getPeerConnectionFactory(),
             deviceId)
+    Log.w("getUserVideoTrack", "555555555555555555555555")
+    var track =  videoTrackSource.newTrack()
 
-    return videoTrackSource.newTrack()
+    Log.w("getUserVideoTrack", "new track state = " + track.state())
+
+
+    return track;
   }
 
   /**
