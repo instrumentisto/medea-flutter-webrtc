@@ -196,6 +196,7 @@ dependencies = [
 name = "flutter-webrtc-native"
 version = "0.0.0"
 dependencies = [
+ "allo-isolate",
  "anyhow",
  "cxx",
  "cxx-build",
@@ -532,6 +533,7 @@ dependencies = [
 name = "libwebrtc-sys"
 version = "0.0.0"
 dependencies = [
+ "allo-isolate",
  "anyhow",
  "cxx",
  "cxx-build",

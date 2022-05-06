@@ -1,8 +1,14 @@
 package com.cloudwebrtc.webrtc.proxy
 
+import android.util.Log
 import com.cloudwebrtc.webrtc.utils.LocalTrackIdGenerator
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.webrtc.AudioSource
 import org.webrtc.PeerConnectionFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Object representing a source of an input audio of an user.
@@ -31,9 +37,27 @@ class AudioMediaTrackSource(
    * @return Newly created [MediaStreamTrackProxy].
    */
   override fun newTrack(): MediaStreamTrackProxy {
+      val audioTrack = peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source)
+      GlobalScope.launch(Dispatchers.Main) {
+        while (true) {
+            var i = 0
+            while (i < 100) {
+                i += 20
+                audioTrack.setVolume(i.toDouble())
+                delay(2000)
+                Log.d("FOOBAR", "Volume set: " + i.toString());
+            }
+            while (i > 0) {
+                i -= 20
+                audioTrack.setVolume(i.toDouble())
+                delay(2000)
+                Log.d("FOOBAR", "Volume set: " + i.toString());
+            }
+        }
+    }
     val track =
         MediaStreamTrackProxy(
-            peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source),
+            audioTrack,
             "audio-1",
             this)
     track.onStop { trackStopped() }

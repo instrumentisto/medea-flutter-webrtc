@@ -14,7 +14,7 @@ fn main() -> anyhow::Result<()> {
     // This won't override any env vars that already present.
     drop(dotenv());
 
-    download_libwebrtc()?;
+    // download_libwebrtc()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let cpp_files = get_cpp_files()?;
@@ -46,6 +46,12 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
+    #[cfg(target_os = "macos")]
+    build
+        .flag("-DWEBRTC_POSIX")
+        .flag("-DWEBRTC_MAC")
+        .flag("-DNOMINMAX")
+        .flag("-std=c++17");
     build.compile("libwebrtc-sys");
 
     for file in cpp_files {
@@ -202,4 +208,35 @@ fn link_libs() {
             _ => (),
         }
     }
+    #[cfg(target_os = "macos")]
+    {
+        match env::var("PROFILE").unwrap().as_str() {
+            "debug" => {
+                println!("cargo:rustc-link-lib=framework=AudioUnit");
+                println!("cargo:rustc-link-lib=framework=CoreServices");
+                println!("cargo:rustc-link-lib=framework=CoreFoundation");
+                println!("cargo:rustc-link-lib=framework=AudioToolbox");
+                println!("cargo:rustc-link-lib=framework=CoreAudio");
+                println!(
+                    "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/debug/",
+                );
+            }
+            "release" => {
+                println!("cargo:rustc-link-lib=framework=AudioUnit");
+                println!("cargo:rustc-link-lib=framework=CoreServices");
+                println!("cargo:rustc-link-lib=framework=CoreFoundation");
+                println!("cargo:rustc-link-lib=framework=AudioToolbox");
+                println!("cargo:rustc-link-lib=framework=CoreGraphics");
+                println!("cargo:rustc-link-lib=framework=CoreAudio");
+                println!("cargo:rustc-link-lib=framework=IOSurface");
+                println!("cargo:rustc-link-lib=framework=ApplicationServices");
+                println!("cargo:rustc-link-lib=framework=Foundation");
+                println!(
+                    "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/",
+                );
+            }
+            &_ => unreachable!(),
+        }
+    }
+
 }

@@ -14,12 +14,17 @@ A new flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files     = ['Classes/**/*']
 
-  s.private_header_files = 'third_party/include/**/*'
-  $dir = File.dirname(__FILE__) + "/third_party/include"
-  s.pod_target_xcconfig = { "HEADER_SEARCH_PATHS" => $dir}
-  s.vendored_libraries = 'third_party/lib/*.a'
+  s.private_header_files = 'rust/include/**/*'
+  $dir = File.dirname(__FILE__) + "/rust/include"
+  s.pod_target_xcconfig = { "HEADER_SEARCH_PATHS" => $dir }
+  s.vendored_libraries = 'rust/lib/*.a'
+  s.platform = :osx, '10.11'
+  s.xcconfig = {
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    'CLANG_CXX_LIBRARY' => 'libc++',
+    'OTHER_LDFLAGS' => '-lc++ -v /usr/local/lib/libportaudio.a -framework CoreServices -framework CoreFoundation -framework AudioUnit -framework AudioToolbox -framework CoreAudio',
+  }
 
   s.dependency 'FlutterMacOS'
-  s.dependency 'WebRTC-SDK', '92.4515.10'
   s.osx.deployment_target = '10.11'
 end
