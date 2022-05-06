@@ -864,7 +864,6 @@ pub fn get_transceiver_direction(
     peer_id: u64,
     transceiver_index: u32,
 ) -> anyhow::Result<RtpTransceiverDirection> {
-    println!("{transceiver_index}+++\n");
     WEBRTC
         .lock()
         .unwrap()
