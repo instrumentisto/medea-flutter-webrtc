@@ -308,7 +308,6 @@ void main() {
         .timeout(const Duration(seconds: 5));
   });
 
-
   testWidgets('Clone track', (WidgetTester tester) async {
     var caps = DeviceConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
@@ -408,7 +407,7 @@ void main() {
     // IceTransportType.all, STUN server
     {
       var server =
-        IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
+          IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
       var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
       var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
@@ -485,6 +484,5 @@ void main() {
 
       expect(countPc1 == 0 && countPc2 == 0, isTrue);
     }
-    
   });
 }

@@ -122,8 +122,6 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
     return NativeMediaStreamTrack.from(await _chan.invokeMethod('clone'));
   }
 
-  @override
-  Future<bool> muted() async {return true;}
 }
 
 /// FFI-based implementation of a [NativeMediaStreamTrack].

@@ -1174,7 +1174,7 @@ pub(crate) mod webrtc {
         pub fn get_video_track_source(
             track: &VideoTrackInterface,
         ) -> UniquePtr<VideoTrackSourceInterface>;
-        
+
         /// Adds the [`AudioTrackInterface`] to the [`MediaStreamInterface`].
         pub fn add_audio_track(
             peer_connection_factory: &MediaStreamInterface,

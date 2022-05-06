@@ -163,7 +163,7 @@ impl Webrtc {
             self.peer_connections.get_mut(&peer_id).ok_or_else(|| {
                 anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
             })?;
-            
+
         let (set_sdp_tx, set_sdp_rx) = mpsc::channel();
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(

@@ -16,7 +16,7 @@ pub use crate::webrtc::{
     video_frame_to_abgr, AudioLayer, BundlePolicy, Candidate,
     CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
     IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
-    SdpType, SignalingState, VideoFrame, VideoRotation
+    SdpType, SignalingState, VideoFrame, VideoRotation,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].

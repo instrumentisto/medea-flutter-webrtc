@@ -383,7 +383,6 @@ impl Webrtc {
         Ok(())
     }
 
-
     /// Clones the specified [`api::MediaStreamTrack`].
     pub fn clone_track(
         &mut self,

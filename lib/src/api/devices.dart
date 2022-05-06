@@ -183,7 +183,9 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
     DeviceConstraints constraints) async {
   var audioConstraints = constraints.audio.mandatory != null
-      ? ffi.AudioConstraints(deviceId: constraints.audio.mandatory?.deviceId)
+      ? ffi.AudioConstraints(
+          deviceId: constraints.audio.mandatory?.deviceId ??
+              constraints.audio.optional?.deviceId)
       : null;
 
   var videoConstraints = constraints.video.mandatory != null
@@ -215,7 +217,9 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
   var audioConstraints = constraints.audio.mandatory != null
-      ? ffi.AudioConstraints(deviceId: constraints.audio.mandatory?.deviceId)
+      ? ffi.AudioConstraints(
+          deviceId: constraints.audio.mandatory?.deviceId ??
+              constraints.audio.optional?.deviceId)
       : null;
 
   var videoConstraints = constraints.video.mandatory != null
