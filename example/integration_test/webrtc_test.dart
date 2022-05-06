@@ -309,7 +309,7 @@ void main() {
   });
 
 
-  testWidgets('clone track', (WidgetTester tester) async {
+  testWidgets('Clone track', (WidgetTester tester) async {
     var caps = DeviceConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
     caps.video.mandatory!.width = 640;
@@ -403,7 +403,7 @@ void main() {
     expect(audio, isTrue);
   });
 
-  testWidgets('ice candidate', (WidgetTester tester) async {
+  testWidgets('Ice candidate', (WidgetTester tester) async {
     final typeCandidate = RegExp(r'typ (host|srflx|relay)');
     // IceTransportType.all, STUN server
     {
