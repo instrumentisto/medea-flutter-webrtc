@@ -60,5 +60,4 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   Future<MediaStreamTrack> clone() async {
     return WebMediaStreamTrack(jsTrack.clone());
   }
-
 }
