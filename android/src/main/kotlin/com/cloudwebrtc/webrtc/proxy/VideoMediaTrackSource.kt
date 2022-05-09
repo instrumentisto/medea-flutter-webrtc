@@ -1,6 +1,5 @@
 package com.cloudwebrtc.webrtc.proxy
 
-import android.util.Log
 import com.cloudwebrtc.webrtc.SurfaceTextureRenderer
 import com.cloudwebrtc.webrtc.utils.LocalTrackIdGenerator
 import org.webrtc.PeerConnectionFactory
@@ -41,8 +40,6 @@ class VideoMediaTrackSource(
    * @return Newly created [MediaStreamTrackProxy].
    */
   override fun newTrack(): MediaStreamTrackProxy {
-
-    Log.w("new track thread", Thread.currentThread().name + " " + Thread.currentThread().id)
     val videoTrack =
         MediaStreamTrackProxy(
             peerConnectionFactoryProxy.createVideoTrack(
