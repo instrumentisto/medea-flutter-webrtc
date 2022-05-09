@@ -299,8 +299,6 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((IceCandidate candidate) async {
-      print(
-          '111 ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc2.addIceCandidate(candidate);
 
       if (!futures[4].isCompleted) {
@@ -309,8 +307,6 @@ void main() {
     });
 
     pc2.onIceCandidate((IceCandidate candidate) async {
-      print(
-          '222 ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc1.addIceCandidate(candidate);
 
       if (!futures[4].isCompleted) {
