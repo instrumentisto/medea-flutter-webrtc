@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -240,7 +241,7 @@ void main() {
     await completer.future.timeout(const Duration(seconds: 3));
   });
 
-  testWidgets('e2e test', (WidgetTester tester) async {
+  testWidgets('Connect two peers', (WidgetTester tester) async {
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
@@ -248,39 +249,46 @@ void main() {
     caps.video.mandatory!.height = 480;
     caps.video.mandatory!.fps = 30;
 
-    var trackspc1 = await getUserMedia(caps);
+    var tracks = await getUserMedia(caps);
 
-    var server =
-        IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
+    var videoTrack =
+        tracks.firstWhere((track) => track.kind() == MediaKind.video);
+    var audioTrack =
+        tracks.firstWhere((track) => track.kind() == MediaKind.audio);
+
+    var server = IceServer(['stun:stun.l.google.com:19302']);
     var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
     var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
-    var allFutures = List<Completer>.generate(4, (_) => Completer());
+    var futures = List<Completer>.generate(5, (_) => Completer());
     pc1.onConnectionStateChange((state) {
       if (state == PeerConnectionState.connected) {
-        allFutures[0].complete();
+        futures[0].complete();
       }
     });
 
     pc2.onConnectionStateChange((state) {
       if (state == PeerConnectionState.connected) {
-        allFutures[1].complete();
+        futures[1].complete();
       }
     });
 
     pc2.onTrack((track, trans) async {
       if (track.kind() == MediaKind.video) {
-        allFutures[2].complete();
+        futures[2].complete();
       } else {
-        allFutures[3].complete();
+        futures[3].complete();
       }
     });
 
-    var pc1vtrans = await pc1.addTransceiver(
+    var videoTransceiver = await pc1.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
-    var pc1atrans = await pc1.addTransceiver(
+    var audioTransceiver = await pc1.addTransceiver(
         MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+    videoTransceiver.sender.replaceTrack(videoTrack);
+    audioTransceiver.sender.replaceTrack(audioTrack);
 
     var offer = await pc1.createOffer();
     await pc1.setLocalDescription(offer);
@@ -291,20 +299,26 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((IceCandidate candidate) async {
+      print(
+          '111 ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc2.addIceCandidate(candidate);
+
+      if (!futures[4].isCompleted) {
+        futures[4].complete();
+      }
     });
 
     pc2.onIceCandidate((IceCandidate candidate) async {
+      print(
+          '222 ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc1.addIceCandidate(candidate);
+
+      if (!futures[4].isCompleted) {
+        futures[4].complete();
+      }
     });
 
-    await pc1vtrans.sender.replaceTrack(
-        trackspc1.firstWhere((track) => track.kind() == MediaKind.video));
-
-    await pc1atrans.sender.replaceTrack(
-        trackspc1.firstWhere((track) => track.kind() == MediaKind.audio));
-
-    await Future.wait(allFutures.map((e) => e.future))
+    await Future.wait(futures.map((e) => e.future))
         .timeout(const Duration(seconds: 5));
   });
 

@@ -131,14 +131,11 @@ jobs:
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-windows-desktop
 
-      - run: make cargo.build args="--features fake_media"
+      - run: make cargo.build
       - run: make flutter.build
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: build-rust
-          path: windows/rust/
-          retention-days: 1
+
+
 
   ###########
   # Testing #
@@ -175,16 +172,13 @@ jobs:
       - run: make cargo.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform != 'android' }}
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-rust
-          path: ${{ matrix.platform }}/rust/
+      - run: make cargo.build platfom=${{ matrix.platform }} args="--features fake_media"
         if: ${{ matrix.platform != 'android' }}
 
       - name: Test on Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 21
+          api-level: 24
           target: google_apis
           arch: x86_64
           profile: Nexus 6
