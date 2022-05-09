@@ -260,7 +260,7 @@ void main() {
     var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
     var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
-    var futures = List<Completer>.generate(6, (_) => Completer());
+    var futures = List<Completer>.generate(5, (_) => Completer());
     pc1.onConnectionStateChange((state) {
       if (state == PeerConnectionState.connected) {
         print('111111111 futures[0]');
@@ -312,9 +312,9 @@ void main() {
 
     pc2.onIceCandidate((IceCandidate candidate) async {
       await pc1.addIceCandidate(candidate);
-      if (!futures[5].isCompleted) {
+      if (!futures[4].isCompleted) {
         print('111111111 futures[5]');
-        futures[5].complete();
+        futures[4].complete();
       }
     });
 
