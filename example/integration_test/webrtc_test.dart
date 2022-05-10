@@ -297,23 +297,6 @@ void main() {
       }
     });
 
-    var videoTransceiver = await pc1.addTransceiver(
-        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
-
-    var audioTransceiver = await pc1.addTransceiver(
-        MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
-
-    videoTransceiver.sender.replaceTrack(videoTrack);
-    audioTransceiver.sender.replaceTrack(audioTrack);
-
-    var offer = await pc1.createOffer();
-    await pc1.setLocalDescription(offer);
-    await pc2.setRemoteDescription(offer);
-
-    var answer = await pc2.createAnswer();
-    await pc2.setLocalDescription(answer);
-    await pc1.setRemoteDescription(answer);
-
     pc1.onIceCandidate((IceCandidate candidate) async {
       print(
           'pc2.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
@@ -335,6 +318,23 @@ void main() {
         futures[4].complete();
       }
     });
+
+    var videoTransceiver = await pc1.addTransceiver(
+        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+    var audioTransceiver = await pc1.addTransceiver(
+        MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+    videoTransceiver.sender.replaceTrack(videoTrack);
+    audioTransceiver.sender.replaceTrack(audioTrack);
+
+    var offer = await pc1.createOffer();
+    await pc1.setLocalDescription(offer);
+    await pc2.setRemoteDescription(offer);
+
+    var answer = await pc2.createAnswer();
+    await pc2.setLocalDescription(answer);
+    await pc1.setRemoteDescription(answer);
 
     await Future.wait(futures.map((e) => e.future))
         .timeout(const Duration(seconds: 5));
