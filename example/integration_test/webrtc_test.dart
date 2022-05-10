@@ -109,10 +109,14 @@ void main() {
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
     pc1.onIceCandidate((candidate) async {
+      print(
+          'pc2.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc2.addIceCandidate(candidate);
     });
 
     pc2.onIceCandidate((candidate) async {
+      print(
+          'pc1.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc1.addIceCandidate(candidate);
     });
     await pc1.addTransceiver(
@@ -152,10 +156,14 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((candidate) async {
+      print(
+          'pc2.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc2.addIceCandidate(candidate);
     });
 
     pc2.onIceCandidate((candidate) async {
+      print(
+          'pc1.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc1.addIceCandidate(candidate);
     });
 
@@ -191,9 +199,13 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((candidate) async {
+      print(
+          'pc2.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc2.addIceCandidate(candidate);
     });
     pc2.onIceCandidate((candidate) async {
+      print(
+          'pc1.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc1.addIceCandidate(candidate);
     });
 
