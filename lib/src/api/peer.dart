@@ -233,10 +233,16 @@ class _PeerConnectionChannel extends PeerConnection {
   void eventListener(dynamic event) {
     dynamic e = event;
 
+    print('eventListener `${e}`');
+
     switch (e['event']) {
       case 'onIceCandidate':
         dynamic iceCandidate = e['candidate'];
-        _onIceCandidate?.call(IceCandidate.fromMap(iceCandidate));
+        IceCandidate c = IceCandidate.fromMap(iceCandidate);
+
+        print('onIceCandidate `${c.sdpMid} ${c.sdpMLineIndex} ${c.candidate}`');
+
+        _onIceCandidate?.call(c);
         break;
       case 'onIceGatheringStateChange':
         var state = IceGatheringState.values[e['state']];
