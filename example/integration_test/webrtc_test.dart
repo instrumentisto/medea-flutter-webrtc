@@ -263,20 +263,24 @@ void main() {
     var futures = List<Completer>.generate(5, (_) => Completer());
     pc1.onConnectionStateChange((state) {
       if (state == PeerConnectionState.connected) {
+        print('futures[0].complete();');
         futures[0].complete();
       }
     });
 
     pc2.onConnectionStateChange((state) {
       if (state == PeerConnectionState.connected) {
+        print('futures[1].complete();');
         futures[1].complete();
       }
     });
 
     pc2.onTrack((track, trans) async {
       if (track.kind() == MediaKind.video) {
+        print('futures[2].complete();');
         futures[2].complete();
       } else {
+        print('futures[3].complete();');
         futures[3].complete();
       }
     });
@@ -300,20 +304,22 @@ void main() {
 
     pc1.onIceCandidate((IceCandidate candidate) async {
       print(
-          '111 ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
+          'pc2.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc2.addIceCandidate(candidate);
 
       if (!futures[4].isCompleted) {
+        print('futures[4].complete();');
         futures[4].complete();
       }
     });
 
     pc2.onIceCandidate((IceCandidate candidate) async {
       print(
-          '222 ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
+          'pc1.addIceCandidate ${candidate.sdpMid} ${candidate.sdpMLineIndex} ${candidate.candidate}');
       await pc1.addIceCandidate(candidate);
 
       if (!futures[4].isCompleted) {
+        print('futures[4].complete();');
         futures[4].complete();
       }
     });

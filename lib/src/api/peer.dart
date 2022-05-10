@@ -233,8 +233,6 @@ class _PeerConnectionChannel extends PeerConnection {
   void eventListener(dynamic event) {
     dynamic e = event;
 
-    print('eventListener `${e}`');
-
     switch (e['event']) {
       case 'onIceCandidate':
         dynamic iceCandidate = e['candidate'];
