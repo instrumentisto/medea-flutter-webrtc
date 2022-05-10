@@ -196,7 +196,7 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
         audioManager.startBluetoothSco()
       }
       else -> {
-        throw IllegalArgumentException("Unknown output device `deviceId`")
+        throw IllegalArgumentException("Unknown output device: $deviceId")
       }
     }
   }

@@ -714,10 +714,10 @@ impl From<BundlePolicy> for sys::BundlePolicy {
 
 /// [`get_media()`] function result.
 pub enum GetMediaResult {
-    /// The requested media tracks.
+    /// Requested media tracks.
     Ok(Vec<MediaStreamTrack>),
 
-    /// Could not get requested media.
+    /// Failed to get requested media.
     Err(GetMediaError),
 }
 
