@@ -1,5 +1,6 @@
 package com.cloudwebrtc.webrtc.controller
 
+import android.util.Log
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.PeerConnectionProxy
@@ -141,6 +142,7 @@ class PeerConnectionController(
             peer.addIceCandidate(IceCandidate.fromMap(candidate))
             result.success(null)
           } catch (e: Exception) {
+              Log.w("JavaAddIceCandidateException", "id = `${candidate.hashCode()}` `$candidate`")
             resultUnhandledException(result, e)
           }
         }
