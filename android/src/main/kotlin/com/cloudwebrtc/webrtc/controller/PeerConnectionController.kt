@@ -142,7 +142,7 @@ class PeerConnectionController(
             peer.addIceCandidate(IceCandidate.fromMap(candidate))
             result.success(null)
           } catch (e: Exception) {
-              Log.w("JavaAddIceCandidateException", "id = `${candidate.hashCode()}` `$candidate`")
+            Log.w("JavaAddIceCandidateException", "id = `${candidate.hashCode()}` `$candidate`")
             resultUnhandledException(result, e)
           }
         }
