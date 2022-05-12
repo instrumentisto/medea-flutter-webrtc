@@ -313,11 +313,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * @param description SDP to be applied.
    */
   suspend fun setRemoteDescription(description: SessionDescription) {
-    while (candidatesBuffer.isNotEmpty()) {
-      addIceCandidate(candidatesBuffer.removeAt(0))
-    }
     suspendCoroutine<Unit> { continuation ->
       obj.setRemoteDescription(setSdpObserver(continuation), description.intoWebRtc())
+    }
+    while (candidatesBuffer.isNotEmpty()) {
+      addIceCandidate(candidatesBuffer.removeAt(0))
     }
   }
 
