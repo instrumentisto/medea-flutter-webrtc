@@ -7,6 +7,7 @@ import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.model.IceCandidate
 import com.cloudwebrtc.webrtc.model.SessionDescription
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -23,6 +24,8 @@ import org.webrtc.SessionDescription as WSessionDescription
 class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnection> {
   /** Actual underlying [PeerConnection]. */
   override var obj: PeerConnection = peer
+
+  private var candidatesBuffer: ArrayList<IceCandidate> = ArrayList()
 
   /** List of all [RtpSenderProxy]s owned by this [PeerConnectionProxy]. */
   private var senders: HashMap<String, RtpSenderProxy> = HashMap()
@@ -309,6 +312,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * @param description SDP to be applied.
    */
   suspend fun setRemoteDescription(description: SessionDescription) {
+    while (candidatesBuffer.isNotEmpty()) {
+      addIceCandidate(candidatesBuffer.removeAt(0))
+    }
     suspendCoroutine<Unit> { continuation ->
       obj.setRemoteDescription(setSdpObserver(continuation), description.intoWebRtc())
     }
@@ -317,21 +323,28 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** Adds a new [IceCandidate] to the underlying [PeerConnection]. */
   suspend fun addIceCandidate(candidate: IceCandidate) {
     suspendCoroutine<Unit> { continuation ->
-      obj.addIceCandidate(
-          candidate.intoWebRtc(),
-          object : AddIceObserver {
-            override fun onAddSuccess() {
-              continuation.resume(Unit)
-            }
+      run {
+        if (obj.remoteDescription != null) {
+          obj.addIceCandidate(
+              candidate.intoWebRtc(),
+              object : AddIceObserver {
+                override fun onAddSuccess() {
+                  continuation.resume(Unit)
+                }
 
-            override fun onAddFailure(msg: String?) {
-              var message = msg
-              if (message == null) {
-                message = ""
-              }
-              continuation.resumeWithException(AddIceCandidateException(message))
-            }
-          })
+                override fun onAddFailure(msg: String?) {
+                  var message = msg
+                  if (message == null) {
+                    message = ""
+                  }
+                  continuation.resumeWithException(AddIceCandidateException(message))
+                }
+              })
+        } else {
+          candidatesBuffer.add(candidate)
+          continuation.resume(Unit)
+        }
+      }
     }
   }
 
