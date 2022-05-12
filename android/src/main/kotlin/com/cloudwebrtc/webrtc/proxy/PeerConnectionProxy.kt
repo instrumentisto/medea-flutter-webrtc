@@ -25,6 +25,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** Actual underlying [PeerConnection]. */
   override var obj: PeerConnection = peer
 
+  /** Candidates, added before a remote description has been set on the underlying peer. */
   private var candidatesBuffer: ArrayList<IceCandidate> = ArrayList()
 
   /** List of all [RtpSenderProxy]s owned by this [PeerConnectionProxy]. */
