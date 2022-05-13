@@ -2,8 +2,8 @@
 #include <memory>
 #include <string>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 #include "api/video/i420_buffer.h"
 #include "libwebrtc-sys/include/bridge.h"
@@ -35,7 +35,6 @@ void TrackEventObserver::set_track(
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track) {
   track_ = track;
 }
-
 
 #ifdef FAKE_MEDIA
 // Creates a new fake `DeviceVideoCapturer` with the specified constraints and
@@ -86,9 +85,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
       std::move(renderer));
   return std::make_unique<AudioDeviceModule>(adm_fake);
 }
-
 #else
-
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(

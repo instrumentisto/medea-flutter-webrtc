@@ -113,7 +113,7 @@ flutter.pub:
 	flutter pub $(or $(cmd),get)
 
 
-# Run Flutter example application for current OS.
+# Run Flutter example application for the current OS.
 #
 # Usage:
 #	make flutter.run
@@ -161,7 +161,8 @@ lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 
 cargo.build:
 	cargo build -p flutter-webrtc-native \
-		$(if $(call eq,$(debug),no),--release,) $(args)
+		$(if $(call eq,$(debug),no),--release,) \
+		$(args)
 ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
 	@mkdir -p linux/rust/lib/

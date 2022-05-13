@@ -216,8 +216,8 @@ impl AudioDeviceModule {
         webrtc::playout_devices(&self.0).max(0) as u32
     }
 
-    /// Returns count of available audio recording devices.
     #[cfg(not(feature = "fake_media"))]
+    /// Returns count of available audio recording devices.
     #[must_use]
     #[allow(clippy::cast_sign_loss)]
     pub fn recording_devices(&self) -> u32 {
@@ -225,6 +225,7 @@ impl AudioDeviceModule {
     }
 
     #[cfg(feature = "fake_media")]
+    /// Always returns `1`.
     pub fn recording_devices(&self) -> u32 {
         return 1;
     }
@@ -251,9 +252,9 @@ impl AudioDeviceModule {
         Ok((name, guid))
     }
 
+    #[cfg(not(feature = "fake_media"))]
     /// Returns the `(label, id)` tuple for the given audio recording device
     /// `index`.
-    #[cfg(not(feature = "fake_media"))]
     pub fn recording_device_name(
         &self,
         index: i16,
@@ -275,6 +276,7 @@ impl AudioDeviceModule {
     }
 
     #[cfg(feature = "fake_media")]
+    /// Always returns fake names.
     pub fn recording_device_name(
         &self,
         _index: i16,
@@ -425,19 +427,20 @@ impl VideoDeviceInfo {
         Ok(Self(ptr))
     }
 
-    /// Returns count of a video recording devices.
     #[cfg(not(feature = "fake_media"))]
+    /// Returns count of a video recording devices.
     pub fn number_of_devices(&mut self) -> u32 {
         self.0.pin_mut().number_of_video_devices()
     }
 
     #[cfg(feature = "fake_media")]
+    /// Always returns `1`.
     pub fn number_of_devices(&mut self) -> u32 {
         1
     }
 
-    /// Returns the `(label, id)` tuple for the given video device `index`.
     #[cfg(not(feature = "fake_media"))]
+    /// Returns the `(label, id)` tuple for the given video device `index`.
     pub fn device_name(
         &mut self,
         index: u32,
@@ -463,6 +466,7 @@ impl VideoDeviceInfo {
     }
 
     #[cfg(feature = "fake_media")]
+    /// Always returns fake names.
     pub fn device_name(
         &mut self,
         _index: u32,
