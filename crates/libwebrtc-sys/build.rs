@@ -46,7 +46,6 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
-
     #[cfg(feature = "fake_media")]
     {
         build.flag("-DFAKE_MEDIA");

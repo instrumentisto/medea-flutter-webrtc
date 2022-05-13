@@ -52,7 +52,7 @@ webrtc::VideoFrame FakeFrameSource::GetFrameRotationApplied() {
     case webrtc::kVideoRotation_270:
       return GetFrame(height_, width_, webrtc::kVideoRotation_0, interval_us_);
   }
-  // Without this return, the Windows Visual Studio compiler complains
+  // Without this return, the Windows Visual Studio compiler complains about
   // "not all control paths return a value".
   return GetFrame();
 }
