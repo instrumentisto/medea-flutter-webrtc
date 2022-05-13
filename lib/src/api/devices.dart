@@ -248,12 +248,10 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
 /// FFI-based implementation of a [getDisplayMedia] function.
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
     DisplayConstraints constraints) async {
-  var audioConstraints =
-      constraints.audio.mandatory != null || constraints.audio.optional != null
-          ? ffi.AudioConstraints(
-              deviceId: constraints.audio.mandatory?.deviceId ??
-                  constraints.audio.optional?.deviceId)
-          : null;
+  var audioConstraints = constraints.audio.mandatory != null ||
+          constraints.audio.optional != null
+      ? ffi.AudioConstraints(deviceId: constraints.audio.mandatory?.deviceId)
+      : null;
 
   var videoConstraints = constraints.video.mandatory != null ||
           constraints.video.optional != null
