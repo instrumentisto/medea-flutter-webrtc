@@ -30,6 +30,11 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
+
+    if env::var("PROFILE").unwrap().as_str() == "release" {
+        build.flag("-DNDEBUG");
+    }
+
     #[cfg(target_os = "windows")]
     {
         build
@@ -188,7 +193,15 @@ fn link_libs() {
     }
     #[cfg(target_os = "linux")]
     {
-        for dep in ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr"] {
+        for dep in [
+            "x11",
+            "xfixes",
+            "xdamage",
+            "xext",
+            "xtst",
+            "xrandr",
+            "xcomposite ",
+        ] {
             pkg_config::Config::new().probe(dep).unwrap();
         }
         match env::var("PROFILE").unwrap().as_str() {

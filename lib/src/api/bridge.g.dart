@@ -225,14 +225,12 @@ enum BundlePolicy {
 
 @freezed
 class GetMediaError with _$GetMediaError {
-  /// The [`GetMediaError`] is caused while creating [`crate::VideoSource`]
-  /// or [`crate::VideoTrack`].
+  /// Could not acquire audio track.
   const factory GetMediaError.audio(
     String field0,
   ) = Audio;
 
-  /// The [`GetMediaError`] is caused while creating
-  /// [`crate::sys::AudioSourceInterface`] or [`crate::AudioTrack`].
+  /// Could not acquire video track.
   const factory GetMediaError.video(
     String field0,
   ) = Video;
@@ -240,12 +238,12 @@ class GetMediaError with _$GetMediaError {
 
 @freezed
 class GetMediaResult with _$GetMediaResult {
-  /// Getting the media is ok.
+  /// Requested media tracks.
   const factory GetMediaResult.ok(
     List<MediaStreamTrack> field0,
   ) = Ok;
 
-  /// Getting the media is failed.
+  /// Failed to get requested media.
   const factory GetMediaResult.err(
     GetMediaError field0,
   ) = Err;
