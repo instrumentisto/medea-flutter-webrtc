@@ -16,7 +16,7 @@ pub use crate::webrtc::{
     video_frame_to_abgr, AudioLayer, BundlePolicy, Candidate,
     CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
     IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
-    SdpType, SignalingState, VideoFrame, VideoRotation,
+    SdpType, SignalingState, TrackState, VideoFrame, VideoRotation,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -1617,6 +1617,15 @@ impl VideoTrackInterface {
     pub fn source(&self) -> VideoTrackSourceInterface {
         VideoTrackSourceInterface(webrtc::get_video_track_source(&self.inner))
     }
+
+    /// Returns the [readyState][1] property of the specified
+    /// [`VideoTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    #[must_use]
+    pub fn state(&self) -> TrackState {
+        webrtc::video_track_state(&self.inner)
+    }
 }
 
 impl Drop for VideoTrackInterface {
@@ -1692,6 +1701,15 @@ impl AudioTrackInterface {
     #[must_use]
     pub fn source(&self) -> AudioSourceInterface {
         AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
+    }
+
+    /// Returns the [readyState][1] property of the specified
+    /// [`AudioTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    #[must_use]
+    pub fn state(&self) -> TrackState {
+        webrtc::audio_track_state(&self.inner)
     }
 }
 

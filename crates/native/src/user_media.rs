@@ -281,6 +281,36 @@ impl Webrtc {
         Ok(src)
     }
 
+    /// Returns the [readyState][1] property of the media track by its ID.
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    pub fn track_state(
+        &self,
+        id: String,
+        kind: api::MediaType,
+    ) -> anyhow::Result<api::TrackState> {
+        match kind {
+            MediaType::Audio => {
+                let id = AudioTrackId::from(id);
+                let track = self.audio_tracks.get(&id).ok_or_else(|| {
+                    anyhow!("Cannot find track with ID `{id}`")
+                })?;
+
+                Ok(track.state())
+            }
+            MediaType::Video => {
+                let id = VideoTrackId::from(id);
+                let track = self.video_tracks.get(&id).ok_or_else(|| {
+                    anyhow!("Cannot find track with ID `{id}`")
+                })?;
+
+                Ok(track.state())
+            }
+        }
+
+        // Ok(())
+    }
+
     /// Changes the [enabled][1] property of the media track by its ID.
     ///
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
@@ -809,6 +839,15 @@ impl VideoTrack {
         self.inner.set_enabled(enabled);
     }
 
+    /// Returns the [readyState][1] property of the underlying
+    /// [`sys::VideoTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    #[must_use]
+    pub fn state(&self) -> api::TrackState {
+        self.inner.state().into()
+    }
+
     /// Returns peers and transceivers sending this [`VideoTrack`].
     pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
         &mut self.senders
@@ -904,6 +943,15 @@ impl AudioTrack {
     #[must_use]
     pub fn id(&self) -> AudioTrackId {
         self.id.clone()
+    }
+
+    /// Returns the [readyState][1] property of the underlying
+    /// [`sys::AudioTrackInterface`].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    #[must_use]
+    pub fn state(&self) -> api::TrackState {
+        self.inner.state().into()
     }
 
     /// Changes the [enabled][1] property of the underlying
