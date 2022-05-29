@@ -75,12 +75,30 @@ fn main() -> anyhow::Result<()> {
 /// Downloads and unpacks compiled `libwebrtc` library.
 fn download_libwebrtc() -> anyhow::Result<()> {
     let mut libwebrtc_url = env::var("LIBWEBRTC_URL")?;
-    libwebrtc_url.push_str("/libwebrtc-win-x64.tar.gz");
-
+    libwebrtc_url.push_str("/");
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
-    let archive = temp_dir.join("libwebrtc-win-x64.tar.gz");
     let lib_dir = manifest_path.join("lib");
+
+    let archive_name = {
+        let mut archive_name = String::from("libwebrtc-");
+        #[cfg(target_os = "windows")]
+        archive_name.push_str("win-");
+        #[cfg(target_os = "linux")]
+        archive_name.push_str("linux-");
+        #[cfg(target_os = "macos")]
+        archive_name.push_str("macos-");
+
+        #[cfg(target_arch = "aarch64")]
+        archive_name.push_str("arm64.tar.xz");
+        #[cfg(target_arch = "x86_64")]
+        archive_name.push_str("x64.tar.xz");
+
+        archive_name
+    };
+
+    libwebrtc_url.push_str(archive_name.as_str());
+    let archive = temp_dir.join(archive_name);
 
     // Force download if `INSTALL_WEBRTC=1`.
     if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
