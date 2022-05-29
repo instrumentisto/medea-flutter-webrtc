@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["master"]
+    branches: [ "master" ]
   pull_request:
-    branches: ["master"]
+    branches: [ "master" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,7 +22,7 @@ jobs:
 
   pr:
     if: ${{ github.event_name == 'pull_request'
-            && !contains(github.event.head_commit.message, '[skip ci]') }}
+      && !contains(github.event.head_commit.message, '[skip ci]') }}
     needs:
       - build
       - clippy
@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-22.04] # TODO: add macos-latest
+        os: [ windows-latest, ubuntu-22.04 ] # TODO: add macos-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -127,9 +127,9 @@ jobs:
         include:
           - platform: linux
             os: ubuntu-22.04
-#         TODO: Add macos-latest
-#          - platform: macos
-#            os: macos-latest
+          #         TODO: Add macos-latest
+          #          - platform: macos
+          #            os: macos-latest
           - platform: windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
@@ -154,15 +154,15 @@ jobs:
 
   test-flutter:
     name: Test Flutter integration
-    needs: ["build"]
+    needs: [ "build" ]
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     strategy:
       fail-fast: false
       matrix:
         include:
-#         TODO: Add macos-latest
-#          - platform: macos
-#            os: macos-latest
+          #         TODO: Add macos-latest
+          #          - platform: macos
+          #            os: macos-latest
           - platform: android
             os: macos-latest
           - platform: windows
@@ -185,7 +185,7 @@ jobs:
         if: ${{ matrix.platform != 'android' }}
 
       - run: make cargo.build platform=${{ matrix.platform }}
-                              args="--features fake_media"
+          args="--features fake_media"
         if: ${{ matrix.platform != 'android' }}
 
       - name: Test on Android
@@ -213,7 +213,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-22.04] # TODO: add macos-latest
+        os: [ windows-latest, ubuntu-22.04 ] # TODO: add macos-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
