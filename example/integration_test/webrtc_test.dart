@@ -491,18 +491,22 @@ void main() {
       var futures = List<Completer>.generate(2, (_) => Completer());
       pc1.onIceGatheringStateChange((state) {
         if (state == IceGatheringState.complete) {
+          print('1 block 1 future before');
           futures[0].complete();
+          print('1 block 1 future after');
         }
       });
 
       pc2.onIceGatheringStateChange((state) {
         if (state == IceGatheringState.complete) {
+          print('1 block 2 future before');
           futures[1].complete();
+          print('1 block 2 future after');
         }
       });
 
       await Future.wait(futures.map((e) => e.future))
-          .timeout(const Duration(minutes: 1));
+          .timeout(const Duration(minutes: 2));
 
       expect(hasRelay, isFalse);
       expect(hasSrflx, isTrue);
@@ -538,18 +542,22 @@ void main() {
       var futures = List<Completer>.generate(2, (_) => Completer());
       pc1.onIceGatheringStateChange((state) {
         if (state == IceGatheringState.complete) {
+          print('2 block 1 future before');
           futures[0].complete();
+          print('2 block 1 future after');
         }
       });
 
       pc2.onIceGatheringStateChange((state) {
         if (state == IceGatheringState.complete) {
+          print('2 block 2 future before');
           futures[1].complete();
+          print('2 block 2 future after');
         }
       });
 
       await Future.wait(futures.map((e) => e.future))
-          .timeout(const Duration(minutes: 1));
+          .timeout(const Duration(minutes: 2));
 
       expect(candidatesFired, equals(0));
     }
