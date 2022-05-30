@@ -163,7 +163,7 @@ jobs:
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.build
-      - run: make flutter.build
+      - run: make flutter.build platform=${{ matrix.platform }}
 
 
 
