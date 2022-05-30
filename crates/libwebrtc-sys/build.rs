@@ -75,7 +75,7 @@ fn main() -> anyhow::Result<()> {
 /// Downloads and unpacks compiled `libwebrtc` library.
 fn download_libwebrtc() -> anyhow::Result<()> {
     let mut libwebrtc_url = env::var("LIBWEBRTC_URL")?;
-    libwebrtc_url.push_str("/");
+    libwebrtc_url.push('/');
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
     let lib_dir = manifest_path.join("lib");

@@ -48,7 +48,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-22.04] # TODO: add macos-latest
+        include:
+          - platform: linux
+            os: ubuntu-22.04
+#         TODO: Add macos-latest.
+#          - platform: macos
+#            os: macos-latest
+          - platform: windows
+            os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -57,6 +64,12 @@ jobs:
           profile: minimal
           toolchain: stable
           components: clippy
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpulse-dev libudev-dev
+        if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.lint
 
@@ -120,11 +133,18 @@ jobs:
 
   build:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
-    # TODO: Switch to `windows-latest` when stable Flutter stable will support
-    #       MSVC 2022:
-    #       https://github.com/flutter/flutter/issues/85922
-    #       https://github.com/flutter/flutter/issues/96138
-    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-22.04
+#         TODO: Add macos-latest.
+#          - platform: macos
+#            os: macos-latest
+          - platform: windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -132,7 +152,7 @@ jobs:
           profile: minimal
           toolchain: stable
       - uses: subosito/flutter-action@v2
-      - run: flutter config --enable-windows-desktop
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
 
       - run: make cargo.build
       - run: make flutter.build
@@ -152,14 +172,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
+#         TODO: Add macos-latest
+#          - platform: macos
+#            os: macos-latest
           - platform: android
             os: macos-latest
           - platform: windows
-            # TODO: Switch to `windows-latest` when stable Flutter stable will
-            #       support MSVC 2022:
-            #       https://github.com/flutter/flutter/issues/85922
-            #       https://github.com/flutter/flutter/issues/96138
-            os: windows-2019
+            os: windows-latest
+          - platform: linux
+            os: ubuntu-22.04
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
