@@ -32,7 +32,6 @@ jobs:
       - rustdoc
       - rustfmt
       - test-flutter
-      - test-rust
     runs-on: ubuntu-latest
     steps:
       - run: true
