@@ -90,9 +90,9 @@ fn download_libwebrtc() -> anyhow::Result<()> {
         archive_name.push_str("macos-");
 
         #[cfg(target_arch = "aarch64")]
-        archive_name.push_str("arm64.tar.xz");
+        archive_name.push_str("arm64.tar.gz");
         #[cfg(target_arch = "x86_64")]
-        archive_name.push_str("x64.tar.xz");
+        archive_name.push_str("x64.tar.gz");
 
         archive_name
     };

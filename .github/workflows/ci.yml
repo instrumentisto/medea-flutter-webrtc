@@ -158,8 +158,9 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpulse-dev libudev-dev libxfixes-dev \
-            libxdamage-dev libxtst-dev libxrandr-dev libxcomposite-dev
+          sudo apt-get install -y libgtk-3-dev ninja-build libpulse-dev \
+            libudev-dev libxfixes-dev libxdamage-dev libxtst-dev \
+            libxrandr-dev libxcomposite-dev
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.build
