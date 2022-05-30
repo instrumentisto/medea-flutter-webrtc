@@ -68,7 +68,8 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpulse-dev libudev-dev libxfixes-dev
+          sudo apt-get install -y libpulse-dev libudev-dev libxfixes-dev \
+            libxdamage-dev
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.lint
@@ -157,7 +158,8 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpulse-dev libudev-dev libx11-dev
+          sudo apt-get install -y libpulse-dev libudev-dev libxfixes-dev \
+            libxdamage-dev
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.build
