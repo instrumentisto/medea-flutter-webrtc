@@ -1,6 +1,8 @@
 #pragma once
 
 #include <functional>
+
+#include "adm_proxy.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
@@ -10,21 +12,18 @@
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
 #include "device_video_capturer.h"
+#include "media/base/fake_frame_source.h"
 #include "modules/audio_device/include/audio_device.h"
+#include "modules/audio_device/include/test_audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
 #include "pc/local_audio_source.h"
+#include "pc/test/fake_video_track_source.h"
 #include "pc/video_track_source.h"
 #include "peer_connection.h"
 #include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
-
-#include "adm_proxy.h"
-
-#include "media/base/fake_frame_source.h"
-#include "modules/audio_device/include/test_audio_device.h"
-#include "pc/test/fake_video_track_source.h"
 
 namespace bridge {
 

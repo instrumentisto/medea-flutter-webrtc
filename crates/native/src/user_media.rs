@@ -307,8 +307,6 @@ impl Webrtc {
                 Ok(track.state())
             }
         }
-
-        // Ok(())
     }
 
     /// Changes the [enabled][1] property of the media track by its ID.
