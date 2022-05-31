@@ -48,6 +48,7 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 target_link_libraries(${PLUGIN_NAME} PRIVATE
   flutter
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native_fake_media.so"
 )
 
 # List of absolute paths to libraries that should be bundled with the plugin.
@@ -55,5 +56,6 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
 # external build triggered from this build file.
 set(flutter_webrtc_bundled_libraries
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native_fake_media.so"
   PARENT_SCOPE
 )

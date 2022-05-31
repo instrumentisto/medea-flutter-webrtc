@@ -192,7 +192,20 @@ ifeq ($(CURRENT_OS),windows)
 	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 endif
-
+	cargo build -p flutter-webrtc-native \
+		$(if $(call eq,$(debug),no),--release,) \
+		--features fake_media \
+		$(args)
+ifeq ($(CURRENT_OS),linux)
+	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
+		linux/rust/lib/libflutter_webrtc_native_fake_media.so
+endif
+ifeq ($(CURRENT_OS),windows)
+	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
+		windows/rust/lib/flutter_webrtc_native_fake_media.dll
+	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
+		windows/rust/lib/flutter_webrtc_native_fake_media.dll.lib
+endif
 
 # Generate documentation for project crates.
 #
