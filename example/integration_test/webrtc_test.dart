@@ -435,21 +435,7 @@ void main() {
       await pc2.setLocalDescription(answer);
       await pc1.setRemoteDescription(answer);
 
-      var futures = List<Completer>.generate(2, (_) => Completer());
-      pc1.onIceGatheringStateChange((state) {
-        if (state == IceGatheringState.complete) {
-          futures[0].complete();
-        }
-      });
-
-      pc2.onIceGatheringStateChange((state) {
-        if (state == IceGatheringState.complete) {
-          futures[1].complete();
-        }
-      });
-
-      await Future.wait(futures.map((e) => e.future))
-          .timeout(const Duration(minutes: 1));
+      await Future.delayed(const Duration(seconds: 5));
 
       expect(hasRelay, isFalse);
       expect(hasSrflx, isTrue);
@@ -482,21 +468,7 @@ void main() {
       await pc2.setLocalDescription(answer);
       await pc1.setRemoteDescription(answer);
 
-      var futures = List<Completer>.generate(2, (_) => Completer());
-      pc1.onIceGatheringStateChange((state) {
-        if (state == IceGatheringState.complete) {
-          futures[0].complete();
-        }
-      });
-
-      pc2.onIceGatheringStateChange((state) {
-        if (state == IceGatheringState.complete) {
-          futures[1].complete();
-        }
-      });
-
-      await Future.wait(futures.map((e) => e.future))
-          .timeout(const Duration(minutes: 1));
+      await Future.delayed(const Duration(seconds: 5));
 
       expect(candidatesFired, equals(0));
     }
