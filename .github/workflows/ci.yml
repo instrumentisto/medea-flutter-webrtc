@@ -202,20 +202,20 @@ jobs:
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android' }}
 
-      - run: make cargo.build platform=${{ matrix.platform }}
-        if: ${{ matrix.platform != 'android' }}
-
-      - run: make cargo.build platform=${{ matrix.platform }}
-                              args="--features fake_media"
-        if: ${{ matrix.platform != 'android' }}
-
-      - name: Install Flutter Linux dependencies
+      - name: Install Linux dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
                cmake libgtk-3-dev liblzma-dev libpulse-dev ninja-build \
                 libudev-dev xvfb
         if: ${{ matrix.platform == 'linux' }}
+
+      - run: make cargo.build platform=${{ matrix.platform }}
+        if: ${{ matrix.platform != 'android' }}
+
+      - run: make cargo.build platform=${{ matrix.platform }}
+                              args="--features fake_media"
+        if: ${{ matrix.platform != 'android' }}
 
       - name: Test on Android
         uses: reactivecircus/android-emulator-runner@v2
