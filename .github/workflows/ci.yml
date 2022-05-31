@@ -144,7 +144,7 @@ jobs:
 #          - platform: macos
 #            os: macos-latest
           - platform: windows
-            os: windows-latest
+            os: windows-2019
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -187,7 +187,7 @@ jobs:
           - platform: android
             os: macos-latest
           - platform: windows
-            os: windows-latest
+            os: windows-2019
           - platform: linux
             os: ubuntu-22.04
     runs-on: ${{ matrix.os }}
