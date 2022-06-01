@@ -30,6 +30,10 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
+
+    if env::var("PROFILE").unwrap().as_str() == "release" {
+        build.flag("-DNDEBUG");
+    }
     #[cfg(target_os = "windows")]
     {
         build
