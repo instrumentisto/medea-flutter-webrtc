@@ -1618,10 +1618,9 @@ impl VideoTrackInterface {
         VideoTrackSourceInterface(webrtc::get_video_track_source(&self.inner))
     }
 
-    /// Returns the [readyState][1] property of the specified
-    /// [`VideoTrackInterface`].
+    /// Returns the [readyState][0] property of this [`VideoTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
     #[must_use]
     pub fn state(&self) -> TrackState {
         webrtc::video_track_state(&self.inner)
@@ -1703,10 +1702,9 @@ impl AudioTrackInterface {
         AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
     }
 
-    /// Returns the [readyState][1] property of the specified
-    /// [`AudioTrackInterface`].
+    /// Returns the [readyState][0] property of this [`AudioTrackInterface`].
     ///
-    /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
     #[must_use]
     pub fn state(&self) -> TrackState {
         webrtc::audio_track_state(&self.inner)

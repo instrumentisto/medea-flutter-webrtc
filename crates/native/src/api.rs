@@ -313,8 +313,8 @@ pub enum MediaDeviceKind {
     VideoInput,
 }
 
-/// Indicator of the current [MediaStreamTrackState][0] of
-/// a [`MediaStreamTrack`].
+/// Indicator of the current [MediaStreamTrackState][0] of a
+/// [`MediaStreamTrack`].
 ///
 /// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -1008,10 +1008,10 @@ pub fn dispose_track(track_id: String, kind: MediaType) {
     WEBRTC.lock().unwrap().dispose_track(track_id, kind);
 }
 
-/// Returns the [readyState][1] property of the [`MediaStreamTrack`] by its ID
+/// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
 /// and [`MediaType`].
 ///
-/// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+/// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
 pub fn track_state(
     track_id: String,
     kind: MediaType,

@@ -1213,16 +1213,16 @@ pub(crate) mod webrtc {
             enabled: bool,
         );
 
-        /// Returns the [readyState][1] property of the specified
+        /// Returns the [readyState][0] property of the specified
         /// [`VideoTrackInterface`].
         ///
-        /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+        /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
         pub fn video_track_state(track: &VideoTrackInterface) -> TrackState;
 
-        /// Returns the [readyState][1] property of the specified
+        /// Returns the [readyState][0] property of the specified
         /// [`AudioTrackInterface`].
         ///
-        /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+        /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
         pub fn audio_track_state(track: &AudioTrackInterface) -> TrackState;
 
         /// Registers the provided [`VideoSinkInterface`] for the given

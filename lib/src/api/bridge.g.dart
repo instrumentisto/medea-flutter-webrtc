@@ -141,10 +141,10 @@ abstract class FlutterWebrtcNative {
   Future<void> disposeTrack(
       {required String trackId, required MediaType kind, dynamic hint});
 
-  /// Returns the [readyState][1] property of the [`MediaStreamTrack`] by its ID
+  /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
   /// and [`MediaType`].
   ///
-  /// [1]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+  /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
   Future<TrackState> trackState(
       {required String trackId, required MediaType kind, dynamic hint});
 
@@ -808,8 +808,8 @@ enum TrackEvent {
   Ended,
 }
 
-/// Indicator of the current [MediaStreamTrackState][0] of
-/// a [`MediaStreamTrack`].
+/// Indicator of the current [MediaStreamTrackState][0] of a
+/// [`MediaStreamTrack`].
 ///
 /// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
 enum TrackState {
