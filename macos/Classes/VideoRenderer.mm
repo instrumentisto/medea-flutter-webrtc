@@ -1,7 +1,6 @@
 #import "VideoRenderer.h"
-#import <FlutterMacOS/FlutterMacOS.h>
+#import "FlutterMacOS/FlutterMacOS.h"
 #import <AVFoundation/AVFoundation.h>
-#include "flutter_webrtc_native.h"
 
 // Creates a new `FlutterVideoRendererManager`.
 void FlutterVideoRendererManagerFlutterVideoRendererManager(id<FlutterTextureRegistry>* registrar, NSObject<FlutterBinaryMessenger>* messenger) {}
@@ -117,7 +116,7 @@ CVPixelBufferRef* TextureVideoRendererCopyPixelBuffer(size_t width, size_t heigh
 // Saves the provided `VideoFrame` and calls
 // `TextureRegistrar->MarkTextureFrameAvailable()` to notify the Flutter side
 // about a new frame being ready for polling.
-void TextureVideoRendererOnFrame(VideoFrame frame) {
+// void TextureVideoRendererOnFrame(VideoFrame frame) {
 //   if (!first_frame_rendered) {
 //     if (event_sink_) {
 //       EncodableMap params;
@@ -158,7 +157,7 @@ void TextureVideoRendererOnFrame(VideoFrame frame) {
 //   frame_.emplace(std::move(frame));
 //   mutex_.unlock();
 //   registrar_->MarkTextureFrameAvailable(texture_id_);
-}
+// }
 
 // Resets a `TextureVideoRenderer` to the initial state.
 void TextureVideoRendererResetRenderer() {
@@ -176,6 +175,6 @@ void TextureVideoRendererResetRenderer() {
 // }
 
 // Forwards the received `VideoFrame` to the `TextureVideoRenderer->OnFrame()`.
-void FrameHandlerOnFrame(VideoFrame frame) {
-//   renderer_->OnFrame(std::move(frame));
-}
+// void FrameHandlerOnFrame(VideoFrame frame) {
+// //   renderer_->OnFrame(std::move(frame));
+// }

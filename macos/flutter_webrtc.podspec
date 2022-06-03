@@ -14,17 +14,17 @@ A new flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files     = ['Classes/**/*']
 
-  s.public_header_files = 'rust/include/**/*'
-  $dir = File.dirname(__FILE__) + "/rust/include"
-  s.pod_target_xcconfig = { "HEADER_SEARCH_PATHS" => $dir }
-  s.vendored_libraries = 'rust/lib/*.a'
-  s.platform = :osx, '12.0'
-  s.xcconfig = {
+  # s.project_header_files = 'rust/include/*'
+  # $dir = File.dirname(__FILE__) + "/rust/include/*"
+  s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'CLANG_CXX_LIBRARY' => 'libc++',
-    'OTHER_LDFLAGS' => '-lc++ -lObjC -framework CoreServices -framework CoreFoundation -framework AudioUnit -framework AudioToolbox -framework CoreAudio',
-    # "HEADER_SEARCH_PATHS" => $dir,
+    'OTHER_LDFLAGS' => '-lc++ -framework CoreServices -framework AVFoundation -framework CoreFoundation -framework AudioUnit -framework AudioToolbox -framework CoreAudio',
+    # "HEADER_SEARCH_PATHS" => $dir
   }
+  s.vendored_libraries = 'rust/lib/*.a'
+  s.platform = :osx, '12.0'
+  s.static_framework = true
 
   s.dependency 'FlutterMacOS'
   s.osx.deployment_target = '12.0'

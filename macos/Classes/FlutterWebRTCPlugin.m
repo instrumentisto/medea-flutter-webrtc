@@ -1,8 +1,6 @@
 #import "FlutterWebRTCPlugin.h"
-#import <FlutterMacOS/FlutterMacOS.h>
+// #import <FlutterMacOS/FlutterMacOS.h>
 #import <AVFoundation/AVFoundation.h>
-
-void* store_dart_post_cobject(void*);
 
 @implementation FlutterWebRTCPlugin
 + (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar {
@@ -29,7 +27,6 @@ void* store_dart_post_cobject(void*);
 }
 
 - (void)handleMethodCall:(nonnull FlutterMethodCall*)call result:(nonnull FlutterResult)result {
-    store_dart_post_cobject(nil);
     NSLog(@"Handle method call was called");
 }
 
