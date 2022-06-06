@@ -15,6 +15,7 @@ mod pc;
 mod stream_sink;
 mod user_media;
 mod video_sink;
+mod renderer;
 
 use std::{
     collections::HashMap,
@@ -41,13 +42,6 @@ pub use crate::{
 };
 
 use allo_isolate::ffi;
-
-#[no_mangle]
-pub unsafe extern "C" fn store_dart_post_cobject(
-    ptr: ffi::DartPostCObjectFnType,
-) {
-    allo_isolate::store_dart_post_cobject(ptr);
-}
 
 /// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(1);

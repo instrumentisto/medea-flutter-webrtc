@@ -1,11 +1,13 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <iostream>
 
 #include "api/video/i420_buffer.h"
 #include "libwebrtc-sys/include/bridge.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
+#include "libwebrtc-sys/include/device_info_mac.h"
 
 #include "libwebrtc-sys/src/bridge.rs.h"
 
@@ -157,10 +159,8 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
-  std::unique_ptr<VideoDeviceInfo> ptr(
-      webrtc::VideoCaptureFactory::CreateDeviceInfo());
-
-  return ptr;
+        std::cout << "foobar\n";
+    return create_device_info_mac();
 }
 
 // Calls `VideoDeviceInfo->GetDeviceName()` with the provided arguments.
@@ -193,22 +193,29 @@ std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
+    const PeerConnectionFactoryInterface& peer_connection_factory,
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,
     size_t height,
     size_t fps,
     uint32_t device) {
+    std::cout << "create_device_video_source 1\n";
   auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
+        std::cout << "create_device_video_source 2\n";
   if (dvc == nullptr) {
-    return nullptr;
+      std::cout << "create_device_video_source 13\n" << std::flush;
+      return nullptr;
   }
+        std::cout << "create_device_video_source 3\n";
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
                                                  &worker_thread, dvc);
+        std::cout << "create_device_video_source 4\n";
   if (src == nullptr) {
     return nullptr;
   }
+        std::cout << "create_device_video_source 5\n";
 
   return std::make_unique<VideoTrackSourceInterface>(src);
 }

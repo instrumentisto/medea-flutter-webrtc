@@ -174,6 +174,7 @@ std::unique_ptr<rtc::Thread> create_thread_with_socket_server();
 // Creates a new `VideoTrackSourceInterface` from the specified video input
 // device according to the specified constraints.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
+    const PeerConnectionFactoryInterface& peer_connection_factory,
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,

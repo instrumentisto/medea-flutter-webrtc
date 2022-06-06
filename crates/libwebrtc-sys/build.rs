@@ -5,6 +5,7 @@ use std::{
     path::{Path, PathBuf},
     process,
 };
+use std::process::Command;
 
 use anyhow::anyhow;
 use dotenv::dotenv;
@@ -28,6 +29,8 @@ fn main() -> anyhow::Result<()> {
         .files(&cpp_files)
         .include(path.join("include"))
         .include(path.join("lib/include"))
+        .include(path.join("lib/include/sdk/objc/base"))
+        .include(path.join("lib/include/sdk/objc"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
     #[cfg(target_os = "windows")]
@@ -46,12 +49,18 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
-    #[cfg(target_os = "macos")]
-    build
-        .flag("-DWEBRTC_POSIX")
-        .flag("-DWEBRTC_MAC")
-        .flag("-DNOMINMAX")
-        .flag("-std=c++17");
+    {
+        #[cfg(target_os = "macos")]
+        build
+            .flag("-DWEBRTC_POSIX")
+            .flag("-DWEBRTC_MAC")
+            .flag("-DWEBRTC_ENABLE_OBJC_SYMBOL_EXPORT")
+            .flag("-DWEBRTC_LIBRARY_IMPL")
+            .flag("-DNOMINMAX")
+            .flag("-std=c++17")
+            .flag("-objC")
+            .flag("-fobjc-arc");
+    }
     build.compile("libwebrtc-sys");
 
     for file in cpp_files {
@@ -216,10 +225,21 @@ fn link_libs() {
                 println!("cargo:rustc-link-lib=framework=CoreServices");
                 println!("cargo:rustc-link-lib=framework=CoreFoundation");
                 println!("cargo:rustc-link-lib=framework=AudioToolbox");
+                println!("cargo:rustc-link-lib=framework=CoreGraphics");
                 println!("cargo:rustc-link-lib=framework=CoreAudio");
+                println!("cargo:rustc-link-lib=framework=IOSurface");
+                println!("cargo:rustc-link-lib=framework=ApplicationServices");
+                println!("cargo:rustc-link-lib=framework=Foundation");
+                println!("cargo:rustc-link-lib=framework=AVFoundation");
+                println!("cargo:rustc-link-lib=framework=AppKit");
+                println!("cargo:rustc-link-lib=framework=System");
                 println!(
-                    "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/debug/",
+                    "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/",
                 );
+                if let Some(path) = macos_link_search_path() {
+                    println!("cargo:rustc-link-lib=clang_rt.osx");
+                    println!("cargo:rustc-link-search={}", path);
+                }
             }
             "release" => {
                 println!("cargo:rustc-link-lib=framework=AudioUnit");
@@ -228,15 +248,50 @@ fn link_libs() {
                 println!("cargo:rustc-link-lib=framework=AudioToolbox");
                 println!("cargo:rustc-link-lib=framework=CoreGraphics");
                 println!("cargo:rustc-link-lib=framework=CoreAudio");
+                println!("cargo:rustc-link-lib=framework=CoreVideo");
+                println!("cargo:rustc-link-lib=framework=CoreMedia");
                 println!("cargo:rustc-link-lib=framework=IOSurface");
                 println!("cargo:rustc-link-lib=framework=ApplicationServices");
                 println!("cargo:rustc-link-lib=framework=Foundation");
+                println!("cargo:rustc-link-lib=framework=AVFoundation");
+                println!("cargo:rustc-link-lib=framework=AppKit");
+                println!("cargo:rustc-link-lib=framework=System");
                 println!(
                     "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/",
                 );
+                if let Some(path) = macos_link_search_path() {
+                    println!("cargo:rustc-link-lib=clang_rt.osx");
+                    println!("cargo:rustc-link-search={}", path);
+                }
             }
             &_ => unreachable!(),
         }
     }
 
+}
+
+fn macos_link_search_path() -> Option<String> {
+    let output = Command::new("clang")
+        .arg("--print-search-dirs")
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        println!(
+            "failed to run 'clang --print-search-dirs', continuing without a link search path"
+        );
+        return None;
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        if line.contains("libraries: =") {
+            let path = line.split('=').nth(1)?;
+            if !path.is_empty() {
+                return Some(format!("{}/lib/darwin", path));
+            }
+        }
+    }
+
+    println!("failed to determine link search path, continuing without it");
+    None
 }

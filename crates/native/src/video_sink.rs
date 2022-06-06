@@ -3,7 +3,7 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{cpp_api, VideoTrackId, Webrtc};
+use crate::{cpp_api, VideoTrackId, Webrtc, renderer::FrameHandler};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -11,7 +11,7 @@ impl Webrtc {
         &mut self,
         sink_id: i64,
         track_id: String,
-        handler: UniquePtr<cpp_api::OnFrameCallbackInterface>,
+        handler: FrameHandler,
     ) -> anyhow::Result<()> {
         self.dispose_video_sink(sink_id);
 

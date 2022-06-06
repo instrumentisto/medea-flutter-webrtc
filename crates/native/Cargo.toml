@@ -8,6 +8,11 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[features]
+default = ["renderer_c_api"]
+renderer_cpp_api = []
+renderer_c_api = []
+
 [dependencies]
 anyhow = "1.0"
 cxx = "1.0"

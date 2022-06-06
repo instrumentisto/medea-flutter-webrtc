@@ -1241,7 +1241,7 @@ unsafe impl Sync for webrtc::Thread {}
 /// [`AudioTrackInterface`]), [`MediaStreamInterface`] and the
 /// `PeerConnection`s.
 pub struct PeerConnectionFactoryInterface(
-    UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+    pub UniquePtr<webrtc::PeerConnectionFactoryInterface>,
 );
 
 impl PeerConnectionFactoryInterface {
@@ -1393,6 +1393,7 @@ impl VideoTrackSourceInterface {
     /// destroyed on the signaling thread and marshals all method calls to the
     /// signaling thread.
     pub fn create_proxy_from_device(
+        peer_connection_factory: &webrtc::PeerConnectionFactoryInterface,
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
         width: usize,
@@ -1400,7 +1401,9 @@ impl VideoTrackSourceInterface {
         fps: usize,
         device_index: u32,
     ) -> anyhow::Result<Self> {
+        println!("create_proxy_from_device 1");
         let ptr = webrtc::create_device_video_source(
+            peer_connection_factory,
             worker_thread.0.pin_mut(),
             signaling_thread.0.pin_mut(),
             width,
@@ -1408,6 +1411,7 @@ impl VideoTrackSourceInterface {
             fps,
             device_index,
         );
+        println!("create_proxy_from_device 2");
 
         if ptr.is_null() {
             bail!(

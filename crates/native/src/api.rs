@@ -5,6 +5,7 @@ use flutter_rust_bridge::{StreamSink, SyncReturn};
 use libwebrtc_sys as sys;
 
 use crate::{cpp_api::OnFrameCallbackInterface, Webrtc};
+use crate::renderer::FrameHandler;
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
@@ -1015,10 +1016,7 @@ pub fn create_video_sink(
     track_id: String,
     callback_ptr: u64,
 ) -> anyhow::Result<()> {
-    let handler = unsafe {
-        let ptr: *mut OnFrameCallbackInterface = mem::transmute(callback_ptr);
-        UniquePtr::from_raw(ptr)
-    };
+    let handler = FrameHandler::new(unsafe {mem::transmute(callback_ptr)});
     WEBRTC
         .lock()
         .unwrap()

@@ -1112,6 +1112,7 @@ pub(crate) mod webrtc {
         /// Creates a new [`VideoTrackSourceInterface`] sourced by a video input
         /// device with provided `device_index`.
         pub fn create_device_video_source(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
             width: usize,
