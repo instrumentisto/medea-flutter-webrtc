@@ -172,10 +172,6 @@ jobs:
       - run: make cargo.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform != 'android' }}
 
-      - run: make cargo.build platform=${{ matrix.platform }}
-                              args="--features fake_media"
-        if: ${{ matrix.platform != 'android' }}
-
       - name: Test on Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -186,7 +182,7 @@ jobs:
           script: make flutter.test
         if: ${{ matrix.platform == 'android' }}
 
-      - run: make flutter.test device=windows
+      - run: $Env:WEBRTC_FAKE_MEDIA=true; make flutter.test device=windows
         if: ${{ matrix.platform == 'windows' }}
 
   test-rust:

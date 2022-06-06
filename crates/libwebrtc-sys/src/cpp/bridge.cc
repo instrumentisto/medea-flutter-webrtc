@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 
+
 #include "api/video/i420_buffer.h"
 #include "libwebrtc-sys/include/bridge.h"
 #include "libyuv.h"
@@ -36,10 +37,9 @@ void TrackEventObserver::set_track(
   track_ = track;
 }
 
-#ifdef FAKE_MEDIA
 // Creates a new fake `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
-std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
+std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,
@@ -71,7 +71,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
 
 // Creates a new fake `AudioDeviceModule`
 // with `PulsedNoiseCapturer` and without audio renderer.
-std::unique_ptr<AudioDeviceModule> create_audio_device_module(
+std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
@@ -85,7 +85,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
       std::move(renderer));
   return std::make_unique<AudioDeviceModule>(adm_fake);
 }
-#else
+
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
@@ -95,6 +95,12 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
+  
+  char* env_var = std::getenv("WEBRTC_FAKE_MEDIA");
+  bool fake = env_var == nullptr ? false : strcmp(env_var, "true") == 0;
+  if(fake) {
+    return create_fake_device_video_source(worker_thread, signaling_thread, width, height, fps, device);
+  }
   auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
   if (dvc == nullptr) {
     return nullptr;
@@ -114,6 +120,12 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
+
+  char* env_var = std::getenv("WEBRTC_FAKE_MEDIA");
+  bool fake = env_var == nullptr ? false : strcmp(env_var, "true") == 0;
+  if(fake) {
+    return create_fake_audio_device_module(worker_thread, audio_layer, task_queue_factory);
+  }
   AudioDeviceModule adm = worker_thread.Invoke<AudioDeviceModule>(
       RTC_FROM_HERE, [audio_layer, &task_queue_factory] {
         return webrtc::AudioDeviceModule::Create(audio_layer,
@@ -129,7 +141,6 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
 
   return std::make_unique<AudioDeviceModule>(proxied);
 }
-#endif
 
 // Calls `AudioDeviceModule->Init()`.
 int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module) {
