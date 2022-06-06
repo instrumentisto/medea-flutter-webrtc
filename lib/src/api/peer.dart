@@ -16,15 +16,10 @@ import 'transceiver.dart';
 
 /// Bindings to the Rust side API.
 late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
-const webrtcFakeMedia = bool.fromEnvironment('WEBRTC_FAKE_MEDIA', defaultValue: false);
 
 /// Opens the dynamic library and instantiates [ffi.FlutterWebrtcNativeImpl].
 ffi.FlutterWebrtcNativeImpl buildBridge() {
-  var base = 'flutter_webrtc_native';
-  if(webrtcFakeMedia) {
-    base += '_fake_media';
-  }
-
+  const base = 'flutter_webrtc_native';
   final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
   late final dylib = Platform.isMacOS
       ? DynamicLibrary.executable()
