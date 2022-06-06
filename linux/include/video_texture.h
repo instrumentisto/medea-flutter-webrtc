@@ -26,10 +26,7 @@ struct _VideoTexture {
   int64_t texture_id = 0;
 
   // Frame that should be rendered.
-  std::optional<VideoFrame> frame_;
-
-  // Buffer containing the actual `ARGB` bytes being passed to Flutter.
-  uint8_t* buffer_ = nullptr;
+  std::optional<Frame> frame_;
 };
 
 struct _VideoTextureClass {
@@ -49,18 +46,7 @@ static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
   const std::lock_guard<std::mutex> lock(v_texture->mutex);
 
   if (v_texture->frame_) {
-    if (v_texture->buffer_ == nullptr) {
-      // Allocate buffer on first run.
-      v_texture->buffer_ = new uint8_t[v_texture->frame_->buffer_size];
-    } else if (sizeof(v_texture->buffer_) != v_texture->frame_->buffer_size) {
-      // Recreate buffer if the image was resized.
-      delete v_texture->buffer_;
-      v_texture->buffer_ = new uint8_t[v_texture->frame_->buffer_size];
-    }
-
-    v_texture->frame_->GetABGRBytes(v_texture->buffer_);
-
-    *out_buffer = v_texture->buffer_;
+    *out_buffer = v_texture->frame_->buffer;
     *width = v_texture->frame_->width;
     *height = v_texture->frame_->height;
   }
