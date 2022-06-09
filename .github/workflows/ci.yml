@@ -32,6 +32,7 @@ jobs:
       - rustdoc
       - rustfmt
       - test-flutter
+      - test-rust
     runs-on: ubuntu-latest
     steps:
       - run: true
@@ -181,12 +182,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#         TODO: Add macos-latest
+#         TODO: Add MacOs support.
 #          - platform: macos
 #            os: macos-latest
           - platform: android
             os: macos-latest
           - platform: windows
+            # TODO: Switch to `windows-latest` when stable Flutter stable will
+            #       support MSVC 2022:
+            #       https://github.com/flutter/flutter/issues/85922
+            #       https://github.com/flutter/flutter/issues/96138
             os: windows-2019
           - platform: linux
             os: ubuntu-22.04
@@ -211,9 +216,6 @@ jobs:
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.build platform=${{ matrix.platform }}
-        if: ${{ matrix.platform != 'android' }}
-
-      - run: make cargo.build platform=${{ matrix.platform }}
                               args="--features fake_media"
         if: ${{ matrix.platform != 'android' }}
 
@@ -227,8 +229,25 @@ jobs:
           script: make flutter.test
         if: ${{ matrix.platform == 'android' }}
 
-      - run: make flutter.test device=windows
-        if: ${{ matrix.platform == 'windows' }}
+      - run: make flutter.test device=${{ matrix.platform }}
+        if: ${{ matrix.platform != 'android' }}
+
+  test-rust:
+    name: Test Rust crates
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    # TODO: Switch to `windows-latest` when stable Flutter stable will
+    #       support MSVC 2022:
+    #       https://github.com/flutter/flutter/issues/85922
+    #       https://github.com/flutter/flutter/issues/96138
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - run: make cargo.test
 
 
 
