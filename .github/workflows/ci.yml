@@ -229,8 +229,11 @@ jobs:
           script: make flutter.test
         if: ${{ matrix.platform == 'android' }}
 
-      - run: make flutter.test device=${{ matrix.platform }}
-        if: ${{ matrix.platform != 'android' }}
+      - run: xvfb-run -a make flutter.test device=linux
+        if: ${{ matrix.platform == 'linux' }}
+
+      - run: make flutter.test device=windows
+        if: ${{ matrix.platform == 'windows' }}
 
   test-rust:
     name: Test Rust crates
