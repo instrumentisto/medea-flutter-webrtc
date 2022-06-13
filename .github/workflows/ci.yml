@@ -38,14 +38,14 @@ jobs:
 
     needs:
       - build
-      # - clippy
-      # - dartanalyze
-      # - dartfmt
-      # - ktfmt
-      # - rustdoc
-      # - rustfmt
-      # - test-flutter
-      # - test-rust
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - test-flutter
+      - test-rust
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -58,21 +58,6 @@ jobs:
           path: windows/rust/
 
       - run: flutter pub publish -n
-
-      # - run: echo "$GITHUB_CONTEXT"
-
-      # - run: echo "${{ github.event.head_commit.message }}"
-
-      # - uses: actions/github-script@v6
-      #   id: message
-      #   with:
-      #     script: |
-      #       const {GITHUB_CONTEXT} = process.env;
-      #       const commit = await github.rest.git.getCommit({owner: 'instrumentisto', repo: 'flutter-webrtc', commit_sha: GITHUB_CONTEXT});
-      #       return commit.data.message;
-      #     result-encoding: string
-      # - name: Get result
-      #   run: echo "${{steps.message.outputs.result}}"
 
 
 
