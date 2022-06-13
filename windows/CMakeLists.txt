@@ -2,7 +2,7 @@
 # installed that includes CMake 3.14 or later. You should not increase this
 # version, as doing so will cause the plugin to fail to compile for some
 # customers of the plugin.
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 
 # Project-level configuration.
 set(PROJECT_NAME "medea_jason_webrtc")
@@ -18,7 +18,7 @@ add_definitions(-DLIB_WEBRTC_API_DLL)
 list(APPEND PLUGIN_SOURCES
   "medea_jason_webrtc_plugin.cpp"
   "medea_jason_webrtc_plugin.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/video_renderer.cc"
+  "video_renderer.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/src/flutter_webrtc_native.cc"
 )
 
@@ -56,6 +56,8 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
   flutter_wrapper_plugin
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/flutter_webrtc_native.dll.lib"
 )
+
+message("aaaaaaaaaa ${CMAKE_CURRENT_SOURCE_DIR}")
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
