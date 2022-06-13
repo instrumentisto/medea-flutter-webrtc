@@ -2,7 +2,7 @@
 #include "flutter/standard_message_codec.h"
 #include "flutter/standard_method_codec.h"
 #include "flutter_webrtc.h"
-#include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
+#include "medea_jason_webrtc/flutter_web_r_t_c_plugin.h"
 
 const char* kChannelName = "FlutterWebRtc/VideoRendererFactory/0";
 
