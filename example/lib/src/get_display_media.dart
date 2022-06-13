@@ -2,7 +2,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:medea_jason_webrtc/flutter_webrtc.dart';
+import 'package:medea_jason_webrtc/medea_jason_webrtc.dart';
 
 /*
  * getDisplayMedia sample

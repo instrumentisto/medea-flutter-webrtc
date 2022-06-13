@@ -31,5 +31,5 @@ flutter:
         pluginClass: FlutterWebRTCPlugin
       macos:
         pluginClass: FlutterWebRTCPlugin
-      windows:
-        pluginClass: FlutterWebRTCPlugin
+      # windows:
+      #   pluginClass: FlutterWebRTCPlugin
