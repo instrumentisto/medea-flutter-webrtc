@@ -77,6 +77,7 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
 // Propagates the received `RtpTransceiverInterface` to the Rust side.
 void PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
+  printf("C++ ON TRACK");
   bridge::on_track(
       *cb_, std::make_unique<bridge::RtpTransceiverInterface>(transceiver));
 }
@@ -96,7 +97,7 @@ void PeerConnectionObserver::OnDataChannel(
 void PeerConnectionObserver::OnAddTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-        streams) {}
+        streams) {printf("C++ ON ADD TRACK");}
 
 // Creates a new `CreateSessionDescriptionObserver` backed by the provided
 // `bridge::DynCreateSdpCallback`.
