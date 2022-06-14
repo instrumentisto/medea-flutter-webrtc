@@ -1,5 +1,9 @@
 crates/
 example/
+third_party/
+ios/
+macos/
+linux/
 Cargo.lock
 Cargo.toml
 CONTRIBUTING.md
