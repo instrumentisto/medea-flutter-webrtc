@@ -30,6 +30,15 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
+
+    #[cfg(target_os = "windows")]
+    build.flag("-DNDEBUG");
+
+    #[cfg(not(target_os = "windows"))]
+    if env::var("PROFILE").unwrap().as_str() == "release" {
+        build.flag("-DNDEBUG");
+    }
+
     #[cfg(target_os = "windows")]
     {
         build
@@ -70,12 +79,30 @@ fn main() -> anyhow::Result<()> {
 /// Downloads and unpacks compiled `libwebrtc` library.
 fn download_libwebrtc() -> anyhow::Result<()> {
     let mut libwebrtc_url = env::var("LIBWEBRTC_URL")?;
-    libwebrtc_url.push_str("/libwebrtc-win-x64.tar.gz");
-
+    libwebrtc_url.push('/');
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
-    let archive = temp_dir.join("libwebrtc-win-x64.tar.gz");
     let lib_dir = manifest_path.join("lib");
+
+    let archive_name = {
+        let mut archive_name = String::from("libwebrtc-");
+        #[cfg(target_os = "windows")]
+        archive_name.push_str("win-");
+        #[cfg(target_os = "linux")]
+        archive_name.push_str("linux-");
+        #[cfg(target_os = "macos")]
+        archive_name.push_str("macos-");
+
+        #[cfg(target_arch = "aarch64")]
+        archive_name.push_str("arm64.tar.gz");
+        #[cfg(target_arch = "x86_64")]
+        archive_name.push_str("x64.tar.gz");
+
+        archive_name
+    };
+
+    libwebrtc_url.push_str(archive_name.as_str());
+    let archive = temp_dir.join(archive_name);
 
     // Force download if `INSTALL_WEBRTC=1`.
     if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
@@ -188,7 +215,15 @@ fn link_libs() {
     }
     #[cfg(target_os = "linux")]
     {
-        for dep in ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr"] {
+        for dep in [
+            "x11",
+            "xfixes",
+            "xdamage",
+            "xext",
+            "xtst",
+            "xrandr",
+            "xcomposite ",
+        ] {
             pkg_config::Config::new().probe(dep).unwrap();
         }
         match env::var("PROFILE").unwrap().as_str() {

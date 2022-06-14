@@ -38,14 +38,15 @@ jobs:
 
     needs:
       - build
-      # - clippy
-      # - dartanalyze
-      # - dartfmt
-      # - ktfmt
-      # - rustdoc
-      # - rustfmt
-      # - test-flutter
-      # - test-rust
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - test-flutter
+      - test-rust
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -56,6 +57,11 @@ jobs:
         with:
           name: windows
           path: windows/rust/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: linux
+          path: linux/rust/
 
       - run: |
           grep 'version:' pubspec.yaml |
@@ -77,7 +83,18 @@ jobs:
   ##########################
 
   clippy:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-22.04
+#         TODO: Add macos-latest.
+#          - platform: macos
+#            os: macos-latest
+          - platform: windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -85,6 +102,13 @@ jobs:
           profile: minimal
           toolchain: stable
           components: clippy
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpulse-dev libudev-dev libxfixes-dev \
+            libxdamage-dev libxtst-dev libxrandr-dev libxcomposite-dev
+        if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.lint
 
@@ -143,11 +167,18 @@ jobs:
   ############
 
   build:
-    # TODO: Switch to `windows-latest` when stable Flutter stable will support
-    #       MSVC 2022:
-    #       https://github.com/flutter/flutter/issues/85922
-    #       https://github.com/flutter/flutter/issues/96138
-    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-22.04
+#         TODO: Add macos-latest.
+#          - platform: macos
+#            os: macos-latest
+          - platform: windows
+            os: windows-2019
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -155,15 +186,24 @@ jobs:
           profile: minimal
           toolchain: stable
       - uses: subosito/flutter-action@v2
-      - run: flutter config --enable-windows-desktop
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev ninja-build libpulse-dev \
+            libudev-dev libxfixes-dev libxdamage-dev libxtst-dev \
+            libxrandr-dev libxcomposite-dev
+        if: matrix.platform == 'linux'
 
       - run: make cargo.build
-      - run: make flutter.build
+      - run: make flutter.build platform=${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v3
         with:
-          name: windows
-          path: windows/rust/
+          name: ${{ matrix.platform }}
+          path: ${{ matrix.platform }}/rust/
+
 
 
 
@@ -178,6 +218,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+#         TODO: Add MacOs support.
+#          - platform: macos
+#            os: macos-latest
           - platform: android
             os: macos-latest
           - platform: windows
@@ -186,6 +229,8 @@ jobs:
             #       https://github.com/flutter/flutter/issues/85922
             #       https://github.com/flutter/flutter/issues/96138
             os: windows-2019
+          - platform: linux
+            os: ubuntu-22.04
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -198,8 +243,13 @@ jobs:
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: matrix.platform != 'android'
 
-      - run: make cargo.build platform=${{ matrix.platform }}
-        if: matrix.platform != 'android'
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+               cmake libgtk-3-dev liblzma-dev libpulse-dev ninja-build \
+                libudev-dev xvfb
+        if: matrix.platform == 'linux'
 
       - run: make cargo.build platform=${{ matrix.platform }}
                               args="--features fake_media"
@@ -214,6 +264,9 @@ jobs:
           profile: Nexus 6
           script: make flutter.test
         if: matrix.platform == 'android'
+
+      - run: xvfb-run -a make flutter.test device=linux
+        if: matrix.platform == 'linux'
 
       - run: make flutter.test device=windows
         if: matrix.platform == 'windows'
