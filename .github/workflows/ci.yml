@@ -57,6 +57,17 @@ jobs:
           name: windows
           path: windows/rust/
 
+      - run: |
+          grep 'version:' pubspec.yaml |
+          cut -d' ' -f2 |
+          {
+            read version;
+            new_version=${version}.rev.${{ github.sha }};
+            date=`date +"%Y-%m-%d"`;
+            sed -i "s|$version|$new_version|g" pubspec.yaml;
+            sed -i "1s|^|[${new_version}] - ${date}\n\n* Develoment.\n\n|" CHANGELOG.md;
+          }
+
       - run: flutter pub publish -n
 
 
