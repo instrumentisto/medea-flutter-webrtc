@@ -26,10 +26,10 @@ flutter:
         package: com.cloudwebrtc.webrtc
         pluginClass: FlutterWebRTCPlugin
       ios:
-        pluginClass: FlutterWebRTCPlugin
+        pluginClass: MedeaJasonWebrtcPlugin
       linux:
-        pluginClass: FlutterWebRTCPlugin
+        pluginClass: MedeaJasonWebrtcPlugin
       macos:
-        pluginClass: FlutterWebRTCPlugin
+        pluginClass: MedeaJasonWebrtcPlugin
       windows:
         pluginClass: MedeaJasonWebrtcPluginCApi

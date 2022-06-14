@@ -5,18 +5,17 @@
 #include <memory>
 #include <mutex>
 
-#include "flutter_webrtc/flutter_web_r_t_c_plugin.h"
+#include "include/medea_jason_webrtc/medea_jason_webrtc_plugin.h"
 #include "iostream"
 
-#define VIDEO_TEXTURE_TYPE                  (video_texture_get_type ())
-#define VIDEO_TEXTURE(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), VIDEO_TEXTURE_TYPE, VideoTexture))
+#define VIDEO_TEXTURE_TYPE (video_texture_get_type())
+#define VIDEO_TEXTURE(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), VIDEO_TEXTURE_TYPE, VideoTexture))
 
-
-typedef struct _VideoTexture        VideoTexture;
-typedef struct _VideoTextureClass   VideoTextureClass;
+typedef struct _VideoTexture VideoTexture;
+typedef struct _VideoTextureClass VideoTextureClass;
 
 struct _VideoTexture {
-
   FlPixelBufferTexture parent_instance;
 
   // Mutex guarding `frame_` field accessed from multiple threads.
@@ -35,7 +34,6 @@ struct _VideoTexture {
 struct _VideoTextureClass {
   FlPixelBufferTextureClass parent_class;
 };
-
 
 G_DEFINE_TYPE(VideoTexture, video_texture, fl_pixel_buffer_texture_get_type())
 
