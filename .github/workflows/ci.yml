@@ -34,7 +34,7 @@ jobs:
       - run: true
 
   publish:
-    if: contains(github.event.head_commit.message, '[publish]')
+    if: contains(github.event.head_commit.message, '[publish]') || github.ref_name == 'master'
 
     needs:
       - build
