@@ -3,7 +3,7 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{cpp_api, VideoTrackId, Webrtc, renderer::FrameHandler};
+use crate::{VideoTrackId, Webrtc, renderer::{FrameHandler}};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -15,6 +15,7 @@ impl Webrtc {
     ) -> anyhow::Result<()> {
         self.dispose_video_sink(sink_id);
 
+        log::debug!("create_video_sink 1");
         let track_id = VideoTrackId::from(track_id);
         let mut sink = VideoSink {
             id: Id(sink_id),
@@ -72,48 +73,13 @@ impl VideoSink {
     }
 }
 
-/// Wrapper around a [`sys::VideoFrame`] transferable via FFI.
-pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
-
-impl cpp_api::VideoFrame {
-    /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme and
-    /// outputs the result to the provided `buffer`.
-    ///
-    /// # Safety
-    ///
-    /// The provided `buffer` must be a valid pointer.
-    pub unsafe fn get_abgr_bytes(&self, buffer: *mut u8) {
-        libwebrtc_sys::video_frame_to_abgr(self.frame.0.as_ref(), buffer);
-    }
-}
-
-impl From<UniquePtr<sys::VideoFrame>> for cpp_api::VideoFrame {
-    #[allow(clippy::cast_sign_loss)]
-    fn from(frame: UniquePtr<sys::VideoFrame>) -> Self {
-        let height = frame.height();
-        let width = frame.width();
-
-        assert!(height >= 0, "VideoFrame has a negative height");
-        assert!(width >= 0, "VideoFrame has a negative width");
-
-        let buffer_size = width * height * 4;
-
-        Self {
-            height: height as usize,
-            width: width as usize,
-            buffer_size: buffer_size as usize,
-            rotation: frame.rotation().repr,
-            frame: Box::new(Frame(Box::new(frame))),
-        }
-    }
-}
-
 /// Wrapper around an [`internal::OnFrameCallbackInterface`] implementing the
 /// required interfaces.
-struct OnFrameCallback(UniquePtr<cpp_api::OnFrameCallbackInterface>);
+struct OnFrameCallback(FrameHandler);
 
 impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {
     fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
-        self.0.pin_mut().on_frame(cpp_api::VideoFrame::from(frame));
+        log::debug!("OnFrameCallback::on_frame");
+        self.0.on_frame(frame);
     }
 }

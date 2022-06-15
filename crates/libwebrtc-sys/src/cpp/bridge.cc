@@ -159,7 +159,6 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
-        std::cout << "foobar\n";
     return create_device_info_mac();
 }
 
@@ -200,22 +199,16 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-    std::cout << "create_device_video_source 1\n";
-  auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
-        std::cout << "create_device_video_source 2\n";
+  auto dvc = MacCapturer::Create(width, height, fps, "default");
   if (dvc == nullptr) {
-      std::cout << "create_device_video_source 13\n" << std::flush;
       return nullptr;
   }
-        std::cout << "create_device_video_source 3\n";
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
                                                  &worker_thread, dvc);
-        std::cout << "create_device_video_source 4\n";
   if (src == nullptr) {
     return nullptr;
   }
-        std::cout << "create_device_video_source 5\n";
 
   return std::make_unique<VideoTrackSourceInterface>(src);
 }

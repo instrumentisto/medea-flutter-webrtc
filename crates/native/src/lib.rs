@@ -9,7 +9,6 @@ mod api;
 )]
 #[rustfmt::skip]
 mod bridge_generated;
-mod cpp_api;
 mod devices;
 mod pc;
 mod stream_sink;
@@ -20,8 +19,8 @@ mod renderer;
 use std::{
     collections::HashMap,
     sync::{
-        atomic::{AtomicU64, Ordering},
         Arc,
+        atomic::{AtomicU64, Ordering},
     },
 };
 
@@ -38,10 +37,15 @@ pub use crate::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
         MediaStreamId, VideoDeviceId, VideoSource, VideoTrack, VideoTrackId,
     },
-    video_sink::{Frame, VideoSink},
+    video_sink::{VideoSink},
 };
 
-use allo_isolate::ffi;
+#[cfg(not(any(feature = "renderer_cpp_api", feature = "renderer_c_api")))]
+compile_error!("Either feature \"renderer_cpp_api\" or \"renderer_c_api\" must be enabled for this crate.");
+
+#[cfg(all(feature = "renderer_cpp_api", feature = "renderer_c_api"))]
+compile_error!("Either feature \"renderer_cpp_api\" or \"renderer_c_api\" must be enabled for this crate.");
+
 
 /// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(1);

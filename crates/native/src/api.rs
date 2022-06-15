@@ -1,14 +1,28 @@
 use std::{mem, sync::Mutex};
 
-use cxx::UniquePtr;
 use flutter_rust_bridge::{StreamSink, SyncReturn};
 use libwebrtc_sys as sys;
 
-use crate::{cpp_api::OnFrameCallbackInterface, Webrtc};
-use crate::renderer::FrameHandler;
+use crate::{Webrtc, renderer::FrameHandler};
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
+}
+
+#[test]
+fn foobar() {
+    unsafe {
+    WEBRTC.lock().unwrap().get_media(MediaStreamConstraints {
+        audio: None,
+        video: Some(VideoConstraints {
+            device_id: None,
+            width: 640,
+            height: 480,
+            frame_rate: 30,
+            is_display: false,
+        }),
+    }).unwrap();
+    }
 }
 
 /// Indicator of the current state of a [`MediaStreamTrack`].

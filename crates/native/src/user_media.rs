@@ -25,29 +25,21 @@ impl Webrtc {
         &mut self,
         constraints: api::MediaStreamConstraints,
     ) -> anyhow::Result<Vec<api::MediaStreamTrack>> {
-        println!("get_media 1");
         let mut result = Vec::new();
 
         let inner_get_media = || -> anyhow::Result<()> {
-            println!("get_media 2");
             if let Some(video) = constraints.video {
-            println!("get_media 3");
                 let src = self.get_or_create_video_source(&video)?;
-            println!("get_media 4");
                 let track = self.create_video_track(Arc::clone(&src));
-            println!("get_media 5");
                 if let Err(err) = track {
                     if Arc::strong_count(&src) == 2 {
                         self.video_sources.remove(&src.device_id);
                     };
                     return Err(err);
                 }
-            println!("get_media 5");
                 result.push(track?);
-            println!("get_media 6");
             }
 
-            println!("get_media 7");
             if let Some(audio) = constraints.audio {
                 let src = self.get_or_create_audio_source(&audio)?;
                 let track = self.create_audio_track(src);
@@ -147,7 +139,6 @@ impl Webrtc {
         &mut self,
         caps: &api::VideoConstraints,
     ) -> anyhow::Result<Arc<VideoSource>> {
-        println!("get_or_create_video_source 1");
         let (index, device_id) = if caps.is_display {
             // TODO: Support screens enumeration.
             (0, VideoDeviceId("screen:0".into()))
@@ -162,21 +153,17 @@ impl Webrtc {
                 );
             }
         } else {
-            println!("get_or_create_video_source 2");
             // No device ID is provided so just pick the first available
             // device
             if self.video_device_info.number_of_devices() < 1 {
-                println!("get_or_create_video_source 3");
                 bail!("Cannot find any available video input device");
             }
 
-                println!("get_or_create_video_source 4");
             let device_id =
                 VideoDeviceId(self.video_device_info.device_name(0)?.1);
             (0, device_id)
         };
 
-                println!("get_or_create_video_source 5");
         if let Some(src) = self.video_sources.get(&device_id) {
             return Ok(Arc::clone(src));
         }
@@ -189,7 +176,6 @@ impl Webrtc {
                 device_id,
             )?
         } else {
-                println!("get_or_create_video_source 6");
             VideoSource::new_device_source(
                 &self.peer_connection_factory,
                 &mut self.worker_thread,

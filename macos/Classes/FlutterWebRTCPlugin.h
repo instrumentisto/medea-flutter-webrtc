@@ -1,16 +1,12 @@
 #import "FlutterMacOS/FlutterMacOS.h"
+#import "VideoRenderer.h"
 
 @interface FlutterWebRTCPlugin : NSObject<FlutterPlugin>
 {
     @private NSObject<FlutterBinaryMessenger> *messenger;
     @private NSObject<FlutterTextureRegistry> *textures;
 }
-- (instancetype) initWithChannel:(FlutterMethodChannel*)channel :(NSObject<FlutterBinaryMessenger>*)messenger;
-@end
+@property (nonatomic, strong) VideoRendererManager* videoRendererManager;
 
-@interface FlutterWebRTC : NSObject
-{
-    @private NSObject<FlutterBinaryMessenger> *messenger;
-}
-- (void) handleMethodCall:(FlutterMethodCall*)methodCall :(FlutterResult)result; 
+- (instancetype) initWithChannel:(FlutterMethodChannel*)channel :(NSObject<FlutterBinaryMessenger>*)messenger;
 @end

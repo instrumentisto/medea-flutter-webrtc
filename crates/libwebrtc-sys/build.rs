@@ -1,11 +1,11 @@
 #![warn(clippy::pedantic)]
+use std::process::Command;
 
 use std::{
     env, fs, io,
     path::{Path, PathBuf},
     process,
 };
-use std::process::Command;
 
 use anyhow::anyhow;
 use dotenv::dotenv;
@@ -49,9 +49,9 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
-    {
-        #[cfg(target_os = "macos")]
-        build
+    #[cfg(target_os = "macos")]
+        {
+            build
             .flag("-DWEBRTC_POSIX")
             .flag("-DWEBRTC_MAC")
             .flag("-DWEBRTC_ENABLE_OBJC_SYMBOL_EXPORT")
@@ -61,6 +61,12 @@ fn main() -> anyhow::Result<()> {
             .flag("-objC")
             .flag("-fobjc-arc");
     }
+
+    #[cfg(feature = "fake_media")]
+    {
+        build.flag("-DFAKE_MEDIA");
+    }
+
     build.compile("libwebrtc-sys");
 
     for file in cpp_files {
