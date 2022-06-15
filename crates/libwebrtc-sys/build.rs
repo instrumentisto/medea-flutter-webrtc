@@ -87,7 +87,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     let archive_name = {
         let mut archive_name = String::from("libwebrtc-");
         #[cfg(target_os = "windows")]
-        archive_name.push_str("win-");
+        archive_name.push_str("windows-");
         #[cfg(target_os = "linux")]
         archive_name.push_str("linux-");
         #[cfg(target_os = "macos")]
