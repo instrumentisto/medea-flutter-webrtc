@@ -244,6 +244,7 @@ class FlutterVideoRendererManager {
 
 struct _MedeaJasonWebrtcPlugin {
   GObject parent_instance;
+  std::unique_ptr<FlutterVideoRendererManager> video_renderer_manager;
 };
 
 G_DEFINE_TYPE(MedeaJasonWebrtcPlugin,
