@@ -13,7 +13,7 @@ typedef struct Frame {
 @property (nonatomic, strong, nullable) FlutterEventChannel *eventChannel;
 @property (nonatomic) bool sendEvents;
 @property (nonatomic) bool firstFrameRendered;
-@property (nonatomic, strong, nullable) id<FlutterTextureRegistry> registry;
+@property (nonatomic, weak) id<FlutterTextureRegistry> registry;
 @property (nonatomic, strong, nullable) NSNumber *textureId;
 @property (nonatomic, strong, nullable) NSNumber *rotation;
 @property (nonatomic, strong, nullable) FlutterEventSink eventSink;

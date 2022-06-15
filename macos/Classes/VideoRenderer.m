@@ -22,9 +22,18 @@ void on_frame_caller(void* handler, Frame frame) {
 @implementation TextureVideoRenderer
 - (instancetype) init: (id<FlutterTextureRegistry>) registry messenger:(id<FlutterBinaryMessenger>)messenger {
     self = [super init];
+    // _sendEvents = true;
+    // _firstFrameRendered = false;
+    // _registry = registry;
+    // _pixelBufferRef = nil;
+    // _eventSink = nil;
+    // _rotation = @0;
+
     NSLog(@"TextureVideoRenderer::initialize 1");
 
-    NSNumber* textureId = [NSNumber numberWithInt: [registry registerTexture: self]];
+    int64_t tid = [registry registerTexture: self];
+    NSLog(@"Texture ID in init: %d", tid);
+    NSNumber* textureId = [NSNumber numberWithInt: tid];
     NSString* channelName = [NSString stringWithFormat:@"FlutterWebRtc/VideoRendererEvent/%@", textureId];
     NSLog(@"TextureVideoRenderer channel name: %@", channelName);
     _eventChannel = [FlutterEventChannel
@@ -41,67 +50,81 @@ void on_frame_caller(void* handler, Frame frame) {
     self->_firstFrameRendered = false;
 }
 
+// - (void)onTextureUnregistered:(NSObject<FlutterTexture>*)texture {
+
+// }
+
 - (void) onFrame: (Frame) frame {
     // id<RTCI420Buffer> i420Buffer = [self correctRotation:[frame.buffer toI420] withRotation:frame.rotation];
-    id<RTCI420Buffer> i420buffer = [frame.buffer toI420];
+    // id<RTCI420Buffer> i420buffer = [frame.buffer toI420];
+    NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
+    CVPixelBufferCreate(kCFAllocatorDefault,
+                        frame.width, frame.height,
+                        kCVPixelFormatType_32RGBA,
+                        (__bridge CFDictionaryRef)(pixelAttributes), &_pixelBufferRef);
     CVPixelBufferLockBaseAddress(_pixelBufferRef, 0);
-
-    const OSType pixelFormat = CVPixelBufferGetPixelFormatType(_pixelBufferRef);
-    if (pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange ||
-        pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
-        // NV12
-        uint8_t* dstY = CVPixelBufferGetBaseAddressOfPlane(_pixelBufferRef, 0);
-        const size_t dstYStride = CVPixelBufferGetBytesPerRowOfPlane(_pixelBufferRef, 0);
-        uint8_t* dstUV = CVPixelBufferGetBaseAddressOfPlane(_pixelBufferRef, 1);
-        const size_t dstUVStride = CVPixelBufferGetBytesPerRowOfPlane(_pixelBufferRef, 1);
-        
-        [RTCYUVHelper I420ToNV12:i420Buffer.dataY
-                      srcStrideY:i420Buffer.strideY
-                            srcU:i420Buffer.dataU
-                      srcStrideU:i420Buffer.strideU
-                            srcV:i420Buffer.dataV
-                      srcStrideV:i420Buffer.strideV
-                            dstY:dstY
-                      dstStrideY:(int)dstYStride
-                            dstUV:dstUV
-                      dstStrideUV:(int)dstUVStride
-                           width:i420Buffer.width
-                           width:i420Buffer.height];
-
-    } else {
-        uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
-        const size_t bytesPerRow = CVPixelBufferGetBytesPerRow(_pixelBufferRef);
-        
-        if (pixelFormat == kCVPixelFormatType_32BGRA) {
-            // Corresponds to libyuv::FOURCC_ARGB
-        
-            [RTCYUVHelper I420ToARGB:i420Buffer.dataY
-                          srcStrideY:i420Buffer.strideY
-                                srcU:i420Buffer.dataU
-                          srcStrideU:i420Buffer.strideU
-                                srcV:i420Buffer.dataV
-                          srcStrideV:i420Buffer.strideV
-                             dstARGB:dst
-                       dstStrideARGB:(int)bytesPerRow
-                               width:i420Buffer.width
-                              height:i420Buffer.height];
-
-        } else if (pixelFormat == kCVPixelFormatType_32ARGB) {
-            // Corresponds to libyuv::FOURCC_BGRA
-            [RTCYUVHelper I420ToBGRA:i420Buffer.dataY
-                          srcStrideY:i420Buffer.strideY
-                                srcU:i420Buffer.dataU
-                          srcStrideU:i420Buffer.strideU
-                                srcV:i420Buffer.dataV
-                          srcStrideV:i420Buffer.strideV
-                             dstBGRA:dst
-                       dstStrideBGRA:(int)bytesPerRow
-                               width:i420Buffer.width
-                              height:i420Buffer.height];
-        }
-    }
-    
+    uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
+    *dst = frame.buffer;
     CVPixelBufferUnlockBaseAddress(_pixelBufferRef, 0);
+
+    [self->_registry textureFrameAvailable: self->_tid];
+
+    
+
+    // const OSType pixelFormat = CVPixelBufferGetPixelFormatType(_pixelBufferRef);
+    // if (pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange ||
+    //     pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
+    //     // NV12
+    //     uint8_t* dstY = CVPixelBufferGetBaseAddressOfPlane(_pixelBufferRef, 0);
+    //     const size_t dstYStride = CVPixelBufferGetBytesPerRowOfPlane(_pixelBufferRef, 0);
+    //     uint8_t* dstUV = CVPixelBufferGetBaseAddressOfPlane(_pixelBufferRef, 1);
+    //     const size_t dstUVStride = CVPixelBufferGetBytesPerRowOfPlane(_pixelBufferRef, 1);
+        
+    //     [RTCYUVHelper I420ToNV12:i420Buffer.dataY
+    //                   srcStrideY:i420Buffer.strideY
+    //                         srcU:i420Buffer.dataU
+    //                   srcStrideU:i420Buffer.strideU
+    //                         srcV:i420Buffer.dataV
+    //                   srcStrideV:i420Buffer.strideV
+    //                         dstY:dstY
+    //                   dstStrideY:(int)dstYStride
+    //                         dstUV:dstUV
+    //                   dstStrideUV:(int)dstUVStride
+    //                        width:i420Buffer.width
+    //                        width:i420Buffer.height];
+
+    // } else {
+    //     uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
+    //     const size_t bytesPerRow = CVPixelBufferGetBytesPerRow(_pixelBufferRef);
+        
+    //     if (pixelFormat == kCVPixelFormatType_32BGRA) {
+    //         // Corresponds to libyuv::FOURCC_ARGB
+        
+    //         [RTCYUVHelper I420ToARGB:i420Buffer.dataY
+    //                       srcStrideY:i420Buffer.strideY
+    //                             srcU:i420Buffer.dataU
+    //                       srcStrideU:i420Buffer.strideU
+    //                             srcV:i420Buffer.dataV
+    //                       srcStrideV:i420Buffer.strideV
+    //                          dstARGB:dst
+    //                    dstStrideARGB:(int)bytesPerRow
+    //                            width:i420Buffer.width
+    //                           height:i420Buffer.height];
+
+    //     } else if (pixelFormat == kCVPixelFormatType_32ARGB) {
+    //         // Corresponds to libyuv::FOURCC_BGRA
+    //         [RTCYUVHelper I420ToBGRA:i420Buffer.dataY
+    //                       srcStrideY:i420Buffer.strideY
+    //                             srcU:i420Buffer.dataU
+    //                       srcStrideU:i420Buffer.strideU
+    //                             srcV:i420Buffer.dataV
+    //                       srcStrideV:i420Buffer.strideV
+    //                          dstBGRA:dst
+    //                    dstStrideBGRA:(int)bytesPerRow
+    //                            width:i420Buffer.width
+    //                           height:i420Buffer.height];
+    //     }
+    // }
 
 
 
@@ -160,6 +183,7 @@ void on_frame_caller(void* handler, Frame frame) {
 }
 
 - (CVPixelBufferRef)copyPixelBuffer {
+    NSLog(@"copyPixelBuffer");
     if(_pixelBufferRef != nil){
         CVBufferRetain(_pixelBufferRef);
         return _pixelBufferRef;
