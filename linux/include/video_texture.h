@@ -5,8 +5,8 @@
 #include <memory>
 #include <mutex>
 
-#include "include/medea_jason_webrtc/medea_jason_webrtc_plugin.h"
 #include "iostream"
+#include "medea_jason_webrtc/medea_jason_webrtc_plugin.h"
 
 #define VIDEO_TEXTURE_TYPE (video_texture_get_type())
 #define VIDEO_TEXTURE(obj) \
