@@ -28,7 +28,6 @@ jobs:
       - rustfmt
       - test-flutter
       - test-rust
-      - publish
     runs-on: ubuntu-latest
     steps:
       - run: true
