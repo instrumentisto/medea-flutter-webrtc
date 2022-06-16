@@ -13,6 +13,7 @@
     [registrar addMethodCallDelegate:finalInstance channel:channel];
     VideoRendererManager* manager = [[VideoRendererManager alloc] init: [registrar textures] messenger: [registrar messenger]];
     instance->_videoRendererManager = manager;
+    instance->_registrar = registrar;
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
         if (granted) {
             NSLog(@"Video permission granted");

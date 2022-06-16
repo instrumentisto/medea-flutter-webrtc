@@ -73,6 +73,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
         onResize?.call();
         break;
       case 'onFirstFrameRendered':
+        print('firstFrameRendered received on FLutter');
         value = value.copyWith(renderVideo: renderVideo);
         break;
     }

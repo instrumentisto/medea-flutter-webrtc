@@ -29,9 +29,13 @@ void on_frame_caller(void* handler, Frame frame) {
     // _eventSink = nil;
     // _rotation = @0;
 
+    self->_pixelBufferRef = nil;
+    self->_registry = registry;
+    self->_sendEvents = true;
     NSLog(@"TextureVideoRenderer::initialize 1");
 
     int64_t tid = [registry registerTexture: self];
+    self->_tid = tid;
     NSLog(@"Texture ID in init: %d", tid);
     NSNumber* textureId = [NSNumber numberWithInt: tid];
     NSString* channelName = [NSString stringWithFormat:@"FlutterWebRtc/VideoRendererEvent/%@", textureId];
@@ -50,89 +54,32 @@ void on_frame_caller(void* handler, Frame frame) {
     self->_firstFrameRendered = false;
 }
 
-// - (void)onTextureUnregistered:(NSObject<FlutterTexture>*)texture {
-
-// }
+- (void)onTextureUnregistered:(NSObject<FlutterTexture>*)texture {
+    NSLog(@"FUCK TEXTURE UNREGISTERED");
+}
 
 - (void) onFrame: (Frame) frame {
     // id<RTCI420Buffer> i420Buffer = [self correctRotation:[frame.buffer toI420] withRotation:frame.rotation];
     // id<RTCI420Buffer> i420buffer = [frame.buffer toI420];
+    if (_pixelBufferRef != nil) {
+        NSLog(@"Pixel buffer release");
+      CVBufferRelease(_pixelBufferRef);
+    }
     NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
     CVPixelBufferCreate(kCFAllocatorDefault,
                         frame.width, frame.height,
-                        kCVPixelFormatType_32RGBA,
+                        kCVPixelFormatType_32BGRA,
                         (__bridge CFDictionaryRef)(pixelAttributes), &_pixelBufferRef);
     CVPixelBufferLockBaseAddress(_pixelBufferRef, 0);
     uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
-    *dst = frame.buffer;
+    memcpy(dst, frame.buffer, frame.width * frame.height * 4);
     CVPixelBufferUnlockBaseAddress(_pixelBufferRef, 0);
 
-    [self->_registry textureFrameAvailable: self->_tid];
-
-    
-
-    // const OSType pixelFormat = CVPixelBufferGetPixelFormatType(_pixelBufferRef);
-    // if (pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange ||
-    //     pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
-    //     // NV12
-    //     uint8_t* dstY = CVPixelBufferGetBaseAddressOfPlane(_pixelBufferRef, 0);
-    //     const size_t dstYStride = CVPixelBufferGetBytesPerRowOfPlane(_pixelBufferRef, 0);
-    //     uint8_t* dstUV = CVPixelBufferGetBaseAddressOfPlane(_pixelBufferRef, 1);
-    //     const size_t dstUVStride = CVPixelBufferGetBytesPerRowOfPlane(_pixelBufferRef, 1);
-        
-    //     [RTCYUVHelper I420ToNV12:i420Buffer.dataY
-    //                   srcStrideY:i420Buffer.strideY
-    //                         srcU:i420Buffer.dataU
-    //                   srcStrideU:i420Buffer.strideU
-    //                         srcV:i420Buffer.dataV
-    //                   srcStrideV:i420Buffer.strideV
-    //                         dstY:dstY
-    //                   dstStrideY:(int)dstYStride
-    //                         dstUV:dstUV
-    //                   dstStrideUV:(int)dstUVStride
-    //                        width:i420Buffer.width
-    //                        width:i420Buffer.height];
-
-    // } else {
-    //     uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
-    //     const size_t bytesPerRow = CVPixelBufferGetBytesPerRow(_pixelBufferRef);
-        
-    //     if (pixelFormat == kCVPixelFormatType_32BGRA) {
-    //         // Corresponds to libyuv::FOURCC_ARGB
-        
-    //         [RTCYUVHelper I420ToARGB:i420Buffer.dataY
-    //                       srcStrideY:i420Buffer.strideY
-    //                             srcU:i420Buffer.dataU
-    //                       srcStrideU:i420Buffer.strideU
-    //                             srcV:i420Buffer.dataV
-    //                       srcStrideV:i420Buffer.strideV
-    //                          dstARGB:dst
-    //                    dstStrideARGB:(int)bytesPerRow
-    //                            width:i420Buffer.width
-    //                           height:i420Buffer.height];
-
-    //     } else if (pixelFormat == kCVPixelFormatType_32ARGB) {
-    //         // Corresponds to libyuv::FOURCC_BGRA
-    //         [RTCYUVHelper I420ToBGRA:i420Buffer.dataY
-    //                       srcStrideY:i420Buffer.strideY
-    //                             srcU:i420Buffer.dataU
-    //                       srcStrideU:i420Buffer.strideU
-    //                             srcV:i420Buffer.dataV
-    //                       srcStrideV:i420Buffer.strideV
-    //                          dstBGRA:dst
-    //                    dstStrideBGRA:(int)bytesPerRow
-    //                            width:i420Buffer.width
-    //                           height:i420Buffer.height];
-    //     }
-    // }
-
-
-
-
-
-    NSLog(@"onFrame from Flutter");
+    NSLog(@"onFrame from Flutter: %@", self->_textureId);
     if (!self->_firstFrameRendered) {
+        NSLog(@"firstFrameRendered 1");
         if (self->_sendEvents) {
+            NSLog(@"firstFrameRendered 2");
             NSDictionary *map = @{
                 @"event" : @"onFirstFrameRendered",
                 @"id" : self->_textureId,
@@ -164,7 +111,17 @@ void on_frame_caller(void* handler, Frame frame) {
             self->_eventSink(map);
         }
     }
-    [self->_registry textureFrameAvailable: [self->_textureId intValue]];
+    // [self->_registry textureFrameAvailable: [self->_textureId longValue]];
+    // [self->_registry textureFrameAvailable: self->_tid];
+
+    __weak TextureVideoRenderer* weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong TextureVideoRenderer* strongSelf = weakSelf;
+        if (strongSelf) {
+            NSLog(@"textureFrameAvailable called");
+            [strongSelf.registry textureFrameAvailable:strongSelf->_tid];
+        }
+    });
 }
 
 - (NSNumber*) textureId {
@@ -195,6 +152,8 @@ void on_frame_caller(void* handler, Frame frame) {
 @implementation VideoRendererManager
 - (VideoRendererManager*) init: (id<FlutterTextureRegistry>) registry messenger:(id<FlutterBinaryMessenger>)messenger {
     self->_renderers = [[NSMutableDictionary alloc] init];
+    self->_registry = registry;
+    self->_messenger = messenger;
     return self;
 }
 

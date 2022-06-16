@@ -18,6 +18,7 @@ typedef struct Frame {
 @property (nonatomic, strong, nullable) NSNumber *rotation;
 @property (nonatomic, strong, nullable) FlutterEventSink eventSink;
 @property (nonatomic, nullable) uint8_t* buffer;
+@property (nonatomic) int64_t tid;
 @property (nonatomic) CVPixelBufferRef pixelBufferRef;
 @property (nonatomic) Frame frame;
 
