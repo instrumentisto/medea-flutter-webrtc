@@ -882,12 +882,13 @@ pub fn set_transceiver_direction(
     peer_id: u64,
     transceiver_index: u32,
     direction: RtpTransceiverDirection,
-) -> anyhow::Result<()> {
+) -> SyncReturn<Vec<u8>> {
     WEBRTC.lock().unwrap().set_transceiver_direction(
         peer_id,
         transceiver_index,
         direction,
-    )
+    ).unwrap();
+    SyncReturn(Vec::new())
 }
 
 /// Returns the [negotiated media ID (mid)][1] of the specified

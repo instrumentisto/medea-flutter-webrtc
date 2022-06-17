@@ -83,12 +83,12 @@ pub extern "C" fn wire_get_transceivers(port_: i64, peer_id: u64) {
 }
 
 #[no_mangle]
-pub extern "C" fn wire_set_transceiver_direction(port_: i64, peer_id: u64, transceiver_index: u32, direction: i32) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(WrapInfo { debug_name: "set_transceiver_direction", port: Some(port_), mode: FfiCallMode::Normal }, move || {
+pub extern "C" fn wire_set_transceiver_direction(peer_id: u64, transceiver_index: u32, direction: i32) -> support::WireSyncReturnStruct {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(WrapInfo { debug_name: "set_transceiver_direction", port: None, mode: FfiCallMode::Sync }, move || {
         let api_peer_id = peer_id.wire2api();
         let api_transceiver_index = transceiver_index.wire2api();
         let api_direction = direction.wire2api();
-        move |task_callback| set_transceiver_direction(api_peer_id, api_transceiver_index, api_direction)
+        Ok(set_transceiver_direction(api_peer_id, api_transceiver_index, api_direction))
     })
 }
 
