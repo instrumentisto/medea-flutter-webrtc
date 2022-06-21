@@ -1,14 +1,13 @@
 #![warn(clippy::pedantic)]
 
+#[cfg(not(target_os = "windows"))]
+use std::ffi::OsString;
 use std::{
-    env,
-    fs,
+    env, fs,
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
 };
-#[cfg(not(target_os = "windows"))]
-use std::ffi::OsString;
 
 use anyhow::bail;
 use dotenv::dotenv;
