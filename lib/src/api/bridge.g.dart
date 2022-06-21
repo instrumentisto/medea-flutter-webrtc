@@ -70,7 +70,7 @@ abstract class FlutterWebrtcNative {
       {required int peerId, dynamic hint});
 
   /// Changes the preferred `direction` of the specified [`RtcRtpTransceiver`].
-  Uint8List setTransceiverDirection(
+  Future<void> setTransceiverDirection(
       {required int peerId,
       required int transceiverIndex,
       required RtpTransceiverDirection direction,
@@ -1017,16 +1017,18 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Uint8List setTransceiverDirection(
+  Future<void> setTransceiverDirection(
           {required int peerId,
           required int transceiverIndex,
           required RtpTransceiverDirection direction,
           dynamic hint}) =>
-      executeSync(FlutterRustBridgeSyncTask(
-        callFfi: () => inner.wire_set_transceiver_direction(
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_transceiver_direction(
+            port_,
             _api2wire_u64(peerId),
             _api2wire_u32(transceiverIndex),
             _api2wire_rtp_transceiver_direction(direction)),
+        parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "set_transceiver_direction",
           argNames: ["peerId", "transceiverIndex", "direction"],
@@ -1930,12 +1932,14 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_get_transceivers =
       _wire_get_transceiversPtr.asFunction<void Function(int, int)>();
 
-  WireSyncReturnStruct wire_set_transceiver_direction(
+  void wire_set_transceiver_direction(
+    int port_,
     int peer_id,
     int transceiver_index,
     int direction,
   ) {
     return _wire_set_transceiver_direction(
+      port_,
       peer_id,
       transceiver_index,
       direction,
@@ -1944,11 +1948,11 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
 
   late final _wire_set_transceiver_directionPtr = _lookup<
       ffi.NativeFunction<
-          WireSyncReturnStruct Function(ffi.Uint64, ffi.Uint32,
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32,
               ffi.Int32)>>('wire_set_transceiver_direction');
   late final _wire_set_transceiver_direction =
       _wire_set_transceiver_directionPtr
-          .asFunction<WireSyncReturnStruct Function(int, int, int)>();
+          .asFunction<void Function(int, int, int, int)>();
 
   void wire_get_transceiver_mid(
     int port_,
