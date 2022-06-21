@@ -29,7 +29,7 @@ static SHA256SUM: &str =
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 static SHA256SUM: &str =
     "37eb55ed34bc6492d01806945b82f25c81404b5e122a8dca9e416640ece0cf51";
-#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+#[cfg(all(target_os = "macos", target_arch = "x86_64"))]
 static SHA256SUM: &str =
     "fc15c33464ea4f1515db0fb4d67ca46bfb69ec339339ef891be9c3f347ede326";
 #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
