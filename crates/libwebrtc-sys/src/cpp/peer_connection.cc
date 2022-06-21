@@ -97,7 +97,7 @@ void PeerConnectionObserver::OnDataChannel(
 void PeerConnectionObserver::OnAddTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-        streams) {printf("C++ ON ADD TRACK\n");}
+        streams) {}
 
 // Creates a new `CreateSessionDescriptionObserver` backed by the provided
 // `bridge::DynCreateSdpCallback`.
