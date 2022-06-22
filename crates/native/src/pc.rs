@@ -301,6 +301,8 @@ impl Webrtc {
         };
 
         let current_direction = api::RtpTransceiverDirection::from(transceiver.direction());
+
+        println!("{:?} + {:?} AFTER {:?}", current_direction, direction, current_direction + direction);
         transceiver.set_direction((current_direction + direction).into())
     }
 
@@ -327,6 +329,7 @@ impl Webrtc {
         };
 
         let current_direction = api::RtpTransceiverDirection::from(transceiver.direction());
+        println!("{:?} - {:?} AFTER {:?}", current_direction, direction, current_direction - direction);
         transceiver.set_direction((current_direction - direction).into())
     }
 
