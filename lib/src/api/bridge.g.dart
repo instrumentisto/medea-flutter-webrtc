@@ -76,6 +76,20 @@ abstract class FlutterWebrtcNative {
       required RtpTransceiverDirection direction,
       dynamic hint});
 
+  /// todo
+  Future<void> addTransceiverDirection(
+      {required int peerId,
+      required int transceiverIndex,
+      required RtpTransceiverDirection direction,
+      dynamic hint});
+
+  /// todo
+  Future<void> subTransceiverDirection(
+      {required int peerId,
+      required int transceiverIndex,
+      required RtpTransceiverDirection direction,
+      dynamic hint});
+
   /// Returns the [negotiated media ID (mid)][1] of the specified
   /// [`RtcRtpTransceiver`].
   ///
@@ -1037,6 +1051,46 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
+  Future<void> addTransceiverDirection(
+          {required int peerId,
+          required int transceiverIndex,
+          required RtpTransceiverDirection direction,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_add_transceiver_direction(
+            port_,
+            _api2wire_u64(peerId),
+            _api2wire_u32(transceiverIndex),
+            _api2wire_rtp_transceiver_direction(direction)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "add_transceiver_direction",
+          argNames: ["peerId", "transceiverIndex", "direction"],
+        ),
+        argValues: [peerId, transceiverIndex, direction],
+        hint: hint,
+      ));
+
+  Future<void> subTransceiverDirection(
+          {required int peerId,
+          required int transceiverIndex,
+          required RtpTransceiverDirection direction,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_sub_transceiver_direction(
+            port_,
+            _api2wire_u64(peerId),
+            _api2wire_u32(transceiverIndex),
+            _api2wire_rtp_transceiver_direction(direction)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "sub_transceiver_direction",
+          argNames: ["peerId", "transceiverIndex", "direction"],
+        ),
+        argValues: [peerId, transceiverIndex, direction],
+        hint: hint,
+      ));
+
   Future<String?> getTransceiverMid(
           {required int peerId, required int transceiverIndex, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
@@ -1952,6 +2006,50 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
               ffi.Int32)>>('wire_set_transceiver_direction');
   late final _wire_set_transceiver_direction =
       _wire_set_transceiver_directionPtr
+          .asFunction<void Function(int, int, int, int)>();
+
+  void wire_add_transceiver_direction(
+    int port_,
+    int peer_id,
+    int transceiver_index,
+    int direction,
+  ) {
+    return _wire_add_transceiver_direction(
+      port_,
+      peer_id,
+      transceiver_index,
+      direction,
+    );
+  }
+
+  late final _wire_add_transceiver_directionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32,
+              ffi.Int32)>>('wire_add_transceiver_direction');
+  late final _wire_add_transceiver_direction =
+      _wire_add_transceiver_directionPtr
+          .asFunction<void Function(int, int, int, int)>();
+
+  void wire_sub_transceiver_direction(
+    int port_,
+    int peer_id,
+    int transceiver_index,
+    int direction,
+  ) {
+    return _wire_sub_transceiver_direction(
+      port_,
+      peer_id,
+      transceiver_index,
+      direction,
+    );
+  }
+
+  late final _wire_sub_transceiver_directionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32,
+              ffi.Int32)>>('wire_sub_transceiver_direction');
+  late final _wire_sub_transceiver_direction =
+      _wire_sub_transceiver_directionPtr
           .asFunction<void Function(int, int, int, int)>();
 
   void wire_get_transceiver_mid(

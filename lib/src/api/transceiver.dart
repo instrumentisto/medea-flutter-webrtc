@@ -43,6 +43,10 @@ abstract class RtpTransceiver {
   /// Changes the [TransceiverDirection] of this [RtpTransceiver].
   Future<void> setDirection(TransceiverDirection direction);
 
+  Future<void> addDirection(TransceiverDirection direction);
+
+  Future<void> subDirection(TransceiverDirection direction);
+
   /// Returns current preferred [TransceiverDirection] of this [RtpTransceiver].
   Future<TransceiverDirection> getDirection();
 
@@ -101,6 +105,18 @@ class _RtpTransceiverChannel extends RtpTransceiver {
     _isStopped = true;
     await _chan.invokeMethod('stop');
   }
+  
+  @override
+  Future<void> addDirection(TransceiverDirection direction) {
+    // TODO: implement addDirection
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<void> subDirection(TransceiverDirection direction) {
+    // TODO: implement subDirection
+    throw UnimplementedError();
+  }
 }
 
 /// FFI-based implementation of an [RtpTransceiver].
@@ -144,5 +160,21 @@ class RtpTransceiverFFI extends RtpTransceiver {
   @override
   Future<void> syncMid() async {
     _mid = await api.getTransceiverMid(peerId: _peerId, transceiverIndex: _id);
+  }
+  
+  @override
+  Future<void> addDirection(TransceiverDirection direction) async {
+      await api.addTransceiverDirection(
+        peerId: _peerId,
+        transceiverIndex: _id,
+        direction: ffi.RtpTransceiverDirection.values[direction.index]);
+  }
+  
+  @override
+  Future<void> subDirection(TransceiverDirection direction) async {
+      await api.subTransceiverDirection(
+        peerId: _peerId,
+        transceiverIndex: _id,
+        direction: ffi.RtpTransceiverDirection.values[direction.index]);
   }
 }

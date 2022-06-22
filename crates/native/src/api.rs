@@ -402,6 +402,54 @@ impl From<sys::RtpTransceiverDirection> for RtpTransceiverDirection {
     }
 }
 
+impl std::ops::Add for RtpTransceiverDirection {
+    type Output = RtpTransceiverDirection;
+
+    fn add(self, other: Self) -> Self {
+        match (self, other) {
+            (RtpTransceiverDirection::Stopped, _) => RtpTransceiverDirection::Stopped,
+            (_, RtpTransceiverDirection::Stopped) => RtpTransceiverDirection::Stopped,
+
+            (a, RtpTransceiverDirection::Inactive) => a,
+            (RtpTransceiverDirection::Inactive, a) => a,
+
+            (_, RtpTransceiverDirection::SendRecv) => RtpTransceiverDirection::SendRecv,
+            (RtpTransceiverDirection::SendRecv, _) => RtpTransceiverDirection::SendRecv,
+
+        
+            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::SendOnly,
+            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::SendRecv,
+
+            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::RecvOnly,
+            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::SendRecv,
+        }
+    }
+}
+
+impl std::ops::Sub for RtpTransceiverDirection {
+    type Output = RtpTransceiverDirection;
+
+    fn sub(self, other: Self) -> Self {
+        match (self, other) {
+            (RtpTransceiverDirection::Stopped, _) => RtpTransceiverDirection::Stopped,
+            (_, RtpTransceiverDirection::Stopped) => RtpTransceiverDirection::Stopped,
+
+            (a, RtpTransceiverDirection::Inactive) => a,
+            (RtpTransceiverDirection::Inactive, a) => a,
+
+            (_, RtpTransceiverDirection::SendRecv) => RtpTransceiverDirection::Inactive,
+            (RtpTransceiverDirection::SendRecv, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::SendOnly,
+            (RtpTransceiverDirection::SendRecv, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::RecvOnly,
+        
+            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::Inactive,
+            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::SendOnly,
+
+            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::Inactive,
+            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::RecvOnly,
+        }
+    }
+}
+
 impl From<RtpTransceiverDirection> for sys::RtpTransceiverDirection {
     fn from(state: RtpTransceiverDirection) -> Self {
         match state {
@@ -884,6 +932,32 @@ pub fn set_transceiver_direction(
     direction: RtpTransceiverDirection,
 ) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().set_transceiver_direction(
+        peer_id,
+        transceiver_index,
+        direction,
+    )
+}
+
+/// todo
+pub fn add_transceiver_direction(
+    peer_id: u64,
+    transceiver_index: u32,
+    direction: RtpTransceiverDirection,
+) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().add_transceiver_direction(
+        peer_id,
+        transceiver_index,
+        direction,
+    )
+}
+
+/// todo
+pub fn sub_transceiver_direction(
+    peer_id: u64,
+    transceiver_index: u32,
+    direction: RtpTransceiverDirection,
+) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().sub_transceiver_direction(
         peer_id,
         transceiver_index,
         direction,

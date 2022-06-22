@@ -278,6 +278,58 @@ impl Webrtc {
         transceiver.set_direction(direction.into())
     }
 
+    // todo
+    pub fn add_transceiver_direction(
+        &self,
+        peer_id: u64,
+        transceiver_index: u32,
+        direction: api::RtpTransceiverDirection,
+    ) -> anyhow::Result<()> {
+        let peer_id = PeerConnectionId::from(peer_id);
+        let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
+            anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
+        })?;
+
+        let transceivers = peer.inner.lock().unwrap().get_transceivers();
+
+        let transceiver = if let Some(transceiver) =
+            transceivers.get(transceiver_index as usize)
+        {
+            transceiver
+        } else {
+            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
+        };
+
+        let current_direction = api::RtpTransceiverDirection::from(transceiver.direction());
+        transceiver.set_direction((current_direction + direction).into())
+    }
+
+    // todo
+    pub fn sub_transceiver_direction(
+        &self,
+        peer_id: u64,
+        transceiver_index: u32,
+        direction: api::RtpTransceiverDirection,
+    ) -> anyhow::Result<()> {
+        let peer_id = PeerConnectionId::from(peer_id);
+        let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
+            anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
+        })?;
+
+        let transceivers = peer.inner.lock().unwrap().get_transceivers();
+
+        let transceiver = if let Some(transceiver) =
+            transceivers.get(transceiver_index as usize)
+        {
+            transceiver
+        } else {
+            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
+        };
+
+        let current_direction = api::RtpTransceiverDirection::from(transceiver.direction());
+        transceiver.set_direction((current_direction - direction).into())
+    }
+
     /// Returns the [Negotiated media ID (mid)][1] of the specified
     /// [`RtcRtpTransceiver`].
     ///
