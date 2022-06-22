@@ -680,7 +680,7 @@ rust::String set_transceiver_direction(
     webrtc::RtpTransceiverDirection new_direction) {
   webrtc::RTCError result = transceiver->SetDirectionWithError(new_direction);
   rust::String error;
-  printf("C++ SET %i\n", new_direction);
+  printf("C++ SET %i [%li]\n", new_direction, &transceiver);
   if (!result.ok()) {
     error = result.message();
   }
