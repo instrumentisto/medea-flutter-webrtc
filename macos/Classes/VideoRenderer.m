@@ -11,42 +11,34 @@ void foobar() {
 }
 
 void on_frame_caller(void* handler, Frame frame) {
-    NSLog(@"OnFrame 1");
     TextureVideoRenderer* renderer = (__bridge TextureVideoRenderer*) handler;
-    NSLog(@"OnFrame: %@", [renderer textureId]);
-    NSLog(@"OnFrame 2");
     [renderer onFrame: frame];
-    NSLog(@"OnFrame 3");
 }
 
 @implementation TextureVideoRenderer
 - (instancetype) init: (id<FlutterTextureRegistry>) registry messenger:(id<FlutterBinaryMessenger>)messenger {
     self = [super init];
-    // _sendEvents = true;
-    // _firstFrameRendered = false;
-    // _registry = registry;
-    // _pixelBufferRef = nil;
-    // _eventSink = nil;
-    // _rotation = @0;
-
     self->_pixelBufferRef = nil;
     self->_registry = registry;
     self->_sendEvents = true;
-    NSLog(@"TextureVideoRenderer::initialize 1");
 
     int64_t tid = [registry registerTexture: self];
     self->_tid = tid;
-    NSLog(@"Texture ID in init: %d", tid);
-    NSNumber* textureId = [NSNumber numberWithInt: tid];
+    NSNumber* textureId = [NSNumber numberWithLong: tid];
     NSString* channelName = [NSString stringWithFormat:@"FlutterWebRtc/VideoRendererEvent/%@", textureId];
-    NSLog(@"TextureVideoRenderer channel name: %@", channelName);
     _eventChannel = [FlutterEventChannel
                                 eventChannelWithName:channelName
                                 binaryMessenger:messenger];
-    NSLog(@"TextureVideoRenderer::initialize 2");
     self->_textureId = textureId;
     [_eventChannel setStreamHandler:self];
-    NSLog(@"TextureVideoRenderer::initialize 3");
+
+    __weak TextureVideoRenderer* weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong TextureVideoRenderer* strongSelf = weakSelf;
+        if (strongSelf) {
+            [strongSelf.registry textureFrameAvailable:strongSelf->_tid];
+        }
+    });
     return self;
 }
 
@@ -55,14 +47,10 @@ void on_frame_caller(void* handler, Frame frame) {
 }
 
 - (void)onTextureUnregistered:(NSObject<FlutterTexture>*)texture {
-    NSLog(@"FUCK TEXTURE UNREGISTERED");
 }
 
 - (void) onFrame: (Frame) frame {
-    // id<RTCI420Buffer> i420Buffer = [self correctRotation:[frame.buffer toI420] withRotation:frame.rotation];
-    // id<RTCI420Buffer> i420buffer = [frame.buffer toI420];
     if (_pixelBufferRef != nil) {
-        NSLog(@"Pixel buffer release");
       CVBufferRelease(_pixelBufferRef);
     }
     NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
@@ -75,11 +63,8 @@ void on_frame_caller(void* handler, Frame frame) {
     memcpy(dst, frame.buffer, frame.width * frame.height * 4);
     CVPixelBufferUnlockBaseAddress(_pixelBufferRef, 0);
 
-    NSLog(@"onFrame from Flutter: %@", self->_textureId);
     if (!self->_firstFrameRendered) {
-        NSLog(@"firstFrameRendered 1");
         if (self->_sendEvents) {
-            NSLog(@"firstFrameRendered 2");
             NSDictionary *map = @{
                 @"event" : @"onFirstFrameRendered",
                 @"id" : self->_textureId,
@@ -111,14 +96,11 @@ void on_frame_caller(void* handler, Frame frame) {
             self->_eventSink(map);
         }
     }
-    // [self->_registry textureFrameAvailable: [self->_textureId longValue]];
-    // [self->_registry textureFrameAvailable: self->_tid];
 
     __weak TextureVideoRenderer* weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong TextureVideoRenderer* strongSelf = weakSelf;
         if (strongSelf) {
-            NSLog(@"textureFrameAvailable called");
             [strongSelf.registry textureFrameAvailable:strongSelf->_tid];
         }
     });
@@ -140,8 +122,7 @@ void on_frame_caller(void* handler, Frame frame) {
 }
 
 - (CVPixelBufferRef)copyPixelBuffer {
-    NSLog(@"copyPixelBuffer");
-    if(_pixelBufferRef != nil){
+    if(_pixelBufferRef != nil) {
         CVBufferRetain(_pixelBufferRef);
         return _pixelBufferRef;
     }
@@ -161,9 +142,7 @@ void on_frame_caller(void* handler, Frame frame) {
     TextureVideoRenderer* renderer = [[TextureVideoRenderer alloc] init: self->_registry messenger:self->_messenger];
     NSNumber* textureId = [renderer textureId];
     [self->_renderers setObject: renderer forKey:textureId];
-    NSLog(@"Renderers: %@", self->_renderers);
 
-    NSLog(@"Texture ID in create: %@", textureId);
     NSDictionary* map = @{
         @"textureId" : textureId,
         @"channelId" : textureId,
@@ -172,7 +151,6 @@ void on_frame_caller(void* handler, Frame frame) {
 }
 
 - (void) videoRendererDispose: (FlutterMethodCall*) methodCall result:(FlutterResult)result {
-    NSLog(@"Dispose videoRenderer");
     NSDictionary* arguments = methodCall.arguments;
     NSNumber* textureId = arguments[@"textureId"];
 
@@ -185,12 +163,9 @@ void on_frame_caller(void* handler, Frame frame) {
 - (void) createFrameHandler: (FlutterMethodCall*) methodCall result:(FlutterResult)result {
     NSDictionary* arguments = methodCall.arguments;
     NSNumber* textureId = arguments[@"textureId"];
-    NSLog(@"Renderer textureID: %@", textureId);
     TextureVideoRenderer* renderer = self->_renderers[textureId];
-    NSLog(@"Renderer print: %@", renderer);
     
     int64_t rendererPtr = (int64_t) renderer;
-    NSLog(@"RendererPtr: %@", rendererPtr);
     result(@{
         @"handler_ptr" : [NSNumber numberWithLong: rendererPtr],
     });

@@ -30,7 +30,7 @@
     didCaptureVideoFrame:(RTCVideoFrame*)frame {
   const int64_t timestamp_us = frame.timeStampNs / rtc::kNumNanosecsPerMicrosec;
   rtc::scoped_refptr<webrtc::VideoFrameBuffer> buffer =
-      new rtc::RefCountedObject<webrtc::ObjCFrameBuffer>(frame.buffer);
+      rtc::make_ref_counted<webrtc::ObjCFrameBuffer>(frame.buffer);
   _capturer->OnFrame(webrtc::VideoFrame::Builder()
                          .set_video_frame_buffer(buffer)
                          .set_rotation(webrtc::kVideoRotation_0)
@@ -90,8 +90,8 @@ rtc::scoped_refptr<MacCapturer> MacCapturer::Create(
     return nullptr;
   }
 
-  return new rtc::RefCountedObject<MacCapturer>(width, height, target_fps,
-                                                device);
+  return rtc::make_ref_counted<MacCapturer>(width, height, target_fps,
+                                                  device);
 }
 
 AVCaptureDevice* MacCapturer::FindVideoDevice(
@@ -156,7 +156,6 @@ MacCapturer::~MacCapturer() {
 }
 
 void MacCapturer::OnFrame(const webrtc::VideoFrame& frame) {
-  NSLog(@"MacCapturer::OnFrame");
   AdaptedVideoTrackSource::OnFrame(frame);
 }
 

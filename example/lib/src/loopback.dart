@@ -56,22 +56,31 @@ class _LoopbackState extends State<Loopback> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   void _makeCall() async {
+    print('makeCall 1');
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
     caps.video.mandatory!.width = 640;
     caps.video.mandatory!.height = 480;
     caps.video.mandatory!.fps = 30;
+    print('makeCall 2');
 
     try {
+      print('makeCall 3');
       _tracks = await getUserMedia(caps);
+      print('makeCall 4');
       await _localRenderer.setSrcObject(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      print('makeCall 5');
 
       var server =
           IceServer(['stun:stun.l.google.com:19302'], 'username', 'password');
+      print('makeCall 10');
       _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
+      print('makeCall 11');
       _pc2 = await PeerConnection.create(IceTransportType.all, [server]);
+      print('makeCall 12');
+      print('makeCall 6');
 
       _pc1?.onIceCandidateError((p0) {
         print(p0.errorText);
@@ -85,6 +94,7 @@ class _LoopbackState extends State<Loopback> {
           await _remoteRenderer.setSrcObject(track);
         }
       });
+      print('makeCall 7');
 
       var vtrans = await _pc1?.addTransceiver(
           MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
@@ -95,6 +105,7 @@ class _LoopbackState extends State<Loopback> {
       var offer = await _pc1?.createOffer();
       await _pc1?.setLocalDescription(offer!);
       await _pc2?.setRemoteDescription(offer!);
+      print('makeCall 8');
 
       var answer = await _pc2?.createAnswer();
       await _pc2?.setLocalDescription(answer!);
@@ -110,11 +121,15 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
+      print('vtrans replaceTrack 1');
       await vtrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      print('vtrans replaceTrack 2');
 
+      print('atrans replaceTrack 1');
       await atrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
+      print('atrans replaceTrack 2');
     } catch (e) {
       print(e.toString());
     }

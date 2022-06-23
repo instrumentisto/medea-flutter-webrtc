@@ -1,21 +1,47 @@
 #![warn(clippy::pedantic)]
-use std::process::Command;
 
+#[cfg(not(target_os = "windows"))]
+use std::ffi::OsString;
+use std::process::Command;
 use std::{
-    env, fs, io,
+    env, fs,
+    fs::File,
+    io::{BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
-    process,
 };
 
-use anyhow::anyhow;
+use anyhow::bail;
 use dotenv::dotenv;
+use flate2::read::GzDecoder;
+use sha2::{Digest, Sha256};
+use tar::Archive;
 use walkdir::{DirEntry, WalkDir};
+
+/// Base url for the `libwebrtc` GitHub release.
+static LIBWEBRTC_URL: &str = "https://github.com/instrumentisto/\
+    libwebrtc-bin/releases/download/101.0.4951.64";
+
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
+static SHA256SUM: &str =
+    "80301279c2435b3e33c5f610bb7785c37939c146965932755c0a4f693afad3a9";
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+static SHA256SUM: &str =
+    "b78fdc44d7fabdb270aefa3007f22e4fd535521bb3e77227d33053f17c6157e3";
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+static SHA256SUM: &str =
+    "37eb55ed34bc6492d01806945b82f25c81404b5e122a8dca9e416640ece0cf51";
+#[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+static SHA256SUM: &str =
+    "fc15c33464ea4f1515db0fb4d67ca46bfb69ec339339ef891be9c3f347ede326";
+#[cfg(all(target_os = "windows", target_arch = "x86_64"))]
+static SHA256SUM: &str =
+    "7c75df843059ebf1a264f5a5693875b38fd1dcf88ea8bff3b36902f0306b6587";
 
 fn main() -> anyhow::Result<()> {
     // This won't override any env vars that already present.
     drop(dotenv());
 
-    // download_libwebrtc()?;
+    download_libwebrtc()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let cpp_files = get_cpp_files()?;
@@ -33,6 +59,14 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include/sdk/objc"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
+
+    #[cfg(target_os = "windows")]
+    build.flag("-DNDEBUG");
+    #[cfg(not(target_os = "windows"))]
+    if env::var_os("PROFILE") == Some(OsString::from("release")) {
+        build.flag("-DNDEBUG");
+    }
+
     #[cfg(target_os = "windows")]
     {
         build
@@ -85,13 +119,34 @@ fn main() -> anyhow::Result<()> {
 
 /// Downloads and unpacks compiled `libwebrtc` library.
 fn download_libwebrtc() -> anyhow::Result<()> {
-    let mut libwebrtc_url = env::var("LIBWEBRTC_URL")?;
-    libwebrtc_url.push_str("/libwebrtc-win-x64.tar.gz");
-
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
-    let archive = temp_dir.join("libwebrtc-win-x64.tar.gz");
     let lib_dir = manifest_path.join("lib");
+
+    let tar_file = {
+        let mut name = String::from("libwebrtc-");
+
+        #[cfg(target_os = "windows")]
+        name.push_str("windows-");
+        #[cfg(target_os = "linux")]
+        name.push_str("linux-");
+        #[cfg(target_os = "macos")]
+        name.push_str("macos-");
+
+        #[cfg(target_arch = "aarch64")]
+        name.push_str("arm64.tar.gz");
+        #[cfg(target_arch = "x86_64")]
+        name.push_str("x64.tar.gz");
+
+        name
+    };
+
+    let mut libwebrtc_url =
+        env::var("LIBWEBRTC_URL").unwrap_or_else(|_| LIBWEBRTC_URL.to_owned());
+    libwebrtc_url.push('/');
+    libwebrtc_url.push_str(tar_file.as_str());
+
+    let archive = temp_dir.join(tar_file);
 
     // Force download if `INSTALL_WEBRTC=1`.
     if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
@@ -116,36 +171,40 @@ fn download_libwebrtc() -> anyhow::Result<()> {
 
     // Download compiled `libwebrtc` archive.
     {
-        let mut resp = reqwest::blocking::get(&libwebrtc_url)?;
-        let mut out_file = fs::File::create(&archive)?;
-        io::copy(&mut resp, &mut out_file)?;
-    }
+        let mut resp = BufReader::new(reqwest::blocking::get(&libwebrtc_url)?);
+        libwebrtc_url.push_str(".sha256sum");
+        let mut out_file = BufWriter::new(fs::File::create(&archive)?);
+        let mut hasher = Sha256::new();
 
-    // Clear `lib` directory.
-    for entry in fs::read_dir(&lib_dir)? {
-        let entry = entry?;
-        if !entry.file_name().to_string_lossy().starts_with('.') {
-            if entry.metadata()?.is_dir() {
-                fs::remove_dir_all(entry.path())?;
-            } else {
-                fs::remove_file(entry.path())?;
-            }
+        let mut buffer = [0; 512];
+        loop {
+            let count = resp.read(&mut buffer)?;
+            if count == 0 {
+                break;
+            };
+            hasher.update(&buffer[0..count]);
+            let _ = out_file.write(&buffer[0..count])?;
+        }
+
+        if format!("{:x}", hasher.finalize()) != SHA256SUM {
+            bail!("Checksums does not match");
         }
     }
 
-    // Untar the downloaded archive.
-    process::Command::new("tar")
-        .args(&[
-            "-xf",
-            archive
-                .to_str()
-                .ok_or_else(|| anyhow!("Invalid archive path"))?,
-            "-C",
-            lib_dir
-                .to_str()
-                .ok_or_else(|| anyhow!("Invalid `lib/` dir path"))?,
-        ])
-        .status()?;
+    // Clear `lib` directory.
+    // for entry in fs::read_dir(&lib_dir)? {
+    //     let entry = entry?;
+    //     if !entry.file_name().to_string_lossy().starts_with('.') {
+    //         if entry.metadata()?.is_dir() {
+    //             fs::remove_dir_all(entry.path())?;
+    //         } else {
+    //             fs::remove_file(entry.path())?;
+    //         }
+    //     }
+    // }
+
+    let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
+    archive.unpack(lib_dir)?;
 
     fs::remove_dir_all(&temp_dir)?;
 

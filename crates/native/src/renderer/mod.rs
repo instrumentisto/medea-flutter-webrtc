@@ -13,12 +13,10 @@ mod frame_handler {
 
     impl FrameHandler {
         pub fn new(handler: *mut cpp_api::OnFrameCallbackInterface) -> Self {
-            log::debug!("FrameHandler::new");
             unsafe { Self(UniquePtr::from_raw(handler)) }
         }
 
         pub fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
-            log::debug!("FrameHandler::on_frame");
             self.0.pin_mut().on_frame(cpp_api::VideoFrame::from(frame));
         }
     }
@@ -82,7 +80,7 @@ mod frame_handler {
 
             let mut buffer = vec![0; buffer_size].into_boxed_slice();
             let buffer_ptr = buffer.as_mut_ptr();
-            std::mem::forget(buffer);
+            // std::mem::forget(buffer);
 
             unsafe {
                 libwebrtc_sys::video_frame_to_abgr(&frame, buffer_ptr);
@@ -94,6 +92,7 @@ mod frame_handler {
                     frame: buffer_ptr,
                 });
             }
+            drop(buffer);
         }
     }
 

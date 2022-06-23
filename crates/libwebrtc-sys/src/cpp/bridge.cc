@@ -360,7 +360,7 @@ void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       frame.video_frame_buffer()->ToI420());
 
-  libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
+  libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
                      dst_abgr, buffer->width() * 4, buffer->width(),
                      buffer->height());
@@ -405,9 +405,9 @@ std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
 
 // Creates a new default `RTCConfiguration`.
 std::unique_ptr<RTCConfiguration> create_default_rtc_configuration() {
-  RTCConfiguration config;
-  config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-  return std::make_unique<RTCConfiguration>(config);
+  auto config = std::make_unique<RTCConfiguration>();
+  config->sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+  return config;
 }
 
 // Sets the `type` field of the provided `RTCConfiguration`.
