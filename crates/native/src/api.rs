@@ -435,7 +435,7 @@ impl std::ops::Sub for RtpTransceiverDirection {
             (_, RtpTransceiverDirection::Stopped) => RtpTransceiverDirection::Stopped,
 
             (a, RtpTransceiverDirection::Inactive) => a,
-            (RtpTransceiverDirection::Inactive, a) => a,
+            (RtpTransceiverDirection::Inactive, a) => RtpTransceiverDirection::Inactive,
 
             (_, RtpTransceiverDirection::SendRecv) => RtpTransceiverDirection::Inactive,
             (RtpTransceiverDirection::SendRecv, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::SendOnly,
