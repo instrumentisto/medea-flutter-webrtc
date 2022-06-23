@@ -47,15 +47,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: linux
-            os: ubuntu-22.04
-#         TODO: Add macos-latest.
-#          - platform: macos
-#            os: macos-latest
-          - platform: windows
-            os: windows-latest
-    runs-on: ${{ matrix.os }}
+        platform:
+          - linux
+          #- macos  # TODO: Add `macos-latest`.
+          - windows
+    runs-on: ${{ (matrix.platform == 'linux' && 'ubuntu-22.04')
+                 || (matrix.platform == 'windows' && 'windows-2019')
+                 || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -64,11 +62,13 @@ jobs:
           toolchain: stable
           components: clippy
 
-      - name: Install Linux dependencies
+      - name: Install Linux platform dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpulse-dev libudev-dev libxfixes-dev \
-            libxdamage-dev libxtst-dev libxrandr-dev libxcomposite-dev
+          sudo apt-get install -y \
+                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.lint
@@ -131,15 +131,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: linux
-            os: ubuntu-22.04
-#         TODO: Add macos-latest.
-#          - platform: macos
-#            os: macos-latest
-          - platform: windows
-            os: windows-2019
-    runs-on: ${{ matrix.os }}
+        platform:
+          - linux
+          #- macos  # TODO: Add `macos-latest`.
+          - windows
+    runs-on: ${{ (matrix.platform == 'linux' && 'ubuntu-22.04')
+                 || (matrix.platform == 'windows' && 'windows-2019')
+                 || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -149,12 +147,13 @@ jobs:
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
-      - name: Install Linux dependencies
+      - name: Install Linux platform dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev ninja-build libpulse-dev \
-            libudev-dev libxfixes-dev libxdamage-dev libxtst-dev \
-            libxrandr-dev libxcomposite-dev
+          sudo apt-get install -y \
+                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.build
@@ -173,21 +172,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-#         TODO: Add MacOs support.
-#          - platform: macos
-#            os: macos-latest
-          - platform: android
-            os: macos-latest
-          - platform: windows
-            # TODO: Switch to `windows-latest` when stable Flutter stable will
-            #       support MSVC 2022:
-            #       https://github.com/flutter/flutter/issues/85922
-            #       https://github.com/flutter/flutter/issues/96138
-            os: windows-2019
-          - platform: linux
-            os: ubuntu-22.04
-    runs-on: ${{ matrix.os }}
+        platform:
+          - android
+          - linux
+          #- macos  # TODO: Add `macos-latest`.
+          - windows
+    # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
+    #       https://github.com/flutter/flutter/issues/85922
+    #       https://github.com/flutter/flutter/issues/96138
+    runs-on: ${{ (matrix.platform == 'linux' && 'ubuntu-22.04')
+                 || (matrix.platform == 'windows' && 'windows-2019')
+                 || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -195,16 +190,17 @@ jobs:
           profile: minimal
           toolchain: stable
       - uses: subosito/flutter-action@v2
-
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android' }}
 
-      - name: Install Linux dependencies
+      - name: Install Linux platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-               cmake libgtk-3-dev liblzma-dev libpulse-dev ninja-build \
-                libudev-dev xvfb
+                       cmake \
+                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
+                       ninja-build \
+                       xvfb
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.build platform=${{ matrix.platform }}
@@ -221,25 +217,44 @@ jobs:
           script: make flutter.test
         if: ${{ matrix.platform == 'android' }}
 
-      - run: xvfb-run -a make flutter.test device=linux
+      - name: Test on Linux
+        run: xvfb-run -a make flutter.test device=linux
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: make flutter.test device=windows
+      - name: Test on Windows
+        run: make flutter.test device=windows
         if: ${{ matrix.platform == 'windows' }}
 
   test-rust:
     name: Test Rust crates
-    # TODO: Switch to `windows-latest` when stable Flutter stable will
-    #       support MSVC 2022:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux
+          #- macos  # TODO: Add `macos-latest`.
+          - windows
+    # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
     #       https://github.com/flutter/flutter/issues/85922
     #       https://github.com/flutter/flutter/issues/96138
-    runs-on: windows-2019
+    runs-on: ${{ (matrix.platform == 'linux' && 'ubuntu-22.04')
+                 || (matrix.platform == 'windows' && 'windows-2019')
+                 || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
+
+      - name: Install Linux platform dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build
+        if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.test
 
@@ -254,18 +269,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          # TODO: Switch to `windows-latest` when stable Flutter stable will
-          #       support MSVC 2022:
-          #       https://github.com/flutter/flutter/issues/85922
-          #       https://github.com/flutter/flutter/issues/96138
-          - windows-2019
-    runs-on: ${{ matrix.os }}
+        platform:
+          - linux
+          #- macos  # TODO: Add `macos-latest`.
+          - windows
+    # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
+    #       https://github.com/flutter/flutter/issues/85922
+    #       https://github.com/flutter/flutter/issues/96138
+    runs-on: ${{ (matrix.platform == 'linux' && 'ubuntu-22.04')
+                 || (matrix.platform == 'windows' && 'windows-2019')
+                 || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
+
+      - name: Install Linux platform dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build
+        if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.doc

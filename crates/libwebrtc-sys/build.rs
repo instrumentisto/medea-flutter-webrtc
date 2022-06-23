@@ -10,15 +10,17 @@ use std::{
 };
 
 use anyhow::bail;
-use dotenv::dotenv;
 use flate2::read::GzDecoder;
 use sha2::{Digest, Sha256};
 use tar::Archive;
 use walkdir::{DirEntry, WalkDir};
 
-/// Base url for the `libwebrtc` GitHub release.
-static LIBWEBRTC_URL: &str = "https://github.com/instrumentisto/\
-    libwebrtc-bin/releases/download/101.0.4951.64";
+/// Base URL for the [`libwebrtc-bin`] GitHub release.
+///
+/// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
+static LIBWEBRTC_URL: &str =
+    "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
+                                                    /101.0.4951.64";
 
 #[cfg(all(target_os = "linux", target_arch = "aarch64"))]
 static SHA256SUM: &str =
@@ -37,9 +39,6 @@ static SHA256SUM: &str =
     "7c75df843059ebf1a264f5a5693875b38fd1dcf88ea8bff3b36902f0306b6587";
 
 fn main() -> anyhow::Result<()> {
-    // This won't override any env vars that already present.
-    drop(dotenv());
-
     download_libwebrtc()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -124,39 +123,33 @@ fn download_libwebrtc() -> anyhow::Result<()> {
 
         name
     };
-
-    let mut libwebrtc_url =
-        env::var("LIBWEBRTC_URL").unwrap_or_else(|_| LIBWEBRTC_URL.to_owned());
-    libwebrtc_url.push('/');
-    libwebrtc_url.push_str(tar_file.as_str());
-
-    let archive = temp_dir.join(tar_file);
+    let archive = temp_dir.join(&tar_file);
+    let checksum = lib_dir.join("CHECKSUM");
 
     // Force download if `INSTALL_WEBRTC=1`.
     if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
-        // Skip download if already downloaded.
-        if fs::read_dir(&lib_dir)?.fold(0, |acc, b| {
-            if b.unwrap().file_name().to_string_lossy().starts_with('.') {
-                acc
-            } else {
-                acc + 1
-            }
-        }) != 0
+        // Skip download if already downloaded and checksum matches.
+        if fs::metadata(&lib_dir)
+            .map(|m| m.is_dir())
+            .unwrap_or_default()
+            && fs::read(&checksum).unwrap_or_default().as_slice()
+                == SHA256SUM.as_bytes()
         {
             return Ok(());
         }
     }
 
-    // Clear `temp` directory.
+    // Clean up `temp` directory.
     if temp_dir.exists() {
         fs::remove_dir_all(&temp_dir)?;
     }
     fs::create_dir_all(&temp_dir)?;
 
-    // Download compiled `libwebrtc` archive.
+    // Download the compiled `libwebrtc` archive.
     {
-        let mut resp = BufReader::new(reqwest::blocking::get(&libwebrtc_url)?);
-        libwebrtc_url.push_str(".sha256sum");
+        let mut resp = BufReader::new(reqwest::blocking::get(&format!(
+            "{LIBWEBRTC_URL}/{tar_file}"
+        ))?);
         let mut out_file = BufWriter::new(fs::File::create(&archive)?);
         let mut hasher = Sha256::new();
 
@@ -171,28 +164,25 @@ fn download_libwebrtc() -> anyhow::Result<()> {
         }
 
         if format!("{:x}", hasher.finalize()) != SHA256SUM {
-            bail!("Checksums does not match");
+            bail!("SHA-256 checksum doesn't match");
         }
     }
 
-    // Clear `lib` directory.
-    for entry in fs::read_dir(&lib_dir)? {
-        let entry = entry?;
-        if !entry.file_name().to_string_lossy().starts_with('.') {
-            if entry.metadata()?.is_dir() {
-                fs::remove_dir_all(entry.path())?;
-            } else {
-                fs::remove_file(entry.path())?;
-            }
-        }
+    // Clean up `lib` directory.
+    if lib_dir.exists() {
+        fs::remove_dir_all(&lib_dir)?;
     }
+    fs::create_dir_all(&lib_dir)?;
 
+    // Unpack the downloaded `libwebrtc` archive.
     let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
     archive.unpack(lib_dir)?;
 
+    // Clean up the downloaded `libwebrtc` archive.
     fs::remove_dir_all(&temp_dir)?;
 
-    Ok(())
+    // Write the downloaded checksum.
+    fs::write(&checksum, SHA256SUM).map_err(Into::into)
 }
 
 /// Returns a list of all C++ sources that should be compiled.
