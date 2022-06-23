@@ -16,7 +16,7 @@ pub use crate::webrtc::{
     video_frame_to_abgr, AudioLayer, BundlePolicy, Candidate,
     CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
     IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
-    SdpType, SignalingState, VideoFrame, VideoRotation,
+    SdpType, SignalingState, TrackState, VideoFrame, VideoRotation,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -216,11 +216,18 @@ impl AudioDeviceModule {
         webrtc::playout_devices(&self.0).max(0) as u32
     }
 
+    #[cfg(not(feature = "fake_media"))]
     /// Returns count of available audio recording devices.
     #[must_use]
     #[allow(clippy::cast_sign_loss)]
     pub fn recording_devices(&self) -> u32 {
         webrtc::recording_devices(&self.0).max(0) as u32
+    }
+
+    #[cfg(feature = "fake_media")]
+    /// Always returns `1`.
+    pub fn recording_devices(&self) -> u32 {
+        return 1;
     }
 
     /// Returns the `(label, id)` tuple for the given audio playout device
@@ -245,6 +252,7 @@ impl AudioDeviceModule {
         Ok((name, guid))
     }
 
+    #[cfg(not(feature = "fake_media"))]
     /// Returns the `(label, id)` tuple for the given audio recording device
     /// `index`.
     pub fn recording_device_name(
@@ -265,6 +273,15 @@ impl AudioDeviceModule {
         }
 
         Ok((name, guid))
+    }
+
+    #[cfg(feature = "fake_media")]
+    /// Always returns fake names.
+    pub fn recording_device_name(
+        &self,
+        _index: i16,
+    ) -> anyhow::Result<(String, String)> {
+        Ok((String::from("fake mic"), String::from("fake mic id")))
     }
 
     /// Sets the recording audio device according to the given `index`.
@@ -410,11 +427,19 @@ impl VideoDeviceInfo {
         Ok(Self(ptr))
     }
 
+    #[cfg(not(feature = "fake_media"))]
     /// Returns count of a video recording devices.
     pub fn number_of_devices(&mut self) -> u32 {
         self.0.pin_mut().number_of_video_devices()
     }
 
+    #[cfg(feature = "fake_media")]
+    /// Always returns `1`.
+    pub fn number_of_devices(&mut self) -> u32 {
+        1
+    }
+
+    #[cfg(not(feature = "fake_media"))]
     /// Returns the `(label, id)` tuple for the given video device `index`.
     pub fn device_name(
         &mut self,
@@ -438,6 +463,15 @@ impl VideoDeviceInfo {
         }
 
         Ok((name, guid))
+    }
+
+    #[cfg(feature = "fake_media")]
+    /// Always returns fake names.
+    pub fn device_name(
+        &mut self,
+        _index: u32,
+    ) -> anyhow::Result<(String, String)> {
+        Ok((String::from("fake webcam"), String::from("fake webcam id")))
     }
 }
 
@@ -1587,6 +1621,14 @@ impl VideoTrackInterface {
     pub fn source(&self) -> VideoTrackSourceInterface {
         VideoTrackSourceInterface(webrtc::get_video_track_source(&self.inner))
     }
+
+    /// Returns the [readyState][0] property of this [`VideoTrackInterface`].
+    ///
+    /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    #[must_use]
+    pub fn state(&self) -> TrackState {
+        webrtc::video_track_state(&self.inner)
+    }
 }
 
 impl Drop for VideoTrackInterface {
@@ -1662,6 +1704,14 @@ impl AudioTrackInterface {
     #[must_use]
     pub fn source(&self) -> AudioSourceInterface {
         AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
+    }
+
+    /// Returns the [readyState][0] property of this [`AudioTrackInterface`].
+    ///
+    /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    #[must_use]
+    pub fn state(&self) -> TrackState {
+        webrtc::audio_track_state(&self.inner)
     }
 }
 

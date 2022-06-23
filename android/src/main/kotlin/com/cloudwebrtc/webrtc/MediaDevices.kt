@@ -10,12 +10,13 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
-import com.cloudwebrtc.webrtc.exception.OverconstrainedException
+import com.cloudwebrtc.webrtc.exception.GetUserMediaException
 import com.cloudwebrtc.webrtc.model.*
 import com.cloudwebrtc.webrtc.proxy.AudioMediaTrackSource
 import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.VideoMediaTrackSource
 import com.cloudwebrtc.webrtc.utils.EglUtils
+import java.lang.RuntimeException
 import java.util.*
 import org.webrtc.*
 
@@ -61,7 +62,7 @@ private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
  */
 class MediaDevices(val state: State) : BroadcastReceiver() {
   /** [BluetoothAdapter] used for detecting whether bluetooth headset is connected or not. */
-  private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+  private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
   /** Indicator of bluetooth headset connection state. */
   private var isBluetoothHeadsetConnected: Boolean = false
@@ -102,7 +103,7 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
     state
         .getAppContext()
         .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
-    bluetoothAdapter.getProfileProxy(
+    bluetoothAdapter?.getProfileProxy(
         state.getAppContext(),
         object : BluetoothProfile.ServiceListener {
           override fun onServiceConnected(profile: Int, proxy: BluetoothProfile?) {
@@ -150,10 +151,18 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
   fun getUserMedia(constraints: Constraints): List<MediaStreamTrackProxy> {
     val tracks = mutableListOf<MediaStreamTrackProxy>()
     if (constraints.audio != null) {
-      tracks.add(getUserAudioTrack(constraints.audio))
+      try {
+        tracks.add(getUserAudioTrack(constraints.audio))
+      } catch (e: Exception) {
+        throw GetUserMediaException(e.message, GetUserMediaException.Kind.Audio)
+      }
     }
     if (constraints.video != null) {
-      tracks.add(getUserVideoTrack(constraints.video))
+      try {
+        tracks.add(getUserVideoTrack(constraints.video))
+      } catch (e: Exception) {
+        throw GetUserMediaException(e.message, GetUserMediaException.Kind.Video)
+      }
     }
     return tracks
   }
@@ -187,7 +196,7 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
         audioManager.startBluetoothSco()
       }
       else -> {
-        throw OverconstrainedException()
+        throw IllegalArgumentException("Unknown output device: $deviceId")
       }
     }
   }
@@ -264,7 +273,8 @@ class MediaDevices(val state: State) : BroadcastReceiver() {
    * @return Most suitable [MediaStreamTrackProxy] for the provided [VideoConstraints].
    */
   private fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
-    val deviceId = findDeviceMatchingConstraints(constraints) ?: throw OverconstrainedException()
+    val deviceId =
+        findDeviceMatchingConstraints(constraints) ?: throw RuntimeException("Overconstrained")
     val width = constraints.width ?: DEFAULT_WIDTH
     val height = constraints.height ?: DEFAULT_HEIGHT
     val fps = constraints.fps ?: DEFAULT_FPS

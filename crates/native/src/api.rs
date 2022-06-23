@@ -328,6 +328,33 @@ pub enum MediaDeviceKind {
     VideoInput,
 }
 
+/// Indicator of the current [MediaStreamTrackState][0] of a
+/// [`MediaStreamTrack`].
+///
+/// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TrackState {
+    /// [MediaStreamTrackState.live][0] representation.
+    ///
+    /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.live
+    Live,
+
+    /// [MediaStreamTrackState.ended][0] representation.
+    ///
+    /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.ended
+    Ended,
+}
+
+impl From<sys::TrackState> for TrackState {
+    fn from(state: sys::TrackState) -> Self {
+        match state {
+            sys::TrackState::kLive => Self::Live,
+            sys::TrackState::kEnded => Self::Ended,
+            _ => unreachable!(),
+        }
+    }
+}
+
 /// [RTCRtpTransceiverDirection][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
@@ -727,6 +754,24 @@ impl From<BundlePolicy> for sys::BundlePolicy {
     }
 }
 
+/// [`get_media()`] function result.
+pub enum GetMediaResult {
+    /// Requested media tracks.
+    Ok(Vec<MediaStreamTrack>),
+
+    /// Failed to get requested media.
+    Err(GetMediaError),
+}
+
+/// Media acquisition error.
+pub enum GetMediaError {
+    /// Could not acquire audio track.
+    Audio(String),
+
+    /// Could not acquire video track.
+    Video(String),
+}
+
 /// Description of STUN and TURN servers that can be used by an [ICE Agent][1]
 /// to establish a connection with a peer.
 ///
@@ -943,10 +988,11 @@ pub fn dispose_peer_connection(peer_id: u64) {
 
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
-pub fn get_media(
-    constraints: MediaStreamConstraints,
-) -> anyhow::Result<Vec<MediaStreamTrack>> {
-    WEBRTC.lock().unwrap().get_media(constraints)
+pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
+    match WEBRTC.lock().unwrap().get_media(constraints) {
+        Ok(tracks) => GetMediaResult::Ok(tracks),
+        Err(err) => GetMediaResult::Err(err),
+    }
 }
 
 /// Sets the specified `audio playout` device.
@@ -975,6 +1021,17 @@ pub fn microphone_volume() -> anyhow::Result<u32> {
 /// Disposes the specified [`MediaStreamTrack`].
 pub fn dispose_track(track_id: String, kind: MediaType) {
     WEBRTC.lock().unwrap().dispose_track(track_id, kind);
+}
+
+/// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
+/// and [`MediaType`].
+///
+/// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+pub fn track_state(
+    track_id: String,
+    kind: MediaType,
+) -> anyhow::Result<TrackState> {
+    WEBRTC.lock().unwrap().track_state(track_id, kind)
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and

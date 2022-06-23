@@ -119,7 +119,7 @@ abstract class FlutterWebrtcNative {
 
   /// Creates a [`MediaStream`] with tracks according to provided
   /// [`MediaStreamConstraints`].
-  Future<List<MediaStreamTrack>> getMedia(
+  Future<GetMediaResult> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint});
 
   /// Sets the specified `audio playout` device.
@@ -139,6 +139,13 @@ abstract class FlutterWebrtcNative {
 
   /// Disposes the specified [`MediaStreamTrack`].
   Future<void> disposeTrack(
+      {required String trackId, required MediaType kind, dynamic hint});
+
+  /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
+  /// and [`MediaType`].
+  ///
+  /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+  Future<TrackState> trackState(
       {required String trackId, required MediaType kind, dynamic hint});
 
   /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
@@ -221,6 +228,32 @@ enum BundlePolicy {
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
   MaxCompat,
+}
+
+@freezed
+class GetMediaError with _$GetMediaError {
+  /// Could not acquire audio track.
+  const factory GetMediaError.audio(
+    String field0,
+  ) = Audio;
+
+  /// Could not acquire video track.
+  const factory GetMediaError.video(
+    String field0,
+  ) = Video;
+}
+
+@freezed
+class GetMediaResult with _$GetMediaResult {
+  /// Requested media tracks.
+  const factory GetMediaResult.ok(
+    List<MediaStreamTrack> field0,
+  ) = Ok;
+
+  /// Failed to get requested media.
+  const factory GetMediaResult.err(
+    GetMediaError field0,
+  ) = Err;
 }
 
 /// [RTCIceConnectionState][1] representation.
@@ -775,6 +808,22 @@ enum TrackEvent {
   Ended,
 }
 
+/// Indicator of the current [MediaStreamTrackState][0] of a
+/// [`MediaStreamTrack`].
+///
+/// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
+enum TrackState {
+  /// [MediaStreamTrackState.live][0] representation.
+  ///
+  /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.live
+  Live,
+
+  /// [MediaStreamTrackState.ended][0] representation.
+  ///
+  /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.ended
+  Ended,
+}
+
 /// Nature and settings of the video [`MediaStreamTrack`] returned by
 /// [`Webrtc::get_users_media()`].
 class VideoConstraints {
@@ -1098,12 +1147,12 @@ class FlutterWebrtcNativeImpl
         hint: hint,
       ));
 
-  Future<List<MediaStreamTrack>> getMedia(
+  Future<GetMediaResult> getMedia(
           {required MediaStreamConstraints constraints, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_media(
             port_, _api2wire_box_autoadd_media_stream_constraints(constraints)),
-        parseSuccessData: _wire2api_list_media_stream_track,
+        parseSuccessData: _wire2api_get_media_result,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "get_media",
           argNames: ["constraints"],
@@ -1171,6 +1220,20 @@ class FlutterWebrtcNativeImpl
         parseSuccessData: _wire2api_unit,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "dispose_track",
+          argNames: ["trackId", "kind"],
+        ),
+        argValues: [trackId, kind],
+        hint: hint,
+      ));
+
+  Future<TrackState> trackState(
+          {required String trackId, required MediaType kind, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_track_state(
+            port_, _api2wire_String(trackId), _api2wire_media_type(kind)),
+        parseSuccessData: _wire2api_track_state,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "track_state",
           argNames: ["trackId", "kind"],
         ),
         argValues: [trackId, kind],
@@ -1468,8 +1531,42 @@ bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
 
+GetMediaError _wire2api_box_autoadd_get_media_error(dynamic raw) {
+  return _wire2api_get_media_error(raw);
+}
+
 RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
   return _wire2api_rtc_track_event(raw);
+}
+
+GetMediaError _wire2api_get_media_error(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return Audio(
+        _wire2api_String(raw[1]),
+      );
+    case 1:
+      return Video(
+        _wire2api_String(raw[1]),
+      );
+    default:
+      throw Exception("unreachable");
+  }
+}
+
+GetMediaResult _wire2api_get_media_result(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return Ok(
+        _wire2api_list_media_stream_track(raw[1]),
+      );
+    case 1:
+      return Err(
+        _wire2api_box_autoadd_get_media_error(raw[1]),
+      );
+    default:
+      throw Exception("unreachable");
+  }
 }
 
 int _wire2api_i32(dynamic raw) {
@@ -1628,6 +1725,10 @@ SignalingState _wire2api_signaling_state(dynamic raw) {
 
 TrackEvent _wire2api_track_event(dynamic raw) {
   return TrackEvent.values[raw];
+}
+
+TrackState _wire2api_track_state(dynamic raw) {
+  return TrackState.values[raw];
 }
 
 int _wire2api_u32(dynamic raw) {
@@ -2088,6 +2189,25 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
               ffi.Int32)>>('wire_dispose_track');
   late final _wire_dispose_track = _wire_dispose_trackPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>, int)>();
+
+  void wire_track_state(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> track_id,
+    int kind,
+  ) {
+    return _wire_track_state(
+      port_,
+      track_id,
+      kind,
+    );
+  }
+
+  late final _wire_track_statePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              ffi.Int32)>>('wire_track_state');
+  late final _wire_track_state = _wire_track_statePtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>, int)>();
 
   void wire_set_track_enabled(

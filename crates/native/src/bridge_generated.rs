@@ -399,7 +399,7 @@ pub extern "C" fn wire_get_media(
         },
         move || {
             let api_constraints = constraints.wire2api();
-            move |task_callback| get_media(api_constraints)
+            move |task_callback| Ok(get_media(api_constraints))
         },
     )
 }
@@ -477,6 +477,26 @@ pub extern "C" fn wire_dispose_track(
             let api_track_id = track_id.wire2api();
             let api_kind = kind.wire2api();
             move |task_callback| Ok(dispose_track(api_track_id, api_kind))
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_track_state(
+    port_: i64,
+    track_id: *mut wire_uint_8_list,
+    kind: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "track_state",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_track_id = track_id.wire2api();
+            let api_kind = kind.wire2api();
+            move |task_callback| track_state(api_track_id, api_kind)
         },
     )
 }
@@ -1029,6 +1049,28 @@ impl NewWithNullPtr for wire_VideoConstraints {
 
 // Section: impl IntoDart
 
+impl support::IntoDart for GetMediaError {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Audio(field0) => vec![0.into_dart(), field0.into_dart()],
+            Self::Video(field0) => vec![1.into_dart(), field0.into_dart()],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for GetMediaError {}
+
+impl support::IntoDart for GetMediaResult {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Ok(field0) => vec![0.into_dart(), field0.into_dart()],
+            Self::Err(field0) => vec![1.into_dart(), field0.into_dart()],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for GetMediaResult {}
+
 impl support::IntoDart for IceConnectionState {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1233,6 +1275,16 @@ impl support::IntoDart for TrackEvent {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::Ended => 0,
+        }
+        .into_dart()
+    }
+}
+
+impl support::IntoDart for TrackState {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Live => 0,
+            Self::Ended => 1,
         }
         .into_dart()
     }
