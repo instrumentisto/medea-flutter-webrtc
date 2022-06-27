@@ -13,7 +13,7 @@ concurrency:
 env:
   KTFMT_VER: 0.33
   RUST_BACKTRACE: 1
-  WEBRTC_FAKE_MEDIA: true
+  WEBRTC_FAKE_MEDIA: "true"
 
 jobs:
 
