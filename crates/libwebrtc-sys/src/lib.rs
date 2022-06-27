@@ -3,7 +3,7 @@
 
 mod bridge;
 
-use std::{collections::HashMap, mem, env};
+use std::{collections::HashMap, env, mem};
 
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -222,8 +222,7 @@ impl AudioDeviceModule {
     pub fn recording_devices(&self) -> u32 {
         if "true" == &env::var("WEBRTC_FAKE_MEDIA").unwrap_or_default() {
             1
-        }
-        else {
+        } else {
             webrtc::recording_devices(&self.0).max(0) as u32
         }
     }
@@ -427,14 +426,16 @@ impl VideoDeviceInfo {
         }
     }
 
-
     /// Returns the `(label, id)` tuple for the given video device `index`.
     pub fn device_name(
         &mut self,
         index: u32,
     ) -> anyhow::Result<(String, String)> {
         if "true" == &env::var("WEBRTC_FAKE_MEDIA").unwrap_or_default() {
-            return Ok((String::from("fake webcam"), String::from("fake webcam id")));
+            return Ok((
+                String::from("fake webcam"),
+                String::from("fake webcam id"),
+            ));
         }
         let mut name = String::new();
         let mut guid = String::new();

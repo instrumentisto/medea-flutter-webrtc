@@ -407,21 +407,40 @@ impl std::ops::Add for RtpTransceiverDirection {
 
     fn add(self, other: Self) -> Self {
         match (self, other) {
-            (RtpTransceiverDirection::Stopped, _) => RtpTransceiverDirection::Stopped,
-            (_, RtpTransceiverDirection::Stopped) => RtpTransceiverDirection::Stopped,
+            (RtpTransceiverDirection::Stopped, _) => {
+                RtpTransceiverDirection::Stopped
+            }
+            (_, RtpTransceiverDirection::Stopped) => {
+                RtpTransceiverDirection::Stopped
+            }
 
             (a, RtpTransceiverDirection::Inactive) => a,
             (RtpTransceiverDirection::Inactive, a) => a,
 
-            (_, RtpTransceiverDirection::SendRecv) => RtpTransceiverDirection::SendRecv,
-            (RtpTransceiverDirection::SendRecv, _) => RtpTransceiverDirection::SendRecv,
+            (_, RtpTransceiverDirection::SendRecv) => {
+                RtpTransceiverDirection::SendRecv
+            }
+            (RtpTransceiverDirection::SendRecv, _) => {
+                RtpTransceiverDirection::SendRecv
+            }
 
-        
-            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::SendOnly,
-            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::SendRecv,
+            (
+                RtpTransceiverDirection::SendOnly,
+                RtpTransceiverDirection::SendOnly,
+            ) => RtpTransceiverDirection::SendOnly,
+            (
+                RtpTransceiverDirection::SendOnly,
+                RtpTransceiverDirection::RecvOnly,
+            ) => RtpTransceiverDirection::SendRecv,
 
-            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::RecvOnly,
-            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::SendRecv,
+            (
+                RtpTransceiverDirection::RecvOnly,
+                RtpTransceiverDirection::RecvOnly,
+            ) => RtpTransceiverDirection::RecvOnly,
+            (
+                RtpTransceiverDirection::RecvOnly,
+                RtpTransceiverDirection::SendOnly,
+            ) => RtpTransceiverDirection::SendRecv,
         }
     }
 }
@@ -431,21 +450,47 @@ impl std::ops::Sub for RtpTransceiverDirection {
 
     fn sub(self, other: Self) -> Self {
         match (self, other) {
-            (RtpTransceiverDirection::Stopped, _) => RtpTransceiverDirection::Stopped,
-            (_, RtpTransceiverDirection::Stopped) => RtpTransceiverDirection::Stopped,
+            (RtpTransceiverDirection::Stopped, _) => {
+                RtpTransceiverDirection::Stopped
+            }
+            (_, RtpTransceiverDirection::Stopped) => {
+                RtpTransceiverDirection::Stopped
+            }
 
             (a, RtpTransceiverDirection::Inactive) => a,
-            (RtpTransceiverDirection::Inactive, a) => RtpTransceiverDirection::Inactive,
+            (RtpTransceiverDirection::Inactive, a) => {
+                RtpTransceiverDirection::Inactive
+            }
 
-            (_, RtpTransceiverDirection::SendRecv) => RtpTransceiverDirection::Inactive,
-            (RtpTransceiverDirection::SendRecv, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::SendOnly,
-            (RtpTransceiverDirection::SendRecv, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::RecvOnly,
-        
-            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::Inactive,
-            (RtpTransceiverDirection::SendOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::SendOnly,
+            (_, RtpTransceiverDirection::SendRecv) => {
+                RtpTransceiverDirection::Inactive
+            }
+            (
+                RtpTransceiverDirection::SendRecv,
+                RtpTransceiverDirection::RecvOnly,
+            ) => RtpTransceiverDirection::SendOnly,
+            (
+                RtpTransceiverDirection::SendRecv,
+                RtpTransceiverDirection::SendOnly,
+            ) => RtpTransceiverDirection::RecvOnly,
 
-            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::RecvOnly) => RtpTransceiverDirection::Inactive,
-            (RtpTransceiverDirection::RecvOnly, RtpTransceiverDirection::SendOnly) => RtpTransceiverDirection::RecvOnly,
+            (
+                RtpTransceiverDirection::SendOnly,
+                RtpTransceiverDirection::SendOnly,
+            ) => RtpTransceiverDirection::Inactive,
+            (
+                RtpTransceiverDirection::SendOnly,
+                RtpTransceiverDirection::RecvOnly,
+            ) => RtpTransceiverDirection::SendOnly,
+
+            (
+                RtpTransceiverDirection::RecvOnly,
+                RtpTransceiverDirection::RecvOnly,
+            ) => RtpTransceiverDirection::Inactive,
+            (
+                RtpTransceiverDirection::RecvOnly,
+                RtpTransceiverDirection::SendOnly,
+            ) => RtpTransceiverDirection::RecvOnly,
         }
     }
 }
