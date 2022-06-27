@@ -43,9 +43,11 @@ abstract class RtpTransceiver {
   /// Changes the [TransceiverDirection] of this [RtpTransceiver].
   Future<void> setDirection(TransceiverDirection direction);
 
-  Future<void> addDirection(TransceiverDirection direction);
+  /// Set the receiv of this [RtpTransceiver].
+  Future<void> setRecv(bool recv);
 
-  Future<void> subDirection(TransceiverDirection direction);
+  /// Set the send of this [RtpTransceiver].
+  Future<void> setSend(bool send);
 
   /// Returns current preferred [TransceiverDirection] of this [RtpTransceiver].
   Future<TransceiverDirection> getDirection();
@@ -105,17 +107,15 @@ class _RtpTransceiverChannel extends RtpTransceiver {
     _isStopped = true;
     await _chan.invokeMethod('stop');
   }
-  
+
   @override
-  Future<void> addDirection(TransceiverDirection direction) {
-    // TODO: implement addDirection
-    throw UnimplementedError();
+  Future<void> setRecv(bool recv) async {
+    await _chan.invokeMethod('setRecv', {'recv': recv});
   }
-  
+
   @override
-  Future<void> subDirection(TransceiverDirection direction) {
-    // TODO: implement subDirection
-    throw UnimplementedError();
+  Future<void> setSend(bool send) async {
+    await _chan.invokeMethod('setSend', {'send': send});
   }
 }
 
@@ -161,20 +161,16 @@ class RtpTransceiverFFI extends RtpTransceiver {
   Future<void> syncMid() async {
     _mid = await api.getTransceiverMid(peerId: _peerId, transceiverIndex: _id);
   }
-  
+
   @override
-  Future<void> addDirection(TransceiverDirection direction) async {
-      await api.addTransceiverDirection(
-        peerId: _peerId,
-        transceiverIndex: _id,
-        direction: ffi.RtpTransceiverDirection.values[direction.index]);
+  Future<void> setRecv(bool recv) async {
+    await api.setTransceiverRecv(
+        peerId: _peerId, transceiverIndex: _id, recv: recv);
   }
-  
+
   @override
-  Future<void> subDirection(TransceiverDirection direction) async {
-      await api.subTransceiverDirection(
-        peerId: _peerId,
-        transceiverIndex: _id,
-        direction: ffi.RtpTransceiverDirection.values[direction.index]);
+  Future<void> setSend(bool send) async {
+    await api.setTransceiverSend(
+        peerId: _peerId, transceiverIndex: _id, send: send);
   }
 }

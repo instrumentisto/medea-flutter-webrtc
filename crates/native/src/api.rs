@@ -938,29 +938,29 @@ pub fn set_transceiver_direction(
     )
 }
 
-/// todo
-pub fn add_transceiver_direction(
+/// Changes the receiv `direction` of the specified [`RtcRtpTransceiver`].
+pub fn set_transceiver_recv(
     peer_id: u64,
     transceiver_index: u32,
-    direction: RtpTransceiverDirection,
+    recv: bool,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().add_transceiver_direction(
+    WEBRTC.lock().unwrap().set_transceiver_recv(
         peer_id,
         transceiver_index,
-        direction,
+        recv,
     )
 }
 
-/// todo
-pub fn sub_transceiver_direction(
+/// Changes the send `direction` of the specified [`RtcRtpTransceiver`].
+pub fn set_transceiver_send(
     peer_id: u64,
     transceiver_index: u32,
-    direction: RtpTransceiverDirection,
+    send: bool,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().sub_transceiver_direction(
+    WEBRTC.lock().unwrap().set_transceiver_send(
         peer_id,
         transceiver_index,
-        direction,
+        send,
     )
 }
 
