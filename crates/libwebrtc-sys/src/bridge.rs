@@ -1751,7 +1751,6 @@ pub fn on_track(
     cb: &mut DynPeerConnectionEventsHandler,
     transceiver: UniquePtr<webrtc::RtpTransceiverInterface>,
 ) {
-    println!("RUST ON TRACK");
     cb.on_track(RtpTransceiverInterface {
         media_type: webrtc::get_transceiver_media_type(&transceiver),
         inner: transceiver,

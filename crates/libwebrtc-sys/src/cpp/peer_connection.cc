@@ -77,7 +77,6 @@ void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
 // Propagates the received `RtpTransceiverInterface` to the Rust side.
 void PeerConnectionObserver::OnTrack(
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
-  printf("C++ ON TRACK\n");
   bridge::on_track(
       *cb_, std::make_unique<bridge::RtpTransceiverInterface>(transceiver));
 }

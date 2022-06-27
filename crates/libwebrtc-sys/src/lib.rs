@@ -258,6 +258,7 @@ impl AudioDeviceModule {
         if "true" == &env::var("WEBRTC_FAKE_MEDIA").unwrap_or_default() {
             return Ok((String::from("fake mic"), String::from("fake mic id")));
         }
+
         let mut name = String::new();
         let mut guid = String::new();
 
@@ -437,6 +438,7 @@ impl VideoDeviceInfo {
                 String::from("fake webcam id"),
             ));
         }
+        
         let mut name = String::new();
         let mut guid = String::new();
 
