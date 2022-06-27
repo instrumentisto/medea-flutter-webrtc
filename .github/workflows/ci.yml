@@ -13,7 +13,6 @@ concurrency:
 env:
   KTFMT_VER: 0.33
   RUST_BACKTRACE: 1
-  WEBRTC_FAKE_MEDIA: "true"
 
 jobs:
 
@@ -233,11 +232,11 @@ jobs:
         if: ${{ matrix.platform == 'android' }}
 
       - name: Test on Linux
-        run: xvfb-run -a make flutter.test device=linux
+        run: export WEBRTC_FAKE_MEDIA=true && xvfb-run -a make flutter.test device=linux
         if: ${{ matrix.platform == 'linux' }}
 
       - name: Test on Windows
-        run: make flutter.test device=windows
+        run: export WEBRTC_FAKE_MEDIA=true && make flutter.test device=windows
         if: ${{ matrix.platform == 'windows' }}
 
   test-rust:
