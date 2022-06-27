@@ -35,12 +35,12 @@ class RtpTransceiverController(
         result.success(null)
       }
       "setRecv" -> {
-        val recv = call.argument("recv")!!
+        val recv = call.argument<Boolean>("recv")!!
         transceiver.setRecv(recv)
         result.success(null)
       }
       "setSend" -> {
-        val send = call.argument("send")!!
+        val send = call.argument<Boolean>("send")!!
         transceiver.setSend(send)
         result.success(null)
       }
