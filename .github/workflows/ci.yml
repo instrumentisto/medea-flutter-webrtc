@@ -218,6 +218,9 @@ jobs:
                        xvfb
         if: ${{ matrix.platform == 'linux' }}
 
+      - run: make cargo.build platform=${{ matrix.platform }}
+        if: ${{ matrix.platform != 'android' }}
+
       - name: Test on Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -229,11 +232,11 @@ jobs:
         if: ${{ matrix.platform == 'android' }}
 
       - name: Test on Linux
-        run: xvfb-run -a make flutter.test device=linux
+        run: xvfb-run -a make export WEBRTC_FAKE_MEDIA=true && flutter.test device=linux
         if: ${{ matrix.platform == 'linux' }}
 
       - name: Test on Windows
-        run: make flutter.test device=windows
+        run: make export WEBRTC_FAKE_MEDIA=true && flutter.test device=windows
         if: ${{ matrix.platform == 'windows' }}
 
   test-rust:

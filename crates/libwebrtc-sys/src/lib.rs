@@ -438,7 +438,7 @@ impl VideoDeviceInfo {
                 String::from("fake webcam id"),
             ));
         }
-        
+
         let mut name = String::new();
         let mut guid = String::new();
 
