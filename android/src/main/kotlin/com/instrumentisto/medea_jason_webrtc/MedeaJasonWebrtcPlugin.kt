@@ -1,11 +1,11 @@
 package com.instrumentisto.medea_jason_webrtc
 
-import com.cloudwebrtc.webrtc.controller.MediaDevicesController
-import com.cloudwebrtc.webrtc.controller.PeerConnectionFactoryController
-import com.cloudwebrtc.webrtc.controller.VideoRendererFactoryController
+import com.instrumentisto.medea_jason_webrtc.controller.MediaDevicesController
+import com.instrumentisto.medea_jason_webrtc.controller.PeerConnectionFactoryController
+import com.instrumentisto.medea_jason_webrtc.controller.VideoRendererFactoryController
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 
-class MedeaJasonWebrtcPlugin: FlutterPlugin {
+class MedeaJasonWebrtcPlugin : FlutterPlugin {
   private var peerConnectionFactory: PeerConnectionFactoryController? = null
   private var mediaDevices: MediaDevicesController? = null
   private var videoRendererFactory: VideoRendererFactoryController? = null
