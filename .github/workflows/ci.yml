@@ -232,11 +232,11 @@ jobs:
         if: ${{ matrix.platform == 'android' }}
 
       - name: Test on Linux
-        run: export WEBRTC_FAKE_MEDIA=true && xvfb-run -a make flutter.test device=linux
+        run: xvfb-run -a make flutter.test device=linux fake_media=true
         if: ${{ matrix.platform == 'linux' }}
 
       - name: Test on Windows
-        run: export WEBRTC_FAKE_MEDIA=true && make flutter.test device=windows
+        run: make flutter.test device=windows fake_media=true
         if: ${{ matrix.platform == 'windows' }}
 
   test-rust:
