@@ -62,7 +62,7 @@ mod frame_handler {
         pub width: usize,
         pub rotation: i32,
         pub buffer_size: usize,
-        pub frame: *mut u8,
+        pub frame: *mut sys::VideoFrame,
     }
 
     impl FrameHandler {
@@ -76,18 +76,13 @@ mod frame_handler {
             let width = frame.width() as usize;
             let buffer_size = width * height * 4;
 
-            let mut buffer = vec![0; buffer_size].into_boxed_slice();
-            let buffer_ptr = buffer.as_mut_ptr();
-            std::mem::forget(buffer);
-
             unsafe {
-                libwebrtc_sys::video_frame_to_abgr(&frame, buffer_ptr);
                 on_frame_caller(self.0, Frame {
                     height,
                     width,
                     buffer_size,
                     rotation: frame.rotation().repr,
-                    frame: buffer_ptr,
+                    frame: UniquePtr::into_raw(frame),
                 });
             }
         }
@@ -96,5 +91,15 @@ mod frame_handler {
     extern "C" {
         pub fn on_frame_caller(handler: *const (), frame: Frame);
         pub fn drop_handler(handler: *const ());
+    }
+
+    #[no_mangle]
+    unsafe extern "C" fn get_bytes(frame: *mut sys::VideoFrame, buffer: *mut u8) {
+        libwebrtc_sys::video_frame_to_abgr(frame.as_ref().unwrap(), buffer);
+    }
+
+    #[no_mangle]
+    unsafe extern "C" fn drop_frame(frame: *mut sys::VideoFrame) {
+        UniquePtr::from_raw(frame);
     }
 }

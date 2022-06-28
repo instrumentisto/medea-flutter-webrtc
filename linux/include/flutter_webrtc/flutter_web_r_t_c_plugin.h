@@ -8,7 +8,7 @@ struct Frame final {
   size_t width;
   int32_t rotation;
   size_t buffer_size;
-  uint8_t* buffer;
+  void* frame;
 };
 
 G_BEGIN_DECLS

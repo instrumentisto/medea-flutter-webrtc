@@ -111,7 +111,7 @@ class TextureVideoRenderer {
     }
 
     texture_->mutex.lock();
-    delete texture_->frame_->buffer;
+    drop_frame(texture_->frame_->frame);
     texture_->frame_.emplace(std::move(frame));
     texture_->mutex.unlock();
 
