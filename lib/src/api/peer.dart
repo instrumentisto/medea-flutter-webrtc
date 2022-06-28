@@ -15,7 +15,7 @@ import 'channel.dart';
 import 'transceiver.dart';
 
 /// Bindings to the Rust side API.
-late final ffi.FlutterWebrtcNativeImpl api = buildBridge();
+final ffi.FlutterWebrtcNativeImpl api = buildBridge();
 
 /// Opens the dynamic library and instantiates [ffi.FlutterWebrtcNativeImpl].
 ffi.FlutterWebrtcNativeImpl buildBridge() {

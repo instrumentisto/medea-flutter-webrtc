@@ -1,6 +1,4 @@
 crates/
-example/
 Cargo.lock
 Cargo.toml
-CONTRIBUTING.md
 Makefile

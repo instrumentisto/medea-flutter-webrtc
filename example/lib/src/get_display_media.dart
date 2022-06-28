@@ -13,7 +13,7 @@ class GetDisplayMediaSample extends StatefulWidget {
   const GetDisplayMediaSample({Key? key}) : super(key: key);
 
   @override
-  _GetDisplayMediaSampleState createState() => _GetDisplayMediaSampleState();
+  State<GetDisplayMediaSample> createState() => _GetDisplayMediaSampleState();
 }
 
 class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
@@ -50,10 +50,10 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     caps.video.mandatory!.fps = 30;
 
     try {
-      var _track = (await getDisplayMedia(caps))[0];
+      var track = (await getDisplayMedia(caps))[0];
 
-      _track = _track;
-      await _localRenderer.setSrcObject(_track);
+      _track = track;
+      await _localRenderer.setSrcObject(track);
     } catch (e) {
       print(e.toString());
     }

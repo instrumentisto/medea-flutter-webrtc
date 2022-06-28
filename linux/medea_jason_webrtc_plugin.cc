@@ -256,9 +256,7 @@ static void medea_jason_webrtc_plugin_handle_method_call(
     MedeaJasonWebrtcPlugin* self,
     FlMethodCall* method_call) {
   g_autoptr(FlMethodResponse) response = nullptr;
-
   const gchar* method = fl_method_call_get_name(method_call);
-
   if (strcmp(method, "create") == 0) {
     self->video_renderer_manager->CreateVideoRendererTexture(&response);
   } else if (strcmp(method, "dispose") == 0) {

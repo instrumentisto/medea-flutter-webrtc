@@ -13,7 +13,7 @@ class GetUserMediaSample extends StatefulWidget {
   const GetUserMediaSample({Key? key}) : super(key: key);
 
   @override
-  _GetUserMediaSampleState createState() => _GetUserMediaSampleState();
+  State<GetUserMediaSample> createState() => _GetUserMediaSampleState();
 }
 
 class _GetUserMediaSampleState extends State<GetUserMediaSample> {

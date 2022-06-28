@@ -1,4 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.cloudwebrtc.webrtc">
+  package="com.instrumentisto.medea_jason_webrtc">
     <uses-permission android:name="android.permission.BLUETOOTH" />
 </manifest>

@@ -1,4 +1,4 @@
-group 'com.cloudwebrtc.webrtc'
+group 'com.instrumentisto.medea_jason_webrtc'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -30,8 +30,6 @@ android {
 
     defaultConfig {
         minSdkVersion 24
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        consumerProguardFiles 'proguard-rules.pro'
     }
 
     lintOptions {

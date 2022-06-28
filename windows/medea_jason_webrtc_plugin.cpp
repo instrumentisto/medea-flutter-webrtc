@@ -17,7 +17,6 @@ const char* kChannelName = "FlutterWebRtc/VideoRendererFactory/0";
 
 namespace medea_jason_webrtc {
 
-// static
 void MedeaJasonWebrtcPlugin::RegisterWithRegistrar(
     flutter::PluginRegistrarWindows* registrar) {
   auto channel =
