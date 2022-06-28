@@ -529,21 +529,6 @@ void main() {
 
   testWidgets('Set recv direction', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
-    // ignore: prefer_function_declarations_over_variables
-    var testEnableRecv = (beforeDirection, afterDirection) async {
-      var transceiver = await pc.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(beforeDirection));
-      await transceiver.setRecv(true);
-      expect(await transceiver.getDirection(), afterDirection);
-    };
-
-    // ignore: prefer_function_declarations_over_variables
-    var testDisableRecv = (beforeDirection, afterDirection) async {
-      var transceiver = await pc.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(beforeDirection));
-      await transceiver.setRecv(false);
-      expect(await transceiver.getDirection(), afterDirection);
-    };
 
     var testEnable = [
       [TransceiverDirection.inactive, TransceiverDirection.recvOnly],
@@ -562,13 +547,19 @@ void main() {
     for (var value = testEnable.removeAt(0);
         testEnable.isNotEmpty;
         value = testEnable.removeAt(0)) {
-      await testEnableRecv(value[0], value[1]);
+      var transceiver = await pc.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(value[0]));
+      await transceiver.setRecv(true);
+      expect(await transceiver.getDirection(), value[1]);
     }
 
     for (var value = testDisable.removeAt(0);
         testDisable.isNotEmpty;
         value = testDisable.removeAt(0)) {
-      await testDisableRecv(value[0], value[1]);
+      var transceiver = await pc.addTransceiver(
+          MediaKind.video, RtpTransceiverInit(value[0]));
+      await transceiver.setRecv(false);
+      expect(await transceiver.getDirection(), value[1]);
     }
   });
 
