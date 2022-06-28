@@ -35,7 +35,7 @@ class RtpTransceiverProxy(override var obj: RtpTransceiver) : Proxy<RtpTransceiv
     obj.direction = direction.intoWebRtc()
   }
 
-  /** Sets receiv of the underlying [RtpTransceiver]. */
+  /** Sets receive of the underlying [RtpTransceiver]. */
   fun setRecv(recv: Boolean) {
     var currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
     var newDirection =
