@@ -1,10 +1,9 @@
 use std::{mem, sync::Mutex};
 
-use cxx::UniquePtr;
 use flutter_rust_bridge::{StreamSink, SyncReturn};
 use libwebrtc_sys as sys;
 
-use crate::{cpp_api::OnFrameCallbackInterface, Webrtc};
+use crate::{Webrtc, renderer::FrameHandler};
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
