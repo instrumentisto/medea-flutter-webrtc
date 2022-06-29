@@ -278,8 +278,7 @@ impl Webrtc {
         transceiver.set_direction(direction.into())
     }
 
-    /// Changes the receiv `direction` of the specified
-    /// [`RtcRtpTransceiver`].
+    /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
@@ -322,8 +321,7 @@ impl Webrtc {
         }
     }
 
-    /// Changes the send `direction` of the specified
-    /// [`RtcRtpTransceiver`].
+    /// Changes the send direction of the specified [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
