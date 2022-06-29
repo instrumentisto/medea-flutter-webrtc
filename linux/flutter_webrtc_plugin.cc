@@ -7,7 +7,6 @@
 #include <sys/utsname.h>
 
 #include "include/flutter_webrtc/flutter_web_r_t_c_plugin.h"
-#include <flutter_webrtc_native.h>
 #include <video_texture.h>
 
 const char* kChannelName = "FlutterWebRtc/VideoRendererFactory/0";
@@ -67,7 +66,7 @@ class TextureVideoRenderer {
   }
 
   // Called when a new `VideoFrame` is produced by the underlying source.
-  void OnFrame(VideoFrame frame) {
+  void OnFrame(Frame frame) {
     if (!first_frame_rendered) {
       if (send_events_) {
         g_autoptr(FlValue) map = fl_value_new_map();
@@ -112,11 +111,11 @@ class TextureVideoRenderer {
     }
 
     texture_->mutex.lock();
+    drop_frame(texture_->frame_->frame);
     texture_->frame_.emplace(std::move(frame));
     texture_->mutex.unlock();
 
-    fl_texture_registrar_mark_texture_frame_available(registrar_,
-                                                      FL_TEXTURE(texture_));
+    fl_texture_registrar_mark_texture_frame_available(registrar_, FL_TEXTURE(texture_));
   }
 
   // Returns an ID of the Flutter texture associated with this renderer.
@@ -151,14 +150,16 @@ class TextureVideoRenderer {
   int32_t rotation_ = 0;
 };
 
-class FrameHandler : public OnFrameCallbackInterface {
+class FrameHandler {
  public:
   // Creates a new `FrameHandler`.
   FrameHandler(std::shared_ptr<TextureVideoRenderer> renderer)
       : renderer_(std::move(renderer)) {}
 
   // `OnFrameCallbackInterface` implementation.
-  void OnFrame(VideoFrame frame) { renderer_->OnFrame(std::move(frame)); }
+  void OnFrame(Frame frame) {
+    renderer_->OnFrame(frame);
+  }
 
  private:
   // `TextureVideoRenderer` that the `VideoFrame`s will be passed to.
@@ -244,6 +245,15 @@ class FlutterVideoRendererManager {
   // Map containing all the `TextureVideoRenderer`s.
   std::map<int64_t, std::shared_ptr<TextureVideoRenderer>> renderers_;
 };
+
+FLUTTER_PLUGIN_EXPORT void on_frame_caller(void* obj, Frame frame) {
+  FrameHandler* handler = static_cast<FrameHandler*>(obj);
+  handler->OnFrame(frame);
+}
+
+FLUTTER_PLUGIN_EXPORT void drop_handler(void* obj) {
+  delete static_cast<FrameHandler*>(obj);
+}
 
 struct _FlutterWebrtcPlugin {
   GObject parent_instance;

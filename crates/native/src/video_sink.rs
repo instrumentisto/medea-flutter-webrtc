@@ -15,7 +15,6 @@ impl Webrtc {
     ) -> anyhow::Result<()> {
         self.dispose_video_sink(sink_id);
 
-        log::debug!("create_video_sink 1");
         let track_id = VideoTrackId::from(track_id);
         let mut sink = VideoSink {
             id: Id(sink_id),
@@ -79,7 +78,6 @@ struct OnFrameCallback(FrameHandler);
 
 impl libwebrtc_sys::OnFrameCallback for OnFrameCallback {
     fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
-        log::debug!("OnFrameCallback::on_frame");
         self.0.on_frame(frame);
     }
 }

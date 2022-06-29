@@ -2,7 +2,6 @@
 
 #[cfg(not(target_os = "windows"))]
 use std::ffi::OsString;
-use std::process::Command;
 use std::{
     env, fs,
     fs::File,
@@ -11,7 +10,6 @@ use std::{
 };
 
 use anyhow::bail;
-use dotenv::dotenv;
 use flate2::read::GzDecoder;
 use sha2::{Digest, Sha256};
 use tar::Archive;
@@ -38,9 +36,6 @@ static SHA256SUM: &str =
     "7c75df843059ebf1a264f5a5693875b38fd1dcf88ea8bff3b36902f0306b6587";
 
 fn main() -> anyhow::Result<()> {
-    // This won't override any env vars that already present.
-    drop(dotenv());
-
     download_libwebrtc()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -59,14 +54,6 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include/sdk/objc"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
-
-    #[cfg(target_os = "windows")]
-    build.flag("-DNDEBUG");
-    #[cfg(not(target_os = "windows"))]
-    if env::var_os("PROFILE") == Some(OsString::from("release")) {
-        build.flag("-DNDEBUG");
-    }
-
     #[cfg(target_os = "windows")]
     {
         build
@@ -140,39 +127,33 @@ fn download_libwebrtc() -> anyhow::Result<()> {
 
         name
     };
-
-    let mut libwebrtc_url =
-        env::var("LIBWEBRTC_URL").unwrap_or_else(|_| LIBWEBRTC_URL.to_owned());
-    libwebrtc_url.push('/');
-    libwebrtc_url.push_str(tar_file.as_str());
-
-    let archive = temp_dir.join(tar_file);
+    let archive = temp_dir.join(&tar_file);
+    let checksum = lib_dir.join("CHECKSUM");
 
     // Force download if `INSTALL_WEBRTC=1`.
     if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
-        // Skip download if already downloaded.
-        if fs::read_dir(&lib_dir)?.fold(0, |acc, b| {
-            if b.unwrap().file_name().to_string_lossy().starts_with('.') {
-                acc
-            } else {
-                acc + 1
-            }
-        }) != 0
+        // Skip download if already downloaded and checksum matches.
+        if fs::metadata(&lib_dir)
+            .map(|m| m.is_dir())
+            .unwrap_or_default()
+            && fs::read(&checksum).unwrap_or_default().as_slice()
+                == SHA256SUM.as_bytes()
         {
             return Ok(());
         }
     }
 
-    // Clear `temp` directory.
+    // Clean up `temp` directory.
     if temp_dir.exists() {
         fs::remove_dir_all(&temp_dir)?;
     }
     fs::create_dir_all(&temp_dir)?;
 
-    // Download compiled `libwebrtc` archive.
+    // Download the compiled `libwebrtc` archive.
     {
-        let mut resp = BufReader::new(reqwest::blocking::get(&libwebrtc_url)?);
-        libwebrtc_url.push_str(".sha256sum");
+        let mut resp = BufReader::new(reqwest::blocking::get(&format!(
+            "{LIBWEBRTC_URL}/{tar_file}"
+        ))?);
         let mut out_file = BufWriter::new(fs::File::create(&archive)?);
         let mut hasher = Sha256::new();
 
@@ -187,28 +168,25 @@ fn download_libwebrtc() -> anyhow::Result<()> {
         }
 
         if format!("{:x}", hasher.finalize()) != SHA256SUM {
-            bail!("Checksums does not match");
+            bail!("SHA-256 checksum doesn't match");
         }
     }
 
-    // Clear `lib` directory.
-    // for entry in fs::read_dir(&lib_dir)? {
-    //     let entry = entry?;
-    //     if !entry.file_name().to_string_lossy().starts_with('.') {
-    //         if entry.metadata()?.is_dir() {
-    //             fs::remove_dir_all(entry.path())?;
-    //         } else {
-    //             fs::remove_file(entry.path())?;
-    //         }
-    //     }
-    // }
+    // Clean up `lib` directory.
+    if lib_dir.exists() {
+        fs::remove_dir_all(&lib_dir)?;
+    }
+    fs::create_dir_all(&lib_dir)?;
 
+    // Unpack the downloaded `libwebrtc` archive.
     let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
     archive.unpack(lib_dir)?;
 
+    // Clean up the downloaded `libwebrtc` archive.
     fs::remove_dir_all(&temp_dir)?;
 
-    Ok(())
+    // Write the downloaded checksum.
+    fs::write(&checksum, SHA256SUM).map_err(Into::into)
 }
 
 /// Returns a list of all C++ sources that should be compiled.
@@ -263,7 +241,15 @@ fn link_libs() {
     }
     #[cfg(target_os = "linux")]
     {
-        for dep in ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr"] {
+        for dep in [
+            "x11",
+            "xfixes",
+            "xdamage",
+            "xext",
+            "xtst",
+            "xrandr",
+            "xcomposite",
+        ] {
             pkg_config::Config::new().probe(dep).unwrap();
         }
         match env::var("PROFILE").unwrap().as_str() {

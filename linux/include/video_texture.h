@@ -26,7 +26,9 @@ struct _VideoTexture {
   int64_t texture_id = 0;
 
   // Frame that should be rendered.
-  std::optional<VideoFrame> frame_;
+  std::optional<Frame> frame_;
+
+  void* last_rendered_frame = nullptr;
 
   // Buffer containing the actual `ARGB` bytes being passed to Flutter.
   uint8_t* buffer_ = nullptr;
@@ -38,6 +40,11 @@ struct _VideoTextureClass {
 
 
 G_DEFINE_TYPE(VideoTexture, video_texture, fl_pixel_buffer_texture_get_type())
+
+extern "C" {
+  void get_bytes(void* frame, ::std::uint8_t* buffer);
+  void drop_frame(void* frame);
+}
 
 static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
                                           const uint8_t** out_buffer,
@@ -58,11 +65,14 @@ static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
       v_texture->buffer_ = new uint8_t[v_texture->frame_->buffer_size];
     }
 
-    v_texture->frame_->GetABGRBytes(v_texture->buffer_);
+    if (v_texture->frame_->frame != v_texture->last_rendered_frame) {
+      get_bytes(v_texture->frame_->frame, v_texture->buffer_);
+    }
 
     *out_buffer = v_texture->buffer_;
     *width = v_texture->frame_->width;
     *height = v_texture->frame_->height;
+    v_texture->last_rendered_frame = v_texture->frame_->frame;
   }
 
   return TRUE;
@@ -77,3 +87,4 @@ static void video_texture_class_init(VideoTextureClass* klass) {
 }
 
 static void video_texture_init(VideoTexture* self) {}
+
