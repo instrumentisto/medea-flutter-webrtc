@@ -90,15 +90,16 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
+    const PeerConnectionFactoryInterface& peer_connection_factory,
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,
     size_t height,
     size_t fps,
     uint32_t device) {
-  auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
+  auto dvc = MacCapturer::Create(width, height, fps, "default");
   if (dvc == nullptr) {
-    return nullptr;
+      return nullptr;
   }
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
@@ -263,30 +264,6 @@ std::unique_ptr<rtc::Thread> create_thread() {
 // Calls `Thread->CreateWithSocketServer()`.
 std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
   return rtc::Thread::CreateWithSocketServer();
-}
-
-// Creates a new `DeviceVideoCapturer` with the specified constraints and
-// calls `CreateVideoTrackSourceProxy()`.
-std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
-    const PeerConnectionFactoryInterface& peer_connection_factory,
-    Thread& worker_thread,
-    Thread& signaling_thread,
-    size_t width,
-    size_t height,
-    size_t fps,
-    uint32_t device) {
-  auto dvc = MacCapturer::Create(width, height, fps, "default");
-  if (dvc == nullptr) {
-      return nullptr;
-  }
-
-  auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
-                                                 &worker_thread, dvc);
-  if (src == nullptr) {
-    return nullptr;
-  }
-
-  return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
 // Creates a new `ScreenVideoCapturer` with the specified constraints and

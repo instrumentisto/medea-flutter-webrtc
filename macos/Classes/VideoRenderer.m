@@ -47,17 +47,19 @@ void on_frame_caller(void* handler, Frame frame) {
 }
 
 - (void)onTextureUnregistered:(NSObject<FlutterTexture>*)texture {
-}
-
-- (void) onFrame: (Frame) frame {
     if (_pixelBufferRef != nil) {
       CVBufferRelease(_pixelBufferRef);
     }
-    NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
-    CVPixelBufferCreate(kCFAllocatorDefault,
-                        frame.width, frame.height,
-                        kCVPixelFormatType_32BGRA,
-                        (__bridge CFDictionaryRef)(pixelAttributes), &_pixelBufferRef);
+}
+
+- (void) onFrame: (Frame) frame {
+    if (_pixelBufferRef == nil) {
+        NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
+        CVPixelBufferCreate(kCFAllocatorDefault,
+                            frame.width, frame.height,
+                            kCVPixelFormatType_32BGRA,
+                            (__bridge CFDictionaryRef)(pixelAttributes), &self->_pixelBufferRef);
+    }
     CVPixelBufferLockBaseAddress(_pixelBufferRef, 0);
     uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
     memcpy(dst, frame.buffer, frame.width * frame.height * 4);

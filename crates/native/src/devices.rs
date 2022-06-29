@@ -514,9 +514,7 @@ pub mod linux_device_change {
 }
 
 #[cfg(target_os = "macos")]
-pub unsafe fn init() {
-    todo!();
-}
+pub unsafe fn init() {}
 
 #[cfg(target_os = "windows")]
 /// Creates a detached [`Thread`] creating and registering a system message
