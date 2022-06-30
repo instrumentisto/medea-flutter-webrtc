@@ -43,7 +43,7 @@ abstract class RtpTransceiver {
   /// Changes the [TransceiverDirection] of this [RtpTransceiver].
   Future<void> setDirection(TransceiverDirection direction);
 
-  /// Set the receive of this [RtpTransceiver].
+  /// Changes the receive direction of this [RtpTransceiver].
   ///
   /// This is designed to allow atomic change of an [RtpTransceiver] direction
   /// based on the current direction. Since [getDirection] and [setDirection]
@@ -51,7 +51,7 @@ abstract class RtpTransceiver {
   /// races.
   Future<void> setRecv(bool recv);
 
-  /// Set the send of this [RtpTransceiver].
+  /// Changes the send direction of this [RtpTransceiver].
   ///
   /// This is designed to allow atomic change of an [RtpTransceiver] direction
   /// based on the current direction. Since [getDirection] and [setDirection]

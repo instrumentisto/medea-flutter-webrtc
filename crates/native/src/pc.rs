@@ -297,14 +297,13 @@ impl Webrtc {
         })?;
 
         let transceivers = peer.inner.lock().unwrap().get_transceivers();
-
-        let transceiver = if let Some(transceiver) =
-            transceivers.get(transceiver_index as usize)
-        {
-            transceiver
-        } else {
-            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
-        };
+        let transceiver = transceivers
+            .get(transceiver_index as usize)
+            .ok_or_else(|| {
+                anyhow!(
+                    "`Transceiver` with ID `{transceiver_index}` doesn't exist",
+                )
+            })?;
 
         let new_direction = match (transceiver.direction(), recv) {
             (D::kInactive | D::kRecvOnly, true) => D::kRecvOnly,
@@ -340,14 +339,13 @@ impl Webrtc {
         })?;
 
         let transceivers = peer.inner.lock().unwrap().get_transceivers();
-
-        let transceiver = if let Some(transceiver) =
-            transceivers.get(transceiver_index as usize)
-        {
-            transceiver
-        } else {
-            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
-        };
+        let transceiver = transceivers
+            .get(transceiver_index as usize)
+            .ok_or_else(|| {
+                anyhow!(
+                    "`Transceiver` with ID `{transceiver_index}` doesn't exist",
+                )
+            })?;
 
         let new_direction = match (transceiver.direction(), send) {
             (D::kInactive | D::kSendOnly, true) => D::kSendOnly,
