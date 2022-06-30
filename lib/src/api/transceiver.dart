@@ -123,14 +123,14 @@ class RtpTransceiverFFI extends RtpTransceiver {
 
   @override
   Future<TransceiverDirection> getDirection() async {
-    return TransceiverDirection.values[(await api.getTransceiverDirection(
-            peerId: _peerId, transceiverIndex: _id))
+    return TransceiverDirection.values[(await api!
+            .getTransceiverDirection(peerId: _peerId, transceiverIndex: _id))
         .index];
   }
 
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
-    await api.setTransceiverDirection(
+    await api!.setTransceiverDirection(
         peerId: _peerId,
         transceiverIndex: _id,
         direction: ffi.RtpTransceiverDirection.values[direction.index]);
@@ -138,11 +138,11 @@ class RtpTransceiverFFI extends RtpTransceiver {
 
   @override
   Future<void> stop() async {
-    await api.stopTransceiver(peerId: _peerId, transceiverIndex: _id);
+    await api!.stopTransceiver(peerId: _peerId, transceiverIndex: _id);
   }
 
   @override
   Future<void> syncMid() async {
-    _mid = await api.getTransceiverMid(peerId: _peerId, transceiverIndex: _id);
+    _mid = await api!.getTransceiverMid(peerId: _peerId, transceiverIndex: _id);
   }
 }

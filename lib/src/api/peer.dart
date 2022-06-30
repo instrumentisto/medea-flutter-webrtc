@@ -18,7 +18,7 @@ import 'transceiver.dart';
 bool isDesktop = !Platform.isAndroid && !Platform.isIOS;
 
 /// Bindings to the Rust side API.
-late final ffi.FlutterWebrtcNativeImpl? api = isDesktop ? buildBridge() : null;
+final ffi.FlutterWebrtcNativeImpl? api = isDesktop ? buildBridge() : null;
 
 /// Opens the dynamic library and instantiates [ffi.FlutterWebrtcNativeImpl].
 ffi.FlutterWebrtcNativeImpl? buildBridge() {
@@ -511,7 +511,7 @@ class _PeerConnectionFFI extends PeerConnection {
 
   @override
   Future<List<RtpTransceiver>> getTransceivers() async {
-    var transceivers = (await api.getTransceivers(peerId: _id!))
+    var transceivers = (await api!.getTransceivers(peerId: _id!))
         .map((transceiver) => RtpTransceiver.fromFFI(transceiver))
         .toList();
     _transceivers.addAll(transceivers);

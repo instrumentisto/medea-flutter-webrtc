@@ -57,7 +57,7 @@ class _RtpSenderFFI extends RtpSender {
 
   @override
   Future<void> replaceTrack(MediaStreamTrack? t) async {
-    await api.senderReplaceTrack(
+    await api!.senderReplaceTrack(
         peerId: _peerId, transceiverIndex: _transceiverId, trackId: t?.id());
   }
 }
