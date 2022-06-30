@@ -405,7 +405,7 @@ void main() {
 
     await (await pc2.getTransceivers())[0].stop();
 
-    await onEndedComplete.future;
+    await onEndedComplete.future.timeout(const Duration(seconds: 10));
     expect(videoTrack.id(), isNot(equals(cloneVideoTrack.id())));
     expect(videoTrack.isEnabled(), isNot(equals(cloneVideoTrack.isEnabled())));
   });
