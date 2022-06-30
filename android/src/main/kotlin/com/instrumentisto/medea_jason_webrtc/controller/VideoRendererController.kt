@@ -62,6 +62,7 @@ class VideoRendererController(
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "setSrcObject" -> {
+        // TODO: handle null value
         val trackId: String = call.argument("trackId")!!
 
         val track = TrackRepository.getTrack(trackId)!!

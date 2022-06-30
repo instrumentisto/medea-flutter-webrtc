@@ -122,9 +122,9 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
         .map((e) => MediaDeviceInfo.fromFFI(e))
         .toList();
   } else {
-    return (await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices'))
-        .map((i) => MediaDeviceInfo.fromMap(i))
-        .toList();
+    final List<dynamic>? devices =
+        await _mediaDevicesMethodChannel.invokeMethod('enumerateDevices');
+    return devices!.map((i) => MediaDeviceInfo.fromMap(i)).toList();
   }
 }
 
@@ -187,9 +187,9 @@ Future<int> microphoneVolume() async {
 Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
     DeviceConstraints constraints) async {
   try {
-    List<dynamic> res = await _mediaDevicesMethodChannel
+    List<dynamic>? res = await _mediaDevicesMethodChannel
         .invokeMethod('getUserMedia', {'constraints': constraints.toMap()});
-    return res.map((t) => NativeMediaStreamTrack.from(t)).toList();
+    return res!.map((t) => NativeMediaStreamTrack.from(t)).toList();
   } on PlatformException catch (e) {
     if (e.code == 'GetUserMediaAudioException') {
       throw GetMediaException(GetMediaExceptionKind.audio, e.message);
@@ -240,9 +240,9 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
 /// [MethodChannel]-based implementation of a [getDisplayMedia] function.
 Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
     DisplayConstraints constraints) async {
-  List<dynamic> res = await _mediaDevicesMethodChannel
+  List<dynamic>? res = await _mediaDevicesMethodChannel
       .invokeMethod('getDisplayMedia', {'constraints': constraints.toMap()});
-  return res.map((t) => NativeMediaStreamTrack.from(t)).toList();
+  return res!.map((t) => NativeMediaStreamTrack.from(t)).toList();
 }
 
 /// FFI-based implementation of a [getDisplayMedia] function.

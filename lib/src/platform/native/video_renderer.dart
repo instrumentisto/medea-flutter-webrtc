@@ -107,8 +107,8 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
     if (textureId == null) {
       throw 'Renderer should be initialize before setting src';
     }
-    if (track?.kind() != MediaKind.video) {
-      throw 'VideoRenderer do not supports MediaStreamTrack with video kind!';
+    if (track != null && track.kind() != MediaKind.video) {
+      throw 'VideoRenderer do not supports MediaStreamTrack with audio kind!';
     }
     _srcObject = track;
 
