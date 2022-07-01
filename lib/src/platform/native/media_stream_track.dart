@@ -129,7 +129,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   @override
   Future<void> dispose() async {
     _onEnded = null;
-
+    await _chan.invokeMethod('dispose');
     await _eventSub?.cancel();
 
     _stopped = true;

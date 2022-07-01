@@ -65,6 +65,7 @@ class MediaStreamTrackController(
       }
       "dispose" -> {
         chan.setMethodCallHandler(null)
+        track.stop()
         result.success(null)
       }
     }
