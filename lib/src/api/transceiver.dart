@@ -174,13 +174,13 @@ class RtpTransceiverFFI extends RtpTransceiver {
 
   @override
   Future<void> setRecv(bool recv) async {
-    await api.setTransceiverRecv(
-        peerId: _peerId, transceiverIndex: _id, recv: recv);
+    await api!
+        .setTransceiverRecv(peerId: _peerId, transceiverIndex: _id, recv: recv);
   }
 
   @override
   Future<void> setSend(bool send) async {
-    await api.setTransceiverSend(
-        peerId: _peerId, transceiverIndex: _id, send: send);
+    await api!
+        .setTransceiverSend(peerId: _peerId, transceiverIndex: _id, send: send);
   }
 }
