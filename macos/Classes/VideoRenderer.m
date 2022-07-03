@@ -1,6 +1,4 @@
 #import "VideoRenderer.h"
-#import "FlutterMacOS/FlutterMacOS.h"
-#import <AVFoundation/AVFoundation.h>
 
 void drop_handler(void* handler) {
     TextureVideoRenderer* renderer = (__bridge_transfer TextureVideoRenderer*) handler;
@@ -16,8 +14,9 @@ void on_frame_caller(void* handler, Frame frame) {
     self = [super init];
     self->_pixelBufferRef = nil;
     self->_registry = registry;
-    self->_sendEvents = true;
-    self->_buffer_size = 0;
+    self->_bufferSize = 0;
+    self->_frameWidth = 0;
+    self->_frameHeight = 0;
 
     int64_t tid = [registry registerTexture: self];
     self->_tid = tid;
@@ -51,10 +50,10 @@ void on_frame_caller(void* handler, Frame frame) {
 
 - (void) onFrame: (Frame) frame {
     bool isBufferNotCreated = _pixelBufferRef == nil;
-    bool isFrameSizeChanged = self->_buffer_size != frame.buffer_size;
+    bool isFrameSizeChanged = _bufferSize != frame.buffer_size;
     if (isBufferNotCreated || isFrameSizeChanged) {
         if (isFrameSizeChanged) {
-          self->_buffer_size = frame.buffer_size;
+          _bufferSize = frame.buffer_size;
           CVBufferRelease(_pixelBufferRef);
         }
         NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
@@ -69,43 +68,41 @@ void on_frame_caller(void* handler, Frame frame) {
     drop_frame(frame.frame);
     CVPixelBufferUnlockBaseAddress(_pixelBufferRef, 0);
 
-    if (!self->_firstFrameRendered) {
-        if (self->_sendEvents) {
+    if (!_firstFrameRendered) {
+        if (_eventSink != nil) {
             NSDictionary *map = @{
                 @"event" : @"onFirstFrameRendered",
                 @"id" : self->_textureId,
             };
-            if (_eventSink != nil) {
-              self->_eventSink(map);
-            }
-            self->_firstFrameRendered = true;
+            _eventSink(map);
         }
+        _firstFrameRendered = true;
     }
     NSNumber *frameRotation = [NSNumber numberWithInt: frame.rotation];
-    if (self->_rotation != frameRotation) {
-        if (self->_sendEvents) {
+    if (_rotation != frameRotation) {
+        if (_eventSink != nil) {
             NSDictionary *map = @{
                 @"event" : @"onTextureChangeRotation",
-                @"id" : self->_textureId,
+                @"id" : _textureId,
                 @"rotation" : frameRotation,
             };
-            if (_eventSink != nil) {
-              self->_eventSink(map);
-            }
+            _eventSink(map);
         }
-        self->_rotation = frameRotation;
+        _rotation = frameRotation;
     }
-    if (self->_frame.buffer_size != frame.buffer_size) {
-        if (self->_sendEvents) {
+    bool isFrameWidthChanged = _frameWidth != frame.width;
+    bool isFrameHeightChanged = _frameHeight != frame.height;
+    if (isFrameWidthChanged || isFrameHeightChanged) {
+        _frameWidth = frame.width;
+        _frameHeight = frame.height;
+        if (_eventSink != nil) {
             NSDictionary *map = @{
                 @"event" : @"onTextureChangeVideoSize",
-                @"id" : self->_textureId,
+                @"id" : _textureId,
                 @"width" : [NSNumber numberWithLong: frame.width],
                 @"height" : [NSNumber numberWithLong: frame.height],
             };
-            if (_eventSink != nil) {
-              self->_eventSink(map);
-            }
+            _eventSink(map);
         }
     }
 
@@ -119,7 +116,7 @@ void on_frame_caller(void* handler, Frame frame) {
 }
 
 - (NSNumber*) textureId {
-    return self->_textureId;
+    return _textureId;
 }
 
 - (FlutterError* _Nullable)onCancelWithArguments:(id _Nullable)arguments {
@@ -144,16 +141,16 @@ void on_frame_caller(void* handler, Frame frame) {
 
 @implementation VideoRendererManager
 - (VideoRendererManager*) init: (id<FlutterTextureRegistry>) registry messenger:(id<FlutterBinaryMessenger>)messenger {
-    self->_renderers = [[NSMutableDictionary alloc] init];
-    self->_registry = registry;
-    self->_messenger = messenger;
+    _renderers = [[NSMutableDictionary alloc] init];
+    _registry = registry;
+    _messenger = messenger;
     return self;
 }
 
 - (void) createVideoRendererTexture: (FlutterResult) result {
-    TextureVideoRenderer* renderer = [[TextureVideoRenderer alloc] init: self->_registry messenger:self->_messenger];
+    TextureVideoRenderer* renderer = [[TextureVideoRenderer alloc] init: _registry messenger:_messenger];
     NSNumber* textureId = [renderer textureId];
-    [self->_renderers setObject: renderer forKey:textureId];
+    [_renderers setObject: renderer forKey:textureId];
 
     NSDictionary* map = @{
         @"textureId" : textureId,
@@ -166,16 +163,16 @@ void on_frame_caller(void* handler, Frame frame) {
     NSDictionary* arguments = methodCall.arguments;
     NSNumber* textureId = arguments[@"textureId"];
 
-    TextureVideoRenderer* renderer = self->_renderers[textureId];
-    [self->_registry unregisterTexture: [textureId intValue]];
-    [self->_renderers removeObjectForKey: textureId];
+    TextureVideoRenderer* renderer = _renderers[textureId];
+    [_registry unregisterTexture: [textureId intValue]];
+    [_renderers removeObjectForKey: textureId];
     result(@{});
 }
 
 - (void) createFrameHandler: (FlutterMethodCall*) methodCall result:(FlutterResult)result {
     NSDictionary* arguments = methodCall.arguments;
     NSNumber* textureId = arguments[@"textureId"];
-    TextureVideoRenderer* renderer = self->_renderers[textureId];
+    TextureVideoRenderer* renderer = _renderers[textureId];
 
     int64_t rendererPtr = (int64_t) renderer;
     result(@{

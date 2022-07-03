@@ -14,17 +14,16 @@ typedef struct Frame {
 
 @interface TextureVideoRenderer : NSObject <FlutterTexture, FlutterStreamHandler>
 @property (nonatomic, strong, nullable) FlutterEventChannel *eventChannel;
-@property (nonatomic) bool sendEvents;
 @property (nonatomic) bool firstFrameRendered;
 @property (nonatomic, weak) id<FlutterTextureRegistry> registry;
 @property (nonatomic, strong, nullable) NSNumber *textureId;
 @property (nonatomic, strong, nullable) NSNumber *rotation;
 @property (nonatomic, strong, nullable) FlutterEventSink eventSink;
-@property (nonatomic, nullable) uint8_t* buffer;
 @property (nonatomic) int64_t tid;
 @property (nonatomic) CVPixelBufferRef pixelBufferRef;
-@property (nonatomic) Frame frame;
-@property (nonatomic) size_t buffer_size;
+@property (nonatomic) size_t bufferSize;
+@property (nonatomic) size_t frameWidth;
+@property (nonatomic) size_t frameHeight;
 
 - (instancetype) init: (id<FlutterTextureRegistry>) registry messenger:(id<FlutterBinaryMessenger>)messenger;
 - (void) resetRenderer;

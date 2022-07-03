@@ -1,7 +1,4 @@
 #import "FlutterWebRTCPlugin.h"
-// #import <FlutterMacOS/FlutterMacOS.h>
-// #import "flutter_webrtc_native.h"
-#import <AVFoundation/AVFoundation.h>
 
 @implementation FlutterWebRTCPlugin
 + (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar {
@@ -13,17 +10,16 @@
     [registrar addMethodCallDelegate:finalInstance channel:channel];
     VideoRendererManager* manager = [[VideoRendererManager alloc] init: [registrar textures] messenger: [registrar messenger]];
     instance->_videoRendererManager = manager;
-    instance->_registrar = registrar;
 }
 
 - (void)handleMethodCall:(nonnull FlutterMethodCall*) methodCall result:(nonnull FlutterResult)result {
     NSString* method = methodCall.method;
     if ([method isEqualToString:@"create"]) {
-        [self->_videoRendererManager createVideoRendererTexture: result];
+        [_videoRendererManager createVideoRendererTexture: result];
     } else if ([method isEqualToString:@"dispose"]) {
-        [self->_videoRendererManager videoRendererDispose: methodCall result: result];
+        [_videoRendererManager videoRendererDispose: methodCall result: result];
     } else if ([method isEqualToString:@"createFrameHandler"]) {
-        [self->_videoRendererManager createFrameHandler: methodCall result: result];
+        [_videoRendererManager createFrameHandler: methodCall result: result];
     } else {
         result(FlutterMethodNotImplemented);
     }
