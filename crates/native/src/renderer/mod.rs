@@ -71,19 +71,23 @@ mod frame_handler {
         }
 
         pub fn on_frame(&self, frame: UniquePtr<sys::VideoFrame>) {
-
-            let height = frame.height()as usize;
+            #[allow(clippy::cast_sign_loss)]
+            let height = frame.height() as usize;
+            #[allow(clippy::cast_sign_loss)]
             let width = frame.width() as usize;
             let buffer_size = width * height * 4;
 
             unsafe {
-                on_frame_caller(self.0, Frame {
-                    height,
-                    width,
-                    buffer_size,
-                    rotation: frame.rotation().repr,
-                    frame: UniquePtr::into_raw(frame),
-                });
+                on_frame_caller(
+                    self.0,
+                    Frame {
+                        height,
+                        width,
+                        buffer_size,
+                        rotation: frame.rotation().repr,
+                        frame: UniquePtr::into_raw(frame),
+                    },
+                );
             }
         }
     }
@@ -94,12 +98,18 @@ mod frame_handler {
     }
 
     #[no_mangle]
-    unsafe extern "C" fn get_abgr_bytes(frame: *mut sys::VideoFrame, buffer: *mut u8) {
+    unsafe extern "C" fn get_abgr_bytes(
+        frame: *mut sys::VideoFrame,
+        buffer: *mut u8,
+    ) {
         libwebrtc_sys::video_frame_to_abgr(frame.as_ref().unwrap(), buffer);
     }
 
     #[no_mangle]
-    unsafe extern "C" fn get_argb_bytes(frame: *mut sys::VideoFrame, buffer: *mut u8) {
+    unsafe extern "C" fn get_argb_bytes(
+        frame: *mut sys::VideoFrame,
+        buffer: *mut u8,
+    ) {
         libwebrtc_sys::video_frame_to_argb(frame.as_ref().unwrap(), buffer);
     }
 

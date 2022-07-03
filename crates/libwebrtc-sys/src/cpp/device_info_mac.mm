@@ -33,7 +33,7 @@ int32_t DeviceInfoMac::GetDeviceName(uint32_t deviceNumber,
     return 0;
 }
 
-int32_t DeviceInfoMac::CreateCapabilityMap(const char* deviceUniqueIdUTF8) {
+int32_t DeviceInfoMac::CreateCapabilityMap(const char* /*deviceUniqueIdUTF8*/) {
     return -1;
 }
 

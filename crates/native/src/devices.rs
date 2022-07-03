@@ -106,6 +106,7 @@ impl DeviceState {
     }
 
     /// Triggers the [`OnDeviceChangeCallback`].
+    #[allow(dead_code)]
     fn on_device_change(&mut self) {
         self.cb.add(());
     }

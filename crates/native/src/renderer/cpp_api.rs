@@ -3,7 +3,7 @@ use derive_more::From;
 use libwebrtc_sys as sys;
 
 #[cfg(feature = "renderer_cpp_api")]
-pub use cpp_api_bindings::{VideoFrame, OnFrameCallbackInterface};
+pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
 
 /// Wrapper around a [`sys::VideoFrame`] transferable via FFI.
 #[derive(From)]
