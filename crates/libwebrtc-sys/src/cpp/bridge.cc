@@ -9,9 +9,6 @@
 #include "libwebrtc-sys/include/bridge.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
-#if __APPLE__
-  #include "libwebrtc-sys/include/device_info_mac.h"
-#endif
 
 #include "libwebrtc-sys/src/bridge.rs.h"
 

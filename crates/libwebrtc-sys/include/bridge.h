@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mac_capturer.h"
 #include <functional>
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
@@ -10,7 +9,12 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-// #include "device_video_capturer.h"
+#if __APPLE__
+  #include "libwebrtc-sys/include/device_info_mac.h"
+  #include "mac_capturer.h"
+#else
+  #include "device_video_capturer.h"
+#endif
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
