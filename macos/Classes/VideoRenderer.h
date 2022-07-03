@@ -1,6 +1,9 @@
 #import <FlutterMacOS/FlutterMacOS.h>
 #import <AVFoundation/AVFoundation.h>
 
+extern void get_argb_bytes(void* frame, uint8_t* buffer);
+extern void drop_frame(void* frame);
+
 typedef struct Frame {
   size_t height;
   size_t width;

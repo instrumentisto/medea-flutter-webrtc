@@ -266,6 +266,10 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
 // writes the result to the provided `dst_abgr`.
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr);
 
+// Converts the provided `webrtc::VideoFrame` pixels to the ARGB scheme and
+// writes the result to the provided `dst_argb`.
+void video_frame_to_argb(const webrtc::VideoFrame& frame, uint8_t* dst_argb);
+
 // Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,

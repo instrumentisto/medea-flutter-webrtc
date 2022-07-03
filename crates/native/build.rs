@@ -1,7 +1,10 @@
 use std::env;
 
 fn main() {
-    println!("cargo:rustc-link-arg=-Wl,-undefined,dynamic_lookup");
+    #[cfg(target_os = "macos")]
+        {
+            println!("cargo:rustc-link-arg=-Wl,-undefined,dynamic_lookup");
+        }
     #[cfg(feature = "renderer_c_api")]
         {
             let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();

@@ -187,7 +187,6 @@ impl Webrtc {
             )?
         } else {
             VideoSource::new_device_source(
-                &self.peer_connection_factory,
                 &mut self.worker_thread,
                 &mut self.signaling_thread,
                 caps,
@@ -994,7 +993,6 @@ impl VideoSource {
     /// Creates a new [`VideoTrackSourceInterface`] from the video input device
     /// with the specified constraints.
     fn new_device_source(
-        peer_connection_factory: &sys::PeerConnectionFactoryInterface,
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
         caps: &api::VideoConstraints,
@@ -1002,7 +1000,6 @@ impl VideoSource {
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
         let inner = sys::VideoTrackSourceInterface::create_proxy_from_device(
-            &peer_connection_factory.0,
             worker_thread,
             signaling_thread,
             caps.width as usize,

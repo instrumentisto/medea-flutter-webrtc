@@ -42,7 +42,7 @@ struct _VideoTextureClass {
 G_DEFINE_TYPE(VideoTexture, video_texture, fl_pixel_buffer_texture_get_type())
 
 extern "C" {
-  void get_bytes(void* frame, ::std::uint8_t* buffer);
+  void get_abgr_bytes(void* frame, ::std::uint8_t* buffer);
   void drop_frame(void* frame);
 }
 
@@ -66,7 +66,7 @@ static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
     }
 
     if (v_texture->frame_->frame != v_texture->last_rendered_frame) {
-      get_bytes(v_texture->frame_->frame, v_texture->buffer_);
+      get_abgr_bytes(v_texture->frame_->frame, v_texture->buffer_);
     }
 
     *out_buffer = v_texture->buffer_;

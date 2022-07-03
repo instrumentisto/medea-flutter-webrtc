@@ -94,8 +94,13 @@ mod frame_handler {
     }
 
     #[no_mangle]
-    unsafe extern "C" fn get_bytes(frame: *mut sys::VideoFrame, buffer: *mut u8) {
+    unsafe extern "C" fn get_abgr_bytes(frame: *mut sys::VideoFrame, buffer: *mut u8) {
         libwebrtc_sys::video_frame_to_abgr(frame.as_ref().unwrap(), buffer);
+    }
+
+    #[no_mangle]
+    unsafe extern "C" fn get_argb_bytes(frame: *mut sys::VideoFrame, buffer: *mut u8) {
+        libwebrtc_sys::video_frame_to_argb(frame.as_ref().unwrap(), buffer);
     }
 
     #[no_mangle]

@@ -2,9 +2,6 @@
 #import "FlutterMacOS/FlutterMacOS.h"
 #import <AVFoundation/AVFoundation.h>
 
-extern void get_bytes(void* frame, uint8_t* buffer);
-extern void drop_frame(void* frame);
-
 void drop_handler(void* handler) {
     TextureVideoRenderer* renderer = (__bridge_transfer TextureVideoRenderer*) handler;
 }
@@ -68,7 +65,7 @@ void on_frame_caller(void* handler, Frame frame) {
     }
     CVPixelBufferLockBaseAddress(_pixelBufferRef, 0);
     uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
-    get_bytes(frame.frame, dst);
+    get_argb_bytes(frame.frame, dst);
     drop_frame(frame.frame);
     CVPixelBufferUnlockBaseAddress(_pixelBufferRef, 0);
 

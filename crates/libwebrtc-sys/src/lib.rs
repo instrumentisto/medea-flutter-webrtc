@@ -13,7 +13,7 @@ use self::bridge::webrtc;
 pub use crate::webrtc::{
     candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
-    video_frame_to_abgr, AudioLayer, BundlePolicy, Candidate,
+    video_frame_to_abgr, video_frame_to_argb, AudioLayer, BundlePolicy, Candidate,
     CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
     IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
     SdpType, SignalingState, TrackState, VideoFrame, VideoRotation,
@@ -1275,7 +1275,7 @@ unsafe impl Sync for webrtc::Thread {}
 /// [`AudioTrackInterface`]), [`MediaStreamInterface`] and the
 /// `PeerConnection`s.
 pub struct PeerConnectionFactoryInterface(
-    pub UniquePtr<webrtc::PeerConnectionFactoryInterface>,
+    UniquePtr<webrtc::PeerConnectionFactoryInterface>,
 );
 
 impl PeerConnectionFactoryInterface {
@@ -1427,7 +1427,6 @@ impl VideoTrackSourceInterface {
     /// destroyed on the signaling thread and marshals all method calls to the
     /// signaling thread.
     pub fn create_proxy_from_device(
-        peer_connection_factory: &webrtc::PeerConnectionFactoryInterface,
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
         width: usize,
