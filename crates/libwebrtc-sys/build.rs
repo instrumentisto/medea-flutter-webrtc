@@ -309,6 +309,7 @@ fn link_libs() {
     }
 }
 
+#[cfg(target_os = "macos")]
 fn macos_link_search_path() -> Option<String> {
     let output = Command::new("clang")
         .arg("--print-search-dirs")
