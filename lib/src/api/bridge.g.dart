@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes, prefer_const_constructors, use_super_parameters, always_use_package_imports
 
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:ffi' as ffi;
 import 'dart:typed_data';
-import 'dart:typed_data';
-
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'dart:ffi' as ffi;
 
 part 'bridge.g.freezed.dart';
 
@@ -2680,7 +2680,39 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
+
+  void on_frame_caller(
+    ffi.Pointer<ffi.Void> handler,
+    Frame frame,
+  ) {
+    return _on_frame_caller(
+      handler,
+      frame,
+    );
+  }
+
+  late final _on_frame_callerPtr = _lookup<
+          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, Frame)>>(
+      'on_frame_caller');
+  late final _on_frame_caller = _on_frame_callerPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Void>, Frame)>();
+
+  void drop_handler(
+    ffi.Pointer<ffi.Void> handler,
+  ) {
+    return _drop_handler(
+      handler,
+    );
+  }
+
+  late final _drop_handlerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'drop_handler');
+  late final _drop_handler =
+      _drop_handlerPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 }
+
+class VideoFrame extends ffi.Opaque {}
 
 class wire_uint_8_list extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
@@ -2747,6 +2779,23 @@ class wire_MediaStreamConstraints extends ffi.Struct {
   external ffi.Pointer<wire_VideoConstraints> video;
 }
 
+class Frame extends ffi.Struct {
+  @uintptr_t()
+  external int height;
+
+  @uintptr_t()
+  external int width;
+
+  @ffi.Int32()
+  external int rotation;
+
+  @uintptr_t()
+  external int buffer_size;
+
+  external ffi.Pointer<VideoFrame> frame;
+}
+
+typedef uintptr_t = ffi.UnsignedLong;
 typedef DartPostCObjectFnType = ffi.Pointer<
-    ffi.NativeFunction<ffi.Bool Function(DartPort, ffi.Pointer<ffi.Void>)>>;
+    ffi.NativeFunction<ffi.Uint8 Function(DartPort, ffi.Pointer<ffi.Void>)>>;
 typedef DartPort = ffi.Int64;
