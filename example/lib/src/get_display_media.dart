@@ -18,10 +18,7 @@ class GetDisplayMediaSample extends StatefulWidget {
 
 class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
   MediaStreamTrack? _track;
-  final _localRenderer1 = createVideoRenderer();
-  final _localRenderer2 = createVideoRenderer();
-  final _localRenderer3 = createVideoRenderer();
-  final _localRenderer4 = createVideoRenderer();
+  final _localRenderer = createVideoRenderer();
   bool _inCalling = false;
 
   @override
@@ -36,17 +33,11 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     if (_inCalling) {
       _stop();
     }
-    _localRenderer1.dispose();
-    _localRenderer2.dispose();
-    _localRenderer3.dispose();
-    _localRenderer4.dispose();
+    _localRenderer.dispose();
   }
 
   Future<void> initRenderers() async {
-    await _localRenderer1.initialize();
-    await _localRenderer2.initialize();
-    await _localRenderer3.initialize();
-    await _localRenderer4.initialize();
+    await _localRenderer.initialize();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -62,10 +53,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
       var _track = (await getDisplayMedia(caps))[0];
 
       _track = _track;
-      await _localRenderer1.setSrcObject(_track);
-      await _localRenderer2.setSrcObject(_track);
-      await _localRenderer3.setSrcObject(_track);
-      await _localRenderer4.setSrcObject(_track);
+      await _localRenderer.setSrcObject(_track);
     } catch (e) {
       print(e.toString());
     }
@@ -80,10 +68,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     try {
       await _track?.dispose();
       _track = null;
-      await _localRenderer1.setSrcObject(_track);
-      await _localRenderer2.setSrcObject(_track);
-      await _localRenderer3.setSrcObject(_track);
-      await _localRenderer4.setSrcObject(_track);
+      await _localRenderer.setSrcObject(_track);
     } catch (e) {
       print(e.toString());
     }
@@ -112,14 +97,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
                 decoration: const BoxDecoration(color: Colors.black54),
-                child: Row(
-                  children: [
-                    Flexible(child: VideoView(_localRenderer1)),
-                    Flexible(child: VideoView(_localRenderer2)),
-                    Flexible(child: VideoView(_localRenderer3)),
-                    Flexible(child: VideoView(_localRenderer4)),
-                  ],
-                ),
+                child: VideoView(_localRenderer),
               )
             ]),
           );

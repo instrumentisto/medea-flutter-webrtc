@@ -1,12 +1,3 @@
-/*
- *  Copyright (c) 2019 The WebRTC project authors. All Rights Reserved.
- *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree. An additional intellectual property rights grant can be found
- *  in the file PATENTS.  All contributing project authors may
- *  be found in the AUTHORS file in the root of the source tree.
- */
 #ifndef MAC_CAPTURER_H_
 #define MAC_CAPTURER_H_
 
@@ -14,7 +5,6 @@
 #include <string>
 #include <vector>
 
-// WebRTC
 #include <api/media_stream_interface.h>
 #include <media/base/adapted_video_track_source.h>
 #include <api/scoped_refptr.h>
@@ -44,7 +34,7 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource, public rtc::VideoSinkIn
       size_t width,
       size_t height,
       size_t target_fps,
-      const std::string& specifiedVideoDevice);
+      uint32_t capture_device_index);
   MacCapturer(size_t width,
               size_t height,
               size_t target_fps,

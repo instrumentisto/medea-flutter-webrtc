@@ -6,7 +6,7 @@ typedef struct Frame {
   size_t width;
   int32_t rotation;
   size_t buffer_size;
-  uint8_t* buffer;
+  uint8_t* frame;
 } Frame;
 
 @interface TextureVideoRenderer : NSObject <FlutterTexture, FlutterStreamHandler>
@@ -21,6 +21,7 @@ typedef struct Frame {
 @property (nonatomic) int64_t tid;
 @property (nonatomic) CVPixelBufferRef pixelBufferRef;
 @property (nonatomic) Frame frame;
+@property (nonatomic) size_t buffer_size;
 
 - (instancetype) init: (id<FlutterTextureRegistry>) registry messenger:(id<FlutterBinaryMessenger>)messenger;
 - (void) resetRenderer;

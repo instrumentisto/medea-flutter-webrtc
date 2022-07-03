@@ -1435,7 +1435,6 @@ impl VideoTrackSourceInterface {
         fps: usize,
         device_index: u32,
     ) -> anyhow::Result<Self> {
-        println!("create_proxy_from_device 1");
         let ptr = webrtc::create_device_video_source(
             peer_connection_factory,
             worker_thread.0.pin_mut(),
@@ -1445,7 +1444,6 @@ impl VideoTrackSourceInterface {
             fps,
             device_index,
         );
-        println!("create_proxy_from_device 2");
 
         if ptr.is_null() {
             bail!(

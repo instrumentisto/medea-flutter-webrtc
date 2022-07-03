@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes, prefer_const_constructors, use_super_parameters, always_use_package_imports
 
 import 'dart:convert';
-import 'dart:typed_data';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
 import 'dart:convert';
-import 'dart:typed_data';
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
+import 'dart:typed_data';
+import 'dart:typed_data';
+
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'bridge.g.freezed.dart';
 
@@ -1960,18 +1960,18 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
     return _wire_create_offer(
       port_,
       peer_id,
-      voice_activity_detection,
-      ice_restart,
-      use_rtp_mux,
+      voice_activity_detection ? 1 : 0,
+      ice_restart ? 1 : 0,
+      use_rtp_mux ? 1 : 0,
     );
   }
 
   late final _wire_create_offerPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Bool, ffi.Bool,
-              ffi.Bool)>>('wire_create_offer');
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint8, ffi.Uint8,
+              ffi.Uint8)>>('wire_create_offer');
   late final _wire_create_offer = _wire_create_offerPtr
-      .asFunction<void Function(int, int, bool, bool, bool)>();
+      .asFunction<void Function(int, int, int, int, int)>();
 
   void wire_create_answer(
     int port_,
@@ -1983,18 +1983,18 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
     return _wire_create_answer(
       port_,
       peer_id,
-      voice_activity_detection,
-      ice_restart,
-      use_rtp_mux,
+      voice_activity_detection ? 1 : 0,
+      ice_restart ? 1 : 0,
+      use_rtp_mux ? 1 : 0,
     );
   }
 
   late final _wire_create_answerPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Bool, ffi.Bool,
-              ffi.Bool)>>('wire_create_answer');
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint8, ffi.Uint8,
+              ffi.Uint8)>>('wire_create_answer');
   late final _wire_create_answer = _wire_create_answerPtr
-      .asFunction<void Function(int, int, bool, bool, bool)>();
+      .asFunction<void Function(int, int, int, int, int)>();
 
   void wire_set_local_description(
     int port_,
@@ -2365,16 +2365,16 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
       port_,
       track_id,
       kind,
-      enabled,
+      enabled ? 1 : 0,
     );
   }
 
   late final _wire_set_track_enabledPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>, ffi.Int32,
-              ffi.Bool)>>('wire_set_track_enabled');
+              ffi.Uint8)>>('wire_set_track_enabled');
   late final _wire_set_track_enabled = _wire_set_track_enabledPtr.asFunction<
-      void Function(int, ffi.Pointer<wire_uint_8_list>, int, bool)>();
+      void Function(int, ffi.Pointer<wire_uint_8_list>, int, int)>();
 
   void wire_clone_track(
     int port_,
@@ -2580,39 +2580,7 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'store_dart_post_cobject');
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
-
-  void on_frame_caller(
-    ffi.Pointer<ffi.Void> handler,
-    Frame frame,
-  ) {
-    return _on_frame_caller(
-      handler,
-      frame,
-    );
-  }
-
-  late final _on_frame_callerPtr = _lookup<
-          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, Frame)>>(
-      'on_frame_caller');
-  late final _on_frame_caller = _on_frame_callerPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Void>, Frame)>();
-
-  void drop_handler(
-    ffi.Pointer<ffi.Void> handler,
-  ) {
-    return _drop_handler(
-      handler,
-    );
-  }
-
-  late final _drop_handlerPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'drop_handler');
-  late final _drop_handler =
-      _drop_handlerPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 }
-
-class VideoFrame extends ffi.Opaque {}
 
 class wire_uint_8_list extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
@@ -2669,8 +2637,8 @@ class wire_VideoConstraints extends ffi.Struct {
   @ffi.Uint32()
   external int frame_rate;
 
-  @ffi.Bool()
-  external bool is_display;
+  @ffi.Uint8()
+  external int is_display;
 }
 
 class wire_MediaStreamConstraints extends ffi.Struct {
@@ -2679,23 +2647,6 @@ class wire_MediaStreamConstraints extends ffi.Struct {
   external ffi.Pointer<wire_VideoConstraints> video;
 }
 
-class Frame extends ffi.Struct {
-  @uintptr_t()
-  external int height;
-
-  @uintptr_t()
-  external int width;
-
-  @ffi.Int32()
-  external int rotation;
-
-  @uintptr_t()
-  external int buffer_size;
-
-  external ffi.Pointer<VideoFrame> frame;
-}
-
-typedef uintptr_t = ffi.UnsignedLong;
 typedef DartPostCObjectFnType = ffi.Pointer<
     ffi.NativeFunction<ffi.Bool Function(DartPort, ffi.Pointer<ffi.Void>)>>;
 typedef DartPort = ffi.Int64;

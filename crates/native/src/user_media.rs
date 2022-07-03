@@ -195,12 +195,10 @@ impl Webrtc {
                 device_id,
             )?
         };
-                println!("get_or_create_video_source 7");
         let source = self
             .video_sources
             .entry(source.device_id.clone())
             .or_insert_with(|| Arc::new(source));
-                println!("get_or_create_video_source 8");
 
         Ok(Arc::clone(source))
     }

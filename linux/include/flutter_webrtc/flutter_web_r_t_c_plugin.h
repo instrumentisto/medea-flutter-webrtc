@@ -34,6 +34,4 @@ FLUTTER_PLUGIN_EXPORT void drop_handler(void* obj);
 
 G_END_DECLS
 
-
-
 #endif  // FLUTTER_PLUGIN_FLUTTER_WEBRTC_PLUGIN_H_

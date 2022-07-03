@@ -2,12 +2,11 @@
 #import "FlutterMacOS/FlutterMacOS.h"
 #import <AVFoundation/AVFoundation.h>
 
+extern void get_bytes(void* frame, uint8_t* buffer);
+extern void drop_frame(void* frame);
+
 void drop_handler(void* handler) {
     TextureVideoRenderer* renderer = (__bridge_transfer TextureVideoRenderer*) handler;
-}
-
-void foobar() {
-
 }
 
 void on_frame_caller(void* handler, Frame frame) {
@@ -21,6 +20,7 @@ void on_frame_caller(void* handler, Frame frame) {
     self->_pixelBufferRef = nil;
     self->_registry = registry;
     self->_sendEvents = true;
+    self->_buffer_size = 0;
 
     int64_t tid = [registry registerTexture: self];
     self->_tid = tid;
@@ -53,7 +53,13 @@ void on_frame_caller(void* handler, Frame frame) {
 }
 
 - (void) onFrame: (Frame) frame {
-    if (_pixelBufferRef == nil) {
+    bool isBufferNotCreated = _pixelBufferRef == nil;
+    bool isFrameSizeChanged = self->_buffer_size != frame.buffer_size;
+    if (isBufferNotCreated || isFrameSizeChanged) {
+        if (isFrameSizeChanged) {
+          self->_buffer_size = frame.buffer_size;
+          CVBufferRelease(_pixelBufferRef);
+        }
         NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
         CVPixelBufferCreate(kCFAllocatorDefault,
                             frame.width, frame.height,
@@ -62,7 +68,8 @@ void on_frame_caller(void* handler, Frame frame) {
     }
     CVPixelBufferLockBaseAddress(_pixelBufferRef, 0);
     uint8_t* dst = CVPixelBufferGetBaseAddress(_pixelBufferRef);
-    memcpy(dst, frame.buffer, frame.width * frame.height * 4);
+    get_bytes(frame.frame, dst);
+    drop_frame(frame.frame);
     CVPixelBufferUnlockBaseAddress(_pixelBufferRef, 0);
 
     if (!self->_firstFrameRendered) {
@@ -71,7 +78,9 @@ void on_frame_caller(void* handler, Frame frame) {
                 @"event" : @"onFirstFrameRendered",
                 @"id" : self->_textureId,
             };
-            self->_eventSink(map);
+            if (_eventSink != nil) {
+              self->_eventSink(map);
+            }
             self->_firstFrameRendered = true;
         }
     }
@@ -83,7 +92,9 @@ void on_frame_caller(void* handler, Frame frame) {
                 @"id" : self->_textureId,
                 @"rotation" : frameRotation,
             };
-            self->_eventSink(map);
+            if (_eventSink != nil) {
+              self->_eventSink(map);
+            }
         }
         self->_rotation = frameRotation;
     }
@@ -95,7 +106,9 @@ void on_frame_caller(void* handler, Frame frame) {
                 @"width" : [NSNumber numberWithLong: frame.width],
                 @"height" : [NSNumber numberWithLong: frame.height],
             };
-            self->_eventSink(map);
+            if (_eventSink != nil) {
+              self->_eventSink(map);
+            }
         }
     }
 
@@ -166,7 +179,7 @@ void on_frame_caller(void* handler, Frame frame) {
     NSDictionary* arguments = methodCall.arguments;
     NSNumber* textureId = arguments[@"textureId"];
     TextureVideoRenderer* renderer = self->_renderers[textureId];
-    
+
     int64_t rendererPtr = (int64_t) renderer;
     result(@{
         @"handler_ptr" : [NSNumber numberWithLong: rendererPtr],
