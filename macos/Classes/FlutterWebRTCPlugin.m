@@ -14,20 +14,6 @@
     VideoRendererManager* manager = [[VideoRendererManager alloc] init: [registrar textures] messenger: [registrar messenger]];
     instance->_videoRendererManager = manager;
     instance->_registrar = registrar;
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        if (granted) {
-            NSLog(@"Video permission granted");
-        } else {
-            NSLog(@"Video permission NOT granted");
-        }
-    }];
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
-        if (granted) {
-            NSLog(@"Audio permission granted");
-        } else {
-            NSLog(@"Audio permission NOT granted");
-        }
-    }];
 }
 
 - (void)handleMethodCall:(nonnull FlutterMethodCall*) methodCall result:(nonnull FlutterResult)result {

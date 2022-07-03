@@ -1,13 +1,6 @@
 #include "device_info_mac.h"
 
 DeviceInfoMac::DeviceInfoMac() : DeviceInfoImpl() {
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        if (granted) {
-            NSLog(@"Video permission granted");
-        } else {
-            NSLog(@"Video permission NOT granted");
-        }
-    }];
     this->device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 }
 
