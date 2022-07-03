@@ -90,7 +90,6 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
 // calls `CreateVideoTrackSourceProxy()`.
 std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
-    const PeerConnectionFactoryInterface& peer_connection_factory,
     Thread& worker_thread,
     Thread& signaling_thread,
     size_t width,

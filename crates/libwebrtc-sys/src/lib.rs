@@ -1436,7 +1436,6 @@ impl VideoTrackSourceInterface {
         device_index: u32,
     ) -> anyhow::Result<Self> {
         let ptr = webrtc::create_device_video_source(
-            peer_connection_factory,
             worker_thread.0.pin_mut(),
             signaling_thread.0.pin_mut(),
             width,
