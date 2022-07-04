@@ -35,7 +35,7 @@ class MediaStreamTrackProxy(
   }
 
   override fun syncWithObject() {
-      syncHandler?.let { it() }
+    syncHandler?.let { it() }
   }
 
   /**
