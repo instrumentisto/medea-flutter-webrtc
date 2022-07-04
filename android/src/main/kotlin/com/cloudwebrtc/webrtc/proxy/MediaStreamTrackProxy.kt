@@ -22,6 +22,16 @@ class MediaStreamTrackProxy(
   /** Actual underlying [MediaStreamTrack]. */
   override var obj: MediaStreamTrack = track
 
+  private var syncHandler: () -> Unit = {}
+
+  fun registerSyncHandler(newHandler: () -> Unit) {
+    syncHandler = newHandler
+  }
+
+  override fun syncWithObject() {
+    syncHandler()
+  }
+
   /**
    * Subscribers for the [onStop] callback.
    *
