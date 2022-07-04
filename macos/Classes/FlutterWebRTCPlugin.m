@@ -1,6 +1,7 @@
 #import "FlutterWebRTCPlugin.h"
 
 @implementation FlutterWebRTCPlugin
+// Registers this FlutterWebRTCPlugin.
 + (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar {
     FlutterMethodChannel* channel = [FlutterMethodChannel
         methodChannelWithName:@"FlutterWebRtc/VideoRendererFactory/0"
@@ -15,6 +16,7 @@
     instance->_videoRendererManager = manager;
 }
 
+// Handles provided FlutterMethodCall.
 - (void)handleMethodCall:(nonnull FlutterMethodCall*)methodCall
                   result:(nonnull FlutterResult)result {
     NSString* method = methodCall.method;
@@ -29,6 +31,7 @@
     }
 }
 
+// Initializes this FlutterWebRTCPlugin with a FlutterMethodChannel.
 - (instancetype)initWithChannel:(FlutterMethodChannel*)
                         channel:(NSObject<FlutterBinaryMessenger>*)messenger {
     self = [super init];
