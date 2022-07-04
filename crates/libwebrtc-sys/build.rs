@@ -211,7 +211,20 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
     WalkDir::new(dir)
         .into_iter()
         .filter_map(Result::ok)
-        .filter(|e| e.file_type().is_file())
+        .filter(|e| {
+            let is_file = e.file_type().is_file();
+            let is_filtered = {
+                #[cfg(target_os = "macos")]
+                    {
+                        false
+                    }
+                #[cfg(not(target_os = "macos"))]
+                    {
+                        e.file_name().to_str().unwrap().contains(".mm")
+                    }
+            };
+            is_file && !is_filtered
+        })
         .map(DirEntry::into_path)
         .collect()
 }
