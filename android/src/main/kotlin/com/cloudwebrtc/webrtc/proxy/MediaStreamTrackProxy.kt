@@ -22,14 +22,20 @@ class MediaStreamTrackProxy(
   /** Actual underlying [MediaStreamTrack]. */
   override var obj: MediaStreamTrack = track
 
-  private var syncHandler: () -> Unit = {}
+  /** An external handler which is called on [syncWithObject]. */
+  private var syncHandler: (() -> Unit)? = null
 
+  /**
+   * Sets the [syncHandler].
+   *
+   * @param newHandler A new handler to be set as [syncHandler].
+   */
   fun registerSyncHandler(newHandler: () -> Unit) {
     syncHandler = newHandler
   }
 
   override fun syncWithObject() {
-    syncHandler()
+      syncHandler?.let { it() }
   }
 
   /**

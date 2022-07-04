@@ -11,6 +11,7 @@ import org.webrtc.VideoTrack as WVideoTrack
  * @throws Exception If the provided [MediaStreamTrackProxy] isn't a video.
  */
 class VideoTrackProxy(private val track: MediaStreamTrackProxy) {
+  /** The actual list of the added [SurfaceTextureRenderer]s. */
   private val sinks: MutableList<SurfaceTextureRenderer> = mutableListOf()
 
   init {
@@ -38,6 +39,7 @@ class VideoTrackProxy(private val track: MediaStreamTrackProxy) {
     return track.obj as WVideoTrack
   }
 
+  /** Adds every [SurfaceTextureRenderer] from the [sinks] to the updater underlying [WVideoTrack]. */
   private fun renewSinks() {
     sinks.forEach {
       getVideoTrack().addSink(it)
