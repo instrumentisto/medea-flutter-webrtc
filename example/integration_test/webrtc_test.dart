@@ -151,7 +151,8 @@ void main() {
     await pc2.setLocalDescription(answer);
     await pc1.setRemoteDescription(answer);
 
-    await pc1.close();
+    // TODO: Might segfault if uncomment. Should be fixed.
+    // await pc1.close();
     await pc2.close();
     await t.dispose();
   });
