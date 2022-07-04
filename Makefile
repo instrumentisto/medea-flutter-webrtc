@@ -158,11 +158,10 @@ cargo.clean:
 #	make cargo.build [debug=(yes|no)] [args=<cargo-build-args>]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
-#renderer_cpp_api
 cargo.build:
 	cargo build -p flutter-webrtc-native \
 		$(if $(call eq,$(debug),no),--release,) \
-		--features $(if $(call eq,$(CURRENT_OS),linux), renderer_c_api,renderer_cpp_api) \
+		--features $(if $(call eq,$(CURRENT_OS),linux),renderer_c_api,renderer_cpp_api) \
 		$(args)
 ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/lib/
