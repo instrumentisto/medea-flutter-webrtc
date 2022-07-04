@@ -151,7 +151,6 @@ jobs:
           toolchain: stable
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-      - run: dart pub global activate ffigen 5.0.1
 
       - name: Install Linux platform dependencies
         # TODO: Unpin `libudev` version once this issues is resolved:
