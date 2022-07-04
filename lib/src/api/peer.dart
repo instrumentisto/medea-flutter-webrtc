@@ -15,7 +15,7 @@ import 'channel.dart';
 import 'transceiver.dart';
 
 /// Checks whether running platform is a desktop.
-bool isDesktop = !Platform.isAndroid && !Platform.isIOS;
+bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
 /// Bindings to the Rust side API.
 final ffi.FlutterWebrtcNativeImpl? api = isDesktop ? buildBridge() : null;
