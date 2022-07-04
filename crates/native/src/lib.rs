@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+#![allow(clippy::items_after_statements)]
 
 mod api;
 #[allow(
