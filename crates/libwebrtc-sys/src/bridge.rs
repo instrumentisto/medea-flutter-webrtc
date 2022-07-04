@@ -30,6 +30,7 @@ type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 #[allow(
     clippy::expl_impl_clone_on_copy,
     clippy::items_after_statements,
+    clippy::trait_duplication_in_bounds,
     clippy::ptr_as_ptr
 )]
 #[cxx::bridge(namespace = "bridge")]
