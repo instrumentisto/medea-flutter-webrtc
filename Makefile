@@ -161,6 +161,7 @@ lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 cargo.build:
 	cargo build -p flutter-webrtc-native \
 		$(if $(call eq,$(debug),no),--release,) \
+		--no-default-features \
 		--features $(if $(call eq,$(CURRENT_OS),linux),renderer_c_api,renderer_cpp_api) \
 		$(args)
 ifeq ($(CURRENT_OS),linux)
