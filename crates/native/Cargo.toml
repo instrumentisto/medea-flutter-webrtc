@@ -9,6 +9,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [features]
+default = ["renderer_cpp_api"]
 fake_media = ["libwebrtc-sys/fake_media"]
 renderer_cpp_api = ["cxx-build"]
 renderer_c_api = ["cbindgen"]
