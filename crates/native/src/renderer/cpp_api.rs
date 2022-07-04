@@ -1,3 +1,5 @@
+//! Implementations and definitions of the C++ renderer API.
+
 use cxx::UniquePtr;
 use derive_more::From;
 use libwebrtc_sys as sys;

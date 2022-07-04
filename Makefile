@@ -162,12 +162,17 @@ cargo.build:
 	cargo build -p flutter-webrtc-native \
 		$(if $(call eq,$(debug),no),--release,) \
 		--no-default-features \
-		--features $(if $(call eq,$(CURRENT_OS),linux),renderer_c_api,renderer_cpp_api) \
+		--features $(if $(call eq,$(CURRENT_OS),linux),renderer_c_api,$(if $(call eq,$(CURRENT_OS),macos),renderer_c_api,renderer_cpp_api)) \
 		$(args)
 ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/lib/
 	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
 		linux/rust/lib/libflutter_webrtc_native.so
+endif
+ifeq ($(CURRENT_OS),macos)
+	@mkdir -p macos/rust/lib/
+	cp -f $(lib-out-path)/libflutter_webrtc_native.dylib \
+		macos/rust/lib/libflutter_webrtc_native.dylib
 endif
 ifeq ($(CURRENT_OS),windows)
 	@mkdir -p windows/rust/include/
