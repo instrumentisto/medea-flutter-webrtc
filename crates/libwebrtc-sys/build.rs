@@ -5,7 +5,6 @@ use std::{
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
-    process::Command,
 };
 
 use anyhow::bail;
@@ -71,7 +70,8 @@ fn main() -> anyhow::Result<()> {
     }
     #[cfg(target_os = "macos")]
     {
-        build.include(path.join("lib/include/sdk/objc/base"))
+        build
+            .include(path.join("lib/include/sdk/objc/base"))
             .include(path.join("lib/include/sdk/objc"));
         build
             .flag("-DWEBRTC_POSIX")
@@ -215,13 +215,13 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
             let is_file = e.file_type().is_file();
             let is_filtered = {
                 #[cfg(target_os = "macos")]
-                    {
-                        false
-                    }
+                {
+                    false
+                }
                 #[cfg(not(target_os = "macos"))]
-                    {
-                        e.file_name().to_str().unwrap().contains(".mm")
-                    }
+                {
+                    e.file_name().to_str().unwrap().contains(".mm")
+                }
             };
             is_file && !is_filtered
         })
@@ -324,7 +324,7 @@ fn link_libs() {
 
 #[cfg(target_os = "macos")]
 fn macos_link_search_path() -> Option<String> {
-    let output = Command::new("clang")
+    let output = std::process::Command::new("clang")
         .arg("--print-search-dirs")
         .output()
         .ok()?;
