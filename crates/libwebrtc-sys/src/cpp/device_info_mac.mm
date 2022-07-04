@@ -1,3 +1,4 @@
+#if __APPLE__
 #include "device_info_mac.h"
 
 DeviceInfoMac::DeviceInfoMac() : DeviceInfoImpl() {
@@ -58,3 +59,4 @@ create_device_info_mac() {
 
     return ptr;
 }
+#endif
