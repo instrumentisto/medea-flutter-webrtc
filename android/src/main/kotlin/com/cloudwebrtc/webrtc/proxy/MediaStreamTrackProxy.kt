@@ -18,26 +18,7 @@ class MediaStreamTrackProxy(
     track: MediaStreamTrack,
     private val deviceId: String = "remote",
     private val source: MediaTrackSource? = null
-) : Proxy<MediaStreamTrack> {
-  /** Actual underlying [MediaStreamTrack]. */
-  override var obj: MediaStreamTrack = track
-
-  /** An external handler which is called on [syncWithObject]. */
-  private var syncHandler: (() -> Unit)? = null
-
-  /**
-   * Sets the [syncHandler].
-   *
-   * @param newHandler A new handler to be set as [syncHandler].
-   */
-  fun registerSyncHandler(newHandler: () -> Unit) {
-    syncHandler = newHandler
-  }
-
-  override fun syncWithObject() {
-    syncHandler?.let { it() }
-  }
-
+) : Proxy<MediaStreamTrack>(track) {
   /**
    * Subscribers for the [onStop] callback.
    *

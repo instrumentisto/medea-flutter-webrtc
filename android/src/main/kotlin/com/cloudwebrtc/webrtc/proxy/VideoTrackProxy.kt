@@ -19,7 +19,7 @@ class VideoTrackProxy(private val track: MediaStreamTrackProxy) {
       throw Exception("Provided not video MediaStreamTrack")
     }
 
-    track.registerSyncHandler { renewSinks() }
+    track.addOnSyncListener { renewSinks() }
   }
 
   /** Removes the specified [SurfaceTextureRenderer] from the underlying [WVideoTrack] sinks. */
