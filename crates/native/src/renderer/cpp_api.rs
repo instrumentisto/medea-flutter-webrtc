@@ -11,7 +11,7 @@ pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
 #[derive(From)]
 pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
 
-#[allow(clippy::trait_duplication_in_bounds)]
+#[allow(clippy::items_after_statements, clippy::trait_duplication_in_bounds)]
 #[cfg(feature = "renderer_cpp_api")]
 #[cxx::bridge]
 mod cpp_api_bindings {
