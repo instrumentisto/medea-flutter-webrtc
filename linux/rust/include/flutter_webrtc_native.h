@@ -1,3 +1,4 @@
+#pragma once
 #include "flutter-webrtc-native/include/api.h"
 #include <cstddef>
 #include <cstdint>
@@ -243,16 +244,6 @@ std::size_t align_of() {
   return layout::align_of<T>();
 }
 #endif // CXXBRIDGE1_LAYOUT
-
-namespace {
-template <bool> struct deleter_if {
-  template <typename T> void operator()(T *) {}
-};
-
-template <> struct deleter_if<true> {
-  template <typename T> void operator()(T *ptr) { ptr->~T(); }
-};
-} // namespace
 } // namespace cxxbridge1
 } // namespace rust
 
@@ -262,7 +253,7 @@ using OnFrameCallbackInterface = ::OnFrameCallbackInterface;
 
 #ifndef CXXBRIDGE1_STRUCT_VideoFrame
 #define CXXBRIDGE1_STRUCT_VideoFrame
-// Single video frame.
+// Single video `frame`.
 struct VideoFrame final {
   // Vertical count of pixels in this [`VideoFrame`].
   ::std::size_t height;
@@ -276,8 +267,8 @@ struct VideoFrame final {
   // Underlying Rust side frame.
   ::rust::Box<::Frame> frame;
 
-  // Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme and
-  // outputs the result to the provided `buffer`.
+  // Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme
+  // and outputs the result to the provided `buffer`.
   void GetABGRBytes(::std::uint8_t *buffer) const noexcept;
 
   using IsRelocatable = ::std::true_type;
@@ -298,74 +289,4 @@ private:
 };
 #endif // CXXBRIDGE1_STRUCT_Frame
 
-extern "C" {
-::std::size_t cxxbridge1$Frame$operator$sizeof() noexcept;
-::std::size_t cxxbridge1$Frame$operator$alignof() noexcept;
-
-void cxxbridge1$VideoFrame$get_abgr_bytes(const ::VideoFrame &self, ::std::uint8_t *buffer) noexcept;
-
-void cxxbridge1$OnFrameCallbackInterface$on_frame(::OnFrameCallbackInterface &self, ::VideoFrame *frame) noexcept {
-  void (::OnFrameCallbackInterface::*on_frame$)(::VideoFrame) = &::OnFrameCallbackInterface::OnFrame;
-  (self.*on_frame$)(::std::move(*frame));
-}
-
-void cxxbridge1$_touch_unique_ptr_on_frame_handler(::OnFrameCallbackInterface *i) noexcept;
-} // extern "C"
-
-::std::size_t Frame::layout::size() noexcept {
-  return cxxbridge1$Frame$operator$sizeof();
-}
-
-::std::size_t Frame::layout::align() noexcept {
-  return cxxbridge1$Frame$operator$alignof();
-}
-
-void VideoFrame::GetABGRBytes(::std::uint8_t *buffer) const noexcept {
-  cxxbridge1$VideoFrame$get_abgr_bytes(*this, buffer);
-}
-
-void _touch_unique_ptr_on_frame_handler(::std::unique_ptr<::OnFrameCallbackInterface> i) noexcept {
-  cxxbridge1$_touch_unique_ptr_on_frame_handler(i.release());
-}
-
-extern "C" {
-::Frame *cxxbridge1$box$Frame$alloc() noexcept;
-void cxxbridge1$box$Frame$dealloc(::Frame *) noexcept;
-void cxxbridge1$box$Frame$drop(::rust::Box<::Frame> *ptr) noexcept;
-
-static_assert(::rust::detail::is_complete<::OnFrameCallbackInterface>::value, "definition of OnFrameCallbackInterface is required");
-static_assert(sizeof(::std::unique_ptr<::OnFrameCallbackInterface>) == sizeof(void *), "");
-static_assert(alignof(::std::unique_ptr<::OnFrameCallbackInterface>) == alignof(void *), "");
-void cxxbridge1$unique_ptr$OnFrameCallbackInterface$null(::std::unique_ptr<::OnFrameCallbackInterface> *ptr) noexcept {
-  ::new (ptr) ::std::unique_ptr<::OnFrameCallbackInterface>();
-}
-void cxxbridge1$unique_ptr$OnFrameCallbackInterface$raw(::std::unique_ptr<::OnFrameCallbackInterface> *ptr, ::OnFrameCallbackInterface *raw) noexcept {
-  ::new (ptr) ::std::unique_ptr<::OnFrameCallbackInterface>(raw);
-}
-const ::OnFrameCallbackInterface *cxxbridge1$unique_ptr$OnFrameCallbackInterface$get(const ::std::unique_ptr<::OnFrameCallbackInterface>& ptr) noexcept {
-  return ptr.get();
-}
-::OnFrameCallbackInterface *cxxbridge1$unique_ptr$OnFrameCallbackInterface$release(::std::unique_ptr<::OnFrameCallbackInterface>& ptr) noexcept {
-  return ptr.release();
-}
-void cxxbridge1$unique_ptr$OnFrameCallbackInterface$drop(::std::unique_ptr<::OnFrameCallbackInterface> *ptr) noexcept {
-  ::rust::deleter_if<::rust::detail::is_complete<::OnFrameCallbackInterface>::value>{}(ptr);
-}
-} // extern "C"
-
-namespace rust {
-inline namespace cxxbridge1 {
-template <>
-::Frame *Box<::Frame>::allocation::alloc() noexcept {
-  return cxxbridge1$box$Frame$alloc();
-}
-template <>
-void Box<::Frame>::allocation::dealloc(::Frame *ptr) noexcept {
-  cxxbridge1$box$Frame$dealloc(ptr);
-}
-template <>
-void Box<::Frame>::drop() noexcept {
-  cxxbridge1$box$Frame$drop(this);
-}
-} // namespace cxxbridge1
-} // namespace rust
+void _touch_unique_ptr_on_frame_handler(::std::unique_ptr<::OnFrameCallbackInterface> i) noexcept;

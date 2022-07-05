@@ -18,11 +18,12 @@ set(CMAKE_CXX_STANDARD 17)
 # Any new source files that you add to the plugin should be added here.
 add_library(${PLUGIN_NAME} SHARED
   "flutter_webrtc_plugin.cc"
-#  "${CMAKE_CURRENT_SOURCE_DIR}/rust/src/flutter_webrtc_native.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/src/flutter_webrtc_native.cc"
 )
 
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/include"
 )
 
 # Apply a standard set of build settings that are configured in the

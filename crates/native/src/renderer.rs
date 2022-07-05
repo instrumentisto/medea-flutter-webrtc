@@ -1,7 +1,5 @@
 //! Implementations and definitions of the renderers API for the C and C++ APIs.
 
-pub mod cpp_api;
-
 pub use frame_handler::FrameHandler;
 
 /// Definitions and implementation of handler for the C++
@@ -9,27 +7,28 @@ pub use frame_handler::FrameHandler;
 #[cfg(feature = "renderer_cpp_api")]
 mod frame_handler {
     use cxx::UniquePtr;
+    use derive_more::From;
     use libwebrtc_sys as sys;
 
-    use crate::renderer::cpp_api;
+    pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
 
     /// Handler for the renderer [`sys::VideoFrame`]s.
-    pub struct FrameHandler(UniquePtr<cpp_api::OnFrameCallbackInterface>);
+    pub struct FrameHandler(UniquePtr<OnFrameCallbackInterface>);
 
     impl FrameHandler {
         /// Returns new [`FrameHandler`] with the provided [`sys::VideoFrame`]s
         /// receiver.
-        pub fn new(handler: *mut cpp_api::OnFrameCallbackInterface) -> Self {
+        pub fn new(handler: *mut OnFrameCallbackInterface) -> Self {
             unsafe { Self(UniquePtr::from_raw(handler)) }
         }
 
         /// Passes provided [`sys::VideoFrame`] to the C++ side listener.
         pub fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
-            self.0.pin_mut().on_frame(cpp_api::VideoFrame::from(frame));
+            self.0.pin_mut().on_frame(VideoFrame::from(frame));
         }
     }
 
-    impl From<UniquePtr<sys::VideoFrame>> for cpp_api::VideoFrame {
+    impl From<UniquePtr<sys::VideoFrame>> for VideoFrame {
         #[allow(clippy::cast_sign_loss)]
         fn from(frame: UniquePtr<sys::VideoFrame>) -> Self {
             let height = frame.height();
@@ -45,8 +44,85 @@ mod frame_handler {
                 width: width as usize,
                 buffer_size: buffer_size as usize,
                 rotation: frame.rotation().repr,
-                frame: Box::new(cpp_api::Frame::from(Box::new(frame))),
+                frame: Box::new(Frame::from(Box::new(frame))),
             }
+        }
+    }
+
+    /// Wrapper around a [`sys::VideoFrame`] transferable via FFI.
+    #[derive(From)]
+    pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
+
+    #[allow(
+        clippy::items_after_statements,
+        clippy::trait_duplication_in_bounds
+    )]
+    #[cxx::bridge]
+    mod cpp_api_bindings {
+        /// Single video `frame`.
+        pub struct VideoFrame {
+            /// Vertical count of pixels in this [`VideoFrame`].
+            pub height: usize,
+
+            /// Horizontal count of pixels in this [`VideoFrame`].
+            pub width: usize,
+
+            /// Rotation of this [`VideoFrame`] in degrees.
+            pub rotation: i32,
+
+            /// Size of the bytes buffer required for allocation of the
+            /// [`VideoFrame::get_abgr_bytes()`] call.
+            pub buffer_size: usize,
+
+            /// Underlying Rust side frame.
+            pub frame: Box<Frame>,
+        }
+
+        extern "Rust" {
+            type Frame;
+
+            /// Converts this [`api::VideoFrame`] pixel data to `ABGR` scheme
+            /// and outputs the result to the provided `buffer`.
+            #[cxx_name = "GetABGRBytes"]
+            unsafe fn get_abgr_bytes(self: &VideoFrame, buffer: *mut u8);
+        }
+
+        unsafe extern "C++" {
+            include!("flutter-webrtc-native/include/api.h");
+
+            pub type OnFrameCallbackInterface;
+
+            /// Calls C++ side `OnFrameCallbackInterface->OnFrame`.
+            #[cxx_name = "OnFrame"]
+            pub fn on_frame(
+                self: Pin<&mut OnFrameCallbackInterface>,
+                frame: VideoFrame,
+            );
+        }
+
+        // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
+        // mentioned types.
+        extern "Rust" {
+            fn _touch_unique_ptr_on_frame_handler(
+                i: UniquePtr<OnFrameCallbackInterface>,
+            );
+        }
+    }
+
+    fn _touch_unique_ptr_on_frame_handler(
+        _: cxx::UniquePtr<OnFrameCallbackInterface>,
+    ) {
+    }
+
+    impl cpp_api_bindings::VideoFrame {
+        /// Converts this [`api::VideoFrame`] pixel data to the `ABGR` scheme
+        /// and outputs the result to the provided `buffer`.
+        ///
+        /// # Safety
+        ///
+        /// The provided `buffer` must be a valid pointer.
+        pub unsafe fn get_abgr_bytes(&self, buffer: *mut u8) {
+            libwebrtc_sys::video_frame_to_abgr(self.frame.0.as_ref(), buffer);
         }
     }
 }
@@ -54,6 +130,7 @@ mod frame_handler {
 /// Definitions and implementation of handler for the C API
 /// [`sys::VideoFrame`]s renderer.
 #[cfg(feature = "renderer_c_api")]
+/// cbindgen:ignore
 mod frame_handler {
     use cxx::UniquePtr;
     use libwebrtc_sys as sys;
@@ -95,20 +172,22 @@ mod frame_handler {
         }
 
         /// Passes provided [`sys::VideoFrame`] to the C side listener.
+        #[allow(clippy::cast_sign_loss)]
         pub fn on_frame(&self, frame: UniquePtr<sys::VideoFrame>) {
-            #[allow(clippy::cast_sign_loss)]
-            let height = frame.height() as usize;
-            #[allow(clippy::cast_sign_loss)]
-            let width = frame.width() as usize;
-            let buffer_size = width * height * 4;
+            let height = frame.height();
+            let width = frame.width();
 
+            assert!(height >= 0, "VideoFrame has a negative height");
+            assert!(width >= 0, "VideoFrame has a negative width");
+
+            let buffer_size = width * height * 4;
             unsafe {
                 on_frame_caller(
                     self.0,
                     Frame {
-                        height,
-                        width,
-                        buffer_size,
+                        height: height as usize,
+                        width: width as usize,
+                        buffer_size: buffer_size as usize,
                         rotation: frame.rotation().repr,
                         frame: UniquePtr::into_raw(frame),
                     },

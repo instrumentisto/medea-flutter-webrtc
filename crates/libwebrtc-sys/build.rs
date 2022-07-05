@@ -54,7 +54,8 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("include"))
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
-        .include(path.join("lib/include/third_party/libyuv/include"));
+        .include(path.join("lib/include/third_party/libyuv/include"))
+        .flag("-DNOMINMAX");
 
     #[cfg(target_os = "windows")]
     build.flag("-DNDEBUG");
@@ -65,17 +66,13 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "windows")]
     {
-        build
-            .flag("-DWEBRTC_WIN")
-            .flag("-DNOMINMAX")
-            .flag("/std:c++17");
+        build.flag("-DWEBRTC_WIN").flag("/std:c++17");
     }
     #[cfg(target_os = "linux")]
     {
         build
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
-            .flag("-DNOMINMAX")
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++17");
     }
@@ -89,7 +86,6 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_MAC")
             .flag("-DWEBRTC_ENABLE_OBJC_SYMBOL_EXPORT")
             .flag("-DWEBRTC_LIBRARY_IMPL")
-            .flag("-DNOMINMAX")
             .flag("-std=c++17")
             .flag("-objC")
             .flag("-fobjc-arc");
@@ -207,7 +203,12 @@ fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
         .join("src")
         .join("cpp");
 
-    Ok(get_files_from_dir(dir))
+    let mut files = get_files_from_dir(dir);
+
+    #[cfg(not(target_os = "macos"))]
+    files.retain(|e| !e.to_str().unwrap().contains(".mm"));
+
+    Ok(files)
 }
 
 /// Returns a list of all header files that should be included.
@@ -222,20 +223,7 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
     WalkDir::new(dir)
         .into_iter()
         .filter_map(Result::ok)
-        .filter(|e| {
-            let is_file = e.file_type().is_file();
-            let is_filtered = {
-                #[cfg(target_os = "macos")]
-                {
-                    false
-                }
-                #[cfg(not(target_os = "macos"))]
-                {
-                    e.file_name().to_str().unwrap().contains(".mm")
-                }
-            };
-            is_file && !is_filtered
-        })
+        .filter(|e| e.file_type().is_file())
         .map(DirEntry::into_path)
         .collect()
 }

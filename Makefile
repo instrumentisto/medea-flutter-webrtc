@@ -158,21 +158,30 @@ cargo.clean:
 #	make cargo.build [debug=(yes|no)] [args=<cargo-build-args>]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
+
 cargo.build:
 	cargo build -p flutter-webrtc-native \
 		$(if $(call eq,$(debug),no),--release,) \
 		--no-default-features \
-		--features $(if $(call eq,$(CURRENT_OS),linux),renderer_c_api,$(if $(call eq,$(CURRENT_OS),macos),renderer_c_api,renderer_cpp_api)) \
+		--features $(if $(call eq,$(CURRENT_OS),macos),renderer_c_api,renderer_cpp_api)
 		$(args)
-ifeq ($(CURRENT_OS),linux)
-	@mkdir -p linux/rust/lib/
-	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
-		linux/rust/lib/libflutter_webrtc_native.so
-endif
 ifeq ($(CURRENT_OS),macos)
 	@mkdir -p macos/rust/lib/
 	cp -f $(lib-out-path)/libflutter_webrtc_native.dylib \
 		macos/rust/lib/libflutter_webrtc_native.dylib
+endif
+ifeq ($(CURRENT_OS),linux)
+	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
+	@mkdir -p linux/rust/lib/
+	@mkdir -p linux/rust/src/
+	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
+		linux/rust/lib/libflutter_webrtc_native.so
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
+		linux/rust/include/flutter_webrtc_native.h
+	cp -f crates/native/include/api.h \
+		linux/rust/include/flutter-webrtc-native/include/api.h
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
+		linux/rust/src/flutter_webrtc_native.cc
 endif
 ifeq ($(CURRENT_OS),windows)
 	@mkdir -p windows/rust/include/
@@ -183,11 +192,11 @@ ifeq ($(CURRENT_OS),windows)
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
 		windows/rust/lib/flutter_webrtc_native.dll.lib
-	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer/cpp_api.rs.h \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
 	cp -f crates/native/include/api.h \
 		windows/rust/include/flutter-webrtc-native/include/api.h
-	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer/cpp_api.rs.cc \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 endif
 

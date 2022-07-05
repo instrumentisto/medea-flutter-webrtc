@@ -6,13 +6,12 @@
 #include <vector>
 
 #include <api/media_stream_interface.h>
-#include <media/base/adapted_video_track_source.h>
 #include <api/scoped_refptr.h>
 #include <base/RTCMacros.h>
-#include <modules/video_capture/video_capture.h>
-#include <rtc_base/thread.h>
-#include <rtc_base/ref_counted_object.h>
 #include <media/base/adapted_video_track_source.h>
+#include <modules/video_capture/video_capture.h>
+#include <rtc_base/ref_counted_object.h>
+#include <rtc_base/thread.h>
 #include <stddef.h>
 #include <memory>
 #include <vector>
@@ -28,13 +27,13 @@ RTC_FWD_DECL_OBJC_CLASS(AVCaptureDevice);
 RTC_FWD_DECL_OBJC_CLASS(RTCCameraVideoCapturer);
 RTC_FWD_DECL_OBJC_CLASS(RTCVideoSourceAdapter);
 
-class MacCapturer : public rtc::AdaptedVideoTrackSource, public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+class MacCapturer : public rtc::AdaptedVideoTrackSource,
+                    public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
-  static rtc::scoped_refptr<MacCapturer> Create(
-      size_t width,
-      size_t height,
-      size_t target_fps,
-      uint32_t capture_device_index);
+  static rtc::scoped_refptr<MacCapturer> Create(size_t width,
+                                                size_t height,
+                                                size_t target_fps,
+                                                uint32_t capture_device_index);
   MacCapturer(size_t width,
               size_t height,
               size_t target_fps,

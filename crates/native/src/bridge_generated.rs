@@ -751,7 +751,7 @@ pub struct wire_VideoConstraints {
 // Section: allocate functions
 
 #[no_mangle]
-pub extern "C" fn new_StringList(len: i32) -> *mut wire_StringList {
+pub extern "C" fn new_StringList_0(len: i32) -> *mut wire_StringList {
     let wrap = wire_StringList {
         ptr: support::new_leak_vec_ptr(
             <*mut wire_uint_8_list>::new_with_null_ptr(),
@@ -763,31 +763,31 @@ pub extern "C" fn new_StringList(len: i32) -> *mut wire_StringList {
 }
 
 #[no_mangle]
-pub extern "C" fn new_box_autoadd_audio_constraints(
+pub extern "C" fn new_box_autoadd_audio_constraints_0(
 ) -> *mut wire_AudioConstraints {
     support::new_leak_box_ptr(wire_AudioConstraints::new_with_null_ptr())
 }
 
 #[no_mangle]
-pub extern "C" fn new_box_autoadd_media_stream_constraints(
+pub extern "C" fn new_box_autoadd_media_stream_constraints_0(
 ) -> *mut wire_MediaStreamConstraints {
     support::new_leak_box_ptr(wire_MediaStreamConstraints::new_with_null_ptr())
 }
 
 #[no_mangle]
-pub extern "C" fn new_box_autoadd_rtc_configuration(
+pub extern "C" fn new_box_autoadd_rtc_configuration_0(
 ) -> *mut wire_RtcConfiguration {
     support::new_leak_box_ptr(wire_RtcConfiguration::new_with_null_ptr())
 }
 
 #[no_mangle]
-pub extern "C" fn new_box_autoadd_video_constraints(
+pub extern "C" fn new_box_autoadd_video_constraints_0(
 ) -> *mut wire_VideoConstraints {
     support::new_leak_box_ptr(wire_VideoConstraints::new_with_null_ptr())
 }
 
 #[no_mangle]
-pub extern "C" fn new_list_rtc_ice_server(
+pub extern "C" fn new_list_rtc_ice_server_0(
     len: i32,
 ) -> *mut wire_list_rtc_ice_server {
     let wrap = wire_list_rtc_ice_server {
@@ -801,7 +801,7 @@ pub extern "C" fn new_list_rtc_ice_server(
 }
 
 #[no_mangle]
-pub extern "C" fn new_uint_8_list(len: i32) -> *mut wire_uint_8_list {
+pub extern "C" fn new_uint_8_list_0(len: i32) -> *mut wire_uint_8_list {
     let ans = wire_uint_8_list {
         ptr: support::new_leak_vec_ptr(Default::default(), len),
         len,

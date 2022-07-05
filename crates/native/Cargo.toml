@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 default = ["renderer_cpp_api"]
 fake_media = ["libwebrtc-sys/fake_media"]
 renderer_cpp_api = ["cxx-build"]
-renderer_c_api = ["cbindgen"]
+renderer_c_api = []
 
 [dependencies]
 anyhow = "1.0"
@@ -36,5 +36,4 @@ pulse = { version = "2.26", package = "libpulse-binding" }
 winapi = { version = "0.3", features = ["dbt", "winuser"] }
 
 [build-dependencies]
-cbindgen = { version = "0.24.3", optional = true }
 cxx-build = { version = "1.0", optional = true }

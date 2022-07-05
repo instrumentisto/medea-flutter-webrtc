@@ -106,7 +106,6 @@ impl DeviceState {
     }
 
     /// Triggers the [`OnDeviceChangeCallback`].
-    #[allow(dead_code)]
     fn on_device_change(&mut self) {
         self.cb.add(());
     }
@@ -355,6 +354,9 @@ pub unsafe fn init() {
     });
 }
 
+#[cfg(target_os = "macos")]
+pub unsafe fn init() {}
+
 #[cfg(target_os = "linux")]
 pub mod linux_device_change {
     //! Tools for monitoring devices on [Linux].
@@ -513,9 +515,6 @@ pub mod linux_device_change {
         }
     }
 }
-
-#[cfg(target_os = "macos")]
-pub unsafe fn init() {}
 
 #[cfg(target_os = "windows")]
 /// Creates a detached [`Thread`] creating and registering a system message
