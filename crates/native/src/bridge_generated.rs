@@ -668,18 +668,16 @@ pub extern "C" fn wire_create_video_sink(
 }
 
 #[no_mangle]
-pub extern "C" fn wire_dispose_video_sink(
-    sink_id: i64,
-) -> support::WireSyncReturnStruct {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(
+pub extern "C" fn wire_dispose_video_sink(port_: i64, sink_id: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "dispose_video_sink",
-            port: None,
-            mode: FfiCallMode::Sync,
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
         },
         move || {
             let api_sink_id = sink_id.wire2api();
-            Ok(dispose_video_sink(api_sink_id))
+            move |task_callback| Ok(dispose_video_sink(api_sink_id))
         },
     )
 }
