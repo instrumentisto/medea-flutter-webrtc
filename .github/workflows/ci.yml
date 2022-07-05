@@ -235,9 +235,9 @@ jobs:
         run: xvfb-run -a make flutter.test device=linux
         if: ${{ matrix.platform == 'linux' }}
 
-      - name: Test on Desktop
-        run: make flutter.test device=windows
-        if: ${{ matrix.platform != 'linux' }}
+      - name: Test on Windows / macOs
+        run: make flutter.test device=${{ matrix.platform }}
+        if: ${{ matrix.platform == 'windows' || matrix.platform == 'macos' }}
 
 
 
