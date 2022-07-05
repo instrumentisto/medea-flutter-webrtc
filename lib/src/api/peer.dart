@@ -14,7 +14,7 @@ import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'transceiver.dart';
 
-/// Checks whether running platform is a desktop.
+/// Checks whether the running platform is a desktop.
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
 /// Bindings to the Rust side API.
