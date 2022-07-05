@@ -153,7 +153,7 @@ void main() {
 
     // TODO: Might segfault if uncomment. Should be fixed.
     // await pc1.close();
-    await pc2.close();
+    // await pc2.close();
     await t.dispose();
   });
 
