@@ -16,7 +16,7 @@ renderer_c_api = ["cbindgen"]
 
 [dependencies]
 anyhow = "1.0"
-cxx = { version = "1.0" }
+cxx = "1.0"
 dashmap = "5.3"
 derive_more = "0.99"
 flutter_rust_bridge = "1.36"

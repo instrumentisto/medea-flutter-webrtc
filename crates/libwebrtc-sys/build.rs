@@ -1,5 +1,7 @@
 #![warn(clippy::pedantic)]
 
+#[cfg(not(target_os = "windows"))]
+use std::ffi::OsString;
 use std::{
     env, fs,
     fs::File,
@@ -53,6 +55,14 @@ fn main() -> anyhow::Result<()> {
         .include(path.join("lib/include"))
         .include(path.join("lib/include/third_party/abseil-cpp"))
         .include(path.join("lib/include/third_party/libyuv/include"));
+
+    #[cfg(target_os = "windows")]
+    build.flag("-DNDEBUG");
+    #[cfg(not(target_os = "windows"))]
+    if env::var_os("PROFILE") == Some(OsString::from("release")) {
+        build.flag("-DNDEBUG");
+    }
+
     #[cfg(target_os = "windows")]
     {
         build
