@@ -2165,16 +2165,16 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
       port_,
       peer_id,
       transceiver_index,
-      recv ? 1 : 0,
+      recv,
     );
   }
 
   late final _wire_set_transceiver_recvPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32,
-              ffi.Uint8)>>('wire_set_transceiver_recv');
+              ffi.Bool)>>('wire_set_transceiver_recv');
   late final _wire_set_transceiver_recv = _wire_set_transceiver_recvPtr
-      .asFunction<void Function(int, int, int, int)>();
+      .asFunction<void Function(int, int, int, bool)>();
 
   void wire_set_transceiver_send(
     int port_,
@@ -2186,16 +2186,16 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
       port_,
       peer_id,
       transceiver_index,
-      send ? 1 : 0,
+      send,
     );
   }
 
   late final _wire_set_transceiver_sendPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32,
-              ffi.Uint8)>>('wire_set_transceiver_send');
+              ffi.Bool)>>('wire_set_transceiver_send');
   late final _wire_set_transceiver_send = _wire_set_transceiver_sendPtr
-      .asFunction<void Function(int, int, int, int)>();
+      .asFunction<void Function(int, int, int, bool)>();
 
   void wire_get_transceiver_mid(
     int port_,

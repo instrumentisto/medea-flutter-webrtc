@@ -119,11 +119,11 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
   @override
   Future<void> stop() async {
-    _onEnded = null;
-
-    await _chan.invokeMethod('stop');
-
-    _stopped = true;
+    if (!_stopped) {
+      _onEnded = null;
+      await _chan.invokeMethod('stop');
+      _stopped = true;
+    }
   }
 
   @override
@@ -131,8 +131,6 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
     _onEnded = null;
     await _chan.invokeMethod('dispose');
     await _eventSub?.cancel();
-
-    _stopped = true;
   }
 
   @override
@@ -175,14 +173,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   Future<void> dispose() async {
-    if (!_stopped) {
-      _onEnded = null;
-
-      await api!
-          .disposeTrack(trackId: _id, kind: ffi.MediaType.values[_kind.index]);
-      await _eventSub?.cancel();
-    }
-    _stopped = true;
+    // no-op for FFI implementation
   }
 
   @override

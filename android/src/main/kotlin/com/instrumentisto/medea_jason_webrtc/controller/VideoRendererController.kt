@@ -64,12 +64,12 @@ class VideoRendererController(
       "setSrcObject" -> {
         val trackId: String? = call.argument("trackId")
 
-        if (trackId == null){
-            videoRenderer.setVideoTrack(null)
+        if (trackId == null) {
+          videoRenderer.setVideoTrack(null)
         } else {
-            val track = TrackRepository.getTrack(trackId)!!
-            val videoTrack = VideoTrackProxy(track)
-            videoRenderer.setVideoTrack(videoTrack)
+          val track = TrackRepository.getTrack(trackId)!!
+          val videoTrack = VideoTrackProxy(track)
+          videoRenderer.setVideoTrack(videoTrack)
         }
 
         result.success(null)

@@ -133,6 +133,7 @@ class _LoopbackState extends State<Loopback> {
       await _remoteRenderer.setSrcObject(null);
 
       for (var track in _tracks!) {
+        await track.stop();
         await track.dispose();
       }
 

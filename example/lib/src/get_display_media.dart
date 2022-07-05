@@ -66,6 +66,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
 
   Future<void> _stop() async {
     try {
+      await _track?.stop();
       await _track?.dispose();
       _track = null;
       await _localRenderer.setSrcObject(_track);
