@@ -1,7 +1,7 @@
-#include "video_renderer.h"
 #include "flutter/method_channel.h"
 #include "flutter/standard_method_codec.h"
 #include "flutter_webrtc_native.h"
+#include "video_renderer.h"
 
 namespace medea_jason_webrtc {
 
@@ -40,7 +40,7 @@ void FlutterVideoRendererManager::CreateFrameHandler(
   auto it = renderers_.find(texture_id);
   auto handler_ptr = std::make_unique<FrameHandler>(it->second).release();
   EncodableMap res;
-  res[EncodableValue("handler_ptr")] = EncodableValue((int64_t)handler_ptr);
+  res[EncodableValue("handler_ptr")] = EncodableValue((int64_t) handler_ptr);
   result->Success(EncodableValue(res));
 }
 
@@ -102,9 +102,8 @@ TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
 
 // Constructs and returns `FlutterDesktopPixelBuffer` from the current
 // `VideoFrame`.
-FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(
-    size_t width,
-    size_t height) {
+FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(size_t width,
+                                                                 size_t height) {
   mutex_.lock();
   if (pixel_buffer_.get() && frame_) {
     if (pixel_buffer_->width != frame_->width ||
@@ -148,7 +147,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       params[EncodableValue("event")] = "onTextureChangeRotation";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
       params[EncodableValue("rotation")] =
-          EncodableValue((int32_t)frame.rotation);
+          EncodableValue((int32_t) frame.rotation);
       event_sink_->Success(EncodableValue(params));
     }
     rotation_ = frame.rotation;
@@ -159,8 +158,9 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       EncodableMap params;
       params[EncodableValue("event")] = "onTextureChangeVideoSize";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
-      params[EncodableValue("width")] = EncodableValue((int32_t)frame.width);
-      params[EncodableValue("height")] = EncodableValue((int32_t)frame.height);
+      params[EncodableValue("width")] = EncodableValue((int32_t) frame.width);
+      params[EncodableValue("height")] =
+          EncodableValue((int32_t) frame.height);
       event_sink_->Success(EncodableValue(params));
     }
     last_frame_size_ = {frame.width, frame.height};
@@ -182,7 +182,8 @@ void TextureVideoRenderer::ResetRenderer() {
 }
 
 // Creates a new `FrameHandler`.
-FrameHandler::FrameHandler(std::shared_ptr<TextureVideoRenderer> ctx) {
+FrameHandler::FrameHandler(
+    std::shared_ptr<TextureVideoRenderer> ctx) {
   renderer_ = std::move(ctx);
 }
 

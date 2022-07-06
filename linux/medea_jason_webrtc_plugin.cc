@@ -1,4 +1,3 @@
-#include <cstring>
 #include <map>
 #include <mutex>
 #include <optional>
@@ -7,9 +6,9 @@
 #include <gtk/gtk.h>
 #include <sys/utsname.h>
 
+#include "include/flutter_webrtc/flutter_web_r_t_c_plugin.h"
 #include <flutter_webrtc_native.h>
 #include <video_texture.h>
-#include "include/medea_jason_webrtc/medea_jason_webrtc_plugin.h"
 
 const char* kChannelName = "FlutterWebRtc/VideoRendererFactory/0";
 
@@ -24,11 +23,13 @@ class TextureVideoRenderer {
   TextureVideoRenderer(FlTextureRegistrar* registrar,
                        FlBinaryMessenger* messenger)
       : registrar_(registrar) {
+
     texture_ = video_texture_new();
 
     fl_texture_registrar_register_texture(registrar, FL_TEXTURE(texture_));
 
-    texture_->texture_id = reinterpret_cast<int64_t>(FL_TEXTURE(texture_));
+    texture_->texture_id =
+        reinterpret_cast<int64_t>(FL_TEXTURE(texture_));
 
     texture_id_ = texture_->texture_id;
 
@@ -119,7 +120,9 @@ class TextureVideoRenderer {
   }
 
   // Returns an ID of the Flutter texture associated with this renderer.
-  int64_t texture_id() { return texture_id_; }
+  int64_t texture_id() {
+    return texture_id_;
+  }
 
   // Returns the Flutter texture associated with this renderer.
   VideoTexture* texture() { return texture_; }

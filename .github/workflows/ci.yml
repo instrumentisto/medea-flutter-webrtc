@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-  pull_request:
-    branches: ["master"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -69,9 +67,7 @@ jobs:
           {
             read version;
             new_version=${version}.rev.${{ github.sha }};
-            date=`date +"%Y-%m-%d"`;
             sed -i "s|$version|$new_version|g" pubspec.yaml;
-            sed -i "4s|^|[${new_version}] - ${date}\n\n* Development.\n\n|" CHANGELOG.md;
           }
 
       - run: flutter pub publish -n
