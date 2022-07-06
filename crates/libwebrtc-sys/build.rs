@@ -203,6 +203,7 @@ fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
         .join("src")
         .join("cpp");
 
+    #[allow(unused_mut)]
     let mut files = get_files_from_dir(dir);
 
     #[cfg(not(target_os = "macos"))]
