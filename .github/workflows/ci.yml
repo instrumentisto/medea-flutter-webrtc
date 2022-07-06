@@ -67,8 +67,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-                       libudev1=249.11-0ubuntu3.3 \
-                       libudev-dev=249.11-0ubuntu3.3
+                       libudev1=249.11-0ubuntu3.4 \
+                       libudev-dev=249.11-0ubuntu3.4
           sudo apt-get install -y \
                        libgtk-3-dev libpulse-dev libxcomposite-dev \
                        libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
@@ -157,8 +157,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-                       libudev1=249.11-0ubuntu3.3 \
-                       libudev-dev=249.11-0ubuntu3.3
+                       libudev1=249.11-0ubuntu3.4 \
+                       libudev-dev=249.11-0ubuntu3.4
           sudo apt-get install -y \
                        libgtk-3-dev libpulse-dev libxcomposite-dev \
                        libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
@@ -208,8 +208,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-                       libudev1=249.11-0ubuntu3.3 \
-                       libudev-dev=249.11-0ubuntu3.3
+                       libudev1=249.11-0ubuntu3.4 \
+                       libudev-dev=249.11-0ubuntu3.4
           sudo apt-get install -y \
                        cmake \
                        libgtk-3-dev liblzma-dev libpulse-dev \
@@ -273,8 +273,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-                       libudev1=249.11-0ubuntu3.3 \
-                       libudev-dev=249.11-0ubuntu3.3
+                       libudev1=249.11-0ubuntu3.4 \
+                       libudev-dev=249.11-0ubuntu3.4
           sudo apt-get install -y \
                        libgtk-3-dev libpulse-dev libxcomposite-dev \
                        libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
