@@ -6,7 +6,7 @@
 #include <gtk/gtk.h>
 #include <sys/utsname.h>
 
-#include "include/flutter_webrtc/flutter_web_r_t_c_plugin.h"
+#include "include/medea_jason_webrtc/medea_jason_webrtc_plugin.h"
 #include <flutter_webrtc_native.h>
 #include <video_texture.h>
 
