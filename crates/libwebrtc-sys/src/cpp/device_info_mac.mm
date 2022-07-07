@@ -5,10 +5,6 @@ DeviceInfoMac::DeviceInfoMac() : DeviceInfoImpl() {
   this->device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 }
 
-int32_t DeviceInfoMac::Init() {
-  return 0;
-}
-
 DeviceInfoMac::~DeviceInfoMac() {}
 
 uint32_t DeviceInfoMac::NumberOfDevices() {

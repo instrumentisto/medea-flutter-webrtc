@@ -217,8 +217,7 @@ jobs:
                        xvfb
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: make cargo.build platform=${{ matrix.platform }}
-                              args="--features fake_media"
+      - run: make cargo.build args="--features fake_media"
         if: ${{ matrix.platform != 'android' }}
 
       - name: Test on Android

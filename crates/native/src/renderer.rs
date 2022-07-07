@@ -204,20 +204,6 @@ mod frame_handler {
         pub fn drop_handler(handler: *const ());
     }
 
-    /// Converts provided [`sys::VideoFrame`] pixel data to `ABGR` scheme and
-    /// outputs the result to the provided `buffer`.
-    ///
-    /// # Safety
-    ///
-    /// The provided `buffer` must be a valid pointer.
-    #[no_mangle]
-    unsafe extern "C" fn get_abgr_bytes(
-        frame: *mut sys::VideoFrame,
-        buffer: *mut u8,
-    ) {
-        libwebrtc_sys::video_frame_to_abgr(frame.as_ref().unwrap(), buffer);
-    }
-
     /// Converts provided [`sys::VideoFrame`] pixel data to `ARGB` scheme and
     /// outputs the result to the provided `buffer`.
     ///

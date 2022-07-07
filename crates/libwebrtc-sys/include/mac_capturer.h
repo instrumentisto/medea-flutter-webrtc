@@ -61,9 +61,6 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
  private:
   void Destroy();
 
-  static AVCaptureDevice* FindVideoDevice(
-      const std::string& specifiedVideoDevice);
-
   RTCCameraVideoCapturer* capturer_;
   RTCVideoSourceAdapter* adapter_;
 };
