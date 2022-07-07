@@ -35,6 +35,9 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
                                           uint32_t /*positionX*/,
                                           uint32_t /*positionY*/) override;
 
+  int32_t FillCapabilities(int fd) RTC_EXCLUSIVE_LOCKS_REQUIRED(_apiLock);
+  int32_t Init() override;
+
  protected:
   AVCaptureDevice* device;
 };

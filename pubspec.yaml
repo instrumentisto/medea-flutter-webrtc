@@ -25,6 +25,8 @@ flutter:
       android:
         package: com.cloudwebrtc.webrtc
         pluginClass: FlutterWebRTCPlugin
+      ios:
+        pluginClass: FlutterWebRTCPlugin
       linux:
         pluginClass: FlutterWebRTCPlugin
       macos:
