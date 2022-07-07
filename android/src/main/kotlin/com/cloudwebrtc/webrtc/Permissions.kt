@@ -3,6 +3,7 @@ package com.cloudwebrtc.webrtc
 import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import androidx.annotation.MainThread
 import com.cloudwebrtc.webrtc.exception.PermissionException
 import io.flutter.plugin.common.PluginRegistry
 import kotlin.coroutines.Continuation
@@ -11,7 +12,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /** Random ID for the permission requests. */
-const val PERMISSIONS_REQUEST_ID = 133689594
+const val PERMISSIONS_REQUEST_ID = 856146223
 
 /** Service for requesting Android Permissions. */
 class Permissions(private val activity: Activity) :
@@ -38,7 +39,9 @@ class Permissions(private val activity: Activity) :
    *
    * @throws [PermissionException] if user rejected permission request.
    */
+  @MainThread
   suspend fun requestPermission(permission: String) {
+    ThreadUtils.checkIsOnMainThread()
     waitForRequestEnd()
     if (activity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
       return
@@ -91,9 +94,12 @@ class Permissions(private val activity: Activity) :
         }
         permissionRequest = null
       }
+      requestResolved()
+        return true
+    } else {
+        return false
     }
-    requestResolved()
 
-    return true
+
   }
 }
