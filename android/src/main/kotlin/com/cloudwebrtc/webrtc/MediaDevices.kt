@@ -1,6 +1,7 @@
 package com.cloudwebrtc.webrtc
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothHeadset
 import android.bluetooth.BluetoothProfile
@@ -9,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import com.cloudwebrtc.webrtc.exception.GetUserMediaException
@@ -19,6 +21,9 @@ import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.VideoMediaTrackSource
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.webrtc.*
 
 /**
@@ -101,23 +106,8 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   init {
-    state
-        .getAppContext()
-        .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
-    bluetoothAdapter?.getProfileProxy(
-        state.getAppContext(),
-        object : BluetoothProfile.ServiceListener {
-          override fun onServiceConnected(profile: Int, proxy: BluetoothProfile?) {
-            if (proxy!!.connectedDevices.isNotEmpty()) {
-              setHeadsetState(true)
-            }
-          }
-
-          override fun onServiceDisconnected(profile: Int) {
-            setHeadsetState(false)
-          }
-        },
-        BluetoothProfile.HEADSET)
+    GlobalScope.launch(Dispatchers.Main) { synchronizeHeadsetState() }
+    registerHeadsetStateReceiver()
   }
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
@@ -127,6 +117,32 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       setHeadsetState(true)
     } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED) {
       setHeadsetState(false)
+    }
+  }
+
+  /**
+   * Registers this [MediaDevices] as [BroadcastReceiver] of [Intent]s related to the Bluetooth
+   * headset state.
+   */
+  private fun registerHeadsetStateReceiver() {
+    state
+        .getAppContext()
+        .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
+  }
+
+  /**
+   * Actualizes Bluetooth headset state based on [BluetoothAdapter].
+   *
+   * Requests [Manifest.permission.BLUETOOTH_CONNECT] permission.
+   */
+  private suspend fun synchronizeHeadsetState() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      permissions.requestPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    }
+    @SuppressLint("MissingPermission")
+    if (bluetoothAdapter!!.getProfileConnectionState(BluetoothProfile.HEADSET) ==
+        BluetoothProfile.STATE_CONNECTED) {
+      setHeadsetState(true)
     }
   }
 
