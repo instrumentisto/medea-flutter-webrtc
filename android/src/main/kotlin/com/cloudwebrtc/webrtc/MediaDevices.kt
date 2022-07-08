@@ -106,8 +106,22 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   init {
-    GlobalScope.launch(Dispatchers.Main) { synchronizeHeadsetState() }
-    registerHeadsetStateReceiver()
+    state
+        .getAppContext()
+        .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
+
+    GlobalScope.launch(Dispatchers.Main) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        permissions.requestPermission(Manifest.permission.BLUETOOTH_CONNECT)
+      }
+      if (bluetoothAdapter != null) {
+        @SuppressLint("MissingPermission")
+        if (bluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET) ==
+            BluetoothProfile.STATE_CONNECTED) {
+          setHeadsetState(true)
+        }
+      }
+    }
   }
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
@@ -117,32 +131,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       setHeadsetState(true)
     } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED) {
       setHeadsetState(false)
-    }
-  }
-
-  /**
-   * Registers this [MediaDevices] as [BroadcastReceiver] of [Intent]s related to the Bluetooth
-   * headset state.
-   */
-  private fun registerHeadsetStateReceiver() {
-    state
-        .getAppContext()
-        .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
-  }
-
-  /**
-   * Actualizes Bluetooth headset state based on [BluetoothAdapter].
-   *
-   * Requests [Manifest.permission.BLUETOOTH_CONNECT] permission.
-   */
-  private suspend fun synchronizeHeadsetState() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      permissions.requestPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    }
-    @SuppressLint("MissingPermission")
-    if (bluetoothAdapter!!.getProfileConnectionState(BluetoothProfile.HEADSET) ==
-        BluetoothProfile.STATE_CONNECTED) {
-      setHeadsetState(true)
     }
   }
 

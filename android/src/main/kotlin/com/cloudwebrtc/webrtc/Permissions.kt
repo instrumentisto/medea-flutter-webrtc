@@ -43,10 +43,10 @@ class Permissions(private val activity: Activity) :
   @MainThread
   suspend fun requestPermission(permission: String) {
     ThreadUtils.checkIsOnMainThread()
-    waitForRequestEnd()
     if (activity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
       return
     }
+    waitForRequestEnd()
     return suspendCoroutine { continuation ->
       hasOngoingRequest = true
       ActivityCompat.requestPermissions(activity, arrayOf(permission), PERMISSIONS_REQUEST_ID)
