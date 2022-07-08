@@ -11,7 +11,7 @@ import org.webrtc.VideoTrack as WVideoTrack
  * @throws Exception If the provided [MediaStreamTrackProxy] isn't a video.
  */
 class VideoTrackProxy(private val track: MediaStreamTrackProxy) {
-  /** The actual list of the added [SurfaceTextureRenderer]s. */
+  /** Actual list of the added [SurfaceTextureRenderer]s. */
   private val sinks: MutableList<SurfaceTextureRenderer> = mutableListOf()
 
   init {
