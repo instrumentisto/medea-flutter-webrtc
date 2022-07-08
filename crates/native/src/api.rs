@@ -1,4 +1,4 @@
-use std::{mem, sync::Mutex};
+use std::sync::Mutex;
 
 use cxx::UniquePtr;
 use flutter_rust_bridge::StreamSink;
@@ -1000,7 +1000,8 @@ pub fn dispose_peer_connection(peer_id: u64) {
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
-    match WEBRTC.lock().unwrap().get_media(constraints) {
+    let media = WEBRTC.lock().unwrap().get_media(constraints);
+    match media {
         Ok(tracks) => GetMediaResult::Ok(tracks),
         Err(err) => GetMediaResult::Err(err),
     }
@@ -1099,7 +1100,7 @@ pub fn create_video_sink(
     callback_ptr: u64,
 ) -> anyhow::Result<()> {
     let handler = unsafe {
-        let ptr: *mut OnFrameCallbackInterface = mem::transmute(callback_ptr);
+        let ptr = callback_ptr as *mut OnFrameCallbackInterface;
         UniquePtr::from_raw(ptr)
     };
     WEBRTC
