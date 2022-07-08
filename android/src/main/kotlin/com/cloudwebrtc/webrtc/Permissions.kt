@@ -2,8 +2,8 @@ package com.cloudwebrtc.webrtc
 
 import android.app.Activity
 import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
 import androidx.annotation.MainThread
+import androidx.core.app.ActivityCompat
 import com.cloudwebrtc.webrtc.exception.PermissionException
 import io.flutter.plugin.common.PluginRegistry
 import kotlin.coroutines.Continuation
@@ -95,11 +95,9 @@ class Permissions(private val activity: Activity) :
         permissionRequest = null
       }
       requestResolved()
-        return true
+      return true
     } else {
-        return false
+      return false
     }
-
-
   }
 }
