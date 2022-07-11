@@ -47,6 +47,9 @@ class Permissions(private val activity: Activity) :
       return
     }
     waitForRequestEnd()
+    if (activity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+      return
+    }
     return suspendCoroutine { continuation ->
       hasOngoingRequest = true
       ActivityCompat.requestPermissions(activity, arrayOf(permission), PERMISSIONS_REQUEST_ID)
