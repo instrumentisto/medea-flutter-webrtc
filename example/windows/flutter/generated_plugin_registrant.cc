@@ -6,9 +6,9 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <medea_jason_webrtc/medea_jason_webrtc_plugin_c_api.h>
+#include <medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  MedeaJasonWebrtcPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("MedeaJasonWebrtcPluginCApi"));
+  MedeaFlutterWebrtcPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("MedeaFlutterWebrtcPluginCApi"));
 }

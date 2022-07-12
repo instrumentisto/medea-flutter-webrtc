@@ -1,4 +1,4 @@
-name: medea_jason_webrtc
+name: medea_flutter_webrtc
 description: Flutter WebRTC plugin for iOS/Android/Destkop/Web, based on GoogleWebRTC.
 version: 0.8.0-dev
 homepage: https://github.com/instrumentisto/flutter-webrtc
@@ -23,13 +23,13 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.instrumentisto.medea_jason_webrtc
-        pluginClass: MedeaJasonWebrtcPlugin
+        package: com.instrumentisto.medea_flutter_webrtc
+        pluginClass: MedeaFlutterWebrtcPlugin
       ios:
-        pluginClass: MedeaJasonWebrtcPlugin
+        pluginClass: MedeaFlutterWebrtcPlugin
       linux:
-        pluginClass: MedeaJasonWebrtcPlugin
+        pluginClass: MedeaFlutterWebrtcPlugin
       macos:
-        pluginClass: MedeaJasonWebrtcPlugin
+        pluginClass: MedeaFlutterWebrtcPlugin
       windows:
-        pluginClass: MedeaJasonWebrtcPluginCApi
+        pluginClass: MedeaFlutterWebrtcPluginCApi

@@ -3,7 +3,7 @@
 #include "flutter_webrtc_native.h"
 #include "video_renderer.h"
 
-namespace medea_jason_webrtc {
+namespace medea_flutter_webrtc {
 
 // Creates a new `FlutterVideoRendererManager`.
 FlutterVideoRendererManager::FlutterVideoRendererManager(
@@ -192,4 +192,4 @@ void FrameHandler::OnFrame(VideoFrame frame) {
   renderer_->OnFrame(std::move(frame));
 }
 
-}  // namespace medea_jason_webrtc
+}  // namespace medea_flutter_webrtc

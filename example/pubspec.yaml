@@ -11,7 +11,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter:
     sdk: flutter
-  medea_jason_webrtc:
+  medea_flutter_webrtc:
     path: ../
 
 dev_dependencies:

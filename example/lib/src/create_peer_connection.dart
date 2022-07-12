@@ -2,7 +2,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:medea_jason_webrtc/medea_jason_webrtc.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 
 class PeerConnectionSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';

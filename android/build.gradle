@@ -1,4 +1,4 @@
-group 'com.instrumentisto.medea_jason_webrtc'
+group 'com.instrumentisto.medea_flutter_webrtc'
 version '1.0-SNAPSHOT'
 
 buildscript {

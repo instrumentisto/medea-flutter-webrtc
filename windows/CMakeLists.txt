@@ -5,19 +5,19 @@
 cmake_minimum_required(VERSION 3.15)
 
 # Project-level configuration.
-set(PROJECT_NAME "medea_jason_webrtc")
+set(PROJECT_NAME "medea_flutter_webrtc")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed
-set(PLUGIN_NAME "medea_jason_webrtc_plugin")
+set(PLUGIN_NAME "medea_flutter_webrtc_plugin")
 
 add_definitions(-DLIB_WEBRTC_API_DLL)
 
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
-  "medea_jason_webrtc_plugin.cpp"
-  "medea_jason_webrtc_plugin.h"
+  "medea_flutter_webrtc_plugin.cpp"
+  "medea_flutter_webrtc_plugin.h"
   "src/video_renderer.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/src/flutter_webrtc_native.cc"
 )
@@ -25,8 +25,8 @@ list(APPEND PLUGIN_SOURCES
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 add_library(${PLUGIN_NAME} SHARED
-  "include/medea_jason_webrtc/medea_jason_webrtc_plugin_c_api.h"
-  "medea_jason_webrtc_plugin_c_api.cpp"
+  "include/medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h"
+  "medea_flutter_webrtc_plugin_c_api.cpp"
   ${PLUGIN_SOURCES}
 )
 
@@ -60,7 +60,7 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
-set(medea_jason_webrtc_bundled_libraries
+set(medea_flutter_webrtc_bundled_libraries
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/flutter_webrtc_native.dll"
   PARENT_SCOPE
 )

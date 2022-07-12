@@ -13,7 +13,7 @@
 
 using namespace flutter;
 
-namespace medea_jason_webrtc {
+namespace medea_flutter_webrtc {
 template <typename T>
 inline bool TypeIs(const EncodableValue val) {
   return std::holds_alternative<T>(val);
@@ -150,4 +150,4 @@ class FrameHandler : public OnFrameCallbackInterface {
   std::shared_ptr<TextureVideoRenderer> renderer_;
 };
 
-}  // namespace medea_jason_webrtc
+}  // namespace medea_flutter_webrtc

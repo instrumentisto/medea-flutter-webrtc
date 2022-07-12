@@ -5,8 +5,8 @@
 import FlutterMacOS
 import Foundation
 
-import medea_jason_webrtc
+import medea_flutter_webrtc
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  MedeaJasonWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaJasonWebrtcPlugin"))
+  MedeaFlutterWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))
 }

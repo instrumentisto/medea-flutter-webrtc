@@ -4,12 +4,12 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project-level configuration.
-set(PROJECT_NAME "medea_jason_webrtc")
+set(PROJECT_NAME "medea_flutter_webrtc")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed.
-set(PLUGIN_NAME "medea_jason_webrtc_plugin")
+set(PLUGIN_NAME "medea_flutter_webrtc_plugin")
 set(CMAKE_CXX_STANDARD 17)
 
 # Define the plugin library target. Its name must not be changed (see comment
@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD 17)
 #
 # Any new source files that you add to the plugin should be added here.
 add_library(${PLUGIN_NAME} SHARED
-  "medea_jason_webrtc_plugin.cc"
+  "medea_flutter_webrtc_plugin.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/src/flutter_webrtc_native.cc"
 )
 
@@ -51,7 +51,7 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
-set(medea_jason_webrtc_bundled_libraries
+set(medea_flutter_webrtc_bundled_libraries
   "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so"
   PARENT_SCOPE
 )
