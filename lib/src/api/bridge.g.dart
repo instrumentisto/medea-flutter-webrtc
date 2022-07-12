@@ -1580,7 +1580,7 @@ class FlutterWebrtcNativeImpl
   }
 
   int _api2wire_bundle_policy(BundlePolicy raw) {
-    return raw.index;
+    return _api2wire_i32(raw.index);
   }
 
   int _api2wire_i32(int raw) {
@@ -1592,7 +1592,7 @@ class FlutterWebrtcNativeImpl
   }
 
   int _api2wire_ice_transports_type(IceTransportsType raw) {
-    return raw.index;
+    return _api2wire_i32(raw.index);
   }
 
   ffi.Pointer<wire_list_rtc_ice_server> _api2wire_list_rtc_ice_server(
@@ -1605,7 +1605,7 @@ class FlutterWebrtcNativeImpl
   }
 
   int _api2wire_media_type(MediaType raw) {
-    return raw.index;
+    return _api2wire_i32(raw.index);
   }
 
   ffi.Pointer<wire_uint_8_list> _api2wire_opt_String(String? raw) {
@@ -1627,11 +1627,11 @@ class FlutterWebrtcNativeImpl
   }
 
   int _api2wire_rtp_transceiver_direction(RtpTransceiverDirection raw) {
-    return raw.index;
+    return _api2wire_i32(raw.index);
   }
 
   int _api2wire_sdp_type(SdpType raw) {
-    return raw.index;
+    return _api2wire_i32(raw.index);
   }
 
   int _api2wire_u32(int raw) {
