@@ -10,6 +10,7 @@ concurrency:
 env:
   KTFMT_VER: 0.33
   RUST_BACKTRACE: 1
+  PUB_DEV_PROJECT_URL: https://pub.dev/packages/medea_flutter_webrtc/
 
 jobs:
 
@@ -32,45 +33,6 @@ jobs:
     steps:
       - run: true
 
-  publish:
-    if: contains(github.event.head_commit.message, '[publish]') || github.ref_name == 'master'
-
-    needs:
-      - build
-      - clippy
-      - dartanalyze
-      - dartfmt
-      - ktfmt
-      - rustdoc
-      - rustfmt
-      - test-flutter
-
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: subosito/flutter-action@v2
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: windows
-          path: windows/rust/
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: linux
-          path: linux/rust/
-
-      - run: |
-          grep 'version:' pubspec.yaml |
-          cut -d' ' -f2 |
-          {
-            read version;
-            new_version=${version}.rev.${{ github.sha }};
-            sed -i "s|$version|$new_version|g" pubspec.yaml;
-          }
-
-      - run: flutter pub publish -n
 
 
 
@@ -208,7 +170,7 @@ jobs:
 
   test-flutter:
     name: Test Flutter integration
-    needs: ["build"]
+    needs: [ "build" ]
     strategy:
       fail-fast: false
       matrix:
@@ -303,3 +265,61 @@ jobs:
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.doc
+
+
+
+
+  #############
+  # Releasing #
+  #############
+
+  publish:
+    if: ${{ startsWith(github.ref, 'refs/tags/')
+      || contains(github.event.head_commit.message, '[publish]')
+      || github.ref_name == 'master' }}
+
+    needs:
+      - build
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - test-flutter
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: subosito/flutter-action@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: windows
+          path: windows/rust/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: linux
+          path: linux/rust/
+
+      - run: |
+          grep 'version:' pubspec.yaml | cut -d' ' -f2 |
+          {
+            read version;
+            new_version=${version}.rev.${{ github.sha }};
+            sed -i "s|$version|$new_version|g" pubspec.yaml;
+          }
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+      - name: Setup publish token
+        env:
+          FLUTTER_PUB_TOKEN: ${{ secrets.PUBDEV_CREDS }}
+        run: flutter pub token add ${{ env.PUB_DEV_PROJECT_URL }} --env-var FLUTTER_PUB_TOKEN
+
+      - name: Check publish errors
+        run: flutter pub publish --dry-run
+
+      - name: Publish to pub.dev
+        run: flutter pub publish -f
