@@ -318,8 +318,5 @@ jobs:
           FLUTTER_PUB_TOKEN: ${{ secrets.PUBDEV_CREDS }}
         run: flutter pub token add ${{ env.PUB_DEV_PROJECT_URL }} --env-var FLUTTER_PUB_TOKEN
 
-      - name: Check publish errors
-        run: flutter pub publish --dry-run
-
       - name: Publish to pub.dev
         run: flutter pub publish -f

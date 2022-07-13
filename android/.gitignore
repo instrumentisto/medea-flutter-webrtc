@@ -2,8 +2,6 @@
 /.idea/
 /captures/
 /gradle-wrapper.jar
-/gradlew
-/gradlew.bat
 
 GeneratedPluginRegistrant.java
 
