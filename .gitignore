@@ -30,8 +30,6 @@ example/ios/Flutter/flutter_export_environment.sh
 *.ipr
 *.iws
 .idea/
-!webrtc_android.iml
-!webrtc.iml
 
 # VSCode
 .vscode/
