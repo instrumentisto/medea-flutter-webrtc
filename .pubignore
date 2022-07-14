@@ -2,3 +2,5 @@ crates/
 Cargo.lock
 Cargo.toml
 Makefile
+
+credentials.json
