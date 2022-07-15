@@ -303,6 +303,10 @@ jobs:
           name: linux
           path: linux/rust/
 
+      - name: Create auth token
+      - run: echo ${{ secrets.PUBDEV_CREDS }} | base64 --decode > "$FLUTTER_ROOT/.pub-cache/credentials.json"
+
+      - name: Change version to commit SHA
       - run: |
           grep 'version:' pubspec.yaml | cut -d' ' -f2 |
           {
@@ -310,10 +314,6 @@ jobs:
             new_version=${version}.rev.${{ github.sha }};
             sed -i "s|$version|$new_version|g" pubspec.yaml;
           }
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
       - name: Publish to pub.dev
-        uses: sakebook/actions-flutter-pub-publisher@v1.4.1
-        with:
-          credential: ${{ secrets.PUBDEV_CREDS }}
-          skip_test: true
+      - run: flutter pub publish -f
