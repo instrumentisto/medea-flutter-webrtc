@@ -264,3 +264,30 @@ jobs:
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.doc
+
+
+
+
+  #############
+  # Releasing #
+  #############
+
+  publish:
+    if: ${{ startsWith(github.ref, 'refs/tags/')
+      || contains(github.event.head_commit.message, '[publish]')
+      || github.ref_name == 'master' }}
+
+    needs:
+      - build
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - test-flutter
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
