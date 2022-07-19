@@ -1,14 +1,9 @@
 package com.cloudwebrtc.webrtc
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothHeadset
-import android.bluetooth.BluetoothProfile
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.media.AudioDeviceCallback
+import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
@@ -21,9 +16,6 @@ import com.cloudwebrtc.webrtc.proxy.MediaStreamTrackProxy
 import com.cloudwebrtc.webrtc.proxy.VideoMediaTrackSource
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import java.util.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.webrtc.*
 
 /**
@@ -66,10 +58,7 @@ private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
  * @property state Global state used for enumerating devices and creation new
  * [MediaStreamTrackProxy]s.
  */
-class MediaDevices(val state: State, private val permissions: Permissions) : BroadcastReceiver() {
-  /** [BluetoothAdapter] used for detecting whether bluetooth headset is connected or not. */
-  private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
-
+class MediaDevices(val state: State, private val permissions: Permissions) {
   /** Indicator of bluetooth headset connection state. */
   private var isBluetoothHeadsetConnected: Boolean = false
 
@@ -81,6 +70,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
 
   /** List of [EventObserver]s of these [MediaDevices]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
+
+  /** [AudioManager] system service. */
+  private val audioManager: AudioManager = state.getAudioManager()
 
   companion object {
     /** Observer of [MediaDevices] events. */
@@ -103,46 +95,51 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
         Camera1Enumerator(false)
       }
     }
+
+    /** Returns `true` if provided [AudioDeviceInfo] is related to the Bluetooth headset. */
+    private fun isBluetoothDevice(info: AudioDeviceInfo): Boolean {
+      return info.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
+          info.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+          (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+              info.type == AudioDeviceInfo.TYPE_BLE_HEADSET)
+    }
   }
 
   init {
-    GlobalScope.launch(Dispatchers.Main) { synchronizeHeadsetState() }
+    synchronizeHeadsetState()
     registerHeadsetStateReceiver()
   }
 
-  override fun onReceive(ctx: Context?, intent: Intent?) {
-    val bluetoothHeadsetState =
-        intent?.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED)
-    if (bluetoothHeadsetState == BluetoothHeadset.STATE_CONNECTED) {
-      setHeadsetState(true)
-    } else if (bluetoothHeadsetState == BluetoothHeadset.STATE_DISCONNECTED) {
-      setHeadsetState(false)
-    }
-  }
-
   /**
-   * Registers this [MediaDevices] as [BroadcastReceiver] of [Intent]s related to the Bluetooth
-   * headset state.
+   * Subscribes to the [AudioManager.registerAudioDeviceCallback] which will fire up when new audio
+   * device is connected.
+   *
+   * [isBluetoothHeadsetConnected] will be updated based on this subscription.
    */
   private fun registerHeadsetStateReceiver() {
-    state
-        .getAppContext()
-        .registerReceiver(this, IntentFilter(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED))
+    audioManager.registerAudioDeviceCallback(
+        object : AudioDeviceCallback() {
+          override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
+            if (addedDevices.any { isBluetoothDevice(it) }) {
+              setHeadsetState(true)
+            }
+          }
+
+          override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
+            if (removedDevices.any { isBluetoothDevice(it) }) {
+              synchronizeHeadsetState()
+            }
+          }
+        },
+        null)
   }
 
-  /**
-   * Actualizes Bluetooth headset state based on [BluetoothAdapter].
-   *
-   * Requests [Manifest.permission.BLUETOOTH_CONNECT] permission.
-   */
-  private suspend fun synchronizeHeadsetState() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      permissions.requestPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    }
-    @SuppressLint("MissingPermission")
-    if (bluetoothAdapter!!.getProfileConnectionState(BluetoothProfile.HEADSET) ==
-        BluetoothProfile.STATE_CONNECTED) {
+  /** Actualizes Bluetooth headset state based on [AudioManager.getDevices]. */
+  private fun synchronizeHeadsetState() {
+    if (audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).any { isBluetoothDevice(it) }) {
       setHeadsetState(true)
+    } else {
+      setHeadsetState(false)
     }
   }
 
@@ -195,7 +192,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
    * @param deviceId Identifier for the output audio device to be selected.
    */
   fun setOutputAudioId(deviceId: String) {
-    val audioManager = state.getAppContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val audioManager = state.getAudioManager()
     when (deviceId) {
       EAR_SPEAKER_DEVICE_ID -> {
         audioManager.isBluetoothScoOn = false
