@@ -1,4 +1,7 @@
-use std::sync::Mutex;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Mutex,
+};
 
 use cxx::UniquePtr;
 use flutter_rust_bridge::StreamSink;
@@ -8,6 +11,7 @@ use crate::{cpp_api::OnFrameCallbackInterface, Webrtc};
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
+    pub static ref FAKE_MEDIA: AtomicBool = AtomicBool::new(false);
 }
 
 /// Indicator of the current state of a [`MediaStreamTrack`].
@@ -778,6 +782,17 @@ pub struct RtcIceServer {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver-credential
     pub credential: String,
+}
+
+/// Configures media acquisition to use fake devices to replace actual camera
+/// and microphone.
+pub fn enable_fake_media() {
+    FAKE_MEDIA.store(true, Ordering::Release);
+}
+
+/// Whether application is configured to usd fake media devices.
+pub fn is_fake_media() -> bool {
+    FAKE_MEDIA.load(Ordering::Acquire)
 }
 
 /// Returns a list of all available media input and output devices, such as

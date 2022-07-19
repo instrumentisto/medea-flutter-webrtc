@@ -116,39 +116,25 @@ flutter.pub:
 # Run Flutter example application for the current OS.
 #
 # Usage:
-#	make flutter.run [fake_media=(true|false)]
+#	make flutter.run
 
 flutter.run:
-ifeq ($(fake_media),true)
-	cd example/ && \
-	export WEBRTC_FAKE_MEDIA=true && \
-	flutter run -d $(CURRENT_OS) --release
-else
 	cd example/ && \
 	flutter run -d $(CURRENT_OS) --release
-endif
 
 
 # Run Flutter plugin integration tests on an attached device.
 #
 # Usage:
-#	make flutter.test [device=<device-id>] [fake_media=(true|false)]
+#	make flutter.test [device=<device-id>]
 
 flutter.test:
-ifeq ($(fake_media),true)
-	cd example/ && \
-	export WEBRTC_FAKE_MEDIA=true && \
-	flutter drive --driver=test_driver/integration_driver.dart \
-	              --target=integration_test/webrtc_test.dart \
-	              --profile \
-	              $(if $(call eq,$(device),),,-d $(device))
-else
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
 	              --target=integration_test/webrtc_test.dart \
 	              --profile \
 	              $(if $(call eq,$(device),),,-d $(device))
-endif
+
 
 
 

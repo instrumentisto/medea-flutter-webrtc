@@ -216,11 +216,11 @@ jobs:
         if: ${{ matrix.platform == 'android' }}
 
       - name: Test on Linux
-        run: xvfb-run -a make flutter.test device=linux fake_media=true
+        run: xvfb-run -a make flutter.test device=linux
         if: ${{ matrix.platform == 'linux' }}
 
       - name: Test on Windows
-        run: make flutter.test device=windows fake_media=true
+        run: make flutter.test device=windows
         if: ${{ matrix.platform == 'windows' }}
 
 
