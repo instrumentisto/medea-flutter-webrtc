@@ -169,7 +169,7 @@ jobs:
 
   test-flutter:
     name: Test Flutter integration
-    needs: [ "build" ]
+    needs: ["build"]
     strategy:
       fail-fast: false
       matrix:
@@ -303,9 +303,6 @@ jobs:
           name: linux
           path: linux/rust/
 
-      - name: Create auth token
-      - run: echo ${{ secrets.PUBDEV_CREDS }} | base64 --decode > "$FLUTTER_ROOT/.pub-cache/credentials.json"
-
       - name: Change version to commit SHA
       - run: |
           grep 'version:' pubspec.yaml | cut -d' ' -f2 |
@@ -314,6 +311,10 @@ jobs:
             new_version=${version}.rev.${{ github.sha }};
             sed -i "s|$version|$new_version|g" pubspec.yaml;
           }
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+      - name: Create auth token
+      - run: echo ${{ secrets.PUBDEV_CREDS }} | base64 --decode > "$FLUTTER_ROOT/.pub-cache/credentials.json"
 
       - name: Publish to pub.dev
       - run: flutter pub publish -f
