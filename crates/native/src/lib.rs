@@ -84,13 +84,13 @@ impl Webrtc {
         signaling_thread.start()?;
 
         let audio_device_module = if api::is_fake_media() {
+            AudioDeviceModule::new_fake(&mut task_queue_factory)
+        } else {
             AudioDeviceModule::new(
                 &mut worker_thread,
                 sys::AudioLayer::kPlatformDefaultAudio,
                 &mut task_queue_factory,
             )?
-        } else {
-            AudioDeviceModule::new_fake(&mut task_queue_factory)
         };
 
         let peer_connection_factory =
