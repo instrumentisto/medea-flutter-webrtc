@@ -313,8 +313,3 @@ jobs:
           }
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
-      - name: Create auth token
-      - run: echo ${{ secrets.PUBDEV_CREDS }} | base64 --decode > "$FLUTTER_ROOT/.pub-cache/credentials.json"
-
-      - name: Publish to pub.dev
-      - run: flutter pub publish -f
