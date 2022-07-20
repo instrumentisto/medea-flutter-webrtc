@@ -290,8 +290,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - uses: subosito/flutter-action@v2
+      - uses: dart-lang/setup-dart@v1.3
 
       - uses: actions/download-artifact@v3
         with:
@@ -313,8 +312,14 @@ jobs:
           }
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
-      - name: Create auth token
-        run: echo '${{ secrets.PUBDEV_CREDS }}' > "$XDG_CONFIG_HOME/dart/pub-credentials.json"
+      - name: Add credentials to Dart folder
+        run: |
+          echo $PUB_CREDENTIALS > ~/pub-credentials.json
+          mkdir -p ${XDG_CONFIG_HOME:-${HOME:-default}}/dart
+          touch ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
+          cp ~/pub-credentials.json ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
+        env:
+          PUB_CREDENTIALS: ${{ secrets.PUBDEV_CREDS }}
 
       - name: Publish to pub.dev
-        run: flutter pub publish -f
+        run: dart pub publish --force

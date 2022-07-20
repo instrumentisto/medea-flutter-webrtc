@@ -4,3 +4,4 @@ Cargo.toml
 Makefile
 
 credentials.json
+pub-credentials.json
