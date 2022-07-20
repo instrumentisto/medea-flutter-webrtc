@@ -40,6 +40,7 @@ pub use crate::{
     },
     video_sink::{Frame, VideoSink},
 };
+use crate::api::is_fake_media;
 
 /// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -74,6 +75,7 @@ struct Webrtc {
 impl Webrtc {
     /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
+        assert!(is_fake_media(), "SUPPOSED TO BE FAKE MEDIA");
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();
 
