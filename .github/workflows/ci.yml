@@ -158,7 +158,12 @@ jobs:
       - run: make cargo.build debug=no
       - run: make flutter.build platform=${{ matrix.platform }}
 
-
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: windows/rust/lib/
+          if-no-files-found: error
+        if: ${{ matrix.platform == 'windows' }}
 
 
   ###########

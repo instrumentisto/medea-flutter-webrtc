@@ -40,7 +40,6 @@ pub use crate::{
     },
     video_sink::{Frame, VideoSink},
 };
-use crate::api::is_fake_media;
 
 /// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -87,12 +86,11 @@ impl Webrtc {
         let audio_device_module = if api::is_fake_media() {
             AudioDeviceModule::new_fake(&mut task_queue_factory)
         } else {
-            unreachable!("wtf is this");
             AudioDeviceModule::new(
                 &mut worker_thread,
                 sys::AudioLayer::kPlatformDefaultAudio,
                 &mut task_queue_factory,
-            ).unwrap()
+            )?
         };
 
         let peer_connection_factory =
