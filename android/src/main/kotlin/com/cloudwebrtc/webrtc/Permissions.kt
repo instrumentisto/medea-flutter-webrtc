@@ -43,6 +43,10 @@ class Permissions(private val activity: Activity) :
   @MainThread
   suspend fun requestPermission(permission: String) {
     ThreadUtils.checkIsOnMainThread()
+    if (activity.checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED &&
+        !ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+      throw PermissionException("Permission '${permission}' not granted")
+    }
     if (activity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
       return
     }
