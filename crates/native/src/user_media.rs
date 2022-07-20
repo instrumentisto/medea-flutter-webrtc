@@ -621,6 +621,7 @@ impl AudioDeviceModule {
     /// If could not find any available recording device.
     pub fn new_fake(task_queue_factory: &mut sys::TaskQueueFactory) -> Self {
         let inner = sys::AudioDeviceModule::create_fake(task_queue_factory);
+        inner.init().unwrap();
 
         Self {
             inner,

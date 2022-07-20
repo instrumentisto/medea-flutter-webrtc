@@ -92,7 +92,7 @@ impl Webrtc {
                 &mut worker_thread,
                 sys::AudioLayer::kPlatformDefaultAudio,
                 &mut task_queue_factory,
-            )?
+            ).unwrap()
         };
 
         let peer_connection_factory =
