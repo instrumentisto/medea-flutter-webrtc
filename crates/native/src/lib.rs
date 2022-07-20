@@ -75,7 +75,6 @@ struct Webrtc {
 impl Webrtc {
     /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
-        assert!(is_fake_media(), "SUPPOSED TO BE FAKE MEDIA");
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();
 
@@ -88,6 +87,7 @@ impl Webrtc {
         let audio_device_module = if api::is_fake_media() {
             AudioDeviceModule::new_fake(&mut task_queue_factory)
         } else {
+            unreachable!("wtf is this");
             AudioDeviceModule::new(
                 &mut worker_thread,
                 sys::AudioLayer::kPlatformDefaultAudio,
