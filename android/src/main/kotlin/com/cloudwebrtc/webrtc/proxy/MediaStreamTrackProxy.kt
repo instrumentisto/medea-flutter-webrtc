@@ -123,7 +123,11 @@ class MediaStreamTrackProxy(
 
   /** @return [MediaStreamTrackState] of the underlying [MediaStreamTrack]. */
   fun state(): MediaStreamTrackState {
-    return MediaStreamTrackState.fromWebRtcState(obj.state())
+    return try {
+      MediaStreamTrackState.fromWebRtcState(obj.state())
+    } catch (e: IllegalStateException) {
+      MediaStreamTrackState.ENDED
+    }
   }
 
   /**
