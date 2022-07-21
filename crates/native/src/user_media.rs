@@ -11,8 +11,7 @@ use sys::TrackEventObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
-    api,
-    api::{is_fake_media, MediaType, TrackEvent},
+    api::{self, MediaType, TrackEvent},
     next_id,
     stream_sink::StreamSink,
     PeerConnectionId, VideoSink, VideoSinkId, Webrtc,
@@ -541,7 +540,7 @@ impl VideoDeviceInfo {
 
     /// Returns count of a video recording devices.
     pub fn number_of_devices(&mut self) -> u32 {
-        if is_fake_media() {
+        if api::is_fake_media() {
             1
         } else {
             self.0.number_of_devices()
@@ -557,7 +556,7 @@ impl VideoDeviceInfo {
         &mut self,
         index: u32,
     ) -> anyhow::Result<(String, String)> {
-        if is_fake_media() {
+        if api::is_fake_media() {
             Ok((String::from("fake camera"), String::from("fake camera id")))
         } else {
             self.0.device_name(index)
@@ -639,7 +638,7 @@ impl AudioDeviceModule {
         &self,
         index: i16,
     ) -> anyhow::Result<(String, String)> {
-        if is_fake_media() {
+        if api::is_fake_media() {
             return Ok((
                 String::from("fake headset"),
                 String::from("fake headset id"),
@@ -670,7 +669,7 @@ impl AudioDeviceModule {
         &self,
         index: i16,
     ) -> anyhow::Result<(String, String)> {
-        if is_fake_media() {
+        if api::is_fake_media() {
             return Ok((String::from("fake mic"), String::from("fake mic id")));
         }
 
@@ -705,7 +704,7 @@ impl AudioDeviceModule {
     /// If [`sys::AudioDeviceModule::recording_devices()`] call fails.
     #[must_use]
     pub fn recording_devices(&self) -> u32 {
-        if is_fake_media() {
+        if api::is_fake_media() {
             1
         } else {
             self.inner.recording_devices()
@@ -1069,7 +1068,7 @@ impl VideoSource {
         device_index: u32,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
-        let inner = if is_fake_media() {
+        let inner = if api::is_fake_media() {
             sys::VideoTrackSourceInterface::create_fake(
                 worker_thread,
                 signaling_thread,

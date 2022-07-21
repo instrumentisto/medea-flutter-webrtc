@@ -201,7 +201,7 @@ impl AudioDeviceModule {
     }
 
     /// Creates a new fake [`AudioDeviceModule`], that will not try to access
-    /// real media devices but will generate pulsed noise.
+    /// real media devices, but will generate pulsed noise.
     pub fn create_fake(task_queue_factory: &mut TaskQueueFactory) -> Self {
         Self(webrtc::create_fake_audio_device_module(
             task_queue_factory.0.pin_mut(),

@@ -453,7 +453,7 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<AudioDeviceModule>;
 
         /// Creates a new fake [`AudioDeviceModule`], that will not try to
-        /// access real media devices but will generate pulsed noise.
+        /// access real media devices, but will generate pulsed noise.
         pub fn create_fake_audio_device_module(
             task_queue_factory: Pin<&mut TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;

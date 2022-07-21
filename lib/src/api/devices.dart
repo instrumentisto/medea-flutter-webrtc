@@ -287,9 +287,10 @@ void onDeviceChange(OnDeviceChangeCallback? cb) {
   _DeviceHandler().setHandler(cb);
 }
 
-/// Configures media acquisition to use fake devices to replace actual camera
-/// and microphone. This must be called before any other function to work
-/// properly.
+/// Configures media acquisition to use fake devices instead of actual camera
+/// and microphone.
+///
+/// This must be called before any other function to work properly.
 Future<void> enableFakeMedia() async {
   if (api != null) {
     await api!.enableFakeMedia();
