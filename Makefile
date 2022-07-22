@@ -23,6 +23,11 @@ FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	        | grep -v 'flutter_rust_bridge' \
 	        | cut -d '"' -f2))
 
+FFIGEN_VERSION ?= $(strip \
+	$(shell grep -A3 'name: ffigen' pubspec.lock \
+	 		| grep 'version' \
+	 		| cut -d '"' -f2))
+
 CURRENT_OS ?= $(strip $(or $(os),\
 	$(if $(call eq,$(OS),Windows_NT),windows,\
 	$(if $(call eq,$(shell uname -s),Darwin),macos,linux))))
@@ -242,8 +247,8 @@ endif
 ifeq ($(shell which cbindgen),)
 	cargo install cbindgen
 endif
-ifeq ($(shell dart pub global list | grep 'ffigen '),)
-	dart pub global activate ffigen
+ifeq ($(shell dart pub global list | grep 'ffigen $(FFIGEN_VERSION)'),)
+	dart pub global activate ffigen $(FFIGEN_VERSION)
 endif
 ifeq ($(CURRENT_OS),macos)
 ifeq ($(shell brew list | grep -Fx llvm),)
