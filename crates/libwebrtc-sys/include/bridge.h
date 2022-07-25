@@ -12,6 +12,7 @@
 #if __APPLE__
   #include "libwebrtc-sys/include/device_info_mac.h"
   #include "mac_capturer.h"
+  #include "device_info_mac.h"
 #else
   #include "device_video_capturer.h"
 #endif
@@ -30,6 +31,8 @@
 #include "media/base/fake_frame_source.h"
 #include "pc/test/fake_video_track_source.h"
 #include "modules/audio_device/include/test_audio_device.h"
+
+extern "C" void set_on_device_changed_callback(void(*cb)());
 
 namespace bridge {
 

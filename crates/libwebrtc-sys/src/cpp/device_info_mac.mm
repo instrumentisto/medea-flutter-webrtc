@@ -1,6 +1,22 @@
 #if __APPLE__
 #include "device_info_mac.h"
 
+void set_on_device_change(void (*cb)()) {
+  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+  id deviceWasConnectedObserver = [notificationCenter addObserverForName:AVCaptureDeviceWasConnectedNotification
+      object:nil
+      queue:[NSOperationQueue mainQueue]
+      usingBlock:^(NSNotification *note) {
+        cb();
+      }];
+  id deviceWasDisconnectedObserver = [notificationCenter addObserverForName:AVCaptureDeviceWasDisconnectedNotification
+      object:nil
+      queue:[NSOperationQueue mainQueue]
+      usingBlock:^(NSNotification *note) {
+        cb();
+      }];
+}
+
 DeviceInfoMac::DeviceInfoMac() : DeviceInfoImpl() {
   this->device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 }

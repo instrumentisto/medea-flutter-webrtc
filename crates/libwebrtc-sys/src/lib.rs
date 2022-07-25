@@ -19,6 +19,10 @@ pub use crate::webrtc::{
     SdpType, SignalingState, TrackState, VideoFrame, VideoRotation,
 };
 
+extern "C" {
+    pub fn set_on_device_changed_callback(cb: unsafe extern "C" fn());
+}
+
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
 pub trait TrackEventCallback {
     /// Called when an [`ended`][1] event occurs in the attached
