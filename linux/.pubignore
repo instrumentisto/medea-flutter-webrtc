@@ -1,1 +1,1 @@
-# Overrides the .gitignore file since we want to publish 'rust' directory
+# Overrides the `.gitignore` file since we want to publish `rust/` directory.

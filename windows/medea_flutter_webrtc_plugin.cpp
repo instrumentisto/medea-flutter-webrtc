@@ -1,9 +1,9 @@
 #include "medea_flutter_webrtc_plugin.h"
 
-// This must be included before many other Windows headers.
+// This must be included before any other Windows headers.
 #include <windows.h>
 
-// For getPlatformVersion; remove unless needed for your plugin implementation.
+// For `getPlatformVersion` remove unless needed for your plugin implementation.
 #include <VersionHelpers.h>
 
 #include <flutter/method_channel.h>
