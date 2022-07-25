@@ -20,6 +20,12 @@ jobs:
   # Pull Request #
   ################
 
+  pr-inspect:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo '${{ toJSON(github.event) }}'
+
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
