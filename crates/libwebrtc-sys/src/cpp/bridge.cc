@@ -12,10 +12,6 @@
 
 #include "libwebrtc-sys/src/bridge.rs.h"
 
-void set_on_device_changed_callback(void(*cb)()) {
-  set_on_device_change(cb);
-}
-
 namespace bridge {
 
 // Creates a new `TrackEventObserver`.

@@ -45,4 +45,3 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
 
 std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>
 create_device_info_mac();
-void set_on_device_change(void (*cb)());

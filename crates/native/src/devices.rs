@@ -354,19 +354,22 @@ pub unsafe fn init() {
     });
 }
 
-extern "C" fn on_device_change_callback_mac() {
-    log::error!("OnDeviceChange fired");
-    let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
-    if !state.is_null() {
-        let device_state = unsafe { &mut *state };
-        device_state.on_device_change();
-    }
-}
-
 #[cfg(target_os = "macos")]
 pub unsafe fn init() {
-    use libwebrtc_sys::set_on_device_changed_callback;
-    set_on_device_changed_callback(on_device_change_callback_mac);
+    extern "C" {
+        pub fn set_on_device_change_mac(cb: unsafe extern "C" fn());
+    }
+
+    extern "C" fn on_device_change() {
+        log::error!("OnDeviceChange fired");
+        let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+        if !state.is_null() {
+            let device_state = unsafe { &mut *state };
+            device_state.on_device_change();
+        }
+    }
+
+    set_on_device_change_mac(on_device_change);
 }
 
 #[cfg(target_os = "linux")]
