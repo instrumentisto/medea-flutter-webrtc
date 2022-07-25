@@ -267,6 +267,7 @@ name = "flutter-webrtc-native"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "cc",
  "cxx",
  "cxx-build",
  "dashmap",
@@ -280,6 +281,7 @@ dependencies = [
  "nix",
  "once_cell",
  "threadpool",
+ "walkdir",
  "winapi",
  "xxhash-rust",
 ]

@@ -361,7 +361,6 @@ pub unsafe fn init() {
     }
 
     extern "C" fn on_device_change() {
-        log::error!("OnDeviceChange fired");
         let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
         if !state.is_null() {
             let device_state = unsafe { &mut *state };
