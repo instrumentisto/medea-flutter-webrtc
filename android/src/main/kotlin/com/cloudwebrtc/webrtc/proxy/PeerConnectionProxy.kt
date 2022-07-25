@@ -241,6 +241,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    */
   fun dispose() {
     obj.dispose()
+
+    for (transceiver in transceivers.values) {
+      transceiver.setInvalidState()
+    }
+    
     for (receiver in receivers.values) {
       receiver.notifyRemoved()
     }

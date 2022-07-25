@@ -20,6 +20,7 @@ import com.cloudwebrtc.webrtc.proxy.VideoMediaTrackSource
 import com.cloudwebrtc.webrtc.utils.EglUtils
 import java.util.*
 import org.webrtc.*
+import android.util.Log
 
 /**
  * Default device video width.
@@ -54,6 +55,11 @@ private const val SPEAKERPHONE_DEVICE_ID: String = "speakerphone"
 
 /** Identifier for the bluetooth headset audio output device. */
 private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
+
+val VTS : HashMap<VideoConstraints, MediaStreamTrackProxy>
+            = HashMap<VideoConstraints, MediaStreamTrackProxy> ()
+val ATS : HashMap<AudioConstraints, MediaStreamTrackProxy>
+            = HashMap<AudioConstraints, MediaStreamTrackProxy> ()
 
 /**
  * Processor for `getUserMedia` requests.
@@ -286,6 +292,12 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Camera permission was not granted", GetUserMediaException.Kind.Video)
     }
+    if (VTS[constraints] != null) {
+      val track = VTS[constraints]!!.fork()
+      VTS[constraints] = track
+      return track
+    }
+
     val deviceId =
         findDeviceMatchingConstraints(constraints) ?: throw RuntimeException("Overconstrained")
     val width = constraints.width ?: DEFAULT_WIDTH
@@ -320,7 +332,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             state.getPeerConnectionFactory(),
             deviceId)
 
-    return videoTrackSource.newTrack()
+    val track = videoTrackSource.newTrack()
+    VTS[constraints] = track
+    return track
   }
 
   /**
@@ -337,8 +351,16 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
     }
+    if (ATS[constraints] != null) {
+      val track = ATS[constraints]!!.fork()
+      ATS[constraints] = track
+      return track
+    }
+
     val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
     val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
-    return audioTrackSource.newTrack()
+    val track = audioTrackSource.newTrack()
+    ATS[constraints] = track
+    return track
   }
 }
