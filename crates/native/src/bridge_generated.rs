@@ -18,6 +18,30 @@ use flutter_rust_bridge::*;
 // Section: wire functions
 
 #[no_mangle]
+pub extern "C" fn wire_enable_fake_media(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "enable_fake_media",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| Ok(enable_fake_media()),
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_is_fake_media(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "is_fake_media",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| Ok(is_fake_media()),
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_enumerate_devices(port_: i64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -862,28 +886,28 @@ impl Wire2Api<bool> for bool {
 impl Wire2Api<AudioConstraints> for *mut wire_AudioConstraints {
     fn wire2api(self) -> AudioConstraints {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
-        (*wrap).wire2api().into()
+        Wire2Api::<AudioConstraints>::wire2api(*wrap).into()
     }
 }
 
 impl Wire2Api<MediaStreamConstraints> for *mut wire_MediaStreamConstraints {
     fn wire2api(self) -> MediaStreamConstraints {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
-        (*wrap).wire2api().into()
+        Wire2Api::<MediaStreamConstraints>::wire2api(*wrap).into()
     }
 }
 
 impl Wire2Api<RtcConfiguration> for *mut wire_RtcConfiguration {
     fn wire2api(self) -> RtcConfiguration {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
-        (*wrap).wire2api().into()
+        Wire2Api::<RtcConfiguration>::wire2api(*wrap).into()
     }
 }
 
 impl Wire2Api<VideoConstraints> for *mut wire_VideoConstraints {
     fn wire2api(self) -> VideoConstraints {
         let wrap = unsafe { support::box_from_leak_ptr(self) };
-        (*wrap).wire2api().into()
+        Wire2Api::<VideoConstraints>::wire2api(*wrap).into()
     }
 }
 
@@ -1113,7 +1137,6 @@ impl support::IntoDart for GetMediaError {
     }
 }
 impl support::IntoDartExceptPrimitive for GetMediaError {}
-
 impl support::IntoDart for GetMediaResult {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1139,7 +1162,6 @@ impl support::IntoDart for IceConnectionState {
         .into_dart()
     }
 }
-
 impl support::IntoDart for IceGatheringState {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1173,7 +1195,6 @@ impl support::IntoDart for MediaDeviceKind {
         .into_dart()
     }
 }
-
 impl support::IntoDart for MediaStreamTrack {
     fn into_dart(self) -> support::DartCObject {
         vec![
@@ -1244,7 +1265,6 @@ impl support::IntoDart for PeerConnectionEvent {
     }
 }
 impl support::IntoDartExceptPrimitive for PeerConnectionEvent {}
-
 impl support::IntoDart for PeerConnectionState {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1258,7 +1278,6 @@ impl support::IntoDart for PeerConnectionState {
         .into_dart()
     }
 }
-
 impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartCObject {
         vec![
@@ -1298,7 +1317,6 @@ impl support::IntoDart for RtpTransceiverDirection {
         .into_dart()
     }
 }
-
 impl support::IntoDart for SdpType {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1310,7 +1328,6 @@ impl support::IntoDart for SdpType {
         .into_dart()
     }
 }
-
 impl support::IntoDart for SignalingState {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1324,7 +1341,6 @@ impl support::IntoDart for SignalingState {
         .into_dart()
     }
 }
-
 impl support::IntoDart for TrackEvent {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1333,7 +1349,6 @@ impl support::IntoDart for TrackEvent {
         .into_dart()
     }
 }
-
 impl support::IntoDart for TrackState {
     fn into_dart(self) -> support::DartCObject {
         match self {

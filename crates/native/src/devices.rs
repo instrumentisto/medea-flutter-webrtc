@@ -357,6 +357,7 @@ pub unsafe fn init() {
 #[cfg(target_os = "macos")]
 pub unsafe fn init() {
     extern "C" {
+        /// Passes the callback to the native side.
         pub fn set_on_device_change_mac(cb: unsafe extern "C" fn());
     }
 

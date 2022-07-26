@@ -10,7 +10,6 @@ crate-type = ["cdylib"]
 
 [features]
 default = ["renderer_cpp_api"]
-fake_media = ["libwebrtc-sys/fake_media"]
 renderer_cpp_api = ["cxx-build"]
 renderer_c_api = []
 
@@ -19,7 +18,7 @@ anyhow = "1.0"
 cxx = "1.0"
 dashmap = "5.3"
 derive_more = "0.99"
-flutter_rust_bridge = "1.36"
+flutter_rust_bridge = "=1.37.2"
 lazy_static = "1.4"
 libwebrtc-sys = { path = "../libwebrtc-sys" }
 log = "0.4"
@@ -39,4 +38,3 @@ winapi = { version = "0.3", features = ["dbt", "winuser"] }
 cxx-build = { version = "1.0", optional = true }
 anyhow = "1.0"
 cc = "1.0"
-walkdir = "2.3"

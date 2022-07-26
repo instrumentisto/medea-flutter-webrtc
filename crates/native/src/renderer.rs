@@ -1,6 +1,6 @@
 //! Implementations and definitions of the renderers API for the C and C++ APIs.
 
-pub use frame_handler::FrameHandler;
+pub use frame_handler::{FrameHandler, OnFrameCallbackInterface};
 
 /// Definitions and implementation of handler for the C++
 /// API [`sys::VideoFrame`]s renderer.
@@ -55,7 +55,8 @@ mod frame_handler {
 
     #[allow(
         clippy::items_after_statements,
-        clippy::trait_duplication_in_bounds
+        clippy::trait_duplication_in_bounds,
+        clippy::let_underscore_drop
     )]
     #[cxx::bridge]
     mod cpp_api_bindings {

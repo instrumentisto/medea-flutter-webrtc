@@ -31,7 +31,8 @@ type DynTrackEventCallback = Box<dyn TrackEventCallback>;
     clippy::expl_impl_clone_on_copy,
     clippy::items_after_statements,
     clippy::ptr_as_ptr,
-    clippy::trait_duplication_in_bounds
+    clippy::trait_duplication_in_bounds,
+    clippy::let_underscore_drop
 )]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
@@ -449,6 +450,12 @@ pub(crate) mod webrtc {
         pub fn create_audio_device_module(
             worker_thread: Pin<&mut Thread>,
             audio_layer: AudioLayer,
+            task_queue_factory: Pin<&mut TaskQueueFactory>,
+        ) -> UniquePtr<AudioDeviceModule>;
+
+        /// Creates a new fake [`AudioDeviceModule`], that will not try to
+        /// access real media devices, but will generate pulsed noise.
+        pub fn create_fake_audio_device_module(
             task_queue_factory: Pin<&mut TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
@@ -1119,6 +1126,15 @@ pub(crate) mod webrtc {
             height: usize,
             fps: usize,
             device_index: u32,
+        ) -> UniquePtr<VideoTrackSourceInterface>;
+
+        /// Creates a new fake [`VideoTrackSourceInterface`].
+        pub fn create_fake_device_video_source(
+            worker_thread: Pin<&mut Thread>,
+            signaling_thread: Pin<&mut Thread>,
+            width: usize,
+            height: usize,
+            fps: usize,
         ) -> UniquePtr<VideoTrackSourceInterface>;
 
         /// Creates a new [`VideoTrackSourceInterface`] sourced by a screen

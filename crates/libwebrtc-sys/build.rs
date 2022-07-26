@@ -197,7 +197,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     fs::write(&checksum, SHA256SUM).map_err(Into::into)
 }
 
-/// Returns a list of all sources that should be compiled.
+/// Returns a list of all C++ sources that should be compiled.
 fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
     let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?)
         .join("src")
