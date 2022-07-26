@@ -284,22 +284,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 2  # for PRs only
 
       - name: Retrieve commit message
         id: commit
         run: echo ::set-output
                   name=message::$(git log --grep='\[publish\]' --format=%s)
-      - run: echo "${{ steps.commit.outputs.message }}"
-      - run: echo "${{ !contains(steps.commit.outputs.message, '[publish]') }}"
-      - run: echo "${{ github.event_name == 'pull_request' }}"
       - id: skip
         run: echo ::set-output name=no::${{ !(
                github.event_name == 'pull_request'
                && !contains(steps.commit.outputs.message, '[publish]')
              ) }}
-
-      - run: false
 
       - uses: dart-lang/setup-dart@v1.3
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -317,7 +312,7 @@ jobs:
 
       - name: Append package version with commit SHA
         run: |
-          sed -i "s/^version: \(.*\)$/version: \1+rev.$(git rev-parse HEAD)/g" \
+          sed -i "s/^version: \(.*\)$/version: \1+rev.${{ github.sha }}/g" \
               pubspec.yaml
         if: ${{ steps.skip.outputs.no == 'true'
              && !startsWith(github.ref, 'refs/tags/') }}
