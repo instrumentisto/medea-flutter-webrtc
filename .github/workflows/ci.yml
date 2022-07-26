@@ -280,6 +280,15 @@ jobs:
          || github.ref_name == 'master'
          || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
+    needs:
+      - build
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - test-flutter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -293,7 +302,8 @@ jobs:
           echo ::set-output name=sha::${{ (github.event_name == 'pull_request'
                                            && github.event.pull_request.head.sha)
                                        ||  github.sha }}
-      - id: skip
+      - name: Check whether should be skipped
+        id: skip
         run: echo ::set-output name=no::${{ !(
                github.event_name == 'pull_request'
                && !contains(steps.commit.outputs.message, '[publish]')
@@ -302,14 +312,21 @@ jobs:
       - uses: dart-lang/setup-dart@v1.3
         if: ${{ steps.skip.outputs.no == 'true' }}
 
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-linux
+          path: linux/rust/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-windows
+          path: windows/rust/
+
       - name: Append package version with commit SHA
         run: |
           sed -i "s/^version: \(.*\)$/version: \1+rev.${{ steps.commit.outputs.sha }}/g" \
               pubspec.yaml
         if: ${{ steps.skip.outputs.no == 'true'
              && !startsWith(github.ref, 'refs/tags/') }}
-
-      - run: false
 
       - name: Login to pub.dev
         run: |
