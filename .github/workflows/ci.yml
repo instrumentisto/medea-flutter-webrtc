@@ -299,23 +299,14 @@ jobs:
       - uses: dart-lang/setup-dart@v1.3
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux
-          path: linux/rust/
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows
-          path: windows/rust/
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
       - name: Append package version with commit SHA
         run: |
           sed -i "s/^version: \(.*\)$/version: \1+rev.${{ github.sha }}/g" \
               pubspec.yaml
         if: ${{ steps.skip.outputs.no == 'true'
              && !startsWith(github.ref, 'refs/tags/') }}
+
+      - run: false
 
       - name: Login to pub.dev
         run: |
