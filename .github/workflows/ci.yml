@@ -287,6 +287,7 @@ jobs:
       - name: Retrieve commit message
         id: commit
         run: echo ::set-output name=message::$(git show -s --format=%s)
+      - run: git log
       - run: echo "${{ steps.commit.outputs.message }}"
       - run: echo "${{ !contains(steps.commit.outputs.message, '[publish]') }}"
       - run: echo "${{ github.event_name == 'pull_request' }}"
