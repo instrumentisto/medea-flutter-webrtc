@@ -280,15 +280,6 @@ jobs:
          || github.ref_name == 'master'
          || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
-    needs:
-      - build
-      - clippy
-      - dartanalyze
-      - dartfmt
-      - ktfmt
-      - rustdoc
-      - rustfmt
-      - test-flutter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -296,11 +287,16 @@ jobs:
       - name: Retrieve commit message
         id: commit
         run: echo ::set-output name=message::$(git show -s --format=%s)
+      - run: echo "${{ steps.commit.outputs.message }}"
+      - run: echo "${{ !contains(steps.commit.outputs.message, '[publish]') }}"
+      - run: echo "${{ github.event_name == 'pull_request' }}"
       - id: skip
         run: echo ::set-output name=no::${{ !(
                github.event_name == 'pull_request'
                && !contains(steps.commit.outputs.message, '[publish]')
              ) }}
+
+      - run: false
 
       - uses: dart-lang/setup-dart@v1.3
         if: ${{ steps.skip.outputs.no == 'true' }}
