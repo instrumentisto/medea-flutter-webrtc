@@ -238,14 +238,24 @@ class MediaDevices(val state: State, private val permissions: Permissions) {
 
   /** @return List of [MediaDeviceInfo]s for the currently available audio devices. */
   private fun enumerateAudioDevices(): List<MediaDeviceInfo> {
+    val bluetoothDevice =
+        audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS).firstOrNull {
+          (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+              it.type == AudioDeviceInfo.TYPE_BLE_HEADSET) ||
+              it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
+              it.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
+        }
+
     val devices =
         mutableListOf(
             MediaDeviceInfo(EAR_SPEAKER_DEVICE_ID, "Ear-speaker", MediaDeviceKind.AUDIO_OUTPUT),
             MediaDeviceInfo(SPEAKERPHONE_DEVICE_ID, "Speakerphone", MediaDeviceKind.AUDIO_OUTPUT))
-    if (isBluetoothHeadsetConnected) {
+    if (bluetoothDevice != null) {
       devices.add(
           MediaDeviceInfo(
-              BLUETOOTH_HEADSET_DEVICE_ID, "Bluetooth headset", MediaDeviceKind.AUDIO_OUTPUT))
+              BLUETOOTH_HEADSET_DEVICE_ID,
+              bluetoothDevice.productName.toString(),
+              MediaDeviceKind.AUDIO_OUTPUT))
     }
     devices.add(MediaDeviceInfo("default", "default", MediaDeviceKind.AUDIO_INPUT))
     return devices
