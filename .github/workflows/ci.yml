@@ -284,12 +284,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 3
+          fetch-depth: 2
 
       - name: Retrieve commit message
         id: commit
-        run: echo ::set-output name=message::$(git show -s --format=%s)
-      - run: git log
+        run: echo ::set-output
+                  name=message::$(git log --grep='\[publish\]' --format=%s)
       - run: echo "${{ steps.commit.outputs.message }}"
       - run: echo "${{ !contains(steps.commit.outputs.message, '[publish]') }}"
       - run: echo "${{ github.event_name == 'pull_request' }}"
