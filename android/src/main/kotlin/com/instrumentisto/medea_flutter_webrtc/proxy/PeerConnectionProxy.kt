@@ -234,8 +234,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * @param endedReceiver [RtpReceiver] being ended.
    */
   fun receiverEnded(endedReceiver: RtpReceiver) {
-    val receiver = receivers[endedReceiver.id()]
-    receiver?.notifyRemoved()
+    if (!disposed) {
+      val receiver = receivers[endedReceiver.id()]
+      receiver?.notifyRemoved()
+    }
   }
 
   /**
