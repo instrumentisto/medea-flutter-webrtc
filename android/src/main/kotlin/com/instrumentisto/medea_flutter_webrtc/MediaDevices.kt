@@ -293,6 +293,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     if (videoTracks[constraints] != null) {
       val track = videoTracks[constraints]!!.fork()
       videoTracks[constraints] = track
+      track.onStop({ videoTracks.remove(constraints) })
       return track
     }
 
