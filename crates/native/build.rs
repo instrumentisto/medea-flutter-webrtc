@@ -22,7 +22,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     #[cfg(feature = "renderer_cpp_api")]
-    cxx_build::bridge("src/renderer.rs").compile("cpp_api_bindings");
+    cxx_build::bridge("src/renderer.rs").flag("-std=c++17").compile("cpp_api_bindings");
 
     Ok(())
 }
