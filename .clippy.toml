@@ -7,7 +7,7 @@ doc-valid-idents = [
     "GPLv2", "GPLv3", "GitHub", "GitLab",
     "IPv4", "IPv6", "JavaScript", "NaN", "NaNs",
     "OAuth", "OpenGL", "OpenSSH", "OpenSSL", "OpenStreetMap", "TrueType",
-    "iOS", "macOS", "TeX", "LaTeX", "BibTeX", "BibLaTeX", "MinGW",
+    "iOS", "macOS", "MacOS", "TeX", "LaTeX", "BibTeX", "BibLaTeX", "MinGW",
     "BigInt64Array", "BigUint64Array",
     "ConstrainDOMString", "ConstrainULong",
     "DisplayMediaStreamConstraints",
