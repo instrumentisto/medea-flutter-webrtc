@@ -12,7 +12,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   private lateinit var receiver: RtpReceiverProxy
 
   /** TODO */
-  private var invalid_state: Boolean = false
+  private var disposed: Boolean = false
 
   /** TODO */
   private var mid: String? = null
@@ -27,8 +27,10 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   }
 
   /** TODO */
-  fun setInvalidState() {
-    invalid_state = true
+  fun setDisposed() {
+    disposed = true
+    receiver.setDisposed()
+    sender.setDisposed()
   }
 
   /** @return [RtpSenderProxy] of this [RtpTransceiverProxy]. */
@@ -43,14 +45,14 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
 
   /** Sets [RtpTransceiverDirection] of the underlying [RtpTransceiver]. */
   fun setDirection(direction: RtpTransceiverDirection) {
-    if (!invalid_state) {
+    if (!disposed) {
       obj.direction = direction.intoWebRtc()
     }
   }
 
   /** Sets receive of the underlying [RtpTransceiver]. */
   fun setRecv(recv: Boolean) {
-    if (!invalid_state) {
+    if (!disposed) {
       var currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
       var newDirection =
           if (recv) {
@@ -82,7 +84,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
 
   /** Sets send of the underlying [RtpTransceiver]. */
   fun setSend(send: Boolean) {
-    if (!invalid_state) {
+    if (!disposed) {
       var currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
       var newDirection =
           if (send) {
@@ -114,7 +116,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
 
   /** @return mID of the underlying [RtpTransceiver]. */
   fun getMid(): String? {
-    if (!invalid_state) {
+    if (!disposed) {
       mid = obj.mid
     }
     return mid
@@ -122,7 +124,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
 
   /** @return Preferred [RtpTransceiverDirection] of the underlying [RtpTransceiver]. */
   fun getDirection(): RtpTransceiverDirection {
-    if (!invalid_state) {
+    if (!disposed) {
       return RtpTransceiverDirection.fromWebRtc(obj)
     }
     return RtpTransceiverDirection.STOPPED
@@ -131,7 +133,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   /** Stops the underlying [RtpTransceiver]. */
   fun stop() {
     receiver.notifyRemoved()
-    if (!invalid_state) {
+    if (!disposed) {
       obj.stop()
     }
   }
@@ -141,13 +143,11 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
    * [RtpTransceiver].
    */
   private fun syncSender() {
-    if (!invalid_state) {
-      val newSender = obj.sender
-      if (this::sender.isInitialized) {
-        sender.replace(newSender)
-      } else {
-        sender = RtpSenderProxy(newSender)
-      }
+    val newSender = obj.sender
+    if (this::sender.isInitialized) {
+      sender.replace(newSender)
+    } else {
+      sender = RtpSenderProxy(newSender)
     }
   }
 
@@ -156,13 +156,11 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
    * [RtpTransceiver].
    */
   private fun syncReceiver() {
-    if (!invalid_state) {
-      val newReceiver = obj.receiver
-      if (this::receiver.isInitialized) {
-        receiver.replace(newReceiver)
-      } else {
-        receiver = RtpReceiverProxy(newReceiver)
-      }
+    val newReceiver = obj.receiver
+    if (this::receiver.isInitialized) {
+      receiver.replace(newReceiver)
+    } else {
+      receiver = RtpReceiverProxy(newReceiver)
     }
   }
 }

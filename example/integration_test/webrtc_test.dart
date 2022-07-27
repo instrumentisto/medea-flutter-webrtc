@@ -740,4 +740,67 @@ void main() {
 
     await pc.close();
   });
+
+  testWidgets('Peer close invalidate', (WidgetTester tester) async {
+    var caps = DeviceConstraints();
+    caps.audio.mandatory = AudioConstraints();
+    caps.video.mandatory = DeviceVideoConstraints();
+    caps.video.mandatory!.width = 640;
+    caps.video.mandatory!.height = 480;
+    caps.video.mandatory!.fps = 30;
+
+    var tracks = await getUserMedia(caps);
+
+    var server = IceServer(['stun:stun.l.google.com:19302']);
+    var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
+    var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
+
+    var remoteTracks = List<MediaStreamTrack>.empty(growable: true);
+    var remoteTransceiver = List<RtpTransceiver>.empty(growable: true);
+    pc2.onTrack((track, trans) async {
+      remoteTracks.add(track);
+      remoteTransceiver.add(trans);
+    });
+
+    var vtrans = await pc1.addTransceiver(
+        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+    var atrans = await pc1.addTransceiver(
+        MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
+
+    var offer = await pc1.createOffer();
+    await pc1.setLocalDescription(offer);
+    await pc2.setRemoteDescription(offer);
+
+    var answer = await pc2.createAnswer();
+    await pc2.setLocalDescription(answer);
+    await pc1.setRemoteDescription(answer);
+
+    pc1.onIceCandidate((IceCandidate candidate) async {
+      await pc2.addIceCandidate(candidate);
+    });
+
+    pc2.onIceCandidate((IceCandidate candidate) async {
+      await pc1.addIceCandidate(candidate);
+    });
+
+    await vtrans.sender.replaceTrack(
+        tracks.firstWhere((track) => track.kind() == MediaKind.video));
+
+    await atrans.sender.replaceTrack(
+        tracks.firstWhere((track) => track.kind() == MediaKind.audio));
+
+    await pc1.close();
+    await pc2.close();
+
+    for (var track in remoteTracks) {
+      expect(await track.state(), MediaStreamTrackState.ended); 
+    }
+
+    for (var transceiver in remoteTransceiver) {
+      await transceiver.syncMid();
+      expect(await transceiver.getDirection(), TransceiverDirection.stopped); 
+    }
+
+  });
 }

@@ -32,8 +32,29 @@ class MediaStreamTrackProxy(
   /** List of [EventObserver]s belonging to this [MediaStreamTrackProxy]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
 
+  /** TODO */
+  private var disposed: Boolean = false
+
+  /** TODO */
+  private lateinit var kind: MediaType
+
+  /** TODO */
+  private lateinit var id: String
+
   init {
+    id = obj.id()
+    kind = when (obj.kind()) {
+      MediaStreamTrack.VIDEO_TRACK_KIND -> MediaType.VIDEO
+      MediaStreamTrack.AUDIO_TRACK_KIND -> MediaType.AUDIO
+      else -> throw Exception("LibWebRTC provided unknown MediaType value")
+    }
+
     TrackRepository.addTrack(this)
+  }
+
+  /** TODO */
+  fun setDisposed() {
+    disposed = true
   }
 
   companion object {
@@ -49,16 +70,12 @@ class MediaStreamTrackProxy(
    * @return ID of the underlying [MediaStreamTrack].
    */
   fun id(): String {
-    return obj.id()
+    return id
   }
 
   /** @return [MediaType] of the underlying [MediaStreamTrack]. */
   fun kind(): MediaType {
-    return when (obj.kind()) {
-      MediaStreamTrack.VIDEO_TRACK_KIND -> MediaType.VIDEO
-      MediaStreamTrack.AUDIO_TRACK_KIND -> MediaType.AUDIO
-      else -> throw Exception("LibWebRTC provided unknown MediaType value")
-    }
+    return kind
   }
 
   /** @return Unique device ID of the underlying [MediaStreamTrack]. */
@@ -123,7 +140,10 @@ class MediaStreamTrackProxy(
 
   /** @return [MediaStreamTrackState] of the underlying [MediaStreamTrack]. */
   fun state(): MediaStreamTrackState {
-    return MediaStreamTrackState.fromWebRtcState(obj.state())
+    if (!disposed) {
+      return MediaStreamTrackState.fromWebRtcState(obj.state())
+    }
+    return MediaStreamTrackState.ENDED
   }
 
   /**
@@ -132,7 +152,9 @@ class MediaStreamTrackProxy(
    * @param enabled State which will be set to the underlying [MediaStreamTrack].
    */
   fun setEnabled(enabled: Boolean) {
-    obj.setEnabled(enabled)
+    if (!disposed) {
+      obj.setEnabled(enabled)
+    }
   }
 
   /**

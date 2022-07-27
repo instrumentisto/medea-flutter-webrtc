@@ -34,6 +34,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** List of all [RtpTransceiverProxy]s owned by this [PeerConnectionProxy]. */
   private var transceivers: TreeMap<Int, RtpTransceiverProxy> = TreeMap()
 
+  /** TODO */
+  private @Volatile var disposed: Boolean = false
+
   /**
    * List of subscribers on [dispose] event.
    *
@@ -240,15 +243,13 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * all [onDispose] subscribers about it.
    */
   fun dispose() {
+    disposed = true
     obj.dispose()
 
     for (transceiver in transceivers.values) {
-      transceiver.setInvalidState()
+      transceiver.setDisposed()
     }
-    
-    for (receiver in receivers.values) {
-      receiver.notifyRemoved()
-    }
+
     senders = HashMap()
     receivers = HashMap()
     onDisposeSubscribers.forEach { sub -> sub(id) }
@@ -280,7 +281,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    */
   suspend fun createOffer(): SessionDescription {
     return suspendCoroutine { continuation ->
-      obj.createOffer(createSdpObserver(continuation), MediaConstraints())
+      if (!disposed) {
+        obj.createOffer(createSdpObserver(continuation), MediaConstraints())
+      } else {
+        SessionDescription.fromMap(mapOf<String, Any>())
+      }
     }
   }
 
@@ -291,7 +296,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    */
   suspend fun createAnswer(): SessionDescription {
     return suspendCoroutine { continuation ->
-      obj.createAnswer(createSdpObserver(continuation), MediaConstraints())
+      if (!disposed) {
+        obj.createAnswer(createSdpObserver(continuation), MediaConstraints())
+      } else {
+        SessionDescription.fromMap(mapOf<String, Any>())
+      }
     }
   }
 
@@ -302,10 +311,12 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    */
   suspend fun setLocalDescription(description: SessionDescription?) {
     suspendCoroutine<Unit> { continuation ->
-      if (description == null) {
-        obj.setLocalDescription(setSdpObserver(continuation))
-      } else {
-        obj.setLocalDescription(setSdpObserver(continuation), description.intoWebRtc())
+      if (!disposed) {
+        if (description == null) {
+          obj.setLocalDescription(setSdpObserver(continuation))
+        } else {
+          obj.setLocalDescription(setSdpObserver(continuation), description.intoWebRtc())
+        }
       }
     }
   }
@@ -317,7 +328,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    */
   suspend fun setRemoteDescription(description: SessionDescription) {
     suspendCoroutine<Unit> { continuation ->
-      obj.setRemoteDescription(setSdpObserver(continuation), description.intoWebRtc())
+      if (!disposed) {
+        obj.setRemoteDescription(setSdpObserver(continuation), description.intoWebRtc())
+      }
     }
     while (candidatesBuffer.isNotEmpty()) {
       addIceCandidate(candidatesBuffer.removeAt(0))
@@ -327,25 +340,27 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** Adds a new [IceCandidate] to the underlying [PeerConnection]. */
   suspend fun addIceCandidate(candidate: IceCandidate) {
     suspendCoroutine<Unit> { continuation ->
-      if (obj.remoteDescription != null) {
-        obj.addIceCandidate(
-            candidate.intoWebRtc(),
-            object : AddIceObserver {
-              override fun onAddSuccess() {
-                continuation.resume(Unit)
-              }
-
-              override fun onAddFailure(msg: String?) {
-                var message = msg
-                if (message == null) {
-                  message = ""
+      if (!disposed) {
+        if (obj.remoteDescription != null) {
+          obj.addIceCandidate(
+              candidate.intoWebRtc(),
+              object : AddIceObserver {
+                override fun onAddSuccess() {
+                  continuation.resume(Unit)
                 }
-                continuation.resumeWithException(AddIceCandidateException(message))
-              }
-            })
-      } else {
-        candidatesBuffer.add(candidate)
-        continuation.resume(Unit)
+
+                override fun onAddFailure(msg: String?) {
+                  var message = msg
+                  if (message == null) {
+                    message = ""
+                  }
+                  continuation.resumeWithException(AddIceCandidateException(message))
+                }
+              })
+        } else {
+          candidatesBuffer.add(candidate)
+          continuation.resume(Unit)
+        }
       }
     }
   }

@@ -20,7 +20,6 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.VideoMediaTrackSource
 import com.instrumentisto.medea_flutter_webrtc.utils.EglUtils
 import java.util.*
 import org.webrtc.*
-import android.util.Log
 
 /**
  * Default device video width.
@@ -56,10 +55,9 @@ private const val SPEAKERPHONE_DEVICE_ID: String = "speakerphone"
 /** Identifier for the bluetooth headset audio output device. */
 private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
 
+/** TODO */
 val VTS : HashMap<VideoConstraints, MediaStreamTrackProxy>
             = HashMap<VideoConstraints, MediaStreamTrackProxy> ()
-val ATS : HashMap<AudioConstraints, MediaStreamTrackProxy>
-            = HashMap<AudioConstraints, MediaStreamTrackProxy> ()
 
 /**
  * Processor for `getUserMedia` requests.
@@ -333,6 +331,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             deviceId)
 
     val track = videoTrackSource.newTrack()
+    track.onStop({ VTS.remove(constraints) })
     VTS[constraints] = track
     return track
   }
@@ -351,16 +350,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
     }
-    if (ATS[constraints] != null) {
-      val track = ATS[constraints]!!.fork()
-      ATS[constraints] = track
-      return track
-    }
 
     val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
     val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
-    val track = audioTrackSource.newTrack()
-    ATS[constraints] = track
-    return track
+    return audioTrackSource.newTrack()
   }
 }
