@@ -277,7 +277,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /**
    * Creates a new [SessionDescription] offer.
    *
-   * @return Newly created [SessionDescription] if [obj] has been disposed return empty [SessionDescription].
+   * @return Newly created [SessionDescription] if [obj] has been disposed return empty
+   * [SessionDescription].
    */
   suspend fun createOffer(): SessionDescription {
     return suspendCoroutine { continuation ->
@@ -292,7 +293,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /**
    * Creates a new [SessionDescription] answer.
    *
-   * @return Newly created [SessionDescription] if [obj] has been disposed return empty [SessionDescription].
+   * @return Newly created [SessionDescription] if [obj] has been disposed return empty
+   * [SessionDescription].
    */
   suspend fun createAnswer(): SessionDescription {
     return suspendCoroutine { continuation ->
@@ -305,8 +307,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Sets the provided local [SessionDescription] to the underlying [PeerConnection]
-   * if [obj] has been disposed does nothing.
+   * Sets the provided local [SessionDescription] to the underlying [PeerConnection] if [obj] has
+   * been disposed does nothing.
    * @param description SDP to be applied.
    */
   suspend fun setLocalDescription(description: SessionDescription?) {
@@ -322,8 +324,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Sets the provided remote [SessionDescription] to the underlying [PeerConnection].
-   * if [obj] has been disposed does nothing.
+   * Sets the provided remote [SessionDescription] to the underlying [PeerConnection]. if [obj] has
+   * been disposed does nothing.
    *
    * @param description SDP to be applied.
    */
@@ -338,9 +340,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     }
   }
 
-  /** 
-   * Adds a new [IceCandidate] to the underlying [PeerConnection]. 
-   * if [obj] has been disposed does nothing.
+  /**
+   * Adds a new [IceCandidate] to the underlying [PeerConnection]. if [obj] has been disposed does
+   * nothing.
    */
   suspend fun addIceCandidate(candidate: IceCandidate) {
     suspendCoroutine<Unit> { continuation ->

@@ -56,8 +56,8 @@ private const val SPEAKERPHONE_DEVICE_ID: String = "speakerphone"
 private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
 
 /** Provides cloned tracks in `getUserVideoTrack` if video source not been released */
-private val videoTracks : HashMap<VideoConstraints, MediaStreamTrackProxy>
-            = HashMap<VideoConstraints, MediaStreamTrackProxy> ()
+private val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> =
+    HashMap<VideoConstraints, MediaStreamTrackProxy>()
 
 /**
  * Processor for `getUserMedia` requests.
