@@ -1,13 +1,13 @@
-#import "FlutterWebRTCPlugin.h"
+#import "MedeaFlutterWebrtcPlugin.h"
 
-@implementation FlutterWebRTCPlugin
-// Registers this FlutterWebRTCPlugin.
+@implementation MedeaFlutterWebrtcPlugin
+// Registers this MedeaFlutterWebRtcPlugin.
 + (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar {
     FlutterMethodChannel* channel = [FlutterMethodChannel
         methodChannelWithName:@"FlutterWebRtc/VideoRendererFactory/0"
               binaryMessenger:[registrar messenger]];
-    FlutterWebRTCPlugin* instance = [FlutterWebRTCPlugin alloc];
-    FlutterWebRTCPlugin* finalInstance =
+    MedeaFlutterWebrtcPlugin* instance = [MedeaFlutterWebrtcPlugin alloc];
+    MedeaFlutterWebrtcPlugin* finalInstance =
         [instance initWithChannel:channel:[registrar messenger]];
     [registrar addMethodCallDelegate:finalInstance channel:channel];
     VideoRendererManager* manager =
@@ -31,7 +31,7 @@
     }
 }
 
-// Initializes this FlutterWebRTCPlugin with a FlutterMethodChannel.
+// Initializes this MedeaFlutterWebrtcPlugin with a FlutterMethodChannel.
 - (instancetype)initWithChannel:(FlutterMethodChannel*)
                         channel:(NSObject<FlutterBinaryMessenger>*)messenger {
     self = [super init];
