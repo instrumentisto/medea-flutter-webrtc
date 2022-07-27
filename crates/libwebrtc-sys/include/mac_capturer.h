@@ -27,19 +27,18 @@ RTC_FWD_DECL_OBJC_CLASS(AVCaptureDevice);
 RTC_FWD_DECL_OBJC_CLASS(RTCCameraVideoCapturer);
 RTC_FWD_DECL_OBJC_CLASS(RTCVideoSourceAdapter);
 
+// `VideoTrackSourceInterface` that captures frames from a local video input
+// device.
 class MacCapturer : public rtc::AdaptedVideoTrackSource,
                     public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
+  // Creates a new `MacCapturer` with the specified constraints.
   static rtc::scoped_refptr<MacCapturer> Create(size_t width,
                                                 size_t height,
                                                 size_t target_fps,
                                                 uint32_t capture_device_index);
-  MacCapturer(size_t width,
-              size_t height,
-              size_t target_fps,
-              AVCaptureDevice* device);
-  virtual ~MacCapturer();
 
+  // `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
   // Indicates that parameters suitable for screencast should be automatically
@@ -58,10 +57,21 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
   // devices only.
   bool remote() const override;
 
+ protected:
+  MacCapturer(size_t width,
+              size_t height,
+              size_t target_fps,
+              AVCaptureDevice* device);
+  virtual ~MacCapturer();
+
  private:
   void Destroy();
 
+  // `RTCCameraVideoCapturer` responsible for capturing track from the local
+  // video input device.
   RTCCameraVideoCapturer* capturer_;
+
+  // `RTCVideoSourceAdapter` injected into `capturer_`.
   RTCVideoSourceAdapter* adapter_;
 };
 

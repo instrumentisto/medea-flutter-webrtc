@@ -6,7 +6,8 @@ fn main() -> anyhow::Result<()> {
     {
         println!("cargo:rustc-link-arg=-Wl,-undefined,dynamic_lookup");
 
-        let path = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
+        let path =
+            std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
 
         link_libs();
 
@@ -35,7 +36,7 @@ fn link_libs() {
             println!("cargo:rustc-link-lib=clang_rt.osx");
             println!("cargo:rustc-link-search={}", path);
         }
-        match env::var("PROFILE").unwrap().as_str() {
+        match std::env::var("PROFILE").unwrap().as_str() {
             "debug" => {
                 println!(
                     "cargo:rustc-link-search=\

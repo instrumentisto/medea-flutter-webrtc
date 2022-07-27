@@ -7,6 +7,7 @@ extern void get_argb_bytes(void* frame, uint8_t* buffer);
 // Drops provided Frame.
 extern void drop_frame(void* frame);
 
+// Video frame.
 typedef struct Frame {
     size_t height;
     size_t width;
