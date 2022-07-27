@@ -1,6 +1,6 @@
 //! Implementations and definitions of the renderers API for the C and C++ APIs.
 
-pub use frame_handler::{FrameHandler, OnFrameCallbackInterface};
+pub use frame_handler::FrameHandler;
 
 /// Definitions and implementation of handler for the C++
 /// API [`sys::VideoFrame`]s renderer.
