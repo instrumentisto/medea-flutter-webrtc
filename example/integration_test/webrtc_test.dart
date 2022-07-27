@@ -794,13 +794,12 @@ void main() {
     await pc2.close();
 
     for (var track in remoteTracks) {
-      expect(await track.state(), MediaStreamTrackState.ended); 
+      expect(await track.state(), MediaStreamTrackState.ended);
     }
 
     for (var transceiver in remoteTransceiver) {
       await transceiver.syncMid();
-      expect(await transceiver.getDirection(), TransceiverDirection.stopped); 
+      expect(await transceiver.getDirection(), TransceiverDirection.stopped);
     }
-
   });
 }
