@@ -13,7 +13,7 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
   /** [MediaStreamTrackProxy] of this [RtpReceiverProxy]. */
   private var track: MediaStreamTrackProxy? = null
 
-  /** TODO */
+  /** The disposed state of [obj]. */
   private var disposed: Boolean = false
 
   init {
@@ -21,7 +21,7 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
     addOnSyncListener { syncMediaStreamTrack() }
   }
 
-  /** TODO */
+  /** Sets [disposed] to `true`. */
   fun setDisposed() {
     disposed = true
   }

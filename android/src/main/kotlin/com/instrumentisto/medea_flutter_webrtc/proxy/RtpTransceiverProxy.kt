@@ -11,10 +11,10 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   /** [RtpReceiverProxy] of this [RtpTransceiverProxy]. */
   private lateinit var receiver: RtpReceiverProxy
 
-  /** TODO */
+  /** The disposed state of [obj]. */
   private var disposed: Boolean = false
 
-  /** TODO */
+  /** mID of the underlying [RtpTransceiver]. */
   private var mid: String? = null
 
   init {
@@ -26,7 +26,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
     }
   }
 
-  /** TODO */
+  /** Sets [disposed] to `true` for [obj], [receiver], [sender] */
   fun setDisposed() {
     disposed = true
     receiver.setDisposed()

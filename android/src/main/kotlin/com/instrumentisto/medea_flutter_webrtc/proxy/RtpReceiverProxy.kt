@@ -11,7 +11,7 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver>(receiver) {
   /** [MediaStreamTrackProxy] of this [RtpReceiverProxy]. */
   private var track: MediaStreamTrackProxy = MediaStreamTrackProxy(obj.track()!!)
 
-  /** TODO */
+  /** Unique ID of the underlying [RtpReceiver]. */
   private lateinit var id: String
 
   init {
@@ -21,7 +21,7 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver>(receiver) {
     addOnSyncListener { track.replace(obj.track()!!) }
   }
 
-  /** TODO */
+  /** Call [notifyRemoved] and sets disposed for [track] */
   fun setDisposed() {
     notifyRemoved()
     track.setDisposed()

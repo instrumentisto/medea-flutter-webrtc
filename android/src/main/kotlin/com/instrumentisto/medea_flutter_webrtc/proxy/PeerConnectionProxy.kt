@@ -34,7 +34,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** List of all [RtpTransceiverProxy]s owned by this [PeerConnectionProxy]. */
   private var transceivers: TreeMap<Int, RtpTransceiverProxy> = TreeMap()
 
-  /** TODO */
+  /** The disposed state of [obj]. */
   private @Volatile var disposed: Boolean = false
 
   /**
@@ -277,7 +277,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /**
    * Creates a new [SessionDescription] offer.
    *
-   * @return Newly created [SessionDescription].
+   * @return Newly created [SessionDescription] if [obj] has been disposed return empty [SessionDescription].
    */
   suspend fun createOffer(): SessionDescription {
     return suspendCoroutine { continuation ->
@@ -292,7 +292,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /**
    * Creates a new [SessionDescription] answer.
    *
-   * @return Newly created [SessionDescription].
+   * @return Newly created [SessionDescription] if [obj] has been disposed return empty [SessionDescription].
    */
   suspend fun createAnswer(): SessionDescription {
     return suspendCoroutine { continuation ->
@@ -305,8 +305,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Sets the provided local [SessionDescription] to the underlying [PeerConnection].
-   *
+   * Sets the provided local [SessionDescription] to the underlying [PeerConnection]
+   * if [obj] has been disposed does nothing.
    * @param description SDP to be applied.
    */
   suspend fun setLocalDescription(description: SessionDescription?) {
@@ -323,6 +323,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
 
   /**
    * Sets the provided remote [SessionDescription] to the underlying [PeerConnection].
+   * if [obj] has been disposed does nothing.
    *
    * @param description SDP to be applied.
    */
@@ -337,7 +338,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     }
   }
 
-  /** Adds a new [IceCandidate] to the underlying [PeerConnection]. */
+  /** 
+   * Adds a new [IceCandidate] to the underlying [PeerConnection]. 
+   * if [obj] has been disposed does nothing.
+   */
   suspend fun addIceCandidate(candidate: IceCandidate) {
     suspendCoroutine<Unit> { continuation ->
       if (!disposed) {

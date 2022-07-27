@@ -32,13 +32,13 @@ class MediaStreamTrackProxy(
   /** List of [EventObserver]s belonging to this [MediaStreamTrackProxy]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
 
-  /** TODO */
+  /** The disposed state of [obj]. */
   private var disposed: Boolean = false
 
-  /** TODO */
+  /** [MediaType] of the underlying [MediaStreamTrack]. */
   private lateinit var kind: MediaType
 
-  /** TODO */
+  /** ID of the underlying [MediaStreamTrack] */
   private lateinit var id: String
 
   init {
@@ -52,7 +52,7 @@ class MediaStreamTrackProxy(
     TrackRepository.addTrack(this)
   }
 
-  /** TODO */
+  /** Sets [disposed] to `true`. */
   fun setDisposed() {
     disposed = true
   }
@@ -147,7 +147,8 @@ class MediaStreamTrackProxy(
   }
 
   /**
-   * Sets enabled state of the underlying [MediaStreamTrack].
+   * Sets enabled state of the underlying [MediaStreamTrack]
+   * if [obj] not been disposed.
    *
    * @param enabled State which will be set to the underlying [MediaStreamTrack].
    */

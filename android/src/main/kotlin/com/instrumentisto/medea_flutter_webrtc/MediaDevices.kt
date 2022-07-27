@@ -55,8 +55,8 @@ private const val SPEAKERPHONE_DEVICE_ID: String = "speakerphone"
 /** Identifier for the bluetooth headset audio output device. */
 private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
 
-/** TODO */
-val VTS : HashMap<VideoConstraints, MediaStreamTrackProxy>
+/** Provides cloned tracks in `getUserVideoTrack` if video source not been released */
+private val videoTracks : HashMap<VideoConstraints, MediaStreamTrackProxy>
             = HashMap<VideoConstraints, MediaStreamTrackProxy> ()
 
 /**
@@ -290,9 +290,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Camera permission was not granted", GetUserMediaException.Kind.Video)
     }
-    if (VTS[constraints] != null) {
-      val track = VTS[constraints]!!.fork()
-      VTS[constraints] = track
+    if (videoTracks[constraints] != null) {
+      val track = videoTracks[constraints]!!.fork()
+      videoTracks[constraints] = track
       return track
     }
 
@@ -331,8 +331,8 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             deviceId)
 
     val track = videoTrackSource.newTrack()
-    track.onStop({ VTS.remove(constraints) })
-    VTS[constraints] = track
+    track.onStop({ videoTracks.remove(constraints) })
+    videoTracks[constraints] = track
     return track
   }
 
