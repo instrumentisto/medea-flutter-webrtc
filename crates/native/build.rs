@@ -5,6 +5,10 @@ fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "macos")]
     {
         println!("cargo:rustc-link-arg=-Wl,-undefined,dynamic_lookup");
+        println!(
+            "cargo:rustc-link-arg=-Wl,-install_name,\
+        @rpath/libflutter_webrtc_native.dylib"
+        );
 
         let path =
             std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
