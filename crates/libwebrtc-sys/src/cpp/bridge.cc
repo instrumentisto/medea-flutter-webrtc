@@ -231,7 +231,7 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
   #if __APPLE__
-    return create_device_info_mac();
+    return webrtc::DeviceInfoMac::Create()
   #else
     std::unique_ptr<VideoDeviceInfo> ptr(
         webrtc::VideoCaptureFactory::CreateDeviceInfo());

@@ -9,8 +9,7 @@
 // Interface for receiving information about available camera devices.
 class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
  public:
-  DeviceInfoMac();
-  ~DeviceInfoMac() override;
+  static std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> Create();
 
   /// Returns count of a video recording devices.
   uint32_t NumberOfDevices() override;
@@ -39,9 +38,9 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
   int32_t Init() override;
 
  protected:
+  DeviceInfoMac();
+  ~DeviceInfoMac() override;
+
   AVCaptureDevice* device;
 };
 #endif
-
-std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>
-create_device_info_mac();

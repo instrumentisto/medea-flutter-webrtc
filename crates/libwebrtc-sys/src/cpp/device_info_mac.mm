@@ -1,16 +1,26 @@
 #if __APPLE__
 #include "device_info_mac.h"
 
+// Creates a new `DeviceInfoMac`.
 DeviceInfoMac::DeviceInfoMac() : DeviceInfoImpl() {
   this->device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 }
 
+// Does nothing.
 int32_t DeviceInfoMac::Init() {
   return 0;
 }
 
 DeviceInfoMac::~DeviceInfoMac() {}
 
+// Creates a new `DeviceInfoMac`.
+std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> DeviceInfoMac::Create() {
+  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> ptr(new DeviceInfoMac());
+
+  return ptr;
+}
+
+// Returns count of a video recording devices.
 uint32_t DeviceInfoMac::NumberOfDevices() {
   AVCaptureDeviceDiscoverySession* devices = [AVCaptureDeviceDiscoverySession
       discoverySessionWithDeviceTypes:@[
@@ -21,6 +31,9 @@ uint32_t DeviceInfoMac::NumberOfDevices() {
   return [devices.devices count];
 }
 
+// Returns the unique ID and user-friendly name of a given endpoint device.
+// Example: "{0.0.1.00000000}.{8db6020f-18e3-4f25-b6f5-7726c9122574}", and
+//          "Microphone (Realtek High Definition Audio)".
 int32_t DeviceInfoMac::GetDeviceName(uint32_t deviceNumber,
                                      char* deviceNameUTF8,
                                      uint32_t deviceNameLength,
@@ -44,21 +57,17 @@ int32_t DeviceInfoMac::GetDeviceName(uint32_t deviceNumber,
   return 0;
 }
 
+// Unsupported. Always returns `-1`.
 int32_t DeviceInfoMac::CreateCapabilityMap(const char* /*deviceUniqueIdUTF8*/) {
   return -1;
 }
 
+// Unsupported. Always returns `-1`.
 int32_t DeviceInfoMac::DisplayCaptureSettingsDialogBox(const char* /*deviceUniqueIdUTF8*/,
                                                        const char* /*dialogTitleUTF8*/,
                                                        void* /*parentWindow*/,
                                                        uint32_t /*positionX*/,
                                                        uint32_t /*positionY*/) {
   return -1;
-}
-
-std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_device_info_mac() {
-  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> ptr(new DeviceInfoMac());
-
-  return ptr;
 }
 #endif
