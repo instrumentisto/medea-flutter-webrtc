@@ -88,11 +88,11 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-  #if __APPLE__
-    auto dvc = MacCapturer::Create(width, height, fps, device);
-  #else
-    auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
-  #endif
+#if __APPLE__
+  auto dvc = MacCapturer::Create(width, height, fps, device);
+#else
+  auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
+#endif
   if (dvc == nullptr) {
     return nullptr;
   }
@@ -230,14 +230,14 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
-  #if __APPLE__
-    return webrtc::DeviceInfoMac::Create()
-  #else
-    std::unique_ptr<VideoDeviceInfo> ptr(
-        webrtc::VideoCaptureFactory::CreateDeviceInfo());
+#if __APPLE__
+  return DeviceInfoMac::Create()
+#else
+  std::unique_ptr<VideoDeviceInfo> ptr(
+      webrtc::VideoCaptureFactory::CreateDeviceInfo());
 
-    return ptr;
-  #endif
+  return ptr;
+#endif
 }
 
 // Calls `VideoDeviceInfo->GetDeviceName()` with the provided arguments.
