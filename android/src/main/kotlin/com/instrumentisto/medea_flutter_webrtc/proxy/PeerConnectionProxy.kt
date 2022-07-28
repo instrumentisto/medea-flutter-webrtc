@@ -229,7 +229,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Notifies about [RtpReceiverProxy]'s [MediaStreamTrackProxy] being ended.
+   * Notifies about [RtpReceiverProxy]'s [MediaStreamTrackProxy] being ended if [obj] has been
+   * disposed does nothing.
    *
    * @param endedReceiver [RtpReceiver] being ended.
    */
@@ -326,7 +327,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Sets the provided remote [SessionDescription] to the underlying [PeerConnection]. if [obj] has
+   * Sets the provided remote [SessionDescription] to the underlying [PeerConnection] if [obj] has
    * been disposed does nothing.
    *
    * @param description SDP to be applied.
@@ -343,7 +344,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Adds a new [IceCandidate] to the underlying [PeerConnection]. if [obj] has been disposed does
+   * Adds a new [IceCandidate] to the underlying [PeerConnection] if [obj] has been disposed does
    * nothing.
    */
   suspend fun addIceCandidate(candidate: IceCandidate) {
