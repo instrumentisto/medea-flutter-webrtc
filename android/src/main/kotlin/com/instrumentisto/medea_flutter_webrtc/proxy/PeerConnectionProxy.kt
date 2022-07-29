@@ -375,7 +375,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Creates a new [RtpTransceiverProxy] based on the provided config.
+   * If [obj] not disposed creates a new [RtpTransceiverProxy] based on the provided config.
    *
    * @param mediaType Initial [MediaType] of the newly created
    * ```
@@ -384,68 +384,78 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * ```
    * Configuration of the newly created [RtpTransceiverProxy].
    *
-   * @return Newly created [RtpTransceiverProxy].
+   * @return Newly created [RtpTransceiverProxy] if [obj] has been disposed returns last created [RtpTransceiverProxy].
    */
   fun addTransceiver(mediaType: MediaType, init: RtpTransceiverInit?): RtpTransceiverProxy {
-    obj.addTransceiver(mediaType.intoWebRtc(), init?.intoWebRtc())
-    syncTransceivers()
+    if (!disposed) {
+      obj.addTransceiver(mediaType.intoWebRtc(), init?.intoWebRtc())
+      syncTransceivers()
+    }
     return transceivers.lastEntry()!!.value
   }
 
-  /** Requests the underlying [PeerConnection] to redo [IceCandidate] gathering. */
+  /** Requests the underlying [PeerConnection] to redo [IceCandidate] gathering if [obj] has been disposed does nothing. */
   fun restartIce() {
-    obj.restartIce()
+    if (!disposed) {
+      obj.restartIce()
+    }
   }
 
   /**
    * Synchronizes underlying pointers of old [RtpSenderProxy]s and creates [RtpSenderProxy]s for new
-   * [RtpSender]s.
+   * [RtpSender]s if [obj] has been disposed does nothing.
    */
   private fun syncSenders() {
-    val peerSenders = obj.senders
-    for (peerSender in peerSenders) {
-      val peerSenderId = peerSender.id()
+    if (!disposed) {
+      val peerSenders = obj.senders
+      for (peerSender in peerSenders) {
+        val peerSenderId = peerSender.id()
 
-      val oldSender = senders[peerSenderId]
-      if (oldSender == null) {
-        senders[peerSenderId] = RtpSenderProxy(peerSender)
-      } else {
-        oldSender.replace(peerSender)
+        val oldSender = senders[peerSenderId]
+        if (oldSender == null) {
+          senders[peerSenderId] = RtpSenderProxy(peerSender)
+        } else {
+          oldSender.replace(peerSender)
+        }
       }
     }
   }
 
   /**
    * Synchronizes underlying pointers of old [RtpReceiverProxy]s and creates [RtpReceiverProxy]s for
-   * new [RtpReceiver]s.
+   * new [RtpReceiver]s if [obj] has been disposed does nothing.
    */
   private fun syncReceivers() {
-    val peerReceivers = obj.receivers
-    for (peerReceiver in peerReceivers) {
-      val peerReceiverId = peerReceiver.id()
+    if (!disposed) {
+      val peerReceivers = obj.receivers
+      for (peerReceiver in peerReceivers) {
+        val peerReceiverId = peerReceiver.id()
 
-      val oldReceiver = receivers[peerReceiverId]
-      if (oldReceiver == null) {
-        receivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
-      } else {
-        oldReceiver.replace(peerReceiver)
+        val oldReceiver = receivers[peerReceiverId]
+        if (oldReceiver == null) {
+          receivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
+        } else {
+          oldReceiver.replace(peerReceiver)
+        }
       }
     }
   }
 
   /**
    * Synchronizes underlying pointers of old [RtpTransceiverProxy]s and creates
-   * [RtpTransceiverProxy]s for new [RtpTransceiver]s.
+   * [RtpTransceiverProxy]s for new [RtpTransceiver]s if [obj] has been disposed does nothing.
    */
   private fun syncTransceivers() {
-    val peerTransceivers = obj.transceivers.withIndex()
+    if (!disposed) {
+      val peerTransceivers = obj.transceivers.withIndex()
 
-    for ((id, peerTransceiver) in peerTransceivers) {
-      val oldTransceiver = transceivers[id]
-      if (oldTransceiver == null) {
-        transceivers[id] = RtpTransceiverProxy(peerTransceiver)
-      } else {
-        oldTransceiver.replace(peerTransceiver)
+      for ((id, peerTransceiver) in peerTransceivers) {
+        val oldTransceiver = transceivers[id]
+        if (oldTransceiver == null) {
+          transceivers[id] = RtpTransceiverProxy(peerTransceiver)
+        } else {
+          oldTransceiver.replace(peerTransceiver)
+        }
       }
     }
   }
