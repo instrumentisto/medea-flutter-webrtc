@@ -70,4 +70,11 @@ int32_t DeviceInfoMac::DisplayCaptureSettingsDialogBox(const char* /*deviceUniqu
                                                        uint32_t /*positionY*/) {
   return -1;
 }
+
+// Creates a new `DeviceInfo`.
+std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_device_info_mac() {
+  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> ptr(new DeviceInfoMac());
+
+  return ptr;
+}
 #endif
