@@ -13,14 +13,6 @@ int32_t DeviceInfoMac::Init() {
 
 DeviceInfoMac::~DeviceInfoMac() {}
 
-// Creates a new `DeviceInfoMac`.
-std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> DeviceInfoMac::Create() {
-  std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> ptr(new DeviceInfoMac());
-
-  return ptr;
-}
-
-// Returns count of a video recording devices.
 uint32_t DeviceInfoMac::NumberOfDevices() {
   AVCaptureDeviceDiscoverySession* devices = [AVCaptureDeviceDiscoverySession
       discoverySessionWithDeviceTypes:@[

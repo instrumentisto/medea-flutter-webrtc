@@ -39,9 +39,6 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
   int32_t Init() override;
 
  protected:
-  DeviceInfoMac();
-  ~DeviceInfoMac() override;
-
   AVCaptureDevice* device;
 };
 #endif
