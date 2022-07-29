@@ -384,7 +384,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * ```
    * Configuration of the newly created [RtpTransceiverProxy].
    *
-   * @return Newly created [RtpTransceiverProxy] if [obj] has been disposed returns last created [RtpTransceiverProxy].
+   * @return Newly created [RtpTransceiverProxy] if [obj] has been disposed returns last created
+   * [RtpTransceiverProxy].
    */
   fun addTransceiver(mediaType: MediaType, init: RtpTransceiverInit?): RtpTransceiverProxy {
     if (!disposed) {
@@ -394,7 +395,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     return transceivers.lastEntry()!!.value
   }
 
-  /** Requests the underlying [PeerConnection] to redo [IceCandidate] gathering if [obj] has been disposed does nothing. */
+  /**
+   * Requests the underlying [PeerConnection] to redo [IceCandidate] gathering if [obj] has been
+   * disposed does nothing.
+   */
   fun restartIce() {
     if (!disposed) {
       obj.restartIce()
