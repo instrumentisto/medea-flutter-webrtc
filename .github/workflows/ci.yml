@@ -61,7 +61,7 @@ jobs:
           toolchain: stable
           components: clippy
 
-      - name: Install Linux platform dependencies
+      - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -146,7 +146,7 @@ jobs:
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
-      - name: Install Linux platform dependencies
+      - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -197,7 +197,7 @@ jobs:
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android' }}
 
-      - name: Install Linux platform dependencies
+      - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -210,7 +210,7 @@ jobs:
       - run: make cargo.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform != 'android' }}
 
-      - name: Test on Android
+      - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 24
@@ -220,13 +220,14 @@ jobs:
           script: make flutter.test
         if: ${{ matrix.platform == 'android' }}
 
-      - name: Test on Linux
-        run: xvfb-run -a make flutter.test device=linux
+      - name: Test on `${{ matrix.platform }}` platform with Xvfb
+        run: xvfb-run -a make flutter.test device=${{ matrix.platform }}
         if: ${{ matrix.platform == 'linux' }}
 
-      - name: Test on Windows / macOs
+      - name: Test on `${{ matrix.platform }}` platform
         run: make flutter.test device=${{ matrix.platform }}
-        if: ${{ matrix.platform == 'windows' || matrix.platform == 'macos' }}
+        if: ${{ matrix.platform == 'macos'
+             || matrix.platform == 'windows' }}
 
 
 
@@ -256,7 +257,7 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - name: Install Linux platform dependencies
+      - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -319,13 +320,13 @@ jobs:
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: actions/download-artifact@v3
         with:
-          name: build-windows
-          path: windows/rust/
+          name: build-macos
+          path: macos/rust/
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: actions/download-artifact@v3
         with:
-          name: build-macos
-          path: macos/rust/
+          name: build-windows
+          path: windows/rust/
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Append package version with commit SHA

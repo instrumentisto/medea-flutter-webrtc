@@ -165,13 +165,10 @@ cargo.build:
 	cargo build -p flutter-webrtc-native \
 		$(if $(call eq,$(debug),no),--release,) \
 		--no-default-features \
-		--features $(if $(call eq,$(CURRENT_OS),macos),renderer_c_api,renderer_cpp_api)
+		--features $(strip \
+			$(if $(call eq,$(CURRENT_OS),macos),renderer_c_api,\
+			                                    renderer_cpp_api)) \
 		$(args)
-ifeq ($(CURRENT_OS),macos)
-	@mkdir -p macos/rust/lib/
-	cp -f $(lib-out-path)/libflutter_webrtc_native.dylib \
-		macos/rust/lib/libflutter_webrtc_native.dylib
-endif
 ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
 	@mkdir -p linux/rust/lib/
@@ -184,6 +181,11 @@ ifeq ($(CURRENT_OS),linux)
 		linux/rust/include/flutter-webrtc-native/include/api.h
 	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		linux/rust/src/flutter_webrtc_native.cc
+endif
+ifeq ($(CURRENT_OS),macos)
+	@mkdir -p macos/rust/lib/
+	cp -f $(lib-out-path)/libflutter_webrtc_native.dylib \
+		macos/rust/lib/libflutter_webrtc_native.dylib
 endif
 ifeq ($(CURRENT_OS),windows)
 	@mkdir -p windows/rust/include/

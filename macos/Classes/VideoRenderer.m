@@ -1,19 +1,21 @@
 #import "VideoRenderer.h"
 
-// Drops provided TextureVideoRenderer.
+// Drops the provided `TextureVideoRenderer`.
 void drop_handler(void* handler) {
     TextureVideoRenderer* renderer =
         (__bridge_transfer TextureVideoRenderer*)handler;
 }
 
-// Passes Frame from the Rust to the TextureVideoRenderer.
+// Passes the provided `Frame` from Rust side to the specified
+// `TextureVideoRenderer`.
 void on_frame_caller(void* handler, Frame frame) {
     TextureVideoRenderer* renderer = (__bridge TextureVideoRenderer*)handler;
     [renderer onFrame:frame];
 }
 
 @implementation TextureVideoRenderer
-// Initializes new TextureVideoRenderer with a provided registry and messenger.
+// Initializes a new `TextureVideoRenderer` with the provided `registry` and
+// `messenger`.
 - (instancetype)init:(id<FlutterTextureRegistry>)registry
            messenger:(id<FlutterBinaryMessenger>)messenger {
     self = [super init];
@@ -43,19 +45,20 @@ void on_frame_caller(void* handler, Frame frame) {
     return self;
 }
 
-// Resets this TextureVideoRenderer.
+// Resets this `TextureVideoRenderer`.
 - (void)resetRenderer {
     self->_firstFrameRendered = false;
 }
 
-// Releases PixelBuffer of this TextureVideoRenderer.
+// Releases `PixelBuffer` of this `TextureVideoRenderer`.
 - (void)onTextureUnregistered:(NSObject<FlutterTexture>*)texture {
     if (_pixelBufferRef != nil) {
         CVBufferRelease(_pixelBufferRef);
     }
 }
 
-// Draws provided Frame of the PixelBuffer of this TextureVideoRenderer.
+// Draws the provided `Frame` on the `PixelBuffer` of this
+// `TextureVideoRenderer`.
 - (void)onFrame:(Frame)frame {
     bool isBufferNotCreated = _pixelBufferRef == nil;
     bool isFrameSizeChanged = _bufferSize != frame.buffer_size;
@@ -124,18 +127,18 @@ void on_frame_caller(void* handler, Frame frame) {
     });
 }
 
-// Returns TextureVideoRenderer ID.
+// Returns ID of this `TextureVideoRenderer`.
 - (NSNumber*)textureId {
     return _textureId;
 }
 
-// Frees EventSink of this TextureVideoRenderer.
+// Frees `EventSink` of this `TextureVideoRenderer`.
 - (FlutterError* _Nullable)onCancelWithArguments:(id _Nullable)arguments {
     _eventSink = nil;
     return nil;
 }
 
-// Sets new EventSink of this TextureVideoRenderer.
+// Sets a new `EventSink` of this `TextureVideoRenderer`.
 - (FlutterError* _Nullable)onListenWithArguments:(id _Nullable)arguments
                                        eventSink:
                                            (nonnull FlutterEventSink)sink {
@@ -143,7 +146,7 @@ void on_frame_caller(void* handler, Frame frame) {
     return nil;
 }
 
-// Returns PixelBuffer of this TextureVideoRenderer.
+// Returns `PixelBuffer` of this `TextureVideoRenderer`.
 - (CVPixelBufferRef)copyPixelBuffer {
     if (_pixelBufferRef != nil) {
         CVBufferRetain(_pixelBufferRef);
@@ -154,7 +157,7 @@ void on_frame_caller(void* handler, Frame frame) {
 @end
 
 @implementation VideoRendererManager
-// Initializes new VideoRendererManager.
+// Initializes a new `VideoRendererManager`.
 - (VideoRendererManager*)init:(id<FlutterTextureRegistry>)registry
                     messenger:(id<FlutterBinaryMessenger>)messenger {
     _renderers = [[NSMutableDictionary alloc] init];
@@ -163,7 +166,7 @@ void on_frame_caller(void* handler, Frame frame) {
     return self;
 }
 
-// Creates new TextureVideoRenderer.
+// Creates a new `TextureVideoRenderer`.
 - (void)createVideoRendererTexture:(FlutterResult)result {
     TextureVideoRenderer* renderer =
         [[TextureVideoRenderer alloc] init:_registry messenger:_messenger];
@@ -177,7 +180,8 @@ void on_frame_caller(void* handler, Frame frame) {
     result(map);
 }
 
-// Disposes TextureVideoRenderer based on the provided FlutterMethodCall.
+// Disposes this `TextureVideoRenderer` based on the provided
+// `FlutterMethodCall`.
 - (void)videoRendererDispose:(FlutterMethodCall*)methodCall
                       result:(FlutterResult)result {
     NSDictionary* arguments = methodCall.arguments;
@@ -189,7 +193,8 @@ void on_frame_caller(void* handler, Frame frame) {
     result(@{});
 }
 
-// Creates new TextureVideoRenderer into which Frames will be passed from Rust.
+// Creates a new `TextureVideoRenderer` into which `Frame`s will be passed from
+// Rust side.
 - (void)createFrameHandler:(FlutterMethodCall*)methodCall
                     result:(FlutterResult)result {
     NSDictionary* arguments = methodCall.arguments;

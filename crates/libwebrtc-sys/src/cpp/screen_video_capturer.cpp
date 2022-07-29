@@ -35,11 +35,11 @@ webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions() {
   webrtc::DesktopCaptureOptions options =
       webrtc::DesktopCaptureOptions::CreateDefault();
 
-  #ifdef WEBRTC_WIN
-    options.set_allow_directx_capturer(true);
-  #endif
   #ifdef WEBRTC_MAC
     options.set_allow_iosurface(true);
+  #endif
+  #ifdef WEBRTC_WIN
+    options.set_allow_directx_capturer(true);
   #endif
 
   return options;
@@ -106,6 +106,7 @@ bool ScreenVideoCapturer::CaptureProcess() {
   #ifdef WEBRTC_MAC
     CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true);
   #endif
+
   int64_t started_time = rtc::TimeMillis();
   capturer_->CaptureFrame();
   int last_capture_duration = (int) (rtc::TimeMillis() - started_time);

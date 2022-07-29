@@ -1,5 +1,8 @@
 #![warn(clippy::pedantic)]
 
+#[cfg(target_os = "macos")]
+use std::{env, path::PathBuf, process};
+
 #[allow(clippy::unnecessary_wraps)]
 fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "macos")]
@@ -7,11 +10,10 @@ fn main() -> anyhow::Result<()> {
         println!("cargo:rustc-link-arg=-Wl,-undefined,dynamic_lookup");
         println!(
             "cargo:rustc-link-arg=-Wl,-install_name,\
-        @rpath/libflutter_webrtc_native.dylib"
+             @rpath/libflutter_webrtc_native.dylib"
         );
 
-        let path =
-            std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR")?);
+        let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
 
         link_libs();
 
@@ -33,37 +35,35 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Emits all the required `rustc-link-lib` instructions.
 #[cfg(target_os = "macos")]
+/// Emits all the required `rustc-link-lib` instructions.
 fn link_libs() {
-    {
-        println!("cargo:rustc-link-lib=framework=AVFoundation");
-        if let Some(path) = macos_link_search_path() {
-            println!("cargo:rustc-link-lib=clang_rt.osx");
-            println!("cargo:rustc-link-search={}", path);
+    println!("cargo:rustc-link-lib=framework=AVFoundation");
+    if let Some(path) = macos_link_search_path() {
+        println!("cargo:rustc-link-lib=clang_rt.osx");
+        println!("cargo:rustc-link-search={path}");
+    }
+    match env::var("PROFILE").unwrap().as_str() {
+        "debug" => {
+            println!(
+                "cargo:rustc-link-search=\
+                 native=crates/libwebrtc-sys/lib/debug/",
+            );
         }
-        match std::env::var("PROFILE").unwrap().as_str() {
-            "debug" => {
-                println!(
-                    "cargo:rustc-link-search=\
-                     native=crates/libwebrtc-sys/lib/debug/",
-                );
-            }
-            "release" => {
-                println!(
-                    "cargo:rustc-link-search=\
-                     native=crates/libwebrtc-sys/lib/release/",
-                );
-            }
-            &_ => unreachable!(),
+        "release" => {
+            println!(
+                "cargo:rustc-link-search=\
+                 native=crates/libwebrtc-sys/lib/release/",
+            );
         }
+        _ => unreachable!(),
     }
 }
 
-/// Links MacOS libraries needed for building.
 #[cfg(target_os = "macos")]
+/// Links macOS libraries needed for building.
 fn macos_link_search_path() -> Option<String> {
-    let output = std::process::Command::new("clang")
+    let output = process::Command::new("clang")
         .arg("--print-search-dirs")
         .output()
         .ok()?;
@@ -77,10 +77,6 @@ fn macos_link_search_path() -> Option<String> {
         .filter(|l| l.contains("libraries: ="))
         .find_map(|l| {
             let path = l.split('=').nth(1)?;
-            if path.is_empty() {
-                None
-            } else {
-                Some(format!("{}/lib/darwin", path))
-            }
+            (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
         })
 }

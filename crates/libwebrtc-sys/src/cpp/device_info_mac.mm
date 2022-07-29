@@ -23,7 +23,9 @@ uint32_t DeviceInfoMac::NumberOfDevices() {
   return [devices.devices count];
 }
 
-// Returns the unique ID and user-friendly name of a given endpoint device.
+// Returns the unique ID and user-friendly name of the specified endpoint
+// device.
+
 // Example: "{0.0.1.00000000}.{8db6020f-18e3-4f25-b6f5-7726c9122574}", and
 //          "Microphone (Realtek High Definition Audio)".
 int32_t DeviceInfoMac::GetDeviceName(uint32_t deviceNumber,

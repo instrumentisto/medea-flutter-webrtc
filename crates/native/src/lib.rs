@@ -43,14 +43,14 @@ pub use crate::{
 
 #[cfg(not(any(feature = "renderer_cpp_api", feature = "renderer_c_api")))]
 compile_error!(
-    "Either feature \"renderer_cpp_api\" or \"renderer_c_api\" \
-                must be enabled for this crate."
+    "Either feature `renderer_cpp_api` or `renderer_c_api` must be enabled for \
+     this crate."
 );
 
 #[cfg(all(feature = "renderer_cpp_api", feature = "renderer_c_api"))]
 compile_error!(
-    "Either feature \"renderer_cpp_api\" or \"renderer_c_api\" \
-                must be enabled for this crate."
+    "Either feature `renderer_cpp_api` or `renderer_c_api` must be enabled for \
+     this crate, but not both at the same time."
 );
 
 /// Counter used to generate unique IDs.

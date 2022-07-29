@@ -30,7 +30,7 @@
 
 namespace {
 
-// Chooses the best fitted video dimensions for the provided `AVCaptureDevice`.
+// Chooses the best fit video dimensions for the provided `AVCaptureDevice`.
 AVCaptureDeviceFormat* SelectClosestFormat(AVCaptureDevice* device, size_t width, size_t height) {
   NSArray<AVCaptureDeviceFormat*>* formats =
       [RTCCameraVideoCapturer supportedFormatsForDevice:device];

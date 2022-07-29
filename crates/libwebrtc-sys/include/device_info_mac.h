@@ -12,7 +12,7 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
   DeviceInfoMac();
   ~DeviceInfoMac() override;
 
-  /// Returns count of a video recording devices.
+  // Returns count of a video recording devices.
   uint32_t NumberOfDevices() override;
 
   // Obtains information regarding the specified video recording device.
@@ -24,11 +24,11 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
                         char* productUniqueIdUTF8 = 0,
                         uint32_t productUniqueIdUTF8Length = 0) override;
 
-  // Fills the member variable _captureCapabilities with capabilities for the
-  // given device name.
+  // Fills the member variable `_captureCapabilities` with capabilities for the
+  // specified device name.
   int32_t CreateCapabilityMap(const char* deviceUniqueIdUTF8) override;
 
-  // Display OS /capture device specific settings dialog
+  // Displays OS capture device specific settings dialog.
   int32_t DisplayCaptureSettingsDialogBox(const char* /*deviceUniqueIdUTF8*/,
                                           const char* /*dialogTitleUTF8*/,
                                           void* /*parentWindow*/,
@@ -43,6 +43,6 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
 };
 #endif
 
-/// Creates a new `DeviceInfo`.
+// Creates a new `DeviceInfo`.
 std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo>
 create_device_info_mac();
