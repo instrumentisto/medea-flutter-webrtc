@@ -165,9 +165,6 @@ cargo.build:
 	cargo build -p flutter-webrtc-native \
 		$(if $(call eq,$(debug),no),--release,) \
 		--no-default-features \
-		--features $(strip \
-			$(if $(call eq,$(CURRENT_OS),macos),renderer_c_api,\
-			                                    renderer_cpp_api)) \
 		$(args)
 ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/

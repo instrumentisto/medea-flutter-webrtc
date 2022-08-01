@@ -27,7 +27,7 @@ fn main() -> anyhow::Result<()> {
         build.compile("flutter-webrtc-native");
     }
 
-    #[cfg(feature = "renderer_cpp_api")]
+    #[cfg(not(target_os = "macos"))]
     cxx_build::bridge("src/renderer.rs")
         .flag("-std=c++17")
         .compile("cpp_api_bindings");

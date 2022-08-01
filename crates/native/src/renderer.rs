@@ -2,7 +2,7 @@
 
 pub use frame_handler::FrameHandler;
 
-#[cfg(feature = "renderer_cpp_api")]
+#[cfg(not(target_os = "macos"))]
 /// Definitions and implementation of a handler for C++ API [`sys::VideoFrame`]s
 /// renderer.
 mod frame_handler {
@@ -128,7 +128,7 @@ mod frame_handler {
     }
 }
 
-#[cfg(feature = "renderer_c_api")]
+#[cfg(target_os = "macos")]
 /// Definitions and implementation of a handler for C API [`sys::VideoFrame`]s
 /// renderer.
 ///
