@@ -1,13 +1,17 @@
 package com.instrumentisto.medea_flutter_webrtc
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.exception.GetUserMediaException
 import com.instrumentisto.medea_flutter_webrtc.exception.PermissionException
 import com.instrumentisto.medea_flutter_webrtc.model.*
@@ -15,8 +19,8 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.AudioMediaTrackSource
 import com.instrumentisto.medea_flutter_webrtc.proxy.MediaStreamTrackProxy
 import com.instrumentisto.medea_flutter_webrtc.proxy.VideoMediaTrackSource
 import com.instrumentisto.medea_flutter_webrtc.utils.EglUtils
-import java.util.*
 import org.webrtc.*
+import java.util.*
 
 /**
  * Default device video width.
@@ -58,7 +62,7 @@ private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
  * @property state Global state used for enumerating devices and creation new
  * [MediaStreamTrackProxy]s.
  */
-class MediaDevices(val state: State, private val permissions: Permissions) {
+class MediaDevices(val state: State, private val permissions: Permissions): BroadcastReceiver {
   /** Indicator of bluetooth headset connection state. */
   private var isBluetoothHeadsetConnected: Boolean = false
 
@@ -106,6 +110,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) {
   }
 
   init {
+    state
+      .getAppContext()
+      .registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
     synchronizeHeadsetState()
     registerHeadsetStateReceiver()
   }
@@ -363,5 +370,19 @@ class MediaDevices(val state: State, private val permissions: Permissions) {
     val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
     val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
     return audioTrackSource.newTrack()
+  }
+
+  override fun onReceive(ctx: Context?, intent: Intent?) {
+    if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent!!.action) {
+      val state = intent.getIntExtra(
+        AudioManager.EXTRA_SCO_AUDIO_STATE,
+        AudioManager.SCO_AUDIO_STATE_DISCONNECTED
+      )
+      Log.d("FlutterWebRtcDebug", "SCO state: $state")
+
+      Log.d("FlutterWebRtcDebug", "Trying to start Bluetooth SCO")
+      audioManager.isBluetoothScoOn = true
+      audioManager.isSpeakerphoneOn = false
+    }
   }
 }
