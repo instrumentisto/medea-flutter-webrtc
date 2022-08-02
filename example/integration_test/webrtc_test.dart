@@ -138,11 +138,15 @@ void main() {
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
     pc1.onIceCandidate((candidate) async {
-      await pc2.addIceCandidate(candidate);
+      if (!pc2.closed) {
+        await pc2.addIceCandidate(candidate);
+      }
     });
 
     pc2.onIceCandidate((candidate) async {
-      await pc1.addIceCandidate(candidate);
+      if (!pc1.closed) {
+        await pc1.addIceCandidate(candidate);
+      }
     });
     var t = await pc1.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -155,9 +159,8 @@ void main() {
     await pc2.setLocalDescription(answer);
     await pc1.setRemoteDescription(answer);
 
-    // TODO: Might segfault if uncomment. Should be fixed.
-    // await pc1.close();
-    // await pc2.close();
+    await pc1.close();
+    await pc2.close();
     await t.dispose();
   });
 
@@ -186,11 +189,15 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((candidate) async {
-      await pc2.addIceCandidate(candidate);
+      if(!pc2.closed) {
+        await pc2.addIceCandidate(candidate);
+      }
     });
 
     pc2.onIceCandidate((candidate) async {
-      await pc1.addIceCandidate(candidate);
+      if(!pc1.closed) {
+        await pc1.addIceCandidate(candidate);
+      }
     });
 
     expect(await rx.moveNext(), isTrue);
@@ -229,10 +236,14 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((candidate) async {
-      await pc2.addIceCandidate(candidate);
+      if (!pc2.closed) {
+        await pc2.addIceCandidate(candidate);
+      }
     });
     pc2.onIceCandidate((candidate) async {
-      await pc1.addIceCandidate(candidate);
+      if (!pc1.closed) {
+        await pc1.addIceCandidate(candidate);
+      }
     });
 
     expect(await rx.moveNext(), isTrue);
@@ -320,11 +331,15 @@ void main() {
     var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
 
     pc1.onIceCandidate((IceCandidate candidate) async {
-      await pc2.addIceCandidate(candidate);
+      if (!pc2.closed) {
+        await pc2.addIceCandidate(candidate);
+      }
     });
 
     pc2.onIceCandidate((IceCandidate candidate) async {
-      await pc1.addIceCandidate(candidate);
+      if (!pc1.closed) {
+        await pc1.addIceCandidate(candidate);
+      }
     });
 
     var audioTransceiver = await pc1.addTransceiver(
@@ -402,7 +417,9 @@ void main() {
     });
 
     pc1.onIceCandidate((IceCandidate candidate) async {
-      await pc2.addIceCandidate(candidate);
+      if (!pc2.closed) {
+        await pc2.addIceCandidate(candidate);
+      }
 
       if (!futures[4].isCompleted) {
         futures[4].complete();
@@ -410,7 +427,9 @@ void main() {
     });
 
     pc2.onIceCandidate((IceCandidate candidate) async {
-      await pc1.addIceCandidate(candidate);
+      if (!pc1.closed) {
+        await pc1.addIceCandidate(candidate);
+      }
 
       if (!futures[5].isCompleted) {
         futures[5].complete();
@@ -453,17 +472,10 @@ void main() {
     caps.video.mandatory!.height = 480;
     caps.video.mandatory!.fps = 30;
 
-    print('DEBUG 1');
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
-    print('DEBUG 2');
     var onEndedComplete = Completer();
     pc2.onTrack((track, transceiver) {
-      print('DEBUG 42 ${transceiver.mid}');
-      track.onEnded(() async {
-        print('DEBUG 43 ${transceiver.mid}');
-      });
-
       if (transceiver.mid == '0') {
         track.onEnded(() async {
           onEndedComplete.complete();
@@ -479,27 +491,21 @@ void main() {
     var t2 = await pc1.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
-    print('DEBUG 3');
     var tracks = await getUserMedia(caps);
 
     var videoTrack =
         tracks.firstWhere((track) => track.kind() == MediaKind.video);
-    print('DEBUG 4');
     var cloneVideoTrack = await videoTrack.clone();
-    print('DEBUG 5');
     await cloneVideoTrack.setEnabled(false);
-    print('DEBUG 6');
 
     await t1.sender.replaceTrack(videoTrack);
     await t2.sender.replaceTrack(cloneVideoTrack);
 
     await pc2.setRemoteDescription(await pc1.createOffer());
-    print('DEBUG 7');
 
     var transceivers = await pc2.getTransceivers();
     await transceivers[0].stop();
 
-    print('DEBUG 8');
     await onEndedComplete.future.timeout(const Duration(seconds: 10));
     expect(videoTrack.id(), isNot(equals(cloneVideoTrack.id())));
     expect(videoTrack.isEnabled(), isNot(equals(cloneVideoTrack.isEnabled())));
@@ -790,11 +796,15 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((IceCandidate candidate) async {
-      await pc2.addIceCandidate(candidate);
+      if (!pc2.closed) {
+        await pc2.addIceCandidate(candidate);
+      }
     });
 
     pc2.onIceCandidate((IceCandidate candidate) async {
-      await pc1.addIceCandidate(candidate);
+      if (!pc1.closed) {
+        await pc1.addIceCandidate(candidate);
+      }
     });
 
     await vtrans.sender.replaceTrack(

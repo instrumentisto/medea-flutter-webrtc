@@ -73,6 +73,9 @@ abstract class PeerConnection {
   /// Indicates whether the [close] was called.
   bool _closed = false;
 
+  /// Getter closed indicator.
+  bool get closed => _closed;
+
   /// `on_ice_connection_state_change` event subscriber.
   OnIceConnectionStateChangeCallback? _onIceConnectionStateChange;
 
