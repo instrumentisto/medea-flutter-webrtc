@@ -484,8 +484,7 @@ class _PeerConnectionFFI extends PeerConnection {
       _onNegotiationNeeded?.call();
       return;
     } else if (event is ffi.SignallingChange) {
-      _onSignalingStateChange
-          ?.call(SignalingState.values[event.field0.index]);
+      _onSignalingStateChange?.call(SignalingState.values[event.field0.index]);
       return;
     } else if (event is ffi.IceConnectionStateChange) {
       _iceConnectionState = IceConnectionState.values[event.field0.index];
