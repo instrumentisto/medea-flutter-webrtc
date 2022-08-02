@@ -189,13 +189,13 @@ void main() {
     await pc1.setRemoteDescription(answer);
 
     pc1.onIceCandidate((candidate) async {
-      if(!pc2.closed) {
+      if (!pc2.closed) {
         await pc2.addIceCandidate(candidate);
       }
     });
 
     pc2.onIceCandidate((candidate) async {
-      if(!pc1.closed) {
+      if (!pc1.closed) {
         await pc1.addIceCandidate(candidate);
       }
     });
