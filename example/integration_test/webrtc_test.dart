@@ -461,9 +461,9 @@ void main() {
     pc2.onTrack((track, transceiver) {
       print('DEBUG 42 ${transceiver.mid}');
       track.onEnded(() async {
-          print('DEBUG 43 ${transceiver.mid}');
-        });
-        
+        print('DEBUG 43 ${transceiver.mid}');
+      });
+
       if (transceiver.mid == '0') {
         track.onEnded(() async {
           onEndedComplete.complete();
@@ -484,7 +484,7 @@ void main() {
 
     var videoTrack =
         tracks.firstWhere((track) => track.kind() == MediaKind.video);
-    print('DEBUG 4'); 
+    print('DEBUG 4');
     var cloneVideoTrack = await videoTrack.clone();
     print('DEBUG 5');
     await cloneVideoTrack.setEnabled(false);
@@ -497,7 +497,7 @@ void main() {
     print('DEBUG 7');
 
     var transceivers = await pc2.getTransceivers();
-    await (transceivers)[0].stop();
+    await transceivers[0].stop();
 
     print('DEBUG 8');
     await onEndedComplete.future.timeout(const Duration(seconds: 10));
