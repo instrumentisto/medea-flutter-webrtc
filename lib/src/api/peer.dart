@@ -240,7 +240,6 @@ class _PeerConnectionChannel extends PeerConnection {
   /// side.
   void eventListener(dynamic event) {
     if (!_closed) {
-
       dynamic e = event;
 
       switch (e['event']) {
@@ -467,7 +466,7 @@ class _PeerConnectionFFI extends PeerConnection {
         _id = event.id;
         _initialized.complete();
         return;
-      } else if (event is ffi.IceCandidate ) {
+      } else if (event is ffi.IceCandidate) {
         _onIceCandidate?.call(
             IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
         return;
@@ -488,7 +487,8 @@ class _PeerConnectionFFI extends PeerConnection {
         _onNegotiationNeeded?.call();
         return;
       } else if (event is ffi.SignallingChange) {
-        _onSignalingStateChange?.call(SignalingState.values[event.field0.index]);
+        _onSignalingStateChange
+            ?.call(SignalingState.values[event.field0.index]);
         return;
       } else if (event is ffi.IceConnectionStateChange) {
         _iceConnectionState = IceConnectionState.values[event.field0.index];
