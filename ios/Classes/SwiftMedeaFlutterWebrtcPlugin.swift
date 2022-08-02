@@ -1,10 +1,13 @@
 import Flutter
 import UIKit
 
-public class SwiftMedeaFlutterWebrtcPluginn: NSObject, FlutterPlugin {
+public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
+  var binaryMessenger: FlutterBinaryMessenger?;
+
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "medea_flutter_webrtc", binaryMessenger: registrar.messenger())
     let instance = SwiftMedeaFlutterWebrtcPlugin()
+    instance.binaryMessenger = registrar.messenger()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
