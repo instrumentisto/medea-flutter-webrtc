@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+  - medea_flutter_webrtc (0.8.0-dev):
+    - Flutter
+    - WebRTC-SDK (= 104.5112.01)
+  - WebRTC-SDK (104.5112.01)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - medea_flutter_webrtc (from `.symlinks/plugins/medea_flutter_webrtc/ios`)
+
+SPEC REPOS:
+  trunk:
+    - WebRTC-SDK
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  medea_flutter_webrtc:
+    :path: ".symlinks/plugins/medea_flutter_webrtc/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
+  medea_flutter_webrtc: 1976bbce854784b0c3cafacbf0229ebbb761d755
+  WebRTC-SDK: 24a23f296fad33c752d57c8eb8741cb5765520b8
+
+PODFILE CHECKSUM: e70732dea49e227d5a07d4b09f005c306e7af1da
+
+COCOAPODS: 1.11.3
