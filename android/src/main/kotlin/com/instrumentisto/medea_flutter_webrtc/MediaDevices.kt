@@ -19,8 +19,8 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.AudioMediaTrackSource
 import com.instrumentisto.medea_flutter_webrtc.proxy.MediaStreamTrackProxy
 import com.instrumentisto.medea_flutter_webrtc.proxy.VideoMediaTrackSource
 import com.instrumentisto.medea_flutter_webrtc.utils.EglUtils
-import org.webrtc.*
 import java.util.*
+import org.webrtc.*
 
 /**
  * Default device video width.
@@ -62,7 +62,7 @@ private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
  * @property state Global state used for enumerating devices and creation new
  * [MediaStreamTrackProxy]s.
  */
-class MediaDevices(val state: State, private val permissions: Permissions): BroadcastReceiver {
+class MediaDevices(val state: State, private val permissions: Permissions) : BroadcastReceiver() {
   /** Indicator of bluetooth headset connection state. */
   private var isBluetoothHeadsetConnected: Boolean = false
 
@@ -77,6 +77,9 @@ class MediaDevices(val state: State, private val permissions: Permissions): Broa
 
   /** [AudioManager] system service. */
   private val audioManager: AudioManager = state.getAudioManager()
+
+  /** Currently selected audio output ID by [setOutputAudioId] call. */
+  private var selectedAudioOutputId: String = SPEAKERPHONE_DEVICE_ID
 
   companion object {
     /** Observer of [MediaDevices] events. */
@@ -111,8 +114,8 @@ class MediaDevices(val state: State, private val permissions: Permissions): Broa
 
   init {
     state
-      .getAppContext()
-      .registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
+        .getAppContext()
+        .registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
     synchronizeHeadsetState()
     registerHeadsetStateReceiver()
   }
@@ -212,14 +215,17 @@ class MediaDevices(val state: State, private val permissions: Permissions): Broa
         audioManager.isSpeakerphoneOn = true
       }
       BLUETOOTH_HEADSET_DEVICE_ID -> {
-        audioManager.isSpeakerphoneOn = false
-        audioManager.isBluetoothScoOn = true
+        Log.d(
+            "FlutterWebRtcDebug",
+            "Bluetooth headset was selected. Trying to start Bluetooth SCO...")
         audioManager.startBluetoothSco()
       }
       else -> {
         throw IllegalArgumentException("Unknown output device: $deviceId")
       }
     }
+
+    selectedAudioOutputId = deviceId
   }
 
   /**
@@ -374,15 +380,23 @@ class MediaDevices(val state: State, private val permissions: Permissions): Broa
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
     if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent!!.action) {
-      val state = intent.getIntExtra(
-        AudioManager.EXTRA_SCO_AUDIO_STATE,
-        AudioManager.SCO_AUDIO_STATE_DISCONNECTED
-      )
-      Log.d("FlutterWebRtcDebug", "SCO state: $state")
-
-      Log.d("FlutterWebRtcDebug", "Trying to start Bluetooth SCO")
-      audioManager.isBluetoothScoOn = true
-      audioManager.isSpeakerphoneOn = false
+      val state =
+          intent.getIntExtra(
+              AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_DISCONNECTED)
+      if (selectedAudioOutputId == BLUETOOTH_HEADSET_DEVICE_ID) {
+        when (state) {
+          AudioManager.SCO_AUDIO_STATE_CONNECTED -> {
+            Log.d("FlutterWebRtcDebug", "SCO was successfully connected")
+            audioManager.isBluetoothScoOn = true
+            audioManager.isSpeakerphoneOn = false
+          }
+          AudioManager.SCO_AUDIO_STATE_DISCONNECTED -> {
+            Log.d("FlutterWebRtcDebug", "SCO was disconnected, retrying connection...")
+            audioManager.stopBluetoothSco()
+            audioManager.startBluetoothSco()
+          }
+        }
+      }
     }
   }
 }
