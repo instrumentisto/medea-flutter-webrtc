@@ -215,10 +215,14 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
         audioManager.isSpeakerphoneOn = true
       }
       BLUETOOTH_HEADSET_DEVICE_ID -> {
-        Log.d(
-            "FlutterWebRtcDebug",
-            "Bluetooth headset was selected. Trying to start Bluetooth SCO...")
-        audioManager.startBluetoothSco()
+        if (isBluetoothHeadsetConnected) {
+          Log.d(
+              "FlutterWebRtcDebug",
+              "Bluetooth headset was selected. Trying to start Bluetooth SCO...")
+          audioManager.startBluetoothSco()
+        } else {
+          throw IllegalArgumentException("Unknown output device: $deviceId")
+        }
       }
       else -> {
         throw IllegalArgumentException("Unknown output device: $deviceId")
