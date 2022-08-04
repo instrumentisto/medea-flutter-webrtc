@@ -125,6 +125,7 @@ target_link_libraries(${BINARY_NAME} PRIVATE
   flutter
   "${INSTALL_BUNDLE_LIB_DIR}/libflutter_webrtc_native.so"
 )
+target_link_libraries(${BINARY_NAME} PRIVATE flutter)
 
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.
