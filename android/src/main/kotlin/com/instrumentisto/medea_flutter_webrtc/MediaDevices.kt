@@ -20,6 +20,7 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.MediaStreamTrackProxy
 import com.instrumentisto.medea_flutter_webrtc.proxy.VideoMediaTrackSource
 import com.instrumentisto.medea_flutter_webrtc.utils.EglUtils
 import java.util.*
+import kotlinx.coroutines.CompletableDeferred
 import org.webrtc.*
 
 /**
@@ -81,6 +82,12 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** Currently selected audio output ID by [setOutputAudioId] call. */
   private var selectedAudioOutputId: String = SPEAKERPHONE_DEVICE_ID
 
+  /** Flag which indicates that last Bluetooth SCO connection attempt was failed. */
+  private var isBluetoothScoFailed: Boolean = false
+
+  /** [CompletableDeferred] which will be resolved when Bluetooth SCO request will be completed. */
+  private var bluetoothScoDeferred: CompletableDeferred<Unit>? = null
+
   companion object {
     /** Observer of [MediaDevices] events. */
     interface EventObserver {
@@ -106,7 +113,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     /** Returns `true` if provided [AudioDeviceInfo] is related to the Bluetooth headset. */
     private fun isBluetoothDevice(info: AudioDeviceInfo): Boolean {
       return info.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
-          info.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
           (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
               info.type == AudioDeviceInfo.TYPE_BLE_HEADSET)
     }
@@ -197,29 +203,46 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   /**
+   * Cancels Bluetooth SCO request.
+   *
+   * Throws [GetUserMediaException] from [setOutputAudioId] for enabling Bluetooth SCO (if
+   * [MediaDevices] has ongoing request).
+   */
+  private fun cancelBluetoothSco() {
+    bluetoothScoDeferred?.completeExceptionally(
+        GetUserMediaException(
+            "Bluetooth headset connection request was cancelled", GetUserMediaException.Kind.Audio))
+    audioManager.stopBluetoothSco()
+    audioManager.isBluetoothScoOn = false
+  }
+
+  /**
    * Switches the current output audio device to the device with the provided identifier.
    *
    * @param deviceId Identifier for the output audio device to be selected.
    */
-  fun setOutputAudioId(deviceId: String) {
+  suspend fun setOutputAudioId(deviceId: String) {
     val audioManager = state.getAudioManager()
     when (deviceId) {
       EAR_SPEAKER_DEVICE_ID -> {
-        audioManager.isBluetoothScoOn = false
-        audioManager.stopBluetoothSco()
+        cancelBluetoothSco()
         audioManager.isSpeakerphoneOn = false
       }
       SPEAKERPHONE_DEVICE_ID -> {
-        audioManager.isBluetoothScoOn = false
-        audioManager.stopBluetoothSco()
+        cancelBluetoothSco()
         audioManager.isSpeakerphoneOn = true
       }
       BLUETOOTH_HEADSET_DEVICE_ID -> {
         if (isBluetoothHeadsetConnected) {
-          Log.d(
-              "FlutterWebRtcDebug",
-              "Bluetooth headset was selected. Trying to start Bluetooth SCO...")
-          audioManager.startBluetoothSco()
+          if (bluetoothScoDeferred == null) {
+            isBluetoothScoFailed = false
+            Log.d(
+                "FlutterWebRtcDebug",
+                "Bluetooth headset was selected. Trying to start Bluetooth SCO...")
+            bluetoothScoDeferred = CompletableDeferred()
+            audioManager.startBluetoothSco()
+          }
+          bluetoothScoDeferred?.await()
         } else {
           throw IllegalArgumentException("Unknown output device: $deviceId")
         }
@@ -265,16 +288,19 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
 
     val devices =
         mutableListOf(
-            MediaDeviceInfo(EAR_SPEAKER_DEVICE_ID, "Ear-speaker", MediaDeviceKind.AUDIO_OUTPUT),
-            MediaDeviceInfo(SPEAKERPHONE_DEVICE_ID, "Speakerphone", MediaDeviceKind.AUDIO_OUTPUT))
+            MediaDeviceInfo(
+                EAR_SPEAKER_DEVICE_ID, "Ear-speaker", MediaDeviceKind.AUDIO_OUTPUT, false),
+            MediaDeviceInfo(
+                SPEAKERPHONE_DEVICE_ID, "Speakerphone", MediaDeviceKind.AUDIO_OUTPUT, false))
     if (bluetoothDevice != null) {
       devices.add(
           MediaDeviceInfo(
               BLUETOOTH_HEADSET_DEVICE_ID,
               bluetoothDevice.productName.toString(),
-              MediaDeviceKind.AUDIO_OUTPUT))
+              MediaDeviceKind.AUDIO_OUTPUT,
+              isBluetoothScoFailed))
     }
-    devices.add(MediaDeviceInfo("default", "default", MediaDeviceKind.AUDIO_INPUT))
+    devices.add(MediaDeviceInfo("default", "default", MediaDeviceKind.AUDIO_INPUT, false))
     return devices
   }
 
@@ -288,7 +314,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     }
     return cameraEnumerator
         .deviceNames
-        .map { deviceId -> MediaDeviceInfo(deviceId, deviceId, MediaDeviceKind.VIDEO_INPUT) }
+        .map { deviceId -> MediaDeviceInfo(deviceId, deviceId, MediaDeviceKind.VIDEO_INPUT, false) }
         .toList()
   }
 
@@ -391,13 +417,19 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
         when (state) {
           AudioManager.SCO_AUDIO_STATE_CONNECTED -> {
             Log.d("FlutterWebRtcDebug", "SCO was successfully connected")
+            isBluetoothScoFailed = false
+            bluetoothScoDeferred?.complete(Unit)
             audioManager.isBluetoothScoOn = true
             audioManager.isSpeakerphoneOn = false
           }
           AudioManager.SCO_AUDIO_STATE_DISCONNECTED -> {
             Log.d("FlutterWebRtcDebug", "SCO was disconnected, retrying connection...")
-            audioManager.stopBluetoothSco()
-            audioManager.startBluetoothSco()
+            isBluetoothScoFailed = true
+            bluetoothScoDeferred?.completeExceptionally(
+                GetUserMediaException(
+                    "Bluetooth headset is unavailable at this moment",
+                    GetUserMediaException.Kind.Audio))
+            Handler(Looper.getMainLooper()).post { eventBroadcaster().onDeviceChange() }
           }
         }
       }

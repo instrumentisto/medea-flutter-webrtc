@@ -20,6 +20,7 @@ class MediaDeviceInfo {
     deviceId = map['deviceId'];
     label = map['label'];
     kind = MediaDeviceKind.values[map['kind']];
+    isFailed = map['isFailed'];
   }
 
   /// Creates a [MediaDeviceInfo] basing on the [ffi.MediaDeviceInfo] received
@@ -28,6 +29,7 @@ class MediaDeviceInfo {
     deviceId = info.deviceId;
     label = info.label;
     kind = MediaDeviceKind.values[info.kind.index];
+    isFailed = false;
   }
 
   /// Identifier of the represented device.
@@ -38,4 +40,7 @@ class MediaDeviceInfo {
 
   /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
+
+  /// Flag which indicates that last attempt to use this device was failed.
+  late bool isFailed;
 }
