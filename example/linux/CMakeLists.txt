@@ -71,6 +71,7 @@ add_executable(${BINARY_NAME}
 apply_standard_settings(${BINARY_NAME})
 
 # Add dependency libraries. Add any application-specific dependencies here.
+target_link_libraries(${BINARY_NAME} PRIVATE flutter)
 target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::GTK)
 
 # Run the Flutter tool portions of the build. This must not be removed.
@@ -120,12 +121,6 @@ foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endforeach(bundled_library)
-
-target_link_libraries(${BINARY_NAME} PRIVATE
-  flutter
-  "${INSTALL_BUNDLE_LIB_DIR}/libflutter_webrtc_native.so"
-)
-target_link_libraries(${BINARY_NAME} PRIVATE flutter)
 
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.
