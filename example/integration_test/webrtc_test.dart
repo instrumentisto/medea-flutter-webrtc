@@ -760,7 +760,8 @@ void main() {
     await pc.close();
   });
 
-  testWidgets('Peer close invalidate', (WidgetTester tester) async {
+  testWidgets('Handles still work after Peer close',
+      (WidgetTester tester) async {
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();

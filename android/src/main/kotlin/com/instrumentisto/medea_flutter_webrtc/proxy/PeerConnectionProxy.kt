@@ -34,8 +34,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** List of all [RtpTransceiverProxy]s owned by this [PeerConnectionProxy]. */
   private var transceivers: TreeMap<Int, RtpTransceiverProxy> = TreeMap()
 
-  /** The disposed state of [obj]. */
-  private @Volatile var disposed: Boolean = false
+  /** Indicates whether the underlying [PeerConnection] has been disposed. */
+  private var disposed: Boolean = false
 
   /**
    * List of subscribers on [dispose] event.
@@ -229,8 +229,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Notifies about [RtpReceiverProxy]'s [MediaStreamTrackProxy] being ended if [obj] has been
-   * disposed does nothing.
+   * Notifies about [RtpReceiverProxy]'s [MediaStreamTrackProxy] being ended. Does nothing if the
+   * underlying [PeerConnection] has been [disposed].
    *
    * @param endedReceiver [RtpReceiver] being ended.
    */
@@ -248,11 +248,9 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   fun dispose() {
     disposed = true
     obj.dispose()
-
     for (transceiver in transceivers.values) {
       transceiver.setDisposed()
     }
-
     senders = HashMap()
     receivers = HashMap()
     onDisposeSubscribers.forEach { sub -> sub(id) }
@@ -278,64 +276,64 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Creates a new [SessionDescription] offer.
+   * Creates a new [SessionDescription] offer. Does nothing if the underlying [PeerConnection] has
+   * been [disposed].
    *
-   * @return Newly created [SessionDescription] if [obj] has been disposed return empty
-   * [SessionDescription].
+   * @return Newly created [SessionDescription].
    */
-  suspend fun createOffer(): SessionDescription {
-    return suspendCoroutine { continuation ->
-      if (!disposed) {
-        obj.createOffer(createSdpObserver(continuation), MediaConstraints())
-      } else {
-        SessionDescription.fromMap(mapOf<String, Any>())
-      }
+  suspend fun createOffer(): SessionDescription = suspendCoroutine {
+    if (disposed) {
+      it.resume(SessionDescription.fromMap(mapOf<String, Any>()))
+    } else {
+      obj.createOffer(createSdpObserver(it), MediaConstraints())
     }
   }
 
   /**
-   * Creates a new [SessionDescription] answer.
+   * Creates a new [SessionDescription] answer. Does nothing if the underlying [PeerConnection] has
+   * been [disposed].
    *
-   * @return Newly created [SessionDescription] if [obj] has been disposed return empty
-   * [SessionDescription].
+   * @return Newly created [SessionDescription].
    */
-  suspend fun createAnswer(): SessionDescription {
-    return suspendCoroutine { continuation ->
-      if (!disposed) {
-        obj.createAnswer(createSdpObserver(continuation), MediaConstraints())
-      } else {
-        SessionDescription.fromMap(mapOf<String, Any>())
-      }
+  suspend fun createAnswer(): SessionDescription = suspendCoroutine {
+    if (disposed) {
+      it.resume(SessionDescription.fromMap(mapOf<String, Any>()))
+    } else {
+      obj.createAnswer(createSdpObserver(it), MediaConstraints())
     }
   }
 
   /**
-   * Sets the provided local [SessionDescription] to the underlying [PeerConnection] if [obj] has
-   * been disposed does nothing.
+   * Sets the provided local [SessionDescription] to the underlying [PeerConnection]. Does nothing
+   * if the underlying [PeerConnection] has been [disposed].
+   *
    * @param description SDP to be applied.
    */
-  suspend fun setLocalDescription(description: SessionDescription?) {
-    suspendCoroutine<Unit> { continuation ->
-      if (!disposed) {
-        if (description == null) {
-          obj.setLocalDescription(setSdpObserver(continuation))
+  suspend fun setLocalDescription(description: SessionDescription?) =
+      suspendCoroutine<Unit> {
+        if (disposed) {
+          it.resume(Unit)
         } else {
-          obj.setLocalDescription(setSdpObserver(continuation), description.intoWebRtc())
+          if (description == null) {
+            obj.setLocalDescription(setSdpObserver(it))
+          } else {
+            obj.setLocalDescription(setSdpObserver(it), description.intoWebRtc())
+          }
         }
       }
-    }
-  }
 
   /**
-   * Sets the provided remote [SessionDescription] to the underlying [PeerConnection] if [obj] has
-   * been disposed does nothing.
+   * Sets the provided remote [SessionDescription] to the underlying [PeerConnection]. Does nothing
+   * if the underlying [PeerConnection] has been [disposed].
    *
    * @param description SDP to be applied.
    */
   suspend fun setRemoteDescription(description: SessionDescription) {
-    suspendCoroutine<Unit> { continuation ->
-      if (!disposed) {
-        obj.setRemoteDescription(setSdpObserver(continuation), description.intoWebRtc())
+    suspendCoroutine<Unit> {
+      if (disposed) {
+        it.resume(Unit)
+      } else {
+        obj.setRemoteDescription(setSdpObserver(it), description.intoWebRtc())
       }
     }
     while (candidatesBuffer.isNotEmpty()) {
@@ -344,38 +342,38 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   }
 
   /**
-   * Adds a new [IceCandidate] to the underlying [PeerConnection] if [obj] has been disposed does
-   * nothing.
+   * Adds a new [IceCandidate] to the underlying [PeerConnection]. Does nothing if the underlying
+   * [PeerConnection] has been [disposed].
    */
-  suspend fun addIceCandidate(candidate: IceCandidate) {
-    suspendCoroutine<Unit> { continuation ->
-      if (!disposed) {
-        if (obj.remoteDescription != null) {
-          obj.addIceCandidate(
-              candidate.intoWebRtc(),
-              object : AddIceObserver {
-                override fun onAddSuccess() {
-                  continuation.resume(Unit)
-                }
-
-                override fun onAddFailure(msg: String?) {
-                  var message = msg
-                  if (message == null) {
-                    message = ""
+  suspend fun addIceCandidate(candidate: IceCandidate) =
+      suspendCoroutine<Unit> {
+        if (!disposed) {
+          if (obj.remoteDescription != null) {
+            obj.addIceCandidate(
+                candidate.intoWebRtc(),
+                object : AddIceObserver {
+                  override fun onAddSuccess() {
+                    it.resume(Unit)
                   }
-                  continuation.resumeWithException(AddIceCandidateException(message))
-                }
-              })
-        } else {
-          candidatesBuffer.add(candidate)
-          continuation.resume(Unit)
+
+                  override fun onAddFailure(msg: String?) {
+                    var message = msg
+                    if (message == null) {
+                      message = ""
+                    }
+                    it.resumeWithException(AddIceCandidateException(message))
+                  }
+                })
+          } else {
+            candidatesBuffer.add(candidate)
+            it.resume(Unit)
+          }
         }
       }
-    }
-  }
 
   /**
-   * If [obj] not disposed creates a new [RtpTransceiverProxy] based on the provided config.
+   * Creates a new [RtpTransceiverProxy] based on the provided config. Throws
+   * [IllegalStateException] if the underlying [PeerConnection] has been disposed.
    *
    * @param mediaType Initial [MediaType] of the newly created
    * ```
@@ -384,20 +382,20 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * ```
    * Configuration of the newly created [RtpTransceiverProxy].
    *
-   * @return Newly created [RtpTransceiverProxy] if [obj] has been disposed returns last created
-   * [RtpTransceiverProxy].
+   * @return Newly created [RtpTransceiverProxy].
    */
   fun addTransceiver(mediaType: MediaType, init: RtpTransceiverInit?): RtpTransceiverProxy {
-    if (!disposed) {
-      obj.addTransceiver(mediaType.intoWebRtc(), init?.intoWebRtc())
-      syncTransceivers()
+    if (disposed) {
+      throw IllegalStateException("PeerConnection has been disposed.")
     }
+    obj.addTransceiver(mediaType.intoWebRtc(), init?.intoWebRtc())
+    syncTransceivers()
     return transceivers.lastEntry()!!.value
   }
 
   /**
-   * Requests the underlying [PeerConnection] to redo [IceCandidate] gathering if [obj] has been
-   * disposed does nothing.
+   * Requests the underlying [PeerConnection] to redo [IceCandidate] gathering. Does nothing if the
+   * underlying [PeerConnection] has been [disposed].
    */
   fun restartIce() {
     if (!disposed) {
@@ -407,7 +405,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
 
   /**
    * Synchronizes underlying pointers of old [RtpSenderProxy]s and creates [RtpSenderProxy]s for new
-   * [RtpSender]s if [obj] has been disposed does nothing.
+   * [RtpSender]s. Does nothing if the underlying [PeerConnection] has been [disposed].
    */
   private fun syncSenders() {
     if (!disposed) {
@@ -427,7 +425,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
 
   /**
    * Synchronizes underlying pointers of old [RtpReceiverProxy]s and creates [RtpReceiverProxy]s for
-   * new [RtpReceiver]s if [obj] has been disposed does nothing.
+   * new [RtpReceiver]s. Does nothing if the underlying [PeerConnection] has been [disposed].
    */
   private fun syncReceivers() {
     if (!disposed) {
@@ -447,7 +445,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
 
   /**
    * Synchronizes underlying pointers of old [RtpTransceiverProxy]s and creates
-   * [RtpTransceiverProxy]s for new [RtpTransceiver]s if [obj] has been disposed does nothing.
+   * [RtpTransceiverProxy]s for new [RtpTransceiver]s. Does nothing if the underlying
+   * [PeerConnection] has been [disposed].
    */
   private fun syncTransceivers() {
     if (!disposed) {

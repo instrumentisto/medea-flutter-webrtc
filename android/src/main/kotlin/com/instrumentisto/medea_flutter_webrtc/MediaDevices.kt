@@ -56,8 +56,7 @@ private const val SPEAKERPHONE_DEVICE_ID: String = "speakerphone"
 private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
 
 /** Provides cloned tracks in `getUserVideoTrack` if video source not been released */
-private val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> =
-    HashMap<VideoConstraints, MediaStreamTrackProxy>()
+private val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> = HashMap()
 
 /**
  * Processor for `getUserMedia` requests.
@@ -294,6 +293,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       val track = videoTracks[constraints]!!.fork()
       videoTracks[constraints] = track
       track.onStop({ videoTracks.remove(constraints) })
+
       return track
     }
 
@@ -334,6 +334,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     val track = videoTrackSource.newTrack()
     track.onStop({ videoTracks.remove(constraints) })
     videoTracks[constraints] = track
+
     return track
   }
 
@@ -351,7 +352,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
     }
-
     val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
     val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
     return audioTrackSource.newTrack()

@@ -6,16 +6,37 @@ import org.webrtc.RtpTransceiver
 /** Wrapper around an [RtpTransceiver]. */
 class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   /** [RtpSenderProxy] of this [RtpTransceiverProxy]. */
-  private lateinit var sender: RtpSenderProxy
+  lateinit var sender: RtpSenderProxy
+    private set
 
   /** [RtpReceiverProxy] of this [RtpTransceiverProxy]. */
-  private lateinit var receiver: RtpReceiverProxy
+  lateinit var receiver: RtpReceiverProxy
+    private set
 
   /** The disposed state of [obj]. */
   private var disposed: Boolean = false
 
   /** mID of the underlying [RtpTransceiver]. */
-  private var mid: String? = null
+  var mid: String? = null
+    get() {
+      if (!disposed) {
+        field = obj.mid
+      }
+      return field
+    }
+    private set
+
+  /** The [RtpTransceiver]'s preferred directionality. */
+  var direction: RtpTransceiverDirection = RtpTransceiverDirection.fromWebRtc(obj)
+    get() {
+      if (disposed) {
+        field = RtpTransceiverDirection.STOPPED
+      } else {
+        field = RtpTransceiverDirection.fromWebRtc(obj)
+      }
+      return field
+    }
+    private set
 
   init {
     syncSender()
@@ -31,16 +52,6 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
     disposed = true
     receiver.setDisposed()
     sender.setDisposed()
-  }
-
-  /** @return [RtpSenderProxy] of this [RtpTransceiverProxy]. */
-  fun getSender(): RtpSenderProxy {
-    return sender
-  }
-
-  /** @return [RtpReceiverProxy] of this [RtpTransceiverProxy]. */
-  fun getReceiver(): RtpReceiverProxy {
-    return receiver
   }
 
   /** Sets [RtpTransceiverDirection] of the underlying [RtpTransceiver]. */
@@ -112,22 +123,6 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
         setDirection(newDirection)
       }
     }
-  }
-
-  /** @return mID of the underlying [RtpTransceiver]. */
-  fun getMid(): String? {
-    if (!disposed) {
-      mid = obj.mid
-    }
-    return mid
-  }
-
-  /** @return Preferred [RtpTransceiverDirection] of the underlying [RtpTransceiver]. */
-  fun getDirection(): RtpTransceiverDirection {
-    if (!disposed) {
-      return RtpTransceiverDirection.fromWebRtc(obj)
-    }
-    return RtpTransceiverDirection.STOPPED
   }
 
   /** Stops the underlying [RtpTransceiver]. */

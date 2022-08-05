@@ -16,7 +16,7 @@ import org.webrtc.MediaStreamTrack
  */
 class MediaStreamTrackProxy(
     track: MediaStreamTrack,
-    private val deviceId: String = "remote",
+    val deviceId: String = "remote",
     private val source: MediaTrackSource? = null
 ) : Proxy<MediaStreamTrack>(track) {
   /**
@@ -32,14 +32,26 @@ class MediaStreamTrackProxy(
   /** List of [EventObserver]s belonging to this [MediaStreamTrackProxy]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
 
-  /** The disposed state of [obj]. */
+  /** Indicates whether the underlying [MediaStreamTrack] had been disposed. */
   private var disposed: Boolean = false
 
   /** [MediaType] of the underlying [MediaStreamTrack]. */
-  private lateinit var kind: MediaType
+  val kind: MediaType
 
   /** ID of the underlying [MediaStreamTrack] */
-  private lateinit var id: String
+  val id: String
+
+  /** [MediaStreamTrackState] of the underlying [MediaStreamTrack]. */
+  var state: MediaStreamTrackState = MediaStreamTrackState.LIVE
+    get() {
+      if (disposed) {
+        field = MediaStreamTrackState.ENDED
+      } else {
+        field = MediaStreamTrackState.fromWebRtcState(obj.state())
+      }
+
+      return field
+    }
 
   init {
     id = obj.id()
@@ -53,7 +65,7 @@ class MediaStreamTrackProxy(
     TrackRepository.addTrack(this)
   }
 
-  /** Sets [disposed] to `true`. */
+  /** Sets the [disposed] property to `true`. */
   fun setDisposed() {
     disposed = true
   }
@@ -63,25 +75,6 @@ class MediaStreamTrackProxy(
     interface EventObserver {
       fun onEnded()
     }
-  }
-
-  /**
-   * Returns ID of the underlying [MediaStreamTrack].
-   *
-   * @return ID of the underlying [MediaStreamTrack].
-   */
-  fun id(): String {
-    return id
-  }
-
-  /** @return [MediaType] of the underlying [MediaStreamTrack]. */
-  fun kind(): MediaType {
-    return kind
-  }
-
-  /** @return Unique device ID of the underlying [MediaStreamTrack]. */
-  fun deviceId(): String {
-    return deviceId
   }
 
   /**
@@ -139,16 +132,9 @@ class MediaStreamTrackProxy(
     }
   }
 
-  /** @return [MediaStreamTrackState] of the underlying [MediaStreamTrack]. */
-  fun state(): MediaStreamTrackState {
-    if (!disposed) {
-      return MediaStreamTrackState.fromWebRtcState(obj.state())
-    }
-    return MediaStreamTrackState.ENDED
-  }
-
   /**
-   * Sets enabled state of the underlying [MediaStreamTrack] if [obj] not been disposed.
+   * Sets enabled state of the underlying [MediaStreamTrack]. Does nothing if the underlying
+   * [MediaStreamTrack] has been [disposed].
    *
    * @param enabled State which will be set to the underlying [MediaStreamTrack].
    */

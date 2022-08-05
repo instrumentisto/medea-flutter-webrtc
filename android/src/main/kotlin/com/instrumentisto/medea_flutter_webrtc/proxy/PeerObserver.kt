@@ -68,8 +68,8 @@ class PeerObserver : PeerConnection.Observer {
         val receiver = transceiver.receiver
         val transceivers = peer?.getTransceivers()!!
         for (trans in transceivers) {
-          if (trans.getReceiver().id() == receiver.id()) {
-            peer?.observableEventBroadcaster()?.onTrack(trans.getReceiver().getTrack(), trans)
+          if (trans.receiver.id == receiver.id()) {
+            peer?.observableEventBroadcaster()?.onTrack(trans.receiver.track, trans)
           }
         }
       }
