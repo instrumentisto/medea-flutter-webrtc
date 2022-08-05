@@ -53,7 +53,7 @@ class MediaStreamTrackController(
         result.success(null)
       }
       "state" -> {
-        result.success(track.state)
+        result.success(track.state.value)
       }
       "stop" -> {
         track.stop()
