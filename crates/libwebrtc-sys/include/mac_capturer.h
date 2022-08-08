@@ -40,8 +40,8 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
   // `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
-  // Indicates that parameters suitable for screencast should be automatically
-  // applied to `RtpSender`s.
+  // Indicates whether the parameters suitable for screencast should be
+  // automatically applied to `RtpSender`s.
   bool is_screencast() const override;
 
   // Indicates whether the encoder should denoise video before encoding it.

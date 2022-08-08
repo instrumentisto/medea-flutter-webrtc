@@ -65,6 +65,7 @@ fn main() -> anyhow::Result<()> {
     if env::var_os("PROFILE") == Some(OsString::from("release")) {
         build.flag("-DNDEBUG");
     }
+
     #[cfg(target_os = "linux")]
     {
         build

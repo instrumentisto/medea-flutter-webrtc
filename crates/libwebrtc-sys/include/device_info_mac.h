@@ -12,7 +12,7 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
   DeviceInfoMac();
   ~DeviceInfoMac() override;
 
-  // Returns count of a video recording devices.
+  // Returns count of video recording devices.
   uint32_t NumberOfDevices() override;
 
   // Obtains information regarding the specified video recording device.
