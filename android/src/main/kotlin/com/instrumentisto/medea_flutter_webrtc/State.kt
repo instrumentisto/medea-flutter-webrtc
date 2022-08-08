@@ -8,6 +8,7 @@ import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.audio.JavaAudioDeviceModule
+import android.util.Log
 
 /**
  * Global context of the `flutter_webrtc` library.
@@ -36,6 +37,7 @@ class State(private val context: Context) {
 
   /** Initializes a new [factory]. */
   private fun initPeerConnectionFactory() {
+    Log.d("||INIT PCF||", "BUGBUG");
     val audioModule =
         JavaAudioDeviceModule.builder(context)
             .setUseHardwareAcousticEchoCanceler(true)
