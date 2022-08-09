@@ -14,6 +14,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import org.webrtc.*
 import org.webrtc.SessionDescription as WSessionDescription
+import android.util.Log
 
 /**
  * Wrapper around a [PeerConnection].
@@ -282,6 +283,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * @return Newly created [SessionDescription].
    */
   suspend fun createOffer(): SessionDescription = suspendCoroutine {
+    Log.d("PC", "CREATE OFFER")
     if (disposed) {
       it.resume(SessionDescription.fromMap(mapOf<String, Any>()))
     } else {
@@ -296,6 +298,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * @return Newly created [SessionDescription].
    */
   suspend fun createAnswer(): SessionDescription = suspendCoroutine {
+    Log.d("PC", "CREATE ANSWER")
     if (disposed) {
       it.resume(SessionDescription.fromMap(mapOf<String, Any>()))
     } else {
