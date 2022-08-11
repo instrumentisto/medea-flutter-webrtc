@@ -285,7 +285,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    */
   suspend fun createOffer(): SessionDescription = suspendCoroutine {
     if (disposed) {
-      it.resume(SessionDescription.fromMap(mapOf<String, Any>()))
+      it.resume(SessionDescription.fromMap(mapOf<String, Any>("type" to 0, "description" to "")))
     } else {
       obj.createOffer(createSdpObserver(it), MediaConstraints())
     }
@@ -299,7 +299,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    */
   suspend fun createAnswer(): SessionDescription = suspendCoroutine {
     if (disposed) {
-      it.resume(SessionDescription.fromMap(mapOf<String, Any>()))
+      it.resume(SessionDescription.fromMap(mapOf<String, Any>("type" to 2, "description" to "")))
     } else {
       obj.createAnswer(createSdpObserver(it), MediaConstraints())
     }
