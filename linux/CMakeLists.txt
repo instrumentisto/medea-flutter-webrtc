@@ -43,7 +43,9 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(flutter INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so")
+target_link_libraries(${PLUGIN_NAME} INTERFACE
+"${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so"
+)
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
