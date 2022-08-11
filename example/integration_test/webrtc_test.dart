@@ -301,7 +301,7 @@ void main() {
     await pc2.setRemoteDescription(await pc1.createOffer());
     var transceivers = await pc2.getTransceivers();
     await transceivers[0].stop();
-    await completer.future.timeout(const Duration(seconds: 3));
+    await completer.future.timeout(const Duration(seconds: 10));
 
     for (var t in transceivers) {
       await t.dispose();
