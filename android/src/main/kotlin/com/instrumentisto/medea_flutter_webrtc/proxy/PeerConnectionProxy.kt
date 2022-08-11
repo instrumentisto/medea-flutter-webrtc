@@ -36,7 +36,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   private var transceivers: TreeMap<Int, RtpTransceiverProxy> = TreeMap()
 
   /** Indicates whether the underlying [PeerConnection] has been disposed. */
-  private var disposed: Boolean = false
+  var disposed: Boolean = false
+    get() { return field }
+    private set(value) { 
+        field = value 
+    }
 
   /**
    * List of subscribers on [dispose] event.
