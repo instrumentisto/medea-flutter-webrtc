@@ -1,7 +1,7 @@
 # The Flutter tooling requires that developers have CMake 3.10 or later
 # installed. You should not increase this version, as doing so will cause
 # the plugin to fail to compile for some customers of the plugin.
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
 # Project-level configuration.
 set(PROJECT_NAME "medea_flutter_webrtc")
@@ -43,10 +43,8 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(${PLUGIN_NAME} PRIVATE
-  flutter
-  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so"
-  )
+target_link_libraries(flutter INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so")
+target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
 
