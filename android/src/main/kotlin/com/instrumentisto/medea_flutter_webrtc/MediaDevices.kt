@@ -58,7 +58,7 @@ private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
 /** Provides cloned tracks in `getUserVideoTrack` if video source not been released */
 private val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> = HashMap()
 
-/** Provides cloned tracks in `getUserVideoTrack` if video source not been released */
+/** Provides cloned tracks in `getUserAudioTrack` if audio source not been released */
 private val audioTracks: HashMap<AudioConstraints, MediaStreamTrackProxy> = HashMap()
 
 /**

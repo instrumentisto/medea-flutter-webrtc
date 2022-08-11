@@ -38,8 +38,6 @@ set_target_properties(${PLUGIN_NAME} PROPERTIES
   CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 
-target_compile_options(${PLUGIN_NAME} PRIVATE /zlazy)
-
 # Source include directories and library dependencies. Add any plugin-specific
 # dependencies here.
 target_include_directories(${PLUGIN_NAME} INTERFACE
@@ -52,17 +50,10 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
 
-set(BUILD_BUNDLE_DIR "${PROJECT_BINARY_DIR}/../../bundle")
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
-endif()
-set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}")
-set(WEBRTC_BRIDGE "libflutter_webrtc_native.so")
-set(WEBRTC_BRIDGE_BRIDGE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/${WEBRTC_BRIDGE}")
-
-install(FILES "${WEBRTC_BRIDGE_BRIDGE_PATH}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" COMPONENT Runtime)
-
-target_link_libraries(${PLUGIN_NAME} PRIVATE
-  flutter
-  "${INSTALL_BUNDLE_LIB_DIR}/${WEBRTC_BRIDGE}"
-  )
+# List of absolute paths to libraries that should be bundled with the plugin.
+# This list could contain prebuilt libraries, or libraries created by an
+# external build triggered from this build file.
+set(medea_flutter_webrtc_bundled_libraries
+  "${CMAKE_CURRENT_SOURCE_DIR}/rust/lib/libflutter_webrtc_native.so"
+  PARENT_SCOPE
+)
