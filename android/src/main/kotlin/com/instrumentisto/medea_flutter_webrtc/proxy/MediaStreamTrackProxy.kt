@@ -36,32 +36,30 @@ class MediaStreamTrackProxy(
   private var disposed: Boolean = false
 
   /** [MediaType] of the underlying [MediaStreamTrack]. */
-  val kind: MediaType
+  val kind: MediaType =
+      when (obj.kind()) {
+        MediaStreamTrack.VIDEO_TRACK_KIND -> MediaType.VIDEO
+        MediaStreamTrack.AUDIO_TRACK_KIND -> MediaType.AUDIO
+        else -> throw Exception("LibWebRTC provided unknown MediaType value")
+      }
 
   /** ID of the underlying [MediaStreamTrack] */
-  val id: String
+  val id: String = obj.id()
 
   /** [MediaStreamTrackState] of the underlying [MediaStreamTrack]. */
   var state: MediaStreamTrackState = MediaStreamTrackState.LIVE
     get() {
-      if (disposed) {
-        field = MediaStreamTrackState.ENDED
-      } else {
-        field = MediaStreamTrackState.fromWebRtcState(obj.state())
-      }
+      field =
+          if (disposed) {
+            MediaStreamTrackState.ENDED
+          } else {
+            MediaStreamTrackState.fromWebRtcState(obj.state())
+          }
 
       return field
     }
 
   init {
-    id = obj.id()
-    kind =
-        when (obj.kind()) {
-          MediaStreamTrack.VIDEO_TRACK_KIND -> MediaType.VIDEO
-          MediaStreamTrack.AUDIO_TRACK_KIND -> MediaType.AUDIO
-          else -> throw Exception("LibWebRTC provided unknown MediaType value")
-        }
-
     TrackRepository.addTrack(this)
   }
 

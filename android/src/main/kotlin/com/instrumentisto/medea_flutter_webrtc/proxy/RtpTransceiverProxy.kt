@@ -29,11 +29,12 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   /** The [RtpTransceiver]'s preferred directionality. */
   var direction: RtpTransceiverDirection = RtpTransceiverDirection.fromWebRtc(obj)
     get() {
-      if (disposed) {
-        field = RtpTransceiverDirection.STOPPED
-      } else {
-        field = RtpTransceiverDirection.fromWebRtc(obj)
-      }
+      field =
+          if (disposed) {
+            RtpTransceiverDirection.STOPPED
+          } else {
+            RtpTransceiverDirection.fromWebRtc(obj)
+          }
       return field
     }
     private set
@@ -64,8 +65,8 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   /** Sets receive of the underlying [RtpTransceiver]. */
   fun setRecv(recv: Boolean) {
     if (!disposed) {
-      var currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
-      var newDirection =
+      val currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
+      val newDirection =
           if (recv) {
             when (currentDirection) {
               RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.RECV_ONLY
@@ -96,8 +97,8 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   /** Sets send of the underlying [RtpTransceiver]. */
   fun setSend(send: Boolean) {
     if (!disposed) {
-      var currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
-      var newDirection =
+      val currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
+      val newDirection =
           if (send) {
             when (currentDirection) {
               RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.SEND_ONLY

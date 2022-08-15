@@ -85,7 +85,7 @@ class Permissions(private val activity: Activity) :
       permissions: Array<out String>,
       grantResults: IntArray
   ): Boolean {
-    if (requestCode == PERMISSIONS_REQUEST_ID) {
+    return if (requestCode == PERMISSIONS_REQUEST_ID) {
       for (entry in permissions.withIndex()) {
         if (grantResults[entry.index] == PackageManager.PERMISSION_GRANTED) {
           permissionRequest?.resume(Unit)
@@ -96,9 +96,9 @@ class Permissions(private val activity: Activity) :
         permissionRequest = null
       }
       requestResolved()
-      return true
+      true
     } else {
-      return false
+      false
     }
   }
 }

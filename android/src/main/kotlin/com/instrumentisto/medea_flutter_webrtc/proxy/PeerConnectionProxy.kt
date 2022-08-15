@@ -37,7 +37,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** Indicates whether the underlying [PeerConnection] has been disposed. */
   var disposed: Boolean = false
     private set
-    get
 
   /**
    * List of subscribers on [dispose] event.
@@ -169,7 +168,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     }
   }
 
-  fun syncWithObject() {
+  private fun syncWithObject() {
     syncSenders()
     syncReceivers()
     syncTransceivers()

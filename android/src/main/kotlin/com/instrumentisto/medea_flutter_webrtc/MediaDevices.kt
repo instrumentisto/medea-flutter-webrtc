@@ -292,12 +292,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Camera permission was not granted", GetUserMediaException.Kind.Video)
     }
-    if (videoTracks[constraints] != null) {
-      val track = videoTracks[constraints]!!.fork()
-      videoTracks[constraints] = track
-      track.onStop({ videoTracks.remove(constraints) })
-
-      return track
+    val cachedTrack = videoTracks[constraints]
+    if (cachedTrack != null) {
+      return cachedTrack.fork()
     }
 
     val deviceId =
@@ -335,7 +332,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             deviceId)
 
     val track = videoTrackSource.newTrack()
-    track.onStop({ videoTracks.remove(constraints) })
+    track.onStop { videoTracks.remove(constraints) }
     videoTracks[constraints] = track
 
     return track
@@ -356,19 +353,16 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
           "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
     }
 
-    if (audioTracks[constraints] != null) {
-      val track = audioTracks[constraints]!!.fork()
-      audioTracks[constraints] = track
-      track.onStop({ audioTracks.remove(constraints) })
-
-      return track
+    val cachedTrack = audioTracks[constraints]
+    if (cachedTrack != null) {
+      return cachedTrack.fork()
     }
 
     val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
     val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
 
     val track = audioTrackSource.newTrack()
-    track.onStop({ audioTracks.remove(constraints) })
+    track.onStop { audioTracks.remove(constraints) }
     audioTracks[constraints] = track
 
     return track
