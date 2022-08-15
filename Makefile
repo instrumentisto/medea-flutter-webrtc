@@ -18,8 +18,6 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 RUST_VER ?= 1.55
 RUST_NIGHTLY_VER ?= nightly-2021-09-08
 
-FFIGEN_VERSION ?= $(strip \
-	$(shell grep -m1 'ffigen: ' pubspec.yaml | cut -d':' -f2))
 FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	$(shell grep -A1 'name = "flutter_rust_bridge"' Cargo.lock \
 	        | grep -v 'flutter_rust_bridge' \
@@ -171,12 +169,17 @@ ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/src/
 	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
 		linux/rust/lib/libflutter_webrtc_native.so
-	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.h \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
 		linux/rust/include/flutter_webrtc_native.h
 	cp -f crates/native/include/api.h \
 		linux/rust/include/flutter-webrtc-native/include/api.h
-	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.cc \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		linux/rust/src/flutter_webrtc_native.cc
+endif
+ifeq ($(CURRENT_OS),macos)
+	@mkdir -p macos/rust/lib/
+	cp -f $(lib-out-path)/libflutter_webrtc_native.dylib \
+		macos/rust/lib/libflutter_webrtc_native.dylib
 endif
 ifeq ($(CURRENT_OS),windows)
 	@mkdir -p windows/rust/include/
@@ -187,11 +190,11 @@ ifeq ($(CURRENT_OS),windows)
 		windows/rust/lib/flutter_webrtc_native.dll
 	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
 		windows/rust/lib/flutter_webrtc_native.dll.lib
-	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.h \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
 	cp -f crates/native/include/api.h \
 		windows/rust/include/flutter-webrtc-native/include/api.h
-	cp -f target/cxxbridge/flutter-webrtc-native/src/cpp_api.rs.cc \
+	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 endif
 
@@ -243,9 +246,6 @@ endif
 endif
 ifeq ($(shell which cbindgen),)
 	cargo install cbindgen
-endif
-ifeq ($(shell dart pub global list | grep 'ffigen $(FFIGEN_VERSION)'),)
-	dart pub global activate ffigen $(FFIGEN_VERSION)
 endif
 ifeq ($(CURRENT_OS),macos)
 ifeq ($(shell brew list | grep -Fx llvm),)

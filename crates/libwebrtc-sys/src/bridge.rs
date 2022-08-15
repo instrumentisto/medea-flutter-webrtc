@@ -30,6 +30,7 @@ type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 #[allow(
     clippy::expl_impl_clone_on_copy,
     clippy::items_after_statements,
+    clippy::let_underscore_drop,
     clippy::ptr_as_ptr,
     clippy::trait_duplication_in_bounds
 )]
@@ -1279,6 +1280,10 @@ pub(crate) mod webrtc {
         /// Converts the provided [`webrtc::VideoFrame`] pixels to the `ABGR`
         /// scheme and writes the result to the provided `buffer`.
         pub unsafe fn video_frame_to_abgr(frame: &VideoFrame, buffer: *mut u8);
+
+        /// Converts the provided [`webrtc::VideoFrame`] pixels to the `ARGB`
+        /// scheme and writes the result to the provided `buffer`.
+        pub unsafe fn video_frame_to_argb(frame: &VideoFrame, buffer: *mut u8);
 
         /// Returns the timestamp of when the last data was received from the
         /// provided [`CandidatePairChangeEvent`].

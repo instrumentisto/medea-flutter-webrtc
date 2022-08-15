@@ -2,7 +2,11 @@ use crate::Frame;
 
 pub use self::cpp_api_bindings::*;
 
-#[allow(clippy::items_after_statements, clippy::trait_duplication_in_bounds)]
+#[allow(
+    clippy::items_after_statements,
+    clippy::let_underscore_drop,
+    clippy::trait_duplication_in_bounds
+)]
 #[cxx::bridge]
 mod cpp_api_bindings {
     /// Single video frame.
