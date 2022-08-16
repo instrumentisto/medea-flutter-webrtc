@@ -249,8 +249,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Camera permission was not granted", GetUserMediaException.Kind.Video)
     }
-    return cameraEnumerator
-        .deviceNames
+    return cameraEnumerator.deviceNames
         .map { deviceId -> MediaDeviceInfo(deviceId, deviceId, MediaDeviceKind.VIDEO_INPUT) }
         .toList()
   }
