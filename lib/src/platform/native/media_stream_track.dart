@@ -105,7 +105,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   late EventChannel _eventChan;
 
   /// Saves [state] future for correct dispose [EventChannel].
-  Future<dynamic>? _state_future;
+  Future<dynamic>? _stateFuture;
 
   @override
   Future<void> setEnabled(bool enabled) async {
@@ -118,8 +118,8 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
     if (_stopped) {
       return MediaStreamTrackState.ended;
     } else {
-      _state_future = _chan.invokeMethod('state');
-      return MediaStreamTrackState.values[await _state_future];
+      _stateFuture = _chan.invokeMethod('state');
+      return MediaStreamTrackState.values[await _stateFuture];
     }
   }
 
@@ -135,8 +135,8 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   @override
   Future<void> dispose() async {
     _onEnded = null;
-    if (_state_future != null) {
-      await _state_future;
+    if (_stateFuture != null) {
+      await _stateFuture;
     }
     await _chan.invokeMethod('dispose');
     await _eventSub?.cancel();
