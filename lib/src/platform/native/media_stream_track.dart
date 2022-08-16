@@ -104,6 +104,9 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   /// [EventChannel] to receive all the [PeerConnection] events from.
   late EventChannel _eventChan;
 
+  /// Saves [state] future for correct dispose [EventChannel].
+  Future<dynamic>? _state_future;
+
   @override
   Future<void> setEnabled(bool enabled) async {
     await _chan.invokeMethod('setEnabled', {'enabled': enabled});
@@ -112,9 +115,12 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
   @override
   Future<MediaStreamTrackState> state() async {
-    return !_stopped
-        ? MediaStreamTrackState.values[await _chan.invokeMethod('state')]
-        : MediaStreamTrackState.ended;
+    if (_stopped) {
+      return MediaStreamTrackState.ended;
+    } else {
+      _state_future = _chan.invokeMethod('state');
+      return MediaStreamTrackState.values[await _state_future];
+    }
   }
 
   @override
@@ -129,6 +135,9 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   @override
   Future<void> dispose() async {
     _onEnded = null;
+    if (_state_future != null) {
+      await _state_future;
+    }
     await _chan.invokeMethod('dispose');
     await _eventSub?.cancel();
   }

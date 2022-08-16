@@ -1006,7 +1006,8 @@ pub fn dispose_peer_connection(peer_id: u64) {
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
-    match WEBRTC.lock().unwrap().get_media(constraints) {
+    let lock = WEBRTC.lock().unwrap().get_media(constraints);
+    match lock {
         Ok(tracks) => GetMediaResult::Ok(tracks),
         Err(err) => GetMediaResult::Err(err),
     }
