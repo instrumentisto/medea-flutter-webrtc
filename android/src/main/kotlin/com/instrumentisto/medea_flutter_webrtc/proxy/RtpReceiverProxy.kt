@@ -15,6 +15,7 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver>(receiver) {
   val id: String = obj.id()
 
   init {
+    id = obj.id()
     track.replace(obj.track()!!)
     addOnSyncListener { track.replace(obj.track()!!) }
   }

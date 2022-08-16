@@ -352,8 +352,22 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       throw GetUserMediaException(
           "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
     }
+
+    if (audioTracks[constraints] != null) {
+      val track = audioTracks[constraints]!!.fork()
+      audioTracks[constraints] = track
+      track.onStop({ audioTracks.remove(constraints) })
+
+      return track
+    }
+
     val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
     val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())
-    return audioTrackSource.newTrack()
+
+    val track = audioTrackSource.newTrack()
+    track.onStop({ audioTracks.remove(constraints) })
+    audioTracks[constraints] = track
+
+    return track
   }
 }
