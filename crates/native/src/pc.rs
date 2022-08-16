@@ -629,9 +629,8 @@ impl Webrtc {
             }
 
             let peer = peer.inner.lock().unwrap();
-            let transceivers = peer.get_transceivers();
 
-            for trnscvr in transceivers {
+            for trnscvr in peer.get_transceivers() {
                 let sender = trnscvr.sender();
                 match trnscvr.media_type() {
                     sys::MediaType::MEDIA_TYPE_VIDEO => {
