@@ -32,36 +32,34 @@ class MediaStreamTrackProxy(
   /** List of [EventObserver]s belonging to this [MediaStreamTrackProxy]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
 
-  /** Indicates whether the underlying [MediaStreamTrack] had been disposed. */
+  /** Indicator whether the underlying [MediaStreamTrack] had been disposed. */
   private var disposed: Boolean = false
 
   /** [MediaType] of the underlying [MediaStreamTrack]. */
-  val kind: MediaType
+  val kind: MediaType =
+      when (obj.kind()) {
+        MediaStreamTrack.VIDEO_TRACK_KIND -> MediaType.VIDEO
+        MediaStreamTrack.AUDIO_TRACK_KIND -> MediaType.AUDIO
+        else -> throw Exception("LibWebRTC provided unknown MediaType value")
+      }
 
   /** ID of the underlying [MediaStreamTrack] */
-  val id: String
+  val id: String = obj.id()
 
   /** [MediaStreamTrackState] of the underlying [MediaStreamTrack]. */
   var state: MediaStreamTrackState = MediaStreamTrackState.LIVE
     get() {
-      if (disposed) {
-        field = MediaStreamTrackState.ENDED
-      } else {
-        field = MediaStreamTrackState.fromWebRtcState(obj.state())
-      }
+      field =
+          if (disposed) {
+            MediaStreamTrackState.ENDED
+          } else {
+            MediaStreamTrackState.fromWebRtcState(obj.state())
+          }
 
       return field
     }
 
   init {
-    id = obj.id()
-    kind =
-        when (obj.kind()) {
-          MediaStreamTrack.VIDEO_TRACK_KIND -> MediaType.VIDEO
-          MediaStreamTrack.AUDIO_TRACK_KIND -> MediaType.AUDIO
-          else -> throw Exception("LibWebRTC provided unknown MediaType value")
-        }
-
     TrackRepository.addTrack(this)
   }
 
@@ -139,9 +137,11 @@ class MediaStreamTrackProxy(
    * @param enabled State which will be set to the underlying [MediaStreamTrack].
    */
   fun setEnabled(enabled: Boolean) {
-    if (!disposed) {
-      obj.setEnabled(enabled)
+    if (disposed) {
+      return
     }
+
+    obj.setEnabled(enabled)
   }
 
   /**
@@ -151,5 +151,20 @@ class MediaStreamTrackProxy(
    */
   fun onStop(f: () -> Unit) {
     onStopSubscribers.add(f)
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as MediaStreamTrackProxy
+
+    if (id != other.id) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return id.hashCode()
   }
 }

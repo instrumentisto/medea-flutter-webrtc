@@ -13,7 +13,7 @@ anyhow = "1.0"
 cxx = "1.0"
 dashmap = "5.3"
 derive_more = "0.99"
-flutter_rust_bridge = "=1.37.2"
+flutter_rust_bridge = "=1.40"
 lazy_static = "1.4"
 libwebrtc-sys = { path = "../libwebrtc-sys" }
 log = "0.4"
@@ -30,4 +30,10 @@ pulse = { version = "2.26", package = "libpulse-binding" }
 winapi = { version = "0.3", features = ["dbt", "winuser"] }
 
 [build-dependencies]
+anyhow = "1.0"
+
+[target.'cfg(target_os = "macos")'.build-dependencies]
+cc = "1.0"
+
+[target.'cfg(not(target_os = "macos"))'.build-dependencies]
 cxx-build = "1.0"
