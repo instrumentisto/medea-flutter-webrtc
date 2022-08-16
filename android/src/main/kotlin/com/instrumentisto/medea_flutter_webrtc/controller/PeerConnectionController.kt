@@ -13,7 +13,6 @@ import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import android.util.Log
 
 /**
  * Controller of [PeerConnectionProxy] functional.
@@ -43,8 +42,6 @@ class PeerConnectionController(
   private val eventObserver =
       object : PeerConnectionProxy.Companion.EventObserver {
         override fun onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
-          Log.d("CREATE ONTRACK", "track")
-          Log.d("CREATE ONTRACK", "transceiver")
           eventSink?.success(
               mapOf(
                   "event" to "onTrack",
@@ -84,7 +81,6 @@ class PeerConnectionController(
       }
 
   init {
-    Log.d("CREATE", "peerConnection" + channelId.toString())
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
     peer.addEventObserver(eventObserver)
@@ -160,7 +156,6 @@ class PeerConnectionController(
                 peer.addTransceiver(mediaType, RtpTransceiverInit.fromMap(transceiverInitArg))
               }
           if (transceiver != null) {
-            Log.d("CREATE ADD TR", "transceiver")
             val transceiverController = RtpTransceiverController(messenger, transceiver)
             result.success(transceiverController.asFlutterResult())
           } else {
@@ -171,7 +166,6 @@ class PeerConnectionController(
         }
       }
       "getTransceivers" -> {
-        Log.d("CREATE GET TR", "transceiver")
         result.success(
             peer.getTransceivers().map {
               RtpTransceiverController(messenger, it).asFlutterResult()
@@ -182,7 +176,6 @@ class PeerConnectionController(
         result.success(null)
       }
       "dispose" -> {
-        Log.d("DISPOSE", "peerConnection" + channelId.toString())
         dispose()
         result.success(null)
       }

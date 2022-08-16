@@ -25,7 +25,7 @@ abstract class RtpTransceiver {
   /// [RtpSender] owned by this [RtpTransceiver].
   late RtpSender _sender;
 
-  // todo
+  /// Indicates whether the [dispose] was called.
   bool _disposed = false;
 
   /// Current mID of this [RtpTransceiver].
@@ -37,10 +37,11 @@ abstract class RtpTransceiver {
   /// receive media.
   bool _isStopped = false;
 
-  int _idd = 0;
-
   /// Getter for the [RtpSender] of this [RtpTransceiver].
   RtpSender get sender => _sender;
+
+  /// Getter disposed indicator.
+  bool get disposed => _disposed;
 
   /// Returns current mID of this [RtpTransceiver].
   String? get mid => _mid;
@@ -96,7 +97,6 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   /// side.
   _RtpTransceiverChannel.fromMap(dynamic map) {
     int channelId = map['channelId'];
-    _idd = channelId;
     _chan = methodChannel('RtpTransceiver', channelId);
     _sender = RtpSender.fromMap(map['sender']);
     _mid = map['mid'];
@@ -118,7 +118,6 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 
   @override
   Future<void> syncMid() async {
-    print('GET MID $_idd');
     _mid = await _chan.invokeMethod('getMid');
   }
 
@@ -140,10 +139,9 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 
   @override
   Future<void> dispose() async {
-    print('DISPOSE $_idd');
+    _disposed = true;
     await _chan.invokeMethod('dispose');
     await sender.dispose();
-    print('DISPOSE $_idd DONE');
   }
 }
 
@@ -204,6 +202,6 @@ class _RtpTransceiverFFI extends RtpTransceiver {
 
   @override
   Future<void> dispose() async {
-    // no-op for FFI implementation
+    _disposed = true;
   }
 }

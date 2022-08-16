@@ -5,7 +5,6 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.RtpTransceiverProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import android.util.Log
 
 /**
  * Controller of [RtpTransceiverProxy] functional.
@@ -25,7 +24,6 @@ class RtpTransceiverController(
       MethodChannel(messenger, ChannelNameGenerator.name("RtpTransceiver", channelId))
 
   init {
-    Log.d("CREATE", "transceiver" + channelId.toString())
     chan.setMethodCallHandler(this)
   }
 
@@ -57,7 +55,6 @@ class RtpTransceiverController(
         result.success(null)
       }
       "dispose" -> {
-        Log.d("DISPOSE", "transceiver" + channelId.toString())
         chan.setMethodCallHandler(null)
         result.success(null)
       }
@@ -70,7 +67,6 @@ class RtpTransceiverController(
    * @return [Map] generated from this controller which can be returned to the Flutter side.
    */
   fun asFlutterResult(): Map<String, Any?> {
-    Log.d("CREATE tr as fl", "Sender")
     return mapOf(
         "channelId" to channelId,
         "sender" to RtpSenderController(messenger, transceiver.sender).asFlutterResult(),

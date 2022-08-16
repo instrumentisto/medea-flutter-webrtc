@@ -6,7 +6,6 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import android.util.Log
 
 /**
  * Controller of [MediaStreamTrackProxy] functional.
@@ -41,7 +40,6 @@ class MediaStreamTrackController(
       }
 
   init {
-    Log.d("CREATE", "track" + channelId.toString())
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
     track.addEventObserver(eventObserver)
@@ -62,11 +60,9 @@ class MediaStreamTrackController(
         result.success(null)
       }
       "clone" -> {
-        Log.d("CREATE CLONE", "TRACK")
         result.success(MediaStreamTrackController(messenger, track.fork()).asFlutterResult())
       }
       "dispose" -> {
-        Log.d("DISPOSE", "track" + channelId.toString())
         chan.setMethodCallHandler(null)
         result.success(null)
       }
