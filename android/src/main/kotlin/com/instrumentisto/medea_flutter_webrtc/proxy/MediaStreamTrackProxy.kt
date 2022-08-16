@@ -32,7 +32,7 @@ class MediaStreamTrackProxy(
   /** List of [EventObserver]s belonging to this [MediaStreamTrackProxy]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
 
-  /** Indicates whether the underlying [MediaStreamTrack] had been disposed. */
+  /** Indicator whether the underlying [MediaStreamTrack] had been disposed. */
   private var disposed: Boolean = false
 
   /** [MediaType] of the underlying [MediaStreamTrack]. */
@@ -137,9 +137,11 @@ class MediaStreamTrackProxy(
    * @param enabled State which will be set to the underlying [MediaStreamTrack].
    */
   fun setEnabled(enabled: Boolean) {
-    if (!disposed) {
-      obj.setEnabled(enabled)
+    if (disposed) {
+      return
     }
+
+    obj.setEnabled(enabled)
   }
 
   /**

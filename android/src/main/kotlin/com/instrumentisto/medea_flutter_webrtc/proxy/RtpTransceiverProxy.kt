@@ -13,7 +13,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   lateinit var receiver: RtpReceiverProxy
     private set
 
-  /** The disposed state of [obj]. */
+  /** Disposed state of the [obj]. */
   private var disposed: Boolean = false
 
   /** mID of the underlying [RtpTransceiver]. */
@@ -26,7 +26,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
     }
     private set
 
-  /** The [RtpTransceiver]'s preferred directionality. */
+  /** [RtpTransceiver]'s preferred directionality. */
   var direction: RtpTransceiverDirection = RtpTransceiverDirection.fromWebRtc(obj)
     get() {
       field =
@@ -48,7 +48,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
     }
   }
 
-  /** Sets [disposed] to `true` for [obj], [receiver], [sender] */
+  /** Sets [disposed] to `true` for the [obj], [receiver] and [sender]. */
   fun setDisposed() {
     disposed = true
     receiver.setDisposed()
@@ -57,72 +57,78 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
 
   /** Sets [RtpTransceiverDirection] of the underlying [RtpTransceiver]. */
   fun setDirection(direction: RtpTransceiverDirection) {
-    if (!disposed) {
-      obj.direction = direction.intoWebRtc()
+    if (disposed) {
+      return
     }
+
+    obj.direction = direction.intoWebRtc()
   }
 
   /** Sets receive of the underlying [RtpTransceiver]. */
   fun setRecv(recv: Boolean) {
-    if (!disposed) {
-      val currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
-      val newDirection =
-          if (recv) {
-            when (currentDirection) {
-              RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.RECV_ONLY
-              RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.RECV_ONLY
-              RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.SEND_RECV
-              RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.SEND_RECV
-              else -> {
-                RtpTransceiverDirection.STOPPED
-              }
-            }
-          } else {
-            when (currentDirection) {
-              RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.INACTIVE
-              RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.INACTIVE
-              RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.SEND_ONLY
-              RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.SEND_ONLY
-              else -> {
-                RtpTransceiverDirection.STOPPED
-              }
+    if (disposed) {
+      return
+    }
+
+    val currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
+    val newDirection =
+        if (recv) {
+          when (currentDirection) {
+            RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.RECV_ONLY
+            RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.RECV_ONLY
+            RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.SEND_RECV
+            RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.SEND_RECV
+            else -> {
+              RtpTransceiverDirection.STOPPED
             }
           }
-      if (newDirection != RtpTransceiverDirection.STOPPED) {
-        setDirection(newDirection)
-      }
+        } else {
+          when (currentDirection) {
+            RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.INACTIVE
+            RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.INACTIVE
+            RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.SEND_ONLY
+            RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.SEND_ONLY
+            else -> {
+              RtpTransceiverDirection.STOPPED
+            }
+          }
+        }
+    if (newDirection != RtpTransceiverDirection.STOPPED) {
+      setDirection(newDirection)
     }
   }
 
   /** Sets send of the underlying [RtpTransceiver]. */
   fun setSend(send: Boolean) {
-    if (!disposed) {
-      val currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
-      val newDirection =
-          if (send) {
-            when (currentDirection) {
-              RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.SEND_ONLY
-              RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.SEND_ONLY
-              RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.SEND_RECV
-              RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.SEND_RECV
-              else -> {
-                RtpTransceiverDirection.STOPPED
-              }
-            }
-          } else {
-            when (currentDirection) {
-              RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.INACTIVE
-              RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.INACTIVE
-              RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.RECV_ONLY
-              RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.RECV_ONLY
-              else -> {
-                RtpTransceiverDirection.STOPPED
-              }
+    if (disposed) {
+      return
+    }
+
+    val currentDirection = RtpTransceiverDirection.fromWebRtc(obj)
+    val newDirection =
+        if (send) {
+          when (currentDirection) {
+            RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.SEND_ONLY
+            RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.SEND_ONLY
+            RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.SEND_RECV
+            RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.SEND_RECV
+            else -> {
+              RtpTransceiverDirection.STOPPED
             }
           }
-      if (newDirection != RtpTransceiverDirection.STOPPED) {
-        setDirection(newDirection)
-      }
+        } else {
+          when (currentDirection) {
+            RtpTransceiverDirection.INACTIVE -> RtpTransceiverDirection.INACTIVE
+            RtpTransceiverDirection.SEND_ONLY -> RtpTransceiverDirection.INACTIVE
+            RtpTransceiverDirection.SEND_RECV -> RtpTransceiverDirection.RECV_ONLY
+            RtpTransceiverDirection.RECV_ONLY -> RtpTransceiverDirection.RECV_ONLY
+            else -> {
+              RtpTransceiverDirection.STOPPED
+            }
+          }
+        }
+    if (newDirection != RtpTransceiverDirection.STOPPED) {
+      setDirection(newDirection)
     }
   }
 

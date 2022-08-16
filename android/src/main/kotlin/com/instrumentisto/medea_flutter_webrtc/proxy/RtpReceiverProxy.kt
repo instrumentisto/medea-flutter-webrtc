@@ -19,7 +19,7 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver>(receiver) {
     addOnSyncListener { track.replace(obj.track()!!) }
   }
 
-  /** Call [notifyRemoved] and sets disposed for [track] */
+  /** Calls [notifyRemoved] and sets the [track] disposed. */
   fun setDisposed() {
     notifyRemoved()
     track.setDisposed()

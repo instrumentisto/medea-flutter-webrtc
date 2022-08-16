@@ -34,7 +34,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   /** List of all [RtpTransceiverProxy]s owned by this [PeerConnectionProxy]. */
   private var transceivers: TreeMap<Int, RtpTransceiverProxy> = TreeMap()
 
-  /** Indicates whether the underlying [PeerConnection] has been disposed. */
+  /** Indicator whether the underlying [PeerConnection] has been disposed. */
   var disposed: Boolean = false
     private set
 
@@ -236,10 +236,12 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * @param endedReceiver [RtpReceiver] being ended.
    */
   fun receiverEnded(endedReceiver: RtpReceiver) {
-    if (!disposed) {
-      val receiver = receivers[endedReceiver.id()]
-      receiver?.notifyRemoved()
+    if (disposed) {
+      return
     }
+
+    val receiver = receivers[endedReceiver.id()]
+    receiver?.notifyRemoved()
   }
 
   /**
@@ -399,9 +401,11 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * underlying [PeerConnection] has been [disposed].
    */
   fun restartIce() {
-    if (!disposed) {
-      obj.restartIce()
+    if (disposed) {
+      return
     }
+
+    obj.restartIce()
   }
 
   /**
@@ -409,17 +413,19 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * [RtpSender]s. Does nothing if the underlying [PeerConnection] has been [disposed].
    */
   private fun syncSenders() {
-    if (!disposed) {
-      val peerSenders = obj.senders
-      for (peerSender in peerSenders) {
-        val peerSenderId = peerSender.id()
+    if (disposed) {
+      return
+    }
 
-        val oldSender = senders[peerSenderId]
-        if (oldSender == null) {
-          senders[peerSenderId] = RtpSenderProxy(peerSender)
-        } else {
-          oldSender.replace(peerSender)
-        }
+    val peerSenders = obj.senders
+    for (peerSender in peerSenders) {
+      val peerSenderId = peerSender.id()
+
+      val oldSender = senders[peerSenderId]
+      if (oldSender == null) {
+        senders[peerSenderId] = RtpSenderProxy(peerSender)
+      } else {
+        oldSender.replace(peerSender)
       }
     }
   }
@@ -429,17 +435,19 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * new [RtpReceiver]s. Does nothing if the underlying [PeerConnection] has been [disposed].
    */
   private fun syncReceivers() {
-    if (!disposed) {
-      val peerReceivers = obj.receivers
-      for (peerReceiver in peerReceivers) {
-        val peerReceiverId = peerReceiver.id()
+    if (disposed) {
+      return
+    }
 
-        val oldReceiver = receivers[peerReceiverId]
-        if (oldReceiver == null) {
-          receivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
-        } else {
-          oldReceiver.replace(peerReceiver)
-        }
+    val peerReceivers = obj.receivers
+    for (peerReceiver in peerReceivers) {
+      val peerReceiverId = peerReceiver.id()
+
+      val oldReceiver = receivers[peerReceiverId]
+      if (oldReceiver == null) {
+        receivers[peerReceiverId] = RtpReceiverProxy(peerReceiver)
+      } else {
+        oldReceiver.replace(peerReceiver)
       }
     }
   }
@@ -450,16 +458,18 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * [PeerConnection] has been [disposed].
    */
   private fun syncTransceivers() {
-    if (!disposed) {
-      val peerTransceivers = obj.transceivers.withIndex()
+    if (disposed) {
+      return
+    }
 
-      for ((id, peerTransceiver) in peerTransceivers) {
-        val oldTransceiver = transceivers[id]
-        if (oldTransceiver == null) {
-          transceivers[id] = RtpTransceiverProxy(peerTransceiver)
-        } else {
-          oldTransceiver.replace(peerTransceiver)
-        }
+    val peerTransceivers = obj.transceivers.withIndex()
+
+    for ((id, peerTransceiver) in peerTransceivers) {
+      val oldTransceiver = transceivers[id]
+      if (oldTransceiver == null) {
+        transceivers[id] = RtpTransceiverProxy(peerTransceiver)
+      } else {
+        oldTransceiver.replace(peerTransceiver)
       }
     }
   }

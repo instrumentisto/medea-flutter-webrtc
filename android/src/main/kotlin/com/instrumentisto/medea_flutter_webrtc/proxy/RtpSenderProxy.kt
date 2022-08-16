@@ -13,7 +13,7 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
   /** [MediaStreamTrackProxy] of this [RtpReceiverProxy]. */
   private var track: MediaStreamTrackProxy? = null
 
-  /** The disposed state of [obj]. */
+  /** Disposed state of the [obj]. */
   private var disposed: Boolean = false
 
   init {
@@ -21,7 +21,7 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
     addOnSyncListener { syncMediaStreamTrack() }
   }
 
-  /** Sets [disposed] to `true`. */
+  /** Sets [disposed] to `true` for the [obj]. */
   fun setDisposed() {
     disposed = true
   }
@@ -32,12 +32,14 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
    * @param t [MediaStreamTrackProxy] which will be set to the underlying [RtpSender].
    */
   fun replaceTrack(t: MediaStreamTrackProxy?) {
-    if (!disposed) {
-      track = t
-      val isSuccessful = obj.setTrack(t?.obj, false)
-      if (!isSuccessful) {
-        throw ReplaceSenderTrackException()
-      }
+    if (disposed) {
+      return
+    }
+
+    track = t
+    val isSuccessful = obj.setTrack(t?.obj, false)
+    if (!isSuccessful) {
+      throw ReplaceSenderTrackException()
     }
   }
 
