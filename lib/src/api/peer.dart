@@ -170,7 +170,7 @@ abstract class PeerConnection {
 
   /// Synchronizes mIDs of the [_transceivers] owned by this [PeerConnection].
   Future<void> _syncTransceiversMids() async {
-    _transceivers.retainWhere((transceiver) => transceiver.disposed);
+    _transceivers.retainWhere((transceiver) => !transceiver.disposed);
     for (var transceiver in _transceivers) {
       await transceiver.syncMid();
     }
@@ -306,7 +306,7 @@ class _PeerConnectionChannel extends PeerConnection {
 
   @override
   Future<void> _syncTransceiversMids() async {
-    _transceivers.retainWhere((transceiver) => transceiver.disposed);
+    _transceivers.retainWhere((transceiver) => !transceiver.disposed);
     for (var transceiver in _transceivers) {
       await transceiver.syncMid();
     }
