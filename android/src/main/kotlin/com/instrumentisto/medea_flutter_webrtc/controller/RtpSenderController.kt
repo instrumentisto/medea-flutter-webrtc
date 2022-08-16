@@ -5,6 +5,7 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.RtpSenderProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import android.util.Log
 
 /**
  * Controller of [RtpSenderProxy] functional.
@@ -21,6 +22,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("RtpSender", channelId))
 
   init {
+    Log.d("CREATE", "Sender" + channelId.toString())
     chan.setMethodCallHandler(this)
   }
 
@@ -38,6 +40,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
         result.success(null)
       }
       "dispose" -> {
+        Log.d("DISPOSE", "sender" + channelId.toString())
         chan.setMethodCallHandler(null)
         result.success(null)
       }

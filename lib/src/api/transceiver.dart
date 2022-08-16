@@ -25,6 +25,9 @@ abstract class RtpTransceiver {
   /// [RtpSender] owned by this [RtpTransceiver].
   late RtpSender _sender;
 
+  // todo
+  bool _disposed = false;
+
   /// Current mID of this [RtpTransceiver].
   ///
   /// mID will be automatically updated on all actions changing it.
@@ -33,6 +36,8 @@ abstract class RtpTransceiver {
   /// Indicates that this [RtpTransceiver] is stopped and doesn't send or
   /// receive media.
   bool _isStopped = false;
+
+  int _idd = 0;
 
   /// Getter for the [RtpSender] of this [RtpTransceiver].
   RtpSender get sender => _sender;
@@ -91,6 +96,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   /// side.
   _RtpTransceiverChannel.fromMap(dynamic map) {
     int channelId = map['channelId'];
+    _idd = channelId;
     _chan = methodChannel('RtpTransceiver', channelId);
     _sender = RtpSender.fromMap(map['sender']);
     _mid = map['mid'];
@@ -112,6 +118,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 
   @override
   Future<void> syncMid() async {
+    print('GET MID $_idd');
     _mid = await _chan.invokeMethod('getMid');
   }
 
@@ -133,7 +140,10 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 
   @override
   Future<void> dispose() async {
+    print('DISPOSE $_idd');
     await _chan.invokeMethod('dispose');
+    await sender.dispose();
+    print('DISPOSE $_idd DONE');
   }
 }
 

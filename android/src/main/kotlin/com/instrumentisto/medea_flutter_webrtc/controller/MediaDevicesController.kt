@@ -15,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import android.util.Log
 
 /**
  * Controller of [MediaDevices] functional.
@@ -78,6 +79,7 @@ class MediaDevicesController(
           val constraintsArg: Map<String, Any> = call.argument("constraints")!!
           try {
             val tracks = mediaDevices.getUserMedia(Constraints.fromMap(constraintsArg))
+            Log.d("CREATE GUM", "TRACK")
             result.success(
                 tracks.map { MediaStreamTrackController(messenger, it).asFlutterResult() })
           } catch (e: GetUserMediaException) {

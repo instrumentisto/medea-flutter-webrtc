@@ -21,6 +21,9 @@ abstract class RtpSender {
   /// Current [MediaStreamTrack] of this [RtpSender].
   MediaStreamTrack? _track;
 
+  // todo
+  bool _disposed = false;
+
   /// Getter for the [MediaStreamTrack] currently owned by this [RtpSender].
   MediaStreamTrack? get track => _track;
 
@@ -49,7 +52,10 @@ class _RtpSenderChannel extends RtpSender {
 
   @override
   Future<void> dispose() async {
-    await _chan.invokeMethod('dispose');
+    if (!_disposed) {
+      _disposed = true;
+      await _chan.invokeMethod('dispose');
+    }
   }
 }
 
