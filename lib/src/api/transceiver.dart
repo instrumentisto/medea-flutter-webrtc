@@ -40,7 +40,7 @@ abstract class RtpTransceiver {
   /// Getter for the [RtpSender] of this [RtpTransceiver].
   RtpSender get sender => _sender;
 
-  /// Getter disposed indicator.
+  /// Indicates whether the [dispose] was called.
   bool get disposed => _disposed;
 
   /// Returns current mID of this [RtpTransceiver].
