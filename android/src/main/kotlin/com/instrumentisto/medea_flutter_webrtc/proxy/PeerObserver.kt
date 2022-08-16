@@ -21,8 +21,7 @@ class PeerObserver : PeerConnection.Observer {
   override fun onSignalingChange(signallingState: PeerConnection.SignalingState?) {
     if (signallingState != null) {
       Handler(Looper.getMainLooper()).post {
-        peer
-            ?.observableEventBroadcaster()
+        peer?.observableEventBroadcaster()
             ?.onSignalingStateChange(SignalingState.fromWebRtc(signallingState))
       }
     }
@@ -31,8 +30,7 @@ class PeerObserver : PeerConnection.Observer {
   override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState?) {
     if (iceConnectionState != null) {
       Handler(Looper.getMainLooper()).post {
-        peer
-            ?.observableEventBroadcaster()
+        peer?.observableEventBroadcaster()
             ?.onIceConnectionStateChange(IceConnectionState.fromWebRtc(iceConnectionState))
       }
     }
@@ -41,8 +39,7 @@ class PeerObserver : PeerConnection.Observer {
   override fun onConnectionChange(pcState: PeerConnection.PeerConnectionState?) {
     if (pcState != null) {
       Handler(Looper.getMainLooper()).post {
-        peer
-            ?.observableEventBroadcaster()
+        peer?.observableEventBroadcaster()
             ?.onConnectionStateChange(PeerConnectionState.fromWebRtc(pcState))
       }
     }
@@ -51,8 +48,7 @@ class PeerObserver : PeerConnection.Observer {
   override fun onIceGatheringChange(iceGatheringState: PeerConnection.IceGatheringState?) {
     if (iceGatheringState != null) {
       Handler(Looper.getMainLooper()).post {
-        peer
-            ?.observableEventBroadcaster()
+        peer?.observableEventBroadcaster()
             ?.onIceGatheringStateChange(IceGatheringState.fromWebRtc(iceGatheringState))
       }
     }
