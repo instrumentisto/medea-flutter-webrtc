@@ -113,17 +113,13 @@ function _mock_canvas_stream(constraints) {
     return stream
 }
 
-let mocked = false;
 
 function enableMock() {
     navigator.mediaDevices.getUserMedia = (constraints) => {
         return _get_mock_stream(constraints)
     }
-    mocked = true;
 }
 
 function disableMock() {
-    if (mocked) {
-        _reset_gum();
-    }
+    _reset_gum();
 }
