@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import '/src/model/constraints.dart';
-import '/src/model/device.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import '/src/platform/native/media_stream_track.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
-import 'peer.dart';
 
 /// Default video width when capturing user's camera.
 const defaultUserMediaWidth = 480;

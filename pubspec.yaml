@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   ffi: ^2.0.1
+  js: ^0.6.3
   flutter:
     sdk: flutter
   flutter_rust_bridge: 1.40.0  # should be the same as in `Cargo.lock`
@@ -35,3 +36,5 @@ flutter:
         pluginClass: MedeaFlutterWebrtcPlugin
       windows:
         pluginClass: MedeaFlutterWebrtcPluginCApi
+  assets:
+    - assets/pkg/
