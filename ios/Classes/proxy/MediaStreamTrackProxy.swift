@@ -2,41 +2,76 @@ import WebRTC
 
 public class MediaStreamTrackProxy {
     private var isStopped = false
-    private let deviceId = "remote"
-    private let source: MediaTrackSource? = nil
-    private let track: MediaStreamTrack
+    private var deviceId = "remote"
+    private var source: MediaTrackSource?;
+    private var track: RTCMediaStreamTrack
+    private var onStopSubscribers: Array<() -> Void> = []
 
-    init(track: MediaStreamTrack, deviceId: String, source: MediaTrackSource?) {
+    init(track: RTCMediaStreamTrack, deviceId: String?, source: MediaTrackSource?) {
         self.source = source
-        self.deviceId = deviceId
+        if (deviceId != nil) {
+            self.deviceId = deviceId!
+        }
         self.track = track
     }
 
     func id() -> String {
-        abort()
+        return track.trackId;
     }
 
     func kind() -> MediaType {
-        abort()
+        let kind = track.kind;
+        switch kind {
+            case "audio":
+                return MediaType.audio
+            case "video":
+                return MediaType.video
+            default:
+                abort()
+        }
     }
 
-    func deviceId() -> String {
-        abort()
+    func getDeviceId() -> String {
+        return self.deviceId;
     }
 
     func fork() -> MediaStreamTrackProxy {
-        abort()
+        if (self.source == nil) {
+            // TODO: Remote MediaStreamTracks can't be cloned exception
+            abort()
+        } else {
+            return source!.newTrack()
+        }
     }
 
     func stop() {
-        abort()
+        self.isStopped = true
+        for cb in onStopSubscribers {
+            cb()
+        }
     }
 
     func state() -> MediaStreamTrackState {
-        abort()
+        let state = track.readyState;
+        switch state {
+            case .live:
+                return MediaStreamTrackState.live
+            case .ended:
+                return MediaStreamTrackState.ended
+            default:
+                abort()
+        }
     }
 
-    func setEnabled(enabled: Boolean) {
-        abort()
+    func setEnabled(enabled: Bool) {
+        self.track.isEnabled = enabled;
+    }
+
+    func onEnded(cb: @escaping () -> Void) {
+        self.onStopSubscribers.append(cb)
+    }
+
+    func obj() -> RTCMediaStreamTrack {
+        return self.track
     }
 }
