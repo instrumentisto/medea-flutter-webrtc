@@ -1,4 +1,5 @@
-// ignore: avoid_web_libraries_in_flutter
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 import 'dart:js';
 
 /// Configures media acquisition to use fake devices instead of actual camera
@@ -8,7 +9,7 @@ import 'dart:js';
 /// This fucntion async for identical function signature.
 Future<void> enableFakeMedia() async {
   context.callMethod('eval', [
-'''
+    '''
     /** Stops the canvas stream. */
     function _stop_canvas_stream(stream, meta) {
         return () => {
