@@ -846,10 +846,10 @@ pub struct VideoTrack {
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
 
     /// Height in pixels.
-    height: i32,
+    height: Option<i32>,
 
     /// Width in pixels.
-    width: i32,
+    width: Option<i32>,
 }
 
 impl VideoTrack {
@@ -886,13 +886,13 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-            height: 0,
-            width: 0,
+            height: None,
+            width: None,
         };
 
         let (height, width) = track.get_size()?;
-        track.height = height;
-        track.width = width;
+        track.height = Some(height);
+        track.width = Some(width);
         Ok(track)
     }
 
@@ -904,7 +904,7 @@ impl VideoTrack {
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
-        let mut track = Self {
+        Self {
             id: VideoTrackId(track.id()),
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
@@ -916,13 +916,10 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-            height: 0,
-            width: 0,
-        };
-        let (height, width) = track.get_size().unwrap();
-        track.height = height;
-        track.width = width;
-        track
+            height: None,
+            width: None,
+        }
+        // TODO(rogurotus): late size initialization for remote tracks
     }
 
     /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
@@ -978,8 +975,8 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             },
             kind: track.kind,
             enabled: true,
-            height: Some(track.height),
-            width: Some(track.width),
+            height: track.height,
+            width: track.width,
         }
     }
 }
