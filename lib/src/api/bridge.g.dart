@@ -499,11 +499,19 @@ class MediaStreamTrack {
   /// This can be used to intentionally mute a track.
   final bool enabled;
 
+  /// Video height in pixels.
+  final int? height;
+
+  /// Video width in pixels.
+  final int? width;
+
   MediaStreamTrack({
     required this.id,
     required this.deviceId,
     required this.kind,
     required this.enabled,
+    this.height,
+    this.width,
   });
 }
 
@@ -1777,6 +1785,10 @@ GetMediaError _wire2api_box_autoadd_get_media_error(dynamic raw) {
   return _wire2api_get_media_error(raw);
 }
 
+int _wire2api_box_autoadd_i32(dynamic raw) {
+  return raw as int;
+}
+
 RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
   return _wire2api_rtc_track_event(raw);
 }
@@ -1852,13 +1864,15 @@ MediaDeviceKind _wire2api_media_device_kind(dynamic raw) {
 
 MediaStreamTrack _wire2api_media_stream_track(dynamic raw) {
   final arr = raw as List<dynamic>;
-  if (arr.length != 4)
-    throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+  if (arr.length != 6)
+    throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
   return MediaStreamTrack(
     id: _wire2api_String(arr[0]),
     deviceId: _wire2api_String(arr[1]),
     kind: _wire2api_media_type(arr[2]),
     enabled: _wire2api_bool(arr[3]),
+    height: _wire2api_opt_box_autoadd_i32(arr[4]),
+    width: _wire2api_opt_box_autoadd_i32(arr[5]),
   );
 }
 
@@ -1868,6 +1882,10 @@ MediaType _wire2api_media_type(dynamic raw) {
 
 String? _wire2api_opt_String(dynamic raw) {
   return raw == null ? null : _wire2api_String(raw);
+}
+
+int? _wire2api_opt_box_autoadd_i32(dynamic raw) {
+  return raw == null ? null : _wire2api_box_autoadd_i32(raw);
 }
 
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {

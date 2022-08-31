@@ -585,6 +585,12 @@ pub struct MediaStreamTrack {
     ///
     /// This can be used to intentionally mute a track.
     pub enabled: bool,
+
+    /// Video height in pixels.
+    pub height: Option<i32>,
+
+    /// Video width in pixels.
+    pub width: Option<i32>,
 }
 
 /// Representation of a permanent pair of an [RTCRtpSender] and an

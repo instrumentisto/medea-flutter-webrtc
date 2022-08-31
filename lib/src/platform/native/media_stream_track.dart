@@ -30,6 +30,12 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Unique ID of this [NativeMediaStreamTrack].
   late String _id;
 
+  /// Height of video in pixels.
+  int? _height;
+
+  /// Width of video in pixels.
+  int? _width;
+
   /// [MediaKind] of this [NativeMediaStreamTrack].
   late MediaKind _kind;
 
@@ -82,6 +88,16 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   bool isEnabled() {
     return _enabled;
   }
+
+  @override
+  int? height() {
+    return _height;
+  }
+
+  @override
+  int? width() {
+    return _width;
+  }
 }
 
 /// [MethodChannel]-based implementation of a [NativeMediaStreamTrack].
@@ -96,6 +112,8 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
     _id = map['id'];
     _deviceId = map['deviceId'];
     _kind = MediaKind.values[map['kind']];
+    _height = map['height'];
+    _width = map['width'];
   }
 
   /// [MethodChannel] used for the messaging with a native side.
@@ -145,6 +163,8 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   /// [ffi.MediaStreamTrack].
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
+    _width = track.width;
+    _height = track.height;
     _deviceId = track.deviceId;
     _kind = MediaKind.values[track.kind.index];
     _eventSub = api!

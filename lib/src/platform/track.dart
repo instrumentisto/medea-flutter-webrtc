@@ -8,6 +8,12 @@ abstract class MediaStreamTrack {
   /// Returns unique identifier of this [MediaStreamTrack].
   String id();
 
+  /// Returns the video width in pixels of this [MediaStreamTrack].
+  int? width();
+
+  /// Returns the video height in pixels of this [MediaStreamTrack].
+  int? height();
+
   /// Returns the [MediaKind] of this [MediaStreamTrack].
   MediaKind kind();
 

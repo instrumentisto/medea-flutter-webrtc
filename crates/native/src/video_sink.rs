@@ -65,6 +65,19 @@ pub struct VideoSink {
 }
 
 impl VideoSink {
+    /// Creates a new [`VideoSink`].
+    pub(crate) fn new(
+        id: i64,
+        inner: sys::VideoSinkInterface,
+        track_id: VideoTrackId,
+    ) -> Self {
+        Self {
+            id: Id(id),
+            inner,
+            track_id,
+        }
+    }
+
     /// Returns an [`Id`] of this [`VideoSink`].
     #[must_use]
     pub fn id(&self) -> Id {

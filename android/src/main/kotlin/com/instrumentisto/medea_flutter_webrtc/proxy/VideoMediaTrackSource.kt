@@ -2,9 +2,15 @@ package com.instrumentisto.medea_flutter_webrtc.proxy
 
 import com.instrumentisto.medea_flutter_webrtc.SurfaceTextureRenderer
 import com.instrumentisto.medea_flutter_webrtc.utils.LocalTrackIdGenerator
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoCapturer
+import org.webrtc.VideoFrame
+import org.webrtc.VideoSink
 import org.webrtc.VideoSource
 
 /**
@@ -40,12 +46,34 @@ class VideoMediaTrackSource(
    * @return Newly created [MediaStreamTrackProxy].
    */
   override fun newTrack(): MediaStreamTrackProxy {
-    val videoTrack =
-        MediaStreamTrackProxy(
-            peerConnectionFactoryProxy.createVideoTrack(
-                LocalTrackIdGenerator.nextId(), videoSource),
-            deviceId,
-            this)
+    class TrackSizeSender(private val channel: Channel<Int>) : VideoSink {
+      override fun onFrame(frame: VideoFrame) {
+        GlobalScope.launch() {
+          channel.send(frame.rotatedWidth)
+          channel.send(frame.rotatedHeight)
+        }
+      }
+    }
+
+    val track =
+        peerConnectionFactoryProxy.createVideoTrack(LocalTrackIdGenerator.nextId(), videoSource)
+
+    val channel = Channel<Int>()
+    lateinit var videoTrack: MediaStreamTrackProxy
+    val this_ = this
+
+    runBlocking {
+      val trackSizeSender = TrackSizeSender(channel)
+      track.addSink(trackSizeSender)
+
+      val w = channel.receive()
+      val h = channel.receive()
+
+      track.removeSink(trackSizeSender)
+
+      videoTrack = MediaStreamTrackProxy(track, deviceId, this_, h, w)
+    }
+
     aliveTracksCount += 1
     videoTrack.onStop { trackStopped() }
 

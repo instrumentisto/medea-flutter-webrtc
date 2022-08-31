@@ -1,13 +1,16 @@
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
-    sync::Arc,
+    sync::{
+        mpsc::{self, Sender},
+        Arc,
+    },
 };
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
-use sys::TrackEventObserver;
+use sys::{OnFrameCallback, TrackEventObserver, VideoSinkInterface};
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
@@ -841,23 +844,56 @@ pub struct VideoTrack {
 
     /// Peers and transceivers sending this [`VideoTrack`].
     senders: HashMap<PeerConnectionId, HashSet<u32>>,
+
+    /// Height in pixels.
+    height: i32,
+
+    /// Width in pixels.
+    width: i32,
 }
 
 impl VideoTrack {
+    /// Returns (width, height).
+    fn get_size(&mut self) -> anyhow::Result<(i32, i32)> {
+        struct TrackSizeSender(Sender<(i32, i32)>);
+        impl OnFrameCallback for TrackSizeSender {
+            fn on_frame(&mut self, frame: cxx::UniquePtr<sys::VideoFrame>) {
+                drop(self.0.send((frame.width(), frame.height())));
+            }
+        }
+
+        let (tx, rx) = mpsc::channel();
+        let size_sender = TrackSizeSender(tx);
+        let inner =
+            VideoSinkInterface::create_forwarding(Box::new(size_sender));
+        let mut sink = VideoSink::new(0, inner, self.id());
+        self.add_video_sink(&mut sink);
+        let size = rx.recv()?;
+        self.remove_video_sink(sink);
+        Ok(size)
+    }
+
     /// Creates a new [`VideoTrack`].
     fn create_local(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<VideoSource>,
     ) -> anyhow::Result<Self> {
         let id = VideoTrackId(next_id().to_string());
-        Ok(Self {
+        let mut track = Self {
             id: id.clone(),
             inner: pc.create_video_track(id.into(), &src.inner)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-        })
+            height: 0,
+            width: 0,
+        };
+
+        let (height, width) = track.get_size()?;
+        track.height = height;
+        track.width = width;
+        Ok(track)
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into a
@@ -868,7 +904,7 @@ impl VideoTrack {
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
-        Self {
+        let mut track = Self {
             id: VideoTrackId(track.id()),
             inner: track.try_into().unwrap(),
             // Safe to unwrap since transceiver is guaranteed to be negotiated
@@ -880,7 +916,13 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-        }
+            height: 0,
+            width: 0,
+        };
+        let (height, width) = track.get_size().unwrap();
+        track.height = height;
+        track.width = width;
+        track
     }
 
     /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
@@ -936,6 +978,8 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             },
             kind: track.kind,
             enabled: true,
+            height: Some(track.height),
+            width: Some(track.width),
         }
     }
 }
@@ -1045,6 +1089,8 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
             device_id: track.device_id.to_string(),
             kind: track.kind,
             enabled: true,
+            height: None,
+            width: None,
         }
     }
 }

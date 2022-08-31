@@ -17,7 +17,9 @@ import org.webrtc.MediaStreamTrack
 class MediaStreamTrackProxy(
     track: MediaStreamTrack,
     val deviceId: String = "remote",
-    private val source: MediaTrackSource? = null
+    private val source: MediaTrackSource? = null,
+    height: Int? = null,
+    width: Int? = null
 ) : Proxy<MediaStreamTrack>(track) {
   /**
    * Subscribers for the [onStop] callback.
@@ -45,6 +47,14 @@ class MediaStreamTrackProxy(
 
   /** ID of the underlying [MediaStreamTrack] */
   val id: String = obj.id()
+
+  /** Video width in pixels of the underlying [MediaStreamTrack] */
+  val width = width
+    get() = field
+
+  /** Video height in pixels of the underlying [MediaStreamTrack] */
+  val height = height
+    get() = field
 
   /** [MediaStreamTrackState] of the underlying [MediaStreamTrack]. */
   var state: MediaStreamTrackState = MediaStreamTrackState.LIVE
