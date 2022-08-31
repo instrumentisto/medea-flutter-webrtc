@@ -67,4 +67,14 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   Future<MediaStreamTrack> clone() async {
     return WebMediaStreamTrack(jsTrack.clone());
   }
+
+  @override
+  int? height() {
+    return jsTrack.getSettings()['height'];
+  }
+
+  @override
+  int? width() {
+    return jsTrack.getSettings()['width'];
+  }
 }
