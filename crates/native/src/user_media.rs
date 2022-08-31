@@ -858,7 +858,7 @@ impl VideoTrack {
         struct TrackSizeSender(Sender<(i32, i32)>);
         impl OnFrameCallback for TrackSizeSender {
             fn on_frame(&mut self, frame: cxx::UniquePtr<sys::VideoFrame>) {
-                drop(self.0.send((frame.width(), frame.height())));
+                self.0.send((frame.width(), frame.height())).unwrap();
             }
         }
 
