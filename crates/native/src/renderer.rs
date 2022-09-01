@@ -1,10 +1,10 @@
-//! Implementations and definitions of the renderers API for the C and C++ APIs.
+//! Implementations and definitions of the renderers API for C and C++ APIs.
 
 pub use frame_handler::FrameHandler;
 
-/// Definitions and implementation of handler for the C++
-/// API [`sys::VideoFrame`]s renderer.
-#[cfg(feature = "renderer_cpp_api")]
+#[cfg(not(target_os = "macos"))]
+/// Definitions and implementation of a handler for C++ API [`sys::VideoFrame`]s
+/// renderer.
 mod frame_handler {
     use cxx::UniquePtr;
     use derive_more::From;
@@ -12,7 +12,7 @@ mod frame_handler {
 
     pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
 
-    /// Handler for the renderer [`sys::VideoFrame`]s.
+    /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler(UniquePtr<OnFrameCallbackInterface>);
 
     impl FrameHandler {
@@ -128,15 +128,16 @@ mod frame_handler {
     }
 }
 
-/// Definitions and implementation of handler for the C API
-/// [`sys::VideoFrame`]s renderer.
-#[cfg(feature = "renderer_c_api")]
+#[cfg(target_os = "macos")]
+/// Definitions and implementation of a handler for C API [`sys::VideoFrame`]s
+/// renderer.
+///
 /// cbindgen:ignore
 mod frame_handler {
     use cxx::UniquePtr;
     use libwebrtc_sys as sys;
 
-    /// Handler for the renderer [`sys::VideoFrame`]s.
+    /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler(*const ());
 
     impl Drop for FrameHandler {
@@ -145,8 +146,8 @@ mod frame_handler {
         }
     }
 
-    /// [`sys::VideoFrame`] and metadata which will be passed
-    /// to the C API renderer.
+    /// [`sys::VideoFrame`] and metadata which will be passed to the C API
+    /// renderer.
     #[repr(C)]
     pub struct Frame {
         /// Height of the [`Frame`].
@@ -172,7 +173,7 @@ mod frame_handler {
             Self(handler)
         }
 
-        /// Passes provided [`sys::VideoFrame`] to the C side listener.
+        /// Passes the provided [`sys::VideoFrame`] to the C side listener.
         #[allow(clippy::cast_sign_loss)]
         pub fn on_frame(&self, frame: UniquePtr<sys::VideoFrame>) {
             let height = frame.height();
@@ -205,8 +206,8 @@ mod frame_handler {
         pub fn drop_handler(handler: *const ());
     }
 
-    /// Converts provided [`sys::VideoFrame`] pixel data to `ARGB` scheme and
-    /// outputs the result to the provided `buffer`.
+    /// Converts the provided [`sys::VideoFrame`] pixel data to `ARGB` scheme
+    /// and outputs the result to the provided `buffer`.
     ///
     /// # Safety
     ///

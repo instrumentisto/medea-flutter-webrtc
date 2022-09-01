@@ -2,6 +2,8 @@
 
 #[cfg(not(target_os = "windows"))]
 use std::ffi::OsString;
+#[cfg(target_os = "macos")]
+use std::process;
 use std::{
     env, fs,
     fs::File,
@@ -64,10 +66,6 @@ fn main() -> anyhow::Result<()> {
         build.flag("-DNDEBUG");
     }
 
-    #[cfg(target_os = "windows")]
-    {
-        build.flag("-DWEBRTC_WIN").flag("/std:c++17");
-    }
     #[cfg(target_os = "linux")]
     {
         build
@@ -89,6 +87,10 @@ fn main() -> anyhow::Result<()> {
             .flag("-std=c++17")
             .flag("-objC")
             .flag("-fobjc-arc");
+    }
+    #[cfg(target_os = "windows")]
+    {
+        build.flag("-DWEBRTC_WIN").flag("/std:c++17");
     }
 
     #[cfg(feature = "fake_media")]
@@ -231,28 +233,6 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
 
 /// Emits all the required `rustc-link-lib` instructions.
 fn link_libs() {
-    #[cfg(target_os = "windows")]
-    {
-        for dep in [
-            "Gdi32",
-            "Secur32",
-            "amstrmid",
-            "d3d11",
-            "dmoguids",
-            "dxgi",
-            "msdmo",
-            "winmm",
-            "wmcodecdspuuid",
-        ] {
-            println!("cargo:rustc-link-lib=dylib={dep}");
-        }
-        // TODO: `rustc` always links against non-debug Windows runtime, so we
-        //       always use a release build of `libwebrtc`:
-        //       https://github.com/rust-lang/rust/issues/39016
-        println!(
-            "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/",
-        );
-    }
     #[cfg(target_os = "linux")]
     {
         for dep in [
@@ -279,7 +259,7 @@ fn link_libs() {
                      native=crates/libwebrtc-sys/lib/release/",
                 );
             }
-            _ => (),
+            _ => unreachable!(),
         }
     }
     #[cfg(target_os = "macos")]
@@ -298,11 +278,11 @@ fn link_libs() {
             "AppKit",
             "System",
         ] {
-            println!("cargo:rustc-link-lib=framework={}", framework);
+            println!("cargo:rustc-link-lib=framework={framework}");
         }
         if let Some(path) = macos_link_search_path() {
             println!("cargo:rustc-link-lib=clang_rt.osx");
-            println!("cargo:rustc-link-search={}", path);
+            println!("cargo:rustc-link-search={path}");
         }
         match env::var("PROFILE").unwrap().as_str() {
             "debug" => {
@@ -317,15 +297,37 @@ fn link_libs() {
                      native=crates/libwebrtc-sys/lib/release/",
                 );
             }
-            &_ => unreachable!(),
+            _ => unreachable!(),
         }
+    }
+    #[cfg(target_os = "windows")]
+    {
+        for dep in [
+            "Gdi32",
+            "Secur32",
+            "amstrmid",
+            "d3d11",
+            "dmoguids",
+            "dxgi",
+            "msdmo",
+            "winmm",
+            "wmcodecdspuuid",
+        ] {
+            println!("cargo:rustc-link-lib=dylib={dep}");
+        }
+        // TODO: `rustc` always links against non-debug Windows runtime, so we
+        //       always use a release build of `libwebrtc`:
+        //       https://github.com/rust-lang/rust/issues/39016
+        println!(
+            "cargo:rustc-link-search=native=crates/libwebrtc-sys/lib/release/",
+        );
     }
 }
 
-/// Links MacOS libraries needed for building.
 #[cfg(target_os = "macos")]
+/// Links macOS libraries needed for building.
 fn macos_link_search_path() -> Option<String> {
-    let output = std::process::Command::new("clang")
+    let output = process::Command::new("clang")
         .arg("--print-search-dirs")
         .output()
         .ok()?;
@@ -339,10 +341,6 @@ fn macos_link_search_path() -> Option<String> {
         .filter(|l| l.contains("libraries: ="))
         .find_map(|l| {
             let path = l.split('=').nth(1)?;
-            if path.is_empty() {
-                None
-            } else {
-                Some(format!("{}/lib/darwin", path))
-            }
+            (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
         })
 }

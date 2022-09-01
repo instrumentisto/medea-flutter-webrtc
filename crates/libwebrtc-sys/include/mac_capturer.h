@@ -27,8 +27,7 @@ RTC_FWD_DECL_OBJC_CLASS(AVCaptureDevice);
 RTC_FWD_DECL_OBJC_CLASS(RTCCameraVideoCapturer);
 RTC_FWD_DECL_OBJC_CLASS(RTCVideoSourceAdapter);
 
-// `VideoTrackSourceInterface` that captures frames from a local video input
-// device.
+// `VideoTrackSourceInterface` capturing frames from a local video input device.
 class MacCapturer : public rtc::AdaptedVideoTrackSource,
                     public rtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
@@ -41,20 +40,21 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
   // `VideoSinkInterface` implementation.
   void OnFrame(const webrtc::VideoFrame& frame) override;
 
-  // Indicates that parameters suitable for screencast should be automatically
-  // applied to RtpSenders.
+  // Indicates whether the parameters suitable for screencast should be
+  // automatically applied to `RtpSender`s.
   bool is_screencast() const override;
 
-  // Indicates that the encoder should denoise video before encoding it.
-  // If it's not set, the default configuration is used which is different
+  // Indicates whether the encoder should denoise video before encoding it.
+  //
+  // If it's not set, the default configuration is used, which is different
   // depending on a video codec.
   absl::optional<bool> needs_denoising() const override;
 
   // Returns state of this `DeviceVideoCapturer`.
   webrtc::MediaSourceInterface::SourceState state() const override;
 
-  // Returns `false` since `DeviceVideoCapturer` is meant to source local
-  // devices only.
+  // Returns `false` always, since `DeviceVideoCapturer` is meant to source
+  // local devices only.
   bool remote() const override;
 
  protected:
@@ -71,7 +71,7 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
   // video input device.
   RTCCameraVideoCapturer* capturer_;
 
-  // `RTCVideoSourceAdapter` injected into `capturer_`.
+  // `RTCVideoSourceAdapter` injected into the `capturer_`.
   RTCVideoSourceAdapter* adapter_;
 };
 

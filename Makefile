@@ -18,12 +18,12 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 RUST_VER ?= 1.55
 RUST_NIGHTLY_VER ?= nightly-2021-09-08
 
-FFIGEN_VERSION ?= $(strip \
-	$(shell grep -m1 'ffigen: ' pubspec.yaml | cut -d':' -f2))
 FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	$(shell grep -A1 'name = "flutter_rust_bridge"' Cargo.lock \
 	        | grep -v 'flutter_rust_bridge' \
 	        | cut -d'"' -f2))
+
+KTFMT_VER ?= 0.33
 
 CURRENT_OS ?= $(strip $(or $(os),\
 	$(if $(call eq,$(OS),Windows_NT),windows,\
@@ -46,7 +46,7 @@ deps: flutter.pub
 
 docs: cargo.doc
 
-fmt: cargo.fmt flutter.fmt
+fmt: cargo.fmt flutter.fmt kt.fmt
 
 lint: cargo.lint flutter.analyze
 
@@ -185,6 +185,11 @@ ifeq ($(CURRENT_OS),linux)
 	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		linux/rust/src/flutter_webrtc_native.cc
 endif
+ifeq ($(CURRENT_OS),macos)
+	@mkdir -p macos/rust/lib/
+	cp -f $(lib-out-path)/libflutter_webrtc_native.dylib \
+		macos/rust/lib/libflutter_webrtc_native.dylib
+endif
 ifeq ($(CURRENT_OS),windows)
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
@@ -251,9 +256,6 @@ endif
 ifeq ($(shell which cbindgen),)
 	cargo install cbindgen
 endif
-ifeq ($(shell dart pub global list | grep 'ffigen $(FFIGEN_VERSION)'),)
-	dart pub global activate ffigen $(FFIGEN_VERSION)
-endif
 ifeq ($(CURRENT_OS),macos)
 ifeq ($(shell brew list | grep -Fx llvm),)
 	brew install llvm
@@ -295,6 +297,30 @@ cargo.test:
 
 
 
+##################
+# Kotin commands #
+##################
+
+# Format Kotlin sources with ktfmt.
+#
+# Usage:
+#	make kt.fmt [check=(no|yes)]
+
+kt-fmt-bin = .cache/ktfmt-$(KTFMT_VER).jar
+
+kt.fmt:
+ifeq ($(wildcard $(kt-fmt-bin)),)
+	@mkdir -p $(dir $(kt-fmt-bin))
+	curl -fL -o $(kt-fmt-bin) \
+	     https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/$(KTFMT_VER)/ktfmt-$(KTFMT_VER)-jar-with-dependencies.jar
+endif
+	java -jar $(kt-fmt-bin) \
+	     $(if $(call eq,$(check),yes),--set-exit-if-changed,) \
+		android/src/main/kotlin/
+
+
+
+
 ##########################
 # Documentation commands #
 ##########################
@@ -325,4 +351,5 @@ test.flutter: flutter.test
         docs.rust \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.pub \
         	flutter.run flutter.test \
+        kt.fmt \
         test.cargo test.flutter

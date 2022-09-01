@@ -1,22 +1,22 @@
 PODS:
-  - flutter_webrtc (0.2.3):
-    - FlutterMacOS
   - FlutterMacOS (1.0.0)
+  - medea_flutter_webrtc (0.8.0-dev):
+    - FlutterMacOS
 
 DEPENDENCIES:
-  - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - medea_flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos`)
 
 EXTERNAL SOURCES:
-  flutter_webrtc:
-    :path: Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  medea_flutter_webrtc:
+    :path: Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos
 
 SPEC CHECKSUMS:
-  flutter_webrtc: 622abb628313a6c5fa08831b5b4162240606c710
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+  medea_flutter_webrtc: 19d9e441c86efa9c83ab8f30e83f367c3a1a6ff0
 
-PODFILE CHECKSUM: 505596d150d38022472859d890f709281982e016
+PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
 
 COCOAPODS: 1.11.3
