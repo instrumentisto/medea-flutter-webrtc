@@ -36,6 +36,8 @@ public class RtpTransceiverProxy {
                     newDirection = RTCRtpTransceiverDirection.sendRecv
                 case .sendOnly:
                     newDirection = RTCRtpTransceiverDirection.sendRecv
+                default:
+                    newDirection = RTCRtpTransceiverDirection.stopped
             }
         } else {
             switch (direction) {
@@ -47,11 +49,13 @@ public class RtpTransceiverProxy {
                     newDirection = RTCRtpTransceiverDirection.sendOnly
                 case .sendOnly:
                     newDirection = RTCRtpTransceiverDirection.sendOnly
+                default:
+                    newDirection = RTCRtpTransceiverDirection.stopped
             }
         }
         
         if (newDirection != RTCRtpTransceiverDirection.stopped) {
-            setDirection(direction)
+            setDirection(direction: direction)
         }
     }
 
@@ -65,9 +69,11 @@ public class RtpTransceiverProxy {
                 case .sendOnly:
                     newDirection = RTCRtpTransceiverDirection.sendOnly
                 case .sendRecv:
-                    newdirection = RTCRtpTransceiverDirection.sendRecv
+                    newDirection = RTCRtpTransceiverDirection.sendRecv
                 case .recvOnly:
                     newDirection = RTCRtpTransceiverDirection.sendRecv
+                default:
+                    newDirection = RTCRtpTransceiverDirection.stopped
             }
         } else {
             switch (direction) {
@@ -79,11 +85,13 @@ public class RtpTransceiverProxy {
                     newDirection = RTCRtpTransceiverDirection.recvOnly
                 case .recvOnly:
                     newDirection = RTCRtpTransceiverDirection.recvOnly
+                default:
+                    newDirection = RTCRtpTransceiverDirection.stopped
             }
         }
         
         if (newDirection != RTCRtpTransceiverDirection.stopped) {
-            setDirection(direction)
+            setDirection(direction: direction)
         }
     }
 
@@ -91,20 +99,11 @@ public class RtpTransceiverProxy {
         return transceiver.mid
     }
 
-    public func getDirection() -> RTCRtpTransceiverDirection {
+    public func getDirection() -> TransceiverDirection {
         if (self.transceiver.isStopped) {
-            return RTCRtpTransceiverDirection.stopped
+            return TransceiverDirection.stopped
         } else {
-            switch (self.transceiver.direction) {
-                case .sendRecv:
-                    return RTCRtpTransceiverDirection.sendRecv
-                case .sendOnly:
-                    return RTCRtpTransceiverDirection.sendOnly
-                case .recvOnly:
-                    return RTCRtpTransceiverDirection.recvOnly
-                case .inactive:
-                    return RTCRtpTransceiverDirection.inactive
-            }
+            return TransceiverDirection.fromWebRtc(direction: self.transceiver.direction)
         }
     }
 

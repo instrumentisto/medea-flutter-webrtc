@@ -26,10 +26,10 @@ public class MediaDevices {
         let videoDevice = AVCaptureDevice.default(for: AVMediaType.video)!
         let selectedFormat = selectFormatForDevice(device: videoDevice)
 
-        let souce = peerConnectionFactory.videoSource()
-        let capturer = RTCCameraCapturer.initWithDelegate(source)
-        capturer.startCaptureWithDevice(videoDevice: videoDevice, format: selectedFormat, fps: 30)
-        let videoTrackSource = MediaStreamTrackSourceProxy(peerConnectionFactory: self.peerConnectionFactory, source: source, deviceId: "camera")
+        let source = peerConnectionFactory.videoSource()
+        let capturer = RTCCameraVideoCapturer(delegate: VideoSourceAdapter())
+        capturer.startCapture(with: videoDevice, format: selectedFormat, fps: 30)
+        let videoTrackSource = VideoMediaTrackSourceProxy(peerConnectionFactory: self.peerConnectionFactory, source: source, deviceId: "camera")
         return videoTrackSource.newTrack()
     }
 

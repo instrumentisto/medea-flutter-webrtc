@@ -16,7 +16,7 @@ Flutter WebRTC plugin based on Google WebRTC.
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.dependency 'WebRTC-SDK', '104.5112.01'
-  s.platform = :ios, '10.0'
+  s.platform = :ios, '13.0'
   s.static_framework    = true
 
   # Flutter.framework does not contain a i386 slice.

@@ -1,17 +1,16 @@
-public enum SessionsDescriptionType {
-    case offer
-    case pranswer
-    case answer
-    case rollback
+import WebRTC
+
+public enum SessionDescriptionType: Int {
+    case offer = 0, prAnswer, answer, rollback
 
     init(type: RTCSdpType) {
         switch (type) {
             case .offer:
-                self = SessionsDescriptionType.offer
+                self = SessionDescriptionType.offer
             case .answer:
                 self = SessionDescriptionType.answer
-            case .pranswer:
-                self = SessionDescriptionType.pranswer
+            case .prAnswer:
+                self = SessionDescriptionType.prAnswer
             case .rollback:
                 self = SessionDescriptionType.rollback
         }
@@ -23,10 +22,14 @@ public enum SessionsDescriptionType {
                 return RTCSdpType.offer
             case .answer:
                 return RTCSdpType.answer
-            case .pranswer:
-                return RTCSdpType.pranswer
+            case .prAnswer:
+                return RTCSdpType.prAnswer
             case .rollback:
                 return RTCSdpType.rollback
         }
+    }
+
+    func asFlutterResult() -> Int {
+        return self.rawValue
     }
 }

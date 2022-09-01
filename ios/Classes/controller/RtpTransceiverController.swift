@@ -10,18 +10,21 @@ public class RtpTransceiverController {
     }
 
     func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
-        let argsMap = call.arguments
+        let argsMap = call.arguments as? [String : Any]
         switch (call.method) {
             case "setDirection":
                 abort()
             case "setRecv":
-                let enabled: Bool = argsMap["enabled"]
-                self.transceiver.setRecv(enabled)
+                let enabled = argsMap!["enabled"] as? Bool
+                self.transceiver.setRecv(recv: enabled!)
+                result(nil)
             case "setSend":
-                let enabled: Bool = argsMap["enabled"]
-                self.transceiver.setSend(enabled)
+                let enabled = argsMap!["enabled"] as? Bool
+                self.transceiver.setSend(send: enabled!)
+                result(nil)
             case "getMid":
-                abort()
+                let mid = self.transceiver.getMid()
+                result(mid)
             case "getDirection":
                 abort()
             case "stop":

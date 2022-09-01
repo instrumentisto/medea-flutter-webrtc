@@ -1,21 +1,30 @@
 import WebRTC
 
 public enum TransceiverDirection {
-    case sendrecv
-    case sendonly
-    case recvonly
-    case inactive
-    case stopped
+    case sendRecv, sendOnly, recvOnly, inactive, stopped
 
-    static func fromWebRtc()
+    static func fromWebRtc(direction: RTCRtpTransceiverDirection) -> TransceiverDirection {
+        switch direction {
+            case .sendRecv:
+                return TransceiverDirection.sendRecv
+            case .sendOnly:
+                return TransceiverDirection.sendOnly
+            case .recvOnly:
+                return TransceiverDirection.recvOnly
+            case .inactive:
+                return TransceiverDirection.inactive
+            case .stopped:
+                return TransceiverDirection.stopped
+        }
+    }
 
     func intoWebRtc() -> RTCRtpTransceiverDirection {
         switch self {
-            case .sendrecv:
+            case .sendRecv:
                 return RTCRtpTransceiverDirection.sendRecv
-            case .sendonly:
+            case .sendOnly:
                 return RTCRtpTransceiverDirection.sendOnly
-            case .recvonly:
+            case .recvOnly:
                 return RTCRtpTransceiverDirection.recvOnly
             case .inactive:
                 return RTCRtpTransceiverDirection.inactive

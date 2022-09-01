@@ -1,3 +1,5 @@
+import WebRTC
+
 public class SessionDescription {
     private var type: SessionDescriptionType
     private var description: String
@@ -8,17 +10,19 @@ public class SessionDescription {
     }
 
     init(sdp: RTCSessionDescription) {
-        self = SessionDescription(SessionDescriptionType(type: sdp.type, description: sdp.description))
+        self.type = SessionDescriptionType(type: sdp.type)
+        self.description = sdp.description
     }
 
     init(map: [String : Any]) {
-        let type = SessionDescriptionType(rawValue: map["type"] as Number)
-        let description = map["description"] as String
-        self = SessionDescription(type, description: String)
+        let ty = map["type"] as? Int
+        self.type = SessionDescriptionType(rawValue: ty!)!
+        let description = map["description"] as? String
+        self.description = description!
     }
 
     func intoWebRtc() -> RTCSessionDescription {
-        return RTCSessionDescription.initWithType(type: self.type.intoWebRtc(), sdp: self.description)
+        return RTCSessionDescription(type: self.type.intoWebRtc(), sdp: self.description)
     }
 
     func asFlutterResult() -> [String : Any] {

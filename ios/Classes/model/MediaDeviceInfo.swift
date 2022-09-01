@@ -13,7 +13,7 @@ public class MediaDeviceInfo {
         return [
             "deviceId": self.deviceId,
             "label": self.label,
-            "kind": self.kind.toInt()
+            "kind": self.kind.rawValue
         ]
     }
 }
