@@ -1,16 +1,13 @@
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
-    sync::{
-        mpsc::{self, Sender},
-        Arc,
-    },
+    sync::Arc,
 };
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
-use sys::{OnFrameCallback, TrackEventObserver, VideoSinkInterface};
+use sys::TrackEventObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
@@ -827,7 +824,7 @@ enum MediaTrackSource<T> {
 #[derive(AsRef)]
 pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
-    id: VideoTrackId,
+    pub id: VideoTrackId,
 
     /// Underlying [`sys::VideoTrackInterface`].
     #[as_ref]
@@ -843,57 +840,24 @@ pub struct VideoTrack {
     sinks: Vec<VideoSinkId>,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    senders: HashMap<PeerConnectionId, HashSet<u32>>,
-
-    /// Height in pixels.
-    height: Option<i32>,
-
-    /// Width in pixels.
-    width: Option<i32>,
+    pub senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl VideoTrack {
-    /// Returns (width, height).
-    fn get_size(&mut self) -> anyhow::Result<(i32, i32)> {
-        struct TrackSizeSender(Sender<(i32, i32)>);
-        impl OnFrameCallback for TrackSizeSender {
-            fn on_frame(&mut self, frame: cxx::UniquePtr<sys::VideoFrame>) {
-                self.0.send((frame.width(), frame.height())).unwrap();
-            }
-        }
-
-        let (tx, rx) = mpsc::channel();
-        let size_sender = TrackSizeSender(tx);
-        let inner =
-            VideoSinkInterface::create_forwarding(Box::new(size_sender));
-        let mut sink = VideoSink::new(0, inner, self.id());
-        self.add_video_sink(&mut sink);
-        let size = rx.recv()?;
-        self.remove_video_sink(sink);
-        Ok(size)
-    }
-
     /// Creates a new [`VideoTrack`].
     fn create_local(
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<VideoSource>,
     ) -> anyhow::Result<Self> {
         let id = VideoTrackId(next_id().to_string());
-        let mut track = Self {
+        Ok(Self {
             id: id.clone(),
             inner: pc.create_video_track(id.into(), &src.inner)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-            height: None,
-            width: None,
-        };
-
-        let (height, width) = track.get_size()?;
-        track.height = Some(height);
-        track.width = Some(width);
-        Ok(track)
+        })
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into a
@@ -916,16 +880,7 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-            height: None,
-            width: None,
         }
-        // TODO(rogurotus): late size initialization for remote tracks
-    }
-
-    /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
-    #[must_use]
-    pub fn id(&self) -> VideoTrackId {
-        self.id.clone()
     }
 
     /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
@@ -956,11 +911,6 @@ impl VideoTrack {
     pub fn state(&self) -> api::TrackState {
         self.inner.state().into()
     }
-
-    /// Returns peers and transceivers sending this [`VideoTrack`].
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
-        &mut self.senders
-    }
 }
 
 impl From<&VideoTrack> for api::MediaStreamTrack {
@@ -975,8 +925,6 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             },
             kind: track.kind,
             enabled: true,
-            height: track.height,
-            width: track.width,
         }
     }
 }
@@ -985,7 +933,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
 #[derive(AsRef)]
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
-    id: AudioTrackId,
+    pub id: AudioTrackId,
 
     /// Underlying [`sys::AudioTrackInterface`].
     #[as_ref]
@@ -1001,7 +949,7 @@ pub struct AudioTrack {
     device_id: AudioDeviceId,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    senders: HashMap<PeerConnectionId, HashSet<u32>>,
+    pub senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl AudioTrack {
@@ -1050,12 +998,6 @@ impl AudioTrack {
         }
     }
 
-    /// Returns the [`AudioTrackId`] of this [`AudioTrack`].
-    #[must_use]
-    pub fn id(&self) -> AudioTrackId {
-        self.id.clone()
-    }
-
     /// Returns the [readyState][0] property of the underlying
     /// [`sys::AudioTrackInterface`].
     ///
@@ -1072,11 +1014,6 @@ impl AudioTrack {
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
     }
-
-    /// Returns peers and transceivers sending this [`VideoTrack`].
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
-        &mut self.senders
-    }
 }
 
 impl From<&AudioTrack> for api::MediaStreamTrack {
@@ -1086,8 +1023,6 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
             device_id: track.device_id.to_string(),
             kind: track.kind,
             enabled: true,
-            height: None,
-            width: None,
         }
     }
 }

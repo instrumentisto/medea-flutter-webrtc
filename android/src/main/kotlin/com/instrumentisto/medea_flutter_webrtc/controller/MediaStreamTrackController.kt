@@ -84,12 +84,10 @@ class MediaStreamTrackController(
    *
    * @return [Map] generated from this controller which can be returned to the Flutter side.
    */
-  fun asFlutterResult(): Map<String, Any?> =
+  fun asFlutterResult(): Map<String, Any> =
       mapOf(
           "channelId" to channelId,
           "id" to track.id,
           "kind" to track.kind.value,
-          "deviceId" to track.deviceId,
-          "width" to track.width,
-          "height" to track.height)
+          "deviceId" to track.deviceId)
 }
