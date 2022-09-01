@@ -32,8 +32,7 @@ type DynTrackEventCallback = Box<dyn TrackEventCallback>;
     clippy::items_after_statements,
     clippy::let_underscore_drop,
     clippy::ptr_as_ptr,
-    clippy::trait_duplication_in_bounds,
-    clippy::let_underscore_drop
+    clippy::trait_duplication_in_bounds
 )]
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
