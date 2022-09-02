@@ -421,7 +421,7 @@ impl AudioProcessing {
     /// in some other way not used. This hints the underlying AGC, AEC, NS
     /// processors to halt.
     pub fn set_output_will_be_muted(&self, muted: bool) {
-        webrtc::set_output_will_be_muted(&self.0, muted)
+        webrtc::set_output_will_be_muted(&self.0, muted);
     }
 }
 
