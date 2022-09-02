@@ -1079,14 +1079,25 @@ impl VideoSource {
         caps: &api::VideoConstraints,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
-        Ok(Self {
-            inner: sys::VideoTrackSourceInterface::create_proxy_from_display(
+        let inner = if api::is_fake_media() {
+            sys::VideoTrackSourceInterface::create_fake(
                 worker_thread,
                 signaling_thread,
                 caps.width as usize,
                 caps.height as usize,
                 caps.frame_rate as usize,
-            )?,
+            )
+        } else {
+            sys::VideoTrackSourceInterface::create_proxy_from_display(
+                worker_thread,
+                signaling_thread,
+                caps.width as usize,
+                caps.height as usize,
+                caps.frame_rate as usize,
+            )
+        };
+        Ok(Self {
+            inner: inner?,
             device_id,
         })
     }

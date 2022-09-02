@@ -114,6 +114,9 @@ Future<void> enableFakeMedia() async {
         navigator.mediaDevices.getUserMedia = (constraints) => {
             return _get_mock_stream(constraints)
         }
+        navigator.mediaDevices.getDisplayMedia = (constraints) => {
+            return _get_mock_stream(constraints)
+        }
     }
     enableMock();
   '''
