@@ -40,7 +40,6 @@ class MediaDeviceInfo {
   late MediaDeviceKind kind;
 }
 
-
 /// Information about some media device.
 class MediaDisplayInfo {
   /// Creates a [MediaDisplayInfo] basing on the [ffi.MediaDisplayInfo] received
@@ -53,6 +52,6 @@ class MediaDisplayInfo {
   /// Identifier of the represented display.
   late String deviceId;
 
-  /// todo
+  /// Device description.
   late String? title;
 }

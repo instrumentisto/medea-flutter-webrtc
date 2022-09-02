@@ -453,7 +453,8 @@ impl VideoDeviceInfo {
 unsafe impl Send for webrtc::VideoDeviceInfo {}
 unsafe impl Sync for webrtc::VideoDeviceInfo {}
 
-// todo
+/// Returns a list [`VideoDisplaySource`].
+#[must_use]
 pub fn source_list_of_displays() -> Vec<VideoDisplaySource> {
     webrtc::source_list_of_displays()
         .into_iter()
@@ -461,14 +462,18 @@ pub fn source_list_of_displays() -> Vec<VideoDisplaySource> {
         .collect()
 }
 
-// todo
+/// Interface for receiving information about available display.
 pub struct VideoDisplaySource(UniquePtr<DisplaySource>);
 
 impl VideoDisplaySource {
+    /// Returns the `id` of this [`VideoDisplaySource`].
+    #[must_use]
     pub fn id(&self) -> i64 {
         webrtc::video_display_id(&self.0)
     }
 
+    /// Returns the `title` of this [`VideoDisplaySource`].
+    #[must_use]
     pub fn title(&self) -> Option<String> {
         let title = webrtc::video_display_title(&self.0).to_string();
         if title.is_empty() {

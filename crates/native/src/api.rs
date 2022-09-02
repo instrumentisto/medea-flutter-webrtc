@@ -512,13 +512,13 @@ pub struct MediaDeviceInfo {
     pub label: String,
 }
 
-// todo
+/// Information describing a display.
 #[derive(Debug)]
 pub struct MediaDisplayInfo {
     /// Unique identifier for the represented device.
     pub device_id: String,
 
-    /// Label describing the represented device.
+    /// Title describing the represented device.
     pub title: Option<String>,
 }
 
@@ -802,8 +802,8 @@ pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
-//todo
-pub fn enumerate_displays() -> anyhow::Result<Vec<MediaDisplayInfo>> {
+/// Returns a list of all available displays.
+pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
     WEBRTC.lock().unwrap().enumerate_displays()
 }
 

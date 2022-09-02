@@ -184,17 +184,16 @@ impl Webrtc {
         Ok(audio)
     }
 
-    // todo
-    pub fn enumerate_displays(
-        &mut self,
-    ) -> anyhow::Result<Vec<api::MediaDisplayInfo>> {
-        Ok(source_list_of_displays()
+    /// Returns a list of all available displays.
+    #[allow(clippy::unused_self)]
+    pub fn enumerate_displays(&mut self) -> Vec<api::MediaDisplayInfo> {
+        source_list_of_displays()
             .into_iter()
             .map(|s| api::MediaDisplayInfo {
                 device_id: s.id().to_string(),
                 title: s.title(),
             })
-            .collect())
+            .collect()
     }
 
     /// Returns an index of the specific video device identified by the provided

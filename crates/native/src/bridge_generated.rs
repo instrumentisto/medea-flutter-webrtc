@@ -61,7 +61,7 @@ pub extern "C" fn wire_enumerate_displays(port_: i64) {
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| enumerate_displays(),
+        move || move |task_callback| Ok(enumerate_displays()),
     )
 }
 

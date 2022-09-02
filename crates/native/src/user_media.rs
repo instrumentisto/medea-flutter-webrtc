@@ -161,10 +161,10 @@ impl Webrtc {
                     })?;
                 VideoDeviceId(device_id)
             } else {
-                let displays = self.enumerate_displays()?;
+                let displays = self.enumerate_displays();
                 // No device ID is provided so just pick the first available
                 // device
-                if displays.len() < 1 {
+                if displays.is_empty() {
                     bail!("Cannot find any available video input display");
                 }
 
