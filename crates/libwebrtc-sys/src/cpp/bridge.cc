@@ -272,7 +272,7 @@ std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
-    int id,
+    long int id,
     size_t width,
     size_t height,
     size_t fps) {
@@ -829,13 +829,13 @@ std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
 }
 
 // todo
-rust::Vec<ToDo> source_list_of_video_displayes() {
+rust::Vec<DisplaySourceContainer> source_list_of_displays() {
   webrtc::DesktopCapturer::SourceList sourceList;
   ScreenVideoCapturer::GetSourceList(&sourceList);
-  rust::Vec<ToDo> sources;
+  rust::Vec<DisplaySourceContainer> sources;
 
   for (auto source : sourceList) {
-    ToDo container = {
+    DisplaySourceContainer container = {
         std::make_unique<DisplaySource>(source)};
     sources.push_back(std::move(container));
   }
@@ -843,7 +843,7 @@ rust::Vec<ToDo> source_list_of_video_displayes() {
 }
 
 // todo
-int video_display_id(const DisplaySource& source) {
+long int video_display_id(const DisplaySource& source) {
   return source.id;
 }
 

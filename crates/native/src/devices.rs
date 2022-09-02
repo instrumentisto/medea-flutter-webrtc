@@ -12,7 +12,7 @@ use libwebrtc_sys as sys;
 #[cfg(target_os = "linux")]
 use pulse::mainloop::standard::IterateResult;
 
-use sys::source_list_of_video_displayes;
+use sys::source_list_of_displays;
 #[cfg(target_os = "windows")]
 use winapi::{
     shared::{
@@ -185,10 +185,10 @@ impl Webrtc {
     }
 
     // todo
-    pub fn enumerate_displayes(
+    pub fn enumerate_displays(
         &mut self,
     ) -> anyhow::Result<Vec<api::MediaDisplayInfo>> {
-        Ok(source_list_of_video_displayes()
+        Ok(source_list_of_displays()
             .into_iter()
             .map(|s| api::MediaDisplayInfo {
                 device_id: s.id().to_string(),

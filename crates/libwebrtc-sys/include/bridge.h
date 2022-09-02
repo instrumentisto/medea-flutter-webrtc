@@ -57,7 +57,7 @@ class TrackEventObserver : public webrtc::ObserverInterface {
 };
 
 struct TransceiverContainer;
-struct ToDo;
+struct DisplaySourceContainer;
 struct StringPair;
 struct RtpCodecParametersContainer;
 struct RtpExtensionContainer;
@@ -211,7 +211,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
-    int id,
+    int64_t id,
     size_t width,
     size_t height,
     size_t fps);
@@ -508,10 +508,10 @@ std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate);
 
 //todo
-rust::Vec<ToDo> source_list_of_video_displayes();
+rust::Vec<DisplaySourceContainer> source_list_of_displays();
 
 //todo
-int video_display_id(const DisplaySource& source);
+int64_t video_display_id(const DisplaySource& source);
 
 //todo
 std::unique_ptr<std::string> video_display_title(const DisplaySource& source);

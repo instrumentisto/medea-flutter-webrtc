@@ -454,8 +454,8 @@ unsafe impl Send for webrtc::VideoDeviceInfo {}
 unsafe impl Sync for webrtc::VideoDeviceInfo {}
 
 // todo
-pub fn source_list_of_video_displayes() -> Vec<VideoDisplaySource> {
-    webrtc::source_list_of_video_displayes()
+pub fn source_list_of_displays() -> Vec<VideoDisplaySource> {
+    webrtc::source_list_of_displays()
         .into_iter()
         .map(|el| VideoDisplaySource(el.ptr))
         .collect()
@@ -465,7 +465,7 @@ pub fn source_list_of_video_displayes() -> Vec<VideoDisplaySource> {
 pub struct VideoDisplaySource(UniquePtr<DisplaySource>);
 
 impl VideoDisplaySource {
-    pub fn id(&self) -> i32 {
+    pub fn id(&self) -> i64 {
         webrtc::video_display_id(&self.0)
     }
 
@@ -1489,7 +1489,7 @@ impl VideoTrackSourceInterface {
     pub fn create_proxy_from_display(
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
-        id: i32,
+        id: i64,
         width: usize,
         height: usize,
         fps: usize,

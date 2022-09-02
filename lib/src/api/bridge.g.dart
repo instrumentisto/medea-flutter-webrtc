@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes, prefer_const_constructors, use_super_parameters, always_use_package_imports
 
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:ffi' as ffi;
 import 'dart:typed_data';
-import 'dart:typed_data';
-
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'dart:ffi' as ffi;
 
 part 'bridge.g.freezed.dart';
 
@@ -31,6 +31,10 @@ abstract class FlutterWebrtcNative {
   Future<List<MediaDeviceInfo>> enumerateDevices({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kEnumerateDevicesConstMeta;
+
+  Future<List<MediaDisplayInfo>> enumerateDisplays({dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kEnumerateDisplaysConstMeta;
 
   /// Creates a new [`PeerConnection`] and returns its ID.
   Stream<PeerConnectionEvent> createPeerConnection(
@@ -459,6 +463,19 @@ enum MediaDeviceKind {
 
   /// Video input device (for example, a webcam).
   VideoInput,
+}
+
+class MediaDisplayInfo {
+  /// Unique identifier for the represented device.
+  final String deviceId;
+
+  /// Label describing the represented device.
+  final String? title;
+
+  MediaDisplayInfo({
+    required this.deviceId,
+    this.title,
+  });
 }
 
 /// [MediaStreamConstraints], used to instruct what sort of
@@ -992,6 +1009,21 @@ class FlutterWebrtcNativeImpl
   FlutterRustBridgeTaskConstMeta get kEnumerateDevicesConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "enumerate_devices",
+        argNames: [],
+      );
+
+  Future<List<MediaDisplayInfo>> enumerateDisplays({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_enumerate_displays(port_),
+        parseSuccessData: _wire2api_list_media_display_info,
+        constMeta: kEnumerateDisplaysConstMeta,
+        argValues: [],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kEnumerateDisplaysConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "enumerate_displays",
         argNames: [],
       );
 
@@ -1827,6 +1859,10 @@ List<MediaDeviceInfo> _wire2api_list_media_device_info(dynamic raw) {
   return (raw as List<dynamic>).map(_wire2api_media_device_info).toList();
 }
 
+List<MediaDisplayInfo> _wire2api_list_media_display_info(dynamic raw) {
+  return (raw as List<dynamic>).map(_wire2api_media_display_info).toList();
+}
+
 List<MediaStreamTrack> _wire2api_list_media_stream_track(dynamic raw) {
   return (raw as List<dynamic>).map(_wire2api_media_stream_track).toList();
 }
@@ -1848,6 +1884,16 @@ MediaDeviceInfo _wire2api_media_device_info(dynamic raw) {
 
 MediaDeviceKind _wire2api_media_device_kind(dynamic raw) {
   return MediaDeviceKind.values[raw];
+}
+
+MediaDisplayInfo _wire2api_media_display_info(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 2)
+    throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+  return MediaDisplayInfo(
+    deviceId: _wire2api_String(arr[0]),
+    title: _wire2api_opt_String(arr[1]),
+  );
 }
 
 MediaStreamTrack _wire2api_media_stream_track(dynamic raw) {
@@ -2056,6 +2102,20 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'wire_enumerate_devices');
   late final _wire_enumerate_devices =
       _wire_enumerate_devicesPtr.asFunction<void Function(int)>();
+
+  void wire_enumerate_displays(
+    int port_,
+  ) {
+    return _wire_enumerate_displays(
+      port_,
+    );
+  }
+
+  late final _wire_enumerate_displaysPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_enumerate_displays');
+  late final _wire_enumerate_displays =
+      _wire_enumerate_displaysPtr.asFunction<void Function(int)>();
 
   void wire_create_peer_connection(
     int port_,

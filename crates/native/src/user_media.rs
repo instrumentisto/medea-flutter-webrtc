@@ -148,76 +148,78 @@ impl Webrtc {
         &mut self,
         caps: &api::VideoConstraints,
     ) -> anyhow::Result<Arc<VideoSource>> {
-        let (index, device_id) = if let Some(device_id) = caps.device_id.clone()
-        {
-            if caps.is_display {
-                sys::source_list_of_video_displayes()
+        let (source, device_id) = if caps.is_display {
+            let device_id = if let Some(device_id) = caps.device_id.clone() {
+                sys::source_list_of_displays()
                     .into_iter()
                     .find(|d| d.id().to_string() == device_id)
                     .ok_or_else(|| {
                         anyhow!(
                             "Cannot find video display with the specified ID \
-                     `{device_id}`",
+                            `{device_id}`",
                         )
                     })?;
-                (0, VideoDeviceId(device_id))
+                VideoDeviceId(device_id)
             } else {
-                let device_id = VideoDeviceId(device_id);
-                if let Some(index) =
-                    self.get_index_of_video_device(&device_id)?
-                {
-                    (index, device_id)
-                } else {
-                    bail!(
-                        "Cannot find video device with the specified ID \
-                         `{device_id}`",
-                    );
-                }
-            }
-        } else {
-            if caps.is_display {
-                let ds = self.enumerate_displayes()?;
+                let displays = self.enumerate_displays()?;
                 // No device ID is provided so just pick the first available
                 // device
-                if ds.len() < 1 {
+                if displays.len() < 1 {
                     bail!("Cannot find any available video input display");
                 }
 
-                let device_id = VideoDeviceId(ds[0].device_id.clone());
-                (0, device_id)
-            } else {
-                // No device ID is provided so just pick the first available
-                // device
-                if self.video_device_info.number_of_devices() < 1 {
-                    bail!("Cannot find any available video input device");
-                }
+                VideoDeviceId(displays[0].device_id.clone())
+            };
+            (
+                VideoSource::new_display_source(
+                    &mut self.worker_thread,
+                    &mut self.signaling_thread,
+                    caps,
+                    device_id.0.parse::<i64>().unwrap(),
+                )?,
+                device_id,
+            )
+        } else {
+            let (index, device_id) =
+                if let Some(device_id) = caps.device_id.clone() {
+                    let device_id = VideoDeviceId(device_id);
+                    if let Some(index) =
+                        self.get_index_of_video_device(&device_id)?
+                    {
+                        (index, device_id)
+                    } else {
+                        bail!(
+                            "Cannot find video device with the specified ID \
+                         `{device_id}`",
+                        );
+                    }
+                } else {
+                    // No device ID is provided so just pick the first available
+                    // device
+                    if self.video_device_info.number_of_devices() < 1 {
+                        bail!("Cannot find any available video input device");
+                    }
 
-                let device_id =
-                    VideoDeviceId(self.video_device_info.device_name(0)?.1);
-                (0, device_id)
-            }
+                    let device_id =
+                        VideoDeviceId(self.video_device_info.device_name(0)?.1);
+                    (0, device_id)
+                };
+            (
+                VideoSource::new_device_source(
+                    &mut self.worker_thread,
+                    &mut self.signaling_thread,
+                    caps,
+                    index,
+                    device_id.clone(),
+                )?,
+                device_id,
+            )
         };
 
         if let Some(src) = self.video_sources.get(&device_id) {
             return Ok(Arc::clone(src));
         }
 
-        let source = if caps.is_display {
-            VideoSource::new_display_source(
-                &mut self.worker_thread,
-                &mut self.signaling_thread,
-                caps,
-                device_id.0.parse::<i32>().unwrap(),
-            )?
-        } else {
-            VideoSource::new_device_source(
-                &mut self.worker_thread,
-                &mut self.signaling_thread,
-                caps,
-                index,
-                device_id,
-            )?
-        };
         let source = self
             .video_sources
             .entry(source.device_id.clone())
@@ -1124,7 +1126,7 @@ impl VideoSource {
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
         caps: &api::VideoConstraints,
-        device_id: i32,
+        device_id: i64,
     ) -> anyhow::Result<Self> {
         Ok(Self {
             inner: sys::VideoTrackSourceInterface::create_proxy_from_display(

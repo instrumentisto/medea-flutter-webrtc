@@ -128,6 +128,17 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
   }
 }
 
+/// Returns list of [MediaDisplayInfo]s for the currently available displayes.
+Future<List<MediaDisplayInfo>> enumerateDisplays() async {
+  if (isDesktop) {
+    return (await api!.enumerateDisplays())
+        .map((e) => MediaDisplayInfo.fromFFI(e))
+        .toList();
+  } else {
+    return List<MediaDisplayInfo>.empty();
+  }
+}
+
 /// Returns list of local audio and video [NativeMediaStreamTrack]s based on the
 /// provided [DeviceConstraints].
 Future<List<NativeMediaStreamTrack>> getUserMedia(

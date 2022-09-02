@@ -803,8 +803,8 @@ pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
 }
 
 //todo
-pub fn enumerate_displayes() -> anyhow::Result<Vec<MediaDisplayInfo>> {
-    WEBRTC.lock().unwrap().enumerate_displayes()
+pub fn enumerate_displays() -> anyhow::Result<Vec<MediaDisplayInfo>> {
+    WEBRTC.lock().unwrap().enumerate_displays()
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.

@@ -39,3 +39,20 @@ class MediaDeviceInfo {
   /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
 }
+
+
+/// Information about some media device.
+class MediaDisplayInfo {
+  /// Creates a [MediaDisplayInfo] basing on the [ffi.MediaDisplayInfo] received
+  /// from the native side.
+  MediaDisplayInfo.fromFFI(ffi.MediaDisplayInfo info) {
+    deviceId = info.deviceId;
+    title = info.title;
+  }
+
+  /// Identifier of the represented display.
+  late String deviceId;
+
+  /// todo
+  late String? title;
+}
