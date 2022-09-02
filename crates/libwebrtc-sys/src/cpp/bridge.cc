@@ -272,7 +272,7 @@ std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
-    long int id,
+    int64_t id,
     size_t width,
     size_t height,
     size_t fps) {
@@ -843,7 +843,7 @@ rust::Vec<DisplaySourceContainer> source_list_of_displays() {
 }
 
 // todo
-long int video_display_id(const DisplaySource& source) {
+int64_t video_display_id(const DisplaySource& source) {
   return source.id;
 }
 
