@@ -851,7 +851,7 @@ enum MediaTrackSource<T> {
 #[derive(AsRef)]
 pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
-    id: VideoTrackId,
+    pub id: VideoTrackId,
 
     /// Underlying [`sys::VideoTrackInterface`].
     #[as_ref]
@@ -867,7 +867,7 @@ pub struct VideoTrack {
     sinks: Vec<VideoSinkId>,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    senders: HashMap<PeerConnectionId, HashSet<u32>>,
+    pub senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl VideoTrack {
@@ -910,12 +910,6 @@ impl VideoTrack {
         }
     }
 
-    /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
-    #[must_use]
-    pub fn id(&self) -> VideoTrackId {
-        self.id.clone()
-    }
-
     /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
     pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
         self.inner.add_or_update_sink(video_sink.as_mut());
@@ -944,11 +938,6 @@ impl VideoTrack {
     pub fn state(&self) -> api::TrackState {
         self.inner.state().into()
     }
-
-    /// Returns peers and transceivers sending this [`VideoTrack`].
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
-        &mut self.senders
-    }
 }
 
 impl From<&VideoTrack> for api::MediaStreamTrack {
@@ -971,7 +960,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
 #[derive(AsRef)]
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
-    id: AudioTrackId,
+    pub id: AudioTrackId,
 
     /// Underlying [`sys::AudioTrackInterface`].
     #[as_ref]
@@ -987,7 +976,7 @@ pub struct AudioTrack {
     device_id: AudioDeviceId,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    senders: HashMap<PeerConnectionId, HashSet<u32>>,
+    pub senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl AudioTrack {
@@ -1036,12 +1025,6 @@ impl AudioTrack {
         }
     }
 
-    /// Returns the [`AudioTrackId`] of this [`AudioTrack`].
-    #[must_use]
-    pub fn id(&self) -> AudioTrackId {
-        self.id.clone()
-    }
-
     /// Returns the [readyState][0] property of the underlying
     /// [`sys::AudioTrackInterface`].
     ///
@@ -1057,11 +1040,6 @@ impl AudioTrack {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
-    }
-
-    /// Returns peers and transceivers sending this [`VideoTrack`].
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
-        &mut self.senders
     }
 }
 
