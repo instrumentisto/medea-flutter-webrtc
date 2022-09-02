@@ -128,7 +128,7 @@ Future<List<MediaDeviceInfo>> enumerateDevices() async {
   }
 }
 
-/// Returns list of [MediaDisplayInfo]s for the currently available displayes.
+/// Returns list of [MediaDisplayInfo]s for the currently available displays.
 Future<List<MediaDisplayInfo>> enumerateDisplays() async {
   if (isDesktop) {
     return (await api!.enumerateDisplays())

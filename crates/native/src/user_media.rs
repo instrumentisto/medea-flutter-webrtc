@@ -175,7 +175,7 @@ impl Webrtc {
                     &mut self.worker_thread,
                     &mut self.signaling_thread,
                     caps,
-                    device_id.0.parse::<i64>().unwrap(),
+                    device_id.0.parse::<i64>()?,
                 )?,
                 device_id,
             )
