@@ -12,6 +12,7 @@ use libwebrtc_sys as sys;
 #[cfg(target_os = "linux")]
 use pulse::mainloop::standard::IterateResult;
 
+use sys::source_list_of_video_displayes;
 #[cfg(target_os = "windows")]
 use winapi::{
     shared::{
@@ -181,6 +182,19 @@ impl Webrtc {
         audio.append(&mut video);
 
         Ok(audio)
+    }
+
+    // todo
+    pub fn enumerate_displayes(
+        &mut self,
+    ) -> anyhow::Result<Vec<api::MediaDisplayInfo>> {
+        Ok(source_list_of_video_displayes()
+            .into_iter()
+            .map(|s| api::MediaDisplayInfo {
+                device_id: s.id().to_string(),
+                title: s.title(),
+            })
+            .collect())
     }
 
     /// Returns an index of the specific video device identified by the provided

@@ -6,6 +6,7 @@ mod bridge;
 use std::{collections::HashMap, mem};
 
 use anyhow::bail;
+use bridge::webrtc::DisplaySource;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
@@ -451,6 +452,32 @@ impl VideoDeviceInfo {
 
 unsafe impl Send for webrtc::VideoDeviceInfo {}
 unsafe impl Sync for webrtc::VideoDeviceInfo {}
+
+// todo
+pub fn source_list_of_video_displayes() -> Vec<VideoDisplaySource> {
+    webrtc::source_list_of_video_displayes()
+        .into_iter()
+        .map(|el| VideoDisplaySource(el.ptr))
+        .collect()
+}
+
+// todo
+pub struct VideoDisplaySource(UniquePtr<DisplaySource>);
+
+impl VideoDisplaySource {
+    pub fn id(&self) -> i32 {
+        webrtc::video_display_id(&self.0)
+    }
+
+    pub fn title(&self) -> Option<String> {
+        let title = webrtc::video_display_title(&self.0).to_string();
+        if title.is_empty() {
+            None
+        } else {
+            Some(title)
+        }
+    }
+}
 
 /// [RTCConfiguration][1] wrapper.
 ///
@@ -1462,6 +1489,7 @@ impl VideoTrackSourceInterface {
     pub fn create_proxy_from_display(
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
+        id: i32,
         width: usize,
         height: usize,
         fps: usize,
@@ -1469,6 +1497,7 @@ impl VideoTrackSourceInterface {
         let ptr = webrtc::create_display_video_source(
             worker_thread.0.pin_mut(),
             signaling_thread.0.pin_mut(),
+            id,
             width,
             height,
             fps,

@@ -272,18 +272,13 @@ std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
+    int id,
     size_t width,
     size_t height,
     size_t fps) {
-  webrtc::DesktopCapturer::SourceList sourceList;
-  ScreenVideoCapturer::GetSourceList(&sourceList);
-
-  if (sourceList.size() < 1) {
-    return nullptr;
-  }
 
   rtc::scoped_refptr<ScreenVideoCapturer> capturer(
-      new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, width,
+      new rtc::RefCountedObject<ScreenVideoCapturer>(id, width,
                                                      height, fps));
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
@@ -832,5 +827,30 @@ std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
     return owned_candidate;
   }
 }
+
+// todo
+rust::Vec<ToDo> source_list_of_video_displayes() {
+  webrtc::DesktopCapturer::SourceList sourceList;
+  ScreenVideoCapturer::GetSourceList(&sourceList);
+  rust::Vec<ToDo> sources;
+
+  for (auto source : sourceList) {
+    ToDo container = {
+        std::make_unique<DisplaySource>(source)};
+    sources.push_back(std::move(container));
+  }
+  return sources;
+}
+
+// todo
+int video_display_id(const DisplaySource& source) {
+  return source.id;
+}
+
+//todo
+std::unique_ptr<std::string> video_display_title(const DisplaySource& source) {
+  return std::make_unique<std::string>(source.title);
+}
+
 
 }  // namespace bridge

@@ -148,29 +148,54 @@ impl Webrtc {
         &mut self,
         caps: &api::VideoConstraints,
     ) -> anyhow::Result<Arc<VideoSource>> {
-        let (index, device_id) = if caps.is_display {
-            // TODO: Support screens enumeration.
-            (0, VideoDeviceId("screen:0".into()))
-        } else if let Some(device_id) = caps.device_id.clone() {
-            let device_id = VideoDeviceId(device_id);
-            if let Some(index) = self.get_index_of_video_device(&device_id)? {
-                (index, device_id)
-            } else {
-                bail!(
-                    "Cannot find video device with the specified ID \
+        let (index, device_id) = if let Some(device_id) = caps.device_id.clone()
+        {
+            if caps.is_display {
+                sys::source_list_of_video_displayes()
+                    .into_iter()
+                    .find(|d| d.id().to_string() == device_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find video display with the specified ID \
                      `{device_id}`",
-                );
+                        )
+                    })?;
+                (0, VideoDeviceId(device_id))
+            } else {
+                let device_id = VideoDeviceId(device_id);
+                if let Some(index) =
+                    self.get_index_of_video_device(&device_id)?
+                {
+                    (index, device_id)
+                } else {
+                    bail!(
+                        "Cannot find video device with the specified ID \
+                         `{device_id}`",
+                    );
+                }
             }
         } else {
-            // No device ID is provided so just pick the first available
-            // device
-            if self.video_device_info.number_of_devices() < 1 {
-                bail!("Cannot find any available video input device");
-            }
+            if caps.is_display {
+                let ds = self.enumerate_displayes()?;
+                // No device ID is provided so just pick the first available
+                // device
+                if ds.len() < 1 {
+                    bail!("Cannot find any available video input display");
+                }
 
-            let device_id =
-                VideoDeviceId(self.video_device_info.device_name(0)?.1);
-            (0, device_id)
+                let device_id = VideoDeviceId(ds[0].device_id.clone());
+                (0, device_id)
+            } else {
+                // No device ID is provided so just pick the first available
+                // device
+                if self.video_device_info.number_of_devices() < 1 {
+                    bail!("Cannot find any available video input device");
+                }
+
+                let device_id =
+                    VideoDeviceId(self.video_device_info.device_name(0)?.1);
+                (0, device_id)
+            }
         };
 
         if let Some(src) = self.video_sources.get(&device_id) {
@@ -182,7 +207,7 @@ impl Webrtc {
                 &mut self.worker_thread,
                 &mut self.signaling_thread,
                 caps,
-                device_id,
+                device_id.0.parse::<i32>().unwrap(),
             )?
         } else {
             VideoSource::new_device_source(
@@ -1099,17 +1124,18 @@ impl VideoSource {
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
         caps: &api::VideoConstraints,
-        device_id: VideoDeviceId,
+        device_id: i32,
     ) -> anyhow::Result<Self> {
         Ok(Self {
             inner: sys::VideoTrackSourceInterface::create_proxy_from_display(
                 worker_thread,
                 signaling_thread,
+                device_id,
                 caps.width as usize,
                 caps.height as usize,
                 caps.frame_rate as usize,
             )?,
-            device_id,
+            device_id: VideoDeviceId(device_id.to_string()),
         })
     }
 }

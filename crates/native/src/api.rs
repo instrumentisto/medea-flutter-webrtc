@@ -512,6 +512,16 @@ pub struct MediaDeviceInfo {
     pub label: String,
 }
 
+// todo
+#[derive(Debug)]
+pub struct MediaDisplayInfo {
+    /// Unique identifier for the represented device.
+    pub device_id: String,
+
+    /// Label describing the represented device.
+    pub title: Option<String>,
+}
+
 /// [MediaStreamConstraints], used to instruct what sort of
 /// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
 /// [`Webrtc::get_users_media()`].
@@ -790,6 +800,11 @@ pub fn is_fake_media() -> bool {
 /// microphones, cameras, headsets, and so forth.
 pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
     WEBRTC.lock().unwrap().enumerate_devices()
+}
+
+//todo
+pub fn enumerate_displayes() -> anyhow::Result<Vec<MediaDisplayInfo>> {
+    WEBRTC.lock().unwrap().enumerate_displayes()
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.

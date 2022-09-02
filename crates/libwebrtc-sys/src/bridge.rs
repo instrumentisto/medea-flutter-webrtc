@@ -205,6 +205,15 @@ pub(crate) mod webrtc {
         pub ptr: UniquePtr<RtpTransceiverInterface>,
     }
 
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpTransceiverInterface`] that can be used in Rust/C++
+    /// vectors.
+    struct ToDo {
+        /// Wrapped [`RtpTransceiverInterface`].
+        pub ptr: UniquePtr<DisplaySource>,
+    }
+
     /// [RTCSignalingState] representation.
     ///
     /// [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
@@ -565,6 +574,18 @@ pub(crate) mod webrtc {
             name: &mut String,
             id: &mut String,
         ) -> i32;
+    }
+
+    unsafe extern "C++" {
+        pub type DisplaySource;
+
+        pub fn source_list_of_video_displayes() -> Vec<ToDo>;
+
+        pub fn video_display_id(source: &DisplaySource) -> i32;
+
+        pub fn video_display_title(
+            source: &DisplaySource,
+        ) -> UniquePtr<CxxString>;
     }
 
     extern "Rust" {
@@ -1142,6 +1163,7 @@ pub(crate) mod webrtc {
         pub fn create_display_video_source(
             worker_thread: Pin<&mut Thread>,
             signaling_thread: Pin<&mut Thread>,
+            id: i32,
             width: usize,
             height: usize,
             fps: usize,
