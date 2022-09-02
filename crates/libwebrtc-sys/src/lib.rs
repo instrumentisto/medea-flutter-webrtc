@@ -401,8 +401,8 @@ impl AudioDeviceModule {
 unsafe impl Send for webrtc::AudioDeviceModule {}
 unsafe impl Sync for webrtc::AudioDeviceModule {}
 
-/// The Audio Processing Module provides a collection of voice processing
-/// components designed for real-time communications software.
+/// Representation of The Audio Processing Module, providing a collection of
+/// voice processing components designed for real-time communications software.
 pub struct AudioProcessing(UniquePtr<webrtc::AudioProcessing>);
 
 impl AudioProcessing {
@@ -417,9 +417,11 @@ impl AudioProcessing {
         Ok(Self(ptr))
     }
 
-    /// Set to true when the output of [`AudioProcessing`] will be muted or
-    /// in some other way not used. This hints the underlying AGC, AEC, NS
-    /// processors to halt.
+    /// Indicates intent to mute the output of this [`AudioProcessing`].
+    ///
+    /// Set it to `true` when the output of this [`AudioProcessing`] will be
+    /// muted or in some other way not used. This hints the underlying AGC, AEC,
+    /// NS processors to halt.
     pub fn set_output_will_be_muted(&self, muted: bool) {
         webrtc::set_output_will_be_muted(&self.0, muted);
     }

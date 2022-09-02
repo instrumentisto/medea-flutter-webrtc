@@ -174,9 +174,12 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 // Creates a new `AudioProcessing`.
 std::unique_ptr<AudioProcessing> create_audio_processing();
 
-// Set to true when the output of `AudioProcessing` will be muted or in some
-// other way not used. Ideally, the captured audio would still be processed,
-// but some components may change behavior based on this information.
+// Indicates intent to mute the output of the provided `AudioProcessing`.
+//
+// Set it to `true` when the output of the provided `AudioProcessing` will be
+// muted or in some other way not used. Ideally, the captured audio would still
+// be processed, but some components may change behavior based on this
+// information.
 void set_output_will_be_muted(const AudioProcessing& ap, bool muted);
 
 // Creates a new `VideoDeviceInfo`.
