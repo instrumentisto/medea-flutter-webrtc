@@ -1086,7 +1086,7 @@ impl VideoSource {
                 caps.width as usize,
                 caps.height as usize,
                 caps.frame_rate as usize,
-            )
+            )?
         } else {
             sys::VideoTrackSourceInterface::create_proxy_from_display(
                 worker_thread,
@@ -1094,12 +1094,9 @@ impl VideoSource {
                 caps.width as usize,
                 caps.height as usize,
                 caps.frame_rate as usize,
-            )
+            )?
         };
-        Ok(Self {
-            inner: inner?,
-            device_id,
-        })
+        Ok(Self { inner, device_id })
     }
 }
 

@@ -6,7 +6,7 @@ import 'dart:js';
 /// and microphone.
 ///
 /// This must be called before any other function to work properly.
-/// This fucntion async for identical function signature.
+/// This function async for identical function signature.
 Future<void> enableFakeMedia() async {
   context.callMethod('eval', [
     '''

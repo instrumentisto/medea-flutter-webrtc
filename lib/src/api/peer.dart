@@ -460,19 +460,19 @@ class _PeerConnectionFFI extends PeerConnection {
   /// Listener for the all [PeerConnection] events received from the native
   /// side.
   void eventListener(ffi.PeerConnectionEvent event) {
-    if (event is ffi.PeerCreated) {
+    if (event is ffi.PeerConnectionEvent_PeerCreated) {
       _id = event.id;
       _initialized.complete();
       return;
-    } else if (event is ffi.IceCandidate) {
+    } else if (event is ffi.PeerConnectionEvent_IceCandidate) {
       _onIceCandidate?.call(
           IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
       return;
-    } else if (event is ffi.IceGatheringStateChange) {
+    } else if (event is ffi.PeerConnectionEvent_IceGatheringStateChange) {
       _onIceGatheringStateChange
           ?.call(IceGatheringState.values[event.field0.index]);
       return;
-    } else if (event is ffi.IceCandidateError) {
+    } else if (event is ffi.PeerConnectionEvent_IceCandidateError) {
       _onIceCandidateError?.call(IceCandidateErrorEvent.fromMap({
         'address': event.address,
         'port': event.port,
@@ -481,21 +481,21 @@ class _PeerConnectionFFI extends PeerConnection {
         'errorText': event.errorText,
       }));
       return;
-    } else if (event is ffi.NegotiationNeeded) {
+    } else if (event is ffi.PeerConnectionEvent_NegotiationNeeded) {
       _onNegotiationNeeded?.call();
       return;
-    } else if (event is ffi.SignallingChange) {
+    } else if (event is ffi.PeerConnectionEvent_SignallingChange) {
       _onSignalingStateChange?.call(SignalingState.values[event.field0.index]);
       return;
-    } else if (event is ffi.IceConnectionStateChange) {
+    } else if (event is ffi.PeerConnectionEvent_IceConnectionStateChange) {
       _iceConnectionState = IceConnectionState.values[event.field0.index];
       _onIceConnectionStateChange?.call(_iceConnectionState);
       return;
-    } else if (event is ffi.ConnectionStateChange) {
+    } else if (event is ffi.PeerConnectionEvent_ConnectionStateChange) {
       _connectionState = PeerConnectionState.values[event.field0.index];
       _onConnectionStateChange?.call(_connectionState);
       return;
-    } else if (event is ffi.Track) {
+    } else if (event is ffi.PeerConnectionEvent_Track) {
       _onTrack?.call(NativeMediaStreamTrack.from(event.field0.track),
           RtpTransceiver.fromFFI(event.field0.transceiver));
       return;
