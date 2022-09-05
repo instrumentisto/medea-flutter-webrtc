@@ -594,11 +594,14 @@ pub(crate) mod webrtc {
     unsafe extern "C++" {
         pub type DisplaySource;
 
-        pub fn source_list_of_displays() -> Vec<DisplaySourceContainer>;
+        // Returns a list of all available `DisplaySourceContainer`.
+        pub fn screen_capture_sources() -> Vec<DisplaySourceContainer>;
 
-        pub fn video_display_id(source: &DisplaySource) -> i64;
+        // Returns an `id` of the provided `DisplaySource`.
+        pub fn display_source_id(source: &DisplaySource) -> i64;
 
-        pub fn video_display_title(
+        // Returns a `title` of the provided `DisplaySource`.
+        pub fn display_source_title(
             source: &DisplaySource,
         ) -> UniquePtr<CxxString>;
     }

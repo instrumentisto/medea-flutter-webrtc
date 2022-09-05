@@ -521,13 +521,13 @@ std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate);
 
 // Returns a list of `DesktopCapturer::Source`.
-rust::Vec<DisplaySourceContainer> source_list_of_displays();
+rust::Vec<DisplaySourceContainer> screen_capture_sources();
 
-// Returns the `id` of the provided `DesktopCapturer::Source`.
-int64_t video_display_id(const DisplaySource& source);
+// Returns an `id` of the provided `DesktopCapturer::Source`.
+int64_t display_source_id(const DisplaySource& source);
 
-// Returns the `title` of the provided `DesktopCapturer::Source`.
-std::unique_ptr<std::string> video_display_title(const DisplaySource& source);
+// Returns a `title` of the provided `DesktopCapturer::Source`.
+std::unique_ptr<std::string> display_source_title(const DisplaySource& source);
 
 // Creates a new `IceCandidateInterface`.
 std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(

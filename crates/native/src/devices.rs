@@ -12,7 +12,6 @@ use libwebrtc_sys as sys;
 #[cfg(target_os = "linux")]
 use pulse::mainloop::standard::IterateResult;
 
-use sys::source_list_of_displays;
 #[cfg(target_os = "windows")]
 use winapi::{
     shared::{
@@ -39,6 +38,18 @@ use crate::{
 /// Static instance of a [`DeviceState`].
 static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
     AtomicPtr::new(ptr::null_mut());
+
+/// Returns a list of all available displays that can be used for screen
+/// capturing.
+pub fn enumerate_displays() -> Vec<api::MediaDisplayInfo> {
+    sys::screen_capture_sources()
+        .into_iter()
+        .map(|s| api::MediaDisplayInfo {
+            device_id: s.id().to_string(),
+            title: s.title(),
+        })
+        .collect()
+}
 
 /// Struct containing the current number of media devices and some tools to
 /// enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`]), and
@@ -182,18 +193,6 @@ impl Webrtc {
         audio.append(&mut video);
 
         Ok(audio)
-    }
-
-    /// Returns a list of all available displays.
-    #[allow(clippy::unused_self)]
-    pub fn enumerate_displays(&mut self) -> Vec<api::MediaDisplayInfo> {
-        source_list_of_displays()
-            .into_iter()
-            .map(|s| api::MediaDisplayInfo {
-                device_id: s.id().to_string(),
-                title: s.title(),
-            })
-            .collect()
     }
 
     /// Returns an index of the specific video device identified by the provided

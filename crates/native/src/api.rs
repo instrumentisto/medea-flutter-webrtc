@@ -6,7 +6,7 @@ use std::sync::{
 use flutter_rust_bridge::StreamSink;
 use libwebrtc_sys as sys;
 
-use crate::{renderer::FrameHandler, Webrtc};
+use crate::{devices, renderer::FrameHandler, Webrtc};
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
@@ -802,9 +802,10 @@ pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
-/// Returns a list of all available displays.
+/// Returns a list of all available displays that can be used for screen
+/// capturing.
 pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
-    WEBRTC.lock().unwrap().enumerate_displays()
+    devices::enumerate_displays()
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.

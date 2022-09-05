@@ -12,7 +12,7 @@ use xxhash::xxh3::xxh3_64;
 
 use crate::{
     api::{self, MediaType, TrackEvent},
-    next_id,
+    devices, next_id,
     stream_sink::StreamSink,
     PeerConnectionId, VideoSink, VideoSinkId, Webrtc,
 };
@@ -150,7 +150,7 @@ impl Webrtc {
     ) -> anyhow::Result<Arc<VideoSource>> {
         let (source, device_id) = if caps.is_display {
             let device_id = if let Some(device_id) = caps.device_id.clone() {
-                sys::source_list_of_displays()
+                sys::screen_capture_sources()
                     .into_iter()
                     .find(|d| d.id().to_string() == device_id)
                     .ok_or_else(|| {
@@ -161,7 +161,7 @@ impl Webrtc {
                     })?;
                 VideoDeviceId(device_id)
             } else {
-                let displays = self.enumerate_displays();
+                let displays = devices::enumerate_displays();
                 // No device ID is provided so just pick the first available
                 // device
                 if displays.is_empty() {

@@ -6,7 +6,6 @@ mod bridge;
 use std::{collections::HashMap, mem};
 
 use anyhow::bail;
-use bridge::webrtc::DisplaySource;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
@@ -484,27 +483,27 @@ unsafe impl Sync for webrtc::VideoDeviceInfo {}
 
 /// Returns a list [`VideoDisplaySource`].
 #[must_use]
-pub fn source_list_of_displays() -> Vec<VideoDisplaySource> {
-    webrtc::source_list_of_displays()
+pub fn screen_capture_sources() -> Vec<VideoDisplaySource> {
+    webrtc::screen_capture_sources()
         .into_iter()
         .map(|el| VideoDisplaySource(el.ptr))
         .collect()
 }
 
 /// Interface for receiving information about available display.
-pub struct VideoDisplaySource(UniquePtr<DisplaySource>);
+pub struct VideoDisplaySource(UniquePtr<webrtc::DisplaySource>);
 
 impl VideoDisplaySource {
-    /// Returns the `id` of this [`VideoDisplaySource`].
+    /// Returns an `ID` of this [`VideoDisplaySource`].
     #[must_use]
     pub fn id(&self) -> i64 {
-        webrtc::video_display_id(&self.0)
+        webrtc::display_source_id(&self.0)
     }
 
-    /// Returns the `title` of this [`VideoDisplaySource`].
+    /// Returns a description of this [`VideoDisplaySource`].
     #[must_use]
     pub fn title(&self) -> Option<String> {
-        let title = webrtc::video_display_title(&self.0).to_string();
+        let title = webrtc::display_source_title(&self.0).to_string();
         if title.is_empty() {
             None
         } else {
