@@ -32,7 +32,8 @@ abstract class FlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kEnumerateDevicesConstMeta;
 
-  /// Returns a list of all available displays.
+  /// Returns a list of all available displays that can be used for screen
+  /// capturing.
   Future<List<MediaDisplayInfo>> enumerateDisplays({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kEnumerateDisplaysConstMeta;
@@ -468,10 +469,10 @@ enum MediaDeviceKind {
 
 /// Information describing a display.
 class MediaDisplayInfo {
-  /// Unique identifier for the represented device.
+  /// Unique identifier of the device representing the display.
   final String deviceId;
 
-  /// Title describing the represented device.
+  /// Title describing the represented display.
   final String? title;
 
   MediaDisplayInfo({

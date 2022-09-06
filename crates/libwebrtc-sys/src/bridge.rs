@@ -207,7 +207,7 @@ pub(crate) mod webrtc {
 
     // TODO: Remove once `cxx` crate allows using pointers to opaque types in
     //       vectors: https://github.com/dtolnay/cxx/issues/741
-    /// Wrapper for an [`DisplaySource`] usable in Rust/C++ vectors.
+    /// Wrapper for a [`DisplaySource`] usable in Rust/C++ vectors.
     struct DisplaySourceContainer {
         /// Wrapped [`DisplaySource`].
         pub ptr: UniquePtr<DisplaySource>,
@@ -594,13 +594,13 @@ pub(crate) mod webrtc {
     unsafe extern "C++" {
         pub type DisplaySource;
 
-        // Returns a list of all available `DisplaySourceContainer`.
+        /// Returns a list of all available [`DisplaySource`]s.
         pub fn screen_capture_sources() -> Vec<DisplaySourceContainer>;
 
-        // Returns an `id` of the provided `DisplaySource`.
+        /// Returns an `id` of the provided [`DisplaySource`].
         pub fn display_source_id(source: &DisplaySource) -> i64;
 
-        // Returns a `title` of the provided `DisplaySource`.
+        /// Returns a `title` of the provided [`DisplaySource`].
         pub fn display_source_title(
             source: &DisplaySource,
         ) -> UniquePtr<CxxString>;

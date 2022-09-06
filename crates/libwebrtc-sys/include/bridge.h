@@ -520,7 +520,7 @@ std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
 // Returns the `sdp_mline_index` of the provided `IceCandidateInterface`.
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate);
 
-// Returns a list of `DesktopCapturer::Source`.
+// Returns a list of all available `DesktopCapturer::Source`s.
 rust::Vec<DisplaySourceContainer> screen_capture_sources();
 
 // Returns an `id` of the provided `DesktopCapturer::Source`.

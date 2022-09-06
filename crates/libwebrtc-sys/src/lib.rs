@@ -481,7 +481,7 @@ impl VideoDeviceInfo {
 unsafe impl Send for webrtc::VideoDeviceInfo {}
 unsafe impl Sync for webrtc::VideoDeviceInfo {}
 
-/// Returns a list [`VideoDisplaySource`].
+/// Returns a list of all available [`VideoDisplaySource`]s.
 #[must_use]
 pub fn screen_capture_sources() -> Vec<VideoDisplaySource> {
     webrtc::screen_capture_sources()
@@ -494,21 +494,17 @@ pub fn screen_capture_sources() -> Vec<VideoDisplaySource> {
 pub struct VideoDisplaySource(UniquePtr<webrtc::DisplaySource>);
 
 impl VideoDisplaySource {
-    /// Returns an `ID` of this [`VideoDisplaySource`].
+    /// Returns an `id` of this [`VideoDisplaySource`].
     #[must_use]
     pub fn id(&self) -> i64 {
         webrtc::display_source_id(&self.0)
     }
 
-    /// Returns a description of this [`VideoDisplaySource`].
+    /// Returns a `title` of this [`VideoDisplaySource`].
     #[must_use]
     pub fn title(&self) -> Option<String> {
         let title = webrtc::display_source_title(&self.0).to_string();
-        if title.is_empty() {
-            None
-        } else {
-            Some(title)
-        }
+        (!title.is_empty()).then_some(title)
     }
 }
 

@@ -841,7 +841,7 @@ std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
   }
 }
 
-// Returns a list of `DesktopCapturer::Source`.
+// Returns a list of all available `DesktopCapturer::Source`s.
 rust::Vec<DisplaySourceContainer> screen_capture_sources() {
   webrtc::DesktopCapturer::SourceList sourceList;
   ScreenVideoCapturer::GetSourceList(&sourceList);
@@ -865,6 +865,5 @@ int64_t display_source_id(const DisplaySource& source) {
 std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
   return std::make_unique<std::string>(source.title);
 }
-
 
 }  // namespace bridge

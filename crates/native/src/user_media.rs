@@ -155,17 +155,17 @@ impl Webrtc {
                     .find(|d| d.id().to_string() == device_id)
                     .ok_or_else(|| {
                         anyhow!(
-                            "Cannot find video display with the specified ID \
-                            `{device_id}`",
+                            "Cannot find video display with the specified ID: \
+                             {device_id}",
                         )
                     })?;
                 VideoDeviceId(device_id)
             } else {
                 let displays = devices::enumerate_displays();
-                // No device ID is provided so just pick the first available
-                // device
+                // No device ID is provided, so just pick the first available
+                // device.
                 if displays.is_empty() {
-                    bail!("Cannot find any available video input display");
+                    bail!("Cannot find any available video input displays");
                 }
 
                 VideoDeviceId(displays[0].device_id.clone())
@@ -189,15 +189,15 @@ impl Webrtc {
                         (index, device_id)
                     } else {
                         bail!(
-                            "Cannot find video device with the specified ID \
-                         `{device_id}`",
+                            "Cannot find video device with the specified ID: \
+                             {device_id}",
                         );
                     }
                 } else {
-                    // No device ID is provided so just pick the first available
-                    // device
+                    // No device ID is provided, so just pick the first
+                    // available device.
                     if self.video_device_info.number_of_devices() < 1 {
-                        bail!("Cannot find any available video input device");
+                        bail!("Cannot find any available video input devices");
                     }
 
                     let device_id =

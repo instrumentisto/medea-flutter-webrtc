@@ -515,10 +515,10 @@ pub struct MediaDeviceInfo {
 /// Information describing a display.
 #[derive(Debug)]
 pub struct MediaDisplayInfo {
-    /// Unique identifier for the represented device.
+    /// Unique identifier of the device representing the display.
     pub device_id: String,
 
-    /// Title describing the represented device.
+    /// Title describing the represented display.
     pub title: Option<String>,
 }
 
