@@ -6,9 +6,10 @@ import 'dart:js';
 /// and microphone.
 ///
 /// This must be called before any other function to work properly.
-/// This function async for identical function signature.
+/// This function is async for identical function signature.
 Future<void> enableFakeMedia() async {
   context.callMethod('eval', [
+    // language=JavaScript
     '''
     /** Stops the canvas stream. */
     function _stop_canvas_stream(stream, meta) {
