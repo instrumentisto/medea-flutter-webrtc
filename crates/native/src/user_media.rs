@@ -175,7 +175,7 @@ impl Webrtc {
                     &mut self.worker_thread,
                     &mut self.signaling_thread,
                     caps,
-                    device_id.0.parse::<i64>()?,
+                    device_id.clone(),
                 )?,
                 device_id,
             )
@@ -1104,7 +1104,7 @@ impl VideoSource {
         worker_thread: &mut sys::Thread,
         signaling_thread: &mut sys::Thread,
         caps: &api::VideoConstraints,
-        device_id: i64,
+        device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
         let inner = if api::is_fake_media() {
             sys::VideoTrackSourceInterface::create_fake(
@@ -1115,17 +1115,14 @@ impl VideoSource {
                 caps.frame_rate as usize,
             )?
         } else {
-            Self {
-                inner: sys::VideoTrackSourceInterface::create_proxy_from_display(
-                    worker_thread,
-                    signaling_thread,
-                    device_id,
-                    caps.width as usize,
-                    caps.height as usize,
-                    caps.frame_rate as usize,
-                )?,
-                device_id: VideoDeviceId(device_id.to_string()),
-            }
+            sys::VideoTrackSourceInterface::create_proxy_from_display(
+                worker_thread,
+                signaling_thread,
+                device_id.0.parse::<i64>()?,
+                caps.width as usize,
+                caps.height as usize,
+                caps.frame_rate as usize,
+            )?
         };
         Ok(Self { inner, device_id })
     }
