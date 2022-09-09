@@ -16,7 +16,7 @@ pub use crate::webrtc::{
     video_frame_to_abgr, video_frame_to_argb, AudioLayer, BundlePolicy,
     Candidate, CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
     IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
-    SdpType, SignalingState, TrackState, VideoFrame, VideoRotation,
+    SdpType, SignalingState, TrackState, VideoFrame, VideoRotation, RTCStatsReport,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -56,6 +56,11 @@ pub trait OnFrameCallback {
     /// Called when the attached [`VideoTrackInterface`] produces a new
     /// [`VideoFrame`].
     fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
+}
+
+/// Handler of [`VideoFrame`]s.
+pub trait RTCStatsCollectorCallback {
+    fn on_stats_delivered(&mut self, report: UniquePtr<RTCStatsReport>);
 }
 
 /// Handler of events that fire from a [`PeerConnectionInterface`].

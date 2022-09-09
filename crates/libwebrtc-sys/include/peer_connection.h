@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "api/peer_connection_interface.h"
+#include "api/stats/rtc_stats_collector_callback.h"
 #include "rust/cxx.h"
 
 namespace bridge {
@@ -16,12 +17,15 @@ using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
 using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
+using RTCStatsReport = rtc::scoped_refptr<const webrtc::RTCStatsReport>;
 
 struct TransceiverContainer;
 struct DynPeerConnectionEventsHandler;
 struct DynSetDescriptionCallback;
 struct DynCreateSdpCallback;
 struct DynAddIceCandidateCallback;
+struct DynRTCStatsCollectorCallback;
+
 
 // `PeerConnectionObserver` propagating events to the Rust side.
 class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
@@ -141,6 +145,17 @@ class CreateSessionDescriptionObserver
   std::optional<rust::Box<bridge::DynCreateSdpCallback>> cb_;
 };
 
+// todo
+class RTCStatsCollectorCallback : public rtc::RefCountedObject<webrtc::RTCStatsCollectorCallback> {
+	public:
+	RTCStatsCollectorCallback(rust::Box<bridge::DynRTCStatsCollectorCallback> cb);
+  void OnStatsDelivered(
+      const RTCStatsReport& report);
+	private:
+  // Rust side callback.
+  std::optional<rust::Box<bridge::DynRTCStatsCollectorCallback>> cb_;
+};
+
 // `SetLocalDescriptionObserverInterface` propagating completion result to the
 // Rust side.
 class SetLocalDescriptionObserver
@@ -218,5 +233,8 @@ void restart_ice(const PeerConnectionInterface& peer);
 
 // Closes the provided `PeerConnectionInterface`.
 void close_peer_connection(const PeerConnectionInterface& peer);
+
+// todo
+void get_stats(const PeerConnectionInterface& peer, rust::Box<DynRTCStatsCollectorCallback> cb);
 
 }  // namespace bridge

@@ -169,6 +169,21 @@ void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
   }
 }
 
+//todo
+RTCStatsCollectorCallback::RTCStatsCollectorCallback(
+    rust::Box<bridge::DynRTCStatsCollectorCallback> cb)
+    : cb_(std::move(cb)){};
+
+//todo
+void RTCStatsCollectorCallback::OnStatsDelivered(const RTCStatsReport& report) {
+  if (cb_) {
+    auto cb = std::move(*cb_);
+
+    bridge::on_stats_delivered(std::move(cb),
+                               std::make_unique<RTCStatsReport>(report));
+  }
+}
+
 // Calls `PeerConnectionInterface->CreateOffer`.
 void create_offer(PeerConnectionInterface& peer_connection_interface,
                   const RTCOfferAnswerOptions& options,
@@ -249,6 +264,12 @@ void restart_ice(const PeerConnectionInterface& peer) {
 // Calls `PeerConnectionInterface->Close`.
 void close_peer_connection(const PeerConnectionInterface& peer) {
   peer->Close();
+}
+
+// todo
+void get_stats(const PeerConnectionInterface& peer, rust::Box<DynRTCStatsCollectorCallback> cb) {
+  auto callback = new RTCStatsCollectorCallback(std::move(cb));
+  peer->GetStats(&callback); // mem leak?
 }
 
 }  // namespace bridge

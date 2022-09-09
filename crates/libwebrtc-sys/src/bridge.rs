@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
-    AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
+    AddIceCandidateCallback, RTCStatsCollectorCallback, CreateSdpCallback, IceCandidateInterface,
     OnFrameCallback, PeerConnectionEventsHandler, RtpReceiverInterface,
     RtpTransceiverInterface, SetDescriptionCallback, TrackEventCallback,
 };
@@ -23,6 +23,9 @@ type DynPeerConnectionEventsHandler = Box<dyn PeerConnectionEventsHandler>;
 
 /// [`AddIceCandidateCallback`] transferable to the C++ side.
 type DynAddIceCandidateCallback = Box<dyn AddIceCandidateCallback>;
+
+/// todo
+type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
@@ -865,6 +868,7 @@ pub(crate) mod webrtc {
         pub type RtpTransceiverInterface;
         pub type SdpType;
         pub type SessionDescriptionInterface;
+        pub type RTCStatsReport;
         pub type SetLocalDescriptionObserver;
         pub type SetRemoteDescriptionObserver;
         pub type SignalingState;
@@ -1058,6 +1062,12 @@ pub(crate) mod webrtc {
             peer: &PeerConnectionInterface,
             candidate: UniquePtr<IceCandidateInterface>,
             cb: Box<DynAddIceCandidateCallback>
+        );
+
+        // todo
+        pub fn get_stats(
+            peer: &PeerConnectionInterface,
+            cb: Box<DynRTCStatsCollectorCallback>
         );
 
         /// Tells the provided [`PeerConnectionInterface`] that ICE should be
@@ -1454,6 +1464,16 @@ pub(crate) mod webrtc {
         pub fn on_frame(
             cb: &mut DynOnFrameCallback,
             frame: UniquePtr<VideoFrame>,
+        );
+    }
+
+    extern "Rust" {
+        pub type DynRTCStatsCollectorCallback;
+
+        // todo
+        pub fn on_stats_delivered(
+            cb: Box<DynRTCStatsCollectorCallback>,
+            report: UniquePtr<RTCStatsReport>,
         );
     }
 
@@ -1857,6 +1877,16 @@ pub fn add_ice_candidate_fail(
     error: &CxxString,
 ) {
     cb.on_fail(error);
+}
+
+// todo
+/// Forwards the
+#[allow(clippy::boxed_local)] 
+pub fn on_stats_delivered(
+    mut cb: Box<DynRTCStatsCollectorCallback>,
+    report: UniquePtr<webrtc::RTCStatsReport>,
+) {
+    cb.on_stats_delivered(report);
 }
 
 impl TryFrom<&str> for webrtc::SdpType {
