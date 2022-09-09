@@ -142,7 +142,7 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 11
-        if: ${{ matrix.platform != 'macos' }}
+        if: ${{ matrix.platform == 'macos' }}
 
       - run: make cargo.build debug=no
       - run: make flutter.build platform=${{ matrix.platform }}
