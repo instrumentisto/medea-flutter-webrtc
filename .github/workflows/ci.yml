@@ -141,7 +141,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 11
+          xcode-version: "11.3"
         if: ${{ matrix.platform == 'macos' }}
 
       - run: make cargo.build debug=no
