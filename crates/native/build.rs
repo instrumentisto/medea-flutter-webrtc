@@ -5,8 +5,8 @@ use std::{env, path::PathBuf, process};
 
 #[allow(clippy::unnecessary_wraps)]
 fn main() -> anyhow::Result<()> {
-    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
-    if target_os == "macos" {
+    #[cfg(target_os = "macos")]
+    {
         println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.11");
         println!("cargo:rustc-link-arg=-Wl,-undefined,dynamic_lookup");
         println!(

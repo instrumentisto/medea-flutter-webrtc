@@ -148,7 +148,7 @@ jobs:
           path: ${{ matrix.platform }}/rust/
 
   build-linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     # reduces requirements GLIBC to 2.28
     container: debian:buster
     steps:
