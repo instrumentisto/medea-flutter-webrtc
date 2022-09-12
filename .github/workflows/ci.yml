@@ -156,8 +156,8 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-latest
-    # Pin glibc to 2.27 for better compatibility.
-    container: ubuntu:18.04
+    # Pin glibc to 2.28 for better compatibility.
+    container: debian:buster
     steps:
       - uses: actions/checkout@v3
       - name: Install linux dependencies
@@ -175,7 +175,6 @@ jobs:
           toolchain: stable
 
       - uses: subosito/flutter-action@v2
-      - run: flutter doctor -v
       - run: flutter config --enable-linux-desktop
       - run: make cargo.build debug=no
       - run: make flutter.build platform=linux
