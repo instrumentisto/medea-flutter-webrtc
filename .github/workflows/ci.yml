@@ -174,8 +174,8 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - run: flutter doctor -v
       - uses: subosito/flutter-action@v2
+      - run: flutter doctor -v
       - run: flutter config --enable-linux-desktop
       - run: make cargo.build debug=no
       - run: make flutter.build platform=linux
