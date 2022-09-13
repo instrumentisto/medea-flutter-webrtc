@@ -269,7 +269,7 @@ void close_peer_connection(const PeerConnectionInterface& peer) {
 // todo
 void get_stats(const PeerConnectionInterface& peer, rust::Box<DynRTCStatsCollectorCallback> cb) {
   auto callback = new RTCStatsCollectorCallback(std::move(cb));
-  peer->GetStats(&callback); // mem leak?
+  peer->GetStats(callback);
 }
 
 }  // namespace bridge

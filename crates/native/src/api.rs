@@ -964,6 +964,11 @@ pub fn get_transceiver_direction(
         .map(Into::into)
 }
 
+//todo lib/libclang.so
+pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().get_stats(peer_id).map(Into::into)
+}
+
 /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping, unless
 /// it's already stopped.
 ///

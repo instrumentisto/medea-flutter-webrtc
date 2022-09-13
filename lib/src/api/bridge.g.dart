@@ -4,13 +4,13 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, duplicate_ignore, directives_ordering, curly_braces_in_flow_control_structures, unnecessary_lambdas, slash_for_doc_comments, prefer_const_literals_to_create_immutables, implicit_dynamic_list_literal, duplicate_import, unused_import, prefer_single_quotes, prefer_const_constructors, use_super_parameters, always_use_package_imports
 
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:ffi' as ffi;
 import 'dart:typed_data';
-import 'dart:typed_data';
-
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'dart:ffi' as ffi;
 
 part 'bridge.g.freezed.dart';
 
@@ -143,6 +143,10 @@ abstract class FlutterWebrtcNative {
       {required int peerId, required int transceiverIndex, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetTransceiverDirectionConstMeta;
+
+  Future<void> getPeerStats({required int peerId, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kGetPeerStatsConstMeta;
 
   /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping, unless
   /// it's already stopped.
@@ -1291,6 +1295,22 @@ class FlutterWebrtcNativeImpl
         argNames: ["peerId", "transceiverIndex"],
       );
 
+  Future<void> getPeerStats({required int peerId, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) =>
+            inner.wire_get_peer_stats(port_, _api2wire_u64(peerId)),
+        parseSuccessData: _wire2api_unit,
+        constMeta: kGetPeerStatsConstMeta,
+        argValues: [peerId],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kGetPeerStatsConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "get_peer_stats",
+        argNames: ["peerId"],
+      );
+
   Future<void> stopTransceiver(
           {required int peerId, required int transceiverIndex, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
@@ -2368,6 +2388,22 @@ class FlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _wire_get_transceiver_direction =
       _wire_get_transceiver_directionPtr
           .asFunction<void Function(int, int, int)>();
+
+  void wire_get_peer_stats(
+    int port_,
+    int peer_id,
+  ) {
+    return _wire_get_peer_stats(
+      port_,
+      peer_id,
+    );
+  }
+
+  late final _wire_get_peer_statsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+          'wire_get_peer_stats');
+  late final _wire_get_peer_stats =
+      _wire_get_peer_statsPtr.asFunction<void Function(int, int)>();
 
   void wire_stop_transceiver(
     int port_,

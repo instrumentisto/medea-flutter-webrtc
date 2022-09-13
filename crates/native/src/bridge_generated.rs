@@ -368,6 +368,21 @@ pub extern "C" fn wire_get_transceiver_direction(
 }
 
 #[no_mangle]
+pub extern "C" fn wire_get_peer_stats(port_: i64, peer_id: u64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "get_peer_stats",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_peer_id = peer_id.wire2api();
+            move |task_callback| get_peer_stats(api_peer_id)
+        },
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_stop_transceiver(
     port_: i64,
     peer_id: u64,

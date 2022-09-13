@@ -4,9 +4,10 @@ use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
 
 use crate::{
-    AddIceCandidateCallback, RTCStatsCollectorCallback, CreateSdpCallback, IceCandidateInterface,
-    OnFrameCallback, PeerConnectionEventsHandler, RtpReceiverInterface,
-    RtpTransceiverInterface, SetDescriptionCallback, TrackEventCallback,
+    AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
+    OnFrameCallback, PeerConnectionEventsHandler, RTCStatsCollectorCallback,
+    RtpReceiverInterface, RtpTransceiverInterface, SetDescriptionCallback,
+    TrackEventCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -63,6 +64,62 @@ pub(crate) mod webrtc {
     /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
     pub struct RtpCodecParametersContainer {
         ptr: UniquePtr<RtpCodecParameters>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCMediaSourceStatsContainer {
+        ptr: UniquePtr<RTCMediaSourceStats>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCIceCandidateStatsContainer {
+        ptr: UniquePtr<RTCIceCandidateStats>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCOutboundRTPStreamStatsContainer {
+        ptr: UniquePtr<RTCOutboundRTPStreamStats>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCInboundRTPStreamStatsContainer {
+        ptr: UniquePtr<RTCInboundRTPStreamStats>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCIceCandidatePairStatsContainer {
+        ptr: UniquePtr<RTCIceCandidatePairStats>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCTransportStatsContainer {
+        ptr: UniquePtr<RTCTransportStats>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCRemoteInboundRtpStreamStatsContainer {
+        ptr: UniquePtr<RTCRemoteInboundRtpStreamStats>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCRemoteOutboundRtpStreamStatsContainer {
+        ptr: UniquePtr<RTCRemoteOutboundRtpStreamStats>,
     }
 
     /// [MediaStreamTrackState][0] representation.
@@ -135,6 +192,14 @@ pub(crate) mod webrtc {
         MEDIA_TYPE_VIDEO,
         MEDIA_TYPE_DATA,
         MEDIA_TYPE_UNSUPPORTED,
+    }
+
+    // todo
+    pub enum CandidateType {
+        kHost,
+        kSrflx,
+        kPrflx,
+        kRelay,
     }
 
     /// [RTCRtpTransceiverDirection][1] representation.
@@ -868,7 +933,6 @@ pub(crate) mod webrtc {
         pub type RtpTransceiverInterface;
         pub type SdpType;
         pub type SessionDescriptionInterface;
-        pub type RTCStatsReport;
         pub type SetLocalDescriptionObserver;
         pub type SetRemoteDescriptionObserver;
         pub type SignalingState;
@@ -1034,6 +1098,62 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<CxxString>;
     }
 
+    // stats
+    #[rustfmt::skip]
+    unsafe extern "C++" {
+        //todo
+        pub type RTCMediaSourceStats;
+
+        pub type RTCIceCandidateStats;
+        pub type RTCOutboundRTPStreamStats;
+        pub type RTCInboundRTPStreamStats;
+        pub type RTCIceCandidatePairStats;
+        pub type RTCTransportStats;
+        pub type RTCRemoteInboundRtpStreamStats;
+        pub type RTCRemoteOutboundRtpStreamStats;
+
+        
+        pub type RTCStatsReport;
+
+        // todo
+        pub fn get_stats(
+            peer: &PeerConnectionInterface,
+            cb: Box<DynRTCStatsCollectorCallback>
+        );
+
+        pub fn stats_json(report: &RTCStatsReport) -> UniquePtr<CxxString>;
+
+        
+        pub fn get_stats_RTCMediaSourceStats(report: &RTCStatsReport) -> Vec<RTCMediaSourceStatsContainer>;
+        
+        pub fn get_stats_RTCIceCandidateStats(report: &RTCStatsReport) -> Vec<RTCIceCandidateStatsContainer>;
+        pub fn get_stats_RTCOutboundRTPStreamStats(report: &RTCStatsReport) -> Vec<RTCOutboundRTPStreamStatsContainer>;
+        pub fn get_stats_RTCInboundRTPStreamStats(report: &RTCStatsReport) -> Vec<RTCInboundRTPStreamStatsContainer>;
+        pub fn get_stats_RTCIceCandidatePairStats(report: &RTCStatsReport) -> Vec<RTCIceCandidatePairStatsContainer>;
+        pub fn get_stats_RTCRemoteInboundRtpStreamStats(report: &RTCStatsReport) -> Vec<RTCRemoteInboundRtpStreamStatsContainer>;
+        pub fn get_stats_RTCRemoteOutboundRtpStreamStats(report: &RTCStatsReport) -> Vec<RTCRemoteOutboundRtpStreamStatsContainer>;
+        pub fn get_stats_RTCTransportStats(report: &RTCStatsReport) -> Vec<RTCTransportStatsContainer>;
+        
+        pub fn RTCMediaSourceStats_track_identifier(stats: &RTCMediaSourceStats) -> UniquePtr<CxxString>;
+
+        pub fn RTCIceCandidateStats_transport_id(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
+        pub fn RTCIceCandidateStats_address(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
+        pub fn RTCIceCandidateStats_port(stats: &RTCIceCandidateStats) -> Result<i32>;
+        pub fn RTCIceCandidateStats_protocol(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
+        pub fn RTCIceCandidateStats_candidate_type(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
+        pub fn RTCIceCandidateStats_priority(stats: &RTCIceCandidateStats) -> Result<i32>;
+        pub fn RTCIceCandidateStats_url(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
+
+        pub fn RTCOutboundRTPStreamStats_track_id(report: &RTCOutboundRTPStreamStats) -> Result<UniquePtr<CxxString>>;
+        pub fn RTCOutboundRTPStreamStats_kind(report: &RTCOutboundRTPStreamStats) -> Result<UniquePtr<CxxString>>;
+        pub fn RTCOutboundRTPStreamStats_bytes_sent(report: &RTCOutboundRTPStreamStats) -> Result<u64>;
+        pub fn RTCOutboundRTPStreamStats_packets_sent(report: &RTCOutboundRTPStreamStats) -> Result<u32>;
+        pub fn RTCOutboundRTPStreamStats_media_source_id(report: &RTCOutboundRTPStreamStats) -> Result<UniquePtr<CxxString>>;
+        pub fn RTCOutboundRTPStreamStats_frame_width(report: &RTCOutboundRTPStreamStats) -> Result<u32>;
+        pub fn RTCOutboundRTPStreamStats_frame_height(report: &RTCOutboundRTPStreamStats) -> Result<u32>;
+        pub fn RTCOutboundRTPStreamStats_frames_per_second(report: &RTCOutboundRTPStreamStats) -> Result<f64>;
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         /// Returns the [sdpMid][1] string of the provided
@@ -1062,12 +1182,6 @@ pub(crate) mod webrtc {
             peer: &PeerConnectionInterface,
             candidate: UniquePtr<IceCandidateInterface>,
             cb: Box<DynAddIceCandidateCallback>
-        );
-
-        // todo
-        pub fn get_stats(
-            peer: &PeerConnectionInterface,
-            cb: Box<DynRTCStatsCollectorCallback>
         );
 
         /// Tells the provided [`PeerConnectionInterface`] that ICE should be
@@ -1881,7 +1995,7 @@ pub fn add_ice_candidate_fail(
 
 // todo
 /// Forwards the
-#[allow(clippy::boxed_local)] 
+#[allow(clippy::boxed_local)]
 pub fn on_stats_delivered(
     mut cb: Box<DynRTCStatsCollectorCallback>,
     report: UniquePtr<webrtc::RTCStatsReport>,
@@ -1899,6 +2013,19 @@ impl TryFrom<&str> for webrtc::SdpType {
             "pranswer" => Ok(Self::kPrAnswer),
             "rollback" => Ok(Self::kRollback),
             v => Err(anyhow!("Invalid `SdpType`: {v}")),
+        }
+    }
+}
+
+impl TryFrom<&str> for webrtc::CandidateType {
+    type Error = anyhow::Error;
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "host" => Ok(Self::kHost),
+            "srflx" => Ok(Self::kSrflx),
+            "prflx" => Ok(Self::kPrflx),
+            "relay" => Ok(Self::kRelay),
+            v => Err(anyhow!("Invalid `CandidateType`: {v}")),
         }
     }
 }

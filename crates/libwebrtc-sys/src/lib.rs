@@ -3,9 +3,10 @@
 
 mod bridge;
 
-use std::{collections::HashMap, mem};
+use std::{collections::HashMap, convert::TryFrom, mem};
 
 use anyhow::bail;
+use bridge::webrtc::RTCOutboundRTPStreamStatsContainer;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 
 use self::bridge::webrtc;
@@ -16,7 +17,7 @@ pub use crate::webrtc::{
     video_frame_to_abgr, video_frame_to_argb, AudioLayer, BundlePolicy,
     Candidate, CandidatePairChangeEvent, IceConnectionState, IceGatheringState,
     IceTransportsType, MediaType, PeerConnectionState, RtpTransceiverDirection,
-    SdpType, SignalingState, TrackState, VideoFrame, VideoRotation, RTCStatsReport,
+    SdpType, SignalingState, TrackState, VideoFrame, VideoRotation, RTCStatsReport as sys_RTCStatsReport
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -60,7 +61,7 @@ pub trait OnFrameCallback {
 
 /// Handler of [`VideoFrame`]s.
 pub trait RTCStatsCollectorCallback {
-    fn on_stats_delivered(&mut self, report: UniquePtr<RTCStatsReport>);
+    fn on_stats_delivered(&mut self, report: UniquePtr<webrtc::RTCStatsReport>);
 }
 
 /// Handler of events that fire from a [`PeerConnectionInterface`].
@@ -1265,6 +1266,254 @@ impl PeerConnectionInterface {
     /// Closes the [`PeerConnectionInterface`].
     pub fn close(&self) {
         webrtc::close_peer_connection(&self.inner);
+    }
+
+    // todo
+    pub fn get_stats(&self, cb: Box<dyn RTCStatsCollectorCallback>) {
+        webrtc::get_stats(&self.inner, Box::new(cb));
+    }
+}
+
+// todo
+pub struct MediaSourceStats {
+    inner: webrtc::RTCMediaSourceStatsContainer,
+    kind: TrackKind,
+}
+
+impl MediaSourceStats {
+    fn new() {}
+}
+
+pub struct RTCIceCandidateStats {
+    pub transport_id: Option<String>,
+
+    pub address: Option<String>,
+
+    pub port: Option<i32>,
+
+    pub protocol: Option<String>,
+
+    pub candidate_type: webrtc::CandidateType,
+
+    pub priority: Option<i32>,
+
+    pub url: Option<String>,
+}
+
+impl RTCIceCandidateStats {
+    pub fn new(inner: webrtc::RTCIceCandidateStatsContainer) -> Self {
+        let candidate_type = webrtc::CandidateType::try_from(
+            webrtc::RTCIceCandidateStats_candidate_type(&inner.ptr)
+                .unwrap()
+                .to_str()
+                .unwrap(),
+        )
+        .unwrap();
+        Self {
+            transport_id: webrtc::RTCIceCandidateStats_transport_id(&inner.ptr)
+                .ok()
+                .map(|id| id.to_string()),
+            address: webrtc::RTCIceCandidateStats_address(&inner.ptr)
+                .ok()
+                .map(|id| id.to_string()),
+            port: webrtc::RTCIceCandidateStats_port(&inner.ptr).ok(),
+            protocol: webrtc::RTCIceCandidateStats_protocol(&inner.ptr)
+                .ok()
+                .map(|id| id.to_string()),
+            candidate_type,
+            priority: webrtc::RTCIceCandidateStats_priority(&inner.ptr).ok(),
+            url: webrtc::RTCIceCandidateStats_transport_id(&inner.ptr)
+                .ok()
+                .map(|id| id.to_string()),
+        }
+    }
+}
+
+pub struct RTCOutboundRTPStreamStats {
+    pub track_id: Option<String>,
+
+    pub kind: TrackKind,
+
+    pub frame_width: Option<u32>,
+
+    pub frame_height: Option<u32>,
+
+    pub frames_per_second: Option<f64>,
+
+    pub bytes_sent: Option<u64>,
+
+    pub packets_sent: Option<u32>,
+
+    pub media_source_id: Option<String>,
+}
+
+impl RTCOutboundRTPStreamStats {
+    pub fn new(inner: webrtc::RTCOutboundRTPStreamStatsContainer) -> Self {
+        let kind = if webrtc::RTCOutboundRTPStreamStats_kind(&inner.ptr)
+            .unwrap()
+            .to_string()
+            == "video"
+        {
+            TrackKind::Video
+        } else {
+            TrackKind::Audio
+        };
+        Self {
+            frame_width: webrtc::RTCOutboundRTPStreamStats_frame_width(
+                &inner.ptr,
+            )
+            .ok(),
+            frame_height: webrtc::RTCOutboundRTPStreamStats_frame_height(
+                &inner.ptr,
+            )
+            .ok(),
+            frames_per_second:
+                webrtc::RTCOutboundRTPStreamStats_frames_per_second(&inner.ptr)
+                    .ok(),
+            track_id: webrtc::RTCOutboundRTPStreamStats_track_id(&inner.ptr)
+                .ok()
+                .map(|id| id.to_string()),
+            bytes_sent: webrtc::RTCOutboundRTPStreamStats_bytes_sent(
+                &inner.ptr,
+            )
+            .ok(),
+            packets_sent: webrtc::RTCOutboundRTPStreamStats_packets_sent(
+                &inner.ptr,
+            )
+            .ok(),
+            media_source_id: webrtc::RTCOutboundRTPStreamStats_media_source_id(
+                &inner.ptr,
+            )
+            .ok()
+            .map(|id| id.to_string()),
+            kind,
+        }
+    }
+}
+
+pub struct RTCInboundRTPStreamStats(());
+impl RTCInboundRTPStreamStats {
+    pub fn new(inner: webrtc::RTCInboundRTPStreamStatsContainer) -> Self {
+        Self(())
+    }
+}
+pub struct RTCIceCandidatePairStats(());
+impl RTCIceCandidatePairStats {
+    pub fn new(inner: webrtc::RTCIceCandidatePairStatsContainer) -> Self {
+        Self(())
+    }
+}
+pub struct RTCTransportStats(());
+impl RTCTransportStats {
+    pub fn new(inner: webrtc::RTCTransportStatsContainer) -> Self {
+        Self(())
+    }
+}
+pub struct RTCRemoteInboundRtpStreamStats(());
+impl RTCRemoteInboundRtpStreamStats {
+    pub fn new(inner: webrtc::RTCRemoteInboundRtpStreamStatsContainer) -> Self {
+        Self(())
+    }
+}
+pub struct RTCRemoteOutboundRtpStreamStats(());
+impl RTCRemoteOutboundRtpStreamStats {
+    pub fn new(
+        inner: webrtc::RTCRemoteOutboundRtpStreamStatsContainer,
+    ) -> Self {
+        Self(())
+    }
+}
+
+// todo
+pub struct RTCStatsReport(UniquePtr<webrtc::RTCStatsReport>);
+
+impl RTCStatsReport {
+    pub fn new(ptr: UniquePtr<webrtc::RTCStatsReport>) -> Self {
+        Self(ptr)
+    }
+
+    pub fn json(&self) -> String {
+        webrtc::stats_json(&self.0).to_string()
+    }
+    // pub fn get_stats_RTCMediaSourceStats(&self) -> String {
+    //     let a = webrtc::get_stats_RTCMediaSourceStats(&self.0);
+    //     println!("x32 {}", a.len());
+    //     // let b = webrtc::RTCMediaSourceStats_track_identifier(&a[0].ptr);
+    //     // println!("WTF");
+    //     // b.to_string();
+    //     "?????".to_string()
+    // }
+
+    pub fn get_stats_RTCOutboundRTPStreamStats(
+        &self,
+    ) -> Vec<RTCOutboundRTPStreamStats> {
+        let vec_containers =
+            webrtc::get_stats_RTCOutboundRTPStreamStats(&self.0);
+        vec_containers
+            .into_iter()
+            .map(|stats| RTCOutboundRTPStreamStats::new(stats))
+            .collect()
+    }
+
+    pub fn get_stats_RTCIceCandidateStats(&self) -> Vec<RTCIceCandidateStats> {
+        let vec_containers = webrtc::get_stats_RTCIceCandidateStats(&self.0);
+        vec_containers
+            .into_iter()
+            .map(|stats| RTCIceCandidateStats::new(stats))
+            .collect()
+    }
+
+    pub fn get_stats_RTCInboundRTPStreamStats(
+        &self,
+    ) -> Vec<RTCInboundRTPStreamStats> {
+        let vec_containers =
+            webrtc::get_stats_RTCInboundRTPStreamStats(&self.0);
+        vec_containers
+            .into_iter()
+            .map(|stats| RTCInboundRTPStreamStats::new(stats))
+            .collect()
+    }
+    pub fn get_stats_RTCIceCandidatePairStats(
+        &self,
+    ) -> Vec<RTCIceCandidatePairStats> {
+        let vec_containers =
+            webrtc::get_stats_RTCIceCandidatePairStats(&self.0);
+        vec_containers
+            .into_iter()
+            .map(|stats| RTCIceCandidatePairStats::new(stats))
+            .collect()
+    }
+    pub fn get_stats_RTCRemoteInboundRtpStreamStats(
+        &self,
+    ) -> Vec<RTCRemoteInboundRtpStreamStats> {
+        let vec_containers =
+            webrtc::get_stats_RTCRemoteInboundRtpStreamStats(&self.0);
+        vec_containers
+            .into_iter()
+            .map(|stats| RTCRemoteInboundRtpStreamStats::new(stats))
+            .collect()
+    }
+    pub fn get_stats_RTCRemoteOutboundRtpStreamStats(
+        &self,
+    ) -> Vec<RTCRemoteOutboundRtpStreamStats> {
+        let vec_containers =
+            webrtc::get_stats_RTCRemoteOutboundRtpStreamStats(&self.0);
+        vec_containers
+            .into_iter()
+            .map(|stats| RTCRemoteOutboundRtpStreamStats::new(stats))
+            .collect()
+    }
+    pub fn get_stats_RTCTransportStats(&self) -> Vec<RTCTransportStats> {
+        let vec_containers = webrtc::get_stats_RTCTransportStats(&self.0);
+        vec_containers
+            .into_iter()
+            .map(|stats| RTCTransportStats::new(stats))
+            .collect()
+    }
+
+    pub fn temp(a: Vec<RTCOutboundRTPStreamStatsContainer>) {
+        // println!("{}000", webrtc::R
+        // TCOutboundRTPStreamStats_media_source_id(&a[0].ptr));
     }
 }
 

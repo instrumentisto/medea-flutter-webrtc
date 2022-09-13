@@ -143,6 +143,25 @@ impl Webrtc {
         set_sdp_rx.recv_timeout(RX_TIMEOUT)?
     }
 
+    // todo
+    pub fn get_stats(&self, peer_id: u64) -> anyhow::Result<()> {
+        let peer_id = PeerConnectionId::from(peer_id);
+        let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
+            anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
+        })?;
+
+        let (report_tx, report_rx) = mpsc::channel();
+        let cb = GetStatsCallback(report_tx);
+        peer.inner.lock().unwrap().get_stats(Box::new(cb));
+
+        let bb = report_rx.recv_timeout(RX_TIMEOUT)?;
+        let a = bb.get_stats_RTCOutboundRTPStreamStats();
+        drop(bb);
+
+        log::warn!("TAKI STATS");
+        Ok(())
+    }
+
     /// Sets the specified session description as the remote peer's current
     /// offer or answer.
     ///
@@ -848,6 +867,22 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     fn fail(&mut self, error: &CxxString) {
         if let Err(e) = self.0.send(Err(anyhow!("{error}"))) {
             log::warn!("Failed to send SDP error in `SetSdpCallback`: {e}");
+        }
+    }
+}
+
+//todo
+struct GetStatsCallback(mpsc::Sender<sys::RTCStatsReport>);
+
+impl sys::RTCStatsCollectorCallback for GetStatsCallback {
+    fn on_stats_delivered(
+        &mut self,
+        report: cxx::UniquePtr<sys::sys_RTCStatsReport>,
+    ) {
+        let r = sys::RTCStatsReport::new(report);
+
+        if let Err(e) = self.0.send(r) {
+            log::warn!("Failed to complete `GetStatsCallback`: {e}");
         }
     }
 }

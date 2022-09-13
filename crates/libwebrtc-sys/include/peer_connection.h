@@ -4,8 +4,8 @@
 #include <optional>
 
 #include "api/peer_connection_interface.h"
-#include "api/stats/rtc_stats_collector_callback.h"
 #include "rust/cxx.h"
+#include "stats.h"
 
 namespace bridge {
 
@@ -17,7 +17,6 @@ using SessionDescriptionInterface = webrtc::SessionDescriptionInterface;
 using RtpTransceiverInterface =
     rtc::scoped_refptr<webrtc::RtpTransceiverInterface>;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
-using RTCStatsReport = rtc::scoped_refptr<const webrtc::RTCStatsReport>;
 
 struct TransceiverContainer;
 struct DynPeerConnectionEventsHandler;
@@ -235,6 +234,7 @@ void restart_ice(const PeerConnectionInterface& peer);
 void close_peer_connection(const PeerConnectionInterface& peer);
 
 // todo
-void get_stats(const PeerConnectionInterface& peer, rust::Box<DynRTCStatsCollectorCallback> cb);
+void get_stats(const PeerConnectionInterface& peer,
+               rust::Box<DynRTCStatsCollectorCallback> cb);
 
 }  // namespace bridge

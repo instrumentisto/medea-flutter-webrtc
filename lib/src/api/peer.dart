@@ -183,6 +183,9 @@ abstract class PeerConnection {
   /// Returns all the [RtpTransceiver]s owned by this [PeerConnection].
   Future<List<RtpTransceiver>> getTransceivers();
 
+  // todo
+  Future<void> getStats();
+
   /// Sets the provided remote [SessionDescription] to the [PeerConnection].
   Future<void> setRemoteDescription(SessionDescription description);
 
@@ -411,6 +414,12 @@ class _PeerConnectionChannel extends PeerConnection {
     await super.close();
     await _chan.invokeMethod('dispose');
   }
+
+  @override
+  Future<void> getStats() {
+    // TODO: implement getStats
+    throw UnimplementedError();
+  }
 }
 
 /// FFI-based implementation of a [PeerConnection].
@@ -602,5 +611,12 @@ class _PeerConnectionFFI extends PeerConnection {
         kind: ffi.SdpType.values[description.type.index],
         sdp: description.description);
     await _syncTransceiversMids();
+  }
+
+  @override
+  Future<void> getStats() async {
+    print("A1");
+    await api!.getPeerStats(peerId: _id!);
+    print("A2");
   }
 }
