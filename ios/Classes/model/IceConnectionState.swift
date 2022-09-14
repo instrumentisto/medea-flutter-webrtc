@@ -24,4 +24,8 @@ public enum IceConnectionState: Int {
                 abort()
         }
     }
+
+    func asFlutterResult() -> Int {
+        return self.rawValue
+    }
 }

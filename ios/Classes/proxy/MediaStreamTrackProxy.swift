@@ -35,10 +35,9 @@ public class MediaStreamTrackProxy {
         return self.deviceId;
     }
 
-    func fork() -> MediaStreamTrackProxy {
+    func fork() throws -> MediaStreamTrackProxy {
         if (self.source == nil) {
-            // TODO: Remote MediaStreamTracks can't be cloned exception
-            abort()
+            throw MediaStreamTrackException.remoteTrackCantBeCloned
         } else {
             return source!.newTrack()
         }

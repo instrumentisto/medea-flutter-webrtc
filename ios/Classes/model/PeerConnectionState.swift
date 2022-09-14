@@ -19,4 +19,8 @@ public enum PeerConnectionState: Int {
                 return PeerConnectionState.closed
         }
     }
+
+    func asFlutterResult() -> Int {
+        return self.rawValue
+    }
 }

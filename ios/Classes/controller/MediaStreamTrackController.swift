@@ -1,4 +1,6 @@
 import Flutter
+import OSLog
+import os
 
 public class MediaStreamTrackController {
     private var messenger: FlutterBinaryMessenger
@@ -10,24 +12,33 @@ public class MediaStreamTrackController {
         self.messenger = messenger
         self.track = track
         self.channel = FlutterMethodChannel(name: channelId, binaryMessenger: messenger)
+        self.channel.setMethodCallHandler({ (call, result) in
+            try! self.onMethodCall(call: call, result: result)
+        })
     }
 
-    func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
+    func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
         let argsMap = call.arguments as? [String : Any]
         switch (call.method) {
             case "setEnabled":
+                os_log(OSLogType.error, "setEnabled")
                 let enabled = argsMap!["enabled"] as? Bool
                 self.track.setEnabled(enabled: enabled!)
                 result(nil)
             case "state":
+                os_log(OSLogType.error, "state")
                 result(self.track.state().asFlutterResult())
             case "stop":
+                os_log(OSLogType.error, "stop")
                 self.track.stop()
+                result(nil)
             case "clone":
-                result(MediaStreamTrackController(self.messenger, self.track.fork()).asFlutterResult())
+                os_log(OSLogType.error, "clone")
+                result(MediaStreamTrackController(messenger: self.messenger, track: try self.track.fork()).asFlutterResult())
             case "dispose":
-                self.channel.setMethodChannel(nil)
-                result.success(nil)
+                os_log(OSLogType.error, "dispose")
+                self.channel.setMethodCallHandler(nil)
+                result(nil)
             default:
                 result(FlutterMethodNotImplemented)
         }
@@ -38,7 +49,7 @@ public class MediaStreamTrackController {
             "channelId" : self.channelId,
             "id" : self.track.id(),
             "kind" : self.track.kind().asFlutterResult(),
-            "deviceId" : self.deviceId
+            "deviceId" : self.track.getDeviceId()
         ]
     }
 }

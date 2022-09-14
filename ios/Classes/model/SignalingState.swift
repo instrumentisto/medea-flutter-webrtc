@@ -19,4 +19,8 @@ public enum SignalingState: Int {
                 return SignalingState.closed
         }
     }
+
+    func asFlutterResult() -> Int {
+        return self.rawValue
+    }
 }

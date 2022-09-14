@@ -1,6 +1,6 @@
 import WebRTC
 
-public enum TransceiverDirection {
+public enum TransceiverDirection : Int {
     case sendRecv, sendOnly, recvOnly, inactive, stopped
 
     static func fromWebRtc(direction: RTCRtpTransceiverDirection) -> TransceiverDirection {
@@ -31,5 +31,9 @@ public enum TransceiverDirection {
             case .stopped:
                 return RTCRtpTransceiverDirection.stopped
         }
+    }
+
+    func asFlutterResult() -> Int {
+        return self.rawValue
     }
 }

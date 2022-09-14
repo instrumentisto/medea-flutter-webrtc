@@ -1,14 +1,26 @@
 import WebRTC
+import AVFoundation
+import OSLog
+import os
 
 public class MediaDevices {
-    private var peerConnectionFactory: RTCPeerConnectionFactory
+    private var state: State
 
-    init(peerConnectionFactory: RTCPeerConnectionFactory) {
-        self.peerConnectionFactory = peerConnectionFactory
+    init(state: State) {
+        self.state = state
     }
 
     public func enumerateDevices() -> [MediaDeviceInfo] {
-        abort()
+        var devices = AVCaptureDevice.devices(for: AVMediaType.video).map { device -> MediaDeviceInfo in
+            os_log(OSLogType.error, "enumerateDevices 2")
+            return MediaDeviceInfo(deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
+        }
+        let videoDevices = AVCaptureDevice.devices(for: AVMediaType.audio).map { device -> MediaDeviceInfo in 
+            os_log(OSLogType.error, "enumerateDevices 3")
+            return MediaDeviceInfo(deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.videoInput)
+        }
+        devices.append(contentsOf: videoDevices)
+        return devices
     }
 
     public func getUserMedia() -> [MediaStreamTrackProxy] {
@@ -18,7 +30,7 @@ public class MediaDevices {
     }
 
     private func getUserAudio() -> [MediaStreamTrackProxy] {
-        let track = self.peerConnectionFactory.audioTrack(withTrackId: LocalTrackIdGenerator.shared.nextId())
+        let track = self.state.getPeerFactory().audioTrack(withTrackId: LocalTrackIdGenerator.shared.nextId())
         return [MediaStreamTrackProxy(track: track, deviceId: nil, source: nil)]
     }
 
@@ -26,10 +38,10 @@ public class MediaDevices {
         let videoDevice = AVCaptureDevice.default(for: AVMediaType.video)!
         let selectedFormat = selectFormatForDevice(device: videoDevice)
 
-        let source = peerConnectionFactory.videoSource()
+        let source = self.state.getPeerFactory().videoSource()
         let capturer = RTCCameraVideoCapturer(delegate: VideoSourceAdapter())
         capturer.startCapture(with: videoDevice, format: selectedFormat, fps: 30)
-        let videoTrackSource = VideoMediaTrackSourceProxy(peerConnectionFactory: self.peerConnectionFactory, source: source, deviceId: "camera")
+        let videoTrackSource = VideoMediaTrackSourceProxy(peerConnectionFactory: self.state.getPeerFactory(), source: source, deviceId: "camera")
         return videoTrackSource.newTrack()
     }
 

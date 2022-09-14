@@ -13,4 +13,8 @@ public enum IceGatheringState: Int {
                 return IceGatheringState.complete
         }
     }
+
+    func asFlutterResult() -> Int {
+        return self.rawValue
+    }
 }

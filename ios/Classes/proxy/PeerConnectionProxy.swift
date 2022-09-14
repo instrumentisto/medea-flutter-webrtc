@@ -6,9 +6,15 @@ public class PeerConnectionProxy {
     private var transceivers: [String : RtpTransceiverProxy] = [:]
     private var peer: RTCPeerConnection
     private var observers: [PeerEventObserver] = []
+    private var id: Int
 
-    init (peer: RTCPeerConnection) {
+    init (id: Int, peer: RTCPeerConnection) {
         self.peer = peer
+        self.id = id
+    }
+
+    func getId() -> Int {
+        return self.id
     }
 
     func getTransceivers() -> [RtpTransceiverProxy] {

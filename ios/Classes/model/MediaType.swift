@@ -1,4 +1,7 @@
-public enum MediaType {
-    case audio
-    case video
+public enum MediaType: Int {
+    case audio, video
+
+    func asFlutterResult() -> Int {
+        return self.rawValue
+    }
 }
