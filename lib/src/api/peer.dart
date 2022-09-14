@@ -12,6 +12,7 @@ import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
+import 'stats.dart';
 import 'transceiver.dart';
 
 /// Checks whether the running platform is a desktop.
@@ -184,7 +185,7 @@ abstract class PeerConnection {
   Future<List<RtpTransceiver>> getTransceivers();
 
   // todo
-  Future<void> getStats();
+  Future<List<RTCStats>> getStats();
 
   /// Sets the provided remote [SessionDescription] to the [PeerConnection].
   Future<void> setRemoteDescription(SessionDescription description);
@@ -416,7 +417,7 @@ class _PeerConnectionChannel extends PeerConnection {
   }
 
   @override
-  Future<void> getStats() {
+  Future<List<RTCStats>> getStats() {
     // TODO: implement getStats
     throw UnimplementedError();
   }
@@ -614,9 +615,9 @@ class _PeerConnectionFFI extends PeerConnection {
   }
 
   @override
-  Future<void> getStats() async {
-    print("A1");
-    await api!.getPeerStats(peerId: _id!);
-    print("A2");
+  Future<List<RTCStats>> getStats() async {
+    var stats = await api!.getPeerStats(peerId: _id!);
+    var res = stats.map((stats) => RTCStats.fromFFI(stats)).toList();
+    return res;
   }
 }

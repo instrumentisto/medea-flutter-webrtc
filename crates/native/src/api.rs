@@ -15,6 +15,293 @@ lazy_static::lazy_static! {
 /// Indicator whether application is configured to use fake media devices.
 static FAKE_MEDIA: AtomicBool = AtomicBool::new(false);
 
+pub enum RTCMediaSourceStatsType {
+    RTCVideoSourceStats{
+        width: Option<u32>,
+        height: Option<u32>,
+        frames: Option<u32>,
+        frames_per_second: Option<f64>,
+    },
+    RTCAudioSourceStats{
+        audio_level: Option<f64>,
+        total_audio_energy: Option<f64>,
+        total_samples_duration: Option<f64>,
+        echo_return_loss: Option<f64>,
+        echo_return_loss_enhancement: Option<f64>,
+    },
+}
+
+impl From<&sys::RTCMediaSourceStatsType> for RTCMediaSourceStatsType {
+    fn from(kind: &sys::RTCMediaSourceStatsType) -> Self {
+        match kind {
+            sys::RTCMediaSourceStatsType::RTCVideoSourceStats(stats) => {
+                Self::RTCVideoSourceStats {
+                    width: stats.width(),
+                    height: stats.height(),
+                    frames: stats.frames(),
+                    frames_per_second: stats.frames_per_second(),
+                }
+            },
+            sys::RTCMediaSourceStatsType::RTCAudioSourceStats(stats) => {
+                Self::RTCAudioSourceStats {
+                    audio_level: stats.audio_level(),
+                    total_audio_energy: stats.total_audio_energy(),
+                    total_samples_duration: stats.total_samples_duration(),
+                    echo_return_loss: stats.echo_return_loss(),
+                    echo_return_loss_enhancement: stats.echo_return_loss_enhancement(),
+                }
+            },
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum CandidateType {
+    Host,
+    Srflx,
+    Prflx,
+    Relay,
+}
+
+impl From<sys::CandidateType> for CandidateType {
+    fn from(kind: sys::CandidateType) -> Self {
+        match kind {
+            sys::CandidateType::kHost => Self::Host,
+            sys::CandidateType::kSrflx => Self::Srflx,
+            sys::CandidateType::kPrflx => Self::Prflx,
+            sys::CandidateType::kRelay => Self::Relay,
+            _ => unreachable!()
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TrackKind {
+    Audio,
+    Video,
+}
+
+impl From<sys::TrackKind> for TrackKind {
+    fn from(kind: sys::TrackKind) -> Self {
+        match kind {
+            sys::TrackKind::Audio => Self::Audio,
+            sys::TrackKind::Video => Self::Video,
+        }
+    }
+}
+
+pub enum RTCStatsIceCandidatePairState {
+    Frozen,
+    Waiting,
+    InProgress,
+    Failed,
+    Succeeded,
+}
+
+impl From<sys::RTCStatsIceCandidatePairState> for RTCStatsIceCandidatePairState {
+    fn from(state: sys::RTCStatsIceCandidatePairState) -> Self {
+        match state {
+            sys::RTCStatsIceCandidatePairState::kFrozen => Self::Frozen,
+            sys::RTCStatsIceCandidatePairState::kWaiting => Self::Waiting,
+            sys::RTCStatsIceCandidatePairState::kInProgress => Self::InProgress,
+            sys::RTCStatsIceCandidatePairState::kFailed => Self::Failed,
+            sys::RTCStatsIceCandidatePairState::kSucceeded => Self::Succeeded,
+            _ => unreachable!()
+        }
+    }
+}
+
+pub enum RTCStatsType {
+    RTCMediaSourceStats {
+        track_identifier: Option<String>,
+        kind: RTCMediaSourceStatsType,
+    },
+    RTCIceCandidateStats {
+        transport_id: Option<String>,
+        address: Option<String>,
+        port: Option<i32>,
+        protocol: Option<String>,
+        candidate_type: CandidateType,
+        priority: Option<i32>,
+        url: Option<String>,
+    },
+    RTCOutboundRTPStreamStats{
+        track_id: Option<String>,
+        kind: TrackKind,
+        frame_width: Option<u32>,
+        frame_height: Option<u32>,
+        frames_per_second: Option<f64>,
+        bytes_sent: Option<u64>,
+        packets_sent: Option<u32>,
+        media_source_id: Option<String>,
+    },
+    RTCInboundRTPStreamStats {
+        remote_id: Option<String>,
+        bytes_received: Option<u64>,
+        packets_received: Option<u32>,
+        total_decode_time: Option<f64>,
+        jitter_buffer_emitted_count: Option<u64>,
+        total_samples_received: Option<u64>,
+        concealed_samples: Option<u64>,
+        silent_concealed_samples: Option<u64>,
+        audio_level: Option<f64>,
+        total_audio_energy: Option<f64>,
+        total_samples_duration: Option<f64>,
+        frames_decoded: Option<u32>,
+        key_frames_decoded: Option<u32>,
+        frame_width: Option<u32>,
+        frame_height: Option<u32>,
+        total_inter_frame_delay: Option<f64>,
+        frames_per_second: Option<f64>,
+        frame_bit_depth: Option<u32>,
+        fir_count: Option<u32>,
+        pli_count: Option<u32>,
+        concealment_events: Option<u64>,
+        frames_received: Option<i32>,
+    },
+    RTCIceCandidatePairStats{
+        state: RTCStatsIceCandidatePairState,
+        nominated: Option<bool>,
+        bytes_sent: Option<u64>,
+        bytes_received: Option<u64>,
+        total_round_trip_time: Option<f64>,
+        current_round_trip_time: Option<f64>,
+        available_outgoing_bitrate: Option<f64>,
+    },
+    RTCTransportStats{
+        packets_sent: Option<u64>,
+        packets_received: Option<u64>,
+        bytes_sent: Option<u64>,
+        bytes_received: Option<u64>,
+    },
+    RTCRemoteInboundRtpStreamStats{
+        local_id: Option<String>,
+        round_trip_time: Option<f64>,
+        fraction_lost: Option<f64>,
+        round_trip_time_measurements: Option<i32>,
+    },
+    RTCRemoteOutboundRtpStreamStats{
+        local_id: Option<String>,
+        remote_timestamp: Option<f64>,
+        reports_sent: Option<u64>,
+    },
+    Unimplenented,
+}
+
+impl From<&sys::RTCStatsType> for RTCStatsType {
+    fn from(kind: &sys::RTCStatsType) -> Self {
+        match kind {
+            sys::RTCStatsType::RTCMediaSourceStats(stats) => {
+                Self::RTCMediaSourceStats {
+                    track_identifier: stats.track_identifier().clone(),
+                    kind: RTCMediaSourceStatsType::from(stats.kind()),
+                }
+            },
+            sys::RTCStatsType::RTCIceCandidateStats(stats) => {
+                Self::RTCIceCandidateStats {
+                    transport_id: stats.transport_id().clone(),
+                    address: stats.address().clone(),
+                    port: stats.port(),
+                    protocol: stats.protocol().clone(),
+                    candidate_type: CandidateType::from(stats.candidate_type()),
+                    priority: stats.priority(),
+                    url: stats.url().clone(),
+                }
+            },
+            sys::RTCStatsType::RTCOutboundRTPStreamStats(stats) => {
+                Self::RTCOutboundRTPStreamStats {
+                    track_id: stats.track_id().clone(),
+                    kind: TrackKind::from(stats.kind()),
+                    frame_width: stats.frame_width(),
+                    frame_height: stats.frame_height(),
+                    frames_per_second: stats.frames_per_second(),
+                    bytes_sent: stats.bytes_sent(),
+                    packets_sent: stats.packets_sent(),
+                    media_source_id: stats.media_source_id().clone(),
+                }
+            },
+            sys::RTCStatsType::RTCInboundRTPStreamStats(stats) => {
+                Self::RTCInboundRTPStreamStats {
+                    remote_id: stats.remote_id().clone(),
+                    bytes_received: stats.bytes_received(),
+                    packets_received: stats.packets_received(),
+                    total_decode_time: stats.total_decode_time(),
+                    jitter_buffer_emitted_count: stats.jitter_buffer_emitted_count(),
+                    total_samples_received: stats.total_samples_received(),
+                    concealed_samples: stats.concealed_samples(),
+                    silent_concealed_samples: stats.silent_concealed_samples(),
+                    audio_level: stats.audio_level(),
+                    total_audio_energy: stats.total_audio_energy(),
+                    total_samples_duration: stats.total_samples_duration(),
+                    frames_decoded: stats.frames_decoded(),
+                    key_frames_decoded: stats.key_frames_decoded(),
+                    frame_width: stats.frame_width(),
+                    frame_height: stats.frame_height(),
+                    total_inter_frame_delay: stats.total_inter_frame_delay(),
+                    frames_per_second: stats.frames_per_second(),
+                    frame_bit_depth: stats.frame_bit_depth(),
+                    fir_count: stats.fir_count(),
+                    pli_count: stats.pli_count(),
+                    concealment_events: stats.concealment_events(),
+                    frames_received: stats.frames_received(),
+                }
+            },
+            sys::RTCStatsType::RTCIceCandidatePairStats(stats) => {
+                Self::RTCIceCandidatePairStats {
+                    state: RTCStatsIceCandidatePairState::from(stats.state()),
+                    nominated: stats.nominated(),
+                    bytes_sent: stats.bytes_sent(),
+                    bytes_received: stats.bytes_received(),
+                    total_round_trip_time: stats.total_round_trip_time(),
+                    current_round_trip_time: stats.current_round_trip_time(),
+                    available_outgoing_bitrate: stats.available_outgoing_bitrate(),
+                }
+            },
+            sys::RTCStatsType::RTCTransportStats(stats) => {
+                Self::RTCTransportStats {
+                    packets_sent: stats.packets_sent(),
+                    packets_received: stats.packets_received(),
+                    bytes_sent: stats.bytes_sent(),
+                    bytes_received: stats.bytes_received(),
+                }
+            },
+            sys::RTCStatsType::RTCRemoteInboundRtpStreamStats(stats) => {
+                Self::RTCRemoteInboundRtpStreamStats {
+                    local_id: stats.local_id().clone(),
+                    round_trip_time: stats.round_trip_time(),
+                    fraction_lost: stats.fraction_lost(),
+                    round_trip_time_measurements: stats.round_trip_time_measurements(),
+                }
+            },
+            sys::RTCStatsType::RTCRemoteOutboundRtpStreamStats(stats) => {
+                Self::RTCRemoteOutboundRtpStreamStats {
+                    local_id: stats.local_id(),
+                    remote_timestamp: stats.remote_timestamp(),
+                    reports_sent: stats.reports_sent(),
+                }
+            },
+            sys::RTCStatsType::Unimplenented => Self::Unimplenented,
+        }
+    }
+}
+
+pub struct RTCStats {
+    pub id: String,
+    pub timestamp_us: i64,
+    pub kind: RTCStatsType,
+}
+
+impl From<&sys::RTCStats> for RTCStats {
+    fn from(stats: &sys::RTCStats) -> Self {
+        let kind = RTCStatsType::from(stats.kind());
+        Self {
+            id: stats.id().clone(),
+            timestamp_us: stats.timestamp_us(),
+            kind,
+        }
+    }
+}
+
 /// Indicator of the current state of a [`MediaStreamTrack`].
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TrackEvent {
@@ -965,8 +1252,8 @@ pub fn get_transceiver_direction(
 }
 
 //todo lib/libclang.so
-pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().get_stats(peer_id).map(Into::into)
+pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<Vec<RTCStats>> {
+    WEBRTC.lock().unwrap().get_stats(peer_id)
 }
 
 /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping, unless

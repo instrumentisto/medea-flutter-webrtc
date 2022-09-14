@@ -122,6 +122,13 @@ pub(crate) mod webrtc {
         ptr: UniquePtr<RTCRemoteOutboundRtpStreamStats>,
     }
 
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecParameters`] usable in Rust/C++ vectors.
+    pub struct RTCStatsContainer {
+        ptr: UniquePtr<RTCStats>,
+    }
+
     /// [MediaStreamTrackState][0] representation.
     ///
     /// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
@@ -195,11 +202,24 @@ pub(crate) mod webrtc {
     }
 
     // todo
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
     pub enum CandidateType {
-        kHost,
+        kHost = 0,
         kSrflx,
         kPrflx,
         kRelay,
+    }
+
+    // todo
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    pub enum RTCStatsIceCandidatePairState {
+        kFrozen = 0,
+        kWaiting,
+        kInProgress,
+        kFailed,
+        kSucceeded,
     }
 
     /// [RTCRtpTransceiverDirection][1] representation.
@@ -1101,8 +1121,32 @@ pub(crate) mod webrtc {
     // stats
     #[rustfmt::skip]
     unsafe extern "C++" {
-        //todo
+        //todopub type
+        pub type RTCStatsMemberString;
+        pub type RTCStatsMemberf64;
+        pub type RTCStatsMemberi32;
+        pub type RTCStatsMemberu32;
+        pub type RTCStatsMemberu64;
+        pub type RTCStatsMemberbool;
+
+        pub fn rtc_stats_member_string_is_defined(stats_member: &RTCStatsMemberString) -> bool;
+        pub fn rtc_stats_member_f64_is_defined(stats_member: &RTCStatsMemberf64) -> bool;
+        pub fn rtc_stats_member_i32_is_defined(stats_member: &RTCStatsMemberi32) -> bool;
+        pub fn rtc_stats_member_u32_is_defined(stats_member: &RTCStatsMemberu32) -> bool;
+        pub fn rtc_stats_member_u64_is_defined(stats_member: &RTCStatsMemberu64) -> bool;
+        pub fn rtc_stats_member_bool_is_defined(stats_member: &RTCStatsMemberbool) -> bool;
+
+        pub fn rtc_stats_member_string_value(stats_member: &RTCStatsMemberString) -> UniquePtr<CxxString>;
+        pub fn rtc_stats_member_f64_value(stats_member: &RTCStatsMemberf64) -> f64;
+        pub fn rtc_stats_member_i32_value(stats_member: &RTCStatsMemberi32) -> i32;
+        pub fn rtc_stats_member_u32_value(stats_member: &RTCStatsMemberu32) -> u32;
+        pub fn rtc_stats_member_u64_value(stats_member: &RTCStatsMemberu64) -> u64;
+        pub fn rtc_stats_member_bool_value(stats_member: &RTCStatsMemberbool) -> bool;
+
         pub type RTCMediaSourceStats;
+        pub type RTCVideoSourceStats;
+        pub type RTCAudioSourceStats;
+        
 
         pub type RTCIceCandidateStats;
         pub type RTCOutboundRTPStreamStats;
@@ -1114,44 +1158,120 @@ pub(crate) mod webrtc {
 
         
         pub type RTCStatsReport;
+        pub type RTCStats;
+
 
         // todo
-        pub fn get_stats(
+        pub fn peer_connection_get_stats(
             peer: &PeerConnectionInterface,
             cb: Box<DynRTCStatsCollectorCallback>
         );
 
-        pub fn stats_json(report: &RTCStatsReport) -> UniquePtr<CxxString>;
+        // pub fn stats_json(report: &RTCStatsReport) -> UniquePtr<CxxString>;
+        
+        pub fn rtc_stats_report_get_stats(report: &RTCStatsReport) -> Vec<RTCStatsContainer>;
+
+        pub fn rtc_stats_id(stats: &RTCStats) -> UniquePtr<CxxString>; 
+        pub fn rtc_stats_type(stats: &RTCStats) -> UniquePtr<CxxString>; 
+        pub fn rtc_stats_timestamp_us(stats: &RTCStats) -> i64;
 
         
-        pub fn get_stats_RTCMediaSourceStats(report: &RTCStatsReport) -> Vec<RTCMediaSourceStatsContainer>;
-        
-        pub fn get_stats_RTCIceCandidateStats(report: &RTCStatsReport) -> Vec<RTCIceCandidateStatsContainer>;
-        pub fn get_stats_RTCOutboundRTPStreamStats(report: &RTCStatsReport) -> Vec<RTCOutboundRTPStreamStatsContainer>;
-        pub fn get_stats_RTCInboundRTPStreamStats(report: &RTCStatsReport) -> Vec<RTCInboundRTPStreamStatsContainer>;
-        pub fn get_stats_RTCIceCandidatePairStats(report: &RTCStatsReport) -> Vec<RTCIceCandidatePairStatsContainer>;
-        pub fn get_stats_RTCRemoteInboundRtpStreamStats(report: &RTCStatsReport) -> Vec<RTCRemoteInboundRtpStreamStatsContainer>;
-        pub fn get_stats_RTCRemoteOutboundRtpStreamStats(report: &RTCStatsReport) -> Vec<RTCRemoteOutboundRtpStreamStatsContainer>;
-        pub fn get_stats_RTCTransportStats(report: &RTCStatsReport) -> Vec<RTCTransportStatsContainer>;
-        
-        pub fn RTCMediaSourceStats_track_identifier(stats: &RTCMediaSourceStats) -> UniquePtr<CxxString>;
+        pub fn rtc_stats_cast_to_rtc_media_source_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCMediaSourceStats>>;
+        pub fn rtc_stats_cast_to_rtc_ice_candidate_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCIceCandidateStats>>;
+        pub fn rtc_stats_cast_to_rtc_outbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCOutboundRTPStreamStats>>;
+        pub fn rtc_stats_cast_to_rtc_inbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCInboundRTPStreamStats>>;
+        pub fn rtc_stats_cast_to_rtc_ice_candidate_pair_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCIceCandidatePairStats>>;
+        pub fn rtc_stats_cast_to_rtc_transport_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCTransportStats>>;
+        pub fn rtc_stats_cast_to_rtc_remote_inbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCRemoteInboundRtpStreamStats>>;
+        pub fn rtc_stats_cast_to_rtc_remote_outbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCRemoteOutboundRtpStreamStats>>;
 
-        pub fn RTCIceCandidateStats_transport_id(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
-        pub fn RTCIceCandidateStats_address(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
-        pub fn RTCIceCandidateStats_port(stats: &RTCIceCandidateStats) -> Result<i32>;
-        pub fn RTCIceCandidateStats_protocol(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
-        pub fn RTCIceCandidateStats_candidate_type(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
-        pub fn RTCIceCandidateStats_priority(stats: &RTCIceCandidateStats) -> Result<i32>;
-        pub fn RTCIceCandidateStats_url(stats: &RTCIceCandidateStats) -> Result<UniquePtr<CxxString>>;
+        
+        pub fn rtc_media_source_stats_track_identifier(stats: &RTCMediaSourceStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_media_source_stats_kind(stats: &RTCMediaSourceStats) -> UniquePtr<RTCStatsMemberString>;
 
-        pub fn RTCOutboundRTPStreamStats_track_id(report: &RTCOutboundRTPStreamStats) -> Result<UniquePtr<CxxString>>;
-        pub fn RTCOutboundRTPStreamStats_kind(report: &RTCOutboundRTPStreamStats) -> Result<UniquePtr<CxxString>>;
-        pub fn RTCOutboundRTPStreamStats_bytes_sent(report: &RTCOutboundRTPStreamStats) -> Result<u64>;
-        pub fn RTCOutboundRTPStreamStats_packets_sent(report: &RTCOutboundRTPStreamStats) -> Result<u32>;
-        pub fn RTCOutboundRTPStreamStats_media_source_id(report: &RTCOutboundRTPStreamStats) -> Result<UniquePtr<CxxString>>;
-        pub fn RTCOutboundRTPStreamStats_frame_width(report: &RTCOutboundRTPStreamStats) -> Result<u32>;
-        pub fn RTCOutboundRTPStreamStats_frame_height(report: &RTCOutboundRTPStreamStats) -> Result<u32>;
-        pub fn RTCOutboundRTPStreamStats_frames_per_second(report: &RTCOutboundRTPStreamStats) -> Result<f64>;
+
+        pub fn rtc_ice_candidate_stats_transport_id(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_ice_candidate_stats_address(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_ice_candidate_stats_port(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberi32>;
+        pub fn rtc_ice_candidate_stats_protocol(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_ice_candidate_stats_candidate_type(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_ice_candidate_stats_priority(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberi32>;
+        pub fn rtc_ice_candidate_stats_url(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+
+        pub fn rtc_outbound_rtp_stream_stats_track_id(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_outbound_rtp_stream_stats_kind(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_outbound_rtp_stream_stats_bytes_sent(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_outbound_rtp_stream_stats_packets_sent(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_outbound_rtp_stream_stats_media_source_id(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_outbound_rtp_stream_stats_frame_width(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_outbound_rtp_stream_stats_frame_height(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_outbound_rtp_stream_stats_frames_per_second(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+
+        pub fn rtc_inbound_rtp_stream_stats_remote_id(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_inbound_rtp_stream_stats_bytes_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_inbound_rtp_stream_stats_packets_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        // pub fn RTCInboundRTPStreamStats_packets_lost(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        // pub fn RTCInboundRTPStreamStats_jitter(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_inbound_rtp_stream_stats_total_decode_time(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_inbound_rtp_stream_stats_jitter_buffer_emitted_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        // pub fn RTCInboundRTPStreamStats_voice_activity_flag(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberbool>;
+        pub fn rtc_inbound_rtp_stream_stats_total_samples_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_inbound_rtp_stream_stats_concealed_samples(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_inbound_rtp_stream_stats_silent_concealed_samples(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_inbound_rtp_stream_stats_audio_level(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_inbound_rtp_stream_stats_total_audio_energy(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_inbound_rtp_stream_stats_total_samples_duration(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_inbound_rtp_stream_stats_frames_decoded(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_inbound_rtp_stream_stats_key_frames_decoded(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_inbound_rtp_stream_stats_frame_width(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_inbound_rtp_stream_stats_frame_height(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_inbound_rtp_stream_stats_total_inter_frame_delay(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_inbound_rtp_stream_stats_frames_per_second(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_inbound_rtp_stream_stats_frame_bit_depth(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_inbound_rtp_stream_stats_fir_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_inbound_rtp_stream_stats_pli_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        // pub fn RTCInboundRTPStreamStats_sli_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_inbound_rtp_stream_stats_concealment_events(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_inbound_rtp_stream_stats_frames_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberi32>;
+
+        pub fn rtc_ice_candidate_pair_stats_state(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_ice_candidate_pair_stats_nominated(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberbool>;
+        pub fn rtc_ice_candidate_pair_stats_bytes_sent(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_ice_candidate_pair_stats_bytes_received(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_ice_candidate_pair_stats_total_round_trip_time(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_ice_candidate_pair_stats_current_round_trip_time(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_ice_candidate_pair_stats_available_outgoing_bitrate(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberf64>;
+
+        pub fn rtc_transport_stats_packets_sent(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_transport_stats_packets_received(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_transport_stats_bytes_sent(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_transport_stats_bytes_received(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
+        // pub fn RTCTransportStats_ice_role(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberString>;
+
+        pub fn rtc_remote_inbound_rtp_stream_stats_local_id(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        // pub fn RTCRemoteInboundRtpStreamStats_jitter(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_remote_inbound_rtp_stream_stats_round_trip_time(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_remote_inbound_rtp_stream_stats_fraction_lost(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        // pub fn RTCRemoteInboundRtpStreamStats_reports_received(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_remote_inbound_rtp_stream_stats_round_trip_time_measurements(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberi32>;
+
+        pub fn rtc_remote_outbound_rtp_stream_stats_local_id(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_remote_outbound_rtp_stream_stats_remote_timestamp(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_remote_outbound_rtp_stream_stats_reports_sent(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        
+        pub fn rtc_media_source_stats_cast_to_rtc_video_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<UniquePtr<RTCVideoSourceStats>>;
+        pub fn rtc_media_source_stats_cast_to_rtc_audio_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<UniquePtr<RTCAudioSourceStats>>;
+
+        pub fn rtc_video_source_stats_width(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_video_source_stats_height(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_video_source_stats_frames(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberu32>;
+        pub fn rtc_video_source_stats_frames_per_second(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+
+        pub fn rtc_audio_source_stats_audio_level(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_audio_source_stats_total_audio_energy(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_audio_source_stats_total_samples_duration(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_audio_source_stats_echo_return_loss(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        pub fn rtc_audio_source_stats_echo_return_loss_enhancement(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
     }
 
     #[rustfmt::skip]
@@ -2026,6 +2146,20 @@ impl TryFrom<&str> for webrtc::CandidateType {
             "prflx" => Ok(Self::kPrflx),
             "relay" => Ok(Self::kRelay),
             v => Err(anyhow!("Invalid `CandidateType`: {v}")),
+        }
+    }
+}
+
+impl TryFrom<&str> for webrtc::RTCStatsIceCandidatePairState {
+    type Error = anyhow::Error;
+    fn try_from(val: &str) -> Result<Self, Self::Error> {
+        match val {
+            "frozen" => Ok(Self::kFrozen),
+            "waiting" => Ok(Self::kWaiting),
+            "inProgress" => Ok(Self::kInProgress),
+            "failed" => Ok(Self::kFailed),
+            "succeeded" => Ok(Self::kSucceeded),
+            v => Err(anyhow!("Invalid `RTCStatsIceCandidatePairState`: {v}")),
         }
     }
 }

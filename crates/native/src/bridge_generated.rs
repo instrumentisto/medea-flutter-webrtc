@@ -1154,6 +1154,18 @@ impl NewWithNullPtr for wire_VideoConstraints {
 
 // Section: impl IntoDart
 
+impl support::IntoDart for CandidateType {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Host => 0,
+            Self::Srflx => 1,
+            Self::Prflx => 2,
+            Self::Relay => 3,
+        }
+        .into_dart()
+    }
+}
+
 impl support::IntoDart for GetMediaError {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1312,6 +1324,40 @@ impl support::IntoDart for PeerConnectionState {
         .into_dart()
     }
 }
+impl support::IntoDart for RTCMediaSourceStatsType {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::RTCVideoSourceStats {
+                width,
+                height,
+                frames,
+                frames_per_second,
+            } => vec![
+                0.into_dart(),
+                width.into_dart(),
+                height.into_dart(),
+                frames.into_dart(),
+                frames_per_second.into_dart(),
+            ],
+            Self::RTCAudioSourceStats {
+                audio_level,
+                total_audio_energy,
+                total_samples_duration,
+                echo_return_loss,
+                echo_return_loss_enhancement,
+            } => vec![
+                1.into_dart(),
+                audio_level.into_dart(),
+                total_audio_energy.into_dart(),
+                total_samples_duration.into_dart(),
+                echo_return_loss.into_dart(),
+                echo_return_loss_enhancement.into_dart(),
+            ],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RTCMediaSourceStatsType {}
 impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartCObject {
         vec![
@@ -1332,6 +1378,185 @@ impl support::IntoDart for RtcSessionDescription {
 }
 impl support::IntoDartExceptPrimitive for RtcSessionDescription {}
 
+impl support::IntoDart for RTCStats {
+    fn into_dart(self) -> support::DartCObject {
+        vec![
+            self.id.into_dart(),
+            self.timestamp_us.into_dart(),
+            self.kind.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RTCStats {}
+
+impl support::IntoDart for RTCStatsIceCandidatePairState {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Frozen => 0,
+            Self::Waiting => 1,
+            Self::InProgress => 2,
+            Self::Failed => 3,
+            Self::Succeeded => 4,
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDart for RTCStatsType {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::RTCMediaSourceStats {
+                track_identifier,
+                kind,
+            } => vec![
+                0.into_dart(),
+                track_identifier.into_dart(),
+                kind.into_dart(),
+            ],
+            Self::RTCIceCandidateStats {
+                transport_id,
+                address,
+                port,
+                protocol,
+                candidate_type,
+                priority,
+                url,
+            } => vec![
+                1.into_dart(),
+                transport_id.into_dart(),
+                address.into_dart(),
+                port.into_dart(),
+                protocol.into_dart(),
+                candidate_type.into_dart(),
+                priority.into_dart(),
+                url.into_dart(),
+            ],
+            Self::RTCOutboundRTPStreamStats {
+                track_id,
+                kind,
+                frame_width,
+                frame_height,
+                frames_per_second,
+                bytes_sent,
+                packets_sent,
+                media_source_id,
+            } => vec![
+                2.into_dart(),
+                track_id.into_dart(),
+                kind.into_dart(),
+                frame_width.into_dart(),
+                frame_height.into_dart(),
+                frames_per_second.into_dart(),
+                bytes_sent.into_dart(),
+                packets_sent.into_dart(),
+                media_source_id.into_dart(),
+            ],
+            Self::RTCInboundRTPStreamStats {
+                remote_id,
+                bytes_received,
+                packets_received,
+                total_decode_time,
+                jitter_buffer_emitted_count,
+                total_samples_received,
+                concealed_samples,
+                silent_concealed_samples,
+                audio_level,
+                total_audio_energy,
+                total_samples_duration,
+                frames_decoded,
+                key_frames_decoded,
+                frame_width,
+                frame_height,
+                total_inter_frame_delay,
+                frames_per_second,
+                frame_bit_depth,
+                fir_count,
+                pli_count,
+                concealment_events,
+                frames_received,
+            } => vec![
+                3.into_dart(),
+                remote_id.into_dart(),
+                bytes_received.into_dart(),
+                packets_received.into_dart(),
+                total_decode_time.into_dart(),
+                jitter_buffer_emitted_count.into_dart(),
+                total_samples_received.into_dart(),
+                concealed_samples.into_dart(),
+                silent_concealed_samples.into_dart(),
+                audio_level.into_dart(),
+                total_audio_energy.into_dart(),
+                total_samples_duration.into_dart(),
+                frames_decoded.into_dart(),
+                key_frames_decoded.into_dart(),
+                frame_width.into_dart(),
+                frame_height.into_dart(),
+                total_inter_frame_delay.into_dart(),
+                frames_per_second.into_dart(),
+                frame_bit_depth.into_dart(),
+                fir_count.into_dart(),
+                pli_count.into_dart(),
+                concealment_events.into_dart(),
+                frames_received.into_dart(),
+            ],
+            Self::RTCIceCandidatePairStats {
+                state,
+                nominated,
+                bytes_sent,
+                bytes_received,
+                total_round_trip_time,
+                current_round_trip_time,
+                available_outgoing_bitrate,
+            } => vec![
+                4.into_dart(),
+                state.into_dart(),
+                nominated.into_dart(),
+                bytes_sent.into_dart(),
+                bytes_received.into_dart(),
+                total_round_trip_time.into_dart(),
+                current_round_trip_time.into_dart(),
+                available_outgoing_bitrate.into_dart(),
+            ],
+            Self::RTCTransportStats {
+                packets_sent,
+                packets_received,
+                bytes_sent,
+                bytes_received,
+            } => vec![
+                5.into_dart(),
+                packets_sent.into_dart(),
+                packets_received.into_dart(),
+                bytes_sent.into_dart(),
+                bytes_received.into_dart(),
+            ],
+            Self::RTCRemoteInboundRtpStreamStats {
+                local_id,
+                round_trip_time,
+                fraction_lost,
+                round_trip_time_measurements,
+            } => vec![
+                6.into_dart(),
+                local_id.into_dart(),
+                round_trip_time.into_dart(),
+                fraction_lost.into_dart(),
+                round_trip_time_measurements.into_dart(),
+            ],
+            Self::RTCRemoteOutboundRtpStreamStats {
+                local_id,
+                remote_timestamp,
+                reports_sent,
+            } => vec![
+                7.into_dart(),
+                local_id.into_dart(),
+                remote_timestamp.into_dart(),
+                reports_sent.into_dart(),
+            ],
+            Self::Unimplenented => vec![8.into_dart()],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RTCStatsType {}
 impl support::IntoDart for RtcTrackEvent {
     fn into_dart(self) -> support::DartCObject {
         vec![self.track.into_dart(), self.transceiver.into_dart()].into_dart()
@@ -1379,6 +1604,15 @@ impl support::IntoDart for TrackEvent {
     fn into_dart(self) -> support::DartCObject {
         match self {
             Self::Ended => 0,
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDart for TrackKind {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Audio => 0,
+            Self::Video => 1,
         }
         .into_dart()
     }

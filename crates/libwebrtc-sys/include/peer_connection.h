@@ -234,7 +234,7 @@ void restart_ice(const PeerConnectionInterface& peer);
 void close_peer_connection(const PeerConnectionInterface& peer);
 
 // todo
-void get_stats(const PeerConnectionInterface& peer,
+void peer_connection_get_stats(const PeerConnectionInterface& peer,
                rust::Box<DynRTCStatsCollectorCallback> cb);
 
 }  // namespace bridge

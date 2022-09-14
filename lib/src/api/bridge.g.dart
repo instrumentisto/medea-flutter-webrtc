@@ -144,7 +144,7 @@ abstract class FlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kGetTransceiverDirectionConstMeta;
 
-  Future<void> getPeerStats({required int peerId, dynamic hint});
+  Future<List<RTCStats>> getPeerStats({required int peerId, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetPeerStatsConstMeta;
 
@@ -325,6 +325,13 @@ enum BundlePolicy {
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
   MaxCompat,
+}
+
+enum CandidateType {
+  Host,
+  Srflx,
+  Prflx,
+  Relay,
 }
 
 @freezed
@@ -735,6 +742,23 @@ class RtcIceServer {
   });
 }
 
+@freezed
+class RTCMediaSourceStatsType with _$RTCMediaSourceStatsType {
+  const factory RTCMediaSourceStatsType.rtcVideoSourceStats({
+    int? width,
+    int? height,
+    int? frames,
+    double? framesPerSecond,
+  }) = RTCMediaSourceStatsType_RTCVideoSourceStats;
+  const factory RTCMediaSourceStatsType.rtcAudioSourceStats({
+    double? audioLevel,
+    double? totalAudioEnergy,
+    double? totalSamplesDuration,
+    double? echoReturnLoss,
+    double? echoReturnLossEnhancement,
+  }) = RTCMediaSourceStatsType_RTCAudioSourceStats;
+}
+
 /// Representation of a permanent pair of an [RTCRtpSender] and an
 /// [RTCRtpReceiver], along with some shared state.
 ///
@@ -784,6 +808,104 @@ class RtcSessionDescription {
     required this.sdp,
     required this.kind,
   });
+}
+
+class RTCStats {
+  final String id;
+  final int timestampUs;
+  final RTCStatsType kind;
+
+  RTCStats({
+    required this.id,
+    required this.timestampUs,
+    required this.kind,
+  });
+}
+
+enum RTCStatsIceCandidatePairState {
+  Frozen,
+  Waiting,
+  InProgress,
+  Failed,
+  Succeeded,
+}
+
+@freezed
+class RTCStatsType with _$RTCStatsType {
+  const factory RTCStatsType.rtcMediaSourceStats({
+    String? trackIdentifier,
+    required RTCMediaSourceStatsType kind,
+  }) = RTCStatsType_RTCMediaSourceStats;
+  const factory RTCStatsType.rtcIceCandidateStats({
+    String? transportId,
+    String? address,
+    int? port,
+    String? protocol,
+    required CandidateType candidateType,
+    int? priority,
+    String? url,
+  }) = RTCStatsType_RTCIceCandidateStats;
+  const factory RTCStatsType.rtcOutboundRtpStreamStats({
+    String? trackId,
+    required TrackKind kind,
+    int? frameWidth,
+    int? frameHeight,
+    double? framesPerSecond,
+    int? bytesSent,
+    int? packetsSent,
+    String? mediaSourceId,
+  }) = RTCStatsType_RTCOutboundRTPStreamStats;
+  const factory RTCStatsType.rtcInboundRtpStreamStats({
+    String? remoteId,
+    int? bytesReceived,
+    int? packetsReceived,
+    double? totalDecodeTime,
+    int? jitterBufferEmittedCount,
+    int? totalSamplesReceived,
+    int? concealedSamples,
+    int? silentConcealedSamples,
+    double? audioLevel,
+    double? totalAudioEnergy,
+    double? totalSamplesDuration,
+    int? framesDecoded,
+    int? keyFramesDecoded,
+    int? frameWidth,
+    int? frameHeight,
+    double? totalInterFrameDelay,
+    double? framesPerSecond,
+    int? frameBitDepth,
+    int? firCount,
+    int? pliCount,
+    int? concealmentEvents,
+    int? framesReceived,
+  }) = RTCStatsType_RTCInboundRTPStreamStats;
+  const factory RTCStatsType.rtcIceCandidatePairStats({
+    required RTCStatsIceCandidatePairState state,
+    bool? nominated,
+    int? bytesSent,
+    int? bytesReceived,
+    double? totalRoundTripTime,
+    double? currentRoundTripTime,
+    double? availableOutgoingBitrate,
+  }) = RTCStatsType_RTCIceCandidatePairStats;
+  const factory RTCStatsType.rtcTransportStats({
+    int? packetsSent,
+    int? packetsReceived,
+    int? bytesSent,
+    int? bytesReceived,
+  }) = RTCStatsType_RTCTransportStats;
+  const factory RTCStatsType.rtcRemoteInboundRtpStreamStats({
+    String? localId,
+    double? roundTripTime,
+    double? fractionLost,
+    int? roundTripTimeMeasurements,
+  }) = RTCStatsType_RTCRemoteInboundRtpStreamStats;
+  const factory RTCStatsType.rtcRemoteOutboundRtpStreamStats({
+    String? localId,
+    double? remoteTimestamp,
+    int? reportsSent,
+  }) = RTCStatsType_RTCRemoteOutboundRtpStreamStats;
+  const factory RTCStatsType.unimplenented() = RTCStatsType_Unimplenented;
 }
 
 /// Representation of a track event, sent when a new [`MediaStreamTrack`] is
@@ -918,6 +1040,11 @@ enum TrackEvent {
   /// or streaming has stopped because the end of the media was reached or
   /// because no further data is available.
   Ended,
+}
+
+enum TrackKind {
+  Audio,
+  Video,
 }
 
 /// Indicator of the current [MediaStreamTrackState][0] of a
@@ -1295,11 +1422,11 @@ class FlutterWebrtcNativeImpl
         argNames: ["peerId", "transceiverIndex"],
       );
 
-  Future<void> getPeerStats({required int peerId, dynamic hint}) =>
+  Future<List<RTCStats>> getPeerStats({required int peerId, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
         callFfi: (port_) =>
             inner.wire_get_peer_stats(port_, _api2wire_u64(peerId)),
-        parseSuccessData: _wire2api_unit,
+        parseSuccessData: _wire2api_list_rtc_stats,
         constMeta: kGetPeerStatsConstMeta,
         argValues: [peerId],
         hint: hint,
@@ -1829,12 +1956,45 @@ bool _wire2api_bool(dynamic raw) {
   return raw as bool;
 }
 
+bool _wire2api_box_autoadd_bool(dynamic raw) {
+  return raw as bool;
+}
+
+double _wire2api_box_autoadd_f64(dynamic raw) {
+  return raw as double;
+}
+
 GetMediaError _wire2api_box_autoadd_get_media_error(dynamic raw) {
   return _wire2api_get_media_error(raw);
 }
 
+int _wire2api_box_autoadd_i32(dynamic raw) {
+  return raw as int;
+}
+
+RTCMediaSourceStatsType _wire2api_box_autoadd_rtc_media_source_stats_type(
+    dynamic raw) {
+  return _wire2api_rtc_media_source_stats_type(raw);
+}
+
 RtcTrackEvent _wire2api_box_autoadd_rtc_track_event(dynamic raw) {
   return _wire2api_rtc_track_event(raw);
+}
+
+int _wire2api_box_autoadd_u32(dynamic raw) {
+  return raw as int;
+}
+
+int _wire2api_box_autoadd_u64(dynamic raw) {
+  return raw as int;
+}
+
+CandidateType _wire2api_candidate_type(dynamic raw) {
+  return CandidateType.values[raw];
+}
+
+double _wire2api_f64(dynamic raw) {
+  return raw as double;
 }
 
 GetMediaError _wire2api_get_media_error(dynamic raw) {
@@ -1871,6 +2031,10 @@ int _wire2api_i32(dynamic raw) {
   return raw as int;
 }
 
+int _wire2api_i64(dynamic raw) {
+  return raw as int;
+}
+
 IceConnectionState _wire2api_ice_connection_state(dynamic raw) {
   return IceConnectionState.values[raw];
 }
@@ -1893,6 +2057,10 @@ List<MediaStreamTrack> _wire2api_list_media_stream_track(dynamic raw) {
 
 List<RtcRtpTransceiver> _wire2api_list_rtc_rtp_transceiver(dynamic raw) {
   return (raw as List<dynamic>).map(_wire2api_rtc_rtp_transceiver).toList();
+}
+
+List<RTCStats> _wire2api_list_rtc_stats(dynamic raw) {
+  return (raw as List<dynamic>).map(_wire2api_rtc_stats).toList();
 }
 
 MediaDeviceInfo _wire2api_media_device_info(dynamic raw) {
@@ -1938,6 +2106,26 @@ MediaType _wire2api_media_type(dynamic raw) {
 
 String? _wire2api_opt_String(dynamic raw) {
   return raw == null ? null : _wire2api_String(raw);
+}
+
+bool? _wire2api_opt_box_autoadd_bool(dynamic raw) {
+  return raw == null ? null : _wire2api_box_autoadd_bool(raw);
+}
+
+double? _wire2api_opt_box_autoadd_f64(dynamic raw) {
+  return raw == null ? null : _wire2api_box_autoadd_f64(raw);
+}
+
+int? _wire2api_opt_box_autoadd_i32(dynamic raw) {
+  return raw == null ? null : _wire2api_box_autoadd_i32(raw);
+}
+
+int? _wire2api_opt_box_autoadd_u32(dynamic raw) {
+  return raw == null ? null : _wire2api_box_autoadd_u32(raw);
+}
+
+int? _wire2api_opt_box_autoadd_u64(dynamic raw) {
+  return raw == null ? null : _wire2api_box_autoadd_u64(raw);
 }
 
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
@@ -1991,6 +2179,28 @@ PeerConnectionState _wire2api_peer_connection_state(dynamic raw) {
   return PeerConnectionState.values[raw];
 }
 
+RTCMediaSourceStatsType _wire2api_rtc_media_source_stats_type(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return RTCMediaSourceStatsType_RTCVideoSourceStats(
+        width: _wire2api_opt_box_autoadd_u32(raw[1]),
+        height: _wire2api_opt_box_autoadd_u32(raw[2]),
+        frames: _wire2api_opt_box_autoadd_u32(raw[3]),
+        framesPerSecond: _wire2api_opt_box_autoadd_f64(raw[4]),
+      );
+    case 1:
+      return RTCMediaSourceStatsType_RTCAudioSourceStats(
+        audioLevel: _wire2api_opt_box_autoadd_f64(raw[1]),
+        totalAudioEnergy: _wire2api_opt_box_autoadd_f64(raw[2]),
+        totalSamplesDuration: _wire2api_opt_box_autoadd_f64(raw[3]),
+        echoReturnLoss: _wire2api_opt_box_autoadd_f64(raw[4]),
+        echoReturnLossEnhancement: _wire2api_opt_box_autoadd_f64(raw[5]),
+      );
+    default:
+      throw Exception("unreachable");
+  }
+}
+
 RtcRtpTransceiver _wire2api_rtc_rtp_transceiver(dynamic raw) {
   final arr = raw as List<dynamic>;
   if (arr.length != 4)
@@ -2011,6 +2221,112 @@ RtcSessionDescription _wire2api_rtc_session_description(dynamic raw) {
     sdp: _wire2api_String(arr[0]),
     kind: _wire2api_sdp_type(arr[1]),
   );
+}
+
+RTCStats _wire2api_rtc_stats(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 3)
+    throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+  return RTCStats(
+    id: _wire2api_String(arr[0]),
+    timestampUs: _wire2api_i64(arr[1]),
+    kind: _wire2api_rtc_stats_type(arr[2]),
+  );
+}
+
+RTCStatsIceCandidatePairState _wire2api_rtc_stats_ice_candidate_pair_state(
+    dynamic raw) {
+  return RTCStatsIceCandidatePairState.values[raw];
+}
+
+RTCStatsType _wire2api_rtc_stats_type(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return RTCStatsType_RTCMediaSourceStats(
+        trackIdentifier: _wire2api_opt_String(raw[1]),
+        kind: _wire2api_box_autoadd_rtc_media_source_stats_type(raw[2]),
+      );
+    case 1:
+      return RTCStatsType_RTCIceCandidateStats(
+        transportId: _wire2api_opt_String(raw[1]),
+        address: _wire2api_opt_String(raw[2]),
+        port: _wire2api_opt_box_autoadd_i32(raw[3]),
+        protocol: _wire2api_opt_String(raw[4]),
+        candidateType: _wire2api_candidate_type(raw[5]),
+        priority: _wire2api_opt_box_autoadd_i32(raw[6]),
+        url: _wire2api_opt_String(raw[7]),
+      );
+    case 2:
+      return RTCStatsType_RTCOutboundRTPStreamStats(
+        trackId: _wire2api_opt_String(raw[1]),
+        kind: _wire2api_track_kind(raw[2]),
+        frameWidth: _wire2api_opt_box_autoadd_u32(raw[3]),
+        frameHeight: _wire2api_opt_box_autoadd_u32(raw[4]),
+        framesPerSecond: _wire2api_opt_box_autoadd_f64(raw[5]),
+        bytesSent: _wire2api_opt_box_autoadd_u64(raw[6]),
+        packetsSent: _wire2api_opt_box_autoadd_u32(raw[7]),
+        mediaSourceId: _wire2api_opt_String(raw[8]),
+      );
+    case 3:
+      return RTCStatsType_RTCInboundRTPStreamStats(
+        remoteId: _wire2api_opt_String(raw[1]),
+        bytesReceived: _wire2api_opt_box_autoadd_u64(raw[2]),
+        packetsReceived: _wire2api_opt_box_autoadd_u32(raw[3]),
+        totalDecodeTime: _wire2api_opt_box_autoadd_f64(raw[4]),
+        jitterBufferEmittedCount: _wire2api_opt_box_autoadd_u64(raw[5]),
+        totalSamplesReceived: _wire2api_opt_box_autoadd_u64(raw[6]),
+        concealedSamples: _wire2api_opt_box_autoadd_u64(raw[7]),
+        silentConcealedSamples: _wire2api_opt_box_autoadd_u64(raw[8]),
+        audioLevel: _wire2api_opt_box_autoadd_f64(raw[9]),
+        totalAudioEnergy: _wire2api_opt_box_autoadd_f64(raw[10]),
+        totalSamplesDuration: _wire2api_opt_box_autoadd_f64(raw[11]),
+        framesDecoded: _wire2api_opt_box_autoadd_u32(raw[12]),
+        keyFramesDecoded: _wire2api_opt_box_autoadd_u32(raw[13]),
+        frameWidth: _wire2api_opt_box_autoadd_u32(raw[14]),
+        frameHeight: _wire2api_opt_box_autoadd_u32(raw[15]),
+        totalInterFrameDelay: _wire2api_opt_box_autoadd_f64(raw[16]),
+        framesPerSecond: _wire2api_opt_box_autoadd_f64(raw[17]),
+        frameBitDepth: _wire2api_opt_box_autoadd_u32(raw[18]),
+        firCount: _wire2api_opt_box_autoadd_u32(raw[19]),
+        pliCount: _wire2api_opt_box_autoadd_u32(raw[20]),
+        concealmentEvents: _wire2api_opt_box_autoadd_u64(raw[21]),
+        framesReceived: _wire2api_opt_box_autoadd_i32(raw[22]),
+      );
+    case 4:
+      return RTCStatsType_RTCIceCandidatePairStats(
+        state: _wire2api_rtc_stats_ice_candidate_pair_state(raw[1]),
+        nominated: _wire2api_opt_box_autoadd_bool(raw[2]),
+        bytesSent: _wire2api_opt_box_autoadd_u64(raw[3]),
+        bytesReceived: _wire2api_opt_box_autoadd_u64(raw[4]),
+        totalRoundTripTime: _wire2api_opt_box_autoadd_f64(raw[5]),
+        currentRoundTripTime: _wire2api_opt_box_autoadd_f64(raw[6]),
+        availableOutgoingBitrate: _wire2api_opt_box_autoadd_f64(raw[7]),
+      );
+    case 5:
+      return RTCStatsType_RTCTransportStats(
+        packetsSent: _wire2api_opt_box_autoadd_u64(raw[1]),
+        packetsReceived: _wire2api_opt_box_autoadd_u64(raw[2]),
+        bytesSent: _wire2api_opt_box_autoadd_u64(raw[3]),
+        bytesReceived: _wire2api_opt_box_autoadd_u64(raw[4]),
+      );
+    case 6:
+      return RTCStatsType_RTCRemoteInboundRtpStreamStats(
+        localId: _wire2api_opt_String(raw[1]),
+        roundTripTime: _wire2api_opt_box_autoadd_f64(raw[2]),
+        fractionLost: _wire2api_opt_box_autoadd_f64(raw[3]),
+        roundTripTimeMeasurements: _wire2api_opt_box_autoadd_i32(raw[4]),
+      );
+    case 7:
+      return RTCStatsType_RTCRemoteOutboundRtpStreamStats(
+        localId: _wire2api_opt_String(raw[1]),
+        remoteTimestamp: _wire2api_opt_box_autoadd_f64(raw[2]),
+        reportsSent: _wire2api_opt_box_autoadd_u64(raw[3]),
+      );
+    case 8:
+      return RTCStatsType_Unimplenented();
+    default:
+      throw Exception("unreachable");
+  }
 }
 
 RtcTrackEvent _wire2api_rtc_track_event(dynamic raw) {
@@ -2037,6 +2353,10 @@ SignalingState _wire2api_signaling_state(dynamic raw) {
 
 TrackEvent _wire2api_track_event(dynamic raw) {
   return TrackEvent.values[raw];
+}
+
+TrackKind _wire2api_track_kind(dynamic raw) {
+  return TrackKind.values[raw];
 }
 
 TrackState _wire2api_track_state(dynamic raw) {

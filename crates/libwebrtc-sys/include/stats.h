@@ -8,10 +8,45 @@
 
 namespace bridge {
 
+using RTCStatsMemberString = webrtc::RTCStatsMember<std::string>;
+using RTCStatsMemberf64 = webrtc::RTCStatsMember<double>;
+using RTCStatsMemberi32 = webrtc::RTCStatsMember<int32_t>;
+using RTCStatsMemberu32 = webrtc::RTCStatsMember<uint32_t>;
+using RTCStatsMemberu64 = webrtc::RTCStatsMember<uint64_t>;
+using RTCStatsMemberbool = webrtc::RTCStatsMember<bool>;
+
+bool rtc_stats_member_string_is_defined(const RTCStatsMemberString& stats_member);
+bool rtc_stats_member_f64_is_defined(const RTCStatsMemberf64& stats_member);
+bool rtc_stats_member_i32_is_defined(const RTCStatsMemberi32& stats_member);
+bool rtc_stats_member_u32_is_defined(const RTCStatsMemberu32& stats_member);
+bool rtc_stats_member_u64_is_defined(const RTCStatsMemberu64& stats_member);
+bool rtc_stats_member_bool_is_defined(const RTCStatsMemberbool& stats_member);
+
+
+std::unique_ptr<std::string> rtc_stats_member_string_value(const RTCStatsMemberString& stats_member);
+double rtc_stats_member_f64_value(const RTCStatsMemberf64& stats_member);
+int32_t rtc_stats_member_i32_value(const RTCStatsMemberi32& stats_member);
+uint32_t rtc_stats_member_u32_value(const RTCStatsMemberu32& stats_member);
+uint64_t rtc_stats_member_u64_value(const RTCStatsMemberu64& stats_member);
+bool rtc_stats_member_bool_value(const RTCStatsMemberbool& stats_member);
+
+
 using RTCStatsReport = rtc::scoped_refptr<const webrtc::RTCStatsReport>;
 using RTCStats = webrtc::RTCStats;
+struct RTCStatsContainer;
+
+
+std::unique_ptr<std::string> rtc_stats_id(const RTCStats& stats);
+int64_t rtc_stats_timestamp_us(const RTCStats& stats);
+std::unique_ptr<std::string> rtc_stats_type(const RTCStats& stats);
+
+
+
 
 using RTCMediaSourceStats = webrtc::RTCMediaSourceStats;
+using RTCVideoSourceStats = webrtc::RTCVideoSourceStats;
+using RTCAudioSourceStats = webrtc::RTCAudioSourceStats;
+
 struct RTCMediaSourceStatsContainer;
 
 using RTCIceCandidateStats = webrtc::RTCIceCandidateStats;
@@ -36,339 +71,362 @@ using RTCRemoteOutboundRtpStreamStats = webrtc::RTCRemoteOutboundRtpStreamStats;
 struct RTCRemoteOutboundRtpStreamStatsContainer;
 
 
+
+std::unique_ptr<RTCIceCandidateStats>            rtc_stats_cast_to_rtc_ice_candidate_stats(std::unique_ptr<RTCStats> stats);
+std::unique_ptr<RTCOutboundRTPStreamStats>       rtc_stats_cast_to_rtc_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats);
+std::unique_ptr<RTCInboundRTPStreamStats>        rtc_stats_cast_to_rtc_inbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats);
+std::unique_ptr<RTCIceCandidatePairStats>        rtc_stats_cast_to_rtc_ice_candidate_pair_stats(std::unique_ptr<RTCStats> stats);
+std::unique_ptr<RTCTransportStats>               rtc_stats_cast_to_rtc_transport_stats(std::unique_ptr<RTCStats> stats);
+std::unique_ptr<RTCRemoteInboundRtpStreamStats>  rtc_stats_cast_to_rtc_remote_inbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats);
+std::unique_ptr<RTCRemoteOutboundRtpStreamStats> rtc_stats_cast_to_rtc_remote_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats);
+std::unique_ptr<RTCMediaSourceStats>             rtc_stats_cast_to_rtc_media_source_stats(std::unique_ptr<RTCStats> stats);
+
+
 // RTCMediaSourceStats
-// std::unique_ptr<RTCMediaSourceStats> RTCStats_cast_to_RTCMediaSourceStats(
-//     const RTCStats& stats);
-std::unique_ptr<std::string> RTCMediaSourceStats_track_identifier(
+std::unique_ptr<RTCStatsMemberString> rtc_media_source_stats_track_identifier(
     const RTCMediaSourceStats& stats);
-std::unique_ptr<std::string> RTCMediaSourceStats_kind(
+std::unique_ptr<RTCStatsMemberString> rtc_media_source_stats_kind(
     const RTCMediaSourceStats& stats);
 /// RTCMediaSourceStats
+
+std::unique_ptr<RTCAudioSourceStats> rtc_media_source_stats_cast_to_rtc_audio_source_stats(std::unique_ptr<RTCMediaSourceStats> stats);
+std::unique_ptr<RTCVideoSourceStats> rtc_media_source_stats_cast_to_rtc_video_source_stats(std::unique_ptr<RTCMediaSourceStats> stats);
+
+//RTCVideoSourceStats
+std::unique_ptr<RTCStatsMemberu32> rtc_video_source_stats_width(
+    const RTCVideoSourceStats& stats);
+std::unique_ptr<RTCStatsMemberu32> rtc_video_source_stats_height(
+    const RTCVideoSourceStats& stats);
+std::unique_ptr<RTCStatsMemberu32> rtc_video_source_stats_frames(
+    const RTCVideoSourceStats& stats);
+std::unique_ptr<RTCStatsMemberf64> rtc_video_source_stats_frames_per_second(
+    const RTCVideoSourceStats& stats);
+/// RTCMediaSourceStats 
+
+// RTCAudioSourceStats
+std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_audio_level(
+    const RTCAudioSourceStats& stats);
+std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_total_audio_energy(
+    const RTCAudioSourceStats& stats);
+std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_total_samples_duration(
+    const RTCAudioSourceStats& stats);
+std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_echo_return_loss(
+    const RTCAudioSourceStats& stats);
+std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_echo_return_loss_enhancement(
+    const RTCAudioSourceStats& stats);
+/// RTCAudioSourceStats
 
 // RTCIceCandidateStats
 // std::unique_ptr<RTCIceCandidateStats> RTCStats_cast_to_RTCIceCandidateStats(
 //     const RTCStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_transport_id(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_transport_id(
     const RTCIceCandidateStats& stats);
-bool RTCIceCandidateStats_is_remote(const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_network_type(
+std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_stats_is_remote(const RTCIceCandidateStats& stats);
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_network_type(
     const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_ip(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_ip(
     const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_address(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_address(
     const RTCIceCandidateStats& stats);
-int32_t RTCIceCandidateStats_port(const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_protocol(
+std::unique_ptr<RTCStatsMemberi32> rtc_ice_candidate_stats_port(const RTCIceCandidateStats& stats);
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_protocol(
     const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_relay_protocol(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_relay_protocol(
     const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_candidate_type(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_candidate_type(
     const RTCIceCandidateStats& stats);
-int32_t RTCIceCandidateStats_priority(const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_url(
+std::unique_ptr<RTCStatsMemberi32> rtc_ice_candidate_stats_priority(const RTCIceCandidateStats& stats);
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_url(
     const RTCIceCandidateStats& stats);
-bool RTCIceCandidateStats_vpn(const RTCIceCandidateStats& stats);
-std::unique_ptr<std::string> RTCIceCandidateStats_network_adapter_type(
+std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_stats_vpn(const RTCIceCandidateStats& stats);
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_network_adapter_type(
     const RTCIceCandidateStats& stats);
 /// RTCIceCandidateStats
 
 // RTCOutboundRTPStreamStats
 // std::unique_ptr<RTCOutboundRTPStreamStats>
 // RTCStats_cast_to_RTCOutboundRTPStreamStats(const RTCStats& stats);
-std::unique_ptr<std::string> RTCOutboundRTPStreamStats_track_id(
+std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_track_id(
     const RTCOutboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCOutboundRTPStreamStats_kind(
+std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_kind(
     const RTCOutboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCOutboundRTPStreamStats_media_source_id(
+std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_media_source_id(
     const RTCOutboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCOutboundRTPStreamStats_remote_id(
+std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_remote_id(
     const RTCOutboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCOutboundRTPStreamStats_rid(
+std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_rid(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_packets_sent(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_packets_sent(
     const RTCOutboundRTPStreamStats& stats);
-uint64_t RTCOutboundRTPStreamStats_retransmitted_packets_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_retransmitted_packets_sent(
     const RTCOutboundRTPStreamStats& stats);
-uint64_t RTCOutboundRTPStreamStats_bytes_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_bytes_sent(
     const RTCOutboundRTPStreamStats& stats);
-uint64_t RTCOutboundRTPStreamStats_header_bytes_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_header_bytes_sent(
     const RTCOutboundRTPStreamStats& stats);
-uint64_t RTCOutboundRTPStreamStats_retransmitted_bytes_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_retransmitted_bytes_sent(
     const RTCOutboundRTPStreamStats& stats);
-double RTCOutboundRTPStreamStats_target_bitrate(
+std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_target_bitrate(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_frames_encoded(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frames_encoded(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_key_frames_encoded(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_key_frames_encoded(
     const RTCOutboundRTPStreamStats& stats);
-double RTCOutboundRTPStreamStats_total_encode_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_total_encode_time(
     const RTCOutboundRTPStreamStats& stats);
-uint64_t RTCOutboundRTPStreamStats_total_encoded_bytes_target(
+std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_total_encoded_bytes_target(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_frame_width(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frame_width(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_frame_height(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frame_height(
     const RTCOutboundRTPStreamStats& stats);
-double RTCOutboundRTPStreamStats_frames_per_second(
+std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_frames_per_second(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_frames_sent(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frames_sent(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_huge_frames_sent(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_huge_frames_sent(
     const RTCOutboundRTPStreamStats& stats);
-double RTCOutboundRTPStreamStats_total_packet_send_delay(
+std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_total_packet_send_delay(
     const RTCOutboundRTPStreamStats& stats);
-std::unique_ptr<std::string>
-RTCOutboundRTPStreamStats_quality_limitation_reason(
+std::unique_ptr<RTCStatsMemberString>
+rtc_outbound_rtp_stream_stats_quality_limitation_reason(
     const RTCOutboundRTPStreamStats& stats);
 // todo
 //   RTCStatsMember<std::map<std::string, double>> quality_limitation_durations;
-uint32_t RTCOutboundRTPStreamStats_quality_limitation_resolution_changes(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_quality_limitation_resolution_changes(
     const RTCOutboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCOutboundRTPStreamStats_content_type(
+std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_content_type(
     const RTCOutboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCOutboundRTPStreamStats_encoder_implementation(
+std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_encoder_implementation(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_fir_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_fir_count(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_pli_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_pli_count(
     const RTCOutboundRTPStreamStats& stats);
-uint32_t RTCOutboundRTPStreamStats_nack_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_nack_count(
     const RTCOutboundRTPStreamStats& stats);
-uint64_t RTCOutboundRTPStreamStats_qp_sum(
+std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_qp_sum(
     const RTCOutboundRTPStreamStats& stats);
 /// RTCOutboundRTPStreamStats
 
 // RTCInboundRTPStreamStats
 // std::unique_ptr<RTCInboundRTPStreamStats>
 // RTCStats_cast_to_RTCInboundRTPStreamStats(const RTCStats& stats);
-std::unique_ptr<std::string> RTCInboundRTPStreamStats_remote_id(
+std::unique_ptr<RTCStatsMemberString> rtc_inbound_rtp_stream_stats_remote_id(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_packets_received(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_packets_received(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_fec_packets_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_fec_packets_received(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_fec_packets_discarded(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_fec_packets_discarded(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_bytes_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_bytes_received(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_header_bytes_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_header_bytes_received(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_last_packet_received_timestamp(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_last_packet_received_timestamp(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_jitter_buffer_delay(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_jitter_buffer_delay(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_jitter_buffer_emitted_count(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_jitter_buffer_emitted_count(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_total_samples_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_total_samples_received(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_concealed_samples(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_concealed_samples(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_silent_concealed_samples(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_silent_concealed_samples(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_concealment_events(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_concealment_events(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_inserted_samples_for_deceleration(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_inserted_samples_for_deceleration(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_removed_samples_for_acceleration(
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_removed_samples_for_acceleration(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_audio_level(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_audio_level(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_total_audio_energy(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_audio_energy(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_total_samples_duration(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_samples_duration(
     const RTCInboundRTPStreamStats& stats);
-int32_t RTCInboundRTPStreamStats_frames_received(
+std::unique_ptr<RTCStatsMemberi32> rtc_inbound_rtp_stream_stats_frames_received(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_round_trip_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_round_trip_time(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_packets_repaired(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_packets_repaired(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_burst_packets_lost(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_packets_lost(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_burst_packets_discarded(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_packets_discarded(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_burst_loss_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_loss_count(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_burst_discard_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_discard_count(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_burst_loss_rate(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_burst_loss_rate(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_burst_discard_rate(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_burst_discard_rate(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_gap_loss_rate(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_gap_loss_rate(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_gap_discard_rate(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_gap_discard_rate(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_frame_width(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frame_width(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_frame_height(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frame_height(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_frame_bit_depth(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frame_bit_depth(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_frames_per_second(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_frames_per_second(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_frames_decoded(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frames_decoded(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_key_frames_decoded(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_key_frames_decoded(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_frames_dropped(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frames_dropped(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_total_decode_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_decode_time(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_total_inter_frame_delay(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_inter_frame_delay(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_total_squared_inter_frame_delay(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_squared_inter_frame_delay(
     const RTCInboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCInboundRTPStreamStats_content_type(
+std::unique_ptr<RTCStatsMemberString> rtc_inbound_rtp_stream_stats_content_type(
     const RTCInboundRTPStreamStats& stats);
-double RTCInboundRTPStreamStats_estimated_playout_timestamp(
+std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_estimated_playout_timestamp(
     const RTCInboundRTPStreamStats& stats);
-std::unique_ptr<std::string> RTCInboundRTPStreamStats_decoder_implementation(
+std::unique_ptr<RTCStatsMemberString> rtc_inbound_rtp_stream_stats_decoder_implementation(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_fir_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_fir_count(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_pli_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_pli_count(
     const RTCInboundRTPStreamStats& stats);
-uint32_t RTCInboundRTPStreamStats_nack_count(
+std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_nack_count(
     const RTCInboundRTPStreamStats& stats);
-uint64_t RTCInboundRTPStreamStats_qp_sum(const RTCInboundRTPStreamStats& stats);
+std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_qp_sum(const RTCInboundRTPStreamStats& stats);
 /// RTCInboundRTPStreamStats
 
 // RTCIceCandidatePairStats
 // std::unique_ptr<RTCIceCandidatePairStats>
 // RTCStats_cast_to_RTCIceCandidatePairStats(const RTCStats& stats);
-std::unique_ptr<std::string> RTCIceCandidatePairStats_transport_id(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_transport_id(
     const RTCIceCandidatePairStats& stats);
-std::unique_ptr<std::string> RTCIceCandidatePairStats_local_candidate_id(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_local_candidate_id(
     const RTCIceCandidatePairStats& stats);
-std::unique_ptr<std::string> RTCIceCandidatePairStats_remote_candidate_id(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_remote_candidate_id(
     const RTCIceCandidatePairStats& stats);
-std::unique_ptr<std::string> RTCIceCandidatePairStats_state(
+std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_state(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_priority(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_priority(
     const RTCIceCandidatePairStats& stats);
-bool RTCIceCandidatePairStats_nominated(const RTCIceCandidatePairStats& stats);
-bool RTCIceCandidatePairStats_writable(const RTCIceCandidatePairStats& stats);
-bool RTCIceCandidatePairStats_readable(const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_packets_sent(
+std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_pair_stats_nominated(const RTCIceCandidatePairStats& stats);
+std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_pair_stats_writable(const RTCIceCandidatePairStats& stats);
+std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_pair_stats_readable(const RTCIceCandidatePairStats& stats);
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_packets_sent(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_packets_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_packets_received(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_bytes_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_bytes_sent(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_bytes_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_bytes_received(
     const RTCIceCandidatePairStats& stats);
-bool RTCIceCandidatePairStats_total_round_trip_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_total_round_trip_time(
     const RTCIceCandidatePairStats& stats);
-bool RTCIceCandidatePairStats_current_round_trip_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_current_round_trip_time(
     const RTCIceCandidatePairStats& stats);
-bool RTCIceCandidatePairStats_available_outgoing_bitrate(
+std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_available_outgoing_bitrate(
     const RTCIceCandidatePairStats& stats);
-bool RTCIceCandidatePairStats_available_incoming_bitrate(
+std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_available_incoming_bitrate(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_requests_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_requests_received(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_requests_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_requests_sent(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_responses_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_responses_received(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_responses_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_responses_sent(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_retransmissions_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_retransmissions_received(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_retransmissions_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_retransmissions_sent(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_consent_requests_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_requests_received(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_consent_requests_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_requests_sent(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_consent_responses_received(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_responses_received(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_consent_responses_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_responses_sent(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_packets_discarded_on_send(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_packets_discarded_on_send(
     const RTCIceCandidatePairStats& stats);
-uint64_t RTCIceCandidatePairStats_bytes_discarded_on_send(
+std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_bytes_discarded_on_send(
     const RTCIceCandidatePairStats& stats);
 /// RTCIceCandidatePairStats
 
 // RTCTransportStats
 // std::unique_ptr<RTCTransportStats> RTCStats_cast_to_RTCTransportStats(
 //     const RTCStats& stats);
-uint64_t RTCTransportStats_bytes_sent(const RTCTransportStats& stats);
-uint64_t RTCTransportStats_packets_sent(const RTCTransportStats& stats);
-uint64_t RTCTransportStats_bytes_received(const RTCTransportStats& stats);
-uint64_t RTCTransportStats_packets_received(const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_rtcp_transport_stats_id(
+std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_bytes_sent(const RTCTransportStats& stats);
+std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_packets_sent(const RTCTransportStats& stats);
+std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_bytes_received(const RTCTransportStats& stats);
+std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_packets_received(const RTCTransportStats& stats);
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_rtcp_transport_stats_id(
     const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_dtls_state(
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_dtls_state(
     const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_selected_candidate_pair_id(
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_selected_candidate_pair_id(
     const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_local_certificate_id(
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_local_certificate_id(
     const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_remote_certificate_id(
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_remote_certificate_id(
     const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_tls_version(
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_tls_version(
     const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_dtls_cipher(
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_dtls_cipher(
     const RTCTransportStats& stats);
-std::unique_ptr<std::string> RTCTransportStats_srtp_cipher(
+std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_srtp_cipher(
     const RTCTransportStats& stats);
-uint32_t RTCTransportStats_selected_candidate_pair_changes(
+std::unique_ptr<RTCStatsMemberu32> rtc_transport_stats_selected_candidate_pair_changes(
     const RTCTransportStats& stats);
 /// RTCTransportStats
 
 // RTCRemoteInboundRtpStreamStats
 // std::unique_ptr<RTCRemoteInboundRtpStreamStats>
 // RTCStats_cast_to_RTCRemoteInboundRtpStreamStats(const RTCStats& stats);
-std::unique_ptr<std::string> RTCRemoteInboundRtpStreamStats_local_id(
+std::unique_ptr<RTCStatsMemberString> rtc_remote_inbound_rtp_stream_stats_local_id(
     const RTCRemoteInboundRtpStreamStats& stats);
-double RTCRemoteInboundRtpStreamStats_round_trip_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_round_trip_time(
     const RTCRemoteInboundRtpStreamStats& stats);
-double RTCRemoteInboundRtpStreamStats_fraction_lost(
+std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_fraction_lost(
     const RTCRemoteInboundRtpStreamStats& stats);
-double RTCRemoteInboundRtpStreamStats_total_round_trip_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_total_round_trip_time(
     const RTCRemoteInboundRtpStreamStats& stats);
-int32_t RTCRemoteInboundRtpStreamStats_round_trip_time_measurements(
+std::unique_ptr<RTCStatsMemberi32> rtc_remote_inbound_rtp_stream_stats_round_trip_time_measurements(
     const RTCRemoteInboundRtpStreamStats& stats);
 /// RTCRemoteInboundRtpStreamStats
 
 // RTCRemoteOutboundRtpStreamStats
 // std::unique_ptr<RTCRemoteOutboundRtpStreamStats>
 // RTCStats_cast_to_RTCRemoteOutboundRtpStreamStats(const RTCStats& stats);
-std::unique_ptr<std::string> RTCRemoteOutboundRtpStreamStats_local_id(
+std::unique_ptr<RTCStatsMemberString> rtc_remote_outbound_rtp_stream_stats_local_id(
     const RTCRemoteOutboundRtpStreamStats& stats);
-double RTCRemoteOutboundRtpStreamStats_remote_timestamp(
+std::unique_ptr<RTCStatsMemberf64> rtc_remote_outbound_rtp_stream_stats_remote_timestamp(
     const RTCRemoteOutboundRtpStreamStats& stats);
-uint64_t RTCRemoteOutboundRtpStreamStats_reports_sent(
+std::unique_ptr<RTCStatsMemberu64> rtc_remote_outbound_rtp_stream_stats_reports_sent(
     const RTCRemoteOutboundRtpStreamStats& stats);
-double RTCRemoteOutboundRtpStreamStats_round_trip_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_remote_outbound_rtp_stream_stats_round_trip_time(
     const RTCRemoteOutboundRtpStreamStats& stats);
-uint64_t RTCRemoteOutboundRtpStreamStats_round_trip_time_measurements(
+std::unique_ptr<RTCStatsMemberu64> rtc_remote_outbound_rtp_stream_stats_round_trip_time_measurements(
     const RTCRemoteOutboundRtpStreamStats& stats);
-double RTCRemoteOutboundRtpStreamStats_total_round_trip_time(
+std::unique_ptr<RTCStatsMemberf64> rtc_remote_outbound_rtp_stream_stats_total_round_trip_time(
     const RTCRemoteOutboundRtpStreamStats& stats);
 /// RTCRemoteOutboundRtpStreamStats
 
 // todo
 std::unique_ptr<std::string> stats_json(const RTCStatsReport& report);
 
-rust::Vec<RTCMediaSourceStatsContainer> get_stats_RTCMediaSourceStats(
+
+rust::Vec<RTCStatsContainer> rtc_stats_report_get_stats(
     const RTCStatsReport& report);
-rust::Vec<RTCIceCandidateStatsContainer>
-get_stats_RTCIceCandidateStats(const RTCStatsReport& report);
-rust::Vec<RTCOutboundRTPStreamStatsContainer>
-get_stats_RTCOutboundRTPStreamStats(const RTCStatsReport& report);
-rust::Vec<RTCInboundRTPStreamStatsContainer>
-get_stats_RTCInboundRTPStreamStats(const RTCStatsReport& report);
-rust::Vec<RTCIceCandidatePairStatsContainer>
-get_stats_RTCIceCandidatePairStats(const RTCStatsReport& report);
-rust::Vec<RTCTransportStatsContainer> get_stats_RTCTransportStats(
-    const RTCStatsReport& report);
-rust::Vec<RTCRemoteInboundRtpStreamStatsContainer>
-get_stats_RTCRemoteInboundRtpStreamStats(const RTCStatsReport& report);
-rust::Vec<RTCRemoteOutboundRtpStreamStatsContainer>
-get_stats_RTCRemoteOutboundRtpStreamStats(const RTCStatsReport& report);
 
 }  // namespace bridge

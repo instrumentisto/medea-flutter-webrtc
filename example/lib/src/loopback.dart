@@ -115,7 +115,8 @@ class _LoopbackState extends State<Loopback> {
       await atrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
 
-      await _pc1?.getStats();
+      var stats = await _pc1?.getStats();
+      stats!.forEach((stats) => print(stats.type.runtimeType));
     } catch (e) {
       print(e.toString());
     }
