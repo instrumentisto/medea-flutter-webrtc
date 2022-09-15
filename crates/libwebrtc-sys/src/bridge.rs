@@ -1191,6 +1191,7 @@ pub(crate) mod webrtc {
 
 
         pub fn rtc_ice_candidate_stats_transport_id(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        pub fn rtc_ice_candidate_stats_is_remote(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberbool>;
         pub fn rtc_ice_candidate_stats_address(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
         pub fn rtc_ice_candidate_stats_port(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberi32>;
         pub fn rtc_ice_candidate_stats_protocol(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
@@ -1217,6 +1218,7 @@ pub(crate) mod webrtc {
         // pub fn RTCInboundRTPStreamStats_voice_activity_flag(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberbool>;
         pub fn rtc_inbound_rtp_stream_stats_total_samples_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
         pub fn rtc_inbound_rtp_stream_stats_concealed_samples(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        pub fn rtc_inbound_rtp_stream_stats_content_type(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
         pub fn rtc_inbound_rtp_stream_stats_silent_concealed_samples(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
         pub fn rtc_inbound_rtp_stream_stats_audio_level(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
         pub fn rtc_inbound_rtp_stream_stats_total_audio_energy(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
@@ -2156,7 +2158,7 @@ impl TryFrom<&str> for webrtc::RTCStatsIceCandidatePairState {
         match val {
             "frozen" => Ok(Self::kFrozen),
             "waiting" => Ok(Self::kWaiting),
-            "inProgress" => Ok(Self::kInProgress),
+            "in-progress" => Ok(Self::kInProgress),
             "failed" => Ok(Self::kFailed),
             "succeeded" => Ok(Self::kSucceeded),
             v => Err(anyhow!("Invalid `RTCStatsIceCandidatePairState`: {v}")),

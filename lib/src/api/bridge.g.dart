@@ -743,6 +743,31 @@ class RtcIceServer {
 }
 
 @freezed
+class RTCInboundRtpStreamMediaType with _$RTCInboundRtpStreamMediaType {
+  const factory RTCInboundRtpStreamMediaType.audio({
+    int? totalSamplesReceived,
+    int? concealedSamples,
+    int? silentConcealedSamples,
+    double? audioLevel,
+    double? totalAudioEnergy,
+    double? totalSamplesDuration,
+  }) = RTCInboundRtpStreamMediaType_Audio;
+  const factory RTCInboundRtpStreamMediaType.video({
+    int? framesDecoded,
+    int? keyFramesDecoded,
+    int? frameWidth,
+    int? frameHeight,
+    double? totalInterFrameDelay,
+    double? framesPerSecond,
+    int? frameBitDepth,
+    int? firCount,
+    int? pliCount,
+    int? concealmentEvents,
+    int? framesReceived,
+  }) = RTCInboundRtpStreamMediaType_Video;
+}
+
+@freezed
 class RTCMediaSourceStatsType with _$RTCMediaSourceStatsType {
   const factory RTCMediaSourceStatsType.rtcVideoSourceStats({
     int? width,
@@ -844,6 +869,7 @@ class RTCStatsType with _$RTCStatsType {
     required CandidateType candidateType,
     int? priority,
     String? url,
+    bool? isRemote,
   }) = RTCStatsType_RTCIceCandidateStats;
   const factory RTCStatsType.rtcOutboundRtpStreamStats({
     String? trackId,
@@ -861,23 +887,7 @@ class RTCStatsType with _$RTCStatsType {
     int? packetsReceived,
     double? totalDecodeTime,
     int? jitterBufferEmittedCount,
-    int? totalSamplesReceived,
-    int? concealedSamples,
-    int? silentConcealedSamples,
-    double? audioLevel,
-    double? totalAudioEnergy,
-    double? totalSamplesDuration,
-    int? framesDecoded,
-    int? keyFramesDecoded,
-    int? frameWidth,
-    int? frameHeight,
-    double? totalInterFrameDelay,
-    double? framesPerSecond,
-    int? frameBitDepth,
-    int? firCount,
-    int? pliCount,
-    int? concealmentEvents,
-    int? framesReceived,
+    RTCInboundRtpStreamMediaType? mediaType,
   }) = RTCStatsType_RTCInboundRTPStreamStats;
   const factory RTCStatsType.rtcIceCandidatePairStats({
     required RTCStatsIceCandidatePairState state,
@@ -2128,6 +2138,11 @@ int? _wire2api_opt_box_autoadd_u64(dynamic raw) {
   return raw == null ? null : _wire2api_box_autoadd_u64(raw);
 }
 
+RTCInboundRtpStreamMediaType? _wire2api_opt_rtc_inbound_rtp_stream_media_type(
+    dynamic raw) {
+  return raw == null ? null : _wire2api_rtc_inbound_rtp_stream_media_type(raw);
+}
+
 PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
   switch (raw[0]) {
     case 0:
@@ -2177,6 +2192,37 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
 
 PeerConnectionState _wire2api_peer_connection_state(dynamic raw) {
   return PeerConnectionState.values[raw];
+}
+
+RTCInboundRtpStreamMediaType _wire2api_rtc_inbound_rtp_stream_media_type(
+    dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return RTCInboundRtpStreamMediaType_Audio(
+        totalSamplesReceived: _wire2api_opt_box_autoadd_u64(raw[1]),
+        concealedSamples: _wire2api_opt_box_autoadd_u64(raw[2]),
+        silentConcealedSamples: _wire2api_opt_box_autoadd_u64(raw[3]),
+        audioLevel: _wire2api_opt_box_autoadd_f64(raw[4]),
+        totalAudioEnergy: _wire2api_opt_box_autoadd_f64(raw[5]),
+        totalSamplesDuration: _wire2api_opt_box_autoadd_f64(raw[6]),
+      );
+    case 1:
+      return RTCInboundRtpStreamMediaType_Video(
+        framesDecoded: _wire2api_opt_box_autoadd_u32(raw[1]),
+        keyFramesDecoded: _wire2api_opt_box_autoadd_u32(raw[2]),
+        frameWidth: _wire2api_opt_box_autoadd_u32(raw[3]),
+        frameHeight: _wire2api_opt_box_autoadd_u32(raw[4]),
+        totalInterFrameDelay: _wire2api_opt_box_autoadd_f64(raw[5]),
+        framesPerSecond: _wire2api_opt_box_autoadd_f64(raw[6]),
+        frameBitDepth: _wire2api_opt_box_autoadd_u32(raw[7]),
+        firCount: _wire2api_opt_box_autoadd_u32(raw[8]),
+        pliCount: _wire2api_opt_box_autoadd_u32(raw[9]),
+        concealmentEvents: _wire2api_opt_box_autoadd_u64(raw[10]),
+        framesReceived: _wire2api_opt_box_autoadd_i32(raw[11]),
+      );
+    default:
+      throw Exception("unreachable");
+  }
 }
 
 RTCMediaSourceStatsType _wire2api_rtc_media_source_stats_type(dynamic raw) {
@@ -2255,6 +2301,7 @@ RTCStatsType _wire2api_rtc_stats_type(dynamic raw) {
         candidateType: _wire2api_candidate_type(raw[5]),
         priority: _wire2api_opt_box_autoadd_i32(raw[6]),
         url: _wire2api_opt_String(raw[7]),
+        isRemote: _wire2api_opt_box_autoadd_bool(raw[8]),
       );
     case 2:
       return RTCStatsType_RTCOutboundRTPStreamStats(
@@ -2274,23 +2321,7 @@ RTCStatsType _wire2api_rtc_stats_type(dynamic raw) {
         packetsReceived: _wire2api_opt_box_autoadd_u32(raw[3]),
         totalDecodeTime: _wire2api_opt_box_autoadd_f64(raw[4]),
         jitterBufferEmittedCount: _wire2api_opt_box_autoadd_u64(raw[5]),
-        totalSamplesReceived: _wire2api_opt_box_autoadd_u64(raw[6]),
-        concealedSamples: _wire2api_opt_box_autoadd_u64(raw[7]),
-        silentConcealedSamples: _wire2api_opt_box_autoadd_u64(raw[8]),
-        audioLevel: _wire2api_opt_box_autoadd_f64(raw[9]),
-        totalAudioEnergy: _wire2api_opt_box_autoadd_f64(raw[10]),
-        totalSamplesDuration: _wire2api_opt_box_autoadd_f64(raw[11]),
-        framesDecoded: _wire2api_opt_box_autoadd_u32(raw[12]),
-        keyFramesDecoded: _wire2api_opt_box_autoadd_u32(raw[13]),
-        frameWidth: _wire2api_opt_box_autoadd_u32(raw[14]),
-        frameHeight: _wire2api_opt_box_autoadd_u32(raw[15]),
-        totalInterFrameDelay: _wire2api_opt_box_autoadd_f64(raw[16]),
-        framesPerSecond: _wire2api_opt_box_autoadd_f64(raw[17]),
-        frameBitDepth: _wire2api_opt_box_autoadd_u32(raw[18]),
-        firCount: _wire2api_opt_box_autoadd_u32(raw[19]),
-        pliCount: _wire2api_opt_box_autoadd_u32(raw[20]),
-        concealmentEvents: _wire2api_opt_box_autoadd_u64(raw[21]),
-        framesReceived: _wire2api_opt_box_autoadd_i32(raw[22]),
+        mediaType: _wire2api_opt_rtc_inbound_rtp_stream_media_type(raw[6]),
       );
     case 4:
       return RTCStatsType_RTCIceCandidatePairStats(

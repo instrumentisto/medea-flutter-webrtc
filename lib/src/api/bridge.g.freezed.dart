@@ -2938,6 +2938,786 @@ abstract class PeerConnectionEvent_Track implements PeerConnectionEvent {
 }
 
 /// @nodoc
+mixin _$RTCInboundRtpStreamMediaType {
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)
+        audio,
+    required TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)
+        video,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)?
+        audio,
+    TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)?
+        video,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)?
+        audio,
+    TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)?
+        video,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(RTCInboundRtpStreamMediaType_Audio value) audio,
+    required TResult Function(RTCInboundRtpStreamMediaType_Video value) video,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RTCInboundRtpStreamMediaTypeCopyWith<$Res> {
+  factory $RTCInboundRtpStreamMediaTypeCopyWith(
+          RTCInboundRtpStreamMediaType value,
+          $Res Function(RTCInboundRtpStreamMediaType) then) =
+      _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>
+    implements $RTCInboundRtpStreamMediaTypeCopyWith<$Res> {
+  _$RTCInboundRtpStreamMediaTypeCopyWithImpl(this._value, this._then);
+
+  final RTCInboundRtpStreamMediaType _value;
+  // ignore: unused_field
+  final $Res Function(RTCInboundRtpStreamMediaType) _then;
+}
+
+/// @nodoc
+abstract class _$$RTCInboundRtpStreamMediaType_AudioCopyWith<$Res> {
+  factory _$$RTCInboundRtpStreamMediaType_AudioCopyWith(
+          _$RTCInboundRtpStreamMediaType_Audio value,
+          $Res Function(_$RTCInboundRtpStreamMediaType_Audio) then) =
+      __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>;
+  $Res call(
+      {int? totalSamplesReceived,
+      int? concealedSamples,
+      int? silentConcealedSamples,
+      double? audioLevel,
+      double? totalAudioEnergy,
+      double? totalSamplesDuration});
+}
+
+/// @nodoc
+class __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>
+    extends _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>
+    implements _$$RTCInboundRtpStreamMediaType_AudioCopyWith<$Res> {
+  __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl(
+      _$RTCInboundRtpStreamMediaType_Audio _value,
+      $Res Function(_$RTCInboundRtpStreamMediaType_Audio) _then)
+      : super(_value, (v) => _then(v as _$RTCInboundRtpStreamMediaType_Audio));
+
+  @override
+  _$RTCInboundRtpStreamMediaType_Audio get _value =>
+      super._value as _$RTCInboundRtpStreamMediaType_Audio;
+
+  @override
+  $Res call({
+    Object? totalSamplesReceived = freezed,
+    Object? concealedSamples = freezed,
+    Object? silentConcealedSamples = freezed,
+    Object? audioLevel = freezed,
+    Object? totalAudioEnergy = freezed,
+    Object? totalSamplesDuration = freezed,
+  }) {
+    return _then(_$RTCInboundRtpStreamMediaType_Audio(
+      totalSamplesReceived: totalSamplesReceived == freezed
+          ? _value.totalSamplesReceived
+          : totalSamplesReceived // ignore: cast_nullable_to_non_nullable
+              as int?,
+      concealedSamples: concealedSamples == freezed
+          ? _value.concealedSamples
+          : concealedSamples // ignore: cast_nullable_to_non_nullable
+              as int?,
+      silentConcealedSamples: silentConcealedSamples == freezed
+          ? _value.silentConcealedSamples
+          : silentConcealedSamples // ignore: cast_nullable_to_non_nullable
+              as int?,
+      audioLevel: audioLevel == freezed
+          ? _value.audioLevel
+          : audioLevel // ignore: cast_nullable_to_non_nullable
+              as double?,
+      totalAudioEnergy: totalAudioEnergy == freezed
+          ? _value.totalAudioEnergy
+          : totalAudioEnergy // ignore: cast_nullable_to_non_nullable
+              as double?,
+      totalSamplesDuration: totalSamplesDuration == freezed
+          ? _value.totalSamplesDuration
+          : totalSamplesDuration // ignore: cast_nullable_to_non_nullable
+              as double?,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$RTCInboundRtpStreamMediaType_Audio
+    implements RTCInboundRtpStreamMediaType_Audio {
+  const _$RTCInboundRtpStreamMediaType_Audio(
+      {this.totalSamplesReceived,
+      this.concealedSamples,
+      this.silentConcealedSamples,
+      this.audioLevel,
+      this.totalAudioEnergy,
+      this.totalSamplesDuration});
+
+  @override
+  final int? totalSamplesReceived;
+  @override
+  final int? concealedSamples;
+  @override
+  final int? silentConcealedSamples;
+  @override
+  final double? audioLevel;
+  @override
+  final double? totalAudioEnergy;
+  @override
+  final double? totalSamplesDuration;
+
+  @override
+  String toString() {
+    return 'RTCInboundRtpStreamMediaType.audio(totalSamplesReceived: $totalSamplesReceived, concealedSamples: $concealedSamples, silentConcealedSamples: $silentConcealedSamples, audioLevel: $audioLevel, totalAudioEnergy: $totalAudioEnergy, totalSamplesDuration: $totalSamplesDuration)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RTCInboundRtpStreamMediaType_Audio &&
+            const DeepCollectionEquality()
+                .equals(other.totalSamplesReceived, totalSamplesReceived) &&
+            const DeepCollectionEquality()
+                .equals(other.concealedSamples, concealedSamples) &&
+            const DeepCollectionEquality()
+                .equals(other.silentConcealedSamples, silentConcealedSamples) &&
+            const DeepCollectionEquality()
+                .equals(other.audioLevel, audioLevel) &&
+            const DeepCollectionEquality()
+                .equals(other.totalAudioEnergy, totalAudioEnergy) &&
+            const DeepCollectionEquality()
+                .equals(other.totalSamplesDuration, totalSamplesDuration));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(totalSamplesReceived),
+      const DeepCollectionEquality().hash(concealedSamples),
+      const DeepCollectionEquality().hash(silentConcealedSamples),
+      const DeepCollectionEquality().hash(audioLevel),
+      const DeepCollectionEquality().hash(totalAudioEnergy),
+      const DeepCollectionEquality().hash(totalSamplesDuration));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$RTCInboundRtpStreamMediaType_AudioCopyWith<
+          _$RTCInboundRtpStreamMediaType_Audio>
+      get copyWith => __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<
+          _$RTCInboundRtpStreamMediaType_Audio>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)
+        audio,
+    required TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)
+        video,
+  }) {
+    return audio(totalSamplesReceived, concealedSamples, silentConcealedSamples,
+        audioLevel, totalAudioEnergy, totalSamplesDuration);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)?
+        audio,
+    TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)?
+        video,
+  }) {
+    return audio?.call(
+        totalSamplesReceived,
+        concealedSamples,
+        silentConcealedSamples,
+        audioLevel,
+        totalAudioEnergy,
+        totalSamplesDuration);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)?
+        audio,
+    TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)?
+        video,
+    required TResult orElse(),
+  }) {
+    if (audio != null) {
+      return audio(
+          totalSamplesReceived,
+          concealedSamples,
+          silentConcealedSamples,
+          audioLevel,
+          totalAudioEnergy,
+          totalSamplesDuration);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(RTCInboundRtpStreamMediaType_Audio value) audio,
+    required TResult Function(RTCInboundRtpStreamMediaType_Video value) video,
+  }) {
+    return audio(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+  }) {
+    return audio?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    required TResult orElse(),
+  }) {
+    if (audio != null) {
+      return audio(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RTCInboundRtpStreamMediaType_Audio
+    implements RTCInboundRtpStreamMediaType {
+  const factory RTCInboundRtpStreamMediaType_Audio(
+          {final int? totalSamplesReceived,
+          final int? concealedSamples,
+          final int? silentConcealedSamples,
+          final double? audioLevel,
+          final double? totalAudioEnergy,
+          final double? totalSamplesDuration}) =
+      _$RTCInboundRtpStreamMediaType_Audio;
+
+  int? get totalSamplesReceived;
+  int? get concealedSamples;
+  int? get silentConcealedSamples;
+  double? get audioLevel;
+  double? get totalAudioEnergy;
+  double? get totalSamplesDuration;
+  @JsonKey(ignore: true)
+  _$$RTCInboundRtpStreamMediaType_AudioCopyWith<
+          _$RTCInboundRtpStreamMediaType_Audio>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RTCInboundRtpStreamMediaType_VideoCopyWith<$Res> {
+  factory _$$RTCInboundRtpStreamMediaType_VideoCopyWith(
+          _$RTCInboundRtpStreamMediaType_Video value,
+          $Res Function(_$RTCInboundRtpStreamMediaType_Video) then) =
+      __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>;
+  $Res call(
+      {int? framesDecoded,
+      int? keyFramesDecoded,
+      int? frameWidth,
+      int? frameHeight,
+      double? totalInterFrameDelay,
+      double? framesPerSecond,
+      int? frameBitDepth,
+      int? firCount,
+      int? pliCount,
+      int? concealmentEvents,
+      int? framesReceived});
+}
+
+/// @nodoc
+class __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>
+    extends _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>
+    implements _$$RTCInboundRtpStreamMediaType_VideoCopyWith<$Res> {
+  __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl(
+      _$RTCInboundRtpStreamMediaType_Video _value,
+      $Res Function(_$RTCInboundRtpStreamMediaType_Video) _then)
+      : super(_value, (v) => _then(v as _$RTCInboundRtpStreamMediaType_Video));
+
+  @override
+  _$RTCInboundRtpStreamMediaType_Video get _value =>
+      super._value as _$RTCInboundRtpStreamMediaType_Video;
+
+  @override
+  $Res call({
+    Object? framesDecoded = freezed,
+    Object? keyFramesDecoded = freezed,
+    Object? frameWidth = freezed,
+    Object? frameHeight = freezed,
+    Object? totalInterFrameDelay = freezed,
+    Object? framesPerSecond = freezed,
+    Object? frameBitDepth = freezed,
+    Object? firCount = freezed,
+    Object? pliCount = freezed,
+    Object? concealmentEvents = freezed,
+    Object? framesReceived = freezed,
+  }) {
+    return _then(_$RTCInboundRtpStreamMediaType_Video(
+      framesDecoded: framesDecoded == freezed
+          ? _value.framesDecoded
+          : framesDecoded // ignore: cast_nullable_to_non_nullable
+              as int?,
+      keyFramesDecoded: keyFramesDecoded == freezed
+          ? _value.keyFramesDecoded
+          : keyFramesDecoded // ignore: cast_nullable_to_non_nullable
+              as int?,
+      frameWidth: frameWidth == freezed
+          ? _value.frameWidth
+          : frameWidth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      frameHeight: frameHeight == freezed
+          ? _value.frameHeight
+          : frameHeight // ignore: cast_nullable_to_non_nullable
+              as int?,
+      totalInterFrameDelay: totalInterFrameDelay == freezed
+          ? _value.totalInterFrameDelay
+          : totalInterFrameDelay // ignore: cast_nullable_to_non_nullable
+              as double?,
+      framesPerSecond: framesPerSecond == freezed
+          ? _value.framesPerSecond
+          : framesPerSecond // ignore: cast_nullable_to_non_nullable
+              as double?,
+      frameBitDepth: frameBitDepth == freezed
+          ? _value.frameBitDepth
+          : frameBitDepth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      firCount: firCount == freezed
+          ? _value.firCount
+          : firCount // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pliCount: pliCount == freezed
+          ? _value.pliCount
+          : pliCount // ignore: cast_nullable_to_non_nullable
+              as int?,
+      concealmentEvents: concealmentEvents == freezed
+          ? _value.concealmentEvents
+          : concealmentEvents // ignore: cast_nullable_to_non_nullable
+              as int?,
+      framesReceived: framesReceived == freezed
+          ? _value.framesReceived
+          : framesReceived // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$RTCInboundRtpStreamMediaType_Video
+    implements RTCInboundRtpStreamMediaType_Video {
+  const _$RTCInboundRtpStreamMediaType_Video(
+      {this.framesDecoded,
+      this.keyFramesDecoded,
+      this.frameWidth,
+      this.frameHeight,
+      this.totalInterFrameDelay,
+      this.framesPerSecond,
+      this.frameBitDepth,
+      this.firCount,
+      this.pliCount,
+      this.concealmentEvents,
+      this.framesReceived});
+
+  @override
+  final int? framesDecoded;
+  @override
+  final int? keyFramesDecoded;
+  @override
+  final int? frameWidth;
+  @override
+  final int? frameHeight;
+  @override
+  final double? totalInterFrameDelay;
+  @override
+  final double? framesPerSecond;
+  @override
+  final int? frameBitDepth;
+  @override
+  final int? firCount;
+  @override
+  final int? pliCount;
+  @override
+  final int? concealmentEvents;
+  @override
+  final int? framesReceived;
+
+  @override
+  String toString() {
+    return 'RTCInboundRtpStreamMediaType.video(framesDecoded: $framesDecoded, keyFramesDecoded: $keyFramesDecoded, frameWidth: $frameWidth, frameHeight: $frameHeight, totalInterFrameDelay: $totalInterFrameDelay, framesPerSecond: $framesPerSecond, frameBitDepth: $frameBitDepth, firCount: $firCount, pliCount: $pliCount, concealmentEvents: $concealmentEvents, framesReceived: $framesReceived)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RTCInboundRtpStreamMediaType_Video &&
+            const DeepCollectionEquality()
+                .equals(other.framesDecoded, framesDecoded) &&
+            const DeepCollectionEquality()
+                .equals(other.keyFramesDecoded, keyFramesDecoded) &&
+            const DeepCollectionEquality()
+                .equals(other.frameWidth, frameWidth) &&
+            const DeepCollectionEquality()
+                .equals(other.frameHeight, frameHeight) &&
+            const DeepCollectionEquality()
+                .equals(other.totalInterFrameDelay, totalInterFrameDelay) &&
+            const DeepCollectionEquality()
+                .equals(other.framesPerSecond, framesPerSecond) &&
+            const DeepCollectionEquality()
+                .equals(other.frameBitDepth, frameBitDepth) &&
+            const DeepCollectionEquality().equals(other.firCount, firCount) &&
+            const DeepCollectionEquality().equals(other.pliCount, pliCount) &&
+            const DeepCollectionEquality()
+                .equals(other.concealmentEvents, concealmentEvents) &&
+            const DeepCollectionEquality()
+                .equals(other.framesReceived, framesReceived));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(framesDecoded),
+      const DeepCollectionEquality().hash(keyFramesDecoded),
+      const DeepCollectionEquality().hash(frameWidth),
+      const DeepCollectionEquality().hash(frameHeight),
+      const DeepCollectionEquality().hash(totalInterFrameDelay),
+      const DeepCollectionEquality().hash(framesPerSecond),
+      const DeepCollectionEquality().hash(frameBitDepth),
+      const DeepCollectionEquality().hash(firCount),
+      const DeepCollectionEquality().hash(pliCount),
+      const DeepCollectionEquality().hash(concealmentEvents),
+      const DeepCollectionEquality().hash(framesReceived));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$RTCInboundRtpStreamMediaType_VideoCopyWith<
+          _$RTCInboundRtpStreamMediaType_Video>
+      get copyWith => __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<
+          _$RTCInboundRtpStreamMediaType_Video>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)
+        audio,
+    required TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)
+        video,
+  }) {
+    return video(
+        framesDecoded,
+        keyFramesDecoded,
+        frameWidth,
+        frameHeight,
+        totalInterFrameDelay,
+        framesPerSecond,
+        frameBitDepth,
+        firCount,
+        pliCount,
+        concealmentEvents,
+        framesReceived);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)?
+        audio,
+    TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)?
+        video,
+  }) {
+    return video?.call(
+        framesDecoded,
+        keyFramesDecoded,
+        frameWidth,
+        frameHeight,
+        totalInterFrameDelay,
+        framesPerSecond,
+        frameBitDepth,
+        firCount,
+        pliCount,
+        concealmentEvents,
+        framesReceived);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            int? totalSamplesReceived,
+            int? concealedSamples,
+            int? silentConcealedSamples,
+            double? audioLevel,
+            double? totalAudioEnergy,
+            double? totalSamplesDuration)?
+        audio,
+    TResult Function(
+            int? framesDecoded,
+            int? keyFramesDecoded,
+            int? frameWidth,
+            int? frameHeight,
+            double? totalInterFrameDelay,
+            double? framesPerSecond,
+            int? frameBitDepth,
+            int? firCount,
+            int? pliCount,
+            int? concealmentEvents,
+            int? framesReceived)?
+        video,
+    required TResult orElse(),
+  }) {
+    if (video != null) {
+      return video(
+          framesDecoded,
+          keyFramesDecoded,
+          frameWidth,
+          frameHeight,
+          totalInterFrameDelay,
+          framesPerSecond,
+          frameBitDepth,
+          firCount,
+          pliCount,
+          concealmentEvents,
+          framesReceived);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(RTCInboundRtpStreamMediaType_Audio value) audio,
+    required TResult Function(RTCInboundRtpStreamMediaType_Video value) video,
+  }) {
+    return video(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+  }) {
+    return video?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    required TResult orElse(),
+  }) {
+    if (video != null) {
+      return video(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RTCInboundRtpStreamMediaType_Video
+    implements RTCInboundRtpStreamMediaType {
+  const factory RTCInboundRtpStreamMediaType_Video(
+      {final int? framesDecoded,
+      final int? keyFramesDecoded,
+      final int? frameWidth,
+      final int? frameHeight,
+      final double? totalInterFrameDelay,
+      final double? framesPerSecond,
+      final int? frameBitDepth,
+      final int? firCount,
+      final int? pliCount,
+      final int? concealmentEvents,
+      final int? framesReceived}) = _$RTCInboundRtpStreamMediaType_Video;
+
+  int? get framesDecoded;
+  int? get keyFramesDecoded;
+  int? get frameWidth;
+  int? get frameHeight;
+  double? get totalInterFrameDelay;
+  double? get framesPerSecond;
+  int? get frameBitDepth;
+  int? get firCount;
+  int? get pliCount;
+  int? get concealmentEvents;
+  int? get framesReceived;
+  @JsonKey(ignore: true)
+  _$$RTCInboundRtpStreamMediaType_VideoCopyWith<
+          _$RTCInboundRtpStreamMediaType_Video>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
 mixin _$RTCMediaSourceStatsType {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
@@ -3491,7 +4271,8 @@ mixin _$RTCStatsType {
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -3509,23 +4290,7 @@ mixin _$RTCStatsType {
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -3559,7 +4324,8 @@ mixin _$RTCStatsType {
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -3577,23 +4343,7 @@ mixin _$RTCStatsType {
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -3627,7 +4377,8 @@ mixin _$RTCStatsType {
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -3645,23 +4396,7 @@ mixin _$RTCStatsType {
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -3868,7 +4603,8 @@ class _$RTCStatsType_RTCMediaSourceStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -3886,23 +4622,7 @@ class _$RTCStatsType_RTCMediaSourceStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -3939,7 +4659,8 @@ class _$RTCStatsType_RTCMediaSourceStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -3957,23 +4678,7 @@ class _$RTCStatsType_RTCMediaSourceStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -4010,7 +4715,8 @@ class _$RTCStatsType_RTCMediaSourceStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -4028,23 +4734,7 @@ class _$RTCStatsType_RTCMediaSourceStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -4176,7 +4866,8 @@ abstract class _$$RTCStatsType_RTCIceCandidateStatsCopyWith<$Res> {
       String? protocol,
       CandidateType candidateType,
       int? priority,
-      String? url});
+      String? url,
+      bool? isRemote});
 }
 
 /// @nodoc
@@ -4201,6 +4892,7 @@ class __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<$Res>
     Object? candidateType = freezed,
     Object? priority = freezed,
     Object? url = freezed,
+    Object? isRemote = freezed,
   }) {
     return _then(_$RTCStatsType_RTCIceCandidateStats(
       transportId: transportId == freezed
@@ -4231,6 +4923,10 @@ class __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<$Res>
           ? _value.url
           : url // ignore: cast_nullable_to_non_nullable
               as String?,
+      isRemote: isRemote == freezed
+          ? _value.isRemote
+          : isRemote // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 }
@@ -4246,7 +4942,8 @@ class _$RTCStatsType_RTCIceCandidateStats
       this.protocol,
       required this.candidateType,
       this.priority,
-      this.url});
+      this.url,
+      this.isRemote});
 
   @override
   final String? transportId;
@@ -4262,10 +4959,12 @@ class _$RTCStatsType_RTCIceCandidateStats
   final int? priority;
   @override
   final String? url;
+  @override
+  final bool? isRemote;
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcIceCandidateStats(transportId: $transportId, address: $address, port: $port, protocol: $protocol, candidateType: $candidateType, priority: $priority, url: $url)';
+    return 'RTCStatsType.rtcIceCandidateStats(transportId: $transportId, address: $address, port: $port, protocol: $protocol, candidateType: $candidateType, priority: $priority, url: $url, isRemote: $isRemote)';
   }
 
   @override
@@ -4281,7 +4980,8 @@ class _$RTCStatsType_RTCIceCandidateStats
             const DeepCollectionEquality()
                 .equals(other.candidateType, candidateType) &&
             const DeepCollectionEquality().equals(other.priority, priority) &&
-            const DeepCollectionEquality().equals(other.url, url));
+            const DeepCollectionEquality().equals(other.url, url) &&
+            const DeepCollectionEquality().equals(other.isRemote, isRemote));
   }
 
   @override
@@ -4293,7 +4993,8 @@ class _$RTCStatsType_RTCIceCandidateStats
       const DeepCollectionEquality().hash(protocol),
       const DeepCollectionEquality().hash(candidateType),
       const DeepCollectionEquality().hash(priority),
-      const DeepCollectionEquality().hash(url));
+      const DeepCollectionEquality().hash(url),
+      const DeepCollectionEquality().hash(isRemote));
 
   @JsonKey(ignore: true)
   @override
@@ -4315,7 +5016,8 @@ class _$RTCStatsType_RTCIceCandidateStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -4333,23 +5035,7 @@ class _$RTCStatsType_RTCIceCandidateStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -4371,8 +5057,8 @@ class _$RTCStatsType_RTCIceCandidateStats
         rtcRemoteOutboundRtpStreamStats,
     required TResult Function() unimplenented,
   }) {
-    return rtcIceCandidateStats(
-        transportId, address, port, protocol, candidateType, priority, url);
+    return rtcIceCandidateStats(transportId, address, port, protocol,
+        candidateType, priority, url, isRemote);
   }
 
   @override
@@ -4387,7 +5073,8 @@ class _$RTCStatsType_RTCIceCandidateStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -4405,23 +5092,7 @@ class _$RTCStatsType_RTCIceCandidateStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -4443,8 +5114,8 @@ class _$RTCStatsType_RTCIceCandidateStats
         rtcRemoteOutboundRtpStreamStats,
     TResult Function()? unimplenented,
   }) {
-    return rtcIceCandidateStats?.call(
-        transportId, address, port, protocol, candidateType, priority, url);
+    return rtcIceCandidateStats?.call(transportId, address, port, protocol,
+        candidateType, priority, url, isRemote);
   }
 
   @override
@@ -4459,7 +5130,8 @@ class _$RTCStatsType_RTCIceCandidateStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -4477,23 +5149,7 @@ class _$RTCStatsType_RTCIceCandidateStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -4517,8 +5173,8 @@ class _$RTCStatsType_RTCIceCandidateStats
     required TResult orElse(),
   }) {
     if (rtcIceCandidateStats != null) {
-      return rtcIceCandidateStats(
-          transportId, address, port, protocol, candidateType, priority, url);
+      return rtcIceCandidateStats(transportId, address, port, protocol,
+          candidateType, priority, url, isRemote);
     }
     return orElse();
   }
@@ -4607,7 +5263,8 @@ abstract class RTCStatsType_RTCIceCandidateStats implements RTCStatsType {
       final String? protocol,
       required final CandidateType candidateType,
       final int? priority,
-      final String? url}) = _$RTCStatsType_RTCIceCandidateStats;
+      final String? url,
+      final bool? isRemote}) = _$RTCStatsType_RTCIceCandidateStats;
 
   String? get transportId;
   String? get address;
@@ -4616,6 +5273,7 @@ abstract class RTCStatsType_RTCIceCandidateStats implements RTCStatsType {
   CandidateType get candidateType;
   int? get priority;
   String? get url;
+  bool? get isRemote;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCIceCandidateStatsCopyWith<
           _$RTCStatsType_RTCIceCandidateStats>
@@ -4789,7 +5447,8 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -4807,23 +5466,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -4861,7 +5504,8 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -4879,23 +5523,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -4933,7 +5561,8 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -4951,23 +5580,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -5110,23 +5723,9 @@ abstract class _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith<$Res> {
       int? packetsReceived,
       double? totalDecodeTime,
       int? jitterBufferEmittedCount,
-      int? totalSamplesReceived,
-      int? concealedSamples,
-      int? silentConcealedSamples,
-      double? audioLevel,
-      double? totalAudioEnergy,
-      double? totalSamplesDuration,
-      int? framesDecoded,
-      int? keyFramesDecoded,
-      int? frameWidth,
-      int? frameHeight,
-      double? totalInterFrameDelay,
-      double? framesPerSecond,
-      int? frameBitDepth,
-      int? firCount,
-      int? pliCount,
-      int? concealmentEvents,
-      int? framesReceived});
+      RTCInboundRtpStreamMediaType? mediaType});
+
+  $RTCInboundRtpStreamMediaTypeCopyWith<$Res>? get mediaType;
 }
 
 /// @nodoc
@@ -5150,23 +5749,7 @@ class __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<$Res>
     Object? packetsReceived = freezed,
     Object? totalDecodeTime = freezed,
     Object? jitterBufferEmittedCount = freezed,
-    Object? totalSamplesReceived = freezed,
-    Object? concealedSamples = freezed,
-    Object? silentConcealedSamples = freezed,
-    Object? audioLevel = freezed,
-    Object? totalAudioEnergy = freezed,
-    Object? totalSamplesDuration = freezed,
-    Object? framesDecoded = freezed,
-    Object? keyFramesDecoded = freezed,
-    Object? frameWidth = freezed,
-    Object? frameHeight = freezed,
-    Object? totalInterFrameDelay = freezed,
-    Object? framesPerSecond = freezed,
-    Object? frameBitDepth = freezed,
-    Object? firCount = freezed,
-    Object? pliCount = freezed,
-    Object? concealmentEvents = freezed,
-    Object? framesReceived = freezed,
+    Object? mediaType = freezed,
   }) {
     return _then(_$RTCStatsType_RTCInboundRTPStreamStats(
       remoteId: remoteId == freezed
@@ -5189,75 +5772,23 @@ class __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<$Res>
           ? _value.jitterBufferEmittedCount
           : jitterBufferEmittedCount // ignore: cast_nullable_to_non_nullable
               as int?,
-      totalSamplesReceived: totalSamplesReceived == freezed
-          ? _value.totalSamplesReceived
-          : totalSamplesReceived // ignore: cast_nullable_to_non_nullable
-              as int?,
-      concealedSamples: concealedSamples == freezed
-          ? _value.concealedSamples
-          : concealedSamples // ignore: cast_nullable_to_non_nullable
-              as int?,
-      silentConcealedSamples: silentConcealedSamples == freezed
-          ? _value.silentConcealedSamples
-          : silentConcealedSamples // ignore: cast_nullable_to_non_nullable
-              as int?,
-      audioLevel: audioLevel == freezed
-          ? _value.audioLevel
-          : audioLevel // ignore: cast_nullable_to_non_nullable
-              as double?,
-      totalAudioEnergy: totalAudioEnergy == freezed
-          ? _value.totalAudioEnergy
-          : totalAudioEnergy // ignore: cast_nullable_to_non_nullable
-              as double?,
-      totalSamplesDuration: totalSamplesDuration == freezed
-          ? _value.totalSamplesDuration
-          : totalSamplesDuration // ignore: cast_nullable_to_non_nullable
-              as double?,
-      framesDecoded: framesDecoded == freezed
-          ? _value.framesDecoded
-          : framesDecoded // ignore: cast_nullable_to_non_nullable
-              as int?,
-      keyFramesDecoded: keyFramesDecoded == freezed
-          ? _value.keyFramesDecoded
-          : keyFramesDecoded // ignore: cast_nullable_to_non_nullable
-              as int?,
-      frameWidth: frameWidth == freezed
-          ? _value.frameWidth
-          : frameWidth // ignore: cast_nullable_to_non_nullable
-              as int?,
-      frameHeight: frameHeight == freezed
-          ? _value.frameHeight
-          : frameHeight // ignore: cast_nullable_to_non_nullable
-              as int?,
-      totalInterFrameDelay: totalInterFrameDelay == freezed
-          ? _value.totalInterFrameDelay
-          : totalInterFrameDelay // ignore: cast_nullable_to_non_nullable
-              as double?,
-      framesPerSecond: framesPerSecond == freezed
-          ? _value.framesPerSecond
-          : framesPerSecond // ignore: cast_nullable_to_non_nullable
-              as double?,
-      frameBitDepth: frameBitDepth == freezed
-          ? _value.frameBitDepth
-          : frameBitDepth // ignore: cast_nullable_to_non_nullable
-              as int?,
-      firCount: firCount == freezed
-          ? _value.firCount
-          : firCount // ignore: cast_nullable_to_non_nullable
-              as int?,
-      pliCount: pliCount == freezed
-          ? _value.pliCount
-          : pliCount // ignore: cast_nullable_to_non_nullable
-              as int?,
-      concealmentEvents: concealmentEvents == freezed
-          ? _value.concealmentEvents
-          : concealmentEvents // ignore: cast_nullable_to_non_nullable
-              as int?,
-      framesReceived: framesReceived == freezed
-          ? _value.framesReceived
-          : framesReceived // ignore: cast_nullable_to_non_nullable
-              as int?,
+      mediaType: mediaType == freezed
+          ? _value.mediaType
+          : mediaType // ignore: cast_nullable_to_non_nullable
+              as RTCInboundRtpStreamMediaType?,
     ));
+  }
+
+  @override
+  $RTCInboundRtpStreamMediaTypeCopyWith<$Res>? get mediaType {
+    if (_value.mediaType == null) {
+      return null;
+    }
+
+    return $RTCInboundRtpStreamMediaTypeCopyWith<$Res>(_value.mediaType!,
+        (value) {
+      return _then(_value.copyWith(mediaType: value));
+    });
   }
 }
 
@@ -5271,23 +5802,7 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
       this.packetsReceived,
       this.totalDecodeTime,
       this.jitterBufferEmittedCount,
-      this.totalSamplesReceived,
-      this.concealedSamples,
-      this.silentConcealedSamples,
-      this.audioLevel,
-      this.totalAudioEnergy,
-      this.totalSamplesDuration,
-      this.framesDecoded,
-      this.keyFramesDecoded,
-      this.frameWidth,
-      this.frameHeight,
-      this.totalInterFrameDelay,
-      this.framesPerSecond,
-      this.frameBitDepth,
-      this.firCount,
-      this.pliCount,
-      this.concealmentEvents,
-      this.framesReceived});
+      this.mediaType});
 
   @override
   final String? remoteId;
@@ -5300,43 +5815,11 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   @override
   final int? jitterBufferEmittedCount;
   @override
-  final int? totalSamplesReceived;
-  @override
-  final int? concealedSamples;
-  @override
-  final int? silentConcealedSamples;
-  @override
-  final double? audioLevel;
-  @override
-  final double? totalAudioEnergy;
-  @override
-  final double? totalSamplesDuration;
-  @override
-  final int? framesDecoded;
-  @override
-  final int? keyFramesDecoded;
-  @override
-  final int? frameWidth;
-  @override
-  final int? frameHeight;
-  @override
-  final double? totalInterFrameDelay;
-  @override
-  final double? framesPerSecond;
-  @override
-  final int? frameBitDepth;
-  @override
-  final int? firCount;
-  @override
-  final int? pliCount;
-  @override
-  final int? concealmentEvents;
-  @override
-  final int? framesReceived;
+  final RTCInboundRtpStreamMediaType? mediaType;
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcInboundRtpStreamStats(remoteId: $remoteId, bytesReceived: $bytesReceived, packetsReceived: $packetsReceived, totalDecodeTime: $totalDecodeTime, jitterBufferEmittedCount: $jitterBufferEmittedCount, totalSamplesReceived: $totalSamplesReceived, concealedSamples: $concealedSamples, silentConcealedSamples: $silentConcealedSamples, audioLevel: $audioLevel, totalAudioEnergy: $totalAudioEnergy, totalSamplesDuration: $totalSamplesDuration, framesDecoded: $framesDecoded, keyFramesDecoded: $keyFramesDecoded, frameWidth: $frameWidth, frameHeight: $frameHeight, totalInterFrameDelay: $totalInterFrameDelay, framesPerSecond: $framesPerSecond, frameBitDepth: $frameBitDepth, firCount: $firCount, pliCount: $pliCount, concealmentEvents: $concealmentEvents, framesReceived: $framesReceived)';
+    return 'RTCStatsType.rtcInboundRtpStreamStats(remoteId: $remoteId, bytesReceived: $bytesReceived, packetsReceived: $packetsReceived, totalDecodeTime: $totalDecodeTime, jitterBufferEmittedCount: $jitterBufferEmittedCount, mediaType: $mediaType)';
   }
 
   @override
@@ -5353,66 +5836,18 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
                 .equals(other.totalDecodeTime, totalDecodeTime) &&
             const DeepCollectionEquality().equals(
                 other.jitterBufferEmittedCount, jitterBufferEmittedCount) &&
-            const DeepCollectionEquality()
-                .equals(other.totalSamplesReceived, totalSamplesReceived) &&
-            const DeepCollectionEquality()
-                .equals(other.concealedSamples, concealedSamples) &&
-            const DeepCollectionEquality()
-                .equals(other.silentConcealedSamples, silentConcealedSamples) &&
-            const DeepCollectionEquality()
-                .equals(other.audioLevel, audioLevel) &&
-            const DeepCollectionEquality()
-                .equals(other.totalAudioEnergy, totalAudioEnergy) &&
-            const DeepCollectionEquality()
-                .equals(other.totalSamplesDuration, totalSamplesDuration) &&
-            const DeepCollectionEquality()
-                .equals(other.framesDecoded, framesDecoded) &&
-            const DeepCollectionEquality()
-                .equals(other.keyFramesDecoded, keyFramesDecoded) &&
-            const DeepCollectionEquality()
-                .equals(other.frameWidth, frameWidth) &&
-            const DeepCollectionEquality()
-                .equals(other.frameHeight, frameHeight) &&
-            const DeepCollectionEquality()
-                .equals(other.totalInterFrameDelay, totalInterFrameDelay) &&
-            const DeepCollectionEquality()
-                .equals(other.framesPerSecond, framesPerSecond) &&
-            const DeepCollectionEquality()
-                .equals(other.frameBitDepth, frameBitDepth) &&
-            const DeepCollectionEquality().equals(other.firCount, firCount) &&
-            const DeepCollectionEquality().equals(other.pliCount, pliCount) &&
-            const DeepCollectionEquality()
-                .equals(other.concealmentEvents, concealmentEvents) &&
-            const DeepCollectionEquality()
-                .equals(other.framesReceived, framesReceived));
+            const DeepCollectionEquality().equals(other.mediaType, mediaType));
   }
 
   @override
-  int get hashCode => Object.hashAll([
-        runtimeType,
-        const DeepCollectionEquality().hash(remoteId),
-        const DeepCollectionEquality().hash(bytesReceived),
-        const DeepCollectionEquality().hash(packetsReceived),
-        const DeepCollectionEquality().hash(totalDecodeTime),
-        const DeepCollectionEquality().hash(jitterBufferEmittedCount),
-        const DeepCollectionEquality().hash(totalSamplesReceived),
-        const DeepCollectionEquality().hash(concealedSamples),
-        const DeepCollectionEquality().hash(silentConcealedSamples),
-        const DeepCollectionEquality().hash(audioLevel),
-        const DeepCollectionEquality().hash(totalAudioEnergy),
-        const DeepCollectionEquality().hash(totalSamplesDuration),
-        const DeepCollectionEquality().hash(framesDecoded),
-        const DeepCollectionEquality().hash(keyFramesDecoded),
-        const DeepCollectionEquality().hash(frameWidth),
-        const DeepCollectionEquality().hash(frameHeight),
-        const DeepCollectionEquality().hash(totalInterFrameDelay),
-        const DeepCollectionEquality().hash(framesPerSecond),
-        const DeepCollectionEquality().hash(frameBitDepth),
-        const DeepCollectionEquality().hash(firCount),
-        const DeepCollectionEquality().hash(pliCount),
-        const DeepCollectionEquality().hash(concealmentEvents),
-        const DeepCollectionEquality().hash(framesReceived)
-      ]);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(remoteId),
+      const DeepCollectionEquality().hash(bytesReceived),
+      const DeepCollectionEquality().hash(packetsReceived),
+      const DeepCollectionEquality().hash(totalDecodeTime),
+      const DeepCollectionEquality().hash(jitterBufferEmittedCount),
+      const DeepCollectionEquality().hash(mediaType));
 
   @JsonKey(ignore: true)
   @override
@@ -5434,7 +5869,8 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -5452,23 +5888,7 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -5490,29 +5910,8 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
         rtcRemoteOutboundRtpStreamStats,
     required TResult Function() unimplenented,
   }) {
-    return rtcInboundRtpStreamStats(
-        remoteId,
-        bytesReceived,
-        packetsReceived,
-        totalDecodeTime,
-        jitterBufferEmittedCount,
-        totalSamplesReceived,
-        concealedSamples,
-        silentConcealedSamples,
-        audioLevel,
-        totalAudioEnergy,
-        totalSamplesDuration,
-        framesDecoded,
-        keyFramesDecoded,
-        frameWidth,
-        frameHeight,
-        totalInterFrameDelay,
-        framesPerSecond,
-        frameBitDepth,
-        firCount,
-        pliCount,
-        concealmentEvents,
-        framesReceived);
+    return rtcInboundRtpStreamStats(remoteId, bytesReceived, packetsReceived,
+        totalDecodeTime, jitterBufferEmittedCount, mediaType);
   }
 
   @override
@@ -5527,7 +5926,8 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -5545,23 +5945,7 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -5583,29 +5967,8 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
         rtcRemoteOutboundRtpStreamStats,
     TResult Function()? unimplenented,
   }) {
-    return rtcInboundRtpStreamStats?.call(
-        remoteId,
-        bytesReceived,
-        packetsReceived,
-        totalDecodeTime,
-        jitterBufferEmittedCount,
-        totalSamplesReceived,
-        concealedSamples,
-        silentConcealedSamples,
-        audioLevel,
-        totalAudioEnergy,
-        totalSamplesDuration,
-        framesDecoded,
-        keyFramesDecoded,
-        frameWidth,
-        frameHeight,
-        totalInterFrameDelay,
-        framesPerSecond,
-        frameBitDepth,
-        firCount,
-        pliCount,
-        concealmentEvents,
-        framesReceived);
+    return rtcInboundRtpStreamStats?.call(remoteId, bytesReceived,
+        packetsReceived, totalDecodeTime, jitterBufferEmittedCount, mediaType);
   }
 
   @override
@@ -5620,7 +5983,8 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -5638,23 +6002,7 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -5678,29 +6026,8 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
     required TResult orElse(),
   }) {
     if (rtcInboundRtpStreamStats != null) {
-      return rtcInboundRtpStreamStats(
-          remoteId,
-          bytesReceived,
-          packetsReceived,
-          totalDecodeTime,
-          jitterBufferEmittedCount,
-          totalSamplesReceived,
-          concealedSamples,
-          silentConcealedSamples,
-          audioLevel,
-          totalAudioEnergy,
-          totalSamplesDuration,
-          framesDecoded,
-          keyFramesDecoded,
-          frameWidth,
-          frameHeight,
-          totalInterFrameDelay,
-          framesPerSecond,
-          frameBitDepth,
-          firCount,
-          pliCount,
-          concealmentEvents,
-          framesReceived);
+      return rtcInboundRtpStreamStats(remoteId, bytesReceived, packetsReceived,
+          totalDecodeTime, jitterBufferEmittedCount, mediaType);
     }
     return orElse();
   }
@@ -5783,51 +6110,20 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
 
 abstract class RTCStatsType_RTCInboundRTPStreamStats implements RTCStatsType {
   const factory RTCStatsType_RTCInboundRTPStreamStats(
-      {final String? remoteId,
-      final int? bytesReceived,
-      final int? packetsReceived,
-      final double? totalDecodeTime,
-      final int? jitterBufferEmittedCount,
-      final int? totalSamplesReceived,
-      final int? concealedSamples,
-      final int? silentConcealedSamples,
-      final double? audioLevel,
-      final double? totalAudioEnergy,
-      final double? totalSamplesDuration,
-      final int? framesDecoded,
-      final int? keyFramesDecoded,
-      final int? frameWidth,
-      final int? frameHeight,
-      final double? totalInterFrameDelay,
-      final double? framesPerSecond,
-      final int? frameBitDepth,
-      final int? firCount,
-      final int? pliCount,
-      final int? concealmentEvents,
-      final int? framesReceived}) = _$RTCStatsType_RTCInboundRTPStreamStats;
+          {final String? remoteId,
+          final int? bytesReceived,
+          final int? packetsReceived,
+          final double? totalDecodeTime,
+          final int? jitterBufferEmittedCount,
+          final RTCInboundRtpStreamMediaType? mediaType}) =
+      _$RTCStatsType_RTCInboundRTPStreamStats;
 
   String? get remoteId;
   int? get bytesReceived;
   int? get packetsReceived;
   double? get totalDecodeTime;
   int? get jitterBufferEmittedCount;
-  int? get totalSamplesReceived;
-  int? get concealedSamples;
-  int? get silentConcealedSamples;
-  double? get audioLevel;
-  double? get totalAudioEnergy;
-  double? get totalSamplesDuration;
-  int? get framesDecoded;
-  int? get keyFramesDecoded;
-  int? get frameWidth;
-  int? get frameHeight;
-  double? get totalInterFrameDelay;
-  double? get framesPerSecond;
-  int? get frameBitDepth;
-  int? get firCount;
-  int? get pliCount;
-  int? get concealmentEvents;
-  int? get framesReceived;
+  RTCInboundRtpStreamMediaType? get mediaType;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith<
           _$RTCStatsType_RTCInboundRTPStreamStats>
@@ -5989,7 +6285,8 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -6007,23 +6304,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6061,7 +6342,8 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -6079,23 +6361,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6139,7 +6405,8 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -6157,23 +6424,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6428,7 +6679,8 @@ class _$RTCStatsType_RTCTransportStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -6446,23 +6698,7 @@ class _$RTCStatsType_RTCTransportStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6500,7 +6736,8 @@ class _$RTCStatsType_RTCTransportStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -6518,23 +6755,7 @@ class _$RTCStatsType_RTCTransportStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6572,7 +6793,8 @@ class _$RTCStatsType_RTCTransportStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -6590,23 +6812,7 @@ class _$RTCStatsType_RTCTransportStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6850,7 +7056,8 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -6868,23 +7075,7 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6922,7 +7113,8 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -6940,23 +7132,7 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -6994,7 +7170,8 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -7012,23 +7189,7 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -7258,7 +7419,8 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -7276,23 +7438,7 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -7330,7 +7476,8 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -7348,23 +7495,7 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -7402,7 +7533,8 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -7420,23 +7552,7 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -7613,7 +7729,8 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)
+            String? url,
+            bool? isRemote)
         rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
@@ -7631,23 +7748,7 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)
+            RTCInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -7684,7 +7785,8 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -7702,23 +7804,7 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,
@@ -7755,7 +7841,8 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             String? protocol,
             CandidateType candidateType,
             int? priority,
-            String? url)?
+            String? url,
+            bool? isRemote)?
         rtcIceCandidateStats,
     TResult Function(
             String? trackId,
@@ -7773,23 +7860,7 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             int? packetsReceived,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            int? totalSamplesReceived,
-            int? concealedSamples,
-            int? silentConcealedSamples,
-            double? audioLevel,
-            double? totalAudioEnergy,
-            double? totalSamplesDuration,
-            int? framesDecoded,
-            int? keyFramesDecoded,
-            int? frameWidth,
-            int? frameHeight,
-            double? totalInterFrameDelay,
-            double? framesPerSecond,
-            int? frameBitDepth,
-            int? firCount,
-            int? pliCount,
-            int? concealmentEvents,
-            int? framesReceived)?
+            RTCInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
             RTCStatsIceCandidatePairState state,

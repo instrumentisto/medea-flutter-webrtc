@@ -1,28 +1,47 @@
 import '../api/bridge.g.dart' as bridge;
 
+class RTCStats {
+  RTCStats(
+    this.id,
+    this.timestampUs,
+    this.type,
+  );
+  static RTCStats fromFFI(bridge.RTCStats stats) {
+    return RTCStats(
+      stats.id,
+      stats.timestampUs,
+      RTCStatsType.fromFFI(stats.kind),
+    );
+  }
+
+  String id;
+  int timestampUs;
+  RTCStatsType type;
+}
+
 enum RTCStatsIceCandidatePairState {
-  Frozen,
-  Waiting,
-  InProgress,
-  Failed,
-  Succeeded,
+  frozen,
+  waiting,
+  inProgress,
+  failed,
+  succeeded,
 }
 
 enum TrackKind {
-  Audio,
-  Video,
+  audio,
+  video,
 }
 
 enum CandidateType {
-  Host,
-  Srflx,
-  Prflx,
-  Relay,
+  host,
+  srflx,
+  prflx,
+  relay,
 }
 
 abstract class RTCStatsType {
   RTCStatsType();
-  static RTCStatsType? ffiFactory(bridge.RTCStatsType stats) {
+  static RTCStatsType fromFFI(bridge.RTCStatsType stats) {
     var type = stats.runtimeType.toString();
     switch (type) {
       case '_\$RTCStatsType_RTCMediaSourceStats':
@@ -30,49 +49,53 @@ abstract class RTCStatsType {
           var source = (stats as bridge.RTCStatsType_RTCMediaSourceStats);
           if (source.kind
               is bridge.RTCMediaSourceStatsType_RTCAudioSourceStats) {
-            return RTCAudioSourceStats.ffiFactory(stats.kind
-                as bridge.RTCMediaSourceStatsType_RTCAudioSourceStats);
+            return RTCAudioSourceStats.fromFFI(
+                stats.kind
+                    as bridge.RTCMediaSourceStatsType_RTCAudioSourceStats,
+                stats.trackIdentifier);
           } else {
-            return RTCVideoSourceStats.ffiFactory(stats.kind
-                as bridge.RTCMediaSourceStatsType_RTCVideoSourceStats);
+            return RTCVideoSourceStats.fromFFI(
+                stats.kind
+                    as bridge.RTCMediaSourceStatsType_RTCVideoSourceStats,
+                stats.trackIdentifier);
           }
         }
 
       case '_\$RTCStatsType_RTCIceCandidateStats':
         {
-          return RTCIceCandidateStats.ffiFactory(
+          return RTCIceCandidateStats.fromFFI(
               stats as bridge.RTCStatsType_RTCIceCandidateStats);
         }
 
       case '_\$RTCStatsType_RTCOutboundRTPStreamStats':
         {
-          return RTCOutboundRTPStreamStats.ffiFactory(
+          return RTCOutboundRTPStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCOutboundRTPStreamStats);
         }
 
       case '_\$RTCStatsType_RTCInboundRTPStreamStats':
         {
-          return RTCInboundRTPStreamStats.ffiFactory(
+          return RTCInboundRTPStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCInboundRTPStreamStats);
         }
       case '_\$RTCStatsType_RTCTransportStats':
         {
-          return RTCTransportStats.ffiFactory(
+          return RTCTransportStats.fromFFI(
               stats as bridge.RTCStatsType_RTCTransportStats);
         }
       case '_\$RTCStatsType_RTCRemoteInboundRtpStreamStats':
         {
-          return RTCRemoteInboundRtpStreamStats.ffiFactory(
+          return RTCRemoteInboundRtpStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCRemoteInboundRtpStreamStats);
         }
       case '_\$RTCStatsType_RTCRemoteOutboundRtpStreamStats':
         {
-          return RTCRemoteOutboundRtpStreamStats.ffiFactory(
+          return RTCRemoteOutboundRtpStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCRemoteOutboundRtpStreamStats);
         }
       case '_\$RTCStatsType_RTCIceCandidatePairStats':
         {
-          return RTCIceCandidatePairStats.ffiFactory(
+          return RTCIceCandidatePairStats.fromFFI(
               stats as bridge.RTCStatsType_RTCIceCandidatePairStats);
         }
       default:
@@ -83,35 +106,31 @@ abstract class RTCStatsType {
   }
 }
 
-class RTCMediaSourceStats extends RTCStatsType {}
+class RTCMediaSourceStats extends RTCStatsType {
+  RTCMediaSourceStats(this.trackIdentifier);
+  String? trackIdentifier;
+}
 
 class RTCAudioSourceStats extends RTCMediaSourceStats {
   RTCAudioSourceStats(
-    this.audioLevel,
-    this.totalAudioEnergy,
-    this.totalSamplesDuration,
-    this.echoReturnLoss,
-    this.echoReturnLossEnhancement,
-  );
+      this.audioLevel,
+      this.totalAudioEnergy,
+      this.totalSamplesDuration,
+      this.echoReturnLoss,
+      this.echoReturnLossEnhancement,
+      String? trackIdentifier)
+      : super(trackIdentifier);
 
-  RTCAudioSourceStats.ffiFactory(
-      bridge.RTCMediaSourceStatsType_RTCAudioSourceStats stats) {
-    RTCAudioSourceStats(
+  static RTCAudioSourceStats fromFFI(
+      bridge.RTCMediaSourceStatsType_RTCAudioSourceStats stats,
+      String? trackIdentifier) {
+    return RTCAudioSourceStats(
       stats.audioLevel,
       stats.totalAudioEnergy,
       stats.totalSamplesDuration,
       stats.echoReturnLoss,
       stats.echoReturnLossEnhancement,
-    );
-  }
-
-  RTCAudioSourceStats.channelFactory(dynamic stats) {
-    RTCAudioSourceStats(
-      stats['audioLevel'],
-      stats['totalAudioEnergy'],
-      stats['totalSamplesDuration'],
-      stats['echoReturnLoss'],
-      stats['echoReturnLossEnhancement'],
+      trackIdentifier,
     );
   }
 
@@ -123,30 +142,15 @@ class RTCAudioSourceStats extends RTCMediaSourceStats {
 }
 
 class RTCVideoSourceStats extends RTCMediaSourceStats {
-  RTCVideoSourceStats(
-    this.width,
-    this.height,
-    this.frames,
-    this.framesPerSecond,
-  );
+  RTCVideoSourceStats(this.width, this.height, this.frames,
+      this.framesPerSecond, String? trackIdentifier)
+      : super(trackIdentifier);
 
-  RTCVideoSourceStats.ffiFactory(
-      bridge.RTCMediaSourceStatsType_RTCVideoSourceStats stats) {
-    RTCVideoSourceStats(
-      stats.width,
-      stats.height,
-      stats.frames,
-      stats.framesPerSecond,
-    );
-  }
-
-  RTCVideoSourceStats.channelFactory(dynamic stats) {
-    RTCVideoSourceStats(
-      stats['width'],
-      stats['height'],
-      stats['frames'],
-      stats['framesPerSecond'],
-    );
+  static RTCVideoSourceStats fromFFI(
+      bridge.RTCMediaSourceStatsType_RTCVideoSourceStats stats,
+      String? trackIdentifier) {
+    return RTCVideoSourceStats(stats.width, stats.height, stats.frames,
+        stats.framesPerSecond, trackIdentifier);
   }
 
   int? width;
@@ -156,39 +160,20 @@ class RTCVideoSourceStats extends RTCMediaSourceStats {
 }
 
 class RTCIceCandidateStats extends RTCStatsType {
-  RTCIceCandidateStats(
-    this.transportId,
-    this.address,
-    this.port,
-    this.protocol,
-    this.candidateType,
-    this.priority,
-    this.url,
-  );
+  RTCIceCandidateStats(this.transportId, this.address, this.port, this.protocol,
+      this.candidateType, this.priority, this.url, this.isRemote);
 
-  RTCIceCandidateStats.ffiFactory(
+  static RTCIceCandidateStats fromFFI(
       bridge.RTCStatsType_RTCIceCandidateStats stats) {
-    RTCIceCandidateStats(
-      stats.transportId,
-      stats.address,
-      stats.port,
-      stats.protocol,
-      CandidateType.values[stats.candidateType.index],
-      stats.priority,
-      stats.url,
-    );
-  }
-
-  RTCIceCandidateStats.channelFactory(dynamic stats) {
-    RTCIceCandidateStats(
-      stats['transportId'],
-      stats['address'],
-      stats['port'],
-      stats['protocol'],
-      CandidateType.values[stats['candidateType']],
-      stats['priority'],
-      stats['url'],
-    );
+    return RTCIceCandidateStats(
+        stats.transportId,
+        stats.address,
+        stats.port,
+        stats.protocol,
+        CandidateType.values[stats.candidateType.index],
+        stats.priority,
+        stats.url,
+        stats.isRemote);
   }
 
   String? transportId;
@@ -198,6 +183,7 @@ class RTCIceCandidateStats extends RTCStatsType {
   late CandidateType candidateType;
   int? priority;
   String? url;
+  bool? isRemote;
 }
 
 class RTCOutboundRTPStreamStats extends RTCStatsType {
@@ -212,9 +198,9 @@ class RTCOutboundRTPStreamStats extends RTCStatsType {
     this.mediaSourceId,
   );
 
-  RTCOutboundRTPStreamStats.ffiFactory(
+  static RTCOutboundRTPStreamStats fromFFI(
       bridge.RTCStatsType_RTCOutboundRTPStreamStats stats) {
-    RTCOutboundRTPStreamStats(
+    return RTCOutboundRTPStreamStats(
       stats.trackId,
       TrackKind.values[stats.kind.index],
       stats.frameWidth,
@@ -223,19 +209,6 @@ class RTCOutboundRTPStreamStats extends RTCStatsType {
       stats.bytesSent,
       stats.packetsSent,
       stats.mediaSourceId,
-    );
-  }
-
-  RTCOutboundRTPStreamStats.channelFactory(dynamic stats) {
-    RTCOutboundRTPStreamStats(
-      stats['trackId'],
-      TrackKind.values[stats['kind']],
-      stats['frameWidth'],
-      stats['frameHeight'],
-      stats['framesPerSecond'],
-      stats['bytesSent'],
-      stats['packetsSent'],
-      stats['mediaSourceId'],
     );
   }
 
@@ -249,19 +222,31 @@ class RTCOutboundRTPStreamStats extends RTCStatsType {
   String? mediaSourceId;
 }
 
-class RTCInboundRTPStreamStats extends RTCStatsType {
-  RTCInboundRTPStreamStats(
-    this.remoteId,
-    this.bytesReceived,
-    this.packetsReceived,
-    this.totalDecodeTime,
-    this.jitterBufferEmittedCount,
+abstract class RTCInboundRTPStreamMediaType {
+  RTCInboundRTPStreamMediaType(this.type);
+  String type;
+}
+
+class RTCInboundRTPStreamAudio extends RTCInboundRTPStreamMediaType {
+  RTCInboundRTPStreamAudio(
     this.totalSamplesReceived,
     this.concealedSamples,
     this.silentConcealedSamples,
     this.audioLevel,
     this.totalAudioEnergy,
     this.totalSamplesDuration,
+  ) : super('RTCInboundRTPStreamAudio');
+
+  int? totalSamplesReceived;
+  int? concealedSamples;
+  int? silentConcealedSamples;
+  double? audioLevel;
+  double? totalAudioEnergy;
+  double? totalSamplesDuration;
+}
+
+class RTCInboundRTPStreamVideo extends RTCInboundRTPStreamMediaType {
+  RTCInboundRTPStreamVideo(
     this.framesDecoded,
     this.keyFramesDecoded,
     this.frameWidth,
@@ -273,74 +258,8 @@ class RTCInboundRTPStreamStats extends RTCStatsType {
     this.pliCount,
     this.concealmentEvents,
     this.framesReceived,
-  );
+  ) : super('RTCInboundRTPStreamVideo');
 
-  RTCInboundRTPStreamStats.ffiFactory(
-      bridge.RTCStatsType_RTCInboundRTPStreamStats stats) {
-    RTCInboundRTPStreamStats(
-      stats.remoteId,
-      stats.bytesReceived,
-      stats.packetsReceived,
-      stats.totalDecodeTime,
-      stats.jitterBufferEmittedCount,
-      stats.totalSamplesReceived,
-      stats.concealedSamples,
-      stats.silentConcealedSamples,
-      stats.audioLevel,
-      stats.totalAudioEnergy,
-      stats.totalSamplesDuration,
-      stats.framesDecoded,
-      stats.keyFramesDecoded,
-      stats.frameWidth,
-      stats.frameHeight,
-      stats.totalInterFrameDelay,
-      stats.framesPerSecond,
-      stats.frameBitDepth,
-      stats.firCount,
-      stats.pliCount,
-      stats.concealmentEvents,
-      stats.framesReceived,
-    );
-  }
-
-  RTCInboundRTPStreamStats.channelFactory(dynamic stats) {
-    RTCInboundRTPStreamStats(
-      stats['remoteId'],
-      stats['bytesReceived'],
-      stats['packetsReceived'],
-      stats['totalDecodeTime'],
-      stats['jitterBufferEmittedCount'],
-      stats['totalSamplesReceived'],
-      stats['concealedSamples'],
-      stats['silentConcealedSamples'],
-      stats['audioLevel'],
-      stats['totalAudioEnergy'],
-      stats['totalSamplesDuration'],
-      stats['framesDecoded'],
-      stats['keyFramesDecoded'],
-      stats['frameWidth'],
-      stats['frameHeight'],
-      stats['totalInterFrameDelay'],
-      stats['framesPerSecond'],
-      stats['frameBitDepth'],
-      stats['firCount'],
-      stats['pliCount'],
-      stats['concealmentEvents'],
-      stats['framesReceived'],
-    );
-  }
-
-  String? remoteId;
-  int? bytesReceived;
-  int? packetsReceived;
-  double? totalDecodeTime;
-  int? jitterBufferEmittedCount;
-  int? totalSamplesReceived;
-  int? concealedSamples;
-  int? silentConcealedSamples;
-  double? audioLevel;
-  double? totalAudioEnergy;
-  double? totalSamplesDuration;
   int? framesDecoded;
   int? keyFramesDecoded;
   int? frameWidth;
@@ -354,6 +273,63 @@ class RTCInboundRTPStreamStats extends RTCStatsType {
   int? framesReceived;
 }
 
+class RTCInboundRTPStreamStats extends RTCStatsType {
+  RTCInboundRTPStreamStats(
+    this.remoteId,
+    this.bytesReceived,
+    this.packetsReceived,
+    this.totalDecodeTime,
+    this.jitterBufferEmittedCount,
+    this.mediaType,
+  );
+
+  static RTCInboundRTPStreamStats fromFFI(
+      bridge.RTCStatsType_RTCInboundRTPStreamStats stats) {
+    RTCInboundRTPStreamMediaType? mediaType;
+    var type = stats.mediaType.runtimeType.toString();
+    if (type == '_\$RTCInboundRtpStreamMediaType_Audio') {
+      var cast = stats.mediaType as bridge.RTCInboundRtpStreamMediaType_Audio;
+      mediaType = RTCInboundRTPStreamAudio(
+        cast.totalSamplesReceived,
+        cast.concealedSamples,
+        cast.silentConcealedSamples,
+        cast.audioLevel,
+        cast.totalAudioEnergy,
+        cast.totalSamplesDuration,
+      );
+    } else if (type == '_\$RTCInboundRtpStreamMediaType_Video') {
+      var cast = stats.mediaType as bridge.RTCInboundRtpStreamMediaType_Video;
+      mediaType = RTCInboundRTPStreamVideo(
+        cast.framesDecoded,
+        cast.keyFramesDecoded,
+        cast.frameWidth,
+        cast.frameHeight,
+        cast.totalInterFrameDelay,
+        cast.framesPerSecond,
+        cast.frameBitDepth,
+        cast.firCount,
+        cast.pliCount,
+        cast.concealmentEvents,
+        cast.framesReceived,
+      );
+    }
+    return RTCInboundRTPStreamStats(
+        stats.remoteId,
+        stats.bytesReceived,
+        stats.packetsReceived,
+        stats.totalDecodeTime,
+        stats.jitterBufferEmittedCount,
+        mediaType);
+  }
+
+  String? remoteId;
+  int? bytesReceived;
+  int? packetsReceived;
+  double? totalDecodeTime;
+  int? jitterBufferEmittedCount;
+  RTCInboundRTPStreamMediaType? mediaType;
+}
+
 class RTCIceCandidatePairStats extends RTCStatsType {
   RTCIceCandidatePairStats(
     this.state,
@@ -365,9 +341,9 @@ class RTCIceCandidatePairStats extends RTCStatsType {
     this.availableOutgoingBitrate,
   );
 
-  RTCIceCandidatePairStats.ffiFactory(
+  static RTCIceCandidatePairStats fromFFI(
       bridge.RTCStatsType_RTCIceCandidatePairStats stats) {
-    RTCIceCandidatePairStats(
+    return RTCIceCandidatePairStats(
       RTCStatsIceCandidatePairState.values[stats.state.index],
       stats.nominated,
       stats.bytesSent,
@@ -375,18 +351,6 @@ class RTCIceCandidatePairStats extends RTCStatsType {
       stats.totalRoundTripTime,
       stats.currentRoundTripTime,
       stats.availableOutgoingBitrate,
-    );
-  }
-
-  RTCIceCandidatePairStats.channelFactory(dynamic stats) {
-    RTCIceCandidatePairStats(
-      RTCStatsIceCandidatePairState.values[stats['state']],
-      stats['nominated'],
-      stats['bytesSent'],
-      stats['bytesReceived'],
-      stats['totalRoundTripTime'],
-      stats['currentRoundTripTime'],
-      stats['availableOutgoingBitrate'],
     );
   }
 
@@ -407,21 +371,13 @@ class RTCTransportStats extends RTCStatsType {
     this.bytesReceived,
   );
 
-  RTCTransportStats.ffiFactory(bridge.RTCStatsType_RTCTransportStats stats) {
-    RTCTransportStats(
+  static RTCTransportStats fromFFI(
+      bridge.RTCStatsType_RTCTransportStats stats) {
+    return RTCTransportStats(
       stats.packetsSent,
       stats.packetsReceived,
       stats.bytesSent,
       stats.bytesReceived,
-    );
-  }
-
-  RTCTransportStats.channelFactory(dynamic stats) {
-    RTCTransportStats(
-      stats['packetsSent'],
-      stats['packetsReceived'],
-      stats['bytesSent'],
-      stats['bytesReceived'],
     );
   }
 
@@ -439,22 +395,13 @@ class RTCRemoteInboundRtpStreamStats extends RTCStatsType {
     this.roundTripTimeMeasurements,
   );
 
-  RTCRemoteInboundRtpStreamStats.ffiFactory(
+  static RTCRemoteInboundRtpStreamStats fromFFI(
       bridge.RTCStatsType_RTCRemoteInboundRtpStreamStats stats) {
-    RTCRemoteInboundRtpStreamStats(
+    return RTCRemoteInboundRtpStreamStats(
       stats.localId,
       stats.roundTripTime,
       stats.fractionLost,
       stats.roundTripTimeMeasurements,
-    );
-  }
-
-  RTCRemoteInboundRtpStreamStats.channelFactory(dynamic stats) {
-    RTCRemoteInboundRtpStreamStats(
-      stats['localId'],
-      stats['roundTripTime'],
-      stats['fractionLost'],
-      stats['roundTripTimeMeasurements'],
     );
   }
 
@@ -471,20 +418,12 @@ class RTCRemoteOutboundRtpStreamStats extends RTCStatsType {
     this.reportsSent,
   );
 
-  RTCRemoteOutboundRtpStreamStats.ffiFactory(
+  static RTCRemoteOutboundRtpStreamStats fromFFI(
       bridge.RTCStatsType_RTCRemoteOutboundRtpStreamStats stats) {
-    RTCRemoteOutboundRtpStreamStats(
+    return RTCRemoteOutboundRtpStreamStats(
       stats.localId,
       stats.remoteTimestamp,
       stats.reportsSent,
-    );
-  }
-
-  RTCRemoteOutboundRtpStreamStats.channelFactory(dynamic stats) {
-    RTCRemoteOutboundRtpStreamStats(
-      stats['localId'],
-      stats['remoteTimestamp'],
-      stats['reportsSent'],
     );
   }
 

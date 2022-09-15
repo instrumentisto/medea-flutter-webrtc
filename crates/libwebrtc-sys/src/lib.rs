@@ -1499,8 +1499,11 @@ impl From<UniquePtr<webrtc::RTCMediaSourceStats>> for RTCMediaSourceStats {
     }
 }
 
+
+
 #[derive(Debug)]
 pub struct RTCIceCandidateStats {
+    is_remote: Option<bool>,
     transport_id: Option<String>,
     address: Option<String>,
     port: Option<i32>,
@@ -1532,6 +1535,9 @@ impl RTCIceCandidateStats {
     pub fn url(&self) -> &Option<String> {
         &self.url
     }
+    pub fn is_remote(&self) -> Option<bool> {
+        self.is_remote
+    }
 }
 
 impl From<UniquePtr<webrtc::RTCIceCandidateStats>> for RTCIceCandidateStats {
@@ -1562,7 +1568,10 @@ impl From<UniquePtr<webrtc::RTCIceCandidateStats>> for RTCIceCandidateStats {
                 webrtc::rtc_ice_candidate_stats_priority(&inner),
             ),
             url: rtc_stats_member_string_to_option(
-                webrtc::rtc_ice_candidate_stats_transport_id(&inner),
+                webrtc::rtc_ice_candidate_stats_url(&inner),
+            ),
+            is_remote: rtc_stats_member_bool_to_option(
+                webrtc::rtc_ice_candidate_stats_is_remote(&inner),
             ),
         }
     }
@@ -1649,52 +1658,43 @@ impl From<UniquePtr<webrtc::RTCOutboundRTPStreamStats>>
 }
 
 #[derive(Debug)]
-pub struct RTCInboundRTPStreamStats {
-    // pub sli_count: Option<u64>,
-    // pub packets_lost: Option<i64>,
-    // pub jitter: Option<f64>,
-    // pub voice_activity_flag: Option<bool>,
-    
-    remote_id: Option<String>,
-    bytes_received: Option<u64>,
-    packets_received: Option<u32>,
-    total_decode_time: Option<f64>,
-    jitter_buffer_emitted_count: Option<u64>,
-    total_samples_received: Option<u64>,
-    concealed_samples: Option<u64>,
-    silent_concealed_samples: Option<u64>,
-    audio_level: Option<f64>,
-    total_audio_energy: Option<f64>,
-    total_samples_duration: Option<f64>,
-    frames_decoded: Option<u32>,
-    key_frames_decoded: Option<u32>,
-    frame_width: Option<u32>,
-    frame_height: Option<u32>,
-    total_inter_frame_delay: Option<f64>,
-    frames_per_second: Option<f64>,
-    frame_bit_depth: Option<u32>,
-    fir_count: Option<u32>,
-    pli_count: Option<u32>,
-    concealment_events: Option<u64>,
-    frames_received: Option<i32>,
+pub struct RTCInboundRtpStreamAudio {
+        total_samples_received: Option<u64>,
+        concealed_samples: Option<u64>,
+        silent_concealed_samples: Option<u64>,
+        audio_level: Option<f64>,
+        total_audio_energy: Option<f64>,
+        total_samples_duration: Option<f64>,
 }
 
-impl RTCInboundRTPStreamStats {
-    pub fn remote_id(&self) -> &Option<String> {
-        &self.remote_id
+impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>> for RTCInboundRtpStreamAudio {
+    fn from(inner: &UniquePtr<webrtc::RTCInboundRTPStreamStats>) -> Self {
+        Self {
+            total_samples_received: rtc_stats_member_u64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_total_samples_received(inner),
+            ),
+            concealed_samples: rtc_stats_member_u64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_concealed_samples(inner),
+            ),
+            silent_concealed_samples: rtc_stats_member_u64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_silent_concealed_samples(
+                    inner,
+                ),
+            ),
+            audio_level: rtc_stats_member_f64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_audio_level(inner),
+            ),
+            total_audio_energy: rtc_stats_member_f64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_total_audio_energy(inner),
+            ),
+            total_samples_duration: rtc_stats_member_f64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_total_samples_duration(inner),
+            ),
+        }
     }
-    pub fn bytes_received(&self) -> Option<u64> {
-        self.bytes_received
-    }
-    pub fn packets_received(&self) -> Option<u32> {
-        self.packets_received
-    }
-    pub fn total_decode_time(&self) -> Option<f64> {
-        self.total_decode_time
-    }
-    pub fn jitter_buffer_emitted_count(&self) -> Option<u64> {
-        self.jitter_buffer_emitted_count
-    }
+}
+
+impl RTCInboundRtpStreamAudio {
     pub fn total_samples_received(&self) -> Option<u64> {
         self.total_samples_received
     }
@@ -1713,6 +1713,67 @@ impl RTCInboundRTPStreamStats {
     pub fn total_samples_duration(&self) -> Option<f64> {
         self.total_samples_duration
     }
+}
+
+#[derive(Debug)]
+pub struct RTCInboundRtpStreamVideo {
+    frames_decoded: Option<u32>,
+    key_frames_decoded: Option<u32>,
+    frame_width: Option<u32>,
+    frame_height: Option<u32>,
+    total_inter_frame_delay: Option<f64>,
+    frames_per_second: Option<f64>,
+    frame_bit_depth: Option<u32>,
+    fir_count: Option<u32>,
+    pli_count: Option<u32>,
+    concealment_events: Option<u64>,
+    frames_received: Option<i32>,
+}
+
+impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>> for RTCInboundRtpStreamVideo {
+    fn from(inner: &UniquePtr<webrtc::RTCInboundRTPStreamStats>) -> Self {
+        Self {
+            frames_decoded: rtc_stats_member_u32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_frames_decoded(inner),
+            ),
+            key_frames_decoded: rtc_stats_member_u32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_key_frames_decoded(inner),
+            ),
+            frame_width: rtc_stats_member_u32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_frame_width(inner),
+            ),
+            frame_height: rtc_stats_member_u32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_frame_height(inner),
+            ),
+            total_inter_frame_delay: rtc_stats_member_f64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_total_inter_frame_delay(
+                    inner,
+                ),
+            ),
+            frames_per_second: rtc_stats_member_f64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_frames_per_second(inner),
+            ),
+            frame_bit_depth: rtc_stats_member_u32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_frame_bit_depth(inner),
+            ),
+            fir_count: rtc_stats_member_u32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_fir_count(inner),
+            ),
+            pli_count: rtc_stats_member_u32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_pli_count(inner),
+            ),
+            // sli_count: webrtc::RTCInboundRTPStreamStats_sli_count(inner)),
+            concealment_events: rtc_stats_member_u64_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_concealment_events(inner),
+            ),
+            frames_received: rtc_stats_member_i32_to_option(
+                webrtc::rtc_inbound_rtp_stream_stats_frames_received(inner),
+            ),
+        }
+    }
+}
+
+impl RTCInboundRtpStreamVideo {
     pub fn frames_decoded(&self) -> Option<u32> {
         self.frames_decoded
     }
@@ -1748,10 +1809,65 @@ impl RTCInboundRTPStreamStats {
     }
 }
 
+#[derive(Debug)]
+pub enum RTCInboundRtpStreamMediaType {
+    Audio(RTCInboundRtpStreamAudio),
+    Video(RTCInboundRtpStreamVideo),
+}
+
+#[derive(Debug)]
+pub struct RTCInboundRTPStreamStats {
+    media_type: Option<RTCInboundRtpStreamMediaType>,
+    remote_id: Option<String>,
+    bytes_received: Option<u64>,
+    packets_received: Option<u32>,
+    total_decode_time: Option<f64>,
+    jitter_buffer_emitted_count: Option<u64>,
+}
+
+impl RTCInboundRTPStreamStats {
+    pub fn remote_id(&self) -> &Option<String> {
+        &self.remote_id
+    }
+    pub fn bytes_received(&self) -> Option<u64> {
+        self.bytes_received
+    }
+    pub fn packets_received(&self) -> Option<u32> {
+        self.packets_received
+    }
+    pub fn total_decode_time(&self) -> Option<f64> {
+        self.total_decode_time
+    }
+    pub fn jitter_buffer_emitted_count(&self) -> Option<u64> {
+        self.jitter_buffer_emitted_count
+    }
+    pub fn media_type(&self) -> &Option<RTCInboundRtpStreamMediaType> {
+        &self.media_type
+    }
+}
+
 impl From<UniquePtr<webrtc::RTCInboundRTPStreamStats>>
     for RTCInboundRTPStreamStats
 {
     fn from(inner: UniquePtr<webrtc::RTCInboundRTPStreamStats>) -> Self {
+        let media_type = rtc_stats_member_string_to_option(
+            webrtc::rtc_inbound_rtp_stream_stats_content_type(&inner),
+        ).map(|media_type| 
+        {
+            if media_type == "video"
+        {
+            RTCInboundRtpStreamMediaType::Video(
+                RTCInboundRtpStreamVideo::from(&inner)
+            )
+        } else {
+            RTCInboundRtpStreamMediaType::Audio(
+                RTCInboundRtpStreamAudio::from(&inner)
+            )
+        }
+        });
+
+
+
         Self {
             remote_id: rtc_stats_member_string_to_option(
                 webrtc::rtc_inbound_rtp_stream_stats_remote_id(&inner),
@@ -1769,66 +1885,12 @@ impl From<UniquePtr<webrtc::RTCInboundRTPStreamStats>>
                     &inner,
                 ),
             ),
-            // voice_activity_flag:,
-            total_samples_received: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_samples_received(&inner),
-            ),
-            concealed_samples: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_concealed_samples(&inner),
-            ),
-            silent_concealed_samples: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_silent_concealed_samples(
-                    &inner,
-                ),
-            ),
-            audio_level: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_audio_level(&inner),
-            ),
-            total_audio_energy: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_audio_energy(&inner),
-            ),
-            frames_decoded: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frames_decoded(&inner),
-            ),
-            key_frames_decoded: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_key_frames_decoded(&inner),
-            ),
-            frame_width: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frame_width(&inner),
-            ),
-            frame_height: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frame_height(&inner),
-            ),
-            total_inter_frame_delay: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_inter_frame_delay(
-                    &inner,
-                ),
-            ),
-            frames_per_second: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frames_per_second(&inner),
-            ),
-            frame_bit_depth: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frame_bit_depth(&inner),
-            ),
-            fir_count: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_fir_count(&inner),
-            ),
-            pli_count: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_pli_count(&inner),
-            ),
-            // sli_count: webrtc::RTCInboundRTPStreamStats_sli_count(inner)),
-            concealment_events: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_concealment_events(&inner),
-            ),
-            frames_received: rtc_stats_member_i32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frames_received(&inner),
-            ),
             total_decode_time: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_decode_time(&inner),
+                webrtc::rtc_inbound_rtp_stream_stats_total_decode_time(
+                    &inner,
+                ),
             ),
-            total_samples_duration: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_samples_duration(&inner),
-            ),
+            media_type,
         }
     }
 }
@@ -2117,8 +2179,7 @@ impl TryFrom<webrtc::RTCStatsContainer> for RTCStatsType {
                     RTCRemoteOutboundRtpStreamStats::from(stats),
                 )
             }
-            kind => {
-                println!("Unimplenented type = {kind}");
+            _ => {
                 Self::Unimplenented
             }
         };

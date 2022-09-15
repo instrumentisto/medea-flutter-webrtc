@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
+import '../model/stats.dart';
 import '/src/model/ice.dart';
 import '/src/model/peer.dart';
 import '/src/model/sdp.dart';
@@ -12,7 +13,6 @@ import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
-import 'stats.dart';
 import 'transceiver.dart';
 
 /// Checks whether the running platform is a desktop.

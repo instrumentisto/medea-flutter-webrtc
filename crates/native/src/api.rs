@@ -90,6 +90,39 @@ impl From<sys::TrackKind> for TrackKind {
     }
 }
 
+pub enum RTCInboundRtpStreamMediaType {
+    Audio {
+        total_samples_received: Option<u64>,
+        concealed_samples: Option<u64>,
+        silent_concealed_samples: Option<u64>,
+        audio_level: Option<f64>,
+        total_audio_energy: Option<f64>,
+        total_samples_duration: Option<f64>,
+    },
+    Video {
+        frames_decoded: Option<u32>,
+        key_frames_decoded: Option<u32>,
+        frame_width: Option<u32>,
+        frame_height: Option<u32>,
+        total_inter_frame_delay: Option<f64>,
+        frames_per_second: Option<f64>,
+        frame_bit_depth: Option<u32>,
+        fir_count: Option<u32>,
+        pli_count: Option<u32>,
+        concealment_events: Option<u64>,
+        frames_received: Option<i32>,
+    },
+}
+
+impl From<&sys::RTCInboundRtpStreamMediaType> for  RTCInboundRtpStreamMediaType {
+    fn from(media_type: &sys::RTCInboundRtpStreamMediaType) -> Self {
+        match media_type {
+            sys::RTCInboundRtpStreamMediaType::Audio(audio) => Self::Audio { total_samples_received: audio.total_samples_received(), concealed_samples: audio.concealed_samples(), silent_concealed_samples: audio.silent_concealed_samples(), audio_level: audio.audio_level(), total_audio_energy: audio.total_audio_energy(), total_samples_duration: audio.total_samples_duration() },
+            sys::RTCInboundRtpStreamMediaType::Video(video) => Self::Video { frames_decoded: video.frames_decoded(), key_frames_decoded: video.key_frames_decoded(), frame_width: video.frame_width(), frame_height: video.frame_height(), total_inter_frame_delay: video.total_inter_frame_delay(), frames_per_second: video.frames_per_second(), frame_bit_depth: video.frame_bit_depth(), fir_count: video.fir_count(), pli_count: video.pli_count(), concealment_events: video.concealment_events(), frames_received: video.frames_received() } 
+        }
+    }
+}
+
 pub enum RTCStatsIceCandidatePairState {
     Frozen,
     Waiting,
@@ -124,6 +157,7 @@ pub enum RTCStatsType {
         candidate_type: CandidateType,
         priority: Option<i32>,
         url: Option<String>,
+        is_remote: Option<bool>,
     },
     RTCOutboundRTPStreamStats{
         track_id: Option<String>,
@@ -141,23 +175,7 @@ pub enum RTCStatsType {
         packets_received: Option<u32>,
         total_decode_time: Option<f64>,
         jitter_buffer_emitted_count: Option<u64>,
-        total_samples_received: Option<u64>,
-        concealed_samples: Option<u64>,
-        silent_concealed_samples: Option<u64>,
-        audio_level: Option<f64>,
-        total_audio_energy: Option<f64>,
-        total_samples_duration: Option<f64>,
-        frames_decoded: Option<u32>,
-        key_frames_decoded: Option<u32>,
-        frame_width: Option<u32>,
-        frame_height: Option<u32>,
-        total_inter_frame_delay: Option<f64>,
-        frames_per_second: Option<f64>,
-        frame_bit_depth: Option<u32>,
-        fir_count: Option<u32>,
-        pli_count: Option<u32>,
-        concealment_events: Option<u64>,
-        frames_received: Option<i32>,
+        media_type: Option<RTCInboundRtpStreamMediaType>,
     },
     RTCIceCandidatePairStats{
         state: RTCStatsIceCandidatePairState,
@@ -206,6 +224,7 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                     candidate_type: CandidateType::from(stats.candidate_type()),
                     priority: stats.priority(),
                     url: stats.url().clone(),
+                    is_remote: stats.is_remote()
                 }
             },
             sys::RTCStatsType::RTCOutboundRTPStreamStats(stats) => {
@@ -227,23 +246,7 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                     packets_received: stats.packets_received(),
                     total_decode_time: stats.total_decode_time(),
                     jitter_buffer_emitted_count: stats.jitter_buffer_emitted_count(),
-                    total_samples_received: stats.total_samples_received(),
-                    concealed_samples: stats.concealed_samples(),
-                    silent_concealed_samples: stats.silent_concealed_samples(),
-                    audio_level: stats.audio_level(),
-                    total_audio_energy: stats.total_audio_energy(),
-                    total_samples_duration: stats.total_samples_duration(),
-                    frames_decoded: stats.frames_decoded(),
-                    key_frames_decoded: stats.key_frames_decoded(),
-                    frame_width: stats.frame_width(),
-                    frame_height: stats.frame_height(),
-                    total_inter_frame_delay: stats.total_inter_frame_delay(),
-                    frames_per_second: stats.frames_per_second(),
-                    frame_bit_depth: stats.frame_bit_depth(),
-                    fir_count: stats.fir_count(),
-                    pli_count: stats.pli_count(),
-                    concealment_events: stats.concealment_events(),
-                    frames_received: stats.frames_received(),
+                    media_type: stats.media_type().as_ref().map(RTCInboundRtpStreamMediaType::from),
                 }
             },
             sys::RTCStatsType::RTCIceCandidatePairStats(stats) => {

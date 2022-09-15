@@ -1324,6 +1324,56 @@ impl support::IntoDart for PeerConnectionState {
         .into_dart()
     }
 }
+impl support::IntoDart for RTCInboundRtpStreamMediaType {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::Audio {
+                total_samples_received,
+                concealed_samples,
+                silent_concealed_samples,
+                audio_level,
+                total_audio_energy,
+                total_samples_duration,
+            } => vec![
+                0.into_dart(),
+                total_samples_received.into_dart(),
+                concealed_samples.into_dart(),
+                silent_concealed_samples.into_dart(),
+                audio_level.into_dart(),
+                total_audio_energy.into_dart(),
+                total_samples_duration.into_dart(),
+            ],
+            Self::Video {
+                frames_decoded,
+                key_frames_decoded,
+                frame_width,
+                frame_height,
+                total_inter_frame_delay,
+                frames_per_second,
+                frame_bit_depth,
+                fir_count,
+                pli_count,
+                concealment_events,
+                frames_received,
+            } => vec![
+                1.into_dart(),
+                frames_decoded.into_dart(),
+                key_frames_decoded.into_dart(),
+                frame_width.into_dart(),
+                frame_height.into_dart(),
+                total_inter_frame_delay.into_dart(),
+                frames_per_second.into_dart(),
+                frame_bit_depth.into_dart(),
+                fir_count.into_dart(),
+                pli_count.into_dart(),
+                concealment_events.into_dart(),
+                frames_received.into_dart(),
+            ],
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RTCInboundRtpStreamMediaType {}
 impl support::IntoDart for RTCMediaSourceStatsType {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1421,6 +1471,7 @@ impl support::IntoDart for RTCStatsType {
                 candidate_type,
                 priority,
                 url,
+                is_remote,
             } => vec![
                 1.into_dart(),
                 transport_id.into_dart(),
@@ -1430,6 +1481,7 @@ impl support::IntoDart for RTCStatsType {
                 candidate_type.into_dart(),
                 priority.into_dart(),
                 url.into_dart(),
+                is_remote.into_dart(),
             ],
             Self::RTCOutboundRTPStreamStats {
                 track_id,
@@ -1457,23 +1509,7 @@ impl support::IntoDart for RTCStatsType {
                 packets_received,
                 total_decode_time,
                 jitter_buffer_emitted_count,
-                total_samples_received,
-                concealed_samples,
-                silent_concealed_samples,
-                audio_level,
-                total_audio_energy,
-                total_samples_duration,
-                frames_decoded,
-                key_frames_decoded,
-                frame_width,
-                frame_height,
-                total_inter_frame_delay,
-                frames_per_second,
-                frame_bit_depth,
-                fir_count,
-                pli_count,
-                concealment_events,
-                frames_received,
+                media_type,
             } => vec![
                 3.into_dart(),
                 remote_id.into_dart(),
@@ -1481,23 +1517,7 @@ impl support::IntoDart for RTCStatsType {
                 packets_received.into_dart(),
                 total_decode_time.into_dart(),
                 jitter_buffer_emitted_count.into_dart(),
-                total_samples_received.into_dart(),
-                concealed_samples.into_dart(),
-                silent_concealed_samples.into_dart(),
-                audio_level.into_dart(),
-                total_audio_energy.into_dart(),
-                total_samples_duration.into_dart(),
-                frames_decoded.into_dart(),
-                key_frames_decoded.into_dart(),
-                frame_width.into_dart(),
-                frame_height.into_dart(),
-                total_inter_frame_delay.into_dart(),
-                frames_per_second.into_dart(),
-                frame_bit_depth.into_dart(),
-                fir_count.into_dart(),
-                pli_count.into_dart(),
-                concealment_events.into_dart(),
-                frames_received.into_dart(),
+                media_type.into_dart(),
             ],
             Self::RTCIceCandidatePairStats {
                 state,
