@@ -180,7 +180,7 @@ class RTCIceCandidateStats extends RTCStatsType {
   String? address;
   int? port;
   String? protocol;
-  late CandidateType candidateType;
+  CandidateType candidateType;
   int? priority;
   String? url;
   bool? isRemote;
@@ -222,10 +222,7 @@ class RTCOutboundRTPStreamStats extends RTCStatsType {
   String? mediaSourceId;
 }
 
-abstract class RTCInboundRTPStreamMediaType {
-  RTCInboundRTPStreamMediaType(this.type);
-  String type;
-}
+abstract class RTCInboundRTPStreamMediaType {}
 
 class RTCInboundRTPStreamAudio extends RTCInboundRTPStreamMediaType {
   RTCInboundRTPStreamAudio(
@@ -235,7 +232,7 @@ class RTCInboundRTPStreamAudio extends RTCInboundRTPStreamMediaType {
     this.audioLevel,
     this.totalAudioEnergy,
     this.totalSamplesDuration,
-  ) : super('RTCInboundRTPStreamAudio');
+  );
 
   int? totalSamplesReceived;
   int? concealedSamples;
@@ -258,7 +255,7 @@ class RTCInboundRTPStreamVideo extends RTCInboundRTPStreamMediaType {
     this.pliCount,
     this.concealmentEvents,
     this.framesReceived,
-  ) : super('RTCInboundRTPStreamVideo');
+  );
 
   int? framesDecoded;
   int? keyFramesDecoded;
