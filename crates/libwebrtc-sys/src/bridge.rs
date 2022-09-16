@@ -245,12 +245,15 @@ pub(crate) mod webrtc {
         /// Check has not been performed for this pair, and can be performed as
         /// soon as it is the highest-priority Waiting pair on the check list.
         kWaiting,
-        /// Check has been sent for this pair, but the transaction is in progress.
+        /// Check has been sent for this pair,
+        /// but the transaction is in progress.
         kInProgress,
-        /// Check for this pair was already done and failed, either never producing
-        /// any response or producing an unrecoverable failure response.
+        /// Check for this pair was already done and failed,
+        /// either never producing any response or producing
+        /// an unrecoverable failure response.
         kFailed,
-        /// Check for this pair was already done and produced a successful result.
+        /// Check for this pair was already done
+        /// and produced a successful result.
         kSucceeded,
     }
 

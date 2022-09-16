@@ -1447,7 +1447,8 @@ impl RTCAudioSourceStats {
     pub fn echo_return_loss(&self) -> Option<f64> {
         self.echo_return_loss
     }
-    /// Returns the `echo_return_loss_enhancement` of this [`RTCAudioSourceStats`].
+    /// Returns the `echo_return_loss_enhancement`
+    /// of this [`RTCAudioSourceStats`].
 
     #[must_use]
     pub fn echo_return_loss_enhancement(&self) -> Option<f64> {
@@ -1968,19 +1969,22 @@ impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
 }
 
 impl RTCInboundRtpStreamAudio {
-    /// Returns the `total_samples_received` of this [`RTCInboundRtpStreamAudio`].
+    /// Returns the `total_samples_received`
+    /// of this [`RTCInboundRtpStreamAudio`].
 
     #[must_use]
     pub fn total_samples_received(&self) -> Option<u64> {
         self.total_samples_received
     }
-    /// Returns the `concealed_samples` of this [`RTCInboundRtpStreamAudio`].
+    /// Returns the `concealed_samples`
+    /// of this [`RTCInboundRtpStreamAudio`].
 
     #[must_use]
     pub fn concealed_samples(&self) -> Option<u64> {
         self.concealed_samples
     }
-    /// Returns the `silent_concealed_samples` of this [`RTCInboundRtpStreamAudio`].
+    /// Returns the `silent_concealed_samples`
+    /// of this [`RTCInboundRtpStreamAudio`].
 
     #[must_use]
     pub fn silent_concealed_samples(&self) -> Option<u64> {
@@ -1992,13 +1996,15 @@ impl RTCInboundRtpStreamAudio {
     pub fn audio_level(&self) -> Option<f64> {
         self.audio_level
     }
-    /// Returns the `total_audio_energy` of this [`RTCInboundRtpStreamAudio`].
+    /// Returns the `total_audio_energy`
+    /// of this [`RTCInboundRtpStreamAudio`].
 
     #[must_use]
     pub fn total_audio_energy(&self) -> Option<f64> {
         self.total_audio_energy
     }
-    /// Returns the `total_samples_duration` of this [`RTCInboundRtpStreamAudio`].
+    /// Returns the `total_samples_duration`
+    /// of this [`RTCInboundRtpStreamAudio`].
 
     #[must_use]
     pub fn total_samples_duration(&self) -> Option<f64> {
@@ -2134,7 +2140,8 @@ impl RTCInboundRtpStreamVideo {
     pub fn frame_height(&self) -> Option<u32> {
         self.frame_height
     }
-    /// Returns the `total_inter_frame_delay` of this [`RTCInboundRtpStreamVideo`].
+    /// Returns the `total_inter_frame_delay`
+    /// of this [`RTCInboundRtpStreamVideo`].
 
     #[must_use]
     pub fn total_inter_frame_delay(&self) -> Option<f64> {
@@ -2270,13 +2277,15 @@ impl RTCInboundRTPStreamStats {
     pub fn total_decode_time(&self) -> Option<f64> {
         self.total_decode_time
     }
-    /// Returns the `jitter_buffer_emitted_count` of this [`RTCInboundRTPStreamStats`].
+    /// Returns the `jitter_buffer_emitted_count`
+    /// of this [`RTCInboundRTPStreamStats`].
 
     #[must_use]
     pub fn jitter_buffer_emitted_count(&self) -> Option<u64> {
         self.jitter_buffer_emitted_count
     }
-    /// Returns the [`RTCInboundRtpStreamMediaType`] of this [`RTCInboundRTPStreamStats`].
+    /// Returns the [`RTCInboundRtpStreamMediaType`]
+    /// of this [`RTCInboundRTPStreamStats`].
 
     #[must_use]
     pub fn media_type(&self) -> &Option<RTCInboundRtpStreamMediaType> {
@@ -2386,7 +2395,8 @@ pub struct RTCIceCandidatePairStats {
 }
 
 impl RTCIceCandidatePairStats {
-    /// Returns the [`RTCStatsIceCandidatePairState`] of this [`RTCIceCandidatePairStats`].
+    /// Returns the [`RTCStatsIceCandidatePairState`]
+    /// of this [`RTCIceCandidatePairStats`].
 
     #[must_use]
     pub fn state(&self) -> webrtc::RTCStatsIceCandidatePairState {
@@ -2410,19 +2420,22 @@ impl RTCIceCandidatePairStats {
     pub fn bytes_received(&self) -> Option<u64> {
         self.bytes_received
     }
-    /// Returns the `total_round_trip_time` of this [`RTCIceCandidatePairStats`].
+    /// Returns the `total_round_trip_time`
+    /// of this [`RTCIceCandidatePairStats`].
 
     #[must_use]
     pub fn total_round_trip_time(&self) -> Option<f64> {
         self.total_round_trip_time
     }
-    /// Returns the `current_round_trip_time` of this [`RTCIceCandidatePairStats`].
+    /// Returns the `current_round_trip_time`
+    /// of this [`RTCIceCandidatePairStats`].
 
     #[must_use]
     pub fn current_round_trip_time(&self) -> Option<f64> {
         self.current_round_trip_time
     }
-    /// Returns the `available_outgoing_bitrate` of this [`RTCIceCandidatePairStats`].
+    /// Returns the `available_outgoing_bitrate`
+    /// of this [`RTCIceCandidatePairStats`].
 
     #[must_use]
     pub fn available_outgoing_bitrate(&self) -> Option<f64> {
@@ -2607,7 +2620,8 @@ impl RTCRemoteInboundRtpStreamStats {
         &self.local_id
     }
 
-    /// Returns the `round_trip_time` of this [`RTCRemoteInboundRtpStreamStats`].
+    /// Returns the `round_trip_time`
+    /// of this [`RTCRemoteInboundRtpStreamStats`].
 
     #[must_use]
     pub fn round_trip_time(&self) -> Option<f64> {
@@ -2619,7 +2633,8 @@ impl RTCRemoteInboundRtpStreamStats {
     pub fn fraction_lost(&self) -> Option<f64> {
         self.fraction_lost
     }
-    /// Returns the `round_trip_time_measurements` of this [`RTCRemoteInboundRtpStreamStats`].
+    /// Returns the `round_trip_time_measurements`
+    /// of this [`RTCRemoteInboundRtpStreamStats`].
 
     #[must_use]
     pub fn round_trip_time_measurements(&self) -> Option<i32> {
@@ -2694,7 +2709,8 @@ impl RTCRemoteOutboundRtpStreamStats {
     pub fn local_id(&self) -> Option<String> {
         self.local_id.clone()
     }
-    /// Returns the `remote_timestamp` of this [`RTCRemoteOutboundRtpStreamStats`].
+    /// Returns the `remote_timestamp`
+    /// of this [`RTCRemoteOutboundRtpStreamStats`].
 
     #[must_use]
     pub fn remote_timestamp(&self) -> Option<f64> {
