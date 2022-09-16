@@ -166,11 +166,25 @@ impl From<sys::RTCStatsIceCandidatePairState>
     }
 }
 
+pub enum Protocol {
+    TCP,
+    UDP,
+}
+
+impl From<sys::Protocol> for Protocol{
+    fn from(protocol: sys::Protocol) -> Self {
+        match protocol {
+            sys::Protocol::TCP => Self::TCP,
+            sys::Protocol::UDP => Self::UDP,
+        }
+    }
+}
+
 pub struct IceCandidateStats {
     pub transport_id: Option<String>,
     pub address: Option<String>,
     pub port: Option<i32>,
-    pub protocol: Option<String>,
+    pub protocol: Protocol,
     pub candidate_type: CandidateType,
     pub priority: Option<i32>,
     pub url: Option<String>,
@@ -248,7 +262,7 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                         transport_id: stats.transport_id().clone(),
                         address: stats.address().clone(),
                         port: stats.port(),
-                        protocol: stats.protocol().clone(),
+                        protocol: Protocol::from(stats.protocol()),
                         candidate_type: CandidateType::from(
                             stats.candidate_type(),
                         ),

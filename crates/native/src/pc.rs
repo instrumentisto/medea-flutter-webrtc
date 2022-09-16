@@ -870,15 +870,13 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 }
 
 //todo
-struct GetStatsCallback(mpsc::Sender<sys::StatsReport>);
+struct GetStatsCallback(mpsc::Sender<sys::RTCStatsReport>);
 
 impl sys::RTCStatsCollectorCallback for GetStatsCallback {
     fn on_stats_delivered(
         &mut self,
-        report: cxx::UniquePtr<sys::RTCStatsReport>,
+        report: sys::RTCStatsReport,
     ) {
-        let report = sys::StatsReport::new(report);
-
         if let Err(e) = self.0.send(report) {
             log::warn!("Failed to complete `GetStatsCallback`: {e}");
         }

@@ -3,7 +3,7 @@
 
 mod bridge;
 
-use std::{collections::HashMap, convert::TryFrom, mem};
+use std::{collections::HashMap, convert::TryFrom, mem, str::FromStr};
 
 use anyhow::bail;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -16,7 +16,7 @@ pub use crate::webrtc::{
     video_frame_to_abgr, video_frame_to_argb, AudioLayer, BundlePolicy,
     Candidate, CandidatePairChangeEvent, CandidateType, IceConnectionState,
     IceGatheringState, IceTransportsType, MediaType, PeerConnectionState,
-    RTCStatsIceCandidatePairState, RTCStatsReport, RtpTransceiverDirection,
+    RTCStatsIceCandidatePairState, RtpTransceiverDirection,
     SdpType, SignalingState, TrackState, VideoFrame, VideoRotation,
 };
 
@@ -61,7 +61,7 @@ pub trait OnFrameCallback {
 
 /// Handler of [`VideoFrame`]s.
 pub trait RTCStatsCollectorCallback {
-    fn on_stats_delivered(&mut self, report: UniquePtr<webrtc::RTCStatsReport>);
+    fn on_stats_delivered(&mut self, report: RTCStatsReport);
 }
 
 /// Handler of events that fire from a [`PeerConnectionInterface`].
@@ -146,6 +146,19 @@ pub trait PeerConnectionEventsHandler {
 pub enum TrackKind {
     Audio,
     Video,
+}
+
+impl FromStr for TrackKind {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let res = match s {
+            "audio" => Self::Audio,
+            "video" => Self::Video,
+            kind => anyhow::bail!("Unknow kind: {kind}") 
+        };
+        Ok(res)
+    }
 }
 
 /// Completion callback for the [`PeerConnectionInterface::add_ice_candidate()`]
@@ -1275,60 +1288,60 @@ impl PeerConnectionInterface {
 }
 
 fn rtc_stats_member_string_to_option(
-    val: UniquePtr<webrtc::RTCStatsMemberString>,
+    val: &UniquePtr<webrtc::RTCStatsMemberString>,
 ) -> Option<String> {
-    if webrtc::rtc_stats_member_string_is_defined(&val) {
-        Some(webrtc::rtc_stats_member_string_value(&val).to_string())
+    if webrtc::rtc_stats_member_string_is_defined(val) {
+        Some(webrtc::rtc_stats_member_string_value(val).to_string())
     } else {
         None
     }
 }
 
 fn rtc_stats_member_f64_to_option(
-    val: UniquePtr<webrtc::RTCStatsMemberf64>,
+    val: &UniquePtr<webrtc::RTCStatsMemberf64>,
 ) -> Option<f64> {
-    if webrtc::rtc_stats_member_f64_is_defined(&val) {
-        Some(webrtc::rtc_stats_member_f64_value(&val))
+    if webrtc::rtc_stats_member_f64_is_defined(val) {
+        Some(webrtc::rtc_stats_member_f64_value(val))
     } else {
         None
     }
 }
 
 fn rtc_stats_member_i32_to_option(
-    val: UniquePtr<webrtc::RTCStatsMemberi32>,
+    val: &UniquePtr<webrtc::RTCStatsMemberi32>,
 ) -> Option<i32> {
-    if webrtc::rtc_stats_member_i32_is_defined(&val) {
-        Some(webrtc::rtc_stats_member_i32_value(&val))
+    if webrtc::rtc_stats_member_i32_is_defined(val) {
+        Some(webrtc::rtc_stats_member_i32_value(val))
     } else {
         None
     }
 }
 
 fn rtc_stats_member_u32_to_option(
-    val: UniquePtr<webrtc::RTCStatsMemberu32>,
+    val: &UniquePtr<webrtc::RTCStatsMemberu32>,
 ) -> Option<u32> {
-    if webrtc::rtc_stats_member_u32_is_defined(&val) {
-        Some(webrtc::rtc_stats_member_u32_value(&val))
+    if webrtc::rtc_stats_member_u32_is_defined(val) {
+        Some(webrtc::rtc_stats_member_u32_value(val))
     } else {
         None
     }
 }
 
 fn rtc_stats_member_u64_to_option(
-    val: UniquePtr<webrtc::RTCStatsMemberu64>,
+    val: &UniquePtr<webrtc::RTCStatsMemberu64>,
 ) -> Option<u64> {
-    if webrtc::rtc_stats_member_u64_is_defined(&val) {
-        Some(webrtc::rtc_stats_member_u64_value(&val))
+    if webrtc::rtc_stats_member_u64_is_defined(val) {
+        Some(webrtc::rtc_stats_member_u64_value(val))
     } else {
         None
     }
 }
 
 fn rtc_stats_member_bool_to_option(
-    val: UniquePtr<webrtc::RTCStatsMemberbool>,
+    val: &UniquePtr<webrtc::RTCStatsMemberbool>,
 ) -> Option<bool> {
-    if webrtc::rtc_stats_member_bool_is_defined(&val) {
-        Some(webrtc::rtc_stats_member_bool_value(&val))
+    if webrtc::rtc_stats_member_bool_is_defined(val) {
+        Some(webrtc::rtc_stats_member_bool_value(val))
     } else {
         None
     }
@@ -1343,15 +1356,19 @@ pub struct RTCVideoSourceStats {
 }
 
 impl RTCVideoSourceStats {
+    #[must_use]
     pub fn width(&self) -> Option<u32> {
         self.width
     }
+    #[must_use]
     pub fn height(&self) -> Option<u32> {
         self.height
     }
+    #[must_use]
     pub fn frames(&self) -> Option<u32> {
         self.frames
     }
+    #[must_use]
     pub fn frames_per_second(&self) -> Option<f64> {
         self.frames_per_second
     }
@@ -1361,16 +1378,16 @@ impl From<UniquePtr<webrtc::RTCVideoSourceStats>> for RTCVideoSourceStats {
     fn from(inner: UniquePtr<webrtc::RTCVideoSourceStats>) -> Self {
         Self {
             width: rtc_stats_member_u32_to_option(
-                webrtc::rtc_video_source_stats_width(&inner),
+                &webrtc::rtc_video_source_stats_width(&inner),
             ),
             height: rtc_stats_member_u32_to_option(
-                webrtc::rtc_video_source_stats_height(&inner),
+                &webrtc::rtc_video_source_stats_height(&inner),
             ),
             frames: rtc_stats_member_u32_to_option(
-                webrtc::rtc_video_source_stats_frames(&inner),
+                &webrtc::rtc_video_source_stats_frames(&inner),
             ),
             frames_per_second: rtc_stats_member_f64_to_option(
-                webrtc::rtc_video_source_stats_frames_per_second(&inner),
+                &webrtc::rtc_video_source_stats_frames_per_second(&inner),
             ),
         }
     }
@@ -1386,18 +1403,23 @@ pub struct RTCAudioSourceStats {
 }
 
 impl RTCAudioSourceStats {
+    #[must_use]
     pub fn audio_level(&self) -> Option<f64> {
         self.audio_level
     }
+    #[must_use]
     pub fn total_audio_energy(&self) -> Option<f64> {
         self.total_audio_energy
     }
+    #[must_use]
     pub fn total_samples_duration(&self) -> Option<f64> {
         self.total_samples_duration
     }
+    #[must_use]
     pub fn echo_return_loss(&self) -> Option<f64> {
         self.echo_return_loss
     }
+    #[must_use]
     pub fn echo_return_loss_enhancement(&self) -> Option<f64> {
         self.echo_return_loss_enhancement
     }
@@ -1407,19 +1429,19 @@ impl From<UniquePtr<webrtc::RTCAudioSourceStats>> for RTCAudioSourceStats {
     fn from(inner: UniquePtr<webrtc::RTCAudioSourceStats>) -> Self {
         Self {
             audio_level: rtc_stats_member_f64_to_option(
-                webrtc::rtc_audio_source_stats_audio_level(&inner),
+                &webrtc::rtc_audio_source_stats_audio_level(&inner),
             ),
             total_audio_energy: rtc_stats_member_f64_to_option(
-                webrtc::rtc_audio_source_stats_total_audio_energy(&inner),
+                &webrtc::rtc_audio_source_stats_total_audio_energy(&inner),
             ),
             total_samples_duration: rtc_stats_member_f64_to_option(
-                webrtc::rtc_audio_source_stats_total_samples_duration(&inner),
+                &webrtc::rtc_audio_source_stats_total_samples_duration(&inner),
             ),
             echo_return_loss: rtc_stats_member_f64_to_option(
-                webrtc::rtc_audio_source_stats_echo_return_loss(&inner),
+                &webrtc::rtc_audio_source_stats_echo_return_loss(&inner),
             ),
             echo_return_loss_enhancement: rtc_stats_member_f64_to_option(
-                webrtc::rtc_audio_source_stats_echo_return_loss_enhancement(
+                &webrtc::rtc_audio_source_stats_echo_return_loss_enhancement(
                     &inner,
                 ),
             ),
@@ -1443,9 +1465,9 @@ impl TryFrom<UniquePtr<webrtc::RTCMediaSourceStats>>
     ) -> anyhow::Result<Self> {
         use webrtc as w;
         let res = match rtc_stats_member_string_to_option(
-            w::rtc_media_source_stats_kind(&value),
+            &w::rtc_media_source_stats_kind(&value),
         )
-        .ok_or(anyhow::anyhow!("`RTCMediaSourceStats` has no kind."))?
+        .ok_or_else(|| anyhow::anyhow!("kind is `None`."))?
         .as_str()
         {
             "video" => {
@@ -1463,7 +1485,7 @@ impl TryFrom<UniquePtr<webrtc::RTCMediaSourceStats>>
                 Ok(Self::RTCAudioSourceStats(RTCAudioSourceStats::from(cast)))
             }
             kind => Err(anyhow::anyhow!(
-                "`MediaSourceStats` has unexpected kind: {kind}."
+                "Unknow kind: {kind}."
             )),
         };
         res
@@ -1478,10 +1500,11 @@ pub struct RTCMediaSourceStats {
 }
 
 impl RTCMediaSourceStats {
+    #[must_use]
     pub fn track_identifier(&self) -> &Option<String> {
         &self.track_identifier
     }
-
+    #[must_use]
     pub fn kind(&self) -> &RTCMediaSourceStatsType {
         &self.kind
     }
@@ -1490,7 +1513,7 @@ impl RTCMediaSourceStats {
 impl From<UniquePtr<webrtc::RTCMediaSourceStats>> for RTCMediaSourceStats {
     fn from(inner: UniquePtr<webrtc::RTCMediaSourceStats>) -> Self {
         let track_identifier = rtc_stats_member_string_to_option(
-            webrtc::rtc_media_source_stats_track_identifier(&inner),
+            &webrtc::rtc_media_source_stats_track_identifier(&inner),
         );
         let kind = RTCMediaSourceStatsType::try_from(inner).unwrap();
         Self {
@@ -1500,12 +1523,31 @@ impl From<UniquePtr<webrtc::RTCMediaSourceStats>> for RTCMediaSourceStats {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum Protocol {
+    TCP,
+    UDP,
+}
+
+impl FromStr for Protocol {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let protocol = match s {
+            "tcp" => Self::TCP,
+            "udp" => Self::UDP,
+            protocol => anyhow::bail!("Unknow protocol: {protocol}")
+        };
+        Ok(protocol)
+    }
+}
+
 #[derive(Debug)]
 pub struct IceCandidateStats {
     transport_id: Option<String>,
     address: Option<String>,
     port: Option<i32>,
-    protocol: Option<String>,
+    protocol: Protocol,
     candidate_type: CandidateType,
     priority: Option<i32>,
     url: Option<String>,
@@ -1518,33 +1560,42 @@ pub enum RTCIceCandidateStats {
 }
 
 impl RTCIceCandidateStats {
+    #[must_use]
     pub fn new_local(stats: UniquePtr<webrtc::RTCIceCandidateStats>) -> Self {
         Self::RTCLocalIceCandidateStats(IceCandidateStats::from(stats))
     }
+    #[must_use]
     pub fn new_remote(stats: UniquePtr<webrtc::RTCIceCandidateStats>) -> Self {
         Self::RTCLocalIceCandidateStats(IceCandidateStats::from(stats))
     }
 }
 
 impl IceCandidateStats {
+    #[must_use]
     pub fn transport_id(&self) -> &Option<String> {
         &self.transport_id
     }
+    #[must_use]
     pub fn address(&self) -> &Option<String> {
         &self.address
     }
+    #[must_use]
     pub fn port(&self) -> Option<i32> {
         self.port
     }
-    pub fn protocol(&self) -> &Option<String> {
-        &self.protocol
+    #[must_use]
+    pub fn protocol(&self) -> Protocol {
+        self.protocol
     }
+    #[must_use]
     pub fn candidate_type(&self) -> webrtc::CandidateType {
         self.candidate_type
     }
+    #[must_use]
     pub fn priority(&self) -> Option<i32> {
         self.priority
     }
+    #[must_use]
     pub fn url(&self) -> &Option<String> {
         &self.url
     }
@@ -1554,31 +1605,34 @@ impl From<UniquePtr<webrtc::RTCIceCandidateStats>> for IceCandidateStats {
     fn from(inner: UniquePtr<webrtc::RTCIceCandidateStats>) -> Self {
         let candidate_type = webrtc::CandidateType::try_from(
             rtc_stats_member_string_to_option(
-                webrtc::rtc_ice_candidate_stats_candidate_type(&inner),
+                &webrtc::rtc_ice_candidate_stats_candidate_type(&inner),
             )
             .unwrap()
             .as_str(),
         )
         .unwrap();
+
+        let protocol = Protocol::from_str(&rtc_stats_member_string_to_option(
+            &webrtc::rtc_ice_candidate_stats_protocol(&inner),
+        ).unwrap()).unwrap();
+
         Self {
             transport_id: rtc_stats_member_string_to_option(
-                webrtc::rtc_ice_candidate_stats_transport_id(&inner),
+                &webrtc::rtc_ice_candidate_stats_transport_id(&inner),
             ),
             address: rtc_stats_member_string_to_option(
-                webrtc::rtc_ice_candidate_stats_address(&inner),
+                &webrtc::rtc_ice_candidate_stats_address(&inner),
             ),
             port: rtc_stats_member_i32_to_option(
-                webrtc::rtc_ice_candidate_stats_port(&inner),
+                &webrtc::rtc_ice_candidate_stats_port(&inner),
             ),
-            protocol: rtc_stats_member_string_to_option(
-                webrtc::rtc_ice_candidate_stats_protocol(&inner),
-            ),
+            protocol,
             candidate_type,
             priority: rtc_stats_member_i32_to_option(
-                webrtc::rtc_ice_candidate_stats_priority(&inner),
+                &webrtc::rtc_ice_candidate_stats_priority(&inner),
             ),
             url: rtc_stats_member_string_to_option(
-                webrtc::rtc_ice_candidate_stats_url(&inner),
+                &webrtc::rtc_ice_candidate_stats_url(&inner),
             ),
         }
     }
@@ -1597,27 +1651,35 @@ pub struct RTCOutboundRTPStreamStats {
 }
 
 impl RTCOutboundRTPStreamStats {
+    #[must_use]
     pub fn track_id(&self) -> &Option<String> {
         &self.track_id
     }
+    #[must_use]
     pub fn kind(&self) -> TrackKind {
         self.kind
     }
+    #[must_use]
     pub fn frame_width(&self) -> Option<u32> {
         self.frame_width
     }
+    #[must_use]
     pub fn frame_height(&self) -> Option<u32> {
         self.frame_height
     }
+    #[must_use]
     pub fn frames_per_second(&self) -> Option<f64> {
         self.frames_per_second
     }
+    #[must_use]
     pub fn bytes_sent(&self) -> Option<u64> {
         self.bytes_sent
     }
+    #[must_use]
     pub fn packets_sent(&self) -> Option<u32> {
         self.packets_sent
     }
+    #[must_use]
     pub fn media_source_id(&self) -> &Option<String> {
         &self.media_source_id
     }
@@ -1627,39 +1689,35 @@ impl From<UniquePtr<webrtc::RTCOutboundRTPStreamStats>>
     for RTCOutboundRTPStreamStats
 {
     fn from(inner: UniquePtr<webrtc::RTCOutboundRTPStreamStats>) -> Self {
-        let kind = if rtc_stats_member_string_to_option(
-            webrtc::rtc_outbound_rtp_stream_stats_kind(&inner),
+        let kind = rtc_stats_member_string_to_option(
+            &webrtc::rtc_outbound_rtp_stream_stats_kind(&inner),
         )
-        .unwrap()
-            == "video"
-        {
-            TrackKind::Video
-        } else {
-            TrackKind::Audio
-        };
+        .unwrap();
         Self {
             frame_width: rtc_stats_member_u32_to_option(
-                webrtc::rtc_outbound_rtp_stream_stats_frame_width(&inner),
+                &webrtc::rtc_outbound_rtp_stream_stats_frame_width(&inner),
             ),
             frame_height: rtc_stats_member_u32_to_option(
-                webrtc::rtc_outbound_rtp_stream_stats_frame_height(&inner),
+                &webrtc::rtc_outbound_rtp_stream_stats_frame_height(&inner),
             ),
             frames_per_second: rtc_stats_member_f64_to_option(
-                webrtc::rtc_outbound_rtp_stream_stats_frames_per_second(&inner),
+                &webrtc::rtc_outbound_rtp_stream_stats_frames_per_second(
+                    &inner,
+                ),
             ),
             track_id: rtc_stats_member_string_to_option(
-                webrtc::rtc_outbound_rtp_stream_stats_track_id(&inner),
+                &webrtc::rtc_outbound_rtp_stream_stats_track_id(&inner),
             ),
             bytes_sent: rtc_stats_member_u64_to_option(
-                webrtc::rtc_outbound_rtp_stream_stats_bytes_sent(&inner),
+                &webrtc::rtc_outbound_rtp_stream_stats_bytes_sent(&inner),
             ),
             packets_sent: rtc_stats_member_u32_to_option(
-                webrtc::rtc_outbound_rtp_stream_stats_packets_sent(&inner),
+                &webrtc::rtc_outbound_rtp_stream_stats_packets_sent(&inner),
             ),
             media_source_id: rtc_stats_member_string_to_option(
-                webrtc::rtc_outbound_rtp_stream_stats_media_source_id(&inner),
+                &webrtc::rtc_outbound_rtp_stream_stats_media_source_id(&inner),
             ),
-            kind,
+            kind: TrackKind::from_str(&kind).unwrap(),
         }
     }
 }
@@ -1680,26 +1738,26 @@ impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
     fn from(inner: &UniquePtr<webrtc::RTCInboundRTPStreamStats>) -> Self {
         Self {
             total_samples_received: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_samples_received(
+                &webrtc::rtc_inbound_rtp_stream_stats_total_samples_received(
                     inner,
                 ),
             ),
             concealed_samples: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_concealed_samples(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_concealed_samples(inner),
             ),
             silent_concealed_samples: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_silent_concealed_samples(
+                &webrtc::rtc_inbound_rtp_stream_stats_silent_concealed_samples(
                     inner,
                 ),
             ),
             audio_level: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_audio_level(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_audio_level(inner),
             ),
             total_audio_energy: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_audio_energy(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_total_audio_energy(inner),
             ),
             total_samples_duration: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_samples_duration(
+                &webrtc::rtc_inbound_rtp_stream_stats_total_samples_duration(
                     inner,
                 ),
             ),
@@ -1708,21 +1766,27 @@ impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
 }
 
 impl RTCInboundRtpStreamAudio {
+    #[must_use]
     pub fn total_samples_received(&self) -> Option<u64> {
         self.total_samples_received
     }
+    #[must_use]
     pub fn concealed_samples(&self) -> Option<u64> {
         self.concealed_samples
     }
+    #[must_use]
     pub fn silent_concealed_samples(&self) -> Option<u64> {
         self.silent_concealed_samples
     }
+    #[must_use]
     pub fn audio_level(&self) -> Option<f64> {
         self.audio_level
     }
+    #[must_use]
     pub fn total_audio_energy(&self) -> Option<f64> {
         self.total_audio_energy
     }
+    #[must_use]
     pub fn total_samples_duration(&self) -> Option<f64> {
         self.total_samples_duration
     }
@@ -1749,76 +1813,86 @@ impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
     fn from(inner: &UniquePtr<webrtc::RTCInboundRTPStreamStats>) -> Self {
         Self {
             frames_decoded: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frames_decoded(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_frames_decoded(inner),
             ),
             key_frames_decoded: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_key_frames_decoded(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_key_frames_decoded(inner),
             ),
             frame_width: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frame_width(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_frame_width(inner),
             ),
             frame_height: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frame_height(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_frame_height(inner),
             ),
             total_inter_frame_delay: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_total_inter_frame_delay(
+                &webrtc::rtc_inbound_rtp_stream_stats_total_inter_frame_delay(
                     inner,
                 ),
             ),
             frames_per_second: rtc_stats_member_f64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frames_per_second(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_frames_per_second(inner),
             ),
             frame_bit_depth: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frame_bit_depth(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_frame_bit_depth(inner),
             ),
             fir_count: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_fir_count(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_fir_count(inner),
             ),
             pli_count: rtc_stats_member_u32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_pli_count(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_pli_count(inner),
             ),
-            // sli_count: webrtc::RTCInboundRTPStreamStats_sli_count(inner)),
             concealment_events: rtc_stats_member_u64_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_concealment_events(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_concealment_events(inner),
             ),
             frames_received: rtc_stats_member_i32_to_option(
-                webrtc::rtc_inbound_rtp_stream_stats_frames_received(inner),
+                &webrtc::rtc_inbound_rtp_stream_stats_frames_received(inner),
             ),
         }
     }
 }
 
 impl RTCInboundRtpStreamVideo {
+    #[must_use]
     pub fn frames_decoded(&self) -> Option<u32> {
         self.frames_decoded
     }
+    #[must_use]
     pub fn key_frames_decoded(&self) -> Option<u32> {
         self.key_frames_decoded
     }
+    #[must_use]
     pub fn frame_width(&self) -> Option<u32> {
         self.frame_width
     }
+    #[must_use]
     pub fn frame_height(&self) -> Option<u32> {
         self.frame_height
     }
+    #[must_use]
     pub fn total_inter_frame_delay(&self) -> Option<f64> {
         self.total_inter_frame_delay
     }
+    #[must_use]
     pub fn frames_per_second(&self) -> Option<f64> {
         self.frames_per_second
     }
+    #[must_use]
     pub fn frame_bit_depth(&self) -> Option<u32> {
         self.frame_bit_depth
     }
+    #[must_use]
     pub fn fir_count(&self) -> Option<u32> {
         self.fir_count
     }
+    #[must_use]
     pub fn pli_count(&self) -> Option<u32> {
         self.pli_count
     }
+    #[must_use]
     pub fn concealment_events(&self) -> Option<u64> {
         self.concealment_events
     }
+    #[must_use]
     pub fn frames_received(&self) -> Option<i32> {
         self.frames_received
     }
@@ -1828,6 +1902,27 @@ impl RTCInboundRtpStreamVideo {
 pub enum RTCInboundRtpStreamMediaType {
     Audio(RTCInboundRtpStreamAudio),
     Video(RTCInboundRtpStreamVideo),
+}
+
+impl TryFrom<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
+    for RTCInboundRtpStreamMediaType
+{
+    type Error = anyhow::Error;
+
+    fn try_from(
+        value: &UniquePtr<webrtc::RTCInboundRTPStreamStats>,
+    ) -> Result<Self, Self::Error> {
+        let media_type = rtc_stats_member_string_to_option(
+            &webrtc::rtc_inbound_rtp_stream_stats_content_type(value),
+        )
+        .ok_or_else(|| anyhow::anyhow!("Media type is `None`."))?;
+        let res = match media_type.as_str() {
+            "video" => Self::Video(RTCInboundRtpStreamVideo::from(value)),
+            "audio" => Self::Audio(RTCInboundRtpStreamAudio::from(value)),
+            kind => anyhow::bail!("Unknow media type: {kind}"),
+        };
+        Ok(res)
+    }
 }
 
 #[derive(Debug)]
@@ -1841,21 +1936,27 @@ pub struct RTCInboundRTPStreamStats {
 }
 
 impl RTCInboundRTPStreamStats {
+    #[must_use]
     pub fn remote_id(&self) -> &Option<String> {
         &self.remote_id
     }
+    #[must_use]
     pub fn bytes_received(&self) -> Option<u64> {
         self.bytes_received
     }
+    #[must_use]
     pub fn packets_received(&self) -> Option<u32> {
         self.packets_received
     }
+    #[must_use]
     pub fn total_decode_time(&self) -> Option<f64> {
         self.total_decode_time
     }
+    #[must_use]
     pub fn jitter_buffer_emitted_count(&self) -> Option<u64> {
         self.jitter_buffer_emitted_count
     }
+    #[must_use]
     pub fn media_type(&self) -> &Option<RTCInboundRtpStreamMediaType> {
         &self.media_type
     }
@@ -1866,42 +1967,25 @@ impl From<UniquePtr<webrtc::RTCInboundRTPStreamStats>>
 {
     fn from(inner: UniquePtr<webrtc::RTCInboundRTPStreamStats>) -> Self {
         use webrtc as w;
-        let media_type = rtc_stats_member_string_to_option(
-            w::rtc_inbound_rtp_stream_stats_content_type(&inner),
-        )
-        .map(|media_type| {
-            if media_type == "video" {
-                RTCInboundRtpStreamMediaType::Video(
-                    RTCInboundRtpStreamVideo::from(&inner),
-                )
-            } else {
-                RTCInboundRtpStreamMediaType::Audio(
-                    RTCInboundRtpStreamAudio::from(&inner),
-                )
-            }
-        });
-
         Self {
             remote_id: rtc_stats_member_string_to_option(
-                w::rtc_inbound_rtp_stream_stats_remote_id(&inner),
+                &w::rtc_inbound_rtp_stream_stats_remote_id(&inner),
             ),
             bytes_received: rtc_stats_member_u64_to_option(
-                w::rtc_inbound_rtp_stream_stats_bytes_received(&inner),
+                &w::rtc_inbound_rtp_stream_stats_bytes_received(&inner),
             ),
             packets_received: rtc_stats_member_u32_to_option(
-                w::rtc_inbound_rtp_stream_stats_packets_received(&inner),
+                &w::rtc_inbound_rtp_stream_stats_packets_received(&inner),
             ),
-            // packets_lost:,
-            // jitter:,
             jitter_buffer_emitted_count: rtc_stats_member_u64_to_option(
-                w::rtc_inbound_rtp_stream_stats_jitter_buffer_emitted_count(
+                &w::rtc_inbound_rtp_stream_stats_jitter_buffer_emitted_count(
                     &inner,
                 ),
             ),
             total_decode_time: rtc_stats_member_f64_to_option(
-                w::rtc_inbound_rtp_stream_stats_total_decode_time(&inner),
+                &w::rtc_inbound_rtp_stream_stats_total_decode_time(&inner),
             ),
-            media_type,
+            media_type: RTCInboundRtpStreamMediaType::try_from(&inner).ok(),
         }
     }
 }
@@ -1918,24 +2002,31 @@ pub struct RTCIceCandidatePairStats {
 }
 
 impl RTCIceCandidatePairStats {
+    #[must_use]
     pub fn state(&self) -> webrtc::RTCStatsIceCandidatePairState {
         self.state
     }
+    #[must_use]
     pub fn nominated(&self) -> Option<bool> {
         self.nominated
     }
+    #[must_use]
     pub fn bytes_sent(&self) -> Option<u64> {
         self.bytes_sent
     }
+    #[must_use]
     pub fn bytes_received(&self) -> Option<u64> {
         self.bytes_received
     }
+    #[must_use]
     pub fn total_round_trip_time(&self) -> Option<f64> {
         self.total_round_trip_time
     }
+    #[must_use]
     pub fn current_round_trip_time(&self) -> Option<f64> {
         self.current_round_trip_time
     }
+    #[must_use]
     pub fn available_outgoing_bitrate(&self) -> Option<f64> {
         self.available_outgoing_bitrate
     }
@@ -1945,36 +2036,35 @@ impl From<UniquePtr<webrtc::RTCIceCandidatePairStats>>
     for RTCIceCandidatePairStats
 {
     fn from(inner: UniquePtr<webrtc::RTCIceCandidatePairStats>) -> Self {
+        use webrtc as w;
         Self {
-            state: webrtc::RTCStatsIceCandidatePairState::try_from(
+            state: w::RTCStatsIceCandidatePairState::try_from(
                 rtc_stats_member_string_to_option(
-                    webrtc::rtc_ice_candidate_pair_stats_state(&inner),
+                    &w::rtc_ice_candidate_pair_stats_state(&inner),
                 )
                 .unwrap()
                 .as_str(),
             )
             .unwrap(),
             nominated: rtc_stats_member_bool_to_option(
-                webrtc::rtc_ice_candidate_pair_stats_nominated(&inner),
+                &w::rtc_ice_candidate_pair_stats_nominated(&inner),
             ),
             bytes_sent: rtc_stats_member_u64_to_option(
-                webrtc::rtc_ice_candidate_pair_stats_bytes_sent(&inner),
+                &w::rtc_ice_candidate_pair_stats_bytes_sent(&inner),
             ),
             bytes_received: rtc_stats_member_u64_to_option(
-                webrtc::rtc_ice_candidate_pair_stats_bytes_received(&inner),
+                &w::rtc_ice_candidate_pair_stats_bytes_received(&inner),
             ),
             total_round_trip_time: rtc_stats_member_f64_to_option(
-                webrtc::rtc_ice_candidate_pair_stats_total_round_trip_time(
-                    &inner,
-                ),
+                &w::rtc_ice_candidate_pair_stats_total_round_trip_time(&inner),
             ),
             current_round_trip_time: rtc_stats_member_f64_to_option(
-                webrtc::rtc_ice_candidate_pair_stats_current_round_trip_time(
+                &w::rtc_ice_candidate_pair_stats_current_round_trip_time(
                     &inner,
                 ),
             ),
             available_outgoing_bitrate: rtc_stats_member_f64_to_option(
-                webrtc::rtc_ice_candidate_pair_stats_available_outgoing_bitrate(
+                &w::rtc_ice_candidate_pair_stats_available_outgoing_bitrate(
                     &inner,
                 ),
             ),
@@ -1991,15 +2081,19 @@ pub struct RTCTransportStats {
 }
 
 impl RTCTransportStats {
+    #[must_use]
     pub fn packets_sent(&self) -> Option<u64> {
         self.packets_sent
     }
+    #[must_use]
     pub fn packets_received(&self) -> Option<u64> {
         self.packets_received
     }
+    #[must_use]
     pub fn bytes_sent(&self) -> Option<u64> {
         self.bytes_sent
     }
+    #[must_use]
     pub fn bytes_received(&self) -> Option<u64> {
         self.bytes_received
     }
@@ -2009,16 +2103,16 @@ impl From<UniquePtr<webrtc::RTCTransportStats>> for RTCTransportStats {
     fn from(inner: UniquePtr<webrtc::RTCTransportStats>) -> Self {
         Self {
             packets_sent: rtc_stats_member_u64_to_option(
-                webrtc::rtc_transport_stats_packets_sent(&inner),
+                &webrtc::rtc_transport_stats_packets_sent(&inner),
             ),
             packets_received: rtc_stats_member_u64_to_option(
-                webrtc::rtc_transport_stats_packets_received(&inner),
+                &webrtc::rtc_transport_stats_packets_received(&inner),
             ),
             bytes_sent: rtc_stats_member_u64_to_option(
-                webrtc::rtc_transport_stats_bytes_sent(&inner),
+                &webrtc::rtc_transport_stats_bytes_sent(&inner),
             ),
             bytes_received: rtc_stats_member_u64_to_option(
-                webrtc::rtc_transport_stats_bytes_received(&inner),
+                &webrtc::rtc_transport_stats_bytes_received(&inner),
             ),
         }
     }
@@ -2028,25 +2122,30 @@ impl From<UniquePtr<webrtc::RTCTransportStats>> for RTCTransportStats {
 pub struct RTCRemoteInboundRtpStreamStats {
     local_id: Option<String>,
 
-    // pub jitter: Option<f64>,
     round_trip_time: Option<f64>,
 
     fraction_lost: Option<f64>,
 
-    // pub reports_received: Option<u64>,
     round_trip_time_measurements: Option<i32>,
 }
 
 impl RTCRemoteInboundRtpStreamStats {
+    #[must_use]
     pub fn local_id(&self) -> &Option<String> {
         &self.local_id
     }
+
+    #[must_use]
     pub fn round_trip_time(&self) -> Option<f64> {
         self.round_trip_time
     }
+
+    #[must_use]
     pub fn fraction_lost(&self) -> Option<f64> {
         self.fraction_lost
     }
+
+    #[must_use]
     pub fn round_trip_time_measurements(&self) -> Option<i32> {
         self.round_trip_time_measurements
     }
@@ -2059,16 +2158,16 @@ impl From<UniquePtr<webrtc::RTCRemoteInboundRtpStreamStats>>
         use webrtc as w;
         Self {
             local_id: rtc_stats_member_string_to_option(
-                w::rtc_remote_inbound_rtp_stream_stats_local_id(&inner),
+                &w::rtc_remote_inbound_rtp_stream_stats_local_id(&inner),
             ),
             round_trip_time: rtc_stats_member_f64_to_option(
-                w::rtc_remote_inbound_rtp_stream_stats_round_trip_time(&inner),
+                &w::rtc_remote_inbound_rtp_stream_stats_round_trip_time(&inner),
             ),
             fraction_lost: rtc_stats_member_f64_to_option(
-                w::rtc_remote_inbound_rtp_stream_stats_fraction_lost(&inner),
+                &w::rtc_remote_inbound_rtp_stream_stats_fraction_lost(&inner),
             ),
             round_trip_time_measurements: rtc_stats_member_i32_to_option(
-                w::round_trip_time_measurements(&inner),
+                &w::round_trip_time_measurements(&inner),
             ),
         }
     }
@@ -2082,12 +2181,17 @@ pub struct RTCRemoteOutboundRtpStreamStats {
 }
 
 impl RTCRemoteOutboundRtpStreamStats {
+    #[must_use]
     pub fn local_id(&self) -> Option<String> {
         self.local_id.clone()
     }
+
+    #[must_use]
     pub fn remote_timestamp(&self) -> Option<f64> {
         self.remote_timestamp
     }
+
+    #[must_use]
     pub fn reports_sent(&self) -> Option<u64> {
         self.reports_sent
     }
@@ -2099,15 +2203,15 @@ impl From<UniquePtr<webrtc::RTCRemoteOutboundRtpStreamStats>>
     fn from(inner: UniquePtr<webrtc::RTCRemoteOutboundRtpStreamStats>) -> Self {
         Self {
             local_id: rtc_stats_member_string_to_option(
-                webrtc::rtc_remote_outbound_rtp_stream_stats_local_id(&inner),
+                &webrtc::rtc_remote_outbound_rtp_stream_stats_local_id(&inner),
             ),
             remote_timestamp: rtc_stats_member_f64_to_option(
-                webrtc::rtc_remote_outbound_rtp_stream_stats_remote_timestamp(
+                &webrtc::rtc_remote_outbound_rtp_stream_stats_remote_timestamp(
                     &inner,
                 ),
             ),
             reports_sent: rtc_stats_member_u64_to_option(
-                webrtc::rtc_remote_outbound_rtp_stream_stats_reports_sent(
+                &webrtc::rtc_remote_outbound_rtp_stream_stats_reports_sent(
                     &inner,
                 ),
             ),
@@ -2219,12 +2323,17 @@ pub struct RTCStats {
 }
 
 impl RTCStats {
+    #[must_use]
     pub fn id(&self) -> &String {
         &self.id
     }
+
+    #[must_use]
     pub fn timestamp_us(&self) -> i64 {
         self.timestamp_us
     }
+
+    #[must_use]
     pub fn kind(&self) -> &RTCStatsType {
         &self.kind
     }
@@ -2244,17 +2353,15 @@ impl From<webrtc::RTCStatsContainer> for RTCStats {
 }
 
 // todo
-pub struct StatsReport(UniquePtr<webrtc::RTCStatsReport>);
-
-impl StatsReport {
-    pub fn new(ptr: UniquePtr<webrtc::RTCStatsReport>) -> Self {
+pub struct RTCStatsReport(UniquePtr<webrtc::RTCStatsReport>);
+impl From<UniquePtr<webrtc::RTCStatsReport>> for RTCStatsReport {
+    fn from(ptr: UniquePtr<webrtc::RTCStatsReport>) -> Self {
         Self(ptr)
     }
+}
 
-    // pub fn json(&self) -> String {
-    //     webrtc::stats_json(&self.0).to_string()
-    // }
-
+impl RTCStatsReport {
+    #[must_use]
     pub fn get_stats(&self) -> Vec<RTCStats> {
         webrtc::rtc_stats_report_get_stats(&self.0)
             .into_iter()

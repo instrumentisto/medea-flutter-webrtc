@@ -364,7 +364,7 @@ class IceCandidateStats {
   final String? transportId;
   final String? address;
   final int? port;
-  final String? protocol;
+  final Protocol protocol;
   final CandidateType candidateType;
   final int? priority;
   final String? url;
@@ -373,7 +373,7 @@ class IceCandidateStats {
     this.transportId,
     this.address,
     this.port,
-    this.protocol,
+    required this.protocol,
     required this.candidateType,
     this.priority,
     this.url,
@@ -699,6 +699,11 @@ enum PeerConnectionState {
 
   /// Peer connection is closed.
   Closed,
+}
+
+enum Protocol {
+  TCP,
+  UDP,
 }
 
 /// [`PeerConnection`]'s configuration.
@@ -2085,7 +2090,7 @@ IceCandidateStats _wire2api_ice_candidate_stats(dynamic raw) {
     transportId: _wire2api_opt_String(arr[0]),
     address: _wire2api_opt_String(arr[1]),
     port: _wire2api_opt_box_autoadd_i32(arr[2]),
-    protocol: _wire2api_opt_String(arr[3]),
+    protocol: _wire2api_protocol(arr[3]),
     candidateType: _wire2api_candidate_type(arr[4]),
     priority: _wire2api_opt_box_autoadd_i32(arr[5]),
     url: _wire2api_opt_String(arr[6]),
@@ -2239,6 +2244,10 @@ PeerConnectionEvent _wire2api_peer_connection_event(dynamic raw) {
 
 PeerConnectionState _wire2api_peer_connection_state(dynamic raw) {
   return PeerConnectionState.values[raw];
+}
+
+Protocol _wire2api_protocol(dynamic raw) {
+  return Protocol.values[raw];
 }
 
 RTCIceCandidateStats _wire2api_rtc_ice_candidate_stats(dynamic raw) {

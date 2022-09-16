@@ -39,6 +39,11 @@ enum CandidateType {
   relay,
 }
 
+enum Protocol {
+  tcp,
+  udp,
+}
+
 abstract class RTCStatsType {
   RTCStatsType();
   static RTCStatsType fromFFI(bridge.RTCStatsType stats) {
@@ -172,7 +177,7 @@ abstract class RTCIceCandidateStats extends RTCStatsType {
           local.field0.transportId,
           local.field0.address,
           local.field0.port,
-          local.field0.protocol,
+          Protocol.values[local.field0.protocol.index],
           CandidateType.values[local.field0.candidateType.index],
           local.field0.priority,
           local.field0.url);
@@ -183,7 +188,7 @@ abstract class RTCIceCandidateStats extends RTCStatsType {
           remote.field0.transportId,
           remote.field0.address,
           remote.field0.port,
-          remote.field0.protocol,
+          Protocol.values[remote.field0.protocol.index],
           CandidateType.values[remote.field0.candidateType.index],
           remote.field0.priority,
           remote.field0.url);
@@ -193,7 +198,7 @@ abstract class RTCIceCandidateStats extends RTCStatsType {
   String? transportId;
   String? address;
   int? port;
-  String? protocol;
+  Protocol protocol;
   CandidateType candidateType;
   int? priority;
   String? url;
@@ -204,7 +209,7 @@ class RTCLocalIceCandidateStats extends RTCIceCandidateStats {
     String? transportId,
     String? address,
     int? port,
-    String? protocol,
+    Protocol protocol,
     CandidateType candidateType,
     int? priority,
     String? url,
@@ -216,7 +221,7 @@ class RTCRemoteIceCandidateStats extends RTCIceCandidateStats {
     String? transportId,
     String? address,
     int? port,
-    String? protocol,
+    Protocol protocol,
     CandidateType candidateType,
     int? priority,
     String? url,

@@ -2121,7 +2121,7 @@ pub fn on_stats_delivered(
     mut cb: Box<DynRTCStatsCollectorCallback>,
     report: UniquePtr<webrtc::RTCStatsReport>,
 ) {
-    cb.on_stats_delivered(report);
+    cb.on_stats_delivered(crate::RTCStatsReport::from(report));
 }
 
 impl TryFrom<&str> for webrtc::SdpType {

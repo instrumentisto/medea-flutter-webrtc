@@ -1340,6 +1340,15 @@ impl support::IntoDart for PeerConnectionState {
         .into_dart()
     }
 }
+impl support::IntoDart for Protocol {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::TCP => 0,
+            Self::UDP => 1,
+        }
+        .into_dart()
+    }
+}
 impl support::IntoDart for RTCIceCandidateStats {
     fn into_dart(self) -> support::DartCObject {
         match self {
