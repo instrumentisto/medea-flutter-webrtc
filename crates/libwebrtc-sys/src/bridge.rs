@@ -1191,7 +1191,6 @@ pub(crate) mod webrtc {
 
 
         pub fn rtc_ice_candidate_stats_transport_id(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
-        pub fn rtc_ice_candidate_stats_is_remote(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberbool>;
         pub fn rtc_ice_candidate_stats_address(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
         pub fn rtc_ice_candidate_stats_port(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberi32>;
         pub fn rtc_ice_candidate_stats_protocol(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
@@ -1255,7 +1254,7 @@ pub(crate) mod webrtc {
         pub fn rtc_remote_inbound_rtp_stream_stats_round_trip_time(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
         pub fn rtc_remote_inbound_rtp_stream_stats_fraction_lost(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
         // pub fn RTCRemoteInboundRtpStreamStats_reports_received(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberu64>;
-        pub fn rtc_remote_inbound_rtp_stream_stats_round_trip_time_measurements(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberi32>;
+        pub fn round_trip_time_measurements(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberi32>;
 
         pub fn rtc_remote_outbound_rtp_stream_stats_local_id(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberString>;
         pub fn rtc_remote_outbound_rtp_stream_stats_remote_timestamp(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;

@@ -16,13 +16,13 @@ lazy_static::lazy_static! {
 static FAKE_MEDIA: AtomicBool = AtomicBool::new(false);
 
 pub enum RTCMediaSourceStatsType {
-    RTCVideoSourceStats{
+    RTCVideoSourceStats {
         width: Option<u32>,
         height: Option<u32>,
         frames: Option<u32>,
         frames_per_second: Option<f64>,
     },
-    RTCAudioSourceStats{
+    RTCAudioSourceStats {
         audio_level: Option<f64>,
         total_audio_energy: Option<f64>,
         total_samples_duration: Option<f64>,
@@ -41,16 +41,17 @@ impl From<&sys::RTCMediaSourceStatsType> for RTCMediaSourceStatsType {
                     frames: stats.frames(),
                     frames_per_second: stats.frames_per_second(),
                 }
-            },
+            }
             sys::RTCMediaSourceStatsType::RTCAudioSourceStats(stats) => {
                 Self::RTCAudioSourceStats {
                     audio_level: stats.audio_level(),
                     total_audio_energy: stats.total_audio_energy(),
                     total_samples_duration: stats.total_samples_duration(),
                     echo_return_loss: stats.echo_return_loss(),
-                    echo_return_loss_enhancement: stats.echo_return_loss_enhancement(),
+                    echo_return_loss_enhancement: stats
+                        .echo_return_loss_enhancement(),
                 }
-            },
+            }
         }
     }
 }
@@ -70,7 +71,7 @@ impl From<sys::CandidateType> for CandidateType {
             sys::CandidateType::kSrflx => Self::Srflx,
             sys::CandidateType::kPrflx => Self::Prflx,
             sys::CandidateType::kRelay => Self::Relay,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }
@@ -114,11 +115,30 @@ pub enum RTCInboundRtpStreamMediaType {
     },
 }
 
-impl From<&sys::RTCInboundRtpStreamMediaType> for  RTCInboundRtpStreamMediaType {
+impl From<&sys::RTCInboundRtpStreamMediaType> for RTCInboundRtpStreamMediaType {
     fn from(media_type: &sys::RTCInboundRtpStreamMediaType) -> Self {
         match media_type {
-            sys::RTCInboundRtpStreamMediaType::Audio(audio) => Self::Audio { total_samples_received: audio.total_samples_received(), concealed_samples: audio.concealed_samples(), silent_concealed_samples: audio.silent_concealed_samples(), audio_level: audio.audio_level(), total_audio_energy: audio.total_audio_energy(), total_samples_duration: audio.total_samples_duration() },
-            sys::RTCInboundRtpStreamMediaType::Video(video) => Self::Video { frames_decoded: video.frames_decoded(), key_frames_decoded: video.key_frames_decoded(), frame_width: video.frame_width(), frame_height: video.frame_height(), total_inter_frame_delay: video.total_inter_frame_delay(), frames_per_second: video.frames_per_second(), frame_bit_depth: video.frame_bit_depth(), fir_count: video.fir_count(), pli_count: video.pli_count(), concealment_events: video.concealment_events(), frames_received: video.frames_received() } 
+            sys::RTCInboundRtpStreamMediaType::Audio(audio) => Self::Audio {
+                total_samples_received: audio.total_samples_received(),
+                concealed_samples: audio.concealed_samples(),
+                silent_concealed_samples: audio.silent_concealed_samples(),
+                audio_level: audio.audio_level(),
+                total_audio_energy: audio.total_audio_energy(),
+                total_samples_duration: audio.total_samples_duration(),
+            },
+            sys::RTCInboundRtpStreamMediaType::Video(video) => Self::Video {
+                frames_decoded: video.frames_decoded(),
+                key_frames_decoded: video.key_frames_decoded(),
+                frame_width: video.frame_width(),
+                frame_height: video.frame_height(),
+                total_inter_frame_delay: video.total_inter_frame_delay(),
+                frames_per_second: video.frames_per_second(),
+                frame_bit_depth: video.frame_bit_depth(),
+                fir_count: video.fir_count(),
+                pli_count: video.pli_count(),
+                concealment_events: video.concealment_events(),
+                frames_received: video.frames_received(),
+            },
         }
     }
 }
@@ -131,7 +151,9 @@ pub enum RTCStatsIceCandidatePairState {
     Succeeded,
 }
 
-impl From<sys::RTCStatsIceCandidatePairState> for RTCStatsIceCandidatePairState {
+impl From<sys::RTCStatsIceCandidatePairState>
+    for RTCStatsIceCandidatePairState
+{
     fn from(state: sys::RTCStatsIceCandidatePairState) -> Self {
         match state {
             sys::RTCStatsIceCandidatePairState::kFrozen => Self::Frozen,
@@ -139,9 +161,23 @@ impl From<sys::RTCStatsIceCandidatePairState> for RTCStatsIceCandidatePairState 
             sys::RTCStatsIceCandidatePairState::kInProgress => Self::InProgress,
             sys::RTCStatsIceCandidatePairState::kFailed => Self::Failed,
             sys::RTCStatsIceCandidatePairState::kSucceeded => Self::Succeeded,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
+}
+
+pub struct IceCandidateStats {
+    pub transport_id: Option<String>,
+    pub address: Option<String>,
+    pub port: Option<i32>,
+    pub protocol: Option<String>,
+    pub candidate_type: CandidateType,
+    pub priority: Option<i32>,
+    pub url: Option<String>,
+}
+pub enum RTCIceCandidateStats {
+    RTCLocalIceCandidateStats(IceCandidateStats),
+    RTCRemoteIceCandidateStats(IceCandidateStats),
 }
 
 pub enum RTCStatsType {
@@ -149,17 +185,8 @@ pub enum RTCStatsType {
         track_identifier: Option<String>,
         kind: RTCMediaSourceStatsType,
     },
-    RTCIceCandidateStats {
-        transport_id: Option<String>,
-        address: Option<String>,
-        port: Option<i32>,
-        protocol: Option<String>,
-        candidate_type: CandidateType,
-        priority: Option<i32>,
-        url: Option<String>,
-        is_remote: Option<bool>,
-    },
-    RTCOutboundRTPStreamStats{
+    RTCIceCandidateStats(RTCIceCandidateStats),
+    RTCOutboundRTPStreamStats {
         track_id: Option<String>,
         kind: TrackKind,
         frame_width: Option<u32>,
@@ -177,7 +204,7 @@ pub enum RTCStatsType {
         jitter_buffer_emitted_count: Option<u64>,
         media_type: Option<RTCInboundRtpStreamMediaType>,
     },
-    RTCIceCandidatePairStats{
+    RTCIceCandidatePairStats {
         state: RTCStatsIceCandidatePairState,
         nominated: Option<bool>,
         bytes_sent: Option<u64>,
@@ -186,19 +213,19 @@ pub enum RTCStatsType {
         current_round_trip_time: Option<f64>,
         available_outgoing_bitrate: Option<f64>,
     },
-    RTCTransportStats{
+    RTCTransportStats {
         packets_sent: Option<u64>,
         packets_received: Option<u64>,
         bytes_sent: Option<u64>,
         bytes_received: Option<u64>,
     },
-    RTCRemoteInboundRtpStreamStats{
+    RTCRemoteInboundRtpStreamStats {
         local_id: Option<String>,
         round_trip_time: Option<f64>,
         fraction_lost: Option<f64>,
         round_trip_time_measurements: Option<i32>,
     },
-    RTCRemoteOutboundRtpStreamStats{
+    RTCRemoteOutboundRtpStreamStats {
         local_id: Option<String>,
         remote_timestamp: Option<f64>,
         reports_sent: Option<u64>,
@@ -214,19 +241,35 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                     track_identifier: stats.track_identifier().clone(),
                     kind: RTCMediaSourceStatsType::from(stats.kind()),
                 }
-            },
+            }
             sys::RTCStatsType::RTCIceCandidateStats(stats) => {
-                Self::RTCIceCandidateStats {
-                    transport_id: stats.transport_id().clone(),
-                    address: stats.address().clone(),
-                    port: stats.port(),
-                    protocol: stats.protocol().clone(),
-                    candidate_type: CandidateType::from(stats.candidate_type()),
-                    priority: stats.priority(),
-                    url: stats.url().clone(),
-                    is_remote: stats.is_remote()
-                }
-            },
+                let builder =
+                    |stats: &sys::IceCandidateStats| IceCandidateStats {
+                        transport_id: stats.transport_id().clone(),
+                        address: stats.address().clone(),
+                        port: stats.port(),
+                        protocol: stats.protocol().clone(),
+                        candidate_type: CandidateType::from(
+                            stats.candidate_type(),
+                        ),
+                        priority: stats.priority(),
+                        url: stats.url().clone(),
+                    };
+                let candidate = match stats {
+                    sys::RTCIceCandidateStats::RTCLocalIceCandidateStats(
+                        stats,
+                    ) => RTCIceCandidateStats::RTCLocalIceCandidateStats(
+                        builder(stats),
+                    ),
+                    sys::RTCIceCandidateStats::RTCRemoteIceCandidateStats(
+                        stats,
+                    ) => RTCIceCandidateStats::RTCRemoteIceCandidateStats(
+                        builder(stats),
+                    ),
+                };
+
+                Self::RTCIceCandidateStats(candidate)
+            }
             sys::RTCStatsType::RTCOutboundRTPStreamStats(stats) => {
                 Self::RTCOutboundRTPStreamStats {
                     track_id: stats.track_id().clone(),
@@ -238,17 +281,21 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                     packets_sent: stats.packets_sent(),
                     media_source_id: stats.media_source_id().clone(),
                 }
-            },
+            }
             sys::RTCStatsType::RTCInboundRTPStreamStats(stats) => {
                 Self::RTCInboundRTPStreamStats {
                     remote_id: stats.remote_id().clone(),
                     bytes_received: stats.bytes_received(),
                     packets_received: stats.packets_received(),
                     total_decode_time: stats.total_decode_time(),
-                    jitter_buffer_emitted_count: stats.jitter_buffer_emitted_count(),
-                    media_type: stats.media_type().as_ref().map(RTCInboundRtpStreamMediaType::from),
+                    jitter_buffer_emitted_count: stats
+                        .jitter_buffer_emitted_count(),
+                    media_type: stats
+                        .media_type()
+                        .as_ref()
+                        .map(RTCInboundRtpStreamMediaType::from),
                 }
-            },
+            }
             sys::RTCStatsType::RTCIceCandidatePairStats(stats) => {
                 Self::RTCIceCandidatePairStats {
                     state: RTCStatsIceCandidatePairState::from(stats.state()),
@@ -257,9 +304,10 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                     bytes_received: stats.bytes_received(),
                     total_round_trip_time: stats.total_round_trip_time(),
                     current_round_trip_time: stats.current_round_trip_time(),
-                    available_outgoing_bitrate: stats.available_outgoing_bitrate(),
+                    available_outgoing_bitrate: stats
+                        .available_outgoing_bitrate(),
                 }
-            },
+            }
             sys::RTCStatsType::RTCTransportStats(stats) => {
                 Self::RTCTransportStats {
                     packets_sent: stats.packets_sent(),
@@ -267,22 +315,23 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                     bytes_sent: stats.bytes_sent(),
                     bytes_received: stats.bytes_received(),
                 }
-            },
+            }
             sys::RTCStatsType::RTCRemoteInboundRtpStreamStats(stats) => {
                 Self::RTCRemoteInboundRtpStreamStats {
                     local_id: stats.local_id().clone(),
                     round_trip_time: stats.round_trip_time(),
                     fraction_lost: stats.fraction_lost(),
-                    round_trip_time_measurements: stats.round_trip_time_measurements(),
+                    round_trip_time_measurements: stats
+                        .round_trip_time_measurements(),
                 }
-            },
+            }
             sys::RTCStatsType::RTCRemoteOutboundRtpStreamStats(stats) => {
                 Self::RTCRemoteOutboundRtpStreamStats {
                     local_id: stats.local_id(),
                     remote_timestamp: stats.remote_timestamp(),
                     reports_sent: stats.reports_sent(),
                 }
-            },
+            }
             sys::RTCStatsType::Unimplenented => Self::Unimplenented,
         }
     }

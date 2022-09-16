@@ -2938,6 +2938,422 @@ abstract class PeerConnectionEvent_Track implements PeerConnectionEvent {
 }
 
 /// @nodoc
+mixin _$RTCIceCandidateStats {
+  IceCandidateStats get field0 => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(IceCandidateStats field0)
+        rtcLocalIceCandidateStats,
+    required TResult Function(IceCandidateStats field0)
+        rtcRemoteIceCandidateStats,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(
+            RTCIceCandidateStats_RTCLocalIceCandidateStats value)
+        rtcLocalIceCandidateStats,
+    required TResult Function(
+            RTCIceCandidateStats_RTCRemoteIceCandidateStats value)
+        rtcRemoteIceCandidateStats,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
+        rtcLocalIceCandidateStats,
+    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
+        rtcRemoteIceCandidateStats,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
+        rtcLocalIceCandidateStats,
+    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
+        rtcRemoteIceCandidateStats,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+
+  @JsonKey(ignore: true)
+  $RTCIceCandidateStatsCopyWith<RTCIceCandidateStats> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RTCIceCandidateStatsCopyWith<$Res> {
+  factory $RTCIceCandidateStatsCopyWith(RTCIceCandidateStats value,
+          $Res Function(RTCIceCandidateStats) then) =
+      _$RTCIceCandidateStatsCopyWithImpl<$Res>;
+  $Res call({IceCandidateStats field0});
+}
+
+/// @nodoc
+class _$RTCIceCandidateStatsCopyWithImpl<$Res>
+    implements $RTCIceCandidateStatsCopyWith<$Res> {
+  _$RTCIceCandidateStatsCopyWithImpl(this._value, this._then);
+
+  final RTCIceCandidateStats _value;
+  // ignore: unused_field
+  final $Res Function(RTCIceCandidateStats) _then;
+
+  @override
+  $Res call({
+    Object? field0 = freezed,
+  }) {
+    return _then(_value.copyWith(
+      field0: field0 == freezed
+          ? _value.field0
+          : field0 // ignore: cast_nullable_to_non_nullable
+              as IceCandidateStats,
+    ));
+  }
+}
+
+/// @nodoc
+abstract class _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<$Res>
+    implements $RTCIceCandidateStatsCopyWith<$Res> {
+  factory _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith(
+          _$RTCIceCandidateStats_RTCLocalIceCandidateStats value,
+          $Res Function(_$RTCIceCandidateStats_RTCLocalIceCandidateStats)
+              then) =
+      __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl<$Res>;
+  @override
+  $Res call({IceCandidateStats field0});
+}
+
+/// @nodoc
+class __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl<$Res>
+    extends _$RTCIceCandidateStatsCopyWithImpl<$Res>
+    implements _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<$Res> {
+  __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl(
+      _$RTCIceCandidateStats_RTCLocalIceCandidateStats _value,
+      $Res Function(_$RTCIceCandidateStats_RTCLocalIceCandidateStats) _then)
+      : super(
+            _value,
+            (v) =>
+                _then(v as _$RTCIceCandidateStats_RTCLocalIceCandidateStats));
+
+  @override
+  _$RTCIceCandidateStats_RTCLocalIceCandidateStats get _value =>
+      super._value as _$RTCIceCandidateStats_RTCLocalIceCandidateStats;
+
+  @override
+  $Res call({
+    Object? field0 = freezed,
+  }) {
+    return _then(_$RTCIceCandidateStats_RTCLocalIceCandidateStats(
+      field0 == freezed
+          ? _value.field0
+          : field0 // ignore: cast_nullable_to_non_nullable
+              as IceCandidateStats,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$RTCIceCandidateStats_RTCLocalIceCandidateStats
+    implements RTCIceCandidateStats_RTCLocalIceCandidateStats {
+  const _$RTCIceCandidateStats_RTCLocalIceCandidateStats(this.field0);
+
+  @override
+  final IceCandidateStats field0;
+
+  @override
+  String toString() {
+    return 'RTCIceCandidateStats.rtcLocalIceCandidateStats(field0: $field0)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RTCIceCandidateStats_RTCLocalIceCandidateStats &&
+            const DeepCollectionEquality().equals(other.field0, field0));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<
+          _$RTCIceCandidateStats_RTCLocalIceCandidateStats>
+      get copyWith =>
+          __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl<
+                  _$RTCIceCandidateStats_RTCLocalIceCandidateStats>(
+              this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(IceCandidateStats field0)
+        rtcLocalIceCandidateStats,
+    required TResult Function(IceCandidateStats field0)
+        rtcRemoteIceCandidateStats,
+  }) {
+    return rtcLocalIceCandidateStats(field0);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+  }) {
+    return rtcLocalIceCandidateStats?.call(field0);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    required TResult orElse(),
+  }) {
+    if (rtcLocalIceCandidateStats != null) {
+      return rtcLocalIceCandidateStats(field0);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(
+            RTCIceCandidateStats_RTCLocalIceCandidateStats value)
+        rtcLocalIceCandidateStats,
+    required TResult Function(
+            RTCIceCandidateStats_RTCRemoteIceCandidateStats value)
+        rtcRemoteIceCandidateStats,
+  }) {
+    return rtcLocalIceCandidateStats(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
+        rtcLocalIceCandidateStats,
+    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
+        rtcRemoteIceCandidateStats,
+  }) {
+    return rtcLocalIceCandidateStats?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
+        rtcLocalIceCandidateStats,
+    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
+        rtcRemoteIceCandidateStats,
+    required TResult orElse(),
+  }) {
+    if (rtcLocalIceCandidateStats != null) {
+      return rtcLocalIceCandidateStats(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RTCIceCandidateStats_RTCLocalIceCandidateStats
+    implements RTCIceCandidateStats {
+  const factory RTCIceCandidateStats_RTCLocalIceCandidateStats(
+          final IceCandidateStats field0) =
+      _$RTCIceCandidateStats_RTCLocalIceCandidateStats;
+
+  @override
+  IceCandidateStats get field0;
+  @override
+  @JsonKey(ignore: true)
+  _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<
+          _$RTCIceCandidateStats_RTCLocalIceCandidateStats>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<$Res>
+    implements $RTCIceCandidateStatsCopyWith<$Res> {
+  factory _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith(
+          _$RTCIceCandidateStats_RTCRemoteIceCandidateStats value,
+          $Res Function(_$RTCIceCandidateStats_RTCRemoteIceCandidateStats)
+              then) =
+      __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl<$Res>;
+  @override
+  $Res call({IceCandidateStats field0});
+}
+
+/// @nodoc
+class __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl<$Res>
+    extends _$RTCIceCandidateStatsCopyWithImpl<$Res>
+    implements
+        _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<$Res> {
+  __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl(
+      _$RTCIceCandidateStats_RTCRemoteIceCandidateStats _value,
+      $Res Function(_$RTCIceCandidateStats_RTCRemoteIceCandidateStats) _then)
+      : super(
+            _value,
+            (v) =>
+                _then(v as _$RTCIceCandidateStats_RTCRemoteIceCandidateStats));
+
+  @override
+  _$RTCIceCandidateStats_RTCRemoteIceCandidateStats get _value =>
+      super._value as _$RTCIceCandidateStats_RTCRemoteIceCandidateStats;
+
+  @override
+  $Res call({
+    Object? field0 = freezed,
+  }) {
+    return _then(_$RTCIceCandidateStats_RTCRemoteIceCandidateStats(
+      field0 == freezed
+          ? _value.field0
+          : field0 // ignore: cast_nullable_to_non_nullable
+              as IceCandidateStats,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$RTCIceCandidateStats_RTCRemoteIceCandidateStats
+    implements RTCIceCandidateStats_RTCRemoteIceCandidateStats {
+  const _$RTCIceCandidateStats_RTCRemoteIceCandidateStats(this.field0);
+
+  @override
+  final IceCandidateStats field0;
+
+  @override
+  String toString() {
+    return 'RTCIceCandidateStats.rtcRemoteIceCandidateStats(field0: $field0)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RTCIceCandidateStats_RTCRemoteIceCandidateStats &&
+            const DeepCollectionEquality().equals(other.field0, field0));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<
+          _$RTCIceCandidateStats_RTCRemoteIceCandidateStats>
+      get copyWith =>
+          __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl<
+                  _$RTCIceCandidateStats_RTCRemoteIceCandidateStats>(
+              this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(IceCandidateStats field0)
+        rtcLocalIceCandidateStats,
+    required TResult Function(IceCandidateStats field0)
+        rtcRemoteIceCandidateStats,
+  }) {
+    return rtcRemoteIceCandidateStats(field0);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+  }) {
+    return rtcRemoteIceCandidateStats?.call(field0);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    required TResult orElse(),
+  }) {
+    if (rtcRemoteIceCandidateStats != null) {
+      return rtcRemoteIceCandidateStats(field0);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(
+            RTCIceCandidateStats_RTCLocalIceCandidateStats value)
+        rtcLocalIceCandidateStats,
+    required TResult Function(
+            RTCIceCandidateStats_RTCRemoteIceCandidateStats value)
+        rtcRemoteIceCandidateStats,
+  }) {
+    return rtcRemoteIceCandidateStats(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
+        rtcLocalIceCandidateStats,
+    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
+        rtcRemoteIceCandidateStats,
+  }) {
+    return rtcRemoteIceCandidateStats?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
+        rtcLocalIceCandidateStats,
+    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
+        rtcRemoteIceCandidateStats,
+    required TResult orElse(),
+  }) {
+    if (rtcRemoteIceCandidateStats != null) {
+      return rtcRemoteIceCandidateStats(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RTCIceCandidateStats_RTCRemoteIceCandidateStats
+    implements RTCIceCandidateStats {
+  const factory RTCIceCandidateStats_RTCRemoteIceCandidateStats(
+          final IceCandidateStats field0) =
+      _$RTCIceCandidateStats_RTCRemoteIceCandidateStats;
+
+  @override
+  IceCandidateStats get field0;
+  @override
+  @JsonKey(ignore: true)
+  _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<
+          _$RTCIceCandidateStats_RTCRemoteIceCandidateStats>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
 mixin _$RTCInboundRtpStreamMediaType {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
@@ -4264,16 +4680,7 @@ mixin _$RTCStatsType {
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -4317,16 +4724,7 @@ mixin _$RTCStatsType {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -4370,16 +4768,7 @@ mixin _$RTCStatsType {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -4596,16 +4985,7 @@ class _$RTCStatsType_RTCMediaSourceStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -4652,16 +5032,7 @@ class _$RTCStatsType_RTCMediaSourceStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -4708,16 +5079,7 @@ class _$RTCStatsType_RTCMediaSourceStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -4859,15 +5221,9 @@ abstract class _$$RTCStatsType_RTCIceCandidateStatsCopyWith<$Res> {
           _$RTCStatsType_RTCIceCandidateStats value,
           $Res Function(_$RTCStatsType_RTCIceCandidateStats) then) =
       __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<$Res>;
-  $Res call(
-      {String? transportId,
-      String? address,
-      int? port,
-      String? protocol,
-      CandidateType candidateType,
-      int? priority,
-      String? url,
-      bool? isRemote});
+  $Res call({RTCIceCandidateStats field0});
+
+  $RTCIceCandidateStatsCopyWith<$Res> get field0;
 }
 
 /// @nodoc
@@ -4885,49 +5241,21 @@ class __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? transportId = freezed,
-    Object? address = freezed,
-    Object? port = freezed,
-    Object? protocol = freezed,
-    Object? candidateType = freezed,
-    Object? priority = freezed,
-    Object? url = freezed,
-    Object? isRemote = freezed,
+    Object? field0 = freezed,
   }) {
     return _then(_$RTCStatsType_RTCIceCandidateStats(
-      transportId: transportId == freezed
-          ? _value.transportId
-          : transportId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      address: address == freezed
-          ? _value.address
-          : address // ignore: cast_nullable_to_non_nullable
-              as String?,
-      port: port == freezed
-          ? _value.port
-          : port // ignore: cast_nullable_to_non_nullable
-              as int?,
-      protocol: protocol == freezed
-          ? _value.protocol
-          : protocol // ignore: cast_nullable_to_non_nullable
-              as String?,
-      candidateType: candidateType == freezed
-          ? _value.candidateType
-          : candidateType // ignore: cast_nullable_to_non_nullable
-              as CandidateType,
-      priority: priority == freezed
-          ? _value.priority
-          : priority // ignore: cast_nullable_to_non_nullable
-              as int?,
-      url: url == freezed
-          ? _value.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String?,
-      isRemote: isRemote == freezed
-          ? _value.isRemote
-          : isRemote // ignore: cast_nullable_to_non_nullable
-              as bool?,
+      field0 == freezed
+          ? _value.field0
+          : field0 // ignore: cast_nullable_to_non_nullable
+              as RTCIceCandidateStats,
     ));
+  }
+
+  @override
+  $RTCIceCandidateStatsCopyWith<$Res> get field0 {
+    return $RTCIceCandidateStatsCopyWith<$Res>(_value.field0, (value) {
+      return _then(_value.copyWith(field0: value));
+    });
   }
 }
 
@@ -4935,36 +5263,14 @@ class __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<$Res>
 
 class _$RTCStatsType_RTCIceCandidateStats
     implements RTCStatsType_RTCIceCandidateStats {
-  const _$RTCStatsType_RTCIceCandidateStats(
-      {this.transportId,
-      this.address,
-      this.port,
-      this.protocol,
-      required this.candidateType,
-      this.priority,
-      this.url,
-      this.isRemote});
+  const _$RTCStatsType_RTCIceCandidateStats(this.field0);
 
   @override
-  final String? transportId;
-  @override
-  final String? address;
-  @override
-  final int? port;
-  @override
-  final String? protocol;
-  @override
-  final CandidateType candidateType;
-  @override
-  final int? priority;
-  @override
-  final String? url;
-  @override
-  final bool? isRemote;
+  final RTCIceCandidateStats field0;
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcIceCandidateStats(transportId: $transportId, address: $address, port: $port, protocol: $protocol, candidateType: $candidateType, priority: $priority, url: $url, isRemote: $isRemote)';
+    return 'RTCStatsType.rtcIceCandidateStats(field0: $field0)';
   }
 
   @override
@@ -4972,29 +5278,12 @@ class _$RTCStatsType_RTCIceCandidateStats
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RTCStatsType_RTCIceCandidateStats &&
-            const DeepCollectionEquality()
-                .equals(other.transportId, transportId) &&
-            const DeepCollectionEquality().equals(other.address, address) &&
-            const DeepCollectionEquality().equals(other.port, port) &&
-            const DeepCollectionEquality().equals(other.protocol, protocol) &&
-            const DeepCollectionEquality()
-                .equals(other.candidateType, candidateType) &&
-            const DeepCollectionEquality().equals(other.priority, priority) &&
-            const DeepCollectionEquality().equals(other.url, url) &&
-            const DeepCollectionEquality().equals(other.isRemote, isRemote));
+            const DeepCollectionEquality().equals(other.field0, field0));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(transportId),
-      const DeepCollectionEquality().hash(address),
-      const DeepCollectionEquality().hash(port),
-      const DeepCollectionEquality().hash(protocol),
-      const DeepCollectionEquality().hash(candidateType),
-      const DeepCollectionEquality().hash(priority),
-      const DeepCollectionEquality().hash(url),
-      const DeepCollectionEquality().hash(isRemote));
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
 
   @JsonKey(ignore: true)
   @override
@@ -5009,16 +5298,7 @@ class _$RTCStatsType_RTCIceCandidateStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5057,8 +5337,7 @@ class _$RTCStatsType_RTCIceCandidateStats
         rtcRemoteOutboundRtpStreamStats,
     required TResult Function() unimplenented,
   }) {
-    return rtcIceCandidateStats(transportId, address, port, protocol,
-        candidateType, priority, url, isRemote);
+    return rtcIceCandidateStats(field0);
   }
 
   @override
@@ -5066,16 +5345,7 @@ class _$RTCStatsType_RTCIceCandidateStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5114,8 +5384,7 @@ class _$RTCStatsType_RTCIceCandidateStats
         rtcRemoteOutboundRtpStreamStats,
     TResult Function()? unimplenented,
   }) {
-    return rtcIceCandidateStats?.call(transportId, address, port, protocol,
-        candidateType, priority, url, isRemote);
+    return rtcIceCandidateStats?.call(field0);
   }
 
   @override
@@ -5123,16 +5392,7 @@ class _$RTCStatsType_RTCIceCandidateStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5173,8 +5433,7 @@ class _$RTCStatsType_RTCIceCandidateStats
     required TResult orElse(),
   }) {
     if (rtcIceCandidateStats != null) {
-      return rtcIceCandidateStats(transportId, address, port, protocol,
-          candidateType, priority, url, isRemote);
+      return rtcIceCandidateStats(field0);
     }
     return orElse();
   }
@@ -5257,23 +5516,9 @@ class _$RTCStatsType_RTCIceCandidateStats
 
 abstract class RTCStatsType_RTCIceCandidateStats implements RTCStatsType {
   const factory RTCStatsType_RTCIceCandidateStats(
-      {final String? transportId,
-      final String? address,
-      final int? port,
-      final String? protocol,
-      required final CandidateType candidateType,
-      final int? priority,
-      final String? url,
-      final bool? isRemote}) = _$RTCStatsType_RTCIceCandidateStats;
+      final RTCIceCandidateStats field0) = _$RTCStatsType_RTCIceCandidateStats;
 
-  String? get transportId;
-  String? get address;
-  int? get port;
-  String? get protocol;
-  CandidateType get candidateType;
-  int? get priority;
-  String? get url;
-  bool? get isRemote;
+  RTCIceCandidateStats get field0;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCIceCandidateStatsCopyWith<
           _$RTCStatsType_RTCIceCandidateStats>
@@ -5440,16 +5685,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5497,16 +5733,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5554,16 +5781,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5862,16 +6080,7 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5919,16 +6128,7 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -5976,16 +6176,7 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -6278,16 +6469,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -6335,16 +6517,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -6398,16 +6571,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -6672,16 +6836,7 @@ class _$RTCStatsType_RTCTransportStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -6729,16 +6884,7 @@ class _$RTCStatsType_RTCTransportStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -6786,16 +6932,7 @@ class _$RTCStatsType_RTCTransportStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7049,16 +7186,7 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7106,16 +7234,7 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7163,16 +7282,7 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7412,16 +7522,7 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7469,16 +7570,7 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7526,16 +7618,7 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7722,16 +7805,7 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
     required TResult Function(
             String? trackIdentifier, RTCMediaSourceStatsType kind)
         rtcMediaSourceStats,
-    required TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)
-        rtcIceCandidateStats,
+    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7778,16 +7852,7 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,
@@ -7834,16 +7899,7 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
         rtcMediaSourceStats,
-    TResult Function(
-            String? transportId,
-            String? address,
-            int? port,
-            String? protocol,
-            CandidateType candidateType,
-            int? priority,
-            String? url,
-            bool? isRemote)?
-        rtcIceCandidateStats,
+    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
             String? trackId,
             TrackKind kind,

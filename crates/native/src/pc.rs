@@ -143,8 +143,10 @@ impl Webrtc {
         set_sdp_rx.recv_timeout(RX_TIMEOUT)?
     }
 
-    // todo
-    pub fn get_stats(&self, peer_id: u64) -> anyhow::Result<Vec<api::RTCStats>> {
+    pub fn get_stats(
+        &self,
+        peer_id: u64,
+    ) -> anyhow::Result<Vec<api::RTCStats>> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")

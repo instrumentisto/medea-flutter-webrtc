@@ -70,10 +70,10 @@ std::unique_ptr<RTCMediaSourceStats> rtc_stats_cast_to_rtc_media_source_stats(st
 }
 std::unique_ptr<RTCIceCandidateStats> rtc_stats_cast_to_rtc_ice_candidate_stats(std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
-  if (type == "ice-candidate") {
+  if (type == "remote-candidate" || type == "local-candidate") {
     return std::unique_ptr<RTCIceCandidateStats>(static_cast<RTCIceCandidateStats*>(stats.release()));
   }
-  throw std::invalid_argument( "Invalid type. Expected `ice-candidate` but found " + type );
+  throw std::invalid_argument( "Invalid type. Expected `local-candidate` or `remote-candidate` but found " + type );
 }
 std::unique_ptr<RTCOutboundRTPStreamStats> rtc_stats_cast_to_rtc_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -768,7 +768,7 @@ std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_total_rou
     const RTCRemoteInboundRtpStreamStats& stats) {
   return std::make_unique<RTCStatsMemberf64>(stats.total_round_trip_time);
 }
-std::unique_ptr<RTCStatsMemberi32> rtc_remote_inbound_rtp_stream_stats_round_trip_time_measurements(
+std::unique_ptr<RTCStatsMemberi32> round_trip_time_measurements(
     const RTCRemoteInboundRtpStreamStats& stats) {
   return std::make_unique<RTCStatsMemberi32>(stats.round_trip_time_measurements);
 }

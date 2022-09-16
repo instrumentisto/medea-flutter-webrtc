@@ -360,6 +360,26 @@ class GetMediaResult with _$GetMediaResult {
   ) = GetMediaResult_Err;
 }
 
+class IceCandidateStats {
+  final String? transportId;
+  final String? address;
+  final int? port;
+  final String? protocol;
+  final CandidateType candidateType;
+  final int? priority;
+  final String? url;
+
+  IceCandidateStats({
+    this.transportId,
+    this.address,
+    this.port,
+    this.protocol,
+    required this.candidateType,
+    this.priority,
+    this.url,
+  });
+}
+
 /// [RTCIceConnectionState][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
@@ -714,6 +734,16 @@ class RtcConfiguration {
   });
 }
 
+@freezed
+class RTCIceCandidateStats with _$RTCIceCandidateStats {
+  const factory RTCIceCandidateStats.rtcLocalIceCandidateStats(
+    IceCandidateStats field0,
+  ) = RTCIceCandidateStats_RTCLocalIceCandidateStats;
+  const factory RTCIceCandidateStats.rtcRemoteIceCandidateStats(
+    IceCandidateStats field0,
+  ) = RTCIceCandidateStats_RTCRemoteIceCandidateStats;
+}
+
 /// Description of STUN and TURN servers that can be used by an [ICE Agent][1]
 /// to establish a connection with a peer.
 ///
@@ -861,16 +891,9 @@ class RTCStatsType with _$RTCStatsType {
     String? trackIdentifier,
     required RTCMediaSourceStatsType kind,
   }) = RTCStatsType_RTCMediaSourceStats;
-  const factory RTCStatsType.rtcIceCandidateStats({
-    String? transportId,
-    String? address,
-    int? port,
-    String? protocol,
-    required CandidateType candidateType,
-    int? priority,
-    String? url,
-    bool? isRemote,
-  }) = RTCStatsType_RTCIceCandidateStats;
+  const factory RTCStatsType.rtcIceCandidateStats(
+    RTCIceCandidateStats field0,
+  ) = RTCStatsType_RTCIceCandidateStats;
   const factory RTCStatsType.rtcOutboundRtpStreamStats({
     String? trackId,
     required TrackKind kind,
@@ -1982,6 +2005,15 @@ int _wire2api_box_autoadd_i32(dynamic raw) {
   return raw as int;
 }
 
+IceCandidateStats _wire2api_box_autoadd_ice_candidate_stats(dynamic raw) {
+  return _wire2api_ice_candidate_stats(raw);
+}
+
+RTCIceCandidateStats _wire2api_box_autoadd_rtc_ice_candidate_stats(
+    dynamic raw) {
+  return _wire2api_rtc_ice_candidate_stats(raw);
+}
+
 RTCMediaSourceStatsType _wire2api_box_autoadd_rtc_media_source_stats_type(
     dynamic raw) {
   return _wire2api_rtc_media_source_stats_type(raw);
@@ -2043,6 +2075,21 @@ int _wire2api_i32(dynamic raw) {
 
 int _wire2api_i64(dynamic raw) {
   return raw as int;
+}
+
+IceCandidateStats _wire2api_ice_candidate_stats(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 7)
+    throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+  return IceCandidateStats(
+    transportId: _wire2api_opt_String(arr[0]),
+    address: _wire2api_opt_String(arr[1]),
+    port: _wire2api_opt_box_autoadd_i32(arr[2]),
+    protocol: _wire2api_opt_String(arr[3]),
+    candidateType: _wire2api_candidate_type(arr[4]),
+    priority: _wire2api_opt_box_autoadd_i32(arr[5]),
+    url: _wire2api_opt_String(arr[6]),
+  );
 }
 
 IceConnectionState _wire2api_ice_connection_state(dynamic raw) {
@@ -2194,6 +2241,21 @@ PeerConnectionState _wire2api_peer_connection_state(dynamic raw) {
   return PeerConnectionState.values[raw];
 }
 
+RTCIceCandidateStats _wire2api_rtc_ice_candidate_stats(dynamic raw) {
+  switch (raw[0]) {
+    case 0:
+      return RTCIceCandidateStats_RTCLocalIceCandidateStats(
+        _wire2api_box_autoadd_ice_candidate_stats(raw[1]),
+      );
+    case 1:
+      return RTCIceCandidateStats_RTCRemoteIceCandidateStats(
+        _wire2api_box_autoadd_ice_candidate_stats(raw[1]),
+      );
+    default:
+      throw Exception("unreachable");
+  }
+}
+
 RTCInboundRtpStreamMediaType _wire2api_rtc_inbound_rtp_stream_media_type(
     dynamic raw) {
   switch (raw[0]) {
@@ -2294,14 +2356,7 @@ RTCStatsType _wire2api_rtc_stats_type(dynamic raw) {
       );
     case 1:
       return RTCStatsType_RTCIceCandidateStats(
-        transportId: _wire2api_opt_String(raw[1]),
-        address: _wire2api_opt_String(raw[2]),
-        port: _wire2api_opt_box_autoadd_i32(raw[3]),
-        protocol: _wire2api_opt_String(raw[4]),
-        candidateType: _wire2api_candidate_type(raw[5]),
-        priority: _wire2api_opt_box_autoadd_i32(raw[6]),
-        url: _wire2api_opt_String(raw[7]),
-        isRemote: _wire2api_opt_box_autoadd_bool(raw[8]),
+        _wire2api_box_autoadd_rtc_ice_candidate_stats(raw[1]),
       );
     case 2:
       return RTCStatsType_RTCOutboundRTPStreamStats(

@@ -1187,6 +1187,22 @@ impl support::IntoDart for GetMediaResult {
 }
 impl support::IntoDartExceptPrimitive for GetMediaResult {}
 
+impl support::IntoDart for IceCandidateStats {
+    fn into_dart(self) -> support::DartCObject {
+        vec![
+            self.transport_id.into_dart(),
+            self.address.into_dart(),
+            self.port.into_dart(),
+            self.protocol.into_dart(),
+            self.candidate_type.into_dart(),
+            self.priority.into_dart(),
+            self.url.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for IceCandidateStats {}
+
 impl support::IntoDart for IceConnectionState {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1324,6 +1340,20 @@ impl support::IntoDart for PeerConnectionState {
         .into_dart()
     }
 }
+impl support::IntoDart for RTCIceCandidateStats {
+    fn into_dart(self) -> support::DartCObject {
+        match self {
+            Self::RTCLocalIceCandidateStats(field0) => {
+                vec![0.into_dart(), field0.into_dart()]
+            }
+            Self::RTCRemoteIceCandidateStats(field0) => {
+                vec![1.into_dart(), field0.into_dart()]
+            }
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RTCIceCandidateStats {}
 impl support::IntoDart for RTCInboundRtpStreamMediaType {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -1463,26 +1493,9 @@ impl support::IntoDart for RTCStatsType {
                 track_identifier.into_dart(),
                 kind.into_dart(),
             ],
-            Self::RTCIceCandidateStats {
-                transport_id,
-                address,
-                port,
-                protocol,
-                candidate_type,
-                priority,
-                url,
-                is_remote,
-            } => vec![
-                1.into_dart(),
-                transport_id.into_dart(),
-                address.into_dart(),
-                port.into_dart(),
-                protocol.into_dart(),
-                candidate_type.into_dart(),
-                priority.into_dart(),
-                url.into_dart(),
-                is_remote.into_dart(),
-            ],
+            Self::RTCIceCandidateStats(field0) => {
+                vec![1.into_dart(), field0.into_dart()]
+            }
             Self::RTCOutboundRTPStreamStats {
                 track_id,
                 kind,

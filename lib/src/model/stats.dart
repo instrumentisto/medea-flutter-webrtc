@@ -159,21 +159,35 @@ class RTCVideoSourceStats extends RTCMediaSourceStats {
   double? framesPerSecond;
 }
 
-class RTCIceCandidateStats extends RTCStatsType {
+abstract class RTCIceCandidateStats extends RTCStatsType {
   RTCIceCandidateStats(this.transportId, this.address, this.port, this.protocol,
-      this.candidateType, this.priority, this.url, this.isRemote);
+      this.candidateType, this.priority, this.url);
 
   static RTCIceCandidateStats fromFFI(
       bridge.RTCStatsType_RTCIceCandidateStats stats) {
-    return RTCIceCandidateStats(
-        stats.transportId,
-        stats.address,
-        stats.port,
-        stats.protocol,
-        CandidateType.values[stats.candidateType.index],
-        stats.priority,
-        stats.url,
-        stats.isRemote);
+    if (stats.field0 is bridge.RTCIceCandidateStats_RTCLocalIceCandidateStats) {
+      var local =
+          stats.field0 as bridge.RTCIceCandidateStats_RTCLocalIceCandidateStats;
+      return RTCLocalIceCandidateStats(
+          local.field0.transportId,
+          local.field0.address,
+          local.field0.port,
+          local.field0.protocol,
+          CandidateType.values[local.field0.candidateType.index],
+          local.field0.priority,
+          local.field0.url);
+    } else {
+      var remote = stats.field0
+          as bridge.RTCIceCandidateStats_RTCRemoteIceCandidateStats;
+      return RTCRemoteIceCandidateStats(
+          remote.field0.transportId,
+          remote.field0.address,
+          remote.field0.port,
+          remote.field0.protocol,
+          CandidateType.values[remote.field0.candidateType.index],
+          remote.field0.priority,
+          remote.field0.url);
+    }
   }
 
   String? transportId;
@@ -183,7 +197,30 @@ class RTCIceCandidateStats extends RTCStatsType {
   CandidateType candidateType;
   int? priority;
   String? url;
-  bool? isRemote;
+}
+
+class RTCLocalIceCandidateStats extends RTCIceCandidateStats {
+  RTCLocalIceCandidateStats(
+    String? transportId,
+    String? address,
+    int? port,
+    String? protocol,
+    CandidateType candidateType,
+    int? priority,
+    String? url,
+  ) : super(transportId, address, port, protocol, candidateType, priority, url);
+}
+
+class RTCRemoteIceCandidateStats extends RTCIceCandidateStats {
+  RTCRemoteIceCandidateStats(
+    String? transportId,
+    String? address,
+    int? port,
+    String? protocol,
+    CandidateType candidateType,
+    int? priority,
+    String? url,
+  ) : super(transportId, address, port, protocol, candidateType, priority, url);
 }
 
 class RTCOutboundRTPStreamStats extends RTCStatsType {

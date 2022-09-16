@@ -401,7 +401,7 @@ std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_fraction_
     const RTCRemoteInboundRtpStreamStats& stats);
 std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_total_round_trip_time(
     const RTCRemoteInboundRtpStreamStats& stats);
-std::unique_ptr<RTCStatsMemberi32> rtc_remote_inbound_rtp_stream_stats_round_trip_time_measurements(
+std::unique_ptr<RTCStatsMemberi32> round_trip_time_measurements(
     const RTCRemoteInboundRtpStreamStats& stats);
 /// RTCRemoteInboundRtpStreamStats
 
