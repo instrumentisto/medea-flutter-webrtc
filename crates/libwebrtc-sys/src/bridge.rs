@@ -201,24 +201,56 @@ pub(crate) mod webrtc {
         MEDIA_TYPE_UNSUPPORTED,
     }
 
-    // todo
+    /// [RTCIceCandidateType] represents the type of the ICE candidate, as
+    /// defined in [Section 15.1 of RFC 5245][1].
+    ///
+    /// [RTCIceCandidateType]: https://w3.org/TR/webrtc#rtcicecandidatetype-enum
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum CandidateType {
+        /// Host candidate, as defined in [Section 4.1.1.1 of RFC 5245][1].
+        ///
+        /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.1
         kHost = 0,
+        /// Server reflexive candidate, as defined in
+        /// [Section 4.1.1.2 of RFC 5245][1].
+        ///
+        /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
         kSrflx,
+        /// Peer reflexive candidate, as defined in
+        /// [Section 4.1.1.2 of RFC 5245][1].
+        ///
+        /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
         kPrflx,
+        /// Relay candidate, as defined in [Section 7.1.3.2.1 of RFC 5245][1].
+        ///
+        /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.1
         kRelay,
     }
 
-    // todo
+    /// Each candidate pair in the check list has a foundation and a state.
+    /// The foundation is the combination of the foundations of the local and
+    /// remote candidates in the pair.  The state is assigned once the check
+    /// list for each media stream has been computed.  There are five
+    /// potential values that the state can have.
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum RTCStatsIceCandidatePairState {
+        /// Check for this pair hasn't been performed, and it can't yet be
+        /// performed until some other check succeeds, allowing this pair to
+        /// unfreeze and move into the [`KnownIceCandidatePairState::Waiting`]
+        /// state.
         kFrozen = 0,
+        /// Check has not been performed for this pair, and can be performed as
+        /// soon as it is the highest-priority Waiting pair on the check list.
         kWaiting,
+        /// Check has been sent for this pair, but the transaction is in progress.
         kInProgress,
+        /// Check for this pair was already done and failed, either never producing
+        /// any response or producing an unrecoverable failure response.
         kFailed,
+        /// Check for this pair was already done and produced a successful result.
         kSucceeded,
     }
 
@@ -1116,38 +1148,19 @@ pub(crate) mod webrtc {
         pub fn ice_candidate_interface_to_string(
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
+
+        // todo
+        pub fn peer_connection_get_stats(
+            peer: &PeerConnectionInterface,
+            cb: Box<DynRTCStatsCollectorCallback>
+        );
     }
 
-    // stats
     #[rustfmt::skip]
     unsafe extern "C++" {
-        //todopub type
-        pub type RTCStatsMemberString;
-        pub type RTCStatsMemberf64;
-        pub type RTCStatsMemberi32;
-        pub type RTCStatsMemberu32;
-        pub type RTCStatsMemberu64;
-        pub type RTCStatsMemberbool;
-
-        pub fn rtc_stats_member_string_is_defined(stats_member: &RTCStatsMemberString) -> bool;
-        pub fn rtc_stats_member_f64_is_defined(stats_member: &RTCStatsMemberf64) -> bool;
-        pub fn rtc_stats_member_i32_is_defined(stats_member: &RTCStatsMemberi32) -> bool;
-        pub fn rtc_stats_member_u32_is_defined(stats_member: &RTCStatsMemberu32) -> bool;
-        pub fn rtc_stats_member_u64_is_defined(stats_member: &RTCStatsMemberu64) -> bool;
-        pub fn rtc_stats_member_bool_is_defined(stats_member: &RTCStatsMemberbool) -> bool;
-
-        pub fn rtc_stats_member_string_value(stats_member: &RTCStatsMemberString) -> UniquePtr<CxxString>;
-        pub fn rtc_stats_member_f64_value(stats_member: &RTCStatsMemberf64) -> f64;
-        pub fn rtc_stats_member_i32_value(stats_member: &RTCStatsMemberi32) -> i32;
-        pub fn rtc_stats_member_u32_value(stats_member: &RTCStatsMemberu32) -> u32;
-        pub fn rtc_stats_member_u64_value(stats_member: &RTCStatsMemberu64) -> u64;
-        pub fn rtc_stats_member_bool_value(stats_member: &RTCStatsMemberbool) -> bool;
-
         pub type RTCMediaSourceStats;
         pub type RTCVideoSourceStats;
         pub type RTCAudioSourceStats;
-        
-
         pub type RTCIceCandidateStats;
         pub type RTCOutboundRTPStreamStats;
         pub type RTCInboundRTPStreamStats;
@@ -1155,123 +1168,254 @@ pub(crate) mod webrtc {
         pub type RTCTransportStats;
         pub type RTCRemoteInboundRtpStreamStats;
         pub type RTCRemoteOutboundRtpStreamStats;
-
-        
         pub type RTCStatsReport;
         pub type RTCStats;
+        pub type RTCStatsMemberString;
+        pub type RTCStatsMemberf64;
+        pub type RTCStatsMemberi32;
+        pub type RTCStatsMemberu32;
+        pub type RTCStatsMemberu64;
+        pub type RTCStatsMemberbool;
+
+        /// Returns a `is_defined` of the given [`RTCStatsMemberString`].
+        pub fn rtc_stats_member_string_is_defined(stats_member: &RTCStatsMemberString) -> bool;
+        /// Returns a `is_defined` of the given [`RTCStatsMemberf64`].
+        pub fn rtc_stats_member_f64_is_defined(stats_member: &RTCStatsMemberf64) -> bool;
+        /// Returns a `is_defined` of the given [`RTCStatsMemberi32`].
+        pub fn rtc_stats_member_i32_is_defined(stats_member: &RTCStatsMemberi32) -> bool;
+        /// Returns a `is_defined` of the given [`RTCStatsMemberu32`].
+        pub fn rtc_stats_member_u32_is_defined(stats_member: &RTCStatsMemberu32) -> bool;
+        /// Returns a `is_defined` of the given [`RTCStatsMemberu64`].
+        pub fn rtc_stats_member_u64_is_defined(stats_member: &RTCStatsMemberu64) -> bool;
+        /// Returns a `is_defined` of the given [`RTCStatsMemberbool`].
+        pub fn rtc_stats_member_bool_is_defined(stats_member: &RTCStatsMemberbool) -> bool;
 
 
-        // todo
-        pub fn peer_connection_get_stats(
-            peer: &PeerConnectionInterface,
-            cb: Box<DynRTCStatsCollectorCallback>
-        );
-
-        // pub fn stats_json(report: &RTCStatsReport) -> UniquePtr<CxxString>;
+        /// Returns a `value` of the given [`RTCStatsMemberString`].
+        pub fn rtc_stats_member_string_value(stats_member: &RTCStatsMemberString) -> UniquePtr<CxxString>;
+        /// Returns a `value` of the given [`RTCStatsMemberf64`].
+        pub fn rtc_stats_member_f64_value(stats_member: &RTCStatsMemberf64) -> f64;
+        /// Returns a `value` of the given [`RTCStatsMemberi32`].
+        pub fn rtc_stats_member_i32_value(stats_member: &RTCStatsMemberi32) -> i32;
+        /// Returns a `value` of the given [`RTCStatsMemberu32`].
+        pub fn rtc_stats_member_u32_value(stats_member: &RTCStatsMemberu32) -> u32;
+        /// Returns a `value` of the given [`RTCStatsMemberu64`].
+        pub fn rtc_stats_member_u64_value(stats_member: &RTCStatsMemberu64) -> u64;
+        /// Returns a `value` of the given [`RTCStatsMemberbool`].
+        pub fn rtc_stats_member_bool_value(stats_member: &RTCStatsMemberbool) -> bool;
         
         pub fn rtc_stats_report_get_stats(report: &RTCStatsReport) -> Vec<RTCStatsContainer>;
 
+        /// Returns a `id` of the given [`RTCStats`].
         pub fn rtc_stats_id(stats: &RTCStats) -> UniquePtr<CxxString>; 
-        pub fn rtc_stats_type(stats: &RTCStats) -> UniquePtr<CxxString>; 
+        /// Returns a `type` of the given [`RTCStats`].
+        pub fn rtc_stats_type(stats: &RTCStats) -> UniquePtr<CxxString>;
+        /// Returns a `timestamp_us` of the given [`RTCStats`].
         pub fn rtc_stats_timestamp_us(stats: &RTCStats) -> i64;
-
         
+        /// Try cast a [`RTCStats`] to [`RTCMediaSourceStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCMediaSourceStats`].
         pub fn rtc_stats_cast_to_rtc_media_source_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCMediaSourceStats>>;
+        /// Try cast a [`RTCStats`] to [`RTCIceCandidateStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCIceCandidateStats`].
         pub fn rtc_stats_cast_to_rtc_ice_candidate_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCIceCandidateStats>>;
+        /// Try cast a [`RTCStats`] to [`RTCOutboundRTPStreamStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCOutboundRTPStreamStats`].
         pub fn rtc_stats_cast_to_rtc_outbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCOutboundRTPStreamStats>>;
+        /// Try cast a [`RTCStats`] to [`RTCInboundRTPStreamStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCInboundRTPStreamStats`].
         pub fn rtc_stats_cast_to_rtc_inbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCInboundRTPStreamStats>>;
+        /// Try cast a [`RTCStats`] to [`RTCIceCandidatePairStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCIceCandidatePairStats`].
         pub fn rtc_stats_cast_to_rtc_ice_candidate_pair_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCIceCandidatePairStats>>;
+        /// Try cast a [`RTCStats`] to [`RTCTransportStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCTransportStats`].
         pub fn rtc_stats_cast_to_rtc_transport_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCTransportStats>>;
+        /// Try cast a [`RTCStats`] to [`RTCRemoteInboundRtpStreamStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCRemoteInboundRtpStreamStats`].
         pub fn rtc_stats_cast_to_rtc_remote_inbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCRemoteInboundRtpStreamStats>>;
+        /// Try cast a [`RTCStats`] to [`RTCRemoteOutboundRtpStreamStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCStats`] is not a [`RTCRemoteOutboundRtpStreamStats`].
         pub fn rtc_stats_cast_to_rtc_remote_outbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<UniquePtr<RTCRemoteOutboundRtpStreamStats>>;
-
+        /// Try cast a [`RTCMediaSourceStats`] to [`RTCVideoSourceStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCMediaSourceStats`] is not a [`RTCVideoSourceStats`].
+        pub fn rtc_media_source_stats_cast_to_rtc_video_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<UniquePtr<RTCVideoSourceStats>>;
+        /// Try cast a [`RTCMediaSourceStats`] to [`RTCAudioSourceStats`].
+        /// 
+        /// # Errors
+        ///
+        /// Errors if a [`RTCMediaSourceStats`] is not a [`RTCAudioSourceStats`].
+        pub fn rtc_media_source_stats_cast_to_rtc_audio_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<UniquePtr<RTCAudioSourceStats>>;
         
+
+        /// Returns a `track_identifier` of the given [`RTCMediaSourceStats`].
         pub fn rtc_media_source_stats_track_identifier(stats: &RTCMediaSourceStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `kind` of the given [`RTCMediaSourceStats`].
         pub fn rtc_media_source_stats_kind(stats: &RTCMediaSourceStats) -> UniquePtr<RTCStatsMemberString>;
 
-
+        /// Returns a `transport_id` of the given [`RTCIceCandidateStats`].
         pub fn rtc_ice_candidate_stats_transport_id(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `address` of the given [`RTCIceCandidateStats`].
         pub fn rtc_ice_candidate_stats_address(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `port` of the given [`RTCIceCandidateStats`].
         pub fn rtc_ice_candidate_stats_port(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberi32>;
+        /// Returns a `protocol` of the given [`RTCIceCandidateStats`].
         pub fn rtc_ice_candidate_stats_protocol(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `candidate_type` of the given [`RTCIceCandidateStats`].
         pub fn rtc_ice_candidate_stats_candidate_type(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `priority` of the given [`RTCIceCandidateStats`].
         pub fn rtc_ice_candidate_stats_priority(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberi32>;
+        /// Returns a `url` of the given [`RTCIceCandidateStats`].
         pub fn rtc_ice_candidate_stats_url(stats: &RTCIceCandidateStats) -> UniquePtr<RTCStatsMemberString>;
 
+        /// Returns a `track_id` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_track_id(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `kind` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_kind(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `bytes_sent` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_bytes_sent(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `packets_sent` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_packets_sent(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `media_source_id` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_media_source_id(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `frame_width` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_frame_width(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `frame_height` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_frame_height(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `frames_per_second` of the given [`RTCOutboundRTPStreamStats`].
         pub fn rtc_outbound_rtp_stream_stats_frames_per_second(stats: &RTCOutboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
 
+        /// Returns a `remote_id` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_remote_id(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `bytes_received` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_bytes_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `packets_received` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_packets_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
-        // pub fn RTCInboundRTPStreamStats_packets_lost(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
-        // pub fn RTCInboundRTPStreamStats_jitter(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `total_decode_time` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_total_decode_time(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `jitter_buffer_emitted_count` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_jitter_buffer_emitted_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
-        // pub fn RTCInboundRTPStreamStats_voice_activity_flag(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberbool>;
+        /// Returns a `total_samples_received` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_total_samples_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `concealed_samples` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_concealed_samples(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `content_type` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_content_type(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `silent_concealed_samples` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_silent_concealed_samples(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `audio_level` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_audio_level(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `total_audio_energy` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_total_audio_energy(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `total_samples_duration` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_total_samples_duration(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `frames_decoded` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_frames_decoded(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `key_frames_decoded` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_key_frames_decoded(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `frame_width` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_frame_width(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `frame_height` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_frame_height(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `total_inter_frame_delay` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_total_inter_frame_delay(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `frames_per_second` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_frames_per_second(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `frame_bit_depth` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_frame_bit_depth(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `fir_count` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_fir_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `pli_count` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_pli_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu32>;
-        // pub fn RTCInboundRTPStreamStats_sli_count(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `concealment_events` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_concealment_events(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `frames_received` of the given [`RTCInboundRTPStreamStats`].
         pub fn rtc_inbound_rtp_stream_stats_frames_received(stats: &RTCInboundRTPStreamStats) -> UniquePtr<RTCStatsMemberi32>;
 
+        /// Returns a `state` of the given [`RTCIceCandidatePairStats`].
         pub fn rtc_ice_candidate_pair_stats_state(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `nominated` of the given [`RTCIceCandidatePairStats`].
         pub fn rtc_ice_candidate_pair_stats_nominated(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberbool>;
+        /// Returns a `bytes_sent` of the given [`RTCIceCandidatePairStats`].
         pub fn rtc_ice_candidate_pair_stats_bytes_sent(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `bytes_received` of the given [`RTCIceCandidatePairStats`].
         pub fn rtc_ice_candidate_pair_stats_bytes_received(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `total_round_trip_time` of the given [`RTCIceCandidatePairStats`].
         pub fn rtc_ice_candidate_pair_stats_total_round_trip_time(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `current_round_trip_time` of the given [`RTCIceCandidatePairStats`].
         pub fn rtc_ice_candidate_pair_stats_current_round_trip_time(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `available_outgoing_bitrate` of the given [`RTCIceCandidatePairStats`].
         pub fn rtc_ice_candidate_pair_stats_available_outgoing_bitrate(stats: &RTCIceCandidatePairStats) -> UniquePtr<RTCStatsMemberf64>;
 
+        /// Returns a `packets_sent` of the given [`RTCTransportStats`].
         pub fn rtc_transport_stats_packets_sent(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `packets_received` of the given [`RTCTransportStats`].
         pub fn rtc_transport_stats_packets_received(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `bytes_sent` of the given [`RTCTransportStats`].
         pub fn rtc_transport_stats_bytes_sent(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `bytes_received` of the given [`RTCTransportStats`].
         pub fn rtc_transport_stats_bytes_received(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberu64>;
-        // pub fn RTCTransportStats_ice_role(stats: &RTCTransportStats) -> UniquePtr<RTCStatsMemberString>;
 
+        /// Returns a `local_id` of the given [`RTCRemoteInboundRtpStreamStats`].
         pub fn rtc_remote_inbound_rtp_stream_stats_local_id(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberString>;
-        // pub fn RTCRemoteInboundRtpStreamStats_jitter(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `round_trip_time` of the given [`RTCRemoteInboundRtpStreamStats`].
         pub fn rtc_remote_inbound_rtp_stream_stats_round_trip_time(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `fraction_lost` of the given [`RTCRemoteInboundRtpStreamStats`].
         pub fn rtc_remote_inbound_rtp_stream_stats_fraction_lost(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
-        // pub fn RTCRemoteInboundRtpStreamStats_reports_received(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberu64>;
+        /// Returns a `round_trip_time_measurements` of the given [`RTCRemoteInboundRtpStreamStats`].
         pub fn round_trip_time_measurements(stats: &RTCRemoteInboundRtpStreamStats) -> UniquePtr<RTCStatsMemberi32>;
-
+        /// Returns a `bytes_received` of the given [`RTCRemoteOutboundRtpStreamStats`].
         pub fn rtc_remote_outbound_rtp_stream_stats_local_id(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberString>;
+        /// Returns a `bytes_received` of the given [`RTCRemoteOutboundRtpStreamStats`].
         pub fn rtc_remote_outbound_rtp_stream_stats_remote_timestamp(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `bytes_received` of the given [`RTCRemoteOutboundRtpStreamStats`].
         pub fn rtc_remote_outbound_rtp_stream_stats_reports_sent(stats: &RTCRemoteOutboundRtpStreamStats) -> UniquePtr<RTCStatsMemberu64>;
         
-        pub fn rtc_media_source_stats_cast_to_rtc_video_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<UniquePtr<RTCVideoSourceStats>>;
-        pub fn rtc_media_source_stats_cast_to_rtc_audio_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<UniquePtr<RTCAudioSourceStats>>;
-
+        /// Returns a `width` of the given [`RTCVideoSourceStats`].
         pub fn rtc_video_source_stats_width(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `height` of the given [`RTCVideoSourceStats`].
         pub fn rtc_video_source_stats_height(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `frames` of the given [`RTCVideoSourceStats`].
         pub fn rtc_video_source_stats_frames(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberu32>;
+        /// Returns a `frames_per_second` of the given [`RTCVideoSourceStats`].
         pub fn rtc_video_source_stats_frames_per_second(stats: &RTCVideoSourceStats) -> UniquePtr<RTCStatsMemberf64>;
 
+        /// Returns a `audio_level` of the given [`RTCAudioSourceStats`].
         pub fn rtc_audio_source_stats_audio_level(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `total_audio_energy` of the given [`RTCAudioSourceStats`].
         pub fn rtc_audio_source_stats_total_audio_energy(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `total_samples_duration` of the given [`RTCAudioSourceStats`].
         pub fn rtc_audio_source_stats_total_samples_duration(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `echo_return_loss` of the given [`RTCAudioSourceStats`].
         pub fn rtc_audio_source_stats_echo_return_loss(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
+        /// Returns a `echo_return_loss_enhancement` of the given [`RTCAudioSourceStats`].
         pub fn rtc_audio_source_stats_echo_return_loss_enhancement(stats: &RTCAudioSourceStats) -> UniquePtr<RTCStatsMemberf64>;
     }
 
@@ -2114,8 +2258,8 @@ pub fn add_ice_candidate_fail(
     cb.on_fail(error);
 }
 
-// todo
-/// Forwards the
+/// Forwards the specified [`RTCStatsReport`] to the provided
+/// [`DynRTCStatsCollectorCallback`] when a stats is delivered.
 #[allow(clippy::boxed_local)]
 pub fn on_stats_delivered(
     mut cb: Box<DynRTCStatsCollectorCallback>,

@@ -16,8 +16,8 @@ pub use crate::webrtc::{
     video_frame_to_abgr, video_frame_to_argb, AudioLayer, BundlePolicy,
     Candidate, CandidatePairChangeEvent, CandidateType, IceConnectionState,
     IceGatheringState, IceTransportsType, MediaType, PeerConnectionState,
-    RTCStatsIceCandidatePairState, RtpTransceiverDirection,
-    SdpType, SignalingState, TrackState, VideoFrame, VideoRotation,
+    RTCStatsIceCandidatePairState, RtpTransceiverDirection, SdpType,
+    SignalingState, TrackState, VideoFrame, VideoRotation,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -155,7 +155,7 @@ impl FromStr for TrackKind {
         let res = match s {
             "audio" => Self::Audio,
             "video" => Self::Video,
-            kind => anyhow::bail!("Unknow kind: {kind}") 
+            kind => anyhow::bail!("Unknow kind: {kind}"),
         };
         Ok(res)
     }
@@ -1281,12 +1281,13 @@ impl PeerConnectionInterface {
         webrtc::close_peer_connection(&self.inner);
     }
 
-    // todo
+    /// Gets [`RTCStatsReport`] of the [`PeerConnectionInterface`].
     pub fn get_stats(&self, cb: Box<dyn RTCStatsCollectorCallback>) {
         webrtc::peer_connection_get_stats(&self.inner, Box::new(cb));
     }
 }
 
+/// Convert a [`webrtc::RTCStatsMemberString`] to [`Option<String>`].
 fn rtc_stats_member_string_to_option(
     val: &UniquePtr<webrtc::RTCStatsMemberString>,
 ) -> Option<String> {
@@ -1297,6 +1298,7 @@ fn rtc_stats_member_string_to_option(
     }
 }
 
+/// Convert a [`webrtc::RTCStatsMemberf64`] to [`Option<f64>`].
 fn rtc_stats_member_f64_to_option(
     val: &UniquePtr<webrtc::RTCStatsMemberf64>,
 ) -> Option<f64> {
@@ -1307,6 +1309,7 @@ fn rtc_stats_member_f64_to_option(
     }
 }
 
+/// Convert a [`webrtc::RTCStatsMemberi32`] to [`Option<i32>`].
 fn rtc_stats_member_i32_to_option(
     val: &UniquePtr<webrtc::RTCStatsMemberi32>,
 ) -> Option<i32> {
@@ -1317,6 +1320,7 @@ fn rtc_stats_member_i32_to_option(
     }
 }
 
+/// Convert a [`webrtc::RTCStatsMemberu32`] to [`Option<u32>`].
 fn rtc_stats_member_u32_to_option(
     val: &UniquePtr<webrtc::RTCStatsMemberu32>,
 ) -> Option<u32> {
@@ -1327,6 +1331,7 @@ fn rtc_stats_member_u32_to_option(
     }
 }
 
+/// Convert a [`webrtc::RTCStatsMemberu64`] to [`Option<u64>`].
 fn rtc_stats_member_u64_to_option(
     val: &UniquePtr<webrtc::RTCStatsMemberu64>,
 ) -> Option<u64> {
@@ -1337,6 +1342,7 @@ fn rtc_stats_member_u64_to_option(
     }
 }
 
+/// Convert a [`webrtc::RTCStatsMemberbool`] to [`Option<bool>`].
 fn rtc_stats_member_bool_to_option(
     val: &UniquePtr<webrtc::RTCStatsMemberbool>,
 ) -> Option<bool> {
@@ -1349,25 +1355,36 @@ fn rtc_stats_member_bool_to_option(
 
 #[derive(Debug)]
 pub struct RTCVideoSourceStats {
+    /// Width (in pixels) of the last frame originating from the source.
+    /// Before a frame has been produced this attribute is missing.
     width: Option<u32>,
+    /// Height (in pixels) of the last frame originating from the source.
+    /// Before a frame has been produced this attribute is missing.
     height: Option<u32>,
     frames: Option<u32>,
+    /// Number of frames originating from the source, measured during the
+    /// last second. For the first second of this object's lifetime this
+    /// attribute is missing.
     frames_per_second: Option<f64>,
 }
 
 impl RTCVideoSourceStats {
+    /// Returns the `width` of this [`RTCVideoSourceStats`].
     #[must_use]
     pub fn width(&self) -> Option<u32> {
         self.width
     }
+    /// Returns the `height` of this [`RTCVideoSourceStats`].
     #[must_use]
     pub fn height(&self) -> Option<u32> {
         self.height
     }
+    /// Returns the `frames` of this [`RTCVideoSourceStats`].
     #[must_use]
     pub fn frames(&self) -> Option<u32> {
         self.frames
     }
+    /// Returns the `frames_per_second` of this [`RTCVideoSourceStats`].
     #[must_use]
     pub fn frames_per_second(&self) -> Option<f64> {
         self.frames_per_second
@@ -1393,32 +1410,45 @@ impl From<UniquePtr<webrtc::RTCVideoSourceStats>> for RTCVideoSourceStats {
     }
 }
 
+/// [`RTCMediaSorceStats`] audio stats.
 #[derive(Debug)]
 pub struct RTCAudioSourceStats {
+    /// Audio level of the media source.
     audio_level: Option<f64>,
+    /// Audio energy of the media source.
     total_audio_energy: Option<f64>,
+    /// Audio duration of the media source.
     total_samples_duration: Option<f64>,
+
     echo_return_loss: Option<f64>,
     echo_return_loss_enhancement: Option<f64>,
 }
 
 impl RTCAudioSourceStats {
+    /// Returns the `audio_level` of this [`RTCAudioSourceStats`].
     #[must_use]
     pub fn audio_level(&self) -> Option<f64> {
         self.audio_level
     }
+    /// Returns the `total_audio_energy` of this [`RTCAudioSourceStats`].
     #[must_use]
     pub fn total_audio_energy(&self) -> Option<f64> {
         self.total_audio_energy
     }
+    /// Returns the `total_samples_duration` of this [`RTCAudioSourceStats`].
+
     #[must_use]
     pub fn total_samples_duration(&self) -> Option<f64> {
         self.total_samples_duration
     }
+    /// Returns the `echo_return_loss` of this [`RTCAudioSourceStats`].
+
     #[must_use]
     pub fn echo_return_loss(&self) -> Option<f64> {
         self.echo_return_loss
     }
+    /// Returns the `echo_return_loss_enhancement` of this [`RTCAudioSourceStats`].
+
     #[must_use]
     pub fn echo_return_loss_enhancement(&self) -> Option<f64> {
         self.echo_return_loss_enhancement
@@ -1449,9 +1479,13 @@ impl From<UniquePtr<webrtc::RTCAudioSourceStats>> for RTCAudioSourceStats {
     }
 }
 
+/// [`RtcStat`] fields of [`RtcStatsType::MediaSource`] type based on its
+/// `kind`.
 #[derive(Debug)]
 pub enum RTCMediaSourceStatsType {
+    /// Fields when `kind` is `video`.
     RTCVideoSourceStats(RTCVideoSourceStats),
+    /// Fields when `kind` is `audio`.
     RTCAudioSourceStats(RTCAudioSourceStats),
 }
 
@@ -1484,26 +1518,40 @@ impl TryFrom<UniquePtr<webrtc::RTCMediaSourceStats>>
                     )?;
                 Ok(Self::RTCAudioSourceStats(RTCAudioSourceStats::from(cast)))
             }
-            kind => Err(anyhow::anyhow!(
-                "Unknow kind: {kind}."
-            )),
+            kind => Err(anyhow::anyhow!("Unknow kind: {kind}.")),
         };
         res
     }
 }
 
-// todo
+/// Statistics for the media produced by a [MediaStreamTrack][1] that
+/// is currently attached to an [RTCRtpSender]. This reflects
+/// the media that is fed to the encoder after [getUserMedia]
+/// constraints have been applied (i.e. not the raw media
+/// produced by the camera).
+///
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#rtcrtpsender-interface
+/// [getUserMedia]: https://tinyurl.com/sngpyr6
+/// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
 #[derive(Debug)]
 pub struct RTCMediaSourceStats {
+    /// Value of the [MediaStreamTrack][1]'s ID attribute.
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
     track_identifier: Option<String>,
+
+    /// Fields which should be in the [`RtcStat`] based on `kind`.
     kind: RTCMediaSourceStatsType,
 }
 
 impl RTCMediaSourceStats {
+    /// Returns the `track_identifier` of this [`RTCMediaSourceStats`].
+
     #[must_use]
     pub fn track_identifier(&self) -> &Option<String> {
         &self.track_identifier
     }
+    /// Returns the [`RTCMediaSourceStatsType`] of this [`RTCMediaSourceStats`].
     #[must_use]
     pub fn kind(&self) -> &RTCMediaSourceStatsType {
         &self.kind
@@ -1523,9 +1571,16 @@ impl From<UniquePtr<webrtc::RTCMediaSourceStats>> for RTCMediaSourceStats {
     }
 }
 
+/// Protocols used in the WebRTC.
 #[derive(Debug, Copy, Clone)]
 pub enum Protocol {
+    /// [Transmission Control Protocol][1].
+    ///
+    /// [1]: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
     TCP,
+    /// [User Datagram Protocol][1].
+    ///
+    /// [1]: https://en.wikipedia.org/wiki/User_Datagram_Protocol
     UDP,
 }
 
@@ -1536,34 +1591,71 @@ impl FromStr for Protocol {
         let protocol = match s {
             "tcp" => Self::TCP,
             "udp" => Self::UDP,
-            protocol => anyhow::bail!("Unknow protocol: {protocol}")
+            protocol => anyhow::bail!("Unknow protocol: {protocol}"),
         };
         Ok(protocol)
     }
 }
 
+/// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
+/// It corresponds to a [RTCIceTransport] object.
+///
+/// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
+/// variant.
+///
+/// [Full doc on W3C][2].
+///
+/// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
+/// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
+/// [2]: https://w3.org/TR/webrtc-stats/#icecandidate-dict%2A
 #[derive(Debug)]
 pub struct IceCandidateStats {
+    /// Unique ID that is associated to the object that was inspected to
+    /// produce the [RTCTransportStats][1] associated with this candidate.
+    ///
+    /// [1]: https://w3.org/TR/webrtc-stats/#transportstats-dict%2A
     transport_id: Option<String>,
+
+    /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses,
+    /// and fully qualified domain names (FQDNs).
     address: Option<String>,
+    /// Port number of the candidate.
     port: Option<i32>,
+    /// Valid values for transport is one of `udp` and `tcp`.
     protocol: Protocol,
+    /// Type of the ICE candidate.
     candidate_type: CandidateType,
+    /// Calculated as defined in [Section 15.1 of RFC 5245][1].
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
     priority: Option<i32>,
+    /// For local candidates this is the URL of the ICE server from which the
+    /// candidate was obtained. It is the same as the
+    /// [url surfaced in the RTCPeerConnectionIceEvent][1].
+    ///
+    /// `None` for remote candidates.
+    ///
+    /// [1]: https://w3.org/TR/webrtc#rtcpeerconnectioniceevent
     url: Option<String>,
 }
 
+/// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
+/// variant.
 #[derive(Debug)]
 pub enum RTCIceCandidateStats {
+    /// [`RtcStatsType::LocalCandidate`].
     RTCLocalIceCandidateStats(IceCandidateStats),
+    /// [`RtcStatsType::RemoteCandidate`].
     RTCRemoteIceCandidateStats(IceCandidateStats),
 }
 
 impl RTCIceCandidateStats {
+    /// Creates a new [`RTCIceCandidateStats::RTCLocalIceCandidateStats`].
     #[must_use]
     pub fn new_local(stats: UniquePtr<webrtc::RTCIceCandidateStats>) -> Self {
         Self::RTCLocalIceCandidateStats(IceCandidateStats::from(stats))
     }
+    /// Creates a new [`RTCIceCandidateStats::RTCRemoteIceCandidateStats`].
     #[must_use]
     pub fn new_remote(stats: UniquePtr<webrtc::RTCIceCandidateStats>) -> Self {
         Self::RTCLocalIceCandidateStats(IceCandidateStats::from(stats))
@@ -1571,30 +1663,38 @@ impl RTCIceCandidateStats {
 }
 
 impl IceCandidateStats {
+    /// Returns the `transport_id` of this [`IceCandidateStats`].
     #[must_use]
     pub fn transport_id(&self) -> &Option<String> {
         &self.transport_id
     }
+    /// Returns the `address` of this [`IceCandidateStats`].
+
     #[must_use]
     pub fn address(&self) -> &Option<String> {
         &self.address
     }
+    /// Returns the `port` of this [`IceCandidateStats`].
     #[must_use]
     pub fn port(&self) -> Option<i32> {
         self.port
     }
+    /// Returns the [`Protocol`] of this [`IceCandidateStats`].
     #[must_use]
     pub fn protocol(&self) -> Protocol {
         self.protocol
     }
+    /// Returns the [`CandidateType`] of this [`IceCandidateStats`].
     #[must_use]
     pub fn candidate_type(&self) -> webrtc::CandidateType {
         self.candidate_type
     }
+    /// Returns the `priority` of this [`IceCandidateStats`].
     #[must_use]
     pub fn priority(&self) -> Option<i32> {
         self.priority
     }
+    /// Returns the `url` of this [`IceCandidateStats`].
     #[must_use]
     pub fn url(&self) -> &Option<String> {
         &self.url
@@ -1612,9 +1712,13 @@ impl From<UniquePtr<webrtc::RTCIceCandidateStats>> for IceCandidateStats {
         )
         .unwrap();
 
-        let protocol = Protocol::from_str(&rtc_stats_member_string_to_option(
-            &webrtc::rtc_ice_candidate_stats_protocol(&inner),
-        ).unwrap()).unwrap();
+        let protocol = Protocol::from_str(
+            &rtc_stats_member_string_to_option(
+                &webrtc::rtc_ice_candidate_stats_protocol(&inner),
+            )
+            .unwrap(),
+        )
+        .unwrap();
 
         Self {
             transport_id: rtc_stats_member_string_to_option(
@@ -1638,47 +1742,115 @@ impl From<UniquePtr<webrtc::RTCIceCandidateStats>> for IceCandidateStats {
     }
 }
 
+/// Statistics for an outbound [RTP] stream that is currently sent with this
+/// [RTCPeerConnection] object.
+///
+/// When there are multiple [RTP] streams connected to the same sender, such
+/// as when using simulcast or RTX, there will be one
+/// [`RtcOutboundRtpStreamStats`] per RTP stream, with distinct values of
+/// the `ssrc` attribute, and all these senders will have a reference to
+/// the same "sender" object (of type [RTCAudioSenderStats][1] or
+/// [RTCVideoSenderStats][2]) and "track" object (of type
+/// [RTCSenderAudioTrackAttachmentStats][3] or
+/// [RTCSenderVideoTrackAttachmentStats][4]).
+///
+/// [`RtcStatsType::OutboundRtp`] variant.
+///
+/// [Full doc on W3C][5].
+///
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+/// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosenderstats
+/// [2]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosenderstats
+/// [3]: https://tinyurl.com/sefa5z4
+/// [4]: https://tinyurl.com/rkuvpl4
+/// [5]: https://w3.org/TR/webrtc-stats/#outboundrtpstats-dict%2A
 #[derive(Debug)]
 pub struct RTCOutboundRTPStreamStats {
+    /// ID of the stats object representing the current track attachment to the
+    /// sender of this stream.
     track_id: Option<String>,
+
     kind: TrackKind,
+
+    /// Width of the last encoded frame.
+    ///
+    /// The resolution of the encoded frame may be lower than the media
+    /// source (see [RTCVideoSourceStats.width][1]).
+    ///
+    /// Before the first frame is encoded this attribute is missing.
+    ///
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
     frame_width: Option<u32>,
+    /// Height of the last encoded frame.
+    ///
+    /// The resolution of the encoded frame may be lower than the media
+    /// source (see [RTCVideoSourceStats.height][1]).
+    ///
+    /// Before the first frame is encoded this attribute is missing.
+    ///
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
     frame_height: Option<u32>,
+    /// Number of encoded frames during the last second.
+    ///
+    /// This may be lower than the media source frame rate (see
+    /// [RTCVideoSourceStats.framesPerSecond][1]).
+    ///
+    /// [1]: https://tinyurl.com/rrmkrfk
     frames_per_second: Option<f64>,
+    /// Total number of bytes sent for this SSRC.
     bytes_sent: Option<u64>,
+    /// Total number of RTP packets sent for this SSRC.
     packets_sent: Option<u32>,
+    /// ID of the stats object representing the track currently
+    /// attached to the sender of this stream.
     media_source_id: Option<String>,
 }
 
 impl RTCOutboundRTPStreamStats {
+    /// Returns the `track_id` of this [`RTCOutboundRTPStreamStats`].
     #[must_use]
     pub fn track_id(&self) -> &Option<String> {
         &self.track_id
     }
+    /// Returns the [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
+
     #[must_use]
     pub fn kind(&self) -> TrackKind {
         self.kind
     }
+    /// Returns the `frame_width` of this [`RTCOutboundRTPStreamStats`].
+
     #[must_use]
     pub fn frame_width(&self) -> Option<u32> {
         self.frame_width
     }
+    /// Returns the `frame_height` of this [`RTCOutboundRTPStreamStats`].
+
     #[must_use]
     pub fn frame_height(&self) -> Option<u32> {
         self.frame_height
     }
+    /// Returns the `frames_per_second` of this [`RTCOutboundRTPStreamStats`].
+
     #[must_use]
     pub fn frames_per_second(&self) -> Option<f64> {
         self.frames_per_second
     }
+    /// Returns the `bytes_sent` of this [`RTCOutboundRTPStreamStats`].
+
     #[must_use]
     pub fn bytes_sent(&self) -> Option<u64> {
         self.bytes_sent
     }
+    /// Returns the `packets_sent` of this [`RTCOutboundRTPStreamStats`].
+
     #[must_use]
     pub fn packets_sent(&self) -> Option<u32> {
         self.packets_sent
     }
+    /// Returns the `media_source_id` of this [`RTCOutboundRTPStreamStats`].
+
     #[must_use]
     pub fn media_source_id(&self) -> &Option<String> {
         &self.media_source_id
@@ -1722,13 +1894,43 @@ impl From<UniquePtr<webrtc::RTCOutboundRTPStreamStats>>
     }
 }
 
+/// [`RTCInboundRtpStreamStats`] audio stats.
 #[derive(Debug)]
 pub struct RTCInboundRtpStreamAudio {
+    /// Total number of samples that have been received on this RTP stream.
+    /// This includes [`concealedSamples`].
+    ///
+    /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
     total_samples_received: Option<u64>,
+    /// Total number of samples that are concealed samples.
+    ///
+    /// A concealed sample is a sample that was replaced with synthesized
+    /// samples generated locally before being played out.
+    /// Examples of samples that have to be concealed are samples from lost
+    /// packets (reported in [`packetsLost`]) or samples from packets that
+    /// arrive too late to be played out (reported in
+    /// [`packetsDiscarded`]).
+    ///
+    /// [`packetsLost`]: https://tinyurl.com/u2gq965
+    /// [`packetsDiscarded`]: https://tinyurl.com/yx7qyox3
     concealed_samples: Option<u64>,
+    /// Total number of concealed samples inserted that are "silent".
+    ///
+    /// Playing out silent samples results in silence or comfort noise.
+    /// This is a subset of [`concealedSamples`].
+    ///
+    /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
     silent_concealed_samples: Option<u64>,
+    /// Audio level of the receiving track.
     audio_level: Option<f64>,
+    /// Audio energy of the receiving track.
     total_audio_energy: Option<f64>,
+    /// Audio duration of the receiving track.
+    ///
+    /// For audio durations of tracks attached locally, see
+    /// [RTCAudioSourceStats][1] instead.
+    ///
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosourcestats
     total_samples_duration: Option<f64>,
 }
 
@@ -1766,44 +1968,100 @@ impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
 }
 
 impl RTCInboundRtpStreamAudio {
+    /// Returns the `total_samples_received` of this [`RTCInboundRtpStreamAudio`].
+
     #[must_use]
     pub fn total_samples_received(&self) -> Option<u64> {
         self.total_samples_received
     }
+    /// Returns the `concealed_samples` of this [`RTCInboundRtpStreamAudio`].
+
     #[must_use]
     pub fn concealed_samples(&self) -> Option<u64> {
         self.concealed_samples
     }
+    /// Returns the `silent_concealed_samples` of this [`RTCInboundRtpStreamAudio`].
+
     #[must_use]
     pub fn silent_concealed_samples(&self) -> Option<u64> {
         self.silent_concealed_samples
     }
+    /// Returns the `audio_level` of this [`RTCInboundRtpStreamAudio`].
+
     #[must_use]
     pub fn audio_level(&self) -> Option<f64> {
         self.audio_level
     }
+    /// Returns the `total_audio_energy` of this [`RTCInboundRtpStreamAudio`].
+
     #[must_use]
     pub fn total_audio_energy(&self) -> Option<f64> {
         self.total_audio_energy
     }
+    /// Returns the `total_samples_duration` of this [`RTCInboundRtpStreamAudio`].
+
     #[must_use]
     pub fn total_samples_duration(&self) -> Option<f64> {
         self.total_samples_duration
     }
 }
 
+/// [`RTCInboundRtpStreamStats`] video stats.
 #[derive(Debug)]
 pub struct RTCInboundRtpStreamVideo {
+    /// Total number of frames correctly decoded for this RTP stream, i.e.
+    /// frames that would be displayed if no frames are dropped.
     frames_decoded: Option<u32>,
+    /// Total number of key frames, such as key frames in VP8 [RFC 6386] or
+    /// IDR-frames in H.264 [RFC 6184], successfully decoded for this RTP
+    /// media stream.
+    ///
+    /// This is a subset of [`framesDecoded`].
+    /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
+    /// delta frames decoded.
+    ///
+    /// [RFC 6386]: https://w3.org/TR/webrtc-stats/#bib-rfc6386
+    /// [RFC 6184]: https://w3.org/TR/webrtc-stats/#bib-rfc6184
+    /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
+    /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
     key_frames_decoded: Option<u32>,
+    /// Width of the last decoded frame.
+    ///
+    /// Before the first frame is decoded this attribute is missing.
     frame_width: Option<u32>,
+    /// Height of the last decoded frame.
+    ///
+    /// Before the first frame is decoded this attribute is missing.
     frame_height: Option<u32>,
+    /// Sum of the interframe delays in seconds between consecutively
+    /// decoded frames, recorded just after a frame has been decoded.
     total_inter_frame_delay: Option<f64>,
+
+    /// Number of decoded frames in the last second.
     frames_per_second: Option<f64>,
+    /// Bit depth per pixel of the last decoded frame.
+    ///
+    /// Typical values are 24, 30, or 36 bits. Before the first frame is
+    /// decoded this attribute is missing.
     frame_bit_depth: Option<u32>,
+    /// Total number of Full Intra Request (FIR) packets sent by this
+    /// receiver.
     fir_count: Option<u32>,
+    /// Total number of Picture Loss Indication (PLI) packets sent by this
+    /// receiver.
     pli_count: Option<u32>,
+    /// Number of concealment events.
+    ///
+    /// This counter increases every time a concealed sample is synthesized
+    /// after a non-concealed sample. That is, multiple consecutive
+    /// concealed samples will increase the [`concealedSamples`] count
+    /// multiple times but is a single concealment event.
+    ///
+    /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
     concealment_events: Option<u64>,
+    /// Total number of complete frames received on this RTP stream.
+    ///
+    /// This metric is incremented when the complete frame is received.
     frames_received: Option<i32>,
 }
 
@@ -1852,55 +2110,80 @@ impl From<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
 }
 
 impl RTCInboundRtpStreamVideo {
+    /// Returns the `frames_decoded` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn frames_decoded(&self) -> Option<u32> {
         self.frames_decoded
     }
+    /// Returns the `key_frames_decoded` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn key_frames_decoded(&self) -> Option<u32> {
         self.key_frames_decoded
     }
+    /// Returns the `frame_width` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn frame_width(&self) -> Option<u32> {
         self.frame_width
     }
+    /// Returns the `frame_height` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn frame_height(&self) -> Option<u32> {
         self.frame_height
     }
+    /// Returns the `total_inter_frame_delay` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn total_inter_frame_delay(&self) -> Option<f64> {
         self.total_inter_frame_delay
     }
+    /// Returns the `frames_per_second` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn frames_per_second(&self) -> Option<f64> {
         self.frames_per_second
     }
+    /// Returns the `frame_bit_depth` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn frame_bit_depth(&self) -> Option<u32> {
         self.frame_bit_depth
     }
+    /// Returns the `fir_count` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn fir_count(&self) -> Option<u32> {
         self.fir_count
     }
+    /// Returns the `pli_count` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn pli_count(&self) -> Option<u32> {
         self.pli_count
     }
+    /// Returns the `concealment_events` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn concealment_events(&self) -> Option<u64> {
         self.concealment_events
     }
+    /// Returns the `frames_received` of this [`RTCInboundRtpStreamVideo`].
+
     #[must_use]
     pub fn frames_received(&self) -> Option<i32> {
         self.frames_received
     }
 }
 
+/// Fields of [`RtcStatsType::InboundRtp`] variant.
 #[derive(Debug)]
 pub enum RTCInboundRtpStreamMediaType {
+    /// Fields when `mediaType` is `audio`.
     Audio(RTCInboundRtpStreamAudio),
+    /// Fields when `mediaType` is `video`.
     Video(RTCInboundRtpStreamVideo),
 }
 
@@ -1925,37 +2208,76 @@ impl TryFrom<&UniquePtr<webrtc::RTCInboundRTPStreamStats>>
     }
 }
 
+/// Representation of the measurement metrics for the incoming [RTP] media
+/// stream. The timestamp reported in the statistics object is the time at which
+/// the data was sampled.
+///
+/// [`RtcStatsType::InboundRtp`] variant.
+///
+/// [Full doc on W3C][1].
+///
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
 #[derive(Debug)]
 pub struct RTCInboundRTPStreamStats {
-    media_type: Option<RTCInboundRtpStreamMediaType>,
+    /// ID of the stats object representing the receiving track.
     remote_id: Option<String>,
+    /// Fields which should be in the [`RtcStat`] based on `mediaType`.
+    media_type: Option<RTCInboundRtpStreamMediaType>,
+    /// Total number of bytes received for this SSRC.
     bytes_received: Option<u64>,
+    /// Total number of RTP data packets received for this SSRC.
     packets_received: Option<u32>,
+    /// Total number of seconds that have been spent decoding the
+    /// [`framesDecoded`] frames of this stream.
+    ///
+    /// The average decode time can be calculated by dividing this value with
+    /// [`framesDecoded`]. The time it takes to decode one frame is the time
+    /// passed between feeding the decoder a frame and the decoder returning
+    /// decoded data for that frame.
+    ///
+    /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
     total_decode_time: Option<f64>,
+    /// Total number of audio samples or video frames that have come out of the
+    /// jitter buffer (increasing [`jitterBufferDelay`]).
+    ///
+    /// [`jitterBufferDelay`]: https://tinyurl.com/qvoojt5
     jitter_buffer_emitted_count: Option<u64>,
 }
 
 impl RTCInboundRTPStreamStats {
+    /// Returns the `remote_id` of this [`RTCInboundRTPStreamStats`].
+
     #[must_use]
     pub fn remote_id(&self) -> &Option<String> {
         &self.remote_id
     }
+    /// Returns the `bytes_received` of this [`RTCInboundRTPStreamStats`].
+
     #[must_use]
     pub fn bytes_received(&self) -> Option<u64> {
         self.bytes_received
     }
+    /// Returns the `packets_received` of this [`RTCInboundRTPStreamStats`].
+
     #[must_use]
     pub fn packets_received(&self) -> Option<u32> {
         self.packets_received
     }
+    /// Returns the `total_decode_time` of this [`RTCInboundRTPStreamStats`].
+
     #[must_use]
     pub fn total_decode_time(&self) -> Option<f64> {
         self.total_decode_time
     }
+    /// Returns the `jitter_buffer_emitted_count` of this [`RTCInboundRTPStreamStats`].
+
     #[must_use]
     pub fn jitter_buffer_emitted_count(&self) -> Option<u64> {
         self.jitter_buffer_emitted_count
     }
+    /// Returns the [`RTCInboundRtpStreamMediaType`] of this [`RTCInboundRTPStreamStats`].
+
     #[must_use]
     pub fn media_type(&self) -> &Option<RTCInboundRtpStreamMediaType> {
         &self.media_type
@@ -1990,42 +2312,118 @@ impl From<UniquePtr<webrtc::RTCInboundRTPStreamStats>>
     }
 }
 
+/// ICE candidate pair statistics related to the [RTCIceTransport] objects.
+///
+/// A candidate pair that is not the current pair for a transport is
+/// [deleted][1] when the [RTCIceTransport] does an ICE restart, at the time
+/// the state changes to `new`.
+///
+/// The candidate pair that is the current pair for a transport is deleted after
+/// an ICE restart when the [RTCIceTransport] switches to using a candidate pair
+/// generated from the new candidates; this time doesn't correspond to any other
+/// externally observable event.
+///
+/// [`RtcStatsType::CandidatePair`] variant.
+///
+/// [Full doc on W3C][2].
+///
+/// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
+/// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
+/// [2]: https://w3.org/TR/webrtc-stats/#candidatepair-dict%2A
 #[derive(Debug)]
 pub struct RTCIceCandidatePairStats {
+    /// State of the checklist for the local and remote candidates in a pair.
     state: RTCStatsIceCandidatePairState,
+    /// Related to updating the nominated flag described in
+    /// [Section 7.1.3.2.4 of RFC 5245][1].
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.4
     nominated: Option<bool>,
+    /// Total number of payload bytes sent on this candidate pair, i.e. not
+    /// including headers or padding.
     bytes_sent: Option<u64>,
+    /// Total number of payload bytes received on this candidate pair, i.e. not
+    /// including headers or padding.
     bytes_received: Option<u64>,
+    /// Sum of all round trip time measurements in seconds since the beginning
+    /// of the session, based on STUN connectivity check [STUN-PATH-CHAR]
+    /// responses (responsesReceived), including those that reply to requests
+    /// that are sent in order to verify consent [RFC 7675].
+    ///
+    /// The average round trip time can be computed from
+    /// [`totalRoundTripTime`][1] by dividing it by [`responsesReceived`][2].
+    ///
+    /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+    /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
+    /// [1]: https://tinyurl.com/tgr543a
+    /// [2]: https://tinyurl.com/r3zo2um
     total_round_trip_time: Option<f64>,
+    /// Latest round trip time measured in seconds, computed from both STUN
+    /// connectivity checks [STUN-PATH-CHAR], including those that are sent for
+    /// consent verification [RFC 7675].
+    ///
+    /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+    /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
     current_round_trip_time: Option<f64>,
+    /// Calculated by the underlying congestion control by combining the
+    /// available bitrate for all the outgoing RTP streams using this candidate
+    /// pair. The bitrate measurement does not count the size of the IP or
+    /// other transport layers like TCP or UDP. It is similar to the TIAS
+    /// defined in [RFC 3890], i.e. it is measured in bits per second and the
+    /// bitrate is calculated over a 1 second window.
+    ///
+    /// Implementations that do not calculate a sender-side estimate MUST leave
+    /// this undefined. Additionally, the value MUST be undefined for candidate
+    /// pairs that were never used. For pairs in use, the estimate is normally
+    /// no lower than the bitrate for the packets sent at
+    /// [`lastPacketSentTimestamp`][1], but might be higher. For candidate
+    /// pairs that are not currently in use but were used before,
+    /// implementations MUST return undefined.
+    ///
+    /// [RFC 3890]: https://tools.ietf.org/html/rfc3890
+    /// [1]: https://tinyurl.com/rfc72eh
     available_outgoing_bitrate: Option<f64>,
 }
 
 impl RTCIceCandidatePairStats {
+    /// Returns the [`RTCStatsIceCandidatePairState`] of this [`RTCIceCandidatePairStats`].
+
     #[must_use]
     pub fn state(&self) -> webrtc::RTCStatsIceCandidatePairState {
         self.state
     }
+    /// Returns the `nominated` of this [`RTCIceCandidatePairStats`].
+
     #[must_use]
     pub fn nominated(&self) -> Option<bool> {
         self.nominated
     }
+    /// Returns the `bytes_sent` of this [`RTCIceCandidatePairStats`].
+
     #[must_use]
     pub fn bytes_sent(&self) -> Option<u64> {
         self.bytes_sent
     }
+    /// Returns the `bytes_received` of this [`RTCIceCandidatePairStats`].
+
     #[must_use]
     pub fn bytes_received(&self) -> Option<u64> {
         self.bytes_received
     }
+    /// Returns the `total_round_trip_time` of this [`RTCIceCandidatePairStats`].
+
     #[must_use]
     pub fn total_round_trip_time(&self) -> Option<f64> {
         self.total_round_trip_time
     }
+    /// Returns the `current_round_trip_time` of this [`RTCIceCandidatePairStats`].
+
     #[must_use]
     pub fn current_round_trip_time(&self) -> Option<f64> {
         self.current_round_trip_time
     }
+    /// Returns the `available_outgoing_bitrate` of this [`RTCIceCandidatePairStats`].
+
     #[must_use]
     pub fn available_outgoing_bitrate(&self) -> Option<f64> {
         self.available_outgoing_bitrate
@@ -2072,27 +2470,66 @@ impl From<UniquePtr<webrtc::RTCIceCandidatePairStats>>
     }
 }
 
+/// Representation of the stats corresponding to an [RTCDtlsTransport] and its
+/// underlying [RTCIceTransport].
+///
+/// When RTCP multiplexing is used, one transport is used for both RTP and RTCP.
+/// Otherwise, RTP and RTCP will be sent on separate transports, and
+/// `rtcpTransportStatsId` can be used to pair the resulting
+/// [`RtcTransportStats`] objects. Additionally, when bundling is used, a single
+/// transport will be used for all [MediaStreamTrack][2]s in the bundle group.
+/// If bundling is not used, different [MediaStreamTrack][2]s will use different
+/// transports. RTCP multiplexing and bundling are described in [WebRTC].
+///
+/// [`RtcStatsType::Transport`] variant.
+///
+/// [Full doc on W3C][1].
+///
+/// [RTCDtlsTransport]: https://w3.org/TR/webrtc#dom-rtcdtlstransport
+/// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
+/// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+/// [WebRTC]: https://w3.org/TR/webrtc
+/// [1]: https://w3.org/TR/webrtc-stats/#transportstats-dict%2A
+/// [2]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
 #[derive(Debug)]
 pub struct RTCTransportStats {
+    /// Total number of packets sent over this transport.
     packets_sent: Option<u64>,
+    /// Total number of packets received on this transport.
     packets_received: Option<u64>,
+    /// Total number of payload bytes sent on this [RTCPeerConnection], i.e.
+    /// not including headers or padding.
+    ///
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     bytes_sent: Option<u64>,
+    /// Total number of bytes received on this [RTCPeerConnection], i.e. not
+    /// including headers or padding.
+    ///
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     bytes_received: Option<u64>,
 }
 
 impl RTCTransportStats {
+    /// Returns the `packets_sent` of this [`RTCTransportStats`].
+
     #[must_use]
     pub fn packets_sent(&self) -> Option<u64> {
         self.packets_sent
     }
+    /// Returns the `packets_received` of this [`RTCTransportStats`].
+
     #[must_use]
     pub fn packets_received(&self) -> Option<u64> {
         self.packets_received
     }
+    /// Returns the `bytes_sent` of this [`RTCTransportStats`].
+
     #[must_use]
     pub fn bytes_sent(&self) -> Option<u64> {
         self.bytes_sent
     }
+    /// Returns the `bytes_received` of this [`RTCTransportStats`].
+
     #[must_use]
     pub fn bytes_received(&self) -> Option<u64> {
         self.bytes_received
@@ -2118,32 +2555,71 @@ impl From<UniquePtr<webrtc::RTCTransportStats>> for RTCTransportStats {
     }
 }
 
+/// Statistics for the remote endpoint's inbound [RTP] stream corresponding
+/// to an outbound stream that is currently sent with [RTCPeerConnection]
+/// object.
+///
+/// It is measured at the remote endpoint and reported in a RTCP Receiver
+/// Report (RR) or RTCP Extended Report (XR).
+///
+/// [`RtcStatsType::RemoteInboundRtp`] variant.
+///
+/// [Full doc on W3C][1].
+///
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+/// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
 #[derive(Debug)]
 pub struct RTCRemoteInboundRtpStreamStats {
+    /// [`localId`] is used for looking up the local
+    /// [RTCOutboundRtpStreamStats] object for the same SSRC.
+    ///
+    /// [`localId`]: https://tinyurl.com/r8uhbo9
+    /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
     local_id: Option<String>,
-
+    /// Estimated round trip time for this SSRC based on the RTCP timestamps in
+    /// the RTCP Receiver Report (RR) and measured in seconds. Calculated as
+    /// defined in [Section 6.4.1 of RFC 3550][1]. If no RTCP Receiver Report
+    /// is received with a DLSR value other than 0, the round trip time is
+    /// left undefined.
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
     round_trip_time: Option<f64>,
-
+    /// Fraction packet loss reported for this SSRC. Calculated as defined in
+    /// [Section 6.4.1 of RFC 3550][1] and [Appendix A.3][2].
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
+    /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
     fraction_lost: Option<f64>,
-
+    /// Total number of RTCP RR blocks received for this SSRC that contain a
+    /// valid round trip time. This counter will increment if the
+    /// [`roundTripTime`] is undefined.
+    ///
+    /// [`roundTripTime`]: https://tinyurl.com/ssg83hq
     round_trip_time_measurements: Option<i32>,
 }
 
 impl RTCRemoteInboundRtpStreamStats {
+    /// Returns the `local_id` of this [`RTCRemoteInboundRtpStreamStats`].
+
     #[must_use]
     pub fn local_id(&self) -> &Option<String> {
         &self.local_id
     }
 
+    /// Returns the `round_trip_time` of this [`RTCRemoteInboundRtpStreamStats`].
+
     #[must_use]
     pub fn round_trip_time(&self) -> Option<f64> {
         self.round_trip_time
     }
+    /// Returns the `fraction_lost` of this [`RTCRemoteInboundRtpStreamStats`].
 
     #[must_use]
     pub fn fraction_lost(&self) -> Option<f64> {
         self.fraction_lost
     }
+    /// Returns the `round_trip_time_measurements` of this [`RTCRemoteInboundRtpStreamStats`].
 
     #[must_use]
     pub fn round_trip_time_measurements(&self) -> Option<i32> {
@@ -2173,23 +2649,58 @@ impl From<UniquePtr<webrtc::RTCRemoteInboundRtpStreamStats>>
     }
 }
 
+/// Statistics for the remote endpoint's outbound [RTP] stream corresponding
+/// to an inbound stream that is currently received with [RTCPeerConnection]
+/// object.
+///
+/// It is measured at the remote endpoint and reported in an RTCP Sender Report
+/// (SR).
+///
+/// [`RtcStatsType::RemoteOutboundRtp`] variant.
+///
+/// [Full doc on W3C][1].
+///
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+/// [1]: https://w3.org/TR/webrtc-stats/#remoteoutboundrtpstats-dict%2A
 #[derive(Debug)]
 pub struct RTCRemoteOutboundRtpStreamStats {
+    /// [`localId`] is used for looking up the local
+    /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
+    ///
+    /// [`localId`]: https://tinyurl.com/vu9tb2e
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
     local_id: Option<String>,
+    /// [`remoteTimestamp`] (as [HIGHRES-TIME]) is the remote timestamp at
+    /// which these statistics were sent by the remote endpoint. This
+    /// differs from timestamp, which represents the time at which the
+    /// statistics were generated or received by the local endpoint. The
+    /// [`remoteTimestamp`], if present, is derived from the NTP timestamp
+    /// in an RTCP Sender Report (SR) block, which reflects the remote
+    /// endpoint's clock. That clock may not be synchronized with the local
+    /// clock.
+    ///
+    /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
+    /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats/#bib-highres-time
     remote_timestamp: Option<f64>,
+    /// Total number of RTCP SR blocks sent for this SSRC.
     reports_sent: Option<u64>,
 }
 
 impl RTCRemoteOutboundRtpStreamStats {
+    /// Returns the `local_id` of this [`RTCRemoteOutboundRtpStreamStats`].
+
     #[must_use]
     pub fn local_id(&self) -> Option<String> {
         self.local_id.clone()
     }
+    /// Returns the `remote_timestamp` of this [`RTCRemoteOutboundRtpStreamStats`].
 
     #[must_use]
     pub fn remote_timestamp(&self) -> Option<f64> {
         self.remote_timestamp
     }
+    /// Returns the `reports_sent` of this [`RTCRemoteOutboundRtpStreamStats`].
 
     #[must_use]
     pub fn reports_sent(&self) -> Option<u64> {
@@ -2219,17 +2730,103 @@ impl From<UniquePtr<webrtc::RTCRemoteOutboundRtpStreamStats>>
     }
 }
 
+/// All known types of [`RtcStat`]s.
+///
+/// [List of all RTCStats types on W3C][1].
+///
+/// [1]: https://w3.org/TR/webrtc-stats/#rtctatstype-%2A
+/// [`RtcStat`]: super::RtcStat
 #[derive(Debug)]
 pub enum RTCStatsType {
+    /// Statistics for the media produced by a [MediaStreamTrack][1] that
+    /// is currently attached to an [RTCRtpSender]. This reflects
+    /// the media that is fed to the encoder after [getUserMedia]
+    /// constraints have been applied (i.e. not the raw media
+    /// produced by the camera).
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#rtcrtpsender-interface
+    /// [getUserMedia]: https://tinyurl.com/sngpyr6
+    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
     RTCMediaSourceStats(RTCMediaSourceStats),
+    /// ICE remote candidate statistics related to the [RTCIceTransport]
+    /// objects.
+    ///
+    /// A remote candidate is [deleted][1] when the [RTCIceTransport] does
+    /// an ICE restart, and the candidate is no longer a member of
+    /// any non-deleted candidate pair.
+    ///
+    /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
+    /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
     RTCIceCandidateStats(RTCIceCandidateStats),
+    /// Statistics for an outbound [RTP] stream that is currently sent with
+    /// [RTCPeerConnection] object.
+    ///
+    /// When there are multiple [RTP] streams connected to the same sender,
+    /// such as when using simulcast or RTX, there will be one
+    /// [`RtcOutboundRtpStreamStats`] per RTP stream, with distinct values
+    /// of the `ssrc` attribute, and all these senders will have a
+    /// reference to the same "sender" object (of type
+    /// [RTCAudioSenderStats][1] or [RTCVideoSenderStats][2]) and
+    /// "track" object (of type
+    /// [RTCSenderAudioTrackAttachmentStats][3] or
+    /// [RTCSenderVideoTrackAttachmentStats][4]).
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosenderstats
+    /// [2]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosenderstats
+    /// [3]: https://tinyurl.com/sefa5z4
+    /// [4]: https://tinyurl.com/rkuvpl4
     RTCOutboundRTPStreamStats(RTCOutboundRTPStreamStats),
+    /// Statistics for an inbound [RTP] stream that is currently received
+    /// with [RTCPeerConnection] object.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RTCInboundRTPStreamStats(RTCInboundRTPStreamStats),
+    /// ICE candidate pair statistics related to the [RTCIceTransport]
+    /// objects.
+    ///
+    /// A candidate pair that is not the current pair for a transport is
+    /// [deleted][1] when the [RTCIceTransport] does an ICE restart, at the
+    /// time the state changes to `new`.
+    ///
+    /// The candidate pair that is the current pair for a transport is
+    /// deleted after an ICE restart when the [RTCIceTransport]
+    /// switches to using a candidate pair generated from the new
+    /// candidates; this time doesn't correspond to any other
+    /// externally observable event.
+    ///
+    /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
+    /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
     RTCIceCandidatePairStats(RTCIceCandidatePairStats),
+    /// Transport statistics related to the [RTCPeerConnection] object.
+    ///
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RTCTransportStats(RTCTransportStats),
+    /// Statistics for the remote endpoint's inbound [RTP] stream
+    /// corresponding to an outbound stream that is currently sent with
+    /// [RTCPeerConnection] object.
+    ///
+    /// It is measured at the remote endpoint and reported in a RTCP
+    /// Receiver Report (RR) or RTCP Extended Report (XR).
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RTCRemoteInboundRtpStreamStats(RTCRemoteInboundRtpStreamStats),
+    /// Statistics for the remote endpoint's outbound [RTP] stream
+    /// corresponding to an inbound stream that is currently received with
+    /// [RTCPeerConnection] object.
+    ///
+    /// It is measured at the remote endpoint and reported in an RTCP
+    /// Sender Report (SR).
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RTCRemoteOutboundRtpStreamStats(RTCRemoteOutboundRtpStreamStats),
-    Unimplenented,
+
+    /// Unimplemented stats.
+    Unimplemented,
 }
 
 impl TryFrom<webrtc::RTCStatsContainer> for RTCStatsType {
@@ -2308,30 +2905,58 @@ impl TryFrom<webrtc::RTCStatsContainer> for RTCStatsType {
                     RTCRemoteOutboundRtpStreamStats::from(stats),
                 )
             }
-            _ => Self::Unimplenented,
+            _ => Self::Unimplemented,
         };
 
         Ok(res)
     }
 }
 
+/// Represents the [stats object] constructed by inspecting a specific
+/// [monitored object].
+///
+/// [Full doc on W3C][1].
+///
+/// [stats object]: https://w3.org/TR/webrtc-stats/#dfn-stats-object
+/// [monitored object]: https://w3.org/TR/webrtc-stats/#dfn-monitored-object
+/// [1]: https://w3.org/TR/webrtc#rtcstats-dictionary
 #[derive(Debug)]
 pub struct RTCStats {
+    /// Unique ID that is associated with the object that was inspected to
+    /// produce this [RTCStats] object.
+    ///
+    /// [RTCStats]: https://w3.org/TR/webrtc#dom-rtcstats
     id: String,
+    /// Timestamp associated with this object.
+    ///
+    /// The time is relative to the UNIX epoch (Jan 1, 1970, UTC).
+    ///
+    /// For statistics that came from a remote source (e.g., from received RTCP
+    /// packets), timestamp represents the time at which the information
+    /// arrived at the local endpoint. The remote timestamp can be found in an
+    /// additional field in an [`RtcStat`]-derived dictionary, if applicable.
     timestamp_us: i64,
+
+    /// Actual stats of this [`RtcStat`].
+    ///
+    /// All possible stats are described in the [`RtcStatsType`] enum.
     kind: RTCStatsType,
 }
 
 impl RTCStats {
+    /// Returns the `id` of this [`RTCStats`].
     #[must_use]
     pub fn id(&self) -> &String {
         &self.id
     }
 
+    /// Returns the `timestamp_us` of this [`RTCStats`].
+
     #[must_use]
     pub fn timestamp_us(&self) -> i64 {
         self.timestamp_us
     }
+    /// Returns the [`RTCStatsType`] of this [`RTCStats`].
 
     #[must_use]
     pub fn kind(&self) -> &RTCStatsType {
@@ -2352,7 +2977,7 @@ impl From<webrtc::RTCStatsContainer> for RTCStats {
     }
 }
 
-// todo
+// A collection of [`RTCStats`].
 pub struct RTCStatsReport(UniquePtr<webrtc::RTCStatsReport>);
 impl From<UniquePtr<webrtc::RTCStatsReport>> for RTCStatsReport {
     fn from(ptr: UniquePtr<webrtc::RTCStatsReport>) -> Self {

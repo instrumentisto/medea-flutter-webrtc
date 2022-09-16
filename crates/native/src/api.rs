@@ -171,7 +171,7 @@ pub enum Protocol {
     UDP,
 }
 
-impl From<sys::Protocol> for Protocol{
+impl From<sys::Protocol> for Protocol {
     fn from(protocol: sys::Protocol) -> Self {
         match protocol {
             sys::Protocol::TCP => Self::TCP,
@@ -346,7 +346,7 @@ impl From<&sys::RTCStatsType> for RTCStatsType {
                     reports_sent: stats.reports_sent(),
                 }
             }
-            sys::RTCStatsType::Unimplenented => Self::Unimplenented,
+            sys::RTCStatsType::Unimplemented => Self::Unimplenented,
         }
     }
 }

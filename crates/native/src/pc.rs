@@ -873,10 +873,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 struct GetStatsCallback(mpsc::Sender<sys::RTCStatsReport>);
 
 impl sys::RTCStatsCollectorCallback for GetStatsCallback {
-    fn on_stats_delivered(
-        &mut self,
-        report: sys::RTCStatsReport,
-    ) {
+    fn on_stats_delivered(&mut self, report: sys::RTCStatsReport) {
         if let Err(e) = self.0.send(report) {
             log::warn!("Failed to complete `GetStatsCallback`: {e}");
         }
