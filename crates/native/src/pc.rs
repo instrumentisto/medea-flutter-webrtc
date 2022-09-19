@@ -870,7 +870,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     }
 }
 
-//todo
+/// [`RTCStatsCollectorCallback`] wrapper.
 struct GetStatsCallback(mpsc::Sender<sys::RTCStatsReport>);
 
 impl sys::RTCStatsCollectorCallback for GetStatsCallback {

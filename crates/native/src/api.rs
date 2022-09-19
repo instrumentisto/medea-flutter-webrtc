@@ -308,18 +308,18 @@ pub enum Protocol {
     /// [Transmission Control Protocol][1].
     ///
     /// [1]: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
-    TCP,
+    Tcp,
     /// [User Datagram Protocol][1].
     ///
     /// [1]: https://en.wikipedia.org/wiki/User_Datagram_Protocol
-    UDP,
+    Udp,
 }
 
 impl From<sys::Protocol> for Protocol {
     fn from(protocol: sys::Protocol) -> Self {
         match protocol {
-            sys::Protocol::TCP => Self::TCP,
-            sys::Protocol::UDP => Self::UDP,
+            sys::Protocol::Tcp => Self::Tcp,
+            sys::Protocol::Udp => Self::Udp,
         }
     }
 }

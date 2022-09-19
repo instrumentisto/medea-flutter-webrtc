@@ -144,7 +144,8 @@ class CreateSessionDescriptionObserver
   std::optional<rust::Box<bridge::DynCreateSdpCallback>> cb_;
 };
 
-// todo
+// `RTCStatsCollectorCallback` propagating completion result to the Rust
+// side.
 class RTCStatsCollectorCallback : public rtc::RefCountedObject<webrtc::RTCStatsCollectorCallback> {
 	public:
 	RTCStatsCollectorCallback(rust::Box<bridge::DynRTCStatsCollectorCallback> cb);
@@ -233,7 +234,7 @@ void restart_ice(const PeerConnectionInterface& peer);
 // Closes the provided `PeerConnectionInterface`.
 void close_peer_connection(const PeerConnectionInterface& peer);
 
-// todo
+// Calls `PeerConnectionInterface->GetStats`.
 void peer_connection_get_stats(const PeerConnectionInterface& peer,
                rust::Box<DynRTCStatsCollectorCallback> cb);
 

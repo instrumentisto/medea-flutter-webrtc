@@ -1343,8 +1343,8 @@ impl support::IntoDart for PeerConnectionState {
 impl support::IntoDart for Protocol {
     fn into_dart(self) -> support::DartCObject {
         match self {
-            Self::TCP => 0,
-            Self::UDP => 1,
+            Self::Tcp => 0,
+            Self::Udp => 1,
         }
         .into_dart()
     }

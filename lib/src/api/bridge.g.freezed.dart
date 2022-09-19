@@ -3548,16 +3548,50 @@ class _$RTCInboundRtpStreamMediaType_Audio
       this.totalAudioEnergy,
       this.totalSamplesDuration});
 
+  /// Total number of samples that have been received on this RTP stream.
+  /// This includes [`concealedSamples`].
+  ///
+  /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
   @override
   final int? totalSamplesReceived;
+
+  /// Total number of samples that are concealed samples.
+  ///
+  /// A concealed sample is a sample that was replaced with synthesized
+  /// samples generated locally before being played out.
+  /// Examples of samples that have to be concealed are samples from lost
+  /// packets (reported in [`packetsLost`]) or samples from packets that
+  /// arrive too late to be played out (reported in
+  /// [`packetsDiscarded`]).
+  ///
+  /// [`packetsLost`]: https://tinyurl.com/u2gq965
+  /// [`packetsDiscarded`]: https://tinyurl.com/yx7qyox3
   @override
   final int? concealedSamples;
+
+  /// Total number of concealed samples inserted that are "silent".
+  ///
+  /// Playing out silent samples results in silence or comfort noise.
+  /// This is a subset of [`concealedSamples`].
+  ///
+  /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
   @override
   final int? silentConcealedSamples;
+
+  /// Audio level of the receiving track.
   @override
   final double? audioLevel;
+
+  /// Audio energy of the receiving track.
   @override
   final double? totalAudioEnergy;
+
+  /// Audio duration of the receiving track.
+  ///
+  /// For audio durations of tracks attached locally, see
+  /// [RTCAudioSourceStats][1] instead.
+  ///
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosourcestats
   @override
   final double? totalSamplesDuration;
 
@@ -3746,11 +3780,45 @@ abstract class RTCInboundRtpStreamMediaType_Audio
           final double? totalSamplesDuration}) =
       _$RTCInboundRtpStreamMediaType_Audio;
 
+  /// Total number of samples that have been received on this RTP stream.
+  /// This includes [`concealedSamples`].
+  ///
+  /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
   int? get totalSamplesReceived;
+
+  /// Total number of samples that are concealed samples.
+  ///
+  /// A concealed sample is a sample that was replaced with synthesized
+  /// samples generated locally before being played out.
+  /// Examples of samples that have to be concealed are samples from lost
+  /// packets (reported in [`packetsLost`]) or samples from packets that
+  /// arrive too late to be played out (reported in
+  /// [`packetsDiscarded`]).
+  ///
+  /// [`packetsLost`]: https://tinyurl.com/u2gq965
+  /// [`packetsDiscarded`]: https://tinyurl.com/yx7qyox3
   int? get concealedSamples;
+
+  /// Total number of concealed samples inserted that are "silent".
+  ///
+  /// Playing out silent samples results in silence or comfort noise.
+  /// This is a subset of [`concealedSamples`].
+  ///
+  /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
   int? get silentConcealedSamples;
+
+  /// Audio level of the receiving track.
   double? get audioLevel;
+
+  /// Audio energy of the receiving track.
   double? get totalAudioEnergy;
+
+  /// Audio duration of the receiving track.
+  ///
+  /// For audio durations of tracks attached locally, see
+  /// [RTCAudioSourceStats][1] instead.
+  ///
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosourcestats
   double? get totalSamplesDuration;
   @JsonKey(ignore: true)
   _$$RTCInboundRtpStreamMediaType_AudioCopyWith<
@@ -3871,26 +3939,78 @@ class _$RTCInboundRtpStreamMediaType_Video
       this.concealmentEvents,
       this.framesReceived});
 
+  /// Total number of frames correctly decoded for this RTP stream, i.e.
+  /// frames that would be displayed if no frames are dropped.
   @override
   final int? framesDecoded;
+
+  /// Total number of key frames, such as key frames in VP8 [RFC 6386] or
+  /// IDR-frames in H.264 [RFC 6184], successfully decoded for this RTP
+  /// media stream.
+  ///
+  /// This is a subset of [`framesDecoded`].
+  /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
+  /// delta frames decoded.
+  ///
+  /// [RFC 6386]: https://w3.org/TR/webrtc-stats/#bib-rfc6386
+  /// [RFC 6184]: https://w3.org/TR/webrtc-stats/#bib-rfc6184
+  /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
+  /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
   @override
   final int? keyFramesDecoded;
+
+  /// Width of the last decoded frame.
+  ///
+  /// Before the first frame is decoded this attribute is missing.
   @override
   final int? frameWidth;
+
+  /// Height of the last decoded frame.
+  ///
+  /// Before the first frame is decoded this attribute is missing.
   @override
   final int? frameHeight;
+
+  /// Sum of the interframe delays in seconds between consecutively
+  /// decoded frames, recorded just after a frame has been decoded.
   @override
   final double? totalInterFrameDelay;
+
+  /// Number of decoded frames in the last second.
   @override
   final double? framesPerSecond;
+
+  /// Bit depth per pixel of the last decoded frame.
+  ///
+  /// Typical values are 24, 30, or 36 bits. Before the first frame is
+  /// decoded this attribute is missing.
   @override
   final int? frameBitDepth;
+
+  /// Total number of Full Intra Request (FIR) packets sent by this
+  /// receiver.
   @override
   final int? firCount;
+
+  /// Total number of Picture Loss Indication (PLI) packets sent by this
+  /// receiver.
   @override
   final int? pliCount;
+
+  /// Number of concealment events.
+  ///
+  /// This counter increases every time a concealed sample is synthesized
+  /// after a non-concealed sample. That is, multiple consecutive
+  /// concealed samples will increase the [`concealedSamples`] count
+  /// multiple times but is a single concealment event.
+  ///
+  /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
   @override
   final int? concealmentEvents;
+
+  /// Total number of complete frames received on this RTP stream.
+  ///
+  /// This metric is incremented when the complete frame is received.
   @override
   final int? framesReceived;
 
@@ -4116,16 +4236,68 @@ abstract class RTCInboundRtpStreamMediaType_Video
       final int? concealmentEvents,
       final int? framesReceived}) = _$RTCInboundRtpStreamMediaType_Video;
 
+  /// Total number of frames correctly decoded for this RTP stream, i.e.
+  /// frames that would be displayed if no frames are dropped.
   int? get framesDecoded;
+
+  /// Total number of key frames, such as key frames in VP8 [RFC 6386] or
+  /// IDR-frames in H.264 [RFC 6184], successfully decoded for this RTP
+  /// media stream.
+  ///
+  /// This is a subset of [`framesDecoded`].
+  /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
+  /// delta frames decoded.
+  ///
+  /// [RFC 6386]: https://w3.org/TR/webrtc-stats/#bib-rfc6386
+  /// [RFC 6184]: https://w3.org/TR/webrtc-stats/#bib-rfc6184
+  /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
+  /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
   int? get keyFramesDecoded;
+
+  /// Width of the last decoded frame.
+  ///
+  /// Before the first frame is decoded this attribute is missing.
   int? get frameWidth;
+
+  /// Height of the last decoded frame.
+  ///
+  /// Before the first frame is decoded this attribute is missing.
   int? get frameHeight;
+
+  /// Sum of the interframe delays in seconds between consecutively
+  /// decoded frames, recorded just after a frame has been decoded.
   double? get totalInterFrameDelay;
+
+  /// Number of decoded frames in the last second.
   double? get framesPerSecond;
+
+  /// Bit depth per pixel of the last decoded frame.
+  ///
+  /// Typical values are 24, 30, or 36 bits. Before the first frame is
+  /// decoded this attribute is missing.
   int? get frameBitDepth;
+
+  /// Total number of Full Intra Request (FIR) packets sent by this
+  /// receiver.
   int? get firCount;
+
+  /// Total number of Picture Loss Indication (PLI) packets sent by this
+  /// receiver.
   int? get pliCount;
+
+  /// Number of concealment events.
+  ///
+  /// This counter increases every time a concealed sample is synthesized
+  /// after a non-concealed sample. That is, multiple consecutive
+  /// concealed samples will increase the [`concealedSamples`] count
+  /// multiple times but is a single concealment event.
+  ///
+  /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
   int? get concealmentEvents;
+
+  /// Total number of complete frames received on this RTP stream.
+  ///
+  /// This metric is incremented when the complete frame is received.
   int? get framesReceived;
   @JsonKey(ignore: true)
   _$$RTCInboundRtpStreamMediaType_VideoCopyWith<
@@ -4280,12 +4452,23 @@ class _$RTCMediaSourceStatsType_RTCVideoSourceStats
   const _$RTCMediaSourceStatsType_RTCVideoSourceStats(
       {this.width, this.height, this.frames, this.framesPerSecond});
 
+  /// Width (in pixels) of the last frame originating from the source.
+  /// Before a frame has been produced this attribute is missing.
   @override
   final int? width;
+
+  /// Height (in pixels) of the last frame originating from the source.
+  /// Before a frame has been produced this attribute is missing.
   @override
   final int? height;
+
+  /// The total number of frames originating from this source.
   @override
   final int? frames;
+
+  /// Number of frames originating from the source, measured during the
+  /// last second. For the first second of this object's lifetime this
+  /// attribute is missing.
   @override
   final double? framesPerSecond;
 
@@ -4424,9 +4607,20 @@ abstract class RTCMediaSourceStatsType_RTCVideoSourceStats
           final double? framesPerSecond}) =
       _$RTCMediaSourceStatsType_RTCVideoSourceStats;
 
+  /// Width (in pixels) of the last frame originating from the source.
+  /// Before a frame has been produced this attribute is missing.
   int? get width;
+
+  /// Height (in pixels) of the last frame originating from the source.
+  /// Before a frame has been produced this attribute is missing.
   int? get height;
+
+  /// The total number of frames originating from this source.
   int? get frames;
+
+  /// Number of frames originating from the source, measured during the
+  /// last second. For the first second of this object's lifetime this
+  /// attribute is missing.
   double? get framesPerSecond;
   @JsonKey(ignore: true)
   _$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWith<
@@ -4506,14 +4700,26 @@ class _$RTCMediaSourceStatsType_RTCAudioSourceStats
       this.echoReturnLoss,
       this.echoReturnLossEnhancement});
 
+  /// Audio level of the media source.
   @override
   final double? audioLevel;
+
+  /// Audio energy of the media source.
   @override
   final double? totalAudioEnergy;
+
+  /// Audio duration of the media source.
   @override
   final double? totalSamplesDuration;
+
+  /// Only exists when the MediaStreamTrack is sourced
+  /// from a microphone where echo cancellation is applied.
   @override
   final double? echoReturnLoss;
+
+  /// Only exists when the [`MediaStreamTrack`]
+  /// is sourced from a microphone where
+  /// echo cancellation is applied.
   @override
   final double? echoReturnLossEnhancement;
 
@@ -4662,10 +4868,22 @@ abstract class RTCMediaSourceStatsType_RTCAudioSourceStats
           final double? echoReturnLossEnhancement}) =
       _$RTCMediaSourceStatsType_RTCAudioSourceStats;
 
+  /// Audio level of the media source.
   double? get audioLevel;
+
+  /// Audio energy of the media source.
   double? get totalAudioEnergy;
+
+  /// Audio duration of the media source.
   double? get totalSamplesDuration;
+
+  /// Only exists when the MediaStreamTrack is sourced
+  /// from a microphone where echo cancellation is applied.
   double? get echoReturnLoss;
+
+  /// Only exists when the [`MediaStreamTrack`]
+  /// is sourced from a microphone where
+  /// echo cancellation is applied.
   double? get echoReturnLossEnhancement;
   @JsonKey(ignore: true)
   _$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWith<
@@ -4946,8 +5164,13 @@ class _$RTCStatsType_RTCMediaSourceStats
   const _$RTCStatsType_RTCMediaSourceStats(
       {this.trackIdentifier, required this.kind});
 
+  /// Value of the [MediaStreamTrack][1]'s ID attribute.
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
   @override
   final String? trackIdentifier;
+
+  /// Fields which should be in the [`RtcStat`] based on `kind`.
   @override
   final RTCMediaSourceStatsType kind;
 
@@ -5207,7 +5430,12 @@ abstract class RTCStatsType_RTCMediaSourceStats implements RTCStatsType {
           required final RTCMediaSourceStatsType kind}) =
       _$RTCStatsType_RTCMediaSourceStats;
 
+  /// Value of the [MediaStreamTrack][1]'s ID attribute.
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
   String? get trackIdentifier;
+
+  /// Fields which should be in the [`RtcStat`] based on `kind`.
   RTCMediaSourceStatsType get kind;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCMediaSourceStatsCopyWith<
@@ -5618,20 +5846,56 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
       this.packetsSent,
       this.mediaSourceId});
 
+  /// ID of the stats object representing the current track attachment
+  /// to the sender of this stream.
   @override
   final String? trackId;
+
+  /// [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
   @override
   final TrackKind kind;
+
+  /// Width of the last encoded frame.
+  ///
+  /// The resolution of the encoded frame may be lower than the media
+  /// source (see [RTCVideoSourceStats.width][1]).
+  ///
+  /// Before the first frame is encoded this attribute is missing.
+  ///
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
   @override
   final int? frameWidth;
+
+  /// Height of the last encoded frame.
+  ///
+  /// The resolution of the encoded frame may be lower than the media
+  /// source (see [RTCVideoSourceStats.height][1]).
+  ///
+  /// Before the first frame is encoded this attribute is missing.
+  ///
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
   @override
   final int? frameHeight;
+
+  /// Number of encoded frames during the last second.
+  ///
+  /// This may be lower than the media source frame rate (see
+  /// [RTCVideoSourceStats.framesPerSecond][1]).
+  ///
+  /// [1]: https://tinyurl.com/rrmkrfk
   @override
   final double? framesPerSecond;
+
+  /// Total number of bytes sent for this SSRC.
   @override
   final int? bytesSent;
+
+  /// Total number of RTP packets sent for this SSRC.
   @override
   final int? packetsSent;
+
+  /// ID of the stats object representing the track currently
+  /// attached to the sender of this stream.
   @override
   final String? mediaSourceId;
 
@@ -5915,13 +6179,49 @@ abstract class RTCStatsType_RTCOutboundRTPStreamStats implements RTCStatsType {
       final int? packetsSent,
       final String? mediaSourceId}) = _$RTCStatsType_RTCOutboundRTPStreamStats;
 
+  /// ID of the stats object representing the current track attachment
+  /// to the sender of this stream.
   String? get trackId;
+
+  /// [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
   TrackKind get kind;
+
+  /// Width of the last encoded frame.
+  ///
+  /// The resolution of the encoded frame may be lower than the media
+  /// source (see [RTCVideoSourceStats.width][1]).
+  ///
+  /// Before the first frame is encoded this attribute is missing.
+  ///
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
   int? get frameWidth;
+
+  /// Height of the last encoded frame.
+  ///
+  /// The resolution of the encoded frame may be lower than the media
+  /// source (see [RTCVideoSourceStats.height][1]).
+  ///
+  /// Before the first frame is encoded this attribute is missing.
+  ///
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
   int? get frameHeight;
+
+  /// Number of encoded frames during the last second.
+  ///
+  /// This may be lower than the media source frame rate (see
+  /// [RTCVideoSourceStats.framesPerSecond][1]).
+  ///
+  /// [1]: https://tinyurl.com/rrmkrfk
   double? get framesPerSecond;
+
+  /// Total number of bytes sent for this SSRC.
   int? get bytesSent;
+
+  /// Total number of RTP packets sent for this SSRC.
   int? get packetsSent;
+
+  /// ID of the stats object representing the track currently
+  /// attached to the sender of this stream.
   String? get mediaSourceId;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWith<
@@ -6022,16 +6322,40 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
       this.jitterBufferEmittedCount,
       this.mediaType});
 
+  /// ID of the stats object representing the receiving track.
   @override
   final String? remoteId;
+
+  /// Total number of bytes received for this SSRC.
   @override
   final int? bytesReceived;
+
+  /// Total number of RTP data packets received for this SSRC.
   @override
   final int? packetsReceived;
+
+  /// Total number of seconds that have been spent decoding the
+  /// [`framesDecoded`] frames of this stream.
+  ///
+  /// The average decode time can be calculated by dividing this value
+  /// with [`framesDecoded`].
+  /// The time it takes to decode one frame is the time
+  /// passed between feeding the decoder a frame and the decoder returning
+  /// decoded data for that frame.
+  ///
+  /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
   @override
   final double? totalDecodeTime;
+
+  /// Total number of audio samples or video frames
+  /// that have come out of the
+  /// jitter buffer (increasing [`jitterBufferDelay`]).
+  ///
+  /// [`jitterBufferDelay`]: https://tinyurl.com/qvoojt5
   @override
   final int? jitterBufferEmittedCount;
+
+  /// Fields which should be in the [`RtcStat`] based on `mediaType`.
   @override
   final RTCInboundRtpStreamMediaType? mediaType;
 
@@ -6309,11 +6633,35 @@ abstract class RTCStatsType_RTCInboundRTPStreamStats implements RTCStatsType {
           final RTCInboundRtpStreamMediaType? mediaType}) =
       _$RTCStatsType_RTCInboundRTPStreamStats;
 
+  /// ID of the stats object representing the receiving track.
   String? get remoteId;
+
+  /// Total number of bytes received for this SSRC.
   int? get bytesReceived;
+
+  /// Total number of RTP data packets received for this SSRC.
   int? get packetsReceived;
+
+  /// Total number of seconds that have been spent decoding the
+  /// [`framesDecoded`] frames of this stream.
+  ///
+  /// The average decode time can be calculated by dividing this value
+  /// with [`framesDecoded`].
+  /// The time it takes to decode one frame is the time
+  /// passed between feeding the decoder a frame and the decoder returning
+  /// decoded data for that frame.
+  ///
+  /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
   double? get totalDecodeTime;
+
+  /// Total number of audio samples or video frames
+  /// that have come out of the
+  /// jitter buffer (increasing [`jitterBufferDelay`]).
+  ///
+  /// [`jitterBufferDelay`]: https://tinyurl.com/qvoojt5
   int? get jitterBufferEmittedCount;
+
+  /// Fields which should be in the [`RtcStat`] based on `mediaType`.
   RTCInboundRtpStreamMediaType? get mediaType;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith<
@@ -6407,18 +6755,73 @@ class _$RTCStatsType_RTCIceCandidatePairStats
       this.currentRoundTripTime,
       this.availableOutgoingBitrate});
 
+  /// State of the checklist for the local
+  /// and remote candidates in a pair.
   @override
   final RTCStatsIceCandidatePairState state;
+
+  /// Related to updating the nominated flag described in
+  /// [Section 7.1.3.2.4 of RFC 5245][1].
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.4
   @override
   final bool? nominated;
+
+  /// Total number of payload bytes sent on this candidate pair, i.e. not
+  /// including headers or padding.
   @override
   final int? bytesSent;
+
+  /// Total number of payload bytes received on this candidate pair, i.e.
+  /// not including headers or padding.
   @override
   final int? bytesReceived;
+
+  /// Sum of all round trip time measurements in seconds since
+  /// the beginning of the session,
+  /// based on STUN connectivity check [STUN-PATH-CHAR]
+  /// responses (responsesReceived), including those that reply
+  /// to requests that are sent in order to verify consent [RFC 7675].
+  ///
+  /// The average round trip time can be computed from
+  /// [`totalRoundTripTime`][1] by dividing it
+  /// by [`responsesReceived`][2].
+  ///
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
+  /// [1]: https://tinyurl.com/tgr543a
+  /// [2]: https://tinyurl.com/r3zo2um
   @override
   final double? totalRoundTripTime;
+
+  /// Latest round trip time measured in seconds, computed from both STUN
+  /// connectivity checks [STUN-PATH-CHAR],
+  /// including those that are sent for consent verification [RFC 7675].
+  ///
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
   @override
   final double? currentRoundTripTime;
+
+  /// Calculated by the underlying congestion control by combining the
+  /// available bitrate for all the outgoing RTP streams using
+  /// this candidate pair.
+  /// The bitrate measurement does not count the size of the IP or
+  /// other transport layers like TCP or UDP. It is similar to the TIAS
+  /// defined in [RFC 3890], i.e. it is measured in bits per second and
+  /// the bitrate is calculated over a 1 second window.
+  ///
+  /// Implementations that do not calculate a sender-side estimate
+  /// MUST leave this undefined. Additionally, the value MUST be undefined
+  /// for candidate pairs that were never used. For pairs in use,
+  /// the estimate is normally
+  /// no lower than the bitrate for the packets sent at
+  /// [`lastPacketSentTimestamp`][1], but might be higher. For candidate
+  /// pairs that are not currently in use but were used before,
+  /// implementations MUST return undefined.
+  ///
+  /// [RFC 3890]: https://tools.ietf.org/html/rfc3890
+  /// [1]: https://tinyurl.com/rfc72eh
   @override
   final double? availableOutgoingBitrate;
 
@@ -6711,12 +7114,67 @@ abstract class RTCStatsType_RTCIceCandidatePairStats implements RTCStatsType {
           final double? availableOutgoingBitrate}) =
       _$RTCStatsType_RTCIceCandidatePairStats;
 
+  /// State of the checklist for the local
+  /// and remote candidates in a pair.
   RTCStatsIceCandidatePairState get state;
+
+  /// Related to updating the nominated flag described in
+  /// [Section 7.1.3.2.4 of RFC 5245][1].
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.4
   bool? get nominated;
+
+  /// Total number of payload bytes sent on this candidate pair, i.e. not
+  /// including headers or padding.
   int? get bytesSent;
+
+  /// Total number of payload bytes received on this candidate pair, i.e.
+  /// not including headers or padding.
   int? get bytesReceived;
+
+  /// Sum of all round trip time measurements in seconds since
+  /// the beginning of the session,
+  /// based on STUN connectivity check [STUN-PATH-CHAR]
+  /// responses (responsesReceived), including those that reply
+  /// to requests that are sent in order to verify consent [RFC 7675].
+  ///
+  /// The average round trip time can be computed from
+  /// [`totalRoundTripTime`][1] by dividing it
+  /// by [`responsesReceived`][2].
+  ///
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
+  /// [1]: https://tinyurl.com/tgr543a
+  /// [2]: https://tinyurl.com/r3zo2um
   double? get totalRoundTripTime;
+
+  /// Latest round trip time measured in seconds, computed from both STUN
+  /// connectivity checks [STUN-PATH-CHAR],
+  /// including those that are sent for consent verification [RFC 7675].
+  ///
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
   double? get currentRoundTripTime;
+
+  /// Calculated by the underlying congestion control by combining the
+  /// available bitrate for all the outgoing RTP streams using
+  /// this candidate pair.
+  /// The bitrate measurement does not count the size of the IP or
+  /// other transport layers like TCP or UDP. It is similar to the TIAS
+  /// defined in [RFC 3890], i.e. it is measured in bits per second and
+  /// the bitrate is calculated over a 1 second window.
+  ///
+  /// Implementations that do not calculate a sender-side estimate
+  /// MUST leave this undefined. Additionally, the value MUST be undefined
+  /// for candidate pairs that were never used. For pairs in use,
+  /// the estimate is normally
+  /// no lower than the bitrate for the packets sent at
+  /// [`lastPacketSentTimestamp`][1], but might be higher. For candidate
+  /// pairs that are not currently in use but were used before,
+  /// implementations MUST return undefined.
+  ///
+  /// [RFC 3890]: https://tools.ietf.org/html/rfc3890
+  /// [1]: https://tinyurl.com/rfc72eh
   double? get availableOutgoingBitrate;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCIceCandidatePairStatsCopyWith<
@@ -6788,12 +7246,25 @@ class _$RTCStatsType_RTCTransportStats
       this.bytesSent,
       this.bytesReceived});
 
+  /// Total number of packets sent over this transport.
   @override
   final int? packetsSent;
+
+  /// Total number of packets received on this transport.
   @override
   final int? packetsReceived;
+
+  /// Total number of payload bytes sent on this [RTCPeerConnection], i.e.
+  /// not including headers or padding.
+  ///
+  /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   @override
   final int? bytesSent;
+
+  /// Total number of bytes received on this [RTCPeerConnection], i.e. not
+  /// including headers or padding.
+  ///
+  /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   @override
   final int? bytesReceived;
 
@@ -7062,9 +7533,22 @@ abstract class RTCStatsType_RTCTransportStats implements RTCStatsType {
       final int? bytesSent,
       final int? bytesReceived}) = _$RTCStatsType_RTCTransportStats;
 
+  /// Total number of packets sent over this transport.
   int? get packetsSent;
+
+  /// Total number of packets received on this transport.
   int? get packetsReceived;
+
+  /// Total number of payload bytes sent on this [RTCPeerConnection], i.e.
+  /// not including headers or padding.
+  ///
+  /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   int? get bytesSent;
+
+  /// Total number of bytes received on this [RTCPeerConnection], i.e. not
+  /// including headers or padding.
+  ///
+  /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   int? get bytesReceived;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCTransportStatsCopyWith<_$RTCStatsType_RTCTransportStats>
@@ -7136,12 +7620,40 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
       this.fractionLost,
       this.roundTripTimeMeasurements});
 
+  /// [`localId`] is used for looking up the local
+  /// [RTCOutboundRtpStreamStats] object for the same SSRC.
+  ///
+  /// [`localId`]: https://tinyurl.com/r8uhbo9
+  /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
   @override
   final String? localId;
+
+  /// Estimated round trip time for this SSRC based on
+  /// the RTCP timestamps in
+  /// the RTCP Receiver Report (RR) and measured in seconds.
+  /// Calculated as defined in [Section 6.4.1 of RFC 3550][1].
+  /// If no RTCP Receiver Report
+  /// is received with a DLSR value other than 0, the round trip time is
+  /// left undefined.
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
   @override
   final double? roundTripTime;
+
+  /// Fraction packet loss reported for this SSRC.
+  /// Calculated as defined in
+  /// [Section 6.4.1 of RFC 3550][1] and [Appendix A.3][2].
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
+  /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
   @override
   final double? fractionLost;
+
+  /// Total number of RTCP RR blocks received for this SSRC that contain a
+  /// valid round trip time. This counter will increment if the
+  /// [`roundTripTime`] is undefined.
+  ///
+  /// [`roundTripTime`]: https://tinyurl.com/ssg83hq
   @override
   final int? roundTripTimeMeasurements;
 
@@ -7414,9 +7926,37 @@ abstract class RTCStatsType_RTCRemoteInboundRtpStreamStats
           final int? roundTripTimeMeasurements}) =
       _$RTCStatsType_RTCRemoteInboundRtpStreamStats;
 
+  /// [`localId`] is used for looking up the local
+  /// [RTCOutboundRtpStreamStats] object for the same SSRC.
+  ///
+  /// [`localId`]: https://tinyurl.com/r8uhbo9
+  /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
   String? get localId;
+
+  /// Estimated round trip time for this SSRC based on
+  /// the RTCP timestamps in
+  /// the RTCP Receiver Report (RR) and measured in seconds.
+  /// Calculated as defined in [Section 6.4.1 of RFC 3550][1].
+  /// If no RTCP Receiver Report
+  /// is received with a DLSR value other than 0, the round trip time is
+  /// left undefined.
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
   double? get roundTripTime;
+
+  /// Fraction packet loss reported for this SSRC.
+  /// Calculated as defined in
+  /// [Section 6.4.1 of RFC 3550][1] and [Appendix A.3][2].
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
+  /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
   double? get fractionLost;
+
+  /// Total number of RTCP RR blocks received for this SSRC that contain a
+  /// valid round trip time. This counter will increment if the
+  /// [`roundTripTime`] is undefined.
+  ///
+  /// [`roundTripTime`]: https://tinyurl.com/ssg83hq
   int? get roundTripTimeMeasurements;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWith<
@@ -7477,10 +8017,29 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   const _$RTCStatsType_RTCRemoteOutboundRtpStreamStats(
       {this.localId, this.remoteTimestamp, this.reportsSent});
 
+  /// [`localId`] is used for looking up the local
+  /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
+  ///
+  /// [`localId`]: https://tinyurl.com/vu9tb2e
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
   @override
   final String? localId;
+
+  /// [`remoteTimestamp`] (as [HIGHRES-TIME]) is the remote timestamp at
+  /// which these statistics were sent by the remote endpoint. This
+  /// differs from timestamp, which represents the time at which the
+  /// statistics were generated or received by the local endpoint. The
+  /// [`remoteTimestamp`], if present, is derived from the NTP timestamp
+  /// in an RTCP Sender Report (SR) block, which reflects the remote
+  /// endpoint's clock. That clock may not be synchronized with the local
+  /// clock.
+  ///
+  /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
+  /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats/#bib-highres-time
   @override
   final double? remoteTimestamp;
+
+  /// Total number of RTCP SR blocks sent for this SSRC.
   @override
   final int? reportsSent;
 
@@ -7748,8 +8307,27 @@ abstract class RTCStatsType_RTCRemoteOutboundRtpStreamStats
       final double? remoteTimestamp,
       final int? reportsSent}) = _$RTCStatsType_RTCRemoteOutboundRtpStreamStats;
 
+  /// [`localId`] is used for looking up the local
+  /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
+  ///
+  /// [`localId`]: https://tinyurl.com/vu9tb2e
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
   String? get localId;
+
+  /// [`remoteTimestamp`] (as [HIGHRES-TIME]) is the remote timestamp at
+  /// which these statistics were sent by the remote endpoint. This
+  /// differs from timestamp, which represents the time at which the
+  /// statistics were generated or received by the local endpoint. The
+  /// [`remoteTimestamp`], if present, is derived from the NTP timestamp
+  /// in an RTCP Sender Report (SR) block, which reflects the remote
+  /// endpoint's clock. That clock may not be synchronized with the local
+  /// clock.
+  ///
+  /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
+  /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats/#bib-highres-time
   double? get remoteTimestamp;
+
+  /// Total number of RTCP SR blocks sent for this SSRC.
   int? get reportsSent;
   @JsonKey(ignore: true)
   _$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWith<

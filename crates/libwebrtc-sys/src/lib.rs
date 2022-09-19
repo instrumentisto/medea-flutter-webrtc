@@ -1586,11 +1586,11 @@ pub enum Protocol {
     /// [Transmission Control Protocol][1].
     ///
     /// [1]: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
-    TCP,
+    Tcp,
     /// [User Datagram Protocol][1].
     ///
     /// [1]: https://en.wikipedia.org/wiki/User_Datagram_Protocol
-    UDP,
+    Udp,
 }
 
 impl FromStr for Protocol {
@@ -1598,8 +1598,8 @@ impl FromStr for Protocol {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let protocol = match s {
-            "tcp" => Self::TCP,
-            "udp" => Self::UDP,
+            "tcp" => Self::Tcp,
+            "udp" => Self::Udp,
             protocol => anyhow::bail!("Unknow protocol: {protocol}"),
         };
         Ok(protocol)

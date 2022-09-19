@@ -25,7 +25,7 @@ type DynPeerConnectionEventsHandler = Box<dyn PeerConnectionEventsHandler>;
 /// [`AddIceCandidateCallback`] transferable to the C++ side.
 type DynAddIceCandidateCallback = Box<dyn AddIceCandidateCallback>;
 
-/// todo
+/// [`RTCStatsCollectorCallback`] transferable to the C++ side.
 type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 
 /// [`TrackEventCallback`] transferable to the C++ side.
@@ -1152,7 +1152,10 @@ pub(crate) mod webrtc {
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
-        // todo
+        /// Calls the [RTCPeerConnection.getStats()][1] on the
+        /// provided [`PeerConnectionInterface`].
+        ///
+        /// [1]: https://www.w3.org/TR/webrtc/#widl-RTCRtpSender-getStats-Promise-RTCStatsReport
         pub fn peer_connection_get_stats(
             peer: &PeerConnectionInterface,
             cb: Box<DynRTCStatsCollectorCallback>
@@ -1852,7 +1855,7 @@ pub(crate) mod webrtc {
     extern "Rust" {
         pub type DynRTCStatsCollectorCallback;
 
-        // todo
+        /// Deliveres stats report to the [`DynRTCStatsCollectorCallback`].
         pub fn on_stats_delivered(
             cb: Box<DynRTCStatsCollectorCallback>,
             report: UniquePtr<RTCStatsReport>,
