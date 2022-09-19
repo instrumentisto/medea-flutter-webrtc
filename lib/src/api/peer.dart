@@ -184,7 +184,7 @@ abstract class PeerConnection {
   /// Returns all the [RtpTransceiver]s owned by this [PeerConnection].
   Future<List<RtpTransceiver>> getTransceivers();
 
-  // todo
+  /// Returns all the [RTCStats] of this [PeerConnection].
   Future<List<RTCStats>> getStats();
 
   /// Sets the provided remote [SessionDescription] to the [PeerConnection].
@@ -417,9 +417,9 @@ class _PeerConnectionChannel extends PeerConnection {
   }
 
   @override
-  Future<List<RTCStats>> getStats() {
+  Future<List<RTCStats>> getStats() async {
     // TODO: implement getStats
-    throw UnimplementedError();
+    return List.empty();
   }
 }
 
