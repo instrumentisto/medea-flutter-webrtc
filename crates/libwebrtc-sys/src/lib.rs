@@ -1353,6 +1353,8 @@ fn rtc_stats_member_bool_to_option(
     }
 }
 
+/// [`RtcStat`] fields of [`RtcStatsType::MediaSource`]
+/// type based on video kind.
 #[derive(Debug)]
 pub struct RTCVideoSourceStats {
     /// Width (in pixels) of the last frame originating from the source.
@@ -1361,6 +1363,7 @@ pub struct RTCVideoSourceStats {
     /// Height (in pixels) of the last frame originating from the source.
     /// Before a frame has been produced this attribute is missing.
     height: Option<u32>,
+    /// The total number of frames originating from this source.
     frames: Option<u32>,
     /// Number of frames originating from the source, measured during the
     /// last second. For the first second of this object's lifetime this
@@ -1410,7 +1413,8 @@ impl From<UniquePtr<webrtc::RTCVideoSourceStats>> for RTCVideoSourceStats {
     }
 }
 
-/// [`RTCMediaSorceStats`] audio stats.
+/// [`RtcStat`] fields of [`RtcStatsType::MediaSource`]
+/// type based on audio `kind`.
 #[derive(Debug)]
 pub struct RTCAudioSourceStats {
     /// Audio level of the media source.
@@ -1419,8 +1423,12 @@ pub struct RTCAudioSourceStats {
     total_audio_energy: Option<f64>,
     /// Audio duration of the media source.
     total_samples_duration: Option<f64>,
-
+    /// Only exists when the MediaStreamTrack is sourced
+    /// from a microphone where echo cancellation is applied.
     echo_return_loss: Option<f64>,
+    /// Only exists when the [`MediaStreamTrackInterface`]
+    /// is sourced from a microphone where
+    /// echo cancellation is applied.
     echo_return_loss_enhancement: Option<f64>,
 }
 
@@ -1616,7 +1624,6 @@ pub struct IceCandidateStats {
     ///
     /// [1]: https://w3.org/TR/webrtc-stats/#transportstats-dict%2A
     transport_id: Option<String>,
-
     /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses,
     /// and fully qualified domain names (FQDNs).
     address: Option<String>,
@@ -1772,8 +1779,8 @@ pub struct RTCOutboundRTPStreamStats {
     /// sender of this stream.
     track_id: Option<String>,
 
+    /// [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
     kind: TrackKind,
-
     /// Width of the last encoded frame.
     ///
     /// The resolution of the encoded frame may be lower than the media
@@ -2042,7 +2049,6 @@ pub struct RTCInboundRtpStreamVideo {
     /// Sum of the interframe delays in seconds between consecutively
     /// decoded frames, recorded just after a frame has been decoded.
     total_inter_frame_delay: Option<f64>,
-
     /// Number of decoded frames in the last second.
     frames_per_second: Option<f64>,
     /// Bit depth per pixel of the last decoded frame.
