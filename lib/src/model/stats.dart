@@ -133,9 +133,8 @@ enum Protocol {
 abstract class RTCStatsType {
   RTCStatsType();
   static RTCStatsType fromFFI(bridge.RTCStatsType stats) {
-    var type = stats.runtimeType.toString();
-    switch (type) {
-      case '_\$RTCStatsType_RTCMediaSourceStats':
+    switch (stats.runtimeType) {
+      case bridge.RTCStatsType_RTCMediaSourceStats:
         {
           var source = (stats as bridge.RTCStatsType_RTCMediaSourceStats);
           if (source.kind
@@ -152,39 +151,39 @@ abstract class RTCStatsType {
           }
         }
 
-      case '_\$RTCStatsType_RTCIceCandidateStats':
+      case bridge.RTCStatsType_RTCIceCandidateStats:
         {
           return RTCIceCandidateStats.fromFFI(
               stats as bridge.RTCStatsType_RTCIceCandidateStats);
         }
 
-      case '_\$RTCStatsType_RTCOutboundRTPStreamStats':
+      case bridge.RTCStatsType_RTCOutboundRTPStreamStats:
         {
           return RTCOutboundRTPStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCOutboundRTPStreamStats);
         }
 
-      case '_\$RTCStatsType_RTCInboundRTPStreamStats':
+      case bridge.RTCStatsType_RTCInboundRTPStreamStats:
         {
           return RTCInboundRTPStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCInboundRTPStreamStats);
         }
-      case '_\$RTCStatsType_RTCTransportStats':
+      case bridge.RTCStatsType_RTCTransportStats:
         {
           return RTCTransportStats.fromFFI(
               stats as bridge.RTCStatsType_RTCTransportStats);
         }
-      case '_\$RTCStatsType_RTCRemoteInboundRtpStreamStats':
+      case bridge.RTCStatsType_RTCRemoteInboundRtpStreamStats:
         {
           return RTCRemoteInboundRtpStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCRemoteInboundRtpStreamStats);
         }
-      case '_\$RTCStatsType_RTCRemoteOutboundRtpStreamStats':
+      case bridge.RTCStatsType_RTCRemoteOutboundRtpStreamStats:
         {
           return RTCRemoteOutboundRtpStreamStats.fromFFI(
               stats as bridge.RTCStatsType_RTCRemoteOutboundRtpStreamStats);
         }
-      case '_\$RTCStatsType_RTCIceCandidatePairStats':
+      case bridge.RTCStatsType_RTCIceCandidatePairStats:
         {
           return RTCIceCandidatePairStats.fromFFI(
               stats as bridge.RTCStatsType_RTCIceCandidatePairStats);

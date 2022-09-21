@@ -25,7 +25,6 @@ struct DynCreateSdpCallback;
 struct DynAddIceCandidateCallback;
 struct DynRTCStatsCollectorCallback;
 
-
 // `PeerConnectionObserver` propagating events to the Rust side.
 class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
  public:
@@ -146,12 +145,13 @@ class CreateSessionDescriptionObserver
 
 // `RTCStatsCollectorCallback` propagating completion result to the Rust
 // side.
-class RTCStatsCollectorCallback : public rtc::RefCountedObject<webrtc::RTCStatsCollectorCallback> {
-	public:
-	RTCStatsCollectorCallback(rust::Box<bridge::DynRTCStatsCollectorCallback> cb);
+class RTCStatsCollectorCallback
+    : public rtc::RefCountedObject<webrtc::RTCStatsCollectorCallback> {
+ public:
+  RTCStatsCollectorCallback(rust::Box<bridge::DynRTCStatsCollectorCallback> cb);
   void OnStatsDelivered(
       const RTCStatsReport& report);
-	private:
+ private:
   // Rust side callback.
   std::optional<rust::Box<bridge::DynRTCStatsCollectorCallback>> cb_;
 };
@@ -236,6 +236,6 @@ void close_peer_connection(const PeerConnectionInterface& peer);
 
 // Calls `PeerConnectionInterface->GetStats`.
 void peer_connection_get_stats(const PeerConnectionInterface& peer,
-               rust::Box<DynRTCStatsCollectorCallback> cb);
+                               rust::Box<DynRTCStatsCollectorCallback> cb);
 
 }  // namespace bridge

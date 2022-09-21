@@ -173,7 +173,7 @@ void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
 // side.
 RTCStatsCollectorCallback::RTCStatsCollectorCallback(
     rust::Box<bridge::DynRTCStatsCollectorCallback> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
 // Propagates the completion result to the Rust side.
 void RTCStatsCollectorCallback::OnStatsDelivered(const RTCStatsReport& report) {
@@ -268,7 +268,8 @@ void close_peer_connection(const PeerConnectionInterface& peer) {
 }
 
 // Calls `PeerConnectionInterface->GetStats`.
-void peer_connection_get_stats(const PeerConnectionInterface& peer, rust::Box<DynRTCStatsCollectorCallback> cb) {
+void peer_connection_get_stats(const PeerConnectionInterface& peer,
+                               rust::Box<DynRTCStatsCollectorCallback> cb) {
   auto callback = new RTCStatsCollectorCallback(std::move(cb));
   peer->GetStats(callback);
 }

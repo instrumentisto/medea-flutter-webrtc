@@ -158,7 +158,12 @@ impl Webrtc {
         peer.inner.lock().unwrap().get_stats(Box::new(cb));
 
         let report = report_rx.recv_timeout(RX_TIMEOUT)?;
-        Ok(report.get_stats().iter().map(api::RTCStats::from).collect())
+
+        Ok(report
+            .get_stats()
+            .into_iter()
+            .map(api::RTCStats::from)
+            .collect())
     }
 
     /// Sets the specified session description as the remote peer's current
@@ -871,10 +876,10 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
 }
 
 /// [`RTCStatsCollectorCallback`] wrapper.
-struct GetStatsCallback(mpsc::Sender<sys::RTCStatsReport>);
+struct GetStatsCallback(mpsc::Sender<sys::RtcStatsReport>);
 
 impl sys::RTCStatsCollectorCallback for GetStatsCallback {
-    fn on_stats_delivered(&mut self, report: sys::RTCStatsReport) {
+    fn on_stats_delivered(&mut self, report: sys::RtcStatsReport) {
         if let Err(e) = self.0.send(report) {
             log::warn!("Failed to complete `GetStatsCallback`: {e}");
         }
