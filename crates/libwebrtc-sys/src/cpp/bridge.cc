@@ -228,6 +228,18 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetPlayoutDevice(index);
 }
 
+// Calls `AudioProcessingBuilder().Create()`.
+std::unique_ptr<AudioProcessing> create_audio_processing() {
+  auto ap = webrtc::AudioProcessingBuilder().Create();
+
+  return std::make_unique<AudioProcessing>(ap);
+}
+
+// Calls `AudioProcessing->set_output_will_be_muted()`.
+void set_output_will_be_muted(const AudioProcessing& ap, bool muted) {
+  ap->set_output_will_be_muted(muted);
+}
+
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
 #if __APPLE__
@@ -272,18 +284,13 @@ std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
+    int64_t id,
     size_t width,
     size_t height,
     size_t fps) {
-  webrtc::DesktopCapturer::SourceList sourceList;
-  ScreenVideoCapturer::GetSourceList(&sourceList);
-
-  if (sourceList.size() < 1) {
-    return nullptr;
-  }
 
   rtc::scoped_refptr<ScreenVideoCapturer> capturer(
-      new rtc::RefCountedObject<ScreenVideoCapturer>(sourceList[0].id, width,
+      new rtc::RefCountedObject<ScreenVideoCapturer>(id, width,
                                                      height, fps));
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
@@ -447,14 +454,15 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    const std::unique_ptr<AudioDeviceModule>& default_adm) {
+    const std::unique_ptr<AudioDeviceModule>& default_adm,
+    const std::unique_ptr<AudioProcessing>& ap) {
   auto factory = webrtc::CreatePeerConnectionFactory(
       network_thread.get(), worker_thread.get(), signaling_thread.get(),
       default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, nullptr);
+      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, ap ? *ap : nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -831,6 +839,31 @@ std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
   } else {
     return owned_candidate;
   }
+}
+
+// Returns a list of all available `DesktopCapturer::Source`s.
+rust::Vec<DisplaySourceContainer> screen_capture_sources() {
+  webrtc::DesktopCapturer::SourceList sourceList;
+  ScreenVideoCapturer::GetSourceList(&sourceList);
+  rust::Vec<DisplaySourceContainer> sources;
+
+  for (auto source : sourceList) {
+    DisplaySourceContainer container = {
+        std::make_unique<DisplaySource>(source)};
+    sources.push_back(std::move(container));
+  }
+
+  return sources;
+}
+
+// Returns an `id` of the provided `DesktopCapturer::Source`.
+int64_t display_source_id(const DisplaySource& source) {
+  return source.id;
+}
+
+// Returns a `title` of the provided `DesktopCapturer::Source`.
+std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
+  return std::make_unique<std::string>(source.title);
 }
 
 }  // namespace bridge

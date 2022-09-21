@@ -401,6 +401,35 @@ impl AudioDeviceModule {
 unsafe impl Send for webrtc::AudioDeviceModule {}
 unsafe impl Sync for webrtc::AudioDeviceModule {}
 
+/// Representation of The Audio Processing Module, providing a collection of
+/// voice processing components designed for real-time communications software.
+pub struct AudioProcessing(UniquePtr<webrtc::AudioProcessing>);
+
+impl AudioProcessing {
+    /// Creates a new [`AudioProcessing`].
+    pub fn new() -> anyhow::Result<Self> {
+        let ptr = webrtc::create_audio_processing();
+
+        if ptr.is_null() {
+            bail!("`null` pointer returned from `AudioProcessing::Create()`");
+        }
+
+        Ok(Self(ptr))
+    }
+
+    /// Indicates intent to mute the output of this [`AudioProcessing`].
+    ///
+    /// Set it to `true` when the output of this [`AudioProcessing`] will be
+    /// muted or in some other way not used. This hints the underlying AGC, AEC,
+    /// NS processors to halt.
+    pub fn set_output_will_be_muted(&self, muted: bool) {
+        webrtc::set_output_will_be_muted(&self.0, muted);
+    }
+}
+
+unsafe impl Send for webrtc::AudioProcessing {}
+unsafe impl Sync for webrtc::AudioProcessing {}
+
 /// Interface for receiving information about available camera devices.
 pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
@@ -451,6 +480,33 @@ impl VideoDeviceInfo {
 
 unsafe impl Send for webrtc::VideoDeviceInfo {}
 unsafe impl Sync for webrtc::VideoDeviceInfo {}
+
+/// Returns a list of all available [`VideoDisplaySource`]s.
+#[must_use]
+pub fn screen_capture_sources() -> Vec<VideoDisplaySource> {
+    webrtc::screen_capture_sources()
+        .into_iter()
+        .map(|el| VideoDisplaySource(el.ptr))
+        .collect()
+}
+
+/// Interface for receiving information about available display.
+pub struct VideoDisplaySource(UniquePtr<webrtc::DisplaySource>);
+
+impl VideoDisplaySource {
+    /// Returns an `id` of this [`VideoDisplaySource`].
+    #[must_use]
+    pub fn id(&self) -> i64 {
+        webrtc::display_source_id(&self.0)
+    }
+
+    /// Returns a `title` of this [`VideoDisplaySource`].
+    #[must_use]
+    pub fn title(&self) -> Option<String> {
+        let title = webrtc::display_source_title(&self.0).to_string();
+        (!title.is_empty()).then_some(title)
+    }
+}
 
 /// [RTCConfiguration][1] wrapper.
 ///
@@ -1259,12 +1315,14 @@ impl PeerConnectionFactoryInterface {
         worker_thread: Option<&Thread>,
         signaling_thread: Option<&Thread>,
         default_adm: Option<&AudioDeviceModule>,
+        ap: Option<&AudioProcessing>,
     ) -> anyhow::Result<Self> {
         let inner = webrtc::create_peer_connection_factory(
             network_thread.map_or(&UniquePtr::null(), |t| &t.0),
             worker_thread.map_or(&UniquePtr::null(), |t| &t.0),
             signaling_thread.map_or(&UniquePtr::null(), |t| &t.0),
             default_adm.map_or(&UniquePtr::null(), |t| &t.0),
+            ap.map_or(&UniquePtr::null(), |ap| &ap.0),
         );
 
         if inner.is_null() {
@@ -1462,6 +1520,7 @@ impl VideoTrackSourceInterface {
     pub fn create_proxy_from_display(
         worker_thread: &mut Thread,
         signaling_thread: &mut Thread,
+        id: i64,
         width: usize,
         height: usize,
         fps: usize,
@@ -1469,6 +1528,7 @@ impl VideoTrackSourceInterface {
         let ptr = webrtc::create_display_video_source(
             worker_thread.0.pin_mut(),
             signaling_thread.0.pin_mut(),
+            id,
             width,
             height,
             fps,
