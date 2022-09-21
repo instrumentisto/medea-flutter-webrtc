@@ -1,26 +1,34 @@
 import Flutter
+import OSLog
+import os
 
 public class RtpSenderController {
     private var messenger: FlutterBinaryMessenger
     private var rtpSender: RtpSenderProxy
-    private var channelId: String = ChannelNameGenerator.name(name: "RtpSender", id: ChannelNameGenerator.nextId())
+    private var channelId: Int = ChannelNameGenerator.nextId()
+    private var channelName: String
     private var channel: FlutterMethodChannel
 
     init(messenger: FlutterBinaryMessenger, rtpSender: RtpSenderProxy) {
+        self.channelName = ChannelNameGenerator.name(name: "RtpSender", id: channelId)
         self.messenger = messenger
         self.rtpSender = rtpSender
-        self.channel = FlutterMethodChannel(name: channelId, binaryMessenger: messenger)
+        self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
         self.channel.setMethodCallHandler({ (call, result) in
             try! self.onMethodCall(call: call, result: result)
         })
     }
 
     func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
+        let argsMap = call.arguments as? [String : Any]
         switch (call.method) {
             case "replaceTrack":
-                abort()
+                let trackId = argsMap!["trackId"] as? String
+                let track = MediaStreamTrackStore.tracks[trackId!]!
+                self.rtpSender.replaceTrack(t: track)
+                result(nil)
             case "dispose":
-                abort()
+                result(nil)
             default:
                 result(FlutterMethodNotImplemented)
         }

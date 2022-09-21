@@ -93,6 +93,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
 class _NativeVideoRendererChannel extends NativeVideoRenderer {
   @override
   Future<void> initialize() async {
+    return;
     final response = await _rendererFactoryChannel.invokeMethod('create');
     _textureId = response['textureId'];
     _channelId = response['channelId'];
@@ -104,6 +105,7 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 
   @override
   Future<void> setSrcObject(MediaStreamTrack? track) async {
+    return;
     if (textureId == null) {
       throw 'Renderer should be initialize before setting src';
     }
@@ -123,6 +125,7 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 
   @override
   Future<void> dispose() async {
+    return;
     await _eventChan?.cancel();
     await _chan.invokeMethod('dispose');
     await super.dispose();

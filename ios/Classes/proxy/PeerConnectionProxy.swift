@@ -1,12 +1,15 @@
 import WebRTC
+import OSLog
+import os
 
 public class PeerConnectionProxy {
     private var senders: [String : RtpSenderProxy] = [:]
     private var receivers: [String : RtpReceiverProxy] = [:]
-    private var transceivers: [String : RtpTransceiverProxy] = [:]
+    private var transceivers: [Int : RtpTransceiverProxy] = [:]
     private var peer: RTCPeerConnection
     private var observers: [PeerEventObserver] = []
     private var id: Int
+    private var lastTransceiverId: Int = 0
 
     init (id: Int, peer: RTCPeerConnection) {
         self.peer = peer
@@ -29,19 +32,34 @@ public class PeerConnectionProxy {
         return Array(self.receivers.values.map{ $0 })
     }
 
-    func setLocalDescription(description: SessionDescription) async throws {
+    func addTransceiver(mediaType: MediaType) -> RtpTransceiverProxy {
+        let transceiver = self.peer.addTransceiver(of: mediaType.intoWebRtc(), init: RTCRtpTransceiverInit())
+        let proxy = RtpTransceiverProxy(transceiver: transceiver!)
+        self.transceivers[self.lastTransceiverId] = proxy
+        self.lastTransceiverId += 1
+        return proxy
+    }
+
+    func setLocalDescription(description: SessionDescription?) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            self.peer.setLocalDescription(description.intoWebRtc(), completionHandler: { error in
+            let completionHandler = { (error: Error?) in
                 if (error == nil) {
                     continuation.resume(returning: ())
                 } else {
                     continuation.resume(throwing: error!)
                 }
-            })
+            }
+            if (description == nil) {
+                self.peer.setLocalDescriptionWithCompletionHandler(completionHandler)
+            } else {
+                let sdp = description!.intoWebRtc()
+                self.peer.setLocalDescription(sdp, completionHandler: completionHandler)
+            }
         }
     }
 
     func setRemoteDescription(description: SessionDescription) async throws {
+        os_log(OSLogType.error, "setRemoteDescription was called")
         return try await withCheckedThrowingContinuation { continuation in
             self.peer.setRemoteDescription(description.intoWebRtc(), completionHandler: { error in
                 if (error == nil) {
@@ -107,6 +125,7 @@ public class PeerConnectionProxy {
 
             func onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
                 for observer in self.observers {
+                    os_log(OSLogType.error, "onTrack fired")
                     observer.onTrack(track: track, transceiver: transceiver)
                 }
             }

@@ -6,7 +6,10 @@ public class IceCandidate {
     var candidate: String
 
     init(candidate: RTCIceCandidate) {
-        abort()
+        self.sdpMid = candidate.sdpMid!
+        self.candidate = candidate.sdp
+        self.sdpMLineIndex = Int(candidate.sdpMLineIndex)
+
     }
 
     init(sdpMid: String, sdpMLineIndex: Int, candidate: String) {
@@ -16,6 +19,14 @@ public class IceCandidate {
     }
 
     func intoWebRtc() -> RTCIceCandidate {
-        abort()
+        RTCIceCandidate(sdp: self.candidate, sdpMLineIndex: Int32(self.sdpMLineIndex), sdpMid: self.sdpMid)
+    }
+
+    func asFlutterResult() -> [String : Any] {
+        return [
+            "sdpMid": self.sdpMid,
+            "sdpMLineIndex": self.sdpMLineIndex,
+            "candidate": self.candidate
+        ]
     }
 }

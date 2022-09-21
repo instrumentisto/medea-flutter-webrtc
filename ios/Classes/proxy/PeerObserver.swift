@@ -1,4 +1,7 @@
 import WebRTC
+import OSLog
+import Dispatch
+import os
 
 public class PeerObserver : NSObject, RTCPeerConnectionDelegate {
     var peer: PeerConnectionProxy?
@@ -10,29 +13,54 @@ public class PeerObserver : NSObject, RTCPeerConnectionDelegate {
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
-        self.peer!.broadcastEventObserver().onSignalingStateChange(state: SignalingState.fromWebRtc(state: stateChanged))
+        DispatchQueue.main.async {
+            self.peer!.broadcastEventObserver().onSignalingStateChange(state: SignalingState.fromWebRtc(state: stateChanged))
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
-        self.peer!.broadcastEventObserver().onIceConnectionStateChange(state: IceConnectionState.fromWebRtc(state: newState))
+        DispatchQueue.main.async {
+            self.peer!.broadcastEventObserver().onIceConnectionStateChange(state: IceConnectionState.fromWebRtc(state: newState))
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCPeerConnectionState) {
-        self.peer!.broadcastEventObserver().onConnectionStateChange(state: PeerConnectionState.fromWebRtc(state: newState))
+        DispatchQueue.main.async {
+            self.peer!.broadcastEventObserver().onConnectionStateChange(state: PeerConnectionState.fromWebRtc(state: newState))
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState) {
-        self.peer!.broadcastEventObserver().onIceGatheringStateChange(state: IceGatheringState.fromWebRtc(state: newState))
+        DispatchQueue.main.async {
+            self.peer!.broadcastEventObserver().onIceGatheringStateChange(state: IceGatheringState.fromWebRtc(state: newState))
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
-        self.peer!.broadcastEventObserver().onIceCandidate(candidate: IceCandidate(candidate: candidate))
+        os_log(OSLogType.error, "onIceCandidate fired in PeerObserver")
+        DispatchQueue.main.async {
+            self.peer!.broadcastEventObserver().onIceCandidate(candidate: IceCandidate(candidate: candidate))
+        }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]) {
+
+    }
+
+    public func peerConnection(_ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver) {
+        DispatchQueue.main.async {
+            let track = transceiver.receiver.track!
+            self.peer!.broadcastEventObserver().onTrack(track: MediaStreamTrackProxy(track: track, deviceId: nil, source: nil), transceiver: RtpTransceiverProxy(transceiver: transceiver))
+            os_log(OSLogType.error, "onTrack fired in PeerObserver")
+        }
+    }
+
+    public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd receiver: RTCRtpReceiver, streams mediaStreams: [RTCMediaStream]) {
+        os_log(OSLogType.error, "didAddReceiver fired in PeerObserver")
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
+        os_log(OSLogType.error, "onTrack fired in PeerObserver")
         // let videoTracks = stream.videoTracks
         // let audioTracks = stream.audioTracks
         // videoTracks.forEach {

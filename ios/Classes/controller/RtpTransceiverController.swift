@@ -3,13 +3,15 @@ import Flutter
 public class RtpTransceiverController {
     private var messenger: FlutterBinaryMessenger
     private var transceiver: RtpTransceiverProxy
-    private var channelId: String = ChannelNameGenerator.name(name: "RtpTransceiver", id: ChannelNameGenerator.nextId())
+    private var channelId: Int = ChannelNameGenerator.nextId()
+    private var channelName: String
     private var channel: FlutterMethodChannel
 
     init(messenger: FlutterBinaryMessenger, transceiver: RtpTransceiverProxy) {
+        self.channelName = ChannelNameGenerator.name(name: "RtpTransceiver", id: self.channelId)
         self.messenger = messenger
         self.transceiver = transceiver
-        self.channel = FlutterMethodChannel(name: channelId, binaryMessenger: messenger)
+        self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
         self.channel.setMethodCallHandler({ (call, result) in
             try! self.onMethodCall(call: call, result: result)
         })

@@ -26,6 +26,9 @@ public class MediaDevices {
     public func getUserMedia() -> [MediaStreamTrackProxy] {
         var tracks = getUserAudio()
         tracks.append(getUserVideo())
+        tracks.forEach {
+            MediaStreamTrackStore.tracks[$0.id()] = $0
+        }
         return tracks
     }
 

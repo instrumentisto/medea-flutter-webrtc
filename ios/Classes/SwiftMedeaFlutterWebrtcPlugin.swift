@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import AVFoundation
+import WebRTC
 
 public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   var messenger: FlutterBinaryMessenger;
@@ -9,6 +10,7 @@ public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   var state: State
 
   init(messenger: FlutterBinaryMessenger) {
+    RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose);
     NSLog("Hello world")
     self.state = State()
     self.messenger = messenger

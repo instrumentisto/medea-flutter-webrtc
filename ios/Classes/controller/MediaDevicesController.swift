@@ -21,7 +21,7 @@ public class MediaDevicesController {
                 result(self.mediaDevices.enumerateDevices().map { $0.asFlutterResult() })
             case "getUserMedia":
                 let tracks = self.mediaDevices.getUserMedia()
-                return result(tracks.map { MediaStreamTrackController(messenger: self.messenger, track: $0) })
+                return result(tracks.map { MediaStreamTrackController(messenger: self.messenger, track: $0).asFlutterResult() })
             case "setOutputAudioId":
                 abort()
             default:

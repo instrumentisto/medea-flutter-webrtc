@@ -13,10 +13,12 @@ public class PeerConnectionFactoryProxy {
         let id = nextId()
 
         let peerObserver = PeerObserver()
+        let config = RTCConfiguration()
+        config.sdpSemantics = RTCSdpSemantics.unifiedPlan
         let peer = self.factory.peerConnection(
-            with: RTCConfiguration(),
+            with: config,
             constraints: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
-            delegate: self.peerObservers[id]
+            delegate: peerObserver
         )
         let peerProxy = PeerConnectionProxy(id: id, peer: peer!)
         peerObserver.setPeer(peer: peerProxy)
