@@ -17,10 +17,10 @@ static FAKE_MEDIA: AtomicBool = AtomicBool::new(false);
 
 /// [`RtcStat`] fields of [`RtcStatsType::MediaSource`] type based on its
 /// `kind`.
-pub enum RTCMediaSourceStatsType {
+pub enum RtcMediaSourceStatsMediaType {
     /// [`RtcStat`] fields of [`RtcStatsType::MediaSource`]
     /// type based on video kind.
-    RTCVideoSourceStats {
+    RtcVideoSourceStats {
         /// Width (in pixels) of the last frame originating from the source.
         /// Before a frame has been produced this attribute is missing.
         width: Option<u32>,
@@ -40,7 +40,7 @@ pub enum RTCMediaSourceStatsType {
 
     /// [`RtcStat`] fields of [`RtcStatsType::MediaSource`]
     /// type based on audio `kind`.
-    RTCAudioSourceStats {
+    RtcAudioSourceStats {
         /// Audio level of the media source.
         audio_level: Option<f64>,
 
@@ -61,27 +61,33 @@ pub enum RTCMediaSourceStatsType {
     },
 }
 
-impl From<&sys::RTCMediaSourceStatsType> for RTCMediaSourceStatsType {
-    fn from(kind: &sys::RTCMediaSourceStatsType) -> Self {
+impl From<sys::RtcMediaSourceStatsMediaType> for RtcMediaSourceStatsMediaType {
+    fn from(kind: sys::RtcMediaSourceStatsMediaType) -> Self {
         match kind {
-            sys::RTCMediaSourceStatsType::RTCVideoSourceStats(stats) => {
-                Self::RTCVideoSourceStats {
-                    width: stats.width,
-                    height: stats.height,
-                    frames: stats.frames,
-                    frames_per_second: stats.frames_per_second,
-                }
-            }
-            sys::RTCMediaSourceStatsType::RTCAudioSourceStats(stats) => {
-                Self::RTCAudioSourceStats {
-                    audio_level: stats.audio_level,
-                    total_audio_energy: stats.total_audio_energy,
-                    total_samples_duration: stats.total_samples_duration,
-                    echo_return_loss: stats.echo_return_loss,
-                    echo_return_loss_enhancement: stats
-                        .echo_return_loss_enhancement,
-                }
-            }
+            sys::RtcMediaSourceStatsMediaType::RtcVideoSourceStats {
+                width,
+                height,
+                frames,
+                frames_per_second,
+            } => Self::RtcVideoSourceStats {
+                width,
+                height,
+                frames,
+                frames_per_second,
+            },
+            sys::RtcMediaSourceStatsMediaType::RtcAudioSourceStats {
+                audio_level,
+                total_audio_energy,
+                total_samples_duration,
+                echo_return_loss,
+                echo_return_loss_enhancement,
+            } => Self::RtcAudioSourceStats {
+                audio_level,
+                total_audio_energy,
+                total_samples_duration,
+                echo_return_loss,
+                echo_return_loss_enhancement,
+            },
         }
     }
 }
@@ -147,9 +153,19 @@ impl From<sys::TrackKind> for TrackKind {
 }
 
 /// Fields of [`RtcStatsType::InboundRtp`] variant.
-pub enum RTCInboundRtpStreamMediaType {
+pub enum RtcInboundRtpStreamMediaType {
     /// Fields when `mediaType` is `audio`.
     Audio {
+        /// Indicator whether the last RTP packet whose frame was delivered to
+        /// the [RTCRtpReceiver]'s [MediaStreamTrack][1] for playout contained
+        /// voice activity or not based on the presence of the V bit in the
+        /// extension header, as defined in [RFC 6464].
+        ///
+        /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#rtcrtpreceiver-interface
+        /// [RFC 6464]: https://tools.ietf.org/html/rfc6464#page-3
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        voice_activity_flag: Option<bool>,
+
         /// Total number of samples that have been received on this RTP stream.
         /// This includes [`concealedSamples`].
         ///
@@ -243,6 +259,10 @@ pub enum RTCInboundRtpStreamMediaType {
         /// receiver.
         pli_count: Option<u32>,
 
+        /// Total number of Slice Loss Indication (SLI) packets sent by this
+        /// receiver.
+        sli_count: Option<u32>,
+
         /// Number of concealment events.
         ///
         /// This counter increases every time a concealed sample is synthesized
@@ -260,29 +280,50 @@ pub enum RTCInboundRtpStreamMediaType {
     },
 }
 
-impl From<&sys::RtcInboundRtpStreamMediaType> for RTCInboundRtpStreamMediaType {
-    fn from(media_type: &sys::RtcInboundRtpStreamMediaType) -> Self {
+impl From<sys::RtcInboundRtpStreamMediaType> for RtcInboundRtpStreamMediaType {
+    fn from(media_type: sys::RtcInboundRtpStreamMediaType) -> Self {
         match media_type {
-            sys::RtcInboundRtpStreamMediaType::Audio(audio) => Self::Audio {
-                total_samples_received: audio.total_samples_received,
-                concealed_samples: audio.concealed_samples,
-                silent_concealed_samples: audio.silent_concealed_samples,
-                audio_level: audio.audio_level,
-                total_audio_energy: audio.total_audio_energy,
-                total_samples_duration: audio.total_samples_duration,
+            sys::RtcInboundRtpStreamMediaType::Audio {
+                total_samples_received,
+                concealed_samples,
+                silent_concealed_samples,
+                audio_level,
+                total_audio_energy,
+                total_samples_duration,
+            } => Self::Audio {
+                total_samples_received,
+                concealed_samples,
+                silent_concealed_samples,
+                audio_level,
+                total_audio_energy,
+                total_samples_duration,
+                voice_activity_flag: None,
             },
-            sys::RtcInboundRtpStreamMediaType::Video(video) => Self::Video {
-                frames_decoded: video.frames_decoded,
-                key_frames_decoded: video.key_frames_decoded,
-                frame_width: video.frame_width,
-                frame_height: video.frame_height,
-                total_inter_frame_delay: video.total_inter_frame_delay,
-                frames_per_second: video.frames_per_second,
-                frame_bit_depth: video.frame_bit_depth,
-                fir_count: video.fir_count,
-                pli_count: video.pli_count,
-                concealment_events: video.concealment_events,
-                frames_received: video.frames_received,
+            sys::RtcInboundRtpStreamMediaType::Video {
+                frames_decoded,
+                key_frames_decoded,
+                frame_width,
+                frame_height,
+                total_inter_frame_delay,
+                frames_per_second,
+                frame_bit_depth,
+                fir_count,
+                pli_count,
+                concealment_events,
+                frames_received,
+            } => Self::Video {
+                frames_decoded,
+                key_frames_decoded,
+                frame_width,
+                frame_height,
+                total_inter_frame_delay,
+                frames_per_second,
+                frame_bit_depth,
+                fir_count,
+                pli_count,
+                concealment_events,
+                frames_received,
+                sli_count: None,
             },
         }
     }
@@ -293,7 +334,7 @@ impl From<&sys::RtcInboundRtpStreamMediaType> for RTCInboundRtpStreamMediaType {
 /// remote candidates in the pair.  The state is assigned once the check
 /// list for each media stream has been computed.  There are five
 /// potential values that the state can have.
-pub enum RTCStatsIceCandidatePairState {
+pub enum RtcStatsIceCandidatePairState {
     /// Check for this pair hasn't been performed, and it can't yet be
     /// performed until some other check succeeds, allowing this pair to
     /// unfreeze and move into the [`KnownIceCandidatePairState::Waiting`]
@@ -319,7 +360,7 @@ pub enum RTCStatsIceCandidatePairState {
 }
 
 impl From<sys::RTCStatsIceCandidatePairState>
-    for RTCStatsIceCandidatePairState
+    for RtcStatsIceCandidatePairState
 {
     fn from(state: sys::RTCStatsIceCandidatePairState) -> Self {
         match state {
@@ -399,6 +440,11 @@ pub struct IceCandidateStats {
     ///
     /// [1]: https://w3.org/TR/webrtc#rtcpeerconnectioniceevent
     pub url: Option<String>,
+
+    /// Protocol used by the endpoint to communicate with the TURN server.
+    ///
+    /// Only present for local candidates.
+    pub relay_protocol: Option<String>,
 }
 
 impl From<sys::IceCandidateStats> for IceCandidateStats {
@@ -411,83 +457,33 @@ impl From<sys::IceCandidateStats> for IceCandidateStats {
             candidate_type: CandidateType::from(val.candidate_type),
             priority: val.priority,
             url: val.url,
+            relay_protocol: None,
         }
     }
 }
 
 /// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
 /// variant.
-pub enum RTCIceCandidateStats {
+pub enum RtcIceCandidateStats {
     /// [`RtcStatsType::LocalCandidate`].
-    RTCLocalIceCandidateStats(IceCandidateStats),
+    Local(IceCandidateStats),
     /// [`RtcStatsType::RemoteCandidate`].
-    RTCRemoteIceCandidateStats(IceCandidateStats),
+    Remote(IceCandidateStats),
 }
 
-/// All known types of [`RtcStat`]s.
-///
-/// [List of all RTCStats types on W3C][1].
-///
-/// [1]: https://w3.org/TR/webrtc-stats/#rtctatstype-%2A
-/// [`RtcStat`]: super::RtcStat
-pub enum RTCStatsType {
-    /// Statistics for the media produced by a [MediaStreamTrack][1] that
-    /// is currently attached to an [RTCRtpSender]. This reflects
-    /// the media that is fed to the encoder after [getUserMedia]
-    /// constraints have been applied (i.e. not the raw media
-    /// produced by the camera).
-    ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#rtcrtpsender-interface
-    /// [getUserMedia]: https://tinyurl.com/sngpyr6
-    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
-    RTCMediaSourceStats {
-        /// Value of the [MediaStreamTrack][1]'s ID attribute.
-        ///
-        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
-        track_identifier: Option<String>,
-
-        /// Fields which should be in the [`RtcStat`] based on `kind`.
-        kind: RTCMediaSourceStatsType,
+/// [`RtcStat`] fields of [`RtcStatsType::OutboundRtp`] type based on
+/// `mediaType`.
+pub enum RtcOutboundRTPStreamStatsMediaType {
+    /// Fields when `mediaType` is `audio`.
+    Audio {
+        /// Total number of samples that have been sent over this RTP stream.
+        total_samples_sent: Option<u64>,
+        /// Whether the last RTP packet sent contained voice activity or not
+        /// based on the presence of the V bit in the extension header.
+        voice_activity_flag: Option<bool>,
     },
-
-    /// ICE remote candidate statistics related to the [RTCIceTransport]
-    /// objects.
-    ///
-    /// A remote candidate is [deleted][1] when the [RTCIceTransport] does
-    /// an ICE restart, and the candidate is no longer a member of
-    /// any non-deleted candidate pair.
-    ///
-    /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-    /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
-    RTCIceCandidateStats(RTCIceCandidateStats),
-
-    /// Statistics for an outbound [RTP] stream that is currently sent with
-    /// [RTCPeerConnection] object.
-    ///
-    /// When there are multiple [RTP] streams connected to the same sender,
-    /// such as when using simulcast or RTX, there will be one
-    /// [`RtcOutboundRtpStreamStats`] per RTP stream, with distinct values
-    /// of the `ssrc` attribute, and all these senders will have a
-    /// reference to the same "sender" object (of type
-    /// [RTCAudioSenderStats][1] or [RTCVideoSenderStats][2]) and
-    /// "track" object (of type
-    /// [RTCSenderAudioTrackAttachmentStats][3] or
-    /// [RTCSenderVideoTrackAttachmentStats][4]).
-    ///
-    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosenderstats
-    /// [2]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosenderstats
-    /// [3]: https://tinyurl.com/sefa5z4
-    /// [4]: https://tinyurl.com/rkuvpl4
-    RTCOutboundRTPStreamStats {
-        /// ID of the stats object representing the current track attachment
-        /// to the sender of this stream.
-        track_id: Option<String>,
-
-        /// [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
-        kind: TrackKind,
-
+    /// Fields when `mediaType` is `video`.
+    Video {
         /// Width of the last encoded frame.
         ///
         /// The resolution of the encoded frame may be lower than the media
@@ -526,12 +522,106 @@ pub enum RTCStatsType {
         /// attached to the sender of this stream.
         media_source_id: Option<String>,
     },
+}
+
+impl From<sys::RtcOutboundRTPStreamStatsMediaType>
+    for RtcOutboundRTPStreamStatsMediaType
+{
+    fn from(kind: sys::RtcOutboundRTPStreamStatsMediaType) -> Self {
+        match kind {
+            sys::RtcOutboundRTPStreamStatsMediaType::Audio {} => Self::Audio {
+                total_samples_sent: None,
+                voice_activity_flag: None,
+            },
+            sys::RtcOutboundRTPStreamStatsMediaType::Video {
+                frame_width,
+                frame_height,
+                frames_per_second,
+                bytes_sent,
+                packets_sent,
+                media_source_id,
+            } => Self::Video {
+                frame_width,
+                frame_height,
+                frames_per_second,
+                bytes_sent,
+                packets_sent,
+                media_source_id,
+            },
+        }
+    }
+}
+
+/// All known types of [`RtcStat`]s.
+///
+/// [List of all RtcStats types on W3C][1].
+///
+/// [1]: https://w3.org/TR/webrtc-stats/#rtctatstype-%2A
+/// [`RtcStat`]: super::RtcStat
+pub enum RtcStatsType {
+    /// Statistics for the media produced by a [MediaStreamTrack][1] that
+    /// is currently attached to an [RTCRtpSender]. This reflects
+    /// the media that is fed to the encoder after [getUserMedia]
+    /// constraints have been applied (i.e. not the raw media
+    /// produced by the camera).
+    ///
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#rtcrtpsender-interface
+    /// [getUserMedia]: https://tinyurl.com/sngpyr6
+    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+    RtcMediaSourceStats {
+        /// Value of the [MediaStreamTrack][1]'s ID attribute.
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        track_identifier: Option<String>,
+
+        /// Fields which should be in the [`RtcStat`] based on `kind`.
+        kind: RtcMediaSourceStatsMediaType,
+    },
+
+    /// ICE remote candidate statistics related to the [RTCIceTransport]
+    /// objects.
+    ///
+    /// A remote candidate is [deleted][1] when the [RTCIceTransport] does
+    /// an ICE restart, and the candidate is no longer a member of
+    /// any non-deleted candidate pair.
+    ///
+    /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
+    /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
+    RtcIceCandidateStats(RtcIceCandidateStats),
+
+    /// Statistics for an outbound [RTP] stream that is currently sent with
+    /// [RTCPeerConnection] object.
+    ///
+    /// When there are multiple [RTP] streams connected to the same sender,
+    /// such as when using simulcast or RTX, there will be one
+    /// [`RtcOutboundRtpStreamStats`] per RTP stream, with distinct values
+    /// of the `ssrc` attribute, and all these senders will have a
+    /// reference to the same "sender" object (of type
+    /// [RTCAudioSenderStats][1] or [RTCVideoSenderStats][2]) and
+    /// "track" object (of type
+    /// [RTCSenderAudioTrackAttachmentStats][3] or
+    /// [RTCSenderVideoTrackAttachmentStats][4]).
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+    /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosenderstats
+    /// [2]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosenderstats
+    /// [3]: https://tinyurl.com/sefa5z4
+    /// [4]: https://tinyurl.com/rkuvpl4
+    RtcOutboundRTPStreamStats {
+        /// ID of the stats object representing the current track attachment
+        /// to the sender of this stream.
+        track_id: Option<String>,
+
+        /// Fields which should be in the [`RtcStat`] based on `mediaType`.
+        kind: RtcOutboundRTPStreamStatsMediaType,
+    },
     /// Statistics for an inbound [RTP] stream that is currently received
     /// with [RTCPeerConnection] object.
     ///
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-    RTCInboundRTPStreamStats {
+    RtcInboundRTPStreamStats {
         /// ID of the stats object representing the receiving track.
         remote_id: Option<String>,
 
@@ -540,6 +630,20 @@ pub enum RTCStatsType {
 
         /// Total number of RTP data packets received for this SSRC.
         packets_received: Option<u32>,
+
+        /// Total number of RTP data packets for this SSRC that have been lost
+        /// since the beginning of reception.
+        ///
+        /// This number is defined to be the number of packets expected less the
+        /// number of packets actually received, where the number of packets
+        /// received includes any which are late or duplicates.
+        /// Thus, packets that arrive late are not counted as lost,
+        /// and the loss __may be negative__
+        /// if there are duplicates.
+        packets_lost: Option<u64>,
+
+        /// Packet jitter measured in seconds for this SSRC.
+        jitter: Option<f64>,
 
         /// Total number of seconds that have been spent decoding the
         /// [`framesDecoded`] frames of this stream.
@@ -561,7 +665,7 @@ pub enum RTCStatsType {
         jitter_buffer_emitted_count: Option<u64>,
 
         /// Fields which should be in the [`RtcStat`] based on `mediaType`.
-        media_type: Option<RTCInboundRtpStreamMediaType>,
+        media_type: Option<RtcInboundRtpStreamMediaType>,
     },
 
     /// ICE candidate pair statistics related to the [RTCIceTransport]
@@ -579,10 +683,10 @@ pub enum RTCStatsType {
     ///
     /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
     /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
-    RTCIceCandidatePairStats {
+    RtcIceCandidatePairStats {
         /// State of the checklist for the local
         /// and remote candidates in a pair.
-        state: RTCStatsIceCandidatePairState,
+        state: RtcStatsIceCandidatePairState,
 
         /// Related to updating the nominated flag described in
         /// [Section 7.1.3.2.4 of RFC 5245][1].
@@ -647,7 +751,7 @@ pub enum RTCStatsType {
     /// Transport statistics related to the [RTCPeerConnection] object.
     ///
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-    RTCTransportStats {
+    RtcTransportStats {
         /// Total number of packets sent over this transport.
         packets_sent: Option<u64>,
 
@@ -665,6 +769,13 @@ pub enum RTCStatsType {
         ///
         /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
         bytes_received: Option<u64>,
+
+        /// Set to the current value of the [`role` attribute][1] of the
+        /// [underlying RTCDtlsTransport's `transport`][2].
+        ///
+        /// [1]: https://w3.org/TR/webrtc#dom-icetransport-role
+        /// [2]: https://w3.org/TR/webrtc#dom-rtcdtlstransport-icetransport
+        ice_role: Option<String>,
     },
     /// Statistics for the remote endpoint's inbound [RTP] stream
     /// corresponding to an outbound stream that is currently sent with
@@ -675,13 +786,15 @@ pub enum RTCStatsType {
     ///
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-    RTCRemoteInboundRtpStreamStats {
+    RtcRemoteInboundRtpStreamStats {
         /// [`localId`] is used for looking up the local
         /// [RTCOutboundRtpStreamStats] object for the same SSRC.
         ///
         /// [`localId`]: https://tinyurl.com/r8uhbo9
         /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
         local_id: Option<String>,
+
+        jitter: Option<f64>,
 
         /// Estimated round trip time for this SSRC based on
         /// the RTCP timestamps in
@@ -702,6 +815,9 @@ pub enum RTCStatsType {
         /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
         fraction_lost: Option<f64>,
 
+        /// Total number of RTCP RR blocks received for this SSRC.
+        reports_received: Option<u64>,
+
         /// Total number of RTCP RR blocks received for this SSRC that contain a
         /// valid round trip time. This counter will increment if the
         /// [`roundTripTime`] is undefined.
@@ -719,7 +835,7 @@ pub enum RTCStatsType {
     ///
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-    RTCRemoteOutboundRtpStreamStats {
+    RtcRemoteOutboundRtpStreamStats {
         /// [`localId`] is used for looking up the local
         /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
         ///
@@ -748,94 +864,107 @@ pub enum RTCStatsType {
     Unimplenented,
 }
 
-impl From<sys::RTCStatsType> for RTCStatsType {
-    fn from(kind: sys::RTCStatsType) -> Self {
+impl From<sys::RtcStatsType> for RtcStatsType {
+    fn from(kind: sys::RtcStatsType) -> Self {
         match kind {
-            sys::RTCStatsType::RTCMediaSourceStats(stats) => {
-                Self::RTCMediaSourceStats {
-                    track_identifier: stats.track_identifier,
-                    kind: RTCMediaSourceStatsType::from(&stats.kind),
+            sys::RtcStatsType::RtcMediaSourceStats {
+                track_identifier,
+                kind,
+            } => RtcStatsType::RtcMediaSourceStats {
+                track_identifier,
+                kind: RtcMediaSourceStatsMediaType::from(kind),
+            },
+            sys::RtcStatsType::RtcIceCandidateStats(stats) => match stats {
+                sys::RtcIceCandidateStats::RtcLocalIceCandidateStats(
+                    candidate,
+                ) => RtcStatsType::RtcIceCandidateStats(
+                    RtcIceCandidateStats::Local(IceCandidateStats::from(
+                        candidate,
+                    )),
+                ),
+                sys::RtcIceCandidateStats::RtcRemoteIceCandidateStats(
+                    candidate,
+                ) => RtcStatsType::RtcIceCandidateStats(
+                    RtcIceCandidateStats::Remote(IceCandidateStats::from(
+                        candidate,
+                    )),
+                ),
+            },
+            sys::RtcStatsType::RtcOutboundRTPStreamStats { track_id, kind } => {
+                RtcStatsType::RtcOutboundRTPStreamStats {
+                    track_id,
+                    kind: RtcOutboundRTPStreamStatsMediaType::from(kind),
                 }
             }
-            sys::RTCStatsType::RTCIceCandidateStats(stats) => {
-                let candidate = match stats {
-                    sys::RTCIceCandidateStats::RTCLocalIceCandidateStats(
-                        stats,
-                    ) => RTCIceCandidateStats::RTCLocalIceCandidateStats(
-                        IceCandidateStats::from(stats),
-                    ),
-                    sys::RTCIceCandidateStats::RTCRemoteIceCandidateStats(
-                        stats,
-                    ) => RTCIceCandidateStats::RTCRemoteIceCandidateStats(
-                        IceCandidateStats::from(stats),
-                    ),
-                };
-
-                Self::RTCIceCandidateStats(candidate)
-            }
-            sys::RTCStatsType::RTCOutboundRTPStreamStats(stats) => {
-                Self::RTCOutboundRTPStreamStats {
-                    track_id: stats.track_id,
-                    kind: TrackKind::from(stats.kind),
-                    frame_width: stats.frame_width,
-                    frame_height: stats.frame_height,
-                    frames_per_second: stats.frames_per_second,
-                    bytes_sent: stats.bytes_sent,
-                    packets_sent: stats.packets_sent,
-                    media_source_id: stats.media_source_id,
-                }
-            }
-            sys::RTCStatsType::RTCInboundRTPStreamStats(stats) => {
-                Self::RTCInboundRTPStreamStats {
-                    remote_id: stats.remote_id,
-                    bytes_received: stats.bytes_received,
-                    packets_received: stats.packets_received,
-                    total_decode_time: stats.total_decode_time,
-                    jitter_buffer_emitted_count: stats
-                        .jitter_buffer_emitted_count,
-                    media_type: stats
-                        .media_type
-                        .as_ref()
-                        .map(RTCInboundRtpStreamMediaType::from),
-                }
-            }
-            sys::RTCStatsType::RTCIceCandidatePairStats(stats) => {
-                Self::RTCIceCandidatePairStats {
-                    state: RTCStatsIceCandidatePairState::from(stats.state),
-                    nominated: stats.nominated,
-                    bytes_sent: stats.bytes_sent,
-                    bytes_received: stats.bytes_received,
-                    total_round_trip_time: stats.total_round_trip_time,
-                    current_round_trip_time: stats.current_round_trip_time,
-                    available_outgoing_bitrate: stats
-                        .available_outgoing_bitrate,
-                }
-            }
-            sys::RTCStatsType::RTCTransportStats(stats) => {
-                Self::RTCTransportStats {
-                    packets_sent: stats.packets_sent,
-                    packets_received: stats.packets_received,
-                    bytes_sent: stats.bytes_sent,
-                    bytes_received: stats.bytes_received,
-                }
-            }
-            sys::RTCStatsType::RTCRemoteInboundRtpStreamStats(stats) => {
-                Self::RTCRemoteInboundRtpStreamStats {
-                    local_id: stats.local_id,
-                    round_trip_time: stats.round_trip_time,
-                    fraction_lost: stats.fraction_lost,
-                    round_trip_time_measurements: stats
-                        .round_trip_time_measurements,
-                }
-            }
-            sys::RTCStatsType::RTCRemoteOutboundRtpStreamStats(stats) => {
-                Self::RTCRemoteOutboundRtpStreamStats {
-                    local_id: stats.local_id,
-                    remote_timestamp: stats.remote_timestamp,
-                    reports_sent: stats.reports_sent,
-                }
-            }
-            sys::RTCStatsType::Unimplemented => Self::Unimplenented,
+            sys::RtcStatsType::RtcInboundRTPStreamStats {
+                remote_id,
+                bytes_received,
+                packets_received,
+                total_decode_time,
+                jitter_buffer_emitted_count,
+                media_type,
+            } => RtcStatsType::RtcInboundRTPStreamStats {
+                remote_id,
+                bytes_received,
+                packets_received,
+                total_decode_time,
+                jitter_buffer_emitted_count,
+                media_type: media_type.map(RtcInboundRtpStreamMediaType::from),
+                packets_lost: None,
+                jitter: None,
+            },
+            sys::RtcStatsType::RtcIceCandidatePairStats {
+                state,
+                nominated,
+                bytes_sent,
+                bytes_received,
+                total_round_trip_time,
+                current_round_trip_time,
+                available_outgoing_bitrate,
+            } => RtcStatsType::RtcIceCandidatePairStats {
+                state: RtcStatsIceCandidatePairState::from(state),
+                nominated,
+                bytes_sent,
+                bytes_received,
+                total_round_trip_time,
+                current_round_trip_time,
+                available_outgoing_bitrate,
+            },
+            sys::RtcStatsType::RtcTransportStats {
+                packets_sent,
+                packets_received,
+                bytes_sent,
+                bytes_received,
+            } => RtcStatsType::RtcTransportStats {
+                packets_sent,
+                packets_received,
+                bytes_sent,
+                bytes_received,
+                ice_role: None,
+            },
+            sys::RtcStatsType::RtcRemoteInboundRtpStreamStats {
+                local_id,
+                round_trip_time,
+                fraction_lost,
+                round_trip_time_measurements,
+            } => RtcStatsType::RtcRemoteInboundRtpStreamStats {
+                local_id,
+                round_trip_time,
+                fraction_lost,
+                round_trip_time_measurements,
+                jitter: None,
+                reports_received: None,
+            },
+            sys::RtcStatsType::RtcRemoteOutboundRtpStreamStats {
+                local_id,
+                remote_timestamp,
+                reports_sent,
+            } => RtcStatsType::RtcRemoteOutboundRtpStreamStats {
+                local_id,
+                remote_timestamp,
+                reports_sent,
+            },
+            sys::RtcStatsType::Unimplemented => RtcStatsType::Unimplenented,
         }
     }
 }
@@ -848,7 +977,7 @@ impl From<sys::RTCStatsType> for RTCStatsType {
 /// [stats object]: https://w3.org/TR/webrtc-stats/#dfn-stats-object
 /// [monitored object]: https://w3.org/TR/webrtc-stats/#dfn-monitored-object
 /// [1]: https://w3.org/TR/webrtc#rtcstats-dictionary
-pub struct RTCStats {
+pub struct RtcStats {
     /// Unique ID that is associated with the object that was inspected to
     /// produce this [RTCStats] object.
     ///
@@ -866,12 +995,12 @@ pub struct RTCStats {
     /// Actual stats of this [`RtcStat`].
     ///
     /// All possible stats are described in the [`RtcStatsType`] enum.
-    pub kind: RTCStatsType,
+    pub kind: RtcStatsType,
 }
 
-impl From<sys::RtcStats> for RTCStats {
+impl From<sys::RtcStats> for RtcStats {
     fn from(stats: sys::RtcStats) -> Self {
-        let kind = RTCStatsType::from(stats.kind);
+        let kind = RtcStatsType::from(stats.kind);
         Self {
             id: stats.id,
             timestamp_us: stats.timestamp_us,
@@ -1830,7 +1959,7 @@ pub fn get_transceiver_direction(
 }
 
 /// Returns [`RtcStats`] of this [`PeerConnection`].
-pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<Vec<RTCStats>> {
+pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<Vec<RtcStats>> {
     WEBRTC.lock().unwrap().get_stats(peer_id)
 }
 

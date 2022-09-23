@@ -4,1092 +4,573 @@
 
 namespace bridge {
 
-// Returns the `value` of the provided `RTCStatsMemberString`.
-const std::string& rtc_stats_member_string_value(
-    const RTCStatsMemberString& stats_member) {
-  return *stats_member;
-}
-
-// Returns the `value` of the provided `RTCStatsMemberf64`.
-double rtc_stats_member_f64_value(const RTCStatsMemberf64& stats_member) {
-  return *stats_member;
-}
-
-// Returns the `value` of the provided `RTCStatsMemberi32`.
-int32_t rtc_stats_member_i32_value(const RTCStatsMemberi32& stats_member) {
-  return *stats_member;
-}
-
-// Returns the `value` of the provided `RTCStatsMemberu32`.
-uint32_t rtc_stats_member_u32_value(const RTCStatsMemberu32& stats_member) {
-  return *stats_member;
-}
-
-// Returns the `value` of the provided `RTCStatsMemberu64`.
-uint64_t rtc_stats_member_u64_value(const RTCStatsMemberu64& stats_member) {
-  return *stats_member;
-}
-
-// Returns the `value` of the provided `RTCStatsMemberbool`.
-bool rtc_stats_member_bool_value(const RTCStatsMemberbool& stats_member) {
-  return *stats_member;
-}
-
-// Returns the `type` of the provided `RTCStats`.
-const std::string& rtc_stats_type(const RTCStats& stats) {
-  return stats.type();
-}
-
-// Try cast a `RTCStats` to the `RTCMediaSourceStats`.
-std::unique_ptr<RTCMediaSourceStats> rtc_stats_cast_to_rtc_media_source_stats(
+// Try to cast a `RTCStats` to the wrap `RTCMediaSourceStats`.
+RTCMediaSourceStatsWrap cast_to_rtc_media_source_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "media-source") {
-    return std::unique_ptr<RTCMediaSourceStats>(static_cast<RTCMediaSourceStats*>(stats.release()));
+    auto cast =  std::unique_ptr<RTCMediaSourceStats>(static_cast<RTCMediaSourceStats*>(stats.release()));
+    auto track_identifier = init_option_string();
+
+    
+    MediaKind kind = MediaKind::Audio;
+    if (*cast->kind == "video") {
+      kind = MediaKind::Video;
+    }
+
+    if (cast->track_identifier.is_defined()) {
+      track_identifier->set_value(rust::String(*cast->track_identifier));
+    }
+
+    return RTCMediaSourceStatsWrap {std::move(track_identifier), kind, std::move(cast)};
   }
-  // TODO(alexlapa): sure this will work? cpp exceptions are tricky, this
-  //                 might just segfault.
   throw std::invalid_argument(
-      "Invalid type. Expected `ice-candidate` but found " + type);
+      "Invalid type. Expected `ice-candidate` but found: " + type);
 }
 
-// Try cast a `RTCStats` to the `RTCIceCandidateStats`.
-std::unique_ptr<RTCIceCandidateStats> rtc_stats_cast_to_rtc_ice_candidate_stats(
+// Try to cast a `RTCStats` to the wrap `RTCIceCandidateStats`.
+RTCIceCandidateStatsWrap cast_to_rtc_ice_candidate_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "remote-candidate" || type == "local-candidate") {
-    return std::unique_ptr<RTCIceCandidateStats>(static_cast<RTCIceCandidateStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCIceCandidateStats>(static_cast<RTCIceCandidateStats*>(stats.release()));
+    auto transport_id = init_option_string();
+    if (cast->transport_id.is_defined()) {
+      transport_id->set_value(rust::String(*cast->transport_id));
+    }    
+
+    auto address = init_option_string();
+    if (cast->address.is_defined()) {
+      address->set_value(rust::String(*cast->address));
+    }   
+
+    auto port = init_option_i32();
+    if (cast->port.is_defined()) {
+      port->set_value(*cast->port);
+    }   
+
+    auto protocol = init_option_string();
+    if (cast->protocol.is_defined()) {
+      protocol->set_value(rust::String(*cast->protocol));
+    }  
+
+    auto priority = init_option_i32();
+    if (cast->priority.is_defined()) {
+      priority->set_value(*cast->priority);
+    }  
+
+    auto url = init_option_string();
+    if (cast->url.is_defined()) {
+      url->set_value(rust::String(*cast->url));
+    }  
+
+    CandidateType candidate_type;
+    auto candidate_type_str = *cast->candidate_type; 
+    if (candidate_type_str == "host") {
+      candidate_type = CandidateType::kHost;
+    } else if (candidate_type_str == "prflx") {
+      candidate_type = CandidateType::kPrflx;
+    } else if (candidate_type_str == "srflx") {
+      candidate_type = CandidateType::kSrflx;
+    } else if (candidate_type_str == "relay") {
+      candidate_type = CandidateType::kRelay;
+    }
+
+    return RTCIceCandidateStatsWrap{
+        *cast->is_remote,
+        std::move(transport_id), std::move(address), std::move(port),
+        std::move(protocol),     candidate_type,     std::move(priority),
+        std::move(url)};
   }
   throw std::invalid_argument(
-      "Invalid type. Expected `local-candidate` or `remote-candidate` but found "
+      "Invalid type. Expected `local-candidate` or `remote-candidate` but found: "
           + type);
 }
 
-// Try cast a `RTCStats` to the `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCOutboundRTPStreamStats> rtc_stats_cast_to_rtc_outbound_rtp_stream_stats(
+// Try to cast a `RTCStats` to the wrap `RTCOutboundRTPStreamStats`.
+RTCOutboundRTPStreamStatsWrap cast_to_rtc_outbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "outbound-rtp") {
-    return std::unique_ptr<RTCOutboundRTPStreamStats>(static_cast<RTCOutboundRTPStreamStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCOutboundRTPStreamStats>(static_cast<RTCOutboundRTPStreamStats*>(stats.release()));
+
+    auto track_id = init_option_string();
+    if (cast->track_id.is_defined()) {
+      track_id->set_value(rust::String(*cast->track_id));
+    }  
+
+    auto frame_width = init_option_u32();
+    if (cast->frame_width.is_defined()) {
+      frame_width->set_value(*cast->frame_width);
+    }  
+
+    auto frame_height = init_option_u32();
+    if (cast->frame_width.is_defined()) {
+      frame_width->set_value(*cast->frame_width);
+    }  
+
+    auto frames_per_second = init_option_f64();
+    if (cast->frames_per_second.is_defined()) {
+      frames_per_second->set_value(*cast->frames_per_second);
+    }  
+
+    auto bytes_sent = init_option_u64();
+    if (cast->bytes_sent.is_defined()) {
+      bytes_sent->set_value(*cast->bytes_sent);
+    }  
+
+    auto packets_sent = init_option_u32();
+    if (cast->packets_sent.is_defined()) {
+      packets_sent->set_value(*cast->packets_sent);
+    }  
+
+    auto media_source_id = init_option_string();
+    if (cast->media_source_id.is_defined()) {
+      media_source_id->set_value(rust::String(*cast->media_source_id));
+    }  
+
+    MediaKind kind = MediaKind::Video;
+
+    return RTCOutboundRTPStreamStatsWrap{
+        std::move(track_id),          kind,
+        std::move(frame_width),       std::move(frame_height),
+        std::move(frames_per_second), std::move(bytes_sent),
+        std::move(packets_sent),      std::move(media_source_id),
+    };
   }
   throw std::invalid_argument(
-      "Invalid type. Expected `outbound-rtp` but found " + type);
+      "Invalid type. Expected `outbound-rtp` but found: " + type);
 }
 
-// Try cast a `RTCStats` to the `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCInboundRTPStreamStats> rtc_stats_cast_to_rtc_inbound_rtp_stream_stats(
+// Try to cast a `RTCStats` to the wrap `RTCInboundRTPStreamStats`.
+RTCInboundRTPStreamStatsWrap cast_to_rtc_inbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "inbound-rtp") {
-    return std::unique_ptr<RTCInboundRTPStreamStats>(static_cast<RTCInboundRTPStreamStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCInboundRTPStreamStats>(
+        static_cast<RTCInboundRTPStreamStats*>(stats.release()));
+
+    auto remote_id = init_option_string();
+    if (cast->remote_id.is_defined()) {
+      remote_id->set_value(rust::String(*cast->remote_id));
+    }
+
+    auto total_samples_received = init_option_u64();
+    auto concealed_samples = init_option_u64();
+    auto silent_concealed_samples = init_option_u64();
+    auto audio_level = init_option_f64();
+    auto total_audio_energy = init_option_f64();
+    auto total_samples_duration = init_option_f64();
+
+    auto frames_decoded = init_option_u32();
+    auto key_frames_decoded = init_option_u32();
+    auto frame_width = init_option_u32();
+    auto frame_height = init_option_u32();
+    auto total_inter_frame_delay = init_option_f64();
+    auto frames_per_second = init_option_f64();
+    auto frame_bit_depth = init_option_u32();
+    auto fir_count = init_option_u32();
+    auto pli_count = init_option_u32();
+    auto concealment_events = init_option_u64();
+    auto frames_received = init_option_i32();
+    auto bytes_received = init_option_u64();
+    auto packets_received = init_option_u32();
+    auto total_decode_time = init_option_f64();
+    auto jitter_buffer_emitted_count = init_option_u64();
+
+    MediaKind media_type;
+    if (*cast->kind == "audio") {
+      media_type = MediaKind::Audio;
+      if (cast->total_samples_received.is_defined()) {
+        total_samples_received->set_value(*cast->total_samples_received);
+      }
+
+      if (cast->concealed_samples.is_defined()) {
+        concealed_samples->set_value(*cast->concealed_samples);
+      }
+
+      if (cast->silent_concealed_samples.is_defined()) {
+        silent_concealed_samples->set_value(*cast->silent_concealed_samples);
+      }
+
+      if (cast->audio_level.is_defined()) {
+        audio_level->set_value(*cast->audio_level);
+      }
+
+      if (cast->total_audio_energy.is_defined()) {
+        total_audio_energy->set_value(*cast->total_audio_energy);
+      }
+
+      if (cast->total_samples_duration.is_defined()) {
+        total_samples_duration->set_value(*cast->total_samples_duration);
+      }
+    } else {
+      media_type = MediaKind::Video;
+      if (cast->frames_decoded.is_defined()) {
+        frames_decoded->set_value(*cast->frames_decoded);
+      }
+
+      if (cast->key_frames_decoded.is_defined()) {
+        key_frames_decoded->set_value(*cast->key_frames_decoded);
+      }
+
+      if (cast->frame_width.is_defined()) {
+        frame_width->set_value(*cast->frame_width);
+      }
+
+      if (cast->frame_height.is_defined()) {
+        frame_height->set_value(*cast->frame_height);
+      }
+
+      if (cast->total_inter_frame_delay.is_defined()) {
+        total_inter_frame_delay->set_value(*cast->total_inter_frame_delay);
+      }
+
+      if (cast->frames_per_second.is_defined()) {
+        frames_per_second->set_value(*cast->frames_per_second);
+      }
+
+      if (cast->frame_bit_depth.is_defined()) {
+        frame_bit_depth->set_value(*cast->frame_bit_depth);
+      }
+
+      if (cast->fir_count.is_defined()) {
+        fir_count->set_value(*cast->fir_count);
+      }
+
+      if (cast->pli_count.is_defined()) {
+        pli_count->set_value(*cast->pli_count);
+      }
+
+      if (cast->concealment_events.is_defined()) {
+        concealment_events->set_value(*cast->concealment_events);
+      }
+
+      if (cast->frames_received.is_defined()) {
+        frames_received->set_value(*cast->frames_received);
+      }
+
+      if (cast->bytes_received.is_defined()) {
+        bytes_received->set_value(*cast->bytes_received);
+      }
+
+      if (cast->packets_received.is_defined()) {
+        packets_received->set_value(*cast->packets_received);
+      }
+
+      if (cast->total_decode_time.is_defined()) {
+        total_decode_time->set_value(*cast->total_decode_time);
+      }
+      if (cast->jitter_buffer_emitted_count.is_defined()) {
+        jitter_buffer_emitted_count->set_value(
+            *cast->jitter_buffer_emitted_count);
+      }
+    }
+
+    return RTCInboundRTPStreamStatsWrap{
+        std::move(remote_id),
+        media_type,
+        std::move(total_samples_received),
+        std::move(concealed_samples),
+        std::move(silent_concealed_samples),
+        std::move(audio_level),
+        std::move(total_audio_energy),
+        std::move(total_samples_duration),
+        std::move(frames_decoded),
+        std::move(key_frames_decoded),
+        std::move(frame_width),
+        std::move(frame_height),
+        std::move(total_inter_frame_delay),
+        std::move(frames_per_second),
+        std::move(frame_bit_depth),
+        std::move(fir_count),
+        std::move(pli_count),
+        std::move(concealment_events),
+        std::move(frames_received),
+        std::move(bytes_received),
+        std::move(packets_received),
+        std::move(total_decode_time),
+        std::move(jitter_buffer_emitted_count),
+    };
   }
+
   throw std::invalid_argument(
-      "Invalid type. Expected `inbound-rtp` but found " + type);
+      "Invalid type. Expected `inbound-rtp` but found: " + type);
 }
 
-// Try cast a `RTCStats` to the `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCIceCandidatePairStats> rtc_stats_cast_to_rtc_ice_candidate_pair_stats(
+// Try to cast a `RTCStats` to the wrap `RTCIceCandidatePairStats`.
+RTCIceCandidatePairStatsWrap cast_to_rtc_ice_candidate_pair_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "candidate-pair") {
-    return std::unique_ptr<RTCIceCandidatePairStats>(static_cast<RTCIceCandidatePairStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCIceCandidatePairStats>(static_cast<RTCIceCandidatePairStats*>(stats.release()));
+
+    RTCStatsIceCandidatePairState state;
+    auto nominated = init_option_bool();
+    if (cast->nominated.is_defined()) {
+        nominated->set_value(*cast->nominated);
+    }
+
+    auto bytes_sent = init_option_u64();
+    if (cast->bytes_sent.is_defined()) {
+        bytes_sent->set_value(*cast->bytes_sent);
+    }
+
+    auto bytes_received = init_option_u64();
+    if (cast->bytes_received.is_defined()) {
+        bytes_received->set_value(*cast->bytes_received);
+    }
+
+    auto total_round_trip_time = init_option_f64();
+    if (cast->total_round_trip_time.is_defined()) {
+        total_round_trip_time->set_value(*cast->total_round_trip_time);
+    }
+
+    auto current_round_trip_time = init_option_f64();
+    if (cast->current_round_trip_time.is_defined()) {
+        current_round_trip_time->set_value(*cast->current_round_trip_time);
+    }
+
+    auto available_outgoing_bitrate = init_option_f64();
+    if (cast->available_outgoing_bitrate.is_defined()) {
+        available_outgoing_bitrate->set_value(*cast->available_outgoing_bitrate);
+    }
+
+    return RTCIceCandidatePairStatsWrap{
+        state,
+        std::move(nominated),
+        std::move(bytes_sent),
+        std::move(bytes_received),
+        std::move(total_round_trip_time),
+        std::move(current_round_trip_time),
+        std::move(available_outgoing_bitrate),
+    };
   }
   throw std::invalid_argument(
-      "Invalid type. Expected `candidate-pair` but found " + type);
+      "Invalid type. Expected `candidate-pair` but found: " + type);
 }
 
-// Try cast a `RTCStats` to the `RTCTransportStats`.
-std::unique_ptr<RTCTransportStats> rtc_stats_cast_to_rtc_transport_stats(std::unique_ptr<RTCStats> stats) {
+// Try to cast a `RTCStats` to the wrap `RTCTransportStats`.
+RTCTransportStatsWrap cast_to_rtc_transport_stats(std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "transport") {
-    return std::unique_ptr<RTCTransportStats>(static_cast<RTCTransportStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCTransportStats>(static_cast<RTCTransportStats*>(stats.release()));
+
+    auto packets_sent = init_option_u64();
+    if (cast->packets_sent.is_defined()) {
+        packets_sent->set_value(*cast->packets_sent);
+    }
+
+    auto packets_received = init_option_u64();
+    if (cast->packets_received.is_defined()) {
+        packets_received->set_value(*cast->packets_received);
+    }
+
+    auto bytes_sent = init_option_u64();
+    if (cast->bytes_sent.is_defined()) {
+        bytes_sent->set_value(*cast->bytes_sent);
+    }
+
+    auto bytes_received = init_option_u64();
+    if (cast->bytes_received.is_defined()) {
+        bytes_received->set_value(*cast->bytes_received);
+    }
+
+    return RTCTransportStatsWrap
+    {
+      std::move(packets_sent),
+      std::move(packets_received),
+      std::move(bytes_sent),
+      std::move(bytes_received),
+    };
   }
   throw std::invalid_argument(
-      "Invalid type. Expected `transport` but found " + type);
+      "Invalid type. Expected `transport` but found: " + type);
 }
 
-// Try cast a `RTCStats` to the `RTCRemoteInboundRtpStreamStats`.
-std::unique_ptr<RTCRemoteInboundRtpStreamStats> rtc_stats_cast_to_rtc_remote_inbound_rtp_stream_stats(
+// Try to cast a `RTCStats` to the wrap `RTCRemoteInboundRtpStreamStats`.
+RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "remote-inbound-rtp") {
-    return std::unique_ptr<RTCRemoteInboundRtpStreamStats>(static_cast<RTCRemoteInboundRtpStreamStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCRemoteInboundRtpStreamStats>(static_cast<RTCRemoteInboundRtpStreamStats*>(stats.release()));
+    auto local_id = init_option_string();
+    if (cast->local_id.is_defined()) {
+        local_id->set_value(rust::String(*cast->local_id));
+    }
+
+    auto round_trip_time = init_option_f64();
+    if (cast->round_trip_time.is_defined()) {
+        round_trip_time->set_value(*cast->round_trip_time);
+    }
+
+    auto fraction_lost = init_option_f64();
+    if (cast->fraction_lost.is_defined()) {
+        fraction_lost->set_value(*cast->fraction_lost);
+    }
+
+    auto round_trip_time_measurements = init_option_i32();
+    if (cast->round_trip_time_measurements.is_defined()) {
+        round_trip_time_measurements->set_value(*cast->round_trip_time_measurements);
+    }
+
+    return RTCRemoteInboundRtpStreamStatsWrap {
+      std::move(local_id),
+      std::move(round_trip_time),
+      std::move(fraction_lost),
+      std::move(round_trip_time_measurements),
+    };
   }
   throw std::invalid_argument(
-      "Invalid type. Expected `remote-inbound-rtp` but found " + type);
+      "Invalid type. Expected `remote-inbound-rtp` but found: " + type);
 }
 
-// Try cast a `RTCStats` to the `RTCRemoteOutboundRtpStreamStats`.
-std::unique_ptr<RTCRemoteOutboundRtpStreamStats> rtc_stats_cast_to_rtc_remote_outbound_rtp_stream_stats(
+// Try to cast a `RTCStats` to the wrap `RTCRemoteOutboundRtpStreamStats`.
+RTCRemoteOutboundRtpStreamStatsWrap cast_to_rtc_remote_outbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "remote-outbound-rtp") {
-    return std::unique_ptr<RTCRemoteOutboundRtpStreamStats>(static_cast<RTCRemoteOutboundRtpStreamStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCRemoteOutboundRtpStreamStats>(static_cast<RTCRemoteOutboundRtpStreamStats*>(stats.release()));
+
+    auto local_id = init_option_string();
+    if (cast->local_id.is_defined()) {
+      local_id->set_value(rust::String(*cast->local_id));
+    }
+    auto remote_timestamp = init_option_f64();
+    if (cast->remote_timestamp.is_defined()) {
+      remote_timestamp->set_value(*cast->remote_timestamp);
+    }
+    auto reports_sent = init_option_u64();
+    if (cast->reports_sent.is_defined()) {
+      reports_sent->set_value(*cast->reports_sent);
+    }
+
+    return RTCRemoteOutboundRtpStreamStatsWrap{
+      std::move(local_id),
+      std::move(remote_timestamp),
+      std::move(reports_sent),
+    };
   }
   throw std::invalid_argument(
-      "Invalid type. Expected `remote-outbound-rtp` but found " + type);
+      "Invalid type. Expected `remote-outbound-rtp` but found: " + type);
 }
 
-// Try cast a `RTCStats` to the `RTCVideoSourceStats`.
-std::unique_ptr<RTCVideoSourceStats> rtc_media_source_stats_cast_to_rtc_video_source_stats(
+// Try to cast a `RTCStats` to the wrap `RTCVideoSourceStats`.
+RTCVideoSourceStatsWrap cast_to_rtc_video_source_stats(
     std::unique_ptr<RTCMediaSourceStats> stats) {
   auto kind = *stats->kind;
   if (kind == "video") {
-    return std::unique_ptr<RTCVideoSourceStats>(static_cast<RTCVideoSourceStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCVideoSourceStats>(
+        static_cast<RTCVideoSourceStats*>(stats.release()));
+
+    auto width = init_option_u32();
+    if (cast->width.is_defined()) {
+      width->set_value(*cast->width);
+    }
+    auto height = init_option_u32();
+    if (cast->height.is_defined()) {
+      height->set_value(*cast->height);
+    }
+    auto frames = init_option_u32();
+    if (cast->frames.is_defined()) {
+      frames->set_value(*cast->frames);
+    }
+    auto frames_per_second = init_option_f64();
+    if (cast->frames_per_second.is_defined()) {
+      frames_per_second->set_value(*cast->frames_per_second);
+    }
+
+    return RTCVideoSourceStatsWrap{
+        std::move(width),
+        std::move(height),
+        std::move(frames),
+        std::move(frames_per_second),
+
+    };
   }
   throw std::invalid_argument(
-      "Invalid kind. Expected `video` but found " + kind);
+      "Invalid kind. Expected `video` but found: " + kind);
 }
 
-// Try cast a `RTCStats` to the `RTCAudioSourceStats`.
-std::unique_ptr<RTCAudioSourceStats> rtc_media_source_stats_cast_to_rtc_audio_source_stats(
+// Try to cast a `RTCStats` to the wrap `RTCAudioSourceStats`.
+RTCAudioSourceStatsWrap cast_to_rtc_audio_source_stats(
     std::unique_ptr<RTCMediaSourceStats> stats) {
   auto kind = *stats->kind;
   if (kind == "audio") {
-    return std::unique_ptr<RTCAudioSourceStats>(static_cast<RTCAudioSourceStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCAudioSourceStats>(
+        static_cast<RTCAudioSourceStats*>(stats.release()));
+
+    auto audio_level = init_option_f64();
+    if (cast->audio_level.is_defined()) {
+      audio_level->set_value(*cast->audio_level);
+    }
+
+    auto total_audio_energy = init_option_f64();
+    if (cast->total_audio_energy.is_defined()) {
+      total_audio_energy->set_value(*cast->total_audio_energy);
+    }
+
+    auto total_samples_duration = init_option_f64();
+    if (cast->total_samples_duration.is_defined()) {
+      total_samples_duration->set_value(*cast->total_samples_duration);
+    }
+
+    auto echo_return_loss = init_option_f64();
+    if (cast->echo_return_loss.is_defined()) {
+      echo_return_loss->set_value(*cast->echo_return_loss);
+    }
+
+    auto echo_return_loss_enhancement = init_option_f64();
+    if (cast->echo_return_loss_enhancement.is_defined()) {
+      echo_return_loss_enhancement->set_value(
+          *cast->echo_return_loss_enhancement);
+    }
+
+    return RTCAudioSourceStatsWrap{
+        std::move(audio_level),
+        std::move(total_audio_energy),
+        std::move(total_samples_duration),
+        std::move(echo_return_loss),
+        std::move(echo_return_loss_enhancement),
+
+    };
   }
   throw std::invalid_argument(
-      "Invalid kind. Expected `audio` but found " + kind);
+      "Invalid kind. Expected `audio` but found: " + kind);
 }
 
-// RTCMediaSourceStats
-// Returns the `track_identifier` of the provided `RTCMediaSourceStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_media_source_stats_track_identifier(
-    const RTCMediaSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.track_identifier);
-}
-
-// Returns the `kind` of the provided `RTCMediaSourceStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_media_source_stats_kind(
-    const RTCMediaSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.kind);
-}
-/// RTCMediaSourceStats
-
-//RTCVideoSourceStats
-// Returns the `width` of the provided `RTCVideoSourceStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_video_source_stats_width(
-    const RTCVideoSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.width);
-}
-
-// Returns the `height` of the provided `RTCVideoSourceStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_video_source_stats_height(
-    const RTCVideoSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.height);
-}
-
-// Returns the `frames` of the provided `RTCVideoSourceStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_video_source_stats_frames(
-    const RTCVideoSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frames);
-}
-
-// Returns the `frames_per_second` of the provided `RTCVideoSourceStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_video_source_stats_frames_per_second(
-    const RTCVideoSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.frames_per_second);
-}
-
-/// RTCMediaSourceStats
-
-// RTCAudioSourceStats
-// Returns the `audio_level` of the provided `RTCAudioSourceStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_audio_level(
-    const RTCAudioSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.audio_level);
-}
-
-// Returns the `total_audio_energy` of the provided `RTCAudioSourceStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_total_audio_energy(
-    const RTCAudioSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_audio_energy);
-}
-
-// Returns the `total_samples_duration` of the provided `RTCAudioSourceStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_total_samples_duration(
-    const RTCAudioSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_samples_duration);
-}
-
-// Returns the `echo_return_loss` of the provided `RTCAudioSourceStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_echo_return_loss(
-    const RTCAudioSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.echo_return_loss);
-}
-
-// Returns the `echo_return_loss_enhancement` of the provided `RTCAudioSourceStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_audio_source_stats_echo_return_loss_enhancement(
-    const RTCAudioSourceStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.echo_return_loss_enhancement);
-}
-
-/// RTCAudioSourceStats
-
-// RTCIceCandidateStats
-// Returns the `transport_id` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_transport_id(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.transport_id);
-}
-
-// Returns the `is_remote` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_stats_is_remote(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberbool>(stats.is_remote);
-}
-
-// Returns the `network_type` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_network_type(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.network_type);
-}
-
-// Returns the `ip` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_ip(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.ip);
-}
-
-// Returns the `address` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_address(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.address);
-}
-
-// Returns the `port` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberi32> rtc_ice_candidate_stats_port(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberi32>(stats.port);
-}
-
-// Returns the `protocol` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_protocol(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.protocol);
-}
-
-// Returns the `relay_protocol` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_relay_protocol(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.relay_protocol);
-}
-
-// Returns the `candidate_type` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_candidate_type(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.candidate_type);
-}
-
-// Returns the `priority` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberi32> rtc_ice_candidate_stats_priority(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberi32>(stats.priority);
-}
-
-// Returns the `url` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_url(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.url);
-}
-
-// Returns the `vpn` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_stats_vpn(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberbool>(stats.vpn);
-}
-
-// Returns the `network_adapter_type` of the provided `RTCIceCandidateStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_stats_network_adapter_type(
-    const RTCIceCandidateStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.network_adapter_type);
-}
-
-/// RTCIceCandidateStats
-
-// RTCOutboundRTPStreamStats
-// Returns the `track_id` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_track_id(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.track_id);
-}
-
-// Returns the `kind` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_kind(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.kind);
-}
-
-// Returns the `media_source_id` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_media_source_id(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.media_source_id);
-}
-
-// Returns the `remote_id` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_remote_id(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.remote_id);
-}
-
-// Returns the `rid` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_rid(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.rid);
-}
-
-// Returns the `packets_sent` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_packets_sent(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.packets_sent);
-}
-
-// Returns the `retransmitted_packets_sent` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_retransmitted_packets_sent(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.retransmitted_packets_sent);
-}
-
-// Returns the `bytes_sent` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_bytes_sent(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.bytes_sent);
-}
-
-// Returns the `header_bytes_sent` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_header_bytes_sent(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.header_bytes_sent);
-}
-
-// Returns the `retransmitted_bytes_sent` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_retransmitted_bytes_sent(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.retransmitted_bytes_sent);
-}
-
-// Returns the `target_bitrate` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_target_bitrate(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.target_bitrate);
-}
-
-// Returns the `frames_encoded` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frames_encoded(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frames_encoded);
-}
-
-// Returns the `key_frames_encoded` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_key_frames_encoded(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.key_frames_encoded);
-}
-
-// Returns the `total_encode_time` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_total_encode_time(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_encode_time);
-}
-
-// Returns the `total_encoded_bytes_target` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_total_encoded_bytes_target(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.total_encoded_bytes_target);
-}
-
-// Returns the `frame_width` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frame_width(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frame_width);
-}
-
-// Returns the `frame_height` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frame_height(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frame_height);
-}
-
-// Returns the `frames_per_second` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_frames_per_second(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.frames_per_second);
-}
-
-// Returns the `frames_sent` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_frames_sent(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frames_sent);
-}
-
-// Returns the `huge_frames_sent` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_huge_frames_sent(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.huge_frames_sent);
-}
-
-// Returns the `total_packet_send_delay` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_outbound_rtp_stream_stats_total_packet_send_delay(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_packet_send_delay);
-}
-
-// Returns the `quality_limitation_reason` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_quality_limitation_reason(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.quality_limitation_reason);
-}
-
-// Returns the `quality_limitation_resolution_changes` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_quality_limitation_resolution_changes(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.quality_limitation_resolution_changes);
-}
-
-// Returns the `content_type` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_content_type(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.content_type);
-}
-
-// Returns the `encoder_implementation` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_outbound_rtp_stream_stats_encoder_implementation(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.encoder_implementation);
-}
-
-// Returns the `fir_count` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_fir_count(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.fir_count);
-}
-
-// Returns the `pli_count` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_pli_count(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.pli_count);
-}
-
-// Returns the `nack_count` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_outbound_rtp_stream_stats_nack_count(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.nack_count);
-}
-
-// Returns the `qp_sum` of the provided `RTCOutboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_outbound_rtp_stream_stats_qp_sum(
-    const RTCOutboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.qp_sum);
-}
-
-/// RTCOutboundRTPStreamStats
-
-// RTCInboundRTPStreamStats
-// Returns the `remote_id` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_inbound_rtp_stream_stats_remote_id(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.remote_id);
-}
-
-// Returns the `packets_received` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_packets_received(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.packets_received);
-}
-
-// Returns the `fec_packets_received` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_fec_packets_received(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.fec_packets_received);
-}
-
-// Returns the `fec_packets_discarded` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_fec_packets_discarded(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.fec_packets_discarded);
-}
-
-// Returns the `bytes_received` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_bytes_received(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.bytes_received);
-}
-
-// Returns the `header_bytes_received` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_header_bytes_received(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.header_bytes_received);
-}
-
-// Returns the `last_packet_received_timestamp` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_last_packet_received_timestamp(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.last_packet_received_timestamp);
-}
-
-// Returns the `jitter_buffer_delay` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_jitter_buffer_delay(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.jitter_buffer_delay);
-}
-
-// Returns the `jitter_buffer_emitted_count` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_jitter_buffer_emitted_count(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.jitter_buffer_emitted_count);
-}
-
-// Returns the `total_samples_received` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_total_samples_received(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.total_samples_received);
-}
-
-// Returns the `concealed_samples` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_concealed_samples(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.concealed_samples);
-}
-
-// Returns the `silent_concealed_samples` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_silent_concealed_samples(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.silent_concealed_samples);
-}
-
-// Returns the `concealment_events` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_concealment_events(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.concealment_events);
-}
-
-// Returns the `inserted_samples_for_deceleration` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_inserted_samples_for_deceleration(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.inserted_samples_for_deceleration);
-}
-
-// Returns the `removed_samples_for_acceleration` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_removed_samples_for_acceleration(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.removed_samples_for_acceleration);
-}
-
-// Returns the `audio_level` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_audio_level(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.audio_level);
-}
-
-// Returns the `total_audio_energy` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_audio_energy(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_audio_energy);
-}
-
-// Returns the `total_samples_duration` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_samples_duration(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_samples_duration);
-}
-
-// Returns the `frames_received` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberi32> rtc_inbound_rtp_stream_stats_frames_received(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberi32>(stats.frames_received);
-}
-
-// Returns the `round_trip_time` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_round_trip_time(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.round_trip_time);
-}
-
-// Returns the `packets_repaired` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_packets_repaired(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.packets_repaired);
-}
-
-// Returns the `burst_packets_lost` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_packets_lost(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.burst_packets_lost);
-}
-
-// Returns the `burst_packets_discarded` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_packets_discarded(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.burst_packets_discarded);
-}
-
-// Returns the `burst_loss_count` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_loss_count(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.burst_loss_count);
-}
-
-// Returns the `burst_discard_count` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_burst_discard_count(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.burst_discard_count);
-}
-
-// Returns the `burst_loss_rate` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_burst_loss_rate(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.burst_loss_rate);
-}
-
-// Returns the `burst_discard_rate` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_burst_discard_rate(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.burst_discard_rate);
-}
-
-// Returns the `gap_loss_rate` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_gap_loss_rate(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.gap_loss_rate);
-}
-
-// Returns the `gap_discard_rate` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_gap_discard_rate(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.gap_discard_rate);
-}
-
-// Returns the `frame_width` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frame_width(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frame_width);
-}
-
-// Returns the `frame_height` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frame_height(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frame_height);
-}
-
-// Returns the `frame_bit_depth` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frame_bit_depth(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frame_bit_depth);
-}
-
-// Returns the `frames_per_second` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_frames_per_second(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.frames_per_second);
-}
-
-// Returns the `frames_decoded` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frames_decoded(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frames_decoded);
-}
-
-// Returns the `key_frames_decoded` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_key_frames_decoded(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.key_frames_decoded);
-}
-
-// Returns the `frames_dropped` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_frames_dropped(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.frames_dropped);
-}
-
-// Returns the `total_decode_time` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_decode_time(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_decode_time);
-}
-
-// Returns the `total_inter_frame_delay` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_inter_frame_delay(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_inter_frame_delay);
-}
-
-// Returns the `total_squared_inter_frame_delay` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_total_squared_inter_frame_delay(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_squared_inter_frame_delay);
-}
-
-// Returns the `content_type` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_inbound_rtp_stream_stats_content_type(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.content_type);
-}
-
-// Returns the `estimated_playout_timestamp` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_inbound_rtp_stream_stats_estimated_playout_timestamp(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.estimated_playout_timestamp);
-}
-
-// Returns the `decoder_implementation` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_inbound_rtp_stream_stats_decoder_implementation(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.decoder_implementation);
-}
-
-// Returns the `fir_count` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_fir_count(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.fir_count);
-}
-
-// Returns the `pli_count` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_pli_count(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.pli_count);
-}
-
-// Returns the `nack_count` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_inbound_rtp_stream_stats_nack_count(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.nack_count);
-}
-
-// Returns the `qp_sum` of the provided `RTCInboundRTPStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_inbound_rtp_stream_stats_qp_sum(
-    const RTCInboundRTPStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.qp_sum);
-}
-
-/// RTCInboundRTPStreamStats
-
-// RTCIceCandidatePairStats
-// Returns the `transport_id` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_transport_id(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.transport_id);
-}
-
-// Returns the `local_candidate_id` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_local_candidate_id(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.local_candidate_id);
-}
-
-// Returns the `remote_candidate_id` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_remote_candidate_id(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.remote_candidate_id);
-}
-
-// Returns the `state` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_ice_candidate_pair_stats_state(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.state);
-}
-
-// Returns the `priority` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_priority(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.priority);
-}
-
-// Returns the `nominated` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_pair_stats_nominated(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberbool>(stats.nominated);
-}
-
-// Returns the `writable` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_pair_stats_writable(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberbool>(stats.writable);
-}
-
-// Returns the `readable` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberbool> rtc_ice_candidate_pair_stats_readable(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberbool>(stats.readable);
-}
-
-// Returns the `packets_sent` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_packets_sent(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.packets_sent);
-}
-
-// Returns the `packets_received` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_packets_received(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.packets_received);
-}
-
-// Returns the `bytes_sent` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_bytes_sent(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.bytes_sent);
-}
-
-// Returns the `bytes_received` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_bytes_received(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.bytes_received);
-}
-
-// Returns the `total_round_trip_time` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_total_round_trip_time(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_round_trip_time);
-}
-
-// Returns the `current_round_trip_time` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_current_round_trip_time(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.current_round_trip_time);
-}
-
-// Returns the `available_outgoing_bitrate` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_available_outgoing_bitrate(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.available_outgoing_bitrate);
-}
-
-// Returns the `available_incoming_bitrate` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_ice_candidate_pair_stats_available_incoming_bitrate(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.available_incoming_bitrate);
-}
-
-// Returns the `requests_received` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_requests_received(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.requests_received);
-}
-
-// Returns the `requests_sent` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_requests_sent(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.requests_sent);
-}
-
-// Returns the `responses_received` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_responses_received(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.responses_received);
-}
-
-// Returns the `responses_sent` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_responses_sent(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.responses_sent);
-}
-
-// Returns the `retransmissions_received` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_retransmissions_received(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.retransmissions_received);
-}
-
-// Returns the `retransmissions_sent` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_retransmissions_sent(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.retransmissions_sent);
-}
-
-// Returns the `consent_requests_received` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_requests_received(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.consent_requests_received);
-}
-
-// Returns the `consent_requests_sent` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_requests_sent(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.consent_requests_sent);
-}
-
-// Returns the `consent_responses_received` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_responses_received(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.consent_responses_received);
-}
-
-// Returns the `consent_responses_sent` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_consent_responses_sent(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.consent_responses_sent);
-}
-
-// Returns the `packets_discarded_on_send` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_packets_discarded_on_send(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.packets_discarded_on_send);
-}
-
-// Returns the `bytes_discarded_on_send` of the provided `RTCIceCandidatePairStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_ice_candidate_pair_stats_bytes_discarded_on_send(
-    const RTCIceCandidatePairStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.bytes_discarded_on_send);
-}
-
-/// RTCIceCandidatePairStats
-
-// RTCTransportStats
-// Returns the `bytes_sent` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_bytes_sent(const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.bytes_sent);
-}
-
-// Returns the `packets_sent` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_packets_sent(const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.packets_sent);
-}
-
-// Returns the `bytes_received` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_bytes_received(const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.bytes_received);
-}
-
-// Returns the `packets_received` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_transport_stats_packets_received(const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.packets_received);
-}
-
-// Returns the `rtcp_transport_stats_id` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_rtcp_transport_stats_id(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.rtcp_transport_stats_id);
-}
-
-// Returns the `dtls_state` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_dtls_state(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.dtls_state);
-}
-
-// Returns the `selected_candidate_pair_id` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_selected_candidate_pair_id(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.selected_candidate_pair_id);
-}
-
-// Returns the `local_certificate_id` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_local_certificate_id(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.local_certificate_id);
-}
-
-// Returns the `remote_certificate_id` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_remote_certificate_id(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.remote_certificate_id);
-}
-
-// Returns the `tls_version` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_tls_version(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.tls_version);
-}
-
-// Returns the `dtls_cipher` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_dtls_cipher(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.dtls_cipher);
-}
-
-// Returns the `srtp_cipher` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_transport_stats_srtp_cipher(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.srtp_cipher);
-}
-
-// Returns the `selected_candidate_pair_changes` of the provided `RTCTransportStats`.
-std::unique_ptr<RTCStatsMemberu32> rtc_transport_stats_selected_candidate_pair_changes(
-    const RTCTransportStats& stats) {
-  return std::make_unique<RTCStatsMemberu32>(stats.selected_candidate_pair_changes);
-}
-/// RTCTransportStats
-
-// RTCRemoteInboundRtpStreamStats
-// Returns the `local_id` of the provided `RTCRemoteInboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_remote_inbound_rtp_stream_stats_local_id(
-    const RTCRemoteInboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.local_id);
-}
-
-// Returns the `round_trip_time` of the provided `RTCRemoteInboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_round_trip_time(
-    const RTCRemoteInboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.round_trip_time);
-}
-
-// Returns the `fraction_lost` of the provided `RTCRemoteInboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_fraction_lost(
-    const RTCRemoteInboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.fraction_lost);
-}
-
-// Returns the `total_round_trip_time` of the provided `RTCRemoteInboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_remote_inbound_rtp_stream_stats_total_round_trip_time(
-    const RTCRemoteInboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_round_trip_time);
-}
-
-// Returns the `round_trip_time_measurements` of the provided `RTCRemoteInboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberi32> round_trip_time_measurements(
-    const RTCRemoteInboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberi32>(stats.round_trip_time_measurements);
-}
-
-/// RTCRemoteInboundRtpStreamStats
-
-// RTCRemoteOutboundRtpStreamStats
-// Returns the `local_id` of the provided `RTCRemoteOutboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberString> rtc_remote_outbound_rtp_stream_stats_local_id(
-    const RTCRemoteOutboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberString>(stats.local_id);
-}
-
-// Returns the `remote_timestamp` of the provided `RTCRemoteOutboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberf64>
-rtc_remote_outbound_rtp_stream_stats_remote_timestamp(
-    const RTCRemoteOutboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.remote_timestamp);
-}
-
-// Returns the `reports_sent` of the provided `RTCRemoteOutboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_remote_outbound_rtp_stream_stats_reports_sent(
-    const RTCRemoteOutboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.reports_sent);
-}
-
-// Returns the `round_trip_time` of the provided `RTCRemoteOutboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_remote_outbound_rtp_stream_stats_round_trip_time(
-    const RTCRemoteOutboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.round_trip_time);
-}
-
-// Returns the `round_trip_time_measurements` of the provided `RTCRemoteOutboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberu64> rtc_remote_outbound_rtp_stream_stats_round_trip_time_measurements(
-    const RTCRemoteOutboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberu64>(stats.round_trip_time_measurements);
-}
-
-// Returns the `total_round_trip_time` of the provided `RTCRemoteOutboundRtpStreamStats`.
-std::unique_ptr<RTCStatsMemberf64> rtc_remote_outbound_rtp_stream_stats_total_round_trip_time(
-    const RTCRemoteOutboundRtpStreamStats& stats) {
-  return std::make_unique<RTCStatsMemberf64>(stats.total_round_trip_time);
-}
-
-/// RTCRemoteOutboundRtpStreamStats
-
-// Returns collection `RTCStats` of the provided `RTCStatsReport`.
-rust::Vec<RTCStatsContainer> rtc_stats_report_get_stats(
+// Returns collection wrap `RTCStats` of the provided `RTCStatsReport`.
+rust::Vec<RTCStatsWrap> rtc_stats_report_get_stats(
     const RTCStatsReport& report) {
-  rust::Vec<RTCStatsContainer> stats_result;
-
+  rust::Vec<RTCStatsWrap> stats_result;
+  
   for (const RTCStats& stats : *report) {
-    RTCStatsContainer wrap_stat = {stats.copy()};
+    auto type_str = stats.type();
+    RTCStatsType type;
+
+    if (strcmp(type_str, "media-source") == 0) {
+      type = RTCStatsType::RTCMediaSourceStats;
+    } else if (strcmp(type_str, "local-candidate") == 0 ||
+               strcmp(type_str, "remote-candidate") == 0) {
+      type = RTCStatsType::RTCIceCandidateStats;
+    } else if (strcmp(type_str, "outbound-rtp") == 0) {
+      type = RTCStatsType::RTCOutboundRTPStreamStats;
+    } else if (strcmp(type_str, "inbound-rtp") == 0) {
+      type = RTCStatsType::RTCInboundRTPStreamStats;
+    } else if (strcmp(type_str, "candidate-pair") == 0) {
+      type = RTCStatsType::RTCIceCandidatePairStats;
+    } else if (strcmp(type_str, "transport") == 0) {
+      type = RTCStatsType::RTCTransportStats;
+    } else if (strcmp(type_str, "remote-inbound-rtp") == 0) {
+      type = RTCStatsType::RTCRemoteInboundRtpStreamStats;
+    } else if (strcmp(type_str, "remote-outbound-rtp") == 0) {
+      type = RTCStatsType::RTCRemoteOutboundRtpStreamStats;
+    } else {
+      type = RTCStatsType::Unimplemented;
+    }
+
+    RTCStatsWrap wrap_stat = {rust::String(stats.id()),
+                                   stats.timestamp_us(), type, stats.copy()};
     stats_result.push_back(std::move(wrap_stat));
   }
   return stats_result;

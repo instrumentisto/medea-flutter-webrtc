@@ -2938,78 +2938,68 @@ abstract class PeerConnectionEvent_Track implements PeerConnectionEvent {
 }
 
 /// @nodoc
-mixin _$RTCIceCandidateStats {
+mixin _$RtcIceCandidateStats {
   IceCandidateStats get field0 => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(IceCandidateStats field0)
-        rtcLocalIceCandidateStats,
-    required TResult Function(IceCandidateStats field0)
-        rtcRemoteIceCandidateStats,
+    required TResult Function(IceCandidateStats field0) local,
+    required TResult Function(IceCandidateStats field0) remote,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
-    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? local,
+    TResult Function(IceCandidateStats field0)? remote,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
-    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? local,
+    TResult Function(IceCandidateStats field0)? remote,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(
-            RTCIceCandidateStats_RTCLocalIceCandidateStats value)
-        rtcLocalIceCandidateStats,
-    required TResult Function(
-            RTCIceCandidateStats_RTCRemoteIceCandidateStats value)
-        rtcRemoteIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats_Local value) local,
+    required TResult Function(RtcIceCandidateStats_Remote value) remote,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
-        rtcLocalIceCandidateStats,
-    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
-        rtcRemoteIceCandidateStats,
+    TResult Function(RtcIceCandidateStats_Local value)? local,
+    TResult Function(RtcIceCandidateStats_Remote value)? remote,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
-        rtcLocalIceCandidateStats,
-    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
-        rtcRemoteIceCandidateStats,
+    TResult Function(RtcIceCandidateStats_Local value)? local,
+    TResult Function(RtcIceCandidateStats_Remote value)? remote,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
-  $RTCIceCandidateStatsCopyWith<RTCIceCandidateStats> get copyWith =>
+  $RtcIceCandidateStatsCopyWith<RtcIceCandidateStats> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $RTCIceCandidateStatsCopyWith<$Res> {
-  factory $RTCIceCandidateStatsCopyWith(RTCIceCandidateStats value,
-          $Res Function(RTCIceCandidateStats) then) =
-      _$RTCIceCandidateStatsCopyWithImpl<$Res>;
+abstract class $RtcIceCandidateStatsCopyWith<$Res> {
+  factory $RtcIceCandidateStatsCopyWith(RtcIceCandidateStats value,
+          $Res Function(RtcIceCandidateStats) then) =
+      _$RtcIceCandidateStatsCopyWithImpl<$Res>;
   $Res call({IceCandidateStats field0});
 }
 
 /// @nodoc
-class _$RTCIceCandidateStatsCopyWithImpl<$Res>
-    implements $RTCIceCandidateStatsCopyWith<$Res> {
-  _$RTCIceCandidateStatsCopyWithImpl(this._value, this._then);
+class _$RtcIceCandidateStatsCopyWithImpl<$Res>
+    implements $RtcIceCandidateStatsCopyWith<$Res> {
+  _$RtcIceCandidateStatsCopyWithImpl(this._value, this._then);
 
-  final RTCIceCandidateStats _value;
+  final RtcIceCandidateStats _value;
   // ignore: unused_field
-  final $Res Function(RTCIceCandidateStats) _then;
+  final $Res Function(RtcIceCandidateStats) _then;
 
   @override
   $Res call({
@@ -3025,38 +3015,34 @@ class _$RTCIceCandidateStatsCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<$Res>
-    implements $RTCIceCandidateStatsCopyWith<$Res> {
-  factory _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith(
-          _$RTCIceCandidateStats_RTCLocalIceCandidateStats value,
-          $Res Function(_$RTCIceCandidateStats_RTCLocalIceCandidateStats)
-              then) =
-      __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl<$Res>;
+abstract class _$$RtcIceCandidateStats_LocalCopyWith<$Res>
+    implements $RtcIceCandidateStatsCopyWith<$Res> {
+  factory _$$RtcIceCandidateStats_LocalCopyWith(
+          _$RtcIceCandidateStats_Local value,
+          $Res Function(_$RtcIceCandidateStats_Local) then) =
+      __$$RtcIceCandidateStats_LocalCopyWithImpl<$Res>;
   @override
   $Res call({IceCandidateStats field0});
 }
 
 /// @nodoc
-class __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl<$Res>
-    extends _$RTCIceCandidateStatsCopyWithImpl<$Res>
-    implements _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<$Res> {
-  __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl(
-      _$RTCIceCandidateStats_RTCLocalIceCandidateStats _value,
-      $Res Function(_$RTCIceCandidateStats_RTCLocalIceCandidateStats) _then)
-      : super(
-            _value,
-            (v) =>
-                _then(v as _$RTCIceCandidateStats_RTCLocalIceCandidateStats));
+class __$$RtcIceCandidateStats_LocalCopyWithImpl<$Res>
+    extends _$RtcIceCandidateStatsCopyWithImpl<$Res>
+    implements _$$RtcIceCandidateStats_LocalCopyWith<$Res> {
+  __$$RtcIceCandidateStats_LocalCopyWithImpl(
+      _$RtcIceCandidateStats_Local _value,
+      $Res Function(_$RtcIceCandidateStats_Local) _then)
+      : super(_value, (v) => _then(v as _$RtcIceCandidateStats_Local));
 
   @override
-  _$RTCIceCandidateStats_RTCLocalIceCandidateStats get _value =>
-      super._value as _$RTCIceCandidateStats_RTCLocalIceCandidateStats;
+  _$RtcIceCandidateStats_Local get _value =>
+      super._value as _$RtcIceCandidateStats_Local;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(_$RTCIceCandidateStats_RTCLocalIceCandidateStats(
+    return _then(_$RtcIceCandidateStats_Local(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -3067,23 +3053,22 @@ class __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCIceCandidateStats_RTCLocalIceCandidateStats
-    implements RTCIceCandidateStats_RTCLocalIceCandidateStats {
-  const _$RTCIceCandidateStats_RTCLocalIceCandidateStats(this.field0);
+class _$RtcIceCandidateStats_Local implements RtcIceCandidateStats_Local {
+  const _$RtcIceCandidateStats_Local(this.field0);
 
   @override
   final IceCandidateStats field0;
 
   @override
   String toString() {
-    return 'RTCIceCandidateStats.rtcLocalIceCandidateStats(field0: $field0)';
+    return 'RtcIceCandidateStats.local(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCIceCandidateStats_RTCLocalIceCandidateStats &&
+            other is _$RtcIceCandidateStats_Local &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -3093,42 +3078,37 @@ class _$RTCIceCandidateStats_RTCLocalIceCandidateStats
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<
-          _$RTCIceCandidateStats_RTCLocalIceCandidateStats>
-      get copyWith =>
-          __$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWithImpl<
-                  _$RTCIceCandidateStats_RTCLocalIceCandidateStats>(
-              this, _$identity);
+  _$$RtcIceCandidateStats_LocalCopyWith<_$RtcIceCandidateStats_Local>
+      get copyWith => __$$RtcIceCandidateStats_LocalCopyWithImpl<
+          _$RtcIceCandidateStats_Local>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(IceCandidateStats field0)
-        rtcLocalIceCandidateStats,
-    required TResult Function(IceCandidateStats field0)
-        rtcRemoteIceCandidateStats,
+    required TResult Function(IceCandidateStats field0) local,
+    required TResult Function(IceCandidateStats field0) remote,
   }) {
-    return rtcLocalIceCandidateStats(field0);
+    return local(field0);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
-    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? local,
+    TResult Function(IceCandidateStats field0)? remote,
   }) {
-    return rtcLocalIceCandidateStats?.call(field0);
+    return local?.call(field0);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
-    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? local,
+    TResult Function(IceCandidateStats field0)? remote,
     required TResult orElse(),
   }) {
-    if (rtcLocalIceCandidateStats != null) {
-      return rtcLocalIceCandidateStats(field0);
+    if (local != null) {
+      return local(field0);
     }
     return orElse();
   }
@@ -3136,92 +3116,76 @@ class _$RTCIceCandidateStats_RTCLocalIceCandidateStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(
-            RTCIceCandidateStats_RTCLocalIceCandidateStats value)
-        rtcLocalIceCandidateStats,
-    required TResult Function(
-            RTCIceCandidateStats_RTCRemoteIceCandidateStats value)
-        rtcRemoteIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats_Local value) local,
+    required TResult Function(RtcIceCandidateStats_Remote value) remote,
   }) {
-    return rtcLocalIceCandidateStats(this);
+    return local(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
-        rtcLocalIceCandidateStats,
-    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
-        rtcRemoteIceCandidateStats,
+    TResult Function(RtcIceCandidateStats_Local value)? local,
+    TResult Function(RtcIceCandidateStats_Remote value)? remote,
   }) {
-    return rtcLocalIceCandidateStats?.call(this);
+    return local?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
-        rtcLocalIceCandidateStats,
-    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
-        rtcRemoteIceCandidateStats,
+    TResult Function(RtcIceCandidateStats_Local value)? local,
+    TResult Function(RtcIceCandidateStats_Remote value)? remote,
     required TResult orElse(),
   }) {
-    if (rtcLocalIceCandidateStats != null) {
-      return rtcLocalIceCandidateStats(this);
+    if (local != null) {
+      return local(this);
     }
     return orElse();
   }
 }
 
-abstract class RTCIceCandidateStats_RTCLocalIceCandidateStats
-    implements RTCIceCandidateStats {
-  const factory RTCIceCandidateStats_RTCLocalIceCandidateStats(
-          final IceCandidateStats field0) =
-      _$RTCIceCandidateStats_RTCLocalIceCandidateStats;
+abstract class RtcIceCandidateStats_Local implements RtcIceCandidateStats {
+  const factory RtcIceCandidateStats_Local(final IceCandidateStats field0) =
+      _$RtcIceCandidateStats_Local;
 
   @override
   IceCandidateStats get field0;
   @override
   @JsonKey(ignore: true)
-  _$$RTCIceCandidateStats_RTCLocalIceCandidateStatsCopyWith<
-          _$RTCIceCandidateStats_RTCLocalIceCandidateStats>
+  _$$RtcIceCandidateStats_LocalCopyWith<_$RtcIceCandidateStats_Local>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<$Res>
-    implements $RTCIceCandidateStatsCopyWith<$Res> {
-  factory _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith(
-          _$RTCIceCandidateStats_RTCRemoteIceCandidateStats value,
-          $Res Function(_$RTCIceCandidateStats_RTCRemoteIceCandidateStats)
-              then) =
-      __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl<$Res>;
+abstract class _$$RtcIceCandidateStats_RemoteCopyWith<$Res>
+    implements $RtcIceCandidateStatsCopyWith<$Res> {
+  factory _$$RtcIceCandidateStats_RemoteCopyWith(
+          _$RtcIceCandidateStats_Remote value,
+          $Res Function(_$RtcIceCandidateStats_Remote) then) =
+      __$$RtcIceCandidateStats_RemoteCopyWithImpl<$Res>;
   @override
   $Res call({IceCandidateStats field0});
 }
 
 /// @nodoc
-class __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl<$Res>
-    extends _$RTCIceCandidateStatsCopyWithImpl<$Res>
-    implements
-        _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<$Res> {
-  __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl(
-      _$RTCIceCandidateStats_RTCRemoteIceCandidateStats _value,
-      $Res Function(_$RTCIceCandidateStats_RTCRemoteIceCandidateStats) _then)
-      : super(
-            _value,
-            (v) =>
-                _then(v as _$RTCIceCandidateStats_RTCRemoteIceCandidateStats));
+class __$$RtcIceCandidateStats_RemoteCopyWithImpl<$Res>
+    extends _$RtcIceCandidateStatsCopyWithImpl<$Res>
+    implements _$$RtcIceCandidateStats_RemoteCopyWith<$Res> {
+  __$$RtcIceCandidateStats_RemoteCopyWithImpl(
+      _$RtcIceCandidateStats_Remote _value,
+      $Res Function(_$RtcIceCandidateStats_Remote) _then)
+      : super(_value, (v) => _then(v as _$RtcIceCandidateStats_Remote));
 
   @override
-  _$RTCIceCandidateStats_RTCRemoteIceCandidateStats get _value =>
-      super._value as _$RTCIceCandidateStats_RTCRemoteIceCandidateStats;
+  _$RtcIceCandidateStats_Remote get _value =>
+      super._value as _$RtcIceCandidateStats_Remote;
 
   @override
   $Res call({
     Object? field0 = freezed,
   }) {
-    return _then(_$RTCIceCandidateStats_RTCRemoteIceCandidateStats(
+    return _then(_$RtcIceCandidateStats_Remote(
       field0 == freezed
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -3232,23 +3196,22 @@ class __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCIceCandidateStats_RTCRemoteIceCandidateStats
-    implements RTCIceCandidateStats_RTCRemoteIceCandidateStats {
-  const _$RTCIceCandidateStats_RTCRemoteIceCandidateStats(this.field0);
+class _$RtcIceCandidateStats_Remote implements RtcIceCandidateStats_Remote {
+  const _$RtcIceCandidateStats_Remote(this.field0);
 
   @override
   final IceCandidateStats field0;
 
   @override
   String toString() {
-    return 'RTCIceCandidateStats.rtcRemoteIceCandidateStats(field0: $field0)';
+    return 'RtcIceCandidateStats.remote(field0: $field0)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCIceCandidateStats_RTCRemoteIceCandidateStats &&
+            other is _$RtcIceCandidateStats_Remote &&
             const DeepCollectionEquality().equals(other.field0, field0));
   }
 
@@ -3258,42 +3221,37 @@ class _$RTCIceCandidateStats_RTCRemoteIceCandidateStats
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<
-          _$RTCIceCandidateStats_RTCRemoteIceCandidateStats>
-      get copyWith =>
-          __$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWithImpl<
-                  _$RTCIceCandidateStats_RTCRemoteIceCandidateStats>(
-              this, _$identity);
+  _$$RtcIceCandidateStats_RemoteCopyWith<_$RtcIceCandidateStats_Remote>
+      get copyWith => __$$RtcIceCandidateStats_RemoteCopyWithImpl<
+          _$RtcIceCandidateStats_Remote>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(IceCandidateStats field0)
-        rtcLocalIceCandidateStats,
-    required TResult Function(IceCandidateStats field0)
-        rtcRemoteIceCandidateStats,
+    required TResult Function(IceCandidateStats field0) local,
+    required TResult Function(IceCandidateStats field0) remote,
   }) {
-    return rtcRemoteIceCandidateStats(field0);
+    return remote(field0);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
-    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? local,
+    TResult Function(IceCandidateStats field0)? remote,
   }) {
-    return rtcRemoteIceCandidateStats?.call(field0);
+    return remote?.call(field0);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(IceCandidateStats field0)? rtcLocalIceCandidateStats,
-    TResult Function(IceCandidateStats field0)? rtcRemoteIceCandidateStats,
+    TResult Function(IceCandidateStats field0)? local,
+    TResult Function(IceCandidateStats field0)? remote,
     required TResult orElse(),
   }) {
-    if (rtcRemoteIceCandidateStats != null) {
-      return rtcRemoteIceCandidateStats(field0);
+    if (remote != null) {
+      return remote(field0);
     }
     return orElse();
   }
@@ -3301,63 +3259,53 @@ class _$RTCIceCandidateStats_RTCRemoteIceCandidateStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(
-            RTCIceCandidateStats_RTCLocalIceCandidateStats value)
-        rtcLocalIceCandidateStats,
-    required TResult Function(
-            RTCIceCandidateStats_RTCRemoteIceCandidateStats value)
-        rtcRemoteIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats_Local value) local,
+    required TResult Function(RtcIceCandidateStats_Remote value) remote,
   }) {
-    return rtcRemoteIceCandidateStats(this);
+    return remote(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
-        rtcLocalIceCandidateStats,
-    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
-        rtcRemoteIceCandidateStats,
+    TResult Function(RtcIceCandidateStats_Local value)? local,
+    TResult Function(RtcIceCandidateStats_Remote value)? remote,
   }) {
-    return rtcRemoteIceCandidateStats?.call(this);
+    return remote?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCIceCandidateStats_RTCLocalIceCandidateStats value)?
-        rtcLocalIceCandidateStats,
-    TResult Function(RTCIceCandidateStats_RTCRemoteIceCandidateStats value)?
-        rtcRemoteIceCandidateStats,
+    TResult Function(RtcIceCandidateStats_Local value)? local,
+    TResult Function(RtcIceCandidateStats_Remote value)? remote,
     required TResult orElse(),
   }) {
-    if (rtcRemoteIceCandidateStats != null) {
-      return rtcRemoteIceCandidateStats(this);
+    if (remote != null) {
+      return remote(this);
     }
     return orElse();
   }
 }
 
-abstract class RTCIceCandidateStats_RTCRemoteIceCandidateStats
-    implements RTCIceCandidateStats {
-  const factory RTCIceCandidateStats_RTCRemoteIceCandidateStats(
-          final IceCandidateStats field0) =
-      _$RTCIceCandidateStats_RTCRemoteIceCandidateStats;
+abstract class RtcIceCandidateStats_Remote implements RtcIceCandidateStats {
+  const factory RtcIceCandidateStats_Remote(final IceCandidateStats field0) =
+      _$RtcIceCandidateStats_Remote;
 
   @override
   IceCandidateStats get field0;
   @override
   @JsonKey(ignore: true)
-  _$$RTCIceCandidateStats_RTCRemoteIceCandidateStatsCopyWith<
-          _$RTCIceCandidateStats_RTCRemoteIceCandidateStats>
+  _$$RtcIceCandidateStats_RemoteCopyWith<_$RtcIceCandidateStats_Remote>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-mixin _$RTCInboundRtpStreamMediaType {
+mixin _$RtcInboundRtpStreamMediaType {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -3375,6 +3323,7 @@ mixin _$RTCInboundRtpStreamMediaType {
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)
         video,
@@ -3383,6 +3332,7 @@ mixin _$RTCInboundRtpStreamMediaType {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -3400,6 +3350,7 @@ mixin _$RTCInboundRtpStreamMediaType {
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)?
         video,
@@ -3408,6 +3359,7 @@ mixin _$RTCInboundRtpStreamMediaType {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -3425,6 +3377,7 @@ mixin _$RTCInboundRtpStreamMediaType {
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)?
         video,
@@ -3433,51 +3386,52 @@ mixin _$RTCInboundRtpStreamMediaType {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCInboundRtpStreamMediaType_Audio value) audio,
-    required TResult Function(RTCInboundRtpStreamMediaType_Video value) video,
+    required TResult Function(RtcInboundRtpStreamMediaType_Audio value) audio,
+    required TResult Function(RtcInboundRtpStreamMediaType_Video value) video,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
-    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    TResult Function(RtcInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RtcInboundRtpStreamMediaType_Video value)? video,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
-    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    TResult Function(RtcInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RtcInboundRtpStreamMediaType_Video value)? video,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $RTCInboundRtpStreamMediaTypeCopyWith<$Res> {
-  factory $RTCInboundRtpStreamMediaTypeCopyWith(
-          RTCInboundRtpStreamMediaType value,
-          $Res Function(RTCInboundRtpStreamMediaType) then) =
-      _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>;
+abstract class $RtcInboundRtpStreamMediaTypeCopyWith<$Res> {
+  factory $RtcInboundRtpStreamMediaTypeCopyWith(
+          RtcInboundRtpStreamMediaType value,
+          $Res Function(RtcInboundRtpStreamMediaType) then) =
+      _$RtcInboundRtpStreamMediaTypeCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>
-    implements $RTCInboundRtpStreamMediaTypeCopyWith<$Res> {
-  _$RTCInboundRtpStreamMediaTypeCopyWithImpl(this._value, this._then);
+class _$RtcInboundRtpStreamMediaTypeCopyWithImpl<$Res>
+    implements $RtcInboundRtpStreamMediaTypeCopyWith<$Res> {
+  _$RtcInboundRtpStreamMediaTypeCopyWithImpl(this._value, this._then);
 
-  final RTCInboundRtpStreamMediaType _value;
+  final RtcInboundRtpStreamMediaType _value;
   // ignore: unused_field
-  final $Res Function(RTCInboundRtpStreamMediaType) _then;
+  final $Res Function(RtcInboundRtpStreamMediaType) _then;
 }
 
 /// @nodoc
-abstract class _$$RTCInboundRtpStreamMediaType_AudioCopyWith<$Res> {
-  factory _$$RTCInboundRtpStreamMediaType_AudioCopyWith(
-          _$RTCInboundRtpStreamMediaType_Audio value,
-          $Res Function(_$RTCInboundRtpStreamMediaType_Audio) then) =
-      __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>;
+abstract class _$$RtcInboundRtpStreamMediaType_AudioCopyWith<$Res> {
+  factory _$$RtcInboundRtpStreamMediaType_AudioCopyWith(
+          _$RtcInboundRtpStreamMediaType_Audio value,
+          $Res Function(_$RtcInboundRtpStreamMediaType_Audio) then) =
+      __$$RtcInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>;
   $Res call(
-      {int? totalSamplesReceived,
+      {bool? voiceActivityFlag,
+      int? totalSamplesReceived,
       int? concealedSamples,
       int? silentConcealedSamples,
       double? audioLevel,
@@ -3486,20 +3440,21 @@ abstract class _$$RTCInboundRtpStreamMediaType_AudioCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>
-    extends _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>
-    implements _$$RTCInboundRtpStreamMediaType_AudioCopyWith<$Res> {
-  __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl(
-      _$RTCInboundRtpStreamMediaType_Audio _value,
-      $Res Function(_$RTCInboundRtpStreamMediaType_Audio) _then)
-      : super(_value, (v) => _then(v as _$RTCInboundRtpStreamMediaType_Audio));
+class __$$RtcInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>
+    extends _$RtcInboundRtpStreamMediaTypeCopyWithImpl<$Res>
+    implements _$$RtcInboundRtpStreamMediaType_AudioCopyWith<$Res> {
+  __$$RtcInboundRtpStreamMediaType_AudioCopyWithImpl(
+      _$RtcInboundRtpStreamMediaType_Audio _value,
+      $Res Function(_$RtcInboundRtpStreamMediaType_Audio) _then)
+      : super(_value, (v) => _then(v as _$RtcInboundRtpStreamMediaType_Audio));
 
   @override
-  _$RTCInboundRtpStreamMediaType_Audio get _value =>
-      super._value as _$RTCInboundRtpStreamMediaType_Audio;
+  _$RtcInboundRtpStreamMediaType_Audio get _value =>
+      super._value as _$RtcInboundRtpStreamMediaType_Audio;
 
   @override
   $Res call({
+    Object? voiceActivityFlag = freezed,
     Object? totalSamplesReceived = freezed,
     Object? concealedSamples = freezed,
     Object? silentConcealedSamples = freezed,
@@ -3507,7 +3462,11 @@ class __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>
     Object? totalAudioEnergy = freezed,
     Object? totalSamplesDuration = freezed,
   }) {
-    return _then(_$RTCInboundRtpStreamMediaType_Audio(
+    return _then(_$RtcInboundRtpStreamMediaType_Audio(
+      voiceActivityFlag: voiceActivityFlag == freezed
+          ? _value.voiceActivityFlag
+          : voiceActivityFlag // ignore: cast_nullable_to_non_nullable
+              as bool?,
       totalSamplesReceived: totalSamplesReceived == freezed
           ? _value.totalSamplesReceived
           : totalSamplesReceived // ignore: cast_nullable_to_non_nullable
@@ -3538,15 +3497,27 @@ class __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCInboundRtpStreamMediaType_Audio
-    implements RTCInboundRtpStreamMediaType_Audio {
-  const _$RTCInboundRtpStreamMediaType_Audio(
-      {this.totalSamplesReceived,
+class _$RtcInboundRtpStreamMediaType_Audio
+    implements RtcInboundRtpStreamMediaType_Audio {
+  const _$RtcInboundRtpStreamMediaType_Audio(
+      {this.voiceActivityFlag,
+      this.totalSamplesReceived,
       this.concealedSamples,
       this.silentConcealedSamples,
       this.audioLevel,
       this.totalAudioEnergy,
       this.totalSamplesDuration});
+
+  /// Indicator whether the last RTP packet whose frame was delivered to
+  /// the [RTCRtpReceiver]'s [MediaStreamTrack][1] for playout contained
+  /// voice activity or not based on the presence of the V bit in the
+  /// extension header, as defined in [RFC 6464].
+  ///
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#rtcrtpreceiver-interface
+  /// [RFC 6464]: https://tools.ietf.org/html/rfc6464#page-3
+  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+  @override
+  final bool? voiceActivityFlag;
 
   /// Total number of samples that have been received on this RTP stream.
   /// This includes [`concealedSamples`].
@@ -3591,20 +3562,22 @@ class _$RTCInboundRtpStreamMediaType_Audio
   /// For audio durations of tracks attached locally, see
   /// [RTCAudioSourceStats][1] instead.
   ///
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosourcestats
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcaudiosourcestats
   @override
   final double? totalSamplesDuration;
 
   @override
   String toString() {
-    return 'RTCInboundRtpStreamMediaType.audio(totalSamplesReceived: $totalSamplesReceived, concealedSamples: $concealedSamples, silentConcealedSamples: $silentConcealedSamples, audioLevel: $audioLevel, totalAudioEnergy: $totalAudioEnergy, totalSamplesDuration: $totalSamplesDuration)';
+    return 'RtcInboundRtpStreamMediaType.audio(voiceActivityFlag: $voiceActivityFlag, totalSamplesReceived: $totalSamplesReceived, concealedSamples: $concealedSamples, silentConcealedSamples: $silentConcealedSamples, audioLevel: $audioLevel, totalAudioEnergy: $totalAudioEnergy, totalSamplesDuration: $totalSamplesDuration)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCInboundRtpStreamMediaType_Audio &&
+            other is _$RtcInboundRtpStreamMediaType_Audio &&
+            const DeepCollectionEquality()
+                .equals(other.voiceActivityFlag, voiceActivityFlag) &&
             const DeepCollectionEquality()
                 .equals(other.totalSamplesReceived, totalSamplesReceived) &&
             const DeepCollectionEquality()
@@ -3622,6 +3595,7 @@ class _$RTCInboundRtpStreamMediaType_Audio
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      const DeepCollectionEquality().hash(voiceActivityFlag),
       const DeepCollectionEquality().hash(totalSamplesReceived),
       const DeepCollectionEquality().hash(concealedSamples),
       const DeepCollectionEquality().hash(silentConcealedSamples),
@@ -3631,15 +3605,16 @@ class _$RTCInboundRtpStreamMediaType_Audio
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCInboundRtpStreamMediaType_AudioCopyWith<
-          _$RTCInboundRtpStreamMediaType_Audio>
-      get copyWith => __$$RTCInboundRtpStreamMediaType_AudioCopyWithImpl<
-          _$RTCInboundRtpStreamMediaType_Audio>(this, _$identity);
+  _$$RtcInboundRtpStreamMediaType_AudioCopyWith<
+          _$RtcInboundRtpStreamMediaType_Audio>
+      get copyWith => __$$RtcInboundRtpStreamMediaType_AudioCopyWithImpl<
+          _$RtcInboundRtpStreamMediaType_Audio>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -3657,18 +3632,26 @@ class _$RTCInboundRtpStreamMediaType_Audio
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)
         video,
   }) {
-    return audio(totalSamplesReceived, concealedSamples, silentConcealedSamples,
-        audioLevel, totalAudioEnergy, totalSamplesDuration);
+    return audio(
+        voiceActivityFlag,
+        totalSamplesReceived,
+        concealedSamples,
+        silentConcealedSamples,
+        audioLevel,
+        totalAudioEnergy,
+        totalSamplesDuration);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -3686,11 +3669,13 @@ class _$RTCInboundRtpStreamMediaType_Audio
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)?
         video,
   }) {
     return audio?.call(
+        voiceActivityFlag,
         totalSamplesReceived,
         concealedSamples,
         silentConcealedSamples,
@@ -3703,6 +3688,7 @@ class _$RTCInboundRtpStreamMediaType_Audio
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -3720,6 +3706,7 @@ class _$RTCInboundRtpStreamMediaType_Audio
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)?
         video,
@@ -3727,6 +3714,7 @@ class _$RTCInboundRtpStreamMediaType_Audio
   }) {
     if (audio != null) {
       return audio(
+          voiceActivityFlag,
           totalSamplesReceived,
           concealedSamples,
           silentConcealedSamples,
@@ -3740,8 +3728,8 @@ class _$RTCInboundRtpStreamMediaType_Audio
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCInboundRtpStreamMediaType_Audio value) audio,
-    required TResult Function(RTCInboundRtpStreamMediaType_Video value) video,
+    required TResult Function(RtcInboundRtpStreamMediaType_Audio value) audio,
+    required TResult Function(RtcInboundRtpStreamMediaType_Video value) video,
   }) {
     return audio(this);
   }
@@ -3749,8 +3737,8 @@ class _$RTCInboundRtpStreamMediaType_Audio
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
-    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    TResult Function(RtcInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RtcInboundRtpStreamMediaType_Video value)? video,
   }) {
     return audio?.call(this);
   }
@@ -3758,8 +3746,8 @@ class _$RTCInboundRtpStreamMediaType_Audio
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
-    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    TResult Function(RtcInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RtcInboundRtpStreamMediaType_Video value)? video,
     required TResult orElse(),
   }) {
     if (audio != null) {
@@ -3769,16 +3757,27 @@ class _$RTCInboundRtpStreamMediaType_Audio
   }
 }
 
-abstract class RTCInboundRtpStreamMediaType_Audio
-    implements RTCInboundRtpStreamMediaType {
-  const factory RTCInboundRtpStreamMediaType_Audio(
-          {final int? totalSamplesReceived,
+abstract class RtcInboundRtpStreamMediaType_Audio
+    implements RtcInboundRtpStreamMediaType {
+  const factory RtcInboundRtpStreamMediaType_Audio(
+          {final bool? voiceActivityFlag,
+          final int? totalSamplesReceived,
           final int? concealedSamples,
           final int? silentConcealedSamples,
           final double? audioLevel,
           final double? totalAudioEnergy,
           final double? totalSamplesDuration}) =
-      _$RTCInboundRtpStreamMediaType_Audio;
+      _$RtcInboundRtpStreamMediaType_Audio;
+
+  /// Indicator whether the last RTP packet whose frame was delivered to
+  /// the [RTCRtpReceiver]'s [MediaStreamTrack][1] for playout contained
+  /// voice activity or not based on the presence of the V bit in the
+  /// extension header, as defined in [RFC 6464].
+  ///
+  /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#rtcrtpreceiver-interface
+  /// [RFC 6464]: https://tools.ietf.org/html/rfc6464#page-3
+  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+  bool? get voiceActivityFlag;
 
   /// Total number of samples that have been received on this RTP stream.
   /// This includes [`concealedSamples`].
@@ -3818,20 +3817,20 @@ abstract class RTCInboundRtpStreamMediaType_Audio
   /// For audio durations of tracks attached locally, see
   /// [RTCAudioSourceStats][1] instead.
   ///
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosourcestats
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcaudiosourcestats
   double? get totalSamplesDuration;
   @JsonKey(ignore: true)
-  _$$RTCInboundRtpStreamMediaType_AudioCopyWith<
-          _$RTCInboundRtpStreamMediaType_Audio>
+  _$$RtcInboundRtpStreamMediaType_AudioCopyWith<
+          _$RtcInboundRtpStreamMediaType_Audio>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCInboundRtpStreamMediaType_VideoCopyWith<$Res> {
-  factory _$$RTCInboundRtpStreamMediaType_VideoCopyWith(
-          _$RTCInboundRtpStreamMediaType_Video value,
-          $Res Function(_$RTCInboundRtpStreamMediaType_Video) then) =
-      __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>;
+abstract class _$$RtcInboundRtpStreamMediaType_VideoCopyWith<$Res> {
+  factory _$$RtcInboundRtpStreamMediaType_VideoCopyWith(
+          _$RtcInboundRtpStreamMediaType_Video value,
+          $Res Function(_$RtcInboundRtpStreamMediaType_Video) then) =
+      __$$RtcInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>;
   $Res call(
       {int? framesDecoded,
       int? keyFramesDecoded,
@@ -3842,22 +3841,23 @@ abstract class _$$RTCInboundRtpStreamMediaType_VideoCopyWith<$Res> {
       int? frameBitDepth,
       int? firCount,
       int? pliCount,
+      int? sliCount,
       int? concealmentEvents,
       int? framesReceived});
 }
 
 /// @nodoc
-class __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>
-    extends _$RTCInboundRtpStreamMediaTypeCopyWithImpl<$Res>
-    implements _$$RTCInboundRtpStreamMediaType_VideoCopyWith<$Res> {
-  __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl(
-      _$RTCInboundRtpStreamMediaType_Video _value,
-      $Res Function(_$RTCInboundRtpStreamMediaType_Video) _then)
-      : super(_value, (v) => _then(v as _$RTCInboundRtpStreamMediaType_Video));
+class __$$RtcInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>
+    extends _$RtcInboundRtpStreamMediaTypeCopyWithImpl<$Res>
+    implements _$$RtcInboundRtpStreamMediaType_VideoCopyWith<$Res> {
+  __$$RtcInboundRtpStreamMediaType_VideoCopyWithImpl(
+      _$RtcInboundRtpStreamMediaType_Video _value,
+      $Res Function(_$RtcInboundRtpStreamMediaType_Video) _then)
+      : super(_value, (v) => _then(v as _$RtcInboundRtpStreamMediaType_Video));
 
   @override
-  _$RTCInboundRtpStreamMediaType_Video get _value =>
-      super._value as _$RTCInboundRtpStreamMediaType_Video;
+  _$RtcInboundRtpStreamMediaType_Video get _value =>
+      super._value as _$RtcInboundRtpStreamMediaType_Video;
 
   @override
   $Res call({
@@ -3870,10 +3870,11 @@ class __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>
     Object? frameBitDepth = freezed,
     Object? firCount = freezed,
     Object? pliCount = freezed,
+    Object? sliCount = freezed,
     Object? concealmentEvents = freezed,
     Object? framesReceived = freezed,
   }) {
-    return _then(_$RTCInboundRtpStreamMediaType_Video(
+    return _then(_$RtcInboundRtpStreamMediaType_Video(
       framesDecoded: framesDecoded == freezed
           ? _value.framesDecoded
           : framesDecoded // ignore: cast_nullable_to_non_nullable
@@ -3910,6 +3911,10 @@ class __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>
           ? _value.pliCount
           : pliCount // ignore: cast_nullable_to_non_nullable
               as int?,
+      sliCount: sliCount == freezed
+          ? _value.sliCount
+          : sliCount // ignore: cast_nullable_to_non_nullable
+              as int?,
       concealmentEvents: concealmentEvents == freezed
           ? _value.concealmentEvents
           : concealmentEvents // ignore: cast_nullable_to_non_nullable
@@ -3924,9 +3929,9 @@ class __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCInboundRtpStreamMediaType_Video
-    implements RTCInboundRtpStreamMediaType_Video {
-  const _$RTCInboundRtpStreamMediaType_Video(
+class _$RtcInboundRtpStreamMediaType_Video
+    implements RtcInboundRtpStreamMediaType_Video {
+  const _$RtcInboundRtpStreamMediaType_Video(
       {this.framesDecoded,
       this.keyFramesDecoded,
       this.frameWidth,
@@ -3936,6 +3941,7 @@ class _$RTCInboundRtpStreamMediaType_Video
       this.frameBitDepth,
       this.firCount,
       this.pliCount,
+      this.sliCount,
       this.concealmentEvents,
       this.framesReceived});
 
@@ -3952,8 +3958,8 @@ class _$RTCInboundRtpStreamMediaType_Video
   /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
   /// delta frames decoded.
   ///
-  /// [RFC 6386]: https://w3.org/TR/webrtc-stats/#bib-rfc6386
-  /// [RFC 6184]: https://w3.org/TR/webrtc-stats/#bib-rfc6184
+  /// [RFC 6386]: https://w3.org/TR/WEBRTC-stats/#bib-rfc6386
+  /// [RFC 6184]: https://w3.org/TR/WEBRTC-stats/#bib-rfc6184
   /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
   /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
   @override
@@ -3997,6 +4003,11 @@ class _$RTCInboundRtpStreamMediaType_Video
   @override
   final int? pliCount;
 
+  /// Total number of Slice Loss Indication (SLI) packets sent by this
+  /// receiver.
+  @override
+  final int? sliCount;
+
   /// Number of concealment events.
   ///
   /// This counter increases every time a concealed sample is synthesized
@@ -4016,14 +4027,14 @@ class _$RTCInboundRtpStreamMediaType_Video
 
   @override
   String toString() {
-    return 'RTCInboundRtpStreamMediaType.video(framesDecoded: $framesDecoded, keyFramesDecoded: $keyFramesDecoded, frameWidth: $frameWidth, frameHeight: $frameHeight, totalInterFrameDelay: $totalInterFrameDelay, framesPerSecond: $framesPerSecond, frameBitDepth: $frameBitDepth, firCount: $firCount, pliCount: $pliCount, concealmentEvents: $concealmentEvents, framesReceived: $framesReceived)';
+    return 'RtcInboundRtpStreamMediaType.video(framesDecoded: $framesDecoded, keyFramesDecoded: $keyFramesDecoded, frameWidth: $frameWidth, frameHeight: $frameHeight, totalInterFrameDelay: $totalInterFrameDelay, framesPerSecond: $framesPerSecond, frameBitDepth: $frameBitDepth, firCount: $firCount, pliCount: $pliCount, sliCount: $sliCount, concealmentEvents: $concealmentEvents, framesReceived: $framesReceived)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCInboundRtpStreamMediaType_Video &&
+            other is _$RtcInboundRtpStreamMediaType_Video &&
             const DeepCollectionEquality()
                 .equals(other.framesDecoded, framesDecoded) &&
             const DeepCollectionEquality()
@@ -4040,6 +4051,7 @@ class _$RTCInboundRtpStreamMediaType_Video
                 .equals(other.frameBitDepth, frameBitDepth) &&
             const DeepCollectionEquality().equals(other.firCount, firCount) &&
             const DeepCollectionEquality().equals(other.pliCount, pliCount) &&
+            const DeepCollectionEquality().equals(other.sliCount, sliCount) &&
             const DeepCollectionEquality()
                 .equals(other.concealmentEvents, concealmentEvents) &&
             const DeepCollectionEquality()
@@ -4058,20 +4070,22 @@ class _$RTCInboundRtpStreamMediaType_Video
       const DeepCollectionEquality().hash(frameBitDepth),
       const DeepCollectionEquality().hash(firCount),
       const DeepCollectionEquality().hash(pliCount),
+      const DeepCollectionEquality().hash(sliCount),
       const DeepCollectionEquality().hash(concealmentEvents),
       const DeepCollectionEquality().hash(framesReceived));
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCInboundRtpStreamMediaType_VideoCopyWith<
-          _$RTCInboundRtpStreamMediaType_Video>
-      get copyWith => __$$RTCInboundRtpStreamMediaType_VideoCopyWithImpl<
-          _$RTCInboundRtpStreamMediaType_Video>(this, _$identity);
+  _$$RtcInboundRtpStreamMediaType_VideoCopyWith<
+          _$RtcInboundRtpStreamMediaType_Video>
+      get copyWith => __$$RtcInboundRtpStreamMediaType_VideoCopyWithImpl<
+          _$RtcInboundRtpStreamMediaType_Video>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -4089,6 +4103,7 @@ class _$RTCInboundRtpStreamMediaType_Video
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)
         video,
@@ -4103,6 +4118,7 @@ class _$RTCInboundRtpStreamMediaType_Video
         frameBitDepth,
         firCount,
         pliCount,
+        sliCount,
         concealmentEvents,
         framesReceived);
   }
@@ -4111,6 +4127,7 @@ class _$RTCInboundRtpStreamMediaType_Video
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -4128,6 +4145,7 @@ class _$RTCInboundRtpStreamMediaType_Video
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)?
         video,
@@ -4142,6 +4160,7 @@ class _$RTCInboundRtpStreamMediaType_Video
         frameBitDepth,
         firCount,
         pliCount,
+        sliCount,
         concealmentEvents,
         framesReceived);
   }
@@ -4150,6 +4169,7 @@ class _$RTCInboundRtpStreamMediaType_Video
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(
+            bool? voiceActivityFlag,
             int? totalSamplesReceived,
             int? concealedSamples,
             int? silentConcealedSamples,
@@ -4167,6 +4187,7 @@ class _$RTCInboundRtpStreamMediaType_Video
             int? frameBitDepth,
             int? firCount,
             int? pliCount,
+            int? sliCount,
             int? concealmentEvents,
             int? framesReceived)?
         video,
@@ -4183,6 +4204,7 @@ class _$RTCInboundRtpStreamMediaType_Video
           frameBitDepth,
           firCount,
           pliCount,
+          sliCount,
           concealmentEvents,
           framesReceived);
     }
@@ -4192,8 +4214,8 @@ class _$RTCInboundRtpStreamMediaType_Video
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCInboundRtpStreamMediaType_Audio value) audio,
-    required TResult Function(RTCInboundRtpStreamMediaType_Video value) video,
+    required TResult Function(RtcInboundRtpStreamMediaType_Audio value) audio,
+    required TResult Function(RtcInboundRtpStreamMediaType_Video value) video,
   }) {
     return video(this);
   }
@@ -4201,8 +4223,8 @@ class _$RTCInboundRtpStreamMediaType_Video
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
-    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    TResult Function(RtcInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RtcInboundRtpStreamMediaType_Video value)? video,
   }) {
     return video?.call(this);
   }
@@ -4210,8 +4232,8 @@ class _$RTCInboundRtpStreamMediaType_Video
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCInboundRtpStreamMediaType_Audio value)? audio,
-    TResult Function(RTCInboundRtpStreamMediaType_Video value)? video,
+    TResult Function(RtcInboundRtpStreamMediaType_Audio value)? audio,
+    TResult Function(RtcInboundRtpStreamMediaType_Video value)? video,
     required TResult orElse(),
   }) {
     if (video != null) {
@@ -4221,9 +4243,9 @@ class _$RTCInboundRtpStreamMediaType_Video
   }
 }
 
-abstract class RTCInboundRtpStreamMediaType_Video
-    implements RTCInboundRtpStreamMediaType {
-  const factory RTCInboundRtpStreamMediaType_Video(
+abstract class RtcInboundRtpStreamMediaType_Video
+    implements RtcInboundRtpStreamMediaType {
+  const factory RtcInboundRtpStreamMediaType_Video(
       {final int? framesDecoded,
       final int? keyFramesDecoded,
       final int? frameWidth,
@@ -4233,8 +4255,9 @@ abstract class RTCInboundRtpStreamMediaType_Video
       final int? frameBitDepth,
       final int? firCount,
       final int? pliCount,
+      final int? sliCount,
       final int? concealmentEvents,
-      final int? framesReceived}) = _$RTCInboundRtpStreamMediaType_Video;
+      final int? framesReceived}) = _$RtcInboundRtpStreamMediaType_Video;
 
   /// Total number of frames correctly decoded for this RTP stream, i.e.
   /// frames that would be displayed if no frames are dropped.
@@ -4248,8 +4271,8 @@ abstract class RTCInboundRtpStreamMediaType_Video
   /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
   /// delta frames decoded.
   ///
-  /// [RFC 6386]: https://w3.org/TR/webrtc-stats/#bib-rfc6386
-  /// [RFC 6184]: https://w3.org/TR/webrtc-stats/#bib-rfc6184
+  /// [RFC 6386]: https://w3.org/TR/WEBRTC-stats/#bib-rfc6386
+  /// [RFC 6184]: https://w3.org/TR/WEBRTC-stats/#bib-rfc6184
   /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
   /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
   int? get keyFramesDecoded;
@@ -4285,6 +4308,10 @@ abstract class RTCInboundRtpStreamMediaType_Video
   /// receiver.
   int? get pliCount;
 
+  /// Total number of Slice Loss Indication (SLI) packets sent by this
+  /// receiver.
+  int? get sliCount;
+
   /// Number of concealment events.
   ///
   /// This counter increases every time a concealed sample is synthesized
@@ -4300,13 +4327,13 @@ abstract class RTCInboundRtpStreamMediaType_Video
   /// This metric is incremented when the complete frame is received.
   int? get framesReceived;
   @JsonKey(ignore: true)
-  _$$RTCInboundRtpStreamMediaType_VideoCopyWith<
-          _$RTCInboundRtpStreamMediaType_Video>
+  _$$RtcInboundRtpStreamMediaType_VideoCopyWith<
+          _$RtcInboundRtpStreamMediaType_Video>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-mixin _$RTCMediaSourceStatsType {
+mixin _$RtcMediaSourceStatsMediaType {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
@@ -4352,25 +4379,27 @@ mixin _$RTCMediaSourceStatsType {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)
+    required TResult Function(
+            RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)
         rtcVideoSourceStats,
-    required TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)
+    required TResult Function(
+            RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)
         rtcAudioSourceStats,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)?
         rtcVideoSourceStats,
-    TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)?
         rtcAudioSourceStats,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)?
         rtcVideoSourceStats,
-    TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)?
         rtcAudioSourceStats,
     required TResult orElse(),
   }) =>
@@ -4378,44 +4407,50 @@ mixin _$RTCMediaSourceStatsType {
 }
 
 /// @nodoc
-abstract class $RTCMediaSourceStatsTypeCopyWith<$Res> {
-  factory $RTCMediaSourceStatsTypeCopyWith(RTCMediaSourceStatsType value,
-          $Res Function(RTCMediaSourceStatsType) then) =
-      _$RTCMediaSourceStatsTypeCopyWithImpl<$Res>;
+abstract class $RtcMediaSourceStatsMediaTypeCopyWith<$Res> {
+  factory $RtcMediaSourceStatsMediaTypeCopyWith(
+          RtcMediaSourceStatsMediaType value,
+          $Res Function(RtcMediaSourceStatsMediaType) then) =
+      _$RtcMediaSourceStatsMediaTypeCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$RTCMediaSourceStatsTypeCopyWithImpl<$Res>
-    implements $RTCMediaSourceStatsTypeCopyWith<$Res> {
-  _$RTCMediaSourceStatsTypeCopyWithImpl(this._value, this._then);
+class _$RtcMediaSourceStatsMediaTypeCopyWithImpl<$Res>
+    implements $RtcMediaSourceStatsMediaTypeCopyWith<$Res> {
+  _$RtcMediaSourceStatsMediaTypeCopyWithImpl(this._value, this._then);
 
-  final RTCMediaSourceStatsType _value;
+  final RtcMediaSourceStatsMediaType _value;
   // ignore: unused_field
-  final $Res Function(RTCMediaSourceStatsType) _then;
+  final $Res Function(RtcMediaSourceStatsMediaType) _then;
 }
 
 /// @nodoc
-abstract class _$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWith<$Res> {
-  factory _$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWith(
-          _$RTCMediaSourceStatsType_RTCVideoSourceStats value,
-          $Res Function(_$RTCMediaSourceStatsType_RTCVideoSourceStats) then) =
-      __$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWithImpl<$Res>;
+abstract class _$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWith<
+    $Res> {
+  factory _$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWith(
+          _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats value,
+          $Res Function(_$RtcMediaSourceStatsMediaType_RtcVideoSourceStats)
+              then) =
+      __$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWithImpl<$Res>;
   $Res call({int? width, int? height, int? frames, double? framesPerSecond});
 }
 
 /// @nodoc
-class __$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWithImpl<$Res>
-    extends _$RTCMediaSourceStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWith<$Res> {
-  __$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWithImpl(
-      _$RTCMediaSourceStatsType_RTCVideoSourceStats _value,
-      $Res Function(_$RTCMediaSourceStatsType_RTCVideoSourceStats) _then)
-      : super(_value,
-            (v) => _then(v as _$RTCMediaSourceStatsType_RTCVideoSourceStats));
+class __$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWithImpl<$Res>
+    extends _$RtcMediaSourceStatsMediaTypeCopyWithImpl<$Res>
+    implements
+        _$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWith<$Res> {
+  __$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWithImpl(
+      _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats _value,
+      $Res Function(_$RtcMediaSourceStatsMediaType_RtcVideoSourceStats) _then)
+      : super(
+            _value,
+            (v) =>
+                _then(v as _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats));
 
   @override
-  _$RTCMediaSourceStatsType_RTCVideoSourceStats get _value =>
-      super._value as _$RTCMediaSourceStatsType_RTCVideoSourceStats;
+  _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats get _value =>
+      super._value as _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats;
 
   @override
   $Res call({
@@ -4424,7 +4459,7 @@ class __$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWithImpl<$Res>
     Object? frames = freezed,
     Object? framesPerSecond = freezed,
   }) {
-    return _then(_$RTCMediaSourceStatsType_RTCVideoSourceStats(
+    return _then(_$RtcMediaSourceStatsMediaType_RtcVideoSourceStats(
       width: width == freezed
           ? _value.width
           : width // ignore: cast_nullable_to_non_nullable
@@ -4447,9 +4482,9 @@ class __$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCMediaSourceStatsType_RTCVideoSourceStats
-    implements RTCMediaSourceStatsType_RTCVideoSourceStats {
-  const _$RTCMediaSourceStatsType_RTCVideoSourceStats(
+class _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats
+    implements RtcMediaSourceStatsMediaType_RtcVideoSourceStats {
+  const _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats(
       {this.width, this.height, this.frames, this.framesPerSecond});
 
   /// Width (in pixels) of the last frame originating from the source.
@@ -4474,14 +4509,14 @@ class _$RTCMediaSourceStatsType_RTCVideoSourceStats
 
   @override
   String toString() {
-    return 'RTCMediaSourceStatsType.rtcVideoSourceStats(width: $width, height: $height, frames: $frames, framesPerSecond: $framesPerSecond)';
+    return 'RtcMediaSourceStatsMediaType.rtcVideoSourceStats(width: $width, height: $height, frames: $frames, framesPerSecond: $framesPerSecond)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCMediaSourceStatsType_RTCVideoSourceStats &&
+            other is _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats &&
             const DeepCollectionEquality().equals(other.width, width) &&
             const DeepCollectionEquality().equals(other.height, height) &&
             const DeepCollectionEquality().equals(other.frames, frames) &&
@@ -4499,11 +4534,12 @@ class _$RTCMediaSourceStatsType_RTCVideoSourceStats
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWith<
-          _$RTCMediaSourceStatsType_RTCVideoSourceStats>
+  _$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWith<
+          _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats>
       get copyWith =>
-          __$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWithImpl<
-              _$RTCMediaSourceStatsType_RTCVideoSourceStats>(this, _$identity);
+          __$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWithImpl<
+                  _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats>(
+              this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -4563,9 +4599,11 @@ class _$RTCMediaSourceStatsType_RTCVideoSourceStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)
+    required TResult Function(
+            RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)
         rtcVideoSourceStats,
-    required TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)
+    required TResult Function(
+            RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)
         rtcAudioSourceStats,
   }) {
     return rtcVideoSourceStats(this);
@@ -4574,9 +4612,9 @@ class _$RTCMediaSourceStatsType_RTCVideoSourceStats
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)?
         rtcVideoSourceStats,
-    TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)?
         rtcAudioSourceStats,
   }) {
     return rtcVideoSourceStats?.call(this);
@@ -4585,9 +4623,9 @@ class _$RTCMediaSourceStatsType_RTCVideoSourceStats
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)?
         rtcVideoSourceStats,
-    TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)?
         rtcAudioSourceStats,
     required TResult orElse(),
   }) {
@@ -4598,14 +4636,14 @@ class _$RTCMediaSourceStatsType_RTCVideoSourceStats
   }
 }
 
-abstract class RTCMediaSourceStatsType_RTCVideoSourceStats
-    implements RTCMediaSourceStatsType {
-  const factory RTCMediaSourceStatsType_RTCVideoSourceStats(
+abstract class RtcMediaSourceStatsMediaType_RtcVideoSourceStats
+    implements RtcMediaSourceStatsMediaType {
+  const factory RtcMediaSourceStatsMediaType_RtcVideoSourceStats(
           {final int? width,
           final int? height,
           final int? frames,
           final double? framesPerSecond}) =
-      _$RTCMediaSourceStatsType_RTCVideoSourceStats;
+      _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats;
 
   /// Width (in pixels) of the last frame originating from the source.
   /// Before a frame has been produced this attribute is missing.
@@ -4623,17 +4661,19 @@ abstract class RTCMediaSourceStatsType_RTCVideoSourceStats
   /// attribute is missing.
   double? get framesPerSecond;
   @JsonKey(ignore: true)
-  _$$RTCMediaSourceStatsType_RTCVideoSourceStatsCopyWith<
-          _$RTCMediaSourceStatsType_RTCVideoSourceStats>
+  _$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsCopyWith<
+          _$RtcMediaSourceStatsMediaType_RtcVideoSourceStats>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWith<$Res> {
-  factory _$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWith(
-          _$RTCMediaSourceStatsType_RTCAudioSourceStats value,
-          $Res Function(_$RTCMediaSourceStatsType_RTCAudioSourceStats) then) =
-      __$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWithImpl<$Res>;
+abstract class _$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWith<
+    $Res> {
+  factory _$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWith(
+          _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats value,
+          $Res Function(_$RtcMediaSourceStatsMediaType_RtcAudioSourceStats)
+              then) =
+      __$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWithImpl<$Res>;
   $Res call(
       {double? audioLevel,
       double? totalAudioEnergy,
@@ -4643,18 +4683,21 @@ abstract class _$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWithImpl<$Res>
-    extends _$RTCMediaSourceStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWith<$Res> {
-  __$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWithImpl(
-      _$RTCMediaSourceStatsType_RTCAudioSourceStats _value,
-      $Res Function(_$RTCMediaSourceStatsType_RTCAudioSourceStats) _then)
-      : super(_value,
-            (v) => _then(v as _$RTCMediaSourceStatsType_RTCAudioSourceStats));
+class __$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWithImpl<$Res>
+    extends _$RtcMediaSourceStatsMediaTypeCopyWithImpl<$Res>
+    implements
+        _$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWith<$Res> {
+  __$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWithImpl(
+      _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats _value,
+      $Res Function(_$RtcMediaSourceStatsMediaType_RtcAudioSourceStats) _then)
+      : super(
+            _value,
+            (v) =>
+                _then(v as _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats));
 
   @override
-  _$RTCMediaSourceStatsType_RTCAudioSourceStats get _value =>
-      super._value as _$RTCMediaSourceStatsType_RTCAudioSourceStats;
+  _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats get _value =>
+      super._value as _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats;
 
   @override
   $Res call({
@@ -4664,7 +4707,7 @@ class __$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWithImpl<$Res>
     Object? echoReturnLoss = freezed,
     Object? echoReturnLossEnhancement = freezed,
   }) {
-    return _then(_$RTCMediaSourceStatsType_RTCAudioSourceStats(
+    return _then(_$RtcMediaSourceStatsMediaType_RtcAudioSourceStats(
       audioLevel: audioLevel == freezed
           ? _value.audioLevel
           : audioLevel // ignore: cast_nullable_to_non_nullable
@@ -4691,9 +4734,9 @@ class __$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCMediaSourceStatsType_RTCAudioSourceStats
-    implements RTCMediaSourceStatsType_RTCAudioSourceStats {
-  const _$RTCMediaSourceStatsType_RTCAudioSourceStats(
+class _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats
+    implements RtcMediaSourceStatsMediaType_RtcAudioSourceStats {
+  const _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats(
       {this.audioLevel,
       this.totalAudioEnergy,
       this.totalSamplesDuration,
@@ -4725,14 +4768,14 @@ class _$RTCMediaSourceStatsType_RTCAudioSourceStats
 
   @override
   String toString() {
-    return 'RTCMediaSourceStatsType.rtcAudioSourceStats(audioLevel: $audioLevel, totalAudioEnergy: $totalAudioEnergy, totalSamplesDuration: $totalSamplesDuration, echoReturnLoss: $echoReturnLoss, echoReturnLossEnhancement: $echoReturnLossEnhancement)';
+    return 'RtcMediaSourceStatsMediaType.rtcAudioSourceStats(audioLevel: $audioLevel, totalAudioEnergy: $totalAudioEnergy, totalSamplesDuration: $totalSamplesDuration, echoReturnLoss: $echoReturnLoss, echoReturnLossEnhancement: $echoReturnLossEnhancement)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCMediaSourceStatsType_RTCAudioSourceStats &&
+            other is _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats &&
             const DeepCollectionEquality()
                 .equals(other.audioLevel, audioLevel) &&
             const DeepCollectionEquality()
@@ -4756,11 +4799,12 @@ class _$RTCMediaSourceStatsType_RTCAudioSourceStats
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWith<
-          _$RTCMediaSourceStatsType_RTCAudioSourceStats>
+  _$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWith<
+          _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats>
       get copyWith =>
-          __$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWithImpl<
-              _$RTCMediaSourceStatsType_RTCAudioSourceStats>(this, _$identity);
+          __$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWithImpl<
+                  _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats>(
+              this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -4823,9 +4867,11 @@ class _$RTCMediaSourceStatsType_RTCAudioSourceStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)
+    required TResult Function(
+            RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)
         rtcVideoSourceStats,
-    required TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)
+    required TResult Function(
+            RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)
         rtcAudioSourceStats,
   }) {
     return rtcAudioSourceStats(this);
@@ -4834,9 +4880,9 @@ class _$RTCMediaSourceStatsType_RTCAudioSourceStats
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)?
         rtcVideoSourceStats,
-    TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)?
         rtcAudioSourceStats,
   }) {
     return rtcAudioSourceStats?.call(this);
@@ -4845,9 +4891,9 @@ class _$RTCMediaSourceStatsType_RTCAudioSourceStats
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCMediaSourceStatsType_RTCVideoSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcVideoSourceStats value)?
         rtcVideoSourceStats,
-    TResult Function(RTCMediaSourceStatsType_RTCAudioSourceStats value)?
+    TResult Function(RtcMediaSourceStatsMediaType_RtcAudioSourceStats value)?
         rtcAudioSourceStats,
     required TResult orElse(),
   }) {
@@ -4858,15 +4904,15 @@ class _$RTCMediaSourceStatsType_RTCAudioSourceStats
   }
 }
 
-abstract class RTCMediaSourceStatsType_RTCAudioSourceStats
-    implements RTCMediaSourceStatsType {
-  const factory RTCMediaSourceStatsType_RTCAudioSourceStats(
+abstract class RtcMediaSourceStatsMediaType_RtcAudioSourceStats
+    implements RtcMediaSourceStatsMediaType {
+  const factory RtcMediaSourceStatsMediaType_RtcAudioSourceStats(
           {final double? audioLevel,
           final double? totalAudioEnergy,
           final double? totalSamplesDuration,
           final double? echoReturnLoss,
           final double? echoReturnLossEnhancement}) =
-      _$RTCMediaSourceStatsType_RTCAudioSourceStats;
+      _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats;
 
   /// Audio level of the media source.
   double? get audioLevel;
@@ -4886,464 +4932,210 @@ abstract class RTCMediaSourceStatsType_RTCAudioSourceStats
   /// echo cancellation is applied.
   double? get echoReturnLossEnhancement;
   @JsonKey(ignore: true)
-  _$$RTCMediaSourceStatsType_RTCAudioSourceStatsCopyWith<
-          _$RTCMediaSourceStatsType_RTCAudioSourceStats>
+  _$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsCopyWith<
+          _$RtcMediaSourceStatsMediaType_RtcAudioSourceStats>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-mixin _$RTCStatsType {
+mixin _$RtcOutboundRTPStreamStatsMediaType {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)
+        audio,
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
-        rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
-    required TResult Function(
-            String? trackId,
-            TrackKind kind,
             int? frameWidth,
             int? frameHeight,
             double? framesPerSecond,
             int? bytesSent,
             int? packetsSent,
             String? mediaSourceId)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
-        rtcInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)
-        rtcIceCandidatePairStats,
-    required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
-        rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function() unimplenented,
+        video,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
+    TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)? audio,
+    TResult Function(int? frameWidth, int? frameHeight, double? framesPerSecond,
+            int? bytesSent, int? packetsSent, String? mediaSourceId)?
+        video,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
+    TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)? audio,
+    TResult Function(int? frameWidth, int? frameHeight, double? framesPerSecond,
+            int? bytesSent, int? packetsSent, String? mediaSourceId)?
+        video,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
-        rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
-        rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
-        rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
-        rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
-        rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)
+        audio,
+    required TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)
+        video,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)? audio,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)? video,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)? audio,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)? video,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $RTCStatsTypeCopyWith<$Res> {
-  factory $RTCStatsTypeCopyWith(
-          RTCStatsType value, $Res Function(RTCStatsType) then) =
-      _$RTCStatsTypeCopyWithImpl<$Res>;
+abstract class $RtcOutboundRTPStreamStatsMediaTypeCopyWith<$Res> {
+  factory $RtcOutboundRTPStreamStatsMediaTypeCopyWith(
+          RtcOutboundRTPStreamStatsMediaType value,
+          $Res Function(RtcOutboundRTPStreamStatsMediaType) then) =
+      _$RtcOutboundRTPStreamStatsMediaTypeCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class _$RTCStatsTypeCopyWithImpl<$Res> implements $RTCStatsTypeCopyWith<$Res> {
-  _$RTCStatsTypeCopyWithImpl(this._value, this._then);
+class _$RtcOutboundRTPStreamStatsMediaTypeCopyWithImpl<$Res>
+    implements $RtcOutboundRTPStreamStatsMediaTypeCopyWith<$Res> {
+  _$RtcOutboundRTPStreamStatsMediaTypeCopyWithImpl(this._value, this._then);
 
-  final RTCStatsType _value;
+  final RtcOutboundRTPStreamStatsMediaType _value;
   // ignore: unused_field
-  final $Res Function(RTCStatsType) _then;
+  final $Res Function(RtcOutboundRTPStreamStatsMediaType) _then;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_RTCMediaSourceStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCMediaSourceStatsCopyWith(
-          _$RTCStatsType_RTCMediaSourceStats value,
-          $Res Function(_$RTCStatsType_RTCMediaSourceStats) then) =
-      __$$RTCStatsType_RTCMediaSourceStatsCopyWithImpl<$Res>;
-  $Res call({String? trackIdentifier, RTCMediaSourceStatsType kind});
-
-  $RTCMediaSourceStatsTypeCopyWith<$Res> get kind;
+abstract class _$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWith<$Res> {
+  factory _$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWith(
+          _$RtcOutboundRTPStreamStatsMediaType_Audio value,
+          $Res Function(_$RtcOutboundRTPStreamStatsMediaType_Audio) then) =
+      __$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWithImpl<$Res>;
+  $Res call({int? totalSamplesSent, bool? voiceActivityFlag});
 }
 
 /// @nodoc
-class __$$RTCStatsType_RTCMediaSourceStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCMediaSourceStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCMediaSourceStatsCopyWithImpl(
-      _$RTCStatsType_RTCMediaSourceStats _value,
-      $Res Function(_$RTCStatsType_RTCMediaSourceStats) _then)
-      : super(_value, (v) => _then(v as _$RTCStatsType_RTCMediaSourceStats));
+class __$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWithImpl<$Res>
+    extends _$RtcOutboundRTPStreamStatsMediaTypeCopyWithImpl<$Res>
+    implements _$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWith<$Res> {
+  __$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWithImpl(
+      _$RtcOutboundRTPStreamStatsMediaType_Audio _value,
+      $Res Function(_$RtcOutboundRTPStreamStatsMediaType_Audio) _then)
+      : super(_value,
+            (v) => _then(v as _$RtcOutboundRTPStreamStatsMediaType_Audio));
 
   @override
-  _$RTCStatsType_RTCMediaSourceStats get _value =>
-      super._value as _$RTCStatsType_RTCMediaSourceStats;
+  _$RtcOutboundRTPStreamStatsMediaType_Audio get _value =>
+      super._value as _$RtcOutboundRTPStreamStatsMediaType_Audio;
 
   @override
   $Res call({
-    Object? trackIdentifier = freezed,
-    Object? kind = freezed,
+    Object? totalSamplesSent = freezed,
+    Object? voiceActivityFlag = freezed,
   }) {
-    return _then(_$RTCStatsType_RTCMediaSourceStats(
-      trackIdentifier: trackIdentifier == freezed
-          ? _value.trackIdentifier
-          : trackIdentifier // ignore: cast_nullable_to_non_nullable
-              as String?,
-      kind: kind == freezed
-          ? _value.kind
-          : kind // ignore: cast_nullable_to_non_nullable
-              as RTCMediaSourceStatsType,
+    return _then(_$RtcOutboundRTPStreamStatsMediaType_Audio(
+      totalSamplesSent: totalSamplesSent == freezed
+          ? _value.totalSamplesSent
+          : totalSamplesSent // ignore: cast_nullable_to_non_nullable
+              as int?,
+      voiceActivityFlag: voiceActivityFlag == freezed
+          ? _value.voiceActivityFlag
+          : voiceActivityFlag // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
-  }
-
-  @override
-  $RTCMediaSourceStatsTypeCopyWith<$Res> get kind {
-    return $RTCMediaSourceStatsTypeCopyWith<$Res>(_value.kind, (value) {
-      return _then(_value.copyWith(kind: value));
-    });
   }
 }
 
 /// @nodoc
 
-class _$RTCStatsType_RTCMediaSourceStats
-    implements RTCStatsType_RTCMediaSourceStats {
-  const _$RTCStatsType_RTCMediaSourceStats(
-      {this.trackIdentifier, required this.kind});
+class _$RtcOutboundRTPStreamStatsMediaType_Audio
+    implements RtcOutboundRTPStreamStatsMediaType_Audio {
+  const _$RtcOutboundRTPStreamStatsMediaType_Audio(
+      {this.totalSamplesSent, this.voiceActivityFlag});
 
-  /// Value of the [MediaStreamTrack][1]'s ID attribute.
-  ///
-  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+  /// Total number of samples that have been sent over this RTP stream.
   @override
-  final String? trackIdentifier;
+  final int? totalSamplesSent;
 
-  /// Fields which should be in the [`RtcStat`] based on `kind`.
+  /// Whether the last RTP packet sent contained voice activity or not
+  /// based on the presence of the V bit in the extension header.
   @override
-  final RTCMediaSourceStatsType kind;
+  final bool? voiceActivityFlag;
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcMediaSourceStats(trackIdentifier: $trackIdentifier, kind: $kind)';
+    return 'RtcOutboundRTPStreamStatsMediaType.audio(totalSamplesSent: $totalSamplesSent, voiceActivityFlag: $voiceActivityFlag)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCMediaSourceStats &&
+            other is _$RtcOutboundRTPStreamStatsMediaType_Audio &&
             const DeepCollectionEquality()
-                .equals(other.trackIdentifier, trackIdentifier) &&
-            const DeepCollectionEquality().equals(other.kind, kind));
+                .equals(other.totalSamplesSent, totalSamplesSent) &&
+            const DeepCollectionEquality()
+                .equals(other.voiceActivityFlag, voiceActivityFlag));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(trackIdentifier),
-      const DeepCollectionEquality().hash(kind));
+      const DeepCollectionEquality().hash(totalSamplesSent),
+      const DeepCollectionEquality().hash(voiceActivityFlag));
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCStatsType_RTCMediaSourceStatsCopyWith<
-          _$RTCStatsType_RTCMediaSourceStats>
-      get copyWith => __$$RTCStatsType_RTCMediaSourceStatsCopyWithImpl<
-          _$RTCStatsType_RTCMediaSourceStats>(this, _$identity);
+  _$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWith<
+          _$RtcOutboundRTPStreamStatsMediaType_Audio>
+      get copyWith => __$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWithImpl<
+          _$RtcOutboundRTPStreamStatsMediaType_Audio>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)
+        audio,
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
-        rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
-    required TResult Function(
-            String? trackId,
-            TrackKind kind,
             int? frameWidth,
             int? frameHeight,
             double? framesPerSecond,
             int? bytesSent,
             int? packetsSent,
             String? mediaSourceId)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
-        rtcInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)
-        rtcIceCandidatePairStats,
-    required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
-        rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function() unimplenented,
+        video,
   }) {
-    return rtcMediaSourceStats(trackIdentifier, kind);
+    return audio(totalSamplesSent, voiceActivityFlag);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
+    TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)? audio,
+    TResult Function(int? frameWidth, int? frameHeight, double? framesPerSecond,
+            int? bytesSent, int? packetsSent, String? mediaSourceId)?
+        video,
   }) {
-    return rtcMediaSourceStats?.call(trackIdentifier, kind);
+    return audio?.call(totalSamplesSent, voiceActivityFlag);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
+    TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)? audio,
+    TResult Function(int? frameWidth, int? frameHeight, double? framesPerSecond,
+            int? bytesSent, int? packetsSent, String? mediaSourceId)?
+        video,
     required TResult orElse(),
   }) {
-    if (rtcMediaSourceStats != null) {
-      return rtcMediaSourceStats(trackIdentifier, kind);
+    if (audio != null) {
+      return audio(totalSamplesSent, voiceActivityFlag);
     }
     return orElse();
   }
@@ -5351,418 +5143,63 @@ class _$RTCStatsType_RTCMediaSourceStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
-        rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
-        rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
-        rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
-        rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
-        rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)
+        audio,
+    required TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)
+        video,
   }) {
-    return rtcMediaSourceStats(this);
+    return audio(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)? audio,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)? video,
   }) {
-    return rtcMediaSourceStats?.call(this);
+    return audio?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)? audio,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)? video,
     required TResult orElse(),
   }) {
-    if (rtcMediaSourceStats != null) {
-      return rtcMediaSourceStats(this);
+    if (audio != null) {
+      return audio(this);
     }
     return orElse();
   }
 }
 
-abstract class RTCStatsType_RTCMediaSourceStats implements RTCStatsType {
-  const factory RTCStatsType_RTCMediaSourceStats(
-          {final String? trackIdentifier,
-          required final RTCMediaSourceStatsType kind}) =
-      _$RTCStatsType_RTCMediaSourceStats;
+abstract class RtcOutboundRTPStreamStatsMediaType_Audio
+    implements RtcOutboundRTPStreamStatsMediaType {
+  const factory RtcOutboundRTPStreamStatsMediaType_Audio(
+          {final int? totalSamplesSent, final bool? voiceActivityFlag}) =
+      _$RtcOutboundRTPStreamStatsMediaType_Audio;
 
-  /// Value of the [MediaStreamTrack][1]'s ID attribute.
-  ///
-  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
-  String? get trackIdentifier;
+  /// Total number of samples that have been sent over this RTP stream.
+  int? get totalSamplesSent;
 
-  /// Fields which should be in the [`RtcStat`] based on `kind`.
-  RTCMediaSourceStatsType get kind;
+  /// Whether the last RTP packet sent contained voice activity or not
+  /// based on the presence of the V bit in the extension header.
+  bool? get voiceActivityFlag;
   @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCMediaSourceStatsCopyWith<
-          _$RTCStatsType_RTCMediaSourceStats>
+  _$$RtcOutboundRTPStreamStatsMediaType_AudioCopyWith<
+          _$RtcOutboundRTPStreamStatsMediaType_Audio>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_RTCIceCandidateStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCIceCandidateStatsCopyWith(
-          _$RTCStatsType_RTCIceCandidateStats value,
-          $Res Function(_$RTCStatsType_RTCIceCandidateStats) then) =
-      __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<$Res>;
-  $Res call({RTCIceCandidateStats field0});
-
-  $RTCIceCandidateStatsCopyWith<$Res> get field0;
-}
-
-/// @nodoc
-class __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCIceCandidateStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl(
-      _$RTCStatsType_RTCIceCandidateStats _value,
-      $Res Function(_$RTCStatsType_RTCIceCandidateStats) _then)
-      : super(_value, (v) => _then(v as _$RTCStatsType_RTCIceCandidateStats));
-
-  @override
-  _$RTCStatsType_RTCIceCandidateStats get _value =>
-      super._value as _$RTCStatsType_RTCIceCandidateStats;
-
-  @override
-  $Res call({
-    Object? field0 = freezed,
-  }) {
-    return _then(_$RTCStatsType_RTCIceCandidateStats(
-      field0 == freezed
-          ? _value.field0
-          : field0 // ignore: cast_nullable_to_non_nullable
-              as RTCIceCandidateStats,
-    ));
-  }
-
-  @override
-  $RTCIceCandidateStatsCopyWith<$Res> get field0 {
-    return $RTCIceCandidateStatsCopyWith<$Res>(_value.field0, (value) {
-      return _then(_value.copyWith(field0: value));
-    });
-  }
-}
-
-/// @nodoc
-
-class _$RTCStatsType_RTCIceCandidateStats
-    implements RTCStatsType_RTCIceCandidateStats {
-  const _$RTCStatsType_RTCIceCandidateStats(this.field0);
-
-  @override
-  final RTCIceCandidateStats field0;
-
-  @override
-  String toString() {
-    return 'RTCStatsType.rtcIceCandidateStats(field0: $field0)';
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCIceCandidateStats &&
-            const DeepCollectionEquality().equals(other.field0, field0));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
-
-  @JsonKey(ignore: true)
-  @override
-  _$$RTCStatsType_RTCIceCandidateStatsCopyWith<
-          _$RTCStatsType_RTCIceCandidateStats>
-      get copyWith => __$$RTCStatsType_RTCIceCandidateStatsCopyWithImpl<
-          _$RTCStatsType_RTCIceCandidateStats>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
-        rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
-    required TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
-        rtcInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)
-        rtcIceCandidatePairStats,
-    required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
-        rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function() unimplenented,
-  }) {
-    return rtcIceCandidateStats(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
-  }) {
-    return rtcIceCandidateStats?.call(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
-    required TResult orElse(),
-  }) {
-    if (rtcIceCandidateStats != null) {
-      return rtcIceCandidateStats(field0);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
-        rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
-        rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
-        rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
-        rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
-        rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
-  }) {
-    return rtcIceCandidateStats(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
-  }) {
-    return rtcIceCandidateStats?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
-    required TResult orElse(),
-  }) {
-    if (rtcIceCandidateStats != null) {
-      return rtcIceCandidateStats(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class RTCStatsType_RTCIceCandidateStats implements RTCStatsType {
-  const factory RTCStatsType_RTCIceCandidateStats(
-      final RTCIceCandidateStats field0) = _$RTCStatsType_RTCIceCandidateStats;
-
-  RTCIceCandidateStats get field0;
-  @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCIceCandidateStatsCopyWith<
-          _$RTCStatsType_RTCIceCandidateStats>
-      get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWith(
-          _$RTCStatsType_RTCOutboundRTPStreamStats value,
-          $Res Function(_$RTCStatsType_RTCOutboundRTPStreamStats) then) =
-      __$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWithImpl<$Res>;
+abstract class _$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWith<$Res> {
+  factory _$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWith(
+          _$RtcOutboundRTPStreamStatsMediaType_Video value,
+          $Res Function(_$RtcOutboundRTPStreamStatsMediaType_Video) then) =
+      __$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWithImpl<$Res>;
   $Res call(
-      {String? trackId,
-      TrackKind kind,
-      int? frameWidth,
+      {int? frameWidth,
       int? frameHeight,
       double? framesPerSecond,
       int? bytesSent,
@@ -5771,23 +5208,21 @@ abstract class _$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWithImpl(
-      _$RTCStatsType_RTCOutboundRTPStreamStats _value,
-      $Res Function(_$RTCStatsType_RTCOutboundRTPStreamStats) _then)
+class __$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWithImpl<$Res>
+    extends _$RtcOutboundRTPStreamStatsMediaTypeCopyWithImpl<$Res>
+    implements _$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWith<$Res> {
+  __$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWithImpl(
+      _$RtcOutboundRTPStreamStatsMediaType_Video _value,
+      $Res Function(_$RtcOutboundRTPStreamStatsMediaType_Video) _then)
       : super(_value,
-            (v) => _then(v as _$RTCStatsType_RTCOutboundRTPStreamStats));
+            (v) => _then(v as _$RtcOutboundRTPStreamStatsMediaType_Video));
 
   @override
-  _$RTCStatsType_RTCOutboundRTPStreamStats get _value =>
-      super._value as _$RTCStatsType_RTCOutboundRTPStreamStats;
+  _$RtcOutboundRTPStreamStatsMediaType_Video get _value =>
+      super._value as _$RtcOutboundRTPStreamStatsMediaType_Video;
 
   @override
   $Res call({
-    Object? trackId = freezed,
-    Object? kind = freezed,
     Object? frameWidth = freezed,
     Object? frameHeight = freezed,
     Object? framesPerSecond = freezed,
@@ -5795,15 +5230,7 @@ class __$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWithImpl<$Res>
     Object? packetsSent = freezed,
     Object? mediaSourceId = freezed,
   }) {
-    return _then(_$RTCStatsType_RTCOutboundRTPStreamStats(
-      trackId: trackId == freezed
-          ? _value.trackId
-          : trackId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      kind: kind == freezed
-          ? _value.kind
-          : kind // ignore: cast_nullable_to_non_nullable
-              as TrackKind,
+    return _then(_$RtcOutboundRTPStreamStatsMediaType_Video(
       frameWidth: frameWidth == freezed
           ? _value.frameWidth
           : frameWidth // ignore: cast_nullable_to_non_nullable
@@ -5834,26 +5261,15 @@ class __$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCStatsType_RTCOutboundRTPStreamStats
-    implements RTCStatsType_RTCOutboundRTPStreamStats {
-  const _$RTCStatsType_RTCOutboundRTPStreamStats(
-      {this.trackId,
-      required this.kind,
-      this.frameWidth,
+class _$RtcOutboundRTPStreamStatsMediaType_Video
+    implements RtcOutboundRTPStreamStatsMediaType_Video {
+  const _$RtcOutboundRTPStreamStatsMediaType_Video(
+      {this.frameWidth,
       this.frameHeight,
       this.framesPerSecond,
       this.bytesSent,
       this.packetsSent,
       this.mediaSourceId});
-
-  /// ID of the stats object representing the current track attachment
-  /// to the sender of this stream.
-  @override
-  final String? trackId;
-
-  /// [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
-  @override
-  final TrackKind kind;
 
   /// Width of the last encoded frame.
   ///
@@ -5862,7 +5278,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
   ///
   /// Before the first frame is encoded this attribute is missing.
   ///
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcvideosourcestats-width
   @override
   final int? frameWidth;
 
@@ -5873,7 +5289,7 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
   ///
   /// Before the first frame is encoded this attribute is missing.
   ///
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcvideosourcestats-height
   @override
   final int? frameHeight;
 
@@ -5901,16 +5317,14 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcOutboundRtpStreamStats(trackId: $trackId, kind: $kind, frameWidth: $frameWidth, frameHeight: $frameHeight, framesPerSecond: $framesPerSecond, bytesSent: $bytesSent, packetsSent: $packetsSent, mediaSourceId: $mediaSourceId)';
+    return 'RtcOutboundRTPStreamStatsMediaType.video(frameWidth: $frameWidth, frameHeight: $frameHeight, framesPerSecond: $framesPerSecond, bytesSent: $bytesSent, packetsSent: $packetsSent, mediaSourceId: $mediaSourceId)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCOutboundRTPStreamStats &&
-            const DeepCollectionEquality().equals(other.trackId, trackId) &&
-            const DeepCollectionEquality().equals(other.kind, kind) &&
+            other is _$RtcOutboundRTPStreamStatsMediaType_Video &&
             const DeepCollectionEquality()
                 .equals(other.frameWidth, frameWidth) &&
             const DeepCollectionEquality()
@@ -5927,8 +5341,6 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(trackId),
-      const DeepCollectionEquality().hash(kind),
       const DeepCollectionEquality().hash(frameWidth),
       const DeepCollectionEquality().hash(frameHeight),
       const DeepCollectionEquality().hash(framesPerSecond),
@@ -5938,156 +5350,53 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWith<
-          _$RTCStatsType_RTCOutboundRTPStreamStats>
-      get copyWith => __$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWithImpl<
-          _$RTCStatsType_RTCOutboundRTPStreamStats>(this, _$identity);
+  _$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWith<
+          _$RtcOutboundRTPStreamStatsMediaType_Video>
+      get copyWith => __$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWithImpl<
+          _$RtcOutboundRTPStreamStatsMediaType_Video>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)
+        audio,
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
-        rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
-    required TResult Function(
-            String? trackId,
-            TrackKind kind,
             int? frameWidth,
             int? frameHeight,
             double? framesPerSecond,
             int? bytesSent,
             int? packetsSent,
             String? mediaSourceId)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
-        rtcInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)
-        rtcIceCandidatePairStats,
-    required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
-        rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function() unimplenented,
+        video,
   }) {
-    return rtcOutboundRtpStreamStats(trackId, kind, frameWidth, frameHeight,
-        framesPerSecond, bytesSent, packetsSent, mediaSourceId);
+    return video(frameWidth, frameHeight, framesPerSecond, bytesSent,
+        packetsSent, mediaSourceId);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
+    TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)? audio,
+    TResult Function(int? frameWidth, int? frameHeight, double? framesPerSecond,
+            int? bytesSent, int? packetsSent, String? mediaSourceId)?
+        video,
   }) {
-    return rtcOutboundRtpStreamStats?.call(trackId, kind, frameWidth,
-        frameHeight, framesPerSecond, bytesSent, packetsSent, mediaSourceId);
+    return video?.call(frameWidth, frameHeight, framesPerSecond, bytesSent,
+        packetsSent, mediaSourceId);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
-    TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(
-            String? remoteId,
-            int? bytesReceived,
-            int? packetsReceived,
-            double? totalDecodeTime,
-            int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
-        rtcInboundRtpStreamStats,
-    TResult Function(
-            RTCStatsIceCandidatePairState state,
-            bool? nominated,
-            int? bytesSent,
-            int? bytesReceived,
-            double? totalRoundTripTime,
-            double? currentRoundTripTime,
-            double? availableOutgoingBitrate)?
-        rtcIceCandidatePairStats,
-    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
-        rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(
-            String? localId, double? remoteTimestamp, int? reportsSent)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function()? unimplenented,
+    TResult Function(int? totalSamplesSent, bool? voiceActivityFlag)? audio,
+    TResult Function(int? frameWidth, int? frameHeight, double? framesPerSecond,
+            int? bytesSent, int? packetsSent, String? mediaSourceId)?
+        video,
     required TResult orElse(),
   }) {
-    if (rtcOutboundRtpStreamStats != null) {
-      return rtcOutboundRtpStreamStats(trackId, kind, frameWidth, frameHeight,
-          framesPerSecond, bytesSent, packetsSent, mediaSourceId);
+    if (video != null) {
+      return video(frameWidth, frameHeight, framesPerSecond, bytesSent,
+          packetsSent, mediaSourceId);
     }
     return orElse();
   }
@@ -6095,96 +5404,47 @@ class _$RTCStatsType_RTCOutboundRTPStreamStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
-        rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
-        rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
-        rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
-        rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
-        rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
-        rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
-        rtcRemoteInboundRtpStreamStats,
-    required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
-        rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)
+        audio,
+    required TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)
+        video,
   }) {
-    return rtcOutboundRtpStreamStats(this);
+    return video(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)? audio,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)? video,
   }) {
-    return rtcOutboundRtpStreamStats?.call(this);
+    return video?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
-        rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
-        rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
-        rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
-        rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
-        rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
-        rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
-        rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Audio value)? audio,
+    TResult Function(RtcOutboundRTPStreamStatsMediaType_Video value)? video,
     required TResult orElse(),
   }) {
-    if (rtcOutboundRtpStreamStats != null) {
-      return rtcOutboundRtpStreamStats(this);
+    if (video != null) {
+      return video(this);
     }
     return orElse();
   }
 }
 
-abstract class RTCStatsType_RTCOutboundRTPStreamStats implements RTCStatsType {
-  const factory RTCStatsType_RTCOutboundRTPStreamStats(
-      {final String? trackId,
-      required final TrackKind kind,
-      final int? frameWidth,
-      final int? frameHeight,
-      final double? framesPerSecond,
-      final int? bytesSent,
-      final int? packetsSent,
-      final String? mediaSourceId}) = _$RTCStatsType_RTCOutboundRTPStreamStats;
-
-  /// ID of the stats object representing the current track attachment
-  /// to the sender of this stream.
-  String? get trackId;
-
-  /// [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
-  TrackKind get kind;
+abstract class RtcOutboundRTPStreamStatsMediaType_Video
+    implements RtcOutboundRTPStreamStatsMediaType {
+  const factory RtcOutboundRTPStreamStatsMediaType_Video(
+          {final int? frameWidth,
+          final int? frameHeight,
+          final double? framesPerSecond,
+          final int? bytesSent,
+          final int? packetsSent,
+          final String? mediaSourceId}) =
+      _$RtcOutboundRTPStreamStatsMediaType_Video;
 
   /// Width of the last encoded frame.
   ///
@@ -6193,7 +5453,7 @@ abstract class RTCStatsType_RTCOutboundRTPStreamStats implements RTCStatsType {
   ///
   /// Before the first frame is encoded this attribute is missing.
   ///
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcvideosourcestats-width
   int? get frameWidth;
 
   /// Height of the last encoded frame.
@@ -6203,7 +5463,7 @@ abstract class RTCStatsType_RTCOutboundRTPStreamStats implements RTCStatsType {
   ///
   /// Before the first frame is encoded this attribute is missing.
   ///
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcvideosourcestats-height
   int? get frameHeight;
 
   /// Number of encoded frames during the last second.
@@ -6224,52 +5484,1252 @@ abstract class RTCStatsType_RTCOutboundRTPStreamStats implements RTCStatsType {
   /// attached to the sender of this stream.
   String? get mediaSourceId;
   @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCOutboundRTPStreamStatsCopyWith<
-          _$RTCStatsType_RTCOutboundRTPStreamStats>
+  _$$RtcOutboundRTPStreamStatsMediaType_VideoCopyWith<
+          _$RtcOutboundRTPStreamStatsMediaType_Video>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith(
-          _$RTCStatsType_RTCInboundRTPStreamStats value,
-          $Res Function(_$RTCStatsType_RTCInboundRTPStreamStats) then) =
-      __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<$Res>;
+mixin _$RtcStatsType {
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
+        rtcMediaSourceStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)
+        rtcInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)
+        rtcIceCandidatePairStats,
+    required TResult Function(int? packetsSent, int? packetsReceived,
+            int? bytesSent, int? bytesReceived, String? iceRole)
+        rtcTransportStats,
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function() unimplenented,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
+        rtcMediaSourceStats,
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
+        rtcIceCandidateStats,
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
+        rtcInboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
+        rtcIceCandidatePairStats,
+    required TResult Function(RtcStatsType_RtcTransportStats value)
+        rtcTransportStats,
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RtcStatsTypeCopyWith<$Res> {
+  factory $RtcStatsTypeCopyWith(
+          RtcStatsType value, $Res Function(RtcStatsType) then) =
+      _$RtcStatsTypeCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class _$RtcStatsTypeCopyWithImpl<$Res> implements $RtcStatsTypeCopyWith<$Res> {
+  _$RtcStatsTypeCopyWithImpl(this._value, this._then);
+
+  final RtcStatsType _value;
+  // ignore: unused_field
+  final $Res Function(RtcStatsType) _then;
+}
+
+/// @nodoc
+abstract class _$$RtcStatsType_RtcMediaSourceStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcMediaSourceStatsCopyWith(
+          _$RtcStatsType_RtcMediaSourceStats value,
+          $Res Function(_$RtcStatsType_RtcMediaSourceStats) then) =
+      __$$RtcStatsType_RtcMediaSourceStatsCopyWithImpl<$Res>;
+  $Res call({String? trackIdentifier, RtcMediaSourceStatsMediaType kind});
+
+  $RtcMediaSourceStatsMediaTypeCopyWith<$Res> get kind;
+}
+
+/// @nodoc
+class __$$RtcStatsType_RtcMediaSourceStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcMediaSourceStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcMediaSourceStatsCopyWithImpl(
+      _$RtcStatsType_RtcMediaSourceStats _value,
+      $Res Function(_$RtcStatsType_RtcMediaSourceStats) _then)
+      : super(_value, (v) => _then(v as _$RtcStatsType_RtcMediaSourceStats));
+
+  @override
+  _$RtcStatsType_RtcMediaSourceStats get _value =>
+      super._value as _$RtcStatsType_RtcMediaSourceStats;
+
+  @override
+  $Res call({
+    Object? trackIdentifier = freezed,
+    Object? kind = freezed,
+  }) {
+    return _then(_$RtcStatsType_RtcMediaSourceStats(
+      trackIdentifier: trackIdentifier == freezed
+          ? _value.trackIdentifier
+          : trackIdentifier // ignore: cast_nullable_to_non_nullable
+              as String?,
+      kind: kind == freezed
+          ? _value.kind
+          : kind // ignore: cast_nullable_to_non_nullable
+              as RtcMediaSourceStatsMediaType,
+    ));
+  }
+
+  @override
+  $RtcMediaSourceStatsMediaTypeCopyWith<$Res> get kind {
+    return $RtcMediaSourceStatsMediaTypeCopyWith<$Res>(_value.kind, (value) {
+      return _then(_value.copyWith(kind: value));
+    });
+  }
+}
+
+/// @nodoc
+
+class _$RtcStatsType_RtcMediaSourceStats
+    implements RtcStatsType_RtcMediaSourceStats {
+  const _$RtcStatsType_RtcMediaSourceStats(
+      {this.trackIdentifier, required this.kind});
+
+  /// Value of the [MediaStreamTrack][1]'s ID attribute.
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+  @override
+  final String? trackIdentifier;
+
+  /// Fields which should be in the [`RtcStat`] based on `kind`.
+  @override
+  final RtcMediaSourceStatsMediaType kind;
+
+  @override
+  String toString() {
+    return 'RtcStatsType.rtcMediaSourceStats(trackIdentifier: $trackIdentifier, kind: $kind)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RtcStatsType_RtcMediaSourceStats &&
+            const DeepCollectionEquality()
+                .equals(other.trackIdentifier, trackIdentifier) &&
+            const DeepCollectionEquality().equals(other.kind, kind));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(trackIdentifier),
+      const DeepCollectionEquality().hash(kind));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$RtcStatsType_RtcMediaSourceStatsCopyWith<
+          _$RtcStatsType_RtcMediaSourceStats>
+      get copyWith => __$$RtcStatsType_RtcMediaSourceStatsCopyWithImpl<
+          _$RtcStatsType_RtcMediaSourceStats>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
+        rtcMediaSourceStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)
+        rtcInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)
+        rtcIceCandidatePairStats,
+    required TResult Function(int? packetsSent, int? packetsReceived,
+            int? bytesSent, int? bytesReceived, String? iceRole)
+        rtcTransportStats,
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function() unimplenented,
+  }) {
+    return rtcMediaSourceStats(trackIdentifier, kind);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+  }) {
+    return rtcMediaSourceStats?.call(trackIdentifier, kind);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+    required TResult orElse(),
+  }) {
+    if (rtcMediaSourceStats != null) {
+      return rtcMediaSourceStats(trackIdentifier, kind);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
+        rtcMediaSourceStats,
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
+        rtcIceCandidateStats,
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
+        rtcInboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
+        rtcIceCandidatePairStats,
+    required TResult Function(RtcStatsType_RtcTransportStats value)
+        rtcTransportStats,
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
+  }) {
+    return rtcMediaSourceStats(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+  }) {
+    return rtcMediaSourceStats?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+    required TResult orElse(),
+  }) {
+    if (rtcMediaSourceStats != null) {
+      return rtcMediaSourceStats(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RtcStatsType_RtcMediaSourceStats implements RtcStatsType {
+  const factory RtcStatsType_RtcMediaSourceStats(
+          {final String? trackIdentifier,
+          required final RtcMediaSourceStatsMediaType kind}) =
+      _$RtcStatsType_RtcMediaSourceStats;
+
+  /// Value of the [MediaStreamTrack][1]'s ID attribute.
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+  String? get trackIdentifier;
+
+  /// Fields which should be in the [`RtcStat`] based on `kind`.
+  RtcMediaSourceStatsMediaType get kind;
+  @JsonKey(ignore: true)
+  _$$RtcStatsType_RtcMediaSourceStatsCopyWith<
+          _$RtcStatsType_RtcMediaSourceStats>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RtcStatsType_RtcIceCandidateStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcIceCandidateStatsCopyWith(
+          _$RtcStatsType_RtcIceCandidateStats value,
+          $Res Function(_$RtcStatsType_RtcIceCandidateStats) then) =
+      __$$RtcStatsType_RtcIceCandidateStatsCopyWithImpl<$Res>;
+  $Res call({RtcIceCandidateStats field0});
+
+  $RtcIceCandidateStatsCopyWith<$Res> get field0;
+}
+
+/// @nodoc
+class __$$RtcStatsType_RtcIceCandidateStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcIceCandidateStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcIceCandidateStatsCopyWithImpl(
+      _$RtcStatsType_RtcIceCandidateStats _value,
+      $Res Function(_$RtcStatsType_RtcIceCandidateStats) _then)
+      : super(_value, (v) => _then(v as _$RtcStatsType_RtcIceCandidateStats));
+
+  @override
+  _$RtcStatsType_RtcIceCandidateStats get _value =>
+      super._value as _$RtcStatsType_RtcIceCandidateStats;
+
+  @override
+  $Res call({
+    Object? field0 = freezed,
+  }) {
+    return _then(_$RtcStatsType_RtcIceCandidateStats(
+      field0 == freezed
+          ? _value.field0
+          : field0 // ignore: cast_nullable_to_non_nullable
+              as RtcIceCandidateStats,
+    ));
+  }
+
+  @override
+  $RtcIceCandidateStatsCopyWith<$Res> get field0 {
+    return $RtcIceCandidateStatsCopyWith<$Res>(_value.field0, (value) {
+      return _then(_value.copyWith(field0: value));
+    });
+  }
+}
+
+/// @nodoc
+
+class _$RtcStatsType_RtcIceCandidateStats
+    implements RtcStatsType_RtcIceCandidateStats {
+  const _$RtcStatsType_RtcIceCandidateStats(this.field0);
+
+  @override
+  final RtcIceCandidateStats field0;
+
+  @override
+  String toString() {
+    return 'RtcStatsType.rtcIceCandidateStats(field0: $field0)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RtcStatsType_RtcIceCandidateStats &&
+            const DeepCollectionEquality().equals(other.field0, field0));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(field0));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$RtcStatsType_RtcIceCandidateStatsCopyWith<
+          _$RtcStatsType_RtcIceCandidateStats>
+      get copyWith => __$$RtcStatsType_RtcIceCandidateStatsCopyWithImpl<
+          _$RtcStatsType_RtcIceCandidateStats>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
+        rtcMediaSourceStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)
+        rtcInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)
+        rtcIceCandidatePairStats,
+    required TResult Function(int? packetsSent, int? packetsReceived,
+            int? bytesSent, int? bytesReceived, String? iceRole)
+        rtcTransportStats,
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function() unimplenented,
+  }) {
+    return rtcIceCandidateStats(field0);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+  }) {
+    return rtcIceCandidateStats?.call(field0);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+    required TResult orElse(),
+  }) {
+    if (rtcIceCandidateStats != null) {
+      return rtcIceCandidateStats(field0);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
+        rtcMediaSourceStats,
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
+        rtcIceCandidateStats,
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
+        rtcInboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
+        rtcIceCandidatePairStats,
+    required TResult Function(RtcStatsType_RtcTransportStats value)
+        rtcTransportStats,
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
+  }) {
+    return rtcIceCandidateStats(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+  }) {
+    return rtcIceCandidateStats?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+    required TResult orElse(),
+  }) {
+    if (rtcIceCandidateStats != null) {
+      return rtcIceCandidateStats(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RtcStatsType_RtcIceCandidateStats implements RtcStatsType {
+  const factory RtcStatsType_RtcIceCandidateStats(
+      final RtcIceCandidateStats field0) = _$RtcStatsType_RtcIceCandidateStats;
+
+  RtcIceCandidateStats get field0;
+  @JsonKey(ignore: true)
+  _$$RtcStatsType_RtcIceCandidateStatsCopyWith<
+          _$RtcStatsType_RtcIceCandidateStats>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWith(
+          _$RtcStatsType_RtcOutboundRTPStreamStats value,
+          $Res Function(_$RtcStatsType_RtcOutboundRTPStreamStats) then) =
+      __$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWithImpl<$Res>;
+  $Res call({String? trackId, RtcOutboundRTPStreamStatsMediaType kind});
+
+  $RtcOutboundRTPStreamStatsMediaTypeCopyWith<$Res> get kind;
+}
+
+/// @nodoc
+class __$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWithImpl(
+      _$RtcStatsType_RtcOutboundRTPStreamStats _value,
+      $Res Function(_$RtcStatsType_RtcOutboundRTPStreamStats) _then)
+      : super(_value,
+            (v) => _then(v as _$RtcStatsType_RtcOutboundRTPStreamStats));
+
+  @override
+  _$RtcStatsType_RtcOutboundRTPStreamStats get _value =>
+      super._value as _$RtcStatsType_RtcOutboundRTPStreamStats;
+
+  @override
+  $Res call({
+    Object? trackId = freezed,
+    Object? kind = freezed,
+  }) {
+    return _then(_$RtcStatsType_RtcOutboundRTPStreamStats(
+      trackId: trackId == freezed
+          ? _value.trackId
+          : trackId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      kind: kind == freezed
+          ? _value.kind
+          : kind // ignore: cast_nullable_to_non_nullable
+              as RtcOutboundRTPStreamStatsMediaType,
+    ));
+  }
+
+  @override
+  $RtcOutboundRTPStreamStatsMediaTypeCopyWith<$Res> get kind {
+    return $RtcOutboundRTPStreamStatsMediaTypeCopyWith<$Res>(_value.kind,
+        (value) {
+      return _then(_value.copyWith(kind: value));
+    });
+  }
+}
+
+/// @nodoc
+
+class _$RtcStatsType_RtcOutboundRTPStreamStats
+    implements RtcStatsType_RtcOutboundRTPStreamStats {
+  const _$RtcStatsType_RtcOutboundRTPStreamStats(
+      {this.trackId, required this.kind});
+
+  /// ID of the stats object representing the current track attachment
+  /// to the sender of this stream.
+  @override
+  final String? trackId;
+
+  /// Fields which should be in the [`RtcStat`] based on `mediaType`.
+  @override
+  final RtcOutboundRTPStreamStatsMediaType kind;
+
+  @override
+  String toString() {
+    return 'RtcStatsType.rtcOutboundRtpStreamStats(trackId: $trackId, kind: $kind)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RtcStatsType_RtcOutboundRTPStreamStats &&
+            const DeepCollectionEquality().equals(other.trackId, trackId) &&
+            const DeepCollectionEquality().equals(other.kind, kind));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(trackId),
+      const DeepCollectionEquality().hash(kind));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWith<
+          _$RtcStatsType_RtcOutboundRTPStreamStats>
+      get copyWith => __$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWithImpl<
+          _$RtcStatsType_RtcOutboundRTPStreamStats>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
+        rtcMediaSourceStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)
+        rtcInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)
+        rtcIceCandidatePairStats,
+    required TResult Function(int? packetsSent, int? packetsReceived,
+            int? bytesSent, int? bytesReceived, String? iceRole)
+        rtcTransportStats,
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function() unimplenented,
+  }) {
+    return rtcOutboundRtpStreamStats(trackId, kind);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+  }) {
+    return rtcOutboundRtpStreamStats?.call(trackId, kind);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(
+            String? remoteId,
+            int? bytesReceived,
+            int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
+            double? totalDecodeTime,
+            int? jitterBufferEmittedCount,
+            RtcInboundRtpStreamMediaType? mediaType)?
+        rtcInboundRtpStreamStats,
+    TResult Function(
+            RtcStatsIceCandidatePairState state,
+            bool? nominated,
+            int? bytesSent,
+            int? bytesReceived,
+            double? totalRoundTripTime,
+            double? currentRoundTripTime,
+            double? availableOutgoingBitrate)?
+        rtcIceCandidatePairStats,
+    TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
+            int? bytesReceived, String? iceRole)?
+        rtcTransportStats,
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(
+            String? localId, double? remoteTimestamp, int? reportsSent)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function()? unimplenented,
+    required TResult orElse(),
+  }) {
+    if (rtcOutboundRtpStreamStats != null) {
+      return rtcOutboundRtpStreamStats(trackId, kind);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
+        rtcMediaSourceStats,
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
+        rtcIceCandidateStats,
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
+        rtcOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
+        rtcInboundRtpStreamStats,
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
+        rtcIceCandidatePairStats,
+    required TResult Function(RtcStatsType_RtcTransportStats value)
+        rtcTransportStats,
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
+        rtcRemoteInboundRtpStreamStats,
+    required TResult Function(
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
+        rtcRemoteOutboundRtpStreamStats,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
+  }) {
+    return rtcOutboundRtpStreamStats(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+  }) {
+    return rtcOutboundRtpStreamStats?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
+        rtcMediaSourceStats,
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
+        rtcIceCandidateStats,
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
+        rtcOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
+        rtcInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
+        rtcIceCandidatePairStats,
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
+        rtcRemoteInboundRtpStreamStats,
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
+        rtcRemoteOutboundRtpStreamStats,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
+    required TResult orElse(),
+  }) {
+    if (rtcOutboundRtpStreamStats != null) {
+      return rtcOutboundRtpStreamStats(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class RtcStatsType_RtcOutboundRTPStreamStats implements RtcStatsType {
+  const factory RtcStatsType_RtcOutboundRTPStreamStats(
+          {final String? trackId,
+          required final RtcOutboundRTPStreamStatsMediaType kind}) =
+      _$RtcStatsType_RtcOutboundRTPStreamStats;
+
+  /// ID of the stats object representing the current track attachment
+  /// to the sender of this stream.
+  String? get trackId;
+
+  /// Fields which should be in the [`RtcStat`] based on `mediaType`.
+  RtcOutboundRTPStreamStatsMediaType get kind;
+  @JsonKey(ignore: true)
+  _$$RtcStatsType_RtcOutboundRTPStreamStatsCopyWith<
+          _$RtcStatsType_RtcOutboundRTPStreamStats>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RtcStatsType_RtcInboundRTPStreamStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcInboundRTPStreamStatsCopyWith(
+          _$RtcStatsType_RtcInboundRTPStreamStats value,
+          $Res Function(_$RtcStatsType_RtcInboundRTPStreamStats) then) =
+      __$$RtcStatsType_RtcInboundRTPStreamStatsCopyWithImpl<$Res>;
   $Res call(
       {String? remoteId,
       int? bytesReceived,
       int? packetsReceived,
+      int? packetsLost,
+      double? jitter,
       double? totalDecodeTime,
       int? jitterBufferEmittedCount,
-      RTCInboundRtpStreamMediaType? mediaType});
+      RtcInboundRtpStreamMediaType? mediaType});
 
-  $RTCInboundRtpStreamMediaTypeCopyWith<$Res>? get mediaType;
+  $RtcInboundRtpStreamMediaTypeCopyWith<$Res>? get mediaType;
 }
 
 /// @nodoc
-class __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl(
-      _$RTCStatsType_RTCInboundRTPStreamStats _value,
-      $Res Function(_$RTCStatsType_RTCInboundRTPStreamStats) _then)
+class __$$RtcStatsType_RtcInboundRTPStreamStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcInboundRTPStreamStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcInboundRTPStreamStatsCopyWithImpl(
+      _$RtcStatsType_RtcInboundRTPStreamStats _value,
+      $Res Function(_$RtcStatsType_RtcInboundRTPStreamStats) _then)
       : super(
-            _value, (v) => _then(v as _$RTCStatsType_RTCInboundRTPStreamStats));
+            _value, (v) => _then(v as _$RtcStatsType_RtcInboundRTPStreamStats));
 
   @override
-  _$RTCStatsType_RTCInboundRTPStreamStats get _value =>
-      super._value as _$RTCStatsType_RTCInboundRTPStreamStats;
+  _$RtcStatsType_RtcInboundRTPStreamStats get _value =>
+      super._value as _$RtcStatsType_RtcInboundRTPStreamStats;
 
   @override
   $Res call({
     Object? remoteId = freezed,
     Object? bytesReceived = freezed,
     Object? packetsReceived = freezed,
+    Object? packetsLost = freezed,
+    Object? jitter = freezed,
     Object? totalDecodeTime = freezed,
     Object? jitterBufferEmittedCount = freezed,
     Object? mediaType = freezed,
   }) {
-    return _then(_$RTCStatsType_RTCInboundRTPStreamStats(
+    return _then(_$RtcStatsType_RtcInboundRTPStreamStats(
       remoteId: remoteId == freezed
           ? _value.remoteId
           : remoteId // ignore: cast_nullable_to_non_nullable
@@ -6282,6 +6742,14 @@ class __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<$Res>
           ? _value.packetsReceived
           : packetsReceived // ignore: cast_nullable_to_non_nullable
               as int?,
+      packetsLost: packetsLost == freezed
+          ? _value.packetsLost
+          : packetsLost // ignore: cast_nullable_to_non_nullable
+              as int?,
+      jitter: jitter == freezed
+          ? _value.jitter
+          : jitter // ignore: cast_nullable_to_non_nullable
+              as double?,
       totalDecodeTime: totalDecodeTime == freezed
           ? _value.totalDecodeTime
           : totalDecodeTime // ignore: cast_nullable_to_non_nullable
@@ -6293,17 +6761,17 @@ class __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<$Res>
       mediaType: mediaType == freezed
           ? _value.mediaType
           : mediaType // ignore: cast_nullable_to_non_nullable
-              as RTCInboundRtpStreamMediaType?,
+              as RtcInboundRtpStreamMediaType?,
     ));
   }
 
   @override
-  $RTCInboundRtpStreamMediaTypeCopyWith<$Res>? get mediaType {
+  $RtcInboundRtpStreamMediaTypeCopyWith<$Res>? get mediaType {
     if (_value.mediaType == null) {
       return null;
     }
 
-    return $RTCInboundRtpStreamMediaTypeCopyWith<$Res>(_value.mediaType!,
+    return $RtcInboundRtpStreamMediaTypeCopyWith<$Res>(_value.mediaType!,
         (value) {
       return _then(_value.copyWith(mediaType: value));
     });
@@ -6312,12 +6780,14 @@ class __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCStatsType_RTCInboundRTPStreamStats
-    implements RTCStatsType_RTCInboundRTPStreamStats {
-  const _$RTCStatsType_RTCInboundRTPStreamStats(
+class _$RtcStatsType_RtcInboundRTPStreamStats
+    implements RtcStatsType_RtcInboundRTPStreamStats {
+  const _$RtcStatsType_RtcInboundRTPStreamStats(
       {this.remoteId,
       this.bytesReceived,
       this.packetsReceived,
+      this.packetsLost,
+      this.jitter,
       this.totalDecodeTime,
       this.jitterBufferEmittedCount,
       this.mediaType});
@@ -6333,6 +6803,21 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   /// Total number of RTP data packets received for this SSRC.
   @override
   final int? packetsReceived;
+
+  /// Total number of RTP data packets for this SSRC that have been lost
+  /// since the beginning of reception.
+  ///
+  /// This number is defined to be the number of packets expected less the
+  /// number of packets actually received, where the number of packets
+  /// received includes any which are late or duplicates. Thus, packets that
+  /// arrive late are not counted as lost, and the loss __may be negative__
+  /// if there are duplicates.
+  @override
+  final int? packetsLost;
+
+  /// Packet jitter measured in seconds for this SSRC.
+  @override
+  final double? jitter;
 
   /// Total number of seconds that have been spent decoding the
   /// [`framesDecoded`] frames of this stream.
@@ -6357,23 +6842,26 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
 
   /// Fields which should be in the [`RtcStat`] based on `mediaType`.
   @override
-  final RTCInboundRtpStreamMediaType? mediaType;
+  final RtcInboundRtpStreamMediaType? mediaType;
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcInboundRtpStreamStats(remoteId: $remoteId, bytesReceived: $bytesReceived, packetsReceived: $packetsReceived, totalDecodeTime: $totalDecodeTime, jitterBufferEmittedCount: $jitterBufferEmittedCount, mediaType: $mediaType)';
+    return 'RtcStatsType.rtcInboundRtpStreamStats(remoteId: $remoteId, bytesReceived: $bytesReceived, packetsReceived: $packetsReceived, packetsLost: $packetsLost, jitter: $jitter, totalDecodeTime: $totalDecodeTime, jitterBufferEmittedCount: $jitterBufferEmittedCount, mediaType: $mediaType)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCInboundRTPStreamStats &&
+            other is _$RtcStatsType_RtcInboundRTPStreamStats &&
             const DeepCollectionEquality().equals(other.remoteId, remoteId) &&
             const DeepCollectionEquality()
                 .equals(other.bytesReceived, bytesReceived) &&
             const DeepCollectionEquality()
                 .equals(other.packetsReceived, packetsReceived) &&
+            const DeepCollectionEquality()
+                .equals(other.packetsLost, packetsLost) &&
+            const DeepCollectionEquality().equals(other.jitter, jitter) &&
             const DeepCollectionEquality()
                 .equals(other.totalDecodeTime, totalDecodeTime) &&
             const DeepCollectionEquality().equals(
@@ -6387,44 +6875,41 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
       const DeepCollectionEquality().hash(remoteId),
       const DeepCollectionEquality().hash(bytesReceived),
       const DeepCollectionEquality().hash(packetsReceived),
+      const DeepCollectionEquality().hash(packetsLost),
+      const DeepCollectionEquality().hash(jitter),
       const DeepCollectionEquality().hash(totalDecodeTime),
       const DeepCollectionEquality().hash(jitterBufferEmittedCount),
       const DeepCollectionEquality().hash(mediaType));
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith<
-          _$RTCStatsType_RTCInboundRTPStreamStats>
-      get copyWith => __$$RTCStatsType_RTCInboundRTPStreamStatsCopyWithImpl<
-          _$RTCStatsType_RTCInboundRTPStreamStats>(this, _$identity);
+  _$$RtcStatsType_RtcInboundRTPStreamStatsCopyWith<
+          _$RtcStatsType_RtcInboundRTPStreamStats>
+      get copyWith => __$$RtcStatsType_RtcInboundRTPStreamStatsCopyWithImpl<
+          _$RtcStatsType_RtcInboundRTPStreamStats>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
         rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
         rtcOutboundRtpStreamStats,
     required TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
+            RtcInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -6433,46 +6918,53 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             double? availableOutgoingBitrate)
         rtcIceCandidatePairStats,
     required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
+            int? bytesSent, int? bytesReceived, String? iceRole)
         rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)
         rtcRemoteOutboundRtpStreamStats,
     required TResult Function() unimplenented,
   }) {
-    return rtcInboundRtpStreamStats(remoteId, bytesReceived, packetsReceived,
-        totalDecodeTime, jitterBufferEmittedCount, mediaType);
+    return rtcInboundRtpStreamStats(
+        remoteId,
+        bytesReceived,
+        packetsReceived,
+        packetsLost,
+        jitter,
+        totalDecodeTime,
+        jitterBufferEmittedCount,
+        mediaType);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -6481,46 +6973,53 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
         rtcRemoteOutboundRtpStreamStats,
     TResult Function()? unimplenented,
   }) {
-    return rtcInboundRtpStreamStats?.call(remoteId, bytesReceived,
-        packetsReceived, totalDecodeTime, jitterBufferEmittedCount, mediaType);
+    return rtcInboundRtpStreamStats?.call(
+        remoteId,
+        bytesReceived,
+        packetsReceived,
+        packetsLost,
+        jitter,
+        totalDecodeTime,
+        jitterBufferEmittedCount,
+        mediaType);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -6529,10 +7028,15 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -6541,8 +7045,15 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
     required TResult orElse(),
   }) {
     if (rtcInboundRtpStreamStats != null) {
-      return rtcInboundRtpStreamStats(remoteId, bytesReceived, packetsReceived,
-          totalDecodeTime, jitterBufferEmittedCount, mediaType);
+      return rtcInboundRtpStreamStats(
+          remoteId,
+          bytesReceived,
+          packetsReceived,
+          packetsLost,
+          jitter,
+          totalDecodeTime,
+          jitterBufferEmittedCount,
+          mediaType);
     }
     return orElse();
   }
@@ -6550,24 +7061,24 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
         rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
         rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
         rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
         rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
         rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
+    required TResult Function(RtcStatsType_RtcTransportStats value)
         rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
         rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
   }) {
     return rtcInboundRtpStreamStats(this);
   }
@@ -6575,22 +7086,22 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
   }) {
     return rtcInboundRtpStreamStats?.call(this);
   }
@@ -6598,22 +7109,22 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
     required TResult orElse(),
   }) {
     if (rtcInboundRtpStreamStats != null) {
@@ -6623,15 +7134,17 @@ class _$RTCStatsType_RTCInboundRTPStreamStats
   }
 }
 
-abstract class RTCStatsType_RTCInboundRTPStreamStats implements RTCStatsType {
-  const factory RTCStatsType_RTCInboundRTPStreamStats(
+abstract class RtcStatsType_RtcInboundRTPStreamStats implements RtcStatsType {
+  const factory RtcStatsType_RtcInboundRTPStreamStats(
           {final String? remoteId,
           final int? bytesReceived,
           final int? packetsReceived,
+          final int? packetsLost,
+          final double? jitter,
           final double? totalDecodeTime,
           final int? jitterBufferEmittedCount,
-          final RTCInboundRtpStreamMediaType? mediaType}) =
-      _$RTCStatsType_RTCInboundRTPStreamStats;
+          final RtcInboundRtpStreamMediaType? mediaType}) =
+      _$RtcStatsType_RtcInboundRTPStreamStats;
 
   /// ID of the stats object representing the receiving track.
   String? get remoteId;
@@ -6641,6 +7154,19 @@ abstract class RTCStatsType_RTCInboundRTPStreamStats implements RTCStatsType {
 
   /// Total number of RTP data packets received for this SSRC.
   int? get packetsReceived;
+
+  /// Total number of RTP data packets for this SSRC that have been lost
+  /// since the beginning of reception.
+  ///
+  /// This number is defined to be the number of packets expected less the
+  /// number of packets actually received, where the number of packets
+  /// received includes any which are late or duplicates. Thus, packets that
+  /// arrive late are not counted as lost, and the loss __may be negative__
+  /// if there are duplicates.
+  int? get packetsLost;
+
+  /// Packet jitter measured in seconds for this SSRC.
+  double? get jitter;
 
   /// Total number of seconds that have been spent decoding the
   /// [`framesDecoded`] frames of this stream.
@@ -6662,21 +7188,21 @@ abstract class RTCStatsType_RTCInboundRTPStreamStats implements RTCStatsType {
   int? get jitterBufferEmittedCount;
 
   /// Fields which should be in the [`RtcStat`] based on `mediaType`.
-  RTCInboundRtpStreamMediaType? get mediaType;
+  RtcInboundRtpStreamMediaType? get mediaType;
   @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCInboundRTPStreamStatsCopyWith<
-          _$RTCStatsType_RTCInboundRTPStreamStats>
+  _$$RtcStatsType_RtcInboundRTPStreamStatsCopyWith<
+          _$RtcStatsType_RtcInboundRTPStreamStats>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_RTCIceCandidatePairStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCIceCandidatePairStatsCopyWith(
-          _$RTCStatsType_RTCIceCandidatePairStats value,
-          $Res Function(_$RTCStatsType_RTCIceCandidatePairStats) then) =
-      __$$RTCStatsType_RTCIceCandidatePairStatsCopyWithImpl<$Res>;
+abstract class _$$RtcStatsType_RtcIceCandidatePairStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcIceCandidatePairStatsCopyWith(
+          _$RtcStatsType_RtcIceCandidatePairStats value,
+          $Res Function(_$RtcStatsType_RtcIceCandidatePairStats) then) =
+      __$$RtcStatsType_RtcIceCandidatePairStatsCopyWithImpl<$Res>;
   $Res call(
-      {RTCStatsIceCandidatePairState state,
+      {RtcStatsIceCandidatePairState state,
       bool? nominated,
       int? bytesSent,
       int? bytesReceived,
@@ -6686,18 +7212,18 @@ abstract class _$$RTCStatsType_RTCIceCandidatePairStatsCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$RTCStatsType_RTCIceCandidatePairStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCIceCandidatePairStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCIceCandidatePairStatsCopyWithImpl(
-      _$RTCStatsType_RTCIceCandidatePairStats _value,
-      $Res Function(_$RTCStatsType_RTCIceCandidatePairStats) _then)
+class __$$RtcStatsType_RtcIceCandidatePairStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcIceCandidatePairStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcIceCandidatePairStatsCopyWithImpl(
+      _$RtcStatsType_RtcIceCandidatePairStats _value,
+      $Res Function(_$RtcStatsType_RtcIceCandidatePairStats) _then)
       : super(
-            _value, (v) => _then(v as _$RTCStatsType_RTCIceCandidatePairStats));
+            _value, (v) => _then(v as _$RtcStatsType_RtcIceCandidatePairStats));
 
   @override
-  _$RTCStatsType_RTCIceCandidatePairStats get _value =>
-      super._value as _$RTCStatsType_RTCIceCandidatePairStats;
+  _$RtcStatsType_RtcIceCandidatePairStats get _value =>
+      super._value as _$RtcStatsType_RtcIceCandidatePairStats;
 
   @override
   $Res call({
@@ -6709,11 +7235,11 @@ class __$$RTCStatsType_RTCIceCandidatePairStatsCopyWithImpl<$Res>
     Object? currentRoundTripTime = freezed,
     Object? availableOutgoingBitrate = freezed,
   }) {
-    return _then(_$RTCStatsType_RTCIceCandidatePairStats(
+    return _then(_$RtcStatsType_RtcIceCandidatePairStats(
       state: state == freezed
           ? _value.state
           : state // ignore: cast_nullable_to_non_nullable
-              as RTCStatsIceCandidatePairState,
+              as RtcStatsIceCandidatePairState,
       nominated: nominated == freezed
           ? _value.nominated
           : nominated // ignore: cast_nullable_to_non_nullable
@@ -6744,9 +7270,9 @@ class __$$RTCStatsType_RTCIceCandidatePairStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCStatsType_RTCIceCandidatePairStats
-    implements RTCStatsType_RTCIceCandidatePairStats {
-  const _$RTCStatsType_RTCIceCandidatePairStats(
+class _$RtcStatsType_RtcIceCandidatePairStats
+    implements RtcStatsType_RtcIceCandidatePairStats {
+  const _$RtcStatsType_RtcIceCandidatePairStats(
       {required this.state,
       this.nominated,
       this.bytesSent,
@@ -6758,7 +7284,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   /// State of the checklist for the local
   /// and remote candidates in a pair.
   @override
-  final RTCStatsIceCandidatePairState state;
+  final RtcStatsIceCandidatePairState state;
 
   /// Related to updating the nominated flag described in
   /// [Section 7.1.3.2.4 of RFC 5245][1].
@@ -6787,7 +7313,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   /// [`totalRoundTripTime`][1] by dividing it
   /// by [`responsesReceived`][2].
   ///
-  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/WEBRTC-stats/#bib-stun-path-char
   /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
   /// [1]: https://tinyurl.com/tgr543a
   /// [2]: https://tinyurl.com/r3zo2um
@@ -6798,7 +7324,7 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   /// connectivity checks [STUN-PATH-CHAR],
   /// including those that are sent for consent verification [RFC 7675].
   ///
-  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/WEBRTC-stats/#bib-stun-path-char
   /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
   @override
   final double? currentRoundTripTime;
@@ -6827,14 +7353,14 @@ class _$RTCStatsType_RTCIceCandidatePairStats
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcIceCandidatePairStats(state: $state, nominated: $nominated, bytesSent: $bytesSent, bytesReceived: $bytesReceived, totalRoundTripTime: $totalRoundTripTime, currentRoundTripTime: $currentRoundTripTime, availableOutgoingBitrate: $availableOutgoingBitrate)';
+    return 'RtcStatsType.rtcIceCandidatePairStats(state: $state, nominated: $nominated, bytesSent: $bytesSent, bytesReceived: $bytesReceived, totalRoundTripTime: $totalRoundTripTime, currentRoundTripTime: $currentRoundTripTime, availableOutgoingBitrate: $availableOutgoingBitrate)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCIceCandidatePairStats &&
+            other is _$RtcStatsType_RtcIceCandidatePairStats &&
             const DeepCollectionEquality().equals(other.state, state) &&
             const DeepCollectionEquality().equals(other.nominated, nominated) &&
             const DeepCollectionEquality().equals(other.bytesSent, bytesSent) &&
@@ -6861,38 +7387,33 @@ class _$RTCStatsType_RTCIceCandidatePairStats
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCStatsType_RTCIceCandidatePairStatsCopyWith<
-          _$RTCStatsType_RTCIceCandidatePairStats>
-      get copyWith => __$$RTCStatsType_RTCIceCandidatePairStatsCopyWithImpl<
-          _$RTCStatsType_RTCIceCandidatePairStats>(this, _$identity);
+  _$$RtcStatsType_RtcIceCandidatePairStatsCopyWith<
+          _$RtcStatsType_RtcIceCandidatePairStats>
+      get copyWith => __$$RtcStatsType_RtcIceCandidatePairStatsCopyWithImpl<
+          _$RtcStatsType_RtcIceCandidatePairStats>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
         rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
         rtcOutboundRtpStreamStats,
     required TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
+            RtcInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -6901,10 +7422,15 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             double? availableOutgoingBitrate)
         rtcIceCandidatePairStats,
     required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
+            int? bytesSent, int? bytesReceived, String? iceRole)
         rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)
@@ -6918,29 +7444,24 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -6949,10 +7470,15 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -6972,29 +7498,24 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -7003,10 +7524,15 @@ class _$RTCStatsType_RTCIceCandidatePairStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -7030,24 +7556,24 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
         rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
         rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
         rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
         rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
         rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
+    required TResult Function(RtcStatsType_RtcTransportStats value)
         rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
         rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
   }) {
     return rtcIceCandidatePairStats(this);
   }
@@ -7055,22 +7581,22 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
   }) {
     return rtcIceCandidatePairStats?.call(this);
   }
@@ -7078,22 +7604,22 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
     required TResult orElse(),
   }) {
     if (rtcIceCandidatePairStats != null) {
@@ -7103,20 +7629,20 @@ class _$RTCStatsType_RTCIceCandidatePairStats
   }
 }
 
-abstract class RTCStatsType_RTCIceCandidatePairStats implements RTCStatsType {
-  const factory RTCStatsType_RTCIceCandidatePairStats(
-          {required final RTCStatsIceCandidatePairState state,
+abstract class RtcStatsType_RtcIceCandidatePairStats implements RtcStatsType {
+  const factory RtcStatsType_RtcIceCandidatePairStats(
+          {required final RtcStatsIceCandidatePairState state,
           final bool? nominated,
           final int? bytesSent,
           final int? bytesReceived,
           final double? totalRoundTripTime,
           final double? currentRoundTripTime,
           final double? availableOutgoingBitrate}) =
-      _$RTCStatsType_RTCIceCandidatePairStats;
+      _$RtcStatsType_RtcIceCandidatePairStats;
 
   /// State of the checklist for the local
   /// and remote candidates in a pair.
-  RTCStatsIceCandidatePairState get state;
+  RtcStatsIceCandidatePairState get state;
 
   /// Related to updating the nominated flag described in
   /// [Section 7.1.3.2.4 of RFC 5245][1].
@@ -7142,7 +7668,7 @@ abstract class RTCStatsType_RTCIceCandidatePairStats implements RTCStatsType {
   /// [`totalRoundTripTime`][1] by dividing it
   /// by [`responsesReceived`][2].
   ///
-  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/WEBRTC-stats/#bib-stun-path-char
   /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
   /// [1]: https://tinyurl.com/tgr543a
   /// [2]: https://tinyurl.com/r3zo2um
@@ -7152,7 +7678,7 @@ abstract class RTCStatsType_RTCIceCandidatePairStats implements RTCStatsType {
   /// connectivity checks [STUN-PATH-CHAR],
   /// including those that are sent for consent verification [RFC 7675].
   ///
-  /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+  /// [STUN-PATH-CHAR]: https://w3.org/TR/WEBRTC-stats/#bib-stun-path-char
   /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
   double? get currentRoundTripTime;
 
@@ -7177,36 +7703,37 @@ abstract class RTCStatsType_RTCIceCandidatePairStats implements RTCStatsType {
   /// [1]: https://tinyurl.com/rfc72eh
   double? get availableOutgoingBitrate;
   @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCIceCandidatePairStatsCopyWith<
-          _$RTCStatsType_RTCIceCandidatePairStats>
+  _$$RtcStatsType_RtcIceCandidatePairStatsCopyWith<
+          _$RtcStatsType_RtcIceCandidatePairStats>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_RTCTransportStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCTransportStatsCopyWith(
-          _$RTCStatsType_RTCTransportStats value,
-          $Res Function(_$RTCStatsType_RTCTransportStats) then) =
-      __$$RTCStatsType_RTCTransportStatsCopyWithImpl<$Res>;
+abstract class _$$RtcStatsType_RtcTransportStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcTransportStatsCopyWith(
+          _$RtcStatsType_RtcTransportStats value,
+          $Res Function(_$RtcStatsType_RtcTransportStats) then) =
+      __$$RtcStatsType_RtcTransportStatsCopyWithImpl<$Res>;
   $Res call(
       {int? packetsSent,
       int? packetsReceived,
       int? bytesSent,
-      int? bytesReceived});
+      int? bytesReceived,
+      String? iceRole});
 }
 
 /// @nodoc
-class __$$RTCStatsType_RTCTransportStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCTransportStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCTransportStatsCopyWithImpl(
-      _$RTCStatsType_RTCTransportStats _value,
-      $Res Function(_$RTCStatsType_RTCTransportStats) _then)
-      : super(_value, (v) => _then(v as _$RTCStatsType_RTCTransportStats));
+class __$$RtcStatsType_RtcTransportStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcTransportStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcTransportStatsCopyWithImpl(
+      _$RtcStatsType_RtcTransportStats _value,
+      $Res Function(_$RtcStatsType_RtcTransportStats) _then)
+      : super(_value, (v) => _then(v as _$RtcStatsType_RtcTransportStats));
 
   @override
-  _$RTCStatsType_RTCTransportStats get _value =>
-      super._value as _$RTCStatsType_RTCTransportStats;
+  _$RtcStatsType_RtcTransportStats get _value =>
+      super._value as _$RtcStatsType_RtcTransportStats;
 
   @override
   $Res call({
@@ -7214,8 +7741,9 @@ class __$$RTCStatsType_RTCTransportStatsCopyWithImpl<$Res>
     Object? packetsReceived = freezed,
     Object? bytesSent = freezed,
     Object? bytesReceived = freezed,
+    Object? iceRole = freezed,
   }) {
-    return _then(_$RTCStatsType_RTCTransportStats(
+    return _then(_$RtcStatsType_RtcTransportStats(
       packetsSent: packetsSent == freezed
           ? _value.packetsSent
           : packetsSent // ignore: cast_nullable_to_non_nullable
@@ -7232,19 +7760,24 @@ class __$$RTCStatsType_RTCTransportStatsCopyWithImpl<$Res>
           ? _value.bytesReceived
           : bytesReceived // ignore: cast_nullable_to_non_nullable
               as int?,
+      iceRole: iceRole == freezed
+          ? _value.iceRole
+          : iceRole // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
 
 /// @nodoc
 
-class _$RTCStatsType_RTCTransportStats
-    implements RTCStatsType_RTCTransportStats {
-  const _$RTCStatsType_RTCTransportStats(
+class _$RtcStatsType_RtcTransportStats
+    implements RtcStatsType_RtcTransportStats {
+  const _$RtcStatsType_RtcTransportStats(
       {this.packetsSent,
       this.packetsReceived,
       this.bytesSent,
-      this.bytesReceived});
+      this.bytesReceived,
+      this.iceRole});
 
   /// Total number of packets sent over this transport.
   @override
@@ -7268,23 +7801,32 @@ class _$RTCStatsType_RTCTransportStats
   @override
   final int? bytesReceived;
 
+  /// Set to the current value of the [`role` attribute][1] of the
+  /// [underlying RTCDtlsTransport's `transport`][2].
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-icetransport-role
+  /// [2]: https://w3.org/TR/webrtc#dom-rtcdtlstransport-icetransport
+  @override
+  final String? iceRole;
+
   @override
   String toString() {
-    return 'RTCStatsType.rtcTransportStats(packetsSent: $packetsSent, packetsReceived: $packetsReceived, bytesSent: $bytesSent, bytesReceived: $bytesReceived)';
+    return 'RtcStatsType.rtcTransportStats(packetsSent: $packetsSent, packetsReceived: $packetsReceived, bytesSent: $bytesSent, bytesReceived: $bytesReceived, iceRole: $iceRole)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCTransportStats &&
+            other is _$RtcStatsType_RtcTransportStats &&
             const DeepCollectionEquality()
                 .equals(other.packetsSent, packetsSent) &&
             const DeepCollectionEquality()
                 .equals(other.packetsReceived, packetsReceived) &&
             const DeepCollectionEquality().equals(other.bytesSent, bytesSent) &&
             const DeepCollectionEquality()
-                .equals(other.bytesReceived, bytesReceived));
+                .equals(other.bytesReceived, bytesReceived) &&
+            const DeepCollectionEquality().equals(other.iceRole, iceRole));
   }
 
   @override
@@ -7293,41 +7835,37 @@ class _$RTCStatsType_RTCTransportStats
       const DeepCollectionEquality().hash(packetsSent),
       const DeepCollectionEquality().hash(packetsReceived),
       const DeepCollectionEquality().hash(bytesSent),
-      const DeepCollectionEquality().hash(bytesReceived));
+      const DeepCollectionEquality().hash(bytesReceived),
+      const DeepCollectionEquality().hash(iceRole));
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCStatsType_RTCTransportStatsCopyWith<_$RTCStatsType_RTCTransportStats>
-      get copyWith => __$$RTCStatsType_RTCTransportStatsCopyWithImpl<
-          _$RTCStatsType_RTCTransportStats>(this, _$identity);
+  _$$RtcStatsType_RtcTransportStatsCopyWith<_$RtcStatsType_RtcTransportStats>
+      get copyWith => __$$RtcStatsType_RtcTransportStatsCopyWithImpl<
+          _$RtcStatsType_RtcTransportStats>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
         rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
         rtcOutboundRtpStreamStats,
     required TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
+            RtcInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -7336,10 +7874,15 @@ class _$RTCStatsType_RTCTransportStats
             double? availableOutgoingBitrate)
         rtcIceCandidatePairStats,
     required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
+            int? bytesSent, int? bytesReceived, String? iceRole)
         rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)
@@ -7347,35 +7890,30 @@ class _$RTCStatsType_RTCTransportStats
     required TResult Function() unimplenented,
   }) {
     return rtcTransportStats(
-        packetsSent, packetsReceived, bytesSent, bytesReceived);
+        packetsSent, packetsReceived, bytesSent, bytesReceived, iceRole);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -7384,10 +7922,15 @@ class _$RTCStatsType_RTCTransportStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -7395,35 +7938,30 @@ class _$RTCStatsType_RTCTransportStats
     TResult Function()? unimplenented,
   }) {
     return rtcTransportStats?.call(
-        packetsSent, packetsReceived, bytesSent, bytesReceived);
+        packetsSent, packetsReceived, bytesSent, bytesReceived, iceRole);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -7432,10 +7970,15 @@ class _$RTCStatsType_RTCTransportStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -7445,7 +7988,7 @@ class _$RTCStatsType_RTCTransportStats
   }) {
     if (rtcTransportStats != null) {
       return rtcTransportStats(
-          packetsSent, packetsReceived, bytesSent, bytesReceived);
+          packetsSent, packetsReceived, bytesSent, bytesReceived, iceRole);
     }
     return orElse();
   }
@@ -7453,24 +7996,24 @@ class _$RTCStatsType_RTCTransportStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
         rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
         rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
         rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
         rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
         rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
+    required TResult Function(RtcStatsType_RtcTransportStats value)
         rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
         rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
   }) {
     return rtcTransportStats(this);
   }
@@ -7478,22 +8021,22 @@ class _$RTCStatsType_RTCTransportStats
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
   }) {
     return rtcTransportStats?.call(this);
   }
@@ -7501,22 +8044,22 @@ class _$RTCStatsType_RTCTransportStats
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
     required TResult orElse(),
   }) {
     if (rtcTransportStats != null) {
@@ -7526,12 +8069,13 @@ class _$RTCStatsType_RTCTransportStats
   }
 }
 
-abstract class RTCStatsType_RTCTransportStats implements RTCStatsType {
-  const factory RTCStatsType_RTCTransportStats(
+abstract class RtcStatsType_RtcTransportStats implements RtcStatsType {
+  const factory RtcStatsType_RtcTransportStats(
       {final int? packetsSent,
       final int? packetsReceived,
       final int? bytesSent,
-      final int? bytesReceived}) = _$RTCStatsType_RTCTransportStats;
+      final int? bytesReceived,
+      final String? iceRole}) = _$RtcStatsType_RtcTransportStats;
 
   /// Total number of packets sent over this transport.
   int? get packetsSent;
@@ -7550,50 +8094,65 @@ abstract class RTCStatsType_RTCTransportStats implements RTCStatsType {
   ///
   /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   int? get bytesReceived;
+
+  /// Set to the current value of the [`role` attribute][1] of the
+  /// [underlying RTCDtlsTransport's `transport`][2].
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-icetransport-role
+  /// [2]: https://w3.org/TR/webrtc#dom-rtcdtlstransport-icetransport
+  String? get iceRole;
   @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCTransportStatsCopyWith<_$RTCStatsType_RTCTransportStats>
+  _$$RtcStatsType_RtcTransportStatsCopyWith<_$RtcStatsType_RtcTransportStats>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWith(
-          _$RTCStatsType_RTCRemoteInboundRtpStreamStats value,
-          $Res Function(_$RTCStatsType_RTCRemoteInboundRtpStreamStats) then) =
-      __$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWithImpl<$Res>;
+abstract class _$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith(
+          _$RtcStatsType_RtcRemoteInboundRtpStreamStats value,
+          $Res Function(_$RtcStatsType_RtcRemoteInboundRtpStreamStats) then) =
+      __$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWithImpl<$Res>;
   $Res call(
       {String? localId,
+      double? jitter,
       double? roundTripTime,
       double? fractionLost,
+      int? reportsReceived,
       int? roundTripTimeMeasurements});
 }
 
 /// @nodoc
-class __$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWithImpl(
-      _$RTCStatsType_RTCRemoteInboundRtpStreamStats _value,
-      $Res Function(_$RTCStatsType_RTCRemoteInboundRtpStreamStats) _then)
+class __$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWithImpl(
+      _$RtcStatsType_RtcRemoteInboundRtpStreamStats _value,
+      $Res Function(_$RtcStatsType_RtcRemoteInboundRtpStreamStats) _then)
       : super(_value,
-            (v) => _then(v as _$RTCStatsType_RTCRemoteInboundRtpStreamStats));
+            (v) => _then(v as _$RtcStatsType_RtcRemoteInboundRtpStreamStats));
 
   @override
-  _$RTCStatsType_RTCRemoteInboundRtpStreamStats get _value =>
-      super._value as _$RTCStatsType_RTCRemoteInboundRtpStreamStats;
+  _$RtcStatsType_RtcRemoteInboundRtpStreamStats get _value =>
+      super._value as _$RtcStatsType_RtcRemoteInboundRtpStreamStats;
 
   @override
   $Res call({
     Object? localId = freezed,
+    Object? jitter = freezed,
     Object? roundTripTime = freezed,
     Object? fractionLost = freezed,
+    Object? reportsReceived = freezed,
     Object? roundTripTimeMeasurements = freezed,
   }) {
-    return _then(_$RTCStatsType_RTCRemoteInboundRtpStreamStats(
+    return _then(_$RtcStatsType_RtcRemoteInboundRtpStreamStats(
       localId: localId == freezed
           ? _value.localId
           : localId // ignore: cast_nullable_to_non_nullable
               as String?,
+      jitter: jitter == freezed
+          ? _value.jitter
+          : jitter // ignore: cast_nullable_to_non_nullable
+              as double?,
       roundTripTime: roundTripTime == freezed
           ? _value.roundTripTime
           : roundTripTime // ignore: cast_nullable_to_non_nullable
@@ -7602,6 +8161,10 @@ class __$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWithImpl<$Res>
           ? _value.fractionLost
           : fractionLost // ignore: cast_nullable_to_non_nullable
               as double?,
+      reportsReceived: reportsReceived == freezed
+          ? _value.reportsReceived
+          : reportsReceived // ignore: cast_nullable_to_non_nullable
+              as int?,
       roundTripTimeMeasurements: roundTripTimeMeasurements == freezed
           ? _value.roundTripTimeMeasurements
           : roundTripTimeMeasurements // ignore: cast_nullable_to_non_nullable
@@ -7612,12 +8175,14 @@ class __$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
-    implements RTCStatsType_RTCRemoteInboundRtpStreamStats {
-  const _$RTCStatsType_RTCRemoteInboundRtpStreamStats(
+class _$RtcStatsType_RtcRemoteInboundRtpStreamStats
+    implements RtcStatsType_RtcRemoteInboundRtpStreamStats {
+  const _$RtcStatsType_RtcRemoteInboundRtpStreamStats(
       {this.localId,
+      this.jitter,
       this.roundTripTime,
       this.fractionLost,
+      this.reportsReceived,
       this.roundTripTimeMeasurements});
 
   /// [`localId`] is used for looking up the local
@@ -7627,12 +8192,14 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
   @override
   final String? localId;
+  @override
+  final double? jitter;
 
   /// Estimated round trip time for this SSRC based on
-  /// the RTCP timestamps in
-  /// the RTCP Receiver Report (RR) and measured in seconds.
+  /// the RtcP timestamps in
+  /// the RtcP Receiver Report (RR) and measured in seconds.
   /// Calculated as defined in [Section 6.4.1 of RFC 3550][1].
-  /// If no RTCP Receiver Report
+  /// If no RtcP Receiver Report
   /// is received with a DLSR value other than 0, the round trip time is
   /// left undefined.
   ///
@@ -7649,7 +8216,11 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   @override
   final double? fractionLost;
 
-  /// Total number of RTCP RR blocks received for this SSRC that contain a
+  /// Total number of RTCP RR blocks received for this SSRC.
+  @override
+  final int? reportsReceived;
+
+  /// Total number of RtcP RR blocks received for this SSRC that contain a
   /// valid round trip time. This counter will increment if the
   /// [`roundTripTime`] is undefined.
   ///
@@ -7659,19 +8230,22 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcRemoteInboundRtpStreamStats(localId: $localId, roundTripTime: $roundTripTime, fractionLost: $fractionLost, roundTripTimeMeasurements: $roundTripTimeMeasurements)';
+    return 'RtcStatsType.rtcRemoteInboundRtpStreamStats(localId: $localId, jitter: $jitter, roundTripTime: $roundTripTime, fractionLost: $fractionLost, reportsReceived: $reportsReceived, roundTripTimeMeasurements: $roundTripTimeMeasurements)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCRemoteInboundRtpStreamStats &&
+            other is _$RtcStatsType_RtcRemoteInboundRtpStreamStats &&
             const DeepCollectionEquality().equals(other.localId, localId) &&
+            const DeepCollectionEquality().equals(other.jitter, jitter) &&
             const DeepCollectionEquality()
                 .equals(other.roundTripTime, roundTripTime) &&
             const DeepCollectionEquality()
                 .equals(other.fractionLost, fractionLost) &&
+            const DeepCollectionEquality()
+                .equals(other.reportsReceived, reportsReceived) &&
             const DeepCollectionEquality().equals(
                 other.roundTripTimeMeasurements, roundTripTimeMeasurements));
   }
@@ -7680,45 +8254,42 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(localId),
+      const DeepCollectionEquality().hash(jitter),
       const DeepCollectionEquality().hash(roundTripTime),
       const DeepCollectionEquality().hash(fractionLost),
+      const DeepCollectionEquality().hash(reportsReceived),
       const DeepCollectionEquality().hash(roundTripTimeMeasurements));
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWith<
-          _$RTCStatsType_RTCRemoteInboundRtpStreamStats>
+  _$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith<
+          _$RtcStatsType_RtcRemoteInboundRtpStreamStats>
       get copyWith =>
-          __$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWithImpl<
-              _$RTCStatsType_RTCRemoteInboundRtpStreamStats>(this, _$identity);
+          __$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWithImpl<
+              _$RtcStatsType_RtcRemoteInboundRtpStreamStats>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
         rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
         rtcOutboundRtpStreamStats,
     required TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
+            RtcInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -7727,46 +8298,46 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             double? availableOutgoingBitrate)
         rtcIceCandidatePairStats,
     required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
+            int? bytesSent, int? bytesReceived, String? iceRole)
         rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)
         rtcRemoteOutboundRtpStreamStats,
     required TResult Function() unimplenented,
   }) {
-    return rtcRemoteInboundRtpStreamStats(
-        localId, roundTripTime, fractionLost, roundTripTimeMeasurements);
+    return rtcRemoteInboundRtpStreamStats(localId, jitter, roundTripTime,
+        fractionLost, reportsReceived, roundTripTimeMeasurements);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -7775,46 +8346,46 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
         rtcRemoteOutboundRtpStreamStats,
     TResult Function()? unimplenented,
   }) {
-    return rtcRemoteInboundRtpStreamStats?.call(
-        localId, roundTripTime, fractionLost, roundTripTimeMeasurements);
+    return rtcRemoteInboundRtpStreamStats?.call(localId, jitter, roundTripTime,
+        fractionLost, reportsReceived, roundTripTimeMeasurements);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -7823,10 +8394,15 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -7835,8 +8411,8 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
     required TResult orElse(),
   }) {
     if (rtcRemoteInboundRtpStreamStats != null) {
-      return rtcRemoteInboundRtpStreamStats(
-          localId, roundTripTime, fractionLost, roundTripTimeMeasurements);
+      return rtcRemoteInboundRtpStreamStats(localId, jitter, roundTripTime,
+          fractionLost, reportsReceived, roundTripTimeMeasurements);
     }
     return orElse();
   }
@@ -7844,24 +8420,24 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
         rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
         rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
         rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
         rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
         rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
+    required TResult Function(RtcStatsType_RtcTransportStats value)
         rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
         rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
   }) {
     return rtcRemoteInboundRtpStreamStats(this);
   }
@@ -7869,22 +8445,22 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
   }) {
     return rtcRemoteInboundRtpStreamStats?.call(this);
   }
@@ -7892,22 +8468,22 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
     required TResult orElse(),
   }) {
     if (rtcRemoteInboundRtpStreamStats != null) {
@@ -7917,14 +8493,16 @@ class _$RTCStatsType_RTCRemoteInboundRtpStreamStats
   }
 }
 
-abstract class RTCStatsType_RTCRemoteInboundRtpStreamStats
-    implements RTCStatsType {
-  const factory RTCStatsType_RTCRemoteInboundRtpStreamStats(
+abstract class RtcStatsType_RtcRemoteInboundRtpStreamStats
+    implements RtcStatsType {
+  const factory RtcStatsType_RtcRemoteInboundRtpStreamStats(
           {final String? localId,
+          final double? jitter,
           final double? roundTripTime,
           final double? fractionLost,
+          final int? reportsReceived,
           final int? roundTripTimeMeasurements}) =
-      _$RTCStatsType_RTCRemoteInboundRtpStreamStats;
+      _$RtcStatsType_RtcRemoteInboundRtpStreamStats;
 
   /// [`localId`] is used for looking up the local
   /// [RTCOutboundRtpStreamStats] object for the same SSRC.
@@ -7932,12 +8510,13 @@ abstract class RTCStatsType_RTCRemoteInboundRtpStreamStats
   /// [`localId`]: https://tinyurl.com/r8uhbo9
   /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
   String? get localId;
+  double? get jitter;
 
   /// Estimated round trip time for this SSRC based on
-  /// the RTCP timestamps in
-  /// the RTCP Receiver Report (RR) and measured in seconds.
+  /// the RtcP timestamps in
+  /// the RtcP Receiver Report (RR) and measured in seconds.
   /// Calculated as defined in [Section 6.4.1 of RFC 3550][1].
-  /// If no RTCP Receiver Report
+  /// If no RtcP Receiver Report
   /// is received with a DLSR value other than 0, the round trip time is
   /// left undefined.
   ///
@@ -7952,40 +8531,43 @@ abstract class RTCStatsType_RTCRemoteInboundRtpStreamStats
   /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
   double? get fractionLost;
 
-  /// Total number of RTCP RR blocks received for this SSRC that contain a
+  /// Total number of RTCP RR blocks received for this SSRC.
+  int? get reportsReceived;
+
+  /// Total number of RtcP RR blocks received for this SSRC that contain a
   /// valid round trip time. This counter will increment if the
   /// [`roundTripTime`] is undefined.
   ///
   /// [`roundTripTime`]: https://tinyurl.com/ssg83hq
   int? get roundTripTimeMeasurements;
   @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCRemoteInboundRtpStreamStatsCopyWith<
-          _$RTCStatsType_RTCRemoteInboundRtpStreamStats>
+  _$$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith<
+          _$RtcStatsType_RtcRemoteInboundRtpStreamStats>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWith<$Res> {
-  factory _$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWith(
-          _$RTCStatsType_RTCRemoteOutboundRtpStreamStats value,
-          $Res Function(_$RTCStatsType_RTCRemoteOutboundRtpStreamStats) then) =
-      __$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWithImpl<$Res>;
+abstract class _$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith<$Res> {
+  factory _$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith(
+          _$RtcStatsType_RtcRemoteOutboundRtpStreamStats value,
+          $Res Function(_$RtcStatsType_RtcRemoteOutboundRtpStreamStats) then) =
+      __$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWithImpl<$Res>;
   $Res call({String? localId, double? remoteTimestamp, int? reportsSent});
 }
 
 /// @nodoc
-class __$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWith<$Res> {
-  __$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWithImpl(
-      _$RTCStatsType_RTCRemoteOutboundRtpStreamStats _value,
-      $Res Function(_$RTCStatsType_RTCRemoteOutboundRtpStreamStats) _then)
+class __$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith<$Res> {
+  __$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWithImpl(
+      _$RtcStatsType_RtcRemoteOutboundRtpStreamStats _value,
+      $Res Function(_$RtcStatsType_RtcRemoteOutboundRtpStreamStats) _then)
       : super(_value,
-            (v) => _then(v as _$RTCStatsType_RTCRemoteOutboundRtpStreamStats));
+            (v) => _then(v as _$RtcStatsType_RtcRemoteOutboundRtpStreamStats));
 
   @override
-  _$RTCStatsType_RTCRemoteOutboundRtpStreamStats get _value =>
-      super._value as _$RTCStatsType_RTCRemoteOutboundRtpStreamStats;
+  _$RtcStatsType_RtcRemoteOutboundRtpStreamStats get _value =>
+      super._value as _$RtcStatsType_RtcRemoteOutboundRtpStreamStats;
 
   @override
   $Res call({
@@ -7993,7 +8575,7 @@ class __$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWithImpl<$Res>
     Object? remoteTimestamp = freezed,
     Object? reportsSent = freezed,
   }) {
-    return _then(_$RTCStatsType_RTCRemoteOutboundRtpStreamStats(
+    return _then(_$RtcStatsType_RtcRemoteOutboundRtpStreamStats(
       localId: localId == freezed
           ? _value.localId
           : localId // ignore: cast_nullable_to_non_nullable
@@ -8012,16 +8594,16 @@ class __$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
-    implements RTCStatsType_RTCRemoteOutboundRtpStreamStats {
-  const _$RTCStatsType_RTCRemoteOutboundRtpStreamStats(
+class _$RtcStatsType_RtcRemoteOutboundRtpStreamStats
+    implements RtcStatsType_RtcRemoteOutboundRtpStreamStats {
+  const _$RtcStatsType_RtcRemoteOutboundRtpStreamStats(
       {this.localId, this.remoteTimestamp, this.reportsSent});
 
   /// [`localId`] is used for looking up the local
   /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
   ///
   /// [`localId`]: https://tinyurl.com/vu9tb2e
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcinboundrtpstreamstats
   @override
   final String? localId;
 
@@ -8030,29 +8612,29 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   /// differs from timestamp, which represents the time at which the
   /// statistics were generated or received by the local endpoint. The
   /// [`remoteTimestamp`], if present, is derived from the NTP timestamp
-  /// in an RTCP Sender Report (SR) block, which reflects the remote
+  /// in an RtcP Sender Report (SR) block, which reflects the remote
   /// endpoint's clock. That clock may not be synchronized with the local
   /// clock.
   ///
   /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
-  /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats/#bib-highres-time
+  /// [HIGRES-TIME]: https://w3.org/TR/WEBRTC-stats/#bib-highres-time
   @override
   final double? remoteTimestamp;
 
-  /// Total number of RTCP SR blocks sent for this SSRC.
+  /// Total number of RtcP SR blocks sent for this SSRC.
   @override
   final int? reportsSent;
 
   @override
   String toString() {
-    return 'RTCStatsType.rtcRemoteOutboundRtpStreamStats(localId: $localId, remoteTimestamp: $remoteTimestamp, reportsSent: $reportsSent)';
+    return 'RtcStatsType.rtcRemoteOutboundRtpStreamStats(localId: $localId, remoteTimestamp: $remoteTimestamp, reportsSent: $reportsSent)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_RTCRemoteOutboundRtpStreamStats &&
+            other is _$RtcStatsType_RtcRemoteOutboundRtpStreamStats &&
             const DeepCollectionEquality().equals(other.localId, localId) &&
             const DeepCollectionEquality()
                 .equals(other.remoteTimestamp, remoteTimestamp) &&
@@ -8069,39 +8651,34 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
 
   @JsonKey(ignore: true)
   @override
-  _$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWith<
-          _$RTCStatsType_RTCRemoteOutboundRtpStreamStats>
+  _$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith<
+          _$RtcStatsType_RtcRemoteOutboundRtpStreamStats>
       get copyWith =>
-          __$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWithImpl<
-              _$RTCStatsType_RTCRemoteOutboundRtpStreamStats>(this, _$identity);
+          __$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWithImpl<
+              _$RtcStatsType_RtcRemoteOutboundRtpStreamStats>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
         rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
         rtcOutboundRtpStreamStats,
     required TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
+            RtcInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -8110,10 +8687,15 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             double? availableOutgoingBitrate)
         rtcIceCandidatePairStats,
     required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
+            int? bytesSent, int? bytesReceived, String? iceRole)
         rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)
@@ -8127,29 +8709,24 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -8158,10 +8735,15 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -8175,29 +8757,24 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -8206,10 +8783,15 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -8227,24 +8809,24 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
         rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
         rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
         rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
         rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
         rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
+    required TResult Function(RtcStatsType_RtcTransportStats value)
         rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
         rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
   }) {
     return rtcRemoteOutboundRtpStreamStats(this);
   }
@@ -8252,22 +8834,22 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
   }) {
     return rtcRemoteOutboundRtpStreamStats?.call(this);
   }
@@ -8275,22 +8857,22 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
     required TResult orElse(),
   }) {
     if (rtcRemoteOutboundRtpStreamStats != null) {
@@ -8300,18 +8882,18 @@ class _$RTCStatsType_RTCRemoteOutboundRtpStreamStats
   }
 }
 
-abstract class RTCStatsType_RTCRemoteOutboundRtpStreamStats
-    implements RTCStatsType {
-  const factory RTCStatsType_RTCRemoteOutboundRtpStreamStats(
+abstract class RtcStatsType_RtcRemoteOutboundRtpStreamStats
+    implements RtcStatsType {
+  const factory RtcStatsType_RtcRemoteOutboundRtpStreamStats(
       {final String? localId,
       final double? remoteTimestamp,
-      final int? reportsSent}) = _$RTCStatsType_RTCRemoteOutboundRtpStreamStats;
+      final int? reportsSent}) = _$RtcStatsType_RtcRemoteOutboundRtpStreamStats;
 
   /// [`localId`] is used for looking up the local
   /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
   ///
   /// [`localId`]: https://tinyurl.com/vu9tb2e
-  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
+  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcinboundrtpstreamstats
   String? get localId;
 
   /// [`remoteTimestamp`] (as [HIGHRES-TIME]) is the remote timestamp at
@@ -8319,59 +8901,59 @@ abstract class RTCStatsType_RTCRemoteOutboundRtpStreamStats
   /// differs from timestamp, which represents the time at which the
   /// statistics were generated or received by the local endpoint. The
   /// [`remoteTimestamp`], if present, is derived from the NTP timestamp
-  /// in an RTCP Sender Report (SR) block, which reflects the remote
+  /// in an RtcP Sender Report (SR) block, which reflects the remote
   /// endpoint's clock. That clock may not be synchronized with the local
   /// clock.
   ///
   /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
-  /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats/#bib-highres-time
+  /// [HIGRES-TIME]: https://w3.org/TR/WEBRTC-stats/#bib-highres-time
   double? get remoteTimestamp;
 
-  /// Total number of RTCP SR blocks sent for this SSRC.
+  /// Total number of RtcP SR blocks sent for this SSRC.
   int? get reportsSent;
   @JsonKey(ignore: true)
-  _$$RTCStatsType_RTCRemoteOutboundRtpStreamStatsCopyWith<
-          _$RTCStatsType_RTCRemoteOutboundRtpStreamStats>
+  _$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith<
+          _$RtcStatsType_RtcRemoteOutboundRtpStreamStats>
       get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$RTCStatsType_UnimplenentedCopyWith<$Res> {
-  factory _$$RTCStatsType_UnimplenentedCopyWith(
-          _$RTCStatsType_Unimplenented value,
-          $Res Function(_$RTCStatsType_Unimplenented) then) =
-      __$$RTCStatsType_UnimplenentedCopyWithImpl<$Res>;
+abstract class _$$RtcStatsType_UnimplenentedCopyWith<$Res> {
+  factory _$$RtcStatsType_UnimplenentedCopyWith(
+          _$RtcStatsType_Unimplenented value,
+          $Res Function(_$RtcStatsType_Unimplenented) then) =
+      __$$RtcStatsType_UnimplenentedCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class __$$RTCStatsType_UnimplenentedCopyWithImpl<$Res>
-    extends _$RTCStatsTypeCopyWithImpl<$Res>
-    implements _$$RTCStatsType_UnimplenentedCopyWith<$Res> {
-  __$$RTCStatsType_UnimplenentedCopyWithImpl(
-      _$RTCStatsType_Unimplenented _value,
-      $Res Function(_$RTCStatsType_Unimplenented) _then)
-      : super(_value, (v) => _then(v as _$RTCStatsType_Unimplenented));
+class __$$RtcStatsType_UnimplenentedCopyWithImpl<$Res>
+    extends _$RtcStatsTypeCopyWithImpl<$Res>
+    implements _$$RtcStatsType_UnimplenentedCopyWith<$Res> {
+  __$$RtcStatsType_UnimplenentedCopyWithImpl(
+      _$RtcStatsType_Unimplenented _value,
+      $Res Function(_$RtcStatsType_Unimplenented) _then)
+      : super(_value, (v) => _then(v as _$RtcStatsType_Unimplenented));
 
   @override
-  _$RTCStatsType_Unimplenented get _value =>
-      super._value as _$RTCStatsType_Unimplenented;
+  _$RtcStatsType_Unimplenented get _value =>
+      super._value as _$RtcStatsType_Unimplenented;
 }
 
 /// @nodoc
 
-class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
-  const _$RTCStatsType_Unimplenented();
+class _$RtcStatsType_Unimplenented implements RtcStatsType_Unimplenented {
+  const _$RtcStatsType_Unimplenented();
 
   @override
   String toString() {
-    return 'RTCStatsType.unimplenented()';
+    return 'RtcStatsType.unimplenented()';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RTCStatsType_Unimplenented);
+            other is _$RtcStatsType_Unimplenented);
   }
 
   @override
@@ -8381,29 +8963,24 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(
-            String? trackIdentifier, RTCMediaSourceStatsType kind)
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)
         rtcMediaSourceStats,
-    required TResult Function(RTCIceCandidateStats field0) rtcIceCandidateStats,
+    required TResult Function(RtcIceCandidateStats field0) rtcIceCandidateStats,
     required TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)
+            String? trackId, RtcOutboundRTPStreamStatsMediaType kind)
         rtcOutboundRtpStreamStats,
     required TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)
+            RtcInboundRtpStreamMediaType? mediaType)
         rtcInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -8412,10 +8989,15 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             double? availableOutgoingBitrate)
         rtcIceCandidatePairStats,
     required TResult Function(int? packetsSent, int? packetsReceived,
-            int? bytesSent, int? bytesReceived)
+            int? bytesSent, int? bytesReceived, String? iceRole)
         rtcTransportStats,
-    required TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)
+    required TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)
@@ -8428,29 +9010,24 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -8459,10 +9036,15 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -8475,29 +9057,24 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? trackIdentifier, RTCMediaSourceStatsType kind)?
-        rtcMediaSourceStats,
-    TResult Function(RTCIceCandidateStats field0)? rtcIceCandidateStats,
     TResult Function(
-            String? trackId,
-            TrackKind kind,
-            int? frameWidth,
-            int? frameHeight,
-            double? framesPerSecond,
-            int? bytesSent,
-            int? packetsSent,
-            String? mediaSourceId)?
+            String? trackIdentifier, RtcMediaSourceStatsMediaType kind)?
+        rtcMediaSourceStats,
+    TResult Function(RtcIceCandidateStats field0)? rtcIceCandidateStats,
+    TResult Function(String? trackId, RtcOutboundRTPStreamStatsMediaType kind)?
         rtcOutboundRtpStreamStats,
     TResult Function(
             String? remoteId,
             int? bytesReceived,
             int? packetsReceived,
+            int? packetsLost,
+            double? jitter,
             double? totalDecodeTime,
             int? jitterBufferEmittedCount,
-            RTCInboundRtpStreamMediaType? mediaType)?
+            RtcInboundRtpStreamMediaType? mediaType)?
         rtcInboundRtpStreamStats,
     TResult Function(
-            RTCStatsIceCandidatePairState state,
+            RtcStatsIceCandidatePairState state,
             bool? nominated,
             int? bytesSent,
             int? bytesReceived,
@@ -8506,10 +9083,15 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
             double? availableOutgoingBitrate)?
         rtcIceCandidatePairStats,
     TResult Function(int? packetsSent, int? packetsReceived, int? bytesSent,
-            int? bytesReceived)?
+            int? bytesReceived, String? iceRole)?
         rtcTransportStats,
-    TResult Function(String? localId, double? roundTripTime,
-            double? fractionLost, int? roundTripTimeMeasurements)?
+    TResult Function(
+            String? localId,
+            double? jitter,
+            double? roundTripTime,
+            double? fractionLost,
+            int? reportsReceived,
+            int? roundTripTimeMeasurements)?
         rtcRemoteInboundRtpStreamStats,
     TResult Function(
             String? localId, double? remoteTimestamp, int? reportsSent)?
@@ -8526,24 +9108,24 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(RTCStatsType_RTCMediaSourceStats value)
+    required TResult Function(RtcStatsType_RtcMediaSourceStats value)
         rtcMediaSourceStats,
-    required TResult Function(RTCStatsType_RTCIceCandidateStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidateStats value)
         rtcIceCandidateStats,
-    required TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)
         rtcOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)
+    required TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)
         rtcInboundRtpStreamStats,
-    required TResult Function(RTCStatsType_RTCIceCandidatePairStats value)
+    required TResult Function(RtcStatsType_RtcIceCandidatePairStats value)
         rtcIceCandidatePairStats,
-    required TResult Function(RTCStatsType_RTCTransportStats value)
+    required TResult Function(RtcStatsType_RtcTransportStats value)
         rtcTransportStats,
-    required TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)
+    required TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)
         rtcRemoteInboundRtpStreamStats,
     required TResult Function(
-            RTCStatsType_RTCRemoteOutboundRtpStreamStats value)
+            RtcStatsType_RtcRemoteOutboundRtpStreamStats value)
         rtcRemoteOutboundRtpStreamStats,
-    required TResult Function(RTCStatsType_Unimplenented value) unimplenented,
+    required TResult Function(RtcStatsType_Unimplenented value) unimplenented,
   }) {
     return unimplenented(this);
   }
@@ -8551,22 +9133,22 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
   }) {
     return unimplenented?.call(this);
   }
@@ -8574,22 +9156,22 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(RTCStatsType_RTCMediaSourceStats value)?
+    TResult Function(RtcStatsType_RtcMediaSourceStats value)?
         rtcMediaSourceStats,
-    TResult Function(RTCStatsType_RTCIceCandidateStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidateStats value)?
         rtcIceCandidateStats,
-    TResult Function(RTCStatsType_RTCOutboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcOutboundRTPStreamStats value)?
         rtcOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCInboundRTPStreamStats value)?
+    TResult Function(RtcStatsType_RtcInboundRTPStreamStats value)?
         rtcInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCIceCandidatePairStats value)?
+    TResult Function(RtcStatsType_RtcIceCandidatePairStats value)?
         rtcIceCandidatePairStats,
-    TResult Function(RTCStatsType_RTCTransportStats value)? rtcTransportStats,
-    TResult Function(RTCStatsType_RTCRemoteInboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcTransportStats value)? rtcTransportStats,
+    TResult Function(RtcStatsType_RtcRemoteInboundRtpStreamStats value)?
         rtcRemoteInboundRtpStreamStats,
-    TResult Function(RTCStatsType_RTCRemoteOutboundRtpStreamStats value)?
+    TResult Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats value)?
         rtcRemoteOutboundRtpStreamStats,
-    TResult Function(RTCStatsType_Unimplenented value)? unimplenented,
+    TResult Function(RtcStatsType_Unimplenented value)? unimplenented,
     required TResult orElse(),
   }) {
     if (unimplenented != null) {
@@ -8599,6 +9181,6 @@ class _$RTCStatsType_Unimplenented implements RTCStatsType_Unimplenented {
   }
 }
 
-abstract class RTCStatsType_Unimplenented implements RTCStatsType {
-  const factory RTCStatsType_Unimplenented() = _$RTCStatsType_Unimplenented;
+abstract class RtcStatsType_Unimplenented implements RtcStatsType {
+  const factory RtcStatsType_Unimplenented() = _$RtcStatsType_Unimplenented;
 }

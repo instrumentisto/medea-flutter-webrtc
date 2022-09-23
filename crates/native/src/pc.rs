@@ -147,7 +147,7 @@ impl Webrtc {
     pub fn get_stats(
         &self,
         peer_id: u64,
-    ) -> anyhow::Result<Vec<api::RTCStats>> {
+    ) -> anyhow::Result<Vec<api::RtcStats>> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
@@ -162,7 +162,7 @@ impl Webrtc {
         Ok(report
             .get_stats()
             .into_iter()
-            .map(api::RTCStats::from)
+            .map(api::RtcStats::from)
             .collect())
     }
 
