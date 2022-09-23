@@ -1,6 +1,6 @@
 #include "stats.h"
-#include "libwebrtc-sys/src/bridge.rs.h"
 #include <stdexcept>
+#include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
 
@@ -9,10 +9,10 @@ RTCMediaSourceStatsWrap cast_to_rtc_media_source_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "media-source") {
-    auto cast =  std::unique_ptr<RTCMediaSourceStats>(static_cast<RTCMediaSourceStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCMediaSourceStats>(
+        static_cast<RTCMediaSourceStats*>(stats.release()));
     auto track_identifier = init_option_string();
 
-    
     MediaKind kind = MediaKind::Audio;
     if (*cast->kind == "video") {
       kind = MediaKind::Video;
@@ -22,7 +22,8 @@ RTCMediaSourceStatsWrap cast_to_rtc_media_source_stats(
       track_identifier->set_value(rust::String(*cast->track_identifier));
     }
 
-    return RTCMediaSourceStatsWrap {std::move(track_identifier), kind, std::move(cast)};
+    return RTCMediaSourceStatsWrap{std::move(track_identifier), kind,
+                                   std::move(cast)};
   }
   throw std::invalid_argument(
       "Invalid type. Expected `ice-candidate` but found: " + type);
@@ -33,39 +34,40 @@ RTCIceCandidateStatsWrap cast_to_rtc_ice_candidate_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "remote-candidate" || type == "local-candidate") {
-    auto cast = std::unique_ptr<RTCIceCandidateStats>(static_cast<RTCIceCandidateStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCIceCandidateStats>(
+        static_cast<RTCIceCandidateStats*>(stats.release()));
     auto transport_id = init_option_string();
     if (cast->transport_id.is_defined()) {
       transport_id->set_value(rust::String(*cast->transport_id));
-    }    
+    }
 
     auto address = init_option_string();
     if (cast->address.is_defined()) {
       address->set_value(rust::String(*cast->address));
-    }   
+    }
 
     auto port = init_option_i32();
     if (cast->port.is_defined()) {
       port->set_value(*cast->port);
-    }   
+    }
 
     auto protocol = init_option_string();
     if (cast->protocol.is_defined()) {
       protocol->set_value(rust::String(*cast->protocol));
-    }  
+    }
 
     auto priority = init_option_i32();
     if (cast->priority.is_defined()) {
       priority->set_value(*cast->priority);
-    }  
+    }
 
     auto url = init_option_string();
     if (cast->url.is_defined()) {
       url->set_value(rust::String(*cast->url));
-    }  
+    }
 
     CandidateType candidate_type;
-    auto candidate_type_str = *cast->candidate_type; 
+    auto candidate_type_str = *cast->candidate_type;
     if (candidate_type_str == "host") {
       candidate_type = CandidateType::kHost;
     } else if (candidate_type_str == "prflx") {
@@ -77,14 +79,14 @@ RTCIceCandidateStatsWrap cast_to_rtc_ice_candidate_stats(
     }
 
     return RTCIceCandidateStatsWrap{
-        *cast->is_remote,
-        std::move(transport_id), std::move(address), std::move(port),
-        std::move(protocol),     candidate_type,     std::move(priority),
-        std::move(url)};
+        *cast->is_remote,    std::move(transport_id), std::move(address),
+        std::move(port),     std::move(protocol),     candidate_type,
+        std::move(priority), std::move(url)};
   }
   throw std::invalid_argument(
-      "Invalid type. Expected `local-candidate` or `remote-candidate` but found: "
-          + type);
+      "Invalid type. Expected `local-candidate` or `remote-candidate` but "
+      "found: " +
+      type);
 }
 
 // Try to cast a `RTCStats` to the wrap `RTCOutboundRTPStreamStats`.
@@ -92,42 +94,43 @@ RTCOutboundRTPStreamStatsWrap cast_to_rtc_outbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "outbound-rtp") {
-    auto cast = std::unique_ptr<RTCOutboundRTPStreamStats>(static_cast<RTCOutboundRTPStreamStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCOutboundRTPStreamStats>(
+        static_cast<RTCOutboundRTPStreamStats*>(stats.release()));
 
     auto track_id = init_option_string();
     if (cast->track_id.is_defined()) {
       track_id->set_value(rust::String(*cast->track_id));
-    }  
+    }
 
     auto frame_width = init_option_u32();
     if (cast->frame_width.is_defined()) {
       frame_width->set_value(*cast->frame_width);
-    }  
+    }
 
     auto frame_height = init_option_u32();
     if (cast->frame_width.is_defined()) {
       frame_width->set_value(*cast->frame_width);
-    }  
+    }
 
     auto frames_per_second = init_option_f64();
     if (cast->frames_per_second.is_defined()) {
       frames_per_second->set_value(*cast->frames_per_second);
-    }  
+    }
 
     auto bytes_sent = init_option_u64();
     if (cast->bytes_sent.is_defined()) {
       bytes_sent->set_value(*cast->bytes_sent);
-    }  
+    }
 
     auto packets_sent = init_option_u32();
     if (cast->packets_sent.is_defined()) {
       packets_sent->set_value(*cast->packets_sent);
-    }  
+    }
 
     auto media_source_id = init_option_string();
     if (cast->media_source_id.is_defined()) {
       media_source_id->set_value(rust::String(*cast->media_source_id));
-    }  
+    }
 
     MediaKind kind = MediaKind::Video;
 
@@ -303,37 +306,51 @@ RTCIceCandidatePairStatsWrap cast_to_rtc_ice_candidate_pair_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "candidate-pair") {
-    auto cast = std::unique_ptr<RTCIceCandidatePairStats>(static_cast<RTCIceCandidatePairStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCIceCandidatePairStats>(
+        static_cast<RTCIceCandidatePairStats*>(stats.release()));
 
     RTCStatsIceCandidatePairState state;
+    auto state_str = *cast->state;
+    if (state_str == "frozen") {
+      state = RTCStatsIceCandidatePairState::kFrozen;
+    } else if (state_str == "waiting") {
+      state = RTCStatsIceCandidatePairState::kWaiting;
+    } else if (state_str == "in-progress") {
+      state = RTCStatsIceCandidatePairState::kInProgress;
+    } else if (state_str == "failed") {
+      state = RTCStatsIceCandidatePairState::kFailed;
+    } else if (state_str == "succeeded") {
+      state = RTCStatsIceCandidatePairState::kSucceeded;
+    }
+
     auto nominated = init_option_bool();
     if (cast->nominated.is_defined()) {
-        nominated->set_value(*cast->nominated);
+      nominated->set_value(*cast->nominated);
     }
 
     auto bytes_sent = init_option_u64();
     if (cast->bytes_sent.is_defined()) {
-        bytes_sent->set_value(*cast->bytes_sent);
+      bytes_sent->set_value(*cast->bytes_sent);
     }
 
     auto bytes_received = init_option_u64();
     if (cast->bytes_received.is_defined()) {
-        bytes_received->set_value(*cast->bytes_received);
+      bytes_received->set_value(*cast->bytes_received);
     }
 
     auto total_round_trip_time = init_option_f64();
     if (cast->total_round_trip_time.is_defined()) {
-        total_round_trip_time->set_value(*cast->total_round_trip_time);
+      total_round_trip_time->set_value(*cast->total_round_trip_time);
     }
 
     auto current_round_trip_time = init_option_f64();
     if (cast->current_round_trip_time.is_defined()) {
-        current_round_trip_time->set_value(*cast->current_round_trip_time);
+      current_round_trip_time->set_value(*cast->current_round_trip_time);
     }
 
     auto available_outgoing_bitrate = init_option_f64();
     if (cast->available_outgoing_bitrate.is_defined()) {
-        available_outgoing_bitrate->set_value(*cast->available_outgoing_bitrate);
+      available_outgoing_bitrate->set_value(*cast->available_outgoing_bitrate);
     }
 
     return RTCIceCandidatePairStatsWrap{
@@ -351,41 +368,42 @@ RTCIceCandidatePairStatsWrap cast_to_rtc_ice_candidate_pair_stats(
 }
 
 // Try to cast a `RTCStats` to the wrap `RTCTransportStats`.
-RTCTransportStatsWrap cast_to_rtc_transport_stats(std::unique_ptr<RTCStats> stats) {
+RTCTransportStatsWrap cast_to_rtc_transport_stats(
+    std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "transport") {
-    auto cast = std::unique_ptr<RTCTransportStats>(static_cast<RTCTransportStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCTransportStats>(
+        static_cast<RTCTransportStats*>(stats.release()));
 
     auto packets_sent = init_option_u64();
     if (cast->packets_sent.is_defined()) {
-        packets_sent->set_value(*cast->packets_sent);
+      packets_sent->set_value(*cast->packets_sent);
     }
 
     auto packets_received = init_option_u64();
     if (cast->packets_received.is_defined()) {
-        packets_received->set_value(*cast->packets_received);
+      packets_received->set_value(*cast->packets_received);
     }
 
     auto bytes_sent = init_option_u64();
     if (cast->bytes_sent.is_defined()) {
-        bytes_sent->set_value(*cast->bytes_sent);
+      bytes_sent->set_value(*cast->bytes_sent);
     }
 
     auto bytes_received = init_option_u64();
     if (cast->bytes_received.is_defined()) {
-        bytes_received->set_value(*cast->bytes_received);
+      bytes_received->set_value(*cast->bytes_received);
     }
 
-    return RTCTransportStatsWrap
-    {
-      std::move(packets_sent),
-      std::move(packets_received),
-      std::move(bytes_sent),
-      std::move(bytes_received),
+    return RTCTransportStatsWrap{
+        std::move(packets_sent),
+        std::move(packets_received),
+        std::move(bytes_sent),
+        std::move(bytes_received),
     };
   }
-  throw std::invalid_argument(
-      "Invalid type. Expected `transport` but found: " + type);
+  throw std::invalid_argument("Invalid type. Expected `transport` but found: " +
+                              type);
 }
 
 // Try to cast a `RTCStats` to the wrap `RTCRemoteInboundRtpStreamStats`.
@@ -393,32 +411,34 @@ RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "remote-inbound-rtp") {
-    auto cast = std::unique_ptr<RTCRemoteInboundRtpStreamStats>(static_cast<RTCRemoteInboundRtpStreamStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCRemoteInboundRtpStreamStats>(
+        static_cast<RTCRemoteInboundRtpStreamStats*>(stats.release()));
     auto local_id = init_option_string();
     if (cast->local_id.is_defined()) {
-        local_id->set_value(rust::String(*cast->local_id));
+      local_id->set_value(rust::String(*cast->local_id));
     }
 
     auto round_trip_time = init_option_f64();
     if (cast->round_trip_time.is_defined()) {
-        round_trip_time->set_value(*cast->round_trip_time);
+      round_trip_time->set_value(*cast->round_trip_time);
     }
 
     auto fraction_lost = init_option_f64();
     if (cast->fraction_lost.is_defined()) {
-        fraction_lost->set_value(*cast->fraction_lost);
+      fraction_lost->set_value(*cast->fraction_lost);
     }
 
     auto round_trip_time_measurements = init_option_i32();
     if (cast->round_trip_time_measurements.is_defined()) {
-        round_trip_time_measurements->set_value(*cast->round_trip_time_measurements);
+      round_trip_time_measurements->set_value(
+          *cast->round_trip_time_measurements);
     }
 
-    return RTCRemoteInboundRtpStreamStatsWrap {
-      std::move(local_id),
-      std::move(round_trip_time),
-      std::move(fraction_lost),
-      std::move(round_trip_time_measurements),
+    return RTCRemoteInboundRtpStreamStatsWrap{
+        std::move(local_id),
+        std::move(round_trip_time),
+        std::move(fraction_lost),
+        std::move(round_trip_time_measurements),
     };
   }
   throw std::invalid_argument(
@@ -426,11 +446,12 @@ RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
 }
 
 // Try to cast a `RTCStats` to the wrap `RTCRemoteOutboundRtpStreamStats`.
-RTCRemoteOutboundRtpStreamStatsWrap cast_to_rtc_remote_outbound_rtp_stream_stats(
-    std::unique_ptr<RTCStats> stats) {
+RTCRemoteOutboundRtpStreamStatsWrap
+cast_to_rtc_remote_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
   if (type == "remote-outbound-rtp") {
-    auto cast = std::unique_ptr<RTCRemoteOutboundRtpStreamStats>(static_cast<RTCRemoteOutboundRtpStreamStats*>(stats.release()));
+    auto cast = std::unique_ptr<RTCRemoteOutboundRtpStreamStats>(
+        static_cast<RTCRemoteOutboundRtpStreamStats*>(stats.release()));
 
     auto local_id = init_option_string();
     if (cast->local_id.is_defined()) {
@@ -446,9 +467,9 @@ RTCRemoteOutboundRtpStreamStatsWrap cast_to_rtc_remote_outbound_rtp_stream_stats
     }
 
     return RTCRemoteOutboundRtpStreamStatsWrap{
-      std::move(local_id),
-      std::move(remote_timestamp),
-      std::move(reports_sent),
+        std::move(local_id),
+        std::move(remote_timestamp),
+        std::move(reports_sent),
     };
   }
   throw std::invalid_argument(
@@ -488,8 +509,8 @@ RTCVideoSourceStatsWrap cast_to_rtc_video_source_stats(
 
     };
   }
-  throw std::invalid_argument(
-      "Invalid kind. Expected `video` but found: " + kind);
+  throw std::invalid_argument("Invalid kind. Expected `video` but found: " +
+                              kind);
 }
 
 // Try to cast a `RTCStats` to the wrap `RTCAudioSourceStats`.
@@ -535,15 +556,15 @@ RTCAudioSourceStatsWrap cast_to_rtc_audio_source_stats(
 
     };
   }
-  throw std::invalid_argument(
-      "Invalid kind. Expected `audio` but found: " + kind);
+  throw std::invalid_argument("Invalid kind. Expected `audio` but found: " +
+                              kind);
 }
 
 // Returns collection wrap `RTCStats` of the provided `RTCStatsReport`.
 rust::Vec<RTCStatsWrap> rtc_stats_report_get_stats(
     const RTCStatsReport& report) {
   rust::Vec<RTCStatsWrap> stats_result;
-  
+
   for (const RTCStats& stats : *report) {
     auto type_str = stats.type();
     RTCStatsType type;
@@ -569,8 +590,8 @@ rust::Vec<RTCStatsWrap> rtc_stats_report_get_stats(
       type = RTCStatsType::Unimplemented;
     }
 
-    RTCStatsWrap wrap_stat = {rust::String(stats.id()),
-                                   stats.timestamp_us(), type, stats.copy()};
+    RTCStatsWrap wrap_stat = {rust::String(stats.id()), stats.timestamp_us(),
+                              type, stats.copy()};
     stats_result.push_back(std::move(wrap_stat));
   }
   return stats_result;
