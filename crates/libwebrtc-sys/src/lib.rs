@@ -191,9 +191,9 @@ unsafe impl Send for webrtc::TaskQueueFactory {}
 unsafe impl Sync for webrtc::TaskQueueFactory {}
 
 /// Available audio devices manager that is responsible for driving input
-/// (microphone) and output (speaker) audio in WebRtc.
+/// (microphone) and output (speaker) audio in `WebRtc`.
 ///
-/// Backed by WebRtc's [Audio Device Module].
+/// Backed by `WebRtc`'s [Audio Device Module].
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
 pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
@@ -528,7 +528,7 @@ impl VideoDisplaySource {
     }
 }
 
-/// [RtcConfiguration][1] wrapper.
+/// [`RtcConfiguration`][1] wrapper.
 ///
 /// Defines a set of parameters to configure how the peer-to-peer communication
 /// via a [`PeerConnectionInterface`] is established or re-established.
@@ -574,7 +574,7 @@ impl Default for RtcConfiguration {
     }
 }
 
-/// [RtcIceServer][1] representation.
+/// [`RtcIceServer`][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver
 pub struct IceServer(UniquePtr<webrtc::IceServer>);
@@ -820,7 +820,7 @@ impl RtpTransceiverInterface {
 unsafe impl Send for webrtc::RtpTransceiverInterface {}
 unsafe impl Sync for webrtc::RtpTransceiverInterface {}
 
-/// [RtcRtpSender] allowing to control how a [MediaStreamTrack][1] is encoded
+/// [`RtcRtpSender`] allowing to control how a [MediaStreamTrack][1] is encoded
 /// and transmitted to a remote peer.
 ///
 /// [RtcRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
@@ -868,7 +868,7 @@ impl RtpSenderInterface {
 unsafe impl Send for webrtc::RtpSenderInterface {}
 unsafe impl Sync for webrtc::RtpSenderInterface {}
 
-/// [RtcRtpReceiver][0] allowing to inspect the receipt of a
+/// [`RtcRtpReceiver`][0] allowing to inspect the receipt of a
 /// [MediaStreamTrack][1].
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
@@ -895,7 +895,7 @@ impl RtpReceiverInterface {
 unsafe impl Send for webrtc::RtpReceiverInterface {}
 unsafe impl Sync for webrtc::RtpReceiverInterface {}
 
-/// [RtcRtpCodecParameters][0] representation.
+/// [`RtcRtpCodecParameters`][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodecparameters
 pub struct RtpCodecParameters(webrtc::RtpCodecParametersContainer);
@@ -949,7 +949,7 @@ impl RtpCodecParameters {
     }
 }
 
-/// [RtcRtpHeaderExtensionParameters][0] representation.
+/// [`RtcRtpHeaderExtensionParameters`][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpheaderextensionparameters
 pub struct RtpExtension(webrtc::RtpExtensionContainer);
@@ -980,7 +980,7 @@ impl RtpExtension {
     }
 }
 
-/// [RtcRtpEncodingParameters][0] representation.
+/// [`RtcRtpEncodingParameters`][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters
 pub struct RtpEncodingParameters(webrtc::RtpEncodingParametersContainer);
@@ -1031,7 +1031,7 @@ impl RtpEncodingParameters {
     }
 }
 
-/// [RtcRtcpParameters][0] representation.
+/// [`RtcRtcpParameters`][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtcpparameters
 pub struct RtcpParameters(UniquePtr<webrtc::RtcpParameters>);
@@ -1163,7 +1163,7 @@ impl IceCandidateInterface {
     }
 }
 
-/// [RtcPeerConnection][1] implementation.
+/// [`RtcPeerConnection`][1] implementation.
 ///
 /// Calls to a [`PeerConnectionInterface`] APIs are proxied to the signaling
 /// thread, meaning that an application can call those APIs from whatever
@@ -2117,7 +2117,7 @@ pub enum RtcInboundRtpStreamMediaType {
     },
 }
 
-/// Protocols used in the WebRtc.
+/// Protocols used in the `WebRtc`.
 #[derive(Debug, Copy, Clone)]
 pub enum Protocol {
     /// [Transmission Control Protocol][1].
@@ -2145,7 +2145,7 @@ impl FromStr for Protocol {
 }
 
 /// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
-/// It corresponds to a [RtcIceTransport] object.
+/// It corresponds to a [`RtcIceTransport`] object.
 ///
 /// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
 /// variant.
@@ -2201,7 +2201,7 @@ pub enum RtcIceCandidateStats {
 
 /// All known types of [`RtcStat`]s.
 ///
-/// [List of all RtcStats types on W3C][1].
+/// [List of all `RtcStats` types on W3C][1].
 ///
 /// [1]: https://w3.org/TR/webrtc-stats/#rtctatstype-%2A
 /// [`RtcStat`]: super::RtcStat
@@ -2487,6 +2487,7 @@ pub enum RtcStatsType {
     Unimplemented,
 }
 
+#[allow(clippy::too_many_lines)]
 impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
     type Error = anyhow::Error;
     fn try_from(stats: webrtc::RTCStatsWrap) -> anyhow::Result<Self> {

@@ -554,7 +554,7 @@ impl From<sys::RtcOutboundRTPStreamStatsMediaType>
 
 /// All known types of [`RtcStat`]s.
 ///
-/// [List of all RtcStats types on W3C][1].
+/// [List of all `RtcStats` types on W3C][1].
 ///
 /// [1]: https://w3.org/TR/webrtc-stats/#rtctatstype-%2A
 /// [`RtcStat`]: super::RtcStat
