@@ -1958,7 +1958,7 @@ pub fn get_transceiver_direction(
         .map(Into::into)
 }
 
-/// Returns [`RtcStats`] of this [`PeerConnection`].
+/// Returns [`RtcStats`]'s of this [`PeerConnection`].
 pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<Vec<RtcStats>> {
     WEBRTC.lock().unwrap().get_stats(peer_id)
 }

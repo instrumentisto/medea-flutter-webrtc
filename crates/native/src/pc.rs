@@ -143,7 +143,7 @@ impl Webrtc {
         set_sdp_rx.recv_timeout(RX_TIMEOUT)?
     }
 
-    /// Returns [`RtcStats`] of this [`PeerConnection`].
+    /// Returns [`RtcStats`]'s of this [`PeerConnection`].
     pub fn get_stats(
         &self,
         peer_id: u64,

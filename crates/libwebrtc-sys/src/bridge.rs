@@ -33,67 +33,85 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
 #[derive(Deref, DerefMut)]
+/// [`Option<i32>`] transferable to the C++ side.
 pub struct Optioni32(Option<i32>);
 impl Optioni32 {
+    /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: i32) {
         self.0 = Some(value);
     }
 }
+/// Creates empty Rust [`Option<i32>`].
 pub fn init_option_i32() -> Box<Optioni32> {
     Box::new(Optioni32(None))
 }
 
 #[derive(Deref, DerefMut)]
+/// [`Option<String>`] transferable to the C++ side.
 pub struct OptionString(Option<String>);
 impl OptionString {
+    /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: String) {
         self.0 = Some(value);
     }
 }
+/// Creates empty Rust [`Option<String>`].
 pub fn init_option_string() -> Box<OptionString> {
     Box::new(OptionString(None))
 }
 
 #[derive(Deref, DerefMut)]
+/// [`Option<f64>`] transferable to the C++ side.
 pub struct Optionf64(Option<f64>);
 impl Optionf64 {
+    /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: f64) {
         self.0 = Some(value);
     }
 }
+/// Creates empty Rust [`Option<f64>`].
 pub fn init_option_f64() -> Box<Optionf64> {
     Box::new(Optionf64(None))
 }
 
 #[derive(Deref, DerefMut)]
+/// [`Option<u32>`] transferable to the C++ side.
 pub struct Optionu32(Option<u32>);
 impl Optionu32 {
+    /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: u32) {
         self.0 = Some(value);
     }
 }
+/// Creates empty Rust [`Option<u32>`].
 pub fn init_option_u32() -> Box<Optionu32> {
     Box::new(Optionu32(None))
 }
 
 #[derive(Deref, DerefMut)]
+/// [`Option<u64>`] transferable to the C++ side.
 pub struct Optionu64(Option<u64>);
 impl Optionu64 {
+    /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: u64) {
         self.0 = Some(value);
     }
 }
+/// Creates empty Rust [`Option<u64>`].
 pub fn init_option_u64() -> Box<Optionu64> {
     Box::new(Optionu64(None))
 }
 
 #[derive(Deref, DerefMut)]
+/// [`Option<bool>`] transferable to the C++ side.
 pub struct Optionbool(Option<bool>);
 impl Optionbool {
+    /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: bool) {
         self.0 = Some(value);
     }
 }
+/// Creates empty Rust [`Option<bool>`].
 pub fn init_option_bool() -> Box<Optionbool> {
     Box::new(Optionbool(None))
 }
@@ -1327,12 +1345,6 @@ pub(crate) mod webrtc {
 
     extern "Rust" {
         pub type DynAddIceCandidateCallback;
-        pub type Optionu64;
-        pub type Optionf64;
-        pub type Optioni32;
-        pub type Optionbool;
-        pub type Optionu32;
-        pub type OptionString;
 
         /// Calls the success [`DynAddIceCandidateCallback`].
         pub fn add_ice_candidate_success(
@@ -1344,24 +1356,6 @@ pub(crate) mod webrtc {
             mut cb: Box<DynAddIceCandidateCallback>,
             error: &CxxString,
         );
-
-        pub fn init_option_i32() -> Box<Optioni32>;
-        pub fn set_value(self: &mut Optioni32, value: i32);
-
-        pub fn init_option_u64() -> Box<Optionu64>;
-        pub fn set_value(self: &mut Optionu64, value: u64);
-
-        pub fn init_option_f64() -> Box<Optionf64>;
-        pub fn set_value(self: &mut Optionf64, value: f64);
-
-        pub fn init_option_u32() -> Box<Optionu32>;
-        pub fn set_value(self: &mut Optionu32, value: u32);
-
-        pub fn init_option_bool() -> Box<Optionbool>;
-        pub fn set_value(self: &mut Optionbool, value: bool);
-
-        pub fn init_option_string() -> Box<OptionString>;
-        pub fn set_value(self: &mut OptionString, value: String);
     }
 
     #[rustfmt::skip]
@@ -1780,6 +1774,45 @@ pub(crate) mod webrtc {
             peer: &PeerConnectionInterface,
             cb: Box<DynRTCStatsCollectorCallback>
         );
+    }
+
+    extern "Rust" {
+        pub type Optionu64;
+        pub type Optionf64;
+        pub type Optioni32;
+        pub type Optionbool;
+        pub type Optionu32;
+        pub type OptionString;
+
+        /// Creates empty Rust [`Option<i32>`].
+        pub fn init_option_i32() -> Box<Optioni32>;
+        /// Sets `self` to Some(`value`).
+        pub fn set_value(self: &mut Optioni32, value: i32);
+
+        /// Creates empty Rust [`Option<u64>`].
+        pub fn init_option_u64() -> Box<Optionu64>;
+        /// Sets `self` to Some(`value`).
+        pub fn set_value(self: &mut Optionu64, value: u64);
+
+        /// Creates empty Rust [`Option<f64>`].
+        pub fn init_option_f64() -> Box<Optionf64>;
+        /// Sets `self` to Some(`value`).
+        pub fn set_value(self: &mut Optionf64, value: f64);
+
+        /// Creates empty Rust [`Option<u32>`].
+        pub fn init_option_u32() -> Box<Optionu32>;
+        /// Sets `self` to Some(`value`).
+        pub fn set_value(self: &mut Optionu32, value: u32);
+
+        /// Creates empty Rust [`Option<bool>`].
+        pub fn init_option_bool() -> Box<Optionbool>;
+        /// Sets `self` to Some(`value`).
+        pub fn set_value(self: &mut Optionbool, value: bool);
+
+        /// Creates empty Rust [`Option<String>`].
+        pub fn init_option_string() -> Box<OptionString>;
+        /// Sets `self` to Some(`value`).
+        pub fn set_value(self: &mut OptionString, value: String);
     }
 
     #[rustfmt::skip]
