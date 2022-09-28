@@ -8218,6 +8218,8 @@ class _$RtcStatsType_RtcRemoteInboundRtpStreamStats
   /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
   @override
   final String? localId;
+
+  /// Packet jitter measured in seconds for this SSRC.
   @override
   final double? jitter;
 
@@ -8542,6 +8544,8 @@ abstract class RtcStatsType_RtcRemoteInboundRtpStreamStats
   /// [`localId`]: https://tinyurl.com/r8uhbo9
   /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
   String? get localId;
+
+  /// Packet jitter measured in seconds for this SSRC.
   double? get jitter;
 
   /// Estimated round trip time for this SSRC based on
