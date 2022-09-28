@@ -872,6 +872,16 @@ impl support::IntoDart for IceGatheringState {
         .into_dart()
     }
 }
+impl support::IntoDart for IceRole {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::Unknown => 0,
+            Self::Controlling => 1,
+            Self::Controlled => 2,
+        }
+        .into_dart()
+    }
+}
 
 impl support::IntoDart for MediaDeviceInfo {
     fn into_dart(self) -> support::DartAbi {
@@ -1107,17 +1117,11 @@ impl support::IntoDart for RtcOutboundRTPStreamStatsMediaType {
                 frame_width,
                 frame_height,
                 frames_per_second,
-                bytes_sent,
-                packets_sent,
-                media_source_id,
             } => vec![
                 1.into_dart(),
                 frame_width.into_dart(),
                 frame_height.into_dart(),
                 frames_per_second.into_dart(),
-                bytes_sent.into_dart(),
-                packets_sent.into_dart(),
-                media_source_id.into_dart(),
             ],
         }
         .into_dart()
@@ -1182,9 +1186,20 @@ impl support::IntoDart for RtcStatsType {
             Self::RtcIceCandidateStats(field0) => {
                 vec![1.into_dart(), field0.into_dart()]
             }
-            Self::RtcOutboundRTPStreamStats { track_id, kind } => {
-                vec![2.into_dart(), track_id.into_dart(), kind.into_dart()]
-            }
+            Self::RtcOutboundRTPStreamStats {
+                track_id,
+                kind,
+                bytes_sent,
+                packets_sent,
+                media_source_id,
+            } => vec![
+                2.into_dart(),
+                track_id.into_dart(),
+                kind.into_dart(),
+                bytes_sent.into_dart(),
+                packets_sent.into_dart(),
+                media_source_id.into_dart(),
+            ],
             Self::RtcInboundRTPStreamStats {
                 remote_id,
                 bytes_received,
@@ -1334,7 +1349,7 @@ impl support::IntoDart for TrackState {
 
 support::lazy_static! {
     pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler
-     = Default::default();
+        = Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]

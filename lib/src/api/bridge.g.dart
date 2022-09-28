@@ -143,7 +143,7 @@ abstract class FlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kGetTransceiverDirectionConstMeta;
 
-  /// Returns [`RtcStats`] of this [`PeerConnection`].
+  /// Returns [`RtcStats`]'s of this [`PeerConnection`].
   Future<List<RtcStats>> getPeerStats({required int peerId, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetPeerStatsConstMeta;
@@ -392,12 +392,12 @@ class GetMediaResult with _$GetMediaResult {
 ///
 /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
 /// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
-/// [2]: https://w3.org/TR/WEBRTC-stats/#icecandidate-dict%2A
+/// [2]: https://w3.org/TR/webrtc-stats/#icecandidate-dict%2A
 class IceCandidateStats {
   /// Unique ID that is associated to the object that was inspected to
   /// produce the [RTCTransportStats][1] associated with this candidate.
   ///
-  /// [1]: https://w3.org/TR/WEBRTC-stats/#transportstats-dict%2A
+  /// [1]: https://w3.org/TR/webrtc-stats/#transportstats-dict%2A
   final String? transportId;
 
   /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses,
@@ -420,7 +420,7 @@ class IceCandidateStats {
 
   /// For local candidates this is the URL of the ICE server from which the
   /// candidate was obtained. It is the same as the
-  /// [url surfaced in the RtcPeerConnectionIceEvent][1].
+  /// [url surfaced in the RTCPeerConnectionIceEvent][1].
   ///
   /// `None` for remote candidates.
   ///
@@ -430,7 +430,7 @@ class IceCandidateStats {
   /// Protocol used by the endpoint to communicate with the TURN server.
   ///
   /// Only present for local candidates.
-  final String? relayProtocol;
+  final Protocol? relayProtocol;
 
   IceCandidateStats({
     this.transportId,
@@ -502,6 +502,12 @@ enum IceGatheringState {
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-complete
   Complete,
+}
+
+enum IceRole {
+  Unknown,
+  Controlling,
+  Controlled,
 }
 
 /// [RTCIceTransportPolicy][1] representation.
@@ -765,7 +771,7 @@ enum PeerConnectionState {
   Closed,
 }
 
-/// Protocols used in the WEBRTC.
+/// Protocols used in the WebRTC.
 enum Protocol {
   /// [Transmission Control Protocol][1].
   ///
@@ -904,7 +910,7 @@ class RtcInboundRtpStreamMediaType with _$RtcInboundRtpStreamMediaType {
     /// For audio durations of tracks attached locally, see
     /// [RTCAudioSourceStats][1] instead.
     ///
-    /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcaudiosourcestats
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosourcestats
     double? totalSamplesDuration,
   }) = RtcInboundRtpStreamMediaType_Audio;
 
@@ -922,8 +928,8 @@ class RtcInboundRtpStreamMediaType with _$RtcInboundRtpStreamMediaType {
     /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
     /// delta frames decoded.
     ///
-    /// [RFC 6386]: https://w3.org/TR/WEBRTC-stats/#bib-rfc6386
-    /// [RFC 6184]: https://w3.org/TR/WEBRTC-stats/#bib-rfc6184
+    /// [RFC 6386]: https://w3.org/TR/webrtc-stats/#bib-rfc6386
+    /// [RFC 6184]: https://w3.org/TR/webrtc-stats/#bib-rfc6184
     /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
     /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
     int? keyFramesDecoded,
@@ -1047,7 +1053,7 @@ class RtcOutboundRTPStreamStatsMediaType
     ///
     /// Before the first frame is encoded this attribute is missing.
     ///
-    /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcvideosourcestats-width
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
     int? frameWidth,
 
     /// Height of the last encoded frame.
@@ -1057,7 +1063,7 @@ class RtcOutboundRTPStreamStatsMediaType
     ///
     /// Before the first frame is encoded this attribute is missing.
     ///
-    /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcvideosourcestats-height
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
     int? frameHeight,
 
     /// Number of encoded frames during the last second.
@@ -1067,16 +1073,6 @@ class RtcOutboundRTPStreamStatsMediaType
     ///
     /// [1]: https://tinyurl.com/rrmkrfk
     double? framesPerSecond,
-
-    /// Total number of bytes sent for this SSRC.
-    int? bytesSent,
-
-    /// Total number of RTP packets sent for this SSRC.
-    int? packetsSent,
-
-    /// ID of the stats object representing the track currently
-    /// attached to the sender of this stream.
-    String? mediaSourceId,
   }) = RtcOutboundRTPStreamStatsMediaType_Video;
 }
 
@@ -1136,8 +1132,8 @@ class RtcSessionDescription {
 ///
 /// [Full doc on W3C][1].
 ///
-/// [stats object]: https://w3.org/TR/WEBRTC-stats/#dfn-stats-object
-/// [monitored object]: https://w3.org/TR/WEBRTC-stats/#dfn-monitored-object
+/// [stats object]: https://w3.org/TR/webrtc-stats/#dfn-stats-object
+/// [monitored object]: https://w3.org/TR/webrtc-stats/#dfn-monitored-object
 /// [1]: https://w3.org/TR/webrtc#rtcstats-dictionary
 class RtcStats {
   /// Unique ID that is associated with the object that was inspected to
@@ -1150,7 +1146,7 @@ class RtcStats {
   ///
   /// The time is relative to the UNIX epoch (Jan 1, 1970, UTC).
   ///
-  /// For statistics that came from a remote source (e.g., from received RtcP
+  /// For statistics that came from a remote source (e.g., from received RTCP
   /// packets), timestamp represents the time at which the information
   /// arrived at the local endpoint. The remote timestamp can be found in an
   /// additional field in an [`RtcStat`]-derived dictionary, if applicable.
@@ -1227,7 +1223,7 @@ class RtcStatsType with _$RtcStatsType {
   /// any non-deleted candidate pair.
   ///
   /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-  /// [1]: https://w3.org/TR/WEBRTC-stats/#dfn-deleted
+  /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
   const factory RtcStatsType.rtcIceCandidateStats(
     RtcIceCandidateStats field0,
   ) = RtcStatsType_RtcIceCandidateStats;
@@ -1247,8 +1243,8 @@ class RtcStatsType with _$RtcStatsType {
   ///
   /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-  /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcaudiosenderstats
-  /// [2]: https://w3.org/TR/WEBRTC-stats/#dom-rtcvideosenderstats
+  /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosenderstats
+  /// [2]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosenderstats
   /// [3]: https://tinyurl.com/sefa5z4
   /// [4]: https://tinyurl.com/rkuvpl4
   const factory RtcStatsType.rtcOutboundRtpStreamStats({
@@ -1258,6 +1254,16 @@ class RtcStatsType with _$RtcStatsType {
 
     /// Fields which should be in the [`RtcStat`] based on `mediaType`.
     required RtcOutboundRTPStreamStatsMediaType kind,
+
+    /// Total number of bytes sent for this SSRC.
+    int? bytesSent,
+
+    /// Total number of RTP packets sent for this SSRC.
+    int? packetsSent,
+
+    /// ID of the stats object representing the track currently
+    /// attached to the sender of this stream.
+    String? mediaSourceId,
   }) = RtcStatsType_RtcOutboundRTPStreamStats;
 
   /// Statistics for an inbound [RTP] stream that is currently received
@@ -1280,8 +1286,9 @@ class RtcStatsType with _$RtcStatsType {
     ///
     /// This number is defined to be the number of packets expected less the
     /// number of packets actually received, where the number of packets
-    /// received includes any which are late or duplicates. Thus, packets that
-    /// arrive late are not counted as lost, and the loss __may be negative__
+    /// received includes any which are late or duplicates.
+    /// Thus, packets that arrive late are not counted as lost,
+    /// and the loss __may be negative__
     /// if there are duplicates.
     int? packetsLost,
 
@@ -1325,7 +1332,7 @@ class RtcStatsType with _$RtcStatsType {
   /// externally observable event.
   ///
   /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-  /// [1]: https://w3.org/TR/WEBRTC-stats/#dfn-deleted
+  /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
   const factory RtcStatsType.rtcIceCandidatePairStats({
     /// State of the checklist for the local
     /// and remote candidates in a pair.
@@ -1355,7 +1362,7 @@ class RtcStatsType with _$RtcStatsType {
     /// [`totalRoundTripTime`][1] by dividing it
     /// by [`responsesReceived`][2].
     ///
-    /// [STUN-PATH-CHAR]: https://w3.org/TR/WEBRTC-stats/#bib-stun-path-char
+    /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
     /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
     /// [1]: https://tinyurl.com/tgr543a
     /// [2]: https://tinyurl.com/r3zo2um
@@ -1365,7 +1372,7 @@ class RtcStatsType with _$RtcStatsType {
     /// connectivity checks [STUN-PATH-CHAR],
     /// including those that are sent for consent verification [RFC 7675].
     ///
-    /// [STUN-PATH-CHAR]: https://w3.org/TR/WEBRTC-stats/#bib-stun-path-char
+    /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
     /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
     double? currentRoundTripTime,
 
@@ -1418,15 +1425,15 @@ class RtcStatsType with _$RtcStatsType {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-icetransport-role
     /// [2]: https://w3.org/TR/webrtc#dom-rtcdtlstransport-icetransport
-    String? iceRole,
+    IceRole? iceRole,
   }) = RtcStatsType_RtcTransportStats;
 
   /// Statistics for the remote endpoint's inbound [RTP] stream
   /// corresponding to an outbound stream that is currently sent with
   /// [RTCPeerConnection] object.
   ///
-  /// It is measured at the remote endpoint and reported in a RtcP
-  /// Receiver Report (RR) or RtcP Extended Report (XR).
+  /// It is measured at the remote endpoint and reported in a RTCP
+  /// Receiver Report (RR) or RTCP Extended Report (XR).
   ///
   /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
@@ -1440,10 +1447,10 @@ class RtcStatsType with _$RtcStatsType {
     double? jitter,
 
     /// Estimated round trip time for this SSRC based on
-    /// the RtcP timestamps in
-    /// the RtcP Receiver Report (RR) and measured in seconds.
+    /// the RTCP timestamps in
+    /// the RTCP Receiver Report (RR) and measured in seconds.
     /// Calculated as defined in [Section 6.4.1 of RFC 3550][1].
-    /// If no RtcP Receiver Report
+    /// If no RTCP Receiver Report
     /// is received with a DLSR value other than 0, the round trip time is
     /// left undefined.
     ///
@@ -1461,7 +1468,7 @@ class RtcStatsType with _$RtcStatsType {
     /// Total number of RTCP RR blocks received for this SSRC.
     int? reportsReceived,
 
-    /// Total number of RtcP RR blocks received for this SSRC that contain a
+    /// Total number of RTCP RR blocks received for this SSRC that contain a
     /// valid round trip time. This counter will increment if the
     /// [`roundTripTime`] is undefined.
     ///
@@ -1473,7 +1480,7 @@ class RtcStatsType with _$RtcStatsType {
   /// corresponding to an inbound stream that is currently received with
   /// [RTCPeerConnection] object.
   ///
-  /// It is measured at the remote endpoint and reported in an RtcP
+  /// It is measured at the remote endpoint and reported in an RTCP
   /// Sender Report (SR).
   ///
   /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
@@ -1483,7 +1490,7 @@ class RtcStatsType with _$RtcStatsType {
     /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
     ///
     /// [`localId`]: https://tinyurl.com/vu9tb2e
-    /// [1]: https://w3.org/TR/WEBRTC-stats/#dom-rtcinboundrtpstreamstats
+    /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
     String? localId,
 
     /// [`remoteTimestamp`] (as [HIGHRES-TIME]) is the remote timestamp at
@@ -1491,15 +1498,15 @@ class RtcStatsType with _$RtcStatsType {
     /// differs from timestamp, which represents the time at which the
     /// statistics were generated or received by the local endpoint. The
     /// [`remoteTimestamp`], if present, is derived from the NTP timestamp
-    /// in an RtcP Sender Report (SR) block, which reflects the remote
+    /// in an RTCP Sender Report (SR) block, which reflects the remote
     /// endpoint's clock. That clock may not be synchronized with the local
     /// clock.
     ///
     /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
-    /// [HIGRES-TIME]: https://w3.org/TR/WEBRTC-stats/#bib-highres-time
+    /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats/#bib-highres-time
     double? remoteTimestamp,
 
-    /// Total number of RtcP SR blocks sent for this SSRC.
+    /// Total number of RTCP SR blocks sent for this SSRC.
     int? reportsSent,
   }) = RtcStatsType_RtcRemoteOutboundRtpStreamStats;
 
@@ -2530,7 +2537,7 @@ IceCandidateStats _wire2api_ice_candidate_stats(dynamic raw) {
     candidateType: _wire2api_candidate_type(arr[4]),
     priority: _wire2api_opt_box_autoadd_i32(arr[5]),
     url: _wire2api_opt_String(arr[6]),
-    relayProtocol: _wire2api_opt_String(arr[7]),
+    relayProtocol: _wire2api_opt_protocol(arr[7]),
   );
 }
 
@@ -2540,6 +2547,10 @@ IceConnectionState _wire2api_ice_connection_state(dynamic raw) {
 
 IceGatheringState _wire2api_ice_gathering_state(dynamic raw) {
   return IceGatheringState.values[raw];
+}
+
+IceRole _wire2api_ice_role(dynamic raw) {
+  return IceRole.values[raw];
 }
 
 List<MediaDeviceInfo> _wire2api_list_media_device_info(dynamic raw) {
@@ -2625,6 +2636,14 @@ int? _wire2api_opt_box_autoadd_u32(dynamic raw) {
 
 int? _wire2api_opt_box_autoadd_u64(dynamic raw) {
   return raw == null ? null : _wire2api_box_autoadd_u64(raw);
+}
+
+IceRole? _wire2api_opt_ice_role(dynamic raw) {
+  return raw == null ? null : _wire2api_ice_role(raw);
+}
+
+Protocol? _wire2api_opt_protocol(dynamic raw) {
+  return raw == null ? null : _wire2api_protocol(raw);
 }
 
 RtcInboundRtpStreamMediaType? _wire2api_opt_rtc_inbound_rtp_stream_media_type(
@@ -2771,9 +2790,6 @@ RtcOutboundRTPStreamStatsMediaType
         frameWidth: _wire2api_opt_box_autoadd_u32(raw[1]),
         frameHeight: _wire2api_opt_box_autoadd_u32(raw[2]),
         framesPerSecond: _wire2api_opt_box_autoadd_f64(raw[3]),
-        bytesSent: _wire2api_opt_box_autoadd_u64(raw[4]),
-        packetsSent: _wire2api_opt_box_autoadd_u32(raw[5]),
-        mediaSourceId: _wire2api_opt_String(raw[6]),
       );
     default:
       throw Exception("unreachable");
@@ -2834,6 +2850,9 @@ RtcStatsType _wire2api_rtc_stats_type(dynamic raw) {
         trackId: _wire2api_opt_String(raw[1]),
         kind: _wire2api_box_autoadd_rtc_outbound_rtp_stream_stats_media_type(
             raw[2]),
+        bytesSent: _wire2api_opt_box_autoadd_u64(raw[3]),
+        packetsSent: _wire2api_opt_box_autoadd_u32(raw[4]),
+        mediaSourceId: _wire2api_opt_String(raw[5]),
       );
     case 3:
       return RtcStatsType_RtcInboundRTPStreamStats(
@@ -2862,7 +2881,7 @@ RtcStatsType _wire2api_rtc_stats_type(dynamic raw) {
         packetsReceived: _wire2api_opt_box_autoadd_u64(raw[2]),
         bytesSent: _wire2api_opt_box_autoadd_u64(raw[3]),
         bytesReceived: _wire2api_opt_box_autoadd_u64(raw[4]),
-        iceRole: _wire2api_opt_String(raw[5]),
+        iceRole: _wire2api_opt_ice_role(raw[5]),
       );
     case 6:
       return RtcStatsType_RtcRemoteInboundRtpStreamStats(

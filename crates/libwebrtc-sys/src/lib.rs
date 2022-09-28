@@ -1990,16 +1990,6 @@ pub enum RtcOutboundRTPStreamStatsMediaType {
         ///
         /// [1]: https://tinyurl.com/rrmkrfk
         frames_per_second: Option<f64>,
-
-        /// Total number of bytes sent for this SSRC.
-        bytes_sent: Option<u64>,
-
-        /// Total number of RTP packets sent for this SSRC.
-        packets_sent: Option<u32>,
-
-        /// ID of the stats object representing the track currently
-        /// attached to the sender of this stream.
-        media_source_id: Option<String>,
     },
 }
 
@@ -2129,6 +2119,42 @@ pub enum Protocol {
     ///
     /// [1]: https://en.wikipedia.org/wiki/User_Datagram_Protocol
     Udp,
+}
+
+/// Variants of [ICE roles][1].
+///
+/// More info in the [RFC 5245].
+///
+/// [RFC 5245]: https://tools.ietf.org/html/rfc5245
+/// [1]: https://w3.org/TR/webrtc#dom-icetransport-role
+#[derive(Debug, Copy, Clone)]
+pub enum IceRole {
+    /// Agent whose role as defined by [Section 3 in RFC 5245][1], has not yet
+    /// been determined.
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-3
+    Unknown,
+    /// Controlling agent as defined by [Section 3 in RFC 5245][1].
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-3
+    Controlling,
+    /// Controlled agent as defined by [Section 3 in RFC 5245][1].
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-3
+    Controlled,
+}
+
+impl FromStr for IceRole {
+    type Err = anyhow::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let protocol = match s {
+            "unknown" => Self::Unknown,
+            "controlling" => Self::Controlling,
+            "controlled" => Self::Controlled,
+            protocol => anyhow::bail!("Unknow ice role: {protocol}"),
+        };
+        Ok(protocol)
+    }
 }
 
 impl FromStr for Protocol {
@@ -2262,6 +2288,16 @@ pub enum RtcStatsType {
 
         /// Fields which should be in the [`RtcStat`] based on `mediaType`.
         kind: RtcOutboundRTPStreamStatsMediaType,
+
+        /// Total number of bytes sent for this SSRC.
+        bytes_sent: Option<u64>,
+
+        /// Total number of RTP packets sent for this SSRC.
+        packets_sent: Option<u32>,
+
+        /// ID of the stats object representing the track currently
+        /// attached to the sender of this stream.
+        media_source_id: Option<String>,
     },
 
     /// Statistics for an inbound [RTP] stream that is currently received
@@ -2627,14 +2663,14 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                         frame_width: cast.frame_width.take(),
                         frame_height: cast.frame_height.take(),
                         frames_per_second: cast.frames_per_second.take(),
-                        bytes_sent: cast.bytes_sent.take(),
-                        packets_sent: cast.packets_sent.take(),
-                        media_source_id: cast.media_source_id.take(),
                     }
                 };
                 RtcStatsType::RtcOutboundRTPStreamStats {
                     track_id: cast.track_id.take(),
                     kind,
+                    bytes_sent: cast.bytes_sent.take(),
+                    packets_sent: cast.packets_sent.take(),
+                    media_source_id: cast.media_source_id.take(),
                 }
             }
             T::RTCRemoteInboundRtpStreamStats => {

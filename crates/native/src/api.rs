@@ -396,6 +396,39 @@ impl From<sys::Protocol> for Protocol {
     }
 }
 
+//// Variants of [ICE roles][1].
+///
+/// More info in the [RFC 5245].
+///
+/// [RFC 5245]: https://tools.ietf.org/html/rfc5245
+/// [1]: https://w3.org/TR/webrtc#dom-icetransport-role
+#[derive(Debug, Copy, Clone)]
+pub enum IceRole {
+    /// Agent whose role as defined by [Section 3 in RFC 5245][1], has not yet
+    /// been determined.
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-3
+    Unknown,
+    /// Controlling agent as defined by [Section 3 in RFC 5245][1].
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-3
+    Controlling,
+    /// Controlled agent as defined by [Section 3 in RFC 5245][1].
+    ///
+    /// [1]: https://tools.ietf.org/html/rfc5245#section-3
+    Controlled,
+}
+
+impl From<sys::IceRole> for IceRole {
+    fn from(role: sys::IceRole) -> Self {
+        match role {
+            sys::IceRole::Unknown => Self::Unknown,
+            sys::IceRole::Controlling => Self::Controlling,
+            sys::IceRole::Controlled => Self::Controlled,
+        }
+    }
+}
+
 /// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
 /// It corresponds to a [RTCIceTransport] object.
 ///
@@ -444,7 +477,7 @@ pub struct IceCandidateStats {
     /// Protocol used by the endpoint to communicate with the TURN server.
     ///
     /// Only present for local candidates.
-    pub relay_protocol: Option<String>,
+    pub relay_protocol: Option<Protocol>,
 }
 
 impl From<sys::IceCandidateStats> for IceCandidateStats {
@@ -511,16 +544,6 @@ pub enum RtcOutboundRTPStreamStatsMediaType {
         ///
         /// [1]: https://tinyurl.com/rrmkrfk
         frames_per_second: Option<f64>,
-
-        /// Total number of bytes sent for this SSRC.
-        bytes_sent: Option<u64>,
-
-        /// Total number of RTP packets sent for this SSRC.
-        packets_sent: Option<u32>,
-
-        /// ID of the stats object representing the track currently
-        /// attached to the sender of this stream.
-        media_source_id: Option<String>,
     },
 }
 
@@ -537,16 +560,10 @@ impl From<sys::RtcOutboundRTPStreamStatsMediaType>
                 frame_width,
                 frame_height,
                 frames_per_second,
-                bytes_sent,
-                packets_sent,
-                media_source_id,
             } => Self::Video {
                 frame_width,
                 frame_height,
                 frames_per_second,
-                bytes_sent,
-                packets_sent,
-                media_source_id,
             },
         }
     }
@@ -615,6 +632,16 @@ pub enum RtcStatsType {
 
         /// Fields which should be in the [`RtcStat`] based on `mediaType`.
         kind: RtcOutboundRTPStreamStatsMediaType,
+
+        /// Total number of bytes sent for this SSRC.
+        bytes_sent: Option<u64>,
+
+        /// Total number of RTP packets sent for this SSRC.
+        packets_sent: Option<u32>,
+
+        /// ID of the stats object representing the track currently
+        /// attached to the sender of this stream.
+        media_source_id: Option<String>,
     },
     /// Statistics for an inbound [RTP] stream that is currently received
     /// with [RTCPeerConnection] object.
@@ -775,7 +802,7 @@ pub enum RtcStatsType {
         ///
         /// [1]: https://w3.org/TR/webrtc#dom-icetransport-role
         /// [2]: https://w3.org/TR/webrtc#dom-rtcdtlstransport-icetransport
-        ice_role: Option<String>,
+        ice_role: Option<IceRole>,
     },
     /// Statistics for the remote endpoint's inbound [RTP] stream
     /// corresponding to an outbound stream that is currently sent with
@@ -794,6 +821,7 @@ pub enum RtcStatsType {
         /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
         local_id: Option<String>,
 
+        /// Packet jitter measured in seconds for this SSRC.
         jitter: Option<f64>,
 
         /// Estimated round trip time for this SSRC based on
@@ -865,6 +893,7 @@ pub enum RtcStatsType {
 }
 
 impl From<sys::RtcStatsType> for RtcStatsType {
+    #[allow(clippy::too_many_lines)]
     fn from(kind: sys::RtcStatsType) -> Self {
         match kind {
             sys::RtcStatsType::RtcMediaSourceStats {
@@ -890,12 +919,19 @@ impl From<sys::RtcStatsType> for RtcStatsType {
                     )),
                 ),
             },
-            sys::RtcStatsType::RtcOutboundRTPStreamStats { track_id, kind } => {
-                RtcStatsType::RtcOutboundRTPStreamStats {
-                    track_id,
-                    kind: RtcOutboundRTPStreamStatsMediaType::from(kind),
-                }
-            }
+            sys::RtcStatsType::RtcOutboundRTPStreamStats {
+                track_id,
+                kind,
+                bytes_sent,
+                packets_sent,
+                media_source_id,
+            } => RtcStatsType::RtcOutboundRTPStreamStats {
+                track_id,
+                kind: RtcOutboundRTPStreamStatsMediaType::from(kind),
+                bytes_sent,
+                packets_sent,
+                media_source_id,
+            },
             sys::RtcStatsType::RtcInboundRTPStreamStats {
                 remote_id,
                 bytes_received,
