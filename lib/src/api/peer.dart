@@ -378,6 +378,14 @@ class _PeerConnectionChannel extends PeerConnection {
     _checkNotClosed();
 
     dynamic res = await _chan.invokeMethod('createAnswer');
+    dynamic res2 = await _chan.invokeMethod('getStats');
+    List<dynamic> res3 = res2 as List<dynamic>;
+    var res4 = res3.map((e) => RTCStats.fromMap(e)).toList();
+    res4.forEach((element) {
+      print('${element.type.toString()}\n\n\n');
+      // print('$key' + ' -- ' + value.toString() + '\n\n');
+    });
+
     return SessionDescription.fromMap(res);
   }
 

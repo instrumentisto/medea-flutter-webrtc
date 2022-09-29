@@ -22,6 +22,14 @@ class RTCStats {
     );
   }
 
+  static RTCStats fromMap(dynamic stats) {
+    return RTCStats(
+      stats['id'],
+      stats['timestampUs'],
+      RtcStatsType.fromMap(stats['kind']),
+    );
+  }
+
   /// Unique ID that is associated with the object that was inspected to
   /// produce this [RTCStats] object.
   ///
@@ -210,6 +218,71 @@ abstract class RtcStatsType {
           return UnimplenentedStats();
         }
     }
+  }
+
+  static RtcStatsType fromMap(dynamic stats) {
+    print(stats['type']);
+    return UnimplenentedStats();
+    // switch (stats['type']) {
+    //   case 'RtcStatsType_RtcMediaSourceStats':
+    //     {
+    //       var source = (stats as bridge.RtcStatsType_RtcMediaSourceStats);
+    //       if (source.kind
+    //           is bridge.RtcMediaSourceStatsMediaType_RtcAudioSourceStats) {
+    //         return RtcAudioSourceStats.fromFFI(
+    //             stats.kind
+    //                 as bridge.RtcMediaSourceStatsMediaType_RtcAudioSourceStats,
+    //             stats.trackIdentifier);
+    //       } else {
+    //         return RtcVideoSourceStats.fromFFI(
+    //             stats.kind
+    //                 as bridge.RtcMediaSourceStatsMediaType_RtcVideoSourceStats,
+    //             stats.trackIdentifier);
+    //       }
+    //     }
+
+    //   case 'RtcStatsType_RtcIceCandidateStats':
+    //     {
+    //       return RtcIceCandidateStats.fromFFI(
+    //           stats as bridge.RtcStatsType_RtcIceCandidateStats);
+    //     }
+
+    //   case 'RtcStatsType_RtcOutboundRTPStreamStats':
+    //     {
+    //       return RtcOutboundRTPStreamStats.fromFFI(
+    //           stats as bridge.RtcStatsType_RtcOutboundRTPStreamStats);
+    //     }
+
+    //   case 'RtcStatsType_RtcInboundRTPStreamStats':
+    //     {
+    //       return RtcInboundRTPStreamStats.fromFFI(
+    //           stats as bridge.RtcStatsType_RtcInboundRTPStreamStats);
+    //     }
+    //   case 'RtcStatsType_RtcTransportStats':
+    //     {
+    //       return RtcTransportStats.fromFFI(
+    //           stats as bridge.RtcStatsType_RtcTransportStats);
+    //     }
+    //   case 'RtcStatsType_RtcRemoteInboundRtpStreamStats':
+    //     {
+    //       return RtcRemoteInboundRtpStreamStats.fromFFI(
+    //           stats as bridge.RtcStatsType_RtcRemoteInboundRtpStreamStats);
+    //     }
+    //   case 'RtcStatsType_RtcRemoteOutboundRtpStreamStats':
+    //     {
+    //       return RtcRemoteOutboundRtpStreamStats.fromFFI(
+    //           stats as bridge.RtcStatsType_RtcRemoteOutboundRtpStreamStats);
+    //     }
+    //   case 'RtcStatsType_RtcIceCandidatePairStats':
+    //     {
+    //       return RtcIceCandidatePairStats.fromFFI(
+    //           stats as bridge.RtcStatsType_RtcIceCandidatePairStats);
+    //     }
+    //   default:
+    //     {
+    //       return UnimplenentedStats();
+    //     }
+    // }
   }
 }
 

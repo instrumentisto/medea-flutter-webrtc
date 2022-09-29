@@ -1,5 +1,6 @@
 package com.instrumentisto.medea_flutter_webrtc.controller
 
+import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.model.*
 import com.instrumentisto.medea_flutter_webrtc.proxy.MediaStreamTrackProxy
 import com.instrumentisto.medea_flutter_webrtc.proxy.PeerConnectionProxy
@@ -174,6 +175,20 @@ class PeerConnectionController(
       "restartIce" -> {
         peer.restartIce()
         result.success(null)
+      }
+      "getStats" -> {
+        GlobalScope.launch(Dispatchers.Main) {
+          try {
+            val stats = peer.getStats()
+            if (stats == null) {
+              result.success(listOf<Map<String,Any>>())
+            } else {
+              result.success(stats.asFlutterResult())
+            }
+          } catch (e: Exception) {
+            resultUnhandledException(result, e)
+          }
+        }
       }
       "dispose" -> {
         dispose()

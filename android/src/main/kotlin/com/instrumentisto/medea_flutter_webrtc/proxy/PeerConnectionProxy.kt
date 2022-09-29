@@ -6,6 +6,7 @@ import com.instrumentisto.medea_flutter_webrtc.exception.SetSdpException
 import com.instrumentisto.medea_flutter_webrtc.model.*
 import com.instrumentisto.medea_flutter_webrtc.model.IceCandidate
 import com.instrumentisto.medea_flutter_webrtc.model.SessionDescription
+import com.instrumentisto.medea_flutter_webrtc.model.StatsReport
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.Continuation
@@ -166,6 +167,10 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
         }
       }
     }
+
+      private fun getStatsObserver(continuation: Continuation<StatsReport?>): RTCStatsCollectorCallback {
+          return RTCStatsCollectorCallback { stats -> continuation.resume(StatsReport.fromWebRtc(stats)) }
+      }
   }
 
   private fun syncWithObject() {
@@ -395,6 +400,15 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     syncTransceivers()
     return transceivers.lastEntry()!!.value
   }
+
+    suspend fun getStats() =
+        suspendCoroutine<StatsReport?> {
+            if (disposed) {
+                it.resume(null);
+            } else {
+                obj.getStats(getStatsObserver(it))
+            }
+        }
 
   /**
    * Requests the underlying [PeerConnection] to redo [IceCandidate] gathering. Does nothing if the
