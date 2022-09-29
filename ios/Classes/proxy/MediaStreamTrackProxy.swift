@@ -1,6 +1,8 @@
 import WebRTC
+import OSLog
+import os
 
-public class MediaStreamTrackProxy {
+public class MediaStreamTrackProxy: Equatable {
     private var isStopped = false
     private var deviceId = "remote"
     private var source: MediaTrackSource?;
@@ -13,6 +15,22 @@ public class MediaStreamTrackProxy {
             self.deviceId = deviceId!
         }
         self.track = track
+        os_log(OSLogType.error, "MediaStreamTrack created with ID: %@", track.trackId)
+        MediaStreamTrackStore.tracks[track.trackId] = self
+    }
+
+    public static func == (lhs: MediaStreamTrackProxy, rhs: MediaStreamTrackProxy) -> Bool {
+        return lhs.track == rhs.track 
+    }
+
+    func addRenderer(renderer: RTCVideoRenderer) {
+        let videoTrack = self.track as! RTCVideoTrack
+        videoTrack.add(renderer)
+    }
+
+    func removeRenderer(renderer: RTCVideoRenderer) {
+        let videoTrack = self.track as! RTCVideoTrack
+        videoTrack.remove(renderer)
     }
 
     func id() -> String {

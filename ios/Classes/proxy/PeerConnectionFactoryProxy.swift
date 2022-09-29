@@ -14,6 +14,12 @@ public class PeerConnectionFactoryProxy {
 
         let peerObserver = PeerObserver()
         let config = RTCConfiguration()
+        let iceServer = RTCIceServer(urlStrings: ["stun:stun.l.google.com:19302"], username: "", credential: "")
+        config.iceServers = [iceServer]
+        config.iceTransportPolicy = RTCIceTransportPolicy.all
+        // [RTCIceServer alloc]initWithURLStrings:urls
+        //                                       username:json[@"username"]
+        //                                     credential:json[@"credential"]
         config.sdpSemantics = RTCSdpSemantics.unifiedPlan
         let peer = self.factory.peerConnection(
             with: config,

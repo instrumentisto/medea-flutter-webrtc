@@ -50,6 +50,9 @@ public class PeerObserver : NSObject, RTCPeerConnectionDelegate {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver) {
         DispatchQueue.main.async {
             let track = transceiver.receiver.track!
+            if (MediaStreamTrackStore.tracks[track.trackId] != nil) {
+                return;
+            }
             self.peer!.broadcastEventObserver().onTrack(track: MediaStreamTrackProxy(track: track, deviceId: nil, source: nil), transceiver: RtpTransceiverProxy(transceiver: transceiver))
             os_log(OSLogType.error, "onTrack fired in PeerObserver")
         }

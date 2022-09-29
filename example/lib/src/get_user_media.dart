@@ -18,7 +18,7 @@ class GetUserMediaSample extends StatefulWidget {
 
 class _GetUserMediaSampleState extends State<GetUserMediaSample> {
   List<MediaStreamTrack>? _tracks;
-  // final _localRenderer = createVideoRenderer();
+  final _localRenderer = createVideoRenderer();
   bool _inCalling = false;
 
   List<MediaDeviceInfo>? _mediaDevicesList;
@@ -35,11 +35,11 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
     if (_inCalling) {
       _hangUp();
     }
-    // _localRenderer.dispose();
+    _localRenderer.dispose();
   }
 
   void initRenderers() async {
-    // await _localRenderer.initialize();
+    await _localRenderer.initialize();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -55,8 +55,8 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
       var stream = await getUserMedia(caps);
       _mediaDevicesList = await enumerateDevices();
       _tracks = stream;
-      // await _localRenderer.setSrcObject(
-      //     _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      await _localRenderer.setSrcObject(
+          _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
     } catch (e) {
       print(e.toString());
     }
@@ -73,7 +73,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
         await track.stop();
         await track.dispose();
       }
-      // await _localRenderer.setSrcObject(null);
+      await _localRenderer.setSrcObject(null);
       setState(() {
         _inCalling = false;
       });
@@ -117,7 +117,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               decoration: const BoxDecoration(color: Colors.black54),
-              child: null,
+              child: VideoView(_localRenderer, mirror: true),
             ),
           );
         },

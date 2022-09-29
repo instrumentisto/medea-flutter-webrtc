@@ -24,7 +24,15 @@ public class RtpSenderController {
         switch (call.method) {
             case "replaceTrack":
                 let trackId = argsMap!["trackId"] as? String
-                let track = MediaStreamTrackStore.tracks[trackId!]!
+                var track: MediaStreamTrackProxy?
+                if (trackId != nil) {
+                    // os_log(OSLogType.error, "RTPSender replaceTrack with trackId: %@", trackId!);
+                    track = MediaStreamTrackStore.tracks[trackId!]
+                    // os_log(OSLogType.error, "RTPSender replaceTrack with track is not nil: %@", (track != nil));
+                } else {
+                    // os_log(OSLogType.error, "RTPSender replaceTrack with nil");
+                    track = nil
+                }
                 self.rtpSender.replaceTrack(t: track)
                 result(nil)
             case "dispose":

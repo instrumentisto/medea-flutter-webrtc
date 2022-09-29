@@ -118,6 +118,7 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 
   @override
   Future<void> syncMid() async {
+    // await Future.delayed(Duration(seconds: 1));
     _mid = await _chan.invokeMethod('getMid');
   }
 

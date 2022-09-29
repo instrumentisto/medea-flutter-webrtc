@@ -2,8 +2,10 @@ PODS:
   - Flutter (1.0.0)
   - integration_test (0.0.1):
     - Flutter
+  - libyuv-iOS (1.0.2)
   - medea_flutter_webrtc (0.8.0-dev):
     - Flutter
+    - libyuv-iOS
     - WebRTCO (= 999.0)
   - WebRTCO (999.0)
 
@@ -12,6 +14,10 @@ DEPENDENCIES:
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - medea_flutter_webrtc (from `.symlinks/plugins/medea_flutter_webrtc/ios`)
   - WebRTCO (from `/Users/relmay/WebRTC`)
+
+SPEC REPOS:
+  trunk:
+    - libyuv-iOS
 
 EXTERNAL SOURCES:
   Flutter:
@@ -24,9 +30,10 @@ EXTERNAL SOURCES:
     :path: "/Users/relmay/WebRTC"
 
 SPEC CHECKSUMS:
-  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
-  medea_flutter_webrtc: e4e8ffb3389b74db1f4100f1a3c37ab5b163871a
+  libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
+  medea_flutter_webrtc: 6b140b728d2f36781e5d7683dbbc00bd55fb7e13
   WebRTCO: cb677ed967a7bdbefbfdfbbb7573b2c950e11def
 
 PODFILE CHECKSUM: db5ede53e5ef6c1834f354cf9e5677f1a99a0181

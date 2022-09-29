@@ -21,7 +21,9 @@ public class RtpTransceiverController {
         let argsMap = call.arguments as? [String : Any]
         switch (call.method) {
             case "setDirection":
-                abort()
+                let direction = argsMap!["direction"] as? Int
+                self.transceiver.setDirection(direction: TransceiverDirection(rawValue: direction!)!)
+                result(nil)
             case "setRecv":
                 let enabled = argsMap!["enabled"] as? Bool
                 self.transceiver.setRecv(recv: enabled!)
@@ -34,11 +36,12 @@ public class RtpTransceiverController {
                 let mid = self.transceiver.getMid()
                 result(mid)
             case "getDirection":
-                abort()
+                let direction = self.transceiver.getDirection()
+                result(direction.rawValue)
             case "stop":
-                abort()
+                result(nil)
             case "dispose":
-                abort()
+                result(nil)
             default:
                 result(FlutterMethodNotImplemented)
         }

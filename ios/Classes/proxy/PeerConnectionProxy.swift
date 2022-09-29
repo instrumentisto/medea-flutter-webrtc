@@ -21,6 +21,7 @@ public class PeerConnectionProxy {
     }
 
     func getTransceivers() -> [RtpTransceiverProxy] {
+        self.syncTransceivers()
         return Array(self.transceivers.values.map{ $0 })
     }
 
@@ -34,10 +35,8 @@ public class PeerConnectionProxy {
 
     func addTransceiver(mediaType: MediaType) -> RtpTransceiverProxy {
         let transceiver = self.peer.addTransceiver(of: mediaType.intoWebRtc(), init: RTCRtpTransceiverInit())
-        let proxy = RtpTransceiverProxy(transceiver: transceiver!)
-        self.transceivers[self.lastTransceiverId] = proxy
-        self.lastTransceiverId += 1
-        return proxy
+        self.syncTransceivers()
+        return self.transceivers[lastTransceiverId]!
     }
 
     func setLocalDescription(description: SessionDescription?) async throws {
@@ -63,8 +62,10 @@ public class PeerConnectionProxy {
         return try await withCheckedThrowingContinuation { continuation in
             self.peer.setRemoteDescription(description.intoWebRtc(), completionHandler: { error in
                 if (error == nil) {
+                    os_log(OSLogType.error, "setRemoteDescription was resolved")
                     continuation.resume(returning: ())
                 } else {
+                    os_log(OSLogType.error, "setRemoteDescription was errored")
                     continuation.resume(throwing: error!)
                 }
             })
@@ -80,6 +81,16 @@ public class PeerConnectionProxy {
                     continuation.resume(throwing: error!)
                 }
             })
+        }
+    }
+
+    func syncTransceivers() {
+        let transceivers = self.peer.transceivers.enumerated();
+        for (index, transceiver) in transceivers {
+            if (self.transceivers[index] == nil) {
+                self.transceivers[index] = RtpTransceiverProxy(transceiver: transceiver);
+                self.lastTransceiverId = index;
+            }
         }
     }
 

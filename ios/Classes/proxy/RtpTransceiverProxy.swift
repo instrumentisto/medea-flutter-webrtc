@@ -1,4 +1,6 @@
 import WebRTC
+import OSLog
+import os
 
 public class RtpTransceiverProxy {
     private var transceiver: RTCRtpTransceiver
@@ -96,6 +98,11 @@ public class RtpTransceiverProxy {
     }
 
     public func getMid() -> String? {
+        os_log(OSLogType.error, "getMid was called: %@", transceiver.mid)
+        if (transceiver.mid != nil && transceiver.mid.count == 0) {
+            os_log(OSLogType.error, "getMid was called and mid is nil")
+            return nil
+        }
         return transceiver.mid
     }
 
