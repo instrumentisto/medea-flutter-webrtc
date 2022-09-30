@@ -643,6 +643,7 @@ pub enum RtcStatsType {
         /// attached to the sender of this stream.
         media_source_id: Option<String>,
     },
+
     /// Statistics for an inbound [RTP] stream that is currently received
     /// with [RTCPeerConnection] object.
     ///
@@ -804,6 +805,7 @@ pub enum RtcStatsType {
         /// [2]: https://w3.org/TR/webrtc#dom-rtcdtlstransport-icetransport
         ice_role: Option<IceRole>,
     },
+
     /// Statistics for the remote endpoint's inbound [RTP] stream
     /// corresponding to an outbound stream that is currently sent with
     /// [RTCPeerConnection] object.
@@ -889,7 +891,7 @@ pub enum RtcStatsType {
     },
 
     /// Unimplemented stats.
-    Unimplenented,
+    Unimplemented,
 }
 
 impl From<sys::RtcStatsType> for RtcStatsType {
@@ -1000,7 +1002,7 @@ impl From<sys::RtcStatsType> for RtcStatsType {
                 remote_timestamp,
                 reports_sent,
             },
-            sys::RtcStatsType::Unimplemented => RtcStatsType::Unimplenented,
+            sys::RtcStatsType::Unimplemented => RtcStatsType::Unimplemented,
         }
     }
 }

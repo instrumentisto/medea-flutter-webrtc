@@ -157,6 +157,8 @@ impl Webrtc {
         let cb = GetStatsCallback(report_tx);
         peer.inner.lock().unwrap().get_stats(Box::new(cb));
 
+        // TODO: move this blocking wait to api
+        //       do the same for all occurrences
         let report = report_rx.recv_timeout(RX_TIMEOUT)?;
 
         Ok(report

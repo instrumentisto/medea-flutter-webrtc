@@ -14,12 +14,17 @@ class RTCStats {
     this.timestampUs,
     this.type,
   );
-  static RTCStats fromFFI(bridge.RtcStats stats) {
-    return RTCStats(
-      stats.id,
-      stats.timestampUs,
-      RtcStatsType.fromFFI(stats.kind),
-    );
+  static RTCStats? fromFFI(bridge.RtcStats stats) {
+    var kind = RtcStatsType.fromFFI(stats.kind);
+    if (kind == null) {
+      return null;
+    } else {
+      return RTCStats(
+        stats.id,
+        stats.timestampUs,
+        kind,
+      );
+    }
   }
 
   /// Unique ID that is associated with the object that was inspected to
@@ -148,7 +153,7 @@ enum Protocol {
 /// [`RtcStat`]: super::RtcStat
 abstract class RtcStatsType {
   RtcStatsType();
-  static RtcStatsType fromFFI(bridge.RtcStatsType stats) {
+  static RtcStatsType? fromFFI(bridge.RtcStatsType stats) {
     switch (stats.runtimeType.toString().substring(2)) // Skip '_$' prefix.
         {
       case 'RtcStatsType_RtcMediaSourceStats':
@@ -207,7 +212,7 @@ abstract class RtcStatsType {
         }
       default:
         {
-          return UnimplenentedStats();
+          return null;
         }
     }
   }
@@ -1061,6 +1066,3 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
   /// Total number of RTCP SR blocks sent for this SSRC.
   int? reportsSent;
 }
-
-/// Unimplemented stats.
-class UnimplenentedStats extends RtcStatsType {}

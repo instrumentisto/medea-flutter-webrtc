@@ -149,8 +149,8 @@ class RTCStatsCollectorCallback
     : public rtc::RefCountedObject<webrtc::RTCStatsCollectorCallback> {
  public:
   RTCStatsCollectorCallback(rust::Box<bridge::DynRTCStatsCollectorCallback> cb);
-  void OnStatsDelivered(
-      const RTCStatsReport& report);
+  void OnStatsDelivered(const RTCStatsReport& report);
+
  private:
   // Rust side callback.
   std::optional<rust::Box<bridge::DynRTCStatsCollectorCallback>> cb_;

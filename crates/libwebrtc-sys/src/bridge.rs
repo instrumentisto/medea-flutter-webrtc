@@ -32,9 +32,10 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
-#[derive(Deref, DerefMut)]
 /// [`Option<i32>`] transferable to the C++ side.
+#[derive(Deref, DerefMut)]
 pub struct Optioni32(Option<i32>);
+
 impl Optioni32 {
     /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: i32) {
@@ -46,23 +47,26 @@ pub fn init_option_i32() -> Box<Optioni32> {
     Box::new(Optioni32(None))
 }
 
-#[derive(Deref, DerefMut)]
 /// [`Option<String>`] transferable to the C++ side.
+#[derive(Deref, DerefMut)]
 pub struct OptionString(Option<String>);
+
 impl OptionString {
     /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: String) {
         self.0 = Some(value);
     }
 }
+
 /// Creates empty Rust [`Option<String>`].
 pub fn init_option_string() -> Box<OptionString> {
     Box::new(OptionString(None))
 }
 
-#[derive(Deref, DerefMut)]
 /// [`Option<f64>`] transferable to the C++ side.
+#[derive(Deref, DerefMut)]
 pub struct Optionf64(Option<f64>);
+
 impl Optionf64 {
     /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: f64) {
@@ -74,43 +78,49 @@ pub fn init_option_f64() -> Box<Optionf64> {
     Box::new(Optionf64(None))
 }
 
-#[derive(Deref, DerefMut)]
 /// [`Option<u32>`] transferable to the C++ side.
+#[derive(Deref, DerefMut)]
 pub struct Optionu32(Option<u32>);
+
 impl Optionu32 {
     /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: u32) {
         self.0 = Some(value);
     }
 }
+
 /// Creates empty Rust [`Option<u32>`].
 pub fn init_option_u32() -> Box<Optionu32> {
     Box::new(Optionu32(None))
 }
 
-#[derive(Deref, DerefMut)]
 /// [`Option<u64>`] transferable to the C++ side.
+#[derive(Deref, DerefMut)]
 pub struct Optionu64(Option<u64>);
+
 impl Optionu64 {
     /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: u64) {
         self.0 = Some(value);
     }
 }
+
 /// Creates empty Rust [`Option<u64>`].
 pub fn init_option_u64() -> Box<Optionu64> {
     Box::new(Optionu64(None))
 }
 
-#[derive(Deref, DerefMut)]
 /// [`Option<bool>`] transferable to the C++ side.
+#[derive(Deref, DerefMut)]
 pub struct Optionbool(Option<bool>);
+
 impl Optionbool {
     /// Sets `self` to Some(`value`).
     fn set_value(&mut self, value: bool) {
         self.0 = Some(value);
     }
 }
+
 /// Creates empty Rust [`Option<bool>`].
 pub fn init_option_bool() -> Box<Optionbool> {
     Box::new(Optionbool(None))
@@ -714,16 +724,19 @@ pub(crate) mod webrtc {
         ///
         /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.1
         kHost = 0,
+
         /// Server reflexive candidate, as defined in
         /// [Section 4.1.1.2 of RFC 5245][1].
         ///
         /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
         kSrflx,
+
         /// Peer reflexive candidate, as defined in
         /// [Section 4.1.1.2 of RFC 5245][1].
         ///
         /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
         kPrflx,
+
         /// Relay candidate, as defined in [Section 7.1.3.2.1 of RFC 5245][1].
         ///
         /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.1
@@ -743,16 +756,20 @@ pub(crate) mod webrtc {
         /// unfreeze and move into the [`KnownIceCandidatePairState::Waiting`]
         /// state.
         kFrozen = 0,
+
         /// Check has not been performed for this pair, and can be performed as
         /// soon as it is the highest-priority Waiting pair on the check list.
         kWaiting,
+
         /// Check has been sent for this pair,
         /// but the transaction is in progress.
         kInProgress,
+
         /// Check for this pair was already done and failed,
         /// either never producing any response or producing
         /// an unrecoverable failure response.
         kFailed,
+
         /// Check for this pair was already done
         /// and produced a successful result.
         kSucceeded,
@@ -1786,31 +1803,37 @@ pub(crate) mod webrtc {
 
         /// Creates empty Rust [`Option<i32>`].
         pub fn init_option_i32() -> Box<Optioni32>;
+
         /// Sets `self` to Some(`value`).
         pub fn set_value(self: &mut Optioni32, value: i32);
 
         /// Creates empty Rust [`Option<u64>`].
         pub fn init_option_u64() -> Box<Optionu64>;
+
         /// Sets `self` to Some(`value`).
         pub fn set_value(self: &mut Optionu64, value: u64);
 
         /// Creates empty Rust [`Option<f64>`].
         pub fn init_option_f64() -> Box<Optionf64>;
+
         /// Sets `self` to Some(`value`).
         pub fn set_value(self: &mut Optionf64, value: f64);
 
         /// Creates empty Rust [`Option<u32>`].
         pub fn init_option_u32() -> Box<Optionu32>;
+
         /// Sets `self` to Some(`value`).
         pub fn set_value(self: &mut Optionu32, value: u32);
 
         /// Creates empty Rust [`Option<bool>`].
         pub fn init_option_bool() -> Box<Optionbool>;
+
         /// Sets `self` to Some(`value`).
         pub fn set_value(self: &mut Optionbool, value: bool);
 
         /// Creates empty Rust [`Option<String>`].
         pub fn init_option_string() -> Box<OptionString>;
+
         /// Sets `self` to Some(`value`).
         pub fn set_value(self: &mut OptionString, value: String);
     }

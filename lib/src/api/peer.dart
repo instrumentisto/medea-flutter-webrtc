@@ -617,7 +617,15 @@ class _PeerConnectionFFI extends PeerConnection {
   @override
   Future<List<RTCStats>> getStats() async {
     var stats = await api!.getPeerStats(peerId: _id!);
-    var res = stats.map((stats) => RTCStats.fromFFI(stats)).toList();
-    return res;
+    List<RTCStats> result = List.empty(growable: true);
+
+    for (var s in stats) {
+      var stat = RTCStats.fromFFI(s);
+      if (stat != null) {
+        result.add(stat);
+      }
+    }
+
+    return result;
   }
 }
