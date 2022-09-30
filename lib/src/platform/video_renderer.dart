@@ -24,6 +24,7 @@ class RTCVideoValue {
   final bool renderVideo;
 
   double get aspectRatio {
+    print('RTCVideoValue: ${this}');
     if (width == 0.0 || height == 0.0) {
       return 1.0;
     }

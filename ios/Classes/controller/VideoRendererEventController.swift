@@ -22,4 +22,12 @@ class VideoRendererEventController : VideoRendererEvent {
             "height": height
         ])
     }
+
+    func onTextureChangeRotation(id: Int64, rotation: Int) {
+        self.eventController.sendEvent(data: [
+            "event": "onTextureChangeRotation",
+            "id": id,
+            "rotation": rotation
+        ])
+    }
 }

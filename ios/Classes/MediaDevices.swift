@@ -55,6 +55,7 @@ public class MediaDevices {
 
     private func selectFormatForDevice(device: AVCaptureDevice) -> AVCaptureDevice.Format {
         os_log(OSLogType.error, "Supported formats for device: %@", RTCCameraVideoCapturer.supportedFormats(for: device))
+        // [8]
         return RTCCameraVideoCapturer.supportedFormats(for: device)[8]
     }
 }

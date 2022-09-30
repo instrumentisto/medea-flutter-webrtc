@@ -1,9 +1,9 @@
 #import <Flutter/Flutter.h>
+#import <WebRTC/WebRTC.h>
 
 @interface MedeaFlutterWebrtcPlugin : NSObject<FlutterPlugin>
 @end
 
-// func myI420ToARGB(srcY: UnsafePointer<UInt8>, srcStrideY: Int32, srcU: UnsafePointer<UInt8>, srcStrideU: Int32, srcV: UnsafePointer<UInt8>, srcStrideV: Int32, dstARGB: UnsafeMutableRawPointer, dstStrideARGB: Int, width: Int32, height: Int32) -> Int32 {
 bool libyuv_I420ToARGB(
 	const uint8_t* src_y,
 	int src_stride_y,
@@ -15,4 +15,22 @@ bool libyuv_I420ToARGB(
 	int dst_stride_argb,
 	int width,
 	int height
+);
+
+void libyuv_I420Rotate(
+	const uint8_t* srcY,
+	int srcStrideY,
+	const uint8_t* srcU,
+	int srcStrideU,
+	const uint8_t* srcV,
+	int srcStrideV,
+	uint8_t* dstY,
+	int dstStrideY,
+	uint8_t* dstU,
+	int dstStrideU,
+	uint8_t* dstV,
+	int dstStrideV,
+	int width,
+	int height,
+	RTCVideoRotation mode
 );

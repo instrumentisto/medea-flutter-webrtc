@@ -40,6 +40,9 @@ class VideoRendererController {
                 self.renderer.setVideoTrack(newTrack: track)
                 result(nil)
             case "dispose":
+                self.renderer.dispose()
+                self.channel.setMethodCallHandler(nil)
+                self.eventChannel.setStreamHandler(nil)
                 result(nil)
             default:
                 result(FlutterMethodNotImplemented)

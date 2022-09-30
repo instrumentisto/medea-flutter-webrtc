@@ -40,3 +40,39 @@ bool libyuv_I420ToARGB(
 		height
 	) == 0;
 }
+
+void libyuv_I420Rotate(
+	const uint8_t* srcY,
+	int srcStrideY,
+	const uint8_t* srcU,
+	int srcStrideU,
+	const uint8_t* srcV,
+	int srcStrideV,
+	uint8_t* dstY,
+	int dstStrideY,
+	uint8_t* dstU,
+	int dstStrideU,
+	uint8_t* dstV,
+	int dstStrideV,
+	int width,
+	int height,
+	RTCVideoRotation mode
+) {
+	I420Rotate(
+		srcY,
+		srcStrideY,
+		srcU,
+		srcStrideU,
+		srcV,
+		srcStrideV,
+		dstY,
+		dstStrideY,
+		dstU,
+		dstStrideU,
+		dstV,
+		dstStrideV,
+		width,
+		height,
+		(RotationModeEnum)mode
+	);
+}
