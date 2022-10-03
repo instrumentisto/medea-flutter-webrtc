@@ -1,7 +1,9 @@
 use std::{
     mem,
-    sync::{mpsc, Arc, Mutex},
-    time::Duration,
+    sync::{
+        mpsc::{self, Sender},
+        Arc, Mutex,
+    },
 };
 
 use anyhow::{anyhow, bail};
@@ -13,12 +15,11 @@ use once_cell::sync::OnceCell;
 use threadpool::ThreadPool;
 
 use crate::{
-    api, next_id, stream_sink::StreamSink, AudioTrack, AudioTrackId,
-    VideoTrack, VideoTrackId, Webrtc,
+    api::{self, RtcSessionDescription},
+    next_id,
+    stream_sink::StreamSink,
+    AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
-
-/// Timeout for [`mpsc::Receiver::recv_timeout()`] operations.
-static RX_TIMEOUT: Duration = Duration::from_secs(5);
 
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
@@ -56,7 +57,8 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-    ) -> anyhow::Result<api::RtcSessionDescription> {
+        create_sdp_tx: Sender<anyhow::Result<RtcSessionDescription>>,
+    ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
@@ -69,13 +71,11 @@ impl Webrtc {
             ice_restart,
             use_rtp_mux,
         );
-        let (create_sdp_tx, create_sdp_rx) = mpsc::channel();
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(create_sdp_tx),
         ));
         peer.inner.lock().unwrap().create_offer(&options, obs);
-
-        create_sdp_rx.recv_timeout(RX_TIMEOUT)?
+        Ok(())
     }
 
     /// Creates a SDP answer to an offer received from a remote peer during an
@@ -92,7 +92,8 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-    ) -> anyhow::Result<api::RtcSessionDescription> {
+        create_sdp_tx: Sender<anyhow::Result<RtcSessionDescription>>,
+    ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
@@ -105,13 +106,11 @@ impl Webrtc {
             ice_restart,
             use_rtp_mux,
         );
-        let (create_sdp_tx, create_sdp_rx) = mpsc::channel();
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(create_sdp_tx),
         ));
         peer.inner.lock().unwrap().create_answer(&options, obs);
-
-        create_sdp_rx.recv_timeout(RX_TIMEOUT)?
+        Ok(())
     }
 
     /// Changes the local description associated with the connection.
@@ -127,45 +126,35 @@ impl Webrtc {
         peer_id: u64,
         kind: sys::SdpType,
         sdp: String,
+        set_sdp_tx: Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
         })?;
 
-        let (set_sdp_tx, set_sdp_rx) = mpsc::channel();
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
         let obs = sys::SetLocalDescriptionObserver::new(Box::new(
             SetSdpCallback(set_sdp_tx),
         ));
         peer.inner.lock().unwrap().set_local_description(desc, obs);
-
-        set_sdp_rx.recv_timeout(RX_TIMEOUT)?
+        Ok(())
     }
 
     /// Returns [`RtcStats`]'s of this [`PeerConnection`].
     pub fn get_stats(
         &self,
         peer_id: u64,
-    ) -> anyhow::Result<Vec<api::RtcStats>> {
+        report_tx: Sender<sys::RtcStatsReport>,
+    ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
         })?;
 
-        let (report_tx, report_rx) = mpsc::channel();
         let cb = GetStatsCallback(report_tx);
         peer.inner.lock().unwrap().get_stats(Box::new(cb));
-
-        // TODO: move this blocking wait to api
-        //       do the same for all occurrences
-        let report = report_rx.recv_timeout(RX_TIMEOUT)?;
-
-        Ok(report
-            .get_stats()
-            .into_iter()
-            .map(api::RtcStats::from)
-            .collect())
+        Ok(())
     }
 
     /// Sets the specified session description as the remote peer's current
@@ -197,7 +186,7 @@ impl Webrtc {
         let mut inner = peer.inner.lock().unwrap();
         inner.set_remote_description(desc, obs);
 
-        set_sdp_rx.recv_timeout(RX_TIMEOUT)??;
+        set_sdp_rx.recv_timeout(api::RX_TIMEOUT)??;
         peer.has_remote_description = true;
 
         let candidates = mem::take(&mut peer.candidates_buffer);
@@ -207,7 +196,7 @@ impl Webrtc {
                 candidate.try_into()?,
                 Box::new(AddIceCandidateCallback(add_candidate_tx)),
             );
-            add_candidate_rx.recv_timeout(RX_TIMEOUT)??;
+            add_candidate_rx.recv_timeout(api::RX_TIMEOUT)??;
         }
 
         Ok(())
@@ -611,6 +600,7 @@ impl Webrtc {
         candidate: String,
         sdp_mid: String,
         sdp_mline_index: i32,
+        add_candidate_tx: Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer =
@@ -625,14 +615,13 @@ impl Webrtc {
         };
 
         if peer.has_remote_description {
-            let (add_candidate_tx, add_candidate_rx) = mpsc::channel();
             peer.inner.lock().unwrap().add_ice_candidate(
                 candidate.try_into()?,
                 Box::new(AddIceCandidateCallback(add_candidate_tx)),
             );
-            add_candidate_rx.recv_timeout(RX_TIMEOUT)??;
         } else {
             peer.candidates_buffer.push(candidate);
+            add_candidate_tx.send(Ok(()))?;
         }
 
         Ok(())
