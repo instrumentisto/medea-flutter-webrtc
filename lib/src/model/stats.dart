@@ -1,4 +1,35 @@
+import 'dart:collection';
+
+import 'package:crypto/crypto.dart';
+
 import '../api/bridge.g.dart' as bridge;
+
+int wtfCount = 0;
+int? tryParse(dynamic value, String wtf) {
+  // var i = 0;
+  // for (var j in stats.entries) {
+  //   print("$i ${j.key} -- ${j.value.runtimeType}");
+  //   ++i;
+  // }
+  switch (value.runtimeType) {
+    case int:
+      {
+        print('Delete $value - $wtf');
+        return value;
+      }
+    case String:
+      {
+        wtfCount++;
+        print('$wtfCount WTF $value - $wtf');
+        return int.tryParse(value);
+      }
+    default:
+      {
+        print('NULL $value - $wtf');
+        return null;
+      }
+  }
+}
 
 /// Represents the [stats object] constructed by inspecting a specific
 /// [monitored object].
@@ -222,7 +253,6 @@ abstract class RtcStatsType {
 
   static RtcStatsType fromMap(dynamic stats) {
     print('FROM MAP ${stats['type']}');
-    return UnimplenentedStats();
     switch (stats['type']) {
       case 'RtcStatsType_RtcMediaSourceStats':
         {
@@ -247,21 +277,18 @@ abstract class RtcStatsType {
               stats as bridge.RtcStatsType_RtcIceCandidateStats);
         }
 
-      case 'RtcStatsType_RtcOutboundRTPStreamStats':
+      case 'outbound-rtp':
         {
-          return RtcOutboundRTPStreamStats.fromFFI(
-              stats as bridge.RtcStatsType_RtcOutboundRTPStreamStats);
+          return RtcOutboundRTPStreamStats.fromMap(stats);
         }
 
-      case 'RtcStatsType_RtcInboundRTPStreamStats':
+      case 'inbound-rtp':
         {
-          return RtcInboundRTPStreamStats.fromFFI(
-              stats as bridge.RtcStatsType_RtcInboundRTPStreamStats);
+          return RtcInboundRTPStreamStats.fromMap(stats);
         }
-      case 'RtcStatsType_RtcTransportStats':
+      case 'transport':
         {
-          return RtcTransportStats.fromFFI(
-              stats as bridge.RtcStatsType_RtcTransportStats);
+          return RtcTransportStats.fromMap(stats);
         }
       case 'RtcStatsType_RtcRemoteInboundRtpStreamStats':
         {
@@ -592,6 +619,31 @@ class RtcOutboundRTPStreamStats extends RtcStatsType {
     );
   }
 
+  static RtcOutboundRTPStreamStats fromMap(dynamic stats) {
+    var i = 0;
+    for (var j in stats.entries) {
+      print("$i ${j.key} -- ${j.value.runtimeType}");
+      ++i;
+    }
+    RtcOutboundRTPStreamStatsMediaType? mediaType;
+
+    if (stats['kind'] == 'audio') {
+      RtcOutboundRTPStreamStatsAudio(
+          tryParse(stats['totalSamplesSent'], '3'), stats['voiceActivityFlag']);
+    } else if (stats['kind'] == 'video') {
+      RtcOutboundRTPStreamStatsVideo(stats['frameWidth'],
+          stats['frameHeight'], stats['framesPerSecond']);
+    }
+
+    return RtcOutboundRTPStreamStats(
+      stats['trackId'],
+      mediaType,
+      tryParse(stats['bytesSent'], '1'),
+      stats['packetsSent'],
+      stats['mediaSourceId'],
+    );
+  }
+
   /// ID of the stats object representing the current track attachment
   /// to the sender of this stream.
   String? trackId;
@@ -818,6 +870,43 @@ class RtcInboundRTPStreamStats extends RtcStatsType {
         mediaType);
   }
 
+  static RtcInboundRTPStreamStats fromMap(dynamic stats) {
+    RtcInboundRTPStreamMediaType? mediaType;
+    if (stats['kind'] == 'audio') {
+      mediaType = RtcInboundRTPStreamAudio(
+          tryParse(stats['totalSamplesReceived'], 'totalSamplesReceived'),
+          tryParse(stats['concealedSamples'], 'concealedSamples'),
+          tryParse(stats['silentConcealedSamples'], 'silentConcealedSamples'),
+          stats['audioLevel'],
+          stats['totalAudioEnergy'],
+          stats['totalSamplesDuration'],
+          stats['voiceActivityFlag']);
+    } else if (stats['kind'] == 'video') {
+      mediaType = RtcInboundRTPStreamVideo(
+        stats['framesDecoded'],
+        stats['keyFramesDecoded'],
+        stats['frameWidth'],
+        stats['frameHeight'],
+        stats['totalInterFrameDelay'],
+        stats['framesPerSecond'],
+        tryParse(stats['frameBitDepth'], 'frameBitDepth'),
+        stats['firCount'],
+        stats['pliCount'],
+        tryParse(stats['concealmentEvents'], 'concealmentEvents'),
+        stats['framesReceived'],
+        tryParse(stats['sliCount'], 'sliCount'),
+      );
+    }
+
+    return RtcInboundRTPStreamStats(
+        stats['trackId'],
+        tryParse(stats['bytesReceived'], 'bytesReceived'),
+        stats['packetsReceived'],
+        stats['totalDecodeTime'],
+        tryParse(stats['jitterBufferEmittedCount'], 'jitterBufferEmittedCount'),
+        mediaType);
+  }
+
   /// ID of the stats object representing the receiving track.
   String? remoteId;
 
@@ -987,6 +1076,15 @@ class RtcTransportStats extends RtcStatsType {
     }
     return RtcTransportStats(stats.packetsSent, stats.packetsReceived,
         stats.bytesSent, stats.bytesReceived, role);
+  }
+
+  static RtcTransportStats fromMap(dynamic stats) {
+    return RtcTransportStats(
+        tryParse(stats['packetsSent'], 'packetsSent'),
+        tryParse(stats['packetsReceived'], 'packetsReceived'),
+        tryParse(stats['bytesSent'], 'bytesSent'),
+        tryParse(stats['bytesReceived'], 'bytesReceived'),
+        stats['iceRole']);
   }
 
   /// Total number of packets sent over this transport.

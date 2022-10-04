@@ -378,29 +378,6 @@ class _PeerConnectionChannel extends PeerConnection {
     _checkNotClosed();
 
     dynamic res = await _chan.invokeMethod('createAnswer');
-    dynamic res2 = await _chan.invokeMethod('getStats');
-    List<dynamic> res3 = res2 as List<dynamic>;
-    print("TEST1");
-
-    var j = 0;
-    for (var member in res3) {
-      print(member)
-      print("TYPE $j ${member['type']}");
-      ++j;
-    }
-    var res4 = res3.map((e) => RTCStats.fromMap(e)).toList();
-
-    var i = 0;
-    for (var member in res4) {
-      print('AAAAAa $i ${member.type.toString()}');
-      ++i;
-    }
-    res4.forEach((element) {
-      // print('$key' + ' -- ' + value.toString() + '\n\n');
-    });
-
-    print('r3 ${res3.length}, r4 ${res3.length}');
-
     return SessionDescription.fromMap(res);
   }
 
@@ -441,8 +418,27 @@ class _PeerConnectionChannel extends PeerConnection {
 
   @override
   Future<List<RTCStats>> getStats() async {
-    // TODO: implement getStats
-    return List.empty();
+    dynamic res2 = await _chan.invokeMethod('getStats');
+    List<dynamic> res3 = res2 as List<dynamic>;
+
+    var j = 0;
+    for (var member in res3) {
+      print("$j ______${member['kind']['type']}");
+      ++j;
+    }
+    var res4 = res3.map((e) => RTCStats.fromMap(e)).toList();
+
+    // var i = 0;
+    // for (var member in res4) {
+    //   print('AAAAAa $i ${member.type.toString()}');
+    //   ++i;
+    // }
+    // res4.forEach((element) {
+    //   // print('$key' + ' -- ' + value.toString() + '\n\n');
+    // });
+
+    print('r3 ${res3.length}, r4 ${res3.length}');
+    return res4;
   }
 }
 

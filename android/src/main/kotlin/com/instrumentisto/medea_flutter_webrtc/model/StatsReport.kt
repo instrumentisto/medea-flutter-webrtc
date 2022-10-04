@@ -4,7 +4,7 @@ data class Stats(val type: String, val id: String, val timestampUs: Long, val ki
   companion object {
     fun fromWebRtc(stats: org.webrtc.RTCStats): Stats {
       var members = stats.members
-      members.put("type", stats.type)
+      members["type"] = stats.type
       return Stats(stats.type, stats.id, stats.timestampUs.toLong(), members)
     }
   }

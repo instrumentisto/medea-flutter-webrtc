@@ -114,6 +114,8 @@ class _LoopbackState extends State<Loopback> {
 
       await atrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
+
+
     } catch (e) {
       print(e.toString());
     }
@@ -127,24 +129,40 @@ class _LoopbackState extends State<Loopback> {
     });
   }
 
+  Future<void> stats() async {
+      print("111111");
+      var list1 = await _pc1?.getStats();
+      list1!.forEach((element) {
+        print(element.type.toString());
+      });
+      print("111111");
+      print("222222");
+      var list2 = await _pc2?.getStats();
+      list2!.forEach((element) {
+        print(element.type.toString());
+      });
+      print("222222");
+  }
+
   void _hangUp() async {
     try {
-      await _localRenderer.setSrcObject(null);
-      await _remoteRenderer.setSrcObject(null);
+      await stats();
+      // await _localRenderer.setSrcObject(null);
+      // await _remoteRenderer.setSrcObject(null);
 
-      for (var track in _tracks!) {
-        await track.stop();
-        await track.dispose();
-      }
+      // for (var track in _tracks!) {
+      //   await track.stop();
+      //   await track.dispose();
+      // }
 
-      await _pc1?.close();
-      await _pc2?.close();
+      // await _pc1?.close();
+      // await _pc2?.close();
 
-      setState(() {
-        _inCalling = false;
-        _mic = true;
-        _cam = true;
-      });
+      // setState(() {
+      //   _inCalling = false;
+      //   _mic = true;
+      //   _cam = true;
+      // });
     } catch (e) {
       print(e.toString());
     }
