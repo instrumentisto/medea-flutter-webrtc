@@ -12,8 +12,7 @@ public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   var state: State
 
   init(messenger: FlutterBinaryMessenger, textures: FlutterTextureRegistry) {
-    RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose)
-    NSLog("Hello world")
+    // RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose)
     self.state = State()
     self.messenger = messenger
     self.textures = textures
@@ -23,7 +22,6 @@ public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
       messenger: self.messenger, mediaDevices: MediaDevices(state: self.state))
     self.videoRendererFactory = VideoRendererFactoryController(
       messenger: self.messenger, registry: self.textures)
-    NSLog("Plugin init 1")
     AVCaptureDevice.requestAccess(
       for: AVMediaType.audio,
       completionHandler: { granted in
@@ -31,7 +29,6 @@ public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
           NSLog("Permission granted")
         }
       })
-    NSLog("Plugin init 2")
     AVCaptureDevice.requestAccess(
       for: AVMediaType.video,
       completionHandler: { granted in

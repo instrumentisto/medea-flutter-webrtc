@@ -1,6 +1,4 @@
 import Flutter
-import OSLog
-import os
 
 public class PeerConnectionFactoryController {
   private var messenger: FlutterBinaryMessenger

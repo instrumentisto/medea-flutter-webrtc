@@ -1,6 +1,4 @@
-import OSLog
 import WebRTC
-import os
 
 public class PeerConnectionProxy {
   private var senders: [String: RtpSenderProxy] = [:]
@@ -37,11 +35,6 @@ public class PeerConnectionProxy {
   {
     let transceiver = self.peer.addTransceiver(
       of: mediaType.intoWebRtc(), init: transceiverInit.intoWebRtc())
-    if transceiver == nil {
-      os_log(OSLogType.error, "Transceiver is nil")
-    } else {
-      os_log(OSLogType.error, "Transceiver is not nil")
-    }
     self.syncTransceivers()
     return self.transceivers[lastTransceiverId]!
   }
@@ -65,16 +58,13 @@ public class PeerConnectionProxy {
   }
 
   func setRemoteDescription(description: SessionDescription) async throws {
-    os_log(OSLogType.error, "setRemoteDescription was called")
     return try await withCheckedThrowingContinuation { continuation in
       self.peer.setRemoteDescription(
         description.intoWebRtc(),
         completionHandler: { error in
           if error == nil {
-            os_log(OSLogType.error, "setRemoteDescription was resolved")
             continuation.resume(returning: ())
           } else {
-            os_log(OSLogType.error, "setRemoteDescription was errored")
             continuation.resume(throwing: error!)
           }
         })
@@ -151,7 +141,6 @@ public class PeerConnectionProxy {
 
       func onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
         for observer in self.observers {
-          os_log(OSLogType.error, "onTrack fired")
           observer.onTrack(track: track, transceiver: transceiver)
         }
       }

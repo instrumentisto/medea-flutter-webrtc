@@ -1,6 +1,4 @@
-import OSLog
 import WebRTC
-import os
 
 public class SessionDescription {
   private var type: SessionDescriptionType
@@ -14,11 +12,6 @@ public class SessionDescription {
   init(sdp: RTCSessionDescription) {
     self.type = SessionDescriptionType(type: sdp.type)
     self.description = sdp.sdp
-    if self.description == nil {
-      os_log(OSLogType.error, "SDP description is nil")
-    } else {
-      os_log(OSLogType.error, "SDP description is not nil: %@", sdp.sdp)
-    }
   }
 
   init(map: [String: Any]) {

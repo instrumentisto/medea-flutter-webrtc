@@ -1,6 +1,4 @@
 import Flutter
-import OSLog
-import os
 
 class VideoRendererFactoryController {
   private var messenger: FlutterBinaryMessenger

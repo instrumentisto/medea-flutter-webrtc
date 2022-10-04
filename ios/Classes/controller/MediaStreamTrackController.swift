@@ -24,6 +24,11 @@ public class MediaStreamTrackController {
       try! self.onMethodCall(call: call, result: result)
     })
     self.eventChannel.setStreamHandler(self.eventController)
+    self.track.onEnded(cb: {
+      self.eventController.sendEvent(data: [
+        "event": "onEnded"
+      ])
+    })
   }
 
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {

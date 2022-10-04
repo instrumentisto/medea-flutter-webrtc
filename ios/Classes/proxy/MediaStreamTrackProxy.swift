@@ -1,6 +1,4 @@
-import OSLog
 import WebRTC
-import os
 
 public class MediaStreamTrackProxy: Equatable {
   private var isStopped = false
@@ -15,7 +13,6 @@ public class MediaStreamTrackProxy: Equatable {
       self.deviceId = deviceId!
     }
     self.track = track
-    os_log(OSLogType.error, "MediaStreamTrack created with ID: %@", track.trackId)
     MediaStreamTrackStore.tracks[track.trackId] = self
   }
 

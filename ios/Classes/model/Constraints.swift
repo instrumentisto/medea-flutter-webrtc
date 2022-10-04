@@ -1,7 +1,8 @@
 import AVFoundation
 
 enum FacingMode: Int {
-  case user, environment
+  case user = 2
+  case environment = 1
 
   func isFits(position: AVCaptureDevice.Position) -> Bool {
     return self.rawValue == position.rawValue
@@ -127,6 +128,9 @@ class VideoConstraints {
   func calculateScoreForDevice(device: AVCaptureDevice) -> Int? {
     var scores: [ConstraintScore] = []
     for c in self.facingModeConstraints {
+      scores.append(try! c.score(device: device))
+    }
+    for c in self.deviceIdConstraints {
       scores.append(try! c.score(device: device))
     }
 

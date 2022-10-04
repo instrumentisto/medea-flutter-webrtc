@@ -1,7 +1,5 @@
 import Dispatch
-import OSLog
 import WebRTC
-import os
 
 public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   var peer: PeerConnectionProxy?

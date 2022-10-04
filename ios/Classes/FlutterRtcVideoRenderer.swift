@@ -14,6 +14,9 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   private var frameWidth: Int32 = 0
   private var frameHeight: Int32 = 0
   private var frameRotation: Int = -1
+  private var isRendererStopped: Bool = false
+  private var isRenderInProcess: Bool = false
+  private let rendererLock: NSLock = NSLock()
 
   init(registry: FlutterTextureRegistry) {
     self.frameSize = CGSize()
@@ -151,10 +154,15 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   }
 
   func dispose() {
-    self.track!.removeRenderer(renderer: self)
+    self.rendererLock.lock()
+    if self.track != nil {
+      self.track!.removeRenderer(renderer: self)
+    }
+    self.rendererLock.unlock()
   }
 
   func renderFrame(_ renderFrame: RTCVideoFrame?) {
+    self.rendererLock.lock()
     if renderFrame == nil {
       return
     }
@@ -213,5 +221,6 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     DispatchQueue.main.async {
       self.registry.textureFrameAvailable(self.textureId)
     }
+    self.rendererLock.unlock()
   }
 }

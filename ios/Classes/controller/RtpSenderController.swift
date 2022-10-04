@@ -1,6 +1,4 @@
 import Flutter
-import OSLog
-import os
 
 public class RtpSenderController {
   private var messenger: FlutterBinaryMessenger

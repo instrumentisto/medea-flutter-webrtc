@@ -1,7 +1,5 @@
 import AVFoundation
-import OSLog
 import WebRTC
-import os
 
 class MediaDevices {
   private var state: State
@@ -68,7 +66,8 @@ class MediaDevices {
     capturer.startCapture(with: videoDevice, format: selectedFormat, fps: fps)
     self.videoCapturers.append(capturer)
     let videoTrackSource = VideoMediaTrackSourceProxy(
-      peerConnectionFactory: self.state.getPeerFactory(), source: source, deviceId: "camera")
+      peerConnectionFactory: self.state.getPeerFactory(), source: source, deviceId: "camera",
+      capturer: capturer)
     return videoTrackSource.newTrack()
   }
 

@@ -1,6 +1,4 @@
 import Flutter
-import OSLog
-import os
 
 public class PeerConnectionController {
   private var messenger: FlutterBinaryMessenger
@@ -33,19 +31,16 @@ public class PeerConnectionController {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
     case "createOffer":
-      os_log(OSLogType.error, "createOffer")
       Task {
         let sdp = try! await self.peer.createOffer()
         result(sdp.asFlutterResult())
       }
     case "createAnswer":
-      os_log(OSLogType.error, "createAnswer")
       Task {
         let sdp = try! await self.peer.createAnswer()
         result(sdp.asFlutterResult())
       }
     case "setLocalDescription":
-      os_log(OSLogType.error, "setLocalDescription")
       let description = argsMap!["description"] as? [String: Any]
       let type = description!["type"] as? Int
       let sdp = description!["description"] as? String
@@ -61,7 +56,6 @@ public class PeerConnectionController {
         result(nil)
       }
     case "setRemoteDescription":
-      os_log(OSLogType.error, "setRemoteDescription")
       let descriptionMap = argsMap!["description"] as? [String: Any]
       let type = descriptionMap!["type"] as? Int
       let sdp = descriptionMap!["description"] as? String
@@ -72,7 +66,6 @@ public class PeerConnectionController {
         result(nil)
       }
     case "addIceCandidate":
-      os_log(OSLogType.error, "addIceCandidate")
       let candidateMap = argsMap!["candidate"] as? [String: Any]
       let sdpMid = candidateMap!["sdpMid"] as? String
       let sdpMLineIndex = candidateMap!["sdpMLineIndex"] as? Int
@@ -102,7 +95,8 @@ public class PeerConnectionController {
       self.peer.restartIce()
       result(nil)
     case "dispose":
-      // TODO:
+      self.channel.setMethodCallHandler(nil)
+      self.eventChannel.setStreamHandler(nil)
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
