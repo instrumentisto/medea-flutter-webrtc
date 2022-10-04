@@ -1509,7 +1509,6 @@ impl VideoTrackSourceInterface {
         Ok(VideoTrackSourceInterface(ptr))
     }
 
-    // TODO: Support screens enumeration.
     /// Starts screen capturing and creates a new [`VideoTrackSourceInterface`]
     /// with the specified constraints.
     ///

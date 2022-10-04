@@ -41,7 +41,7 @@ static SHA256SUM: &str =
     "fc68d3e690a467313de98475eca1b62217f8dceb78c96ddd7b3f16fc844cbc5e";
 
 fn main() -> anyhow::Result<()> {
-    download_libwebrtc()?;
+    // download_libwebrtc()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let cpp_files = get_cpp_files()?;
