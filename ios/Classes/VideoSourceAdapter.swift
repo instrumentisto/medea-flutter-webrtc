@@ -1,9 +1,9 @@
 import WebRTC
 
-public class VideoSourceAdapter : NSObject, RTCVideoCapturerDelegate{
-    public func capturer(_ capturer: RTCVideoCapturer, didCapture frame: RTCVideoFrame) {
+public class VideoSourceAdapter: NSObject, RTCVideoCapturerDelegate {
+  public func capturer(_ capturer: RTCVideoCapturer, didCapture frame: RTCVideoFrame) {
 
-    }
+  }
 }
 
 // @interface RTCVideoSourceAdapter : NSObject <RTCVideoCapturerDelegate>

@@ -1,3 +1,3 @@
 protocol MediaTrackSource {
-    func newTrack() -> MediaStreamTrackProxy;
+  func newTrack() -> MediaStreamTrackProxy
 }

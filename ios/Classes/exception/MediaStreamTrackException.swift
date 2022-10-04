@@ -1,3 +1,3 @@
-enum MediaStreamTrackException : Error {
-    case remoteTrackCantBeCloned
+enum MediaStreamTrackException: Error {
+  case remoteTrackCantBeCloned
 }

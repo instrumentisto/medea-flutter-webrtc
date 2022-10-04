@@ -1,31 +1,32 @@
 import WebRTC
 
 public enum IceConnectionState: Int {
-    case new = 0, checking, connected, completed, failed, disconnected, closed
+  case new = 0
+  case checking, connected, completed, failed, disconnected, closed
 
-    static func fromWebRtc(state: RTCIceConnectionState) -> IceConnectionState{
-        switch state {
-            case .new:
-                return IceConnectionState.new
-            case .checking:
-                return IceConnectionState.checking
-            case .connected:
-                return IceConnectionState.connected
-            case .completed:
-                return IceConnectionState.completed
-            case .failed:
-                return IceConnectionState.failed
-            case .disconnected:
-                return IceConnectionState.disconnected
-            case .closed:
-                return IceConnectionState.closed
-            case .count:
-                // TODO: in Rust impl it's marked just unreachable. Why???
-                abort()
-        }
+  static func fromWebRtc(state: RTCIceConnectionState) -> IceConnectionState {
+    switch state {
+    case .new:
+      return IceConnectionState.new
+    case .checking:
+      return IceConnectionState.checking
+    case .connected:
+      return IceConnectionState.connected
+    case .completed:
+      return IceConnectionState.completed
+    case .failed:
+      return IceConnectionState.failed
+    case .disconnected:
+      return IceConnectionState.disconnected
+    case .closed:
+      return IceConnectionState.closed
+    case .count:
+      // TODO: in Rust impl it's marked just unreachable. Why???
+      abort()
     }
+  }
 
-    func asFlutterResult() -> Int {
-        return self.rawValue
-    }
+  func asFlutterResult() -> Int {
+    return self.rawValue
+  }
 }
