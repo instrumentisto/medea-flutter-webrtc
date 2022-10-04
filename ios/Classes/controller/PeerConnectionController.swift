@@ -21,7 +21,7 @@ public class PeerConnectionController {
         messenger: self.messenger, eventController: self.eventController))
     self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
     self.eventChannel = FlutterEventChannel(
-      name: ChannelNameGenerator.name("PeerConnectionEvent", self.channelId),
+      name: ChannelNameGenerator.name(name: "PeerConnectionEvent", id: self.channelId),
       binaryMessenger: messenger)
     self.channel.setMethodCallHandler({ (call, result) in
       try! self.onMethodCall(call: call, result: result)

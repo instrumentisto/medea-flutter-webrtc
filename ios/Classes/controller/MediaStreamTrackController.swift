@@ -14,7 +14,7 @@ public class MediaStreamTrackController {
   init(messenger: FlutterBinaryMessenger, track: MediaStreamTrackProxy) {
     self.channelName = ChannelNameGenerator.name(name: "MediaStreamTrack", id: self.channelId)
     self.eventChannel = FlutterEventChannel(
-      name: ChannelNameGenerator.name("MediaStreamTrackEvent", self.channelId),
+      name: ChannelNameGenerator.name(name: "MediaStreamTrackEvent", id: self.channelId),
       binaryMessenger: messenger)
     self.eventController = EventController()
     self.messenger = messenger

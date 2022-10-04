@@ -13,7 +13,7 @@ public class MediaDevicesController {
     self.mediaDevices = mediaDevices
     self.channel = FlutterMethodChannel(name: channelId, binaryMessenger: messenger)
     self.eventChannel = FlutterEventChannel(
-      name: ChannelNameGenerator.name("MediaDevicesEvent", 0), binaryMessenger: messenger)
+      name: ChannelNameGenerator.name(name: "MediaDevicesEvent", id: 0), binaryMessenger: messenger)
     self.eventController = EventController()
     self.eventChannel.setStreamHandler(eventController)
     self.channel.setMethodCallHandler({ (call, result) in
@@ -22,11 +22,13 @@ public class MediaDevicesController {
   }
 
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
+    let argsMap = call.arguments as? [String: Any]
     switch call.method {
     case "enumerateDevices":
       result(self.mediaDevices.enumerateDevices().map { $0.asFlutterResult() })
     case "getUserMedia":
-      let tracks = self.mediaDevices.getUserMedia()
+      let constraintsArg = argsMap!["constraints"] as? [String: Any]
+      let tracks = self.mediaDevices.getUserMedia(constraints: Constraints(map: constraintsArg!))
       return result(
         tracks.map {
           MediaStreamTrackController(messenger: self.messenger, track: $0).asFlutterResult()

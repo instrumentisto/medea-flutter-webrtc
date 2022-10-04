@@ -3,7 +3,7 @@ import OSLog
 import WebRTC
 import os
 
-public class MediaDevices {
+class MediaDevices {
   private var state: State
   private var videoCapturers: [RTCCameraVideoCapturer] = []
 
@@ -11,7 +11,7 @@ public class MediaDevices {
     self.state = state
   }
 
-  public func enumerateDevices() -> [MediaDeviceInfo] {
+  func enumerateDevices() -> [MediaDeviceInfo] {
     var devices = AVCaptureDevice.devices(for: AVMediaType.video).map { device -> MediaDeviceInfo in
       return MediaDeviceInfo(
         deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
@@ -25,10 +25,28 @@ public class MediaDevices {
     return devices
   }
 
-  public func getUserMedia() -> [MediaStreamTrackProxy] {
+  func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
     var tracks = getUserAudio()
-    tracks.append(getUserVideo())
+    if constraints.video != nil {
+      tracks.append(getUserVideo(constraints: constraints.video!))
+    }
     return tracks
+  }
+
+  private func findVideoDeviceForConstraints(constraints: VideoConstraints) -> AVCaptureDevice? {
+    var maxScore = 0
+    var bestFoundDevice: AVCaptureDevice?
+    for device in AVCaptureDevice.devices(for: AVMediaType.video) {
+      let deviceScore = constraints.calculateScoreForDevice(device: device)
+      if deviceScore != nil {
+        if deviceScore! >= maxScore {
+          maxScore = deviceScore!
+          bestFoundDevice = device
+        }
+      }
+    }
+
+    return bestFoundDevice
   }
 
   private func getUserAudio() -> [MediaStreamTrackProxy] {
@@ -40,23 +58,56 @@ public class MediaDevices {
     return [t]
   }
 
-  private func getUserVideo() -> MediaStreamTrackProxy {
-    let discoverySession = AVCaptureDevice.DiscoverySession(
-      deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .front)
-    let videoDevice = discoverySession.devices[0]
-    let selectedFormat = selectFormatForDevice(device: videoDevice)
+  private func getUserVideo(constraints: VideoConstraints) -> MediaStreamTrackProxy {
+    let videoDevice = self.findVideoDeviceForConstraints(constraints: constraints)!
+    let selectedFormat = selectFormatForDevice(device: videoDevice, constraints: constraints)
+    let fps = self.selectFpsForFormat(format: selectedFormat, constraints: constraints)
 
     let source = self.state.getPeerFactory().videoSource()
     let capturer = RTCCameraVideoCapturer(delegate: source)
-    capturer.startCapture(with: videoDevice, format: selectedFormat, fps: 30)
+    capturer.startCapture(with: videoDevice, format: selectedFormat, fps: fps)
     self.videoCapturers.append(capturer)
     let videoTrackSource = VideoMediaTrackSourceProxy(
       peerConnectionFactory: self.state.getPeerFactory(), source: source, deviceId: "camera")
     return videoTrackSource.newTrack()
   }
 
-  private func selectFormatForDevice(device: AVCaptureDevice) -> AVCaptureDevice.Format {
-    // os_log(OSLogType.error, "Supported formats for device: %@", RTCCameraVideoCapturer.supportedFormats(for: device))
-    return RTCCameraVideoCapturer.supportedFormats(for: device)[8]
+  private func selectFpsForFormat(format: AVCaptureDevice.Format, constraints: VideoConstraints)
+    -> Int
+  {
+    var maxSupportedFramerate = 0.0
+    for fpsRange in format.videoSupportedFrameRateRanges {
+      maxSupportedFramerate = fmax(maxSupportedFramerate, fpsRange.maxFrameRate)
+    }
+    var targetFps = 30
+    if constraints.fps != nil {
+      targetFps = constraints.fps!
+    }
+    return min(Int(maxSupportedFramerate), targetFps)
+  }
+
+  private func selectFormatForDevice(device: AVCaptureDevice, constraints: VideoConstraints)
+    -> AVCaptureDevice.Format
+  {
+    var bestFoundFormat: AVCaptureDevice.Format?
+    var currentDiff = Int.max
+    var targetWidth = 640
+    if constraints.width != nil {
+      targetWidth = constraints.width!
+    }
+    var targetHeight = 480
+    if constraints.height != nil {
+      targetHeight = constraints.height!
+    }
+    for format in RTCCameraVideoCapturer.supportedFormats(for: device) {
+      let dimension = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+      let diff = abs(targetWidth - Int(dimension.width)) + abs(targetHeight - Int(dimension.height))
+      if diff < currentDiff {
+        bestFoundFormat = format
+        currentDiff = diff
+      }
+    }
+
+    return bestFoundFormat!
   }
 }
