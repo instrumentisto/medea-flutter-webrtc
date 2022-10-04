@@ -12,7 +12,7 @@ public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   var state: State
 
   init(messenger: FlutterBinaryMessenger, textures: FlutterTextureRegistry) {
-    // RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose);
+    RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose);
     NSLog("Hello world")
     self.state = State()
     self.messenger = messenger

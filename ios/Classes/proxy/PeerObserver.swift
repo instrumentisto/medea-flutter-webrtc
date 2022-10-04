@@ -37,7 +37,6 @@ public class PeerObserver : NSObject, RTCPeerConnectionDelegate {
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
-        os_log(OSLogType.error, "onIceCandidate fired in PeerObserver")
         DispatchQueue.main.async {
             self.peer!.broadcastEventObserver().onIceCandidate(candidate: IceCandidate(candidate: candidate))
         }
@@ -50,25 +49,14 @@ public class PeerObserver : NSObject, RTCPeerConnectionDelegate {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver) {
         DispatchQueue.main.async {
             let track = transceiver.receiver.track!
-            if (MediaStreamTrackStore.tracks[track.trackId] != nil) {
-                return;
-            }
             self.peer!.broadcastEventObserver().onTrack(track: MediaStreamTrackProxy(track: track, deviceId: nil, source: nil), transceiver: RtpTransceiverProxy(transceiver: transceiver))
-            os_log(OSLogType.error, "onTrack fired in PeerObserver")
         }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd receiver: RTCRtpReceiver, streams mediaStreams: [RTCMediaStream]) {
-        os_log(OSLogType.error, "didAddReceiver fired in PeerObserver")
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
-        os_log(OSLogType.error, "onTrack fired in PeerObserver")
-        // let videoTracks = stream.videoTracks
-        // let audioTracks = stream.audioTracks
-        // videoTracks.forEach {
-        //     self.peer.broadcastEventObserver().onTrack($0, $0.transceiver)
-        // }
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {

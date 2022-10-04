@@ -58,7 +58,7 @@ public class MediaStreamTrackProxy: Equatable {
             throw MediaStreamTrackException.remoteTrackCantBeCloned
         } else {
             return self
-            // return source!.newTrack()
+            return source!.newTrack()
         }
     }
 

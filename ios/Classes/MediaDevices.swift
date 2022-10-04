@@ -13,11 +13,9 @@ public class MediaDevices {
 
     public func enumerateDevices() -> [MediaDeviceInfo] {
         var devices = AVCaptureDevice.devices(for: AVMediaType.video).map { device -> MediaDeviceInfo in
-            os_log(OSLogType.error, "enumerateDevices 2")
             return MediaDeviceInfo(deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
         }
         let videoDevices = AVCaptureDevice.devices(for: AVMediaType.audio).map { device -> MediaDeviceInfo in 
-            os_log(OSLogType.error, "enumerateDevices 3")
             return MediaDeviceInfo(deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.videoInput)
         }
         devices.append(contentsOf: videoDevices)
@@ -39,10 +37,8 @@ public class MediaDevices {
     }
 
     private func getUserVideo() -> MediaStreamTrackProxy {
-        os_log(OSLogType.error, "getUserVideo was called")
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .front)
         let videoDevice = discoverySession.devices[0];
-        os_log(OSLogType.error, "getUserVideo: found video device: %@", videoDevice.localizedName)
         let selectedFormat = selectFormatForDevice(device: videoDevice)
 
         let source = self.state.getPeerFactory().videoSource()
@@ -54,8 +50,7 @@ public class MediaDevices {
     }
 
     private func selectFormatForDevice(device: AVCaptureDevice) -> AVCaptureDevice.Format {
-        os_log(OSLogType.error, "Supported formats for device: %@", RTCCameraVideoCapturer.supportedFormats(for: device))
-        // [8]
+        // os_log(OSLogType.error, "Supported formats for device: %@", RTCCameraVideoCapturer.supportedFormats(for: device))
         return RTCCameraVideoCapturer.supportedFormats(for: device)[8]
     }
 }

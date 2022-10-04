@@ -18,7 +18,7 @@ public class PeerConnectionController {
         self.peer = peer
         self.peer.addEventObserver(eventObserver: PeerEventController(messenger: self.messenger, eventController: self.eventController))
         self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
-        self.eventChannel = FlutterEventChannel(name: "FlutterWebRtc/PeerConnectionEvent/\(self.channelId)", binaryMessenger: messenger)
+        self.eventChannel = FlutterEventChannel(name: ChannelNameGenerator.name("PeerConnectionEvent", self.channelId), binaryMessenger: messenger)
         self.channel.setMethodCallHandler({ (call, result) in
             try! self.onMethodCall(call: call, result: result)
         })
@@ -77,7 +77,9 @@ public class PeerConnectionController {
             case "addTransceiver":
                 let mediaType = argsMap!["mediaType"] as? Int
                 let initArgs = argsMap!["init"] as? [String : Any]
-                let transceiver = RtpTransceiverController(messenger: self.messenger, transceiver: self.peer.addTransceiver(mediaType: MediaType(rawValue: mediaType!)!))
+                let direction = initArgs!["direction"] as? Int
+                let transceiverInit = TransceiverInit(direction: TransceiverDirection(rawValue: direction!)!)
+                let transceiver = RtpTransceiverController(messenger: self.messenger, transceiver: self.peer.addTransceiver(mediaType: MediaType(rawValue: mediaType!)!, transceiverInit: transceiverInit))
                 result(transceiver.asFlutterResult())
             case "getTransceivers":
                 result(self.peer.getTransceivers().map {

@@ -12,7 +12,7 @@ public class MediaDevicesController {
         self.messenger = messenger
         self.mediaDevices = mediaDevices
         self.channel = FlutterMethodChannel(name: channelId, binaryMessenger: messenger)
-        self.eventChannel = FlutterEventChannel(name: "FlutterWebRtc/MediaDevicesEvent/0", binaryMessenger: messenger)
+        self.eventChannel = FlutterEventChannel(name: ChannelNameGenerator.name("MediaDevicesEvent", 0), binaryMessenger: messenger)
         self.eventController = EventController()
         self.eventChannel.setStreamHandler(eventController)
         self.channel.setMethodCallHandler({ (call, result) in

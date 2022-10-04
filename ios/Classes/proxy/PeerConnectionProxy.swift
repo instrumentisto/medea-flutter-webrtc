@@ -33,8 +33,13 @@ public class PeerConnectionProxy {
         return Array(self.receivers.values.map{ $0 })
     }
 
-    func addTransceiver(mediaType: MediaType) -> RtpTransceiverProxy {
-        let transceiver = self.peer.addTransceiver(of: mediaType.intoWebRtc(), init: RTCRtpTransceiverInit())
+    func addTransceiver(mediaType: MediaType, transceiverInit: TransceiverInit) -> RtpTransceiverProxy {
+        let transceiver = self.peer.addTransceiver(of: mediaType.intoWebRtc(), init: transceiverInit.intoWebRtc())
+        if (transceiver == nil) {
+            os_log(OSLogType.error, "Transceiver is nil")
+        } else {
+            os_log(OSLogType.error, "Transceiver is not nil")
+        }
         self.syncTransceivers()
         return self.transceivers[lastTransceiverId]!
     }

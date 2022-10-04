@@ -1,4 +1,6 @@
 import Flutter
+import OSLog
+import os
 
 public class PeerConnectionFactoryController {
     private var messenger: FlutterBinaryMessenger
@@ -16,9 +18,21 @@ public class PeerConnectionFactoryController {
     }
 
     func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
+        let argsMap = call.arguments as? [String : Any]
         switch (call.method) {
             case "create":
-                let peer = PeerConnectionController(messenger: self.messenger, peer: self.peerFactory.create())
+                let iceTransportTypeArg = argsMap!["iceTransportType"] as? Int
+                let iceTransportType = IceTransportType(rawValue: iceTransportTypeArg!)!
+                let iceServersArg = argsMap!["iceServers"] as? [Any]
+                let iceServers = iceServersArg!.map( { iceServerArg -> IceServer in
+                    let iceServer = iceServerArg as? [String : Any]
+                    let urlsArg = iceServer!["urls"] as? [String]
+                    let username = iceServer!["username"] as? String
+                    let password = iceServer!["password"] as? String
+                    return IceServer(urls: urlsArg!, username: username, password: password)
+                } )
+                let conf = PeerConnectionConfiguration(iceServers: iceServers, iceTransportType: iceTransportType)
+                let peer = PeerConnectionController(messenger: self.messenger, peer: self.peerFactory.create(conf: conf))
                 result(peer.asFlutterResult())
             case "dispose":
                 self.channel.setMethodCallHandler(nil)

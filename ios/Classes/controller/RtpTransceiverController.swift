@@ -41,6 +41,7 @@ public class RtpTransceiverController {
             case "stop":
                 result(nil)
             case "dispose":
+                self.channel.setMethodCallHandler(nil)
                 result(nil)
             default:
                 result(FlutterMethodNotImplemented)
