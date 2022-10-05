@@ -24,7 +24,10 @@ class MediaDevices {
   }
 
   func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
-    var tracks = getUserAudio()
+    var tracks: [MediaStreamTrackProxy] = []
+    if constraints.audio != nil {
+      tracks += getUserAudio()
+    }
     if constraints.video != nil {
       tracks.append(getUserVideo(constraints: constraints.video!))
     }

@@ -272,5 +272,9 @@ class Constraints {
     if videoArg != nil {
       self.video = VideoConstraints(map: videoArg!)
     }
+    let audioArg = map["audio"] as? [String: Any]
+    if audioArg != nil {
+      self.audio = AudioConstraints()
+    }
   }
 }
