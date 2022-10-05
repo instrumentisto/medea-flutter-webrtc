@@ -6,8 +6,10 @@ class VideoRendererEventController: VideoRendererEvent {
   /// Flutter messenger for creating another controllers.
   private var messenger: FlutterBinaryMessenger
 
-  /// Creates new controller for sending all `FlutterRtcVideoRenderer`
-  /// events to the Flutter side.
+  /**
+    Creates new controller for sending all `FlutterRtcVideoRenderer`
+    events to the Flutter side.
+  */
   init(messenger: FlutterBinaryMessenger, eventController: EventController) {
     self.messenger = messenger
     self.eventController = eventController

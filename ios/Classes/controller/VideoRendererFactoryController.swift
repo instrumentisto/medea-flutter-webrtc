@@ -22,9 +22,11 @@ class VideoRendererFactoryController {
     })
   }
 
-  /// Handles all support Flutter method calls.
-  ///
-  /// Creates new `FlutterRtcVideoRenderer`s.
+  /**
+    Handles all support Flutter method calls.
+
+    Creates new `FlutterRtcVideoRenderer`s.
+  */
   func onMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) throws {
     switch call.method {
     case "create":

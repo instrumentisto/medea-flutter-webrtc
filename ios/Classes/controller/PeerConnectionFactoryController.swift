@@ -11,8 +11,10 @@ class PeerConnectionFactoryController {
   /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
-  /// Creates new `PeerConnectionFactoryController` and `PeerConnectionFactoryProxy`
-  /// based on provided `state`.
+  /**
+    Creates new `PeerConnectionFactoryController` and `PeerConnectionFactoryProxy`
+    based on provided `state`.
+  */
   init(messenger: FlutterBinaryMessenger, state: State) {
     let channelName = ChannelNameGenerator.name(name: "PeerConnectionFactory", id: 0)
     self.messenger = messenger
