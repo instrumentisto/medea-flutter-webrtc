@@ -1,6 +1,6 @@
 import WebRTC
 
-public class PeerConnectionProxy {
+class PeerConnectionProxy {
   private var senders: [String: RtpSenderProxy] = [:]
   private var receivers: [String: RtpReceiverProxy] = [:]
   private var transceivers: [Int: RtpTransceiverProxy] = [:]

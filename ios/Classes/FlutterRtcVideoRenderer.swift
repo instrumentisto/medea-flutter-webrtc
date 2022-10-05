@@ -64,7 +64,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     return self.textureId
   }
 
-  public func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
+  func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
     if self.pixelBuffer == nil {
       return nil
     }
@@ -92,17 +92,19 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     }
   }
 
-  public func onTextureUnregistered(_ texture: FlutterRtcVideoRenderer) {
+  func onTextureUnregistered(_ texture: FlutterRtcVideoRenderer) {
 
   }
 
   func reset() {
+    self.rendererLock.lock()
     self.frameWidth = 0
     self.frameHeight = 0
     self.frameRotation = -1
     self.pixelBuffer = nil
     self.isFirstFrameRendered = false
     self.frameSize = CGSize()
+    self.rendererLock.unlock()
   }
 
   func correctRotation(frame: RTCVideoFrame) -> RTCI420Buffer {

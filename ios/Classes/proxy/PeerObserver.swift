@@ -1,16 +1,16 @@
 import Dispatch
 import WebRTC
 
-public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
+class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   var peer: PeerConnectionProxy?
 
   override init() {}
 
-  public func setPeer(peer: PeerConnectionProxy) {
+  func setPeer(peer: PeerConnectionProxy) {
     self.peer = peer
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState
   ) {
     DispatchQueue.main.async {
@@ -19,7 +19,7 @@ public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState
   ) {
     DispatchQueue.main.async {
@@ -28,7 +28,7 @@ public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCPeerConnectionState
   ) {
     DispatchQueue.main.async {
@@ -37,7 +37,7 @@ public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState
   ) {
     DispatchQueue.main.async {
@@ -46,7 +46,7 @@ public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate
   ) {
     DispatchQueue.main.async {
@@ -55,13 +55,13 @@ public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]
   ) {
 
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver
   ) {
     DispatchQueue.main.async {
@@ -72,22 +72,22 @@ public class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  public func peerConnection(
+  func peerConnection(
     _ peerConnection: RTCPeerConnection, didAdd receiver: RTCRtpReceiver,
     streams mediaStreams: [RTCMediaStream]
   ) {
   }
 
-  public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
+  func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
   }
 
-  public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream)
+  func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream)
   {
   }
 
-  public func peerConnection(_ peerConnection: RTCPeerConnection, didOpen stream: RTCDataChannel) {
+  func peerConnection(_ peerConnection: RTCPeerConnection, didOpen stream: RTCDataChannel) {
   }
 
-  public func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
+  func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
   }
 }

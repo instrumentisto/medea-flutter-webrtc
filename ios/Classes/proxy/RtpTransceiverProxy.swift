@@ -1,6 +1,6 @@
 import WebRTC
 
-public class RtpTransceiverProxy {
+class RtpTransceiverProxy {
   private var transceiver: RTCRtpTransceiver
   private var sender: RtpSenderProxy
   private var receiver: RtpReceiverProxy
@@ -95,14 +95,14 @@ public class RtpTransceiverProxy {
     }
   }
 
-  public func getMid() -> String? {
+  func getMid() -> String? {
     if transceiver.mid != nil && transceiver.mid.count == 0 {
       return nil
     }
     return transceiver.mid
   }
 
-  public func getDirection() -> TransceiverDirection {
+  func getDirection() -> TransceiverDirection {
     if self.transceiver.isStopped {
       return TransceiverDirection.stopped
     } else {
@@ -110,7 +110,7 @@ public class RtpTransceiverProxy {
     }
   }
 
-  public func stop() {
+  func stop() {
     // TODO: Fire callback on_stop
     // transceiver.stop()
   }

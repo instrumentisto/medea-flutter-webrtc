@@ -1,6 +1,6 @@
 import WebRTC
 
-public class PeerConnectionFactoryProxy {
+class PeerConnectionFactoryProxy {
   private var lastPeerConnectionId: Int = 0
   private var peerObservers: [Int: PeerObserver] = [:]
   private var factory: RTCPeerConnectionFactory

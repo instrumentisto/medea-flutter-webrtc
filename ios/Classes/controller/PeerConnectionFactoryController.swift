@@ -1,7 +1,7 @@
 import Flutter
 
 /// Controller for the `PeerConnection` factory management.
-public class PeerConnectionFactoryController {
+class PeerConnectionFactoryController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 

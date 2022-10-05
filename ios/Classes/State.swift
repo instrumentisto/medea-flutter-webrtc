@@ -1,6 +1,6 @@
 import WebRTC
 
-public class State {
+class State {
   private var factory: RTCPeerConnectionFactory
 
   init() {
@@ -10,7 +10,7 @@ public class State {
       encoderFactory: encoderFactory, decoderFactory: decoderFactory)
   }
 
-  public func getPeerFactory() -> RTCPeerConnectionFactory {
+  func getPeerFactory() -> RTCPeerConnectionFactory {
     return self.factory
   }
 }

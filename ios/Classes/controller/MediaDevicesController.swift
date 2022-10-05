@@ -1,7 +1,7 @@
 import Flutter
 
 /// Controller for the media devices management.
-public class MediaDevicesController {
+class MediaDevicesController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 

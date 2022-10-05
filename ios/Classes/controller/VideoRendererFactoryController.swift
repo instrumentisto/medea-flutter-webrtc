@@ -16,7 +16,7 @@ class VideoRendererFactoryController {
     let channelName = ChannelNameGenerator.name(name: "VideoRendererFactory", id: 0)
     self.messenger = messenger
     self.registry = registry
-    self.channel = FlutterMethodChannel(name: self.channelName, binaryMessenger: messenger)
+    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
     self.channel.setMethodCallHandler({ (call, result) in
       try! self.onMethodCall(call: call, result: result)
     })

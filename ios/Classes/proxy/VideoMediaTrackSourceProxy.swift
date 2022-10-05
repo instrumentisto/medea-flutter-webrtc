@@ -1,6 +1,6 @@
 import WebRTC
 
-public class VideoMediaTrackSourceProxy: MediaTrackSource {
+class VideoMediaTrackSourceProxy: MediaTrackSource {
   private var peerConnectionFactory: RTCPeerConnectionFactory
   private var source: RTCVideoSource
   private var capturer: RTCCameraVideoCapturer

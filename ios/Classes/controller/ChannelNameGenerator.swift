@@ -1,5 +1,5 @@
 /// Generator of names for Flutter method/event channels.
-public class ChannelNameGenerator {
+class ChannelNameGenerator {
   /// Static prefix for all channels of this plugin
   private static let prefix: String = "FlutterWebRtc"
 

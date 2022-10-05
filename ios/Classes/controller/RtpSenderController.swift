@@ -1,14 +1,14 @@
 import Flutter
 
 /// Controller for the `RtpSender`.
-public class RtpSenderController {
+class RtpSenderController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 
   /// Instance of `RtpSender` proxy.
   private var rtpSender: RtpSenderProxy
 
-  /// ID of this controller.
+  /// ID of channels created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Method channel for communicating with Flutter side.

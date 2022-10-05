@@ -1,7 +1,7 @@
 import Flutter
 
 /// Controller for the `RtpTransceiver`.
-public class RtpTransceiverController {
+class RtpTransceiverController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 

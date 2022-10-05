@@ -3,7 +3,7 @@ import OSLog
 import os
 
 /// Controller for the `MediaStreamTrack`.
-public class MediaStreamTrackController {
+class MediaStreamTrackController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 
@@ -52,7 +52,7 @@ public class MediaStreamTrackController {
       self.track.setEnabled(enabled: enabled!)
       result(nil)
     case "state":
-      result(self.track.state().asFlutterResult())
+      result(self.track.state().rawValue)
     case "stop":
       self.track.stop()
       result(nil)
@@ -73,7 +73,7 @@ public class MediaStreamTrackController {
     return [
       "channelId": self.channelId,
       "id": self.track.id(),
-      "kind": self.track.kind().asFlutterResult(),
+      "kind": self.track.kind().rawValue,
       "deviceId": self.track.getDeviceId(),
     ]
   }

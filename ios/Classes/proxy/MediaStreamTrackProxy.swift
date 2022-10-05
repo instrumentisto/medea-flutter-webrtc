@@ -1,6 +1,6 @@
 import WebRTC
 
-public class MediaStreamTrackProxy: Equatable {
+class MediaStreamTrackProxy: Equatable {
   private var isStopped = false
   private var deviceId = "remote"
   private var source: MediaTrackSource?
@@ -16,7 +16,7 @@ public class MediaStreamTrackProxy: Equatable {
     MediaStreamTrackStore.tracks[track.trackId] = self
   }
 
-  public static func == (lhs: MediaStreamTrackProxy, rhs: MediaStreamTrackProxy) -> Bool {
+  static func == (lhs: MediaStreamTrackProxy, rhs: MediaStreamTrackProxy) -> Bool {
     return lhs.track == rhs.track
   }
 

@@ -1,6 +1,6 @@
 import WebRTC
 
-public class RtpReceiverProxy {
+class RtpReceiverProxy {
   private var receiver: RTCRtpReceiver
   private var track: MediaStreamTrackProxy
 

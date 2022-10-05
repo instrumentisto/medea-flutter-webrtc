@@ -27,8 +27,8 @@ class VideoRendererController {
       name: "VideoRendererEvent", id: self.channelId)
     self.messenger = messenger
     self.renderer = renderer
-    self.channel = FlutterMethodChannel(name: self.channelName, binaryMessenger: messenger)
-    self.eventChannel = FlutterEventChannel(name: self.eventChannelName, binaryMessenger: messenger)
+    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
+    self.eventChannel = FlutterEventChannel(name: eventChannelName, binaryMessenger: messenger)
     self.eventController = EventController()
     self.renderer.subscribe(
       sub: VideoRendererEventController(
