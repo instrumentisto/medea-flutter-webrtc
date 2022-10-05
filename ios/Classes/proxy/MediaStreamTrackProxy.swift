@@ -1,12 +1,23 @@
 import WebRTC
 
+/// Wrapper around a `MediaStreamTrack`.
 class MediaStreamTrackProxy: Equatable {
+  /// Indicates that this `stop` was called on this `MediaStreamTrackProxy`.
   private var isStopped = false
+
+  /// Device ID of this `MediaStreamTrackProxy`.
   private var deviceId = "remote"
+
+  /// Source of this `MediaStreamTrackProxy`.
   private var source: MediaTrackSource?
+
+  /// Underlying `RTCMediaStreamTrack`.
   private var track: RTCMediaStreamTrack
+
+  /// Subscribers for `onStop` callback of this `MediaStreamTrackProxy`.
   private var onStopSubscribers: [() -> Void] = []
 
+  /// Creates new `MediaStreamTrackProxy` based on the provided data.
   init(track: RTCMediaStreamTrack, deviceId: String?, source: MediaTrackSource?) {
     self.source = source
     if deviceId != nil {
@@ -16,24 +27,29 @@ class MediaStreamTrackProxy: Equatable {
     MediaStreamTrackStore.tracks[track.trackId] = self
   }
 
+  /// Compares two `MediaStreamTrackProxy`s based on underlying `RTCMediaStreamTrack`s.
   static func == (lhs: MediaStreamTrackProxy, rhs: MediaStreamTrackProxy) -> Bool {
     return lhs.track == rhs.track
   }
 
+  /// Adds `RTCVideoRenderer` for the underlying `RTCMediaStreamTrack`.
   func addRenderer(renderer: RTCVideoRenderer) {
     let videoTrack = self.track as! RTCVideoTrack
     videoTrack.add(renderer)
   }
 
+  /// Removes `RTCVideoRenderer` for the underlying `RTCMediaStreamTrack`.
   func removeRenderer(renderer: RTCVideoRenderer) {
     let videoTrack = self.track as! RTCVideoTrack
     videoTrack.remove(renderer)
   }
 
+  /// Returns ID of this track.
   func id() -> String {
     return track.trackId
   }
 
+  /// Returns kind of this track.
   func kind() -> MediaType {
     let kind = track.kind
     switch kind {
@@ -46,10 +62,12 @@ class MediaStreamTrackProxy: Equatable {
     }
   }
 
+  /// Returns device ID of this track.
   func getDeviceId() -> String {
     return self.deviceId
   }
 
+  /// Returns forked `MediaStreamTrackProxy` based on the same source as this track.
   func fork() throws -> MediaStreamTrackProxy {
     if self.source == nil {
       throw MediaStreamTrackException.remoteTrackCantBeCloned
@@ -59,6 +77,9 @@ class MediaStreamTrackProxy: Equatable {
     }
   }
 
+  /// Stops this track.
+  ///
+  /// Source will be stopped and disposed when all it's tracks are stopped.
   func stop() {
     self.isStopped = true
     for cb in onStopSubscribers {
@@ -66,6 +87,7 @@ class MediaStreamTrackProxy: Equatable {
     }
   }
 
+  /// Returns current `readyState` of this track.
   func state() -> MediaStreamTrackState {
     let state = track.readyState
     switch state {
@@ -78,14 +100,17 @@ class MediaStreamTrackProxy: Equatable {
     }
   }
 
+  /// Sets `enabled` state of this track.
   func setEnabled(enabled: Bool) {
     self.track.isEnabled = enabled
   }
 
+  /// Subscribes on `onEnded` callback of this track.
   func onEnded(cb: @escaping () -> Void) {
     self.onStopSubscribers.append(cb)
   }
 
+  /// Returns underlying `RTCMediaStreamTrack` of this proxy.
   func obj() -> RTCMediaStreamTrack {
     return self.track
   }

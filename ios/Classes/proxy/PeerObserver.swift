@@ -1,15 +1,19 @@
 import Dispatch
 import WebRTC
 
+/// Observer for native `RTCPeerConnectionDelegate`.
 class PeerObserver: NSObject, RTCPeerConnectionDelegate {
+  /// `PeerConnectionProxy` into which callbacks will be provided.
   var peer: PeerConnectionProxy?
 
   override init() {}
 
+  /// Sets underlying `PeerConnectionProxy` for this `PeerObserver`.
   func setPeer(peer: PeerConnectionProxy) {
     self.peer = peer
   }
 
+  /// Fires `onSignalingStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState
   ) {
@@ -19,6 +23,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
+  /// Fires `onIceConnectionStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState
   ) {
@@ -28,6 +33,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
+  /// Fires `onConnectionStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCPeerConnectionState
   ) {
@@ -37,6 +43,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
+  /// Fires `onIceGatheringStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState
   ) {
@@ -46,6 +53,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
+  /// Fires `onIceCandidate` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate
   ) {
@@ -55,12 +63,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  func peerConnection(
-    _ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]
-  ) {
-
-  }
-
+  /// Fires `onTrack` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver
   ) {
@@ -72,21 +75,32 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
+  /// Does nothing.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didAdd receiver: RTCRtpReceiver,
     streams mediaStreams: [RTCMediaStream]
   ) {
   }
 
+  /// Does nothing.
   func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
   }
 
+  /// Does nothing.
   func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
   }
 
+  /// Does nothing.
   func peerConnection(_ peerConnection: RTCPeerConnection, didOpen stream: RTCDataChannel) {
   }
 
+  /// Does nothing.
   func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
+  }
+
+  /// Does nothing.
+  func peerConnection(
+    _ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]
+  ) {
   }
 }

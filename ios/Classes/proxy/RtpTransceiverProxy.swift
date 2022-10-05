@@ -1,28 +1,44 @@
 import WebRTC
 
+/// Wrapper around an `RTCRtpTransceiver`.
 class RtpTransceiverProxy {
+  /// Actual underlying `RTCRtpTransceiver`.
   private var transceiver: RTCRtpTransceiver
+
+  /// `RtpSenderProxy` of this `RtpTransceiverProxy`.
   private var sender: RtpSenderProxy
+
+  /// `RtpReceiverProxy` of this `RtpTransceiverProxy`.
   private var receiver: RtpReceiverProxy
 
+  /// Creates new `RtpTransceiverProxy` for the provided `RTCRtpTransceiver`
   init(transceiver: RTCRtpTransceiver) {
     self.sender = RtpSenderProxy(sender: transceiver.sender)
     self.receiver = RtpReceiverProxy(receiver: transceiver.receiver)
     self.transceiver = transceiver
   }
 
+  /// - Returns: `RtpSenderProxy` of this `RtpTransceiverProxy`.
   func getSender() -> RtpSenderProxy {
     return self.sender
   }
 
+  /// - Returns: `RtpReceiverProxy` of this `RtpTransceiverProxy`.
   func getReceiver() -> RtpReceiverProxy {
     return self.receiver
   }
 
+  /// Sets `TransceiverDirection` of the underlying `RtpTransceiver`.
   func setDirection(direction: TransceiverDirection) {
     self.transceiver.setDirection(direction.intoWebRtc(), error: nil)
   }
 
+  /**
+    Sets recv state of this `RtpTransceiver`.
+
+    - Parameters:
+      - recv: Is receiver direction is enabled.
+  */
   func setRecv(recv: Bool) {
     let direction = self.getDirection()
     var newDirection = RTCRtpTransceiverDirection.stopped
@@ -59,6 +75,12 @@ class RtpTransceiverProxy {
     }
   }
 
+  /**
+    Sets send state of this `RtpTransceiver`.
+
+    - Parameters:
+      - send: Is send direction is enabled.
+  */
   func setSend(send: Bool) {
     let direction = self.getDirection()
     var newDirection = RTCRtpTransceiverDirection.stopped
@@ -95,6 +117,7 @@ class RtpTransceiverProxy {
     }
   }
 
+  /// - Returns: mID of the underlying `RtpTransceiver`.
   func getMid() -> String? {
     if transceiver.mid != nil && transceiver.mid.count == 0 {
       return nil
@@ -102,6 +125,7 @@ class RtpTransceiverProxy {
     return transceiver.mid
   }
 
+  /// - Returns: Preferred `RtpTransceiverDirection` of the underlying `RtpTransceiver`.
   func getDirection() -> TransceiverDirection {
     if self.transceiver.isStopped {
       return TransceiverDirection.stopped
@@ -110,8 +134,8 @@ class RtpTransceiverProxy {
     }
   }
 
+  /// Stops the underlying `RTCRtpTransceiver`.
   func stop() {
-    // TODO: Fire callback on_stop
-    // transceiver.stop()
+    self.transceiver.stop()
   }
 }

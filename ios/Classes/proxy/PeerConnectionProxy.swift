@@ -1,36 +1,69 @@
 import WebRTC
 
+
+/// Wrapper around a `PeerConnection`.
 class PeerConnectionProxy {
+  /// List of all `RtpSenderProxy`s owned by this `PeerConnectionProxy`.
   private var senders: [String: RtpSenderProxy] = [:]
+
+  /// List of all `RtpReceiverProxy`s owned by this `PeerConnectionProxy`.
   private var receivers: [String: RtpReceiverProxy] = [:]
+
+  /// List of all `RtpTransceiverProxy`s owned by this `PeerConnectionProxy`.
   private var transceivers: [Int: RtpTransceiverProxy] = [:]
+
+  /// Actual underlying `PeerConnection`.
   private var peer: RTCPeerConnection
+
+  /// List of `EventObserver` for this `PeerConnectionProxy`.
   private var observers: [PeerEventObserver] = []
+
+  /// Unique ID of this `PeerConnectionProxy`.
   private var id: Int
+
+  /// Last unique ID of `PeerConnectionProxy`s.
   private var lastTransceiverId: Int = 0
 
+  /// Creates new `PeerConnectionProxy` with provided peer and ID.
   init(id: Int, peer: RTCPeerConnection) {
     self.peer = peer
     self.id = id
   }
 
+  /// - Returns: ID of this peer.
   func getId() -> Int {
     return self.id
   }
 
+  /*
+    Synchronizes and returns all the `RtpTransceiverProxy`s of this `PeerConnectionProxy`.
+
+    - Returns: all `RtpTransceiverProxy`s of this `PeerConnectionProxy`.
+  */
   func getTransceivers() -> [RtpTransceiverProxy] {
     self.syncTransceivers()
     return Array(self.transceivers.values.map { $0 })
   }
 
+  /// - Returns: All `RtpSenderProxy`s of this `PeerConnectionProxy`.
   func getSenders() -> [RtpSenderProxy] {
     return Array(self.senders.values.map { $0 })
   }
 
+  /// - Returns: All `RtpReceiverProxy`s of this `PeerConnectionProxy`.
   func getReceivers() -> [RtpReceiverProxy] {
     return Array(self.receivers.values.map { $0 })
   }
 
+  /**
+    Creates a new `RtpTransceiverProxy` based on the provided config.
+
+    - Parameters:
+      - mediaType: Initial `MediaType` of the newly created `RtpTransceiverProxy`.
+      - init: Configuration of the newly created `RtpTransceiverProxy`.
+
+    - Returns: Newly created `RtpTransceiverProxy`.
+  */
   func addTransceiver(mediaType: MediaType, transceiverInit: TransceiverInit) -> RtpTransceiverProxy
   {
     let transceiver = self.peer.addTransceiver(
@@ -39,6 +72,12 @@ class PeerConnectionProxy {
     return self.transceivers[lastTransceiverId]!
   }
 
+  /**
+    Sets the provided local `SessionDescription` to the underlying `PeerConnection`.
+
+    - Parameters:
+      description: SDP to be applied.
+  */
   func setLocalDescription(description: SessionDescription?) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       let completionHandler = { (error: Error?) in
@@ -57,6 +96,12 @@ class PeerConnectionProxy {
     }
   }
 
+  /**
+    Sets the provided remote `SessionDescription` to the underlying `PeerConnection`.
+
+    - Parameters:
+      - description: SDP to be applied.
+  */
   func setRemoteDescription(description: SessionDescription) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.peer.setRemoteDescription(
@@ -71,6 +116,11 @@ class PeerConnectionProxy {
     }
   }
 
+  /**
+    Creates a new `SessionDescription` offer.
+
+    Returns: Newly created `SessionDescription`.
+  */
   func createOffer() async throws -> SessionDescription {
     return try await withCheckedThrowingContinuation { continuation in
       self.peer.offer(
@@ -85,6 +135,10 @@ class PeerConnectionProxy {
     }
   }
 
+  /**
+    Synchronizes underlying pointers of old `RtpTransceiverProxy`s and creates
+    `RtpTransceiverProxy`s for new `RtpTransceiver`s.
+  */
   func syncTransceivers() {
     let transceivers = self.peer.transceivers.enumerated()
     for (index, transceiver) in transceivers {
@@ -95,6 +149,11 @@ class PeerConnectionProxy {
     }
   }
 
+  /**
+    Creates a new `SessionDescription` answer.
+
+    - Returns: Newly created `SessionDescription`.
+  */
   func createAnswer() async throws -> SessionDescription {
     return try await withCheckedThrowingContinuation { continuation in
       self.peer.answer(
@@ -109,6 +168,7 @@ class PeerConnectionProxy {
     }
   }
 
+  /** Adds a new `IceCandidate` to the underlying `PeerConnection`. */
   func addIceCandidate(candidate: IceCandidate) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.peer.add(
@@ -123,14 +183,26 @@ class PeerConnectionProxy {
     }
   }
 
+  /// Requests the underlying `PeerConnection` to redo `IceCandidate` gathering.
   func restartIce() {
     self.peer.restartIce()
   }
 
+  /**
+    Adds an `PeerEventObserver` for this `PeerConnectionProxy`.
+
+    - Parameters:
+      - eventObserver: `PeerEventObserver` which will be subscribed.
+  */
   func addEventObserver(eventObserver: PeerEventObserver) {
     self.observers.append(eventObserver)
   }
 
+  /**
+    Creates a broadcaster to all the `observers` of this `PeerConnectionProxy`.
+
+    - Returns: `EventObserver` broadcasting calls to all the `observers`.
+  */
   func broadcastEventObserver() -> PeerEventObserver {
     class BroadcastEventObserver: PeerEventObserver {
       private var observers: [PeerEventObserver]
