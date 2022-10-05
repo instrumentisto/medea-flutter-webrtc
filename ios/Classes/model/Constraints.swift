@@ -1,10 +1,8 @@
 import AVFoundation
 
-/**
-  Direction in which the camera produces the video.
-
-  [Int] value is representation of this enum which will be expected on the Flutter side.
-*/
+///  Direction in which the camera produces the video.
+///
+///  [Int] value is representation of this enum which will be expected on the Flutter side.
 enum FacingMode: Int {
   /**
     Indicates that the video source is facing toward the user (this includes, for example, the
@@ -28,12 +26,10 @@ enum FacingMode: Int {
   }
 }
 
-/**
-  Score of [VideoConstraints].
-
-  This score will be determined by a `ConstraintChecker` and basing on it, more suitable video
-  device will be selected by `getUserMedia` request.
-*/
+///  Score of [VideoConstraints].
+///
+///  This score will be determined by a `ConstraintChecker` and basing on it, more suitable video
+///  device will be selected by `getUserMedia` request.
 enum ConstraintScore {
   /**
     Indicates that the constraint is not suitable at all.
@@ -116,7 +112,6 @@ class ConstraintChecker {
 class DeviceIdConstraint: ConstraintChecker {
   /// Concrete `deviceId` to be searched.
   var id: String
-
 
   /**
     Creates Constraint searcher for a device with some concrete `deviceId`.

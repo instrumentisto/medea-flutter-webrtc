@@ -81,8 +81,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
   }
 
-  func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream)
-  {
+  func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
   }
 
   func peerConnection(_ peerConnection: RTCPeerConnection, didOpen stream: RTCDataChannel) {

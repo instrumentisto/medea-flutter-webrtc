@@ -10,7 +10,6 @@ class TransceiverInit {
     self.direction = direction
   }
 
-
   /**
     Converts this `RtpTransceiverInit` into an `RTCRtpTransceiverInit`.
 
