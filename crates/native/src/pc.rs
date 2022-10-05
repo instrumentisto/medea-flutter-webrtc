@@ -15,10 +15,8 @@ use once_cell::sync::OnceCell;
 use threadpool::ThreadPool;
 
 use crate::{
-    api::{self, RtcSessionDescription},
-    next_id,
-    stream_sink::StreamSink,
-    AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
+    api, next_id, stream_sink::StreamSink, AudioTrack, AudioTrackId,
+    VideoTrack, VideoTrackId, Webrtc,
 };
 
 impl Webrtc {
@@ -57,7 +55,7 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        create_sdp_tx: Sender<anyhow::Result<RtcSessionDescription>>,
+        create_sdp_tx: Sender<anyhow::Result<api::RtcSessionDescription>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
@@ -92,7 +90,7 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        create_sdp_tx: Sender<anyhow::Result<RtcSessionDescription>>,
+        create_sdp_tx: Sender<anyhow::Result<api::RtcSessionDescription>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {

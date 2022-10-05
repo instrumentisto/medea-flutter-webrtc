@@ -125,14 +125,6 @@ class _LoopbackState extends State<Loopback> {
         _microIsAvailable = value;
       });
     });
-
-    var stats = await _pc1!.getStats();
-
-    for (RTCStats s in stats) {
-      print("-----------------------------------------------");
-      print(s.type);
-      print("-----------------------------------------------");
-    }
   }
 
   void _hangUp() async {

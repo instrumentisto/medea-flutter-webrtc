@@ -10,22 +10,13 @@ checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 
 [[package]]
 name = "allo-isolate"
-version = "0.1.14-beta.3"
+version = "0.1.14-beta.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30f25cc9ed6e637ad2911e359adf033448f88f2d62dce179f810eca223048892"
+checksum = "692305cf262038708c09c56dd7c7d5387578b032456b427331703fffaa682c49"
 dependencies = [
  "anyhow",
  "atomic",
  "chrono",
-]
-
-[[package]]
-name = "android_system_properties"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311"
-dependencies = [
- "libc",
 ]
 
 [[package]]
@@ -108,11 +99,10 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chrono"
-version = "0.4.22"
+version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfd4d1b31faaa3a89d7934dbded3111da0d2ef28e3ebccdb4f0179f5929d1ef1"
+checksum = "6127248204b9aba09a362f6c930ef6a78f2c1b2215f8a7b398c06e1083f17af0"
 dependencies = [
- "iana-time-zone",
  "js-sys",
  "num-integer",
  "num-traits",
@@ -336,9 +326,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "1.48.0"
+version = "1.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8ae1e29bf5e6fdead0d698a717340531b206e4d13474b6c6c6e95a62b78950d"
+checksum = "e7efc01dabb10ed30d253dd3551854505b0817b8fc8afed77c6c9017f2680a5c"
 dependencies = [
  "allo-isolate",
  "anyhow",
@@ -357,9 +347,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "1.48.0"
+version = "1.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff5b2fd364aed9f935c8707b225800e30dae8a001228cd5ca6eed1b176f0b64a"
+checksum = "f9b43512b9d7db2f06ae3d0de0dd5b1688bddc2eecb16b4d4edb7c16d94b9ca3"
 
 [[package]]
 name = "fnv"
@@ -552,19 +542,6 @@ dependencies = [
  "native-tls",
  "tokio",
  "tokio-native-tls",
-]
-
-[[package]]
-name = "iana-time-zone"
-version = "0.1.50"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd911b35d940d2bd0bea0f9100068e5b97b51a1cbe13d13382f132e0365257a0"
-dependencies = [
- "android_system_properties",
- "core-foundation-sys",
- "js-sys",
- "wasm-bindgen",
- "winapi",
 ]
 
 [[package]]
@@ -1131,9 +1108,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
+checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
 
 [[package]]
 name = "socket2"

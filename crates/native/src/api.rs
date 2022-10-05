@@ -1027,6 +1027,7 @@ pub struct RtcStats {
     ///
     /// [RTCStats]: https://w3.org/TR/webrtc#dom-rtcstats
     pub id: String,
+
     /// Timestamp associated with this object.
     ///
     /// The time is relative to the UNIX epoch (Jan 1, 1970, UTC).
@@ -1036,6 +1037,7 @@ pub struct RtcStats {
     /// arrived at the local endpoint. The remote timestamp can be found in an
     /// additional field in an [`RtcStat`]-derived dictionary, if applicable.
     pub timestamp_us: i64,
+
     /// Actual stats of this [`RtcStat`].
     ///
     /// All possible stats are described in the [`RtcStatsType`] enum.
@@ -1866,15 +1868,17 @@ pub fn create_offer(
     ice_restart: bool,
     use_rtp_mux: bool,
 ) -> anyhow::Result<RtcSessionDescription> {
-    let (create_sdp_tx, create_sdp_rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel();
+
     WEBRTC.lock().unwrap().create_offer(
         peer_id,
         voice_activity_detection,
         ice_restart,
         use_rtp_mux,
-        create_sdp_tx,
+        tx,
     )?;
-    create_sdp_rx.recv_timeout(RX_TIMEOUT)?
+
+    rx.recv_timeout(RX_TIMEOUT)?
 }
 
 /// Creates an SDP answer to an offer received from a remote peer during an
@@ -1885,15 +1889,17 @@ pub fn create_answer(
     ice_restart: bool,
     use_rtp_mux: bool,
 ) -> anyhow::Result<RtcSessionDescription> {
-    let (create_sdp_tx, create_sdp_rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel();
+
     WEBRTC.lock().unwrap().create_answer(
         peer_id,
         voice_activity_detection,
         ice_restart,
         use_rtp_mux,
-        create_sdp_tx,
+        tx,
     )?;
-    create_sdp_rx.recv_timeout(RX_TIMEOUT)?
+
+    rx.recv_timeout(RX_TIMEOUT)?
 }
 
 /// Changes the local description associated with the connection.
@@ -1902,14 +1908,16 @@ pub fn set_local_description(
     kind: SdpType,
     sdp: String,
 ) -> anyhow::Result<()> {
-    let (set_sdp_tx, set_sdp_rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel();
+
     WEBRTC.lock().unwrap().set_local_description(
         peer_id,
         kind.into(),
         sdp,
-        set_sdp_tx,
+        tx,
     )?;
-    set_sdp_rx.recv_timeout(RX_TIMEOUT)?
+
+    rx.recv_timeout(RX_TIMEOUT)?
 }
 
 /// Sets the specified session description as the remote peer's current offer or
@@ -2014,9 +2022,10 @@ pub fn get_transceiver_direction(
 
 /// Returns [`RtcStats`]'s of this [`PeerConnection`].
 pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<Vec<RtcStats>> {
-    let (report_tx, report_rx) = mpsc::channel();
-    WEBRTC.lock().unwrap().get_stats(peer_id, report_tx)?;
-    let report = report_rx.recv_timeout(RX_TIMEOUT)?;
+    let (tx, rx) = mpsc::channel();
+
+    WEBRTC.lock().unwrap().get_stats(peer_id, tx)?;
+    let report = rx.recv_timeout(RX_TIMEOUT)?;
 
     Ok(report.get_stats().into_iter().map(RtcStats::from).collect())
 }
@@ -2058,15 +2067,17 @@ pub fn add_ice_candidate(
     sdp_mid: String,
     sdp_mline_index: i32,
 ) -> anyhow::Result<()> {
-    let (add_candidate_tx, add_candidate_rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel();
+
     WEBRTC.lock().unwrap().add_ice_candidate(
         peer_id,
         candidate,
         sdp_mid,
         sdp_mline_index,
-        add_candidate_tx,
+        tx,
     )?;
-    add_candidate_rx.recv_timeout(RX_TIMEOUT)?
+
+    rx.recv_timeout(RX_TIMEOUT)?
 }
 
 /// Tells the [`PeerConnection`] that ICE should be restarted.

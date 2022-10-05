@@ -418,7 +418,7 @@ class _PeerConnectionChannel extends PeerConnection {
 
   @override
   Future<List<RTCStats>> getStats() async {
-    // TODO: implement getStats
+    // TODO: Not implemented.
     return List.empty();
   }
 }
