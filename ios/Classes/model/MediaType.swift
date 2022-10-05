@@ -1,8 +1,15 @@
 import WebRTC
 
-public enum MediaType: Int {
-  case audio, video
+/// `RTCRtpMediaType` representation.
+enum MediaType: Int {
+  case audio
+  case video
 
+  /**
+    Converts this `MediaType` into an `RTCRTPMediaType`.
+
+    - Returns: `RTCRtpMediaType` based on this `MediaType`.
+   */
   func intoWebRtc() -> RTCRtpMediaType {
     switch self {
     case .audio:
@@ -10,9 +17,5 @@ public enum MediaType: Int {
     case .video:
       return RTCRtpMediaType.video
     }
-  }
-
-  func asFlutterResult() -> Int {
-    return self.rawValue
   }
 }

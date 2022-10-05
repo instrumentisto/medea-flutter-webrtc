@@ -1,7 +1,11 @@
-public enum MediaDeviceKind: Int {
-  case audioInput, videoInput, audioOutput
+/// Media device kind.
+enum MediaDeviceKind: Int {
+  /// Represents an audio input device (for example, a microphone).
+  case audioInput
 
-  public func asFlutterResult() -> Int {
-    return self.rawValue
-  }
+  /// Represents an audio output device (for example, a pair of headphones).
+  case videoInput
+
+  /// Represents a video input device (for example, a webcam).
+  case audioOutput
 }
