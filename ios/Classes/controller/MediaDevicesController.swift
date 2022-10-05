@@ -8,9 +8,6 @@ public class MediaDevicesController {
   /// Instance of media devices manager.
   private var mediaDevices: MediaDevices
 
-  /// ID of channel created for this controller.
-  private var channelId: String = ChannelNameGenerator.name(name: "MediaDevices", id: 0)
-
   /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
@@ -22,11 +19,12 @@ public class MediaDevicesController {
 
   /// Creates new `MediaDevicesController` for the provided `MediaDevices`.
   init(messenger: FlutterBinaryMessenger, mediaDevices: MediaDevices) {
+    let channelName = ChannelNameGenerator.name(name: "MediaDevices", id: 0)
+    let eventChannelName = ChannelNameGenerator.name(name: "MediaDevicesEvent", id: 0)
     self.messenger = messenger
     self.mediaDevices = mediaDevices
-    self.channel = FlutterMethodChannel(name: channelId, binaryMessenger: messenger)
-    self.eventChannel = FlutterEventChannel(
-      name: ChannelNameGenerator.name(name: "MediaDevicesEvent", id: 0), binaryMessenger: messenger)
+    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
+    self.eventChannel = FlutterEventChannel(name: eventChannelName, binaryMessenger: messenger)
     self.eventController = EventController()
     self.eventChannel.setStreamHandler(eventController)
     self.channel.setMethodCallHandler({ (call, result) in

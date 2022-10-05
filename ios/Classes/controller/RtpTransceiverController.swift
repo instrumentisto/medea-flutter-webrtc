@@ -8,7 +8,7 @@ public class RtpTransceiverController {
   /// Instance of `RtpTransceiver` proxy.
   private var transceiver: RtpTransceiverProxy
 
-  /// ID of this controller.
+  /// ID of channels created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Method channel for communicating with Flutter side.

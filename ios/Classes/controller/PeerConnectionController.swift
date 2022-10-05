@@ -8,7 +8,7 @@ public class PeerConnectionController {
   /// Instance of the proxy of PeerConnection.
   private var peer: PeerConnectionProxy
 
-  /// ID of channel created for this controller.
+  /// ID of channels created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Controller for the `eventChannel` management.

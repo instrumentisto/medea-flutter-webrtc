@@ -10,7 +10,7 @@ public class MediaStreamTrackController {
   /// Instance of `MediaStreamTrack` proxy.
   private var track: MediaStreamTrackProxy
 
-  /// ID of channel created for this controller.
+  /// ID of channels created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Method channel for communicating with Flutter side.

@@ -8,7 +8,7 @@ class VideoRendererController {
   /// Instance of `FlutterRtcVideoRenderer`.
   private var renderer: FlutterRtcVideoRenderer
 
-  /// ID of this controller.
+  /// ID of channels created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Method channel for communicating with Flutter side.
