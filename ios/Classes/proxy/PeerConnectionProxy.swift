@@ -1,6 +1,5 @@
 import WebRTC
 
-
 /// Wrapper around a `PeerConnection`.
 class PeerConnectionProxy {
   /// List of all `RtpSenderProxy`s owned by this `PeerConnectionProxy`.

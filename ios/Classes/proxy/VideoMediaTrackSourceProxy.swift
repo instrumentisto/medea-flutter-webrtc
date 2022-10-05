@@ -1,13 +1,11 @@
 import WebRTC
 
-/**
-  Object representing a source of an input video of an user.
-
-  This source can create new `MediaStreamTrackProxy`s with the same video source.
-
-  Also, this object will track all the child `MediaStreamTrackProxy`s and once they all disposed,
-  it disposes the underlying `VideoSource`.
-*/
+///  Object representing a source of an input video of an user.
+///
+///  This source can create new `MediaStreamTrackProxy`s with the same video source.
+///
+///  Also, this object will track all the child `MediaStreamTrackProxy`s and once they all disposed,
+///  it disposes the underlying `VideoSource`.
 class VideoMediaTrackSourceProxy: MediaTrackSource {
   /// `PeerConnectionFactoryProxy` to create new `MediaStreamTrackProxy`s with.
   private var peerConnectionFactory: RTCPeerConnectionFactory

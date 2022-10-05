@@ -1,10 +1,8 @@
 import WebRTC
 
-/**
-  Global context of the `flutter_webrtc` plugin.
-
-  Used for creating tracks/peers.
-*/
+///  Global context of the `flutter_webrtc` plugin.
+///
+///  Used for creating tracks/peers.
 class State {
   /// Factory for producing `PeerConnection`s and `MediaStreamTrack`s.
   private var factory: RTCPeerConnectionFactory

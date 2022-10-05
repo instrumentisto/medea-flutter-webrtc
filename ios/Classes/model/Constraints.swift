@@ -24,10 +24,10 @@ enum FacingMode: Int {
   func isFits(position: AVCaptureDevice.Position) -> Bool {
     var facingModeInt = 0
     switch self {
-      case .user:
-        facingModeInt = 2
-      case .environment:
-        facingModeInt = 1
+    case .user:
+      facingModeInt = 2
+    case .environment:
+      facingModeInt = 1
     }
     return facingModeInt == position.rawValue
   }

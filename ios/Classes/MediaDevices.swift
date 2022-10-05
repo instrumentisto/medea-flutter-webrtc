@@ -110,7 +110,7 @@ class MediaDevices {
     - Parameters:
       - format: `AVCaptureDevice.Format` for which FPS will be selected.
       - constraints: Video constraints based on which FPS will be selected.
-    
+
     - Returns: Most suitable FPS for `AVCaptureDevice.Format`.
   */
   private func selectFpsForFormat(format: AVCaptureDevice.Format, constraints: VideoConstraints)
@@ -134,7 +134,7 @@ class MediaDevices {
     - Parameters:
       - device: `AVCaptureDevice` for which format will be selected.
       - constraints: Video constraints based on which format will be selected.
-    
+
     - Returns: Most suitable `AVCaptureDevice.Format` for the provided `AVCaptureDevice`.
   */
   private func selectFormatForDevice(device: AVCaptureDevice, constraints: VideoConstraints)

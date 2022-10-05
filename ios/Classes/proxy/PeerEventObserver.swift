@@ -2,14 +2,13 @@
 protocol PeerEventObserver {
   /**
     Notifies observer about a new `MediaStreamTrackProxy`.
-    
+
     - Parameters:
       track: Newly added `MediaStreamTrackProxy`.
       transceiver: `RtpTransceiverProxy` of this `MediaStreamTrackProxy`.
   */
   func onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy)
 
-  
   /**
     Notifies observer about an `IceConnectionState` update.
 
@@ -26,7 +25,6 @@ protocol PeerEventObserver {
   */
   func onSignalingStateChange(state: SignalingState)
 
-  
   /**
     Notifies observer about a `PeerConnectionState` update.
 
