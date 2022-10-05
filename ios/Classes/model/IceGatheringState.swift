@@ -1,8 +1,7 @@
 import WebRTC
 
 public enum IceGatheringState: Int {
-  case new = 0
-  case gathering, complete
+  case new, gathering, complete
 
   static func fromWebRtc(state: RTCIceGatheringState) -> IceGatheringState {
     switch state {

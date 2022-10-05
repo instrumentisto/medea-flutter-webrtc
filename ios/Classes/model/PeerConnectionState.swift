@@ -1,8 +1,7 @@
 import WebRTC
 
 public enum PeerConnectionState: Int {
-  case new = 0
-  case connecting, connected, disconnected, failed, closed
+  case new, connecting, connected, disconnected, failed, closed
 
   static func fromWebRtc(state: RTCPeerConnectionState) -> PeerConnectionState {
     switch state {

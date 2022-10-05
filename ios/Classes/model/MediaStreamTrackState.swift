@@ -1,6 +1,5 @@
 public enum MediaStreamTrackState: Int {
-  case live
-  case ended
+  case live, ended
 
   func asFlutterResult() -> Int {
     return self.rawValue

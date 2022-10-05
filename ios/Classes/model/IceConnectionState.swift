@@ -1,8 +1,7 @@
 import WebRTC
 
 public enum IceConnectionState: Int {
-  case new = 0
-  case checking, connected, completed, failed, disconnected, closed
+  case new, checking, connected, completed, failed, disconnected, closed
 
   static func fromWebRtc(state: RTCIceConnectionState) -> IceConnectionState {
     switch state {

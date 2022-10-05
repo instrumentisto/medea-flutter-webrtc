@@ -1,8 +1,7 @@
 import WebRTC
 
 public enum MediaType: Int {
-  case audio = 0
-  case video = 1
+  case audio, video
 
   func intoWebRtc() -> RTCRtpMediaType {
     switch self {

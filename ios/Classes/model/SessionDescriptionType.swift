@@ -1,8 +1,7 @@
 import WebRTC
 
 public enum SessionDescriptionType: Int {
-  case offer = 0
-  case prAnswer, answer, rollback
+  case offer, prAnswer, answer, rollback
 
   init(type: RTCSdpType) {
     switch type {

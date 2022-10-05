@@ -1,8 +1,7 @@
 import WebRTC
 
 public enum SignalingState: Int {
-  case stable = 0
-  case haveLocalOffer, haveLocalPrAnswer, haveRemoteOffer, haveRemotePrAnswer, closed
+  case stable, haveLocalOffer, haveLocalPrAnswer, haveRemoteOffer, haveRemotePrAnswer, closed
 
   static func fromWebRtc(state: RTCSignalingState) -> SignalingState {
     switch state {
