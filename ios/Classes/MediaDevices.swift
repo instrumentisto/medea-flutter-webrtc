@@ -1,14 +1,19 @@
 import AVFoundation
 import WebRTC
 
+/// Processor for `getUserMedia` requests.
 class MediaDevices {
+  /**
+    Global state used for creation new `MediaStreamTrackProxy`s.
+  */
   private var state: State
-  private var videoCapturers: [RTCCameraVideoCapturer] = []
 
+  /// Creates new `MediaDevices`.
   init(state: State) {
     self.state = state
   }
 
+  /// - Returns: List of `MediaDeviceInfo`s for the currently available devices.
   func enumerateDevices() -> [MediaDeviceInfo] {
     var devices = AVCaptureDevice.devices(for: AVMediaType.video).map { device -> MediaDeviceInfo in
       return MediaDeviceInfo(
@@ -23,6 +28,14 @@ class MediaDevices {
     return devices
   }
 
+  /**
+    Creates local audio and video `MediaStreamTrackProxy`s based on the provided `Constraints`.
+
+    - Parameters:
+      - constraints: Parameters based on which `MediaDevices` will select most suitable device.
+
+    - Returns: List of `MediaStreamTrackProxy`s most suitable based on the provided `Constraints`.
+  */
   func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
     var tracks: [MediaStreamTrackProxy] = []
     if constraints.audio != nil {
@@ -34,6 +47,11 @@ class MediaDevices {
     return tracks
   }
 
+  /**
+    Searches for `AVCaptureDevice` which fits into provided `VideoConstraints`.
+
+    - Returns: Found `AVCaptureDevice` or `nil` if all devices doesn't fits into constraints.
+  */
   private func findVideoDeviceForConstraints(constraints: VideoConstraints) -> AVCaptureDevice? {
     var maxScore = 0
     var bestFoundDevice: AVCaptureDevice?
@@ -50,6 +68,11 @@ class MediaDevices {
     return bestFoundDevice
   }
 
+  /**
+    Creates an audio `MediaStreamTrackProxy`s.
+
+    - Returns: All found `MediaStreamTrackProxy`s.
+  */
   private func getUserAudio() -> [MediaStreamTrackProxy] {
     let track = self.state.getPeerFactory().audioTrack(
       withTrackId: LocalTrackIdGenerator.shared.nextId())
@@ -59,6 +82,14 @@ class MediaDevices {
     return [t]
   }
 
+  /**
+    Creates a video `MediaStreamTrackProxy` for the provided `VideoConstraints`.
+
+    - Parameters:
+      - constraints: `VideoConstraints` to perform the lookup with.
+
+    - Returns: Most suitable `MediaStreamTrackProxy` for the provided `VideoConstraints`.
+  */
   private func getUserVideo(constraints: VideoConstraints) -> MediaStreamTrackProxy {
     let videoDevice = self.findVideoDeviceForConstraints(constraints: constraints)!
     let selectedFormat = selectFormatForDevice(device: videoDevice, constraints: constraints)
@@ -67,13 +98,21 @@ class MediaDevices {
     let source = self.state.getPeerFactory().videoSource()
     let capturer = RTCCameraVideoCapturer(delegate: source)
     capturer.startCapture(with: videoDevice, format: selectedFormat, fps: fps)
-    self.videoCapturers.append(capturer)
     let videoTrackSource = VideoMediaTrackSourceProxy(
       peerConnectionFactory: self.state.getPeerFactory(), source: source, deviceId: "camera",
       capturer: capturer)
     return videoTrackSource.newTrack()
   }
 
+  /**
+    Selects most suitable FPS for the provided `AVCaptureDevice.Format`.
+
+    - Parameters:
+      - format: `AVCaptureDevice.Format` for which FPS will be selected.
+      - constraints: Video constraints based on which FPS will be selected.
+    
+    - Returns: Most suitable FPS for `AVCaptureDevice.Format`.
+  */
   private func selectFpsForFormat(format: AVCaptureDevice.Format, constraints: VideoConstraints)
     -> Int
   {
@@ -88,6 +127,16 @@ class MediaDevices {
     return min(Int(maxSupportedFramerate), targetFps)
   }
 
+  /**
+    Selects most suitable `AVCaptureDevice.Format` for the provided `AVCaptureDevice`
+    based on the provided `VideoConstraints`.
+
+    - Parameters:
+      - device: `AVCaptureDevice` for which format will be selected.
+      - constraints: Video constraints based on which format will be selected.
+    
+    - Returns: Most suitable `AVCaptureDevice.Format` for the provided `AVCaptureDevice`.
+  */
   private func selectFormatForDevice(device: AVCaptureDevice, constraints: VideoConstraints)
     -> AVCaptureDevice.Format
   {

@@ -8,7 +8,7 @@ enum FacingMode: Int {
     Indicates that the video source is facing toward the user (this includes, for example, the
     front-facing camera on a smartphone).
   */
-  case user = 2
+  case user = 0
 
   /**
     Indicates that the video source is facing away from the user, thereby viewing their
@@ -22,7 +22,14 @@ enum FacingMode: Int {
     - Returns: `true` if provided position fits into this `FacingMode`.
   */
   func isFits(position: AVCaptureDevice.Position) -> Bool {
-    return self.rawValue == position.rawValue
+    var facingModeInt = 0
+    switch self {
+      case .user:
+        facingModeInt = 2
+      case .environment:
+        facingModeInt = 1
+    }
+    return facingModeInt == position.rawValue
   }
 }
 
@@ -212,7 +219,7 @@ class VideoConstraints {
     }
 
     let optionalArgs = map["optional"] as? [String: Any]
-    for (key, value) in mandatoryArgs! {
+    for (key, value) in optionalArgs! {
       switch key {
       case "deviceId":
         deviceIdConstraints.append(DeviceIdConstraint(id: value as! String, isMandatory: false))
