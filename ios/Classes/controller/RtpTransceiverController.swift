@@ -1,14 +1,22 @@
 import Flutter
 
+/// Controller for the `RtpTransceiver`.
 public class RtpTransceiverController {
+  /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
+
+  /// Instance of `RtpTransceiver` proxy.
   private var transceiver: RtpTransceiverProxy
+
+  /// ID of this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
-  private var channelName: String
+
+  /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
+  /// Creates new `RtpTransceiverController` for the provided `RtpTransceiverProxy`.
   init(messenger: FlutterBinaryMessenger, transceiver: RtpTransceiverProxy) {
-    self.channelName = ChannelNameGenerator.name(name: "RtpTransceiver", id: self.channelId)
+    let channelName = ChannelNameGenerator.name(name: "RtpTransceiver", id: self.channelId)
     self.messenger = messenger
     self.transceiver = transceiver
     self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
@@ -17,6 +25,7 @@ public class RtpTransceiverController {
     })
   }
 
+  /// Handles all supported Flutter method calls for the `RtpTransceiverProxy`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
@@ -48,6 +57,7 @@ public class RtpTransceiverController {
     }
   }
 
+  /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     return [
       "channelId": self.channelId,

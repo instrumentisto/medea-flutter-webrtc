@@ -1,20 +1,29 @@
 import Flutter
 
+/// Controller for the `PeerConnection` factory management.
 public class PeerConnectionFactoryController {
+  /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
+
+  /// Instance of `PeerConnection` factory manager.
   private var peerFactory: PeerConnectionFactoryProxy
-  private var channelId: String = ChannelNameGenerator.name(name: "PeerConnectionFactory", id: 0)
+
+  /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
+  /// Creates new `PeerConnectionFactoryController` and `PeerConnectionFactoryProxy`
+  /// based on provided `state`.
   init(messenger: FlutterBinaryMessenger, state: State) {
+    let channelName = ChannelNameGenerator.name(name: "PeerConnectionFactory", id: 0)
     self.messenger = messenger
     self.peerFactory = PeerConnectionFactoryProxy(state: state)
-    self.channel = FlutterMethodChannel(name: channelId, binaryMessenger: messenger)
+    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
     self.channel.setMethodCallHandler({ (call, result) in
       try! self.onMethodCall(call: call, result: result)
     })
   }
 
+  /// Handles all supported Flutter method calls for the `PeerConnectionFactoryProxy`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {

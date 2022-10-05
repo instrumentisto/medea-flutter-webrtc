@@ -1,19 +1,29 @@
 import Flutter
 
+/// Controller for the `VideoRenderer`.
 class VideoRendererController {
+  /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
+
+  /// Instance of `FlutterRtcVideoRenderer`.
   private var renderer: FlutterRtcVideoRenderer
+
+  /// ID of this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
-  private var eventChannelId: Int = ChannelNameGenerator.nextId()
-  private var eventChannelName: String
+
+  /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
-  private var channelName: String
+
+  /// Event channel for communicating with Flutter side.
   private var eventChannel: FlutterEventChannel
+
+  /// Controller for the `eventChannel` management.
   private var eventController: EventController
 
+  /// Creates new `VideoRendererController` for the provided `FlutterRtcVideoRenderer`.
   init(messenger: FlutterBinaryMessenger, renderer: FlutterRtcVideoRenderer) {
-    self.channelName = ChannelNameGenerator.name(name: "VideoRenderer", id: self.channelId)
-    self.eventChannelName = ChannelNameGenerator.name(
+    let channelName = ChannelNameGenerator.name(name: "VideoRenderer", id: self.channelId)
+    let eventChannelName = ChannelNameGenerator.name(
       name: "VideoRendererEvent", id: self.channelId)
     self.messenger = messenger
     self.renderer = renderer
@@ -29,6 +39,7 @@ class VideoRendererController {
     })
   }
 
+  /// Handles all supported Flutter method calls for the `FlutterRtcVideoRenderer`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
@@ -52,6 +63,7 @@ class VideoRendererController {
     }
   }
 
+  /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     return [
       "channelId": self.channelId,

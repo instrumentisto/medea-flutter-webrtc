@@ -1,16 +1,28 @@
 import Flutter
 
+/// Controller for the `PeerConnection`.
 public class PeerConnectionController {
+  /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
+
+  /// Instance of the proxy of PeerConnection.
   private var peer: PeerConnectionProxy
+
+  /// ID of channel created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
-  private var channelName: String
+
+  /// Controller for the `eventChannel` management.
   private var eventController: EventController
+
+  /// Event channel for communicating with Flutter side.
   private var eventChannel: FlutterEventChannel
+
+  /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
+  /// Creates new `PeerConnectionController` for the provided `PeerConnectionProxy`.
   init(messenger: FlutterBinaryMessenger, peer: PeerConnectionProxy) {
-    self.channelName = ChannelNameGenerator.name(name: "PeerConnection", id: self.channelId)
+    let channelName = ChannelNameGenerator.name(name: "PeerConnection", id: self.channelId)
     self.eventController = EventController()
     self.messenger = messenger
     self.peer = peer
@@ -27,6 +39,7 @@ public class PeerConnectionController {
     self.eventChannel.setStreamHandler(self.eventController)
   }
 
+  /// Handles all supported Flutter method calls for the `PeerConnectionProxy`.
   func onMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) throws {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
@@ -103,6 +116,7 @@ public class PeerConnectionController {
     }
   }
 
+  /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     return [
       "channelId": self.channelId,

@@ -1,13 +1,19 @@
 import Flutter
 
+/// Controller which will create new `FlutterRtcVideoRenderer`s.
 class VideoRendererFactoryController {
+  /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
+
+  /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
-  private var channelName: String
+
+  /// Flutter texture registry for creating new Flutter textures.
   private var registry: FlutterTextureRegistry
 
+  /// Creates new `VideoRendererFacotyrController`,
   init(messenger: FlutterBinaryMessenger, registry: FlutterTextureRegistry) {
-    self.channelName = ChannelNameGenerator.name(name: "VideoRendererFactory", id: 0)
+    let channelName = ChannelNameGenerator.name(name: "VideoRendererFactory", id: 0)
     self.messenger = messenger
     self.registry = registry
     self.channel = FlutterMethodChannel(name: self.channelName, binaryMessenger: messenger)
@@ -16,6 +22,9 @@ class VideoRendererFactoryController {
     })
   }
 
+  /// Handles all support Flutter method calls.
+  ///
+  /// Creates new `FlutterRtcVideoRenderer`s.
   func onMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) throws {
     switch call.method {
     case "create":
