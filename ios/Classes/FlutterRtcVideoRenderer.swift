@@ -1,23 +1,50 @@
 import Flutter
-import OSLog
 import WebRTC
-import os
 
+/// Renders video from a track to a `FlutterTexture` which can be shown by the Flutter side.
 class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
+  /// Track which is rendered by this `FlutterRtcVideoRenderer`.
   private var track: MediaStreamTrackProxy?
+
+  /// ID of `FlutterTexture` on which this `FlutterRtcVideoRenderer` renders track.
   private var textureId: Int64 = 0
+
+  /// Pixel buffer into which video will be rendered from track.
   private var pixelBuffer: CVPixelBuffer?
+
+  /// Last known frame size based on `setSize` method call.
   private var frameSize: CGSize
+
+  /// Registry for registering new `FlutterTexture`s.
   private var registry: FlutterTextureRegistry
+
+  /// Observers of the `FlutterRtcVideoRenderer` events.
   private var observers: [VideoRendererEvent] = []
+
+  /// Indicates that first frame was rendered by this `FlutterRtcVideoRenderer`.
   private var isFirstFrameRendered: Bool = false
+
+  /// Last known width of the frame provided by libwebrtc to the `renderFrame` method.
   private var frameWidth: Int32 = 0
+
+  /// Last known height of the frame provided by libwebrtc to the `renderFrame` method.
   private var frameHeight: Int32 = 0
+
+  /// Last known rotation of the frame provided by libwebrtc to the `renderFrame` method.
   private var frameRotation: Int = -1
+
+  /// Indicates that `FlutterRtcVideoRenderer` is stopped.
   private var isRendererStopped: Bool = false
-  private var isRenderInProcess: Bool = false
+
+  /**
+    Lock for the `renderFrame` function.
+
+    This lock will be locked when some frame is currently rendering or
+    `FlutterRtcVideoRenderer` in process of stopping.
+  */
   private let rendererLock: NSLock = NSLock()
 
+  /// Creates new `FlutterRtcVideoRenderer`.
   init(registry: FlutterTextureRegistry) {
     self.frameSize = CGSize()
     self.registry = registry
@@ -26,10 +53,12 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     self.textureId = textureId
   }
 
+  /// Subscribes `VideoRendererEvent` to this `FlutterRtcVideoRenderer` events.
   func subscribe(sub: VideoRendererEvent) {
     self.observers.append(sub)
   }
 
+  /// Returns observer which will send provided event to the all observers of this renderer.
   func broadcastEventObserver() -> VideoRendererEvent {
     class BroadcastEventObserver: VideoRendererEvent {
       private var observers: [VideoRendererEvent]
@@ -60,10 +89,16 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     return BroadcastEventObserver(observers: self.observers)
   }
 
+  /// Returns `FlutterTexture` ID of this renderer.
   func getTextureId() -> Int64 {
     return self.textureId
   }
 
+  /**
+    Returns `CVPixelBuffer` with frame video data in it.
+
+    Returns `nil` if no frames available.
+  */
   func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
     if self.pixelBuffer == nil {
       return nil
@@ -71,6 +106,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     return Unmanaged<CVPixelBuffer>.passRetained(self.pixelBuffer!)
   }
 
+  /// Creates new `CVPixelBuffer` based on the provided `CGSize`.
   func setSize(_ size: CGSize) {
     if self.pixelBuffer == nil
       || (size.width != self.frameSize.width || size.height != self.frameSize.height)
@@ -92,10 +128,16 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     }
   }
 
+  /// Does nothing.
   func onTextureUnregistered(_ texture: FlutterRtcVideoRenderer) {
 
   }
 
+  /**
+    Resets this renderer, stops frames rendering.
+
+    Renderer can be reused after reset.
+  */
   func reset() {
     self.rendererLock.lock()
     self.frameWidth = 0
@@ -107,6 +149,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     self.rendererLock.unlock()
   }
 
+  /// Corrects rotation of the provided `RTCVidoFrame` and converts it to I420 format.
   func correctRotation(frame: RTCVideoFrame) -> RTCI420Buffer {
     let src = frame.buffer.toI420()
     let rotation = frame.rotation
@@ -139,6 +182,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     return buffer
   }
 
+  /// Sets `MediaStreamTrackProxy` which will be rendered by this renderer.
   func setVideoTrack(newTrack: MediaStreamTrackProxy?) {
     if newTrack == nil {
       self.reset()
@@ -155,6 +199,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     self.track = newTrack
   }
 
+  /// Removes this renderer from list of renderers used by rendering track.
   func dispose() {
     self.rendererLock.lock()
     if self.track != nil {
@@ -163,6 +208,16 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     self.rendererLock.unlock()
   }
 
+  /**
+    Renders provided `RTCVideoFrame` to the `CVPixelBuffer`.
+
+    Video frame will be just rendered on `CVPixelBuffer`, but Flutter should
+    get it by calling `copyPixelBuffer` method. So video will be seen on
+    Flutter side only after `copyPixelBuffer` call by Flutter.
+
+    Also this method fires renderer events (if any) and notifies Flutter about
+    necessity to call `copyPixelBuffer` to get rendered frame.
+  */
   func renderFrame(_ renderFrame: RTCVideoFrame?) {
     self.rendererLock.lock()
     if renderFrame == nil {
