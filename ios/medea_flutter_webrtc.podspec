@@ -15,10 +15,8 @@ Flutter WebRTC plugin based on Google WebRTC.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'WebRTCO', '999.0'
+  s.dependency 'WebRTC-SDK', '104.5112.04'
   s.dependency 'libyuv-iOS'
-  # s.source = { :http => "file:///Users/relmay/WebRTC.xcframework"}
-  # s.source = { :http => 'http://localhost:8080/libwebrtc-ios.zip' }
   s.platform = :ios, '13.0'
   s.static_framework    = true
 
