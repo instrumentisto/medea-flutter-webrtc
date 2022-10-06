@@ -21,6 +21,9 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Indicates whether this [NativeMediaStreamTrack] has been stopped.
   bool _stopped = false;
 
+  /// Indicates whether this [NativeMediaStreamTrack] has been disposed.
+  bool _disposed = false;
+
   /// Indicates whether this [NativeMediaStreamTrack] transmits media.
   ///
   /// If it's `false` then blank (black screen for video and `0dB` for audio)
@@ -89,17 +92,13 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
   _NativeMediaStreamTrackChannel.fromMap(dynamic map) {
-    print("MediaStreamTrack 1");
     var channelId = map['channelId'];
     _chan = methodChannel('MediaStreamTrack', channelId);
     _eventChan = eventChannel('MediaStreamTrackEvent', channelId);
-    print("MediaStreamTrack 2");
     _eventSub = _eventChan.receiveBroadcastStream().listen(eventListener);
-    print("MediaStreamTrack 3");
     _id = map['id'];
     _deviceId = map['deviceId'];
     _kind = MediaKind.values[map['kind']];
-    print("MediaStreamTrack 4");
   }
 
   /// [MethodChannel] used for the messaging with a native side.
@@ -110,14 +109,12 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
   @override
   Future<void> setEnabled(bool enabled) async {
-    print("setEnabled");
     await _chan.invokeMethod('setEnabled', {'enabled': enabled});
     _enabled = enabled;
   }
 
   @override
   Future<MediaStreamTrackState> state() async {
-    print("state");
     return !_stopped
         ? MediaStreamTrackState.values[await _chan.invokeMethod('state')]
         : MediaStreamTrackState.ended;
@@ -125,8 +122,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
   @override
   Future<void> stop() async {
-    print("stop");
-    if (!_stopped) {
+    if (!_stopped && !_disposed) {
       _onEnded = null;
       await _chan.invokeMethod('stop');
       _stopped = true;
@@ -135,15 +131,14 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
   @override
   Future<void> dispose() async {
-    print("dispose");
     _onEnded = null;
+    _disposed = true;
     await _chan.invokeMethod('dispose');
     await _eventSub?.cancel();
   }
 
   @override
   Future<MediaStreamTrack> clone() async {
-    print("clone");
     return NativeMediaStreamTrack.from(await _chan.invokeMethod('clone'));
   }
 }
