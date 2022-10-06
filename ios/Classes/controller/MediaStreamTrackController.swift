@@ -1,6 +1,4 @@
 import Flutter
-import OSLog
-import os
 
 /// Controller for the `MediaStreamTrack`.
 class MediaStreamTrackController {

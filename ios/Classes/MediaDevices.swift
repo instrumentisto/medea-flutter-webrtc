@@ -15,11 +15,11 @@ class MediaDevices {
 
   /// - Returns: List of `MediaDeviceInfo`s for the currently available devices.
   func enumerateDevices() -> [MediaDeviceInfo] {
-    var devices = AVCaptureDevice.devices(for: AVMediaType.video).map { device -> MediaDeviceInfo in
+    var devices = AVCaptureDevice.devices(for: AVMediaType.audio).map { device -> MediaDeviceInfo in
       return MediaDeviceInfo(
         deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
     }
-    let videoDevices = AVCaptureDevice.devices(for: AVMediaType.audio).map {
+    let videoDevices = AVCaptureDevice.devices(for: AVMediaType.video).map {
       device -> MediaDeviceInfo in
       return MediaDeviceInfo(
         deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.videoInput)
@@ -55,6 +55,9 @@ class MediaDevices {
   private func findVideoDeviceForConstraints(constraints: VideoConstraints) -> AVCaptureDevice? {
     var maxScore = 0
     var bestFoundDevice: AVCaptureDevice?
+    let discoverySession = AVCaptureDevice.DiscoverySession(
+      deviceTypes: [AVCaptureDevice.DeviceType.builtInWideAngleCamera],
+      mediaType: AVMediaType.video, position: AVCaptureDevice.Position.unspecified)
     for device in AVCaptureDevice.devices(for: AVMediaType.video) {
       let deviceScore = constraints.calculateScoreForDevice(device: device)
       if deviceScore != nil {
@@ -99,7 +102,8 @@ class MediaDevices {
     let capturer = RTCCameraVideoCapturer(delegate: source)
     capturer.startCapture(with: videoDevice, format: selectedFormat, fps: fps)
     let videoTrackSource = VideoMediaTrackSourceProxy(
-      peerConnectionFactory: self.state.getPeerFactory(), source: source, deviceId: "camera",
+      peerConnectionFactory: self.state.getPeerFactory(), source: source,
+      deviceId: videoDevice.uniqueID,
       capturer: capturer)
     return videoTrackSource.newTrack()
   }

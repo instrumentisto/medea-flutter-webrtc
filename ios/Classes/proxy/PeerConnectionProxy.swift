@@ -142,7 +142,13 @@ class PeerConnectionProxy {
     let transceivers = self.peer.transceivers.enumerated()
     for (index, transceiver) in transceivers {
       if self.transceivers[index] == nil {
-        self.transceivers[index] = RtpTransceiverProxy(transceiver: transceiver)
+        let transceiverProxy = RtpTransceiverProxy(transceiver: transceiver)
+        let sender = transceiverProxy.getSender()
+        let receiver = transceiverProxy.getReceiver()
+        self.senders[sender.id()] = sender
+        self.receivers[receiver.id()] = receiver
+        self.transceivers[index] = transceiverProxy
+
         self.lastTransceiverId = index
       }
     }
@@ -185,6 +191,12 @@ class PeerConnectionProxy {
   /// Requests the underlying `PeerConnection` to redo `IceCandidate` gathering.
   func restartIce() {
     self.peer.restartIce()
+  }
+
+  /// Notifies `RtpReceiverProxy` that it was ended.
+  func receiverRemoved(endedReceiver: RTCRtpReceiver) {
+    let receiver = self.receivers[endedReceiver.receiverId]
+    receiver?.notifyRemoved()
   }
 
   /**
@@ -254,5 +266,13 @@ class PeerConnectionProxy {
     }
 
     return BroadcastEventObserver(observers: self.observers)
+  }
+
+  func dispose() {
+    self.peer.close()
+    for receiver in self.receivers.values {
+      receiver.notifyRemoved()
+    }
+    self.receivers = [:]
   }
 }

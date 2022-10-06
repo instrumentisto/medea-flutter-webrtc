@@ -26,6 +26,6 @@ class RtpReceiverProxy {
 
   /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being removed from the receiver.
   func notifyRemoved() {
-    // TODO:
+    self.track.notifyEnded()
   }
 }

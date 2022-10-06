@@ -14,6 +14,11 @@ class RtpSenderProxy {
     self.syncMediaStreamTrack()
   }
 
+  /// Returns ID of this `RtpSenderProxy`.
+  func id() -> String {
+    return self.sender.senderId
+  }
+
   /**
     Replaces `MediaStreamTrackProxy` of the underlying `RtpSender` with the provided one.
 

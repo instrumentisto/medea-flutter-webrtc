@@ -83,6 +83,13 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   }
 
   /// Does nothing.
+  func peerConnection(
+    _ peerConnection: RTCPeerConnection, didRemove receiver: RTCRtpReceiver
+  ) {
+    self.peer!.receiverRemoved(endedReceiver: receiver)
+  }
+
+  /// Does nothing.
   func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
   }
 

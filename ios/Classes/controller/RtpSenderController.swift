@@ -37,6 +37,7 @@ class RtpSenderController {
       } else {
         track = nil
       }
+
       self.rtpSender.replaceTrack(t: track)
       result(nil)
     case "dispose":

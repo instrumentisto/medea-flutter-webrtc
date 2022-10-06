@@ -17,6 +17,9 @@ class MediaStreamTrackProxy: Equatable {
   /// Subscribers for `onStop` callback of this `MediaStreamTrackProxy`.
   private var onStopSubscribers: [() -> Void] = []
 
+  /// Subscribers for `onEnded` callback of this `MediaStreamTrackProxy`.
+  private var onEndedSubscribers: [() -> Void] = []
+
   /// Creates new `MediaStreamTrackProxy` based on the provided data.
   init(track: RTCMediaStreamTrack, deviceId: String?, source: MediaTrackSource?) {
     self.source = source
@@ -105,9 +108,23 @@ class MediaStreamTrackProxy: Equatable {
     self.track.isEnabled = enabled
   }
 
+  /// Subscribes on `onStopped` callback of this track.
+  func onStopped(cb: @escaping () -> Void) {
+    self.onStopSubscribers.append(cb)
+  }
+
+  /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being removed from the receiver.
+  func notifyEnded() {
+    if self.track.readyState == .ended {
+      for cb in self.onEndedSubscribers {
+        cb()
+      }
+    }
+  }
+
   /// Subscribes on `onEnded` callback of this track.
   func onEnded(cb: @escaping () -> Void) {
-    self.onStopSubscribers.append(cb)
+    self.onEndedSubscribers.append(cb)
   }
 
   /// Returns underlying `RTCMediaStreamTrack` of this proxy.

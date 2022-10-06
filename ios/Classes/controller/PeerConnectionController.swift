@@ -110,6 +110,7 @@ class PeerConnectionController {
     case "dispose":
       self.channel.setMethodCallHandler(nil)
       self.eventChannel.setStreamHandler(nil)
+      self.peer.dispose()
       result(nil)
     default:
       result(FlutterMethodNotImplemented)

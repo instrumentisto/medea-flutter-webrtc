@@ -22,20 +22,6 @@ public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
       messenger: self.messenger, mediaDevices: MediaDevices(state: self.state))
     self.videoRendererFactory = VideoRendererFactoryController(
       messenger: self.messenger, registry: self.textures)
-    AVCaptureDevice.requestAccess(
-      for: AVMediaType.audio,
-      completionHandler: { granted in
-        if granted {
-          NSLog("Permission granted")
-        }
-      })
-    AVCaptureDevice.requestAccess(
-      for: AVMediaType.video,
-      completionHandler: { granted in
-        if granted {
-          NSLog("Permission granted")
-        }
-      })
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {

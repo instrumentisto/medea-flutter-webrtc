@@ -43,7 +43,7 @@ class VideoMediaTrackSourceProxy: MediaTrackSource {
       with: source, trackId: LocalTrackIdGenerator.shared.nextId())
     let trackProxy = MediaStreamTrackProxy(track: track, deviceId: self.deviceId, source: self)
     self.tracksCount += 1
-    trackProxy.onEnded(cb: {
+    trackProxy.onStopped(cb: {
       self.tracksCount -= 1
       if self.tracksCount == 0 {
         self.capturer.stopCapture()
