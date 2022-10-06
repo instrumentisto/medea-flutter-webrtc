@@ -136,6 +136,6 @@ class RtpTransceiverProxy {
 
   /// Stops the underlying `RTCRtpTransceiver`.
   func stop() {
-    self.transceiver.stop()
+    self.setDirection(direction: TransceiverDirection.stopped)
   }
 }
