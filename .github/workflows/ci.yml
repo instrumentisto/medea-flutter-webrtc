@@ -171,7 +171,7 @@ jobs:
                   libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
                   ninja-build 
           apt-get update -t sid
-          apt install -t sid -y libstdc++6
+          apt install -t sid -y libc6-amd64 libc6-dev libc6-dbg
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
