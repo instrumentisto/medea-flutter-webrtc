@@ -169,8 +169,7 @@ void SetRemoteDescriptionObserver::OnSetRemoteDescriptionComplete(
   }
 }
 
-// `RTCStatsCollectorCallback` propagating completion result to the Rust
-// side.
+// `RTCStatsCollectorCallback` propagating completion result to the Rust side.
 RTCStatsCollectorCallback::RTCStatsCollectorCallback(
     rust::Box<bridge::DynRTCStatsCollectorCallback> cb)
     : cb_(std::move(cb)) {};

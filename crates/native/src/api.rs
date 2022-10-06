@@ -402,7 +402,7 @@ impl From<sys::Protocol> for Protocol {
     }
 }
 
-//// Variants of [ICE roles][1].
+/// Variants of [ICE roles][1].
 ///
 /// More info in the [RFC 5245].
 ///
@@ -415,10 +415,12 @@ pub enum IceRole {
     ///
     /// [1]: https://tools.ietf.org/html/rfc5245#section-3
     Unknown,
+
     /// Controlling agent as defined by [Section 3 in RFC 5245][1].
     ///
     /// [1]: https://tools.ietf.org/html/rfc5245#section-3
     Controlling,
+
     /// Controlled agent as defined by [Section 3 in RFC 5245][1].
     ///
     /// [1]: https://tools.ietf.org/html/rfc5245#section-3

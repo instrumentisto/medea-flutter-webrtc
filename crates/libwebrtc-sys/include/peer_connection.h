@@ -143,8 +143,7 @@ class CreateSessionDescriptionObserver
   std::optional<rust::Box<bridge::DynCreateSdpCallback>> cb_;
 };
 
-// `RTCStatsCollectorCallback` propagating completion result to the Rust
-// side.
+// `RTCStatsCollectorCallback` propagating completion result to the Rust side.
 class RTCStatsCollectorCallback
     : public rtc::RefCountedObject<webrtc::RTCStatsCollectorCallback> {
  public:

@@ -3,7 +3,7 @@
 
 mod bridge;
 
-use std::{collections::HashMap, convert::TryFrom, mem};
+use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -60,8 +60,9 @@ pub trait OnFrameCallback {
     fn on_frame(&mut self, frame: UniquePtr<VideoFrame>);
 }
 
-/// Handler of [`VideoFrame`]s.
+/// Handler of [`RtcStatsReport`]s.
 pub trait RTCStatsCollectorCallback {
+    /// Called once an [`RtcStatsReport`] is loaded.
     fn on_stats_delivered(&mut self, report: RtcStatsReport);
 }
 
@@ -145,7 +146,10 @@ pub trait PeerConnectionEventsHandler {
 /// [1]: https://w3.org/TR/mediacapture-streams#dfn-kind
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TrackKind {
+    /// Audio track.
     Audio,
+
+    /// Video track.
     Video,
 }
 
@@ -156,7 +160,7 @@ impl TryFrom<&str> for TrackKind {
         match val {
             "audio" => Ok(Self::Audio),
             "video" => Ok(Self::Video),
-            kind => Err(anyhow!("Unknown kind: {kind}")),
+            kind => Err(anyhow!("Unknown `TrackKind`: {kind}")),
         }
     }
 }
@@ -1271,17 +1275,17 @@ impl PeerConnectionInterface {
         webrtc::add_ice_candidate(&self.inner, candidate.0, Box::new(cb));
     }
 
-    /// Tells the [`PeerConnectionInterface`] that ICE should be restarted.
+    /// Tells this [`PeerConnectionInterface`] that ICE should be restarted.
     pub fn restart_ice(&self) {
         webrtc::restart_ice(&self.inner);
     }
 
-    /// Closes the [`PeerConnectionInterface`].
+    /// Closes this [`PeerConnectionInterface`].
     pub fn close(&self) {
         webrtc::close_peer_connection(&self.inner);
     }
 
-    /// Gets [`RtcStatsReport`] of the [`PeerConnectionInterface`].
+    /// Loads [`RtcStatsReport`] of this [`PeerConnectionInterface`].
     pub fn get_stats(&self, cb: Box<dyn RTCStatsCollectorCallback>) {
         webrtc::peer_connection_get_stats(&self.inner, Box::new(cb));
     }
@@ -2525,14 +2529,15 @@ pub enum RtcStatsType {
 #[allow(clippy::too_many_lines)]
 impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
     type Error = anyhow::Error;
+
     fn try_from(stats: webrtc::RTCStatsWrap) -> anyhow::Result<Self> {
         use webrtc::RTCStatsType as T;
+
         let res = match stats.kind {
             T::RTCIceCandidatePairStats => {
                 let mut stats =
                     webrtc::cast_to_rtc_ice_candidate_pair_stats(stats.stats)?;
-
-                RtcStatsType::RtcIceCandidatePairStats {
+                Self::RtcIceCandidatePairStats {
                     state: stats.state,
                     nominated: stats.nominated.take(),
                     bytes_sent: stats.bytes_sent.take(),
@@ -2562,11 +2567,11 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     url: stats.url.take(),
                 };
                 if is_remote {
-                    RtcStatsType::RtcIceCandidateStats(
+                    Self::RtcIceCandidateStats(
                         RtcIceCandidateStats::RtcRemoteIceCandidateStats(stats),
                     )
                 } else {
-                    RtcStatsType::RtcIceCandidateStats(
+                    Self::RtcIceCandidateStats(
                         RtcIceCandidateStats::RtcLocalIceCandidateStats(stats),
                     )
                 }
@@ -2574,7 +2579,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
             T::RTCInboundRTPStreamStats => {
                 let mut stats =
                     webrtc::cast_to_rtc_inbound_rtp_stream_stats(stats.stats)?;
-
                 let media_type =
                     if let webrtc::MediaKind::Audio = stats.media_type {
                         RtcInboundRtpStreamMediaType::Audio {
@@ -2608,8 +2612,7 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                             frames_received: stats.frames_received.take(),
                         }
                     };
-
-                RtcStatsType::RtcInboundRTPStreamStats {
+                Self::RtcInboundRTPStreamStats {
                     remote_id: stats.remote_id.take(),
                     bytes_received: stats.bytes_received.take(),
                     packets_received: stats.packets_received.take(),
@@ -2648,7 +2651,7 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                         frames_per_second: stats.frames_per_second.take(),
                     }
                 };
-                RtcStatsType::RtcMediaSourceStats {
+                Self::RtcMediaSourceStats {
                     track_identifier,
                     kind,
                 }
@@ -2665,7 +2668,7 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                         frames_per_second: stats.frames_per_second.take(),
                     }
                 };
-                RtcStatsType::RtcOutboundRTPStreamStats {
+                Self::RtcOutboundRTPStreamStats {
                     track_id: stats.track_id.take(),
                     kind,
                     bytes_sent: stats.bytes_sent.take(),
@@ -2678,7 +2681,7 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     webrtc::cast_to_rtc_remote_inbound_rtp_stream_stats(
                         stats.stats,
                     )?;
-                RtcStatsType::RtcRemoteInboundRtpStreamStats {
+                Self::RtcRemoteInboundRtpStreamStats {
                     local_id: stats.local_id.take(),
                     round_trip_time: stats.round_trip_time.take(),
                     fraction_lost: stats.fraction_lost.take(),
@@ -2692,7 +2695,7 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     webrtc::cast_to_rtc_remote_outbound_rtp_stream_stats(
                         stats.stats,
                     )?;
-                RtcStatsType::RtcRemoteOutboundRtpStreamStats {
+                Self::RtcRemoteOutboundRtpStreamStats {
                     local_id: stats.local_id.take(),
                     remote_timestamp: stats.remote_timestamp.take(),
                     reports_sent: stats.reports_sent.take(),
@@ -2701,30 +2704,30 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
             T::RTCTransportStats => {
                 let mut stats =
                     webrtc::cast_to_rtc_transport_stats(stats.stats)?;
-                RtcStatsType::RtcTransportStats {
+                Self::RtcTransportStats {
                     packets_sent: stats.packets_sent.take(),
                     packets_received: stats.packets_received.take(),
                     bytes_sent: stats.bytes_sent.take(),
                     bytes_received: stats.bytes_received.take(),
                 }
             }
-            _ => RtcStatsType::Unimplemented,
+            _ => Self::Unimplemented,
         };
         Ok(res)
     }
 }
 
-/// Represents the [stats object] constructed by inspecting a specific
+/// Represents a [stats object] constructed by inspecting a specific
 /// [monitored object].
 ///
 /// [Full doc on W3C][1].
 ///
-/// [stats object]: https://w3.org/TR/webrtc-stats/#dfn-stats-object
-/// [monitored object]: https://w3.org/TR/webrtc-stats/#dfn-monitored-object
+/// [stats object]: https://w3.org/TR/webrtc-stats#dfn-stats-object
+/// [monitored object]: https://w3.org/TR/webrtc-stats#dfn-monitored-object
 /// [1]: https://w3.org/TR/webrtc#rtcstats-dictionary
 pub struct RtcStats {
-    /// Unique ID that is associated with the object that was inspected to
-    /// produce this [RtcStats] object.
+    /// Unique ID associated with the object that was inspected to produce these
+    /// [RtcStats].
     ///
     /// [RtcStats]: https://w3.org/TR/webrtc#dom-rtcstats
     pub id: String,
@@ -2736,19 +2739,26 @@ pub struct RtcStats {
     /// For statistics that came from a remote source (e.g., from received RtcP
     /// packets), timestamp represents the time at which the information
     /// arrived at the local endpoint. The remote timestamp can be found in an
-    /// additional field in an [`RtcStat`]-derived dictionary, if applicable.
+    /// additional field in an [`RtcStats`]-derived dictionary, if applicable.
     pub timestamp_us: i64,
 
-    /// Actual stats of this [`RtcStat`].
+    /// Actual stats of these [`RtcStats`].
     ///
-    /// All possible stats are described in the [`RtcStatsType`] enum.
+    /// All possible stats are described as [`RtcStatsType`] enum.
     pub kind: RtcStatsType,
 }
 
 impl From<webrtc::RTCStatsWrap> for RtcStats {
     fn from(stats: webrtc::RTCStatsWrap) -> Self {
-        let id = stats.id.clone();
-        let timestamp_us = stats.timestamp_us;
+        let webrtc::RTCStatsWrap {
+            id,
+            timestamp_us,
+            kind: _,
+            stats: _,
+        } = &stats;
+
+        let id = id.clone();
+        let timestamp_us = *timestamp_us;
         let kind = RtcStatsType::try_from(stats).unwrap();
 
         Self {
@@ -2759,11 +2769,12 @@ impl From<webrtc::RTCStatsWrap> for RtcStats {
     }
 }
 
-// A collection of [`RtcStats`].
+/// Collection of [`RtcStats`].
 #[derive(From)]
 pub struct RtcStatsReport(UniquePtr<webrtc::RTCStatsReport>);
 
 impl RtcStatsReport {
+    /// Loads current [`RtcStats`].
     #[must_use]
     pub fn get_stats(&self) -> Vec<RtcStats> {
         webrtc::rtc_stats_report_get_stats(&self.0)

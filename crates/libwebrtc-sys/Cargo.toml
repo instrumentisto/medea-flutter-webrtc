@@ -9,7 +9,7 @@ links = "webrtc"
 [dependencies]
 anyhow = "1.0"
 cxx = "1.0"
-derive_more = "0.99"
+derive_more = { version = "0.99", fetures = ["deref", "deref_mut", "from"], default-features = false }
 
 [build-dependencies]
 anyhow = "1.0"

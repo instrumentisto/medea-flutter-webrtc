@@ -32,96 +32,98 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
-/// [`Option<i32>`] transferable to the C++ side.
+/// [`Option`]`<`[`i32`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionI32(Option<i32>);
 
 impl OptionI32 {
-    /// Sets `self` to Some(`value`).
+    /// Sets this [`Option`]`<`[`i32`]`>` to [`Some`]`(value)`.
     fn set_value(&mut self, value: i32) {
         self.0 = Some(value);
     }
 }
-/// Creates empty Rust [`Option<i32>`].
+
+/// Creates an empty Rust [`Option`]`<`[`i32`]`>`.
 pub fn init_option_i32() -> Box<OptionI32> {
     Box::new(OptionI32(None))
 }
 
-/// [`Option<String>`] transferable to the C++ side.
+/// [`Option`]`<`[`String`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionString(Option<String>);
 
 impl OptionString {
-    /// Sets `self` to Some(`value`).
+    /// Sets this [`Option`]`<`[`String`]`>` to [`Some`]`(value)`.
     fn set_value(&mut self, value: String) {
         self.0 = Some(value);
     }
 }
 
-/// Creates empty Rust [`Option<String>`].
+/// Creates an empty Rust [`Option`]`<`[`String`]`>`.
 pub fn init_option_string() -> Box<OptionString> {
     Box::new(OptionString(None))
 }
 
-/// [`Option<f64>`] transferable to the C++ side.
+/// [`Option`]`<`[`f64`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionF64(Option<f64>);
 
 impl OptionF64 {
-    /// Sets `self` to Some(`value`).
+    /// Sets this [`Option`]`<`[`f64`]`>` to [`Some`]`(value)`.
     fn set_value(&mut self, value: f64) {
         self.0 = Some(value);
     }
 }
-/// Creates empty Rust [`Option<f64>`].
+
+/// Creates an empty Rust [`Option`]`<`[`f64`]`>`.
 pub fn init_option_f64() -> Box<OptionF64> {
     Box::new(OptionF64(None))
 }
 
-/// [`Option<u32>`] transferable to the C++ side.
+/// [`Option`]`<`[`u32`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionU32(Option<u32>);
 
 impl OptionU32 {
-    /// Sets `self` to Some(`value`).
+    /// Sets this [`Option`]`<`[`u32`]`>` to [`Some`]`(value)`.
     fn set_value(&mut self, value: u32) {
         self.0 = Some(value);
     }
 }
 
-/// Creates empty Rust [`Option<u32>`].
+/// Creates an empty Rust [`Option`]`<`[`u32`]`>`.
 pub fn init_option_u32() -> Box<OptionU32> {
     Box::new(OptionU32(None))
 }
 
-/// [`Option<u64>`] transferable to the C++ side.
+/// [`Option`]`<`[`u64`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionU64(Option<u64>);
 
 impl OptionU64 {
-    /// Sets `self` to Some(`value`).
+    /// Sets this [`Option`]`<`[`u64`]`>` to [`Some`]`(value)`.
     fn set_value(&mut self, value: u64) {
         self.0 = Some(value);
     }
 }
 
-/// Creates empty Rust [`Option<u64>`].
+/// Creates an empty Rust [`Option`]`<`[`u64`]`>`.
 pub fn init_option_u64() -> Box<OptionU64> {
     Box::new(OptionU64(None))
 }
 
-/// [`Option<bool>`] transferable to the C++ side.
+/// [`Option`]`<`[`bool`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionBool(Option<bool>);
 
 impl OptionBool {
-    /// Sets `self` to Some(`value`).
+    /// Sets this [`Option`]`<`[`bool`]`>` to [`Some`]`(value)`.
     fn set_value(&mut self, value: bool) {
         self.0 = Some(value);
     }
 }
 
-/// Creates empty Rust [`Option<bool>`].
+/// Creates an empty Rust [`Option`]`<`[`bool`]`>`.
 pub fn init_option_bool() -> Box<OptionBool> {
     Box::new(OptionBool(None))
 }
@@ -161,21 +163,21 @@ pub(crate) mod webrtc {
         ptr: UniquePtr<RtpCodecParameters>,
     }
 
-    /// Rust wrap of C++ `RTCMediaSourceStats`.
+    /// Wrapper for C++ [`RTCMediaSourceStats`].
     pub struct RTCMediaSourceStatsWrap {
         /// Value of the [MediaStreamTrack][1]'s ID attribute.
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         pub track_identifier: Box<OptionString>,
 
-        /// Kind of this [`RTCMediaSourceStats`];
+        /// Kind of these [`RTCMediaSourceStats`].
         pub kind: MediaKind,
 
-        /// An actual [`RTCMediaSourceStats`].
+        /// Actual [`RTCMediaSourceStats`].
         pub stats: UniquePtr<RTCMediaSourceStats>,
     }
 
-    /// Rust wrap of C++ `RTCVideoSourceStats`.
+    /// Wrapper for C++ [`RTCVideoSourceStats`].
     pub struct RTCVideoSourceStatsWrap {
         /// Width of the last encoded frame.
         ///
@@ -184,7 +186,7 @@ pub(crate) mod webrtc {
         ///
         /// Before the first frame is encoded this attribute is missing.
         ///
-        /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcvideosourcestats-width
         pub width: Box<OptionU32>,
 
         /// Height of the last encoded frame.
@@ -194,10 +196,10 @@ pub(crate) mod webrtc {
         ///
         /// Before the first frame is encoded this attribute is missing.
         ///
-        /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcvideosourcestats-height
         pub height: Box<OptionU32>,
 
-        /// The total number of frames originating from this source.
+        /// Total number of frames originating from the media source.
         pub frames: Box<OptionU32>,
 
         /// Number of encoded frames during the last second.
@@ -209,7 +211,7 @@ pub(crate) mod webrtc {
         pub frames_per_second: Box<OptionF64>,
     }
 
-    /// Rust wrap of C++ `RTCAudioSourceStats`.
+    /// Wrapper for C++ [`RTCAudioSourceStats`].
     pub struct RTCAudioSourceStatsWrap {
         /// Audio level of the media source.
         pub audio_level: Box<OptionF64>,
@@ -220,23 +222,22 @@ pub(crate) mod webrtc {
         /// Audio duration of the media source.
         pub total_samples_duration: Box<OptionF64>,
 
-        /// Only exists when the MediaStreamTrack is sourced
-        /// from a microphone where echo cancellation is applied.
+        /// Only exists when the [`MediaStreamTrackInterface`] is sourced from a
+        /// microphone where echo cancellation is applied.
         pub echo_return_loss: Box<OptionF64>,
 
-        /// Only exists when the [`MediaStreamTrackInterface`]
-        /// is sourced from a microphone where
-        /// echo cancellation is applied.
+        /// Only exists when the [`MediaStreamTrackInterface`] is sourced from a
+        /// microphone where echo cancellation is applied.
         pub echo_return_loss_enhancement: Box<OptionF64>,
     }
 
-    /// Rust wrap of C++ `RTCOutboundRTPStreamStats`.
+    /// Wrapper for C++ [`RTCOutboundRTPStreamStats`].
     pub struct RTCOutboundRTPStreamStatsWrap {
-        /// ID of the stats object representing the current track attachment
-        /// to the sender of this stream.
+        /// ID of the stats object representing the current track attachment to
+        /// the sender of this stream.
         pub track_id: Box<OptionString>,
 
-        /// [`TrackKind`] of this [`RTCOutboundRTPStreamStats`].
+        /// [`MediaKind`] of these [`RTCOutboundRTPStreamStats`].
         pub kind: MediaKind,
 
         /// Width of the last encoded frame.
@@ -246,7 +247,7 @@ pub(crate) mod webrtc {
         ///
         /// Before the first frame is encoded this attribute is missing.
         ///
-        /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-width
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcvideosourcestats-width
         pub frame_width: Box<OptionU32>,
 
         /// Height of the last encoded frame.
@@ -256,7 +257,7 @@ pub(crate) mod webrtc {
         ///
         /// Before the first frame is encoded this attribute is missing.
         ///
-        /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosourcestats-height
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcvideosourcestats-height
         pub frame_height: Box<OptionU32>,
 
         /// Number of encoded frames during the last second.
@@ -267,26 +268,26 @@ pub(crate) mod webrtc {
         /// [1]: https://tinyurl.com/rrmkrfk
         pub frames_per_second: Box<OptionF64>,
 
-        /// Total number of bytes sent for this SSRC.
+        /// Total number of bytes sent for the SSRC.
         pub bytes_sent: Box<OptionU64>,
 
-        /// Total number of RTP packets sent for this SSRC.
+        /// Total number of RTP packets sent for the SSRC.
         pub packets_sent: Box<OptionU32>,
 
-        /// ID of the stats object representing the track currently
-        /// attached to the sender of this stream.
+        /// ID of the stats object representing the track currently attached to
+        /// the sender of this stream.
         pub media_source_id: Box<OptionString>,
     }
 
-    /// Rust wrap of C++ `RTCInboundRTPStreamStats`.
+    /// Wrapper for C++ [`RTCInboundRTPStreamStats`].
     pub struct RTCInboundRTPStreamStatsWrap {
         /// ID of the stats object representing the receiving track.
         pub remote_id: Box<OptionString>,
 
-        /// Media type of this stats.
+        /// [`MediaKind`] of these [`RTCInboundRTPStreamStats`].
         pub media_type: MediaKind,
 
-        /// Total number of samples that have been received on this RTP stream.
+        /// Total number of samples that have been received on the RTP stream.
         /// This includes [`concealedSamples`].
         ///
         /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
@@ -324,10 +325,10 @@ pub(crate) mod webrtc {
         /// For audio durations of tracks attached locally, see
         /// [RTCAudioSourceStats][1] instead.
         ///
-        /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosourcestats
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosourcestats
         pub total_samples_duration: Box<OptionF64>,
 
-        /// Total number of frames correctly decoded for this RTP stream, i.e.
+        /// Total number of frames correctly decoded for the RTP stream, i.e.
         /// frames that would be displayed if no frames are dropped.
         pub frames_decoded: Box<OptionU32>,
 
@@ -339,8 +340,8 @@ pub(crate) mod webrtc {
         /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
         /// delta frames decoded.
         ///
-        /// [RFC 6386]: https://w3.org/TR/webrtc-stats/#bib-rfc6386
-        /// [RFC 6184]: https://w3.org/TR/webrtc-stats/#bib-rfc6184
+        /// [RFC 6386]: https://w3.org/TR/webrtc-stats#bib-rfc6386
+        /// [RFC 6184]: https://w3.org/TR/webrtc-stats#bib-rfc6184
         /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
         /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
         pub key_frames_decoded: Box<OptionU32>,
@@ -386,41 +387,40 @@ pub(crate) mod webrtc {
         /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
         pub concealment_events: Box<OptionU64>,
 
-        /// Total number of complete frames received on this RTP stream.
+        /// Total number of complete frames received on the RTP stream.
         ///
         /// This metric is incremented when the complete frame is received.
         pub frames_received: Box<OptionI32>,
 
-        /// Total number of bytes received for this SSRC.
+        /// Total number of bytes received for the SSRC.
         pub bytes_received: Box<OptionU64>,
 
-        /// Total number of RTP data packets received for this SSRC.
+        /// Total number of RTP data packets received for the SSRC.
         pub packets_received: Box<OptionU32>,
 
         /// Total number of seconds that have been spent decoding the
-        /// [`framesDecoded`] frames of this stream.
+        /// [`framesDecoded`] frames of the stream.
         ///
-        /// The average decode time can be calculated by dividing
-        /// this value with [`framesDecoded`].
-        /// The time it takes to decode one frame is the time
-        /// passed between feeding the decoder a frame and the decoder returning
-        /// decoded data for that frame.
+        /// The average decode time can be calculated by dividing this value
+        /// with [`framesDecoded`].
+        /// The time it takes to decode one frame is the time passed between
+        /// feeding the decoder a frame and the decoder returning decoded data
+        /// for that frame.
         ///
         /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
         pub total_decode_time: Box<OptionF64>,
 
-        /// Total number of audio samples or video frames
-        /// that have come out of the
-        /// jitter buffer (increasing [`jitterBufferDelay`]).
+        /// Total number of audio samples or video frames that have come out of
+        /// the jitter buffer (increasing [`jitterBufferDelay`]).
         ///
         /// [`jitterBufferDelay`]: https://tinyurl.com/qvoojt5
         pub jitter_buffer_emitted_count: Box<OptionU64>,
     }
 
-    /// Rust wrap of C++ `RTCIceCandidatePairStats`.
+    /// Wrapper for C++ [`RTCIceCandidatePairStats`].
     pub struct RTCIceCandidatePairStatsWrap {
-        /// State of the checklist for the local
-        /// and remote candidates in a pair.
+        /// State of the checklist for the local and remote candidates in a
+        /// pair.
         pub state: RTCStatsIceCandidatePairState,
 
         /// Related to updating the nominated flag described in
@@ -429,68 +429,61 @@ pub(crate) mod webrtc {
         /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.4
         pub nominated: Box<OptionBool>,
 
-        /// Total number of payload bytes sent on this candidate pair,
-        /// i.e. not including headers or padding.
+        /// Total number of payload bytes sent on this candidate pair, i.e. not
+        /// including headers or padding.
         pub bytes_sent: Box<OptionU64>,
 
-        /// Total number of payload bytes received on this candidate pair,
-        /// i.e. not including headers or padding.
+        /// Total number of payload bytes received on this candidate pair, i.e.
+        /// not including headers or padding.
         pub bytes_received: Box<OptionU64>,
 
-        /// Sum of all round trip time measurements in seconds since
-        /// the beginning of the session,
-        /// based on STUN connectivity check [STUN-PATH-CHAR]
-        /// responses (responsesReceived),
-        /// including those that reply to requests
-        /// that are sent in order to verify consent [RFC 7675].
+        /// Sum of all round trip time measurements in seconds since the
+        /// beginning of the session, based on STUN connectivity check
+        /// [STUN-PATH-CHAR] responses (responsesReceived), including those that
+        /// reply to requests that are sent in order to verify consent
+        /// [RFC 7675].
         ///
         /// The average round trip time can be computed from
-        /// [`totalRoundTripTime`][1]
-        /// by dividing it by [`responsesReceived`][2].
+        /// [`totalRoundTripTime`][1] by dividing it by
+        /// [`responsesReceived`][2].
         ///
-        /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+        /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats#bib-stun-path-char
         /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
         /// [1]: https://tinyurl.com/tgr543a
         /// [2]: https://tinyurl.com/r3zo2um
         pub total_round_trip_time: Box<OptionF64>,
 
-        /// Latest round trip time measured in seconds,
-        /// computed from both STUN
-        /// connectivity checks [STUN-PATH-CHAR],
-        /// including those that are sent for
-        /// consent verification [RFC 7675].
+        /// Latest round trip time measured in seconds, computed from both STUN
+        /// connectivity checks [STUN-PATH-CHAR], including those that are sent
+        /// for consent verification [RFC 7675].
         ///
-        /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats/#bib-stun-path-char
+        /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats#bib-stun-path-char
         /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
         pub current_round_trip_time: Box<OptionF64>,
 
         /// Calculated by the underlying congestion control by combining the
-        /// available bitrate for all the outgoing RTP streams using
-        /// this candidate pair.
-        /// The bitrate measurement does not count the size of the IP or
-        /// other transport layers like TCP or UDP. It is similar to the TIAS
-        /// defined in [RFC 3890],
-        /// i.e. it is measured in bits per second and the
+        /// available bitrate for all the outgoing RTP streams using this
+        /// candidate pair.
+        /// The bitrate measurement does not count the size of the IP or other
+        /// transport layers like TCP or UDP. It is similar to the TIAS defined
+        /// in [RFC 3890], i.e. it is measured in bits per second and the
         /// bitrate is calculated over a 1 second window.
         ///
-        /// Implementations that do not calculate
-        /// a sender-side estimate MUST leave
-        /// this undefined. Additionally,
-        /// the value MUST be undefined for candidate
-        /// pairs that were never used.
-        /// For pairs in use, the estimate is normally
-        /// no lower than the bitrate for the packets sent at
-        /// [`lastPacketSentTimestamp`][1], but might be higher.
-        /// For candidate pairs that are not currently
-        /// in use but were used before,
-        /// implementations MUST return undefined.
+        /// Implementations that do not calculate a sender-side estimate MUST
+        /// leave this undefined. Additionally, the value MUST be undefined for
+        /// candidate pairs that were never used.
+        /// For pairs in use, the estimate is normally no lower than the bitrate
+        /// for the packets sent at [`lastPacketSentTimestamp`][1], but might be
+        /// higher.
+        /// For candidate pairs that are not currently in use but were used
+        /// before, implementations MUST return undefined.
         ///
         /// [RFC 3890]: https://tools.ietf.org/html/rfc3890
         /// [1]: https://tinyurl.com/rfc72eh
         pub available_outgoing_bitrate: Box<OptionF64>,
     }
 
-    /// Rust wrap of C++ `RTCTransportStats`.
+    /// Wrapper for C++ [`RTCTransportStats`].
     pub struct RTCTransportStatsWrap {
         /// Total number of packets sent over this transport.
         pub packets_sent: Box<OptionU64>,
@@ -511,7 +504,7 @@ pub(crate) mod webrtc {
         pub bytes_received: Box<OptionU64>,
     }
 
-    /// Rust wrap of C++ `RTCRemoteInboundRtpStreamStats`.
+    /// Wrapper for C++ [`RTCRemoteInboundRtpStreamStats`].
     pub struct RTCRemoteInboundRtpStreamStatsWrap {
         /// [`localId`] is used for looking up the local
         /// [RTCOutboundRtpStreamStats] object for the same SSRC.
@@ -520,19 +513,16 @@ pub(crate) mod webrtc {
         /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
         pub local_id: Box<OptionString>,
 
-        /// Estimated round trip time for this SSRC based
-        /// on the RTCP timestamps in the RTCP Receiver Report (RR)
-        /// and measured in seconds. Calculated as
-        /// defined in [Section 6.4.1 of RFC 3550][1].
-        ///  If no RTCP Receiver Report is received with a DLSR value
-        /// other than 0, the round trip time is
-        /// left undefined.
+        /// Estimated round trip time for this SSRC based on the RTCP timestamps
+        /// in the RTCP Receiver Report (RR) and measured in seconds. Calculated
+        /// as defined in [Section 6.4.1 of RFC 3550][1]. If no RTCP Receiver
+        /// Report is received with a DLSR value other than 0, the round trip
+        /// time is left undefined.
         ///
         /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
         pub round_trip_time: Box<OptionF64>,
 
-        /// Fraction packet loss reported for this SSRC.
-        /// Calculated as defined in
+        /// Fraction packet loss reported for the SSRC. Calculated as defined in
         /// [Section 6.4.1 of RFC 3550][1] and [Appendix A.3][2].
         ///
         /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
@@ -547,13 +537,13 @@ pub(crate) mod webrtc {
         pub round_trip_time_measurements: Box<OptionI32>,
     }
 
-    /// Rust wrap of C++ `RTCRemoteOutboundRtpStreamStats`.
+    /// Wrapper for C++ [`RTCRemoteOutboundRtpStreamStats`].
     pub struct RTCRemoteOutboundRtpStreamStatsWrap {
         /// [`localId`] is used for looking up the local
         /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
         ///
         /// [`localId`]: https://tinyurl.com/vu9tb2e
-        /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcinboundrtpstreamstats
         pub local_id: Box<OptionString>,
 
         /// [`remoteTimestamp`] (as [HIGHRES-TIME]) is the remote timestamp at
@@ -566,14 +556,14 @@ pub(crate) mod webrtc {
         /// clock.
         ///
         /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
-        /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats/#bib-highres-time
+        /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats#bib-highres-time
         pub remote_timestamp: Box<OptionF64>,
 
-        /// Total number of RTCP SR blocks sent for this SSRC.
+        /// Total number of RTCP SR blocks sent for the SSRC.
         pub reports_sent: Box<OptionU64>,
     }
 
-    /// Rust wrap of C++ `RTCIceCandidateStats`.
+    /// Wrapper for C++ [`RTCIceCandidateStats`].
     pub struct RTCIceCandidateStatsWrap {
         /// Protocol used by the endpoint to communicate with the TURN server.
         ///
@@ -583,12 +573,11 @@ pub(crate) mod webrtc {
         /// Unique ID that is associated to the object that was inspected to
         /// produce the [RTCTransportStats][1] associated with this candidate.
         ///
-        /// [1]: https://w3.org/TR/webrtc-stats/#transportstats-dict%2A
+        /// [1]: https://w3.org/TR/webrtc-stats#transportstats-dict%2A
         pub transport_id: Box<OptionString>,
 
-        /// Address of the candidate,
-        /// allowing for IPv4 addresses, IPv6 addresses,
-        /// and fully qualified domain names (FQDNs).
+        /// Address of the candidate, allowing for IPv4 addresses, IPv6
+        /// addresses, and fully qualified domain names (FQDNs).
         pub address: Box<OptionString>,
 
         /// Port number of the candidate.
@@ -605,21 +594,20 @@ pub(crate) mod webrtc {
         /// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
         pub priority: Box<OptionI32>,
 
-        /// For local candidates this is the URL of
-        /// the ICE server from which the
-        /// candidate was obtained. It is the same as the
-        /// [url surfaced in the RTCPeerConnectionIceEvent][1].
+        /// For local candidates this is the URL of the ICE server from which
+        /// the candidate was obtained. It is the same as the
+        /// [`url` surfaced in the `RTCPeerConnectionIceEvent`][1].
         ///
-        /// `None` for remote candidates.
+        /// [`None`] for remote candidates.
         ///
         /// [1]: https://w3.org/TR/webrtc#rtcpeerconnectioniceevent
         pub url: Box<OptionString>,
     }
 
-    /// Rust wrap of C++ `RTCStats`.
+    /// Wrapper for C++ [`RTCStats`].
     pub struct RTCStatsWrap {
-        /// Unique ID that is associated with the object that was inspected to
-        /// produce this [RTCStats] object.
+        /// Unique ID associated with the object that was inspected to produce
+        /// these [RTCStats].
         ///
         /// [RTCStats]: https://w3.org/TR/webrtc#dom-rtcstats
         id: String,
@@ -631,16 +619,16 @@ pub(crate) mod webrtc {
         /// For statistics that came from a remote source (e.g., from received
         /// RTCPpackets), timestamp represents the time at which the information
         /// arrived at the local endpoint. The remote timestamp can be found in
-        /// an additional field in an [`RtcStat`]-derived dictionary, if
+        /// an additional field in an [`RTCStats`]-derived dictionary, if
         /// applicable.
         timestamp_us: i64,
 
-        /// [`RtcStatsType`] of this [`RtcStat`].
+        /// [`RTCStatsType`] of these [`RTCStats`].
         kind: RTCStatsType,
 
-        /// Actual stats of this [`RtcStat`].
+        /// Actual [`RTCStats`].
         ///
-        /// All possible stats are described in the [`RtcStatsType`] enum.
+        /// All possible stats are described in the [`RTCStatsType`] enum.
         stats: UniquePtr<RTCStats>,
     }
 
@@ -749,9 +737,9 @@ pub(crate) mod webrtc {
 
     /// Each candidate pair in the check list has a foundation and a state.
     /// The foundation is the combination of the foundations of the local and
-    /// remote candidates in the pair.  The state is assigned once the check
-    /// list for each media stream has been computed.  There are five
-    /// potential values that the state can have.
+    /// remote candidates in the pair. The state is assigned once the check
+    /// list for each media stream has been computed. There are five potential
+    /// values that the state can have.
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum RTCStatsIceCandidatePairState {
@@ -765,17 +753,17 @@ pub(crate) mod webrtc {
         /// soon as it is the highest-priority Waiting pair on the check list.
         kWaiting,
 
-        /// Check has been sent for this pair,
-        /// but the transaction is in progress.
+        /// Check has been sent for this pair, but the transaction is in
+        /// progress.
         kInProgress,
 
-        /// Check for this pair was already done and failed,
-        /// either never producing any response or producing
-        /// an unrecoverable failure response.
+        /// Check for this pair was already done and failed, either never
+        /// producing any response or producing an unrecoverable failure
+        /// response.
         kFailed,
 
-        /// Check for this pair was already done
-        /// and produced a successful result.
+        /// Check for this pair was already done and produced a successful
+        /// result.
         kSucceeded,
     }
 
@@ -841,11 +829,11 @@ pub(crate) mod webrtc {
         kVideoRotation_270 = 270,
     }
 
-    /// All known types of [`RtcStats`]s.
+    /// All known types of [`RTCStats`].
     ///
     /// [List of all RTCStats types on W3C][1].
     ///
-    /// [1]: https://w3.org/TR/webrtc-stats/#rtctatstype-%2A
+    /// [1]: https://w3.org/TR/webrtc-stats#rtctatstype-%2A
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum RTCStatsType {
@@ -884,8 +872,8 @@ pub(crate) mod webrtc {
         ///
         /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
-        /// [1]: https://w3.org/TR/webrtc-stats/#dom-rtcaudiosenderstats
-        /// [2]: https://w3.org/TR/webrtc-stats/#dom-rtcvideosenderstats
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosenderstats
+        /// [2]: https://w3.org/TR/webrtc-stats#dom-rtcvideosenderstats
         /// [3]: https://tinyurl.com/sefa5z4
         /// [4]: https://tinyurl.com/rkuvpl4
         RTCOutboundRTPStreamStats,
@@ -910,7 +898,7 @@ pub(crate) mod webrtc {
         /// doesn't correspond to any other externally observable event.
         ///
         /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-        /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
+        /// [1]: https://w3.org/TR/webrtc-stats#dfn-deleted
         RTCIceCandidatePairStats,
 
         /// Transport statistics related to the [RTCPeerConnection] object.
@@ -944,10 +932,14 @@ pub(crate) mod webrtc {
         Unimplemented,
     }
 
+    /// Possible kinds of a media.
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum MediaKind {
+        /// Video media.
         Video = 0,
+
+        /// Audio media.
         Audio,
     }
 
@@ -1523,7 +1515,8 @@ pub(crate) mod webrtc {
             encoding: &RtpEncodingParameters,
         ) -> Result<i32>;
 
-        /// Returns the `maxFramerate` of the provided [`RtpEncodingParameters`].
+        /// Returns the `maxFramerate` of the provided
+        /// [`RtpEncodingParameters`].
         ///
         /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_maxFramerate(
@@ -1783,10 +1776,10 @@ pub(crate) mod webrtc {
             candidate: &IceCandidateInterface
         ) -> UniquePtr<CxxString>;
 
-        /// Calls the [RTCPeerConnection.getStats()][1] on the
-        /// provided [`PeerConnectionInterface`].
+        /// Calls the [RTCPeerConnection.getStats()][1] on the provided
+        /// [`PeerConnectionInterface`].
         ///
-        /// [1]: https://www.w3.org/TR/webrtc/#widl-RTCRtpSender-getStats-Promise-RTCStatsReport
+        /// [1]: https://tinyurl.com/2p84b6r4
         pub fn peer_connection_get_stats(
             peer: &PeerConnectionInterface,
             cb: Box<DynRTCStatsCollectorCallback>
@@ -1794,7 +1787,7 @@ pub(crate) mod webrtc {
     }
 
     extern "Rust" {
-        // TODO: Remove when cxx supports `std::optional`:
+        // TODO: Remove once `cxx` supports `std::optional`:
         //       https://github.com/dtolnay/cxx/issues/87
         pub type OptionU64;
         pub type OptionF64;
@@ -1803,40 +1796,40 @@ pub(crate) mod webrtc {
         pub type OptionU32;
         pub type OptionString;
 
-        /// Creates empty Rust [`Option<i32>`].
+        /// Creates an empty Rust [`Option`]`<`[`i32`]`>`.
         pub fn init_option_i32() -> Box<OptionI32>;
 
-        /// Sets `self` to Some(`value`).
+        /// Sets the provided [`Option`]`<`[`i32`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionI32, value: i32);
 
-        /// Creates empty Rust [`Option<u64>`].
+        /// Creates an empty Rust [`Option`]`<`[`u64`]`>`.
         pub fn init_option_u64() -> Box<OptionU64>;
 
-        /// Sets `self` to Some(`value`).
+        /// Sets the provided [`Option`]`<`[`u64`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionU64, value: u64);
 
-        /// Creates empty Rust [`Option<f64>`].
+        /// Creates an empty Rust [`Option`]`<`[`f64`]`>`.
         pub fn init_option_f64() -> Box<OptionF64>;
 
-        /// Sets `self` to Some(`value`).
+        /// Sets the provided [`Option`]`<`[`f64`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionF64, value: f64);
 
-        /// Creates empty Rust [`Option<u32>`].
+        /// Creates an empty Rust [`Option`]`<`[`u32`]`>`.
         pub fn init_option_u32() -> Box<OptionU32>;
 
-        /// Sets `self` to Some(`value`).
+        /// Sets the provided [`Option`]`<`[`u32`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionU32, value: u32);
 
-        /// Creates empty Rust [`Option<bool>`].
+        /// Creates an empty Rust [`Option`]`<`[`bool`]`>`.
         pub fn init_option_bool() -> Box<OptionBool>;
 
-        /// Sets `self` to Some(`value`).
+        /// Sets the provided [`Option`]`<`[`bool`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionBool, value: bool);
 
-        /// Creates empty Rust [`Option<String>`].
+        /// Creates an empty Rust [`Option`]`<`[`String`]`>`.
         pub fn init_option_string() -> Box<OptionString>;
 
-        /// Sets `self` to Some(`value`).
+        /// Sets the provided [`Option`]`<`[`String`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionString, value: String);
     }
 
@@ -1855,78 +1848,104 @@ pub(crate) mod webrtc {
         pub type RTCStatsReport;
         pub type RTCStats;
 
-        // Returns collect of [`RTCStatsWrap`].
-        pub fn rtc_stats_report_get_stats(report: &RTCStatsReport) -> Vec<RTCStatsWrap>;
+        /// Returns collection of wrapped [`RTCStats`].
+        pub fn rtc_stats_report_get_stats(
+            report: &RTCStatsReport,
+        ) -> Vec<RTCStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCMediaSourceStatsWrap`].
+        /// Tries to cast [`RTCStats`] into [`RTCMediaSourceStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCMediaSourceStats`].
-        pub fn cast_to_rtc_media_source_stats(stats: UniquePtr<RTCStats>) -> Result<RTCMediaSourceStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCMediaSourceStats`].
+        pub fn cast_to_rtc_media_source_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCMediaSourceStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCIceCandidateStatsWrap`].
+        /// Tries to cast [`RTCStats`] into [`RTCIceCandidateStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCIceCandidateStats`].
-        pub fn cast_to_rtc_ice_candidate_stats(stats: UniquePtr<RTCStats>) -> Result<RTCIceCandidateStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCIceCandidateStats`].
+        pub fn cast_to_rtc_ice_candidate_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCIceCandidateStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCOutboundRTPStreamStatsWrap`].
+        /// Tries to cast [`RTCStats`] into [`RTCOutboundRTPStreamStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCOutboundRTPStreamStats`].
-        pub fn cast_to_rtc_outbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<RTCOutboundRTPStreamStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCOutboundRTPStreamStats`].
+        pub fn cast_to_rtc_outbound_rtp_stream_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCOutboundRTPStreamStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCInboundRTPStreamStatsWrap`].
+        /// Tries to cast [`RTCStats`] into [`RTCInboundRTPStreamStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCInboundRTPStreamStats`].
-        pub fn cast_to_rtc_inbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<RTCInboundRTPStreamStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCInboundRTPStreamStats`].
+        pub fn cast_to_rtc_inbound_rtp_stream_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCInboundRTPStreamStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCIceCandidatePairStatsWrap`].
+        /// Tries to cast [`RTCStats`] into [`RTCIceCandidatePairStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCIceCandidatePairStats`].
-        pub fn cast_to_rtc_ice_candidate_pair_stats(stats: UniquePtr<RTCStats>) -> Result<RTCIceCandidatePairStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCIceCandidatePairStats`].
+        pub fn cast_to_rtc_ice_candidate_pair_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCIceCandidatePairStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCTransportStatsWrap`].
+        /// Tries to cast [`RTCStats`] into [`RTCTransportStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCTransportStats`].
-        pub fn cast_to_rtc_transport_stats(stats: UniquePtr<RTCStats>) -> Result<RTCTransportStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCTransportStats`].
+        pub fn cast_to_rtc_transport_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCTransportStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCRemoteInboundRtpStreamStatsWrap`].
+        /// Tries to cast [`RTCStats`] into
+        /// [`RTCRemoteInboundRtpStreamStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCRemoteInboundRtpStreamStats`].
-        pub fn cast_to_rtc_remote_inbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<RTCRemoteInboundRtpStreamStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCRemoteInboundRtpStreamStats`].
+        pub fn cast_to_rtc_remote_inbound_rtp_stream_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCRemoteInboundRtpStreamStatsWrap>;
 
-        /// Try cast a [`RTCStats`] to [`RTCRemoteOutboundRtpStreamStatsWrap`].
+        /// Tries to cast [`RTCStats`] into
+        /// [`RTCRemoteOutboundRtpStreamStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCStats`] is not a [`RTCRemoteOutboundRtpStreamStats`].
-        pub fn cast_to_rtc_remote_outbound_rtp_stream_stats(stats: UniquePtr<RTCStats>) -> Result<RTCRemoteOutboundRtpStreamStatsWrap>;
+        /// Errors if [`RTCStats`] are not [`RTCRemoteOutboundRtpStreamStats`].
+        pub fn cast_to_rtc_remote_outbound_rtp_stream_stats(
+            stats: UniquePtr<RTCStats>,
+        ) -> Result<RTCRemoteOutboundRtpStreamStatsWrap>;
 
-        /// Try cast a [`RTCMediaSourceStats`] to [`RTCVideoSourceStatsWrap`].
+        /// Tries to cast [`RTCMediaSourceStats`] into
+        /// [`RTCVideoSourceStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCMediaSourceStats`] is not a [`RTCVideoSourceStats`].
-        pub fn cast_to_rtc_video_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<RTCVideoSourceStatsWrap>;
+        /// Errors if [`RTCMediaSourceStats`] are not [`RTCVideoSourceStats`].
+        pub fn cast_to_rtc_video_source_stats(
+            stats: UniquePtr<RTCMediaSourceStats>,
+        ) -> Result<RTCVideoSourceStatsWrap>;
 
-        /// Try cast a [`RTCMediaSourceStats`] to [`RTCAudioSourceStatsWrap`].
+        /// Tries to cast [`RTCMediaSourceStats`] into
+        /// [`RTCAudioSourceStatsWrap`].
         ///
         /// # Errors
         ///
-        /// Errors if a [`RTCMediaSourceStats`] is not a [`RTCAudioSourceStats`].
-        pub fn cast_to_rtc_audio_source_stats(stats: UniquePtr<RTCMediaSourceStats>) -> Result<RTCAudioSourceStatsWrap>;
+        /// Errors if [`RTCMediaSourceStats`] are not [`RTCAudioSourceStats`].
+        pub fn cast_to_rtc_audio_source_stats(
+            stats: UniquePtr<RTCMediaSourceStats>,
+        ) -> Result<RTCAudioSourceStatsWrap>;
     }
 
     #[rustfmt::skip]
@@ -1972,7 +1991,9 @@ pub(crate) mod webrtc {
         /// Returns the spec-compliant string representation of the provided
         /// [`Candidate`].
         #[must_use]
-        pub fn candidate_to_string(candidate: &Candidate) -> UniquePtr<CxxString>;
+        pub fn candidate_to_string(
+            candidate: &Candidate,
+        ) -> UniquePtr<CxxString>;
 
         /// Creates a new [`RtpTransceiverInterface`] and adds it to the set of
         /// transceivers of the given [`PeerConnectionInterface`].
@@ -2359,7 +2380,8 @@ pub(crate) mod webrtc {
     extern "Rust" {
         pub type DynRTCStatsCollectorCallback;
 
-        /// Delivers stats report to the [`DynRTCStatsCollectorCallback`].
+        /// Delivers stats report to the provided
+        /// [`DynRTCStatsCollectorCallback`].
         pub fn on_stats_delivered(
             cb: Box<DynRTCStatsCollectorCallback>,
             report: UniquePtr<RTCStatsReport>,
@@ -2769,7 +2791,7 @@ pub fn add_ice_candidate_fail(
 }
 
 /// Forwards the specified [`RTCStatsReport`] to the provided
-/// [`DynRTCStatsCollectorCallback`] when a stats is delivered.
+/// [`DynRTCStatsCollectorCallback`] when stats are delivered.
 #[allow(clippy::boxed_local)]
 pub fn on_stats_delivered(
     mut cb: Box<DynRTCStatsCollectorCallback>,
