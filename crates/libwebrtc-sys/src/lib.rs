@@ -171,10 +171,10 @@ pub trait AddIceCandidateCallback {
     fn on_fail(&mut self, error: &CxxString);
 }
 
-/// Thread safe task queue factory internally used in [`WebRtc`] that is capable
+/// Thread safe task queue factory internally used in [`WebRTC`] that is capable
 /// of creating [Task Queue]s.
 ///
-/// [`WebRtc`]: https://webrtc.googlesource.com/src
+/// [`WebRTC`]: https://webrtc.googlesource.com/src
 /// [Task Queue]: https://tinyurl.com/doc-threads
 pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
@@ -190,9 +190,9 @@ unsafe impl Send for webrtc::TaskQueueFactory {}
 unsafe impl Sync for webrtc::TaskQueueFactory {}
 
 /// Available audio devices manager that is responsible for driving input
-/// (microphone) and output (speaker) audio in `WebRtc`.
+/// (microphone) and output (speaker) audio in WebRTC.
 ///
-/// Backed by `WebRtc`'s [Audio Device Module].
+/// Backed by WebRTC's [Audio Device Module].
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
 pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
@@ -527,7 +527,7 @@ impl VideoDisplaySource {
     }
 }
 
-/// [`RtcConfiguration`][1] wrapper.
+/// [RTCConfiguration][1] wrapper.
 ///
 /// Defines a set of parameters to configure how the peer-to-peer communication
 /// via a [`PeerConnectionInterface`] is established or re-established.
@@ -573,7 +573,7 @@ impl Default for RtcConfiguration {
     }
 }
 
-/// [`RtcIceServer`][1] representation.
+/// [RTCIceServer][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver
 pub struct IceServer(UniquePtr<webrtc::IceServer>);
@@ -655,7 +655,7 @@ impl Default for RTCOfferAnswerOptions {
 }
 
 impl RTCOfferAnswerOptions {
-    /// Creates a new [`RtcOfferAnswerOptions`].
+    /// Creates a new [`RTCOfferAnswerOptions`].
     #[must_use]
     pub fn new(
         offer_to_receive_video: Option<bool>,
@@ -819,10 +819,10 @@ impl RtpTransceiverInterface {
 unsafe impl Send for webrtc::RtpTransceiverInterface {}
 unsafe impl Sync for webrtc::RtpTransceiverInterface {}
 
-/// [`RtcRtpSender`] allowing to control how a [MediaStreamTrack][1] is encoded
+/// [RTCRtpSender] allowing to control how a [MediaStreamTrack][1] is encoded
 /// and transmitted to a remote peer.
 ///
-/// [RtcRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
 pub struct RtpSenderInterface(UniquePtr<webrtc::RtpSenderInterface>);
 
@@ -867,7 +867,7 @@ impl RtpSenderInterface {
 unsafe impl Send for webrtc::RtpSenderInterface {}
 unsafe impl Sync for webrtc::RtpSenderInterface {}
 
-/// [`RtcRtpReceiver`][0] allowing to inspect the receipt of a
+/// [RTCRtpReceiver][0] allowing to inspect the receipt of a
 /// [MediaStreamTrack][1].
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
@@ -894,7 +894,7 @@ impl RtpReceiverInterface {
 unsafe impl Send for webrtc::RtpReceiverInterface {}
 unsafe impl Sync for webrtc::RtpReceiverInterface {}
 
-/// [`RtcRtpCodecParameters`][0] representation.
+/// [RTCRtpCodecParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodecparameters
 pub struct RtpCodecParameters(webrtc::RtpCodecParametersContainer);
@@ -948,7 +948,7 @@ impl RtpCodecParameters {
     }
 }
 
-/// [`RtcRtpHeaderExtensionParameters`][0] representation.
+/// [RTCRtpHeaderExtensionParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpheaderextensionparameters
 pub struct RtpExtension(webrtc::RtpExtensionContainer);
@@ -979,7 +979,7 @@ impl RtpExtension {
     }
 }
 
-/// [`RtcRtpEncodingParameters`][0] representation.
+/// [RTCRtpEncodingParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters
 pub struct RtpEncodingParameters(webrtc::RtpEncodingParametersContainer);
@@ -1030,7 +1030,7 @@ impl RtpEncodingParameters {
     }
 }
 
-/// [`RtcRtcpParameters`][0] representation.
+/// [RTCRtcpParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtcpparameters
 pub struct RtcpParameters(UniquePtr<webrtc::RtcpParameters>);
@@ -1162,7 +1162,7 @@ impl IceCandidateInterface {
     }
 }
 
-/// [`RtcPeerConnection`][1] implementation.
+/// [RTCPeerConnection][1] implementation.
 ///
 /// Calls to a [`PeerConnectionInterface`] APIs are proxied to the signaling
 /// thread, meaning that an application can call those APIs from whatever
@@ -1188,7 +1188,7 @@ unsafe impl Sync for webrtc::PeerConnectionInterface {}
 unsafe impl Send for webrtc::PeerConnectionInterface {}
 
 impl PeerConnectionInterface {
-    /// [RtcPeerConnection.createOffer()][1] implementation.
+    /// [RTCPeerConnection.createOffer()][1] implementation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createoffer
     pub fn create_offer(
@@ -1199,7 +1199,7 @@ impl PeerConnectionInterface {
         webrtc::create_offer(self.inner.pin_mut(), &options.0, obs.0);
     }
 
-    /// [RtcPeerConnection.createAnswer()][1] implementation.
+    /// [RTCPeerConnection.createAnswer()][1] implementation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection-createanswer
     pub fn create_answer(
@@ -1210,7 +1210,7 @@ impl PeerConnectionInterface {
         webrtc::create_answer(self.inner.pin_mut(), &options.0, obs.0);
     }
 
-    /// [RtcPeerConnection.setLocalDescription()][1] implementation.
+    /// [RTCPeerConnection.setLocalDescription()][1] implementation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setlocaldescription
     pub fn set_local_description(
@@ -1221,7 +1221,7 @@ impl PeerConnectionInterface {
         webrtc::set_local_description(self.inner.pin_mut(), desc.0, obs.0);
     }
 
-    /// [RtcPeerConnection.setRemoteDescription()][1] implementation.
+    /// [RTCPeerConnection.setRemoteDescription()][1] implementation.
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-peerconnection-setremotedescription
     pub fn set_remote_description(
@@ -1287,7 +1287,7 @@ impl PeerConnectionInterface {
     }
 }
 
-/// Interface for using an Rtc [`Thread`][1].
+/// Interface for using an RTC [`Thread`][1].
 ///
 /// [1]: https://tinyurl.com/doc-threads
 pub struct Thread(UniquePtr<webrtc::Thread>);
