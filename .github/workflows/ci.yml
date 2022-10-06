@@ -167,7 +167,7 @@ jobs:
                   curl jq xz-utils git make clang libssl-dev cmake \
                   libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
                   libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-                  ninja-build
+                  ninja-build libstdc++6
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal

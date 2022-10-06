@@ -1,8 +1,5 @@
 #pragma once
 
-#if __cpp_lib_launder != 201606L
-    #error
-#endif
 #include <functional>
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
