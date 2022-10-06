@@ -184,18 +184,12 @@ Future<bool> microphoneVolumeIsAvailable() async {
 /// Sets the microphone system volume according to the specified [level] in
 /// percents.
 Future<void> setMicrophoneVolume(int level) async {
-  if (api != null) {
-    await api!.setMicrophoneVolume(level: level);
-  }
+  await api!.setMicrophoneVolume(level: level);
 }
 
 /// Returns the current level of the microphone volume in percents.
 Future<int> microphoneVolume() async {
-  if (api != null) {
-    return await api!.microphoneVolume();
-  } else {
-    return Future.value(100);
-  }
+  return await api!.microphoneVolume();
 }
 
 /// [MethodChannel]-based implementation of a [getUserMedia] function.

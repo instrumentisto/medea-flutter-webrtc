@@ -66,7 +66,6 @@ abstract class NativeVideoRenderer extends VideoRenderer {
         onResize?.call();
         break;
       case 'onTextureChangeVideoSize':
-        print("onTextureChangeVideoSize: ${map['width']}x${map['height']}");
         value = value.copyWith(
             width: 0.0 + map['width'],
             height: 0.0 + map['height'],
@@ -74,7 +73,6 @@ abstract class NativeVideoRenderer extends VideoRenderer {
         onResize?.call();
         break;
       case 'onFirstFrameRendered':
-        print("onFirstFrameRendered");
         value = value.copyWith(renderVideo: renderVideo);
         break;
     }
@@ -98,7 +96,6 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
     final response = await _rendererFactoryChannel.invokeMethod('create');
     _textureId = response['textureId'];
     _channelId = response['channelId'];
-    print("Channel ID: $_textureId");
     _eventChan = eventChannel('VideoRendererEvent', _channelId)
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
