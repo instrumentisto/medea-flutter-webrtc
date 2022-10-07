@@ -807,7 +807,7 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
 ///
 /// A candidate pair that is not the current pair for a transport is [deleted]
 /// when the [RTCIceTransport] does an ICE restart, at the time the state
-/// changes to [new].
+/// changes to [new][1].
 ///
 /// A candidate pair that is the current pair for a transport is [deleted] after
 /// an ICE restart when the [RTCIceTransport] switches to using a candidate pair
@@ -815,8 +815,8 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
 /// externally observable event.
 ///
 /// [deleted]: https://w3.org/TR/webrtc-stats#dfn-deleted
-/// [new]: https://w3.org/TR/webrtc#dom-rtcicetransportstate-new
 /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
+/// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportstate-new
 class RtcIceCandidatePairStats extends RtcStatsType {
   RtcIceCandidatePairStats(
     this.state,
