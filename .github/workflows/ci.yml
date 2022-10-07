@@ -156,19 +156,18 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-latest
-    # Pin glibc to 2.31 version for better compatibility.
-    container: debian:bullseye
+    # Pin glibc to 2.28 version for better compatibility.
+    container: debian:buster
     steps:
       - uses: actions/checkout@v3
       - name: Install Linux platform dependencies
         run: |
-          ldd --version
           apt-get update
           apt-get install -y \
                   curl jq xz-utils git make clang libssl-dev cmake perl \
                   libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
                   libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-                  ninja-build 
+                  ninja-build
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
