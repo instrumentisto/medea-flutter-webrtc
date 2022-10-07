@@ -1,3 +1,4 @@
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 import '../api/bridge.g.dart' as ffi;
@@ -733,7 +734,8 @@ class RtcOutboundRTPStreamStats extends RtcStatsType {
   /// to the sender of this stream.
   String? trackId;
 
-  //todo add doc
+  /// Fields which should be in the [RtcOutboundRTPStreamStats]
+  /// based on `mediaType`.
   RtcOutboundRTPStreamStatsMediaType? mediaType;
 
   /// Total number of bytes sent for this SSRC.

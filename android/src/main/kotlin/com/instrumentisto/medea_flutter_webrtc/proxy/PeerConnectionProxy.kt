@@ -5,8 +5,8 @@ import com.instrumentisto.medea_flutter_webrtc.exception.CreateSdpException
 import com.instrumentisto.medea_flutter_webrtc.exception.SetSdpException
 import com.instrumentisto.medea_flutter_webrtc.model.*
 import com.instrumentisto.medea_flutter_webrtc.model.IceCandidate
+import com.instrumentisto.medea_flutter_webrtc.model.RtcStatsReport
 import com.instrumentisto.medea_flutter_webrtc.model.SessionDescription
-import com.instrumentisto.medea_flutter_webrtc.model.StatsReport
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.Continuation
@@ -165,15 +165,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
           }
           continuation.resumeWithException(SetSdpException(message))
         }
-      }
-    }
-
-//todo
-    private fun getStatsObserver(
-        continuation: Continuation<StatsReport?>
-    ): RTCStatsCollectorCallback {
-      return RTCStatsCollectorCallback { stats ->
-        continuation.resume(StatsReport.fromWebRtc(stats))
       }
     }
   }
@@ -406,13 +397,17 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     return transceivers.lastEntry()!!.value
   }
 
-//todo
+  /**
+   * Returns [RtcStatsReport] of this [PeerConnectionProxy].
+   *
+   * @return [RtcStatsReport] of this [PeerConnectionProxy].
+   */
   suspend fun getStats() =
-      suspendCoroutine<StatsReport?> {
+      suspendCoroutine<RtcStatsReport?> {
         if (disposed) {
           it.resume(null)
         } else {
-          obj.getStats(getStatsObserver(it))
+          obj.getStats { stats -> it.resume(RtcStatsReport.fromWebRtc(stats)) }
         }
       }
 
