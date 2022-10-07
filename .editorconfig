@@ -9,13 +9,13 @@ max_line_length = 80
 
 [*.md]
 indent_style = space
-indent_size = 2
+indent_size = 4
 trim_trailing_whitespace = false
 max_line_length = off
 
 [*.rs]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [*.{c,cc,cpp,h,m,mm}]
 indent_style = space
@@ -23,7 +23,7 @@ indent_size = 2
 
 [*.toml]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [*.{json,yaml,yml}]
 indent_style = space
@@ -35,7 +35,7 @@ indent_size = 2
 
 [Makefile]
 indent_style = tab
-indent_size = 2
+indent_size = 4
 
 [{CMakeLists.txt,*.cmake}]
 indent_style = space
