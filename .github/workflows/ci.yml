@@ -116,7 +116,7 @@ jobs:
       - run: make cargo.fmt check=yes
   
   swiftformat:
-    runs-on: macos
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
 
