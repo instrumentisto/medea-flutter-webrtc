@@ -4,7 +4,7 @@
 
 namespace bridge {
 
-// Try to cast a `RTCStats` to the wrap `RTCMediaSourceStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCMediaSourceStats`.
 RTCMediaSourceStatsWrap cast_to_rtc_media_source_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -29,7 +29,7 @@ RTCMediaSourceStatsWrap cast_to_rtc_media_source_stats(
       "Invalid type. Expected `ice-candidate` but found: " + type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCIceCandidateStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCIceCandidateStats`.
 RTCIceCandidateStatsWrap cast_to_rtc_ice_candidate_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -89,7 +89,7 @@ RTCIceCandidateStatsWrap cast_to_rtc_ice_candidate_stats(
       type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCOutboundRTPStreamStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCOutboundRTPStreamStats`.
 RTCOutboundRTPStreamStatsWrap cast_to_rtc_outbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -145,7 +145,7 @@ RTCOutboundRTPStreamStatsWrap cast_to_rtc_outbound_rtp_stream_stats(
       "Invalid type. Expected `outbound-rtp` but found: " + type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCInboundRTPStreamStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCInboundRTPStreamStats`.
 RTCInboundRTPStreamStatsWrap cast_to_rtc_inbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -301,7 +301,7 @@ RTCInboundRTPStreamStatsWrap cast_to_rtc_inbound_rtp_stream_stats(
       "Invalid type. Expected `inbound-rtp` but found: " + type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCIceCandidatePairStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCIceCandidatePairStats`.
 RTCIceCandidatePairStatsWrap cast_to_rtc_ice_candidate_pair_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -367,7 +367,7 @@ RTCIceCandidatePairStatsWrap cast_to_rtc_ice_candidate_pair_stats(
       "Invalid type. Expected `candidate-pair` but found: " + type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCTransportStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCTransportStats`.
 RTCTransportStatsWrap cast_to_rtc_transport_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -406,7 +406,7 @@ RTCTransportStatsWrap cast_to_rtc_transport_stats(
                               type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCRemoteInboundRtpStreamStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCRemoteInboundRtpStreamStats`.
 RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -445,7 +445,7 @@ RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
       "Invalid type. Expected `remote-inbound-rtp` but found: " + type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCRemoteOutboundRtpStreamStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCRemoteOutboundRtpStreamStats`.
 RTCRemoteOutboundRtpStreamStatsWrap
 cast_to_rtc_remote_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats) {
   auto type = std::string(stats->type());
@@ -476,7 +476,7 @@ cast_to_rtc_remote_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats) {
       "Invalid type. Expected `remote-outbound-rtp` but found: " + type);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCVideoSourceStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCVideoSourceStats`.
 RTCVideoSourceStatsWrap cast_to_rtc_video_source_stats(
     std::unique_ptr<RTCMediaSourceStats> stats) {
   auto kind = *stats->kind;
@@ -513,7 +513,7 @@ RTCVideoSourceStatsWrap cast_to_rtc_video_source_stats(
                               kind);
 }
 
-// Try to cast a `RTCStats` to the wrap `RTCAudioSourceStats`.
+// Tries to cast `RTCStats` into the wrapped `RTCAudioSourceStats`.
 RTCAudioSourceStatsWrap cast_to_rtc_audio_source_stats(
     std::unique_ptr<RTCMediaSourceStats> stats) {
   auto kind = *stats->kind;
@@ -560,7 +560,7 @@ RTCAudioSourceStatsWrap cast_to_rtc_audio_source_stats(
                               kind);
 }
 
-// Returns collection wrap `RTCStats` of the provided `RTCStatsReport`.
+// Returns collection of wrapped `RTCStats` of the provided `RTCStatsReport`.
 rust::Vec<RTCStatsWrap> rtc_stats_report_get_stats(
     const RTCStatsReport& report) {
   rust::Vec<RTCStatsWrap> stats_result;

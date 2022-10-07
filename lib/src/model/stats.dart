@@ -40,23 +40,33 @@ class RTCStats {
   /// Creates a [RTCStats]
   /// basing on the [ffi.RtcStats] received
   /// from the native side.
-  static RTCStats fromFFI(ffi.RtcStats stats) {
-    return RTCStats(
-      stats.id,
-      stats.timestampUs,
-      RtcStatsType.fromFFI(stats.kind),
-    );
+  static RTCStats? fromFFI(ffi.RtcStats stats) {
+    var kind = RtcStatsType.fromFFI(stats.kind);
+    if (kind == null) {
+      return null;
+    } else {
+      return RTCStats(
+        stats.id,
+        stats.timestampUs,
+        kind,
+      );
+    }
   }
 
   /// Creates an [RTCStats]
   /// basing on the [Map] received from the native side.
-  static RTCStats fromMap(dynamic stats) {
+  static RTCStats? fromMap(dynamic stats) {
     stats['kind']['type'] = stats['type'];
-    return RTCStats(
-      stats['id'],
-      stats['timestampUs'],
-      RtcStatsType.fromMap(stats['kind']),
-    );
+    var kind = RtcStatsType.fromMap(stats['kind']);
+    if (kind == null) {
+      return null;
+    } else {
+      return RTCStats(
+        stats['id'],
+        stats['timestampUs'],
+        kind,
+      );
+    }
   }
 
   /// Unique ID that is associated with the object that was inspected to
@@ -220,7 +230,7 @@ abstract class RtcStatsType {
   /// Creates a [RtcStatsType]
   /// basing on the [ffi.RtcStatsType] received
   /// from the native side.
-  static RtcStatsType fromFFI(ffi.RtcStatsType stats) {
+  static RtcStatsType? fromFFI(ffi.RtcStatsType stats) {
     switch (stats.runtimeType.toString().substring(2)) // Skip '_$' prefix.
         {
       case 'RtcStatsType_RtcMediaSourceStats':
@@ -279,14 +289,14 @@ abstract class RtcStatsType {
         }
       default:
         {
-          return UnimplenentedStats();
+          return null;
         }
     }
   }
 
   /// Creates an [RtcStatsType]
   /// basing on the [Map] received from the native side.
-  static RtcStatsType fromMap(dynamic stats) {
+  static RtcStatsType? fromMap(dynamic stats) {
     switch (stats['type']) {
       case 'media-source':
         {
@@ -310,7 +320,6 @@ abstract class RtcStatsType {
         {
           return RtcOutboundRTPStreamStats.fromMap(stats);
         }
-
       case 'inbound-rtp':
         {
           return RtcInboundRTPStreamStats.fromMap(stats);
@@ -333,7 +342,7 @@ abstract class RtcStatsType {
         }
       default:
         {
-          return UnimplenentedStats();
+          return null;
         }
     }
   }
@@ -1375,6 +1384,3 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
   /// Total number of RTCP SR blocks sent for this SSRC.
   int? reportsSent;
 }
-
-/// Unimplemented stats.
-class UnimplenentedStats extends RtcStatsType {}
