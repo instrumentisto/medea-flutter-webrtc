@@ -2543,7 +2543,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     mut total_round_trip_time,
                     mut current_round_trip_time,
                     mut available_outgoing_bitrate,
-                    ..
                 } = webrtc::cast_to_rtc_ice_candidate_pair_stats(stats.stats)?;
                 Self::RtcIceCandidatePairStats {
                     state,
@@ -2566,7 +2565,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     candidate_type,
                     mut priority,
                     mut url,
-                    ..
                 } = webrtc::cast_to_rtc_ice_candidate_stats(stats.stats)?;
                 let protocol = protocol.take().ok_or_else(|| {
                     anyhow!("`RTCIceCandidateStats` has no protocol")
@@ -2616,7 +2614,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     mut packets_received,
                     mut total_decode_time,
                     mut jitter_buffer_emitted_count,
-                    ..
                 } = webrtc::cast_to_rtc_inbound_rtp_stream_stats(stats.stats)?;
                 let media_type = if let webrtc::MediaKind::Audio = media_type {
                     RtcInboundRtpStreamMediaType::Audio {
@@ -2658,7 +2655,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     mut track_identifier,
                     kind,
                     stats,
-                    ..
                 } = webrtc::cast_to_rtc_media_source_stats(stats.stats)?;
                 let track_identifier = track_identifier.take();
                 let kind = if let webrtc::MediaKind::Audio = kind {
@@ -2668,7 +2664,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                         mut total_samples_duration,
                         mut echo_return_loss,
                         mut echo_return_loss_enhancement,
-                        ..
                     } = webrtc::cast_to_rtc_audio_source_stats(stats)?;
                     RtcMediaSourceStatsMediaType::RtcAudioSourceStats {
                         audio_level: audio_level.take(),
@@ -2684,7 +2679,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                         mut height,
                         mut frames,
                         mut frames_per_second,
-                        ..
                     } = webrtc::cast_to_rtc_video_source_stats(stats)?;
                     RtcMediaSourceStatsMediaType::RtcVideoSourceStats {
                         width: width.take(),
@@ -2708,7 +2702,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     mut bytes_sent,
                     mut packets_sent,
                     mut media_source_id,
-                    ..
                 } = webrtc::cast_to_rtc_outbound_rtp_stream_stats(stats.stats)?;
                 let kind = if let webrtc::MediaKind::Audio = kind {
                     RtcOutboundRTPStreamStatsMediaType::Audio {}
@@ -2733,7 +2726,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     mut round_trip_time,
                     mut fraction_lost,
                     mut round_trip_time_measurements,
-                    ..
                 } = webrtc::cast_to_rtc_remote_inbound_rtp_stream_stats(
                     stats.stats,
                 )?;
@@ -2750,7 +2742,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     mut local_id,
                     mut remote_timestamp,
                     mut reports_sent,
-                    ..
                 } = webrtc::cast_to_rtc_remote_outbound_rtp_stream_stats(
                     stats.stats,
                 )?;
@@ -2766,7 +2757,6 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                     mut packets_received,
                     mut bytes_sent,
                     mut bytes_received,
-                    ..
                 } = webrtc::cast_to_rtc_transport_stats(stats.stats)?;
                 Self::RtcTransportStats {
                     packets_sent: packets_sent.take(),
@@ -2816,7 +2806,10 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStats {
     type Error = anyhow::Error;
     fn try_from(stats: webrtc::RTCStatsWrap) -> Result<Self, Self::Error> {
         let webrtc::RTCStatsWrap {
-            id, timestamp_us, ..
+            id,
+            timestamp_us,
+            kind: _,
+            stats: _,
         } = &stats;
 
         let id = id.clone();
