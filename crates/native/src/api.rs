@@ -2029,7 +2029,11 @@ pub fn get_peer_stats(peer_id: u64) -> anyhow::Result<Vec<RtcStats>> {
     WEBRTC.lock().unwrap().get_stats(peer_id, tx)?;
     let report = rx.recv_timeout(RX_TIMEOUT)?;
 
-    Ok(report.get_stats().into_iter().map(RtcStats::from).collect())
+    Ok(report
+        .get_stats()?
+        .into_iter()
+        .map(RtcStats::from)
+        .collect())
 }
 
 /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping, unless
