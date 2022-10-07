@@ -879,18 +879,14 @@ void main() {
     var senderStats = await pc1.getStats();
     var receiverStats = await pc2.getStats();
 
-    // TODO: Support on mobile platforms.
-    if (!Platform.isAndroid) {
-      expect(
-          senderStats.where((e) => e.type is RtcOutboundRTPStreamStats).length,
-          2);
-      expect(senderStats.where((e) => e.type is RtcTransportStats).length, 1);
+    expect(senderStats.where((e) => e.type is RtcOutboundRTPStreamStats).length,
+        2);
+    expect(senderStats.where((e) => e.type is RtcTransportStats).length, 1);
 
-      expect(
-          receiverStats.where((e) => e.type is RtcInboundRTPStreamStats).length,
-          2);
-      expect(receiverStats.where((e) => e.type is RtcTransportStats).length, 1);
-    }
+    expect(
+        receiverStats.where((e) => e.type is RtcInboundRTPStreamStats).length,
+        2);
+    expect(receiverStats.where((e) => e.type is RtcTransportStats).length, 1);
 
     await pc1.close();
     await pc2.close();
