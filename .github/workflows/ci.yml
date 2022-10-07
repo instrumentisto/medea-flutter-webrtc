@@ -119,7 +119,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: echo ::add-path::$HOME/bin
 
       - name: Cache packages/Tools/.build
         uses: actions/cache@v1
@@ -139,7 +138,7 @@ jobs:
         run: make swift-tools
 
       - name: Format Swift code
-        run: swiftformat --verbose ios/Classes
+        run: $HOME/bin/swiftformat --verbose ios/Classes
 
       - name: Verify formatted code is unchanged
         run: git diff --exit-code HEAD
