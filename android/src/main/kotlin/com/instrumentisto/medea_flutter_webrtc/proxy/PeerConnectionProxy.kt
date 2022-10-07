@@ -168,9 +168,14 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
       }
     }
 
-      private fun getStatsObserver(continuation: Continuation<StatsReport?>): RTCStatsCollectorCallback {
-          return RTCStatsCollectorCallback { stats -> continuation.resume(StatsReport.fromWebRtc(stats)) }
+//todo
+    private fun getStatsObserver(
+        continuation: Continuation<StatsReport?>
+    ): RTCStatsCollectorCallback {
+      return RTCStatsCollectorCallback { stats ->
+        continuation.resume(StatsReport.fromWebRtc(stats))
       }
+    }
   }
 
   private fun syncWithObject() {
@@ -401,14 +406,15 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     return transceivers.lastEntry()!!.value
   }
 
-    suspend fun getStats() =
-        suspendCoroutine<StatsReport?> {
-            if (disposed) {
-                it.resume(null);
-            } else {
-                obj.getStats(getStatsObserver(it))
-            }
+//todo
+  suspend fun getStats() =
+      suspendCoroutine<StatsReport?> {
+        if (disposed) {
+          it.resume(null)
+        } else {
+          obj.getStats(getStatsObserver(it))
         }
+      }
 
   /**
    * Requests the underlying [PeerConnection] to redo [IceCandidate] gathering. Does nothing if the
