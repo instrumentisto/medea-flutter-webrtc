@@ -120,7 +120,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: git clone --depth 1 https://github.com/apple/swift-format.git
+      - run: git clone https://github.com/apple/swift-format.git
       - run: cd swift-format && git checkout "tags/0.50700.0" && swift build -c release
 
       - name: Format Swift code
