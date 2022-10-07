@@ -4,13 +4,12 @@ data class Stats(val type: String, val id: String, val timestampUs: Long, val ki
   companion object {
     fun fromWebRtc(stats: org.webrtc.RTCStats): Stats {
       var members = stats.members
-      members["type"] = stats.type
       return Stats(stats.type, stats.id, stats.timestampUs.toLong(), members)
     }
   }
 
   fun asFlutterResult(): Map<String, Any> {
-    return mapOf("id" to id, "timestampUs" to timestampUs, "kind" to kind)
+    return mapOf("id" to id, "timestampUs" to timestampUs, "kind" to kind, "type" to type)
   }
 }
 

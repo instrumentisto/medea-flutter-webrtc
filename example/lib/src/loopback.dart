@@ -136,6 +136,7 @@ class _LoopbackState extends State<Loopback> {
         print(element.type.toString());
       });
       print("111111");
+      
       print("222222");
       var list2 = await _pc2?.getStats();
       list2!.forEach((element) {
