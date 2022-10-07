@@ -30,43 +30,43 @@ using RTCTransportStats = webrtc::RTCTransportStats;
 using RTCRemoteInboundRtpStreamStats = webrtc::RTCRemoteInboundRtpStreamStats;
 using RTCRemoteOutboundRtpStreamStats = webrtc::RTCRemoteOutboundRtpStreamStats;
 
-// Tries to cast `RTCStats` into the wrapped `RTCIceCandidateStats`.
+// Tries to cast `RTCStats` into wrapped `RTCIceCandidateStats`.
 RTCIceCandidateStatsWrap cast_to_rtc_ice_candidate_stats(
     std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCOutboundRTPStreamStats`.
+// Tries to cast `RTCStats` into wrapped `RTCOutboundRTPStreamStats`.
 RTCOutboundRTPStreamStatsWrap cast_to_rtc_outbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCInboundRTPStreamStats`.
+// Tries to cast `RTCStats` into wrapped `RTCInboundRTPStreamStats`.
 RTCInboundRTPStreamStatsWrap cast_to_rtc_inbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCIceCandidatePairStats`.
+// Tries to cast `RTCStats` into wrapped `RTCIceCandidatePairStats`.
 RTCIceCandidatePairStatsWrap cast_to_rtc_ice_candidate_pair_stats(
     std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCTransportStats`.
+// Tries to cast `RTCStats` into wrapped `RTCTransportStats`.
 RTCTransportStatsWrap cast_to_rtc_transport_stats(
     std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCRemoteInboundRtpStreamStats`.
+// Tries to cast `RTCStats` into wrapped `RTCRemoteInboundRtpStreamStats`.
 RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
     std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCRemoteOutboundRtpStreamStats`.
+// Tries to cast `RTCStats` into wrapped `RTCRemoteOutboundRtpStreamStats`.
 RTCRemoteOutboundRtpStreamStatsWrap
 cast_to_rtc_remote_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCMediaSourceStats`.
+// Tries to cast `RTCStats` into wrapped `RTCMediaSourceStats`.
 RTCMediaSourceStatsWrap cast_to_rtc_media_source_stats(
     std::unique_ptr<RTCStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped `RTCAudioSourceStats`.
+// Tries to cast `RTCMediaSourceStats` into wrapped `RTCAudioSourceStats`.
 RTCAudioSourceStatsWrap cast_to_rtc_audio_source_stats(
     std::unique_ptr<RTCMediaSourceStats> stats);
 
-// Tries to cast `RTCStats` into the wrapped`RTCVideoSourceStats`.
+// Tries to cast `RTCMediaSourceStats` into wrapped `RTCVideoSourceStats`.
 RTCVideoSourceStatsWrap cast_to_rtc_video_source_stats(
     std::unique_ptr<RTCMediaSourceStats> stats);
 

@@ -1102,7 +1102,7 @@ impl support::IntoDart for RtcMediaSourceStatsMediaType {
     }
 }
 impl support::IntoDartExceptPrimitive for RtcMediaSourceStatsMediaType {}
-impl support::IntoDart for RtcOutboundRTPStreamStatsMediaType {
+impl support::IntoDart for RtcOutboundRtpStreamStatsMediaType {
     fn into_dart(self) -> support::DartAbi {
         match self {
             Self::Audio {
@@ -1127,7 +1127,7 @@ impl support::IntoDart for RtcOutboundRTPStreamStatsMediaType {
         .into_dart()
     }
 }
-impl support::IntoDartExceptPrimitive for RtcOutboundRTPStreamStatsMediaType {}
+impl support::IntoDartExceptPrimitive for RtcOutboundRtpStreamStatsMediaType {}
 impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartAbi {
         vec![
@@ -1186,21 +1186,21 @@ impl support::IntoDart for RtcStatsType {
             Self::RtcIceCandidateStats(field0) => {
                 vec![1.into_dart(), field0.into_dart()]
             }
-            Self::RtcOutboundRTPStreamStats {
+            Self::RtcOutboundRtpStreamStats {
                 track_id,
-                kind,
+                media_type,
                 bytes_sent,
                 packets_sent,
                 media_source_id,
             } => vec![
                 2.into_dart(),
                 track_id.into_dart(),
-                kind.into_dart(),
+                media_type.into_dart(),
                 bytes_sent.into_dart(),
                 packets_sent.into_dart(),
                 media_source_id.into_dart(),
             ],
-            Self::RtcInboundRTPStreamStats {
+            Self::RtcInboundRtpStreamStats {
                 remote_id,
                 bytes_received,
                 packets_received,
@@ -1348,8 +1348,7 @@ impl support::IntoDart for TrackState {
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler
-        = Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]

@@ -222,12 +222,16 @@ pub(crate) mod webrtc {
         /// Audio duration of the media source.
         pub total_samples_duration: Box<OptionF64>,
 
-        /// Only exists when the [`MediaStreamTrackInterface`] is sourced from a
+        /// Only exists when the [MediaStreamTrack][1] is sourced from a
         /// microphone where echo cancellation is applied.
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         pub echo_return_loss: Box<OptionF64>,
 
-        /// Only exists when the [`MediaStreamTrackInterface`] is sourced from a
+        /// Only exists when the [MediaStreamTrack][1] is sourced from a
         /// microphone where echo cancellation is applied.
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         pub echo_return_loss_enhancement: Box<OptionF64>,
     }
 
@@ -268,10 +272,14 @@ pub(crate) mod webrtc {
         /// [1]: https://tinyurl.com/rrmkrfk
         pub frames_per_second: Box<OptionF64>,
 
-        /// Total number of bytes sent for the SSRC.
+        /// Total number of bytes sent for the [SSRC].
+        ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         pub bytes_sent: Box<OptionU64>,
 
-        /// Total number of RTP packets sent for the SSRC.
+        /// Total number of RTP packets sent for the [SSRC].
+        ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         pub packets_sent: Box<OptionU32>,
 
         /// ID of the stats object representing the track currently attached to
@@ -288,9 +296,9 @@ pub(crate) mod webrtc {
         pub media_type: MediaKind,
 
         /// Total number of samples that have been received on the RTP stream.
-        /// This includes [`concealedSamples`].
+        /// This includes [concealedSamples].
         ///
-        /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
+        /// [concealedSamples]: https://tinyurl.com/s6c4qe4
         pub total_samples_received: Box<OptionU64>,
 
         /// Total number of samples that are concealed samples.
@@ -298,20 +306,19 @@ pub(crate) mod webrtc {
         /// A concealed sample is a sample that was replaced with synthesized
         /// samples generated locally before being played out.
         /// Examples of samples that have to be concealed are samples from lost
-        /// packets (reported in [`packetsLost`]) or samples from packets that
-        /// arrive too late to be played out (reported in
-        /// [`packetsDiscarded`]).
+        /// packets (reported in [packetsLost]) or samples from packets that
+        /// arrive too late to be played out (reported in [packetsDiscarded]).
         ///
-        /// [`packetsLost`]: https://tinyurl.com/u2gq965
-        /// [`packetsDiscarded`]: https://tinyurl.com/yx7qyox3
+        /// [packetsLost]: https://tinyurl.com/u2gq965
+        /// [packetsDiscarded]: https://tinyurl.com/yx7qyox3
         pub concealed_samples: Box<OptionU64>,
 
         /// Total number of concealed samples inserted that are "silent".
         ///
         /// Playing out silent samples results in silence or comfort noise.
-        /// This is a subset of [`concealedSamples`].
+        /// This is a subset of [concealedSamples].
         ///
-        /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
+        /// [concealedSamples]: https://tinyurl.com/s6c4qe4
         pub silent_concealed_samples: Box<OptionU64>,
 
         /// Audio level of the receiving track.
@@ -336,14 +343,14 @@ pub(crate) mod webrtc {
         /// IDR-frames in H.264 [RFC 6184], successfully decoded for this RTP
         /// media stream.
         ///
-        /// This is a subset of [`framesDecoded`].
-        /// [`framesDecoded`] - [`keyFramesDecoded`] gives you the number of
-        /// delta frames decoded.
+        /// This is a subset of [framesDecoded].
+        /// [framesDecoded] - [keyFramesDecoded] gives you the number of delta
+        /// frames decoded.
         ///
         /// [RFC 6386]: https://w3.org/TR/webrtc-stats#bib-rfc6386
         /// [RFC 6184]: https://w3.org/TR/webrtc-stats#bib-rfc6184
-        /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
-        /// [`keyFramesDecoded`]: https://tinyurl.com/qtdmhtm
+        /// [framesDecoded]: https://tinyurl.com/srfwrwt
+        /// [keyFramesDecoded]: https://tinyurl.com/qtdmhtm
         pub key_frames_decoded: Box<OptionU32>,
 
         /// Width of the last decoded frame.
@@ -381,10 +388,10 @@ pub(crate) mod webrtc {
         ///
         /// This counter increases every time a concealed sample is synthesized
         /// after a non-concealed sample. That is, multiple consecutive
-        /// concealed samples will increase the [`concealedSamples`] count
+        /// concealed samples will increase the [concealedSamples] count
         /// multiple times but is a single concealment event.
         ///
-        /// [`concealedSamples`]: https://tinyurl.com/s6c4qe4
+        /// [concealedSamples]: https://tinyurl.com/s6c4qe4
         pub concealment_events: Box<OptionU64>,
 
         /// Total number of complete frames received on the RTP stream.
@@ -392,28 +399,31 @@ pub(crate) mod webrtc {
         /// This metric is incremented when the complete frame is received.
         pub frames_received: Box<OptionI32>,
 
-        /// Total number of bytes received for the SSRC.
+        /// Total number of bytes received for the [SSRC].
+        ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         pub bytes_received: Box<OptionU64>,
 
-        /// Total number of RTP data packets received for the SSRC.
+        /// Total number of RTP data packets received for the [SSRC].
+        ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         pub packets_received: Box<OptionU32>,
 
         /// Total number of seconds that have been spent decoding the
-        /// [`framesDecoded`] frames of the stream.
+        /// [framesDecoded] frames of the stream.
         ///
         /// The average decode time can be calculated by dividing this value
-        /// with [`framesDecoded`].
-        /// The time it takes to decode one frame is the time passed between
-        /// feeding the decoder a frame and the decoder returning decoded data
-        /// for that frame.
+        /// with [framesDecoded]. The time it takes to decode one frame is the
+        /// time passed between feeding the decoder a frame and the decoder
+        /// returning decoded data for that frame.
         ///
-        /// [`framesDecoded`]: https://tinyurl.com/srfwrwt
+        /// [framesDecoded]: https://tinyurl.com/srfwrwt
         pub total_decode_time: Box<OptionF64>,
 
         /// Total number of audio samples or video frames that have come out of
-        /// the jitter buffer (increasing [`jitterBufferDelay`]).
+        /// the jitter buffer (increasing [jitterBufferDelay]).
         ///
-        /// [`jitterBufferDelay`]: https://tinyurl.com/qvoojt5
+        /// [jitterBufferDelay]: https://tinyurl.com/qvoojt5
         pub jitter_buffer_emitted_count: Box<OptionU64>,
     }
 
@@ -444,8 +454,7 @@ pub(crate) mod webrtc {
         /// [RFC 7675].
         ///
         /// The average round trip time can be computed from
-        /// [`totalRoundTripTime`][1] by dividing it by
-        /// [`responsesReceived`][2].
+        /// [totalRoundTripTime][1] by dividing it by [responsesReceived][2].
         ///
         /// [STUN-PATH-CHAR]: https://w3.org/TR/webrtc-stats#bib-stun-path-char
         /// [RFC 7675]: https://tools.ietf.org/html/rfc7675
@@ -473,7 +482,7 @@ pub(crate) mod webrtc {
         /// leave this undefined. Additionally, the value MUST be undefined for
         /// candidate pairs that were never used.
         /// For pairs in use, the estimate is normally no lower than the bitrate
-        /// for the packets sent at [`lastPacketSentTimestamp`][1], but might be
+        /// for the packets sent at [lastPacketSentTimestamp][1], but might be
         /// higher.
         /// For candidate pairs that are not currently in use but were used
         /// before, implementations MUST return undefined.
@@ -506,60 +515,67 @@ pub(crate) mod webrtc {
 
     /// Wrapper for C++ [`RTCRemoteInboundRtpStreamStats`].
     pub struct RTCRemoteInboundRtpStreamStatsWrap {
-        /// [`localId`] is used for looking up the local
-        /// [RTCOutboundRtpStreamStats] object for the same SSRC.
+        /// [localId] is used for looking up the local
+        /// [RTCOutboundRtpStreamStats][1] object for the same [SSRC].
         ///
-        /// [`localId`]: https://tinyurl.com/r8uhbo9
-        /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
+        /// [localId]: https://tinyurl.com/r8uhbo9
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
+        /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcoutboundrtpstreamstats
         pub local_id: Box<OptionString>,
 
-        /// Estimated round trip time for this SSRC based on the RTCP timestamps
-        /// in the RTCP Receiver Report (RR) and measured in seconds. Calculated
-        /// as defined in [Section 6.4.1 of RFC 3550][1]. If no RTCP Receiver
-        /// Report is received with a DLSR value other than 0, the round trip
-        /// time is left undefined.
+        /// Estimated round trip time for this [SSRC] based on the RTCP
+        /// timestamps in the RTCP Receiver Report (RR) and measured in seconds.
+        /// Calculated as defined in [Section 6.4.1 of RFC 3550][1]. If no RTCP
+        /// Receiver Report is received with a DLSR value other than 0, the
+        /// round trip time is left undefined.
         ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
         pub round_trip_time: Box<OptionF64>,
 
-        /// Fraction packet loss reported for the SSRC. Calculated as defined in
-        /// [Section 6.4.1 of RFC 3550][1] and [Appendix A.3][2].
+        /// Fraction packet loss reported for the [SSRC]. Calculated as defined
+        /// in [Section 6.4.1 of RFC 3550][1] and [Appendix A.3][2].
         ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
         /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
         pub fraction_lost: Box<OptionF64>,
 
-        /// Total number of RTCP RR blocks received for this SSRC that contain a
-        /// valid round trip time. This counter will increment if the
-        /// [`roundTripTime`] is undefined.
+        /// Total number of RTCP RR blocks received for this [SSRC] that contain
+        /// a valid round trip time. This counter will increment if the
+        /// [roundTripTime] is undefined.
         ///
-        /// [`roundTripTime`]: https://tinyurl.com/ssg83hq
+        /// [roundTripTime]: https://tinyurl.com/ssg83hq
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         pub round_trip_time_measurements: Box<OptionI32>,
     }
 
     /// Wrapper for C++ [`RTCRemoteOutboundRtpStreamStats`].
     pub struct RTCRemoteOutboundRtpStreamStatsWrap {
-        /// [`localId`] is used for looking up the local
-        /// [RTCInboundRtpStreamStats][1] object for the same SSRC.
+        /// [localId] is used for looking up the local
+        /// [RTCInboundRtpStreamStats][1] object for the same [SSRC].
         ///
-        /// [`localId`]: https://tinyurl.com/vu9tb2e
+        /// [localId]: https://tinyurl.com/vu9tb2e
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcinboundrtpstreamstats
         pub local_id: Box<OptionString>,
 
-        /// [`remoteTimestamp`] (as [HIGHRES-TIME]) is the remote timestamp at
+        /// [remoteTimestamp] (as [HIGHRES-TIME]) is the remote timestamp at
         /// which these statistics were sent by the remote endpoint. This
         /// differs from timestamp, which represents the time at which the
         /// statistics were generated or received by the local endpoint. The
-        /// [`remoteTimestamp`], if present, is derived from the NTP timestamp
-        /// in an RTCP Sender Report (SR) block, which reflects the remote
+        /// [remoteTimestamp], if present, is derived from the NTP timestamp in
+        /// an RTCP Sender Report (SR) block, which reflects the remote
         /// endpoint's clock. That clock may not be synchronized with the local
         /// clock.
         ///
-        /// [`remoteTimestamp`]: https://tinyurl.com/rzlhs87
+        /// [remoteTimestamp]: https://tinyurl.com/rzlhs87
         /// [HIGRES-TIME]: https://w3.org/TR/webrtc-stats#bib-highres-time
         pub remote_timestamp: Box<OptionF64>,
 
-        /// Total number of RTCP SR blocks sent for the SSRC.
+        /// Total number of RTCP SR blocks sent for the [SSRC].
+        ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         pub reports_sent: Box<OptionU64>,
     }
 
@@ -595,12 +611,13 @@ pub(crate) mod webrtc {
         pub priority: Box<OptionI32>,
 
         /// For local candidates this is the URL of the ICE server from which
-        /// the candidate was obtained. It is the same as the
-        /// [`url` surfaced in the `RTCPeerConnectionIceEvent`][1].
+        /// the candidate was obtained. It is the same as the [url][2] surfaced
+        /// in the [RTCPeerConnectionIceEvent][1].
         ///
         /// [`None`] for remote candidates.
         ///
         /// [1]: https://w3.org/TR/webrtc#rtcpeerconnectioniceevent
+        /// [2]: https://w3.org/TR/webrtc#dom-rtcpeerconnectioniceevent-url
         pub url: Box<OptionString>,
     }
 
@@ -619,16 +636,20 @@ pub(crate) mod webrtc {
         /// For statistics that came from a remote source (e.g., from received
         /// RTCPpackets), timestamp represents the time at which the information
         /// arrived at the local endpoint. The remote timestamp can be found in
-        /// an additional field in an [`RTCStats`]-derived dictionary, if
+        /// an additional field in an [RTCStats]-derived dictionary, if
         /// applicable.
+        ///
+        /// [RTCStats]: https://w3.org/TR/webrtc#dom-rtcstats
         timestamp_us: i64,
 
         /// [`RTCStatsType`] of these [`RTCStats`].
         kind: RTCStatsType,
 
-        /// Actual [`RTCStats`].
+        /// Actual [RTCStats].
         ///
         /// All possible stats are described in the [`RTCStatsType`] enum.
+        ///
+        /// [RTCStats]: https://w3.org/TR/webrtc#dom-rtcstats
         stats: UniquePtr<RTCStats>,
     }
 
@@ -745,8 +766,8 @@ pub(crate) mod webrtc {
     pub enum RTCStatsIceCandidatePairState {
         /// Check for this pair hasn't been performed, and it can't yet be
         /// performed until some other check succeeds, allowing this pair to
-        /// unfreeze and move into the [`KnownIceCandidatePairState::Waiting`]
-        /// state.
+        /// unfreeze and move into the
+        /// [`RTCStatsIceCandidatePairState::kWaiting`] state.
         kFrozen = 0,
 
         /// Check has not been performed for this pair, and can be performed as
@@ -855,7 +876,7 @@ pub(crate) mod webrtc {
         /// non-deleted candidate pair.
         ///
         /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-        /// [1]: https://w3.org/TR/webrtc-stats/#dfn-deleted
+        /// [1]: https://w3.org/TR/webrtc-stats#dfn-deleted
         RTCIceCandidateStats,
 
         /// Statistics for an outbound [RTP] stream that is currently sent with
@@ -863,19 +884,21 @@ pub(crate) mod webrtc {
         ///
         /// When there are multiple [RTP] streams connected to the same sender,
         /// such as when using simulcast or RTX, there will be one
-        /// [`RtcOutboundRtpStreamStats`] per RTP stream, with distinct values
-        /// of the `ssrc` attribute, and all these senders will have a
-        /// reference to the same "sender" object (of type
-        /// [RTCAudioSenderStats][1] or [RTCVideoSenderStats][2]) and "track"
-        /// object (of type [RTCSenderAudioTrackAttachmentStats][3] or
+        /// [RTCOutboundRtpStreamStats][5] per RTP stream, with distinct values
+        /// of the [SSRC] attribute, and all these senders will have a reference
+        /// to the same "sender" object (of type [RTCAudioSenderStats][1] or
+        /// [RTCVideoSenderStats][2]) and "track" object (of type
+        /// [RTCSenderAudioTrackAttachmentStats][3] or
         /// [RTCSenderVideoTrackAttachmentStats][4]).
         ///
         /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosenderstats
         /// [2]: https://w3.org/TR/webrtc-stats#dom-rtcvideosenderstats
         /// [3]: https://tinyurl.com/sefa5z4
         /// [4]: https://tinyurl.com/rkuvpl4
+        /// [5]: https://w3.org/TR/webrtc-stats#dom-rtcoutboundrtpstreamstats
         RTCOutboundRTPStreamStats,
 
         /// Statistics for an inbound [RTP] stream that is currently received
@@ -889,16 +912,17 @@ pub(crate) mod webrtc {
         /// objects.
         ///
         /// A candidate pair that is not the current pair for a transport is
-        /// [deleted][1] when the [RTCIceTransport] does an ICE restart, at the
-        /// time the state changes to `new`.
+        /// [deleted] when the [RTCIceTransport] does an ICE restart, at the
+        /// time the state changes to [new].
         ///
-        /// The candidate pair that is the current pair for a transport is
-        /// deleted after an ICE restart when the [RTCIceTransport] switches to
-        /// using a candidate pair generated from the new candidates; this time
-        /// doesn't correspond to any other externally observable event.
+        /// a candidate pair that is the current pair for a transport is
+        /// [deleted] after an ICE restart when the [RTCIceTransport] switches
+        /// to using a candidate pair generated from the new candidates; this
+        /// time doesn't correspond to any other externally observable event.
         ///
+        /// [deleted]: https://w3.org/TR/webrtc-stats#dfn-deleted
+        /// [new]: https://w3.org/TR/webrtc#dom-rtcicetransportstate-new
         /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-        /// [1]: https://w3.org/TR/webrtc-stats#dfn-deleted
         RTCIceCandidatePairStats,
 
         /// Transport statistics related to the [RTCPeerConnection] object.

@@ -184,8 +184,8 @@ abstract class PeerConnection {
   /// Returns all the [RtpTransceiver]s owned by this [PeerConnection].
   Future<List<RtpTransceiver>> getTransceivers();
 
-  /// Returns all the [RTCStats] of this [PeerConnection].
-  Future<List<RTCStats>> getStats();
+  /// Returns all the [RtcStats] of this [PeerConnection].
+  Future<List<RtcStats>> getStats();
 
   /// Sets the provided remote [SessionDescription] to the [PeerConnection].
   Future<void> setRemoteDescription(SessionDescription description);
@@ -417,7 +417,7 @@ class _PeerConnectionChannel extends PeerConnection {
   }
 
   @override
-  Future<List<RTCStats>> getStats() async {
+  Future<List<RtcStats>> getStats() async {
     // TODO: Not implemented.
     return List.empty();
   }
@@ -615,12 +615,12 @@ class _PeerConnectionFFI extends PeerConnection {
   }
 
   @override
-  Future<List<RTCStats>> getStats() async {
+  Future<List<RtcStats>> getStats() async {
     var stats = await api!.getPeerStats(peerId: _id!);
-    List<RTCStats> result = List.empty(growable: true);
+    List<RtcStats> result = List.empty(growable: true);
 
     for (var s in stats) {
-      var stat = RTCStats.fromFFI(s);
+      var stat = RtcStats.fromFFI(s);
       if (stat != null) {
         result.add(stat);
       }

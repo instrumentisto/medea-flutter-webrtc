@@ -882,12 +882,12 @@ void main() {
     // TODO: Support on mobile platforms.
     if (!Platform.isAndroid) {
       expect(
-          senderStats.where((e) => e.type is RtcOutboundRTPStreamStats).length,
+          senderStats.where((e) => e.type is RtcOutboundRtpStreamStats).length,
           2);
       expect(senderStats.where((e) => e.type is RtcTransportStats).length, 1);
 
       expect(
-          receiverStats.where((e) => e.type is RtcInboundRTPStreamStats).length,
+          receiverStats.where((e) => e.type is RtcInboundRtpStreamStats).length,
           2);
       expect(receiverStats.where((e) => e.type is RtcTransportStats).length, 1);
     }
