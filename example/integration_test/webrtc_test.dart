@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';

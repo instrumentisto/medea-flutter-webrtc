@@ -1,4 +1,5 @@
 // ignore: depend_on_referenced_packages
+
 import 'package:collection/collection.dart';
 
 import '../api/bridge.g.dart' as ffi;
