@@ -385,8 +385,7 @@ class GetMediaResult with _$GetMediaResult {
 /// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
 /// It corresponds to an [RTCIceTransport] object.
 ///
-/// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
-/// variant.
+/// [`RtcIceCandidateStats::Local`] or [`RtcIceCandidateStats::Remote`] variant.
 ///
 /// [Full doc on W3C][2].
 ///
@@ -840,12 +839,12 @@ class RtcConfiguration {
 
 @freezed
 class RtcIceCandidateStats with _$RtcIceCandidateStats {
-  /// [`RtcStatsType::LocalCandidate`].
+  /// [`IceCandidateStats`] of local candidate.
   const factory RtcIceCandidateStats.local(
     IceCandidateStats field0,
   ) = RtcIceCandidateStats_Local;
 
-  /// [`RtcStatsType::RemoteCandidate`].
+  /// [`IceCandidateStats`] of remote candidate.
   const factory RtcIceCandidateStats.remote(
     IceCandidateStats field0,
   ) = RtcIceCandidateStats_Remote;

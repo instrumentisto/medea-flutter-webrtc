@@ -2182,8 +2182,8 @@ impl TryFrom<&str> for Protocol {
 /// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
 /// It corresponds to a [RTCIceTransport] object.
 ///
-/// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
-/// variant.
+/// [`RtcIceCandidateStats::RtcLocalIceCandidateStats`] or
+/// [`RtcIceCandidateStats::RtcRemoteIceCandidateStats`] variant.
 ///
 /// [Full doc on W3C][2].
 ///
@@ -2226,13 +2226,12 @@ pub struct IceCandidateStats {
     pub url: Option<String>,
 }
 
-/// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
-/// variant.
+/// [`IceCandidateStats`] of either local or remote candidate.
 pub enum RtcIceCandidateStats {
-    /// [`RtcStatsType::LocalCandidate`].
+    /// [`IceCandidateStats`] of local candidate.
     RtcLocalIceCandidateStats(IceCandidateStats),
 
-    /// [`RtcStatsType::RemoteCandidate`].
+    /// [`IceCandidateStats`] of remote candidate.
     RtcRemoteIceCandidateStats(IceCandidateStats),
 }
 

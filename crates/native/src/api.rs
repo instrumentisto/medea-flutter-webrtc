@@ -440,8 +440,7 @@ impl From<sys::IceRole> for IceRole {
 /// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
 /// It corresponds to an [RTCIceTransport] object.
 ///
-/// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
-/// variant.
+/// [`RtcIceCandidateStats::Local`] or [`RtcIceCandidateStats::Remote`] variant.
 ///
 /// [Full doc on W3C][2].
 ///
@@ -513,13 +512,12 @@ impl From<sys::IceCandidateStats> for IceCandidateStats {
     }
 }
 
-/// [`RtcStatsType::LocalCandidate`] or [`RtcStatsType::RemoteCandidate`]
-/// variant.
+/// [`IceCandidateStats`] of either local or remote candidate.
 pub enum RtcIceCandidateStats {
-    /// [`RtcStatsType::LocalCandidate`].
+    /// [`IceCandidateStats`] of local candidate.
     Local(IceCandidateStats),
 
-    /// [`RtcStatsType::RemoteCandidate`].
+    /// [`IceCandidateStats`] of remote candidate.
     Remote(IceCandidateStats),
 }
 

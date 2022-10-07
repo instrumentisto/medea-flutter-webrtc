@@ -8,7 +8,6 @@ mod api;
     clippy::too_many_lines,
     clippy::wildcard_imports
 )]
-#[rustfmt::skip]
 mod bridge_generated;
 mod devices;
 mod pc;
