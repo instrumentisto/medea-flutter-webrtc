@@ -199,41 +199,47 @@ class VideoConstraints {
   */
   init(map: [String: Any]) {
     let mandatoryArgs = map["mandatory"] as? [String: Any]
-    for (key, value) in mandatoryArgs! {
-      switch key {
-      case "deviceId":
-        deviceIdConstraints.append(DeviceIdConstraint(id: value as! String, isMandatory: true))
-      case "facingMode":
-        facingModeConstraints.append(
-          FacingModeConstraint(facingMode: FacingMode(rawValue: value as! Int)!, isMandatory: true))
-      case "width":
-        width = value as! Int
-      case "height":
-        height = value as! Int
-      case "fps":
-        fps = value as! Int
-      default:
-        ()
+    if mandatoryArgs != nil {
+      for (key, value) in mandatoryArgs! {
+        switch key {
+        case "deviceId":
+          deviceIdConstraints.append(DeviceIdConstraint(id: value as! String, isMandatory: true))
+        case "facingMode":
+          facingModeConstraints.append(
+            FacingModeConstraint(
+              facingMode: FacingMode(rawValue: value as! Int)!, isMandatory: true))
+        case "width":
+          width = value as! Int
+        case "height":
+          height = value as! Int
+        case "fps":
+          fps = value as! Int
+        default:
+          ()
+        }
       }
     }
 
     let optionalArgs = map["optional"] as? [String: Any]
-    for (key, value) in optionalArgs! {
-      switch key {
-      case "deviceId":
-        deviceIdConstraints.append(DeviceIdConstraint(id: value as! String, isMandatory: false))
-      case "facingMode":
-        facingModeConstraints.append(
-          FacingModeConstraint(facingMode: FacingMode(rawValue: value as! Int)!, isMandatory: false)
-        )
-      case "width":
-        width = value as! Int
-      case "height":
-        height = value as! Int
-      case "fps":
-        fps = value as! Int
-      default:
-        ()
+    if optionalArgs != nil {
+      for (key, value) in optionalArgs! {
+        switch key {
+        case "deviceId":
+          deviceIdConstraints.append(DeviceIdConstraint(id: value as! String, isMandatory: false))
+        case "facingMode":
+          facingModeConstraints.append(
+            FacingModeConstraint(
+              facingMode: FacingMode(rawValue: value as! Int)!, isMandatory: false)
+          )
+        case "width":
+          width = value as! Int
+        case "height":
+          height = value as! Int
+        case "fps":
+          fps = value as! Int
+        default:
+          ()
+        }
       }
     }
   }

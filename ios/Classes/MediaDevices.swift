@@ -17,12 +17,12 @@ class MediaDevices {
   func enumerateDevices() -> [MediaDeviceInfo] {
     var devices = AVCaptureDevice.devices(for: AVMediaType.audio).map { device -> MediaDeviceInfo in
       MediaDeviceInfo(
-              deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
+        deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
     }
     let videoDevices = AVCaptureDevice.devices(for: AVMediaType.video).map {
       device -> MediaDeviceInfo in
       MediaDeviceInfo(
-              deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.videoInput)
+        deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.videoInput)
     }
     devices.append(contentsOf: videoDevices)
     return devices

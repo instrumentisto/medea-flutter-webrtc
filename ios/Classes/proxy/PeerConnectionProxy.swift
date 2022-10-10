@@ -42,23 +42,17 @@ class PeerConnectionProxy {
   func getTransceivers() -> [RtpTransceiverProxy] {
     self.syncTransceivers()
     // TODO: what is this?
-    return Array(self.transceivers.values.map { $0 })
+    return Array(self.transceivers.values)
   }
 
   /// - Returns: All `RtpSenderProxy`s of this `PeerConnectionProxy`.
   func getSenders() -> [RtpSenderProxy] {
-    // TODO: what is this?
-    Array(self.senders.values.map {
-      $0
-    })
+    Array(self.senders.values)
   }
 
   /// - Returns: All `RtpReceiverProxy`s of this `PeerConnectionProxy`.
   func getReceivers() -> [RtpReceiverProxy] {
-    // TODO: what is this?
-    Array(self.receivers.values.map {
-      $0
-    })
+    Array(self.receivers.values)
   }
 
   /**
@@ -130,14 +124,14 @@ class PeerConnectionProxy {
   func createOffer() async throws -> SessionDescription {
     try await withCheckedThrowingContinuation { continuation in
       self.peer.offer(
-              for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
-              completionHandler: { description, error in
-                if error == nil {
-                  continuation.resume(returning: SessionDescription(sdp: description!))
-                } else {
-                  continuation.resume(throwing: error!)
-                }
-              })
+        for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
+        completionHandler: { description, error in
+          if error == nil {
+            continuation.resume(returning: SessionDescription(sdp: description!))
+          } else {
+            continuation.resume(throwing: error!)
+          }
+        })
     }
   }
 
@@ -169,14 +163,14 @@ class PeerConnectionProxy {
   func createAnswer() async throws -> SessionDescription {
     try await withCheckedThrowingContinuation { continuation in
       self.peer.answer(
-              for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
-              completionHandler: { description, error in
-                if error == nil {
-                  continuation.resume(returning: SessionDescription(sdp: description!))
-                } else {
-                  continuation.resume(throwing: error!)
-                }
-              })
+        for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
+        completionHandler: { description, error in
+          if error == nil {
+            continuation.resume(returning: SessionDescription(sdp: description!))
+          } else {
+            continuation.resume(throwing: error!)
+          }
+        })
     }
   }
 

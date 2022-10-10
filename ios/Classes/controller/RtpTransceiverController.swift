@@ -62,7 +62,7 @@ class RtpTransceiverController {
     [
       "channelId": self.channelId,
       "sender": RtpSenderController(messenger: self.messenger, rtpSender: transceiver.getSender())
-              .asFlutterResult(),
+        .asFlutterResult(),
       "mid": transceiver.getMid(),
     ]
   }
