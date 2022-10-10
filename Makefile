@@ -23,7 +23,7 @@ FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	        | grep -v 'flutter_rust_bridge' \
 	        | cut -d'"' -f2))
 
-SWIFT_VER ?= $(shell swift --version | grep -Eo '[0-9]\.[0-9]+' | sed -n '2p')
+SWIFT_VER ?= $(shell swiftc --version | grep -Eo '[0-9]\.[0-9]+' | sed -n '2p')
 
 KTFMT_VER ?= 0.33
 
