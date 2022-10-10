@@ -5,9 +5,13 @@
 ///  Also, this object will track all child `MediaStreamTrackProxy`s and when they all disposed, will
 ///  dispose the underlying `AudioSource`.
 class AudioMediaTrackSourceProxy: MediaTrackSource {
-  // TODO: Does it need to be nullable?
-  /// Source `MediaStreamTrackProxy` which will be used for creating new tracks.
-  private var track: MediaStreamTrackProxy?
+  /// Source `RTCMediaStreamTrack` which will be used for creating new tracks.
+  private var track: RTCMediaStreamTrack
+
+  /// Creates new `AudioMediaTrackSouceProxy` based on the provided track.
+  init(track: RTCMediaStreamTrack) {
+    self.track = track
+  }
 
   /**
     Creates a new `MediaStreamTrackProxy`.
@@ -15,11 +19,6 @@ class AudioMediaTrackSourceProxy: MediaTrackSource {
     - Returns: Newly created `MediaStreamTrackProxy`.
   */
   func newTrack() -> MediaStreamTrackProxy {
-    self.track!
-  }
-
-  /// Sets source `MediaStreamTrackProxy` as source.
-  func setTrack(track: MediaStreamTrackProxy) {
-    self.track = track
+    return MediaStreamTrackProxy(track: self.track, deviceId: "audio", source: self)
   }
 }

@@ -80,11 +80,8 @@ class MediaDevices {
   private func getUserAudio() -> MediaStreamTrackProxy {
     let track = self.state.getPeerFactory().audioTrack(
       withTrackId: LocalTrackIdGenerator.shared.nextId())
-    let audioSource = AudioMediaTrackSourceProxy()
-    let t = MediaStreamTrackProxy(track: track, deviceId: "audio", source: audioSource)
-    audioSource.setTrack(track: t)
-
-    return t
+    let audioSource = AudioMediaTrackSourceProxy(track: track)
+    return audioSource.newTrack()
   }
 
   /**

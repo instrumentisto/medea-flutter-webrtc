@@ -128,9 +128,9 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     }
   }
 
-  /// Does nothing.
+  /// Resets `CVPixelBuffer` of this renderer.
   func onTextureUnregistered(_ texture: FlutterRtcVideoRenderer) {
-    // TODO: Why?
+    self.pixelBuffer = nil
   }
 
   /**
@@ -221,7 +221,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   func renderFrame(_ renderFrame: RTCVideoFrame?) {
     self.rendererLock.lock()
     if renderFrame == nil {
-      // TODO: will this unlock the rendererLock?
+      self.rendererLock.unlock()
       return
     }
     let buffer = self.correctRotation(frame: renderFrame!)
@@ -234,7 +234,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
         id: self.textureId, height: self.frameHeight, width: self.frameWidth)
     }
     if self.pixelBuffer == nil {
-      // TODO: will this unlock the rendererLock?
+      self.rendererLock.unlock()
       return
     }
     CVPixelBufferLockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
