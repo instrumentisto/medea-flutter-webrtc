@@ -117,11 +117,9 @@ jobs:
   swiftformat:
     runs-on: macos-latest
     steps:
-      - run: swiftc --version
-      - run: exit -1
-      # - uses: actions/checkout@v2
-      # - run: make swift.fmt
-      # - run: git diff --exit-code HEAD
+      - uses: actions/checkout@v2
+      - run: make swift.fmt
+      - run: git diff --exit-code HEAD
 
 
 
