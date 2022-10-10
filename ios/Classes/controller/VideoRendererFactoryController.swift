@@ -18,7 +18,7 @@ class VideoRendererFactoryController {
     self.registry = registry
     self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
     self.channel.setMethodCallHandler({ (call, result) in
-      try! self.onMethodCall(call: call, result: result)
+      self.onMethodCall(call: call, result: result)
     })
   }
 
@@ -27,7 +27,7 @@ class VideoRendererFactoryController {
 
     Creates new `FlutterRtcVideoRenderer`s.
   */
-  func onMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) throws {
+  func onMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "create":
       let renderer = FlutterRtcVideoRenderer(registry: self.registry)

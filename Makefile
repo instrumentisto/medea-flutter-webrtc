@@ -340,7 +340,7 @@ endif
 
 swift.fmt:
 ifeq ($(wildcard $(swift-fmt-bin)),)
-	mkdir .cache && \
+	mkdir -p .cache && \
 		cd .cache && \
 		git clone https://github.com/apple/swift-format.git && \
 		cd swift-format && \
