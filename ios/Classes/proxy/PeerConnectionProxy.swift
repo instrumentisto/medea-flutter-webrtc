@@ -31,7 +31,7 @@ class PeerConnectionProxy {
 
   /// - Returns: ID of this peer.
   func getId() -> Int {
-    return self.id
+    self.id
   }
 
   /*
@@ -41,17 +41,24 @@ class PeerConnectionProxy {
   */
   func getTransceivers() -> [RtpTransceiverProxy] {
     self.syncTransceivers()
+    // TODO: what is this?
     return Array(self.transceivers.values.map { $0 })
   }
 
   /// - Returns: All `RtpSenderProxy`s of this `PeerConnectionProxy`.
   func getSenders() -> [RtpSenderProxy] {
-    return Array(self.senders.values.map { $0 })
+    // TODO: what is this?
+    Array(self.senders.values.map {
+      $0
+    })
   }
 
   /// - Returns: All `RtpReceiverProxy`s of this `PeerConnectionProxy`.
   func getReceivers() -> [RtpReceiverProxy] {
-    return Array(self.receivers.values.map { $0 })
+    // TODO: what is this?
+    Array(self.receivers.values.map {
+      $0
+    })
   }
 
   /**
@@ -121,16 +128,16 @@ class PeerConnectionProxy {
     Returns: Newly created `SessionDescription`.
   */
   func createOffer() async throws -> SessionDescription {
-    return try await withCheckedThrowingContinuation { continuation in
+    try await withCheckedThrowingContinuation { continuation in
       self.peer.offer(
-        for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
-        completionHandler: { description, error in
-          if error == nil {
-            continuation.resume(returning: SessionDescription(sdp: description!))
-          } else {
-            continuation.resume(throwing: error!)
-          }
-        })
+              for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
+              completionHandler: { description, error in
+                if error == nil {
+                  continuation.resume(returning: SessionDescription(sdp: description!))
+                } else {
+                  continuation.resume(throwing: error!)
+                }
+              })
     }
   }
 
@@ -160,16 +167,16 @@ class PeerConnectionProxy {
     - Returns: Newly created `SessionDescription`.
   */
   func createAnswer() async throws -> SessionDescription {
-    return try await withCheckedThrowingContinuation { continuation in
+    try await withCheckedThrowingContinuation { continuation in
       self.peer.answer(
-        for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
-        completionHandler: { description, error in
-          if error == nil {
-            continuation.resume(returning: SessionDescription(sdp: description!))
-          } else {
-            continuation.resume(throwing: error!)
-          }
-        })
+              for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
+              completionHandler: { description, error in
+                if error == nil {
+                  continuation.resume(returning: SessionDescription(sdp: description!))
+                } else {
+                  continuation.resume(throwing: error!)
+                }
+              })
     }
   }
 

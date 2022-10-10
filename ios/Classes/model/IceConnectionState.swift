@@ -70,7 +70,7 @@ enum IceConnectionState: Int {
     case .closed:
       return IceConnectionState.closed
     case .count:
-      // TODO: in Rust impl it's marked just unreachable. Why???
+      // https://tinyurl.com/kIceConnectionMax-unreachable
       abort()
     }
   }

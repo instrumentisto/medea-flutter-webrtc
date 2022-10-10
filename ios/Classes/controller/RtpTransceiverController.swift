@@ -59,10 +59,10 @@ class RtpTransceiverController {
 
   /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
-    return [
+    [
       "channelId": self.channelId,
       "sender": RtpSenderController(messenger: self.messenger, rtpSender: transceiver.getSender())
-        .asFlutterResult(),
+              .asFlutterResult(),
       "mid": transceiver.getMid(),
     ]
   }

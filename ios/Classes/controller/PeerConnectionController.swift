@@ -118,7 +118,7 @@ class PeerConnectionController {
 
   /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
-    return [
+    [
       "channelId": self.channelId,
       "id": self.peer.getId(),
     ]

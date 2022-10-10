@@ -91,7 +91,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
 
   /// Returns `FlutterTexture` ID of this renderer.
   func getTextureId() -> Int64 {
-    return self.textureId
+    self.textureId
   }
 
   /**
@@ -149,7 +149,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     self.rendererLock.unlock()
   }
 
-  /// Corrects rotation of the provided `RTCVidoFrame` and converts it to I420 format.
+  /// Corrects rotation of the provided `RTCVideoFrame` and converts it to I420 format.
   func correctRotation(frame: RTCVideoFrame) -> RTCI420Buffer {
     let src = frame.buffer.toI420()
     let rotation = frame.rotation
@@ -262,7 +262,6 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       rotation = 180
     case RTCVideoRotation._270:
       rotation = 270
-      break
     }
     if self.frameRotation != rotation {
       self.frameRotation = rotation
@@ -274,10 +273,10 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       self.broadcastEventObserver().onFirstFrameRendered(id: self.textureId)
       isFirstFrameRendered = true
     }
+    self.rendererLock.unlock()
 
     DispatchQueue.main.async {
       self.registry.textureFrameAvailable(self.textureId)
     }
-    self.rendererLock.unlock()
   }
 }

@@ -20,12 +20,12 @@ class RtpTransceiverProxy {
 
   /// - Returns: `RtpSenderProxy` of this `RtpTransceiverProxy`.
   func getSender() -> RtpSenderProxy {
-    return self.sender
+    self.sender
   }
 
   /// - Returns: `RtpReceiverProxy` of this `RtpTransceiverProxy`.
   func getReceiver() -> RtpReceiverProxy {
-    return self.receiver
+    self.receiver
   }
 
   /// Sets `TransceiverDirection` of the underlying `RtpTransceiver`.
@@ -52,7 +52,7 @@ class RtpTransceiverProxy {
         newDirection = RTCRtpTransceiverDirection.sendRecv
       case .sendOnly:
         newDirection = RTCRtpTransceiverDirection.sendRecv
-      default:
+      case .stopped:
         newDirection = RTCRtpTransceiverDirection.stopped
       }
     } else {
@@ -65,7 +65,7 @@ class RtpTransceiverProxy {
         newDirection = RTCRtpTransceiverDirection.sendOnly
       case .sendOnly:
         newDirection = RTCRtpTransceiverDirection.sendOnly
-      default:
+      case .stopped:
         newDirection = RTCRtpTransceiverDirection.stopped
       }
     }
@@ -94,7 +94,7 @@ class RtpTransceiverProxy {
         newDirection = RTCRtpTransceiverDirection.sendRecv
       case .recvOnly:
         newDirection = RTCRtpTransceiverDirection.sendRecv
-      default:
+      case .stopped:
         newDirection = RTCRtpTransceiverDirection.stopped
       }
     } else {
@@ -107,7 +107,7 @@ class RtpTransceiverProxy {
         newDirection = RTCRtpTransceiverDirection.recvOnly
       case .recvOnly:
         newDirection = RTCRtpTransceiverDirection.recvOnly
-      default:
+      case .stopped:
         newDirection = RTCRtpTransceiverDirection.stopped
       }
     }

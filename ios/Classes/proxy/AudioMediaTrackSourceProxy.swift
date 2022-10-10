@@ -14,7 +14,7 @@ class AudioMediaTrackSourceProxy: MediaTrackSource {
     - Returns: Newly created `MediaStreamTrackProxy`.
   */
   func newTrack() -> MediaStreamTrackProxy {
-    return self.track!
+    self.track!
   }
 
   /// Sets source `MediaStreamTrackProxy` as source.

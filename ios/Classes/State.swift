@@ -17,6 +17,6 @@ class State {
 
   /// - Returns: `RTCPeerConnectionFactory` from this `State`.
   func getPeerFactory() -> RTCPeerConnectionFactory {
-    return self.factory
+    self.factory
   }
 }

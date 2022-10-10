@@ -32,7 +32,7 @@ class MediaStreamTrackProxy: Equatable {
 
   /// Compares two `MediaStreamTrackProxy`s based on underlying `RTCMediaStreamTrack`s.
   static func == (lhs: MediaStreamTrackProxy, rhs: MediaStreamTrackProxy) -> Bool {
-    return lhs.track == rhs.track
+    lhs.track == rhs.track
   }
 
   /// Adds `RTCVideoRenderer` for the underlying `RTCMediaStreamTrack`.
@@ -49,7 +49,7 @@ class MediaStreamTrackProxy: Equatable {
 
   /// Returns ID of this track.
   func id() -> String {
-    return track.trackId
+    track.trackId
   }
 
   /// Returns kind of this track.
@@ -67,7 +67,7 @@ class MediaStreamTrackProxy: Equatable {
 
   /// Returns device ID of this track.
   func getDeviceId() -> String {
-    return self.deviceId
+    self.deviceId
   }
 
   /// Returns forked `MediaStreamTrackProxy` based on the same source as this track.
@@ -129,6 +129,6 @@ class MediaStreamTrackProxy: Equatable {
 
   /// Returns underlying `RTCMediaStreamTrack` of this proxy.
   func obj() -> RTCMediaStreamTrack {
-    return self.track
+    self.track
   }
 }

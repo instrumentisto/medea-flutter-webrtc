@@ -30,12 +30,12 @@ class SessionDescription {
 
   /// Converts this `SessionDescription` into an `RTCSessionDescription`.
   func intoWebRtc() -> RTCSessionDescription {
-    return RTCSessionDescription(type: self.type.intoWebRtc(), sdp: self.description)
+    RTCSessionDescription(type: self.type.intoWebRtc(), sdp: self.description)
   }
 
   /// Converts this `SessionDescription` into a `Dictionary` which can be returned to the Flutter side.
   func asFlutterResult() -> [String: Any] {
-    return [
+    [
       "type": self.type.rawValue,
       "description": self.description,
     ]

@@ -18,7 +18,7 @@ class MediaDeviceInfo {
 
   /// Converts this `MediaDeviceInfo` into a `Dictionary` which can be returned to the Flutter side.
   func asFlutterResult() -> [String: Any?] {
-    return [
+    [
       "deviceId": self.deviceId,
       "label": self.label,
       "kind": self.kind.rawValue,

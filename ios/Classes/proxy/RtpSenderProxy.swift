@@ -16,7 +16,7 @@ class RtpSenderProxy {
 
   /// Returns ID of this `RtpSenderProxy`.
   func id() -> String {
-    return self.sender.senderId
+    self.sender.senderId
   }
 
   /**

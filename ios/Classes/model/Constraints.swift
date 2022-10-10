@@ -141,8 +141,7 @@ class DeviceIdConstraint: ConstraintChecker {
     - Returns: `true` if device is suitable, or `false` otherwise.
    */
   override func isFits(device: AVCaptureDevice) throws -> Bool {
-    let isFits = device.uniqueID == self.id
-    return device.uniqueID == self.id
+    device.uniqueID == self.id
   }
 }
 
@@ -173,7 +172,7 @@ class FacingModeConstraint: ConstraintChecker {
     - Returns: `true` if device is suitable, or `false` otherwise.
    */
   override func isFits(device: AVCaptureDevice) throws -> Bool {
-    return self.facingMode.isFits(position: device.position)
+    self.facingMode.isFits(position: device.position)
   }
 }
 

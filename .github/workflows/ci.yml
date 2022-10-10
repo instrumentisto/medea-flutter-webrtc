@@ -114,7 +114,7 @@ jobs:
           components: rustfmt
 
       - run: make cargo.fmt check=yes
-  
+# TODO: move to makefile e.g. kt.fmt
   swiftformat:
     runs-on: macos-latest
     steps:

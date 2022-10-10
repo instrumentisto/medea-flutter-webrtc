@@ -16,13 +16,13 @@ class MediaDevices {
   /// - Returns: List of `MediaDeviceInfo`s for the currently available devices.
   func enumerateDevices() -> [MediaDeviceInfo] {
     var devices = AVCaptureDevice.devices(for: AVMediaType.audio).map { device -> MediaDeviceInfo in
-      return MediaDeviceInfo(
-        deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
+      MediaDeviceInfo(
+              deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.audioInput)
     }
     let videoDevices = AVCaptureDevice.devices(for: AVMediaType.video).map {
       device -> MediaDeviceInfo in
-      return MediaDeviceInfo(
-        deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.videoInput)
+      MediaDeviceInfo(
+              deviceId: device.uniqueID, label: device.localizedName, kind: MediaDeviceKind.videoInput)
     }
     devices.append(contentsOf: videoDevices)
     return devices
@@ -44,6 +44,7 @@ class MediaDevices {
     if constraints.video != nil {
       tracks.append(getUserVideo(constraints: constraints.video!))
     }
+
     return tracks
   }
 
@@ -76,13 +77,14 @@ class MediaDevices {
 
     - Returns: All found `MediaStreamTrackProxy`s.
   */
-  private func getUserAudio() -> [MediaStreamTrackProxy] {
+  private func getUserAudio() -> MediaStreamTrackProxy {
     let track = self.state.getPeerFactory().audioTrack(
       withTrackId: LocalTrackIdGenerator.shared.nextId())
     let audioSource = AudioMediaTrackSourceProxy()
     let t = MediaStreamTrackProxy(track: track, deviceId: "audio", source: audioSource)
     audioSource.setTrack(track: t)
-    return [t]
+
+    return t
   }
 
   /**

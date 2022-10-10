@@ -14,6 +14,6 @@ class ChannelNameGenerator {
 
   /// Returns name for the channel with provided name and ID.
   static func name(name: String, id: Int) -> String {
-    return "\(ChannelNameGenerator.prefix)/\(name)/\(id)"
+    "\(ChannelNameGenerator.prefix)/\(name)/\(id)"
   }
 }

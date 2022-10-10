@@ -11,7 +11,7 @@ class VideoRendererFactoryController {
   /// Flutter texture registry for creating new Flutter textures.
   private var registry: FlutterTextureRegistry
 
-  /// Creates new `VideoRendererFacotyrController`,
+  /// Creates new `VideoRendererFactoryController`,
   init(messenger: FlutterBinaryMessenger, registry: FlutterTextureRegistry) {
     let channelName = ChannelNameGenerator.name(name: "VideoRendererFactory", id: 0)
     self.messenger = messenger

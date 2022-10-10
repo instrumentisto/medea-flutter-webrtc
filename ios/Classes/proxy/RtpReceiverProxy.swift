@@ -16,12 +16,12 @@ class RtpReceiverProxy {
 
   /// Returns ID of this `RtpReceiverProxy`.
   func id() -> String {
-    return self.receiver.receiverId
+    self.receiver.receiverId
   }
 
   /// Returns `MediaStreamTrackProxy` of this `RtpReceiverProxy`.
   func getTrack() -> MediaStreamTrackProxy {
-    return self.track
+    self.track
   }
 
   /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being removed from the receiver.

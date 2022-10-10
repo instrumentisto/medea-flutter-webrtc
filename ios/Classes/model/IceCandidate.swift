@@ -34,10 +34,10 @@ class IceCandidate {
 
   /// Converts this `IceCandidate` into a `Dictionary` which can be returned to the Flutter side.
   func asFlutterResult() -> [String: Any] {
-    return [
-      "sdpMid": self.sdpMid,
-      "sdpMLineIndex": self.sdpMLineIndex,
-      "candidate": self.candidate,
+    [
+      "sdpMid": sdpMid,
+      "sdpMLineIndex": sdpMLineIndex,
+      "candidate": candidate,
     ]
   }
 }
