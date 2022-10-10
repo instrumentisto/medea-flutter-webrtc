@@ -41,7 +41,7 @@ class RtcStats {
   /// Creates a [RTCStats]
   /// basing on the [ffi.RtcStats] received
   /// from the native side.
-  static RTCStats? fromFFI(ffi.RtcStats stats) {
+  static RtcStats? fromFFI(ffi.RtcStats stats) {
     var kind = RtcStatsType.fromFFI(stats.kind);
     if (kind == null) {
       return null;
@@ -56,13 +56,13 @@ class RtcStats {
 
   /// Creates an [RTCStats]
   /// basing on the [Map] received from the native side.
-  static RTCStats? fromMap(dynamic stats) {
+  static RtcStats? fromMap(dynamic stats) {
     stats['kind']['type'] = stats['type'];
     var kind = RtcStatsType.fromMap(stats['kind']);
     if (kind == null) {
       return null;
     } else {
-      return RTCStats(
+      return RtcStats(
         stats['id'],
         stats['timestampUs'],
         kind,
@@ -260,16 +260,16 @@ abstract class RtcStatsType {
               stats as ffi.RtcStatsType_RtcIceCandidateStats);
         }
 
-      case 'RtcStatsType_RtcOutboundRTPStreamStats':
+      case 'RtcStatsType_RtcOutboundRtpStreamStats':
         {
-          return RtcOutboundRTPStreamStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcOutboundRTPStreamStats);
+          return RtcOutboundRtpStreamStats.fromFFI(
+              stats as ffi.RtcStatsType_RtcOutboundRtpStreamStats);
         }
 
-      case 'RtcStatsType_RtcInboundRTPStreamStats':
+      case 'RtcStatsType_RtcInboundRtpStreamStats':
         {
-          return RtcInboundRTPStreamStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcInboundRTPStreamStats);
+          return RtcInboundRtpStreamStats.fromFFI(
+              stats as ffi.RtcStatsType_RtcInboundRtpStreamStats);
         }
       case 'RtcStatsType_RtcTransportStats':
         {
@@ -322,11 +322,11 @@ abstract class RtcStatsType {
 
       case 'outbound-rtp':
         {
-          return RtcOutboundRTPStreamStats.fromMap(stats);
+          return RtcOutboundRtpStreamStats.fromMap(stats);
         }
       case 'inbound-rtp':
         {
-          return RtcInboundRTPStreamStats.fromMap(stats);
+          return RtcInboundRtpStreamStats.fromMap(stats);
         }
       case 'transport':
         {
@@ -626,10 +626,10 @@ class RtcOutboundRtpStreamStatsAudio
     extends RtcOutboundRtpStreamStatsMediaType {
   RtcOutboundRtpStreamStatsAudio(this.totalSamplesSent, this.voiceActivityFlag);
 
-  /// Total number of samples that have been sent over this RTP stream.
+  /// Total number of samples that have been sent over this Rtp stream.
   int? totalSamplesSent;
 
-  /// Whether the last RTP packet sent contained voice activity or not
+  /// Whether the last Rtp packet sent contained voice activity or not
   /// based on the presence of the V bit in the extension header.
   bool? voiceActivityFlag;
 }
@@ -669,19 +669,19 @@ class RtcOutboundRtpStreamStatsVideo
   double? framesPerSecond;
 }
 
-/// Statistics for an outbound [RTP] stream that is currently sent with
+/// Statistics for an outbound [Rtp] stream that is currently sent with
 /// [RTCPeerConnection] object.
 ///
-/// When there are multiple [RTP] streams connected to the same sender, such as
+/// When there are multiple [Rtp] streams connected to the same sender, such as
 /// when using simulcast or RTX, there will be one
-/// [RTCOutboundRtpStreamStats][5] per RTP stream, with distinct values of the
+/// [RTCOutboundRtpStreamStats][5] per Rtp stream, with distinct values of the
 /// [SSRC] attribute, and all these senders will have a reference to the same
 /// "sender" object (of type [RTCAudioSenderStats][1] or
 /// [RTCVideoSenderStats][2]) and "track" object (of type
 /// [RTCSenderAudioTrackAttachmentStats][3] or
 /// [RTCSenderVideoTrackAttachmentStats][4]).
 ///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
 /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosenderstats
@@ -698,23 +698,25 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     this.mediaSourceId,
   );
 
-  /// Creates a [RtcOutboundRTPStreamStats]
-  /// basing on the [ffi.RtcStatsType_RtcOutboundRTPStreamStats] received
+  /// Creates a [RtcOutboundRtpStreamStats]
+  /// basing on the [ffi.RtcStatsType_RtcOutboundRtpStreamStats] received
   /// from the native side.
-  static RtcOutboundRTPStreamStats fromFFI(
-      ffi.RtcStatsType_RtcOutboundRTPStreamStats stats) {
-    RtcOutboundRTPStreamStatsMediaType? mediaType;
-    var kind = stats.kind.runtimeType.toString().substring(2);
-    if (kind == 'RtcOutboundRTPStreamStatsKind_Audio') {
-      var cast = stats.kind as ffi.RtcOutboundRTPStreamStatsMediaType_Audio;
-      mediaType = RtcOutboundRTPStreamStatsAudio(
+  static RtcOutboundRtpStreamStats fromFFI(
+      ffi.RtcStatsType_RtcOutboundRtpStreamStats stats) {
+    RtcOutboundRtpStreamStatsMediaType? mediaType;
+    var kind = stats.mediaType.runtimeType.toString().substring(2);
+    if (kind == 'RtcOutboundRtpStreamStatsKind_Audio') {
+      var cast =
+          stats.mediaType as ffi.RtcOutboundRtpStreamStatsMediaType_Audio;
+      mediaType = RtcOutboundRtpStreamStatsAudio(
           cast.totalSamplesSent, cast.voiceActivityFlag);
-    } else if (kind == 'RtcOutboundRTPStreamStatsKind_Video') {
-      var cast = stats.kind as ffi.RtcOutboundRTPStreamStatsMediaType_Video;
-      mediaType = RtcOutboundRTPStreamStatsVideo(
+    } else if (kind == 'RtcOutboundRtpStreamStatsKind_Video') {
+      var cast =
+          stats.mediaType as ffi.RtcOutboundRtpStreamStatsMediaType_Video;
+      mediaType = RtcOutboundRtpStreamStatsVideo(
           cast.frameWidth, cast.frameHeight, cast.framesPerSecond);
     }
-    return RtcOutboundRTPStreamStats(
+    return RtcOutboundRtpStreamStats(
       stats.trackId,
       mediaType,
       stats.bytesSent,
@@ -723,19 +725,19 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcOutboundRTPStreamStats]
+  /// Creates an [RtcOutboundRtpStreamStats]
   /// basing on the [Map] received from the native side.
-  static RtcOutboundRTPStreamStats fromMap(dynamic stats) {
-    RtcOutboundRTPStreamStatsMediaType? mediaType;
+  static RtcOutboundRtpStreamStats fromMap(dynamic stats) {
+    RtcOutboundRtpStreamStatsMediaType? mediaType;
     if (stats['kind'] == 'audio') {
-      mediaType = RtcOutboundRTPStreamStatsAudio(
+      mediaType = RtcOutboundRtpStreamStatsAudio(
           tryParse(stats['totalSamplesSent']), stats['voiceActivityFlag']);
     } else if (stats['kind'] == 'video') {
-      mediaType = RtcOutboundRTPStreamStatsVideo(
+      mediaType = RtcOutboundRtpStreamStatsVideo(
           stats['frameWidth'], stats['frameHeight'], stats['framesPerSecond']);
     }
 
-    return RtcOutboundRTPStreamStats(
+    return RtcOutboundRtpStreamStats(
       stats['trackId'],
       mediaType,
       tryParse(stats['bytesSent']),
@@ -744,7 +746,7 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-    /// ID of the stats object representing the current track attachment to the
+  /// ID of the stats object representing the current track attachment to the
   /// sender of the stream.
   String? trackId;
 
@@ -755,7 +757,7 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? bytesSent;
 
-  /// Total number of RTP packets sent for this [SSRC].
+  /// Total number of Rtp packets sent for this [SSRC].
   ///
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? packetsSent;
@@ -771,7 +773,6 @@ abstract class RtcInboundRtpStreamMediaType {}
 /// Audio [RtcInboundRtpStreamMediaType].
 class RtcInboundRtpStreamAudio extends RtcInboundRtpStreamMediaType {
   RtcInboundRtpStreamAudio(
-  RtcInboundRTPStreamAudio(
     this.totalSamplesReceived,
     this.concealedSamples,
     this.silentConcealedSamples,
@@ -781,7 +782,7 @@ class RtcInboundRtpStreamAudio extends RtcInboundRtpStreamMediaType {
     this.voiceActivityFlag,
   );
 
-  /// Total number of samples that have been received on this RTP stream.
+  /// Total number of samples that have been received on this Rtp stream.
   /// This includes [concealedSamples].
   ///
   /// [concealedSamples]: https://tinyurl.com/s6c4qe4
@@ -821,7 +822,7 @@ class RtcInboundRtpStreamAudio extends RtcInboundRtpStreamMediaType {
   /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosourcestats
   double? totalSamplesDuration;
 
-  /// Indicator whether the last RTP packet whose frame was delivered to the
+  /// Indicator whether the last Rtp packet whose frame was delivered to the
   /// [RTCRtpReceiver]'s [MediaStreamTrack][1] for playout contained voice
   /// activity or not based on the presence of the V bit in the extension
   /// header, as defined in [RFC 6464].
@@ -849,12 +850,12 @@ class RtcInboundRtpStreamVideo extends RtcInboundRtpStreamMediaType {
     this.sliCount,
   );
 
-  /// Total number of frames correctly decoded for this RTP stream, i.e. frames
+  /// Total number of frames correctly decoded for this Rtp stream, i.e. frames
   /// that would be displayed if no frames are dropped.
   int? framesDecoded;
 
   /// Total number of key frames, such as key frames in VP8 [RFC 6386] or
-  /// IDR-frames in H.264 [RFC 6184], successfully decoded for this RTP media
+  /// IDR-frames in H.264 [RFC 6184], successfully decoded for this Rtp media
   /// stream.
   ///
   /// This is a subset of [framesDecoded].
@@ -907,7 +908,7 @@ class RtcInboundRtpStreamVideo extends RtcInboundRtpStreamMediaType {
   /// [concealedSamples]: https://tinyurl.com/s6c4qe4
   int? concealmentEvents;
 
-  /// Total number of complete frames received on this RTP stream.
+  /// Total number of complete frames received on this Rtp stream.
   ///
   /// This metric is incremented when the complete frame is received.
   int? framesReceived;
@@ -916,10 +917,10 @@ class RtcInboundRtpStreamVideo extends RtcInboundRtpStreamMediaType {
   int? sliCount;
 }
 
-/// Statistics for an inbound [RTP] stream that is currently received with
+/// Statistics for an inbound [Rtp] stream that is currently received with
 /// [RTCPeerConnection] object.
 ///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 class RtcInboundRtpStreamStats extends RtcStatsType {
   RtcInboundRtpStreamStats(
@@ -931,16 +932,16 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
     this.mediaType,
   );
 
-  /// Creates a [RtcInboundRTPStreamStats]
-  /// basing on the [ffi.RtcStatsType_RtcInboundRTPStreamStats] received
+  /// Creates a [RtcInboundRtpStreamStats]
+  /// basing on the [ffi.RtcStatsType_RtcInboundRtpStreamStats] received
   /// from the native side.
-  static RtcInboundRTPStreamStats fromFFI(
-      ffi.RtcStatsType_RtcInboundRTPStreamStats stats) {
-    RtcInboundRTPStreamMediaType? mediaType;
+  static RtcInboundRtpStreamStats fromFFI(
+      ffi.RtcStatsType_RtcInboundRtpStreamStats stats) {
+    RtcInboundRtpStreamMediaType? mediaType;
     var type = stats.mediaType.runtimeType.toString().substring(2);
     if (type == 'RtcInboundRtpStreamMediaType_Audio') {
       var cast = stats.mediaType as ffi.RtcInboundRtpStreamMediaType_Audio;
-      mediaType = RtcInboundRTPStreamAudio(
+      mediaType = RtcInboundRtpStreamAudio(
           cast.totalSamplesReceived,
           cast.concealedSamples,
           cast.silentConcealedSamples,
@@ -950,7 +951,7 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
           cast.voiceActivityFlag);
     } else if (type == 'RtcInboundRtpStreamMediaType_Video') {
       var cast = stats.mediaType as ffi.RtcInboundRtpStreamMediaType_Video;
-      mediaType = RtcInboundRTPStreamVideo(
+      mediaType = RtcInboundRtpStreamVideo(
         cast.framesDecoded,
         cast.keyFramesDecoded,
         cast.frameWidth,
@@ -975,12 +976,12 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
         mediaType);
   }
 
-  /// Creates an [RtcInboundRTPStreamStats]
+  /// Creates an [RtcInboundRtpStreamStats]
   /// basing on the [Map] received from the native side.
-  static RtcInboundRTPStreamStats fromMap(dynamic stats) {
-    RtcInboundRTPStreamMediaType? mediaType;
+  static RtcInboundRtpStreamStats fromMap(dynamic stats) {
+    RtcInboundRtpStreamMediaType? mediaType;
     if (stats['kind'] == 'audio') {
-      mediaType = RtcInboundRTPStreamAudio(
+      mediaType = RtcInboundRtpStreamAudio(
           tryParse(stats['totalSamplesReceived']),
           tryParse(stats['concealedSamples']),
           tryParse(stats['silentConcealedSamples']),
@@ -989,7 +990,7 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
           stats['totalSamplesDuration'],
           stats['voiceActivityFlag']);
     } else if (stats['kind'] == 'video') {
-      mediaType = RtcInboundRTPStreamVideo(
+      mediaType = RtcInboundRtpStreamVideo(
         stats['framesDecoded'],
         stats['keyFramesDecoded'],
         stats['frameWidth'],
@@ -1005,7 +1006,7 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
       );
     }
 
-    return RtcInboundRTPStreamStats(
+    return RtcInboundRtpStreamStats(
         stats['trackId'],
         tryParse(stats['bytesReceived']),
         stats['packetsReceived'],
@@ -1014,7 +1015,7 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
         mediaType);
   }
 
-    /// ID of the stats object representing the receiving track.
+  /// ID of the stats object representing the receiving track.
   String? remoteId;
 
   /// Total number of bytes received for this [SSRC].
@@ -1022,12 +1023,12 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? bytesReceived;
 
-  /// Total number of RTP data packets received for this [SSRC].
+  /// Total number of Rtp data packets received for this [SSRC].
   ///
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? packetsReceived;
 
-  /// Total number of RTP data packets for this [SSRC] that have been lost since
+  /// Total number of Rtp data packets for this [SSRC] that have been lost since
   /// the beginning of reception.
   ///
   /// This number is defined to be the number of packets expected less the
@@ -1160,7 +1161,7 @@ class RtcIceCandidatePairStats extends RtcStatsType {
   double? currentRoundTripTime;
 
   /// Calculated by the underlying congestion control by combining the available
-  /// bitrate for all the outgoing RTP streams using this candidate pair. The
+  /// bitrate for all the outgoing Rtp streams using this candidate pair. The
   /// bitrate measurement does not count the size of the IP or other transport
   /// layers like TCP or UDP. It is similar to the TIAS defined in [RFC 3890],
   /// i.e. it is measured in bits per second and the bitrate is calculated over
@@ -1241,13 +1242,13 @@ class RtcTransportStats extends RtcStatsType {
   IceRole? iceRole;
 }
 
-/// Statistics for the remote endpoint's inbound [RTP] stream corresponding to
+/// Statistics for the remote endpoint's inbound [Rtp] stream corresponding to
 /// an outbound stream that is currently sent with [RTCPeerConnection] object.
 ///
 /// It is measured at the remote endpoint and reported in a RTCP Receiver Report
 /// (RR) or RTCP Extended Report (XR).
 ///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
   RtcRemoteInboundRtpStreamStats(
@@ -1330,14 +1331,14 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
   int? roundTripTimeMeasurements;
 }
 
-/// Statistics for the remote endpoint's outbound [RTP] stream corresponding to
+/// Statistics for the remote endpoint's outbound [Rtp] stream corresponding to
 /// an inbound stream that is currently received with [RTCPeerConnection]
 /// object.
 ///
 /// It is measured at the remote endpoint and reported in an RTCP Sender Report
 /// (SR).
 ///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
   RtcRemoteOutboundRtpStreamStats(
@@ -1358,7 +1359,17 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-    /// [localId] is used for looking up the local [RTCInboundRtpStreamStats][1]
+  /// Creates an [RtcRemoteOutboundRtpStreamStats]
+  /// basing on the [Map] received from the native side.
+  static RtcRemoteOutboundRtpStreamStats fromMap(dynamic stats) {
+    return RtcRemoteOutboundRtpStreamStats(
+      stats['localId'],
+      stats['remoteTimestamp'],
+      tryParse(stats['reportsSent']),
+    );
+  }
+
+  /// [localId] is used for looking up the local [RTCInboundRtpStreamStats][1]
   /// object for the same [SSRC].
   ///
   /// [localId]: https://tinyurl.com/vu9tb2e
