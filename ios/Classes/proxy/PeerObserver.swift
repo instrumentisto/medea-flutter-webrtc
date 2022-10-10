@@ -86,7 +86,9 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didRemove receiver: RTCRtpReceiver
   ) {
-    self.peer!.receiverRemoved(endedReceiver: receiver)
+    DispatchQueue.main.async {
+      self.peer!.receiverRemoved(endedReceiver: receiver)
+    }
   }
 
   /// Does nothing.

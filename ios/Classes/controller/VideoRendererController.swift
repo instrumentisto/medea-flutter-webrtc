@@ -65,8 +65,8 @@ class VideoRendererController {
   /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": self.channelId,
-      "textureId": self.renderer.getTextureId(),
+      "channelId": channelId,
+      "textureId": renderer.getTextureId(),
     ]
   }
 }

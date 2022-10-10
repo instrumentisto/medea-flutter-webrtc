@@ -75,7 +75,6 @@ class MediaStreamTrackProxy: Equatable {
     if self.source == nil {
       throw MediaStreamTrackException.remoteTrackCantBeCloned
     } else {
-      return self
       return source!.newTrack()
     }
   }

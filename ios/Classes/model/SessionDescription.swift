@@ -36,8 +36,8 @@ class SessionDescription {
   /// Converts this `SessionDescription` into a `Dictionary` which can be returned to the Flutter side.
   func asFlutterResult() -> [String: Any] {
     [
-      "type": self.type.rawValue,
-      "description": self.description,
+      "type": type.rawValue,
+      "description": description,
     ]
   }
 }

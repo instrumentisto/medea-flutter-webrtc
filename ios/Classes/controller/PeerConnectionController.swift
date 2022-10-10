@@ -73,6 +73,7 @@ class PeerConnectionController {
       let type = descriptionMap!["type"] as? Int
       let sdp = descriptionMap!["description"] as? String
       Task {
+        // TODO: have you checked that this error will be propagated to the dart side?
         try! await self.peer.setRemoteDescription(
           description: SessionDescription(
             type: SessionDescriptionType(rawValue: type!)!, description: sdp!))
@@ -119,8 +120,8 @@ class PeerConnectionController {
   /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": self.channelId,
-      "id": self.peer.getId(),
+      "channelId": channelId,
+      "id": peer.getId(),
     ]
   }
 }

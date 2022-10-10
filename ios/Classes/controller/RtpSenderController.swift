@@ -51,7 +51,7 @@ class RtpSenderController {
   /// Converts this controller to the Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": self.channelId
+      "channelId": channelId
     ]
   }
 }
