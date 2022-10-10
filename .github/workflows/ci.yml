@@ -114,20 +114,12 @@ jobs:
           components: rustfmt
 
       - run: make cargo.fmt check=yes
-# TODO: move to makefile e.g. kt.fmt
   swiftformat:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-
-      - run: git clone https://github.com/apple/swift-format.git
-      - run: cd swift-format && git checkout "swift-5.5-branch" && swift build -c release
-
-      - name: Format Swift code
-        run: swift-format/.build/release/swift-format -r -p -i ios/Classes
-
-      - name: Verify formatted code is unchanged
-        run: git diff --exit-code HEAD
+      - run: make swift.fmt
+      - run: git diff --exit-code HEAD
 
 
 

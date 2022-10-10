@@ -23,6 +23,8 @@ FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	        | grep -v 'flutter_rust_bridge' \
 	        | cut -d'"' -f2))
 
+SWIFT_VER ?= $(shell swift --version | grep -Eo '[0-9]\.[0-9]+' | sed -n '2p')
+
 KTFMT_VER ?= 0.33
 
 CURRENT_OS ?= $(strip $(or $(os),\
@@ -310,6 +312,42 @@ endif
 	java -jar $(kt-fmt-bin) \
 	     $(if $(call eq,$(check),yes),--set-exit-if-changed,) \
 		android/src/main/kotlin/
+
+
+
+
+##################
+# Swift commands #
+##################
+
+# Format Swift sources with swift-format.
+#
+# Usage:
+#   make swift.fmt
+
+swift-fmt-bin = .cache/swift-format/.build/release/swift-format
+
+ifeq ($(SWIFT_VER),5.7)
+	swift-fmt-branch = release/5.7
+else
+ifeq ($(SWIFT_VER),5.6)
+	swift-fmt-branch = release/5.6
+else
+	swift-fmt-branch = swift-$(SWIFT_VER)-branch
+endif
+endif
+
+
+swift.fmt:
+ifeq ($(wildcard $(swift-fmt-bin)),)
+	mkdir .cache && \
+		cd .cache && \
+		git clone https://github.com/apple/swift-format.git && \
+		cd swift-format && \
+		git checkout $(swift-fmt-branch) && \
+		swift build -c release
+endif
+	$(swift-fmt-bin) -r -p -i ios/Classes
 
 
 
