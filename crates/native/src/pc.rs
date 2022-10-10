@@ -1,9 +1,6 @@
 use std::{
     mem,
-    sync::{
-        mpsc::{self, Sender},
-        Arc, Mutex,
-    },
+    sync::{mpsc, Arc, Mutex},
 };
 
 use anyhow::{anyhow, bail};
@@ -55,7 +52,7 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        create_sdp_tx: Sender<anyhow::Result<api::RtcSessionDescription>>,
+        create_sdp_tx: mpsc::Sender<anyhow::Result<api::RtcSessionDescription>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
@@ -90,7 +87,7 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-        create_sdp_tx: Sender<anyhow::Result<api::RtcSessionDescription>>,
+        create_sdp_tx: mpsc::Sender<anyhow::Result<api::RtcSessionDescription>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
@@ -124,7 +121,7 @@ impl Webrtc {
         peer_id: u64,
         kind: sys::SdpType,
         sdp: String,
-        set_sdp_tx: Sender<anyhow::Result<()>>,
+        set_sdp_tx: mpsc::Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
@@ -139,11 +136,11 @@ impl Webrtc {
         Ok(())
     }
 
-    /// Returns [`RtcStats`]'s of this [`PeerConnection`].
+    /// Returns [`RtcStats`] of the [`PeerConnection`] by its ID.
     pub fn get_stats(
         &self,
         peer_id: u64,
-        report_tx: Sender<sys::RtcStatsReport>,
+        report_tx: mpsc::Sender<sys::RtcStatsReport>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
@@ -598,7 +595,7 @@ impl Webrtc {
         candidate: String,
         sdp_mid: String,
         sdp_mline_index: i32,
-        add_candidate_tx: Sender<anyhow::Result<()>>,
+        add_candidate_tx: mpsc::Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer =
@@ -864,7 +861,7 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     }
 }
 
-/// [`RTCStatsCollectorCallback`] wrapper.
+/// [`sys::RTCStatsCollectorCallback`] wrapper.
 struct GetStatsCallback(mpsc::Sender<sys::RtcStatsReport>);
 
 impl sys::RTCStatsCollectorCallback for GetStatsCallback {

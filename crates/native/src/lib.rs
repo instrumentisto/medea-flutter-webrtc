@@ -5,8 +5,8 @@ mod api;
     clippy::default_trait_access,
     clippy::let_underscore_drop,
     clippy::semicolon_if_nothing_returned,
-    clippy::wildcard_imports,
-    clippy::too_many_lines
+    clippy::too_many_lines,
+    clippy::wildcard_imports
 )]
 mod bridge_generated;
 mod devices;
