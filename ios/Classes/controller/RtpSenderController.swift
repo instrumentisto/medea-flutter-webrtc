@@ -21,12 +21,12 @@ class RtpSenderController {
     self.rtpSender = rtpSender
     self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
     self.channel.setMethodCallHandler({ (call, result) in
-      try! self.onMethodCall(call: call, result: result)
+      self.onMethodCall(call: call, result: result)
     })
   }
 
   /// Handles all supported Flutter method calls for the `RtpSenderProxy`.
-  func onMethodCall(call: FlutterMethodCall, result: FlutterResult) throws {
+  func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
     case "replaceTrack":
