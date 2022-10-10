@@ -41,7 +41,6 @@ class PeerConnectionProxy {
   */
   func getTransceivers() -> [RtpTransceiverProxy] {
     self.syncTransceivers()
-    // TODO: what is this?
     return Array(self.transceivers.values)
   }
 

@@ -33,11 +33,13 @@ class PeerConnectionFactoryController {
       let iceTransportTypeArg = argsMap!["iceTransportType"] as? Int
       let iceTransportType = IceTransportType(rawValue: iceTransportTypeArg!)!
       let iceServersArg = argsMap!["iceServers"] as? [Any]
+
       let iceServers = iceServersArg!.map({ iceServerArg -> IceServer in
         let iceServer = iceServerArg as? [String: Any]
         let urlsArg = iceServer!["urls"] as? [String]
         let username = iceServer!["username"] as? String
         let password = iceServer!["password"] as? String
+
         return IceServer(urls: urlsArg!, username: username, password: password)
       })
       let conf = PeerConnectionConfiguration(

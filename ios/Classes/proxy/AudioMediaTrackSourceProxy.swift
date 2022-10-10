@@ -5,6 +5,7 @@
 ///  Also, this object will track all child `MediaStreamTrackProxy`s and when they all disposed, will
 ///  dispose the underlying `AudioSource`.
 class AudioMediaTrackSourceProxy: MediaTrackSource {
+  // TODO: Does it need to be nullable?
   /// Source `MediaStreamTrackProxy` which will be used for creating new tracks.
   private var track: MediaStreamTrackProxy?
 
