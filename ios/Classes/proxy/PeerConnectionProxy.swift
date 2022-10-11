@@ -23,7 +23,7 @@ class PeerConnectionProxy {
   /// Last unique ID of `PeerConnectionProxy`s.
   private var lastTransceiverId: Int = 0
 
-  /// Creates new `PeerConnectionProxy` with provided peer and ID.
+  /// Creates a new `PeerConnectionProxy` with provided peer and ID.
   init(id: Int, peer: RTCPeerConnection) {
     self.peer = peer
     self.id = id

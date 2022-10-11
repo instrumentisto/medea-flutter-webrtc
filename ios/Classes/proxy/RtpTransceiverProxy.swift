@@ -11,7 +11,7 @@ class RtpTransceiverProxy {
   /// `RtpReceiverProxy` of this `RtpTransceiverProxy`.
   private var receiver: RtpReceiverProxy
 
-  /// Creates new `RtpTransceiverProxy` for the provided `RTCRtpTransceiver`
+  /// Creates a new `RtpTransceiverProxy` for the provided `RTCRtpTransceiver`
   init(transceiver: RTCRtpTransceiver) {
     self.sender = RtpSenderProxy(sender: transceiver.sender)
     self.receiver = RtpReceiverProxy(receiver: transceiver.receiver)

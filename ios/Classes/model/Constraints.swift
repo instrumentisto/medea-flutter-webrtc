@@ -194,7 +194,7 @@ class VideoConstraints {
   var fps: Int?
 
   /**
-    Creates new `VideoConstraints` object based on the method call received from the Flutter
+    Creates a new `VideoConstraints` object based on the method call received from the Flutter
     side.
   */
   init(map: [String: Any]) {
@@ -278,7 +278,7 @@ class Constraints {
   /// Optional constraints to lookup audio devices with.
   var audio: AudioConstraints?
 
-  /// Creates new `Constraints` object based on the method call received from the Flutter side.
+  /// Creates a new `Constraints` object based on the method call received from the Flutter side.
   init(map: [String: Any]) {
     let videoArg = map["video"] as? [String: Any]
     if videoArg != nil {

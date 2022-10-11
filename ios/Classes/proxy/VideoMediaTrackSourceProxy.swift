@@ -22,7 +22,7 @@ class VideoMediaTrackSourceProxy: MediaTrackSource {
   /// Count of all alive `MediaStreamTrackProxy`s created from this source.
   private var tracksCount: Int = 0
 
-  /// Creates new `VideoMediaTrackSourceProxy`.
+  /// Creates a new `VideoMediaTrackSourceProxy`.
   init(
     peerConnectionFactory: RTCPeerConnectionFactory, source: RTCVideoSource, deviceId: String,
     capturer: RTCCameraVideoCapturer

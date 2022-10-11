@@ -12,7 +12,7 @@ class PeerConnectionFactoryController {
   private var channel: FlutterMethodChannel
 
   /**
-    Creates new `PeerConnectionFactoryController` and `PeerConnectionFactoryProxy`
+    Creates a a new `PeerConnectionFactoryController` and `PeerConnectionFactoryProxy`
     based on provided `state`.
   */
   init(messenger: FlutterBinaryMessenger, state: State) {

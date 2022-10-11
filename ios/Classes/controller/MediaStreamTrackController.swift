@@ -20,7 +20,7 @@ class MediaStreamTrackController {
   /// Controller for the `eventChannel` management.
   private var eventController: EventController
 
-  /// Creates new `MediaStreamTrackController` for the provided `MediaStreamTrackProxy`.
+  /// Creates a new `MediaStreamTrackController` for the provided `MediaStreamTrackProxy`.
   init(messenger: FlutterBinaryMessenger, track: MediaStreamTrackProxy) {
     let channelName = ChannelNameGenerator.name(name: "MediaStreamTrack", id: self.channelId)
     self.eventChannel = FlutterEventChannel(

@@ -17,7 +17,7 @@ enum SessionDescriptionType: Int {
   /// Indicates that the description rolls back from an offer/answer state to the last stable state.
   case rollback
 
-  /// Creates new `SessionDescriptionType` based on the provided `RTCSdpType`.
+  /// Creates a new `SessionDescriptionType` based on the provided `RTCSdpType`.
   init(type: RTCSdpType) {
     switch type {
     case .offer:

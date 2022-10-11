@@ -8,7 +8,7 @@ class SessionDescription {
   /// Description SDP of this [SessionDescription].
   private var description: String
 
-  /// Creates new `SessionDescription` with a provided data.
+  /// Creates a new `SessionDescription` with a provided data.
   init(type: SessionDescriptionType, description: String) {
     self.type = type
     self.description = description

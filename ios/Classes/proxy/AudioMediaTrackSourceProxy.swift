@@ -8,7 +8,7 @@ class AudioMediaTrackSourceProxy: MediaTrackSource {
   /// Source `RTCMediaStreamTrack` which will be used for creating new tracks.
   private var track: RTCMediaStreamTrack
 
-  /// Creates new `AudioMediaTrackSouceProxy` based on the provided track.
+  /// Creates a new `AudioMediaTrackSourceProxy` based on the provided track.
   init(track: RTCMediaStreamTrack) {
     self.track = track
   }
@@ -19,6 +19,6 @@ class AudioMediaTrackSourceProxy: MediaTrackSource {
     - Returns: Newly created `MediaStreamTrackProxy`.
   */
   func newTrack() -> MediaStreamTrackProxy {
-    return MediaStreamTrackProxy(track: self.track, deviceId: "audio", source: self)
+    MediaStreamTrackProxy(track: self.track, deviceId: "audio", source: self)
   }
 }

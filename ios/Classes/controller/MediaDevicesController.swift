@@ -17,7 +17,7 @@ class MediaDevicesController {
   /// Controller for the `eventChannel` management.
   private var eventController: EventController
 
-  /// Creates new `MediaDevicesController` for the provided `MediaDevices`.
+  /// Creates a new `MediaDevicesController` for the provided `MediaDevices`.
   init(messenger: FlutterBinaryMessenger, mediaDevices: MediaDevices) {
     let channelName = ChannelNameGenerator.name(name: "MediaDevices", id: 0)
     let eventChannelName = ChannelNameGenerator.name(name: "MediaDevicesEvent", id: 0)

@@ -8,7 +8,7 @@ class MediaDevices {
   */
   private var state: State
 
-  /// Creates new `MediaDevices`.
+  /// Creates a new `MediaDevices`.
   init(state: State) {
     self.state = state
   }

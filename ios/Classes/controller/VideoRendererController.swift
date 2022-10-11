@@ -20,7 +20,7 @@ class VideoRendererController {
   /// Controller for the `eventChannel` management.
   private var eventController: EventController
 
-  /// Creates new `VideoRendererController` for the provided `FlutterRtcVideoRenderer`.
+  /// Creates a new `VideoRendererController` for the provided `FlutterRtcVideoRenderer`.
   init(messenger: FlutterBinaryMessenger, renderer: FlutterRtcVideoRenderer) {
     let channelName = ChannelNameGenerator.name(name: "VideoRenderer", id: self.channelId)
     let eventChannelName = ChannelNameGenerator.name(

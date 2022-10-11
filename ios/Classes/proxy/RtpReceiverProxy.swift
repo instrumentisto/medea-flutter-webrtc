@@ -8,7 +8,7 @@ class RtpReceiverProxy {
   /// `MediaStreamTrackProxy` of this `RtpReceiverProxy`.
   private var track: MediaStreamTrackProxy
 
-  /// Creates new `RtpReceiverProxy` with a provided `RTCRtpReceiver`.
+  /// Creates a new `RtpReceiverProxy` with a provided `RTCRtpReceiver`.
   init(receiver: RTCRtpReceiver) {
     self.receiver = receiver
     self.track = MediaStreamTrackProxy(track: self.receiver.track!, deviceId: nil, source: nil)

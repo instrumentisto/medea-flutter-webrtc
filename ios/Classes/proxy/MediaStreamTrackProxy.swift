@@ -20,7 +20,7 @@ class MediaStreamTrackProxy: Equatable {
   /// Subscribers for `onEnded` callback of this `MediaStreamTrackProxy`.
   private var onEndedSubscribers: [() -> Void] = []
 
-  /// Creates new `MediaStreamTrackProxy` based on the provided data.
+  /// Creates a new `MediaStreamTrackProxy` based on the provided data.
   init(track: RTCMediaStreamTrack, deviceId: String?, source: MediaTrackSource?) {
     self.source = source
     if deviceId != nil {

@@ -9,7 +9,7 @@ class MediaDeviceInfo {
   /// Media kind of the media device.
   var kind: MediaDeviceKind
 
-  /// Creates new `MediaDeviceInfo` based on provided data.
+  /// Creates a new `MediaDeviceInfo` based on provided data.
   init(deviceId: String, label: String, kind: MediaDeviceKind) {
     self.deviceId = deviceId
     self.label = label

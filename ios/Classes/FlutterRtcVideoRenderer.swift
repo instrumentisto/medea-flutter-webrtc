@@ -44,7 +44,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   */
   private let rendererLock: NSLock = NSLock()
 
-  /// Creates new `FlutterRtcVideoRenderer`.
+  /// Creates a new `FlutterRtcVideoRenderer`.
   init(registry: FlutterTextureRegistry) {
     self.frameSize = CGSize()
     self.registry = registry
@@ -106,7 +106,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     return Unmanaged<CVPixelBuffer>.passRetained(self.pixelBuffer!)
   }
 
-  /// Creates new `CVPixelBuffer` based on the provided `CGSize`.
+  /// Creates a new `CVPixelBuffer` based on the provided `CGSize`.
   func setSize(_ size: CGSize) {
     if self.pixelBuffer == nil
       || (size.width != self.frameSize.width || size.height != self.frameSize.height)
@@ -184,6 +184,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
 
   /// Sets `MediaStreamTrackProxy` which will be rendered by this renderer.
   func setVideoTrack(newTrack: MediaStreamTrackProxy?) {
+    // TODO: dont we need lock here?
     if newTrack == nil {
       self.reset()
       track?.removeRenderer(renderer: self)

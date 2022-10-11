@@ -5,7 +5,7 @@ class TransceiverInit {
   /// Direction of the transceiver, created from this config.
   private var direction: TransceiverDirection
 
-  /// Creates new `TransceiverInit` with a provided data.
+  /// Creates a new `TransceiverInit` with a provided data.
   init(direction: TransceiverDirection) {
     self.direction = direction
   }
@@ -69,7 +69,7 @@ class IceServer {
   /// Password for authentication on this [IceServer].
   private var password: String?
 
-  /// Creates new `IceServer` with a provided data.
+  /// Creates a new `IceServer` with a provided data.
   init(urls: [String], username: String?, password: String?) {
     self.urls = urls
     self.username = username
@@ -100,7 +100,7 @@ class PeerConnectionConfiguration {
   */
   var iceTransportType: IceTransportType
 
-  /// Creates new `PeerConnectionConfiguration` based on provided data.
+  /// Creates a new `PeerConnectionConfiguration` based on provided data.
   init(iceServers: [IceServer], iceTransportType: IceTransportType) {
     self.iceServers = iceServers
     self.iceTransportType = iceTransportType

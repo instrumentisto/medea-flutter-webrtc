@@ -19,7 +19,7 @@ class IceCandidate {
 
   }
 
-  /// Creates new `IceCandidate` with a provided data.
+  /// Creates a new `IceCandidate` with a provided data.
   init(sdpMid: String, sdpMLineIndex: Int, candidate: String) {
     self.sdpMid = sdpMid
     self.sdpMLineIndex = sdpMLineIndex

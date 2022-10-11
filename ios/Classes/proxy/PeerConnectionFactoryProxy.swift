@@ -15,7 +15,7 @@ class PeerConnectionFactoryProxy {
   /// Underlying native factory object of this factory.
   private var factory: RTCPeerConnectionFactory
 
-  /// Creates new `PeerConnectionFactoryProxy` based on the provided `State`.
+  /// Creates a new `PeerConnectionFactoryProxy` based on the provided `State`.
   init(state: State) {
     self.factory = state.getPeerFactory()
   }

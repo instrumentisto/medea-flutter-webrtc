@@ -11,7 +11,7 @@ class VideoRendererFactoryController {
   /// Flutter texture registry for creating new Flutter textures.
   private var registry: FlutterTextureRegistry
 
-  /// Creates new `VideoRendererFactoryController`,
+  /// Creates a new `VideoRendererFactoryController`,
   init(messenger: FlutterBinaryMessenger, registry: FlutterTextureRegistry) {
     let channelName = ChannelNameGenerator.name(name: "VideoRendererFactory", id: 0)
     self.messenger = messenger
@@ -25,7 +25,7 @@ class VideoRendererFactoryController {
   /**
     Handles all support Flutter method calls.
 
-    Creates new `FlutterRtcVideoRenderer`s.
+    Creates a new `FlutterRtcVideoRenderer`s.
   */
   func onMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {

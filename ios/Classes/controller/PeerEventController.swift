@@ -6,7 +6,7 @@ class PeerEventController: PeerEventObserver {
   /// Flutter messenger for creating another controllers.
   private var messenger: FlutterBinaryMessenger
 
-  /// Creates new controller for sending all `PeerConnectionProxy` events to the Flutter side.
+  /// Creates a new controller for sending all `PeerConnectionProxy` events to the Flutter side.
   init(messenger: FlutterBinaryMessenger, eventController: EventController) {
     self.messenger = messenger
     self.eventController = eventController

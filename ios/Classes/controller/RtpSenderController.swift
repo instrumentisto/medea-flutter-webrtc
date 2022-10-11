@@ -14,7 +14,7 @@ class RtpSenderController {
   /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
-  /// Creates new `RtpSenderController` for the provided `RtpSenderProxy`.
+  /// Creates a new `RtpSenderController` for the provided `RtpSenderProxy`.
   init(messenger: FlutterBinaryMessenger, rtpSender: RtpSenderProxy) {
     let channelName = ChannelNameGenerator.name(name: "RtpSender", id: channelId)
     self.messenger = messenger

@@ -20,7 +20,7 @@ class PeerConnectionController {
   /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
-  /// Creates new `PeerConnectionController` for the provided `PeerConnectionProxy`.
+  /// Creates a new `PeerConnectionController` for the provided `PeerConnectionProxy`.
   init(messenger: FlutterBinaryMessenger, peer: PeerConnectionProxy) {
     let channelName = ChannelNameGenerator.name(name: "PeerConnection", id: self.channelId)
     self.eventController = EventController()
@@ -82,7 +82,6 @@ class PeerConnectionController {
       let sdp = descriptionMap!["description"] as? String
       Task {
         do {
-          // TODO: have you checked that this error will be propagated to the dart side?
           try await self.peer.setRemoteDescription(
             description: SessionDescription(
               type: SessionDescriptionType(rawValue: type!)!, description: sdp!))

@@ -7,7 +7,7 @@ class State {
   /// Factory for producing `PeerConnection`s and `MediaStreamTrack`s.
   private var factory: RTCPeerConnectionFactory
 
-  /// Creates new `State`.
+  /// Creates a new `State`.
   init() {
     let decoderFactory = RTCDefaultVideoDecoderFactory()
     let encoderFactory = RTCDefaultVideoEncoderFactory()
