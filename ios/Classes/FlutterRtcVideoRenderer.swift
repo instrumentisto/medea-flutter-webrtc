@@ -203,24 +203,6 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     self.track = newTrack
   }
 
-  /// Sets `MediaStreamTrackProxy` which will be rendered by this renderer.
-  func setVideoTrack(newTrack: MediaStreamTrackProxy?) {
-    // TODO: dont we need lock here?
-    if newTrack == nil {
-      self.reset()
-      track?.removeRenderer(renderer: self)
-    }
-    if self.track != newTrack && newTrack != nil {
-      track?.removeRenderer(renderer: self)
-
-      if self.track == nil {
-        newTrack!.addRenderer(renderer: self)
-      }
-    }
-
-    self.track = newTrack
-  }
-
   /// Removes this renderer from list of renderers used by rendering track.
   func dispose() {
     self.rendererLock.lock()
