@@ -1,5 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'package:collection/collection.dart';
 
 import '../api/bridge.g.dart' as ffi;
@@ -38,9 +36,8 @@ class RtcStats {
     this.type,
   );
 
-  /// Creates a [RTCStats]
-  /// basing on the [ffi.RtcStats] received
-  /// from the native side.
+  /// Creates a [RTCStats] basing on the [ffi.RtcStats] received from the native
+  /// side.
   static RtcStats? fromFFI(ffi.RtcStats stats) {
     var kind = RtcStatsType.fromFFI(stats.kind);
     if (kind == null) {
@@ -54,8 +51,7 @@ class RtcStats {
     }
   }
 
-  /// Creates an [RTCStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RTCStats] basing on the [Map] received from the native side.
   static RtcStats? fromMap(dynamic stats) {
     stats['kind']['type'] = stats['type'];
     var kind = RtcStatsType.fromMap(stats['kind']);
@@ -70,8 +66,8 @@ class RtcStats {
     }
   }
 
-  /// Unique ID that is associated with the object that was inspected to
-  /// produce this [RTCStats] object.
+  /// Unique ID that is associated with the object that was inspected to produce
+  /// these [RTCStats].
   ///
   /// [RTCStats]: https://w3.org/TR/webrtc#dom-rtcstats
   String id;
@@ -95,58 +91,54 @@ class RtcStats {
 }
 
 /// Each candidate pair in the check list has a foundation and a state.
-/// The foundation is the combination of the foundations of the local and
-/// remote candidates in the pair.  The state is assigned once the check
-/// list for each media stream has been computed.  There are five
-/// potential values that the state can have.
-enum RTCStatsIceCandidatePairState {
-  /// Check for this pair hasn't been performed, and it can't yet be
-  /// performed until some other check succeeds, allowing this pair to
-  /// unfreeze and move into the [`KnownIceCandidatePairState::Waiting`]
-  /// state.
+/// The foundation is the combination of the foundations of the local and remote
+/// candidates in the pair. The state is assigned once the check list for each
+/// media stream has been computed. There are five potential values that the
+/// state can have.
+enum RtcStatsIceCandidatePairState {
+  /// Check for this pair hasn't been performed, and it can't yet be performed
+  /// until some other check succeeds, allowing this pair to unfreeze and move
+  /// into the [waiting] state.
   frozen,
 
-  /// Check has not been performed for this pair, and can be performed as
-  /// soon as it is the highest-priority Waiting pair on the check list.
+  /// Check has not been performed for this pair, and can be performed as soon
+  /// as it is the highest-priority Waiting pair on the check list.
   waiting,
 
-  /// Check has been sent for this pair,
-  /// but the transaction is in progress.
+  /// Check has been sent for this pair, but the transaction is in progress.
   inProgress,
 
-  /// Check for this pair was already done and failed,
-  /// either never producing any response or producing
-  /// an unrecoverable failure response.
+  /// Check for this pair was already done and failed, either never producing
+  /// any response or producing an unrecoverable failure response.
   failed,
 
-  /// Check for this pair was already done
-  /// and produced a successful result.
+  /// Check for this pair was already done and produced a successful result.
   succeeded,
 }
 
-/// Trying convert [String] to [RTCStatsIceCandidatePairState].
-RTCStatsIceCandidatePairState? iceCandidatePairStateTryFromString(
+/// Trying convert [String] to [RtcStatsIceCandidatePairState].
+RtcStatsIceCandidatePairState? iceCandidatePairStateTryFromString(
     String state) {
   switch (state) {
     case ('frozen'):
       {
-        return RTCStatsIceCandidatePairState.frozen;
+        return RtcStatsIceCandidatePairState.frozen;
       }
     case ('waiting'):
       {
-        return RTCStatsIceCandidatePairState.waiting;
+        return RtcStatsIceCandidatePairState.waiting;
       }
     case ('in-progress'):
       {
-        return RTCStatsIceCandidatePairState.inProgress;
+        return RtcStatsIceCandidatePairState.inProgress;
       }
     case ('failed'):
       {
-        return RTCStatsIceCandidatePairState.failed;
+        return RtcStatsIceCandidatePairState.failed;
       }
     case ('succeeded'):
       {
-        return RTCStatsIceCandidatePairState.succeeded;
+        return RtcStatsIceCandidatePairState.succeeded;
       }
     default:
       {
@@ -222,17 +214,15 @@ enum Protocol {
   udp,
 }
 
-/// All known types of [`RtcStat`]s.
+/// All known types of [RtcStats].
 ///
 /// [List of all RTCStats types on W3C][1].
 ///
-/// [1]: https://w3.org/TR/webrtc-stats/#rtctatstype-%2A
-/// [`RtcStat`]: super::RtcStat
+/// [1]: https://w3.org/TR/webrtc-stats#rtctatstype-%2A
 abstract class RtcStatsType {
   RtcStatsType();
 
-  /// Creates a [RtcStatsType]
-  /// basing on the [ffi.RtcStatsType] received
+  /// Creates a [RtcStatsType] basing on the [ffi.RtcStatsType] received
   /// from the native side.
   static RtcStatsType? fromFFI(ffi.RtcStatsType stats) {
     switch (stats.runtimeType.toString().substring(2)) // Skip '_$' prefix.
@@ -298,8 +288,8 @@ abstract class RtcStatsType {
     }
   }
 
-  /// Creates an [RtcStatsType]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcStatsType] basing on the [Map] received from the native
+  /// side.
   static RtcStatsType? fromMap(dynamic stats) {
     switch (stats['type']) {
       case 'media-source':
@@ -380,9 +370,9 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
       String? trackIdentifier)
       : super(trackIdentifier);
 
-  /// Creates a [RtcAudioSourceStats]
-  /// basing on the [ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats] received
-  /// from the native side.
+  /// Creates a [RtcAudioSourceStats] basing on the
+  /// [ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats] received from
+  /// the native side.
   static RtcAudioSourceStats fromFFI(
       ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats stats,
       String? trackIdentifier) {
@@ -396,8 +386,8 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
     );
   }
 
-  /// Creates an [RtcAudioSourceStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcAudioSourceStats] basing on the [Map] received from the
+  /// native side.
   static RtcAudioSourceStats fromMap(dynamic stats) {
     return RtcAudioSourceStats(
       stats['audioLevel'],
@@ -437,9 +427,9 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
       this.framesPerSecond, String? trackIdentifier)
       : super(trackIdentifier);
 
-  /// Creates a [RtcVideoSourceStats]
-  /// basing on the [ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats] received
-  /// from the native side.
+  /// Creates a [RtcVideoSourceStats] basing on the
+  /// [ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats] received from the
+  /// native side.
   static RtcVideoSourceStats fromFFI(
       ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats stats,
       String? trackIdentifier) {
@@ -447,8 +437,8 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
         stats.framesPerSecond, trackIdentifier);
   }
 
-  /// Creates an [RtcVideoSourceStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcVideoSourceStats] basing on the [Map] received from the
+  /// native side.
   static RtcVideoSourceStats fromMap(dynamic stats) {
     return RtcVideoSourceStats(stats['width'], stats['height'], stats['frames'],
         stats['framesPerSecond'], stats['trackIdentifier']);
@@ -483,9 +473,8 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
   RtcIceCandidateStats(this.transportId, this.address, this.port, this.protocol,
       this.candidateType, this.priority, this.url, this.relayProtocol);
 
-  /// Creates a [RtcIceCandidateStats]
-  /// basing on the [ffi.RtcStatsType_RtcIceCandidateStats] received
-  /// from the native side.
+  /// Creates a [RtcIceCandidateStats] basing on the
+  /// [ffi.RtcStatsType_RtcIceCandidateStats] received from the native side.
   static RtcIceCandidateStats fromFFI(
       ffi.RtcStatsType_RtcIceCandidateStats stats) {
     Protocol? relayProtocol;
@@ -517,8 +506,8 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
     }
   }
 
-  /// Creates an [RtcIceCandidateStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcIceCandidateStats] basing on the [Map] received from the
+  /// native side.
   static RtcIceCandidateStats fromMap(dynamic stats) {
     if (stats['isRemote']) {
       return RtcRemoteIceCandidateStats(
@@ -549,8 +538,8 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
     }
   }
 
-  /// Unique ID that is associated to the object that was inspected to
-  /// produce the [RTCTransportStats][1] associated with this candidate.
+  /// Unique ID that is associated to the object that was inspected to produce
+  /// the [RTCTransportStats][1] associated with this candidate.
   ///
   /// [1]: https://w3.org/TR/webrtc-stats/#transportstats-dict%2A
   String? transportId;
@@ -626,10 +615,10 @@ class RtcOutboundRtpStreamStatsAudio
     extends RtcOutboundRtpStreamStatsMediaType {
   RtcOutboundRtpStreamStatsAudio(this.totalSamplesSent, this.voiceActivityFlag);
 
-  /// Total number of samples that have been sent over this Rtp stream.
+  /// Total number of samples that have been sent over this RTP stream.
   int? totalSamplesSent;
 
-  /// Whether the last Rtp packet sent contained voice activity or not
+  /// Whether the last RTP packet sent contained voice activity or not
   /// based on the presence of the V bit in the extension header.
   bool? voiceActivityFlag;
 }
@@ -669,19 +658,19 @@ class RtcOutboundRtpStreamStatsVideo
   double? framesPerSecond;
 }
 
-/// Statistics for an outbound [Rtp] stream that is currently sent with
+/// Statistics for an outbound [RTP] stream that is currently sent with
 /// [RTCPeerConnection] object.
 ///
-/// When there are multiple [Rtp] streams connected to the same sender, such as
+/// When there are multiple [RTP] streams connected to the same sender, such as
 /// when using simulcast or RTX, there will be one
-/// [RTCOutboundRtpStreamStats][5] per Rtp stream, with distinct values of the
+/// [RTCOutboundRtpStreamStats][5] per RTP stream, with distinct values of the
 /// [SSRC] attribute, and all these senders will have a reference to the same
 /// "sender" object (of type [RTCAudioSenderStats][1] or
 /// [RTCVideoSenderStats][2]) and "track" object (of type
 /// [RTCSenderAudioTrackAttachmentStats][3] or
 /// [RTCSenderVideoTrackAttachmentStats][4]).
 ///
-/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
 /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosenderstats
@@ -698,9 +687,8 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     this.mediaSourceId,
   );
 
-  /// Creates a [RtcOutboundRtpStreamStats]
-  /// basing on the [ffi.RtcStatsType_RtcOutboundRtpStreamStats] received
-  /// from the native side.
+  /// Creates a [RtcOutboundRtpStreamStats] basing on the
+  /// [ffi.RtcStatsType_RtcOutboundRtpStreamStats] received from the native side.
   static RtcOutboundRtpStreamStats fromFFI(
       ffi.RtcStatsType_RtcOutboundRtpStreamStats stats) {
     RtcOutboundRtpStreamStatsMediaType? mediaType;
@@ -725,8 +713,8 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcOutboundRtpStreamStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcOutboundRtpStreamStats] basing on the [Map] received from
+  /// the native side.
   static RtcOutboundRtpStreamStats fromMap(dynamic stats) {
     RtcOutboundRtpStreamStatsMediaType? mediaType;
     if (stats['kind'] == 'audio') {
@@ -757,7 +745,7 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? bytesSent;
 
-  /// Total number of Rtp packets sent for this [SSRC].
+  /// Total number of RTP packets sent for this [SSRC].
   ///
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? packetsSent;
@@ -782,7 +770,7 @@ class RtcInboundRtpStreamAudio extends RtcInboundRtpStreamMediaType {
     this.voiceActivityFlag,
   );
 
-  /// Total number of samples that have been received on this Rtp stream.
+  /// Total number of samples that have been received on this RTP stream.
   /// This includes [concealedSamples].
   ///
   /// [concealedSamples]: https://tinyurl.com/s6c4qe4
@@ -822,7 +810,7 @@ class RtcInboundRtpStreamAudio extends RtcInboundRtpStreamMediaType {
   /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosourcestats
   double? totalSamplesDuration;
 
-  /// Indicator whether the last Rtp packet whose frame was delivered to the
+  /// Indicator whether the last RTP packet whose frame was delivered to the
   /// [RTCRtpReceiver]'s [MediaStreamTrack][1] for playout contained voice
   /// activity or not based on the presence of the V bit in the extension
   /// header, as defined in [RFC 6464].
@@ -850,12 +838,12 @@ class RtcInboundRtpStreamVideo extends RtcInboundRtpStreamMediaType {
     this.sliCount,
   );
 
-  /// Total number of frames correctly decoded for this Rtp stream, i.e. frames
+  /// Total number of frames correctly decoded for this RTP stream, i.e. frames
   /// that would be displayed if no frames are dropped.
   int? framesDecoded;
 
   /// Total number of key frames, such as key frames in VP8 [RFC 6386] or
-  /// IDR-frames in H.264 [RFC 6184], successfully decoded for this Rtp media
+  /// IDR-frames in H.264 [RFC 6184], successfully decoded for this RTP media
   /// stream.
   ///
   /// This is a subset of [framesDecoded].
@@ -908,7 +896,7 @@ class RtcInboundRtpStreamVideo extends RtcInboundRtpStreamMediaType {
   /// [concealedSamples]: https://tinyurl.com/s6c4qe4
   int? concealmentEvents;
 
-  /// Total number of complete frames received on this Rtp stream.
+  /// Total number of complete frames received on this RTP stream.
   ///
   /// This metric is incremented when the complete frame is received.
   int? framesReceived;
@@ -917,10 +905,10 @@ class RtcInboundRtpStreamVideo extends RtcInboundRtpStreamMediaType {
   int? sliCount;
 }
 
-/// Statistics for an inbound [Rtp] stream that is currently received with
+/// Statistics for an inbound [RTP] stream that is currently received with
 /// [RTCPeerConnection] object.
 ///
-/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 class RtcInboundRtpStreamStats extends RtcStatsType {
   RtcInboundRtpStreamStats(
@@ -932,9 +920,8 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
     this.mediaType,
   );
 
-  /// Creates a [RtcInboundRtpStreamStats]
-  /// basing on the [ffi.RtcStatsType_RtcInboundRtpStreamStats] received
-  /// from the native side.
+  /// Creates a [RtcInboundRtpStreamStats] basing on the
+  /// [ffi.RtcStatsType_RtcInboundRtpStreamStats] received from the native side.
   static RtcInboundRtpStreamStats fromFFI(
       ffi.RtcStatsType_RtcInboundRtpStreamStats stats) {
     RtcInboundRtpStreamMediaType? mediaType;
@@ -976,8 +963,8 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
         mediaType);
   }
 
-  /// Creates an [RtcInboundRtpStreamStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcInboundRtpStreamStats] basing on the [Map] received from
+  /// the native side.
   static RtcInboundRtpStreamStats fromMap(dynamic stats) {
     RtcInboundRtpStreamMediaType? mediaType;
     if (stats['kind'] == 'audio') {
@@ -1023,12 +1010,12 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? bytesReceived;
 
-  /// Total number of Rtp data packets received for this [SSRC].
+  /// Total number of RTP data packets received for this [SSRC].
   ///
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? packetsReceived;
 
-  /// Total number of Rtp data packets for this [SSRC] that have been lost since
+  /// Total number of RTP data packets for this [SSRC] that have been lost since
   /// the beginning of reception.
   ///
   /// This number is defined to be the number of packets expected less the
@@ -1091,13 +1078,12 @@ class RtcIceCandidatePairStats extends RtcStatsType {
     this.availableOutgoingBitrate,
   );
 
-  /// Creates a [RtcIceCandidatePairStats]
-  /// basing on the [ffi.RtcStatsType_RtcIceCandidatePairStats] received
-  /// from the native side.
+  /// Creates a [RtcIceCandidatePairStats] basing on the
+  /// [ffi.RtcStatsType_RtcIceCandidatePairStats] received from the native side.
   static RtcIceCandidatePairStats fromFFI(
       ffi.RtcStatsType_RtcIceCandidatePairStats stats) {
     return RtcIceCandidatePairStats(
-      RTCStatsIceCandidatePairState.values[stats.state.index],
+      RtcStatsIceCandidatePairState.values[stats.state.index],
       stats.nominated,
       stats.bytesSent,
       stats.bytesReceived,
@@ -1107,8 +1093,8 @@ class RtcIceCandidatePairStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcIceCandidatePairStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcIceCandidatePairStats] basing on the [Map] received from
+  /// the native side.
   static RtcIceCandidatePairStats fromMap(dynamic stats) {
     return RtcIceCandidatePairStats(
       iceCandidatePairStateTryFromString(stats['state'])!,
@@ -1122,7 +1108,7 @@ class RtcIceCandidatePairStats extends RtcStatsType {
   }
 
   /// State of the checklist for the local and remote candidates in a pair.
-  RTCStatsIceCandidatePairState state;
+  RtcStatsIceCandidatePairState state;
 
   /// Related to updating the nominated flag described in
   /// [Section 7.1.3.2.4 of RFC 5245][1].
@@ -1161,7 +1147,7 @@ class RtcIceCandidatePairStats extends RtcStatsType {
   double? currentRoundTripTime;
 
   /// Calculated by the underlying congestion control by combining the available
-  /// bitrate for all the outgoing Rtp streams using this candidate pair. The
+  /// bitrate for all the outgoing RTP streams using this candidate pair. The
   /// bitrate measurement does not count the size of the IP or other transport
   /// layers like TCP or UDP. It is similar to the TIAS defined in [RFC 3890],
   /// i.e. it is measured in bits per second and the bitrate is calculated over
@@ -1192,9 +1178,8 @@ class RtcTransportStats extends RtcStatsType {
     this.iceRole,
   );
 
-  /// Creates a [RtcIceCandidatePairStats]
-  /// basing on the [ffi.RtcStatsType_RtcIceCandidatePairStats] received
-  /// from the native side.
+  /// Creates a [RtcIceCandidatePairStats] basing on the
+  /// [ffi.RtcStatsType_RtcIceCandidatePairStats] received from the native side.
   static RtcTransportStats fromFFI(ffi.RtcStatsType_RtcTransportStats stats) {
     IceRole? role;
     if (stats.iceRole != null) {
@@ -1204,8 +1189,8 @@ class RtcTransportStats extends RtcStatsType {
         stats.bytesSent, stats.bytesReceived, role);
   }
 
-  /// Creates an [RtcTransportStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcTransportStats] basing on the [Map] received from the
+  /// native side.
   static RtcTransportStats fromMap(dynamic stats) {
     return RtcTransportStats(
         tryParse(stats['packetsSent']),
@@ -1242,13 +1227,13 @@ class RtcTransportStats extends RtcStatsType {
   IceRole? iceRole;
 }
 
-/// Statistics for the remote endpoint's inbound [Rtp] stream corresponding to
+/// Statistics for the remote endpoint's inbound [RTP] stream corresponding to
 /// an outbound stream that is currently sent with [RTCPeerConnection] object.
 ///
 /// It is measured at the remote endpoint and reported in a RTCP Receiver Report
 /// (RR) or RTCP Extended Report (XR).
 ///
-/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
   RtcRemoteInboundRtpStreamStats(
@@ -1260,9 +1245,9 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
     this.reportsReceived,
   );
 
-  /// Creates a [RtcRemoteInboundRtpStreamStats]
-  /// basing on the [ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats] received
-  /// from the native side.
+  /// Creates a [RtcRemoteInboundRtpStreamStats] basing on the
+  /// [ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats] received from the
+  /// native side.
   static RtcRemoteInboundRtpStreamStats fromFFI(
       ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats stats) {
     return RtcRemoteInboundRtpStreamStats(
@@ -1275,8 +1260,8 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcRemoteInboundRtpStreamStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcRemoteInboundRtpStreamStats] basing on the [Map] received
+  /// from the native side.
   static RtcRemoteInboundRtpStreamStats fromMap(dynamic stats) {
     return RtcRemoteInboundRtpStreamStats(
       stats['localId'],
@@ -1288,31 +1273,34 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// [`localId`] is used for looking up the local
-  /// [RTCOutboundRtpStreamStats] object for the same SSRC.
+  /// [localId] is used for looking up the local [RTCOutboundRtpStreamStats][1]
+  /// object for the same [SSRC].
   ///
-  /// [`localId`]: https://tinyurl.com/r8uhbo9
-  /// [RTCOutBoundRtpStreamStats]: https://tinyurl.com/r6f5vqg
+  /// [localId]: https://tinyurl.com/r8uhbo9
+  /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
+  /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcoutboundrtpstreamstats
   String? localId;
 
-  /// Packet jitter measured in seconds for this SSRC.
+  /// Packet jitter measured in seconds for this [SSRC].
+  ///
+  /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   double? jitter;
 
-  /// Estimated round trip time for this SSRC based on
-  /// the RTCP timestamps in
+  /// Estimated round trip time for this [SSRC] based on the RTCP timestamps in
   /// the RTCP Receiver Report (RR) and measured in seconds.
   /// Calculated as defined in [Section 6.4.1 of RFC 3550][1].
-  /// If no RTCP Receiver Report
-  /// is received with a DLSR value other than 0, the round trip time is
-  /// left undefined.
+  /// If no RTCP Receiver Report is received with a DLSR value other than 0, the
+  /// round trip time is left undefined.
   ///
+  /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
   double? roundTripTime;
 
-  /// Fraction packet loss reported for this SSRC.
-  /// Calculated as defined in
-  /// [Section 6.4.1 of RFC 3550][1] and [Appendix A.3][2].
+  /// Fraction packet loss reported for this [SSRC].
+  /// Calculated as defined in [Section 6.4.1 of RFC 3550][1] and
+  /// [Appendix A.3][2].
   ///
+  /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
   /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
   double? fractionLost;
@@ -1331,14 +1319,14 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
   int? roundTripTimeMeasurements;
 }
 
-/// Statistics for the remote endpoint's outbound [Rtp] stream corresponding to
+/// Statistics for the remote endpoint's outbound [RTP] stream corresponding to
 /// an inbound stream that is currently received with [RTCPeerConnection]
 /// object.
 ///
 /// It is measured at the remote endpoint and reported in an RTCP Sender Report
 /// (SR).
 ///
-/// [Rtp]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
   RtcRemoteOutboundRtpStreamStats(
@@ -1347,9 +1335,9 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
     this.reportsSent,
   );
 
-  /// Creates a [RtcRemoteOutboundRtpStreamStats]
-  /// basing on the [ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats] received
-  /// from the native side.
+  /// Creates a [RtcRemoteOutboundRtpStreamStats] basing on the
+  /// [ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats] received from the
+  /// native side.
   static RtcRemoteOutboundRtpStreamStats fromFFI(
       ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats stats) {
     return RtcRemoteOutboundRtpStreamStats(
@@ -1359,8 +1347,8 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcRemoteOutboundRtpStreamStats]
-  /// basing on the [Map] received from the native side.
+  /// Creates an [RtcRemoteOutboundRtpStreamStats] basing on the [Map] received
+  /// from the native side.
   static RtcRemoteOutboundRtpStreamStats fromMap(dynamic stats) {
     return RtcRemoteOutboundRtpStreamStats(
       stats['localId'],
