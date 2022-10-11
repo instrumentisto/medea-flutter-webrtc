@@ -1,19 +1,17 @@
 import AVFoundation
 import WebRTC
 
-/// Processor for `getUserMedia` requests.
+/// Processor for `getUserMedia()` requests.
 class MediaDevices {
-  /**
-    Global state used for creation new `MediaStreamTrackProxy`s.
-  */
+  /// Global state used for creation of new `MediaStreamTrackProxy`s.
   private var state: State
 
-  /// Creates a new `MediaDevices`.
+  /// Initializes new `MediaDevices` with the provided `State`.
   init(state: State) {
     self.state = state
   }
 
-  /// - Returns: List of `MediaDeviceInfo`s for the currently available devices.
+  /// Returns a list of `MediaDeviceInfo`s for the currently available devices.
   func enumerateDevices() -> [MediaDeviceInfo] {
     var devices = AVCaptureDevice.devices(for: AVMediaType.audio).map { device -> MediaDeviceInfo in
       MediaDeviceInfo(
@@ -28,14 +26,8 @@ class MediaDevices {
     return devices
   }
 
-  /**
-    Creates local audio and video `MediaStreamTrackProxy`s based on the provided `Constraints`.
-
-    - Parameters:
-      - constraints: Parameters based on which `MediaDevices` will select most suitable device.
-
-    - Returns: List of `MediaStreamTrackProxy`s most suitable based on the provided `Constraints`.
-  */
+  /// Creates local audio and video `MediaStreamTrackProxy`s based on the
+  /// provided `Constraints`.
   func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
     var tracks: [MediaStreamTrackProxy] = []
     if constraints.audio != nil {
@@ -48,11 +40,8 @@ class MediaDevices {
     return tracks
   }
 
-  /**
-    Searches for `AVCaptureDevice` which fits into provided `VideoConstraints`.
-
-    - Returns: Found `AVCaptureDevice` or `nil` if all devices doesn't fits into constraints.
-  */
+  /// Searches for an `AVCaptureDevice` which fits into the provided
+  /// `VideoConstraints`.
   private func findVideoDeviceForConstraints(constraints: VideoConstraints) -> AVCaptureDevice? {
     var maxScore = 0
     var bestFoundDevice: AVCaptureDevice?
@@ -68,15 +57,10 @@ class MediaDevices {
         }
       }
     }
-
     return bestFoundDevice
   }
 
-  /**
-    Creates an audio `MediaStreamTrackProxy`s.
-
-    - Returns: All found `MediaStreamTrackProxy`s.
-  */
+  /// Creates an audio `MediaStreamTrackProxy`.
   private func getUserAudio() -> MediaStreamTrackProxy {
     let track = self.state.getPeerFactory().audioTrack(
       withTrackId: LocalTrackIdGenerator.shared.nextId())
@@ -84,14 +68,8 @@ class MediaDevices {
     return audioSource.newTrack()
   }
 
-  /**
-    Creates a video `MediaStreamTrackProxy` for the provided `VideoConstraints`.
-
-    - Parameters:
-      - constraints: `VideoConstraints` to perform the lookup with.
-
-    - Returns: Most suitable `MediaStreamTrackProxy` for the provided `VideoConstraints`.
-  */
+  /// Creates a video `MediaStreamTrackProxy` for the provided
+  /// `VideoConstraints`.
   private func getUserVideo(constraints: VideoConstraints) -> MediaStreamTrackProxy {
     let videoDevice = self.findVideoDeviceForConstraints(constraints: constraints)!
     let selectedFormat = selectFormatForDevice(device: videoDevice, constraints: constraints)
@@ -107,15 +85,7 @@ class MediaDevices {
     return videoTrackSource.newTrack()
   }
 
-  /**
-    Selects most suitable FPS for the provided `AVCaptureDevice.Format`.
-
-    - Parameters:
-      - format: `AVCaptureDevice.Format` for which FPS will be selected.
-      - constraints: Video constraints based on which FPS will be selected.
-
-    - Returns: Most suitable FPS for `AVCaptureDevice.Format`.
-  */
+  /// Selects the most suitable FPS for the provided `AVCaptureDevice.Format`.
   private func selectFpsForFormat(format: AVCaptureDevice.Format, constraints: VideoConstraints)
     -> Int
   {
@@ -130,16 +100,8 @@ class MediaDevices {
     return min(Int(maxSupportedFramerate), targetFps)
   }
 
-  /**
-    Selects most suitable `AVCaptureDevice.Format` for the provided `AVCaptureDevice`
-    based on the provided `VideoConstraints`.
-
-    - Parameters:
-      - device: `AVCaptureDevice` for which format will be selected.
-      - constraints: Video constraints based on which format will be selected.
-
-    - Returns: Most suitable `AVCaptureDevice.Format` for the provided `AVCaptureDevice`.
-  */
+  /// Selects the most suitable `AVCaptureDevice.Format` for the provided
+  /// `AVCaptureDevice` based on the provided `VideoConstraints`.
   private func selectFormatForDevice(device: AVCaptureDevice, constraints: VideoConstraints)
     -> AVCaptureDevice.Format
   {
@@ -161,7 +123,6 @@ class MediaDevices {
         currentDiff = diff
       }
     }
-
     return bestFoundFormat!
   }
 }

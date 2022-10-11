@@ -5,29 +5,22 @@ class PeerConnectionFactoryProxy {
   /// Counter for generating new [PeerConnectionProxy] IDs.
   private var lastPeerConnectionId: Int = 0
 
-  /**
-    All `PeerObserver`s created by this `PeerConnectionFactoryProxy`.
-
-    `PeerObserver`s will be removed on a `PeerConnectionProxy` dispose.
-  */
+  /// All the `PeerObserver`s created by this `PeerConnectionFactoryProxy`.
+  ///
+  /// `PeerObserver`s will be removed on a `PeerConnectionProxy` disposal.
   private var peerObservers: [Int: PeerObserver] = [:]
 
   /// Underlying native factory object of this factory.
   private var factory: RTCPeerConnectionFactory
 
-  /// Creates a new `PeerConnectionFactoryProxy` based on the provided `State`.
+  /// Initializes a new `PeerConnectionFactoryProxy` based on the provided
+  /// `State`.
   init(state: State) {
     self.factory = state.getPeerFactory()
   }
 
-  /**
-    Creates a new `PeerConnectionProxy` based on the provided `PeerConnectionConfiguration`.
-
-    - Parameters:
-      - config: Config with which new `PeerConnectionProxy` will be created.
-
-    - Returns: Newly created `PeerConnectionProxy`.
-  */
+  /// Creates a new `PeerConnectionProxy` based on the provided
+  /// `PeerConnectionConfiguration`.
   func create(conf: PeerConnectionConfiguration) -> PeerConnectionProxy {
     let id = nextId()
 
@@ -51,7 +44,7 @@ class PeerConnectionFactoryProxy {
     self.peerObservers.removeValue(forKey: id)
   }
 
-  /// Returns next track ID.
+  /// Generates the next track ID.
   private func nextId() -> Int {
     lastPeerConnectionId += 1
     return lastPeerConnectionId

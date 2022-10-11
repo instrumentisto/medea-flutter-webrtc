@@ -1,20 +1,18 @@
 import Flutter
 
-/// Controller for the `PeerConnection` factory management.
+/// Controller of a `PeerConnection` factory management.
 class PeerConnectionFactoryController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 
-  /// Instance of `PeerConnection` factory manager.
+  /// Instance of the `PeerConnection` factory manager.
   private var peerFactory: PeerConnectionFactoryProxy
 
   /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
-  /**
-    Creates a new `PeerConnectionFactoryController` and `PeerConnectionFactoryProxy`
-    based on provided `state`.
-  */
+  /// Initializes a new `PeerConnectionFactoryController` and
+  /// `PeerConnectionFactoryProxy` based on the provided `State`.
   init(messenger: FlutterBinaryMessenger, state: State) {
     let channelName = ChannelNameGenerator.name(name: "PeerConnectionFactory", id: 0)
     self.messenger = messenger
@@ -25,7 +23,8 @@ class PeerConnectionFactoryController {
     })
   }
 
-  /// Handles all supported Flutter method calls for the `PeerConnectionFactoryProxy`.
+  /// Handles all the supported Flutter method calls for the controlled
+  /// `PeerConnectionFactoryProxy`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {

@@ -1,21 +1,19 @@
-/// Controller for the VideoRenderer events.
+/// Controller of `VideoRenderer` events.
 class VideoRendererEventController: VideoRendererEvent {
-  /// Controller for the PeerConnection event channel.
+  /// Controller of the `VideoRenderer` event channel.
   private var eventController: EventController
 
   /// Flutter messenger for creating another controllers.
   private var messenger: FlutterBinaryMessenger
 
-  /**
-    Creates a new controller for sending all `FlutterRtcVideoRenderer`
-    events to the Flutter side.
-  */
+  /// Initializes a new controller for sending all `FlutterRtcVideoRenderer`
+  /// events to Flutter side.
   init(messenger: FlutterBinaryMessenger, eventController: EventController) {
     self.messenger = messenger
     self.eventController = eventController
   }
 
-  /// Sends `onFirstFrameRendered` event to the Flutter side.
+  /// Sends an `onFirstFrameRendered` event to Flutter side.
   func onFirstFrameRendered(id: Int64) {
     self.eventController.sendEvent(data: [
       "event": "onFirstFrameRendered",
@@ -23,7 +21,7 @@ class VideoRendererEventController: VideoRendererEvent {
     ])
   }
 
-  /// Sends `onTextureChangeVideoSize` event to the Flutter side.
+  /// Sends an `onTextureChangeVideoSize` event to Flutter side.
   func onTextureChangeVideoSize(id: Int64, height: Int32, width: Int32) {
     self.eventController.sendEvent(data: [
       "event": "onTextureChangeVideoSize",
@@ -33,7 +31,7 @@ class VideoRendererEventController: VideoRendererEvent {
     ])
   }
 
-  /// Sends `onTextureChangeRotation` event to the Flutter side.
+  /// Sends an `onTextureChangeRotation` event to Flutter side.
   func onTextureChangeRotation(id: Int64, rotation: Int) {
     self.eventController.sendEvent(data: [
       "event": "onTextureChangeRotation",

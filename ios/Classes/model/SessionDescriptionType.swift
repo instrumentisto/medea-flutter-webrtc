@@ -2,22 +2,22 @@ import WebRTC
 
 /// Representation of an `RTCSdpType`.
 enum SessionDescriptionType: Int {
-  /// Indicates that the description is the initial proposal in an offer/answer exchange.
+  /// Description is the initial proposal in an offer/answer exchange.
   case offer
 
-  /**
-    Indicates that the description is a provisional answer and may be changed when the definitive
-    choice will be given.
-  */
+  /// Description is a provisional answer and may be changed when the definitive
+  /// choice will be given.
   case prAnswer
 
-  /// Indicates that the description is the definitive choice in an offer/answer exchange.
+  /// Description is the definitive choice in an offer/answer exchange.
   case answer
 
-  /// Indicates that the description rolls back from an offer/answer state to the last stable state.
+  /// Description rolls back from an offer/answer state to the last stable
+  /// state.
   case rollback
 
-  /// Creates a new `SessionDescriptionType` based on the provided `RTCSdpType`.
+  /// Initializes a new `SessionDescriptionType` based on the provided
+  /// `RTCSdpType`.
   init(type: RTCSdpType) {
     switch type {
     case .offer:
@@ -31,11 +31,7 @@ enum SessionDescriptionType: Int {
     }
   }
 
-  /**
-    Converts this `SessionDescriptionType` into an [RTCSdpType].
-
-    - Returns: `RTCSdpType` based on this `SessionDescriptionType`.
-  */
+  /// Converts this `SessionDescriptionType` into an `RTCSdpType`.
   func intoWebRtc() -> RTCSdpType {
     switch self {
     case .offer:

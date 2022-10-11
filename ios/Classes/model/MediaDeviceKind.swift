@@ -1,11 +1,11 @@
-/// Media device kind.
+/// Possible kinds of a media device.
 enum MediaDeviceKind: Int {
-  /// Represents an audio input device (for example, a microphone).
+  /// Audio input device (for example, a microphone).
   case audioInput
 
-  /// Represents a video input device (for example, a webcam).
+  /// Video input device (for example, a webcam).
   case audioOutput
 
-  /// Represents an audio output device (for example, a pair of headphones).
+  /// Audio output device (for example, a pair of headphones).
   case videoInput
 }

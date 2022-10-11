@@ -1,20 +1,16 @@
 import WebRTC
 
-/// Representation of an `RTCRtpTransceiverInit`.
+/// Representation of an `RTCRtpTransceiverInit` configuration.
 class TransceiverInit {
-  /// Direction of the transceiver, created from this config.
+  /// Direction of the transceiver, created from this configuration.
   private var direction: TransceiverDirection
 
-  /// Creates a new `TransceiverInit` with a provided data.
+  /// Initializes a new `TransceiverInit` configuration with the provided data.
   init(direction: TransceiverDirection) {
     self.direction = direction
   }
 
-  /**
-    Converts this `RtpTransceiverInit` into an `RTCRtpTransceiverInit`.
-
-    - Returns: `RTCRtpTransceiverInit` created based on this `RtpTransceiverInit`.
-   */
+  /// Converts this `RtpTransceiverInit` into an `RTCRtpTransceiverInit`.
   func intoWebRtc() -> RTCRtpTransceiverInit {
     let conf = RTCRtpTransceiverInit()
     conf.direction = self.direction.intoWebRtc()
@@ -22,15 +18,13 @@ class TransceiverInit {
   }
 }
 
-/// Representation of a [PeerConnection.IceTransportsType].
+/// Representation of an [RTCIceTransportPolicy].
 enum IceTransportType: Int {
   /// Offer all types of ICE candidates.
   case all
 
-  /**
-    Only advertise relay-type candidates, like TURN servers, to avoid leaking IP addresses of the
-    client.
-  */
+  /// Only advertise relay-type candidates, like TURN servers, to avoid leaking
+  /// IP addresses of the client.
   case relay
 
   /// Gather all ICE candidate types except host candidates.
@@ -39,11 +33,7 @@ enum IceTransportType: Int {
   /// No ICE candidate offered.
   case none
 
-  /**
-    Converts this `IceTransportType` into a `RTCIceTransportsType`.
-
-    Returns: `RTCIceTransportsType` based on this `IceTransportType`.
-  */
+  /// Converts this `IceTransportType` into an `RTCIceTransportsType`.
   func intoWebRtc() -> RTCIceTransportPolicy {
     switch self {
     case .all:
@@ -58,7 +48,7 @@ enum IceTransportType: Int {
   }
 }
 
-/// Representation of a [PeerConnection.IceServer].
+/// Representation of an [RTCIceServer].
 class IceServer {
   /// List of URLs of this [IceServer].
   private var urls: [String]
@@ -69,48 +59,37 @@ class IceServer {
   /// Password for authentication on this [IceServer].
   private var password: String?
 
-  /// Creates a new `IceServer` with a provided data.
+  /// Initializes a new `IceServer` with the provided data.
   init(urls: [String], username: String?, password: String?) {
     self.urls = urls
     self.username = username
     self.password = password
   }
 
-  /**
-    Converts this `IceServer` into a `RTCIceServer`.
-
-    - Returns: `RTCIceServer` based on this `IceServer`.
-   */
+  /// Converts this `IceServer` into an `RTCIceServer`.
   func intoWebRtc() -> RTCIceServer {
     RTCIceServer(urlStrings: self.urls, username: self.username, credential: self.password)
   }
 }
 
-/// Representation of a [PeerConnection.RTCConfiguration].
+/// Representation of an [RTCConfiguration].
 class PeerConnectionConfiguration {
-  /**
-    List of `IceServer`s, used by the `PeerConnection` created with this
-    `PeerConnectionConfiguration`.
-  */
+  /// List of `IceServer`s, used by the `PeerConnection` created with this
+  /// `PeerConnectionConfiguration`.
   var iceServers: [IceServer]
 
-  /**
-    Type of the ICE transport, used by the `PeerConnection` created with
-    this `PeerConnectionConfiguration`.
-  */
+  /// Type of the ICE transport, used by the `PeerConnection` created with this
+  /// `PeerConnectionConfiguration`.
   var iceTransportType: IceTransportType
 
-  /// Creates a new `PeerConnectionConfiguration` based on provided data.
+  /// Initializes a new `PeerConnectionConfiguration` based on the provided
+  /// data.
   init(iceServers: [IceServer], iceTransportType: IceTransportType) {
     self.iceServers = iceServers
     self.iceTransportType = iceTransportType
   }
 
-  /**
-    Converts this `PeerConnectionConfiguration` into a `RTCConfiguration`.
-
-    - Returns: `RTCConfiguration` based on this `PeerConnectionConfiguration`.
-  */
+  /// Converts this `PeerConnectionConfiguration` into an `RTCConfiguration`.
   func intoWebRtc() -> RTCConfiguration {
     let conf = RTCConfiguration()
     conf.iceServers = iceServers.map({ serv -> RTCIceServer in

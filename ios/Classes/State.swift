@@ -1,13 +1,13 @@
 import WebRTC
 
-///  Global context of the `flutter_webrtc` plugin.
+/// Global context of the `medea_flutter_webrtc` plugin.
 ///
-///  Used for creating tracks/peers.
+/// Used for creating tracks/peers.
 class State {
   /// Factory for producing `PeerConnection`s and `MediaStreamTrack`s.
   private var factory: RTCPeerConnectionFactory
 
-  /// Creates a new `State`.
+  /// Initializes a new `State`.
   init() {
     let decoderFactory = RTCDefaultVideoDecoderFactory()
     let encoderFactory = RTCDefaultVideoEncoderFactory()
@@ -15,7 +15,7 @@ class State {
       encoderFactory: encoderFactory, decoderFactory: decoderFactory)
   }
 
-  /// - Returns: `RTCPeerConnectionFactory` from this `State`.
+  /// Returns the `RTCPeerConnectionFactory` of this `State`.
   func getPeerFactory() -> RTCPeerConnectionFactory {
     self.factory
   }

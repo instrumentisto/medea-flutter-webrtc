@@ -6,7 +6,7 @@ class LocalTrackIdGenerator {
   /// Last generated track ID.
   private var lastId: Int = 0
 
-  /// Returns new local `MediaStreamTrackProxy` unique ID.
+  /// Returns a new local `MediaStreamTrackProxy` unique ID.
   func nextId() -> String {
     lastId += 1
     return "local-\(lastId)"

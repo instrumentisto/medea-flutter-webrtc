@@ -1,19 +1,19 @@
 import Dispatch
 import WebRTC
 
-/// Observer for native `RTCPeerConnectionDelegate`.
+/// Observer for a native `RTCPeerConnectionDelegate`.
 class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   /// `PeerConnectionProxy` into which callbacks will be provided.
   var peer: PeerConnectionProxy?
 
   override init() {}
 
-  /// Sets underlying `PeerConnectionProxy` for this `PeerObserver`.
+  /// Sets the underlying `PeerConnectionProxy` for this `PeerObserver`.
   func setPeer(peer: PeerConnectionProxy) {
     self.peer = peer
   }
 
-  /// Fires `onSignalingStateChange` callback in the `PeerConnectionProxy`.
+  /// Fires an `onSignalingStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState
   ) {
@@ -23,7 +23,8 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  /// Fires `onIceConnectionStateChange` callback in the `PeerConnectionProxy`.
+  /// Fires an `onIceConnectionStateChange` callback in the
+  /// `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState
   ) {
@@ -33,7 +34,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  /// Fires `onConnectionStateChange` callback in the `PeerConnectionProxy`.
+  /// Fires an `onConnectionStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCPeerConnectionState
   ) {
@@ -43,7 +44,8 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  /// Fires `onIceGatheringStateChange` callback in the `PeerConnectionProxy`.
+  /// Fires an `onIceGatheringStateChange` callback in the
+  /// `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState
   ) {
@@ -53,7 +55,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  /// Fires `onIceCandidate` callback in the `PeerConnectionProxy`.
+  /// Fires an `onIceCandidate` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate
   ) {
@@ -63,7 +65,7 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
     }
   }
 
-  /// Fires `onTrack` callback in the `PeerConnectionProxy`.
+  /// Fires an `onTrack` callback in the `PeerConnectionProxy`.
   func peerConnection(
     _ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver
   ) {

@@ -1,20 +1,21 @@
 import Flutter
 
-/// Controller for the `RtpTransceiver`.
+/// Controller of an `RtpTransceiver`.
 class RtpTransceiverController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 
-  /// Instance of `RtpTransceiver` proxy.
+  /// Instance of the `RtpTransceiver`'s proxy.
   private var transceiver: RtpTransceiverProxy
 
-  /// ID of channels created for this controller.
+  /// ID of the channel created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
-  /// Creates a new `RtpTransceiverController` for the provided `RtpTransceiverProxy`.
+  /// Initializes a new `RtpTransceiverController` for the provided
+  /// `RtpTransceiverProxy`.
   init(messenger: FlutterBinaryMessenger, transceiver: RtpTransceiverProxy) {
     let channelName = ChannelNameGenerator.name(name: "RtpTransceiver", id: self.channelId)
     self.messenger = messenger
@@ -25,7 +26,8 @@ class RtpTransceiverController {
     })
   }
 
-  /// Handles all supported Flutter method calls for the `RtpTransceiverProxy`.
+  /// Handles all the supported Flutter method calls for the controlled
+  /// `RtpTransceiverProxy`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
@@ -57,7 +59,7 @@ class RtpTransceiverController {
     }
   }
 
-  /// Converts this controller to the Flutter method call response.
+  /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
       "channelId": channelId,

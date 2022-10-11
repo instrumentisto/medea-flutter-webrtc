@@ -1,8 +1,8 @@
 import WebRTC
 
-/// Wrapper around a `MediaStreamTrack`.
+/// Wrapper around a `MediaStreamTrack`, powering it with additional API.
 class MediaStreamTrackProxy: Equatable {
-  /// Indicates that this `stop` was called on this `MediaStreamTrackProxy`.
+  /// Indicator whether the `stop()` was called on this `MediaStreamTrackProxy`.
   private var isStopped = false
 
   /// Device ID of this `MediaStreamTrackProxy`.
@@ -20,7 +20,7 @@ class MediaStreamTrackProxy: Equatable {
   /// Subscribers for `onEnded` callback of this `MediaStreamTrackProxy`.
   private var onEndedSubscribers: [() -> Void] = []
 
-  /// Creates a new `MediaStreamTrackProxy` based on the provided data.
+  /// Initializes a new `MediaStreamTrackProxy` based on the provided data.
   init(track: RTCMediaStreamTrack, deviceId: String?, source: MediaTrackSource?) {
     self.source = source
     if deviceId != nil {
@@ -30,18 +30,21 @@ class MediaStreamTrackProxy: Equatable {
     MediaStreamTrackStore.tracks[track.trackId] = self
   }
 
-  /// Compares two `MediaStreamTrackProxy`s based on underlying `RTCMediaStreamTrack`s.
+  /// Compares two `MediaStreamTrackProxy`s based on underlying
+  /// `RTCMediaStreamTrack`s.
   static func == (lhs: MediaStreamTrackProxy, rhs: MediaStreamTrackProxy) -> Bool {
     lhs.track == rhs.track
   }
 
-  /// Adds `RTCVideoRenderer` for the underlying `RTCMediaStreamTrack`.
+  /// Adds the specified `RTCVideoRenderer` to the underlying
+  /// `RTCMediaStreamTrack`.
   func addRenderer(renderer: RTCVideoRenderer) {
     let videoTrack = self.track as! RTCVideoTrack
     videoTrack.add(renderer)
   }
 
-  /// Removes `RTCVideoRenderer` for the underlying `RTCMediaStreamTrack`.
+  /// Removes the specified `RTCVideoRenderer` from the underlying
+  /// `RTCMediaStreamTrack`.
   func removeRenderer(renderer: RTCVideoRenderer) {
     let videoTrack = self.track as! RTCVideoTrack
     videoTrack.remove(renderer)
@@ -52,7 +55,7 @@ class MediaStreamTrackProxy: Equatable {
     track.trackId
   }
 
-  /// Returns kind of this track.
+  /// Returns `MediaType` of this track.
   func kind() -> MediaType {
     let kind = track.kind
     switch kind {
@@ -70,7 +73,8 @@ class MediaStreamTrackProxy: Equatable {
     self.deviceId
   }
 
-  /// Returns forked `MediaStreamTrackProxy` based on the same source as this track.
+  /// Returns a forked `MediaStreamTrackProxy` based on the same source as this
+  /// track has.
   func fork() throws -> MediaStreamTrackProxy {
     if self.source == nil {
       throw MediaStreamTrackException.remoteTrackCantBeCloned
@@ -81,7 +85,7 @@ class MediaStreamTrackProxy: Equatable {
 
   /// Stops this track.
   ///
-  /// Source will be stopped and disposed when all it's tracks are stopped.
+  /// Source will be stopped and disposed once all its tracks are stopped.
   func stop() {
     self.isStopped = true
     for cb in onStopSubscribers {
@@ -89,7 +93,7 @@ class MediaStreamTrackProxy: Equatable {
     }
   }
 
-  /// Returns current `readyState` of this track.
+  /// Returns the current `readyState` of this track.
   func state() -> MediaStreamTrackState {
     let state = track.readyState
     switch state {
@@ -107,12 +111,13 @@ class MediaStreamTrackProxy: Equatable {
     self.track.isEnabled = enabled
   }
 
-  /// Subscribes on `onStopped` callback of this track.
+  /// Subscribes to `onStopped` callback of this track.
   func onStopped(cb: @escaping () -> Void) {
     self.onStopSubscribers.append(cb)
   }
 
-  /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being removed from the receiver.
+  /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being
+  /// removed from the receiver.
   func notifyEnded() {
     if self.track.readyState == .ended {
       for cb in self.onEndedSubscribers {
@@ -121,12 +126,12 @@ class MediaStreamTrackProxy: Equatable {
     }
   }
 
-  /// Subscribes on `onEnded` callback of this track.
+  /// Subscribes to `onEnded` callback of this track.
   func onEnded(cb: @escaping () -> Void) {
     self.onEndedSubscribers.append(cb)
   }
 
-  /// Returns underlying `RTCMediaStreamTrack` of this proxy.
+  /// Returns the underlying `RTCMediaStreamTrack` of this proxy.
   func obj() -> RTCMediaStreamTrack {
     self.track
   }

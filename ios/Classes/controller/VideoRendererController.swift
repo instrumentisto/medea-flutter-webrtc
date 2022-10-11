@@ -1,14 +1,14 @@
 import Flutter
 
-/// Controller for the `VideoRenderer`.
+/// Controller of a `VideoRenderer`.
 class VideoRendererController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 
-  /// Instance of `FlutterRtcVideoRenderer`.
+  /// Instance of the `FlutterRtcVideoRenderer`.
   private var renderer: FlutterRtcVideoRenderer
 
-  /// ID of channels created for this controller.
+  /// ID of the channel created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Method channel for communicating with Flutter side.
@@ -17,10 +17,11 @@ class VideoRendererController {
   /// Event channel for communicating with Flutter side.
   private var eventChannel: FlutterEventChannel
 
-  /// Controller for the `eventChannel` management.
+  /// Controller of the `eventChannel` management.
   private var eventController: EventController
 
-  /// Creates a new `VideoRendererController` for the provided `FlutterRtcVideoRenderer`.
+  /// Initializes a new `VideoRendererController` for the provided
+  /// `FlutterRtcVideoRenderer`.
   init(messenger: FlutterBinaryMessenger, renderer: FlutterRtcVideoRenderer) {
     let channelName = ChannelNameGenerator.name(name: "VideoRenderer", id: self.channelId)
     let eventChannelName = ChannelNameGenerator.name(
@@ -39,7 +40,8 @@ class VideoRendererController {
     })
   }
 
-  /// Handles all supported Flutter method calls for the `FlutterRtcVideoRenderer`.
+  /// Handles all the supported Flutter method calls for the controlled
+  /// `FlutterRtcVideoRenderer`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
@@ -62,7 +64,7 @@ class VideoRendererController {
     }
   }
 
-  /// Converts this controller to the Flutter method call response.
+  /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
       "channelId": channelId,

@@ -1,18 +1,19 @@
-/// Controller for the PeerConnection events.
+/// Controller of `PeerConnection` events.
 class PeerEventController: PeerEventObserver {
-  /// Controller for the PeerConnection event channel.
+  /// Controller of the `PeerConnection` event channel.
   private var eventController: EventController
 
   /// Flutter messenger for creating another controllers.
   private var messenger: FlutterBinaryMessenger
 
-  /// Creates a new controller for sending all `PeerConnectionProxy` events to the Flutter side.
+  /// Initializes a new controller for sending all `PeerConnectionProxy` events
+  /// to Flutter side.
   init(messenger: FlutterBinaryMessenger, eventController: EventController) {
     self.messenger = messenger
     self.eventController = eventController
   }
 
-  /// Sends `onTrack` event to the Flutter side.
+  /// Sends an `onTrack` event to Flutter side.
   func onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
     self.eventController.sendEvent(data: [
       "event": "onTrack",
@@ -23,7 +24,7 @@ class PeerEventController: PeerEventObserver {
     ])
   }
 
-  /// Sends `onIceConnectionStateChange` event to the Flutter side.
+  /// Sends an `onIceConnectionStateChange` event to Flutter side.
   func onIceConnectionStateChange(state: IceConnectionState) {
     self.eventController.sendEvent(data: [
       "event": "onIceConnectionStateChange",
@@ -31,7 +32,7 @@ class PeerEventController: PeerEventObserver {
     ])
   }
 
-  /// Sends `onSignalingStateChange` event to the Flutter side.
+  /// Sends an `onSignalingStateChange` event to Flutter side.
   func onSignalingStateChange(state: SignalingState) {
     self.eventController.sendEvent(data: [
       "event": "onSignalingStateChange",
@@ -39,7 +40,7 @@ class PeerEventController: PeerEventObserver {
     ])
   }
 
-  /// Sends `onConnectionStateChange` event to the Flutter side.
+  /// Sends an `onConnectionStateChange` event to Flutter side.
   func onConnectionStateChange(state: PeerConnectionState) {
     self.eventController.sendEvent(data: [
       "event": "onConnectionStateChange",
@@ -47,7 +48,7 @@ class PeerEventController: PeerEventObserver {
     ])
   }
 
-  /// Sends `onIceGatheringStateChange` event to the Flutter side.
+  /// Sends an `onIceGatheringStateChange` event to Flutter side.
   func onIceGatheringStateChange(state: IceGatheringState) {
     self.eventController.sendEvent(data: [
       "event": "onIceGatheringStateChange",
@@ -55,7 +56,7 @@ class PeerEventController: PeerEventObserver {
     ])
   }
 
-  /// Sends `onIceCandidate` event to the Flutter side.
+  /// Sends an `onIceCandidate` event to Flutter side.
   func onIceCandidate(candidate: IceCandidate) {
     self.eventController.sendEvent(data: [
       "event": "onIceCandidate",
@@ -63,7 +64,7 @@ class PeerEventController: PeerEventObserver {
     ])
   }
 
-  /// Sends `onNegotiationNeeded` event to the Flutter side.
+  /// Sends an `onNegotiationNeeded` event to Flutter side.
   func onNegotiationNeeded() {
     self.eventController.sendEvent(data: [
       "event": "onNegotiationNeeded"

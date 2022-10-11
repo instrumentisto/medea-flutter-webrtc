@@ -1,14 +1,14 @@
 import Flutter
 
-/// Controller for the `MediaStreamTrack`.
+/// Controller of a `MediaStreamTrack`.
 class MediaStreamTrackController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 
-  /// Instance of `MediaStreamTrack` proxy.
+  /// Instance of a `MediaStreamTrack`'s' proxy.
   private var track: MediaStreamTrackProxy
 
-  /// ID of channels created for this controller.
+  /// ID of the channel created for this controller.
   private var channelId: Int = ChannelNameGenerator.nextId()
 
   /// Method channel for communicating with Flutter side.
@@ -17,10 +17,11 @@ class MediaStreamTrackController {
   /// Event channel for communicating with Flutter side.
   private var eventChannel: FlutterEventChannel
 
-  /// Controller for the `eventChannel` management.
+  /// Controller of the `eventChannel` management.
   private var eventController: EventController
 
-  /// Creates a new `MediaStreamTrackController` for the provided `MediaStreamTrackProxy`.
+  /// Initializes a new `MediaStreamTrackController` for the provided
+  /// `MediaStreamTrackProxy`.
   init(messenger: FlutterBinaryMessenger, track: MediaStreamTrackProxy) {
     let channelName = ChannelNameGenerator.name(name: "MediaStreamTrack", id: self.channelId)
     self.eventChannel = FlutterEventChannel(
@@ -41,7 +42,8 @@ class MediaStreamTrackController {
     })
   }
 
-  /// Handles all supported Flutter method calls for the `MediaStreamTrackProxy`.
+  /// Handles all the supported Flutter method calls for the controlled
+  /// `MediaStreamTrackProxy`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {
@@ -70,7 +72,7 @@ class MediaStreamTrackController {
     }
   }
 
-  /// Converts this controller to the Flutter method call response.
+  /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
       "channelId": channelId,

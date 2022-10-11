@@ -1,23 +1,21 @@
-///  Object representing a source of an input audio of an user.
+/// Object representing a source of an input audio of the user.
 ///
-///  This source can create new `MediaStreamTrackProxy`s with the same audio source.
+/// This source can create new `MediaStreamTrackProxy`s with the same audio
+/// source.
 ///
-///  Also, this object will track all child `MediaStreamTrackProxy`s and when they all disposed, will
-///  dispose the underlying `AudioSource`.
+/// Also, this object will track all child `MediaStreamTrackProxy`s and once
+/// they're all disposed, it disposes the underlying `AudioSource`.
 class AudioMediaTrackSourceProxy: MediaTrackSource {
-  /// Source `RTCMediaStreamTrack` which will be used for creating new tracks.
+  /// Source `RTCMediaStreamTrack` to be used for new tracks creation.
   private var track: RTCMediaStreamTrack
 
-  /// Creates a new `AudioMediaTrackSourceProxy` based on the provided track.
+  /// Initializes a new `AudioMediaTrackSourceProxy` based on the provided
+  /// `RTCMediaStreamTrack`.
   init(track: RTCMediaStreamTrack) {
     self.track = track
   }
 
-  /**
-    Creates a new `MediaStreamTrackProxy`.
-
-    - Returns: Newly created `MediaStreamTrackProxy`.
-  */
+  /// Creates a new `MediaStreamTrackProxy`.
   func newTrack() -> MediaStreamTrackProxy {
     MediaStreamTrackProxy(track: self.track, deviceId: "audio", source: self)
   }

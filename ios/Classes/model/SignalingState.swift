@@ -1,40 +1,30 @@
 import WebRTC
 
-/// Representation of an [org.webrtc.PeerConnection.SignalingState].
+/// Representation of an `RTCSignalingState`.
 enum SignalingState: Int {
-  /// Indicates that there is no ongoing exchange of offer and answer underway.
+  /// There is no ongoing exchange of offer and answer underway.
   case stable
 
-  /// Indicates that the local peer has called `RTCPeerConnection.setLocalDescription()`.
+  /// Local peer has called `RTCPeerConnection.setLocalDescription()`.
   case haveLocalOffer
 
-  /**
-    Indicates that the offer sent by the remote peer has been applied and an answer has been
-    created.
-  */
+  /// Offer sent by the remote peer has been applied and an answer has been
+  /// created.
   case haveLocalPrAnswer
 
-  /**
-    Indicates that the remote peer has created an offer and used the signaling server to deliver it
-    to the local peer, which has set the offer as the remote description by calling
-    `PeerConnection.setRemoteDescription()`.
-  */
+  /// Remote peer has created an offer and used the signaling server to deliver
+  /// it to the local peer, which has set the offer as the remote description by
+  /// calling `PeerConnection.setRemoteDescription()`.
   case haveRemoteOffer
 
-  /**
-    Indicates that the provisional answer has been received and successfully applied in response to
-    the offer previously sent and established.
-  */
+  /// Provisional answer has been received and successfully applied in response
+  /// to the offer previously sent and established.
   case haveRemotePrAnswer
 
-  /// Indicates that the peer was closed.
+  /// Peer was closed.
   case closed
 
-  /**
-    Converts the provided `RTCSignalingState` into a `SignalingState`.
-
-    - Returns: `SignalingState` created based on the provided `RTCSignalingState`.
-  */
+  /// Converts the provided `RTCSignalingState` into a `SignalingState`.
   static func fromWebRtc(state: RTCSignalingState) -> SignalingState {
     switch state {
     case .stable:

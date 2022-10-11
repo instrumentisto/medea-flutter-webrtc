@@ -1,26 +1,19 @@
 import AVFoundation
 
-/// Direction in which the camera produces the video.
+/// Direction in which a camera produces video.
 ///
-/// [Int] value is representation of this enum which will be expected on the Flutter side.
+/// [Int] value is representation of this enum which will be expected on Flutter
+/// side.
 enum FacingMode: Int {
-  /**
-    Indicates that the video source is facing toward the user (this includes, for example, the
-    front-facing camera on a smartphone).
-  */
+  /// Video source is facing toward the user (this includes, for example, the
+  /// front-facing camera on a smartphone).
   case user = 0
 
-  /**
-    Indicates that the video source is facing away from the user, thereby viewing their
-    environment. This is the back camera on a smartphone.
-  */
+  /// Video source is facing away from the user, thereby viewing their
+  /// environment (this is the back camera on a smartphone).
   case environment = 1
 
-  /**
-    Checks that provided position fits into this `FacingMode`.
-
-    - Returns: `true` if provided position fits into this `FacingMode`.
-  */
+  /// Checks whether the provided `position` fits into this `FacingMode`.
   func isFits(position: AVCaptureDevice.Position) -> Bool {
     var facingModeInt = 0
     switch self {
@@ -33,32 +26,24 @@ enum FacingMode: Int {
   }
 }
 
-///  Score of [VideoConstraints].
+/// Score of [VideoConstraints].
 ///
-///  This score will be determined by a `ConstraintChecker` and basing on it, more suitable video
-///  device will be selected by `getUserMedia` request.
+/// This score will be determined by a `ConstraintChecker`, and, basing on it,
+/// more suitable video device will be selected by `getUserMedia` request.
 enum ConstraintScore {
-  /**
-    Indicates that the constraint is not suitable at all.
-
-    So, the device with this score wouldn't used event if there is no other devices.
-  */
+  /// Constraint is not suitable at all.
+  ///
+  /// So, the device with this score wouldn't used event if there is no other
+  /// devices.
   case no
 
-  /// Indicates that the constraint can be used, but more suitable devices can be found.
+  /// Constraint can be used, but more suitable devices can be found.
   case maybe
 
-  /// Indicates that the constraint suits ideally.
+  /// Constraint suits ideally.
   case yes
 
-  /**
-    Calculates the total score based on which media devices will be sorted.
-
-    - Parameters:
-      - scores: List of `ConstraintScore`s of some device.
-
-    - Returns: Total score calculated based on the provided list.
-  */
+  /// Calculates the total score, based on which media devices will be sorted.
   static func totalScore(scores: [ConstraintScore]) -> Int? {
     var total = 1
     for score in scores {
@@ -76,20 +61,13 @@ enum ConstraintScore {
   }
 }
 
-/// Interface for all the video constraints which can check suitability of some device.
+/// Video constraint which can check suitability of some device.
 class ConstraintChecker {
-  /// Indicates that this constraint is mandatory or not.
+  /// Indicator whether this constraint is mandatory or not.
   var isMandatory: Bool = false
 
-  /**
-    Calculates a `ConstraintScore` of the device based on the underlying algorithm of the concrete
-    constraint.
-
-    - Parameters:
-      - device: Actual device for scoring.
-
-    - Returns: `ConstraintScore` based on the underlying scoring algorithm.
-  */
+  /// Calculates a `ConstraintScore` of the `device` based on the underlying
+  /// algorithm of the concrete constraint.
   func score(device: AVCaptureDevice) throws -> ConstraintScore {
     let fits = try self.isFits(device: device)
     if fits {
@@ -101,14 +79,7 @@ class ConstraintChecker {
     }
   }
 
-  /**
-    Calculates suitability to the provided device.
-
-    - Parameters:
-      - device: Actual device for scoring.
-
-    - Returns: `true` if device is suitable, or `false` otherwise.
-   */
+  /// Calculates suitability for the provided `device`.
   func isFits(device: AVCaptureDevice) throws -> Bool {
     fatalError("isFits is not implemented")
   }
@@ -119,27 +90,17 @@ class DeviceIdConstraint: ConstraintChecker {
   /// Concrete `deviceId` to be searched.
   var id: String
 
-  /**
-    Creates Constraint searcher for a device with some concrete `deviceId`.
-
-    - Parameters:
-      - id: Concrete `deviceId` to be searched.
-      - isMandatory: Indicates that this constraint is mandatory.
-  */
+  /// Initializes a constraint searcher for a device with the specified device
+  /// `id`.
+  ///
+  /// `isMandatory` indicates that the specified constraint is mandatory.
   init(id: String, isMandatory: Bool) {
     self.id = id
     super.init()
     super.isMandatory = isMandatory
   }
 
-  /**
-    Calculates suitability to the provided device.
-
-    - Parameters:
-      - device: Actual device for scoring.
-
-    - Returns: `true` if device is suitable, or `false` otherwise.
-   */
+  /// Calculates suitability for the provided `device`.
   override func isFits(device: AVCaptureDevice) throws -> Bool {
     device.uniqueID == self.id
   }
@@ -147,30 +108,20 @@ class DeviceIdConstraint: ConstraintChecker {
 
 /// Constraint searching for a device with some [FacingMode].
 class FacingModeConstraint: ConstraintChecker {
-  /// Indicates that this constraint is mandatory.
+  /// [FacingMode] to be searched.
   var facingMode: FacingMode
 
-  /**
-    Creates Constraint searcher for a device with some `FacingMode`.
-
-    - Parameters:
-      - facingMode: [FacingMode] which will be searched.
-      - isMandatory: Indicates that this constraint is mandatory.
-  */
+  /// Initializes a constraint searcher for a device with the specified
+  /// `FacingMode`.
+  ///
+  /// `isMandatory` indicates that the specified constraint is mandatory.
   init(facingMode: FacingMode, isMandatory: Bool) {
     self.facingMode = facingMode
     super.init()
     super.isMandatory = isMandatory
   }
 
-  /**
-    Calculates suitability to the provided device.
-
-    - Parameters:
-      - device: Actual device for scoring.
-
-    - Returns: `true` if device is suitable, or `false` otherwise.
-   */
+  /// Calculates suitability for the provided `device`.
   override func isFits(device: AVCaptureDevice) throws -> Bool {
     self.facingMode.isFits(position: device.position)
   }
@@ -178,10 +129,10 @@ class FacingModeConstraint: ConstraintChecker {
 
 /// List of constraints for video devices.
 class VideoConstraints {
-  /// List of the `DeviceIdConstraint`s provided by user.
+  /// List of the `DeviceIdConstraint`s provided by the user.
   var deviceIdConstraints: [DeviceIdConstraint] = []
 
-  /// List of the `FacingModeConstraint`s provided by user.
+  /// List of the `FacingModeConstraint`s provided by the user.
   var facingModeConstraints: [FacingModeConstraint] = []
 
   /// Width of the device video.
@@ -193,10 +144,8 @@ class VideoConstraints {
   /// FPS of the device video.
   var fps: Int?
 
-  /**
-    Creates a new `VideoConstraints` object based on the method call received from the Flutter
-    side.
-  */
+  /// Initializes new `VideoConstraints` based on the method call received from
+  /// Flutter side.
   init(map: [String: Any]) {
     let mandatoryArgs = map["mandatory"] as? [String: Any]
     if mandatoryArgs != nil {
@@ -244,14 +193,7 @@ class VideoConstraints {
     }
   }
 
-  /**
-    Calculates a score for the device with the provided ID.
-
-    - Parameters:
-      - device: Actual device for scoring.
-
-    - Returns: Total Score calculated based on the provided list.
-  */
+  /// Calculates a score for the specified `device`.
   func calculateScoreForDevice(device: AVCaptureDevice) -> Int? {
     var scores: [ConstraintScore] = []
     for c in self.facingModeConstraints {
@@ -270,7 +212,7 @@ class AudioConstraints {
 
 }
 
-/// Audio and video constraints data.
+/// United audio and video constraints.
 class Constraints {
   /// Optional constraints to lookup video devices with.
   var video: VideoConstraints?
@@ -278,7 +220,8 @@ class Constraints {
   /// Optional constraints to lookup audio devices with.
   var audio: AudioConstraints?
 
-  /// Creates a new `Constraints` object based on the method call received from the Flutter side.
+  /// Initializes new `Constraints` based on the method call received from
+  /// Flutter side.
   init(map: [String: Any]) {
     let videoArg = map["video"] as? [String: Any]
     if videoArg != nil {

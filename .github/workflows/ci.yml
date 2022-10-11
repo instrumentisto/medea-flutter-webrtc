@@ -30,6 +30,7 @@ jobs:
       - ktfmt
       - rustdoc
       - rustfmt
+      - swift-format
       - test-flutter
     runs-on: ubuntu-latest
     steps:
@@ -114,10 +115,12 @@ jobs:
           components: rustfmt
 
       - run: make cargo.fmt check=yes
-  swiftformat:
+
+  swift-format:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+
       - run: make swift.fmt
       - run: git diff --exit-code HEAD
 
@@ -319,6 +322,7 @@ jobs:
       - ktfmt
       - rustdoc
       - rustfmt
+      - swift-format
       - test-flutter
     runs-on: ubuntu-latest
     steps:

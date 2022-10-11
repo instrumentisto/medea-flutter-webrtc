@@ -1,11 +1,11 @@
 import Flutter
 
-/// Controller for the media devices management.
+/// Controller of media devices management.
 class MediaDevicesController {
   /// Flutter messenger for creating channels.
   private var messenger: FlutterBinaryMessenger
 
-  /// Instance of media devices manager.
+  /// Instance of a `MediaDevices` manager.
   private var mediaDevices: MediaDevices
 
   /// Method channel for communicating with Flutter side.
@@ -14,10 +14,11 @@ class MediaDevicesController {
   /// Event channel for communicating with Flutter side.
   private var eventChannel: FlutterEventChannel
 
-  /// Controller for the `eventChannel` management.
+  /// Controller of the `eventChannel` management.
   private var eventController: EventController
 
-  /// Creates a new `MediaDevicesController` for the provided `MediaDevices`.
+  /// Initializes a new `MediaDevicesController` for the provided
+  /// `MediaDevices`.
   init(messenger: FlutterBinaryMessenger, mediaDevices: MediaDevices) {
     let channelName = ChannelNameGenerator.name(name: "MediaDevices", id: 0)
     let eventChannelName = ChannelNameGenerator.name(name: "MediaDevicesEvent", id: 0)
@@ -32,7 +33,8 @@ class MediaDevicesController {
     })
   }
 
-  /// Handles all supported Flutter method calls for the `MediaDevices`.
+  /// Handles all the supported Flutter method calls for the controlled
+  /// `MediaDevices`.
   func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
     let argsMap = call.arguments as? [String: Any]
     switch call.method {

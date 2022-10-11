@@ -1,5 +1,5 @@
-/// Store for all created `MediaStreamTrackProxy`s.
+/// Store for all created `MediaStreamTrackProxy`s in this plugin.
 class MediaStreamTrackStore {
-  /// All `MediaStreamTrackProxy`s created in this plugin.
+  /// All the `MediaStreamTrackProxy`s created in this plugin.
   static var tracks: [String: MediaStreamTrackProxy] = [:]
 }

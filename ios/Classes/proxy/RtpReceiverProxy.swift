@@ -1,6 +1,6 @@
 import WebRTC
 
-/// Wrapper around an `RTCRtpReceiver`.
+/// Wrapper around an `RTCRtpReceiver`, powering it with additional API.
 class RtpReceiverProxy {
   /// Actual underlying [RtpReceiver].
   private var receiver: RTCRtpReceiver
@@ -8,7 +8,7 @@ class RtpReceiverProxy {
   /// `MediaStreamTrackProxy` of this `RtpReceiverProxy`.
   private var track: MediaStreamTrackProxy
 
-  /// Creates a new `RtpReceiverProxy` with a provided `RTCRtpReceiver`.
+  /// Initializes a new `RtpReceiverProxy` with the provided `RTCRtpReceiver`.
   init(receiver: RTCRtpReceiver) {
     self.receiver = receiver
     self.track = MediaStreamTrackProxy(track: self.receiver.track!, deviceId: nil, source: nil)
@@ -24,7 +24,8 @@ class RtpReceiverProxy {
     self.track
   }
 
-  /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being removed from the receiver.
+  /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being
+  /// removed from the receiver.
   func notifyRemoved() {
     self.track.notifyEnded()
   }

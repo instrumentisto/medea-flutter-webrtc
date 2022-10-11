@@ -23,11 +23,12 @@ FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	        | grep -v 'flutter_rust_bridge' \
 	        | cut -d'"' -f2))
 
-ifneq ($(shell command -v swift 2> /dev/null),)
-	SWIFT_VER ?= $(shell swiftc --version | grep -Eo "Apple Swift version [0-9]\.[0-9][0-9]?" | sed -Er 's/Apple Swift version //')
-endif
-
 KTFMT_VER ?= 0.33
+
+ifneq ($(shell command -v swift 2> /dev/null),)
+SWIFT_VER ?= $(strip \
+	$(shell swiftc --version | grep 'Apple Swift version' | cut -d' ' -f4))
+endif
 
 CURRENT_OS ?= $(strip $(or $(os),\
 	$(if $(call eq,$(OS),Windows_NT),windows,\
@@ -50,7 +51,7 @@ deps: flutter.pub
 
 docs: cargo.doc
 
-fmt: cargo.fmt flutter.fmt kt.fmt
+fmt: cargo.fmt flutter.fmt kt.fmt swift.fmt
 
 lint: cargo.lint flutter.analyze
 
@@ -328,7 +329,6 @@ endif
 #   make swift.fmt
 
 swift-fmt-bin = .cache/swift-format/.build/release/swift-format
-
 ifeq ($(SWIFT_VER),5.7)
 	swift-fmt-branch = release/5.7
 else
@@ -339,15 +339,13 @@ else
 endif
 endif
 
-
 swift.fmt:
 ifeq ($(wildcard $(swift-fmt-bin)),)
-	mkdir -p .cache && \
-		cd .cache && \
-		git clone https://github.com/apple/swift-format.git && \
-		cd swift-format && \
-		git checkout $(swift-fmt-branch) && \
-		swift build -c release
+	@mkdir -p .cache/
+	git clone https://github.com/apple/swift-format.git .cache/swift-format/
+	cd .cache/swift-format/ && \
+	git checkout $(swift-fmt-branch) && \
+	swift build -c release
 endif
 	$(swift-fmt-bin) -r -p -i ios/Classes
 
@@ -385,4 +383,5 @@ test.flutter: flutter.test
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.pub \
         	flutter.run flutter.test \
         kt.fmt \
+        swift.fmt \
         test.cargo test.flutter

@@ -1,14 +1,14 @@
 import WebRTC
 
-/// Wrapper around an `RTCRtpSender`.
+/// Wrapper around an `RTCRtpSender`, powering it with additional API.
 class RtpSenderProxy {
-  /// Actual underlying `RTCRtpReceiver`.
+  /// Actual underlying `RTCRtpSender`.
   private var sender: RTCRtpSender
 
-  /// `MediaStreamTrackProxy` of this `RtpReceiverProxy`.
+  /// `MediaStreamTrackProxy` of this `RtpSenderProxy`.
   private var track: MediaStreamTrackProxy? = nil
 
-  /// Creates a new `RtpSenderProxy` for the provided `RTCRtpSender`.
+  /// Initializes a new `RtpSenderProxy` for the provided `RTCRtpSender`.
   init(sender: RTCRtpSender) {
     self.sender = sender
     self.syncMediaStreamTrack()
@@ -19,21 +19,15 @@ class RtpSenderProxy {
     self.sender.senderId
   }
 
-  /**
-    Replaces `MediaStreamTrackProxy` of the underlying `RtpSender` with the provided one.
-
-    - Parameters:
-      - t: `MediaStreamTrackProxy` which will be set to the underlying `RtpSender`.
-  */
+  /// Replaces the `MediaStreamTrackProxy` of the underlying `RtpSender` with
+  /// the provided one.
   func replaceTrack(t: MediaStreamTrackProxy?) {
     self.track = t
     self.sender.track = t?.obj()
   }
 
-  /**
-    Synchronizes the `MediaStreamTrackProxy` of this `RtpSenderProxy` with the underlying
-    `RtpSender`.
-  */
+  /// Synchronizes the `MediaStreamTrackProxy` of this `RtpSenderProxy` with the
+  /// underlying `RtpSender`.
   func syncMediaStreamTrack() {
     let newTrack = self.sender.track
     if newTrack == nil {
