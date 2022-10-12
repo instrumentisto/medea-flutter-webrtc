@@ -13,13 +13,19 @@ class VideoRendererFactoryController {
 
   /// Initializes a new `VideoRendererFactoryController`.
   init(messenger: FlutterBinaryMessenger, registry: FlutterTextureRegistry) {
-    let channelName = ChannelNameGenerator.name(name: "VideoRendererFactory", id: 0)
+    let channelName = ChannelNameGenerator.name(
+      name: "VideoRendererFactory",
+      id: 0
+    )
     self.messenger = messenger
     self.registry = registry
-    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
-    self.channel.setMethodCallHandler({ (call, result) in
+    self.channel = FlutterMethodChannel(
+      name: channelName,
+      binaryMessenger: messenger
+    )
+    self.channel.setMethodCallHandler { call, result in
       self.onMethodCall(call: call, result: result)
-    })
+    }
   }
 
   /// Handles all the supported Flutter method calls.
@@ -30,7 +36,9 @@ class VideoRendererFactoryController {
     case "create":
       let renderer = FlutterRtcVideoRenderer(registry: self.registry)
       result(
-        VideoRendererController(messenger: self.messenger, renderer: renderer).asFlutterResult())
+        VideoRendererController(messenger: self.messenger, renderer: renderer)
+          .asFlutterResult()
+      )
     default:
       result(FlutterMethodNotImplemented)
     }

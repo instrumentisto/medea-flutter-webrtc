@@ -6,7 +6,7 @@ class RtpSenderProxy {
   private var sender: RTCRtpSender
 
   /// `MediaStreamTrackProxy` of this `RtpSenderProxy`.
-  private var track: MediaStreamTrackProxy? = nil
+  private var track: MediaStreamTrackProxy?
 
   /// Initializes a new `RtpSenderProxy` for the provided `RTCRtpSender`.
   init(sender: RTCRtpSender) {
@@ -34,7 +34,11 @@ class RtpSenderProxy {
       self.track = nil
     } else {
       if self.track == nil {
-        self.track = MediaStreamTrackProxy(track: newTrack!, deviceId: nil, source: nil)
+        self.track = MediaStreamTrackProxy(
+          track: newTrack!,
+          deviceId: nil,
+          source: nil
+        )
       }
     }
   }

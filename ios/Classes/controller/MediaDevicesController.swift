@@ -21,16 +21,25 @@ class MediaDevicesController {
   /// `MediaDevices`.
   init(messenger: FlutterBinaryMessenger, mediaDevices: MediaDevices) {
     let channelName = ChannelNameGenerator.name(name: "MediaDevices", id: 0)
-    let eventChannelName = ChannelNameGenerator.name(name: "MediaDevicesEvent", id: 0)
+    let eventChannelName = ChannelNameGenerator.name(
+      name: "MediaDevicesEvent",
+      id: 0
+    )
     self.messenger = messenger
     self.mediaDevices = mediaDevices
-    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
-    self.eventChannel = FlutterEventChannel(name: eventChannelName, binaryMessenger: messenger)
+    self.channel = FlutterMethodChannel(
+      name: channelName,
+      binaryMessenger: messenger
+    )
+    self.eventChannel = FlutterEventChannel(
+      name: eventChannelName,
+      binaryMessenger: messenger
+    )
     self.eventController = EventController()
-    self.eventChannel.setStreamHandler(eventController)
-    self.channel.setMethodCallHandler({ (call, result) in
+    self.eventChannel.setStreamHandler(self.eventController)
+    self.channel.setMethodCallHandler { call, result in
       self.onMethodCall(call: call, result: result)
-    })
+    }
   }
 
   /// Handles all the supported Flutter method calls for the controlled
@@ -42,11 +51,14 @@ class MediaDevicesController {
       result(self.mediaDevices.enumerateDevices().map { $0.asFlutterResult() })
     case "getUserMedia":
       let constraintsArg = argsMap!["constraints"] as? [String: Any]
-      let tracks = self.mediaDevices.getUserMedia(constraints: Constraints(map: constraintsArg!))
+      let tracks = self.mediaDevices
+        .getUserMedia(constraints: Constraints(map: constraintsArg!))
       return result(
         tracks.map {
-          MediaStreamTrackController(messenger: self.messenger, track: $0).asFlutterResult()
-        })
+          MediaStreamTrackController(messenger: self.messenger, track: $0)
+            .asFlutterResult()
+        }
+      )
     case "setOutputAudioId":
       result(nil)
     default:

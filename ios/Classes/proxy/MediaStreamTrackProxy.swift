@@ -21,7 +21,11 @@ class MediaStreamTrackProxy: Equatable {
   private var onEndedSubscribers: [() -> Void] = []
 
   /// Initializes a new `MediaStreamTrackProxy` based on the provided data.
-  init(track: RTCMediaStreamTrack, deviceId: String?, source: MediaTrackSource?) {
+  init(
+    track: RTCMediaStreamTrack,
+    deviceId: String?,
+    source: MediaTrackSource?
+  ) {
     self.source = source
     if deviceId != nil {
       self.deviceId = deviceId!
@@ -32,7 +36,9 @@ class MediaStreamTrackProxy: Equatable {
 
   /// Compares two `MediaStreamTrackProxy`s based on underlying
   /// `RTCMediaStreamTrack`s.
-  static func == (lhs: MediaStreamTrackProxy, rhs: MediaStreamTrackProxy) -> Bool {
+  static func == (lhs: MediaStreamTrackProxy,
+                  rhs: MediaStreamTrackProxy) -> Bool
+  {
     lhs.track == rhs.track
   }
 
@@ -52,12 +58,12 @@ class MediaStreamTrackProxy: Equatable {
 
   /// Returns ID of this track.
   func id() -> String {
-    track.trackId
+    self.track.trackId
   }
 
   /// Returns `MediaType` of this track.
   func kind() -> MediaType {
-    let kind = track.kind
+    let kind = self.track.kind
     switch kind {
     case "audio":
       return MediaType.audio
@@ -79,7 +85,7 @@ class MediaStreamTrackProxy: Equatable {
     if self.source == nil {
       throw MediaStreamTrackException.remoteTrackCantBeCloned
     } else {
-      return source!.newTrack()
+      return self.source!.newTrack()
     }
   }
 
@@ -88,14 +94,14 @@ class MediaStreamTrackProxy: Equatable {
   /// Source will be stopped and disposed once all its tracks are stopped.
   func stop() {
     self.isStopped = true
-    for cb in onStopSubscribers {
+    for cb in self.onStopSubscribers {
       cb()
     }
   }
 
   /// Returns the current `readyState` of this track.
   func state() -> MediaStreamTrackState {
-    let state = track.readyState
+    let state = self.track.readyState
     switch state {
     case .live:
       return MediaStreamTrackState.live

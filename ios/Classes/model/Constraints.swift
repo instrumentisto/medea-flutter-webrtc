@@ -72,7 +72,7 @@ class ConstraintChecker {
     let fits = try self.isFits(device: device)
     if fits {
       return ConstraintScore.yes
-    } else if self.isMandatory && !fits {
+    } else if self.isMandatory, !fits {
       return ConstraintScore.no
     } else {
       return ConstraintScore.maybe
@@ -80,7 +80,7 @@ class ConstraintChecker {
   }
 
   /// Calculates suitability for the provided `device`.
-  func isFits(device: AVCaptureDevice) throws -> Bool {
+  func isFits(device _: AVCaptureDevice) throws -> Bool {
     fatalError("isFits is not implemented")
   }
 }
@@ -152,17 +152,21 @@ class VideoConstraints {
       for (key, value) in mandatoryArgs! {
         switch key {
         case "deviceId":
-          deviceIdConstraints.append(DeviceIdConstraint(id: value as! String, isMandatory: true))
+          self.deviceIdConstraints
+            .append(DeviceIdConstraint(id: value as! String, isMandatory: true))
         case "facingMode":
-          facingModeConstraints.append(
+          self.facingModeConstraints.append(
             FacingModeConstraint(
-              facingMode: FacingMode(rawValue: value as! Int)!, isMandatory: true))
+              facingMode: FacingMode(rawValue: value as! Int)!,
+              isMandatory: true
+            )
+          )
         case "width":
-          width = value as! Int
+          self.width = value as! Int
         case "height":
-          height = value as! Int
+          self.height = value as! Int
         case "fps":
-          fps = value as! Int
+          self.fps = value as! Int
         default:
           ()
         }
@@ -174,18 +178,22 @@ class VideoConstraints {
       for (key, value) in optionalArgs! {
         switch key {
         case "deviceId":
-          deviceIdConstraints.append(DeviceIdConstraint(id: value as! String, isMandatory: false))
+          self.deviceIdConstraints
+            .append(DeviceIdConstraint(id: value as! String,
+                                       isMandatory: false))
         case "facingMode":
-          facingModeConstraints.append(
+          self.facingModeConstraints.append(
             FacingModeConstraint(
-              facingMode: FacingMode(rawValue: value as! Int)!, isMandatory: false)
+              facingMode: FacingMode(rawValue: value as! Int)!,
+              isMandatory: false
+            )
           )
         case "width":
-          width = value as! Int
+          self.width = value as! Int
         case "height":
-          height = value as! Int
+          self.height = value as! Int
         case "fps":
-          fps = value as! Int
+          self.fps = value as! Int
         default:
           ()
         }
@@ -208,9 +216,7 @@ class VideoConstraints {
 }
 
 /// List of constraints for audio devices.
-class AudioConstraints {
-
-}
+class AudioConstraints {}
 
 /// United audio and video constraints.
 class Constraints {

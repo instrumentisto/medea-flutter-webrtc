@@ -68,7 +68,11 @@ class IceServer {
 
   /// Converts this `IceServer` into an `RTCIceServer`.
   func intoWebRtc() -> RTCIceServer {
-    RTCIceServer(urlStrings: self.urls, username: self.username, credential: self.password)
+    RTCIceServer(
+      urlStrings: self.urls,
+      username: self.username,
+      credential: self.password
+    )
   }
 }
 
@@ -92,9 +96,9 @@ class PeerConnectionConfiguration {
   /// Converts this `PeerConnectionConfiguration` into an `RTCConfiguration`.
   func intoWebRtc() -> RTCConfiguration {
     let conf = RTCConfiguration()
-    conf.iceServers = iceServers.map({ serv -> RTCIceServer in
+    conf.iceServers = self.iceServers.map { serv -> RTCIceServer in
       serv.intoWebRtc()
-    })
+    }
     conf.iceTransportPolicy = self.iceTransportType.intoWebRtc()
     conf.sdpSemantics = RTCSdpSemantics.unifiedPlan
     return conf

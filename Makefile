@@ -25,11 +25,6 @@ FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 
 KTFMT_VER ?= 0.33
 
-ifneq ($(shell command -v swift 2> /dev/null),)
-SWIFT_VER ?= $(strip \
-	$(shell swiftc --version | grep 'Apple Swift version' | cut -d' ' -f4))
-endif
-
 CURRENT_OS ?= $(strip $(or $(os),\
 	$(if $(call eq,$(OS),Windows_NT),windows,\
 	$(if $(call eq,$(shell uname -s),Darwin),macos,linux))))
@@ -323,31 +318,24 @@ endif
 # Swift commands #
 ##################
 
-# Format Swift sources with swift-format.
+# Format Swift sources with SwiftFormat.
 #
 # Usage:
-#   make swift.fmt
-
-swift-fmt-bin = .cache/swift-format/.build/release/swift-format
-ifeq ($(SWIFT_VER),5.7)
-	swift-fmt-branch = release/5.7
-else
-ifeq ($(SWIFT_VER),5.6)
-	swift-fmt-branch = release/5.6
-else
-	swift-fmt-branch = swift-$(SWIFT_VER)-branch
-endif
-endif
+#	make swift.fmt [check=(no|yes)] [dockerized=(no|yes)]
 
 swift.fmt:
-ifeq ($(wildcard $(swift-fmt-bin)),)
-	@mkdir -p .cache/
-	git clone https://github.com/apple/swift-format.git .cache/swift-format/
-	cd .cache/swift-format/ && \
-	git checkout $(swift-fmt-branch) && \
-	swift build -c release
+ifeq ($(dockerized),yes)
+	docker run --rm -v "$(PWD)":/app -w /app \
+		ghcr.io/nicklockwood/swiftformat:latest \
+			$(if $(call eq,$(check),yes),--lint,) ios/Classes/
+else
+ifeq ($(shell which swiftformat),)
+ifeq ($(CURRENT_OS),macos)
+	brew install swiftformat
 endif
-	$(swift-fmt-bin) -r -p -i ios/Classes
+endif
+	swiftformat $(if $(call eq,$(check),yes),--lint,) ios/Classes/
+endif
 
 
 

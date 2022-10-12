@@ -16,30 +16,35 @@ public class SwiftMedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   /// parameters.
   init(messenger: FlutterBinaryMessenger, textures: FlutterTextureRegistry) {
     // Uncomment the underlying line for `libwebrtc` debug logs:
-    //RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose)
+    // RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose)
     self.state = State()
     self.messenger = messenger
     self.textures = textures
     self.peerConnectionFactory = PeerConnectionFactoryController(
-      messenger: self.messenger, state: self.state)
+      messenger: self.messenger, state: self.state
+    )
     self.mediaDevices = MediaDevicesController(
-      messenger: self.messenger, mediaDevices: MediaDevices(state: self.state))
+      messenger: self.messenger, mediaDevices: MediaDevices(state: self.state)
+    )
     self.videoRendererFactory = VideoRendererFactoryController(
-      messenger: self.messenger, registry: self.textures)
+      messenger: self.messenger, registry: self.textures
+    )
   }
 
   /// Registers this `SwiftMedeaFlutterWebrtcPlugin` in the provided
   /// `FlutterPluginRegistrar`.
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
-      name: "medea_flutter_webrtc", binaryMessenger: registrar.messenger())
+      name: "medea_flutter_webrtc", binaryMessenger: registrar.messenger()
+    )
     let instance = SwiftMedeaFlutterWebrtcPlugin(
-      messenger: registrar.messenger(), textures: registrar.textures())
+      messenger: registrar.messenger(), textures: registrar.textures()
+    )
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
   /// Handles the provided `FlutterMethodCall`.
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+  public func handle(_: FlutterMethodCall, result: @escaping FlutterResult) {
     result("iOS " + UIDevice.current.systemVersion)
   }
 }

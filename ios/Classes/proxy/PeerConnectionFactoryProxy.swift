@@ -22,13 +22,16 @@ class PeerConnectionFactoryProxy {
   /// Creates a new `PeerConnectionProxy` based on the provided
   /// `PeerConnectionConfiguration`.
   func create(conf: PeerConnectionConfiguration) -> PeerConnectionProxy {
-    let id = nextId()
+    let id = self.nextId()
 
     let config = conf.intoWebRtc()
     let peerObserver = PeerObserver()
     let peer = self.factory.peerConnection(
       with: config,
-      constraints: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
+      constraints: RTCMediaConstraints(
+        mandatoryConstraints: [:],
+        optionalConstraints: [:]
+      ),
       delegate: peerObserver
     )
     let peerProxy = PeerConnectionProxy(id: id, peer: peer!)
@@ -46,7 +49,7 @@ class PeerConnectionFactoryProxy {
 
   /// Generates the next track ID.
   private func nextId() -> Int {
-    lastPeerConnectionId += 1
-    return lastPeerConnectionId
+    self.lastPeerConnectionId += 1
+    return self.lastPeerConnectionId
   }
 }

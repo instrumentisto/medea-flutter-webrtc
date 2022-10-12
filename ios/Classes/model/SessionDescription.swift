@@ -39,8 +39,8 @@ class SessionDescription {
   /// returned to Flutter side.
   func asFlutterResult() -> [String: Any] {
     [
-      "type": type.rawValue,
-      "description": description,
+      "type": self.type.rawValue,
+      "description": self.description,
     ]
   }
 }

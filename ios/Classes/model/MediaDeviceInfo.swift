@@ -20,9 +20,9 @@ class MediaDeviceInfo {
   /// to Flutter side.
   func asFlutterResult() -> [String: Any?] {
     [
-      "deviceId": deviceId,
-      "label": label,
-      "kind": kind.rawValue,
+      "deviceId": self.deviceId,
+      "label": self.label,
+      "kind": self.kind.rawValue,
     ]
   }
 }

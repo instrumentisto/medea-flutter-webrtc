@@ -68,7 +68,7 @@ class RtpTransceiverProxy {
     }
 
     if newDirection != RTCRtpTransceiverDirection.stopped {
-      setDirection(direction: direction)
+      self.setDirection(direction: direction)
     }
   }
 
@@ -105,16 +105,16 @@ class RtpTransceiverProxy {
     }
 
     if newDirection != RTCRtpTransceiverDirection.stopped {
-      setDirection(direction: direction)
+      self.setDirection(direction: direction)
     }
   }
 
   /// Returns mID of the underlying `RTCRtpTransceiver`.
   func getMid() -> String? {
-    if transceiver.mid != nil && transceiver.mid.count == 0 {
+    if self.transceiver.mid != nil, self.transceiver.mid.count == 0 {
       return nil
     }
-    return transceiver.mid
+    return self.transceiver.mid
   }
 
   /// Returns the preferred `RtpTransceiverDirection` of the underlying
@@ -123,7 +123,8 @@ class RtpTransceiverProxy {
     if self.transceiver.isStopped {
       return TransceiverDirection.stopped
     } else {
-      return TransceiverDirection.fromWebRtc(direction: self.transceiver.direction)
+      return TransceiverDirection
+        .fromWebRtc(direction: self.transceiver.direction)
     }
   }
 

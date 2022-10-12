@@ -25,7 +25,8 @@ class VideoMediaTrackSourceProxy: MediaTrackSource {
 
   /// Initializes a new `VideoMediaTrackSourceProxy`.
   init(
-    peerConnectionFactory: RTCPeerConnectionFactory, source: RTCVideoSource, deviceId: String,
+    peerConnectionFactory: RTCPeerConnectionFactory, source: RTCVideoSource,
+    deviceId: String,
     capturer: RTCCameraVideoCapturer
   ) {
     self.peerConnectionFactory = peerConnectionFactory
@@ -37,9 +38,14 @@ class VideoMediaTrackSourceProxy: MediaTrackSource {
   /// Creates a new `MediaStreamTrackProxy` with the underlying
   /// `VideoMediaTrackSourceProxy`.
   func newTrack() -> MediaStreamTrackProxy {
-    let track = peerConnectionFactory.videoTrack(
-      with: source, trackId: LocalTrackIdGenerator.shared.nextId())
-    let trackProxy = MediaStreamTrackProxy(track: track, deviceId: self.deviceId, source: self)
+    let track = self.peerConnectionFactory.videoTrack(
+      with: self.source, trackId: LocalTrackIdGenerator.shared.nextId()
+    )
+    let trackProxy = MediaStreamTrackProxy(
+      track: track,
+      deviceId: self.deviceId,
+      source: self
+    )
     self.tracksCount += 1
     trackProxy.onStopped(cb: {
       self.tracksCount -= 1

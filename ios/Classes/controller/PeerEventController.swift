@@ -17,9 +17,11 @@ class PeerEventController: PeerEventObserver {
   func onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
     self.eventController.sendEvent(data: [
       "event": "onTrack",
-      "track": MediaStreamTrackController(messenger: self.messenger, track: track)
+      "track": MediaStreamTrackController(messenger: self.messenger,
+                                          track: track)
         .asFlutterResult(),
-      "transceiver": RtpTransceiverController(messenger: self.messenger, transceiver: transceiver)
+      "transceiver": RtpTransceiverController(messenger: self.messenger,
+                                              transceiver: transceiver)
         .asFlutterResult(),
     ])
   }
@@ -67,7 +69,7 @@ class PeerEventController: PeerEventObserver {
   /// Sends an `onNegotiationNeeded` event to Flutter side.
   func onNegotiationNeeded() {
     self.eventController.sendEvent(data: [
-      "event": "onNegotiationNeeded"
+      "event": "onNegotiationNeeded",
     ])
   }
 }

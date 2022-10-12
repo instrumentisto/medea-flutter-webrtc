@@ -54,12 +54,14 @@ class PeerConnectionProxy {
 
   /// Creates a new `RtpTransceiverProxy` based on the provided `MediaType` and
   /// `RtpTransceiverProxy` configuration.
-  func addTransceiver(mediaType: MediaType, transceiverInit: TransceiverInit) -> RtpTransceiverProxy
+  func addTransceiver(mediaType: MediaType,
+                      transceiverInit: TransceiverInit) -> RtpTransceiverProxy
   {
     let transceiver = self.peer.addTransceiver(
-      of: mediaType.intoWebRtc(), init: transceiverInit.intoWebRtc())
+      of: mediaType.intoWebRtc(), init: transceiverInit.intoWebRtc()
+    )
     self.syncTransceivers()
-    return self.transceivers[lastTransceiverId]!
+    return self.transceivers[self.lastTransceiverId]!
   }
 
   /// Sets the provided local `SessionDescription` to the underlying
@@ -94,7 +96,8 @@ class PeerConnectionProxy {
           } else {
             continuation.resume(throwing: error!)
           }
-        })
+        }
+      )
     }
   }
 
@@ -102,14 +105,19 @@ class PeerConnectionProxy {
   func createOffer() async throws -> SessionDescription {
     try await withCheckedThrowingContinuation { continuation in
       self.peer.offer(
-        for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
+        for: RTCMediaConstraints(
+          mandatoryConstraints: [:],
+          optionalConstraints: [:]
+        ),
         completionHandler: { description, error in
           if error == nil {
-            continuation.resume(returning: SessionDescription(sdp: description!))
+            continuation
+              .resume(returning: SessionDescription(sdp: description!))
           } else {
             continuation.resume(throwing: error!)
           }
-        })
+        }
+      )
     }
   }
 
@@ -135,14 +143,19 @@ class PeerConnectionProxy {
   func createAnswer() async throws -> SessionDescription {
     try await withCheckedThrowingContinuation { continuation in
       self.peer.answer(
-        for: RTCMediaConstraints(mandatoryConstraints: [:], optionalConstraints: [:]),
+        for: RTCMediaConstraints(
+          mandatoryConstraints: [:],
+          optionalConstraints: [:]
+        ),
         completionHandler: { description, error in
           if error == nil {
-            continuation.resume(returning: SessionDescription(sdp: description!))
+            continuation
+              .resume(returning: SessionDescription(sdp: description!))
           } else {
             continuation.resume(throwing: error!)
           }
-        })
+        }
+      )
     }
   }
 
@@ -157,7 +170,8 @@ class PeerConnectionProxy {
           } else {
             continuation.resume(throwing: error!)
           }
-        })
+        }
+      )
     }
   }
 
@@ -188,7 +202,10 @@ class PeerConnectionProxy {
         self.observers = observers
       }
 
-      func onTrack(track: MediaStreamTrackProxy, transceiver: RtpTransceiverProxy) {
+      func onTrack(
+        track: MediaStreamTrackProxy,
+        transceiver: RtpTransceiverProxy
+      ) {
         for observer in self.observers {
           observer.onTrack(track: track, transceiver: transceiver)
         }

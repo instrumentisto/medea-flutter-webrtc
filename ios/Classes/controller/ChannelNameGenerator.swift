@@ -1,5 +1,5 @@
 /// Generator of names for Flutter method/event channels.
-class ChannelNameGenerator {
+enum ChannelNameGenerator {
   /// Static prefix for all channels of this plugin
   private static let prefix: String = "FlutterWebRtc"
 
@@ -9,7 +9,7 @@ class ChannelNameGenerator {
   /// Returns a new ID for a channel.
   static func nextId() -> Int {
     ChannelNameGenerator.lastId += 1
-    return lastId
+    return self.lastId
   }
 
   /// Returns a name for a channel with the provided `name` and `id`.

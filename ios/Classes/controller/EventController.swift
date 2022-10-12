@@ -6,7 +6,7 @@ class EventController: NSObject, FlutterStreamHandler {
   private var eventSink: FlutterEventSink?
 
   /// Sets `eventSink` into which all events will be sent.
-  func onListen(withArguments arguments: Any?, eventSink: @escaping FlutterEventSink)
+  func onListen(withArguments _: Any?, eventSink: @escaping FlutterEventSink)
     -> FlutterError?
   {
     self.eventSink = eventSink
@@ -14,7 +14,7 @@ class EventController: NSObject, FlutterStreamHandler {
   }
 
   /// Resets the current `eventSink`.
-  func onCancel(withArguments arguments: Any?) -> FlutterError? {
+  func onCancel(withArguments _: Any?) -> FlutterError? {
     self.eventSink = nil
     return nil
   }

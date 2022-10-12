@@ -15,78 +15,83 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
 
   /// Fires an `onSignalingStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState
+    _: RTCPeerConnection, didChange stateChanged: RTCSignalingState
   ) {
     DispatchQueue.main.async {
       self.peer!.broadcastEventObserver().onSignalingStateChange(
-        state: SignalingState.fromWebRtc(state: stateChanged))
+        state: SignalingState.fromWebRtc(state: stateChanged)
+      )
     }
   }
 
   /// Fires an `onIceConnectionStateChange` callback in the
   /// `PeerConnectionProxy`.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState
+    _: RTCPeerConnection, didChange newState: RTCIceConnectionState
   ) {
     DispatchQueue.main.async {
       self.peer!.broadcastEventObserver().onIceConnectionStateChange(
-        state: IceConnectionState.fromWebRtc(state: newState))
+        state: IceConnectionState.fromWebRtc(state: newState)
+      )
     }
   }
 
   /// Fires an `onConnectionStateChange` callback in the `PeerConnectionProxy`.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didChange newState: RTCPeerConnectionState
+    _: RTCPeerConnection, didChange newState: RTCPeerConnectionState
   ) {
     DispatchQueue.main.async {
       self.peer!.broadcastEventObserver().onConnectionStateChange(
-        state: PeerConnectionState.fromWebRtc(state: newState))
+        state: PeerConnectionState.fromWebRtc(state: newState)
+      )
     }
   }
 
   /// Fires an `onIceGatheringStateChange` callback in the
   /// `PeerConnectionProxy`.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState
+    _: RTCPeerConnection, didChange newState: RTCIceGatheringState
   ) {
     DispatchQueue.main.async {
       self.peer!.broadcastEventObserver().onIceGatheringStateChange(
-        state: IceGatheringState.fromWebRtc(state: newState))
+        state: IceGatheringState.fromWebRtc(state: newState)
+      )
     }
   }
 
   /// Fires an `onIceCandidate` callback in the `PeerConnectionProxy`.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate
+    _: RTCPeerConnection, didGenerate candidate: RTCIceCandidate
   ) {
     DispatchQueue.main.async {
       self.peer!.broadcastEventObserver().onIceCandidate(
-        candidate: IceCandidate(candidate: candidate))
+        candidate: IceCandidate(candidate: candidate)
+      )
     }
   }
 
   /// Fires an `onTrack` callback in the `PeerConnectionProxy`.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver
+    _: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver
   ) {
     DispatchQueue.main.async {
       let track = transceiver.receiver.track!
       self.peer!.broadcastEventObserver().onTrack(
         track: MediaStreamTrackProxy(track: track, deviceId: nil, source: nil),
-        transceiver: RtpTransceiverProxy(transceiver: transceiver))
+        transceiver: RtpTransceiverProxy(transceiver: transceiver)
+      )
     }
   }
 
   /// Does nothing.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didAdd receiver: RTCRtpReceiver,
-    streams mediaStreams: [RTCMediaStream]
-  ) {
-  }
+    _: RTCPeerConnection, didAdd _: RTCRtpReceiver,
+    streams _: [RTCMediaStream]
+  ) {}
 
   /// Does nothing.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didRemove receiver: RTCRtpReceiver
+    _: RTCPeerConnection, didRemove receiver: RTCRtpReceiver
   ) {
     DispatchQueue.main.async {
       self.peer!.receiverRemoved(endedReceiver: receiver)
@@ -94,24 +99,19 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   }
 
   /// Does nothing.
-  func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
-  }
+  func peerConnection(_: RTCPeerConnection, didAdd _: RTCMediaStream) {}
 
   /// Does nothing.
-  func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
-  }
+  func peerConnection(_: RTCPeerConnection, didRemove _: RTCMediaStream) {}
 
   /// Does nothing.
-  func peerConnection(_ peerConnection: RTCPeerConnection, didOpen stream: RTCDataChannel) {
-  }
+  func peerConnection(_: RTCPeerConnection, didOpen _: RTCDataChannel) {}
 
   /// Does nothing.
-  func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
-  }
+  func peerConnectionShouldNegotiate(_: RTCPeerConnection) {}
 
   /// Does nothing.
   func peerConnection(
-    _ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]
-  ) {
-  }
+    _: RTCPeerConnection, didRemove _: [RTCIceCandidate]
+  ) {}
 }

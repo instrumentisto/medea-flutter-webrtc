@@ -17,13 +17,19 @@ class RtpTransceiverController {
   /// Initializes a new `RtpTransceiverController` for the provided
   /// `RtpTransceiverProxy`.
   init(messenger: FlutterBinaryMessenger, transceiver: RtpTransceiverProxy) {
-    let channelName = ChannelNameGenerator.name(name: "RtpTransceiver", id: self.channelId)
+    let channelName = ChannelNameGenerator.name(
+      name: "RtpTransceiver",
+      id: self.channelId
+    )
     self.messenger = messenger
     self.transceiver = transceiver
-    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
-    self.channel.setMethodCallHandler({ (call, result) in
+    self.channel = FlutterMethodChannel(
+      name: channelName,
+      binaryMessenger: messenger
+    )
+    self.channel.setMethodCallHandler { call, result in
       self.onMethodCall(call: call, result: result)
-    })
+    }
   }
 
   /// Handles all the supported Flutter method calls for the controlled
@@ -33,7 +39,8 @@ class RtpTransceiverController {
     switch call.method {
     case "setDirection":
       let direction = argsMap!["direction"] as? Int
-      self.transceiver.setDirection(direction: TransceiverDirection(rawValue: direction!)!)
+      self.transceiver
+        .setDirection(direction: TransceiverDirection(rawValue: direction!)!)
       result(nil)
     case "setRecv":
       let enabled = argsMap!["enabled"] as? Bool
@@ -62,10 +69,11 @@ class RtpTransceiverController {
   /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": channelId,
-      "sender": RtpSenderController(messenger: messenger, rtpSender: transceiver.getSender())
+      "channelId": self.channelId,
+      "sender": RtpSenderController(messenger: self.messenger,
+                                    rtpSender: self.transceiver.getSender())
         .asFlutterResult(),
-      "mid": transceiver.getMid(),
+      "mid": self.transceiver.getMid(),
     ]
   }
 }

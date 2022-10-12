@@ -46,7 +46,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   ///
   /// This lock is locked when some frame is currently rendering or the
   /// `FlutterRtcVideoRenderer` in process of stopping.
-  private let rendererLock: NSLock = NSLock()
+  private let rendererLock: NSLock = .init()
 
   /// Initializes a new `FlutterRtcVideoRenderer`.
   init(registry: FlutterTextureRegistry) {
@@ -81,7 +81,11 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
 
       func onTextureChangeVideoSize(id: Int64, height: Int32, width: Int32) {
         for observer in self.observers {
-          observer.onTextureChangeVideoSize(id: id, height: height, width: width)
+          observer.onTextureChangeVideoSize(
+            id: id,
+            height: height,
+            width: width
+          )
         }
       }
 
@@ -113,7 +117,9 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   /// Creates a new `CVPixelBuffer` based on the provided `CGSize`.
   func setSize(_ size: CGSize) {
     if self.pixelBuffer == nil
-      || (size.width != self.frameSize.width || size.height != self.frameSize.height)
+      ||
+      (size.width != self.frameSize.width || size.height != self.frameSize
+        .height)
     {
       let attrs =
         [
@@ -133,7 +139,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   }
 
   /// Resets the `CVPixelBuffer` of this renderer.
-  func onTextureUnregistered(_ texture: FlutterRtcVideoRenderer) {
+  func onTextureUnregistered(_: FlutterRtcVideoRenderer) {
     self.pixelBuffer = nil
   }
 
@@ -190,12 +196,12 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     if newTrack == nil {
       self.reset()
       self.rendererLock.lock()
-      track?.removeRenderer(renderer: self)
+      self.track?.removeRenderer(renderer: self)
       self.rendererLock.unlock()
     }
-    if self.track != newTrack && newTrack != nil {
+    if self.track != newTrack, newTrack != nil {
       self.rendererLock.lock()
-      track?.removeRenderer(renderer: self)
+      self.track?.removeRenderer(renderer: self)
       self.rendererLock.unlock()
 
       if self.track == nil {
@@ -238,13 +244,17 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       self.frameWidth = renderFrame!.buffer.width
       self.frameHeight = renderFrame!.buffer.height
       self.broadcastEventObserver().onTextureChangeVideoSize(
-        id: self.textureId, height: self.frameHeight, width: self.frameWidth)
+        id: self.textureId, height: self.frameHeight, width: self.frameWidth
+      )
     }
     if self.pixelBuffer == nil {
       self.rendererLock.unlock()
       return
     }
-    CVPixelBufferLockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+    CVPixelBufferLockBaseAddress(
+      self.pixelBuffer!,
+      CVPixelBufferLockFlags(rawValue: 0)
+    )
     let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
     let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
     libyuv_I420ToARGB(
@@ -259,7 +269,10 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       buffer.width,
       buffer.height
     )
-    CVPixelBufferUnlockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+    CVPixelBufferUnlockBaseAddress(
+      self.pixelBuffer!,
+      CVPixelBufferLockFlags(rawValue: 0)
+    )
 
     var rotation = 0
     switch renderFrame!.rotation {
@@ -275,12 +288,13 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     if self.frameRotation != rotation {
       self.frameRotation = rotation
       self.broadcastEventObserver().onTextureChangeRotation(
-        id: self.textureId, rotation: self.frameRotation)
+        id: self.textureId, rotation: self.frameRotation
+      )
     }
 
     if !self.isFirstFrameRendered {
       self.broadcastEventObserver().onFirstFrameRendered(id: self.textureId)
-      isFirstFrameRendered = true
+      self.isFirstFrameRendered = true
     }
     self.rendererLock.unlock()
 

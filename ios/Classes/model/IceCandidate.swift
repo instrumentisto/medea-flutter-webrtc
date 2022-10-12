@@ -29,16 +29,18 @@ class IceCandidate {
   /// Converts this `IceCandidate` into an `RTCIceCandidate`.
   func intoWebRtc() -> RTCIceCandidate {
     RTCIceCandidate(
-      sdp: self.candidate, sdpMLineIndex: Int32(self.sdpMLineIndex), sdpMid: self.sdpMid)
+      sdp: self.candidate, sdpMLineIndex: Int32(self.sdpMLineIndex),
+      sdpMid: self.sdpMid
+    )
   }
 
   /// Converts this `IceCandidate` into a `Dictionary` which can be returned to
   /// Flutter side.
   func asFlutterResult() -> [String: Any] {
     [
-      "sdpMid": sdpMid,
-      "sdpMLineIndex": sdpMLineIndex,
-      "candidate": candidate,
+      "sdpMid": self.sdpMid,
+      "sdpMLineIndex": self.sdpMLineIndex,
+      "candidate": self.candidate,
     ]
   }
 }

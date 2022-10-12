@@ -23,20 +23,32 @@ class PeerConnectionController {
   /// Initializes a new `PeerConnectionController` for the provided
   /// `PeerConnectionProxy`.
   init(messenger: FlutterBinaryMessenger, peer: PeerConnectionProxy) {
-    let channelName = ChannelNameGenerator.name(name: "PeerConnection", id: self.channelId)
+    let channelName = ChannelNameGenerator.name(
+      name: "PeerConnection",
+      id: self.channelId
+    )
     self.eventController = EventController()
     self.messenger = messenger
     self.peer = peer
     self.peer.addEventObserver(
       eventObserver: PeerEventController(
-        messenger: self.messenger, eventController: self.eventController))
-    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
+        messenger: self.messenger, eventController: self.eventController
+      )
+    )
+    self.channel = FlutterMethodChannel(
+      name: channelName,
+      binaryMessenger: messenger
+    )
     self.eventChannel = FlutterEventChannel(
-      name: ChannelNameGenerator.name(name: "PeerConnectionEvent", id: self.channelId),
-      binaryMessenger: messenger)
-    self.channel.setMethodCallHandler({ (call, result) in
+      name: ChannelNameGenerator.name(
+        name: "PeerConnectionEvent",
+        id: self.channelId
+      ),
+      binaryMessenger: messenger
+    )
+    self.channel.setMethodCallHandler { call, result in
       self.onMethodCall(call: call, result: result)
-    })
+    }
     self.eventChannel.setStreamHandler(self.eventController)
   }
 
@@ -70,7 +82,8 @@ class PeerConnectionController {
             desc = nil
           } else {
             desc = SessionDescription(
-              type: SessionDescriptionType(rawValue: type!)!, description: sdp!)
+              type: SessionDescriptionType(rawValue: type!)!, description: sdp!
+            )
           }
           try await self.peer.setLocalDescription(description: desc)
           result(nil)
@@ -86,7 +99,10 @@ class PeerConnectionController {
         do {
           try await self.peer.setRemoteDescription(
             description: SessionDescription(
-              type: SessionDescriptionType(rawValue: type!)!, description: sdp!))
+              type: SessionDescriptionType(rawValue: type!)!,
+              description: sdp!
+            )
+          )
           result(nil)
         } catch {
           result(error)
@@ -101,7 +117,10 @@ class PeerConnectionController {
         do {
           try await self.peer.addIceCandidate(
             candidate: IceCandidate(
-              sdpMid: sdpMid!, sdpMLineIndex: sdpMLineIndex!, candidate: candidate!))
+              sdpMid: sdpMid!, sdpMLineIndex: sdpMLineIndex!,
+              candidate: candidate!
+            )
+          )
           result(nil)
         } catch {
           result(error)
@@ -111,17 +130,23 @@ class PeerConnectionController {
       let mediaType = argsMap!["mediaType"] as? Int
       let initArgs = argsMap!["init"] as? [String: Any]
       let direction = initArgs!["direction"] as? Int
-      let transceiverInit = TransceiverInit(direction: TransceiverDirection(rawValue: direction!)!)
+      let transceiverInit =
+        TransceiverInit(direction: TransceiverDirection(rawValue: direction!)!)
       let transceiver = RtpTransceiverController(
         messenger: self.messenger,
         transceiver: self.peer.addTransceiver(
-          mediaType: MediaType(rawValue: mediaType!)!, transceiverInit: transceiverInit))
+          mediaType: MediaType(rawValue: mediaType!)!,
+          transceiverInit: transceiverInit
+        )
+      )
       result(transceiver.asFlutterResult())
     case "getTransceivers":
       result(
         self.peer.getTransceivers().map {
-          RtpTransceiverController(messenger: self.messenger, transceiver: $0).asFlutterResult()
-        })
+          RtpTransceiverController(messenger: self.messenger, transceiver: $0)
+            .asFlutterResult()
+        }
+      )
     case "restartIce":
       self.peer.restartIce()
       result(nil)
@@ -137,8 +162,8 @@ class PeerConnectionController {
   /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": channelId,
-      "id": peer.getId(),
+      "channelId": self.channelId,
+      "id": self.peer.getId(),
     ]
   }
 }

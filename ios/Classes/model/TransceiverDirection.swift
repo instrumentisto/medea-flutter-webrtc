@@ -22,7 +22,9 @@ enum TransceiverDirection: Int {
 
   /// Converts the provided `RTCRtpTransceiverDirection` into an
   /// `RtpTransceiverDirection`.
-  static func fromWebRtc(direction: RTCRtpTransceiverDirection) -> TransceiverDirection {
+  static func fromWebRtc(direction: RTCRtpTransceiverDirection)
+    -> TransceiverDirection
+  {
     switch direction {
     case .sendRecv:
       return TransceiverDirection.sendRecv

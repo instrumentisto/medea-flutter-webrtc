@@ -30,7 +30,7 @@ jobs:
       - ktfmt
       - rustdoc
       - rustfmt
-      - swift-format
+      - swiftformat
       - test-flutter
     runs-on: ubuntu-latest
     steps:
@@ -116,13 +116,13 @@ jobs:
 
       - run: make cargo.fmt check=yes
 
-  swift-format:
+  swiftformat:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - run: brew install swiftformat
 
-      - run: make swift.fmt
-      - run: git diff --exit-code HEAD
+      - run: make swift.fmt check=yes dockerized=no
 
 
 
@@ -322,7 +322,7 @@ jobs:
       - ktfmt
       - rustdoc
       - rustfmt
-      - swift-format
+      - swiftformat
       - test-flutter
     runs-on: ubuntu-latest
     steps:

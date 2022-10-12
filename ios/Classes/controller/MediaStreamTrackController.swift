@@ -23,21 +23,31 @@ class MediaStreamTrackController {
   /// Initializes a new `MediaStreamTrackController` for the provided
   /// `MediaStreamTrackProxy`.
   init(messenger: FlutterBinaryMessenger, track: MediaStreamTrackProxy) {
-    let channelName = ChannelNameGenerator.name(name: "MediaStreamTrack", id: self.channelId)
+    let channelName = ChannelNameGenerator.name(
+      name: "MediaStreamTrack",
+      id: self.channelId
+    )
     self.eventChannel = FlutterEventChannel(
-      name: ChannelNameGenerator.name(name: "MediaStreamTrackEvent", id: self.channelId),
-      binaryMessenger: messenger)
+      name: ChannelNameGenerator.name(
+        name: "MediaStreamTrackEvent",
+        id: self.channelId
+      ),
+      binaryMessenger: messenger
+    )
     self.eventController = EventController()
     self.messenger = messenger
     self.track = track
-    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
-    self.channel.setMethodCallHandler({ (call, result) in
+    self.channel = FlutterMethodChannel(
+      name: channelName,
+      binaryMessenger: messenger
+    )
+    self.channel.setMethodCallHandler { call, result in
       self.onMethodCall(call: call, result: result)
-    })
+    }
     self.eventChannel.setStreamHandler(self.eventController)
     self.track.onEnded(cb: {
       self.eventController.sendEvent(data: [
-        "event": "onEnded"
+        "event": "onEnded",
       ])
     })
   }
@@ -59,8 +69,12 @@ class MediaStreamTrackController {
     case "clone":
       do {
         result(
-          MediaStreamTrackController(messenger: self.messenger, track: try self.track.fork())
-            .asFlutterResult())
+          MediaStreamTrackController(
+            messenger: self.messenger,
+            track: try self.track.fork()
+          )
+          .asFlutterResult()
+        )
       } catch {
         result(error)
       }
@@ -75,10 +89,10 @@ class MediaStreamTrackController {
   /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": channelId,
-      "id": track.id(),
-      "kind": track.kind().rawValue,
-      "deviceId": track.getDeviceId(),
+      "channelId": self.channelId,
+      "id": self.track.id(),
+      "kind": self.track.kind().rawValue,
+      "deviceId": self.track.getDeviceId(),
     ]
   }
 }

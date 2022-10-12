@@ -12,7 +12,8 @@ class State {
     let decoderFactory = RTCDefaultVideoDecoderFactory()
     let encoderFactory = RTCDefaultVideoEncoderFactory()
     self.factory = RTCPeerConnectionFactory(
-      encoderFactory: encoderFactory, decoderFactory: decoderFactory)
+      encoderFactory: encoderFactory, decoderFactory: decoderFactory
+    )
   }
 
   /// Returns the `RTCPeerConnectionFactory` of this `State`.

@@ -23,21 +23,33 @@ class VideoRendererController {
   /// Initializes a new `VideoRendererController` for the provided
   /// `FlutterRtcVideoRenderer`.
   init(messenger: FlutterBinaryMessenger, renderer: FlutterRtcVideoRenderer) {
-    let channelName = ChannelNameGenerator.name(name: "VideoRenderer", id: self.channelId)
+    let channelName = ChannelNameGenerator.name(
+      name: "VideoRenderer",
+      id: self.channelId
+    )
     let eventChannelName = ChannelNameGenerator.name(
-      name: "VideoRendererEvent", id: self.channelId)
+      name: "VideoRendererEvent", id: self.channelId
+    )
     self.messenger = messenger
     self.renderer = renderer
-    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
-    self.eventChannel = FlutterEventChannel(name: eventChannelName, binaryMessenger: messenger)
+    self.channel = FlutterMethodChannel(
+      name: channelName,
+      binaryMessenger: messenger
+    )
+    self.eventChannel = FlutterEventChannel(
+      name: eventChannelName,
+      binaryMessenger: messenger
+    )
     self.eventController = EventController()
     self.renderer.subscribe(
       sub: VideoRendererEventController(
-        messenger: self.messenger, eventController: self.eventController))
-    self.eventChannel.setStreamHandler(eventController)
-    self.channel.setMethodCallHandler({ (call, result) in
+        messenger: self.messenger, eventController: self.eventController
+      )
+    )
+    self.eventChannel.setStreamHandler(self.eventController)
+    self.channel.setMethodCallHandler { call, result in
       self.onMethodCall(call: call, result: result)
-    })
+    }
   }
 
   /// Handles all the supported Flutter method calls for the controlled
@@ -67,8 +79,8 @@ class VideoRendererController {
   /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": channelId,
-      "textureId": renderer.getTextureId(),
+      "channelId": self.channelId,
+      "textureId": self.renderer.getTextureId(),
     ]
   }
 }

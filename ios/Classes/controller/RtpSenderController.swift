@@ -16,13 +16,19 @@ class RtpSenderController {
 
   /// Initializes a new `RtpSenderController` for the provided `RtpSenderProxy`.
   init(messenger: FlutterBinaryMessenger, rtpSender: RtpSenderProxy) {
-    let channelName = ChannelNameGenerator.name(name: "RtpSender", id: channelId)
+    let channelName = ChannelNameGenerator.name(
+      name: "RtpSender",
+      id: self.channelId
+    )
     self.messenger = messenger
     self.rtpSender = rtpSender
-    self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
-    self.channel.setMethodCallHandler({ (call, result) in
+    self.channel = FlutterMethodChannel(
+      name: channelName,
+      binaryMessenger: messenger
+    )
+    self.channel.setMethodCallHandler { call, result in
       self.onMethodCall(call: call, result: result)
-    })
+    }
   }
 
   /// Handles all the supported Flutter method calls for the controlled
@@ -52,7 +58,7 @@ class RtpSenderController {
   /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
     [
-      "channelId": channelId
+      "channelId": self.channelId,
     ]
   }
 }
