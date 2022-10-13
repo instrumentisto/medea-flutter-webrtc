@@ -2,7 +2,8 @@ import 'package:collection/collection.dart';
 
 import '../api/bridge.g.dart' as ffi;
 
-/// Trying parse to int.
+/// Tries to parse the provided value to an `int`.
+///
 /// If `value` is a [String] then parse as hexadecimal.
 int? tryParse(dynamic value) {
   switch (value.runtimeType) {
@@ -222,8 +223,8 @@ enum Protocol {
 abstract class RtcStatsType {
   RtcStatsType();
 
-  /// Creates a [RtcStatsType] basing on the [ffi.RtcStatsType] received
-  /// from the native side.
+  /// Creates a [RtcStatsType] basing on the [ffi.RtcStatsType] received from
+  /// the native side.
   static RtcStatsType? fromFFI(ffi.RtcStatsType stats) {
     switch (stats.runtimeType.toString().substring(2)) // Skip '_$' prefix.
         {
@@ -371,8 +372,8 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
       : super(trackIdentifier);
 
   /// Creates a [RtcAudioSourceStats] basing on the
-  /// [ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats] received from
-  /// the native side.
+  /// [ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats] received from the
+  /// native side.
   static RtcAudioSourceStats fromFFI(
       ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats stats,
       String? trackIdentifier) {
@@ -541,7 +542,7 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
   /// Unique ID that is associated to the object that was inspected to produce
   /// the [RTCTransportStats][1] associated with this candidate.
   ///
-  /// [1]: https://w3.org/TR/webrtc-stats/#transportstats-dict%2A
+  /// [1]: https://w3.org/TR/webrtc-stats#transportstats-dict%2A
   String? transportId;
 
   /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses,
