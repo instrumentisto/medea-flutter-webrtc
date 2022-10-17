@@ -16,6 +16,7 @@ data class RtcStatsReport(val stats: Map<String, RtcStats>) {
       return RtcStatsReport(report.statsMap.mapValues { RtcStats.fromWebRtc(it.value) })
     }
   }
+
   /** Converts this [RtcStatsReport] into a [Map] which can be returned to the Flutter side. */
   fun asFlutterResult(): List<Map<String, Any>> {
     return stats.map { it.value.asFlutterResult() }

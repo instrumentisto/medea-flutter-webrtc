@@ -1,12 +1,12 @@
 package com.instrumentisto.medea_flutter_webrtc.model
 
 /**
- * Representation of an [org.webrtc.RTCStats].
+ * Representation of [org.webrtc.RTCStats].
  *
- * @property type `type` of this [RtcStats].
- * @property id `id` of this [RtcStats].
- * @property timestampUs `timestampUs` of this [RtcStats].
- * @property kind map of stats of this [RtcStats].
+ * @property type `type` of these [RtcStats].
+ * @property id `id` of these [RtcStats].
+ * @property timestampUs `timestampUs` of these [RtcStats].
+ * @property kind map of stats of these [RtcStats].
  */
 data class RtcStats(
     val type: String,
@@ -16,7 +16,7 @@ data class RtcStats(
 ) {
   companion object {
     /**
-     * Converts the provided [org.webrtc.RTCStats] into an [RtcStats].
+     * Converts the provided [org.webrtc.RTCStats] into [RtcStats].
      *
      * @return [RtcStats] created based on the provided [org.webrtc.RTCStats].
      */
@@ -26,7 +26,7 @@ data class RtcStats(
     }
   }
 
-  /** Converts this [RtcStatsReport] into a [Map] which can be returned to the Flutter side. */
+  /** Converts these [RtcStats] into a [Map] which can be returned to the Flutter side. */
   fun asFlutterResult(): Map<String, Any> {
     return mapOf("id" to id, "timestampUs" to timestampUs, "kind" to kind, "type" to type)
   }

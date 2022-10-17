@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 
 import '../api/bridge.g.dart' as ffi;
 
-/// Tries to parse the provided value to an `int`.
+/// Tries to parse the provided [value] as [int].
 ///
-/// If `value` is a [String] then parse as hexadecimal.
+/// If the provided [value] is a [String] then parses it as hexadecimal.
 int? tryParse(dynamic value) {
   switch (value.runtimeType) {
     case int:
@@ -37,7 +37,7 @@ class RtcStats {
     this.type,
   );
 
-  /// Creates a [RTCStats] basing on the [ffi.RtcStats] received from the native
+  /// Creates [RTCStats] basing on the [ffi.RtcStats] received from the native
   /// side.
   static RtcStats? fromFFI(ffi.RtcStats stats) {
     var kind = RtcStatsType.fromFFI(stats.kind);
@@ -52,7 +52,7 @@ class RtcStats {
     }
   }
 
-  /// Creates an [RTCStats] basing on the [Map] received from the native side.
+  /// Creates [RTCStats] basing on the [Map] received from the native side.
   static RtcStats? fromMap(dynamic stats) {
     stats['kind']['type'] = stats['type'];
     var kind = RtcStatsType.fromMap(stats['kind']);
@@ -117,7 +117,7 @@ enum RtcStatsIceCandidatePairState {
   succeeded,
 }
 
-/// Trying convert [String] to [RtcStatsIceCandidatePairState].
+/// Tries to parse a [String] as an [RtcStatsIceCandidatePairState].
 RtcStatsIceCandidatePairState? iceCandidatePairStateTryFromString(
     String state) {
   switch (state) {
@@ -148,7 +148,7 @@ RtcStatsIceCandidatePairState? iceCandidatePairStateTryFromString(
   }
 }
 
-//// Variants of [ICE roles][1].
+/// Variants of [ICE roles][1].
 ///
 /// More info in the [RFC 5245].
 ///
@@ -223,7 +223,7 @@ enum Protocol {
 abstract class RtcStatsType {
   RtcStatsType();
 
-  /// Creates a [RtcStatsType] basing on the [ffi.RtcStatsType] received from
+  /// Creates an [RtcStatsType] basing on the [ffi.RtcStatsType] received from
   /// the native side.
   static RtcStatsType? fromFFI(ffi.RtcStatsType stats) {
     switch (stats.runtimeType.toString().substring(2)) // Skip '_$' prefix.
@@ -371,7 +371,7 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
       String? trackIdentifier)
       : super(trackIdentifier);
 
-  /// Creates a [RtcAudioSourceStats] basing on the
+  /// Creates [RtcAudioSourceStats] basing on the
   /// [ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats] received from the
   /// native side.
   static RtcAudioSourceStats fromFFI(
@@ -387,8 +387,8 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
     );
   }
 
-  /// Creates an [RtcAudioSourceStats] basing on the [Map] received from the
-  /// native side.
+  /// Creates [RtcAudioSourceStats] basing on the [Map] received from the native
+  /// side.
   static RtcAudioSourceStats fromMap(dynamic stats) {
     return RtcAudioSourceStats(
       stats['audioLevel'],
@@ -428,7 +428,7 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
       this.framesPerSecond, String? trackIdentifier)
       : super(trackIdentifier);
 
-  /// Creates a [RtcVideoSourceStats] basing on the
+  /// Creates [RtcVideoSourceStats] basing on the
   /// [ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats] received from the
   /// native side.
   static RtcVideoSourceStats fromFFI(
@@ -438,8 +438,8 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
         stats.framesPerSecond, trackIdentifier);
   }
 
-  /// Creates an [RtcVideoSourceStats] basing on the [Map] received from the
-  /// native side.
+  /// Creates [RtcVideoSourceStats] basing on the [Map] received from the native
+  /// side.
   static RtcVideoSourceStats fromMap(dynamic stats) {
     return RtcVideoSourceStats(stats['width'], stats['height'], stats['frames'],
         stats['framesPerSecond'], stats['trackIdentifier']);
@@ -474,7 +474,7 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
   RtcIceCandidateStats(this.transportId, this.address, this.port, this.protocol,
       this.candidateType, this.priority, this.url, this.relayProtocol);
 
-  /// Creates a [RtcIceCandidateStats] basing on the
+  /// Creates [RtcIceCandidateStats] basing on the
   /// [ffi.RtcStatsType_RtcIceCandidateStats] received from the native side.
   static RtcIceCandidateStats fromFFI(
       ffi.RtcStatsType_RtcIceCandidateStats stats) {
@@ -507,7 +507,7 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
     }
   }
 
-  /// Creates an [RtcIceCandidateStats] basing on the [Map] received from the
+  /// Creates [RtcIceCandidateStats] basing on the [Map] received from the
   /// native side.
   static RtcIceCandidateStats fromMap(dynamic stats) {
     if (stats['isRemote']) {
@@ -545,8 +545,8 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
   /// [1]: https://w3.org/TR/webrtc-stats#transportstats-dict%2A
   String? transportId;
 
-  /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses,
-  /// and fully qualified domain names (FQDNs).
+  /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses, and
+  /// fully qualified domain names (FQDNs).
   String? address;
 
   /// Port number of the candidate.
@@ -688,8 +688,9 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     this.mediaSourceId,
   );
 
-  /// Creates a [RtcOutboundRtpStreamStats] basing on the
-  /// [ffi.RtcStatsType_RtcOutboundRtpStreamStats] received from the native side.
+  /// Creates [RtcOutboundRtpStreamStats] basing on the
+  /// [ffi.RtcStatsType_RtcOutboundRtpStreamStats] received from the native
+  /// side.
   static RtcOutboundRtpStreamStats fromFFI(
       ffi.RtcStatsType_RtcOutboundRtpStreamStats stats) {
     RtcOutboundRtpStreamStatsMediaType? mediaType;
@@ -714,8 +715,8 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcOutboundRtpStreamStats] basing on the [Map] received from
-  /// the native side.
+  /// Creates [RtcOutboundRtpStreamStats] basing on the [Map] received from the
+  /// native side.
   static RtcOutboundRtpStreamStats fromMap(dynamic stats) {
     RtcOutboundRtpStreamStatsMediaType? mediaType;
     if (stats['kind'] == 'audio') {
@@ -921,7 +922,7 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
     this.mediaType,
   );
 
-  /// Creates a [RtcInboundRtpStreamStats] basing on the
+  /// Creates [RtcInboundRtpStreamStats] basing on the
   /// [ffi.RtcStatsType_RtcInboundRtpStreamStats] received from the native side.
   static RtcInboundRtpStreamStats fromFFI(
       ffi.RtcStatsType_RtcInboundRtpStreamStats stats) {
@@ -964,8 +965,8 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
         mediaType);
   }
 
-  /// Creates an [RtcInboundRtpStreamStats] basing on the [Map] received from
-  /// the native side.
+  /// Creates [RtcInboundRtpStreamStats] basing on the [Map] received from the
+  /// native side.
   static RtcInboundRtpStreamStats fromMap(dynamic stats) {
     RtcInboundRtpStreamMediaType? mediaType;
     if (stats['kind'] == 'audio') {
@@ -1079,7 +1080,7 @@ class RtcIceCandidatePairStats extends RtcStatsType {
     this.availableOutgoingBitrate,
   );
 
-  /// Creates a [RtcIceCandidatePairStats] basing on the
+  /// Creates [RtcIceCandidatePairStats] basing on the
   /// [ffi.RtcStatsType_RtcIceCandidatePairStats] received from the native side.
   static RtcIceCandidatePairStats fromFFI(
       ffi.RtcStatsType_RtcIceCandidatePairStats stats) {
@@ -1094,8 +1095,8 @@ class RtcIceCandidatePairStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcIceCandidatePairStats] basing on the [Map] received from
-  /// the native side.
+  /// Creates [RtcIceCandidatePairStats] basing on the [Map] received from the
+  /// native side.
   static RtcIceCandidatePairStats fromMap(dynamic stats) {
     return RtcIceCandidatePairStats(
       iceCandidatePairStateTryFromString(stats['state'])!,
@@ -1179,7 +1180,7 @@ class RtcTransportStats extends RtcStatsType {
     this.iceRole,
   );
 
-  /// Creates a [RtcIceCandidatePairStats] basing on the
+  /// Creates [RtcIceCandidatePairStats] basing on the
   /// [ffi.RtcStatsType_RtcIceCandidatePairStats] received from the native side.
   static RtcTransportStats fromFFI(ffi.RtcStatsType_RtcTransportStats stats) {
     IceRole? role;
@@ -1190,8 +1191,8 @@ class RtcTransportStats extends RtcStatsType {
         stats.bytesSent, stats.bytesReceived, role);
   }
 
-  /// Creates an [RtcTransportStats] basing on the [Map] received from the
-  /// native side.
+  /// Creates [RtcTransportStats] basing on the [Map] received from the native
+  /// side.
   static RtcTransportStats fromMap(dynamic stats) {
     return RtcTransportStats(
         tryParse(stats['packetsSent']),
@@ -1246,9 +1247,9 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
     this.reportsReceived,
   );
 
-  /// Creates a [RtcRemoteInboundRtpStreamStats] basing on the
-  /// [ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats] received from the
-  /// native side.
+  /// Creates [RtcRemoteInboundRtpStreamStats] basing on the
+  /// [ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats] received from the native
+  /// side.
   static RtcRemoteInboundRtpStreamStats fromFFI(
       ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats stats) {
     return RtcRemoteInboundRtpStreamStats(
@@ -1261,8 +1262,8 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcRemoteInboundRtpStreamStats] basing on the [Map] received
-  /// from the native side.
+  /// Creates [RtcRemoteInboundRtpStreamStats] basing on the [Map] received from
+  /// the native side.
   static RtcRemoteInboundRtpStreamStats fromMap(dynamic stats) {
     return RtcRemoteInboundRtpStreamStats(
       stats['localId'],
@@ -1336,7 +1337,7 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
     this.reportsSent,
   );
 
-  /// Creates a [RtcRemoteOutboundRtpStreamStats] basing on the
+  /// Creates [RtcRemoteOutboundRtpStreamStats] basing on the
   /// [ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats] received from the
   /// native side.
   static RtcRemoteOutboundRtpStreamStats fromFFI(
@@ -1348,7 +1349,7 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
     );
   }
 
-  /// Creates an [RtcRemoteOutboundRtpStreamStats] basing on the [Map] received
+  /// Creates [RtcRemoteOutboundRtpStreamStats] basing on the [Map] received
   /// from the native side.
   static RtcRemoteOutboundRtpStreamStats fromMap(dynamic stats) {
     return RtcRemoteOutboundRtpStreamStats(
