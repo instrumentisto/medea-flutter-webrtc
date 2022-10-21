@@ -53,12 +53,10 @@ class MediaDevices {
       self.setBuiltInMicAsInput()
       try! AVAudioSession.sharedInstance().overrideOutputAudioPort(.none)
     } else {
-      guard let availableInputs = session.availableInputs else { return }
-      for input in availableInputs {
-        if input.portName == id {
-          try! session.setPreferredInput(input)
-          break
-        }
+      let selectedInput = AVAudioSession.sharedInstance().availableInputs?
+        .first(where: { $0.portName == id })
+      if selectedInput != nil {
+        try! session.setPreferredInput(selectedInput!)
       }
     }
   }
@@ -95,15 +93,15 @@ class MediaDevices {
     guard let availableInputs = session.availableInputs else {
       return devices
     }
-    for input in availableInputs {
-      let name = input.portName
-      if input.portType == AVAudioSession.Port.bluetoothHFP {
-        devices.append(MediaDeviceInfo(
-          deviceId: input.portName,
-          label: input.portName,
-          kind: MediaDeviceKind.audioOutput
-        ))
-      }
+
+    let bluetoothOutput = availableInputs
+      .filter { $0.portType == AVAudioSession.Port.bluetoothHFP }.last
+    if bluetoothOutput != nil {
+      devices.append(MediaDeviceInfo(
+        deviceId: bluetoothOutput!.portName,
+        label: bluetoothOutput!.portName,
+        kind: MediaDeviceKind.audioOutput
+      ))
     }
 
     return devices
