@@ -145,34 +145,59 @@ void main() {
   // // === FAIL ===
   // // Fails with segfault.
   // testWidgets('Add Ice Candidate', (WidgetTester tester) async {
+  //   print("Test 1");
   //   var pc1 = await PeerConnection.create(IceTransportType.all, []);
+  //   print("Test 2");
   //   var pc2 = await PeerConnection.create(IceTransportType.all, []);
+  //   print("Test 3");
 
   //   pc1.onIceCandidate((candidate) async {
+  //     print("Test 10");
   //     if (!pc2.closed) {
+  //       print("Test 11");
+  //       // Fails because of this line:
   //       await pc2.addIceCandidate(candidate);
+  //       print("Test 12");
   //     }
+  //     print("Test 13");
   //   });
+  //   print("Test 4");
 
   //   pc2.onIceCandidate((candidate) async {
+  //     print("Test 14");
   //     if (!pc1.closed) {
+  //       print("Test 15");
+  //       // Fails because of this line:
   //       await pc1.addIceCandidate(candidate);
+  //       print("Test 16");
   //     }
+  //     print("Test 17");
   //   });
+  //   print("Test 5");
   //   var t = await pc1.addTransceiver(
   //       MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+  //   print("Test 6");
 
   //   var offer = await pc1.createOffer();
+  //   print("Test 7");
   //   await pc1.setLocalDescription(offer);
+  //   print("Test 8");
   //   await pc2.setRemoteDescription(offer);
+  //   print("Test 9");
 
   //   var answer = await pc2.createAnswer();
+  //   print("Test 10");
   //   await pc2.setLocalDescription(answer);
+  //   print("Test 11");
   //   await pc1.setRemoteDescription(answer);
+  //   print("Test 12");
 
   //   await pc1.close();
+  //   print("Test 13");
   //   await pc2.close();
+  //   print("Test 14");
   //   await t.dispose();
+  //   print("Test 15");
   // });
 
   // // === FAIL === 
