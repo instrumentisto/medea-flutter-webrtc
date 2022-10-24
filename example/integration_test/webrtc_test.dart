@@ -142,62 +142,36 @@ void main() {
   //   await trans.dispose();
   // });
 
-  // // === FAIL ===
-  // // Fails with segfault.
+  // // === FIXED ===
   // testWidgets('Add Ice Candidate', (WidgetTester tester) async {
-  //   print("Test 1");
   //   var pc1 = await PeerConnection.create(IceTransportType.all, []);
-  //   print("Test 2");
   //   var pc2 = await PeerConnection.create(IceTransportType.all, []);
-  //   print("Test 3");
 
   //   pc1.onIceCandidate((candidate) async {
-  //     print("Test 10");
   //     if (!pc2.closed) {
-  //       print("Test 11");
-  //       // Fails because of this line:
   //       await pc2.addIceCandidate(candidate);
-  //       print("Test 12");
   //     }
-  //     print("Test 13");
   //   });
-  //   print("Test 4");
 
   //   pc2.onIceCandidate((candidate) async {
-  //     print("Test 14");
   //     if (!pc1.closed) {
-  //       print("Test 15");
-  //       // Fails because of this line:
   //       await pc1.addIceCandidate(candidate);
-  //       print("Test 16");
   //     }
-  //     print("Test 17");
   //   });
-  //   print("Test 5");
   //   var t = await pc1.addTransceiver(
   //       MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
-  //   print("Test 6");
 
   //   var offer = await pc1.createOffer();
-  //   print("Test 7");
   //   await pc1.setLocalDescription(offer);
-  //   print("Test 8");
   //   await pc2.setRemoteDescription(offer);
-  //   print("Test 9");
 
   //   var answer = await pc2.createAnswer();
-  //   print("Test 10");
   //   await pc2.setLocalDescription(answer);
-  //   print("Test 11");
   //   await pc1.setRemoteDescription(answer);
-  //   print("Test 12");
 
   //   await pc1.close();
-  //   print("Test 13");
   //   await pc2.close();
-  //   print("Test 14");
   //   await t.dispose();
-  //   print("Test 15");
   // });
 
   // // === FIXED === 
@@ -253,15 +227,19 @@ void main() {
   // // === FAIL ===
   // // Timeouts?
   // testWidgets('Ice state PeerConnection', (WidgetTester tester) async {
+  //   print("Test 1");
   //   var pc1 = await PeerConnection.create(IceTransportType.all, []);
   //   var pc2 = await PeerConnection.create(IceTransportType.all, []);
+  //   print("Test 2");
 
   //   var tx = StreamController<PeerConnectionState>();
   //   var rx = StreamIterator(tx.stream);
 
+  //   print("Test 3");
   //   pc1.onConnectionStateChange((state) {
   //     tx.add(state);
   //   });
+  //   print("Test 4");
 
   //   var t = await pc1.addTransceiver(
   //       MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -285,15 +263,22 @@ void main() {
   //     }
   //   });
 
+  //   print("Test 5");
   //   expect(await rx.moveNext(), isTrue);
+  //   print("Test 6");
   //   expect(rx.current, equals(PeerConnectionState.connecting));
 
+  //   print("Test 7");
+  //   // Stucks here:
   //   expect(await rx.moveNext(), isTrue);
+  //   print("Test 8");
   //   expect(rx.current, equals(PeerConnectionState.connected));
 
   //   await pc1.close();
 
+  //   print("Test 9");
   //   expect(await rx.moveNext(), isTrue);
+  //   print("Test 10");
   //   expect(rx.current, equals(PeerConnectionState.closed));
 
   //   await pc2.close();
@@ -325,32 +310,42 @@ void main() {
   // // === FAIL ===
   // // Timeouts
   // testWidgets('Track Onended', (WidgetTester tester) async {
+  //   print("Test 1");
   //   var pc1 = await PeerConnection.create(IceTransportType.all, []);
   //   var tr = await pc1.addTransceiver(
   //       MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
   //   var pc2 = await PeerConnection.create(IceTransportType.all, []);
+  //   print("Test 2");
   //   final completer = Completer<void>();
   //   pc2.onTrack((track, transceiver) async {
+  //     print("Test @1");
   //     track.onEnded(() async {
+  //       print("Test @@1");
   //       completer.complete();
   //       await track.stop();
   //       await track.dispose();
   //     });
   //     await transceiver.dispose();
   //   });
+  //   print("Test 3");
 
   //   await pc2.setRemoteDescription(await pc1.createOffer());
   //   var transceivers = await pc2.getTransceivers();
+  //   print("Test 4");
   //   await transceivers[0].stop();
+  //   print("Test 5");
   //   await completer.future.timeout(const Duration(seconds: 10));
+  //   print("Test 6");
 
   //   for (var t in transceivers) {
+  //     print("Test 7");
   //     await t.dispose();
   //   }
   //   await pc1.close();
   //   await pc2.close();
   //   await tr.dispose();
+  //   print("Test 8");
   // });
 
   // // === FAIL ===
