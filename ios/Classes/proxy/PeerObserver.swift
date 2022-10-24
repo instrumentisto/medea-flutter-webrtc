@@ -108,7 +108,11 @@ class PeerObserver: NSObject, RTCPeerConnectionDelegate {
   func peerConnection(_: RTCPeerConnection, didOpen _: RTCDataChannel) {}
 
   /// Does nothing.
-  func peerConnectionShouldNegotiate(_: RTCPeerConnection) {}
+  func peerConnectionShouldNegotiate(_: RTCPeerConnection) {
+    DispatchQueue.main.async {
+      self.peer!.broadcastEventObserver().onNegotiationNeeded()
+    }
+  }
 
   /// Does nothing.
   func peerConnection(
