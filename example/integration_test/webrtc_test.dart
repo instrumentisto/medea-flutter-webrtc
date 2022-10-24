@@ -506,8 +506,9 @@ void main() {
   // });
 
   // // === FAIL ===
-  // // Timeout of some future
+  // // Should be fixed after onEnded callback fix.
   // testWidgets('Clone track', (WidgetTester tester) async {
+  //   print("Test 1");
   //   var caps = DeviceConstraints();
   //   caps.video.mandatory = DeviceVideoConstraints();
   //   caps.video.mandatory!.width = 640;
@@ -519,7 +520,9 @@ void main() {
   //   var onEndedComplete = Completer();
   //   pc2.onTrack((track, transceiver) {
   //     if (transceiver.mid == '0') {
+  //       // This callback not fires, so tests fails.
   //       track.onEnded(() async {
+  //         print("Test @@1");
   //         onEndedComplete.complete();
   //         await track.stop();
   //         await track.dispose();
@@ -527,11 +530,13 @@ void main() {
   //       });
   //     }
   //   });
+  //   print("Test 2");
 
   //   var t1 = await pc1.addTransceiver(
   //       MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
   //   var t2 = await pc1.addTransceiver(
   //       MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+  //   print("Test 3");
 
   //   var tracks = await getUserMedia(caps);
 
@@ -539,16 +544,21 @@ void main() {
   //       tracks.firstWhere((track) => track.kind() == MediaKind.video);
   //   var cloneVideoTrack = await videoTrack.clone();
   //   await cloneVideoTrack.setEnabled(false);
+  //   print("Test 4");
 
   //   await t1.sender.replaceTrack(videoTrack);
   //   await t2.sender.replaceTrack(cloneVideoTrack);
+  //   print("Test 5");
 
   //   await pc2.setRemoteDescription(await pc1.createOffer());
 
   //   var transceivers = await pc2.getTransceivers();
   //   await transceivers[0].stop();
 
+  //   print("Test 6");
+  //   // Stucks on this line:
   //   await onEndedComplete.future.timeout(const Duration(seconds: 10));
+  //   print("Test 7");
   //   expect(videoTrack.id(), isNot(equals(cloneVideoTrack.id())));
   //   expect(videoTrack.isEnabled(), isNot(equals(cloneVideoTrack.isEnabled())));
 
@@ -567,7 +577,7 @@ void main() {
   //   await cloneVideoTrack.dispose();
   // });
 
-  // // === FAIL ===
+  // // === FIXED ===
   // testWidgets('Media stream constraints', (WidgetTester tester) async {
   //   var capsVideoDeviceOnly = DeviceConstraints();
   //   capsVideoDeviceOnly.video.mandatory = DeviceVideoConstraints();
@@ -591,7 +601,6 @@ void main() {
   //   bool hasAudio =
   //       tracksAudioOnly.any((track) => track.kind() == MediaKind.audio);
   //   expect(hasVideo, isFalse);
-  //   // Fails here
   //   expect(hasAudio, isTrue);
 
   //   var tracksVideoDeviceOnly = await getUserMedia(capsVideoDeviceOnly);
