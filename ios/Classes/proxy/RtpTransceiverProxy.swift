@@ -131,5 +131,6 @@ class RtpTransceiverProxy {
   /// Stops the underlying `RTCRtpTransceiver`.
   func stop() {
     self.transceiver.stopInternal()
+    self.receiver.notifyRemoved()
   }
 }

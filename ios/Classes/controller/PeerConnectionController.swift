@@ -164,7 +164,7 @@ class PeerConnectionController {
       self.peer.restartIce()
       result(nil)
     case "dispose":
-      self.isDisposed = true;
+      self.isDisposed = true
       self.channel.setMethodCallHandler(nil)
       self.peer.dispose()
       result(nil)

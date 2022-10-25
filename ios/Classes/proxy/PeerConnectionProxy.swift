@@ -258,7 +258,6 @@ class PeerConnectionProxy {
     for receiver in self.receivers.values {
       receiver.notifyRemoved()
     }
-    self.observers = []
     self.receivers = [:]
   }
 }
