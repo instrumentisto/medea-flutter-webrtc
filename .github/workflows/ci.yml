@@ -19,179 +19,179 @@ jobs:
   # Pull Request #
   ################
 
-  # pr:
-  #   if: ${{ github.event_name == 'pull_request' }}
-  #   needs:
-  #     - build
-  #     - build-linux
-  #     - clippy
-  #     - dartanalyze
-  #     - dartfmt
-  #     - ktfmt
-  #     - rustdoc
-  #     - rustfmt
-  #     - swiftformat
-  #     - test-flutter
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: true
+  pr:
+    if: ${{ github.event_name == 'pull_request' }}
+    needs:
+      - build
+      - build-linux
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - swiftformat
+      - test-flutter
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
 
 
 
 
-  # ##########################
-  # # Linting and formatting #
-  # ##########################
+  ##########################
+  # Linting and formatting #
+  ##########################
 
-  # clippy:
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       platform:
-  #         - linux
-  #         - macos
-  #         - windows
-  #   runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
-  #             || (matrix.platform == 'windows' && 'windows-2019')
-  #             ||                                  'macos-latest' }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         components: clippy
+  clippy:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux
+          - macos
+          - windows
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
+              || (matrix.platform == 'windows' && 'windows-2019')
+              ||                                  'macos-latest' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: clippy
 
-  #     - name: Install `${{ matrix.platform }}` platform dependencies
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y \
-  #                      libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
-  #                      libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-  #                      ninja-build
-  #       if: ${{ matrix.platform == 'linux' }}
+      - name: Install `${{ matrix.platform }}` platform dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build
+        if: ${{ matrix.platform == 'linux' }}
 
-  #     - run: make cargo.lint
+      - run: make cargo.lint
 
-  # dartanalyze:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: subosito/flutter-action@v2
+  dartanalyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
 
-  #     - run: flutter pub get
+      - run: flutter pub get
 
-  #     - run: make flutter.analyze
+      - run: make flutter.analyze
 
-  # dartfmt:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: subosito/flutter-action@v2
+  dartfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
 
-  #     - run: flutter pub get
+      - run: flutter pub get
 
-  #     - run: make flutter.fmt check=yes
+      - run: make flutter.fmt check=yes
 
-  # ktfmt:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-java@v3
-  #       with:
-  #         distribution: temurin
-  #         java-version: "17"
+  ktfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: "17"
 
-  #     - run: make kt.fmt check=yes
+      - run: make kt.fmt check=yes
 
-  # rustfmt:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: nightly
-  #         components: rustfmt
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          components: rustfmt
 
-  #     - run: make cargo.fmt check=yes
+      - run: make cargo.fmt check=yes
 
-  # swiftformat:
-  #   runs-on: macos-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - run: brew install swiftformat
+  swiftformat:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: brew install swiftformat
 
-  #     - run: make swift.fmt check=yes dockerized=no
-
-
+      - run: make swift.fmt check=yes dockerized=no
 
 
-  # ############
-  # # Building #
-  # ############
 
-  # build:
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       platform:
-  #         - macos
-  #         - windows
-  #   runs-on: ${{ (matrix.platform == 'windows' && 'windows-2019')
-  #             || 'macos-11' }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #     - uses: subosito/flutter-action@v2
-  #     - run: flutter config --enable-${{ matrix.platform }}-desktop
 
-  #     # Pin Xcode version for better compatibility.
-  #     - uses: maxim-lobanov/setup-xcode@v1
-  #       with:
-  #         xcode-version: "11.7"
-  #       if: ${{ matrix.platform == 'macos' }}
+  ############
+  # Building #
+  ############
 
-  #     - run: make cargo.build debug=no
-  #     - run: make flutter.build platform=${{ matrix.platform }}
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - macos
+          - windows
+    runs-on: ${{ (matrix.platform == 'windows' && 'windows-2019')
+              || 'macos-11' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: subosito/flutter-action@v2
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: build-${{ matrix.platform }}
-  #         path: ${{ matrix.platform }}/rust/
+      # Pin Xcode version for better compatibility.
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "11.7"
+        if: ${{ matrix.platform == 'macos' }}
 
-  # build-linux:
-  #   name: build (linux)
-  #   runs-on: ubuntu-latest
-  #   # Pin glibc to 2.28 version for better compatibility.
-  #   container: debian:buster
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Install Linux platform dependencies
-  #       run: |
-  #         apt-get update
-  #         apt-get install -y \
-  #                 curl jq xz-utils git make clang libssl-dev cmake \
-  #                 libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
-  #                 libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-  #                 ninja-build
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #     - uses: subosito/flutter-action@v2
-  #     - run: flutter config --enable-linux-desktop
+      - run: make cargo.build debug=no
+      - run: make flutter.build platform=${{ matrix.platform }}
 
-  #     - run: make cargo.build debug=no
-  #     - run: make flutter.build platform=linux
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.platform }}
+          path: ${{ matrix.platform }}/rust/
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: build-linux
-  #         path: linux/rust/
+  build-linux:
+    name: build (linux)
+    runs-on: ubuntu-latest
+    # Pin glibc to 2.28 version for better compatibility.
+    container: debian:buster
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Linux platform dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+                  curl jq xz-utils git make clang libssl-dev cmake \
+                  libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                  libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                  ninja-build
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: subosito/flutter-action@v2
+      - run: flutter config --enable-linux-desktop
+
+      - run: make cargo.build debug=no
+      - run: make flutter.build platform=linux
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-linux
+          path: linux/rust/
 
 
 
@@ -279,128 +279,128 @@ jobs:
 
 
 
-  # #################
-  # # Documentation #
-  # #################
+  #################
+  # Documentation #
+  #################
 
-  # rustdoc:
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       platform:
-  #         - linux
-  #         - macos
-  #         - windows
-  #   # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
-  #   #       https://github.com/flutter/flutter/issues/85922
-  #   #       https://github.com/flutter/flutter/issues/96138
-  #   runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
-  #             || (matrix.platform == 'windows' && 'windows-2019')
-  #             ||                                  'macos-latest' }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
+  rustdoc:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux
+          - macos
+          - windows
+    # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
+    #       https://github.com/flutter/flutter/issues/85922
+    #       https://github.com/flutter/flutter/issues/96138
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
+              || (matrix.platform == 'windows' && 'windows-2019')
+              ||                                  'macos-latest' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
 
-  #     - name: Install `${{ matrix.platform }}` platform dependencies
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y \
-  #                      libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
-  #                      libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-  #                      ninja-build
-  #       if: ${{ matrix.platform == 'linux' }}
+      - name: Install `${{ matrix.platform }}` platform dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build
+        if: ${{ matrix.platform == 'linux' }}
 
-  #     - run: make cargo.doc
-
-
+      - run: make cargo.doc
 
 
-  # #############
-  # # Releasing #
-  # #############
 
-  # release-dart:
-  #   name: Release Dart package
-  #   if: ${{ startsWith(github.ref, 'refs/tags/')
-  #        || github.ref_name == 'master'
-  #        || (github.event_name == 'pull_request'
-  #            && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
-  #   needs:
-  #     - build
-  #     - build-linux
-  #     - clippy
-  #     - dartanalyze
-  #     - dartfmt
-  #     - ktfmt
-  #     - rustdoc
-  #     - rustfmt
-  #     - swiftformat
-  #     - test-flutter
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 2  # for PRs only
 
-  #     - name: Retrieve commit message and hash
-  #       id: commit
-  #       run: |
-  #         echo ::set-output name=message::$(git log --grep='\[publish\]' --format=%s)
-  #         echo ::set-output name=sha::${{ (github.event_name == 'pull_request'
-  #                                          && github.event.pull_request.head.sha)
-  #                                      ||  github.sha }}
-  #     - name: Check whether should be skipped
-  #       id: skip
-  #       run: echo ::set-output name=no::${{ !(
-  #              github.event_name == 'pull_request'
-  #              && !contains(steps.commit.outputs.message, '[publish]')
-  #            ) }}
+  #############
+  # Releasing #
+  #############
 
-  #     - uses: dart-lang/setup-dart@v1.3
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  release-dart:
+    name: Release Dart package
+    if: ${{ startsWith(github.ref, 'refs/tags/')
+         || github.ref_name == 'master'
+         || (github.event_name == 'pull_request'
+             && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
+    needs:
+      - build
+      - build-linux
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - swiftformat
+      - test-flutter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # for PRs only
 
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-linux
-  #         path: linux/rust/
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-macos
-  #         path: macos/rust/
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-windows
-  #         path: windows/rust/
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
+      - name: Retrieve commit message and hash
+        id: commit
+        run: |
+          echo ::set-output name=message::$(git log --grep='\[publish\]' --format=%s)
+          echo ::set-output name=sha::${{ (github.event_name == 'pull_request'
+                                           && github.event.pull_request.head.sha)
+                                       ||  github.sha }}
+      - name: Check whether should be skipped
+        id: skip
+        run: echo ::set-output name=no::${{ !(
+               github.event_name == 'pull_request'
+               && !contains(steps.commit.outputs.message, '[publish]')
+             ) }}
 
-  #     - name: Append package version with commit SHA
-  #       run: |
-  #         sed -i "s/^version: \(.*\)$/version: \1+rev.${{ steps.commit.outputs.sha }}/g" \
-  #             pubspec.yaml
-  #       if: ${{ steps.skip.outputs.no == 'true'
-  #            && !startsWith(github.ref, 'refs/tags/') }}
+      - uses: dart-lang/setup-dart@v1.3
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
-  #     - name: Login to pub.dev
-  #       run: |
-  #         echo "$PUB_CREDENTIALS" > ~/pub-credentials.json
-  #         mkdir -p ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/
-  #         cp -f ~/pub-credentials.json \
-  #               ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
-  #       env:
-  #         PUB_CREDENTIALS: ${{ secrets.PUBDEV_CREDS }}
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-linux
+          path: linux/rust/
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-macos
+          path: macos/rust/
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-windows
+          path: windows/rust/
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
-  #     - run: dart pub publish --force
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
+      - name: Append package version with commit SHA
+        run: |
+          sed -i "s/^version: \(.*\)$/version: \1+rev.${{ steps.commit.outputs.sha }}/g" \
+              pubspec.yaml
+        if: ${{ steps.skip.outputs.no == 'true'
+             && !startsWith(github.ref, 'refs/tags/') }}
 
-  #     - name: Logout from pub.dev
-  #       run: |
-  #         rm -rf ~/pub-credentials.json \
-  #                ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
-  #       if: ${{ always()
-  #            && steps.skip.outputs.no == 'true' }}
+      - name: Login to pub.dev
+        run: |
+          echo "$PUB_CREDENTIALS" > ~/pub-credentials.json
+          mkdir -p ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/
+          cp -f ~/pub-credentials.json \
+                ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
+        env:
+          PUB_CREDENTIALS: ${{ secrets.PUBDEV_CREDS }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
+      - run: dart pub publish --force
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
+      - name: Logout from pub.dev
+        run: |
+          rm -rf ~/pub-credentials.json \
+                 ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
+        if: ${{ always()
+             && steps.skip.outputs.no == 'true' }}
