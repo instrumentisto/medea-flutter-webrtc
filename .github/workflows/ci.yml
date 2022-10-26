@@ -265,7 +265,7 @@ jobs:
 
       - uses: futureware-tech/simulator-action@v2
         with:
-          os_version: '=16.0'
+          os_version: '>=13.0'
           os: 'iOS'
         
         if: ${{ matrix.platform == 'ios' }}
