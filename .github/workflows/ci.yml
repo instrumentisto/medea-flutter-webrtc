@@ -264,6 +264,7 @@ jobs:
              || matrix.platform == 'windows' }}
 
       - uses: futureware-tech/simulator-action@v2
+        id: simulator
         with:
           os_version: '>=13.0'
           os: 'iOS'
@@ -271,7 +272,7 @@ jobs:
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
-        run: make flutter.test debug=yes device=503FF783-8A42-4075-B3F6-9B144F34A963
+        run: make flutter.test debug=yes device=${{ steps.simulator.outputs.value }}
         if: ${{ matrix.platform == 'ios' }}
       
 
