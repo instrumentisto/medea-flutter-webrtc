@@ -19,22 +19,22 @@ jobs:
   # Pull Request #
   ################
 
-  pr:
-    if: ${{ github.event_name == 'pull_request' }}
-    needs:
-      - build
-      - build-linux
-      - clippy
-      - dartanalyze
-      - dartfmt
-      - ktfmt
-      - rustdoc
-      - rustfmt
-      - swiftformat
-      - test-flutter
-    runs-on: ubuntu-latest
-    steps:
-      - run: true
+  # pr:
+  #   if: ${{ github.event_name == 'pull_request' }}
+  #   needs:
+  #     - build
+  #     - build-linux
+  #     - clippy
+  #     - dartanalyze
+  #     - dartfmt
+  #     - ktfmt
+  #     - rustdoc
+  #     - rustfmt
+  #     - swiftformat
+  #     - test-flutter
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: true
 
 
 
