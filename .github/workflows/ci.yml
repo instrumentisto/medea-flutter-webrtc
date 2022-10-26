@@ -265,13 +265,12 @@ jobs:
 
       - uses: futureware-tech/simulator-action@v2
         with:
-          # udid: 7BD891AD-B703-456A-BE4E-FFBD3A8043E1
           model: 'iPhone 13 Pro'
         
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
-        run: make flutter.test debug=yes device=7BD891AD-B703-456A-BE4E-FFBD3A8043E1
+        run: make flutter.test debug=yes device=4C00325A-ED55-4D1F-A100-63F3F0C5F32D
         if: ${{ matrix.platform == 'ios' }}
       
 
