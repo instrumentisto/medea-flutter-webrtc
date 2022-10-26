@@ -212,6 +212,7 @@ jobs:
           - linux
           - macos
           - windows
+          - ios
     # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
     #       https://github.com/flutter/flutter/issues/85922
     #       https://github.com/flutter/flutter/issues/96138
@@ -260,6 +261,14 @@ jobs:
         run: make flutter.test device=${{ matrix.platform }}
         if: ${{ matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
+
+      - uses: futureware-tech/simulator-action@v2
+        if: ${{ matrix.platform == 'ios' }}
+
+      - name: Test on `${{ matrix.platform }}` platform
+        run: make flutter.test debug=yes
+        if: ${{ matrix.platform == 'ios' }}
+      
 
 
 
