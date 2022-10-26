@@ -266,7 +266,6 @@ jobs:
       - uses: futureware-tech/simulator-action@v2
         with:
           os_version: '=16.0'
-          model: 'iPhone 13 Pro'
         
         if: ${{ matrix.platform == 'ios' }}
 
