@@ -225,6 +225,7 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+        if: ${{ matrix.platform != 'android' && matrix.platform != 'ios' }}
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android' && matrix.platform != 'ios' }}
@@ -265,11 +266,11 @@ jobs:
       - uses: futureware-tech/simulator-action@v2
         with:
           os_version: '>=14.0'
-          udid: ABCD-EFGH
+          udid: 91DB52F6-6099-4087-9A98-43702BA50A76
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
-        run: make flutter.test debug=yes device=ABCD-EFGH
+        run: make flutter.test debug=yes device=91DB52F6-6099-4087-9A98-43702BA50A76
         if: ${{ matrix.platform == 'ios' }}
       
 
