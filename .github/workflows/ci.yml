@@ -265,10 +265,11 @@ jobs:
       - uses: futureware-tech/simulator-action@v2
         with:
           os_version: '>=14.0'
+          udid: ABCD-EFGH
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
-        run: make flutter.test debug=yes
+        run: make flutter.test debug=yes device=ABCD-EFGH
         if: ${{ matrix.platform == 'ios' }}
       
 
