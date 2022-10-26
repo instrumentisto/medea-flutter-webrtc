@@ -140,14 +140,21 @@ void main() {
   testWidgets('Add Ice Candidate', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
+    final completer = Completer<void>();
 
     pc1.onIceCandidate((candidate) async {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
       if (!pc2.closed) {
         await pc2.addIceCandidate(candidate);
       }
     });
 
     pc2.onIceCandidate((candidate) async {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
       if (!pc1.closed) {
         await pc1.addIceCandidate(candidate);
       }
@@ -162,6 +169,8 @@ void main() {
     var answer = await pc2.createAnswer();
     await pc2.setLocalDescription(answer);
     await pc1.setRemoteDescription(answer);
+
+    await completer.future.timeout(const Duration(seconds: 1));
 
     await pc1.close();
     await pc2.close();
