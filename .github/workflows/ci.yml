@@ -267,7 +267,7 @@ jobs:
         with:
           os_version: '>=14.0'
           model: 'iPhone 13 Pro'
-          udid: 91DB52F6-6099-4087-9A98-43702BA50A76
+          # udid: 91DB52F6-6099-4087-9A98-43702BA50A76
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
