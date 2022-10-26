@@ -263,6 +263,8 @@ jobs:
              || matrix.platform == 'windows' }}
 
       - uses: futureware-tech/simulator-action@v2
+        with:
+          os_version: '>=14.0'
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
