@@ -272,7 +272,7 @@ jobs:
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
-        run: make flutter.test debug=yes device=${{ steps.simulator.outputs.value }}
+        run: make flutter.test debug=yes device=${{ steps.simulator.outputs.udid }}
         if: ${{ matrix.platform == 'ios' }}
       
 
