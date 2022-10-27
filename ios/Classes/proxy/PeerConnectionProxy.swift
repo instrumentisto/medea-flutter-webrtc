@@ -91,7 +91,7 @@ class PeerConnectionProxy {
   /// Sets the provided remote `SessionDescription` to the underlying
   /// `PeerConnection`.
   func setRemoteDescription(description: SessionDescription) async throws {
-    try await withCheckedThrowingContinuation { continuation in
+    let _: () = try await withCheckedThrowingContinuation { continuation in
       self.peer.setRemoteDescription(
         description.intoWebRtc(),
         completionHandler: { error in

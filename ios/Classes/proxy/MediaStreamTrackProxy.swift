@@ -125,10 +125,8 @@ class MediaStreamTrackProxy: Equatable {
   /// Notifies `RtpReceiverProxy` about its `MediaStreamTrackProxy` being
   /// removed from the receiver.
   func notifyEnded() {
-    if self.track.readyState == .ended {
-      for cb in self.onEndedSubscribers {
-        cb()
-      }
+    for cb in self.onEndedSubscribers {
+      cb()
     }
   }
 
