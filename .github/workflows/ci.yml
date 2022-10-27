@@ -268,7 +268,6 @@ jobs:
         with:
           os_version: '>=13.0'
           os: 'iOS'
-        
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform
