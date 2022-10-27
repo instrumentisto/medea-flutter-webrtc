@@ -2,7 +2,8 @@ import WebRTC
 
 /// Wrapper around a `PeerConnection`, powering it with additional API..
 class PeerConnectionProxy {
-  /// Candidates, added before a remote description has been set on the underlying peer.
+  /// Candidates, added before a remote description has been set on the
+  /// underlying peer.
   private var iceCandidatesBuffer: [IceCandidate] = []
 
   /// List of all the `RtpSenderProxy`s owned by this `PeerConnectionProxy`.
@@ -102,8 +103,9 @@ class PeerConnectionProxy {
         }
       )
     }
-    while (!iceCandidatesBuffer.isEmpty) {
-      try await self.addIceCandidate(candidate: iceCandidatesBuffer.removeFirst())
+    while !self.iceCandidatesBuffer.isEmpty {
+      try await self
+        .addIceCandidate(candidate: self.iceCandidatesBuffer.removeFirst())
     }
   }
 

@@ -202,7 +202,7 @@ jobs:
 
   test-flutter:
     name: Test Flutter integration
-    # needs: ["build", "build-linux"]
+    needs: ["build", "build-linux"]
     strategy:
       fail-fast: false
       matrix:
