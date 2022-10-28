@@ -44,3 +44,19 @@ class MediaDeviceInfo {
   /// Flag which indicates that last attempt to use this device was failed.
   late bool isFailed;
 }
+
+/// Information about a display.
+class MediaDisplayInfo {
+  /// Creates a [MediaDisplayInfo] basing on the [ffi.MediaDisplayInfo] received
+  /// from the native side.
+  MediaDisplayInfo.fromFFI(ffi.MediaDisplayInfo info) {
+    deviceId = info.deviceId;
+    title = info.title;
+  }
+
+  /// Identifier of the device representing the display.
+  late String deviceId;
+
+  /// Title of the display.
+  late String? title;
+}

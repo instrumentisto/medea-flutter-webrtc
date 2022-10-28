@@ -39,6 +39,18 @@ use crate::{
 static ON_DEVICE_CHANGE: AtomicPtr<DeviceState> =
     AtomicPtr::new(ptr::null_mut());
 
+/// Returns a list of all available displays that can be used for screen
+/// capturing.
+pub fn enumerate_displays() -> Vec<api::MediaDisplayInfo> {
+    sys::screen_capture_sources()
+        .into_iter()
+        .map(|s| api::MediaDisplayInfo {
+            device_id: s.id().to_string(),
+            title: s.title(),
+        })
+        .collect()
+}
+
 /// Struct containing the current number of media devices and some tools to
 /// enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`]), and
 /// generate event with [`OnDeviceChangeCallback`], if the last is needed.
@@ -368,10 +380,7 @@ pub mod linux_device_change {
         use std::{io, os::unix::prelude::AsRawFd, sync::atomic::Ordering};
 
         use libudev::EventType;
-        use nix::{
-            poll::{ppoll, PollFd, PollFlags},
-            sys::signal::SigSet,
-        };
+        use nix::poll::{ppoll, PollFd, PollFlags};
 
         use crate::devices::ON_DEVICE_CHANGE;
 
@@ -385,7 +394,7 @@ pub mod linux_device_change {
 
             let fds = PollFd::new(socket.as_raw_fd(), PollFlags::POLLIN);
             loop {
-                ppoll(&mut [fds], None, SigSet::empty())?;
+                ppoll(&mut [fds], None, None)?;
 
                 let event = match socket.receive_event() {
                     Some(evt) => evt,
@@ -511,6 +520,25 @@ pub mod linux_device_change {
             }
         }
     }
+}
+
+#[cfg(target_os = "macos")]
+/// Sets native side callback for devices monitoring.
+pub unsafe fn init() {
+    extern "C" {
+        /// Passes the callback to the native side.
+        pub fn set_on_device_change_mac(cb: unsafe extern "C" fn());
+    }
+
+    extern "C" fn on_device_change() {
+        let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+        if !state.is_null() {
+            let device_state = unsafe { &mut *state };
+            device_state.on_device_change();
+        }
+    }
+
+    set_on_device_change_mac(on_device_change);
 }
 
 #[cfg(target_os = "windows")]

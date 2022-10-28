@@ -1,7 +1,6 @@
 use std::{
     mem,
     sync::{mpsc, Arc, Mutex},
-    time::Duration,
 };
 
 use anyhow::{anyhow, bail};
@@ -16,9 +15,6 @@ use crate::{
     api, next_id, stream_sink::StreamSink, AudioTrack, AudioTrackId,
     VideoTrack, VideoTrackId, Webrtc,
 };
-
-/// Timeout for [`mpsc::Receiver::recv_timeout()`] operations.
-static RX_TIMEOUT: Duration = Duration::from_secs(5);
 
 impl Webrtc {
     /// Creates a new [`PeerConnection`] and returns its ID.
@@ -56,7 +52,8 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-    ) -> anyhow::Result<api::RtcSessionDescription> {
+        create_sdp_tx: mpsc::Sender<anyhow::Result<api::RtcSessionDescription>>,
+    ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
@@ -69,13 +66,11 @@ impl Webrtc {
             ice_restart,
             use_rtp_mux,
         );
-        let (create_sdp_tx, create_sdp_rx) = mpsc::channel();
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(create_sdp_tx),
         ));
         peer.inner.lock().unwrap().create_offer(&options, obs);
-
-        create_sdp_rx.recv_timeout(RX_TIMEOUT)?
+        Ok(())
     }
 
     /// Creates a SDP answer to an offer received from a remote peer during an
@@ -92,7 +87,8 @@ impl Webrtc {
         voice_activity_detection: bool,
         ice_restart: bool,
         use_rtp_mux: bool,
-    ) -> anyhow::Result<api::RtcSessionDescription> {
+        create_sdp_tx: mpsc::Sender<anyhow::Result<api::RtcSessionDescription>>,
+    ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
@@ -105,13 +101,11 @@ impl Webrtc {
             ice_restart,
             use_rtp_mux,
         );
-        let (create_sdp_tx, create_sdp_rx) = mpsc::channel();
         let obs = sys::CreateSessionDescriptionObserver::new(Box::new(
             CreateSdpCallback(create_sdp_tx),
         ));
         peer.inner.lock().unwrap().create_answer(&options, obs);
-
-        create_sdp_rx.recv_timeout(RX_TIMEOUT)?
+        Ok(())
     }
 
     /// Changes the local description associated with the connection.
@@ -127,20 +121,35 @@ impl Webrtc {
         peer_id: u64,
         kind: sys::SdpType,
         sdp: String,
+        set_sdp_tx: mpsc::Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
             anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
         })?;
 
-        let (set_sdp_tx, set_sdp_rx) = mpsc::channel();
         let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
         let obs = sys::SetLocalDescriptionObserver::new(Box::new(
             SetSdpCallback(set_sdp_tx),
         ));
         peer.inner.lock().unwrap().set_local_description(desc, obs);
+        Ok(())
+    }
 
-        set_sdp_rx.recv_timeout(RX_TIMEOUT)?
+    /// Returns [`RtcStats`] of the [`PeerConnection`] by its ID.
+    pub fn get_stats(
+        &self,
+        peer_id: u64,
+        report_tx: mpsc::Sender<sys::RtcStatsReport>,
+    ) -> anyhow::Result<()> {
+        let peer_id = PeerConnectionId::from(peer_id);
+        let peer = self.peer_connections.get(&peer_id).ok_or_else(|| {
+            anyhow!("`PeerConnection` with ID `{peer_id}` doesn't exist")
+        })?;
+
+        let cb = GetStatsCallback(report_tx);
+        peer.inner.lock().unwrap().get_stats(Box::new(cb));
+        Ok(())
     }
 
     /// Sets the specified session description as the remote peer's current
@@ -172,7 +181,7 @@ impl Webrtc {
         let mut inner = peer.inner.lock().unwrap();
         inner.set_remote_description(desc, obs);
 
-        set_sdp_rx.recv_timeout(RX_TIMEOUT)??;
+        set_sdp_rx.recv_timeout(api::RX_TIMEOUT)??;
         peer.has_remote_description = true;
 
         let candidates = mem::take(&mut peer.candidates_buffer);
@@ -182,7 +191,7 @@ impl Webrtc {
                 candidate.try_into()?,
                 Box::new(AddIceCandidateCallback(add_candidate_tx)),
             );
-            add_candidate_rx.recv_timeout(RX_TIMEOUT)??;
+            add_candidate_rx.recv_timeout(api::RX_TIMEOUT)??;
         }
 
         Ok(())
@@ -486,17 +495,25 @@ impl Webrtc {
         match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_VIDEO => {
                 for mut track in self.video_tracks.iter_mut() {
-                    let senders = track.senders();
-                    if let Some(trnscvrs) = senders.get_mut(&peer_id) {
+                    let mut delete = false;
+                    if let Some(trnscvrs) = track.senders.get_mut(&peer_id) {
                         trnscvrs.retain(|index| index != &transceiver_index);
+                        delete = trnscvrs.is_empty();
+                    }
+                    if delete {
+                        track.senders.remove(&peer_id);
                     }
                 }
             }
             sys::MediaType::MEDIA_TYPE_AUDIO => {
                 for mut track in self.audio_tracks.iter_mut() {
-                    let senders = track.senders();
-                    if let Some(trnscvrs) = senders.get_mut(&peer_id) {
+                    let mut delete = false;
+                    if let Some(trnscvrs) = track.senders.get_mut(&peer_id) {
                         trnscvrs.retain(|index| index != &transceiver_index);
+                        delete = trnscvrs.is_empty();
+                    }
+                    if delete {
+                        track.senders.remove(&peer_id);
                     }
                 }
             }
@@ -517,7 +534,7 @@ impl Webrtc {
 
                     track
                         .value_mut()
-                        .senders()
+                        .senders
                         .entry(peer_id)
                         .or_default()
                         .insert(transceiver_index);
@@ -535,7 +552,7 @@ impl Webrtc {
 
                     track
                         .value_mut()
-                        .senders()
+                        .senders
                         .entry(peer_id)
                         .or_default()
                         .insert(transceiver_index);
@@ -550,7 +567,17 @@ impl Webrtc {
                     sender.replace_video_track(None)
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    sender.replace_audio_track(None)
+                    let result = sender.replace_audio_track(None);
+
+                    if result.is_ok() {
+                        let is_sending = self
+                            .audio_tracks
+                            .iter()
+                            .any(|t| !t.senders.is_empty());
+                        self.ap.set_output_will_be_muted(!is_sending);
+                    }
+
+                    result
                 }
                 _ => unreachable!(),
             }
@@ -568,6 +595,7 @@ impl Webrtc {
         candidate: String,
         sdp_mid: String,
         sdp_mline_index: i32,
+        add_candidate_tx: mpsc::Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
         let peer_id = PeerConnectionId::from(peer_id);
         let peer =
@@ -582,14 +610,13 @@ impl Webrtc {
         };
 
         if peer.has_remote_description {
-            let (add_candidate_tx, add_candidate_rx) = mpsc::channel();
             peer.inner.lock().unwrap().add_ice_candidate(
                 candidate.try_into()?,
                 Box::new(AddIceCandidateCallback(add_candidate_tx)),
             );
-            add_candidate_rx.recv_timeout(RX_TIMEOUT)??;
         } else {
             peer.candidates_buffer.push(candidate);
+            add_candidate_tx.send(Ok(()))?;
         }
 
         Ok(())
@@ -621,11 +648,11 @@ impl Webrtc {
         if let Some(peer) = self.peer_connections.get(&peer_id) {
             // Remove all tracks from this `Peer`'s senders.
             for mut track in self.video_tracks.iter_mut() {
-                track.senders().remove(&peer_id);
+                track.senders.remove(&peer_id);
             }
 
             for mut track in self.audio_tracks.iter_mut() {
-                track.senders().remove(&peer_id);
+                track.senders.remove(&peer_id);
             }
 
             let peer = peer.inner.lock().unwrap();
@@ -645,6 +672,12 @@ impl Webrtc {
                             log::error!(
                                 "Failed to remove audio track from sender: {e}",
                             );
+                        } else {
+                            let is_sending = self
+                                .audio_tracks
+                                .iter()
+                                .any(|t| !t.senders.is_empty());
+                            self.ap.set_output_will_be_muted(!is_sending);
                         }
                     }
                     _ => unreachable!(),
@@ -796,10 +829,10 @@ struct CreateSdpCallback(
 
 impl sys::CreateSdpCallback for CreateSdpCallback {
     fn success(&mut self, sdp: &CxxString, kind: sys::SdpType) {
-        if let Err(e) = self
-            .0
-            .send(Ok(api::RtcSessionDescription::new(sdp.to_string(), kind)))
-        {
+        if let Err(e) = self.0.send(Ok(api::RtcSessionDescription {
+            sdp: sdp.to_string(),
+            kind: kind.into(),
+        })) {
             log::warn!("Failed to send SDP in `CreateSdpCallback`: {e}");
         }
     }
@@ -824,6 +857,17 @@ impl sys::SetDescriptionCallback for SetSdpCallback {
     fn fail(&mut self, error: &CxxString) {
         if let Err(e) = self.0.send(Err(anyhow!("{error}"))) {
             log::warn!("Failed to send SDP error in `SetSdpCallback`: {e}");
+        }
+    }
+}
+
+/// [`sys::RTCStatsCollectorCallback`] wrapper.
+struct GetStatsCallback(mpsc::Sender<sys::RtcStatsReport>);
+
+impl sys::RTCStatsCollectorCallback for GetStatsCallback {
+    fn on_stats_delivered(&mut self, report: sys::RtcStatsReport) {
+        if let Err(e) = self.0.send(report) {
+            log::warn!("Failed to complete `GetStatsCallback`: {e}");
         }
     }
 }
@@ -951,14 +995,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             sys::MediaType::MEDIA_TYPE_AUDIO => {
                 let track = AudioTrack::wrap_remote(&transceiver, self.peer_id);
                 let result = api::MediaStreamTrack::from(&track);
-                self.audio_tracks.insert(track.id(), track);
+                self.audio_tracks.insert(track.id.clone(), track);
 
                 result
             }
             sys::MediaType::MEDIA_TYPE_VIDEO => {
                 let track = VideoTrack::wrap_remote(&transceiver, self.peer_id);
                 let result = api::MediaStreamTrack::from(&track);
-                self.video_tracks.insert(track.id(), track);
+                self.video_tracks.insert(track.id.clone(), track);
 
                 result
             }
@@ -980,7 +1024,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     .get_transceivers()
                     .iter()
                     .enumerate()
-                    .find(|(_, t)| t.mid().as_ref().unwrap() == &mid)
+                    .find(|(_, t)| t.mid().as_ref() == Some(&mid))
                     .map(|(id, _)| id)
                     .unwrap();
 

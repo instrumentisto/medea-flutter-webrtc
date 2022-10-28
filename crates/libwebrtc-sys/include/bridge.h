@@ -9,7 +9,13 @@
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-#include "device_video_capturer.h"
+#if __APPLE__
+  #include "libwebrtc-sys/include/device_info_mac.h"
+  #include "mac_capturer.h"
+  #include "device_info_mac.h"
+#else
+  #include "device_video_capturer.h"
+#endif
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
@@ -51,6 +57,7 @@ class TrackEventObserver : public webrtc::ObserverInterface {
 };
 
 struct TransceiverContainer;
+struct DisplaySourceContainer;
 struct StringPair;
 struct RtpCodecParametersContainer;
 struct RtpExtensionContainer;
@@ -76,11 +83,13 @@ using SdpType = webrtc::SdpType;
 using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
 using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
+using DisplaySource = webrtc::DesktopCapturer::Source;
 using VideoRotation = webrtc::VideoRotation;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using TrackState = webrtc::MediaStreamTrackInterface::TrackState;
 
 using AudioDeviceModule = rtc::scoped_refptr<webrtc::AudioDeviceModule>;
+using AudioProcessing = rtc::scoped_refptr<webrtc::AudioProcessing>;
 using AudioSourceInterface = rtc::scoped_refptr<webrtc::AudioSourceInterface>;
 using AudioTrackInterface = rtc::scoped_refptr<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = rtc::scoped_refptr<webrtc::MediaStreamInterface>;
@@ -164,6 +173,17 @@ int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  uint16_t index);
 
+// Creates a new `AudioProcessing`.
+std::unique_ptr<AudioProcessing> create_audio_processing();
+
+// Indicates intent to mute the output of the provided `AudioProcessing`.
+//
+// Set it to `true` when the output of the provided `AudioProcessing` will be
+// muted or in some other way not used. Ideally, the captured audio would still
+// be processed, but some components may change behavior based on this
+// information.
+void set_output_will_be_muted(const AudioProcessing& ap, bool muted);
+
 // Creates a new `VideoDeviceInfo`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info();
 
@@ -203,6 +223,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     Thread& worker_thread,
     Thread& signaling_thread,
+    int64_t id,
     size_t width,
     size_t height,
     size_t fps);
@@ -278,12 +299,17 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
 // writes the result to the provided `dst_abgr`.
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr);
 
+// Converts the provided `webrtc::VideoFrame` pixels to the ARGB scheme and
+// writes the result to the provided `dst_argb`.
+void video_frame_to_argb(const webrtc::VideoFrame& frame, uint8_t* dst_argb);
+
 // Creates a new `PeerConnectionFactoryInterface`.
 std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    const std::unique_ptr<AudioDeviceModule>& default_adm);
+    const std::unique_ptr<AudioDeviceModule>& default_adm,
+    const std::unique_ptr<AudioProcessing>& ap);
 
 // Creates a new `PeerConnectionInterface`.
 std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(
@@ -493,6 +519,15 @@ std::unique_ptr<std::string> sdp_mid_of_ice_candidate(
 
 // Returns the `sdp_mline_index` of the provided `IceCandidateInterface`.
 int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate);
+
+// Returns a list of all available `DesktopCapturer::Source`s.
+rust::Vec<DisplaySourceContainer> screen_capture_sources();
+
+// Returns an `id` of the provided `DesktopCapturer::Source`.
+int64_t display_source_id(const DisplaySource& source);
+
+// Returns a `title` of the provided `DesktopCapturer::Source`.
+std::unique_ptr<std::string> display_source_title(const DisplaySource& source);
 
 // Creates a new `IceCandidateInterface`.
 std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(

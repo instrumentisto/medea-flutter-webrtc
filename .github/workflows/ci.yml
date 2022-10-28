@@ -11,7 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  KTFMT_VER: 0.33
   RUST_BACKTRACE: 1
 
 jobs:
@@ -24,12 +23,14 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
       - build
+      - build-linux
       - clippy
       - dartanalyze
       - dartfmt
       - ktfmt
       - rustdoc
       - rustfmt
+      - swiftformat
       - test-flutter
     runs-on: ubuntu-latest
     steps:
@@ -48,7 +49,7 @@ jobs:
       matrix:
         platform:
           - linux
-          #- macos  # TODO: Add `macos-latest`.
+          - macos
           - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
               || (matrix.platform == 'windows' && 'windows-2019')
@@ -61,7 +62,7 @@ jobs:
           toolchain: stable
           components: clippy
 
-      - name: Install Linux platform dependencies
+      - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -101,11 +102,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install ktfmt
-        run: wget -O ktfmt.jar https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/${{ env.KTFMT_VER }}/ktfmt-${{ env.KTFMT_VER }}-jar-with-dependencies.jar
-
-      - name: Check ktfmt
-        run: java -jar ktfmt.jar --set-exit-if-changed android/src/main/kotlin/
+      - run: make kt.fmt check=yes
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -119,6 +116,14 @@ jobs:
 
       - run: make cargo.fmt check=yes
 
+  swiftformat:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: brew install swiftformat
+
+      - run: make swift.fmt check=yes dockerized=no
+
 
 
 
@@ -131,12 +136,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - linux
-          #- macos  # TODO: Add `macos-latest`.
+          - macos
           - windows
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
-              || (matrix.platform == 'windows' && 'windows-2019')
-              ||                                  'macos-latest' }}
+    runs-on: ${{ (matrix.platform == 'windows' && 'windows-2019')
+              || 'macos-11' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -146,14 +149,11 @@ jobs:
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
-      - name: Install Linux platform dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
-                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-                       ninja-build
-        if: ${{ matrix.platform == 'linux' }}
+      # Pin Xcode version for better compatibility.
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "11.7"
+        if: ${{ matrix.platform == 'macos' }}
 
       - run: make cargo.build debug=no
       - run: make flutter.build platform=${{ matrix.platform }}
@@ -162,6 +162,36 @@ jobs:
         with:
           name: build-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
+
+  build-linux:
+    name: build (linux)
+    runs-on: ubuntu-latest
+    # Pin glibc to 2.28 version for better compatibility.
+    container: debian:buster
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Linux platform dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+                  curl jq xz-utils git make clang libssl-dev cmake \
+                  libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
+                  libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                  ninja-build
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: subosito/flutter-action@v2
+      - run: flutter config --enable-linux-desktop
+
+      - run: make cargo.build debug=no
+      - run: make flutter.build platform=linux
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-linux
+          path: linux/rust/
 
 
 
@@ -172,14 +202,15 @@ jobs:
 
   test-flutter:
     name: Test Flutter integration
-    needs: ["build"]
+    needs: ["build", "build-linux"]
     strategy:
       fail-fast: false
       matrix:
+        # TODO: Run tests on iOS
         platform:
           - android
           - linux
-          #- macos  # TODO: Add `macos-latest`.
+          - macos
           - windows
     # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
     #       https://github.com/flutter/flutter/issues/85922
@@ -197,7 +228,7 @@ jobs:
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android' }}
 
-      - name: Install Linux platform dependencies
+      - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -210,23 +241,25 @@ jobs:
       - run: make cargo.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform != 'android' }}
 
-      - name: Test on Android
+      - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 24
+          cores: 3
           target: google_apis
           arch: x86_64
           profile: Nexus 6
           script: make flutter.test
         if: ${{ matrix.platform == 'android' }}
 
-      - name: Test on Linux
-        run: xvfb-run -a make flutter.test device=linux
+      - name: Test on `${{ matrix.platform }}` platform with Xvfb
+        run: xvfb-run -a make flutter.test device=${{ matrix.platform }}
         if: ${{ matrix.platform == 'linux' }}
 
-      - name: Test on Windows
-        run: make flutter.test device=windows
-        if: ${{ matrix.platform == 'windows' }}
+      - name: Test on `${{ matrix.platform }}` platform
+        run: make flutter.test device=${{ matrix.platform }}
+        if: ${{ matrix.platform == 'macos'
+             || matrix.platform == 'windows' }}
 
 
 
@@ -241,7 +274,7 @@ jobs:
       matrix:
         platform:
           - linux
-          #- macos  # TODO: Add `macos-latest`.
+          - macos
           - windows
     # TODO: Switch to `windows-latest` once stable Flutter supports MSVC 2022:
     #       https://github.com/flutter/flutter/issues/85922
@@ -256,7 +289,7 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - name: Install Linux platform dependencies
+      - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -282,12 +315,14 @@ jobs:
              && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
     needs:
       - build
+      - build-linux
       - clippy
       - dartanalyze
       - dartfmt
       - ktfmt
       - rustdoc
       - rustfmt
+      - swiftformat
       - test-flutter
     runs-on: ubuntu-latest
     steps:
@@ -316,6 +351,11 @@ jobs:
         with:
           name: build-linux
           path: linux/rust/
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-macos
+          path: macos/rust/
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: actions/download-artifact@v3
         with:

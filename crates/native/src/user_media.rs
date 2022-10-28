@@ -12,7 +12,7 @@ use xxhash::xxh3::xxh3_64;
 
 use crate::{
     api::{self, MediaType, TrackEvent},
-    next_id,
+    devices, next_id,
     stream_sink::StreamSink,
     PeerConnectionId, VideoSink, VideoSinkId, Webrtc,
 };
@@ -148,51 +148,78 @@ impl Webrtc {
         &mut self,
         caps: &api::VideoConstraints,
     ) -> anyhow::Result<Arc<VideoSource>> {
-        let (index, device_id) = if caps.is_display {
-            // TODO: Support screens enumeration.
-            (0, VideoDeviceId("screen:0".into()))
-        } else if let Some(device_id) = caps.device_id.clone() {
-            let device_id = VideoDeviceId(device_id);
-            if let Some(index) = self.get_index_of_video_device(&device_id)? {
-                (index, device_id)
+        let (source, device_id) = if caps.is_display {
+            let device_id = if let Some(device_id) = caps.device_id.clone() {
+                sys::screen_capture_sources()
+                    .into_iter()
+                    .find(|d| d.id().to_string() == device_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find video display with the specified ID: \
+                             {device_id}",
+                        )
+                    })?;
+                VideoDeviceId(device_id)
             } else {
-                bail!(
-                    "Cannot find video device with the specified ID \
-                     `{device_id}`",
-                );
-            }
-        } else {
-            // No device ID is provided so just pick the first available
-            // device
-            if self.video_device_info.number_of_devices() < 1 {
-                bail!("Cannot find any available video input device");
-            }
+                let displays = devices::enumerate_displays();
+                // No device ID is provided, so just pick the first available
+                // device.
+                if displays.is_empty() {
+                    bail!("Cannot find any available video input displays");
+                }
 
-            let device_id =
-                VideoDeviceId(self.video_device_info.device_name(0)?.1);
-            (0, device_id)
+                VideoDeviceId(displays[0].device_id.clone())
+            };
+            (
+                VideoSource::new_display_source(
+                    &mut self.worker_thread,
+                    &mut self.signaling_thread,
+                    caps,
+                    device_id.clone(),
+                )?,
+                device_id,
+            )
+        } else {
+            let (index, device_id) =
+                if let Some(device_id) = caps.device_id.clone() {
+                    let device_id = VideoDeviceId(device_id);
+                    if let Some(index) =
+                        self.get_index_of_video_device(&device_id)?
+                    {
+                        (index, device_id)
+                    } else {
+                        bail!(
+                            "Cannot find video device with the specified ID: \
+                             {device_id}",
+                        );
+                    }
+                } else {
+                    // No device ID is provided, so just pick the first
+                    // available device.
+                    if self.video_device_info.number_of_devices() < 1 {
+                        bail!("Cannot find any available video input devices");
+                    }
+
+                    let device_id =
+                        VideoDeviceId(self.video_device_info.device_name(0)?.1);
+                    (0, device_id)
+                };
+            (
+                VideoSource::new_device_source(
+                    &mut self.worker_thread,
+                    &mut self.signaling_thread,
+                    caps,
+                    index,
+                    device_id.clone(),
+                )?,
+                device_id,
+            )
         };
 
         if let Some(src) = self.video_sources.get(&device_id) {
             return Ok(Arc::clone(src));
         }
 
-        let source = if caps.is_display {
-            VideoSource::new_display_source(
-                &mut self.worker_thread,
-                &mut self.signaling_thread,
-                caps,
-                device_id,
-            )?
-        } else {
-            VideoSource::new_device_source(
-                &mut self.worker_thread,
-                &mut self.signaling_thread,
-                caps,
-                index,
-                device_id,
-            )?
-        };
         let source = self
             .video_sources
             .entry(source.device_id.clone())
@@ -824,7 +851,7 @@ enum MediaTrackSource<T> {
 #[derive(AsRef)]
 pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
-    id: VideoTrackId,
+    pub id: VideoTrackId,
 
     /// Underlying [`sys::VideoTrackInterface`].
     #[as_ref]
@@ -840,7 +867,7 @@ pub struct VideoTrack {
     sinks: Vec<VideoSinkId>,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    senders: HashMap<PeerConnectionId, HashSet<u32>>,
+    pub senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl VideoTrack {
@@ -883,12 +910,6 @@ impl VideoTrack {
         }
     }
 
-    /// Returns the [`VideoTrackId`] of this [`VideoTrack`].
-    #[must_use]
-    pub fn id(&self) -> VideoTrackId {
-        self.id.clone()
-    }
-
     /// Adds the provided [`VideoSink`] to this [`VideoTrack`].
     pub fn add_video_sink(&mut self, video_sink: &mut VideoSink) {
         self.inner.add_or_update_sink(video_sink.as_mut());
@@ -917,11 +938,6 @@ impl VideoTrack {
     pub fn state(&self) -> api::TrackState {
         self.inner.state().into()
     }
-
-    /// Returns peers and transceivers sending this [`VideoTrack`].
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
-        &mut self.senders
-    }
 }
 
 impl From<&VideoTrack> for api::MediaStreamTrack {
@@ -944,7 +960,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
 #[derive(AsRef)]
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
-    id: AudioTrackId,
+    pub id: AudioTrackId,
 
     /// Underlying [`sys::AudioTrackInterface`].
     #[as_ref]
@@ -960,7 +976,7 @@ pub struct AudioTrack {
     device_id: AudioDeviceId,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    senders: HashMap<PeerConnectionId, HashSet<u32>>,
+    pub senders: HashMap<PeerConnectionId, HashSet<u32>>,
 }
 
 impl AudioTrack {
@@ -1009,12 +1025,6 @@ impl AudioTrack {
         }
     }
 
-    /// Returns the [`AudioTrackId`] of this [`AudioTrack`].
-    #[must_use]
-    pub fn id(&self) -> AudioTrackId {
-        self.id.clone()
-    }
-
     /// Returns the [readyState][0] property of the underlying
     /// [`sys::AudioTrackInterface`].
     ///
@@ -1030,11 +1040,6 @@ impl AudioTrack {
     /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
     pub fn set_enabled(&self, enabled: bool) {
         self.inner.set_enabled(enabled);
-    }
-
-    /// Returns peers and transceivers sending this [`VideoTrack`].
-    pub fn senders(&mut self) -> &mut HashMap<PeerConnectionId, HashSet<u32>> {
-        &mut self.senders
     }
 }
 
@@ -1101,16 +1106,25 @@ impl VideoSource {
         caps: &api::VideoConstraints,
         device_id: VideoDeviceId,
     ) -> anyhow::Result<Self> {
-        Ok(Self {
-            inner: sys::VideoTrackSourceInterface::create_proxy_from_display(
+        let inner = if api::is_fake_media() {
+            sys::VideoTrackSourceInterface::create_fake(
                 worker_thread,
                 signaling_thread,
                 caps.width as usize,
                 caps.height as usize,
                 caps.frame_rate as usize,
-            )?,
-            device_id,
-        })
+            )?
+        } else {
+            sys::VideoTrackSourceInterface::create_proxy_from_display(
+                worker_thread,
+                signaling_thread,
+                device_id.0.parse::<i64>()?,
+                caps.width as usize,
+                caps.height as usize,
+                caps.frame_rate as usize,
+            )?
+        };
+        Ok(Self { inner, device_id })
     }
 }
 
