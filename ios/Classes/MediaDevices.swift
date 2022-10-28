@@ -6,13 +6,13 @@ class MediaDevices {
   /// Global state used for creation of new `MediaStreamTrackProxy`s.
   private var state: State
 
-  /// Subscribers for `onDeviceChange` callback of this `MediaDevices`.
+  /// Subscribers for `onDeviceChange` callback of these `MediaDevices`.
   private var onDeviceChange: [() -> Void] = []
 
   /// Initializes new `MediaDevices` with the provided `State`.
   ///
-  /// Subscribes on `AVAudioSession.routeChangeNotification` notifications
-  /// for `onDeviceChange` callback firing.
+  /// Subscribes on `AVAudioSession.routeChangeNotification` notifications for
+  /// `onDeviceChange` callback firing.
   init(state: State) {
     try! AVAudioSession.sharedInstance().setCategory(
       AVAudioSession.Category.playAndRecord,
@@ -30,7 +30,7 @@ class MediaDevices {
     )
   }
 
-  /// Switches input device to the iPhone's microphone.
+  /// Switches current input device to the iPhone's microphone.
   func setBuiltInMicAsInput() {
     if let routes = AVAudioSession.sharedInstance().availableInputs {
       for route in routes {
@@ -43,7 +43,7 @@ class MediaDevices {
     }
   }
 
-  /// Switches audio output device to the device with a provided ID.
+  /// Switches current audio output device to a device with the provided ID.
   func setOutputAudioId(id: String) {
     let session = AVAudioSession.sharedInstance()
     if id == "speaker" {
@@ -61,7 +61,7 @@ class MediaDevices {
     }
   }
 
-  /// Subscribes to `onDeviceChange` callback of `MediaDevices`.
+  /// Subscribes to `onDeviceChange` callback of these `MediaDevices`.
   func onDeviceChange(cb: @escaping () -> Void) {
     self.onDeviceChange.append(cb)
   }
