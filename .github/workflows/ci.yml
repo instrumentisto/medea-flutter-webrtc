@@ -226,6 +226,7 @@ jobs:
           profile: minimal
           toolchain: stable
         if: ${{ matrix.platform != 'android' && matrix.platform != 'ios' }}
+
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android' && matrix.platform != 'ios' }}
@@ -242,6 +243,14 @@ jobs:
 
       - run: make cargo.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform != 'android' && matrix.platform != 'ios' }}
+
+      - name: Start iOS simulator
+        uses: futureware-tech/simulator-action@v2
+        id: simulator
+        with:
+          os_version: '>=13.0'
+          os: 'iOS'
+        if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -263,17 +272,9 @@ jobs:
         if: ${{ matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
 
-      - uses: futureware-tech/simulator-action@v2
-        id: simulator
-        with:
-          os_version: '>=13.0'
-          os: 'iOS'
-        if: ${{ matrix.platform == 'ios' }}
-
       - name: Test on `${{ matrix.platform }}` platform
         run: make flutter.test debug=yes device=${{ steps.simulator.outputs.udid }}
         if: ${{ matrix.platform == 'ios' }}
-      
 
 
 
