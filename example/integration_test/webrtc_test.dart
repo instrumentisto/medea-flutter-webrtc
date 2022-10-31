@@ -861,6 +861,7 @@ void main() {
   });
 
   testWidgets('Peer connection get stats.', (WidgetTester tester) async {
+    // TODO: Support stats for iOS platform.
     if (Platform.isIOS) {
       return;
     }

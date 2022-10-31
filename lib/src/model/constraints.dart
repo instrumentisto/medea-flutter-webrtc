@@ -50,7 +50,6 @@ class DeviceConstraintMap<T extends DeviceMediaConstraints> {
     if (optional != null) {
       map['optional'] = optional?.toMap();
     }
-
     return map;
   }
 }

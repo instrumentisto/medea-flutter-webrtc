@@ -2,8 +2,8 @@ import WebRTC
 
 /// Wrapper around a `PeerConnection`, powering it with additional API..
 class PeerConnectionProxy {
-  /// Candidates, added before a remote description has been set on the
-  /// underlying peer.
+  /// List of `IceCandidate`s added before a remote description has been set on
+  /// the underlying peer.
   private var iceCandidatesBuffer: [IceCandidate] = []
 
   /// List of all the `RtpSenderProxy`s owned by this `PeerConnectionProxy`.

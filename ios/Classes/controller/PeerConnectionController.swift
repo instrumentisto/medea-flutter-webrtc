@@ -20,7 +20,7 @@ class PeerConnectionController {
   /// Method channel for communicating with Flutter side.
   private var channel: FlutterMethodChannel
 
-  /// Indicates that this controller is disposed.
+  /// Indicator whether this controller is disposed.
   private var isDisposed: Bool = false
 
   /// Initializes a new `PeerConnectionController` for the provided
@@ -55,10 +55,10 @@ class PeerConnectionController {
     self.eventChannel.setStreamHandler(self.eventController)
   }
 
-  /// Sends provided response to the provided result.
+  /// Sends the provided response to the provided result.
   ///
-  /// Checks that `FlutterMethodChannel` is not disposed before sending data.
-  /// If it disposed, then nothing will be send.
+  /// Checks whether `FlutterMethodChannel` is not disposed before sending data.
+  /// If it's disposed, then does nothing.
   func sendResultFromTask(_ result: @escaping FlutterResult, _ response: Any?) {
     if !self.isDisposed {
       result(response)
