@@ -294,7 +294,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
                                                      height, fps));
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
-                                                 &worker_thread, capturer.get());
+                                                 &worker_thread,
+                                                 capturer.get());
 
   if (src == nullptr) {
     return nullptr;
@@ -323,7 +324,8 @@ std::unique_ptr<VideoTrackInterface> create_video_track(
     rust::String id,
     const VideoTrackSourceInterface& video_source) {
   auto track =
-      peer_connection_factory->CreateVideoTrack(std::string(id), video_source.get());
+      peer_connection_factory->CreateVideoTrack(std::string(id),
+                                                video_source.get());
 
   if (track == nullptr) {
     return nullptr;
@@ -338,7 +340,8 @@ std::unique_ptr<AudioTrackInterface> create_audio_track(
     rust::String id,
     const AudioSourceInterface& audio_source) {
   auto track =
-      peer_connection_factory->CreateAudioTrack(std::string(id), audio_source.get());
+      peer_connection_factory->CreateAudioTrack(std::string(id),
+                                                audio_source.get());
 
   if (track == nullptr) {
     return nullptr;
