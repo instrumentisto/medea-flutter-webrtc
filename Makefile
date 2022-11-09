@@ -15,8 +15,8 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-RUST_VER ?= 1.55
-RUST_NIGHTLY_VER ?= nightly-2021-09-08
+RUST_VER ?= 1.64
+RUST_NIGHTLY_VER ?= nightly-2022-10-05
 
 FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	$(shell grep -A1 'name = "flutter_rust_bridge"' Cargo.lock \
@@ -46,7 +46,7 @@ deps: flutter.pub
 
 docs: cargo.doc
 
-fmt: cargo.fmt flutter.fmt kt.fmt
+fmt: cargo.fmt flutter.fmt kt.fmt swift.fmt
 
 lint: cargo.lint flutter.analyze
 
@@ -128,13 +128,13 @@ flutter.run:
 # Run Flutter plugin integration tests on an attached device.
 #
 # Usage:
-#	make flutter.test [device=<device-id>]
+#	make flutter.test [device=<device-id>] [debug=(no|yes)]
 
 flutter.test:
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
 	              --target=integration_test/webrtc_test.dart \
-	              --profile \
+	              $(if $(call eq,$(debug),yes),--debug,--profile) \
 	              $(if $(call eq,$(device),),,-d $(device))
 
 
@@ -314,6 +314,32 @@ endif
 
 
 
+##################
+# Swift commands #
+##################
+
+# Format Swift sources with SwiftFormat.
+#
+# Usage:
+#	make swift.fmt [check=(no|yes)] [dockerized=(no|yes)]
+
+swift.fmt:
+ifeq ($(dockerized),yes)
+	docker run --rm -v "$(PWD)":/app -w /app \
+		ghcr.io/nicklockwood/swiftformat:latest \
+			$(if $(call eq,$(check),yes),--lint,) ios/Classes/
+else
+ifeq ($(shell which swiftformat),)
+ifeq ($(CURRENT_OS),macos)
+	brew install swiftformat
+endif
+endif
+	swiftformat $(if $(call eq,$(check),yes),--lint,) ios/Classes/
+endif
+
+
+
+
 ##########################
 # Documentation commands #
 ##########################
@@ -345,4 +371,5 @@ test.flutter: flutter.test
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.pub \
         	flutter.run flutter.test \
         kt.fmt \
+        swift.fmt \
         test.cargo test.flutter
