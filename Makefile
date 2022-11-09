@@ -29,6 +29,9 @@ CURRENT_OS ?= $(strip $(or $(os),\
 	$(if $(call eq,$(OS),Windows_NT),windows,\
 	$(if $(call eq,$(shell uname -s),Darwin),macos,linux))))
 
+MACOS_TARGETS := x86_64-apple-darwin \
+                 aarch64-apple-darwin
+
 
 
 
@@ -160,12 +163,13 @@ cargo.clean:
 #	make cargo.build [debug=(yes|no)] [args=<cargo-build-args>]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
+cargo-build-targets-macos = $(or $(targets),$(MACOS_TARGETS))
 
 cargo.build:
+ifeq ($(CURRENT_OS),linux)
 	cargo build -p flutter-webrtc-native \
 		$(if $(call eq,$(debug),no),--release,) \
 		$(args)
-ifeq ($(CURRENT_OS),linux)
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
 	@mkdir -p linux/rust/lib/
 	@mkdir -p linux/rust/src/
@@ -179,11 +183,17 @@ ifeq ($(CURRENT_OS),linux)
 		linux/rust/src/flutter_webrtc_native.cc
 endif
 ifeq ($(CURRENT_OS),macos)
-	@mkdir -p macos/rust/lib/
-	cp -f $(lib-out-path)/libflutter_webrtc_native.dylib \
-		macos/rust/lib/libflutter_webrtc_native.dylib
+	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
+		$(call cargo.build.macos,$(target),$(debug)))
+
+	lipo -create target/x86_64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
+				 target/aarch64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
+		 -output macos/rust/lib/libflutter_webrtc_native.dylib
 endif
 ifeq ($(CURRENT_OS),windows)
+	cargo build -p flutter-webrtc-native \
+		$(if $(call eq,$(debug),no),--release,) \
+		$(args)
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/
@@ -199,6 +209,13 @@ ifeq ($(CURRENT_OS),windows)
 	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 endif
+define cargo.build.macos
+	$(eval target := $(strip $(1)))
+	$(eval debug := $(strip $(2)))
+	cargo build -p flutter-webrtc-native \
+				--target $(target) \
+				$(if $(call eq,$(debug),no),--release,)
+endef
 
 
 # Generate documentation for project crates.
