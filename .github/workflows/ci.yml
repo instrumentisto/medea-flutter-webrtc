@@ -146,6 +146,12 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+          target: x86_64-apple-darwin
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: aarch64-apple-darwin
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
