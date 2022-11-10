@@ -185,6 +185,7 @@ endif
 ifeq ($(CURRENT_OS),macos)
 	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
 		$(call cargo.build.macos,$(target),$(debug)))
+	@mkdir -p macos/rust/lib/
 
 	lipo -create target/x86_64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
 				 target/aarch64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
