@@ -250,7 +250,6 @@ jobs:
         with:
           java-version: 11
         if: ${{ matrix.platform == 'android' }}
-
       - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
