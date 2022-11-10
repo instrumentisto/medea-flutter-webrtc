@@ -160,6 +160,7 @@ jobs:
         with:
           xcode-version: "13.2.1"
         if: ${{ matrix.platform == 'macos' }}
+      - run: sudo xcode-select -switch /Library/Developer/CommandLineTools
 
       - run: make cargo.build debug=no
       - run: make flutter.build platform=${{ matrix.platform }}
