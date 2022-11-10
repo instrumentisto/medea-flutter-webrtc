@@ -669,8 +669,8 @@ impl RTCOfferAnswerOptions {
         use_rtp_mux: bool,
     ) -> Self {
         Self(webrtc::create_rtc_offer_answer_options(
-            offer_to_receive_video.map_or(-1, |f| if f { 1 } else { 0 }),
-            offer_to_receive_audio.map_or(-1, |f| if f { 1 } else { 0 }),
+            offer_to_receive_video.map_or(-1, i32::from),
+            offer_to_receive_audio.map_or(-1, i32::from),
             voice_activity_detection,
             ice_restart,
             use_rtp_mux,

@@ -1190,7 +1190,7 @@ class RtcTransportStats extends RtcStatsType {
         tryParse(stats['packetsReceived']),
         tryParse(stats['bytesSent']),
         tryParse(stats['bytesReceived']),
-        stats['iceRole']);
+        IceRole.values.byName(stats['iceRole']));
   }
 
   /// Total number of packets sent over this transport.
