@@ -179,7 +179,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-      - run: make rustup.targets only=${{ matrix.platform }}
+      - run: make rustup.targets only=linux
       # Container doesn't pick `~` (tilde) in `PATH`.
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - uses: subosito/flutter-action@v2

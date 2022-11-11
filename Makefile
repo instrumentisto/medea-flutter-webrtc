@@ -170,10 +170,11 @@ cargo.clean:
 #		 | platform=windows [targets=($(WINDOWS_TARGETS)|<t1>[,<t2>...])] )]
 #		[debug=(yes|no)]
 
-lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
 cargo-build-targets-linux = $(or $(targets),$(LINUX_TARGETS))
 cargo-build-targets-macos = $(or $(targets),$(MACOS_TARGETS))
 cargo-build-targets-windows = $(or $(targets),$(WINDOWS_TARGETS))
+cargo-build-linux-first-target = $(lastword $(subst $(comma), ,$(cargo-build-targets-linux)))
+cargo-build-windows-first-target = $(lastword $(subst $(comma), ,$(cargo-build-targets-windows)))
 
 cargo.build:
 ifeq ($(platform),all)
@@ -187,41 +188,42 @@ ifeq ($(platform),linux)
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
 	@mkdir -p linux/rust/lib/
 	@mkdir -p linux/rust/src/
-	cp -f $(lib-out-path)/libflutter_webrtc_native.so \
-		linux/rust/lib/libflutter_webrtc_native.so
-	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
+	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-linux)),\
+		$(call cargo.build.medea-jason.windows,$(target),$(debug)) \
+		cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.so \
+        			linux/rust/lib/$(target)/libflutter_webrtc_native.so)
+	cp -f target/$(cargo-build-linux-first-target)/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
 		linux/rust/include/flutter_webrtc_native.h
+	cp -f target/$(cargo-build-linux-first-target)/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
+		linux/rust/src/flutter_webrtc_native.cc
 	cp -f crates/native/include/api.h \
 		linux/rust/include/flutter-webrtc-native/include/api.h
-	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
-		linux/rust/src/flutter_webrtc_native.cc
 endif
 ifeq ($(platform),macos)
 	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
 		$(call cargo.build.target,$(target),$(debug)))
 	@mkdir -p macos/rust/lib/
-
-	lipo -create target/x86_64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
-				 target/aarch64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
-		 -output macos/rust/lib/libflutter_webrtc_native.dylib
+	libs := $(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
+		target/$(target)/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib)
+	lipo -create $(libs) -output macos/rust/lib/libflutter_webrtc_native.dylib
 endif
 ifeq ($(platform),windows)
-	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-windows)),\
-		$(call cargo.build.target,$(target),$(debug)))
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/
 	@mkdir -p windows/rust/include/flutter-webrtc-native/include/
-	cp -f $(lib-out-path)/flutter_webrtc_native.dll \
-		windows/rust/lib/flutter_webrtc_native.dll
-	cp -f $(lib-out-path)/flutter_webrtc_native.dll.lib \
-		windows/rust/lib/flutter_webrtc_native.dll.lib
-	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
+	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-windows)),\
+		$(call cargo.build.target,$(target),$(debug))\
+		cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll \
+        	windows/rust/lib/$(target)/flutter_webrtc_native.dll \
+        cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll.lib \
+        	windows/rust/lib/$(target)/flutter_webrtc_native.dll.lib)
+	cp -f target/$(cargo-build-windows-first-target)/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
 		windows/rust/include/flutter_webrtc_native.h
+	cp -f target/$(cargo-build-windows-first-target)/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
+    	windows/rust/src/flutter_webrtc_native.cc
 	cp -f crates/native/include/api.h \
 		windows/rust/include/flutter-webrtc-native/include/api.h
-	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
-		windows/rust/src/flutter_webrtc_native.cc
 endif
 define cargo.build.target
 	$(eval target := $(strip $(1)))
