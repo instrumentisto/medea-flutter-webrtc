@@ -193,7 +193,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
             let _ = out_file.write(&buffer[0..count])?;
         }
 
-        if format!("{:x}", hasher.finalize()) != expected_hash {
+        if format!("{:x}", hasher.finalize()) != SHA256SUM {
             bail!("SHA-256 checksum doesn't match");
         }
     }
@@ -212,7 +212,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     fs::remove_dir_all(&temp_dir)?;
 
     // Write the downloaded checksum.
-    fs::write(&checksum, expected_hash).map_err(Into::into)
+    fs::write(&checksum, SHA256SUM).map_err(Into::into)
 }
 
 /// Returns a list of all C++ sources that should be compiled.
