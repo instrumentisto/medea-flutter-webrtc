@@ -238,6 +238,12 @@ jobs:
           toolchain: stable
           target: aarch64-apple-darwin
         if: ${{ matrix.platform != 'macos' }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: x86_64-apple-darwin
+        if: ${{ matrix.platform != 'macos' }}
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android'
