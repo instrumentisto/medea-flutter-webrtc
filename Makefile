@@ -29,8 +29,10 @@ CURRENT_OS ?= $(strip $(or $(os),\
 	$(if $(call eq,$(OS),Windows_NT),windows,\
 	$(if $(call eq,$(shell uname -s),Darwin),macos,linux))))
 
+LINUX_TARGETS := x86_64-unknown-linux-gnu
 MACOS_TARGETS := x86_64-apple-darwin \
                  aarch64-apple-darwin
+WINDOWS_TARGETS := x86_64-pc-windows-msvc
 
 
 
@@ -121,11 +123,12 @@ flutter.pub:
 # Run Flutter example application for the current OS.
 #
 # Usage:
-#	make flutter.run
+#	make flutter.run [debug=(yes|no)] [device=<device-id>]
 
 flutter.run:
 	cd example/ && \
-	flutter run -d $(CURRENT_OS) --release
+	flutter run $(if $(call eq,$(debug),no),--release,) \
+		$(if $(call eq,$(device),),,-d $(device))
 
 
 # Run Flutter plugin integration tests on an attached device.
@@ -160,16 +163,27 @@ cargo.clean:
 # platform-specific directories.
 #
 # Usage:
-#	make cargo.build [debug=(yes|no)] [args=<cargo-build-args>]
+#	make cargo.build
+#		[( [platform=all]
+#		 | platform=linux [targets=($(LINUX_TARGETS)|<t1>[,<t2>...])]
+#		 | platform=macos [targets=($(MACOS_TARGETS)|<t1>[,<t2>...])]
+#		 | platform=windows [targets=($(WINDOWS_TARGETS)|<t1>[,<t2>...])] )]
+#		[debug=(yes|no)]
 
 lib-out-path = target/$(if $(call eq,$(debug),no),release,debug)
+cargo-build-targets-linux = $(or $(targets),$(LINUX_TARGETS))
 cargo-build-targets-macos = $(or $(targets),$(MACOS_TARGETS))
+cargo-build-targets-windows = $(or $(targets),$(WINDOWS_TARGETS))
 
 cargo.build:
-ifeq ($(CURRENT_OS),linux)
-	cargo build -p flutter-webrtc-native \
-		$(if $(call eq,$(debug),no),--release,) \
-		$(args)
+ifeq ($(platform),all)
+	@make cargo.build platform=linux
+	@make cargo.build platform=macos
+	@make cargo.build platform=windows
+endif
+ifeq ($(platform),linux)
+	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-linux)),\
+		$(call cargo.build.target,$(target),$(debug)))
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
 	@mkdir -p linux/rust/lib/
 	@mkdir -p linux/rust/src/
@@ -182,19 +196,18 @@ ifeq ($(CURRENT_OS),linux)
 	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		linux/rust/src/flutter_webrtc_native.cc
 endif
-ifeq ($(CURRENT_OS),macos)
+ifeq ($(platform),macos)
 	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
-		$(call cargo.build.macos,$(target),$(debug)))
+		$(call cargo.build.target,$(target),$(debug)))
 	@mkdir -p macos/rust/lib/
 
 	lipo -create target/x86_64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
 				 target/aarch64-apple-darwin/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib \
 		 -output macos/rust/lib/libflutter_webrtc_native.dylib
 endif
-ifeq ($(CURRENT_OS),windows)
-	cargo build -p flutter-webrtc-native \
-		$(if $(call eq,$(debug),no),--release,) \
-		$(args)
+ifeq ($(platform),windows)
+	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-windows)),\
+		$(call cargo.build.target,$(target),$(debug)))
 	@mkdir -p windows/rust/include/
 	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/
@@ -210,7 +223,7 @@ ifeq ($(CURRENT_OS),windows)
 	cp -f target/cxxbridge/flutter-webrtc-native/src/renderer.rs.cc \
 		windows/rust/src/flutter_webrtc_native.cc
 endif
-define cargo.build.macos
+define cargo.build.target
 	$(eval target := $(strip $(1)))
 	$(eval debug := $(strip $(2)))
 	cargo build -p flutter-webrtc-native \
@@ -304,6 +317,30 @@ endif
 
 cargo.test:
 	cargo test --workspace
+
+
+
+
+# Install or upgrade all the required project's targets for Rust.
+#
+# Usage:
+#	make rustup.targets [only=(android|ios|linux|web|windows)]
+
+rustup-targets = $(MACOS_TARGETS) \
+                 $(LINUX_TARGETS) \
+                 $(WINDOWS_TARGETS)
+ifeq ($(only),linux)
+rustup-targets = $(LINUX_TARGETS)
+endif
+ifeq ($(only),macos)
+rustup-targets = $(MACOS_TARGETS)
+endif
+ifeq ($(only),windows)
+rustup-targets = $(WINDOWS_TARGETS)
+endif
+
+rustup.targets:
+	rustup target add $(rustup-targets)
 
 
 

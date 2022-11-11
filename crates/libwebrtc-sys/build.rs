@@ -24,6 +24,22 @@ static LIBWEBRTC_URL: &str =
     "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
                                                     /106.0.5249.91";
 
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
+static SHA256SUM: &str =
+    "0e953fae2c854c147970b2fcca78c45c456f618df7b35a56ea88cec7bdb7400f";
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+static SHA256SUM: &str =
+    "38077e57322ed5f0934f8e960eae7769dfbe5619f345b559cc7bca5e32c912ed";
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+static SHA256SUM: &str =
+    "a6fc75d433b10ec2a646064cbbcc6c1f5d0783fb342dad144521bb8dc7bcd886";
+#[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+static SHA256SUM: &str =
+    "433db8207ed8343bdf751505597213c3267b8ef52287a49466ce7bb7df145e0c";
+#[cfg(all(target_os = "windows", target_arch = "x86_64"))]
+static SHA256SUM: &str =
+    "51665201452ff7ec59aa73c59f2c532f8e977a8fa936f093c343a631f3986a96";
+
 fn main() -> anyhow::Result<()> {
     download_libwebrtc()?;
 
@@ -104,28 +120,6 @@ fn get_target() -> anyhow::Result<String> {
     Ok(env::var("TARGET")?)
 }
 
-/// Returns expected libwebrtc archives SHA-256 hashes.
-fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
-    Ok(match get_target()?.as_str() {
-        "aarch64-unknown-linux-gnu" => {
-            "0e953fae2c854c147970b2fcca78c45c456f618df7b35a56ea88cec7bdb7400f"
-        }
-        "x86_64-unknown-linux-gnu" => {
-            "38077e57322ed5f0934f8e960eae7769dfbe5619f345b559cc7bca5e32c912ed"
-        }
-        "aarch64-apple-darwin" => {
-            "a6fc75d433b10ec2a646064cbbcc6c1f5d0783fb342dad144521bb8dc7bcd886"
-        }
-        "x86_64-apple-darwin" => {
-            "433db8207ed8343bdf751505597213c3267b8ef52287a49466ce7bb7df145e0c"
-        }
-        "x86_64-pc-windows-msvc" => {
-            "51665201452ff7ec59aa73c59f2c532f8e977a8fa936f093c343a631f3986a96"
-        }
-        _ => return Err(anyhow::anyhow!("Unsupported architecture")),
-    })
-}
-
 /// Returns [`PathBuf`] to the directory containing library.
 fn libpath() -> anyhow::Result<PathBuf> {
     let target = get_target()?;
@@ -161,7 +155,6 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     };
     let archive = temp_dir.join(&tar_file);
     let checksum = lib_dir.join("CHECKSUM");
-    let expected_hash = get_expected_libwebrtc_hash()?;
 
     // Force download if `INSTALL_WEBRTC=1`.
     if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
@@ -170,7 +163,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
             .map(|m| m.is_dir())
             .unwrap_or_default()
             && fs::read(&checksum).unwrap_or_default().as_slice()
-                == expected_hash.as_bytes()
+                == SHA256SUM.as_bytes()
         {
             return Ok(());
         }
