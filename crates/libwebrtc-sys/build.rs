@@ -347,6 +347,7 @@ fn link_libs() -> anyhow::Result<()> {
              native=crates/libwebrtc-sys/lib/{target}/release/",
         );
     }
+    Ok(())
 }
 
 #[cfg(target_os = "macos")]
