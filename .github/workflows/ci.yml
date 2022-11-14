@@ -56,9 +56,8 @@ jobs:
               ||                                  'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           components: clippy
 
@@ -108,9 +107,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: nightly
           components: rustfmt
 
@@ -142,9 +140,8 @@ jobs:
               || 'macos-11' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
@@ -166,8 +163,8 @@ jobs:
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
-    # Pin glibc to 2.28 version for better compatibility.
-    container: debian:buster
+    # Pin glibc to 2.31 version for better compatibility.
+    container: debian:bullseye
     steps:
       - uses: actions/checkout@v3
       - name: Install Linux platform dependencies
@@ -178,10 +175,11 @@ jobs:
                   libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
                   libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
                   ninja-build
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
+      # Container doesn't pick `~` (tilde) in `PATH`.
+      - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-linux-desktop
 
@@ -206,9 +204,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Run tests on iOS
         platform:
           - android
+          - ios
           - linux
           - macos
           - windows
@@ -220,13 +218,15 @@ jobs:
               ||                                  'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
+        if: ${{ matrix.platform != 'android'
+             && matrix.platform != 'ios' }}
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ matrix.platform != 'android' }}
+        if: ${{ matrix.platform != 'android'
+             && matrix.platform != 'ios' }}
 
       - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
@@ -238,9 +238,15 @@ jobs:
                        xvfb
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: make cargo.build platform=${{ matrix.platform }}
-        if: ${{ matrix.platform != 'android' }}
+      - run: make cargo.build debug=yes platform=${{ matrix.platform }}
+        if: ${{ matrix.platform != 'android'
+             && matrix.platform != 'ios' }}
 
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+        if: ${{ matrix.platform == 'android' }}
       - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -251,6 +257,18 @@ jobs:
           profile: Nexus 6
           script: make flutter.test
         if: ${{ matrix.platform == 'android' }}
+
+      - name: Start iOS simulator
+        id: simulator
+        uses: futureware-tech/simulator-action@v2
+        with:
+          os_version: '>=13.0'
+          os: iOS
+        if: ${{ matrix.platform == 'ios' }}
+      - name: Test on `${{ matrix.platform }}` platform with simulator
+        run: make flutter.test device=${{ steps.simulator.outputs.udid }}
+                               debug=yes
+        if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform with Xvfb
         run: xvfb-run -a make flutter.test device=${{ matrix.platform }}
@@ -284,9 +302,8 @@ jobs:
               ||                                  'macos-latest' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
 
       - name: Install `${{ matrix.platform }}` platform dependencies
@@ -329,20 +346,22 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2  # for PRs only
-
       - name: Retrieve commit message and hash
         id: commit
         run: |
-          echo ::set-output name=message::$(git log --grep='\[publish\]' --format=%s)
-          echo ::set-output name=sha::${{ (github.event_name == 'pull_request'
-                                           && github.event.pull_request.head.sha)
-                                       ||  github.sha }}
+          echo "message=$(git log --grep='\[publish\]' --format=%s)" \
+          >> $GITHUB_OUTPUT
+          echo "sha=${{ (github.event_name == 'pull_request'
+                         && github.event.pull_request.head.sha)
+                     ||     github.sha }}" \
+          >> $GITHUB_OUTPUT
+
       - name: Check whether should be skipped
         id: skip
-        run: echo ::set-output name=no::${{ !(
+        run: echo "no=${{ !(
                github.event_name == 'pull_request'
                && !contains(steps.commit.outputs.message, '[publish]')
-             ) }}
+             ) }}" >> $GITHUB_OUTPUT
 
       - uses: dart-lang/setup-dart@v1.3
         if: ${{ steps.skip.outputs.no == 'true' }}
