@@ -183,13 +183,11 @@ ifeq ($(platform),all)
 	@make cargo.build platform=windows
 endif
 ifeq ($(platform),linux)
-	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-linux)),\
-		$(call cargo.build.target,$(target),$(debug)))
 	@mkdir -p linux/rust/include/flutter-webrtc-native/include/
-	@mkdir -p linux/rust/lib/
 	@mkdir -p linux/rust/src/
 	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-linux)),\
-		$(call cargo.build.medea-jason.windows,$(target),$(debug)) \
+		$(call cargo.build.target,$(target),$(debug)); \
+		mkdir -p linux/rust/lib/$(target); \
 		cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.so \
         			linux/rust/lib/$(target)/libflutter_webrtc_native.so)
 	cp -f target/$(cargo-build-linux-first-target)/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
@@ -209,11 +207,10 @@ ifeq ($(platform),macos)
 endif
 ifeq ($(platform),windows)
 	@mkdir -p windows/rust/include/
-	@mkdir -p windows/rust/lib/
 	@mkdir -p windows/rust/src/
 	@mkdir -p windows/rust/include/flutter-webrtc-native/include/
 	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-windows)),\
-		$(call cargo.build.target,$(target),$(debug))\
+		$(call cargo.build.target,$(target),$(debug)); \
 		cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll \
         	windows/rust/lib/$(target)/flutter_webrtc_native.dll \
         cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll.lib \
