@@ -175,6 +175,8 @@ cargo-build-targets-macos = $(or $(targets),$(MACOS_TARGETS))
 cargo-build-targets-windows = $(or $(targets),$(WINDOWS_TARGETS))
 cargo-build-linux-first-target = $(lastword $(subst $(comma), ,$(cargo-build-targets-linux)))
 cargo-build-windows-first-target = $(lastword $(subst $(comma), ,$(cargo-build-targets-windows)))
+cargo-build-macos-libs = $(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
+	target/$(target)/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib)
 
 cargo.build:
 ifeq ($(platform),all)
@@ -201,9 +203,7 @@ ifeq ($(platform),macos)
 	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
 		$(call cargo.build.target,$(target),$(debug)))
 	@mkdir -p macos/rust/lib/
-	libs := $(foreach target,$(subst $(comma), ,$(cargo-build-targets-macos)),\
-		target/$(target)/$(if $(call eq,$(debug),no),release,debug)/libflutter_webrtc_native.dylib)
-	lipo -create $(libs) -output macos/rust/lib/libflutter_webrtc_native.dylib
+	lipo -create $(cargo-build-macos-libs) -output macos/rust/lib/libflutter_webrtc_native.dylib
 endif
 ifeq ($(platform),windows)
 	@mkdir -p windows/rust/include/
