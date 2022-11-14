@@ -213,7 +213,7 @@ ifeq ($(platform),windows)
 		$(call cargo.build.target,$(target),$(debug)); \
 		mkdir -p windows/rust/lib/$(target); \
 		cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll \
-        	windows/rust/lib/$(target)/flutter_webrtc_native.dll \
+        	windows/rust/lib/$(target)/flutter_webrtc_native.dll; \
         cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll.lib \
         	windows/rust/lib/$(target)/flutter_webrtc_native.dll.lib)
 	cp -f target/$(cargo-build-windows-first-target)/cxxbridge/flutter-webrtc-native/src/renderer.rs.h \
