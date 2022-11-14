@@ -211,6 +211,7 @@ ifeq ($(platform),windows)
 	@mkdir -p windows/rust/include/flutter-webrtc-native/include/
 	$(foreach target,$(subst $(comma), ,$(cargo-build-targets-windows)),\
 		$(call cargo.build.target,$(target),$(debug)); \
+		mkdir -p windows/rust/lib/$(target); \
 		cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll \
         	windows/rust/lib/$(target)/flutter_webrtc_native.dll \
         cp -f target/$(target)/$(if $(call eq,$(debug),no),release,debug)/flutter_webrtc_native.dll.lib \
