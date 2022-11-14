@@ -33,7 +33,7 @@ fn main() -> anyhow::Result<()> {
 
     println!("cargo:rustc-link-lib=webrtc");
 
-    link_libs();
+    link_libs()?;
 
     let mut build = cxx_build::bridge("src/bridge.rs");
     build
@@ -99,12 +99,12 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Returns target architecture for which will be builded library.
+/// Returns target architecture to build the library for.
 fn get_target() -> anyhow::Result<String> {
-    Ok(env::var("TARGET")?)
+    env::var("TARGET").map_err(Into::into)
 }
 
-/// Returns expected libwebrtc archives SHA-256 hashes.
+/// Returns expected `libwebrtc` archives SHA-256 hashes.
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
@@ -122,11 +122,11 @@ fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
         "x86_64-pc-windows-msvc" => {
             "51665201452ff7ec59aa73c59f2c532f8e977a8fa936f093c343a631f3986a96"
         }
-        _ => return Err(anyhow::anyhow!("Unsupported architecture")),
+        arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })
 }
 
-/// Returns [`PathBuf`] to the directory containing library.
+/// Returns [`PathBuf`] to the directory containing the library.
 fn libpath() -> anyhow::Result<PathBuf> {
     let target = get_target()?;
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -255,8 +255,8 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
 }
 
 /// Emits all the required `rustc-link-lib` instructions.
-fn link_libs() {
-    let target = get_target().unwrap();
+fn link_libs() -> anyhow::Result<()> {
+    let target = get_target()?;
     #[cfg(target_os = "linux")]
     {
         for dep in [
