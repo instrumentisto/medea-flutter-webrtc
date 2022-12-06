@@ -236,6 +236,8 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
         audioManager.isSpeakerphoneOn = true
       }
       BLUETOOTH_HEADSET_DEVICE_ID -> {
+        val deviceIdBefore = selectedAudioOutputId
+        selectedAudioOutputId = deviceId
         if (isBluetoothHeadsetConnected) {
           if (bluetoothScoDeferred == null) {
             isBluetoothScoFailed = false
@@ -245,7 +247,14 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             bluetoothScoDeferred = CompletableDeferred()
             audioManager.startBluetoothSco()
           }
-          bluetoothScoDeferred?.await()
+          try {
+            bluetoothScoDeferred?.await()
+          } catch (e: Exception) {
+            selectedAudioOutputId = deviceIdBefore
+            audioManager.stopBluetoothSco()
+            isBluetoothScoFailed = true
+            throw e
+          }
         } else {
           throw IllegalArgumentException("Unknown output device: $deviceId")
         }
@@ -254,8 +263,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
         throw IllegalArgumentException("Unknown output device: $deviceId")
       }
     }
-
-    selectedAudioOutputId = deviceId
   }
 
   /**
@@ -424,7 +431,8 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
-    if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent!!.action) {
+    intent!!
+    if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent.action) {
       val state =
           intent.getIntExtra(
               AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_DISCONNECTED)
@@ -434,6 +442,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             Log.d("FlutterWebRtcDebug", "SCO was successfully connected")
             isBluetoothScoFailed = false
             bluetoothScoDeferred?.complete(Unit)
+            bluetoothScoDeferred = null
             audioManager.isBluetoothScoOn = true
             audioManager.isSpeakerphoneOn = false
           }
@@ -444,6 +453,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
                 GetUserMediaException(
                     "Bluetooth headset is unavailable at this moment",
                     GetUserMediaException.Kind.Audio))
+            bluetoothScoDeferred = null
             Handler(Looper.getMainLooper()).post { eventBroadcaster().onDeviceChange() }
           }
         }
