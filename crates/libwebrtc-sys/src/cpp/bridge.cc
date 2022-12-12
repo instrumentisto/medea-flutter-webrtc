@@ -225,7 +225,13 @@ int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
 // Calls `AudioDeviceModule->SetPlayoutDevice()` with the provided device index.
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  uint16_t index) {
-  return audio_device_module->SetPlayoutDevice(index);
+  audio_device_module->StopPlayout();
+  int32_t result = audio_device_module->SetPlayoutDevice(index);
+  bool available = false;
+  audio_device_module->StereoPlayoutIsAvailable(&available);
+  audio_device_module->InitPlayout();
+  audio_device_module->StartPlayout();
+  return result;
 }
 
 // Calls `AudioProcessingBuilder().Create()`.
