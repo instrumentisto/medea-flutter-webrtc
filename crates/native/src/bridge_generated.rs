@@ -14,8 +14,7 @@
 use crate::api::*;
 use core::panic::UnwindSafe;
 use flutter_rust_bridge::*;
-use std::ffi::c_void;
-use std::sync::Arc;
+use std::{ffi::c_void, sync::Arc};
 
 // Section: imports
 
