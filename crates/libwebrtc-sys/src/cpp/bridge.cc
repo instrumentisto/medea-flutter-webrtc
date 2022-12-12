@@ -228,7 +228,8 @@ int32_t stop_playout(const AudioDeviceModule& audio_device_module) {
 }
 
 // Sets stereo availability of playout device.
-int32_t stereo_playout_is_available(const AudioDeviceModule& audio_device_module, bool available) {
+int32_t stereo_playout_is_available(const AudioDeviceModule& audio_device_module,
+                                    bool available) {
   return audio_device_module->StereoPlayoutIsAvailable(&available);
 }
 

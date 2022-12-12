@@ -847,9 +847,7 @@ impl AudioDeviceModule {
     ///
     /// If [`sys::AudioDeviceModule::stop_playout()`] call fails.
     pub fn stop_playout(&self) -> anyhow::Result<()> {
-        self.inner.stop_playout()?;
-
-        Ok(())
+        self.inner.stop_playout()
     }
 
     /// Sets stereo availability of playout device.
@@ -861,9 +859,7 @@ impl AudioDeviceModule {
         &self,
         available: bool,
     ) -> anyhow::Result<()> {
-        self.inner.stereo_playout_is_available(available)?;
-
-        Ok(())
+        self.inner.stereo_playout_is_available(available)
     }
 
     /// Initializes audio playout device.
@@ -872,9 +868,7 @@ impl AudioDeviceModule {
     ///
     /// If [`sys::AudioDeviceModule::init_playout()`] call fails.
     pub fn init_playout(&self) -> anyhow::Result<()> {
-        self.inner.init_playout()?;
-
-        Ok(())
+        self.inner.init_playout()
     }
 
     /// Starts audio playout device playing.
@@ -883,9 +877,7 @@ impl AudioDeviceModule {
     ///
     /// If [`sys::AudioDeviceModule::start_playout()`] call fails.
     pub fn start_playout(&self) -> anyhow::Result<()> {
-        self.inner.start_playout()?;
-
-        Ok(())
+        self.inner.start_playout()
     }
 }
 
