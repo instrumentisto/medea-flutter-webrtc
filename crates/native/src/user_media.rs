@@ -840,6 +840,53 @@ impl AudioDeviceModule {
 
         Ok(())
     }
+
+    /// Stops playout of audio on device.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::stop_playout()`] call fails.
+    pub fn stop_playout(&self) -> anyhow::Result<()> {
+        self.inner.stop_playout()?;
+
+        Ok(())
+    }
+
+    /// Sets stereo availability of playout device.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::stereo_playout_is_available()`] call fails.
+    pub fn stereo_playout_is_available(
+        &self,
+        available: bool,
+    ) -> anyhow::Result<()> {
+        self.inner.stereo_playout_is_available(available)?;
+
+        Ok(())
+    }
+
+    /// Initializes audio playout device.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::init_playout()`] call fails.
+    pub fn init_playout(&self) -> anyhow::Result<()> {
+        self.inner.init_playout()?;
+
+        Ok(())
+    }
+
+    /// Starts audio playout device playing.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::start_playout()`] call fails.
+    pub fn start_playout(&self) -> anyhow::Result<()> {
+        self.inner.start_playout()?;
+
+        Ok(())
+    }
 }
 
 /// Possible kinds of media track's source.

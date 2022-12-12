@@ -222,6 +222,22 @@ int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetRecordingDevice(index);
 }
 
+int32_t stop_playout(const AudioDeviceModule& audio_device_module) {
+  return audio_device_module->StopPlayout();
+}
+
+int32_t stereo_playout_is_available(const AudioDeviceModule& audio_device_module, bool available) {
+  return audio_device_module->StereoPlayoutIsAvailable(&available);
+}
+
+int32_t init_playout(const AudioDeviceModule& audio_device_module) {
+  return audio_device_module->InitPlayout();
+}
+
+int32_t start_playout(const AudioDeviceModule& audio_device_module) {
+  return audio_device_module->StartPlayout();
+}
+
 // Calls `AudioDeviceModule->SetPlayoutDevice()` with the provided device index.
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  uint16_t index) {
