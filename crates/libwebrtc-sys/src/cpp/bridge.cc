@@ -222,18 +222,22 @@ int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetRecordingDevice(index);
 }
 
+// Stops playout of audio on device.
 int32_t stop_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->StopPlayout();
 }
 
+// Sets stereo availability of playout device.
 int32_t stereo_playout_is_available(const AudioDeviceModule& audio_device_module, bool available) {
   return audio_device_module->StereoPlayoutIsAvailable(&available);
 }
 
+// Initializes audio playout device.
 int32_t init_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->InitPlayout();
 }
 
+// Starts audio playout device playing.
 int32_t start_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->StartPlayout();
 }
@@ -241,13 +245,7 @@ int32_t start_playout(const AudioDeviceModule& audio_device_module) {
 // Calls `AudioDeviceModule->SetPlayoutDevice()` with the provided device index.
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  uint16_t index) {
-  audio_device_module->StopPlayout();
-  int32_t result = audio_device_module->SetPlayoutDevice(index);
-  bool available = false;
-  audio_device_module->StereoPlayoutIsAvailable(&available);
-  audio_device_module->InitPlayout();
-  audio_device_module->StartPlayout();
-  return result;
+  return audio_device_module->SetPlayoutDevice(index);
 }
 
 // Calls `AudioProcessingBuilder().Create()`.
