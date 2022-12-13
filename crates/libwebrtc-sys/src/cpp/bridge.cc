@@ -222,23 +222,23 @@ int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetRecordingDevice(index);
 }
 
-// Stops playout of audio on device.
+// Stops playout of audio on the specified device.
 int32_t stop_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->StopPlayout();
 }
 
-// Sets stereo availability of playout device.
+// Sets stereo availability of the specified playout device.
 int32_t stereo_playout_is_available(const AudioDeviceModule& audio_device_module,
                                     bool available) {
   return audio_device_module->StereoPlayoutIsAvailable(&available);
 }
 
-// Initializes audio playout device.
+// Initializes the specified audio playout device.
 int32_t init_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->InitPlayout();
 }
 
-// Starts audio playout device playing.
+// Starts playout of audio on the specified device.
 int32_t start_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->StartPlayout();
 }

@@ -167,17 +167,17 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
 int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
                                    uint16_t index);
 
-// Stops playout of audio on device.
+// Stops playout of audio on the specified device.
 int32_t stop_playout(const AudioDeviceModule& audio_device_module);
 
-// Sets stereo availability of playout device.
+// Sets stereo availability of the specified playout device.
 int32_t stereo_playout_is_available(const AudioDeviceModule& audio_device_module,
                                     bool available);
 
-// Initializes audio playout device.
+// Initializes the specified audio playout device.
 int32_t init_playout(const AudioDeviceModule& audio_device_module);
 
-// Starts audio playout device playing.
+// Starts playout of audio on the specified device.
 int32_t start_playout(const AudioDeviceModule& audio_device_module);
 
 // Specifies which device to use for playout audio using an index

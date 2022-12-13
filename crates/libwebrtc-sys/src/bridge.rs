@@ -1311,19 +1311,19 @@ pub(crate) mod webrtc {
             index: u16,
         ) -> i32;
 
-        /// Stops playout of audio on device.
+        /// Stops playout of audio on the given device.
         pub fn stop_playout(audio_device_module: &AudioDeviceModule) -> i32;
 
-        /// Sets stereo availability of playout device.
+        /// Sets stereo availability of the given playout device.
         pub fn stereo_playout_is_available(
             audio_device_module: &AudioDeviceModule,
             available: bool,
         ) -> i32;
 
-        /// Initializes audio playout device.
+        /// Initializes the given audio playout device.
         pub fn init_playout(audio_device_module: &AudioDeviceModule) -> i32;
 
-        /// Starts audio playout device playing.
+        /// Starts playout of audio on the given device.
         pub fn start_playout(audio_device_module: &AudioDeviceModule) -> i32;
 
         /// Specifies which speaker to use for playing out audio using an index

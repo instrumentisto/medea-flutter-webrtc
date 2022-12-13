@@ -841,7 +841,7 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    /// Stops playout of audio on device.
+    /// Stops playout of audio on this [`AudioDeviceModule`].
     ///
     /// # Errors
     ///
@@ -850,7 +850,7 @@ impl AudioDeviceModule {
         self.inner.stop_playout()
     }
 
-    /// Sets stereo availability of playout device.
+    /// Sets stereo availability of this playout [`AudioDeviceModule`].
     ///
     /// # Errors
     ///
@@ -862,7 +862,7 @@ impl AudioDeviceModule {
         self.inner.stereo_playout_is_available(available)
     }
 
-    /// Initializes audio playout device.
+    /// Initializes this playout [`AudioDeviceModule`].
     ///
     /// # Errors
     ///
@@ -871,7 +871,7 @@ impl AudioDeviceModule {
         self.inner.init_playout()
     }
 
-    /// Starts audio playout device playing.
+    /// Starts playout of audio on this [`AudioDeviceModule`].
     ///
     /// # Errors
     ///

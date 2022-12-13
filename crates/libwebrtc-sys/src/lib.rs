@@ -326,7 +326,7 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    /// Stops playout of audio on device.
+    /// Stops playout of audio on this device.
     pub fn stop_playout(&self) -> anyhow::Result<()> {
         let result = webrtc::stop_playout(&self.0);
 
@@ -337,7 +337,7 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    /// Sets stereo availability of playout device.
+    /// Sets stereo availability of this playout device.
     pub fn stereo_playout_is_available(
         &self,
         available: bool,
@@ -347,14 +347,14 @@ impl AudioDeviceModule {
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::StereoPlayoutIsAvailable` failed with \
-                {result} code"
+                 {result} code"
             );
         }
 
         Ok(())
     }
 
-    /// Initializes audio playout device.
+    /// Initializes this audio playout device.
     pub fn init_playout(&self) -> anyhow::Result<()> {
         let result = webrtc::init_playout(&self.0);
 
@@ -365,13 +365,13 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    /// Starts audio playout device playing.
+    /// Starts playout of audio on this device.
     pub fn start_playout(&self) -> anyhow::Result<()> {
         let result = webrtc::start_playout(&self.0);
 
         if result != 0 {
             bail!(
-                "`AudioDeviceModule::StartPlayout` failed with {result} code"
+                "`AudioDeviceModule::StartPlayout` failed with {result} code",
             );
         }
 
