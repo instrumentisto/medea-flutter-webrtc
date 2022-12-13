@@ -61,9 +61,6 @@ jobs:
           toolchain: stable
           components: clippy
 
-      - uses: dart-lang/setup-dart@v1
-        if: ${{ matrix.platform == 'windows' }}
-
       - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
@@ -315,9 +312,6 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: dart-lang/setup-dart@v1
-        if: ${{ matrix.platform == 'windows' }}
-        
       - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
