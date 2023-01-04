@@ -336,9 +336,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "1.58.2"
+version = "1.59.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e755f236c79aa45b485c25b116ce1145db06f112ff752c84dfa26c36388ecaed"
+checksum = "ee0b1f52e02ccd5337765560d35c57d466a12409e454849eeca9dc04a8cfca3a"
 dependencies = [
  "allo-isolate",
  "anyhow",
@@ -360,9 +360,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "1.58.2"
+version = "1.59.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "054b91aa9af68fb60772432faafce6ed25a0dcbe7b7a6645af9d3495fbd3bb26"
+checksum = "ec02847abaf62b2d65c244a88af12a93d2ab04fdf5bc8d3ae3ddd8e2b75372a7"
 
 [[package]]
 name = "fnv"
@@ -850,9 +850,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.16.0"
+version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86f0b0d4bf799edbc74508c1e8bf170ff5f41238e5f8225603ca7caaae2b7860"
+checksum = "6f61fba1741ea2b3d6a1e3178721804bb716a68a6aeba1149b5d52e3d464ea66"
 
 [[package]]
 name = "openssl"
