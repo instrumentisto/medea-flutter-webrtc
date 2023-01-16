@@ -25,6 +25,16 @@ void set_on_device_change_mac(void(*cb)()) {
   AudioObjectAddPropertyListener(kAudioObjectSystemObject,
                                  &outputDeviceAddress,
                                  &callbackFunction, cb);
+  
+  AudioObjectPropertyAddress inputDeviceAddress = {
+    kAudioHardwarePropertyDefaultInputDevice,
+    kAudioObjectPropertyScopeGlobal,
+    kAudioObjectPropertyElementMaster
+  };
+  AudioObjectAddPropertyListener(kAudioObjectSystemObject,
+                                 &inputDeviceAddress,
+                                 &callbackFunction, cb);
+  
   NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
   [notificationCenter addObserverForName:AVCaptureDeviceWasConnectedNotification
       object:nil
