@@ -431,30 +431,31 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
-    intent!!
-    if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent.action) {
-      val state =
-          intent.getIntExtra(
-              AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_DISCONNECTED)
-      if (selectedAudioOutputId == BLUETOOTH_HEADSET_DEVICE_ID) {
-        when (state) {
-          AudioManager.SCO_AUDIO_STATE_CONNECTED -> {
-            Log.d("FlutterWebRtcDebug", "SCO was successfully connected")
-            isBluetoothScoFailed = false
-            bluetoothScoDeferred?.complete(Unit)
-            bluetoothScoDeferred = null
-            audioManager.isBluetoothScoOn = true
-            audioManager.isSpeakerphoneOn = false
-          }
-          AudioManager.SCO_AUDIO_STATE_DISCONNECTED -> {
-            Log.d("FlutterWebRtcDebug", "SCO was disconnected, retrying connection...")
-            isBluetoothScoFailed = true
-            bluetoothScoDeferred?.completeExceptionally(
-                GetUserMediaException(
-                    "Bluetooth headset is unavailable at this moment",
-                    GetUserMediaException.Kind.Audio))
-            bluetoothScoDeferred = null
-            Handler(Looper.getMainLooper()).post { eventBroadcaster().onDeviceChange() }
+    if (intent?.action != null) {
+      if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent.action) {
+        val state =
+            intent.getIntExtra(
+                AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_DISCONNECTED)
+        if (selectedAudioOutputId == BLUETOOTH_HEADSET_DEVICE_ID) {
+          when (state) {
+            AudioManager.SCO_AUDIO_STATE_CONNECTED -> {
+              Log.d("FlutterWebRtcDebug", "SCO connected")
+              isBluetoothScoFailed = false
+              bluetoothScoDeferred?.complete(Unit)
+              bluetoothScoDeferred = null
+              audioManager.isBluetoothScoOn = true
+              audioManager.isSpeakerphoneOn = false
+            }
+            AudioManager.SCO_AUDIO_STATE_DISCONNECTED -> {
+              Log.d("FlutterWebRtcDebug", "SCO disconnected")
+              isBluetoothScoFailed = true
+              bluetoothScoDeferred?.completeExceptionally(
+                  GetUserMediaException(
+                      "Bluetooth headset is unavailable at this moment",
+                      GetUserMediaException.Kind.Audio))
+              bluetoothScoDeferred = null
+              Handler(Looper.getMainLooper()).post { eventBroadcaster().onDeviceChange() }
+            }
           }
         }
       }
