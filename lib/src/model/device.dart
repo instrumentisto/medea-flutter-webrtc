@@ -41,7 +41,7 @@ class MediaDeviceInfo {
   /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
 
-  /// Flag which indicates that last attempt to use this device was failed.
+  /// Indicator whether the last attempt to use this device failed.
   late bool isFailed;
 }
 

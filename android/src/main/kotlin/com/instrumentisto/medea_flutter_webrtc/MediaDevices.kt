@@ -85,10 +85,10 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** Currently selected audio output ID by [setOutputAudioId] call. */
   private var selectedAudioOutputId: String = SPEAKERPHONE_DEVICE_ID
 
-  /** Flag which indicates that last Bluetooth SCO connection attempt was failed. */
+  /** Indicator whether the last Bluetooth SCO connection attempt failed. */
   private var isBluetoothScoFailed: Boolean = false
 
-  /** [CompletableDeferred] which will be resolved when Bluetooth SCO request will be completed. */
+  /** [CompletableDeferred] being resolved once Bluetooth SCO request is completed. */
   private var bluetoothScoDeferred: CompletableDeferred<Unit>? = null
 
   companion object {
@@ -113,7 +113,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       }
     }
 
-    /** Returns `true` if provided [AudioDeviceInfo] is related to the Bluetooth headset. */
+    /** Indicates if the provided [AudioDeviceInfo] is related to a Bluetooth headset. */
     private fun isBluetoothDevice(info: AudioDeviceInfo): Boolean {
       return info.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
           (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
@@ -130,8 +130,8 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   /**
-   * Subscribes to the [AudioManager.registerAudioDeviceCallback] which will fire up when new audio
-   * device is connected.
+   * Subscribes to the [AudioManager.registerAudioDeviceCallback] which fires once new audio device
+   * is connected.
    *
    * [isBluetoothHeadsetConnected] will be updated based on this subscription.
    */
@@ -153,7 +153,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
         null)
   }
 
-  /** Actualizes Bluetooth headset state based on [AudioManager.getDevices]. */
+  /** Actualizes Bluetooth headset state based on the [AudioManager.getDevices]. */
   private fun synchronizeHeadsetState() {
     if (audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).any { isBluetoothDevice(it) }) {
       setHeadsetState(true)

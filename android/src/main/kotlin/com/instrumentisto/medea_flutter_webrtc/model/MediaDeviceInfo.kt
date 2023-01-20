@@ -22,7 +22,7 @@ enum class MediaDeviceKind(val value: Int) {
  * @property deviceId Identifier of the represented media device.
  * @property label Human-readable device description (for example, "External USB Webcam").
  * @property kind Media kind of the media device.
- * @property isFailed Flag which indicates that last attempt to use this device was failed.
+ * @property isFailed Flag indicating whether the last attempt to use this device failed.
  */
 data class MediaDeviceInfo(
     val deviceId: String,
