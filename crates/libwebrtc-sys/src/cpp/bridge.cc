@@ -464,12 +464,27 @@ void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
 // Converts the provided `webrtc::VideoFrame` pixels to the ARGB scheme and
 // writes the result to the provided `dst_argb`.
 void video_frame_to_argb(const webrtc::VideoFrame& frame, uint8_t* dst_argb) {
-  rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
-      frame.video_frame_buffer()->ToI420());
+  auto src = frame.video_frame_buffer()->ToI420();
+  auto rotation = frame.rotation();
+
+  int rotated_width = src->width();
+  int rotated_height = src->height();
+  if (rotation == webrtc::kVideoRotation_90 ||
+      rotation == webrtc::kVideoRotation_270) {
+    std::swap(rotated_width, rotated_height);
+  }
+  int padded_width = (rotated_width + 3) & ~3;
+  rtc::scoped_refptr<webrtc::I420Buffer> buffer = webrtc::I420Buffer::Create(padded_width, rotated_height);
+            libyuv::I420Rotate(
+                src->DataY(), src->StrideY(), src->DataU(), src->StrideU(),
+                src->DataV(), src->StrideV(), buffer->MutableDataY(),
+                buffer->StrideY(), buffer->MutableDataU(), buffer->StrideU(),
+                buffer->MutableDataV(), buffer->StrideV(), padded_width,
+                src->height(), static_cast<libyuv::RotationMode>(rotation));
 
   libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     dst_argb, buffer->width() * 4, buffer->width(),
+                     dst_argb, padded_width * 4, buffer->width(),
                      buffer->height());
 }
 
