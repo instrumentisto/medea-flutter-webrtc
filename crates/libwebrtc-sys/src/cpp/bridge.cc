@@ -454,10 +454,12 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       frame.video_frame_buffer()->ToI420());
+  // Width should be aligned to 4 for dst_stride_abgr argument.
+  int aligned_width = (buffer->width() + 3) & ~3;
 
   libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     dst_abgr, buffer->width() * 4, buffer->width(),
+                     dst_abgr, aligned_width * 4, buffer->width(),
                      buffer->height());
 }
 
@@ -465,9 +467,7 @@ void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
 // writes the result to the provided `dst_argb`.
 void video_frame_to_argb(const webrtc::VideoFrame& frame, uint8_t* dst_argb) {
   auto buffer = frame.video_frame_buffer()->ToI420();
-  // Here we're taking the original width of the image and rounding
-  // it up to the nearest multiple of 4. We're doing it, because
-  // I420ToARGB needs to be rounded to byte size.
+  // Width should be aligned to 4 for dst_stride_argb argument.
   int aligned_width = (buffer->width() + 3) & ~3;
 
   libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
