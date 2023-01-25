@@ -468,11 +468,11 @@ void video_frame_to_argb(const webrtc::VideoFrame& frame, uint8_t* dst_argb) {
   // Here we're taking the original width of the image and rounding
   // it up to the nearest multiple of 4. We're doing it, because
   // I420ToARGB needs to be rounded to byte size.
-  int padded_width = (buffer->width() + 3) & ~3;
+  int aligned_width = (buffer->width() + 3) & ~3;
 
   libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     dst_argb, padded_width * 4, buffer->width(),
+                     dst_argb, aligned_width * 4, buffer->width(),
                      buffer->height());
 }
 
