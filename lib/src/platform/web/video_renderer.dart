@@ -101,6 +101,9 @@ class WebVideoRenderer extends VideoRenderer {
   int get videoHeight => value.height.toInt();
 
   @override
+  int get quarterTurnsRotation => 0;
+
+  @override
   int get textureId => _textureId;
 
   @override
