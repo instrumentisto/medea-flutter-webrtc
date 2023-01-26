@@ -454,16 +454,21 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
   rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       frame.video_frame_buffer()->ToI420());
+
   libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                     dst_abgr, aligned_width * 4, buffer->width(),
+                     dst_abgr, buffer->width() * 4, buffer->width(),
                      buffer->height());
 }
 
 // Converts the provided `webrtc::VideoFrame` pixels to the ARGB scheme and
 // writes the result to the provided `dst_argb`.
-void video_frame_to_argb(const webrtc::VideoFrame& frame, int argb_stride, uint8_t* dst_argb) {
-  auto buffer = frame.video_frame_buffer()->ToI420();
+void video_frame_to_argb(const webrtc::VideoFrame& frame,
+                         int argb_stride,
+                         uint8_t* dst_argb) {
+  rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
+      frame.video_frame_buffer()->ToI420());
+
   libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
                      dst_argb, argb_stride, buffer->width(),
