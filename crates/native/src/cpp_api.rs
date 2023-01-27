@@ -3,8 +3,8 @@ use crate::Frame;
 pub use self::cpp_api_bindings::*;
 
 #[allow(
+    let_underscore_drop,
     clippy::items_after_statements,
-    clippy::let_underscore_drop,
     clippy::trait_duplication_in_bounds
 )]
 #[cxx::bridge]
