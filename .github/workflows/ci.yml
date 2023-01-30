@@ -183,6 +183,7 @@ jobs:
         with:
           toolchain: stable
       # Container doesn't pick `~` (tilde) in `PATH`.
+      - run: git config --global --add safe.directory '*'
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - run: make rustup.targets only=linux
       - uses: subosito/flutter-action@v2
@@ -251,6 +252,7 @@ jobs:
         if: ${{ matrix.platform != 'android'
              && matrix.platform != 'ios' }}
 
+      - run: git config --global --add safe.directory '*'
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
