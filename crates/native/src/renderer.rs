@@ -54,9 +54,9 @@ mod frame_handler {
     pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
 
     #[allow(
-        let_underscore_drop,
         clippy::items_after_statements,
-        clippy::trait_duplication_in_bounds
+        clippy::trait_duplication_in_bounds,
+        clippy::let_underscore_drop
     )]
     #[cxx::bridge]
     mod cpp_api_bindings {
@@ -215,14 +215,9 @@ mod frame_handler {
     #[no_mangle]
     unsafe extern "C" fn get_argb_bytes(
         frame: *mut sys::VideoFrame,
-        argb_stride: i32,
         buffer: *mut u8,
     ) {
-        libwebrtc_sys::video_frame_to_argb(
-            frame.as_ref().unwrap(),
-            argb_stride,
-            buffer,
-        );
+        libwebrtc_sys::video_frame_to_argb(frame.as_ref().unwrap(), buffer);
     }
 
     /// Drops the provided [`sys::VideoFrame`].
