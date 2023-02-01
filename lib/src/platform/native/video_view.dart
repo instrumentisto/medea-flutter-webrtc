@@ -12,6 +12,7 @@ class VideoView extends StatelessWidget {
     this.mirror = false,
     this.enableContextMenu = true,
     this.filterQuality = FilterQuality.low,
+    this.shouldRotate = true,
   }) : super(key: key);
 
   final VideoRenderer _renderer;
@@ -19,6 +20,7 @@ class VideoView extends StatelessWidget {
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
+  final bool shouldRotate;
 
   NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;
 
@@ -30,43 +32,49 @@ class VideoView extends StatelessWidget {
   }
 
   Widget _buildVideoView(BoxConstraints constraints) {
-    return RotatedBox(
-        quarterTurns: videoRenderer.quarterTurnsRotation,
-        child: Center(
-          child: SizedBox(
-            width: constraints.maxWidth,
-            height: constraints.maxHeight,
-            child: FittedBox(
-              clipBehavior: Clip.hardEdge,
-              fit: objectFit == VideoViewObjectFit.contain
-                  ? BoxFit.contain
-                  : BoxFit.cover,
-              child: Center(
-                child: ValueListenableBuilder<RTCVideoValue>(
-                  valueListenable: videoRenderer,
-                  builder: (BuildContext context, RTCVideoValue value,
-                      Widget? child) {
-                    return SizedBox(
-                      width: constraints.maxHeight * value.aspectRatio,
-                      height: constraints.maxHeight,
-                      child: child,
-                    );
-                  },
-                  child: Transform(
-                    transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
-                    alignment: FractionalOffset.center,
-                    child: videoRenderer.textureId != null &&
-                            videoRenderer.srcObject != null
-                        ? Texture(
-                            textureId: videoRenderer.textureId!,
-                            filterQuality: filterQuality,
-                          )
-                        : Container(),
-                  ),
-                ),
+    return Center(
+      child: SizedBox(
+        width: constraints.maxWidth,
+        height: constraints.maxHeight,
+        child: FittedBox(
+          clipBehavior: Clip.hardEdge,
+          fit: objectFit == VideoViewObjectFit.contain
+              ? BoxFit.contain
+              : BoxFit.cover,
+          child: Center(
+            child: ValueListenableBuilder<RTCVideoValue>(
+              valueListenable: videoRenderer,
+              builder: (BuildContext context, RTCVideoValue value,
+                  Widget? child) {
+                var sizedBox = SizedBox(
+                  width: constraints.maxHeight * value.aspectRatio,
+                  height: constraints.maxHeight,
+                  child: child,
+                );
+                if (shouldRotate) {
+                  return RotatedBox(
+                    quarterTurns: value.quarterTurnsRotation,
+                    child: sizedBox,
+                  );
+                } else {
+                  return sizedBox;
+                }
+              },
+              child: Transform(
+                transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
+                alignment: FractionalOffset.center,
+                child: videoRenderer.textureId != null &&
+                        videoRenderer.srcObject != null
+                    ? Texture(
+                        textureId: videoRenderer.textureId!,
+                        filterQuality: filterQuality,
+                      )
+                    : Container(),
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
