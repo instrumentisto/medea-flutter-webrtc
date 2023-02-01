@@ -150,7 +150,10 @@ jobs:
         with:
           toolchain: stable
       - run: make rustup.targets only=${{ matrix.platform }}
+      # TODO: Upgrade flutter to v3.7.0.
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.3.10'
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
       # Pin Xcode version for better compatibility.
@@ -187,8 +190,12 @@ jobs:
           toolchain: stable
       # Container doesn't pick `~` (tilde) in `PATH`.
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - run: git config --global --add safe.directory '*'
       - run: make rustup.targets only=linux
+      # TODO: Upgrade flutter to v3.7.0.
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.3.10'
       - run: flutter config --enable-linux-desktop
 
       - run: make cargo.build platform=linux debug=no
