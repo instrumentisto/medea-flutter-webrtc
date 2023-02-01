@@ -4,7 +4,7 @@ pub use self::cpp_api_bindings::*;
 
 #[allow(
     clippy::items_after_statements,
-    let_underscore_drop,
+    clippy::let_underscore_drop,
     clippy::trait_duplication_in_bounds
 )]
 #[cxx::bridge]
