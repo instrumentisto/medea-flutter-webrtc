@@ -103,7 +103,7 @@ flutter.build:
 #	make flutter.fmt [check=(no|yes)]
 
 flutter.fmt:
-	dart format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
+	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
 ifeq ($(wildcard .packages),)
 	flutter pub get
 endif
