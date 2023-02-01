@@ -157,6 +157,40 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     self.rendererLock.unlock()
   }
 
+  /// Corrects rotation of the provided `RTCVideoFrame` and converts it into
+  /// I420 format.
+  func correctRotation(frame: RTCVideoFrame) -> RTCI420Buffer {
+    let src = frame.buffer.toI420()
+    let rotation = frame.rotation
+    var rotatedWidth = src.width
+    var rotatedHeight = src.height
+
+    if rotation == ._90 || rotation == ._270 {
+      rotatedWidth = src.height
+      rotatedHeight = src.width
+    }
+
+    let buffer = RTCI420Buffer(width: rotatedWidth, height: rotatedHeight)
+    libyuv_I420Rotate(
+      src.dataY,
+      src.strideY,
+      src.dataU,
+      src.strideU,
+      src.dataV,
+      src.strideV,
+      UnsafeMutablePointer(mutating: buffer.dataY),
+      buffer.strideY,
+      UnsafeMutablePointer(mutating: buffer.dataU),
+      buffer.strideU,
+      UnsafeMutablePointer(mutating: buffer.dataV),
+      buffer.strideV,
+      src.width,
+      src.height,
+      rotation
+    )
+    return buffer
+  }
+
   /// Sets the `MediaStreamTrackProxy` which will be rendered by this renderer.
   func setVideoTrack(newTrack: MediaStreamTrackProxy?) {
     if newTrack == nil {
@@ -203,6 +237,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       self.rendererLock.unlock()
       return
     }
+    let buffer = self.correctRotation(frame: renderFrame!)
     let isFrameWidthChanged = self.frameWidth != renderFrame!.buffer.width
     let isFrameHeightChanged = self.frameHeight != renderFrame!.buffer.height
     if isFrameWidthChanged || isFrameHeightChanged {
@@ -223,16 +258,16 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
     let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
     libyuv_I420ToARGB(
-      renderFrame!.buffer.dataY,
-      renderFrame!.buffer.strideY,
-      renderFrame!.buffer.dataU,
-      renderFrame!.buffer.strideU,
-      renderFrame!.buffer.dataV,
-      renderFrame!.buffer.strideV,
+      buffer.dataY,
+      buffer.strideY,
+      buffer.dataU,
+      buffer.strideU,
+      buffer.dataV,
+      buffer.strideV,
       UnsafeMutablePointer<UInt8>(OpaquePointer(dst)),
       Int32(bytesPerRow),
-      renderFrame!.buffer.width,
-      renderFrame!.buffer.height
+      buffer.width,
+      buffer.height
     )
     CVPixelBufferUnlockBaseAddress(
       self.pixelBuffer!,

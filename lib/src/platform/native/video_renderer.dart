@@ -45,9 +45,6 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   int get videoHeight => value.height.toInt();
 
   @override
-  int get quarterTurnsRotation => value.quarterTurnsRotation;
-
-  @override
   int? get textureId => _textureId;
 
   @override
