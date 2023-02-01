@@ -190,6 +190,7 @@ jobs:
           toolchain: stable
       # Container doesn't pick `~` (tilde) in `PATH`.
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - run: git config --global --add safe.directory '*'
       - run: make rustup.targets only=linux
       # TODO: Upgrade flutter to v3.7.0.
       - uses: subosito/flutter-action@v2
