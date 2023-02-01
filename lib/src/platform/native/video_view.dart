@@ -44,8 +44,8 @@ class VideoView extends StatelessWidget {
           child: Center(
             child: ValueListenableBuilder<RTCVideoValue>(
               valueListenable: videoRenderer,
-              builder: (BuildContext context, RTCVideoValue value,
-                  Widget? child) {
+              builder:
+                  (BuildContext context, RTCVideoValue value, Widget? child) {
                 var sizedBox = SizedBox(
                   width: constraints.maxHeight * value.aspectRatio,
                   height: constraints.maxHeight,
