@@ -191,7 +191,10 @@ jobs:
       # Container doesn't pick `~` (tilde) in `PATH`.
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - run: make rustup.targets only=linux
+      # TODO: Upgrade flutter to v3.7.0.
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.3.10'
       - run: flutter config --enable-linux-desktop
 
       - run: make cargo.build platform=linux debug=no
