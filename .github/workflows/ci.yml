@@ -89,7 +89,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      # TODO: Upgrade flutter to v3.7.0.
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.3.10'
 
       - run: flutter pub get
 
