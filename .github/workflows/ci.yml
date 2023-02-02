@@ -424,7 +424,7 @@ jobs:
           PUB_CREDENTIALS: ${{ secrets.PUBDEV_CREDS }}
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - run: dart pub publish --force
+      - run: flutter pub publish --force
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Logout from pub.dev
