@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # TODO: Upgrade flutter to v3.7.0.
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.3.10'
@@ -150,7 +150,7 @@ jobs:
         with:
           toolchain: stable
       - run: make rustup.targets only=${{ matrix.platform }}
-      # TODO: Upgrade flutter to v3.7.0.
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.3.10'
@@ -192,7 +192,7 @@ jobs:
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - run: git config --global --add safe.directory '*'
       - run: make rustup.targets only=linux
-      # TODO: Upgrade flutter to v3.7.0.
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.3.10'
@@ -242,7 +242,7 @@ jobs:
         if: ${{ matrix.platform != 'android'
              && matrix.platform != 'ios' }}
 
-      # TODO: Upgrade flutter to v3.7.0.
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.3.10'
