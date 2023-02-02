@@ -12,7 +12,7 @@ class VideoView extends StatelessWidget {
     this.mirror = false,
     this.enableContextMenu = true,
     this.filterQuality = FilterQuality.low,
-    this.shouldRotate = true,
+    this.autoRotate = true,
   }) : super(key: key);
 
   final VideoRenderer _renderer;
@@ -20,7 +20,7 @@ class VideoView extends StatelessWidget {
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
-  final bool shouldRotate;
+  final bool autoRotate;
 
   NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;
 
@@ -51,7 +51,7 @@ class VideoView extends StatelessWidget {
                   height: constraints.maxHeight,
                   child: child,
                 );
-                if (shouldRotate) {
+                if (autoRotate) {
                   return RotatedBox(
                     quarterTurns: value.quarterTurnsRotation,
                     child: sizedBox,
