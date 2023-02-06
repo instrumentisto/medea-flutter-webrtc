@@ -93,8 +93,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
-      - run: git config --global --add safe.directory /opt/hostedtoolcache/flutter/stable-3.7.0-x64
+        with:
+          flutter-version: '3.3.10'
 
       - run: flutter pub get
 
@@ -152,8 +154,10 @@ jobs:
         with:
           toolchain: stable
       - run: make rustup.targets only=${{ matrix.platform }}
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
-      - run: git config --global --add safe.directory /opt/hostedtoolcache/flutter/stable-3.7.0-x64
+        with:
+          flutter-version: '3.3.10'
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
       - name: Install LLVM and Clang
@@ -196,9 +200,12 @@ jobs:
           toolchain: stable
       # Container doesn't pick `~` (tilde) in `PATH`.
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - run: git config --global --add safe.directory '*'
       - run: make rustup.targets only=linux
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
-      - run: git config --global --add safe.directory /opt/hostedtoolcache/flutter/stable-3.7.0-x64
+        with:
+          flutter-version: '3.3.10'
       - run: flutter config --enable-linux-desktop
 
       - run: make cargo.build platform=linux debug=no
@@ -245,8 +252,10 @@ jobs:
         if: ${{ matrix.platform != 'android'
              && matrix.platform != 'ios' }}
 
+      # TODO: Upgrade Flutter to 3.7.0 version.
       - uses: subosito/flutter-action@v2
-      - run: git config --global --add safe.directory /opt/hostedtoolcache/flutter/stable-3.7.0-x64
+        with:
+          flutter-version: '3.3.10'
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android'
              && matrix.platform != 'ios' }}
@@ -392,7 +401,10 @@ jobs:
                && !contains(steps.commit.outputs.message, '[publish]')
              ) }}" >> $GITHUB_OUTPUT
 
+      # TODO: Upgrade Flutter to latest stable version.
       - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: 2.18.6
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - uses: actions/download-artifact@v3

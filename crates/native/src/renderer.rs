@@ -215,9 +215,14 @@ mod frame_handler {
     #[no_mangle]
     unsafe extern "C" fn get_argb_bytes(
         frame: *mut sys::VideoFrame,
+        argb_stride: i32,
         buffer: *mut u8,
     ) {
-        libwebrtc_sys::video_frame_to_argb(frame.as_ref().unwrap(), buffer);
+        libwebrtc_sys::video_frame_to_argb(
+            frame.as_ref().unwrap(),
+            argb_stride,
+            buffer,
+        );
     }
 
     /// Drops the provided [`sys::VideoFrame`].
