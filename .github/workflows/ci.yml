@@ -365,7 +365,7 @@ jobs:
                && !contains(steps.commit.outputs.message, '[publish]')
              ) }}" >> $GITHUB_OUTPUT
 
-      - uses: dart-lang/setup-dart@v1.4
+      - uses: subosito/flutter-action@v2
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - uses: actions/download-artifact@v3
@@ -401,7 +401,7 @@ jobs:
           PUB_CREDENTIALS: ${{ secrets.PUBDEV_CREDS }}
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - run: dart pub publish --force
+      - run: flutter pub publish --force
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Logout from pub.dev
