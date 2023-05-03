@@ -11,6 +11,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+// https://github.com/instrumentisto/libwebrtc-bin/releases/download/112.0.5615.165
+
 use anyhow::bail;
 use flate2::read::GzDecoder;
 use sha2::{Digest, Sha256};
@@ -22,7 +24,7 @@ use walkdir::{DirEntry, WalkDir};
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 static LIBWEBRTC_URL: &str =
     "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                    /106.0.5249.91";
+                                                    /112.0.5615.165";
 
 fn main() -> anyhow::Result<()> {
     download_libwebrtc()?;
@@ -108,19 +110,19 @@ fn get_target() -> anyhow::Result<String> {
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
-            "0e953fae2c854c147970b2fcca78c45c456f618df7b35a56ea88cec7bdb7400f"
+            "0e953fae2c854c147970b2fcca78c45c456f618df7b35a56ea88cec7bdb7400f" // todo
         }
         "x86_64-unknown-linux-gnu" => {
-            "38077e57322ed5f0934f8e960eae7769dfbe5619f345b559cc7bca5e32c912ed"
+            "38077e57322ed5f0934f8e960eae7769dfbe5619f345b559cc7bca5e32c912ed" // todo
         }
         "aarch64-apple-darwin" => {
-            "a6fc75d433b10ec2a646064cbbcc6c1f5d0783fb342dad144521bb8dc7bcd886"
+            "a6fc75d433b10ec2a646064cbbcc6c1f5d0783fb342dad144521bb8dc7bcd886" // todo
         }
         "x86_64-apple-darwin" => {
-            "433db8207ed8343bdf751505597213c3267b8ef52287a49466ce7bb7df145e0c"
+            "433db8207ed8343bdf751505597213c3267b8ef52287a49466ce7bb7df145e0c" // todo
         }
         "x86_64-pc-windows-msvc" => {
-            "51665201452ff7ec59aa73c59f2c532f8e977a8fa936f093c343a631f3986a96"
+            "bcc46577a5575bfb2f1f0538d3a864088f464c1b24e628f81118806aee42a60d"
         }
         arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })
