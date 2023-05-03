@@ -6,6 +6,7 @@ mod api;
     clippy::semicolon_if_nothing_returned,
     clippy::too_many_lines,
     clippy::wildcard_imports,
+    clippy::let_underscore_untyped,
     let_underscore_drop
 )]
 mod bridge_generated;

@@ -1,5 +1,4 @@
 use super::*;
-use flutter_rust_bridge::ffi::ffi::DartCObject;
 // Section: wire functions
 
 #[no_mangle]
@@ -551,12 +550,24 @@ impl NewWithNullPtr for wire_AudioConstraints {
     }
 }
 
+impl Default for wire_AudioConstraints {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
 impl NewWithNullPtr for wire_MediaStreamConstraints {
     fn new_with_null_ptr() -> Self {
         Self {
             audio: core::ptr::null_mut(),
             video: core::ptr::null_mut(),
         }
+    }
+}
+
+impl Default for wire_MediaStreamConstraints {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
     }
 }
 
@@ -570,6 +581,12 @@ impl NewWithNullPtr for wire_RtcConfiguration {
     }
 }
 
+impl Default for wire_RtcConfiguration {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
 impl NewWithNullPtr for wire_RtcIceServer {
     fn new_with_null_ptr() -> Self {
         Self {
@@ -577,6 +594,12 @@ impl NewWithNullPtr for wire_RtcIceServer {
             username: core::ptr::null_mut(),
             credential: core::ptr::null_mut(),
         }
+    }
+}
+
+impl Default for wire_RtcIceServer {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
     }
 }
 
@@ -592,11 +615,17 @@ impl NewWithNullPtr for wire_VideoConstraints {
     }
 }
 
+impl Default for wire_VideoConstraints {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
 // Section: sync execution mode utility
 
 #[no_mangle]
 pub extern "C" fn free_WireSyncReturn(ptr: support::WireSyncReturn) {
     unsafe {
-        let _: Box<DartCObject> = support::box_from_leak_ptr(ptr);
+        let _ = support::box_from_leak_ptr(ptr);
     };
 }
