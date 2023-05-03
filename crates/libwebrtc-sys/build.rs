@@ -11,8 +11,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-// https://github.com/instrumentisto/libwebrtc-bin/releases/download/112.0.5615.165
-
 use anyhow::bail;
 use flate2::read::GzDecoder;
 use sha2::{Digest, Sha256};
