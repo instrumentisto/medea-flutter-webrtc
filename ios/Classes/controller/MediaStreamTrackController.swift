@@ -68,10 +68,10 @@ class MediaStreamTrackController {
       result(nil)
     case "clone":
       do {
-        result(
+        try result(
           MediaStreamTrackController(
             messenger: self.messenger,
-            track: try self.track.fork()
+            track: self.track.fork()
           )
           .asFlutterResult()
         )
