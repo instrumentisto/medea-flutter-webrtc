@@ -365,9 +365,6 @@ jobs:
                && !contains(steps.commit.outputs.message, '[publish]')
              ) }}" >> $GITHUB_OUTPUT
 
-      - uses: subosito/flutter-action@v2
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
       - uses: actions/download-artifact@v3
         with:
           name: build-linux
@@ -391,22 +388,10 @@ jobs:
         if: ${{ steps.skip.outputs.no == 'true'
              && !startsWith(github.ref, 'refs/tags/') }}
 
-      - name: Login to pub.dev
-        run: |
-          echo "$PUB_CREDENTIALS" > ~/pub-credentials.json
-          mkdir -p ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/
-          cp -f ~/pub-credentials.json \
-                ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
-        env:
-          PUB_CREDENTIALS: ${{ secrets.PUBDEV_CREDS }}
+      - name: Publish package to pub.dev
         if: ${{ steps.skip.outputs.no == 'true' }}
-
-      - run: flutter pub publish --force
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
-      - name: Logout from pub.dev
-        run: |
-          rm -rf ~/pub-credentials.json \
-                 ${XDG_CONFIG_HOME:-${HOME:-default}}/dart/pub-credentials.json
-        if: ${{ always()
-             && steps.skip.outputs.no == 'true' }}
+        uses: sakebook/actions-flutter-pub-publisher@v1.4.1
+        with:
+          credential: ${{ secrets.PUBDEV_CREDS }}
+          flutter_package: true
+          skip_test: true
