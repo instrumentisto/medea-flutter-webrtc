@@ -86,10 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # TODO: Upgrade Flutter to 3.10.0 version.
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.7.12'
 
       - run: flutter pub get
 
@@ -147,10 +144,7 @@ jobs:
         with:
           toolchain: stable
       - run: make rustup.targets only=${{ matrix.platform }}
-      # TODO: Upgrade Flutter to 3.10.0 version.
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.7.12'
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
       # Pin Xcode version for better compatibility.
@@ -189,10 +183,7 @@ jobs:
       - run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - run: git config --global --add safe.directory '*'
       - run: make rustup.targets only=linux
-      # TODO: Upgrade Flutter to 3.10.0 version.
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.7.12'
       - run: flutter config --enable-linux-desktop
 
       - run: make cargo.build platform=linux debug=no
@@ -222,7 +213,6 @@ jobs:
           - linux
           - macos
           - windows
-    # TODO: Switch to `macos-latest` once it becomes MacOS 13.
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-13' }}
@@ -237,10 +227,7 @@ jobs:
         if: ${{ matrix.platform != 'android'
              && matrix.platform != 'ios' }}
 
-      # TODO: Upgrade Flutter to 3.10.0 version.
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.7.12'
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform != 'android'
              && matrix.platform != 'ios' }}
@@ -378,10 +365,7 @@ jobs:
                && !contains(steps.commit.outputs.message, '[publish]')
              ) }}" >> $GITHUB_OUTPUT
 
-      # TODO: Upgrade Flutter to 3.10.0 version.
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.7.12'
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - uses: actions/download-artifact@v3
