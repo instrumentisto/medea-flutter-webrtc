@@ -1,6 +1,6 @@
 import WebRTC
 
-/// Source of an input video of an user.
+/// Source of an input video of a user.
 ///
 /// This source can create new `MediaStreamTrackProxy`s with the same video
 /// source.
@@ -23,7 +23,7 @@ class VideoMediaTrackSourceProxy: MediaTrackSource {
   /// Count of all alive `MediaStreamTrackProxy`s created from this source.
   private var tracksCount: Int = 0
 
-  /// `FacingMode` of track.
+  /// `FacingMode` of the track.
   private var facingMode: FacingMode
 
   /// Initializes a new `VideoMediaTrackSourceProxy`.

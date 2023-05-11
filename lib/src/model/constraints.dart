@@ -16,7 +16,7 @@ class DisplayConstraints {
   }
 }
 
-/// Directions in which a camera may produce a video.
+/// Possible directions in which a camera may produce video.
 enum FacingMode {
   /// Indicates that video source is facing toward the user (this includes, for
   /// example, the front-facing camera on a smartphone).

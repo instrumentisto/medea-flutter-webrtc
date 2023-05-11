@@ -55,6 +55,6 @@ abstract class MediaStreamTrack {
   /// Disposes this [MediaStreamTrack] instance.
   Future<void> dispose();
 
-  /// Returns [FacingMode] of the [MediaStreamTrack].
+  /// Returns [FacingMode] of this [MediaStreamTrack].
   FacingMode? facingMode();
 }
