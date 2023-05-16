@@ -1,35 +1,20 @@
-## This is a fork of a flutter-webrtc/flutter-webrtc.
+# medea_flutter_webrtc
 
-# Flutter-WebRTC
+WebRTC plugin for Flutter Mobile/Desktop.
+Designed to be used as backend for [medea-jason] and uses `libwebrtc` built in [libwebrtc-bin].
+Initially a fork of a [flutter-webrtc] but at this moment there is hardly anything left from the initial upstream version.
 
-WebRTC plugin for Flutter Mobile/Desktop/Web
-
-</br>
-<p align="center">
-<strong>Sponsored with 💖 &nbsp by</strong><br />
-<a href="https://getstream.io/chat/flutter/tutorial/?utm_source=https://github.com/flutter-webrtc/flutter-webrtc&utm_medium=github&utm_content=developer&utm_term=flutter" target="_blank">
-<img src="https://stream-blog-v2.imgix.net/blog/wp-content/uploads/f7401112f41742c4e173c30d4f318cb8/stream_logo_white.png?w=350" alt="Stream Chat" style="margin: 8px" />
-</a>
-<br />
-Enterprise Grade APIs for Feeds & Chat. <a href="https://getstream.io/chat/flutter/tutorial/?utm_source=https://github.com/flutter-webrtc/flutter-webrtc&utm_medium=github&utm_content=developer&utm_term=flutter" target="_blank">Try the Flutter Chat tutorial</a> 💬
-</p>
-
-</br>
-
-## Functionality
-
-| Feature | Android | iOS | [Web](https://flutter.dev/web) | macOS | Windows | Linux | [Fuchsia](https://fuchsia.dev/) | [Embedded](https://github.com/sony/flutter-elinux) |
-| :-------------: | :-------------:| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| Audio/Video | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [WIP] | | [WIP] |
-| Data Channel | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [WIP] | | [WIP] |
-| Screen Capture | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | | | | |
-| Unified-Plan | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [WIP] | | [WIP] |
-| Simulcast | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [WIP] | | | |
-| MediaRecorder| :warning: | :warning: | :heavy_check_mark: | | | | | |
+Supported platforms:
+- macOS 10.11+
+- Linux (with Pulse and X11 for screen sharing)
+- Windows
+- Android 24+
+- iOS 13+
+- Web (somewhat, since web support is implemented in [medea-jason])
 
 ## Usage
 
-Add `flutter_webrtc` as a [dependency in your pubspec.yaml file](https://flutter.io/using-packages/).
+Add `medea_flutter_webrtc` as a [dependency in your pubspec.yaml file](https://flutter.io/using-packages/).
 
 ### iOS
 
@@ -49,20 +34,22 @@ This entry allows your app to access camera and microphone.
 Ensure the following permission is present in your Android Manifest file, located in `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 ```xml
-<uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera" />
 <uses-feature android:name="android.hardware.camera.autofocus" />
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+<uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
 
 If you need to use a Bluetooth device, please add:
 
 ```xml
-<uses-permission android:name="android.permission.BLUETOOTH" />
-<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 ```
 
 The Flutter project template adds it, so it may already be there.
@@ -81,51 +68,30 @@ android {
 
 If necessary, in the same `build.gradle` you will need to increase `minSdkVersion` of `defaultConfig` up to `21` (currently default Flutter generator set it to `16`).
 
+### Main components interaction scheme
+
+```mermaid
+flowchart TD
+    A[User App] -->|Dart| B[medea_flutter_webrtc] -->|Dart| C{Platform}
+        C --> D["Mobile (Dart)"]
+            D -->|Platform Channel| F["Native Mobile (Kotlin / Swift)"]
+        C --> E["Desktop (Dart)"]
+            E -->|"FFI (flutter_rust_bridge)"| G["flutter-webrtc-native (Rust) "]
+                G -->|Rust| H["libwebrtc-sys (Rust)"]
+                    H -->|"FFI (cxx)"| I["Native Desktop (c++ / objc)"]
+```
+
 ### Important reminder
 When you compile the release apk, you need to add the following operations,
 [Setup Proguard Rules](https://github.com/flutter-webrtc/flutter-webrtc/commit/d32dab13b5a0bed80dd9d0f98990f107b9b514f4)
-
-## Contributing
-
-The project is inseparable from the contributors of the community.
-
-- [CloudWebRTC](https://github.com/cloudwebrtc) - Original Author
-- [RainwayApp](https://github.com/rainwayapp) - Sponsor
-- [亢少军](https://github.com/kangshaojun) - Sponsor
-- [ION](https://github.com/pion/ion) - Sponsor
-- [reSipWebRTC](https://github.com/reSipWebRTC) - Sponsor
-- [沃德米科技](https://github.com/woodemi)-[36记手写板](https://www.36notes.com) - Sponsor
 
 ### Example
 
 For more examples, please refer to [flutter-webrtc-demo](https://github.com/cloudwebrtc/flutter-webrtc-demo/).
 
-## Contributors
 
-### Code Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/cloudwebrtc/flutter-webrtc/graphs/contributors"><img src="https://opencollective.com/flutter-webrtc/contributors.svg?width=890&button=false" /></a>
 
-### Financial Contributors
-
-Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/flutter-webrtc/contribute)]
-
-#### Individuals
-
-<a href="https://opencollective.com/flutter-webrtc"><img src="https://opencollective.com/flutter-webrtc/individuals.svg?width=890"></a>
-
-#### Organizations
-
-Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/flutter-webrtc/contribute)]
-
-<a href="https://opencollective.com/flutter-webrtc/organization/0/website"><img src="https://opencollective.com/flutter-webrtc/organization/0/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/1/website"><img src="https://opencollective.com/flutter-webrtc/organization/1/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/2/website"><img src="https://opencollective.com/flutter-webrtc/organization/2/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/3/website"><img src="https://opencollective.com/flutter-webrtc/organization/3/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/4/website"><img src="https://opencollective.com/flutter-webrtc/organization/4/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/5/website"><img src="https://opencollective.com/flutter-webrtc/organization/5/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/6/website"><img src="https://opencollective.com/flutter-webrtc/organization/6/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/7/website"><img src="https://opencollective.com/flutter-webrtc/organization/7/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/8/website"><img src="https://opencollective.com/flutter-webrtc/organization/8/avatar.svg"></a>
-<a href="https://opencollective.com/flutter-webrtc/organization/9/website"><img src="https://opencollective.com/flutter-webrtc/organization/9/avatar.svg"></a>
+[medea-jason]: https://github.com/instrumentisto/medea-jason
+[libwebrtc-bin]: https://github.com/instrumentisto/libwebrtc-bin
+[flutter-webrtc]: https://github.com/flutter-webrtc/flutter-webrtc

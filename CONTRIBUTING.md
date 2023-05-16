@@ -5,6 +5,9 @@ We love contributions from everyone, whether it's raising an issue, reporting a 
 
 1. [Code style](#code-style)
     - [Rust](#rust) 
+    - [Swift](#swift)
+    - [Kotlin](#kotlin)
+    - [Dart](#dart)
 
 
 
@@ -248,10 +251,29 @@ struct UserId(u64);
     ```
 
 
+### Swift
+
+**All [Swift] source code must be formatted with [swiftformat], customized by project settings ([`.swiftformat`](.swiftformat) file).**
+
+### Kotlin
+
+**All [Kotlin] source code must be formatted with [ktfmt].**
+
+### Dart
+
+**All [Dart] source code must be formatted with [dartfmt].**
+
+
 
 
 [Clippy]: https://github.com/rust-lang/rust-clippy
 [Rust]: https://www.rust-lang.org
+[Swift]: https://www.apple.com/swift/
+[Kotlin]: https://kotlinlang.org/
+[Dart]: https://dart.dev/
 [rustfmt]: https://github.com/rust-lang/rustfmt
+[swiftformat]: https://github.com/nicklockwood/SwiftFormat
+[ktfmt]: https://github.com/facebook/ktfmt
+[dartfmt]: https://dart.dev/tools/dart-format
 
 [1]: https://doc.rust-lang.org/rustdoc/write-documentation/linking-to-items-by-name.html
