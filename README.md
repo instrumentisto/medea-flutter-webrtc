@@ -87,7 +87,7 @@ When you compile the release apk, you need to add the following operations,
 
 ### Example
 
-For more examples, please refer to [flutter-webrtc-demo](https://github.com/cloudwebrtc/flutter-webrtc-demo/).
+For more examples, please refer to [flutter-webrtc-demo](example).
 
 
 

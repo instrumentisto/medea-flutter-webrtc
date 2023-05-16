@@ -6,35 +6,35 @@
 ### Added
 
 - Library API:
-  - `MediaStreamTrack.facingMode` getter (#109)
-  - `MediaStreamTrack.state` getter (#69)
-  - `MediaStreamTrack.onEnded` callback on Windows (#35, #10, #37)
-  - `MediaStreamTrack.setEnabled` method (#28)
-  - Flutter-side video rotation for all native platforms (#103)
-  - `onDeviceChange` callback (#101, #54, #42, #26)
-  - Linux support (#86, #50, #18, #19, #10, #34)
-  - `getDisplayMedia` method (#10, #20)
-  - `enumerateDisplays` method (#85)
-  - `setOutputAudioId` method (#39, #98) 
-  - `microphoneVolumeIsAvailable`, `microphoneVolume`, `setMicrophoneVolume` methods (#57)
-  - `AudioRenderer` object (#45)
-  - `getStats` method (#88, #91)
-  - `enableFakeMedia` method (#65, #71, #82)
-  - Atomic `RtpTransceiver.setRecv` and `RtpTransceiver.setSend` methods (#73)
-  - Way to disable context menu over `RTCVideoView` in Web (#9)
+  - `MediaStreamTrack.facingMode` getter ([#109])
+  - `MediaStreamTrack.state` getter ([#69])
+  - `MediaStreamTrack.onEnded` callback on Windows ([#35], [#10], [#37])
+  - `MediaStreamTrack.setEnabled` method ([#28])
+  - Flutter-side video rotation for all native platforms ([#103])
+  - `onDeviceChange` callback ([#101], [#54], [#42], [#26])
+  - Linux support ([#86], [#50], [#18], [#19], [#10], [#34])
+  - `getDisplayMedia` method ([#10], [#20])
+  - `enumerateDisplays` method ([#85])
+  - `setOutputAudioId` method ([#39], [#98])
+  - `microphoneVolumeIsAvailable`, `microphoneVolume`, `setMicrophoneVolume` methods ([#57])
+  - `AudioRenderer` object ([#45])
+  - `getStats` method ([#88], [#91])
+  - `enableFakeMedia` method ([#65], [#71], [#82])
+  - Atomic `RtpTransceiver.setRecv` and `RtpTransceiver.setSend` methods ([#73])
+  - Way to disable context menu over `RTCVideoView` in Web ([#9])
   
 ### Fixed
-  - `WebVideoRenderer` not applying `mirror` and `enableContextMenu` values (#62)
-  - Synchronize renderers after Java `VideoTrack` update (#76)
-  - `WebAudioRenderer` not removing its audio element (#46)
-  - Mirroring issues with `RTCVideoRendererWeb` (#15, #14)
-  - Initial video rendering glitch on macOS (#102)
-  - Bluetooth headset detection on Android (#78)
+  - `WebVideoRenderer` not applying `mirror` and `enableContextMenu` values ([#62])
+  - Synchronize renderers after Java `VideoTrack` update ([#76])
+  - `WebAudioRenderer` not removing its audio element ([#46])
+  - Mirroring issues with `RTCVideoRendererWeb` ([#15], [#14])
+  - Initial video rendering glitch on macOS ([#102])
+  - Bluetooth headset detection on Android ([#78])
 
 ### Changed
 
-- Rewrite Android implementation (#6, #31, #48, #75, #77, #80)
-- Rewrite iOS platform support (#89, #92, #93, #94, #100)
+- Rewrite Android implementation ([#6], [#31], [#48], [#75], [#77], [#80])
+- Rewrite iOS platform support ([#89], [#92], [#93], [#94], [#100])
 
 [#6]: https://github.com/instrumentisto/flutter-webrtc/pull/6
 [#9]: https://github.com/instrumentisto/flutter-webrtc/pull/9
