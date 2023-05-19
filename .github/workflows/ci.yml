@@ -349,15 +349,19 @@ jobs:
         with:
           fetch-depth: 2  # for PRs only
 
+      - name: Parse pubspec version
+        id: pubspec
+        run: echo "version=$(grep -m1 'version:' pubspec.yaml | cut -d' ' -f2)"
+             >> $GITHUB_OUTPUT
       - name: Parse release version
         id: release
         run: echo "version=${GITHUB_REF#refs/tags/}"
              >> $GITHUB_OUTPUT
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      - name: Verify release version matches pubspec
+      - name: Verify release version matches pubspec version
         run: |
           test "${{ steps.release.outputs.version }}" \
-            == "$(grep -m1 'version: ' pubspec.yaml | cut -d' ' -f2)"
+            == "${{ steps.pubspec.outputs.version }}"
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
 
       - name: Retrieve commit message and hash
@@ -372,8 +376,11 @@ jobs:
       - name: Check whether should be skipped
         id: skip
         run: echo "no=${{ !(
-               github.event_name == 'pull_request'
-               && !contains(steps.commit.outputs.message, '[publish]')
+               (!startsWith(github.ref, 'refs/tags/')
+                && !contains(steps.pubspec.outputs.version, '-'))
+               ||
+               (github.event_name == 'pull_request'
+                && !contains(steps.commit.outputs.message, '[publish]'))
              ) }}" >> $GITHUB_OUTPUT
 
       - uses: subosito/flutter-action@v2
