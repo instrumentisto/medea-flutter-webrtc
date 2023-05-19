@@ -4,10 +4,10 @@ Contribution Guide
 We love contributions from everyone, whether it's raising an issue, reporting a bug, adding a feature, or helping improve a documentation. Maintaining the `medea_flutter_webrtc` plugin for all the platforms is not an easy task, so everything you do is support for the project.
 
 1. [Code style](#code-style)
-    - [Rust](#rust) 
-    - [Swift](#swift)
-    - [Kotlin](#kotlin)
+    - [Rust](#rust)
     - [Dart](#dart)
+    - [Kotlin](#kotlin)
+    - [Swift](#swift)
 
 
 
@@ -17,7 +17,7 @@ We love contributions from everyone, whether it's raising an issue, reporting a 
 
 ### Rust
 
-**All [Rust] source code must be formatted with [rustfmt] and linted with [Clippy] linter**, customized by project settings ([`.rustfmt.toml`](.rustfmt.toml) and [`.clippy.toml`](.clippy.toml) files).
+**All [Rust] source code must be formatted with [rustfmt] and linted with [Clippy] linter** (see `cargo.fmt` and `cargo.lint` commands in [`Makefile`]), customized by project settings ([`.rustfmt.toml`](.rustfmt.toml) and [`.clippy.toml`](.clippy.toml) files).
 
 Additional rules, not handled by [rustfmt] and [Clippy] are described below.
 
@@ -251,29 +251,32 @@ struct UserId(u64);
     ```
 
 
-### Swift
+### Dart
 
-**All [Swift] source code must be formatted with [swiftformat], customized by project settings ([`.swiftformat`](.swiftformat) file).**
+**All [Dart] source code must be formatted with [dartfmt]** (see `flutter.fmt` command in [`Makefile`]).
+
 
 ### Kotlin
 
-**All [Kotlin] source code must be formatted with [ktfmt].**
-
-### Dart
-
-**All [Dart] source code must be formatted with [dartfmt].**
+**All [Kotlin] source code must be formatted with [ktfmt]** (see `kt.fmt` command in [`Makefile`]).
 
 
+### Swift
+
+**All [Swift] source code must be formatted with [swiftformat]** (see `swift.fmt` command in [`Makefile`]), customized by project settings ([`.swiftformat`](.swiftformat) file).
 
 
+
+
+[`Makefile`]: Makefile
 [Clippy]: https://github.com/rust-lang/rust-clippy
-[Rust]: https://www.rust-lang.org
-[Swift]: https://www.apple.com/swift/
-[Kotlin]: https://kotlinlang.org/
-[Dart]: https://dart.dev/
-[rustfmt]: https://github.com/rust-lang/rustfmt
-[swiftformat]: https://github.com/nicklockwood/SwiftFormat
-[ktfmt]: https://github.com/facebook/ktfmt
+[Dart]: https://dart.dev
 [dartfmt]: https://dart.dev/tools/dart-format
+[Kotlin]: https://kotlinlang.org
+[ktfmt]: https://github.com/facebook/ktfmt
+[Rust]: https://www.rust-lang.org
+[rustfmt]: https://github.com/rust-lang/rustfmt
+[Swift]: https://www.apple.com/swift
+[swiftformat]: https://github.com/nicklockwood/SwiftFormat
 
 [1]: https://doc.rust-lang.org/rustdoc/write-documentation/linking-to-items-by-name.html
