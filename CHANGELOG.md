@@ -5,6 +5,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+
 ## [0.8.1] · 2023-05-29
 [0.8.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.8.1
 
@@ -12,7 +13,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- FFI bridge initialization on desktop platforms ([#116])
+- FFI bridge initialization on desktop platforms. ([#116])
 
 [#116]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/116
 
