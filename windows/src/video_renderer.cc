@@ -1,6 +1,6 @@
 #include "flutter/method_channel.h"
 #include "flutter/standard_method_codec.h"
-#include "flutter_webrtc_native.h"
+#include "medea_flutter_webrtc_native.h"
 #include "video_renderer.h"
 
 namespace medea_flutter_webrtc {
@@ -57,7 +57,8 @@ void FlutterVideoRendererManager::VideoRendererDispose(
 
   auto it = renderers_.find(texture_id);
   if (it != renderers_.end()) {
-    registrar_->UnregisterTexture(texture_id);
+    std::shared_ptr<TextureVideoRenderer> renderer = it->second;
+    registrar_->UnregisterTexture(texture_id, [renderer] {});
     renderers_.erase(it);
     result->Success();
     return;

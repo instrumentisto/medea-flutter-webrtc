@@ -88,11 +88,16 @@ class MediaStreamTrackController {
 
   /// Converts this controller into a Flutter method call response.
   func asFlutterResult() -> [String: Any] {
-    [
+    var res: [String: Any] = [
       "channelId": self.channelId,
       "id": self.track.id(),
       "kind": self.track.kind().rawValue,
       "deviceId": self.track.getDeviceId(),
     ]
+    let facingMode = self.track.getFacingMode()
+    if facingMode != nil {
+      res["facingMode"] = facingMode!.rawValue
+    }
+    return res
   }
 }

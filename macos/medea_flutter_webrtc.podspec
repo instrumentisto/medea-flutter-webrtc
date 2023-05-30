@@ -4,12 +4,12 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'medea_flutter_webrtc'
-  s.version          = '0.8.0-dev'
+  s.version          = '0.8.1'
   s.summary          = 'Flutter WebRTC plugin based on Google WebRTC'
   s.description      = <<-DESC
 Flutter WebRTC plugin based on Google WebRTC.
                        DESC
-  s.homepage         = 'https://github.com/instrumentisto/flutter-webrtc'
+  s.homepage         = 'https://github.com/instrumentisto/medea-flutter-webrtc'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Instrumentisto Team' => 'developer@instrumentisto.com' }
 
