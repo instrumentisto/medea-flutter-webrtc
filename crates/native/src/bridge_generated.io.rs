@@ -1,5 +1,4 @@
 use super::*;
-use flutter_rust_bridge::ffi::ffi::DartCObject;
 // Section: wire functions
 
 #[no_mangle]
@@ -627,6 +626,6 @@ impl Default for wire_VideoConstraints {
 #[no_mangle]
 pub extern "C" fn free_WireSyncReturn(ptr: support::WireSyncReturn) {
     unsafe {
-        let _: Box<DartCObject> = support::box_from_leak_ptr(ptr);
+        let _ = support::box_from_leak_ptr(ptr);
     };
 }
