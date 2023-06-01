@@ -135,12 +135,11 @@ flutter.run:
 # Run Flutter plugin integration tests on an attached device.
 #
 # Usage:
-#	make flutter.test [device=<device-id>] [debug=(no|yes)]
+#	make flutter.test [device=<device-id>]
 
 flutter.test:
 	cd example/ && \
 	flutter test integration_test \
-	              $(if $(call eq,$(debug),yes),--debug,--profile) \
 	              $(if $(call eq,$(device),),,-d $(device))
 
 
