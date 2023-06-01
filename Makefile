@@ -34,7 +34,6 @@ MACOS_TARGETS := x86_64-apple-darwin \
                  aarch64-apple-darwin
 WINDOWS_TARGETS := x86_64-pc-windows-msvc
 
-ANDROID_PACKAGE_NAME := 'com.instrumentisto.medea_flutter_webrtc_example'
 
 
 
@@ -132,25 +131,29 @@ flutter.run:
 		$(if $(call eq,$(device),),,-d $(device))
 
 
-# Run Flutter plugin integration tests on an attached device.
+# Run Flutter plugin integration tests on host desktop.
 #
 # Usage:
-#	make flutter.test [device=<device-id>]
+#	make flutter.test [debug=(no|yes)]
 
-flutter.test:
+flutter.test.desktop:
 	cd example/ && \
-	flutter test integration_test \
+	flutter test integration_test -d $(CURRENT_OS)
+
+
+
+# Run Flutter plugin integration tests on an attached mobile device.
+#
+# Usage:
+#	make flutter.test [device=<device-id>] [debug=(no|yes)]
+
+flutter.test.mobile:
+	cd example/ && \
+	flutter drive --driver=test_driver/integration_driver.dart \
+	              --target=integration_test/webrtc_test.dart \
+	              $(if $(call eq,$(debug),yes),--debug,--profile) \
 	              $(if $(call eq,$(device),),,-d $(device))
 
-
-# Grants permission required for android instrumented tests.
-#
-# Usage:
-#	make android.permissions
-
-android.permissions:
-	adb shell pm grant $(ANDROID_PACKAGE_NAME) 'android.permission.CAMERA'
-	adb shell pm grant $(ANDROID_PACKAGE_NAME) 'android.permission.RECORD_AUDIO'
 
 
 
@@ -428,7 +431,7 @@ test.flutter: flutter.test
 # .PHONY section #
 ##################
 
-.PHONY: android.permissions build clean codegen deps docs fmt lint run test \
+.PHONY: build clean codegen deps docs fmt lint run test \
         cargo.clean cargo.build cargo.doc cargo.fmt cargo.gen cargo.lint \
         	cargo.test \
         docs.rust \
@@ -437,4 +440,4 @@ test.flutter: flutter.test
         kt.fmt \
         rustup.targets \
         swift.fmt \
-        test.cargo test.flutter
+        test.cargo test.flutter.desktop test.flutter.mobile
