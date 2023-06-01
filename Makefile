@@ -34,6 +34,7 @@ MACOS_TARGETS := x86_64-apple-darwin \
                  aarch64-apple-darwin
 WINDOWS_TARGETS := x86_64-pc-windows-msvc
 
+ANDROID_PACKAGE_NAME := 'com.instrumentisto.medea_flutter_webrtc_example'
 
 
 
@@ -138,11 +139,19 @@ flutter.run:
 
 flutter.test:
 	cd example/ && \
-	flutter drive --driver=test_driver/integration_driver.dart \
-	              --target=integration_test/webrtc_test.dart \
+	flutter test integration_test \
 	              $(if $(call eq,$(debug),yes),--debug,--profile) \
 	              $(if $(call eq,$(device),),,-d $(device))
 
+
+# Grants permission required for android instrumented tests.
+#
+# Usage:
+#	make android.permissions
+
+android.permissions:
+	adb shell pm grant $(ANDROID_PACKAGE_NAME) 'android.permission.CAMERA'
+	adb shell pm grant $(ANDROID_PACKAGE_NAME) 'android.permission.RECORD_AUDIO'
 
 
 
@@ -420,7 +429,7 @@ test.flutter: flutter.test
 # .PHONY section #
 ##################
 
-.PHONY: build clean codegen deps docs fmt lint run test \
+.PHONY: android.permissions build clean codegen deps docs fmt lint run test \
         cargo.clean cargo.build cargo.doc cargo.fmt cargo.gen cargo.lint \
         	cargo.test \
         docs.rust \

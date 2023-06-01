@@ -23,7 +23,7 @@ final ffi.MedeaFlutterWebrtcNative? api = isDesktop ? buildBridge() : null;
 
 /// Opens the dynamic library and instantiates [ffi.MedeaFlutterWebrtcNative].
 ffi.MedeaFlutterWebrtcNative? buildBridge() {
-  const base = 'medea_flutter_webrtc_nativeasdasd';
+  const base = 'medea_flutter_webrtc_native';
   final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
   late final dylib = Platform.isMacOS
       ? DynamicLibrary.executable()

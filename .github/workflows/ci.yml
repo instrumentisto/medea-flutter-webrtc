@@ -261,7 +261,9 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 6
-          script: make flutter.test
+          script: |
+            make android.permissions
+            make flutter.test
         if: ${{ matrix.platform == 'android' }}
 
       - name: Start iOS simulator
