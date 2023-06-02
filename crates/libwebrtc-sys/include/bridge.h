@@ -209,8 +209,7 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Creates a new `Thread`.
 std::unique_ptr<rtc::Thread> create_thread();
 
-// Creates a default `TaskQueueFactory` based on the current
-// platform.
+// Creates a default `TaskQueueFactory`, basing on the current platform.
 std::unique_ptr<TaskQueueFactory> create_default_task_queue_factory();
 
 // Creates a new `Thread` with a socket server.

@@ -57,7 +57,7 @@ lint: cargo.lint flutter.analyze
 
 run: flutter.run
 
-test: cargo.test flutter.test
+test: cargo.test flutter.test.desktop flutter.test.mobile
 
 
 
@@ -131,7 +131,7 @@ flutter.run:
 		$(if $(call eq,$(device),),,-d $(device))
 
 
-# Run Flutter plugin integration tests on host desktop.
+# Run Flutter plugin integration tests on the current host as desktop.
 #
 # Usage:
 #	make flutter.test [debug=(no|yes)]
@@ -141,11 +141,10 @@ flutter.test.desktop:
 	flutter test integration_test -d $(CURRENT_OS)
 
 
-
 # Run Flutter plugin integration tests on an attached mobile device.
 #
 # Usage:
-#	make flutter.test [device=<device-id>] [debug=(no|yes)]
+#	make flutter.test.mobile [device=<device-id>] [debug=(no|yes)]
 
 flutter.test.mobile:
 	cd example/ && \

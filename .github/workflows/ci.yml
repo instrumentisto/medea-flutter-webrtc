@@ -273,7 +273,7 @@ jobs:
         if: ${{ matrix.platform == 'ios' }}
       - name: Test on `${{ matrix.platform }}` platform with simulator
         run: make flutter.test.mobile device=${{ steps.simulator.outputs.udid }}
-                               debug=yes
+                                      debug=yes
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform with Xvfb

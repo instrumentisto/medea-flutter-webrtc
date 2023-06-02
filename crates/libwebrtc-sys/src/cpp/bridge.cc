@@ -294,8 +294,7 @@ std::unique_ptr<rtc::Thread> create_thread() {
   return rtc::Thread::Create();
 }
 
-// Creates a default `TaskQueueFactory` based on the current
-// platform.
+// Creates a default `TaskQueueFactory`, basing on the current platform.
 std::unique_ptr<TaskQueueFactory> create_default_task_queue_factory() {
   return webrtc::CreateDefaultTaskQueueFactory();
 }
