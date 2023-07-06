@@ -1,7 +1,7 @@
-The following modifications follow GNU General Public License version 3 from The Desktop App
-Toolkit Authors.
+The following modifications follow GNU General Public License version 3 from
+The Desktop App Toolkit Authors.
 
-crates/libwebrtc-sys/src/cpp/adm.cc
+src/cpp/adm.cc
 
 GNU General Public License version 3
 

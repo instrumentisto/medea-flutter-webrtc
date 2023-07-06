@@ -1,6 +1,6 @@
 /*
-* This file is part of Desktop App Toolkit, a set of libraries for developing nice desktop
-* applications.
+* This file is part of Desktop App Toolkit, a set of libraries for developing
+* nice desktop applications.
 *
 * Copyright (c) 2014-2023 The Desktop App Toolkit Authors.
 *
