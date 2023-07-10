@@ -602,7 +602,7 @@ mod win_default_device_callback {
             role: ERole,
             _: &PCWSTR,
         ) -> Result<()> {
-            if role == ERole(0) && flow == EDataFlow(0) {
+            if role == ERole(0) {
                 unsafe {
                     let state = super::ON_DEVICE_CHANGE.load(Ordering::SeqCst);
 

@@ -183,9 +183,6 @@ OpenALPlayoutADM::OpenALPlayoutADM(AudioLayer audio_layer,
 
 template <typename Callback>
 void EnumerateDevices(ALCenum specifier, Callback&& callback) {
-  auto defaultDevice = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-  callback(defaultDevice);
-
   auto devices = alcGetString(nullptr, specifier);
   while (*devices != 0) {
     callback(devices);
