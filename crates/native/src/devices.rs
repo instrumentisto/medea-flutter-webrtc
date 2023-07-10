@@ -598,7 +598,7 @@ mod win_default_device_callback {
 
         fn OnDefaultDeviceChanged(
             &self,
-            flow: EDataFlow,
+            _: EDataFlow,
             role: ERole,
             _: &PCWSTR,
         ) -> Result<()> {
