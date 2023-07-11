@@ -547,9 +547,10 @@ pub unsafe fn init() {
 
 #[cfg(target_os = "windows")]
 #[allow(unused_must_use)]
-/// Implementation of the default audio output device
-/// changes detector for Windows.
 mod win_default_device_callback {
+    //! Implementation of the default audio output device changes detector for
+    //! Windows.
+
     use std::{
         ptr,
         sync::atomic::{AtomicPtr, Ordering},
@@ -567,18 +568,18 @@ mod win_default_device_callback {
         },
     };
 
-    /// Storage for the [`IMMDeviceEnumerator`] used for detecting
-    /// default audio device changes.
+    /// Storage for an [`IMMDeviceEnumerator`] used for detecting default audio
+    /// device changes.
     static AUDIO_ENDPOINT_ENUMERATOR: AtomicPtr<IMMDeviceEnumerator> =
         AtomicPtr::new(ptr::null_mut());
 
-    /// Storage for the [`EMMNotificationClient`] used for detecting
-    /// default audio device changes.
+    /// Storage for an [`EMMNotificationClient`] used for detecting default
+    /// audio device changes.
     static AUDIO_ENDPOINT_CALLBACK: AtomicPtr<IMMNotificationClient> =
         AtomicPtr::new(ptr::null_mut());
 
-    /// Implementation of the [`IMMNotificationClient`] used
-    /// for detecting default audio output device changes.
+    /// Implementation of an [`IMMNotificationClient`] used for detecting
+    /// default audio output device changes.
     #[windows::core::implement(IMMNotificationClient)]
     struct AudioEndpointCallback;
 
@@ -625,10 +626,10 @@ mod win_default_device_callback {
         }
     }
 
-    /// Registers default audio output callback for windows.
+    /// Registers default audio output callback for Windows.
     ///
-    /// Will call [`DeviceState::on_device_change`] callback when
-    /// default audio output is changed.
+    /// Will call [`DeviceState::on_device_change`] callback whenever a default
+    /// audio output is changed.
     pub fn register() {
         unsafe {
             let audio_endpoint_enumerator: IMMDeviceEnumerator =
