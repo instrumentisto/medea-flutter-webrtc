@@ -274,7 +274,7 @@ fn compile_openal() -> anyhow::Result<()> {
             )?;
         }
         "x86_64-unknown-linux-gnu" => {
-            let _ = Command::new("strip")
+            _ = Command::new("strip")
                 .arg("libopenal.so.1")
                 .current_dir(&openal_src_path)
                 .output()?;
