@@ -148,14 +148,14 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 /// FFI-based implementation of an [RtpTransceiver].
 class _RtpTransceiverFFI extends RtpTransceiver {
   _RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
-    _peerId = transceiver.peerId;
+    _peer = transceiver.peer;
     _id = transceiver.index;
-    _sender = RtpSender.fromFFI(_peerId, _id);
+    _sender = RtpSender.fromFFI(_peer, _id);
     _mid = transceiver.mid;
   }
 
-  /// ID of the native side peer.
-  late final int _peerId;
+  /// RustOpaque of the native side peer.
+  late final ffi.ArcPeerConnection _peer;
 
   /// ID of the native side transceiver.
   late final int _id;
@@ -165,39 +165,39 @@ class _RtpTransceiverFFI extends RtpTransceiver {
 
   @override
   Future<TransceiverDirection> getDirection() async {
-    return TransceiverDirection.values[(await api!
-            .getTransceiverDirection(peerId: _peerId, transceiverIndex: _id))
-        .index];
+    return TransceiverDirection.values[
+        (await api!.getTransceiverDirection(peer: _peer, transceiverIndex: _id))
+            .index];
   }
 
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
     await api!.setTransceiverDirection(
-        peerId: _peerId,
+        peer: _peer,
         transceiverIndex: _id,
         direction: ffi.RtpTransceiverDirection.values[direction.index]);
   }
 
   @override
   Future<void> stop() async {
-    await api!.stopTransceiver(peerId: _peerId, transceiverIndex: _id);
+    await api!.stopTransceiver(peer: _peer, transceiverIndex: _id);
   }
 
   @override
   Future<void> syncMid() async {
-    _mid = await api!.getTransceiverMid(peerId: _peerId, transceiverIndex: _id);
+    _mid = await api!.getTransceiverMid(peer: _peer, transceiverIndex: _id);
   }
 
   @override
   Future<void> setRecv(bool recv) async {
     await api!
-        .setTransceiverRecv(peerId: _peerId, transceiverIndex: _id, recv: recv);
+        .setTransceiverRecv(peer: _peer, transceiverIndex: _id, recv: recv);
   }
 
   @override
   Future<void> setSend(bool send) async {
     await api!
-        .setTransceiverSend(peerId: _peerId, transceiverIndex: _id, send: send);
+        .setTransceiverSend(peer: _peer, transceiverIndex: _id, send: send);
   }
 
   @override

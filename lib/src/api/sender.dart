@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 
+import 'package:medea_flutter_webrtc/src/api/bridge.g.dart' as ffi;
 import '/src/platform/track.dart';
 import 'channel.dart';
 import 'peer.dart';
@@ -14,8 +15,8 @@ abstract class RtpSender {
   }
 
   /// Create a new [RtpSender] from the provided [peerId] and [transceiverId].
-  static RtpSender fromFFI(int peerId, int transceiverId) {
-    return _RtpSenderFFI(peerId, transceiverId);
+  static RtpSender fromFFI(ffi.ArcPeerConnection peer, int transceiverId) {
+    return _RtpSenderFFI(peer, transceiverId);
   }
 
   /// Current [MediaStreamTrack] of this [RtpSender].
@@ -55,18 +56,18 @@ class _RtpSenderChannel extends RtpSender {
 
 /// FFI-based implementation of a [RtpSender].
 class _RtpSenderFFI extends RtpSender {
-  /// ID of the native side peer.
-  final int _peerId;
+  /// RustOpaque of the native side peer.
+  final ffi.ArcPeerConnection _peer;
 
   /// ID of the native side transceiver.
   final int _transceiverId;
 
-  _RtpSenderFFI(this._peerId, this._transceiverId);
+  _RtpSenderFFI(this._peer, this._transceiverId);
 
   @override
   Future<void> replaceTrack(MediaStreamTrack? t) async {
     await api!.senderReplaceTrack(
-        peerId: _peerId, transceiverIndex: _transceiverId, trackId: t?.id());
+        peer: _peer, transceiverIndex: _transceiverId, trackId: t?.id());
   }
 
   @override

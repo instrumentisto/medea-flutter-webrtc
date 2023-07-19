@@ -7,6 +7,7 @@ mod api;
     clippy::semicolon_if_nothing_returned,
     clippy::too_many_lines,
     clippy::wildcard_imports,
+    clippy::ptr_as_ptr,
     let_underscore_drop
 )]
 mod bridge_generated;
@@ -52,7 +53,6 @@ pub(crate) fn next_id() -> u64 {
 
 /// Global context for an application.
 struct Webrtc {
-    peer_connections: HashMap<PeerConnectionId, PeerConnection>,
     video_device_info: VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
@@ -117,7 +117,6 @@ impl Webrtc {
             video_tracks: Arc::new(DashMap::new()),
             audio_source: None,
             audio_tracks: Arc::new(DashMap::new()),
-            peer_connections: HashMap::new(),
             video_sinks: HashMap::new(),
             callback_pool: ThreadPool::new(4),
         })

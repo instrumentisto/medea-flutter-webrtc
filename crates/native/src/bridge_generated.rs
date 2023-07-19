@@ -83,7 +83,7 @@ fn wire_create_peer_connection_impl(
 }
 fn wire_create_offer_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     voice_activity_detection: impl Wire2Api<bool> + UnwindSafe,
     ice_restart: impl Wire2Api<bool> + UnwindSafe,
     use_rtp_mux: impl Wire2Api<bool> + UnwindSafe,
@@ -95,14 +95,14 @@ fn wire_create_offer_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_voice_activity_detection =
                 voice_activity_detection.wire2api();
             let api_ice_restart = ice_restart.wire2api();
             let api_use_rtp_mux = use_rtp_mux.wire2api();
             move |task_callback| {
                 create_offer(
-                    api_peer_id,
+                    api_peer,
                     api_voice_activity_detection,
                     api_ice_restart,
                     api_use_rtp_mux,
@@ -113,7 +113,7 @@ fn wire_create_offer_impl(
 }
 fn wire_create_answer_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     voice_activity_detection: impl Wire2Api<bool> + UnwindSafe,
     ice_restart: impl Wire2Api<bool> + UnwindSafe,
     use_rtp_mux: impl Wire2Api<bool> + UnwindSafe,
@@ -125,14 +125,14 @@ fn wire_create_answer_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_voice_activity_detection =
                 voice_activity_detection.wire2api();
             let api_ice_restart = ice_restart.wire2api();
             let api_use_rtp_mux = use_rtp_mux.wire2api();
             move |task_callback| {
                 create_answer(
-                    api_peer_id,
+                    api_peer,
                     api_voice_activity_detection,
                     api_ice_restart,
                     api_use_rtp_mux,
@@ -143,7 +143,7 @@ fn wire_create_answer_impl(
 }
 fn wire_set_local_description_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     kind: impl Wire2Api<SdpType> + UnwindSafe,
     sdp: impl Wire2Api<String> + UnwindSafe,
 ) {
@@ -154,18 +154,18 @@ fn wire_set_local_description_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_kind = kind.wire2api();
             let api_sdp = sdp.wire2api();
             move |task_callback| {
-                set_local_description(api_peer_id, api_kind, api_sdp)
+                set_local_description(api_peer, api_kind, api_sdp)
             }
         },
     )
 }
 fn wire_set_remote_description_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     kind: impl Wire2Api<SdpType> + UnwindSafe,
     sdp: impl Wire2Api<String> + UnwindSafe,
 ) {
@@ -176,18 +176,18 @@ fn wire_set_remote_description_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_kind = kind.wire2api();
             let api_sdp = sdp.wire2api();
             move |task_callback| {
-                set_remote_description(api_peer_id, api_kind, api_sdp)
+                set_remote_description(api_peer, api_kind, api_sdp)
             }
         },
     )
 }
 fn wire_add_transceiver_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     media_type: impl Wire2Api<MediaType> + UnwindSafe,
     direction: impl Wire2Api<RtpTransceiverDirection> + UnwindSafe,
 ) {
@@ -198,18 +198,18 @@ fn wire_add_transceiver_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_media_type = media_type.wire2api();
             let api_direction = direction.wire2api();
             move |task_callback| {
-                add_transceiver(api_peer_id, api_media_type, api_direction)
+                add_transceiver(api_peer, api_media_type, api_direction)
             }
         },
     )
 }
 fn wire_get_transceivers_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -218,14 +218,14 @@ fn wire_get_transceivers_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
-            move |task_callback| get_transceivers(api_peer_id)
+            let api_peer = peer.wire2api();
+            move |task_callback| Ok(get_transceivers(api_peer))
         },
     )
 }
 fn wire_set_transceiver_direction_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     transceiver_index: impl Wire2Api<u32> + UnwindSafe,
     direction: impl Wire2Api<RtpTransceiverDirection> + UnwindSafe,
 ) {
@@ -236,12 +236,12 @@ fn wire_set_transceiver_direction_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_transceiver_index = transceiver_index.wire2api();
             let api_direction = direction.wire2api();
             move |task_callback| {
                 set_transceiver_direction(
-                    api_peer_id,
+                    api_peer,
                     api_transceiver_index,
                     api_direction,
                 )
@@ -251,7 +251,7 @@ fn wire_set_transceiver_direction_impl(
 }
 fn wire_set_transceiver_recv_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     transceiver_index: impl Wire2Api<u32> + UnwindSafe,
     recv: impl Wire2Api<bool> + UnwindSafe,
 ) {
@@ -262,22 +262,18 @@ fn wire_set_transceiver_recv_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_transceiver_index = transceiver_index.wire2api();
             let api_recv = recv.wire2api();
             move |task_callback| {
-                set_transceiver_recv(
-                    api_peer_id,
-                    api_transceiver_index,
-                    api_recv,
-                )
+                set_transceiver_recv(api_peer, api_transceiver_index, api_recv)
             }
         },
     )
 }
 fn wire_set_transceiver_send_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     transceiver_index: impl Wire2Api<u32> + UnwindSafe,
     send: impl Wire2Api<bool> + UnwindSafe,
 ) {
@@ -288,22 +284,18 @@ fn wire_set_transceiver_send_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_transceiver_index = transceiver_index.wire2api();
             let api_send = send.wire2api();
             move |task_callback| {
-                set_transceiver_send(
-                    api_peer_id,
-                    api_transceiver_index,
-                    api_send,
-                )
+                set_transceiver_send(api_peer, api_transceiver_index, api_send)
             }
         },
     )
 }
 fn wire_get_transceiver_mid_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     transceiver_index: impl Wire2Api<u32> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -313,17 +305,17 @@ fn wire_get_transceiver_mid_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_transceiver_index = transceiver_index.wire2api();
             move |task_callback| {
-                get_transceiver_mid(api_peer_id, api_transceiver_index)
+                get_transceiver_mid(api_peer, api_transceiver_index)
             }
         },
     )
 }
 fn wire_get_transceiver_direction_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     transceiver_index: impl Wire2Api<u32> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -333,17 +325,17 @@ fn wire_get_transceiver_direction_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_transceiver_index = transceiver_index.wire2api();
             move |task_callback| {
-                get_transceiver_direction(api_peer_id, api_transceiver_index)
+                get_transceiver_direction(api_peer, api_transceiver_index)
             }
         },
     )
 }
 fn wire_get_peer_stats_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -352,14 +344,14 @@ fn wire_get_peer_stats_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
-            move |task_callback| get_peer_stats(api_peer_id)
+            let api_peer = peer.wire2api();
+            move |task_callback| get_peer_stats(api_peer)
         },
     )
 }
 fn wire_stop_transceiver_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     transceiver_index: impl Wire2Api<u32> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -369,17 +361,17 @@ fn wire_stop_transceiver_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_transceiver_index = transceiver_index.wire2api();
             move |task_callback| {
-                stop_transceiver(api_peer_id, api_transceiver_index)
+                stop_transceiver(api_peer, api_transceiver_index)
             }
         },
     )
 }
 fn wire_sender_replace_track_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     transceiver_index: impl Wire2Api<u32> + UnwindSafe,
     track_id: impl Wire2Api<Option<String>> + UnwindSafe,
 ) {
@@ -390,12 +382,12 @@ fn wire_sender_replace_track_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_transceiver_index = transceiver_index.wire2api();
             let api_track_id = track_id.wire2api();
             move |task_callback| {
                 sender_replace_track(
-                    api_peer_id,
+                    api_peer,
                     api_transceiver_index,
                     api_track_id,
                 )
@@ -405,7 +397,7 @@ fn wire_sender_replace_track_impl(
 }
 fn wire_add_ice_candidate_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     candidate: impl Wire2Api<String> + UnwindSafe,
     sdp_mid: impl Wire2Api<String> + UnwindSafe,
     sdp_mline_index: impl Wire2Api<i32> + UnwindSafe,
@@ -417,13 +409,13 @@ fn wire_add_ice_candidate_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
+            let api_peer = peer.wire2api();
             let api_candidate = candidate.wire2api();
             let api_sdp_mid = sdp_mid.wire2api();
             let api_sdp_mline_index = sdp_mline_index.wire2api();
             move |task_callback| {
                 add_ice_candidate(
-                    api_peer_id,
+                    api_peer,
                     api_candidate,
                     api_sdp_mid,
                     api_sdp_mline_index,
@@ -434,7 +426,7 @@ fn wire_add_ice_candidate_impl(
 }
 fn wire_restart_ice_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -443,14 +435,14 @@ fn wire_restart_ice_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
-            move |task_callback| restart_ice(api_peer_id)
+            let api_peer = peer.wire2api();
+            move |task_callback| Ok(restart_ice(api_peer))
         },
     )
 }
 fn wire_dispose_peer_connection_impl(
     port_: MessagePort,
-    peer_id: impl Wire2Api<u64> + UnwindSafe,
+    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -459,8 +451,8 @@ fn wire_dispose_peer_connection_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer_id = peer_id.wire2api();
-            move |task_callback| Ok(dispose_peer_connection(api_peer_id))
+            let api_peer = peer.wire2api();
+            move |task_callback| Ok(dispose_peer_connection(api_peer))
         },
     )
 }
@@ -947,7 +939,7 @@ impl support::IntoDartExceptPrimitive for MediaType {}
 impl support::IntoDart for PeerConnectionEvent {
     fn into_dart(self) -> support::DartAbi {
         match self {
-            Self::PeerCreated { id } => vec![0.into_dart(), id.into_dart()],
+            Self::PeerCreated { peer } => vec![0.into_dart(), peer.into_dart()],
             Self::IceCandidate {
                 sdp_mid,
                 sdp_mline_index,
@@ -1140,7 +1132,7 @@ impl support::IntoDartExceptPrimitive for RtcOutboundRtpStreamStatsMediaType {}
 impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartAbi {
         vec![
-            self.peer_id.into_dart(),
+            self.peer.into_dart(),
             self.index.into_dart(),
             self.mid.into_dart(),
             self.direction.into_dart(),
@@ -1363,8 +1355,8 @@ impl support::IntoDartExceptPrimitive for TrackState {}
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
-        Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler
+        = Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]
