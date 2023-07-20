@@ -81,7 +81,7 @@ impl Webrtc {
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn dispose_peer_connection(
         &mut self,
-        this: &RustOpaque<Arc<PeerConnection>>,
+        this: &Arc<PeerConnection>,
     ) {
         // Remove all tracks from this `Peer`'s senders.
         for mut track in self.video_tracks.iter_mut() {
@@ -135,7 +135,7 @@ impl Webrtc {
     /// [`VideoTrack`]: crate::VideoTrack
     pub fn sender_replace_track(
         &mut self,
-        peer: &RustOpaque<Arc<PeerConnection>>,
+        peer: &Arc<PeerConnection>,
         transceiver: Arc<RtpTransceiver>,
         track_id: Option<String>,
     ) -> anyhow::Result<()> {
@@ -182,7 +182,7 @@ impl Webrtc {
                     track
                         .value_mut()
                         .senders
-                        .entry(Arc::clone(&*peer.clone()))
+                        .entry(Arc::clone(peer))
                         .or_default()
                         .insert(transceiver);
 
@@ -200,7 +200,7 @@ impl Webrtc {
                     track
                         .value_mut()
                         .senders
-                        .entry(Arc::clone(&*peer.clone()))
+                        .entry(Arc::clone(peer))
                         .or_default()
                         .insert(transceiver);
 
