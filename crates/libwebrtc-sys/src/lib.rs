@@ -8,6 +8,7 @@ use std::{collections::HashMap, mem};
 use anyhow::{anyhow, bail};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::From;
+use std::hash::Hash;
 
 use self::bridge::webrtc;
 
@@ -801,6 +802,34 @@ pub struct RtpTransceiverInterface {
     /// It cannot be changed, so it's fetched from the C++ side once and cached
     /// here.
     media_type: MediaType,
+}
+
+impl PartialEq for RtpTransceiverInterface {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner
+            .as_ref()
+            .map(|v| (v as *const webrtc::RtpTransceiverInterface) as u64)
+            .unwrap_or_default()
+            == other
+                .inner
+                .as_ref()
+                .map(|v| (v as *const webrtc::RtpTransceiverInterface) as u64)
+                .unwrap_or_default()
+    }
+}
+
+impl Hash for RtpTransceiverInterface {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.inner
+            .as_ref()
+            .map(|v| (v as *const webrtc::RtpTransceiverInterface) as u64)
+            .unwrap_or_default()
+            .hash(state);
+    }
+}
+
+impl Eq for RtpTransceiverInterface {
+    fn assert_receiver_is_total_eq(&self) {}
 }
 
 impl RtpTransceiverInterface {

@@ -9,13 +9,14 @@ use std::{
     },
 };
 
-use anyhow::{anyhow, bail};
+use anyhow::anyhow;
 use cxx::{CxxString, CxxVector};
 use dashmap::DashMap;
 use derive_more::{Display, From, Into};
 use flutter_rust_bridge::RustOpaque;
 use libwebrtc_sys as sys;
 use once_cell::sync::OnceCell;
+use sys::MediaType;
 use threadpool::ThreadPool;
 
 use crate::{
@@ -58,12 +59,14 @@ impl Webrtc {
         let transceivers = this.get_transceivers();
         let mut result = Vec::with_capacity(transceivers.len());
 
-        for (index, transceiver) in transceivers.into_iter().enumerate() {
+        for transceiver in transceivers {
             let info = api::RtcRtpTransceiver {
                 peer: this.clone(),
-                index: index as u64,
                 mid: transceiver.mid(),
                 direction: transceiver.direction().into(),
+                transceiver: RustOpaque::new(Arc::new(RtpTransceiver(
+                    transceiver,
+                ))),
             };
             result.push(info);
         }
@@ -133,24 +136,15 @@ impl Webrtc {
     pub fn sender_replace_track(
         &mut self,
         peer: &RustOpaque<Arc<PeerConnection>>,
-        transceiver_index: u32,
+        transceiver: Arc<RtpTransceiver>,
         track_id: Option<String>,
     ) -> anyhow::Result<()> {
-        let transceivers = peer.get_transceivers();
-        let transceiver = transceivers
-            .get(transceiver_index as usize)
-            .ok_or_else(|| {
-                anyhow!(
-                    "`Transceiver` with ID `{transceiver_index}` doesn't exist",
-                )
-            })?;
-
         match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_VIDEO => {
                 for mut track in self.video_tracks.iter_mut() {
                     let mut delete = false;
                     if let Some(trnscvrs) = track.senders.get_mut(&**peer) {
-                        trnscvrs.retain(|index| index != &transceiver_index);
+                        trnscvrs.retain(|index| index != &transceiver);
                         delete = trnscvrs.is_empty();
                     }
                     if delete {
@@ -162,7 +156,7 @@ impl Webrtc {
                 for mut track in self.audio_tracks.iter_mut() {
                     let mut delete = false;
                     if let Some(trnscvrs) = track.senders.get_mut(&**peer) {
-                        trnscvrs.retain(|index| index != &transceiver_index);
+                        trnscvrs.retain(|index| index != &transceiver);
                         delete = trnscvrs.is_empty();
                     }
                     if delete {
@@ -173,7 +167,7 @@ impl Webrtc {
             _ => unreachable!(),
         }
 
-        let sender = transceiver.sender();
+        let sender = transceiver.0.sender();
         if let Some(track_id) = track_id {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
@@ -190,7 +184,7 @@ impl Webrtc {
                         .senders
                         .entry(Arc::clone(&*peer.clone()))
                         .or_default()
-                        .insert(transceiver_index);
+                        .insert(transceiver);
 
                     sender.replace_video_track(Some(track.as_ref()))
                 }
@@ -208,7 +202,7 @@ impl Webrtc {
                         .senders
                         .entry(Arc::clone(&*peer.clone()))
                         .or_default()
-                        .insert(transceiver_index);
+                        .insert(transceiver);
 
                     sender.replace_audio_track(Some(track.as_ref()))
                 }
@@ -436,22 +430,22 @@ impl PeerConnection {
         media_type: sys::MediaType,
         direction: sys::RtpTransceiverDirection,
     ) -> anyhow::Result<api::RtcRtpTransceiver> {
-        let (index, mid, direction) = {
+        let (mid, direction, transceiver) = {
             let transceiver = this
                 .inner
                 .lock()
                 .unwrap()
                 .add_transceiver(media_type, direction);
             (
-                this.get_transceivers().len() - 1,
                 transceiver.mid(),
                 transceiver.direction().into(),
+                RustOpaque::new(Arc::new(RtpTransceiver(transceiver))),
             )
         };
 
         Ok(api::RtcRtpTransceiver {
             peer: this,
-            index: index as u64,
+            transceiver,
             mid,
             direction,
         })
@@ -542,28 +536,31 @@ impl PeerConnection {
         self.inner.lock().unwrap().get_stats(Box::new(cb));
     }
 
+    /// Tells the [`PeerConnection`] that ICE should be restarted.
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
+    pub fn restart_ice(&self) {
+        self.inner.lock().unwrap().restart_ice();
+    }
+}
+
+#[derive(Hash, PartialEq, Eq)]
+pub struct RtpTransceiver(sys::RtpTransceiverInterface);
+
+impl RtpTransceiver {
     /// Changes the preferred `direction` of the specified
     /// [`RtcRtpTransceiver`].
     ///
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    pub fn set_transceiver_direction(
+    pub fn set_direction(
         &self,
-        transceiver_index: u32,
         direction: api::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
-        let transceivers = self.get_transceivers();
-
-        let transceiver = if let Some(transceiver) =
-            transceivers.get(transceiver_index as usize)
-        {
-            transceiver
-        } else {
-            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
-        };
-
-        transceiver.set_direction(direction.into())
+        self.0.set_direction(direction.into())
     }
 
     /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
@@ -571,23 +568,10 @@ impl PeerConnection {
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    pub fn set_transceiver_recv(
-        &self,
-        transceiver_index: u32,
-        recv: bool,
-    ) -> anyhow::Result<()> {
+    pub fn set_recv(&self, recv: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let transceivers = self.get_transceivers();
-        let transceiver = transceivers
-            .get(transceiver_index as usize)
-            .ok_or_else(|| {
-                anyhow!(
-                    "`Transceiver` with ID `{transceiver_index}` doesn't exist",
-                )
-            })?;
-
-        let new_direction = match (transceiver.direction(), recv) {
+        let new_direction = match (self.0.direction(), recv) {
             (D::kInactive | D::kRecvOnly, true) => D::kRecvOnly,
             (D::kSendOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kRecvOnly, false) => D::kInactive,
@@ -598,7 +582,7 @@ impl PeerConnection {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            transceiver.set_direction(new_direction)
+            self.0.set_direction(new_direction)
         }
     }
 
@@ -607,23 +591,10 @@ impl PeerConnection {
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    pub fn set_transceiver_send(
-        &self,
-        transceiver_index: u32,
-        send: bool,
-    ) -> anyhow::Result<()> {
+    pub fn set_send(&self, send: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let transceivers = self.get_transceivers();
-        let transceiver = transceivers
-            .get(transceiver_index as usize)
-            .ok_or_else(|| {
-                anyhow!(
-                    "`Transceiver` with ID `{transceiver_index}` doesn't exist",
-                )
-            })?;
-
-        let new_direction = match (transceiver.direction(), send) {
+        let new_direction = match (self.0.direction(), send) {
             (D::kInactive | D::kSendOnly, true) => D::kSendOnly,
             (D::kRecvOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kSendOnly, false) => D::kInactive,
@@ -634,7 +605,7 @@ impl PeerConnection {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            transceiver.set_direction(new_direction)
+            self.0.set_direction(new_direction)
         }
     }
 
@@ -646,21 +617,8 @@ impl PeerConnection {
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-    pub fn get_transceiver_mid(
-        &self,
-        transceiver_index: u32,
-    ) -> anyhow::Result<Option<String>> {
-        let transceivers = self.get_transceivers();
-
-        let transceiver = if let Some(transceiver) =
-            transceivers.get(transceiver_index as usize)
-        {
-            transceiver
-        } else {
-            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
-        };
-
-        Ok(transceiver.mid())
+    pub fn mid(&self) -> Option<String> {
+        self.0.mid()
     }
 
     /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
@@ -668,21 +626,8 @@ impl PeerConnection {
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    pub fn get_transceiver_direction(
-        &self,
-        transceiver_index: u32,
-    ) -> anyhow::Result<sys::RtpTransceiverDirection> {
-        let transceivers = self.get_transceivers();
-
-        let transceiver = if let Some(transceiver) =
-            transceivers.get(transceiver_index as usize)
-        {
-            transceiver
-        } else {
-            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
-        };
-
-        Ok(transceiver.direction())
+    pub fn direction(&self) -> sys::RtpTransceiverDirection {
+        self.0.direction()
     }
 
     /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
@@ -694,30 +639,13 @@ impl PeerConnection {
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    pub fn stop_transceiver(
-        &self,
-        transceiver_index: u32,
-    ) -> anyhow::Result<()> {
-        let transceivers = self.get_transceivers();
-
-        let transceiver = if let Some(transceiver) =
-            transceivers.get(transceiver_index as usize)
-        {
-            transceiver
-        } else {
-            bail!("`Transceiver` with ID `{transceiver_index}` doesn't exist");
-        };
-
-        transceiver.stop()
+    pub fn stop(&self) -> anyhow::Result<()> {
+        self.0.stop()
     }
 
-    /// Tells the [`PeerConnection`] that ICE should be restarted.
-    ///
-    /// # Panics
-    ///
-    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    pub fn restart_ice(&self) {
-        self.inner.lock().unwrap().restart_ice();
+    //todo
+    pub fn media_type(&self) -> MediaType {
+        self.0.media_type()
     }
 }
 
@@ -956,6 +884,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 let peer_opaque = RustOpaque::from(Arc::new(Arc::clone(peer)));
 
                 let peer = peer.inner.lock().unwrap();
+                let mut trs = peer.get_transceivers();
                 let index = peer
                     .get_transceivers()
                     .iter()
@@ -963,11 +892,14 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     .find(|(_, t)| t.mid().as_ref() == Some(&mid))
                     .map(|(id, _)| id)
                     .unwrap();
+                let tr = trs.swap_remove(index);
 
                 let result = api::RtcTrackEvent {
                     track,
                     transceiver: api::RtcRtpTransceiver {
-                        index: index as u64,
+                        transceiver: RustOpaque::new(Arc::new(RtpTransceiver(
+                            tr,
+                        ))),
                         mid: Some(mid),
                         direction: direction.into(),
                         peer: peer_opaque,

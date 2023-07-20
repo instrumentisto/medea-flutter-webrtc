@@ -225,8 +225,7 @@ fn wire_get_transceivers_impl(
 }
 fn wire_set_transceiver_direction_impl(
     port_: MessagePort,
-    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
-    transceiver_index: impl Wire2Api<u32> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
     direction: impl Wire2Api<RtpTransceiverDirection> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -236,23 +235,17 @@ fn wire_set_transceiver_direction_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer = peer.wire2api();
-            let api_transceiver_index = transceiver_index.wire2api();
+            let api_transceiver = transceiver.wire2api();
             let api_direction = direction.wire2api();
             move |task_callback| {
-                set_transceiver_direction(
-                    api_peer,
-                    api_transceiver_index,
-                    api_direction,
-                )
+                set_transceiver_direction(api_transceiver, api_direction)
             }
         },
     )
 }
 fn wire_set_transceiver_recv_impl(
     port_: MessagePort,
-    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
-    transceiver_index: impl Wire2Api<u32> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
     recv: impl Wire2Api<bool> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -262,19 +255,15 @@ fn wire_set_transceiver_recv_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer = peer.wire2api();
-            let api_transceiver_index = transceiver_index.wire2api();
+            let api_transceiver = transceiver.wire2api();
             let api_recv = recv.wire2api();
-            move |task_callback| {
-                set_transceiver_recv(api_peer, api_transceiver_index, api_recv)
-            }
+            move |task_callback| set_transceiver_recv(api_transceiver, api_recv)
         },
     )
 }
 fn wire_set_transceiver_send_impl(
     port_: MessagePort,
-    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
-    transceiver_index: impl Wire2Api<u32> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
     send: impl Wire2Api<bool> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -284,19 +273,15 @@ fn wire_set_transceiver_send_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer = peer.wire2api();
-            let api_transceiver_index = transceiver_index.wire2api();
+            let api_transceiver = transceiver.wire2api();
             let api_send = send.wire2api();
-            move |task_callback| {
-                set_transceiver_send(api_peer, api_transceiver_index, api_send)
-            }
+            move |task_callback| set_transceiver_send(api_transceiver, api_send)
         },
     )
 }
 fn wire_get_transceiver_mid_impl(
     port_: MessagePort,
-    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
-    transceiver_index: impl Wire2Api<u32> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -305,18 +290,14 @@ fn wire_get_transceiver_mid_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer = peer.wire2api();
-            let api_transceiver_index = transceiver_index.wire2api();
-            move |task_callback| {
-                get_transceiver_mid(api_peer, api_transceiver_index)
-            }
+            let api_transceiver = transceiver.wire2api();
+            move |task_callback| Ok(get_transceiver_mid(api_transceiver))
         },
     )
 }
 fn wire_get_transceiver_direction_impl(
     port_: MessagePort,
-    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
-    transceiver_index: impl Wire2Api<u32> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -325,11 +306,8 @@ fn wire_get_transceiver_direction_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer = peer.wire2api();
-            let api_transceiver_index = transceiver_index.wire2api();
-            move |task_callback| {
-                get_transceiver_direction(api_peer, api_transceiver_index)
-            }
+            let api_transceiver = transceiver.wire2api();
+            move |task_callback| Ok(get_transceiver_direction(api_transceiver))
         },
     )
 }
@@ -351,8 +329,7 @@ fn wire_get_peer_stats_impl(
 }
 fn wire_stop_transceiver_impl(
     port_: MessagePort,
-    peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
-    transceiver_index: impl Wire2Api<u32> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -361,18 +338,15 @@ fn wire_stop_transceiver_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer = peer.wire2api();
-            let api_transceiver_index = transceiver_index.wire2api();
-            move |task_callback| {
-                stop_transceiver(api_peer, api_transceiver_index)
-            }
+            let api_transceiver = transceiver.wire2api();
+            move |task_callback| stop_transceiver(api_transceiver)
         },
     )
 }
 fn wire_sender_replace_track_impl(
     port_: MessagePort,
     peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
-    transceiver_index: impl Wire2Api<u32> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
     track_id: impl Wire2Api<Option<String>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
@@ -383,14 +357,10 @@ fn wire_sender_replace_track_impl(
         },
         move || {
             let api_peer = peer.wire2api();
-            let api_transceiver_index = transceiver_index.wire2api();
+            let api_transceiver = transceiver.wire2api();
             let api_track_id = track_id.wire2api();
             move |task_callback| {
-                sender_replace_track(
-                    api_peer,
-                    api_transceiver_index,
-                    api_track_id,
-                )
+                sender_replace_track(api_peer, api_transceiver, api_track_id)
             }
         },
     )
@@ -1133,7 +1103,7 @@ impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartAbi {
         vec![
             self.peer.into_dart(),
-            self.index.into_dart(),
+            self.transceiver.into_dart(),
             self.mid.into_dart(),
             self.direction.into_dart(),
         ]
@@ -1355,8 +1325,8 @@ impl support::IntoDartExceptPrimitive for TrackState {}
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler
-        = Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
+        Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]

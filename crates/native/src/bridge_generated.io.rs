@@ -104,54 +104,44 @@ pub extern "C" fn wire_get_transceivers(
 #[no_mangle]
 pub extern "C" fn wire_set_transceiver_direction(
     port_: i64,
-    peer: wire_ArcPeerConnection,
-    transceiver_index: u32,
+    transceiver: wire_ArcRtpTransceiver,
     direction: i32,
 ) {
-    wire_set_transceiver_direction_impl(
-        port_,
-        peer,
-        transceiver_index,
-        direction,
-    )
+    wire_set_transceiver_direction_impl(port_, transceiver, direction)
 }
 
 #[no_mangle]
 pub extern "C" fn wire_set_transceiver_recv(
     port_: i64,
-    peer: wire_ArcPeerConnection,
-    transceiver_index: u32,
+    transceiver: wire_ArcRtpTransceiver,
     recv: bool,
 ) {
-    wire_set_transceiver_recv_impl(port_, peer, transceiver_index, recv)
+    wire_set_transceiver_recv_impl(port_, transceiver, recv)
 }
 
 #[no_mangle]
 pub extern "C" fn wire_set_transceiver_send(
     port_: i64,
-    peer: wire_ArcPeerConnection,
-    transceiver_index: u32,
+    transceiver: wire_ArcRtpTransceiver,
     send: bool,
 ) {
-    wire_set_transceiver_send_impl(port_, peer, transceiver_index, send)
+    wire_set_transceiver_send_impl(port_, transceiver, send)
 }
 
 #[no_mangle]
 pub extern "C" fn wire_get_transceiver_mid(
     port_: i64,
-    peer: wire_ArcPeerConnection,
-    transceiver_index: u32,
+    transceiver: wire_ArcRtpTransceiver,
 ) {
-    wire_get_transceiver_mid_impl(port_, peer, transceiver_index)
+    wire_get_transceiver_mid_impl(port_, transceiver)
 }
 
 #[no_mangle]
 pub extern "C" fn wire_get_transceiver_direction(
     port_: i64,
-    peer: wire_ArcPeerConnection,
-    transceiver_index: u32,
+    transceiver: wire_ArcRtpTransceiver,
 ) {
-    wire_get_transceiver_direction_impl(port_, peer, transceiver_index)
+    wire_get_transceiver_direction_impl(port_, transceiver)
 }
 
 #[no_mangle]
@@ -165,20 +155,19 @@ pub extern "C" fn wire_get_peer_stats(
 #[no_mangle]
 pub extern "C" fn wire_stop_transceiver(
     port_: i64,
-    peer: wire_ArcPeerConnection,
-    transceiver_index: u32,
+    transceiver: wire_ArcRtpTransceiver,
 ) {
-    wire_stop_transceiver_impl(port_, peer, transceiver_index)
+    wire_stop_transceiver_impl(port_, transceiver)
 }
 
 #[no_mangle]
 pub extern "C" fn wire_sender_replace_track(
     port_: i64,
     peer: wire_ArcPeerConnection,
-    transceiver_index: u32,
+    transceiver: wire_ArcRtpTransceiver,
     track_id: *mut wire_uint_8_list,
 ) {
-    wire_sender_replace_track_impl(port_, peer, transceiver_index, track_id)
+    wire_sender_replace_track_impl(port_, peer, transceiver, track_id)
 }
 
 #[no_mangle]
@@ -316,6 +305,11 @@ pub extern "C" fn new_ArcPeerConnection() -> wire_ArcPeerConnection {
 }
 
 #[no_mangle]
+pub extern "C" fn new_ArcRtpTransceiver() -> wire_ArcRtpTransceiver {
+    wire_ArcRtpTransceiver::new_with_null_ptr()
+}
+
+#[no_mangle]
 pub extern "C" fn new_StringList_0(len: i32) -> *mut wire_StringList {
     let wrap = wire_StringList {
         ptr: support::new_leak_vec_ptr(
@@ -393,10 +387,32 @@ pub extern "C" fn share_opaque_ArcPeerConnection(
     }
 }
 
+#[no_mangle]
+pub extern "C" fn drop_opaque_ArcRtpTransceiver(ptr: *const c_void) {
+    unsafe {
+        Arc::<Arc<RtpTransceiver>>::decrement_strong_count(ptr as _);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn share_opaque_ArcRtpTransceiver(
+    ptr: *const c_void,
+) -> *const c_void {
+    unsafe {
+        Arc::<Arc<RtpTransceiver>>::increment_strong_count(ptr as _);
+        ptr
+    }
+}
+
 // Section: impl Wire2Api
 
 impl Wire2Api<RustOpaque<Arc<PeerConnection>>> for wire_ArcPeerConnection {
     fn wire2api(self) -> RustOpaque<Arc<PeerConnection>> {
+        unsafe { support::opaque_from_dart(self.ptr as _) }
+    }
+}
+impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> for wire_ArcRtpTransceiver {
+    fn wire2api(self) -> RustOpaque<Arc<RtpTransceiver>> {
         unsafe { support::opaque_from_dart(self.ptr as _) }
     }
 }
@@ -514,6 +530,12 @@ pub struct wire_ArcPeerConnection {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct wire_ArcRtpTransceiver {
+    ptr: *const core::ffi::c_void,
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct wire_StringList {
     ptr: *mut *mut wire_uint_8_list,
     len: i32,
@@ -585,6 +607,13 @@ impl<T> NewWithNullPtr for *mut T {
 }
 
 impl NewWithNullPtr for wire_ArcPeerConnection {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            ptr: core::ptr::null(),
+        }
+    }
+}
+impl NewWithNullPtr for wire_ArcRtpTransceiver {
     fn new_with_null_ptr() -> Self {
         Self {
             ptr: core::ptr::null(),

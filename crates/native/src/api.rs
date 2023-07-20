@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-pub use crate::PeerConnection;
+pub use crate::{pc::RtpTransceiver, PeerConnection};
 use flutter_rust_bridge::{RustOpaque, StreamSink};
 use libwebrtc_sys as sys;
 
@@ -1676,11 +1676,7 @@ pub struct RtcRtpTransceiver {
     /// that this [`RtcRtpTransceiver`] belongs to.
     pub peer: RustOpaque<Arc<PeerConnection>>,
 
-    /// ID of this [`RtcRtpTransceiver`].
-    ///
-    /// It's not unique across all possible [`RtcRtpTransceiver`]s, but only
-    /// within a specific peer.
-    pub index: u64,
+    pub transceiver: RustOpaque<Arc<RtpTransceiver>>,
 
     /// [Negotiated media ID (mid)][1] which the local and remote peers have
     /// agreed upon to uniquely identify the [`MediaStream`]'s pairing of
@@ -1968,31 +1964,28 @@ pub fn get_transceivers(
 /// Changes the preferred `direction` of the specified [`RtcRtpTransceiver`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn set_transceiver_direction(
-    peer: RustOpaque<Arc<PeerConnection>>,
-    transceiver_index: u32,
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
     direction: RtpTransceiverDirection,
 ) -> anyhow::Result<()> {
-    peer.set_transceiver_direction(transceiver_index, direction)
+    transceiver.set_direction(direction)
 }
 
 /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn set_transceiver_recv(
-    peer: RustOpaque<Arc<PeerConnection>>,
-    transceiver_index: u32,
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
     recv: bool,
 ) -> anyhow::Result<()> {
-    peer.set_transceiver_recv(transceiver_index, recv)
+    transceiver.set_recv(recv)
 }
 
 /// Changes the send direction of the specified [`RtcRtpTransceiver`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn set_transceiver_send(
-    peer: RustOpaque<Arc<PeerConnection>>,
-    transceiver_index: u32,
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
     send: bool,
 ) -> anyhow::Result<()> {
-    peer.set_transceiver_send(transceiver_index, send)
+    transceiver.set_send(send)
 }
 
 /// Returns the [negotiated media ID (mid)][1] of the specified
@@ -2001,20 +1994,17 @@ pub fn set_transceiver_send(
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 #[allow(clippy::needless_pass_by_value)]
 pub fn get_transceiver_mid(
-    peer: RustOpaque<Arc<PeerConnection>>,
-    transceiver_index: u32,
-) -> anyhow::Result<Option<String>> {
-    peer.get_transceiver_mid(transceiver_index)
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+) -> Option<String> {
+    transceiver.mid()
 }
 
 /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn get_transceiver_direction(
-    peer: RustOpaque<Arc<PeerConnection>>,
-    transceiver_index: u32,
-) -> anyhow::Result<RtpTransceiverDirection> {
-    peer.get_transceiver_direction(transceiver_index)
-        .map(Into::into)
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+) -> RtpTransceiverDirection {
+    transceiver.direction().into()
 }
 
 /// Returns [`RtcStats`] of the [`PeerConnection`] by its ID.
@@ -2041,10 +2031,9 @@ pub fn get_peer_stats(
 /// its receiver to no longer receive.
 #[allow(clippy::needless_pass_by_value)]
 pub fn stop_transceiver(
-    peer: RustOpaque<Arc<PeerConnection>>,
-    transceiver_index: u32,
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> anyhow::Result<()> {
-    peer.stop_transceiver(transceiver_index)
+    transceiver.stop()
 }
 
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
@@ -2052,12 +2041,12 @@ pub fn stop_transceiver(
 #[allow(clippy::needless_pass_by_value)]
 pub fn sender_replace_track(
     peer: RustOpaque<Arc<PeerConnection>>,
-    transceiver_index: u32,
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
     track_id: Option<String>,
 ) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().sender_replace_track(
         &peer,
-        transceiver_index,
+        Arc::clone(&transceiver),
         track_id,
     )
 }

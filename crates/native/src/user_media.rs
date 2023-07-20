@@ -12,7 +12,7 @@ use sys::TrackEventObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
-    api::{self, MediaType, TrackEvent},
+    api::{self, MediaType, RtpTransceiver, TrackEvent},
     devices, next_id,
     stream_sink::StreamSink,
     PeerConnection, VideoSink, VideoSinkId, Webrtc,
@@ -909,7 +909,7 @@ pub struct VideoTrack {
     sinks: Vec<VideoSinkId>,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    pub senders: HashMap<Arc<PeerConnection>, HashSet<u32>>,
+    pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
 }
 
 impl VideoTrack {
@@ -1016,7 +1016,7 @@ pub struct AudioTrack {
     device_id: AudioDeviceId,
 
     /// Peers and transceivers sending this [`VideoTrack`].
-    pub senders: HashMap<Arc<PeerConnection>, HashSet<u32>>,
+    pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
 }
 
 impl AudioTrack {

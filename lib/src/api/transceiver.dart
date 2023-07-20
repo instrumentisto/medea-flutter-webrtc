@@ -149,55 +149,48 @@ class _RtpTransceiverChannel extends RtpTransceiver {
 class _RtpTransceiverFFI extends RtpTransceiver {
   _RtpTransceiverFFI(ffi.RtcRtpTransceiver transceiver) {
     _peer = transceiver.peer;
-    _id = transceiver.index;
-    _sender = RtpSender.fromFFI(_peer, _id);
+    _transceiver = transceiver.transceiver;
+    _sender = RtpSender.fromFFI(_peer, _transceiver);
     _mid = transceiver.mid;
   }
 
   /// RustOpaque of the native side peer.
   late final ffi.ArcPeerConnection _peer;
 
-  /// ID of the native side transceiver.
-  late final int _id;
-
-  /// Returns ID of the native side peer.
-  int get id => _id;
+  /// RustOpaque of the native side transceiver.
+  late final ffi.ArcRtpTransceiver _transceiver;
 
   @override
   Future<TransceiverDirection> getDirection() async {
     return TransceiverDirection.values[
-        (await api!.getTransceiverDirection(peer: _peer, transceiverIndex: _id))
-            .index];
+        (await api!.getTransceiverDirection(transceiver: _transceiver)).index];
   }
 
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
     await api!.setTransceiverDirection(
-        peer: _peer,
-        transceiverIndex: _id,
+        transceiver: _transceiver,
         direction: ffi.RtpTransceiverDirection.values[direction.index]);
   }
 
   @override
   Future<void> stop() async {
-    await api!.stopTransceiver(peer: _peer, transceiverIndex: _id);
+    await api!.stopTransceiver(transceiver: _transceiver);
   }
 
   @override
   Future<void> syncMid() async {
-    _mid = await api!.getTransceiverMid(peer: _peer, transceiverIndex: _id);
+    _mid = await api!.getTransceiverMid(transceiver: _transceiver);
   }
 
   @override
   Future<void> setRecv(bool recv) async {
-    await api!
-        .setTransceiverRecv(peer: _peer, transceiverIndex: _id, recv: recv);
+    await api!.setTransceiverRecv(transceiver: _transceiver, recv: recv);
   }
 
   @override
   Future<void> setSend(bool send) async {
-    await api!
-        .setTransceiverSend(peer: _peer, transceiverIndex: _id, send: send);
+    await api!.setTransceiverSend(transceiver: _transceiver, send: send);
   }
 
   @override
