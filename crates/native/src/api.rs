@@ -1958,7 +1958,7 @@ pub fn add_transceiver(
 pub fn get_transceivers(
     peer: RustOpaque<Arc<PeerConnection>>,
 ) -> Vec<RtcRtpTransceiver> {
-    Webrtc::get_transceivers(peer)
+    Webrtc::get_transceivers(&peer)
 }
 
 /// Changes the preferred `direction` of the specified [`RtcRtpTransceiver`].

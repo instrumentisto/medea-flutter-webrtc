@@ -54,7 +54,7 @@ impl Webrtc {
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn get_transceivers(
-        peer: RustOpaque<Arc<PeerConnection>>,
+        peer: &RustOpaque<Arc<PeerConnection>>,
     ) -> Vec<api::RtcRtpTransceiver> {
         let transceivers = peer.get_transceivers();
         let mut result = Vec::with_capacity(transceivers.len());
