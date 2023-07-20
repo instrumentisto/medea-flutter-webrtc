@@ -1958,7 +1958,7 @@ pub fn add_transceiver(
 pub fn get_transceivers(
     peer: RustOpaque<Arc<PeerConnection>>,
 ) -> Vec<RtcRtpTransceiver> {
-    Webrtc::get_transceivers(&peer)
+    Webrtc::get_transceivers(peer)
 }
 
 /// Changes the preferred `direction` of the specified [`RtcRtpTransceiver`].
@@ -2044,11 +2044,10 @@ pub fn sender_replace_track(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     track_id: Option<String>,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().sender_replace_track(
-        &peer,
-        Arc::clone(&transceiver),
-        track_id,
-    )
+    WEBRTC
+        .lock()
+        .unwrap()
+        .sender_replace_track(&peer, &transceiver, track_id)
 }
 
 /// Adds the new ICE `candidate` to the given [`PeerConnection`].

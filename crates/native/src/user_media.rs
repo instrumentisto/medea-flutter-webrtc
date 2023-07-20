@@ -6,7 +6,6 @@ use std::{
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
-use flutter_rust_bridge::RustOpaque;
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 use xxhash::xxh3::xxh3_64;
@@ -119,13 +118,11 @@ impl Webrtc {
             }
         };
 
-        for (id, senders) in senders {
+        for (peer, senders) in senders {
             for transceiver in senders {
-                if let Err(e) = self.sender_replace_track(
-                    &RustOpaque::from(Arc::new(Arc::clone(&id))),
-                    transceiver,
-                    None,
-                ) {
+                if let Err(e) =
+                    self.sender_replace_track(&peer, &transceiver, None)
+                {
                     log::error!("Failed to remove track for the sender: {e}");
                 }
             }

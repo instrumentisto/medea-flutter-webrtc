@@ -54,14 +54,14 @@ impl Webrtc {
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn get_transceivers(
-        this: &RustOpaque<Arc<PeerConnection>>,
+        peer: RustOpaque<Arc<PeerConnection>>,
     ) -> Vec<api::RtcRtpTransceiver> {
-        let transceivers = this.get_transceivers();
+        let transceivers = peer.get_transceivers();
         let mut result = Vec::with_capacity(transceivers.len());
 
         for transceiver in transceivers {
             let info = api::RtcRtpTransceiver {
-                peer: this.clone(),
+                peer: peer.clone(),
                 mid: transceiver.mid(),
                 direction: transceiver.direction().into(),
                 transceiver: RustOpaque::new(Arc::new(RtpTransceiver(
@@ -79,17 +79,14 @@ impl Webrtc {
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    pub fn dispose_peer_connection(
-        &mut self,
-        this: &Arc<PeerConnection>,
-    ) {
+    pub fn dispose_peer_connection(&mut self, this: &Arc<PeerConnection>) {
         // Remove all tracks from this `Peer`'s senders.
         for mut track in self.video_tracks.iter_mut() {
-            track.senders.remove(&**this);
+            track.senders.remove(this);
         }
 
         for mut track in self.audio_tracks.iter_mut() {
-            track.senders.remove(&**this);
+            track.senders.remove(this);
         }
 
         let peer = this.inner.lock().unwrap();
@@ -136,31 +133,31 @@ impl Webrtc {
     pub fn sender_replace_track(
         &mut self,
         peer: &Arc<PeerConnection>,
-        transceiver: Arc<RtpTransceiver>,
+        transceiver: &Arc<RtpTransceiver>,
         track_id: Option<String>,
     ) -> anyhow::Result<()> {
         match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_VIDEO => {
                 for mut track in self.video_tracks.iter_mut() {
                     let mut delete = false;
-                    if let Some(trnscvrs) = track.senders.get_mut(&**peer) {
-                        trnscvrs.retain(|index| index != &transceiver);
+                    if let Some(trnscvrs) = track.senders.get_mut(peer) {
+                        trnscvrs.retain(|tr| tr != transceiver);
                         delete = trnscvrs.is_empty();
                     }
                     if delete {
-                        track.senders.remove(&**peer);
+                        track.senders.remove(peer);
                     }
                 }
             }
             sys::MediaType::MEDIA_TYPE_AUDIO => {
                 for mut track in self.audio_tracks.iter_mut() {
                     let mut delete = false;
-                    if let Some(trnscvrs) = track.senders.get_mut(&**peer) {
-                        trnscvrs.retain(|index| index != &transceiver);
+                    if let Some(trnscvrs) = track.senders.get_mut(peer) {
+                        trnscvrs.retain(|tr| tr != transceiver);
                         delete = trnscvrs.is_empty();
                     }
                     if delete {
-                        track.senders.remove(&**peer);
+                        track.senders.remove(peer);
                     }
                 }
             }
@@ -184,7 +181,7 @@ impl Webrtc {
                         .senders
                         .entry(Arc::clone(peer))
                         .or_default()
-                        .insert(transceiver);
+                        .insert(Arc::clone(transceiver));
 
                     sender.replace_video_track(Some(track.as_ref()))
                 }
@@ -202,7 +199,7 @@ impl Webrtc {
                         .senders
                         .entry(Arc::clone(peer))
                         .or_default()
-                        .insert(transceiver);
+                        .insert(Arc::clone(transceiver));
 
                     sender.replace_audio_track(Some(track.as_ref()))
                 }
@@ -547,6 +544,7 @@ impl PeerConnection {
 }
 
 #[derive(Hash, PartialEq, Eq)]
+/// Wrapper around a [`sys::RtpTransceiverInterface`] with a unique ID.
 pub struct RtpTransceiver(sys::RtpTransceiverInterface);
 
 impl RtpTransceiver {
