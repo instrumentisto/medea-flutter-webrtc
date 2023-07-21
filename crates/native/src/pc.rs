@@ -1,5 +1,3 @@
-#![allow(clippy::missing_errors_doc)]
-
 use std::{
     hash::Hash,
     mem,
@@ -12,7 +10,6 @@ use std::{
 use anyhow::anyhow;
 use cxx::{CxxString, CxxVector};
 use dashmap::DashMap;
-use derive_more::{Display, From, Into};
 use flutter_rust_bridge::RustOpaque;
 use libwebrtc_sys as sys;
 use once_cell::sync::OnceCell;
@@ -31,9 +28,8 @@ impl Webrtc {
         obs: &StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
     ) -> anyhow::Result<()> {
-        let id = PeerConnectionId::from(next_id());
         let peer = PeerConnection::new(
-            id,
+            next_id(),
             &mut self.peer_connection_factory,
             Arc::clone(&self.video_tracks),
             Arc::clone(&self.audio_tracks),
@@ -229,14 +225,10 @@ impl Webrtc {
     }
 }
 
-/// ID of a [`PeerConnection`].
-#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct PeerConnectionId(u64);
-
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection {
-    /// ID of the [`PeerConnection`].
-    id: PeerConnectionId,
+    /// ID of this [`PeerConnection`].
+    id: u64,
 
     /// Underlying [`sys::PeerConnectionInterface`].
     inner: Arc<Mutex<sys::PeerConnectionInterface>>,
@@ -270,7 +262,7 @@ impl Eq for PeerConnection {
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
-        id: PeerConnectionId,
+        id: u64,
         factory: &mut sys::PeerConnectionFactoryInterface,
         video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
         audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
@@ -348,6 +340,10 @@ impl PeerConnection {
 
     /// Adds a [`sys::IceCandidateInterface`] to the given [`PeerConnection`].
     ///
+    /// # Errors
+    ///
+    /// If underlying engine returns error.
+    ///
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
@@ -381,6 +377,10 @@ impl PeerConnection {
     /// offer or answer.
     ///
     /// Returns an empty [`String`] if operation succeeds or an error otherwise.
+    ///
+    /// # Errors
+    ///
+    /// If underlying engine returns error.
     ///
     /// # Panics
     ///
@@ -418,6 +418,10 @@ impl PeerConnection {
 
     /// Creates a new [`api::RtcRtpTransceiver`] and adds it to the set of
     /// transceivers of the specified [`PeerConnection`].
+    ///
+    /// # Errors
+    ///
+    /// If underlying engine returns error.
     ///
     /// # Panics
     ///
@@ -535,6 +539,10 @@ impl PeerConnection {
 
     /// Tells the [`PeerConnection`] that ICE should be restarted.
     ///
+    /// # Errors
+    ///
+    /// If underlying engine returns error.
+    ///
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
@@ -543,7 +551,6 @@ impl PeerConnection {
     }
 }
 
-#[derive(Hash, PartialEq, Eq)]
 /// Wrapper around a [`sys::RtpTransceiverInterface`] with a unique ID.
 pub struct RtpTransceiver(sys::RtpTransceiverInterface);
 
@@ -551,9 +558,9 @@ impl RtpTransceiver {
     /// Changes the preferred `direction` of the specified
     /// [`RtcRtpTransceiver`].
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
+    /// If underlying engine returns error.
     pub fn set_direction(
         &self,
         direction: api::RtpTransceiverDirection,
@@ -563,9 +570,9 @@ impl RtpTransceiver {
 
     /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
+    /// If underlying engine returns error.
     pub fn set_recv(&self, recv: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
@@ -586,9 +593,9 @@ impl RtpTransceiver {
 
     /// Changes the send direction of the specified [`RtcRtpTransceiver`].
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
+    /// If underlying engine returns error.
     pub fn set_send(&self, send: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
@@ -610,22 +617,22 @@ impl RtpTransceiver {
     /// Returns the [Negotiated media ID (mid)][1] of the specified
     /// [`RtcRtpTransceiver`].
     ///
-    /// # Panics
-    ///
-    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
+    #[must_use]
     pub fn mid(&self) -> Option<String> {
         self.0.mid()
     }
 
     /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
-    ///
-    /// # Panics
-    ///
-    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
+    #[must_use]
     pub fn direction(&self) -> sys::RtpTransceiverDirection {
         self.0.direction()
+    }
+
+    /// Returns [`MediaType`] of this [`RtpTransceiver`].
+    #[must_use]
+    pub fn media_type(&self) -> MediaType {
+        self.0.media_type()
     }
 
     /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
@@ -634,18 +641,35 @@ impl RtpTransceiver {
     /// This will immediately cause the transceiver's sender to no longer send,
     /// and its receiver to no longer receive.
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
+    /// If underlying engine returns error.
     pub fn stop(&self) -> anyhow::Result<()> {
         self.0.stop()
     }
+}
 
-    //todo
-    pub fn media_type(&self) -> MediaType {
-        self.0.media_type()
+impl PartialEq for RtpTransceiver {
+    fn eq(&self, other: &Self) -> bool {
+        let this = self.0.as_ref().as_ref().unwrap() as *const _;
+        let that = other.0.as_ref().as_ref().unwrap() as *const _;
+
+        this == that
     }
 }
+
+impl Hash for RtpTransceiver {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0
+            .as_ref()
+            .as_ref()
+            .map(|v| v as *const _ as u64)
+            .unwrap()
+            .hash(state);
+    }
+}
+
+impl Eq for RtpTransceiver {}
 
 /// [RTCIceCandidate][1] representation.
 ///
@@ -878,29 +902,15 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
             move || {
                 let peer = peer.get().unwrap();
-
-                let peer_opaque = RustOpaque::from(Arc::new(Arc::clone(peer)));
-
-                let peer = peer.inner.lock().unwrap();
-                let mut trs = peer.get_transceivers();
-                let index = peer
-                    .get_transceivers()
-                    .iter()
-                    .enumerate()
-                    .find(|(_, t)| t.mid().as_ref() == Some(&mid))
-                    .map(|(id, _)| id)
-                    .unwrap();
-                let tr = trs.swap_remove(index);
-
                 let result = api::RtcTrackEvent {
                     track,
                     transceiver: api::RtcRtpTransceiver {
                         transceiver: RustOpaque::new(Arc::new(RtpTransceiver(
-                            tr,
+                            transceiver,
                         ))),
                         mid: Some(mid),
                         direction: direction.into(),
-                        peer: peer_opaque,
+                        peer: RustOpaque::from(Arc::new(Arc::clone(peer))),
                     },
                 };
 

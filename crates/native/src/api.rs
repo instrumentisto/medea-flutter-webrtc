@@ -6,7 +6,6 @@ use std::{
     time::Duration,
 };
 
-pub use crate::{pc::RtpTransceiver, PeerConnection};
 use flutter_rust_bridge::{RustOpaque, StreamSink};
 use libwebrtc_sys as sys;
 
@@ -15,6 +14,9 @@ use crate::{
     renderer::FrameHandler,
     Webrtc,
 };
+
+// Re-exporting since it is used in generated code.
+pub use crate::{PeerConnection, RtpTransceiver};
 
 lazy_static::lazy_static! {
     static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
@@ -1129,7 +1131,7 @@ impl From<sys::IceGatheringState> for IceGatheringState {
 pub enum PeerConnectionEvent {
     /// [`PeerConnection`] has been created.
     PeerCreated {
-        /// Opaque wrap of the created [`PeerConnection`].
+        /// Rust side [`PeerConnection`].
         peer: RustOpaque<Arc<PeerConnection>>,
     },
 
@@ -1672,10 +1674,10 @@ pub struct MediaStreamTrack {
 /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 #[derive(Clone)]
 pub struct RtcRtpTransceiver {
-    /// Opaque wrap of the [`PeerConnection`]
-    /// that this [`RtcRtpTransceiver`] belongs to.
+    /// [`PeerConnection`] that this [`RtcRtpTransceiver`] belongs to.
     pub peer: RustOpaque<Arc<PeerConnection>>,
 
+    /// Rust side [`RtpTransceiver`].
     pub transceiver: RustOpaque<Arc<RtpTransceiver>>,
 
     /// [Negotiated media ID (mid)][1] which the local and remote peers have
@@ -2171,6 +2173,7 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
         &mut WEBRTC.lock().unwrap().task_queue_factory,
     )?;
     Webrtc::set_on_device_changed(device_state);
+
     Ok(())
 }
 

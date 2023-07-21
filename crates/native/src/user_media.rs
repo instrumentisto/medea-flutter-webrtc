@@ -11,8 +11,9 @@ use sys::TrackEventObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
-    api::{self, MediaType, RtpTransceiver, TrackEvent},
+    api::{self, MediaType, TrackEvent},
     devices, next_id,
+    pc::RtpTransceiver,
     stream_sink::StreamSink,
     PeerConnection, VideoSink, VideoSinkId, Webrtc,
 };

@@ -154,10 +154,10 @@ class _RtpTransceiverFFI extends RtpTransceiver {
     _mid = transceiver.mid;
   }
 
-  /// RustOpaque of the native side peer.
+  /// Native side peer connection.
   late final ffi.ArcPeerConnection _peer;
 
-  /// RustOpaque of the native side transceiver.
+  /// Native side transceiver.
   late final ffi.ArcRtpTransceiver _transceiver;
 
   @override

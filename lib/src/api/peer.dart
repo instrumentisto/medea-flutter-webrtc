@@ -461,7 +461,7 @@ class _PeerConnectionFFI extends PeerConnection {
   /// creating a new [PeerConnection].
   final Completer _initialized = Completer();
 
-  /// RustOpaque of the native `PeerConnection`.
+  /// Native side peer connection.
   ffi.ArcPeerConnection? _peer;
 
   /// [Stream] for handling [PeerConnection] `event`s.

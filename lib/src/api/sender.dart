@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
-import 'package:medea_flutter_webrtc/src/api/bridge.g.dart' as ffi;
 import '/src/platform/track.dart';
+import 'bridge.g.dart' as ffi;
 import 'channel.dart';
 import 'peer.dart';
 
@@ -57,10 +57,10 @@ class _RtpSenderChannel extends RtpSender {
 
 /// FFI-based implementation of a [RtpSender].
 class _RtpSenderFFI extends RtpSender {
-  /// RustOpaque of the native side peer.
+  /// Native side peer connection.
   final ffi.ArcPeerConnection _peer;
 
-  /// RustOpaque of the native side transceiver.
+  /// Native side transceiver.
   final ffi.ArcRtpTransceiver _transceiver;
 
   _RtpSenderFFI(this._peer, this._transceiver);
