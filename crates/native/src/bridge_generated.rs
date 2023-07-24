@@ -14,7 +14,8 @@
 use crate::api::*;
 use core::panic::UnwindSafe;
 use flutter_rust_bridge::*;
-use std::{ffi::c_void, sync::Arc};
+use std::ffi::c_void;
+use std::sync::Arc;
 
 // Section: imports
 
@@ -428,7 +429,7 @@ fn wire_dispose_peer_connection_impl(
 }
 fn wire_dispose_transceiver_impl(
     port_: MessagePort,
-    peer: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -437,8 +438,8 @@ fn wire_dispose_transceiver_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_peer = peer.wire2api();
-            move |task_callback| Ok(dispose_transceiver(api_peer))
+            let api_transceiver = transceiver.wire2api();
+            move |task_callback| Ok(dispose_transceiver(api_transceiver))
         },
     )
 }
@@ -1341,8 +1342,7 @@ impl support::IntoDartExceptPrimitive for TrackState {}
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
-        Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]
