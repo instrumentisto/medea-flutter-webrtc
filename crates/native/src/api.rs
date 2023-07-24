@@ -2079,6 +2079,12 @@ pub fn dispose_peer_connection(peer: RustOpaque<Arc<PeerConnection>>) {
     WEBRTC.lock().unwrap().dispose_peer_connection(&peer);
 }
 
+/// Drop the [`RtpTransceiver`].
+#[allow(clippy::needless_pass_by_value)]
+pub fn dispose_transceiver(peer: RustOpaque<Arc<RtpTransceiver>>) {
+    drop(peer);
+}
+
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {

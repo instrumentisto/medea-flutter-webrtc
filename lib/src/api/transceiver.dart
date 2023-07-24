@@ -196,5 +196,8 @@ class _RtpTransceiverFFI extends RtpTransceiver {
   @override
   Future<void> dispose() async {
     _disposed = true;
+    _sender.dispose();
+    _transceiver.move = true;
+    api!.disposeTransceiver(peer: _transceiver);
   }
 }

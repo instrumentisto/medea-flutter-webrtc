@@ -201,6 +201,14 @@ pub extern "C" fn wire_dispose_peer_connection(
 }
 
 #[no_mangle]
+pub extern "C" fn wire_dispose_transceiver(
+    port_: i64,
+    peer: wire_ArcRtpTransceiver,
+) {
+    wire_dispose_transceiver_impl(port_, peer)
+}
+
+#[no_mangle]
 pub extern "C" fn wire_get_media(
     port_: i64,
     constraints: *mut wire_MediaStreamConstraints,

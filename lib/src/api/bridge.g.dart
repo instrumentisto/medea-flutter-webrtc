@@ -187,6 +187,12 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kDisposePeerConnectionConstMeta;
 
+  /// Drop the [`RtpTransceiver`].
+  Future<void> disposeTransceiver(
+      {required ArcRtpTransceiver peer, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kDisposeTransceiverConstMeta;
+
   /// Creates a [`MediaStream`] with tracks according to provided
   /// [`MediaStreamConstraints`].
   Future<GetMediaResult> getMedia(
@@ -696,7 +702,7 @@ enum MediaType {
 class PeerConnectionEvent with _$PeerConnectionEvent {
   /// [`PeerConnection`] has been created.
   const factory PeerConnectionEvent.peerCreated({
-    /// Opaque wrap of the created [`PeerConnection`].
+    /// Rust side [`PeerConnection`].
     required ArcPeerConnection peer,
   }) = PeerConnectionEvent_PeerCreated;
 
@@ -1133,9 +1139,10 @@ class RtcOutboundRtpStreamStatsMediaType
 /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 class RtcRtpTransceiver {
-  /// Opaque wrap of the [`PeerConnection`]
-  /// that this [`RtcRtpTransceiver`] belongs to.
+  /// [`PeerConnection`] that this [`RtcRtpTransceiver`] belongs to.
   final ArcPeerConnection peer;
+
+  /// Rust side [`RtpTransceiver`].
   final ArcRtpTransceiver transceiver;
 
   /// [Negotiated media ID (mid)][1] which the local and remote peers have
@@ -2212,6 +2219,24 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta get kDisposePeerConnectionConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "dispose_peer_connection",
+        argNames: ["peer"],
+      );
+
+  Future<void> disposeTransceiver(
+      {required ArcRtpTransceiver peer, dynamic hint}) {
+    var arg0 = _platform.api2wire_ArcRtpTransceiver(peer);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_dispose_transceiver(port_, arg0),
+      parseSuccessData: _wire2api_unit,
+      constMeta: kDisposeTransceiverConstMeta,
+      argValues: [peer],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kDisposeTransceiverConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "dispose_transceiver",
         argNames: ["peer"],
       );
 
@@ -3808,6 +3833,23 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
               wire_ArcPeerConnection)>>('wire_dispose_peer_connection');
   late final _wire_dispose_peer_connection = _wire_dispose_peer_connectionPtr
       .asFunction<void Function(int, wire_ArcPeerConnection)>();
+
+  void wire_dispose_transceiver(
+    int port_,
+    wire_ArcRtpTransceiver peer,
+  ) {
+    return _wire_dispose_transceiver(
+      port_,
+      peer,
+    );
+  }
+
+  late final _wire_dispose_transceiverPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, wire_ArcRtpTransceiver)>>('wire_dispose_transceiver');
+  late final _wire_dispose_transceiver = _wire_dispose_transceiverPtr
+      .asFunction<void Function(int, wire_ArcRtpTransceiver)>();
 
   void wire_get_media(
     int port_,

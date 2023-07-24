@@ -895,7 +895,7 @@ class _$PeerConnectionEvent_PeerCreated
     implements PeerConnectionEvent_PeerCreated {
   const _$PeerConnectionEvent_PeerCreated({required this.peer});
 
-  /// Opaque wrap of the created [`PeerConnection`].
+  /// Rust side [`PeerConnection`].
   @override
   final ArcPeerConnection peer;
 
@@ -1064,7 +1064,7 @@ abstract class PeerConnectionEvent_PeerCreated implements PeerConnectionEvent {
           {required final ArcPeerConnection peer}) =
       _$PeerConnectionEvent_PeerCreated;
 
-  /// Opaque wrap of the created [`PeerConnection`].
+  /// Rust side [`PeerConnection`].
   ArcPeerConnection get peer;
   @JsonKey(ignore: true)
   _$$PeerConnectionEvent_PeerCreatedCopyWith<_$PeerConnectionEvent_PeerCreated>
