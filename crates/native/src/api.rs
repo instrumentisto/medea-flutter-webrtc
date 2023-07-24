@@ -2082,7 +2082,7 @@ pub fn dispose_peer_connection(peer: RustOpaque<Arc<PeerConnection>>) {
 /// Drop the [`RtpTransceiver`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn dispose_transceiver(transceiver: RustOpaque<Arc<RtpTransceiver>>) {
-    drop(peer);
+    drop(transceiver);
 }
 
 /// Creates a [`MediaStream`] with tracks according to provided
