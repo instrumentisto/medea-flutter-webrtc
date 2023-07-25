@@ -11,10 +11,7 @@ use sys::TrackEventObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
-    api::{self, MediaType, TrackEvent},
-    devices, next_id,
-    pc::RtpTransceiver,
-    stream_sink::StreamSink,
+    api, devices, next_id, pc::RtpTransceiver, stream_sink::StreamSink,
     PeerConnection, VideoSink, VideoSinkId, Webrtc,
 };
 
@@ -82,7 +79,7 @@ impl Webrtc {
     pub fn dispose_track(&mut self, track_id: String, kind: api::MediaType) {
         #[allow(clippy::mutable_key_type)]
         let senders = match kind {
-            MediaType::Audio => {
+            api::MediaType::Audio => {
                 if let Some((_, track)) =
                     self.audio_tracks.remove(&AudioTrackId::from(track_id))
                 {
@@ -98,7 +95,7 @@ impl Webrtc {
                     return;
                 }
             }
-            MediaType::Video => {
+            api::MediaType::Video => {
                 if let Some((_, mut track)) =
                     self.video_tracks.remove(&VideoTrackId::from(track_id))
                 {
@@ -323,7 +320,7 @@ impl Webrtc {
         kind: api::MediaType,
     ) -> anyhow::Result<api::TrackState> {
         Ok(match kind {
-            MediaType::Audio => {
+            api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
                 self.audio_tracks
                     .get(&id)
@@ -332,7 +329,7 @@ impl Webrtc {
                     })?
                     .state()
             }
-            MediaType::Video => {
+            api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
                 self.video_tracks
                     .get(&id)
@@ -354,7 +351,7 @@ impl Webrtc {
         enabled: bool,
     ) -> anyhow::Result<()> {
         match kind {
-            MediaType::Audio => {
+            api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
                 let track = self.audio_tracks.get(&id).ok_or_else(|| {
                     anyhow!("Cannot find track with ID `{id}`")
@@ -362,7 +359,7 @@ impl Webrtc {
 
                 track.set_enabled(enabled);
             }
-            MediaType::Video => {
+            api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
                 let track = self.video_tracks.get(&id).ok_or_else(|| {
                     anyhow!("Cannot find track with ID `{id}`")
@@ -382,7 +379,7 @@ impl Webrtc {
         kind: api::MediaType,
     ) -> anyhow::Result<api::MediaStreamTrack> {
         match kind {
-            MediaType::Audio => {
+            api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
                 let source = self
                     .audio_tracks
@@ -429,7 +426,7 @@ impl Webrtc {
                     }
                 }
             }
-            MediaType::Video => {
+            api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
                 let source = self
                     .video_tracks
@@ -488,11 +485,11 @@ impl Webrtc {
         &self,
         id: String,
         kind: api::MediaType,
-        cb: StreamSink<TrackEvent>,
+        cb: StreamSink<api::TrackEvent>,
     ) -> anyhow::Result<()> {
         let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
         match kind {
-            MediaType::Audio => {
+            api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
                 let mut track =
                     self.audio_tracks.get_mut(&id).ok_or_else(|| {
@@ -502,7 +499,7 @@ impl Webrtc {
                 obs.set_audio_track(&track.inner);
                 track.inner.register_observer(obs);
             }
-            MediaType::Video => {
+            api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
                 let mut track =
                     self.video_tracks.get_mut(&id).ok_or_else(|| {
@@ -1168,10 +1165,10 @@ impl VideoSource {
 
 /// Wrapper around [`TrackObserverInterface`] implementing
 /// [`sys::TrackEventCallback`].
-struct TrackEventHandler(StreamSink<TrackEvent>);
+struct TrackEventHandler(StreamSink<api::TrackEvent>);
 
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {
-        self.0.add(TrackEvent::Ended);
+        self.0.add(api::TrackEvent::Ended);
     }
 }

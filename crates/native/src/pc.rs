@@ -10,10 +10,10 @@ use std::{
 use anyhow::anyhow;
 use cxx::{CxxString, CxxVector};
 use dashmap::DashMap;
+use derive_more::{Display, From, Into};
 use flutter_rust_bridge::RustOpaque;
 use libwebrtc_sys as sys;
 use once_cell::sync::OnceCell;
-use sys::MediaType;
 use threadpool::ThreadPool;
 
 use crate::{
@@ -28,8 +28,9 @@ impl Webrtc {
         obs: &StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
     ) -> anyhow::Result<()> {
+        let id = PeerConnectionId::from(next_id());
         let peer = PeerConnection::new(
-            next_id(),
+            id,
             &mut self.peer_connection_factory,
             Arc::clone(&self.video_tracks),
             Arc::clone(&self.audio_tracks),
@@ -55,14 +56,16 @@ impl Webrtc {
         let transceivers = peer.get_transceivers();
         let mut result = Vec::with_capacity(transceivers.len());
 
-        for transceiver in transceivers {
+        for (index, transceiver) in transceivers.into_iter().enumerate() {
             let info = api::RtcRtpTransceiver {
                 peer: peer.clone(),
                 mid: transceiver.mid(),
                 direction: transceiver.direction().into(),
-                transceiver: RustOpaque::new(Arc::new(RtpTransceiver(
-                    transceiver,
-                ))),
+                transceiver: RustOpaque::new(Arc::new(RtpTransceiver {
+                    inner: transceiver,
+                    peer_id: peer.id,
+                    index,
+                })),
             };
             result.push(info);
         }
@@ -160,7 +163,7 @@ impl Webrtc {
             _ => unreachable!(),
         }
 
-        let sender = transceiver.0.sender();
+        let sender = transceiver.inner.sender();
         if let Some(track_id) = track_id {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
@@ -225,10 +228,14 @@ impl Webrtc {
     }
 }
 
+/// ID of a [`PeerConnection`].
+#[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
+pub struct PeerConnectionId(u64);
+
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection {
     /// ID of this [`PeerConnection`].
-    id: u64,
+    id: PeerConnectionId,
 
     /// Underlying [`sys::PeerConnectionInterface`].
     inner: Arc<Mutex<sys::PeerConnectionInterface>>,
@@ -255,14 +262,12 @@ impl PartialEq for PeerConnection {
     }
 }
 
-impl Eq for PeerConnection {
-    fn assert_receiver_is_total_eq(&self) {}
-}
+impl Eq for PeerConnection {}
 
 impl PeerConnection {
     /// Creates a new [`PeerConnection`].
     fn new(
-        id: u64,
+        id: PeerConnectionId,
         factory: &mut sys::PeerConnectionFactoryInterface,
         video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
         audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
@@ -432,15 +437,19 @@ impl PeerConnection {
         direction: sys::RtpTransceiverDirection,
     ) -> anyhow::Result<api::RtcRtpTransceiver> {
         let (mid, direction, transceiver) = {
-            let transceiver = this
-                .inner
-                .lock()
-                .unwrap()
-                .add_transceiver(media_type, direction);
+            let mut peer = this.inner.lock().unwrap();
+
+            let transceiver = peer.add_transceiver(media_type, direction);
+            let index = peer.get_transceivers().len() - 1;
+
             (
                 transceiver.mid(),
                 transceiver.direction().into(),
-                RustOpaque::new(Arc::new(RtpTransceiver(transceiver))),
+                RustOpaque::new(Arc::new(RtpTransceiver {
+                    inner: transceiver,
+                    peer_id: this.id,
+                    index,
+                })),
             )
         };
 
@@ -552,7 +561,16 @@ impl PeerConnection {
 }
 
 /// Wrapper around a [`sys::RtpTransceiverInterface`] with a unique ID.
-pub struct RtpTransceiver(sys::RtpTransceiverInterface);
+pub struct RtpTransceiver {
+    /// Native-side transceiver.
+    inner: sys::RtpTransceiverInterface,
+
+    /// ID of a [`PeerConnection`] that this transceiver belongs to.
+    peer_id: PeerConnectionId,
+
+    /// Index of this transeiver in it's [`PeerConnection`]s transceiver list.
+    index: usize,
+}
 
 impl RtpTransceiver {
     /// Changes the preferred `direction` of the specified
@@ -565,7 +583,7 @@ impl RtpTransceiver {
         &self,
         direction: api::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
-        self.0.set_direction(direction.into())
+        self.inner.set_direction(direction.into())
     }
 
     /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
@@ -576,7 +594,7 @@ impl RtpTransceiver {
     pub fn set_recv(&self, recv: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let new_direction = match (self.0.direction(), recv) {
+        let new_direction = match (self.inner.direction(), recv) {
             (D::kInactive | D::kRecvOnly, true) => D::kRecvOnly,
             (D::kSendOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kRecvOnly, false) => D::kInactive,
@@ -587,7 +605,7 @@ impl RtpTransceiver {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            self.0.set_direction(new_direction)
+            self.inner.set_direction(new_direction)
         }
     }
 
@@ -599,7 +617,7 @@ impl RtpTransceiver {
     pub fn set_send(&self, send: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let new_direction = match (self.0.direction(), send) {
+        let new_direction = match (self.inner.direction(), send) {
             (D::kInactive | D::kSendOnly, true) => D::kSendOnly,
             (D::kRecvOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kSendOnly, false) => D::kInactive,
@@ -610,7 +628,7 @@ impl RtpTransceiver {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            self.0.set_direction(new_direction)
+            self.inner.set_direction(new_direction)
         }
     }
 
@@ -620,19 +638,19 @@ impl RtpTransceiver {
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     #[must_use]
     pub fn mid(&self) -> Option<String> {
-        self.0.mid()
+        self.inner.mid()
     }
 
     /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
     #[must_use]
     pub fn direction(&self) -> sys::RtpTransceiverDirection {
-        self.0.direction()
+        self.inner.direction()
     }
 
     /// Returns [`MediaType`] of this [`RtpTransceiver`].
     #[must_use]
-    pub fn media_type(&self) -> MediaType {
-        self.0.media_type()
+    pub fn media_type(&self) -> sys::MediaType {
+        self.inner.media_type()
     }
 
     /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
@@ -645,27 +663,20 @@ impl RtpTransceiver {
     ///
     /// If underlying engine returns error.
     pub fn stop(&self) -> anyhow::Result<()> {
-        self.0.stop()
+        self.inner.stop()
     }
 }
 
 impl PartialEq for RtpTransceiver {
     fn eq(&self, other: &Self) -> bool {
-        let this = self.0.as_ref().as_ref().unwrap() as *const _;
-        let that = other.0.as_ref().as_ref().unwrap() as *const _;
-
-        this == that
+        self.peer_id == other.peer_id && self.index == other.index
     }
 }
 
 impl Hash for RtpTransceiver {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.0
-            .as_ref()
-            .as_ref()
-            .map(|v| v as *const _ as u64)
-            .unwrap()
-            .hash(state);
+        self.peer_id.hash(state);
+        self.index.hash(state);
     }
 }
 
@@ -902,12 +913,24 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
             move || {
                 let peer = peer.get().unwrap();
+                let index = peer
+                    .get_transceivers()
+                    .iter()
+                    .enumerate()
+                    .find(|(_, t)| t.mid().as_ref() == Some(&mid))
+                    .map(|(id, _)| id)
+                    .unwrap();
+
                 let result = api::RtcTrackEvent {
                     track,
                     transceiver: api::RtcRtpTransceiver {
-                        transceiver: RustOpaque::new(Arc::new(RtpTransceiver(
-                            transceiver,
-                        ))),
+                        transceiver: RustOpaque::new(Arc::new(
+                            RtpTransceiver {
+                                inner: transceiver,
+                                peer_id: peer.id,
+                                index,
+                            },
+                        )),
                         mid: Some(mid),
                         direction: direction.into(),
                         peer: RustOpaque::from(Arc::new(Arc::clone(peer))),

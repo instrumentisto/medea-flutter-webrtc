@@ -7,7 +7,7 @@ use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
-use derive_more::{AsRef, From};
+use derive_more::From;
 
 use self::bridge::webrtc;
 
@@ -180,7 +180,6 @@ pub trait AddIceCandidateCallback {
 ///
 /// [`WebRTC`]: https://webrtc.googlesource.com/src
 /// [Task Queue]: https://tinyurl.com/doc-threads
-#[derive(AsRef)]
 pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
 
 impl TaskQueueFactory {
@@ -200,7 +199,6 @@ unsafe impl Sync for webrtc::TaskQueueFactory {}
 /// Backed by WebRTC's [Audio Device Module].
 ///
 /// [Audio Device Module]: https://tinyurl.com/doc-adm
-#[derive(AsRef)]
 pub struct AudioDeviceModule(UniquePtr<webrtc::AudioDeviceModule>);
 
 impl AudioDeviceModule {
@@ -480,7 +478,6 @@ unsafe impl Sync for webrtc::AudioDeviceModule {}
 
 /// Representation of The Audio Processing Module, providing a collection of
 /// voice processing components designed for real-time communications software.
-#[derive(AsRef)]
 pub struct AudioProcessing(UniquePtr<webrtc::AudioProcessing>);
 
 impl AudioProcessing {
@@ -509,7 +506,6 @@ unsafe impl Send for webrtc::AudioProcessing {}
 unsafe impl Sync for webrtc::AudioProcessing {}
 
 /// Interface for receiving information about available camera devices.
-#[derive(AsRef)]
 pub struct VideoDeviceInfo(UniquePtr<webrtc::VideoDeviceInfo>);
 
 impl VideoDeviceInfo {
@@ -570,7 +566,6 @@ pub fn screen_capture_sources() -> Vec<VideoDisplaySource> {
 }
 
 /// Interface for receiving information about available display.
-#[derive(AsRef)]
 pub struct VideoDisplaySource(UniquePtr<webrtc::DisplaySource>);
 
 impl VideoDisplaySource {
@@ -594,7 +589,6 @@ impl VideoDisplaySource {
 /// via a [`PeerConnectionInterface`] is established or re-established.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcconfiguration
-#[derive(AsRef)]
 pub struct RtcConfiguration(UniquePtr<webrtc::RTCConfiguration>);
 
 impl RtcConfiguration {
@@ -638,7 +632,6 @@ impl Default for RtcConfiguration {
 /// [RTCIceServer][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtciceserver
-#[derive(AsRef)]
 pub struct IceServer(UniquePtr<webrtc::IceServer>);
 
 impl IceServer {
@@ -670,7 +663,6 @@ impl Default for IceServer {
 
 /// Member of [`PeerConnectionDependencies`] containing functions called on
 /// events in a [`PeerConnectionInterface`]
-#[derive(AsRef)]
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl PeerConnectionObserver {
@@ -686,10 +678,8 @@ unsafe impl Send for webrtc::PeerConnectionObserver {}
 unsafe impl Sync for webrtc::PeerConnectionObserver {}
 
 /// Contains all the [`PeerConnectionInterface`] dependencies.
-#[derive(AsRef)]
 pub struct PeerConnectionDependencies {
     /// Pointer to the C++ side `PeerConnectionDependencies` object.
-    #[as_ref]
     inner: UniquePtr<webrtc::PeerConnectionDependencies>,
 
     /// [`PeerConnectionObserver`] that these [`PeerConnectionDependencies`]
@@ -712,8 +702,7 @@ impl PeerConnectionDependencies {
 }
 
 /// Description of the options used to control an offer/answer creation process.
-#[derive(AsRef)]
-pub struct RTCOfferAnswerOptions(UniquePtr<webrtc::RTCOfferAnswerOptions>);
+pub struct RTCOfferAnswerOptions(pub UniquePtr<webrtc::RTCOfferAnswerOptions>);
 
 impl Default for RTCOfferAnswerOptions {
     fn default() -> Self {
@@ -743,7 +732,6 @@ impl RTCOfferAnswerOptions {
 
 /// [`SessionDescriptionInterface`] class, used by a [`PeerConnectionInterface`]
 /// to expose local and remote session descriptions.
-#[derive(AsRef)]
 pub struct SessionDescriptionInterface(
     UniquePtr<webrtc::SessionDescriptionInterface>,
 );
@@ -759,7 +747,6 @@ impl SessionDescriptionInterface {
 
 /// [`PeerConnectionInterface::create_answer()`] and
 /// [`PeerConnectionInterface::create_offer()`] completion callback.
-#[derive(AsRef)]
 pub struct CreateSessionDescriptionObserver(
     UniquePtr<webrtc::CreateSessionDescriptionObserver>,
 );
@@ -773,7 +760,6 @@ impl CreateSessionDescriptionObserver {
 }
 
 /// [`PeerConnectionInterface::set_local_description()`] completion callback.
-#[derive(AsRef)]
 pub struct SetLocalDescriptionObserver(
     UniquePtr<webrtc::SetLocalDescriptionObserver>,
 );
@@ -787,7 +773,6 @@ impl SetLocalDescriptionObserver {
 }
 
 /// [`PeerConnectionInterface::set_remote_description()`] completion callback.
-#[derive(AsRef)]
 pub struct SetRemoteDescriptionObserver(
     UniquePtr<webrtc::SetRemoteDescriptionObserver>,
 );
@@ -805,12 +790,10 @@ impl SetRemoteDescriptionObserver {
 /// [media stream "identification-tag"][1].
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
-#[derive(AsRef)]
 pub struct RtpTransceiverInterface {
     /// Pointer to the C++ side [`RtpTransceiverInterface`] object.
     ///
     /// [`RtpTransceiverInterface`]: webrtc::PeerConnectionInterface
-    #[as_ref]
     inner: UniquePtr<webrtc::RtpTransceiverInterface>,
 
     /// Configured [`MediaType`] of this [`RtpTransceiverInterface`].
@@ -897,7 +880,6 @@ unsafe impl Sync for webrtc::RtpTransceiverInterface {}
 ///
 /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[derive(AsRef)]
 pub struct RtpSenderInterface(UniquePtr<webrtc::RtpSenderInterface>);
 
 impl RtpSenderInterface {
@@ -946,7 +928,6 @@ unsafe impl Sync for webrtc::RtpSenderInterface {}
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[derive(AsRef)]
 pub struct RtpReceiverInterface(UniquePtr<webrtc::RtpReceiverInterface>);
 
 impl RtpReceiverInterface {
@@ -972,7 +953,6 @@ unsafe impl Sync for webrtc::RtpReceiverInterface {}
 /// [RTCRtpCodecParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodecparameters
-#[derive(AsRef)]
 pub struct RtpCodecParameters(webrtc::RtpCodecParametersContainer);
 
 impl RtpCodecParameters {
@@ -1027,7 +1007,6 @@ impl RtpCodecParameters {
 /// [RTCRtpHeaderExtensionParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpheaderextensionparameters
-#[derive(AsRef)]
 pub struct RtpExtension(webrtc::RtpExtensionContainer);
 
 impl RtpExtension {
@@ -1059,7 +1038,6 @@ impl RtpExtension {
 /// [RTCRtpEncodingParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpencodingparameters
-#[derive(AsRef)]
 pub struct RtpEncodingParameters(webrtc::RtpEncodingParametersContainer);
 
 impl RtpEncodingParameters {
@@ -1111,7 +1089,6 @@ impl RtpEncodingParameters {
 /// [RTCRtcpParameters][0] representation.
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtcpparameters
-#[derive(AsRef)]
 pub struct RtcpParameters(UniquePtr<webrtc::RtcpParameters>);
 
 impl RtcpParameters {
@@ -1134,7 +1111,6 @@ impl RtcpParameters {
 
 /// Parameters being used by an [`RtpReceiverInterface`]'s RTP connection with a
 /// remote peer.
-#[derive(AsRef)]
 pub struct RtpParameters(UniquePtr<webrtc::RtpParameters>);
 
 impl RtpParameters {
@@ -1193,7 +1169,6 @@ impl RtpParameters {
 /// [RFC 5245 Section 2][1].
 ///
 /// [1]: https://datatracker.ietf.org/doc/html/rfc5245#section-2
-#[derive(AsRef)]
 pub struct IceCandidateInterface(UniquePtr<webrtc::IceCandidateInterface>);
 
 impl IceCandidateInterface {
@@ -1252,12 +1227,10 @@ impl IceCandidateInterface {
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 /// [2]: https://webrtc.github.io/webrtc-org/native-code/native-apis
-#[derive(AsRef)]
 pub struct PeerConnectionInterface {
     /// Pointer to the C++ side [`PeerConnectionInterface`] object.
     ///
     /// [`PeerConnectionInterface`]: webrtc::PeerConnectionInterface
-    #[as_ref]
     inner: UniquePtr<webrtc::PeerConnectionInterface>,
 
     /// [`PeerConnectionObserver`] that this [`PeerConnectionInterface`]
@@ -1373,7 +1346,6 @@ impl PeerConnectionInterface {
 /// Interface for using an RTC [`Thread`][1].
 ///
 /// [1]: https://tinyurl.com/doc-threads
-#[derive(AsRef)]
 pub struct Thread(UniquePtr<webrtc::Thread>);
 
 impl Thread {
@@ -1412,7 +1384,6 @@ unsafe impl Sync for webrtc::Thread {}
 /// [`AudioSourceInterface`], tracks ([`VideoTrackInterface`],
 /// [`AudioTrackInterface`]), [`MediaStreamInterface`] and the
 /// `PeerConnection`s.
-#[derive(AsRef)]
 pub struct PeerConnectionFactoryInterface(
     UniquePtr<webrtc::PeerConnectionFactoryInterface>,
 );
@@ -1555,7 +1526,6 @@ unsafe impl Sync for webrtc::PeerConnectionFactoryInterface {}
 ///
 /// It can be later used to create a [`VideoTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_video_track()`].
-#[derive(AsRef)]
 pub struct VideoTrackSourceInterface(
     UniquePtr<webrtc::VideoTrackSourceInterface>,
 );
@@ -1661,7 +1631,6 @@ unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 ///
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
-#[derive(AsRef)]
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
 unsafe impl Send for webrtc::AudioSourceInterface {}
@@ -1672,7 +1641,6 @@ unsafe impl Sync for webrtc::AudioSourceInterface {}
 /// An example source is a device connected to the User Agent.
 ///
 /// [MediaStreamTrack]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
-#[derive(AsRef)]
 pub struct MediaStreamTrackInterface(
     UniquePtr<webrtc::MediaStreamTrackInterface>,
 );
@@ -1713,7 +1681,6 @@ impl MediaStreamTrackInterface {
 
 /// C++ side [`TrackEventCallback`] handling [`MediaStreamTrackInterface`]
 /// events.
-#[derive(AsRef)]
 pub struct TrackEventObserver(UniquePtr<webrtc::TrackEventObserver>);
 
 impl TrackEventObserver {
@@ -1740,10 +1707,8 @@ unsafe impl Sync for webrtc::TrackEventObserver {}
 /// Video [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[derive(AsRef)]
 pub struct VideoTrackInterface {
     /// Pointer to the C++ side `VideoTrackInterface` object.
-    #[as_ref]
     inner: UniquePtr<webrtc::VideoTrackInterface>,
 
     /// [`TrackEventObserver`]s subscribed to this [`VideoTrackInterface`] state
@@ -1841,10 +1806,8 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
 /// Audio [`MediaStreamTrack`][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
-#[derive(AsRef)]
 pub struct AudioTrackInterface {
     /// Pointer to the C++ side `AudioTrackInterface` object.
-    #[as_ref]
     inner: UniquePtr<webrtc::AudioTrackInterface>,
 
     /// [`TrackEventObserver`]s subscribed to this [`AudioTrackInterface`] state
@@ -1927,7 +1890,6 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
 /// [`MediaStreamInterface`][1] representation.
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastream
-#[derive(AsRef)]
 pub struct MediaStreamInterface(UniquePtr<webrtc::MediaStreamInterface>);
 
 impl MediaStreamInterface {
@@ -1992,7 +1954,6 @@ unsafe impl Send for webrtc::MediaStreamInterface {}
 unsafe impl Sync for webrtc::MediaStreamInterface {}
 
 /// End point of a video pipeline.
-#[derive(AsRef)]
 pub struct VideoSinkInterface(UniquePtr<webrtc::VideoSinkInterface>);
 
 impl VideoSinkInterface {
@@ -2922,7 +2883,7 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStats {
 }
 
 /// Collection of [`RtcStats`].
-#[derive(From, AsRef)]
+#[derive(From)]
 pub struct RtcStatsReport(UniquePtr<webrtc::RTCStatsReport>);
 
 impl RtcStatsReport {
