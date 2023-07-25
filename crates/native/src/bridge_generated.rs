@@ -426,22 +426,6 @@ fn wire_dispose_peer_connection_impl(
         },
     )
 }
-fn wire_dispose_transceiver_impl(
-    port_: MessagePort,
-    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "dispose_transceiver",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_transceiver = transceiver.wire2api();
-            move |task_callback| Ok(dispose_transceiver(api_transceiver))
-        },
-    )
-}
 fn wire_get_media_impl(
     port_: MessagePort,
     constraints: impl Wire2Api<MediaStreamConstraints> + UnwindSafe,

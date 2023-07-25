@@ -1,7 +1,7 @@
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
-    sync::Arc,
+    sync::{Arc, Weak},
 };
 
 use anyhow::{anyhow, bail, Context};
@@ -407,7 +407,12 @@ impl Webrtc {
                         Ok(self.create_audio_track(source)?)
                     }
                     MediaTrackSource::Remote { mid, peer } => {
-                        let mut transceivers = peer.get_transceivers();
+                        let mut transceivers = peer
+                            .upgrade()
+                            .ok_or(anyhow!(
+                                "PeerConnection have been disposed"
+                            ))?
+                            .get_transceivers();
 
                         transceivers.retain(|transceiver| {
                             transceiver.mid().unwrap() == mid
@@ -454,7 +459,12 @@ impl Webrtc {
                         Ok(self.create_video_track(source)?)
                     }
                     MediaTrackSource::Remote { mid, peer } => {
-                        let mut transceivers = peer.get_transceivers();
+                        let mut transceivers = peer
+                            .upgrade()
+                            .ok_or(anyhow!(
+                                "PeerConnection have been disposed"
+                            ))?
+                            .get_transceivers();
                         transceivers.retain(|transceiver| {
                             transceiver.mid().unwrap() == mid
                         });
@@ -883,7 +893,7 @@ enum MediaTrackSource<T> {
     Local(Arc<T>),
     Remote {
         mid: String,
-        peer: Arc<PeerConnection>,
+        peer: Weak<PeerConnection>,
     },
 }
 
@@ -931,7 +941,7 @@ impl VideoTrack {
     /// [`VideoTrack`].
     pub(crate) fn wrap_remote(
         transceiver: &sys::RtpTransceiverInterface,
-        peer: Arc<PeerConnection>,
+        peer: Weak<PeerConnection>,
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
@@ -1044,7 +1054,7 @@ impl AudioTrack {
     /// [`AudioTrack`].
     pub(crate) fn wrap_remote(
         transceiver: &sys::RtpTransceiverInterface,
-        peer: Arc<PeerConnection>,
+        peer: Weak<PeerConnection>,
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();

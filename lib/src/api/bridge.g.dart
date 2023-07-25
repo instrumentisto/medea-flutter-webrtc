@@ -187,12 +187,6 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kDisposePeerConnectionConstMeta;
 
-  /// Drop the [`RtpTransceiver`].
-  Future<void> disposeTransceiver(
-      {required ArcRtpTransceiver transceiver, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kDisposeTransceiverConstMeta;
-
   /// Creates a [`MediaStream`] with tracks according to provided
   /// [`MediaStreamConstraints`].
   Future<GetMediaResult> getMedia(
@@ -2222,24 +2216,6 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
         argNames: ["peer"],
       );
 
-  Future<void> disposeTransceiver(
-      {required ArcRtpTransceiver transceiver, dynamic hint}) {
-    var arg0 = _platform.api2wire_ArcRtpTransceiver(transceiver);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner.wire_dispose_transceiver(port_, arg0),
-      parseSuccessData: _wire2api_unit,
-      constMeta: kDisposeTransceiverConstMeta,
-      argValues: [transceiver],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta get kDisposeTransceiverConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "dispose_transceiver",
-        argNames: ["transceiver"],
-      );
-
   Future<GetMediaResult> getMedia(
       {required MediaStreamConstraints constraints, dynamic hint}) {
     var arg0 =
@@ -3833,23 +3809,6 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
               wire_ArcPeerConnection)>>('wire_dispose_peer_connection');
   late final _wire_dispose_peer_connection = _wire_dispose_peer_connectionPtr
       .asFunction<void Function(int, wire_ArcPeerConnection)>();
-
-  void wire_dispose_transceiver(
-    int port_,
-    wire_ArcRtpTransceiver transceiver,
-  ) {
-    return _wire_dispose_transceiver(
-      port_,
-      transceiver,
-    );
-  }
-
-  late final _wire_dispose_transceiverPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, wire_ArcRtpTransceiver)>>('wire_dispose_transceiver');
-  late final _wire_dispose_transceiver = _wire_dispose_transceiverPtr
-      .asFunction<void Function(int, wire_ArcRtpTransceiver)>();
 
   void wire_get_media(
     int port_,

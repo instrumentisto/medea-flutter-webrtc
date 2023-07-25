@@ -3,7 +3,7 @@ use std::{
     mem,
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc, Arc, Mutex,
+        mpsc, Arc, Mutex, Weak,
     },
 };
 
@@ -243,6 +243,12 @@ pub struct PeerConnection {
     candidates_buffer: Mutex<Vec<IceCandidate>>,
 }
 
+impl Drop for PeerConnection {
+    fn drop(&mut self) {
+        println!("DROP");
+    }
+}
+
 impl Hash for PeerConnection {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.id.hash(state);
@@ -322,7 +328,7 @@ impl PeerConnection {
             id,
         });
 
-        obs_peer.set(Arc::clone(&res)).unwrap_or_default();
+        obs_peer.set(Arc::downgrade(&res)).unwrap_or_default();
 
         Ok(res)
     }
@@ -766,7 +772,7 @@ struct PeerConnectionObserver {
     ///
     /// Tasks with [`InnerPeer`] must be offloaded to a separate [`ThreadPool`],
     /// so the signalling thread wouldn't be blocked.
-    peer: Arc<OnceCell<Arc<PeerConnection>>>,
+    peer: Arc<OnceCell<Weak<PeerConnection>>>,
 
     /// Map of the remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
     video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
@@ -872,18 +878,18 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             return;
         }
 
-        let peer = Arc::clone(self.peer.get().unwrap());
+        let peer = self.peer.get().unwrap();
 
         let track = match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_AUDIO => {
-                let track = AudioTrack::wrap_remote(&transceiver, peer);
+                let track = AudioTrack::wrap_remote(&transceiver, peer.clone());
                 let result = api::MediaStreamTrack::from(&track);
                 self.audio_tracks.insert(track.id.clone(), track);
 
                 result
             }
             sys::MediaType::MEDIA_TYPE_VIDEO => {
-                let track = VideoTrack::wrap_remote(&transceiver, peer);
+                let track = VideoTrack::wrap_remote(&transceiver, peer.clone());
                 let result = api::MediaStreamTrack::from(&track);
                 self.video_tracks.insert(track.id.clone(), track);
 
@@ -901,23 +907,24 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let observer = Arc::clone(&self.observer);
 
             move || {
-                let peer = peer.get().unwrap();
-                let result = api::RtcTrackEvent {
-                    track,
-                    transceiver: api::RtcRtpTransceiver {
-                        transceiver: RustOpaque::new(Arc::new(RtpTransceiver(
-                            transceiver,
-                        ))),
-                        mid: Some(mid),
-                        direction: direction.into(),
-                        peer: RustOpaque::from(Arc::new(Arc::clone(peer))),
-                    },
-                };
+                if let Some(peer) = peer.get().unwrap().upgrade() {
+                    let result = api::RtcTrackEvent {
+                        track,
+                        transceiver: api::RtcRtpTransceiver {
+                            transceiver: RustOpaque::new(Arc::new(
+                                RtpTransceiver(transceiver),
+                            )),
+                            mid: Some(mid),
+                            direction: direction.into(),
+                            peer: RustOpaque::from(Arc::new(peer)),
+                        },
+                    };
 
-                observer
-                    .lock()
-                    .unwrap()
-                    .add(api::PeerConnectionEvent::Track(result));
+                    observer
+                        .lock()
+                        .unwrap()
+                        .add(api::PeerConnectionEvent::Track(result));
+                }
             }
         });
     }
