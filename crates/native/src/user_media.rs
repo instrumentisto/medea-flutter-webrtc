@@ -993,7 +993,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             id: track.id.0.clone(),
             device_id: match &track.source {
                 MediaTrackSource::Local(src) => src.device_id.to_string(),
-                MediaTrackSource::Remote { mid: _, peer: _ } => "remote".into(),
+                MediaTrackSource::Remote { .. } => "remote".into(),
             },
             kind: track.kind,
             enabled: true,

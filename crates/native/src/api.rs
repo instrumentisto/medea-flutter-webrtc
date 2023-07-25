@@ -1928,7 +1928,7 @@ pub fn set_local_description(
 ) -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
 
-    peer.set_local_description(kind.into(), sdp, tx);
+    peer.set_local_description(kind.into(), &sdp, tx);
 
     rx.recv_timeout(RX_TIMEOUT)?
 }
@@ -1941,7 +1941,7 @@ pub fn set_remote_description(
     kind: SdpType,
     sdp: String,
 ) -> anyhow::Result<()> {
-    peer.set_remote_description(kind.into(), sdp)
+    peer.set_remote_description(kind.into(), &sdp)
 }
 
 /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of transceivers

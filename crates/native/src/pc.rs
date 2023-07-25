@@ -390,14 +390,13 @@ impl PeerConnection {
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    #[allow(clippy::needless_pass_by_value)]
     pub fn set_remote_description(
         &self,
         kind: sys::SdpType,
-        sdp: String,
+        sdp: &str,
     ) -> anyhow::Result<()> {
         let (set_sdp_tx, set_sdp_rx) = mpsc::channel();
-        let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
+        let desc = sys::SessionDescriptionInterface::new(kind, sdp);
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(
             SetSdpCallback(set_sdp_tx),
         ));
@@ -522,14 +521,13 @@ impl PeerConnection {
     /// # Panics
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
-    #[allow(clippy::needless_pass_by_value)]
     pub fn set_local_description(
         &self,
         kind: sys::SdpType,
-        sdp: String,
+        sdp: &str,
         set_sdp_tx: mpsc::Sender<anyhow::Result<()>>,
     ) {
-        let desc = sys::SessionDescriptionInterface::new(kind, &sdp);
+        let desc = sys::SessionDescriptionInterface::new(kind, sdp);
         let obs = sys::SetLocalDescriptionObserver::new(Box::new(
             SetSdpCallback(set_sdp_tx),
         ));
