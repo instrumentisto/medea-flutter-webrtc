@@ -15,7 +15,7 @@ use crate::{
     Webrtc,
 };
 
-// Re-exporting since it is used in generated code.
+// Re-exporting since it is used in the generated code.
 pub use crate::{PeerConnection, RtpTransceiver};
 
 lazy_static::lazy_static! {
@@ -2173,7 +2173,6 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
         &mut WEBRTC.lock().unwrap().task_queue_factory,
     )?;
     Webrtc::set_on_device_changed(device_state);
-
     Ok(())
 }
 

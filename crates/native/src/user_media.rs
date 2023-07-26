@@ -77,7 +77,7 @@ impl Webrtc {
 
     /// Disposes a [`VideoTrack`] or [`AudioTrack`] by the provided `track_id`.
     pub fn dispose_track(&mut self, track_id: String, kind: api::MediaType) {
-        #[allow(clippy::mutable_key_type)]
+        #[allow(clippy::mutable_key_type)] // false positive
         let senders = match kind {
             api::MediaType::Audio => {
                 if let Some((_, track)) =
@@ -406,9 +406,9 @@ impl Webrtc {
                     MediaTrackSource::Remote { mid, peer } => {
                         let mut transceivers = peer
                             .upgrade()
-                            .ok_or(anyhow!(
-                                "PeerConnection have been disposed"
-                            ))?
+                            .ok_or_else(|| {
+                                anyhow!("`PeerConnection` has been disposed")
+                            })?
                             .get_transceivers();
 
                         transceivers.retain(|transceiver| {
@@ -458,9 +458,9 @@ impl Webrtc {
                     MediaTrackSource::Remote { mid, peer } => {
                         let mut transceivers = peer
                             .upgrade()
-                            .ok_or(anyhow!(
-                                "PeerConnection have been disposed"
-                            ))?
+                            .ok_or_else(|| {
+                                anyhow!("`PeerConnection` has been disposed")
+                            })?
                             .get_transceivers();
                         transceivers.retain(|transceiver| {
                             transceiver.mid().unwrap() == mid

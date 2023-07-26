@@ -73,7 +73,7 @@ impl Webrtc {
         result
     }
 
-    /// Closes the [`PeerConnection`].
+    /// Closes the provided [`PeerConnection`].
     ///
     /// # Panics
     ///
@@ -343,11 +343,11 @@ impl PeerConnection {
         self.inner.lock().unwrap().get_transceivers()
     }
 
-    /// Adds a [`sys::IceCandidateInterface`] to the given [`PeerConnection`].
+    /// Adds a [`sys::IceCandidateInterface`] to this [`PeerConnection`].
     ///
     /// # Errors
     ///
-    /// If underlying engine returns error.
+    /// If the underlying engine errors.
     ///
     /// # Panics
     ///
@@ -381,11 +381,12 @@ impl PeerConnection {
     /// Sets the specified session description as the remote peer's current
     /// offer or answer.
     ///
-    /// Returns an empty [`String`] if operation succeeds or an error otherwise.
+    /// Returns an empty [`String`] if this operation succeeds, or an error
+    /// otherwise.
     ///
     /// # Errors
     ///
-    /// If underlying engine returns error.
+    /// If the underlying engine errors.
     ///
     /// # Panics
     ///
@@ -460,7 +461,7 @@ impl PeerConnection {
         })
     }
 
-    /// Initiates the creation of a SDP offer for the purpose of starting a new
+    /// Initiates the creation of an SDP offer for the purpose of starting a new
     /// WebRTC connection to a remote peer.
     ///
     /// # Panics
@@ -486,10 +487,11 @@ impl PeerConnection {
         self.inner.lock().unwrap().create_offer(&options, obs);
     }
 
-    /// Creates a SDP answer to an offer received from a remote peer during an
+    /// Creates an SDP answer to the offer received from a remote peer during an
     /// offer/answer negotiation of a WebRTC connection.
     ///
-    /// Returns an empty [`String`] in operation succeeds or an error otherwise.
+    /// Returns an empty [`String`] if this operation succeeds, or an error
+    /// otherwise.
     ///
     /// # Panics
     ///
@@ -514,9 +516,10 @@ impl PeerConnection {
         self.inner.lock().unwrap().create_answer(&options, obs);
     }
 
-    /// Changes the local description associated with the connection.
+    /// Changes the local description associated with this [`PeerConnection`].
     ///
-    /// Returns an empty [`String`] in operation succeeds or an error otherwise.
+    /// Returns an empty [`String`] if this operation succeeds, or an error
+    /// otherwise.
     ///
     /// # Panics
     ///
@@ -534,7 +537,7 @@ impl PeerConnection {
         self.inner.lock().unwrap().set_local_description(desc, obs);
     }
 
-    /// Returns [`RtcStats`] of the [`PeerConnection`].
+    /// Returns [`RtcStats`] of this [`PeerConnection`].
     ///
     /// # Panics
     ///
@@ -548,7 +551,7 @@ impl PeerConnection {
     ///
     /// # Errors
     ///
-    /// If underlying engine returns error.
+    /// If the underlying engine errors.
     ///
     /// # Panics
     ///
@@ -563,20 +566,20 @@ pub struct RtpTransceiver {
     /// Native-side transceiver.
     inner: sys::RtpTransceiverInterface,
 
-    /// ID of a [`PeerConnection`] that this transceiver belongs to.
+    /// ID of a [`PeerConnection`] that this [`RtpTransceiver`] belongs to.
     peer_id: PeerConnectionId,
 
-    /// Index of this transeiver in it's [`PeerConnection`]s transceiver list.
+    /// Index of this [`RtpTransceiver`] in it's [`PeerConnection`]s
+    /// transceivers list.
     index: usize,
 }
 
 impl RtpTransceiver {
-    /// Changes the preferred `direction` of the specified
-    /// [`RtcRtpTransceiver`].
+    /// Changes the preferred `direction` of this [`RtpTransceiver`].
     ///
     /// # Errors
     ///
-    /// If underlying engine returns error.
+    /// If the underlying engine errors.
     pub fn set_direction(
         &self,
         direction: api::RtpTransceiverDirection,
@@ -584,11 +587,11 @@ impl RtpTransceiver {
         self.inner.set_direction(direction.into())
     }
 
-    /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
+    /// Changes the receive direction of this [`RtpTransceiver`].
     ///
     /// # Errors
     ///
-    /// If underlying engine returns error.
+    /// If the underlying engine errors.
     pub fn set_recv(&self, recv: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
@@ -607,11 +610,11 @@ impl RtpTransceiver {
         }
     }
 
-    /// Changes the send direction of the specified [`RtcRtpTransceiver`].
+    /// Changes the send direction of this [`RtpTransceiver`].
     ///
     /// # Errors
     ///
-    /// If underlying engine returns error.
+    /// If the underlying engine errors.
     pub fn set_send(&self, send: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
@@ -630,8 +633,7 @@ impl RtpTransceiver {
         }
     }
 
-    /// Returns the [Negotiated media ID (mid)][1] of the specified
-    /// [`RtcRtpTransceiver`].
+    /// Returns the [Negotiated media ID (mid)][1] of this [`RtpTransceiver`].
     ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     #[must_use]
@@ -639,27 +641,27 @@ impl RtpTransceiver {
         self.inner.mid()
     }
 
-    /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
+    /// Returns the preferred direction of this [`RtpTransceiver`].
     #[must_use]
     pub fn direction(&self) -> sys::RtpTransceiverDirection {
         self.inner.direction()
     }
 
-    /// Returns [`MediaType`] of this [`RtpTransceiver`].
+    /// Returns the [`MediaType`] of this [`RtpTransceiver`].
     #[must_use]
     pub fn media_type(&self) -> sys::MediaType {
         self.inner.media_type()
     }
 
-    /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping,
-    /// unless it's already stopped.
+    /// Irreversibly marks this [`RtpTransceiver`] as stopping, unless it's
+    /// already stopped.
     ///
-    /// This will immediately cause the transceiver's sender to no longer send,
-    /// and its receiver to no longer receive.
+    /// This will immediately cause this [`RtpTransceiver`]'s sender to no
+    /// longer send, and its receiver to no longer receive.
     ///
     /// # Errors
     ///
-    /// If underlying engine returns error.
+    /// If the underlying engine errors.
     pub fn stop(&self) -> anyhow::Result<()> {
         self.inner.stop()
     }
