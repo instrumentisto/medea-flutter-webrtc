@@ -9,8 +9,20 @@
 #include "libwebrtc-sys/include/bridge.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
-
+#include "api/video_codecs/video_decoder_factory_template.h"
+#include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
+#include "api/video_codecs/video_decoder_factory_template_libvpx_vp8_adapter.h"
+#include "api/video_codecs/video_decoder_factory_template_libvpx_vp9_adapter.h"
+#include "api/video_codecs/video_decoder_factory_template_open_h264_adapter.h"
+#include "api/video_codecs/video_encoder_factory_template.h"
+#include "api/video_codecs/video_encoder_factory_template_libaom_av1_adapter.h"
+#include "api/video_codecs/video_encoder_factory_template_libvpx_vp8_adapter.h"
+#include "api/video_codecs/video_encoder_factory_template_libvpx_vp9_adapter.h"
+#include "api/video_codecs/video_encoder_factory_template_open_h264_adapter.h"
+#include "pc/proxy.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
+#include "test_audio_device_module.cc"
+
 
 namespace bridge {
 
@@ -71,11 +83,11 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     TaskQueueFactory& task_queue_factory) {
   auto capture =
-      webrtc::TestAudioDeviceModule::CreatePulsedNoiseCapturer(1024, 8000);
-  auto renderer = webrtc::TestAudioDeviceModule::CreateDiscardRenderer(8000);
+      webrtc::_CreatePulsedNoiseCapturer(1024, 8000, 1);
+  auto renderer = webrtc::_CreateDiscardRenderer(8000, 1);
 
-  auto adm_fake = webrtc::TestAudioDeviceModule::Create(
-      &task_queue_factory, std::move(capture), std::move(renderer));
+  auto adm_fake = webrtc::_Create(
+      &task_queue_factory, std::move(capture), std::move(renderer), 1);
   return std::make_unique<AudioDeviceModule>(adm_fake);
 }
 
@@ -88,21 +100,21 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-#if __APPLE__
-  auto dvc = MacCapturer::Create(width, height, fps, device);
-#else
-  auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
-#endif
-  if (dvc == nullptr) {
-    return nullptr;
-  }
+  rtc::scoped_refptr<DeviceVideoCapturer> dvc =
+      signaling_thread.BlockingCall([width, height, fps, device] {
+      #if __APPLE__
+        auto dvc = MacCapturer::Create(width, height, fps, device);
+      #else
+        auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
+      #endif
+        return dvc;
+  });
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
                                                  &worker_thread, dvc.get());
   if (src == nullptr) {
     return nullptr;
   }
-
   return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
@@ -486,13 +498,23 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm,
     const std::unique_ptr<AudioProcessing>& ap) {
+      
+  std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
+      std::make_unique<webrtc::VideoEncoderFactoryTemplate<
+          webrtc::LibvpxVp8EncoderTemplateAdapter, webrtc::LibvpxVp9EncoderTemplateAdapter,
+          webrtc::OpenH264EncoderTemplateAdapter, webrtc::LibaomAv1EncoderTemplateAdapter>>();
+  std::unique_ptr<webrtc::VideoDecoderFactory> video_decoder_factory =
+      std::make_unique<webrtc::VideoDecoderFactoryTemplate<
+          webrtc::LibvpxVp8DecoderTemplateAdapter, webrtc::LibvpxVp9DecoderTemplateAdapter,
+          webrtc::OpenH264DecoderTemplateAdapter, webrtc::Dav1dDecoderTemplateAdapter>>();
+
   auto factory = webrtc::CreatePeerConnectionFactory(
       network_thread.get(), worker_thread.get(), signaling_thread.get(),
       default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
-      webrtc::CreateBuiltinVideoEncoderFactory(),
-      webrtc::CreateBuiltinVideoDecoderFactory(), nullptr, ap ? *ap : nullptr);
+      std::move(video_encoder_factory),
+      std::move(video_decoder_factory), nullptr, ap ? *ap : nullptr);
 
   if (factory == nullptr) {
     return nullptr;
