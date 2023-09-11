@@ -100,7 +100,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-  rtc::scoped_refptr<DeviceVideoCapturer> dvc =
+  auto dvc =
     #if __APPLE__
       signaling_thread.BlockingCall([width, height, fps, device] {
         return MacCapturer::Create(width, height, fps, device);
