@@ -67,7 +67,7 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
             .flag("-DWEBRTC_USE_X11")
-            .flag("-std=c++20");
+            .flag("-std=c++17");
     }
     #[cfg(target_os = "macos")]
     {
@@ -79,7 +79,7 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_MAC")
             .flag("-DWEBRTC_ENABLE_OBJC_SYMBOL_EXPORT")
             .flag("-DWEBRTC_LIBRARY_IMPL")
-            .flag("-std=c++20")
+            .flag("-std=c++17")
             .flag("-objC")
             .flag("-fobjc-arc");
     }
