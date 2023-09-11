@@ -67,7 +67,7 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
             .flag("-DWEBRTC_USE_X11")
-            .flag("-std=c++17");
+            .flag("-std=c++20");
     }
     #[cfg(target_os = "macos")]
     {
@@ -79,14 +79,14 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_MAC")
             .flag("-DWEBRTC_ENABLE_OBJC_SYMBOL_EXPORT")
             .flag("-DWEBRTC_LIBRARY_IMPL")
-            .flag("-std=c++17")
+            .flag("-std=c++20")
             .flag("-objC")
             .flag("-fobjc-arc");
     }
     #[cfg(target_os = "windows")]
     {
         println!("cargo:rustc-link-lib=OpenAL32");
-        build.flag("-DWEBRTC_WIN").flag("/std:c++17");
+        build.flag("-DWEBRTC_WIN").flag("/std:c++20");
     }
 
     #[cfg(feature = "fake_media")]
