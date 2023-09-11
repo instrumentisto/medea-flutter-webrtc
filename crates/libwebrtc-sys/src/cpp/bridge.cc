@@ -101,15 +101,16 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t fps,
     uint32_t device) {
   rtc::scoped_refptr<DeviceVideoCapturer> dvc =
+    #if __APPLE__
       signaling_thread.BlockingCall([width, height, fps, device] {
-      #if __APPLE__
-        auto dvc = MacCapturer::Create(width, height, fps, device);
-      #else
-        auto dvc = DeviceVideoCapturer::Create(width, height, fps, device);
-      #endif
-        return dvc;
-  });
-
+        return MacCapturer::Create(width, height, fps, device);
+      });
+    #else
+      signaling_thread.BlockingCall([width, height, fps, device] {
+        return DeviceVideoCapturer::Create(width, height, fps, device);
+      });
+    #endif
+    
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
                                                  &worker_thread, dvc.get());
   if (src == nullptr) {
@@ -498,7 +499,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm,
     const std::unique_ptr<AudioProcessing>& ap) {
-      
+
   std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
       std::make_unique<webrtc::VideoEncoderFactoryTemplate<
           webrtc::LibvpxVp8EncoderTemplateAdapter, webrtc::LibvpxVp9EncoderTemplateAdapter,
