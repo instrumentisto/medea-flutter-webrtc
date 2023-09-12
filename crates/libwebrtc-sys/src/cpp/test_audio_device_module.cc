@@ -55,9 +55,9 @@ class TestADM : public AudioDeviceGeneric {
   // `renderer` is an object that receives audio data that would have been
   // played out. Can be nullptr if this device is never used for playing.
   TestADM(TaskQueueFactory* task_queue_factory,
-                  std::unique_ptr<TestAudioDeviceModule::Capturer> capturer,
-                  std::unique_ptr<TestAudioDeviceModule::Renderer> renderer,
-                  float speed = 1)
+          std::unique_ptr<TestAudioDeviceModule::Capturer> capturer,
+          std::unique_ptr<TestAudioDeviceModule::Renderer> renderer,
+          float speed = 1)
       : task_queue_factory_(task_queue_factory),
         capturer_(std::move(capturer)),
         renderer_(std::move(renderer)),
@@ -73,9 +73,7 @@ class TestADM : public AudioDeviceGeneric {
     if (renderer_) {
       const int sample_rate = renderer_->SamplingFrequency();
       playout_buffer_.resize(
-          _SamplesPerFrame(sample_rate) *
-              renderer_->NumChannels(),
-          0);
+          _SamplesPerFrame(sample_rate) * renderer_->NumChannels(), 0);
       RTC_CHECK(good_sample_rate(sample_rate));
     }
     if (capturer_) {
@@ -361,7 +359,6 @@ class TestADM : public AudioDeviceGeneric {
   std::unique_ptr<rtc::TaskQueue> task_queue_;
 };
 
-
 // TestAudioDeviceModule implements an AudioDevice module that can act both as a
 // capturer and a renderer. It will use 10ms audio frames.
 class TestADMImpl
@@ -375,9 +372,9 @@ class TestADMImpl
   // played out. Can be nullptr if this device is never used for playing.
   // Use one of the Create... functions to get these instances.
   TestADMImpl(TaskQueueFactory* task_queue_factory,
-                            std::unique_ptr<Capturer> capturer,
-                            std::unique_ptr<Renderer> renderer,
-                            float speed = 1)
+              std::unique_ptr<Capturer> capturer,
+              std::unique_ptr<Renderer> renderer,
+              float speed = 1)
       : task_queue_factory_(task_queue_factory),
         capturer_(std::move(capturer)),
         renderer_(std::move(renderer)),
@@ -529,8 +526,8 @@ class TestPulsedNoiseCapturerImpl final
  public:
   // Assuming 10ms audio packets.
   TestPulsedNoiseCapturerImpl(int16_t max_amplitude,
-                          int sampling_frequency_in_hz,
-                          int num_channels)
+                              int sampling_frequency_in_hz,
+                              int num_channels)
       : sampling_frequency_in_hz_(sampling_frequency_in_hz),
         fill_with_zero_(false),
         random_generator_(1),
@@ -550,19 +547,18 @@ class TestPulsedNoiseCapturerImpl final
       MutexLock lock(&lock_);
       max_amplitude = max_amplitude_;
     }
-    buffer->SetData(
-        _SamplesPerFrame(sampling_frequency_in_hz_) *
-            num_channels_,
-        [&](rtc::ArrayView<int16_t> data) {
-          if (fill_with_zero_) {
-            std::fill(data.begin(), data.end(), 0);
-          } else {
-            std::generate(data.begin(), data.end(), [&]() {
-              return random_generator_.Rand(-max_amplitude, max_amplitude);
-            });
-          }
-          return data.size();
-        });
+    buffer->SetData(_SamplesPerFrame(sampling_frequency_in_hz_) * num_channels_,
+                    [&](rtc::ArrayView<int16_t> data) {
+                      if (fill_with_zero_) {
+                        std::fill(data.begin(), data.end(), 0);
+                      } else {
+                        std::generate(data.begin(), data.end(), [&]() {
+                          return random_generator_.Rand(-max_amplitude,
+                                                        max_amplitude);
+                        });
+                      }
+                      return data.size();
+                    });
     return true;
   }
 
@@ -599,7 +595,7 @@ class TestDiscardRenderer final : public TestAudioDeviceModule::Renderer {
 
 }  // namespace
 
-rtc::scoped_refptr<AudioDeviceModule> _Create(
+rtc::scoped_refptr<AudioDeviceModule> CreateTestAdm(
     TaskQueueFactory* task_queue_factory,
     std::unique_ptr<TestAudioDeviceModule::Capturer> capturer,
     std::unique_ptr<TestAudioDeviceModule::Renderer> renderer,
@@ -609,18 +605,18 @@ rtc::scoped_refptr<AudioDeviceModule> _Create(
 }
 
 std::unique_ptr<TestAudioDeviceModule::PulsedNoiseCapturer>
-_CreatePulsedNoiseCapturer(int16_t max_amplitude,
-                                                 int sampling_frequency_in_hz,
-                                                 int num_channels) {
+CreatePulsedNoiseCapturer(int16_t max_amplitude,
+                           int sampling_frequency_in_hz,
+                           int num_channels) {
   return std::make_unique<TestPulsedNoiseCapturerImpl>(
       max_amplitude, sampling_frequency_in_hz, num_channels);
 }
 
-std::unique_ptr<TestAudioDeviceModule::Renderer>
-_CreateDiscardRenderer(int sampling_frequency_in_hz,
-                                             int num_channels) {
+std::unique_ptr<TestAudioDeviceModule::Renderer> CreateDiscardRenderer(
+    int sampling_frequency_in_hz,
+    int num_channels) {
   return std::make_unique<TestDiscardRenderer>(sampling_frequency_in_hz,
-                                           num_channels);
+                                               num_channels);
 }
 
 }  // namespace webrtc

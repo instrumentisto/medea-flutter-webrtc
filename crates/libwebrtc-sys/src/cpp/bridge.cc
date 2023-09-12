@@ -83,11 +83,12 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     TaskQueueFactory& task_queue_factory) {
   auto capture =
-      webrtc::_CreatePulsedNoiseCapturer(1024, 8000, 1);
-  auto renderer = webrtc::_CreateDiscardRenderer(8000, 1);
+      webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
+  auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
 
-  auto adm_fake = webrtc::_Create(
+  auto adm_fake = webrtc::CreateTestAdm(
       &task_queue_factory, std::move(capture), std::move(renderer), 1);
+
   return std::make_unique<AudioDeviceModule>(adm_fake);
 }
 
@@ -100,22 +101,26 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-  auto dvc =
     #if __APPLE__
-      signaling_thread.BlockingCall([width, height, fps, device] {
+      auto dvc = signaling_thread.BlockingCall([width, height, fps, device] {
         return MacCapturer::Create(width, height, fps, device);
       });
     #else
-      signaling_thread.BlockingCall([width, height, fps, device] {
+      auto dvc = signaling_thread.BlockingCall([width, height, fps, device] {
         return DeviceVideoCapturer::Create(width, height, fps, device);
       });
     #endif
-    
+
+  if (dvc == nullptr) {
+    return nullptr;
+  }
+
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
                                                  &worker_thread, dvc.get());
   if (src == nullptr) {
     return nullptr;
   }
+
   return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
