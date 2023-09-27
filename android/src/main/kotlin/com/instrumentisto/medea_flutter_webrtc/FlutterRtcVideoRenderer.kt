@@ -55,8 +55,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
        * @param width New width of the video.
        * @param rotation New rotation of the video.
        */
-      fun onTextureChangeVideoSize(id: Long, height: Int, width: Int, rotation: Int) 
-
+      fun onTextureChangeVideoSize(id: Long, height: Int, width: Int, rotation: Int)
     }
   }
 

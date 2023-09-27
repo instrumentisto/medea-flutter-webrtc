@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:medea_flutter_webrtc/src/api/peer.dart';
 
+import 'package:medea_flutter_webrtc/src/api/peer.dart';
 import '../video_renderer.dart';
 
 class VideoView extends StatelessWidget {

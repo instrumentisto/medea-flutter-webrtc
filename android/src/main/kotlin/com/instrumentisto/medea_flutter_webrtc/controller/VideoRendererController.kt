@@ -52,7 +52,6 @@ class VideoRendererController(
                     "height" to height,
                     "rotation" to rotation))
           }
-
         })
   }
 
