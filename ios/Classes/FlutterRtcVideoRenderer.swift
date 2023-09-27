@@ -240,14 +240,14 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
 
     var rotation = 0
     switch renderFrame!.rotation {
-      case RTCVideoRotation._0:
-        rotation = 0
-      case RTCVideoRotation._90:
-        rotation = 90
-      case RTCVideoRotation._180:
-        rotation = 180
-      case RTCVideoRotation._270:
-        rotation = 270
+    case RTCVideoRotation._0:
+      rotation = 0
+    case RTCVideoRotation._90:
+      rotation = 90
+    case RTCVideoRotation._180:
+      rotation = 180
+    case RTCVideoRotation._270:
+      rotation = 270
     }
 
     let buffer = self.correctRotation(frame: renderFrame!)
@@ -255,13 +255,14 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     let isFrameHeightChanged = self.frameHeight != renderFrame!.buffer.height
     if isFrameWidthChanged
       || isFrameHeightChanged
-      || self.frameRotation != rotation {
+      || self.frameRotation != rotation
+    {
       self.frameWidth = renderFrame!.buffer.width
       self.frameHeight = renderFrame!.buffer.height
       self.broadcastEventObserver().onTextureChange(
-        id: self.textureId, 
-        height: self.frameHeight, 
-        width: self.frameWidth, 
+        id: self.textureId,
+        height: self.frameHeight,
+        width: self.frameWidth,
         rotation: self.frameRotation
       )
     }
@@ -270,7 +271,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       self.rendererLock.unlock()
       return
     }
-    
+
     CVPixelBufferLockBaseAddress(
       self.pixelBuffer!,
       CVPixelBufferLockFlags(rawValue: 0)
