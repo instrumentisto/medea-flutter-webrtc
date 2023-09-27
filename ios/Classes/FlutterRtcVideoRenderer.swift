@@ -79,7 +79,12 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
         }
       }
 
-      func onTextureChange(id: Int64, height: Int32, width: Int32, rotation: Int) {
+      func onTextureChange(
+        id: Int64,
+        height: Int32,
+        width: Int32,
+        rotation: Int
+      ) {
         for observer in self.observers {
           observer.onTextureChange(
             id: id,
@@ -235,20 +240,22 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
 
     var rotation = 0
     switch renderFrame!.rotation {
-    case RTCVideoRotation._0:
-      rotation = 0
-    case RTCVideoRotation._90:
-      rotation = 90
-    case RTCVideoRotation._180:
-      rotation = 180
-    case RTCVideoRotation._270:
-      rotation = 270
+      case RTCVideoRotation._0:
+        rotation = 0
+      case RTCVideoRotation._90:
+        rotation = 90
+      case RTCVideoRotation._180:
+        rotation = 180
+      case RTCVideoRotation._270:
+        rotation = 270
     }
 
     let buffer = self.correctRotation(frame: renderFrame!)
     let isFrameWidthChanged = self.frameWidth != renderFrame!.buffer.width
     let isFrameHeightChanged = self.frameHeight != renderFrame!.buffer.height
-    if isFrameWidthChanged || isFrameHeightChanged || self.frameRotation != rotation {
+    if isFrameWidthChanged
+      || isFrameHeightChanged
+      || self.frameRotation != rotation {
       self.frameWidth = renderFrame!.buffer.width
       self.frameHeight = renderFrame!.buffer.height
       self.broadcastEventObserver().onTextureChange(
@@ -258,10 +265,12 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
         rotation: self.frameRotation
       )
     }
+
     if self.pixelBuffer == nil {
       self.rendererLock.unlock()
       return
     }
+    
     CVPixelBufferLockBaseAddress(
       self.pixelBuffer!,
       CVPixelBufferLockFlags(rawValue: 0)
