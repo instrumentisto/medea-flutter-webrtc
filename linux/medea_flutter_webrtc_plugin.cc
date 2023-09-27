@@ -80,28 +80,17 @@ class TextureVideoRenderer {
       }
       first_frame_rendered = true;
     }
-    if (rotation_ != frame.rotation) {
+    if (!texture_->frame_ ||
+        texture_->frame_->buffer_size != frame.buffer_size ||
+        rotation_ != frame.rotation) {
       if (send_events_) {
         g_autoptr(FlValue) map = fl_value_new_map();
 
         fl_value_set_string_take(
-            map, "event", fl_value_new_string("onTextureChangeRotation"));
+            map, "event", fl_value_new_string("onTextureChange"));
         fl_value_set_string_take(map, "id", fl_value_new_int(texture_id_));
         fl_value_set_string_take(map, "rotation",
                                  fl_value_new_int((int32_t)frame.rotation));
-
-        fl_event_channel_send(event_channel_, map, nullptr, nullptr);
-      }
-      rotation_ = frame.rotation;
-    }
-    if (!texture_->frame_ ||
-        texture_->frame_->buffer_size != frame.buffer_size) {
-      if (send_events_) {
-        g_autoptr(FlValue) map = fl_value_new_map();
-
-        fl_value_set_string_take(
-            map, "event", fl_value_new_string("onTextureChangeVideoSize"));
-        fl_value_set_string_take(map, "id", fl_value_new_int(texture_id_));
         fl_value_set_string_take(map, "width",
                                  fl_value_new_int((int32_t)frame.width));
         fl_value_set_string_take(map, "height",
@@ -109,6 +98,7 @@ class TextureVideoRenderer {
 
         fl_event_channel_send(event_channel_, map, nullptr, nullptr);
       }
+      rotation_ = frame.rotation;
     }
 
     texture_->mutex.lock();

@@ -1,26 +1,28 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:medea_flutter_webrtc/src/api/peer.dart';
 
 import '../video_renderer.dart';
 
 class VideoView extends StatelessWidget {
-  const VideoView(
+  VideoView(
     this._renderer, {
     Key? key,
     this.objectFit = VideoViewObjectFit.contain,
     this.mirror = false,
     this.enableContextMenu = true,
     this.filterQuality = FilterQuality.low,
-    this.autoRotate = true,
-  }) : super(key: key);
+  }) : super(key: key) {
+    autoRotate = isDesktop;
+  }
 
   final VideoRenderer _renderer;
   final VideoViewObjectFit objectFit;
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
-  final bool autoRotate;
+  late final bool autoRotate;
 
   NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;
 

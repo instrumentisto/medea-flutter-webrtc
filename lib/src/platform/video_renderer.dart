@@ -23,7 +23,7 @@ class RTCVideoValue {
   final int rotation;
   final bool renderVideo;
 
-  int get quarterTurnsRotation => (rotation / 90).round();
+  int get quarterTurnsRotation => ((360 - rotation) / 90).round();
 
   double get aspectRatio {
     if (width == 0.0 || height == 0.0) {

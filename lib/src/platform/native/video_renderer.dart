@@ -63,16 +63,23 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   void eventListener(dynamic event) {
     final dynamic map = event;
     switch (map['event']) {
-      case 'onTextureChangeRotation':
-        value =
-            value.copyWith(rotation: map['rotation'], renderVideo: renderVideo);
-        onResize?.call();
-        break;
-      case 'onTextureChangeVideoSize':
+      case 'onTextureChange':
+        var rotation = map['rotation'];
+        var width = 0.0 + map['width'];
+        var height = 0.0 + map['height'];
+
+        if (isDesktop) {
+          width = rotation % 180 == 0 ? width : height;
+          height = rotation % 180 == 0 ? height : width;
+        }
+
         value = value.copyWith(
-            width: 0.0 + map['width'],
-            height: 0.0 + map['height'],
-            renderVideo: renderVideo);
+          rotation: rotation,
+          width: width,
+          height: height,
+          renderVideo: renderVideo,
+        );
+
         onResize?.call();
         break;
       case 'onFirstFrameRendered':
