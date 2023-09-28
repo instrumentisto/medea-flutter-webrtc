@@ -1042,6 +1042,7 @@ pub struct RtpTransceiverInit(UniquePtr<webrtc::RtpTransceiverInit>);
 
 impl RtpTransceiverInit {
     /// Creates a new [`RtpTransceiverInit`].
+    #[must_use]
     pub fn new() -> Self {
         Self(webrtc::create_default_rtp_transceiver_init())
     }
@@ -1062,6 +1063,12 @@ impl RtpTransceiverInit {
     }
 }
 
+impl Default for RtpTransceiverInit {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 unsafe impl Sync for webrtc::RtpTransceiverInit {}
 unsafe impl Send for webrtc::RtpTransceiverInit {}
 
@@ -1072,6 +1079,7 @@ pub struct RtpEncodingParameters(webrtc::RtpEncodingParametersContainer);
 
 impl RtpEncodingParameters {
     /// Creates a new [`RtpEncodingParameters`].
+    #[must_use]
     pub fn new() -> Self {
         Self(webrtc::create_rtp_encoding_parameters())
     }
@@ -1095,7 +1103,7 @@ impl RtpEncodingParameters {
     ///
     /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpencodingparameters-active
     pub fn set_active(&mut self, active: bool) {
-        webrtc::set_rtp_encoding_parameters_active(self.0.ptr.pin_mut(), active)
+        webrtc::set_rtp_encoding_parameters_active(self.0.ptr.pin_mut(), active);
     }
 
     /// Returns the [`maxBitrate`][0] property of these
@@ -1182,6 +1190,12 @@ impl RtpEncodingParameters {
             self.0.ptr.pin_mut(),
             scalability_mode,
         );
+    }
+}
+
+impl Default for RtpEncodingParameters {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

@@ -1927,22 +1927,25 @@ pub fn create_transceiver_init() -> RustOpaque<Arc<RtpTransceiverInit>> {
 }
 
 /// Sets a provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn set_transceiver_init_direction(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
     direction: RtpTransceiverDirection,
 ) {
-    init.set_direction(direction)
+    init.set_direction(direction);
 }
 
 /// Adds a provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn add_transceiver_init_send_encoding(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
     encoding: RustOpaque<Arc<RtpEncodingParameters>>,
 ) {
-    init.add_encoding(encoding)
+    init.add_encoding(&encoding);
 }
 
 /// Creates a new [`RtpEncodingParameters`] with provided `rid` and `active`.
+#[allow(clippy::needless_pass_by_value)]
 pub fn create_encoding_parameters(
     rid: String,
     active: bool,
@@ -1954,6 +1957,7 @@ pub fn create_encoding_parameters(
 }
 
 /// Sets a provided `max_bitrate` to the [`RtpEncodingParameters`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn set_encoding_parameters_max_bitrate(
     encoding: RustOpaque<Arc<RtpEncodingParameters>>,
     max_bitrate: i32,
@@ -1962,6 +1966,7 @@ pub fn set_encoding_parameters_max_bitrate(
 }
 
 /// Sets a provided `max_framerate` to the [`RtpEncodingParameters`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn set_encoding_parameters_max_framerate(
     encoding: RustOpaque<Arc<RtpEncodingParameters>>,
     max_framerate: f64,
@@ -1970,6 +1975,7 @@ pub fn set_encoding_parameters_max_framerate(
 }
 
 /// Sets a provided `scale_resolution_down_by` to the [`RtpEncodingParameters`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn set_encoding_parameters_scale_resolution_down_by(
     encoding: RustOpaque<Arc<RtpEncodingParameters>>,
     scale_resolution_down_by: f64,
@@ -1978,6 +1984,7 @@ pub fn set_encoding_parameters_scale_resolution_down_by(
 }
 
 /// Sets a provided `scalability_mode` to the [`RtpEncodingParameters`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn set_encoding_parameters_scalability_mode(
     encoding: RustOpaque<Arc<RtpEncodingParameters>>,
     scalability_mode: String,
@@ -2012,12 +2019,13 @@ pub fn set_remote_description(
 
 /// Creates a new [`RtcRtpTransceiver`] and adds it to the set of transceivers
 /// of the specified [`PeerConnection`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn add_transceiver(
     peer: RustOpaque<Arc<PeerConnection>>,
     media_type: MediaType,
     init: RustOpaque<Arc<RtpTransceiverInit>>,
 ) -> anyhow::Result<RtcRtpTransceiver> {
-    PeerConnection::add_transceiver(peer, media_type.into(), init)
+    PeerConnection::add_transceiver(peer, media_type.into(), &init)
 }
 
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
