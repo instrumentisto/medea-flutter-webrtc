@@ -64,6 +64,86 @@ pub extern "C" fn wire_create_answer(
 }
 
 #[no_mangle]
+pub extern "C" fn wire_create_transceiver_init(port_: i64) {
+    wire_create_transceiver_init_impl(port_)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_set_transceiver_init_direction(
+    port_: i64,
+    init: wire_ArcRtpTransceiverInit,
+    direction: i32,
+) {
+    wire_set_transceiver_init_direction_impl(port_, init, direction)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_add_transceiver_init_send_encoding(
+    port_: i64,
+    init: wire_ArcRtpTransceiverInit,
+    encoding: wire_ArcRtpEncodingParameters,
+) {
+    wire_add_transceiver_init_send_encoding_impl(port_, init, encoding)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_create_encoding_parameters(
+    port_: i64,
+    rid: *mut wire_uint_8_list,
+    active: bool,
+) {
+    wire_create_encoding_parameters_impl(port_, rid, active)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_set_encoding_parameters_max_bitrate(
+    port_: i64,
+    encoding: wire_ArcRtpEncodingParameters,
+    max_bitrate: i32,
+) {
+    wire_set_encoding_parameters_max_bitrate_impl(port_, encoding, max_bitrate)
+}
+
+#[no_mangle]
+pub extern "C" fn wire_set_encoding_parameters_max_framerate(
+    port_: i64,
+    encoding: wire_ArcRtpEncodingParameters,
+    max_framerate: f64,
+) {
+    wire_set_encoding_parameters_max_framerate_impl(
+        port_,
+        encoding,
+        max_framerate,
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_set_encoding_parameters_scale_resolution_down_by(
+    port_: i64,
+    encoding: wire_ArcRtpEncodingParameters,
+    scale_resolution_down_by: f64,
+) {
+    wire_set_encoding_parameters_scale_resolution_down_by_impl(
+        port_,
+        encoding,
+        scale_resolution_down_by,
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_set_encoding_parameters_scalability_mode(
+    port_: i64,
+    encoding: wire_ArcRtpEncodingParameters,
+    scalability_mode: *mut wire_uint_8_list,
+) {
+    wire_set_encoding_parameters_scalability_mode_impl(
+        port_,
+        encoding,
+        scalability_mode,
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_set_local_description(
     port_: i64,
     peer: wire_ArcPeerConnection,
@@ -88,9 +168,9 @@ pub extern "C" fn wire_add_transceiver(
     port_: i64,
     peer: wire_ArcPeerConnection,
     media_type: i32,
-    direction: i32,
+    init: wire_ArcRtpTransceiverInit,
 ) {
-    wire_add_transceiver_impl(port_, peer, media_type, direction)
+    wire_add_transceiver_impl(port_, peer, media_type, init)
 }
 
 #[no_mangle]
@@ -305,8 +385,19 @@ pub extern "C" fn new_ArcPeerConnection() -> wire_ArcPeerConnection {
 }
 
 #[no_mangle]
+pub extern "C" fn new_ArcRtpEncodingParameters() -> wire_ArcRtpEncodingParameters
+{
+    wire_ArcRtpEncodingParameters::new_with_null_ptr()
+}
+
+#[no_mangle]
 pub extern "C" fn new_ArcRtpTransceiver() -> wire_ArcRtpTransceiver {
     wire_ArcRtpTransceiver::new_with_null_ptr()
+}
+
+#[no_mangle]
+pub extern "C" fn new_ArcRtpTransceiverInit() -> wire_ArcRtpTransceiverInit {
+    wire_ArcRtpTransceiverInit::new_with_null_ptr()
 }
 
 #[no_mangle]
@@ -388,6 +479,23 @@ pub extern "C" fn share_opaque_ArcPeerConnection(
 }
 
 #[no_mangle]
+pub extern "C" fn drop_opaque_ArcRtpEncodingParameters(ptr: *const c_void) {
+    unsafe {
+        Arc::<Arc<RtpEncodingParameters>>::decrement_strong_count(ptr as _);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn share_opaque_ArcRtpEncodingParameters(
+    ptr: *const c_void,
+) -> *const c_void {
+    unsafe {
+        Arc::<Arc<RtpEncodingParameters>>::increment_strong_count(ptr as _);
+        ptr
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn drop_opaque_ArcRtpTransceiver(ptr: *const c_void) {
     unsafe {
         Arc::<Arc<RtpTransceiver>>::decrement_strong_count(ptr as _);
@@ -404,6 +512,23 @@ pub extern "C" fn share_opaque_ArcRtpTransceiver(
     }
 }
 
+#[no_mangle]
+pub extern "C" fn drop_opaque_ArcRtpTransceiverInit(ptr: *const c_void) {
+    unsafe {
+        Arc::<Arc<RtpTransceiverInit>>::decrement_strong_count(ptr as _);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn share_opaque_ArcRtpTransceiverInit(
+    ptr: *const c_void,
+) -> *const c_void {
+    unsafe {
+        Arc::<Arc<RtpTransceiverInit>>::increment_strong_count(ptr as _);
+        ptr
+    }
+}
+
 // Section: impl Wire2Api
 
 impl Wire2Api<RustOpaque<Arc<PeerConnection>>> for wire_ArcPeerConnection {
@@ -411,8 +536,22 @@ impl Wire2Api<RustOpaque<Arc<PeerConnection>>> for wire_ArcPeerConnection {
         unsafe { support::opaque_from_dart(self.ptr as _) }
     }
 }
+impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>>
+    for wire_ArcRtpEncodingParameters
+{
+    fn wire2api(self) -> RustOpaque<Arc<RtpEncodingParameters>> {
+        unsafe { support::opaque_from_dart(self.ptr as _) }
+    }
+}
 impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> for wire_ArcRtpTransceiver {
     fn wire2api(self) -> RustOpaque<Arc<RtpTransceiver>> {
+        unsafe { support::opaque_from_dart(self.ptr as _) }
+    }
+}
+impl Wire2Api<RustOpaque<Arc<RtpTransceiverInit>>>
+    for wire_ArcRtpTransceiverInit
+{
+    fn wire2api(self) -> RustOpaque<Arc<RtpTransceiverInit>> {
         unsafe { support::opaque_from_dart(self.ptr as _) }
     }
 }
@@ -530,7 +669,19 @@ pub struct wire_ArcPeerConnection {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct wire_ArcRtpEncodingParameters {
+    ptr: *const core::ffi::c_void,
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct wire_ArcRtpTransceiver {
+    ptr: *const core::ffi::c_void,
+}
+
+#[repr(C)]
+#[derive(Clone)]
+pub struct wire_ArcRtpTransceiverInit {
     ptr: *const core::ffi::c_void,
 }
 
@@ -613,7 +764,21 @@ impl NewWithNullPtr for wire_ArcPeerConnection {
         }
     }
 }
+impl NewWithNullPtr for wire_ArcRtpEncodingParameters {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            ptr: core::ptr::null(),
+        }
+    }
+}
 impl NewWithNullPtr for wire_ArcRtpTransceiver {
+    fn new_with_null_ptr() -> Self {
+        Self {
+            ptr: core::ptr::null(),
+        }
+    }
+}
+impl NewWithNullPtr for wire_ArcRtpTransceiverInit {
     fn new_with_null_ptr() -> Self {
         Self {
             ptr: core::ptr::null(),

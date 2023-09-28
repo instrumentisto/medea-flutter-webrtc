@@ -622,6 +622,27 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
       ice_restart, use_rtp_mux);
 }
 
+// Creates a new `RtpTransceiverInit`.
+std::unique_ptr<RtpTransceiverInit> create_default_rtp_transceiver_init() {
+  return std::make_unique<RtpTransceiverInit>();
+}
+
+// Sets a `RtpTransceiverDirection` for the provided `RtpTransceiverInit`.
+void set_rtp_transceiver_init_direction(RtpTransceiverInit& init, webrtc::RtpTransceiverDirection direction) {
+  init.direction = direction;
+}
+
+// Adds a `RtpEncodingParameters` into the provided `RtpTransceiverInit`.
+void add_rtp_transceiver_init_send_encoding(RtpTransceiverInit& init, const RtpEncodingParametersContainer& params) {
+  init.send_encodings.push_back(*params.ptr);
+}
+
+// Creates a new default `RtpEncodingParameters`.
+RtpEncodingParametersContainer create_rtp_encoding_parameters() {
+  RtpEncodingParametersContainer res = {std::make_unique<webrtc::RtpEncodingParameters>()};
+  return res;
+}
+
 // Creates a new `CreateSessionDescriptionObserver` from the provided
 // `bridge::DynCreateSdpCallback`.
 std::unique_ptr<CreateSessionDescriptionObserver>

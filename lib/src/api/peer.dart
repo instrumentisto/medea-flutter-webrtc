@@ -537,10 +537,40 @@ class _PeerConnectionFFI extends PeerConnection {
       MediaKind mediaType, RtpTransceiverInit init) async {
     _checkNotClosed();
 
+    var ffiInit = await api!.createTransceiverInit();
+    await api!.setTransceiverInitDirection(
+        init: ffiInit,
+        direction: ffi.RtpTransceiverDirection.values[init.direction.index]);
+
+    for (var encoding in init.sendEncodings) {
+      var ffiEncoding = await api!
+          .createEncodingParameters(rid: encoding.rid, active: encoding.active);
+      if (encoding.maxBitrate != null) {
+        await api!.setEncodingParametersMaxBitrate(
+            encoding: ffiEncoding, maxBitrate: encoding.maxBitrate!);
+      }
+      if (encoding.maxFramerate != null) {
+        await api!.setEncodingParametersMaxFramerate(
+            encoding: ffiEncoding, maxFramerate: encoding.maxFramerate!);
+      }
+      if (encoding.scaleResolutionDownBy != null) {
+        await api!.setEncodingParametersScaleResolutionDownBy(
+            encoding: ffiEncoding,
+            scaleResolutionDownBy: encoding.scaleResolutionDownBy!);
+      }
+      if (encoding.scalabilityMode != null) {
+        await api!.setEncodingParametersScalabilityMode(
+            encoding: ffiEncoding, scalabilityMode: encoding.scalabilityMode!);
+      }
+
+      await api!
+          .addTransceiverInitSendEncoding(init: ffiInit, encoding: ffiEncoding);
+    }
+
     var transceiver = RtpTransceiver.fromFFI(await api!.addTransceiver(
         peer: _peer!,
         mediaType: ffi.MediaType.values[mediaType.index],
-        direction: ffi.RtpTransceiverDirection.values[init.direction.index]));
+        init: ffiInit));
     _transceivers.add(transceiver);
 
     return transceiver;

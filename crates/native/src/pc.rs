@@ -434,12 +434,16 @@ impl PeerConnection {
     pub fn add_transceiver(
         this: RustOpaque<Arc<Self>>,
         media_type: sys::MediaType,
-        direction: sys::RtpTransceiverDirection,
+        init: RustOpaque<Arc<RtpTransceiverInit>>,
     ) -> anyhow::Result<api::RtcRtpTransceiver> {
         let (mid, direction, transceiver) = {
             let mut peer = this.inner.lock().unwrap();
 
-            let transceiver = peer.add_transceiver(media_type, direction);
+            let transceiver = {
+                let init = init.0.lock().unwrap();
+
+                peer.add_transceiver(media_type, &init)
+            };
             let index = peer.get_transceivers().len() - 1;
 
             (
@@ -558,6 +562,81 @@ impl PeerConnection {
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn restart_ice(&self) {
         self.inner.lock().unwrap().restart_ice();
+    }
+}
+
+/// Wrapper around a [`sys::RtpTransceiverInit`].
+pub struct RtpTransceiverInit(Arc<Mutex<sys::RtpTransceiverInit>>);
+
+impl RtpTransceiverInit {
+    /// Creates a new [`RtpTransceiverInit`].
+    pub fn new() -> Self {
+        Self(Arc::new(Mutex::new(sys::RtpTransceiverInit::new())))
+    }
+
+    /// Sets a provided [`api::RtpTransceiverDirection`] to this
+    /// [`RtpTransceiverInit`].
+    pub fn set_direction(&self, direction: api::RtpTransceiverDirection) {
+        self.0.lock().unwrap().set_direction(direction.into());
+    }
+
+    /// Adds a provided [`RtpEncodingParameters`] to this
+    /// [`RtpTransceiverInit`].
+    pub fn add_encoding(
+        &self,
+        encoding: RustOpaque<Arc<RtpEncodingParameters>>,
+    ) {
+        self.0
+            .lock()
+            .unwrap()
+            .add_encoding(&encoding.0.lock().unwrap());
+    }
+}
+
+/// Wrapper around a [`sys::RtpEncodingParameters`].
+pub struct RtpEncodingParameters(Arc<Mutex<sys::RtpEncodingParameters>>);
+
+impl RtpEncodingParameters {
+    /// Creates a new [`RtpEncodingParameters`].
+    pub fn new() -> Self {
+        Self(Arc::new(Mutex::new(sys::RtpEncodingParameters::new())))
+    }
+
+    /// Sets a provided `rid` to this [`RtpEncodingParameters`].
+    pub fn set_rid(&self, rid: String) {
+        self.0.lock().unwrap().set_rid(rid);
+    }
+
+    /// Sets `active` to this [`RtpEncodingParameters`].
+    pub fn set_active(&self, active: bool) {
+        self.0.lock().unwrap().set_active(active);
+    }
+
+    /// Sets a provided `max_bitrate` to this [`RtpEncodingParameters`].
+    pub fn set_max_bitrate(&self, max_bitrate: i32) {
+        self.0.lock().unwrap().set_max_bitrate(max_bitrate);
+    }
+
+    /// Sets a provided `max_framerate` to this [`RtpEncodingParameters`].
+    pub fn set_max_framerate(&self, max_framerate: f64) {
+        self.0.lock().unwrap().set_max_framerate(max_framerate);
+    }
+
+    /// Sets a provided `scale_resolution_down_by` to this
+    /// [`RtpEncodingParameters`].
+    pub fn set_scale_resolution_down_by(&self, scale_resolution_down_by: f64) {
+        self.0
+            .lock()
+            .unwrap()
+            .set_scale_resolution_down_by(scale_resolution_down_by);
+    }
+
+    /// Sets a provided `scalability_mode` to this [`RtpEncodingParameters`].
+    pub fn set_scalability_mode(&self, scalability_mode: String) {
+        self.0
+            .lock()
+            .unwrap()
+            .set_scalability_mode(scalability_mode);
     }
 }
 

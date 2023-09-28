@@ -141,6 +141,171 @@ fn wire_create_answer_impl(
         },
     )
 }
+fn wire_create_transceiver_init_impl(port_: MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER
+        .wrap::<_, _, _, RustOpaque<Arc<RtpTransceiverInit>>>(
+            WrapInfo {
+                debug_name: "create_transceiver_init",
+                port: Some(port_),
+                mode: FfiCallMode::Normal,
+            },
+            move || move |task_callback| Ok(create_transceiver_init()),
+        )
+}
+fn wire_set_transceiver_init_direction_impl(
+    port_: MessagePort,
+    init: impl Wire2Api<RustOpaque<Arc<RtpTransceiverInit>>> + UnwindSafe,
+    direction: impl Wire2Api<RtpTransceiverDirection> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "set_transceiver_init_direction",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_init = init.wire2api();
+            let api_direction = direction.wire2api();
+            move |task_callback| {
+                Ok(set_transceiver_init_direction(api_init, api_direction))
+            }
+        },
+    )
+}
+fn wire_add_transceiver_init_send_encoding_impl(
+    port_: MessagePort,
+    init: impl Wire2Api<RustOpaque<Arc<RtpTransceiverInit>>> + UnwindSafe,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "add_transceiver_init_send_encoding",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_init = init.wire2api();
+            let api_encoding = encoding.wire2api();
+            move |task_callback| {
+                Ok(add_transceiver_init_send_encoding(api_init, api_encoding))
+            }
+        },
+    )
+}
+fn wire_create_encoding_parameters_impl(
+    port_: MessagePort,
+    rid: impl Wire2Api<String> + UnwindSafe,
+    active: impl Wire2Api<bool> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER
+        .wrap::<_, _, _, RustOpaque<Arc<RtpEncodingParameters>>>(
+            WrapInfo {
+                debug_name: "create_encoding_parameters",
+                port: Some(port_),
+                mode: FfiCallMode::Normal,
+            },
+            move || {
+                let api_rid = rid.wire2api();
+                let api_active = active.wire2api();
+                move |task_callback| {
+                    Ok(create_encoding_parameters(api_rid, api_active))
+                }
+            },
+        )
+}
+fn wire_set_encoding_parameters_max_bitrate_impl(
+    port_: MessagePort,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+    max_bitrate: impl Wire2Api<i32> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "set_encoding_parameters_max_bitrate",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_encoding = encoding.wire2api();
+            let api_max_bitrate = max_bitrate.wire2api();
+            move |task_callback| {
+                Ok(set_encoding_parameters_max_bitrate(
+                    api_encoding,
+                    api_max_bitrate,
+                ))
+            }
+        },
+    )
+}
+fn wire_set_encoding_parameters_max_framerate_impl(
+    port_: MessagePort,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+    max_framerate: impl Wire2Api<f64> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "set_encoding_parameters_max_framerate",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_encoding = encoding.wire2api();
+            let api_max_framerate = max_framerate.wire2api();
+            move |task_callback| {
+                Ok(set_encoding_parameters_max_framerate(
+                    api_encoding,
+                    api_max_framerate,
+                ))
+            }
+        },
+    )
+}
+fn wire_set_encoding_parameters_scale_resolution_down_by_impl(
+    port_: MessagePort,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+    scale_resolution_down_by: impl Wire2Api<f64> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "set_encoding_parameters_scale_resolution_down_by",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_encoding = encoding.wire2api();
+            let api_scale_resolution_down_by =
+                scale_resolution_down_by.wire2api();
+            move |task_callback| {
+                Ok(set_encoding_parameters_scale_resolution_down_by(
+                    api_encoding,
+                    api_scale_resolution_down_by,
+                ))
+            }
+        },
+    )
+}
+fn wire_set_encoding_parameters_scalability_mode_impl(
+    port_: MessagePort,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+    scalability_mode: impl Wire2Api<String> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "set_encoding_parameters_scalability_mode",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_encoding = encoding.wire2api();
+            let api_scalability_mode = scalability_mode.wire2api();
+            move |task_callback| {
+                Ok(set_encoding_parameters_scalability_mode(
+                    api_encoding,
+                    api_scalability_mode,
+                ))
+            }
+        },
+    )
+}
 fn wire_set_local_description_impl(
     port_: MessagePort,
     peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
@@ -189,7 +354,7 @@ fn wire_add_transceiver_impl(
     port_: MessagePort,
     peer: impl Wire2Api<RustOpaque<Arc<PeerConnection>>> + UnwindSafe,
     media_type: impl Wire2Api<MediaType> + UnwindSafe,
-    direction: impl Wire2Api<RtpTransceiverDirection> + UnwindSafe,
+    init: impl Wire2Api<RustOpaque<Arc<RtpTransceiverInit>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, RtcRtpTransceiver>(
         WrapInfo {
@@ -200,9 +365,9 @@ fn wire_add_transceiver_impl(
         move || {
             let api_peer = peer.wire2api();
             let api_media_type = media_type.wire2api();
-            let api_direction = direction.wire2api();
+            let api_init = init.wire2api();
             move |task_callback| {
-                add_transceiver(api_peer, api_media_type, api_direction)
+                add_transceiver(api_peer, api_media_type, api_init)
             }
         },
     )
@@ -683,6 +848,11 @@ impl Wire2Api<BundlePolicy> for i32 {
             2 => BundlePolicy::MaxCompat,
             _ => unreachable!("Invalid variant for BundlePolicy: {}", self),
         }
+    }
+}
+impl Wire2Api<f64> for f64 {
+    fn wire2api(self) -> f64 {
+        self
     }
 }
 impl Wire2Api<i32> for i32 {
