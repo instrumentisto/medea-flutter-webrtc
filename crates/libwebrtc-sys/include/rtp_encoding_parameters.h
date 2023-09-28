@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bridge.h"
+#include "rust/cxx.h"
 
 namespace bridge {
 
