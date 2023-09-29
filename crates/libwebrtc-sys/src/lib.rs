@@ -1103,7 +1103,10 @@ impl RtpEncodingParameters {
     ///
     /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpencodingparameters-active
     pub fn set_active(&mut self, active: bool) {
-        webrtc::set_rtp_encoding_parameters_active(self.0.ptr.pin_mut(), active);
+        webrtc::set_rtp_encoding_parameters_active(
+            self.0.ptr.pin_mut(),
+            active,
+        );
     }
 
     /// Returns the [`maxBitrate`][0] property of these

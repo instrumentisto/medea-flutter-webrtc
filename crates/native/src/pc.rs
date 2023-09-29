@@ -590,7 +590,8 @@ impl RtpTransceiverInit {
     ///
     /// # Panics
     ///
-    /// If the mutex guarding the [`sys::RtpTransceiverInit`] or the [`sys::RtpEncodingParameters`] is poisoned.
+    /// If the mutex guarding the [`sys::RtpTransceiverInit`] or the
+    /// [`sys::RtpEncodingParameters`] is poisoned.
     pub fn add_encoding(
         &self,
         encoding: &RustOpaque<Arc<RtpEncodingParameters>>,
