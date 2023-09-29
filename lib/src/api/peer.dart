@@ -543,26 +543,13 @@ class _PeerConnectionFFI extends PeerConnection {
         direction: ffi.RtpTransceiverDirection.values[init.direction.index]);
 
     for (var encoding in init.sendEncodings) {
-      var ffiEncoding = await api!
-          .createEncodingParameters(rid: encoding.rid, active: encoding.active);
-      if (encoding.maxBitrate != null) {
-        await api!.setEncodingParametersMaxBitrate(
-            encoding: ffiEncoding, maxBitrate: encoding.maxBitrate!);
-      }
-      if (encoding.maxFramerate != null) {
-        await api!.setEncodingParametersMaxFramerate(
-            encoding: ffiEncoding, maxFramerate: encoding.maxFramerate!);
-      }
-      if (encoding.scaleResolutionDownBy != null) {
-        await api!.setEncodingParametersScaleResolutionDownBy(
-            encoding: ffiEncoding,
-            scaleResolutionDownBy: encoding.scaleResolutionDownBy!);
-      }
-      if (encoding.scalabilityMode != null) {
-        await api!.setEncodingParametersScalabilityMode(
-            encoding: ffiEncoding, scalabilityMode: encoding.scalabilityMode!);
-      }
-
+      var ffiEncoding = await api!.createEncodingParameters(
+          rid: encoding.rid,
+          active: encoding.active,
+          maxBitrate: encoding.maxBitrate,
+          maxFramerate: encoding.maxFramerate,
+          scaleResolutionDownBy: encoding.scaleResolutionDownBy,
+          scalabilityMode: encoding.scalabilityMode);
       await api!
           .addTransceiverInitSendEncoding(init: ffiInit, encoding: ffiEncoding);
     }

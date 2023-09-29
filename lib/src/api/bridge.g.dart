@@ -88,44 +88,15 @@ abstract class MedeaFlutterWebrtcNative {
 
   /// Creates a new [`RtpEncodingParameters`] with provided `rid` and `active`.
   Future<ArcRtpEncodingParameters> createEncodingParameters(
-      {required String rid, required bool active, dynamic hint});
+      {required String rid,
+      required bool active,
+      int? maxBitrate,
+      double? maxFramerate,
+      double? scaleResolutionDownBy,
+      String? scalabilityMode,
+      dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kCreateEncodingParametersConstMeta;
-
-  /// Sets a provided `max_bitrate` to the [`RtpEncodingParameters`].
-  Future<void> setEncodingParametersMaxBitrate(
-      {required ArcRtpEncodingParameters encoding,
-      required int maxBitrate,
-      dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kSetEncodingParametersMaxBitrateConstMeta;
-
-  /// Sets a provided `max_framerate` to the [`RtpEncodingParameters`].
-  Future<void> setEncodingParametersMaxFramerate(
-      {required ArcRtpEncodingParameters encoding,
-      required double maxFramerate,
-      dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta
-      get kSetEncodingParametersMaxFramerateConstMeta;
-
-  /// Sets a provided `scale_resolution_down_by` to the [`RtpEncodingParameters`].
-  Future<void> setEncodingParametersScaleResolutionDownBy(
-      {required ArcRtpEncodingParameters encoding,
-      required double scaleResolutionDownBy,
-      dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta
-      get kSetEncodingParametersScaleResolutionDownByConstMeta;
-
-  /// Sets a provided `scalability_mode` to the [`RtpEncodingParameters`].
-  Future<void> setEncodingParametersScalabilityMode(
-      {required ArcRtpEncodingParameters encoding,
-      required String scalabilityMode,
-      dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta
-      get kSetEncodingParametersScalabilityModeConstMeta;
 
   /// Changes the local description associated with the connection.
   Future<void> setLocalDescription(
@@ -2064,15 +2035,32 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
       );
 
   Future<ArcRtpEncodingParameters> createEncodingParameters(
-      {required String rid, required bool active, dynamic hint}) {
+      {required String rid,
+      required bool active,
+      int? maxBitrate,
+      double? maxFramerate,
+      double? scaleResolutionDownBy,
+      String? scalabilityMode,
+      dynamic hint}) {
     var arg0 = _platform.api2wire_String(rid);
     var arg1 = active;
+    var arg2 = _platform.api2wire_opt_box_autoadd_i32(maxBitrate);
+    var arg3 = _platform.api2wire_opt_box_autoadd_f64(maxFramerate);
+    var arg4 = _platform.api2wire_opt_box_autoadd_f64(scaleResolutionDownBy);
+    var arg5 = _platform.api2wire_opt_String(scalabilityMode);
     return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) =>
-          _platform.inner.wire_create_encoding_parameters(port_, arg0, arg1),
+      callFfi: (port_) => _platform.inner.wire_create_encoding_parameters(
+          port_, arg0, arg1, arg2, arg3, arg4, arg5),
       parseSuccessData: _wire2api_ArcRtpEncodingParameters,
       constMeta: kCreateEncodingParametersConstMeta,
-      argValues: [rid, active],
+      argValues: [
+        rid,
+        active,
+        maxBitrate,
+        maxFramerate,
+        scaleResolutionDownBy,
+        scalabilityMode
+      ],
       hint: hint,
     ));
   }
@@ -2080,101 +2068,15 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta get kCreateEncodingParametersConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "create_encoding_parameters",
-        argNames: ["rid", "active"],
+        argNames: [
+          "rid",
+          "active",
+          "maxBitrate",
+          "maxFramerate",
+          "scaleResolutionDownBy",
+          "scalabilityMode"
+        ],
       );
-
-  Future<void> setEncodingParametersMaxBitrate(
-      {required ArcRtpEncodingParameters encoding,
-      required int maxBitrate,
-      dynamic hint}) {
-    var arg0 = _platform.api2wire_ArcRtpEncodingParameters(encoding);
-    var arg1 = api2wire_i32(maxBitrate);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner
-          .wire_set_encoding_parameters_max_bitrate(port_, arg0, arg1),
-      parseSuccessData: _wire2api_unit,
-      constMeta: kSetEncodingParametersMaxBitrateConstMeta,
-      argValues: [encoding, maxBitrate],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta
-      get kSetEncodingParametersMaxBitrateConstMeta =>
-          const FlutterRustBridgeTaskConstMeta(
-            debugName: "set_encoding_parameters_max_bitrate",
-            argNames: ["encoding", "maxBitrate"],
-          );
-
-  Future<void> setEncodingParametersMaxFramerate(
-      {required ArcRtpEncodingParameters encoding,
-      required double maxFramerate,
-      dynamic hint}) {
-    var arg0 = _platform.api2wire_ArcRtpEncodingParameters(encoding);
-    var arg1 = api2wire_f64(maxFramerate);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner
-          .wire_set_encoding_parameters_max_framerate(port_, arg0, arg1),
-      parseSuccessData: _wire2api_unit,
-      constMeta: kSetEncodingParametersMaxFramerateConstMeta,
-      argValues: [encoding, maxFramerate],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta
-      get kSetEncodingParametersMaxFramerateConstMeta =>
-          const FlutterRustBridgeTaskConstMeta(
-            debugName: "set_encoding_parameters_max_framerate",
-            argNames: ["encoding", "maxFramerate"],
-          );
-
-  Future<void> setEncodingParametersScaleResolutionDownBy(
-      {required ArcRtpEncodingParameters encoding,
-      required double scaleResolutionDownBy,
-      dynamic hint}) {
-    var arg0 = _platform.api2wire_ArcRtpEncodingParameters(encoding);
-    var arg1 = api2wire_f64(scaleResolutionDownBy);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner
-          .wire_set_encoding_parameters_scale_resolution_down_by(
-              port_, arg0, arg1),
-      parseSuccessData: _wire2api_unit,
-      constMeta: kSetEncodingParametersScaleResolutionDownByConstMeta,
-      argValues: [encoding, scaleResolutionDownBy],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta
-      get kSetEncodingParametersScaleResolutionDownByConstMeta =>
-          const FlutterRustBridgeTaskConstMeta(
-            debugName: "set_encoding_parameters_scale_resolution_down_by",
-            argNames: ["encoding", "scaleResolutionDownBy"],
-          );
-
-  Future<void> setEncodingParametersScalabilityMode(
-      {required ArcRtpEncodingParameters encoding,
-      required String scalabilityMode,
-      dynamic hint}) {
-    var arg0 = _platform.api2wire_ArcRtpEncodingParameters(encoding);
-    var arg1 = _platform.api2wire_String(scalabilityMode);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner
-          .wire_set_encoding_parameters_scalability_mode(port_, arg0, arg1),
-      parseSuccessData: _wire2api_unit,
-      constMeta: kSetEncodingParametersScalabilityModeConstMeta,
-      argValues: [encoding, scalabilityMode],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta
-      get kSetEncodingParametersScalabilityModeConstMeta =>
-          const FlutterRustBridgeTaskConstMeta(
-            debugName: "set_encoding_parameters_scalability_mode",
-            argNames: ["encoding", "scalabilityMode"],
-          );
 
   Future<void> setLocalDescription(
       {required ArcPeerConnection peer,
@@ -3450,6 +3352,16 @@ class MedeaFlutterWebrtcNativePlatform
   }
 
   @protected
+  ffi.Pointer<ffi.Double> api2wire_box_autoadd_f64(double raw) {
+    return inner.new_box_autoadd_f64_0(api2wire_f64(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> api2wire_box_autoadd_i32(int raw) {
+    return inner.new_box_autoadd_i32_0(api2wire_i32(raw));
+  }
+
+  @protected
   ffi.Pointer<wire_MediaStreamConstraints>
       api2wire_box_autoadd_media_stream_constraints(
           MediaStreamConstraints raw) {
@@ -3500,6 +3412,16 @@ class MedeaFlutterWebrtcNativePlatform
     return raw == null
         ? ffi.nullptr
         : api2wire_box_autoadd_audio_constraints(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Double> api2wire_opt_box_autoadd_f64(double? raw) {
+    return raw == null ? ffi.nullptr : api2wire_box_autoadd_f64(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> api2wire_opt_box_autoadd_i32(int? raw) {
+    return raw == null ? ffi.nullptr : api2wire_box_autoadd_i32(raw);
   }
 
   @protected
@@ -3907,104 +3829,42 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
     int port_,
     ffi.Pointer<wire_uint_8_list> rid,
     bool active,
+    ffi.Pointer<ffi.Int32> max_bitrate,
+    ffi.Pointer<ffi.Double> max_framerate,
+    ffi.Pointer<ffi.Double> scale_resolution_down_by,
+    ffi.Pointer<wire_uint_8_list> scalability_mode,
   ) {
     return _wire_create_encoding_parameters(
       port_,
       rid,
       active,
-    );
-  }
-
-  late final _wire_create_encoding_parametersPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
-              ffi.Bool)>>('wire_create_encoding_parameters');
-  late final _wire_create_encoding_parameters =
-      _wire_create_encoding_parametersPtr.asFunction<
-          void Function(int, ffi.Pointer<wire_uint_8_list>, bool)>();
-
-  void wire_set_encoding_parameters_max_bitrate(
-    int port_,
-    wire_ArcRtpEncodingParameters encoding,
-    int max_bitrate,
-  ) {
-    return _wire_set_encoding_parameters_max_bitrate(
-      port_,
-      encoding,
       max_bitrate,
-    );
-  }
-
-  late final _wire_set_encoding_parameters_max_bitratePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, wire_ArcRtpEncodingParameters,
-              ffi.Int32)>>('wire_set_encoding_parameters_max_bitrate');
-  late final _wire_set_encoding_parameters_max_bitrate =
-      _wire_set_encoding_parameters_max_bitratePtr
-          .asFunction<void Function(int, wire_ArcRtpEncodingParameters, int)>();
-
-  void wire_set_encoding_parameters_max_framerate(
-    int port_,
-    wire_ArcRtpEncodingParameters encoding,
-    double max_framerate,
-  ) {
-    return _wire_set_encoding_parameters_max_framerate(
-      port_,
-      encoding,
       max_framerate,
-    );
-  }
-
-  late final _wire_set_encoding_parameters_max_frameratePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64, wire_ArcRtpEncodingParameters,
-              ffi.Double)>>('wire_set_encoding_parameters_max_framerate');
-  late final _wire_set_encoding_parameters_max_framerate =
-      _wire_set_encoding_parameters_max_frameratePtr.asFunction<
-          void Function(int, wire_ArcRtpEncodingParameters, double)>();
-
-  void wire_set_encoding_parameters_scale_resolution_down_by(
-    int port_,
-    wire_ArcRtpEncodingParameters encoding,
-    double scale_resolution_down_by,
-  ) {
-    return _wire_set_encoding_parameters_scale_resolution_down_by(
-      port_,
-      encoding,
       scale_resolution_down_by,
-    );
-  }
-
-  late final _wire_set_encoding_parameters_scale_resolution_down_byPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Void Function(
-                      ffi.Int64, wire_ArcRtpEncodingParameters, ffi.Double)>>(
-          'wire_set_encoding_parameters_scale_resolution_down_by');
-  late final _wire_set_encoding_parameters_scale_resolution_down_by =
-      _wire_set_encoding_parameters_scale_resolution_down_byPtr.asFunction<
-          void Function(int, wire_ArcRtpEncodingParameters, double)>();
-
-  void wire_set_encoding_parameters_scalability_mode(
-    int port_,
-    wire_ArcRtpEncodingParameters encoding,
-    ffi.Pointer<wire_uint_8_list> scalability_mode,
-  ) {
-    return _wire_set_encoding_parameters_scalability_mode(
-      port_,
-      encoding,
       scalability_mode,
     );
   }
 
-  late final _wire_set_encoding_parameters_scalability_modePtr = _lookup<
+  late final _wire_create_encoding_parametersPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Int64, wire_ArcRtpEncodingParameters,
+              ffi.Void Function(
+                  ffi.Int64,
+                  ffi.Pointer<wire_uint_8_list>,
+                  ffi.Bool,
+                  ffi.Pointer<ffi.Int32>,
+                  ffi.Pointer<ffi.Double>,
+                  ffi.Pointer<ffi.Double>,
                   ffi.Pointer<wire_uint_8_list>)>>(
-      'wire_set_encoding_parameters_scalability_mode');
-  late final _wire_set_encoding_parameters_scalability_mode =
-      _wire_set_encoding_parameters_scalability_modePtr.asFunction<
-          void Function(int, wire_ArcRtpEncodingParameters,
+      'wire_create_encoding_parameters');
+  late final _wire_create_encoding_parameters =
+      _wire_create_encoding_parametersPtr.asFunction<
+          void Function(
+              int,
+              ffi.Pointer<wire_uint_8_list>,
+              bool,
+              ffi.Pointer<ffi.Int32>,
+              ffi.Pointer<ffi.Double>,
+              ffi.Pointer<ffi.Double>,
               ffi.Pointer<wire_uint_8_list>)>();
 
   void wire_set_local_description(
@@ -4597,6 +4457,34 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _new_box_autoadd_audio_constraints_0 =
       _new_box_autoadd_audio_constraints_0Ptr
           .asFunction<ffi.Pointer<wire_AudioConstraints> Function()>();
+
+  ffi.Pointer<ffi.Double> new_box_autoadd_f64_0(
+    double value,
+  ) {
+    return _new_box_autoadd_f64_0(
+      value,
+    );
+  }
+
+  late final _new_box_autoadd_f64_0Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Double> Function(ffi.Double)>>(
+          'new_box_autoadd_f64_0');
+  late final _new_box_autoadd_f64_0 = _new_box_autoadd_f64_0Ptr
+      .asFunction<ffi.Pointer<ffi.Double> Function(double)>();
+
+  ffi.Pointer<ffi.Int32> new_box_autoadd_i32_0(
+    int value,
+  ) {
+    return _new_box_autoadd_i32_0(
+      value,
+    );
+  }
+
+  late final _new_box_autoadd_i32_0Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
+          'new_box_autoadd_i32_0');
+  late final _new_box_autoadd_i32_0 = _new_box_autoadd_i32_0Ptr
+      .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
 
   ffi.Pointer<wire_MediaStreamConstraints>
       new_box_autoadd_media_stream_constraints_0() {

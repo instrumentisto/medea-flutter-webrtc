@@ -1944,52 +1944,35 @@ pub fn add_transceiver_init_send_encoding(
     init.add_encoding(&encoding);
 }
 
-/// Creates a new [`RtpEncodingParameters`] with provided `rid` and `active`.
+/// Creates a new [`RtpEncodingParameters`] with provided settings.
 #[allow(clippy::needless_pass_by_value)]
 pub fn create_encoding_parameters(
     rid: String,
     active: bool,
+    max_bitrate: Option<i32>,
+    max_framerate: Option<f64>,
+    scale_resolution_down_by: Option<f64>,
+    scalability_mode: Option<String>,
 ) -> RustOpaque<Arc<RtpEncodingParameters>> {
     let encoding = RtpEncodingParameters::new();
+
     encoding.set_rid(rid);
     encoding.set_active(active);
+
+    if let Some(max_bitrate) = max_bitrate {
+        encoding.set_max_bitrate(max_bitrate);
+    }
+    if let Some(max_framerate) = max_framerate {
+        encoding.set_max_framerate(max_framerate);
+    }
+    if let Some(scale_resolution_down_by) = scale_resolution_down_by {
+        encoding.set_scale_resolution_down_by(scale_resolution_down_by);
+    }
+    if let Some(scalability_mode) = scalability_mode {
+        encoding.set_scalability_mode(scalability_mode);
+    }
+
     RustOpaque::new(Arc::new(encoding))
-}
-
-/// Sets a provided `max_bitrate` to the [`RtpEncodingParameters`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn set_encoding_parameters_max_bitrate(
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
-    max_bitrate: i32,
-) {
-    encoding.set_max_bitrate(max_bitrate);
-}
-
-/// Sets a provided `max_framerate` to the [`RtpEncodingParameters`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn set_encoding_parameters_max_framerate(
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
-    max_framerate: f64,
-) {
-    encoding.set_max_framerate(max_framerate);
-}
-
-/// Sets a provided `scale_resolution_down_by` to the [`RtpEncodingParameters`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn set_encoding_parameters_scale_resolution_down_by(
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
-    scale_resolution_down_by: f64,
-) {
-    encoding.set_scale_resolution_down_by(scale_resolution_down_by);
-}
-
-/// Sets a provided `scalability_mode` to the [`RtpEncodingParameters`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn set_encoding_parameters_scalability_mode(
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
-    scalability_mode: String,
-) {
-    encoding.set_scalability_mode(scalability_mode);
 }
 
 /// Changes the local description associated with the connection.

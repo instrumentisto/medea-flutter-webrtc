@@ -1115,14 +1115,14 @@ impl RtpEncodingParameters {
     /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpencodingparameters-maxbitrate
     #[must_use]
     pub fn max_bitrate(&self) -> Option<i32> {
-        webrtc::rtp_encoding_parameters_maxBitrate(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_max_bitrate(&self.0.ptr).ok()
     }
 
     /// Sets the [`maxBitrate`][0] property of these [`RtpEncodingParameters`].
     ///
     /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpencodingparameters-maxbitrate
     pub fn set_max_bitrate(&mut self, max_bitrate: i32) {
-        webrtc::set_rtp_encoding_parameters_maxBitrate(
+        webrtc::set_rtp_encoding_parameters_max_bitrate(
             self.0.ptr.pin_mut(),
             max_bitrate,
         );
@@ -1131,7 +1131,7 @@ impl RtpEncodingParameters {
     /// Returns the `minBitrate` of these [`RtpEncodingParameters`].
     #[must_use]
     pub fn min_bitrate(&self) -> Option<i32> {
-        webrtc::rtp_encoding_parameters_minBitrate(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_min_bitrate(&self.0.ptr).ok()
     }
 
     /// Returns the [`maxFramerate`][0] property of these
@@ -1140,7 +1140,7 @@ impl RtpEncodingParameters {
     /// [0]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-maxframerate
     #[must_use]
     pub fn max_framerate(&self) -> Option<f64> {
-        webrtc::rtp_encoding_parameters_maxFramerate(&self.0.ptr).ok()
+        webrtc::rtp_encoding_parameters_max_framerate(&self.0.ptr).ok()
     }
 
     /// Sets the [`maxFramerate`][0] property of these
@@ -1148,7 +1148,7 @@ impl RtpEncodingParameters {
     ///
     /// [0]: https://w3.org/TR/webrtc/#dom-rtcrtpencodingparameters-maxframerate
     pub fn set_max_framerate(&mut self, max_framrate: f64) {
-        webrtc::set_rtp_encoding_parameters_maxFramerate(
+        webrtc::set_rtp_encoding_parameters_max_framerate(
             self.0.ptr.pin_mut(),
             max_framrate,
         );
