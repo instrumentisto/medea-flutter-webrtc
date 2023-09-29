@@ -65,10 +65,12 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kCreateAnswerConstMeta;
 
+  /// Creates a new default [`RtpTransceiverInit`].
   Future<ArcRtpTransceiverInit> createTransceiverInit({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kCreateTransceiverInitConstMeta;
 
+  /// Sets a provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
   Future<void> setTransceiverInitDirection(
       {required ArcRtpTransceiverInit init,
       required RtpTransceiverDirection direction,
@@ -76,6 +78,7 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kSetTransceiverInitDirectionConstMeta;
 
+  /// Adds a provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
   Future<void> addTransceiverInitSendEncoding(
       {required ArcRtpTransceiverInit init,
       required ArcRtpEncodingParameters encoding,
@@ -83,11 +86,13 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kAddTransceiverInitSendEncodingConstMeta;
 
+  /// Creates a new [`RtpEncodingParameters`] with provided `rid` and `active`.
   Future<ArcRtpEncodingParameters> createEncodingParameters(
       {required String rid, required bool active, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kCreateEncodingParametersConstMeta;
 
+  /// Sets a provided `max_bitrate` to the [`RtpEncodingParameters`].
   Future<void> setEncodingParametersMaxBitrate(
       {required ArcRtpEncodingParameters encoding,
       required int maxBitrate,
@@ -95,6 +100,7 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kSetEncodingParametersMaxBitrateConstMeta;
 
+  /// Sets a provided `max_framerate` to the [`RtpEncodingParameters`].
   Future<void> setEncodingParametersMaxFramerate(
       {required ArcRtpEncodingParameters encoding,
       required double maxFramerate,
@@ -103,6 +109,7 @@ abstract class MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta
       get kSetEncodingParametersMaxFramerateConstMeta;
 
+  /// Sets a provided `scale_resolution_down_by` to the [`RtpEncodingParameters`].
   Future<void> setEncodingParametersScaleResolutionDownBy(
       {required ArcRtpEncodingParameters encoding,
       required double scaleResolutionDownBy,
@@ -111,6 +118,7 @@ abstract class MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta
       get kSetEncodingParametersScaleResolutionDownByConstMeta;
 
+  /// Sets a provided `scalability_mode` to the [`RtpEncodingParameters`].
   Future<void> setEncodingParametersScalabilityMode(
       {required ArcRtpEncodingParameters encoding,
       required String scalabilityMode,
@@ -445,17 +453,17 @@ enum BundlePolicy {
   /// [RTCBundlePolicy.balanced][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-balanced
-  Balanced,
+  balanced,
 
   /// [RTCBundlePolicy.max-bundle][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-bundle
-  MaxBundle,
+  maxBundle,
 
   /// [RTCBundlePolicy.max-compat][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
-  MaxCompat,
+  maxCompat,
 }
 
 /// [RTCIceCandidateType] represents the type of the ICE candidate, as defined
@@ -467,24 +475,24 @@ enum CandidateType {
   /// Host candidate, as defined in [Section 4.1.1.1 of RFC 5245][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.1
-  Host,
+  host,
 
   /// Server reflexive candidate, as defined in
   /// [Section 4.1.1.2 of RFC 5245][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
-  Srflx,
+  srflx,
 
   /// Peer reflexive candidate, as defined in
   /// [Section 4.1.1.2 of RFC 5245][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
-  Prflx,
+  prflx,
 
   /// Relay candidate, as defined in [Section 7.1.3.2.1 of RFC 5245][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.1
-  Relay,
+  relay,
 }
 
 @freezed
@@ -587,32 +595,32 @@ enum IceConnectionState {
   /// [RTCIceConnectionState.checking][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-checking
-  Checking,
+  checking,
 
   /// [RTCIceConnectionState.connected][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-connected
-  Connected,
+  connected,
 
   /// [RTCIceConnectionState.completed][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-completed
-  Completed,
+  completed,
 
   /// [RTCIceConnectionState.failed][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-failed
-  Failed,
+  failed,
 
   /// [RTCIceConnectionState.disconnected][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-disconnected
-  Disconnected,
+  disconnected,
 
   /// [RTCIceConnectionState.closed][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate-closed
-  Closed,
+  closed,
 }
 
 /// [RTCIceGatheringState][1] representation.
@@ -627,12 +635,12 @@ enum IceGatheringState {
   /// [RTCIceGatheringState.gathering][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-gathering
-  Gathering,
+  gathering,
 
   /// [RTCIceGatheringState.complete][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate-complete
-  Complete,
+  complete,
 }
 
 /// Variants of [ICE roles][1].
@@ -646,17 +654,17 @@ enum IceRole {
   /// been determined.
   ///
   /// [1]: https://tools.ietf.org/html/rfc5245#section-3
-  Unknown,
+  unknown,
 
   /// Controlling agent as defined by [Section 3 in RFC 5245][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc5245#section-3
-  Controlling,
+  controlling,
 
   /// Controlled agent as defined by [Section 3 in RFC 5245][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc5245#section-3
-  Controlled,
+  controlled,
 }
 
 /// [RTCIceTransportPolicy][1] representation.
@@ -671,20 +679,20 @@ enum IceTransportsType {
   /// [RTCIceTransportPolicy.all][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-all
-  All,
+  all,
 
   /// [RTCIceTransportPolicy.relay][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy-relay
-  Relay,
+  relay,
 
   /// ICE Agent can't use `typ host` candidates when this value is specified.
   ///
   /// Non-spec-compliant variant.
-  NoHost,
+  noHost,
 
   /// No ICE candidate offered.
-  None,
+  none,
 }
 
 /// Information describing a single media input or output device.
@@ -708,13 +716,13 @@ class MediaDeviceInfo {
 /// Possible kinds of media devices.
 enum MediaDeviceKind {
   /// Audio input device (for example, a microphone).
-  AudioInput,
+  audioInput,
 
   /// Audio output device (for example, a pair of headphones).
-  AudioOutput,
+  audioOutput,
 
   /// Video input device (for example, a webcam).
-  VideoInput,
+  videoInput,
 }
 
 /// Information describing a display.
@@ -780,10 +788,10 @@ class MediaStreamTrack {
 /// Possible media types of a [`MediaStreamTrack`].
 enum MediaType {
   /// Audio [`MediaStreamTrack`].
-  Audio,
+  audio,
 
   /// Video [`MediaStreamTrack`].
-  Video,
+  video,
 }
 
 @freezed
@@ -900,24 +908,24 @@ enum PeerConnectionState {
   /// either [`IceConnectionState::Checking`] or
   /// [`IceConnectionState::Connected`], and no transports are in the
   /// `failed` state.
-  Connecting,
+  connecting,
 
   /// Every ICE transport used by the connection is either in use (state
   /// `connected` or `completed`) or is closed (state `closed`). In addition,
   /// at least one transport is either `connected` or `completed`.
-  Connected,
+  connected,
 
   /// At least one of the ICE transports for the connection is in the
   /// `disconnected` state and none of the other transports are in the state
   /// `failed`, `connecting` or `checking`.
-  Disconnected,
+  disconnected,
 
   /// One or more of the ICE transports on the connection is in the `failed`
   /// state.
-  Failed,
+  failed,
 
   /// Peer connection is closed.
-  Closed,
+  closed,
 }
 
 /// Transport protocols used in [WebRTC].
@@ -927,12 +935,12 @@ enum Protocol {
   /// [Transmission Control Protocol][1].
   ///
   /// [1]: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
-  Tcp,
+  tcp,
 
   /// [User Datagram Protocol][1].
   ///
   /// [1]: https://en.wikipedia.org/wiki/User_Datagram_Protocol
-  Udp,
+  udp,
 }
 
 /// [`PeerConnection`]'s configuration.
@@ -1315,21 +1323,21 @@ enum RtcStatsIceCandidatePairState {
   /// Check for this pair hasn't been performed, and it can't yet be performed
   /// until some other check succeeds, allowing this pair to unfreeze and move
   /// into the [`RtcStatsIceCandidatePairState::Waiting`] state.
-  Frozen,
+  frozen,
 
   /// Check has not been performed for this pair, and can be performed as soon
   /// as it is the highest-priority Waiting pair on the check list.
-  Waiting,
+  waiting,
 
   /// Check has been sent for this pair, but the transaction is in progress.
-  InProgress,
+  inProgress,
 
   /// Check for this pair was already done and failed, either never producing
   /// any response or producing an unrecoverable failure response.
-  Failed,
+  failed,
 
   /// Check for this pair was already done and produced a successful result.
-  Succeeded,
+  succeeded,
 }
 
 @freezed
@@ -1699,7 +1707,7 @@ enum RtpTransceiverDirection {
   ///
   /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
   /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-  SendRecv,
+  sendRecv,
 
   /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
   /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
@@ -1708,7 +1716,7 @@ enum RtpTransceiverDirection {
   ///
   /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
   /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-  SendOnly,
+  sendOnly,
 
   /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
   /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
@@ -1716,7 +1724,7 @@ enum RtpTransceiverDirection {
   ///
   /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
   /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-  RecvOnly,
+  recvOnly,
 
   /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
   /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
@@ -1724,7 +1732,7 @@ enum RtpTransceiverDirection {
   ///
   /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
   /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-  Inactive,
+  inactive,
 
   /// The [`RTCRtpTransceiver`] will neither send nor receive RTP. It will
   /// generate a zero port in the offer. In answers, its [RTCRtpSender] will
@@ -1733,7 +1741,7 @@ enum RtpTransceiverDirection {
   ///
   /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
   /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
-  Stopped,
+  stopped,
 }
 
 /// [RTCSdpType] representation.
@@ -1743,22 +1751,22 @@ enum SdpType {
   /// [RTCSdpType.offer][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-offer
-  Offer,
+  offer,
 
   /// [RTCSdpType.pranswer][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-pranswer
-  PrAnswer,
+  prAnswer,
 
   /// [RTCSdpType.answer][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-answer
-  Answer,
+  answer,
 
   /// [RTCSdpType.rollback][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsdptype-rollback
-  Rollback,
+  rollback,
 }
 
 /// [RTCSignalingState] representation.
@@ -1768,32 +1776,32 @@ enum SignalingState {
   /// [RTCSignalingState.stable][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-stable
-  Stable,
+  stable,
 
   /// [RTCSignalingState.have-local-offer][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-have-local-offer
-  HaveLocalOffer,
+  haveLocalOffer,
 
   /// [RTCSignalingState.have-local-pranswer][1] representation.
   ///
   /// [1]: https://tinyurl.com/have-local-pranswer
-  HaveLocalPrAnswer,
+  haveLocalPrAnswer,
 
   /// [RTCSignalingState.have-remote-offer][1] representation.
   ///
   /// [1]: https://tinyurl.com/have-remote-offer
-  HaveRemoteOffer,
+  haveRemoteOffer,
 
   /// [RTCSignalingState.have-remote-pranswer][1] representation.
   ///
   /// [1]: https://tinyurl.com/have-remote-pranswer
-  HaveRemotePrAnswer,
+  haveRemotePrAnswer,
 
   /// [RTCSignalingState.closed][1] representation.
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-closed
-  Closed,
+  closed,
 }
 
 /// Indicator of the current state of a [`MediaStreamTrack`].
@@ -1801,7 +1809,7 @@ enum TrackEvent {
   /// Ended event of the [`MediaStreamTrack`] interface is fired when playback
   /// or streaming has stopped because the end of the media was reached or
   /// because no further data is available.
-  Ended,
+  ended,
 }
 
 /// Indicator of the current [MediaStreamTrackState][0] of a
@@ -1812,12 +1820,12 @@ enum TrackState {
   /// [MediaStreamTrackState.live][0] representation.
   ///
   /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.live
-  Live,
+  live,
 
   /// [MediaStreamTrackState.ended][0] representation.
   ///
   /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.ended
-  Ended,
+  ended,
 }
 
 /// Nature and settings of the video [`MediaStreamTrack`] returned by

@@ -302,7 +302,8 @@ endif
 		--dart-output=lib/src/api/bridge.g.dart \
 		--skip-add-mod-to-lib \
 		--no-build-runner \
-		--dart-format-line-length=80
+		--dart-enums-style \
+		--inline-rust
 	flutter pub run build_runner build --delete-conflicting-outputs
 
 

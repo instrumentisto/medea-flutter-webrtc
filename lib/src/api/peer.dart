@@ -440,7 +440,7 @@ class _PeerConnectionFFI extends PeerConnection {
       IceTransportType iceType, List<IceServer> iceServers) async {
     var cfg = ffi.RtcConfiguration(
         iceTransportPolicy: ffi.IceTransportsType.values[iceType.index],
-        bundlePolicy: ffi.BundlePolicy.MaxBundle,
+        bundlePolicy: ffi.BundlePolicy.maxBundle,
         iceServers: iceServers
             .map((server) => ffi.RtcIceServer(
                 urls: server.urls,
