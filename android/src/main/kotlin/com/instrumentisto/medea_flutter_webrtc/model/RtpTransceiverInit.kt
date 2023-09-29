@@ -23,7 +23,7 @@ data class RtpTransceiverInit(
       return RtpTransceiverInit(
           RtpTransceiverDirection.fromInt(map["direction"] as Int),
           (map["sendEncodings"] as List<Map<String, Map<String, Any>>>).map { encoding ->
-            Encoding.fromMap(encoding.value)
+            Encoding.fromMap(encoding)
           })
     }
   }
