@@ -254,6 +254,8 @@ fn compile_openal() -> anyhow::Result<()> {
             .current_dir(&openal_src_path)
             .arg(".")
             .arg(".")
+            .arg("-DCMAKE_BUILD_TYPE=Release")
+            .arg("-DFORCE_STATIC_VCRT=ON")
             .output()?,
     );
     drop(
@@ -261,6 +263,7 @@ fn compile_openal() -> anyhow::Result<()> {
             .current_dir(&openal_src_path)
             .arg("--build")
             .arg(".")
+            .arg("--config Release")
             .output()?,
     );
 
@@ -285,11 +288,11 @@ fn compile_openal() -> anyhow::Result<()> {
         }
         "x86_64-pc-windows-msvc" => {
             fs::copy(
-                openal_src_path.join("Debug").join("OpenAL32.dll"),
+                openal_src_path.join("Release").join("OpenAL32.dll"),
                 openal_path.join("OpenAL32.dll"),
             )?;
             fs::copy(
-                openal_src_path.join("Debug").join("OpenAL32.lib"),
+                openal_src_path.join("Release").join("OpenAL32.lib"),
                 openal_path.join("OpenAL32.lib"),
             )?;
             let path = manifest_path
@@ -297,7 +300,10 @@ fn compile_openal() -> anyhow::Result<()> {
                 .join(get_target()?.as_str())
                 .join("release")
                 .join("OpenAL32.lib");
-            fs::copy(openal_src_path.join("Debug").join("OpenAL32.lib"), path)?;
+            fs::copy(
+                openal_src_path.join("Release").join("OpenAL32.lib"),
+                path,
+            )?;
         }
         _ => (),
     }
