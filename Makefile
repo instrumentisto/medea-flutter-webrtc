@@ -134,7 +134,7 @@ flutter.run:
 # Run Flutter plugin integration tests on the current host as desktop.
 #
 # Usage:
-#	make flutter.test [debug=(no|yes)]
+#	make flutter.test.desktop [debug=(no|yes)]
 
 flutter.test.desktop:
 	cd example/ && \
