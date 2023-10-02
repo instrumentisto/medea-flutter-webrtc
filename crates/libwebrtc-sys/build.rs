@@ -190,6 +190,7 @@ fn get_path_to_openal() -> anyhow::Result<PathBuf> {
 /// Downloads and compiles OpenAL dynamic library.
 ///
 /// Copies OpenAL headers and compiled library to the required locations.
+#[allow(clippy::too_many_lines)]
 fn compile_openal() -> anyhow::Result<()> {
     let openal_version = OPENAL_URL.split('/').last().unwrap();
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -263,7 +264,7 @@ fn compile_openal() -> anyhow::Result<()> {
             .current_dir(&openal_src_path)
             .arg("--build")
             .arg(".")
-            .arg("--config Release")
+            .args(["--config", "Release"])
             .output()?,
     );
 
