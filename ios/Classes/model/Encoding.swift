@@ -19,8 +19,7 @@ class Encoding {
   var maxFramerate: Double?
 
   /// This is a double-precision floating-point value specifying a factor by
-  /// which to scale down
-  /// the video during encoding.
+  /// which to scale down the video during encoding.
   var scaleResolutionDownBy: Double?
 
   /// Initializes a new `Encoding` configuration with the provided data.
@@ -42,13 +41,13 @@ class Encoding {
     params.isActive = self.active
 
     if let maxBitrate = maxBitrate {
-      result.maxBitrateBps = NSNumber(value: maxBitrate)
+      params.maxBitrateBps = NSNumber(value: maxBitrate)
     }
     if let maxFramerate = maxFramerate {
-      result.maxFramerate = NSNumber(value: maxFramerate)
+      params.maxFramerate = NSNumber(value: maxFramerate)
     }
     if let scaleResolutionDownBy = scaleResolutionDownBy {
-      result.scaleResolutionDownBy = NSNumber(value: scaleResolutionDownBy)
+      params.scaleResolutionDownBy = NSNumber(value: scaleResolutionDownBy)
     }
 
     return params
