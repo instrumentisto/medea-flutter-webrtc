@@ -211,9 +211,6 @@ jobs:
         platform:
           - android
           - ios
-          - linux
-          - macos
-          - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-13' }}

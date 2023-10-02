@@ -10,7 +10,6 @@ import org.webrtc.RtpParameters.Encoding as WEncoding
  * @property maxBitrate Maximum bitrate for this parameters.
  * @property maxFramerate Maximum framerate for this parameters.
  * @property scaleResolutionDownBy Resolution will be scaled down for this parameters.
- * @property scalabilityMode `Scalability Mode Identifier` for this parameters.
  */
 data class Encoding(
     var rid: String,
@@ -18,7 +17,6 @@ data class Encoding(
     var maxBitrate: Int?,
     var maxFramerate: Double?,
     var scaleResolutionDownBy: Double?,
-    var scalabilityMode: String?
 ) {
   companion object {
     /**
@@ -32,8 +30,7 @@ data class Encoding(
           map["active"] as Boolean,
           map["maxBitrate"] as Int?,
           map["maxFramerate"] as Double?,
-          map["scaleResolutionDownBy"] as Double?,
-          map["scalabilityMode"] as String?)
+          map["scaleResolutionDownBy"] as Double?)
     }
   }
 
