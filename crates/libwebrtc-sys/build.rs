@@ -256,7 +256,6 @@ fn compile_openal() -> anyhow::Result<()> {
             .arg(".")
             .arg(".")
             .arg("-DCMAKE_BUILD_TYPE=Release")
-            .arg("-DFORCE_STATIC_VCRT=ON")
             .output()?,
     );
     drop(
