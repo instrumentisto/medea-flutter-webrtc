@@ -393,6 +393,7 @@ endif
 swift.fmt:
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
+		-u $(shell id -u):$(shell id -g) \
 		ghcr.io/nicklockwood/swiftformat:latest \
 			$(if $(call eq,$(check),yes),--lint,) ios/Classes/
 else

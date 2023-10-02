@@ -8,7 +8,7 @@ class Encoding {
   var rid: String
 
   /// If true, the described encoding is currently actively being used.
-  var active: Boolean
+  var active: Bool
 
   /// Indicates the maximum number of bits per second to allow for this
   /// encoding.
@@ -25,7 +25,7 @@ class Encoding {
 
   /// Initializes a new `Encoding` configuration with the provided data.
   init(
-    rid: String, active: Boolean, maxBitrate: Int?, maxFramerate: Double?,
+    rid: String, active: Bool, maxBitrate: Int?, maxFramerate: Double?,
     scaleResolutionDownBy: Double?
   ) {
     self.rid = rid
@@ -36,7 +36,7 @@ class Encoding {
   }
 
   /// Converts this `RtpTransceiverInit` into an `RTCRtpTransceiverInit`.
-  func intoWebRtc() -> RtpEncodingParameters {
+  func intoWebRtc() -> RTCRtpEncodingParameters {
     let params = RTCRtpEncodingParameters()
     params.rid = self.rid
     params.isActive = self.active

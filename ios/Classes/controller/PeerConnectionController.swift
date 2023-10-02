@@ -144,7 +144,10 @@ class PeerConnectionController {
       let initArgs = argsMap!["init"] as? [String: Any]
       let direction = initArgs!["direction"] as? Int
       let transceiverInit =
-        TransceiverInit(direction: TransceiverDirection(rawValue: direction!)!)
+        TransceiverInit(
+          direction: TransceiverDirection(rawValue: direction!)!,
+          encodings: []
+        )
       let transceiver = RtpTransceiverController(
         messenger: self.messenger,
         transceiver: self.peer.addTransceiver(
