@@ -13,7 +13,6 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- `SendEncodingParameters` class. ([#125])
 - `RtpTransceiverInit.sendEncodings` field with `SendEncodingParameters`s. ([#125])
 
 ### Changed
