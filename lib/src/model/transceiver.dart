@@ -43,27 +43,32 @@ class RtpTransceiverInit {
   }
 }
 
-/// Config for an `RtpTransceiver` encoder.
+/// Encoding describes a single configuration of a codec for an RTCRtpSender.
 class SendEncodingParameters {
-  /// Creates a new [SendEncodingParameters] with the provided `rid` and `active`.
+  /// A string which, if set, specifies an RTP stream ID (RID) to be sent using
+  /// the RID header extension.
   SendEncodingParameters(this.rid, this.active);
 
-  /// `rid` of this [SendEncodingParameters].
+  /// A string which, if set, specifies an RTP stream ID (RID) to be sent using
+  /// the RID header extension.
   late String rid;
 
-  /// `active` of this [SendEncodingParameters].
+  /// If true, the described encoding is currently actively being used.
   late bool active;
 
-  /// `maxBitrate` of this [SendEncodingParameters].
+  /// Indicates the maximum number of bits per second to allow for this
+  /// encoding.
   int? maxBitrate;
 
-  /// `maxFramerate` of this [SendEncodingParameters].
+  /// A value specifying the maximum number of frames per second to allow for
+  /// this encoding.
   double? maxFramerate;
 
-  /// `scaleResolutionDownBy` of this [SendEncodingParameters].
+  /// This is a double-precision floating-point value specifying a factor by
+  /// which to scale down the video during encoding.
   double? scaleResolutionDownBy;
 
-  /// `scalability` of this [SendEncodingParameters].
+  /// Scalability mode describes layers within the media stream.
   String? scalabilityMode;
 
   /// Converts this model to the [Map] expected by Flutter.

@@ -3,8 +3,7 @@ import WebRTC
 /// Encoding describes a single configuration of a codec for an RTCRtpSender.
 class Encoding {
   /// A string which, if set, specifies an RTP stream ID (RID) to be sent using
-  /// the RID header
-  /// extension.
+  /// the RID header extension.
   var rid: String
 
   /// If true, the described encoding is currently actively being used.
@@ -34,7 +33,7 @@ class Encoding {
     self.scaleResolutionDownBy = scaleResolutionDownBy
   }
 
-  /// Converts this `RtpTransceiverInit` into an `RTCRtpTransceiverInit`.
+  /// Converts this `Encoding` into an `RTCRtpEncodingParameters`.
   func intoWebRtc() -> RTCRtpEncodingParameters {
     let params = RTCRtpEncodingParameters()
     params.rid = self.rid
