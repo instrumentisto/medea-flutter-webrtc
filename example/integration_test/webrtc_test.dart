@@ -52,10 +52,6 @@ void main() {
     var videoTrans1 = await pc.addTransceiver(MediaKind.video, videoInit1);
     var response = await pc.createOffer();
 
-    print('------------------------------------');
-    print(response.description);
-    print('------------------------------------');
-
     expect(response.description.contains('a=mid:0'), isTrue);
     expect(response.description.contains('m=video'), isTrue);
     expect(response.description.contains('sendonly'), isTrue);
