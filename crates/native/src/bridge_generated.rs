@@ -2495,4 +2495,4 @@ mod io {
     }
 }
 #[cfg(not(target_family = "wasm"))]
-pub use io::*;
+pub use self::io::*;
