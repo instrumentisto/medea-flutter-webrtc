@@ -10,7 +10,6 @@ mod api;
     clippy::wildcard_imports,
     let_underscore_drop
 )]
-#[rustfmt::skip]
 mod bridge_generated;
 mod devices;
 mod pc;
