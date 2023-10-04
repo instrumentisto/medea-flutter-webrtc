@@ -23,7 +23,7 @@ class RTCVideoValue {
   final int rotation;
   final bool renderVideo;
 
-  int get quarterTurnsRotation => ((360 - rotation) / 90).round();
+  int get quarterTurnsRotation => (rotation / 90).round();
 
   double get aspectRatio {
     if (width == 0.0 || height == 0.0) {
@@ -57,6 +57,10 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
   VideoRenderer() : super(RTCVideoValue.empty);
 
   Function? onResize;
+
+  int get videoRotatedWidth;
+
+  int get videoRotatedHeight;
 
   int get videoWidth;
 

@@ -244,4 +244,10 @@ class WebVideoRenderer extends VideoRenderer {
       return element;
     });
   }
+
+  @override
+  int get videoRotatedHeight => value.height.toInt();
+
+  @override
+  int get videoRotatedWidth => value.width.toInt();
 }

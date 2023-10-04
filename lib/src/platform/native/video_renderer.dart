@@ -39,6 +39,26 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   late MethodChannel _chan;
 
   @override
+  int get videoRotatedWidth {
+    if (isDesktop) {
+      return value.width.toInt();
+    }
+    return value.rotation % 180 == 0
+        ? value.width.toInt()
+        : value.height.toInt();
+  }
+
+  @override
+  int get videoRotatedHeight {
+    if (isDesktop) {
+      return value.height.toInt();
+    }
+    return value.rotation % 180 == 0
+        ? value.height.toInt()
+        : value.width.toInt();
+  }
+
+  @override
   int get videoWidth => value.width.toInt();
 
   @override
@@ -68,10 +88,11 @@ abstract class NativeVideoRenderer extends VideoRenderer {
         var width = 0.0 + map['width'];
         var height = 0.0 + map['height'];
 
-        if (isDesktop) {
-          width = rotation % 180 == 0 ? width : height;
-          height = rotation % 180 == 0 ? height : width;
-        }
+        var newWidth = rotation % 180 == 0 ? width : height;
+        var newHeight = rotation % 180 == 0 ? height : width;
+
+        width = newWidth;
+        height = newHeight;
 
         value = value.copyWith(
           rotation: rotation,

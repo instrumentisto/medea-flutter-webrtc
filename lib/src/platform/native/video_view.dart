@@ -48,31 +48,29 @@ class VideoView extends StatelessWidget {
               valueListenable: videoRenderer,
               builder:
                   (BuildContext context, RTCVideoValue value, Widget? child) {
-                var sizedBox = SizedBox(
+                Widget result = SizedBox(
                   width: constraints.maxHeight * value.aspectRatio,
                   height: constraints.maxHeight,
                   child: child,
                 );
                 if (autoRotate) {
-                  return RotatedBox(
+                  result = RotatedBox(
                     quarterTurns: value.quarterTurnsRotation,
-                    child: sizedBox,
+                    child: result,
                   );
-                } else {
-                  return sizedBox;
                 }
+                return Transform(
+                    transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
+                    alignment: FractionalOffset.center,
+                    child: result);
               },
-              child: Transform(
-                transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
-                alignment: FractionalOffset.center,
-                child: videoRenderer.textureId != null &&
-                        videoRenderer.srcObject != null
-                    ? Texture(
-                        textureId: videoRenderer.textureId!,
-                        filterQuality: filterQuality,
-                      )
-                    : Container(),
-              ),
+              child: videoRenderer.textureId != null &&
+                      videoRenderer.srcObject != null
+                  ? Texture(
+                      textureId: videoRenderer.textureId!,
+                      filterQuality: filterQuality,
+                    )
+                  : Container(),
             ),
           ),
         ),
