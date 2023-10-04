@@ -86,6 +86,9 @@ class TextureVideoRenderer {
   // ID of the Flutter texture associated with this renderer.
   std::optional<VideoFrame> frame_;
 
+  // List of `VideoFrame` events.
+  std::vector<EncodableMap> events_;
+
   // Actual Flutter texture that incoming frames are rendered on.
   std::unique_ptr<flutter::TextureVariant> texture_;
 

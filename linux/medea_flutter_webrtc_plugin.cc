@@ -42,6 +42,8 @@ class TextureVideoRenderer {
         FL_METHOD_CODEC(codec));
     event_channel_ = channel;
 
+    texture_->event_channel_ = channel;
+
     fl_event_channel_set_stream_handlers(
         channel,
         [](FlEventChannel* channel, FlValue* args, gpointer user_data) {
@@ -68,15 +70,15 @@ class TextureVideoRenderer {
 
   // Called when a new `VideoFrame` is produced by the underlying source.
   void OnFrame(VideoFrame frame) {
+    g_autoptr(FlValue) events = fl_value_new_list();
     if (!first_frame_rendered) {
       if (send_events_) {
-        g_autoptr(FlValue) map = fl_value_new_map();
+         g_autoptr(FlValue) map = fl_value_new_map();
 
         fl_value_set_string_take(map, "event",
                                  fl_value_new_string("onFirstFrameRendered"));
         fl_value_set_string_take(map, "id", fl_value_new_int(texture_id_));
-
-        fl_event_channel_send(event_channel_, map, nullptr, nullptr);
+        fl_value_append(events, map);
       }
       first_frame_rendered = true;
     }
@@ -95,13 +97,14 @@ class TextureVideoRenderer {
                                  fl_value_new_int((int32_t)frame.width));
         fl_value_set_string_take(map, "height",
                                  fl_value_new_int((int32_t)frame.height));
+        fl_value_append(events, map);
 
-        fl_event_channel_send(event_channel_, map, nullptr, nullptr);
       }
       rotation_ = frame.rotation;
     }
 
     texture_->mutex.lock();
+    texture_->events = fl_value_ref(events);
     texture_->frame_.emplace(std::move(frame));
     texture_->mutex.unlock();
 

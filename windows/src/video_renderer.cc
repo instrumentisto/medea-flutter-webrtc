@@ -106,6 +106,12 @@ TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
 FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(size_t width,
                                                                  size_t height) {
   mutex_.lock();
+
+  for (auto i : std::reverse(events_.begin(), events_.end())) {
+      event_sink_->Success(EncodableValue(i));
+  }
+  events_.clear();
+
   if (pixel_buffer_.get() && frame_) {
     if (pixel_buffer_->width != frame_->width ||
         pixel_buffer_->height != frame_->height) {
@@ -135,7 +141,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
       EncodableMap params;
       params[EncodableValue("event")] = "onFirstFrameRendered";
       params[EncodableValue("id")] = EncodableValue(texture_id_);
-      event_sink_->Success(EncodableValue(params));
+      events_.push_back(params);
     }
     pixel_buffer_.reset(new FlutterDesktopPixelBuffer());
     pixel_buffer_->width = 0;
@@ -153,7 +159,7 @@ void TextureVideoRenderer::OnFrame(VideoFrame frame) {
           EncodableValue((int32_t) frame.height);
       params[EncodableValue("rotation")] =
           EncodableValue((int32_t) frame.rotation);
-      event_sink_->Success(EncodableValue(params));
+      events_.push_back(params);
     }
     rotation_ = frame.rotation;
     last_frame_size_ = {frame.width, frame.height};
