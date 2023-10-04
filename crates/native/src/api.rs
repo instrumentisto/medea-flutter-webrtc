@@ -1926,7 +1926,7 @@ pub fn create_transceiver_init() -> RustOpaque<Arc<RtpTransceiverInit>> {
     RustOpaque::new(Arc::new(RtpTransceiverInit::new()))
 }
 
-/// Sets a provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
+/// Sets the provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn set_transceiver_init_direction(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
@@ -1935,7 +1935,7 @@ pub fn set_transceiver_init_direction(
     init.set_direction(direction);
 }
 
-/// Adds a provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
+/// Adds the provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn add_transceiver_init_send_encoding(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
@@ -1944,7 +1944,7 @@ pub fn add_transceiver_init_send_encoding(
     init.add_encoding(&encoding);
 }
 
-/// Creates a new [`RtpEncodingParameters`] with provided settings.
+/// Creates new [`RtpEncodingParameters`] with the provided settings.
 #[allow(clippy::needless_pass_by_value)]
 pub fn create_encoding_parameters(
     rid: String,

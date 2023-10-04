@@ -70,7 +70,7 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kCreateTransceiverInitConstMeta;
 
-  /// Sets a provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
+  /// Sets the provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
   Future<void> setTransceiverInitDirection(
       {required ArcRtpTransceiverInit init,
       required RtpTransceiverDirection direction,
@@ -78,7 +78,7 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kSetTransceiverInitDirectionConstMeta;
 
-  /// Adds a provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
+  /// Adds the provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
   Future<void> addTransceiverInitSendEncoding(
       {required ArcRtpTransceiverInit init,
       required ArcRtpEncodingParameters encoding,
@@ -86,7 +86,7 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kAddTransceiverInitSendEncodingConstMeta;
 
-  /// Creates a new [`RtpEncodingParameters`] with provided `rid` and `active`.
+  /// Creates new [`RtpEncodingParameters`] with the provided settings.
   Future<ArcRtpEncodingParameters> createEncodingParameters(
       {required String rid,
       required bool active,

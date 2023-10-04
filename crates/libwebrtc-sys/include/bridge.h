@@ -387,16 +387,16 @@ std::unique_ptr<RTCOfferAnswerOptions> create_rtc_offer_answer_options(
 // Creates a new default `RtpTransceiverInit`.
 std::unique_ptr<RtpTransceiverInit> create_default_rtp_transceiver_init();
 
-// Sets a `RtpTransceiverDirection` for the provided `RtpTransceiverInit`.
+// Sets an `RtpTransceiverDirection` for the provided `RtpTransceiverInit`.
 void set_rtp_transceiver_init_direction(RtpTransceiverInit& init,
                                         RtpTransceiverDirection direction);
 
-// Adds a `RtpEncodingParameters` into the provided `RtpTransceiverInit`.
+// Adds an `RtpEncodingParameters` to the provided `RtpTransceiverInit`.
 void add_rtp_transceiver_init_send_encoding(
     RtpTransceiverInit& init,
     const RtpEncodingParametersContainer& params);
 
-// Creates a new default `RtpEncodingParameters`.
+// Creates new default `RtpEncodingParameters`.
 RtpEncodingParametersContainer create_rtp_encoding_parameters();
 
 // Creates a new `CreateSessionDescriptionObserver` from the provided

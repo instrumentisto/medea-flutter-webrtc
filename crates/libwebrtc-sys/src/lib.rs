@@ -1037,7 +1037,7 @@ impl RtpExtension {
 
 /// [RTCRtpTransceiverInit][0] representation.
 ///
-/// [0]: https://w3.org/TR/webrtc/#dictionary-rtcrtptransceiverinit-members
+/// [0]: https://w3.org/TR/webrtc#dictionary-rtcrtptransceiverinit-members
 pub struct RtpTransceiverInit(UniquePtr<webrtc::RtpTransceiverInit>);
 
 impl RtpTransceiverInit {
@@ -1054,7 +1054,8 @@ impl RtpTransceiverInit {
         webrtc::set_rtp_transceiver_init_direction(self.0.pin_mut(), direction);
     }
 
-    /// Adds the [`RtpEncodingParameters`] to this [`RtpTransceiverInit`].
+    /// Adds the provided [`RtpEncodingParameters`] to this
+    /// [`RtpTransceiverInit`].
     pub fn add_encoding(&mut self, encoding: &RtpEncodingParameters) {
         webrtc::add_rtp_transceiver_init_send_encoding(
             self.0.pin_mut(),
@@ -1078,7 +1079,7 @@ unsafe impl Send for webrtc::RtpTransceiverInit {}
 pub struct RtpEncodingParameters(webrtc::RtpEncodingParametersContainer);
 
 impl RtpEncodingParameters {
-    /// Creates a new [`RtpEncodingParameters`].
+    /// Creates new [`RtpEncodingParameters`].
     #[must_use]
     pub fn new() -> Self {
         Self(webrtc::create_rtp_encoding_parameters())

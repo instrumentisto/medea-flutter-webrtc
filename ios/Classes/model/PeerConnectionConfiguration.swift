@@ -5,7 +5,7 @@ class TransceiverInit {
   /// Direction of the transceiver, created from this configuration.
   private var direction: TransceiverDirection
 
-  /// A sequence containing parameters for sending RTP encodings of media.
+  /// Sequence containing parameters for sending RTP encodings of media.
   private var encodings: [Encoding]
 
   /// Initializes a new `TransceiverInit` configuration with the provided data.

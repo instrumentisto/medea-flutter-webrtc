@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(
     non_camel_case_types,
     unused,
@@ -14,8 +13,10 @@
 
 use crate::api::*;
 use core::panic::UnwindSafe;
-use flutter_rust_bridge::{rust2dart::IntoIntoDart, *};
-use std::{ffi::c_void, sync::Arc};
+use flutter_rust_bridge::rust2dart::IntoIntoDart;
+use flutter_rust_bridge::*;
+use std::ffi::c_void;
+use std::sync::Arc;
 
 // Section: imports
 

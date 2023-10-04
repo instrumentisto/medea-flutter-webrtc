@@ -1527,19 +1527,21 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn create_default_rtp_transceiver_init() -> UniquePtr<RtpTransceiverInit>;
 
-        /// Sets a [`RtpTransceiverDirection`] for the provided [`RtpTransceiverInit`].
+        /// Sets an [`RtpTransceiverDirection`] for the provided
+        /// [`RtpTransceiverInit`].
         pub fn set_rtp_transceiver_init_direction(
             init: Pin<&mut RtpTransceiverInit>,
             direction: RtpTransceiverDirection
         );
 
-        /// Adds a [`RtpEncodingParameters`] into the provided [`RtpTransceiverInit`].
+        /// Adds an [`RtpEncodingParameters`] into the provided
+        /// [`RtpTransceiverInit`].
         pub fn add_rtp_transceiver_init_send_encoding(
             init: Pin<&mut RtpTransceiverInit>,
             encoding: &RtpEncodingParametersContainer
         );
 
-        /// Creates a new default [`RtpEncodingParameters`].
+        /// Creates new default [`RtpEncodingParameters`].
         #[must_use]
         pub fn create_rtp_encoding_parameters() -> RtpEncodingParametersContainer;
     }
@@ -1617,7 +1619,7 @@ pub(crate) mod webrtc {
         pub fn rtp_encoding_parameters_scale_resolution_down_by(
             encoding: &RtpEncodingParameters,
         ) -> Result<f64>;
-        
+
         /// Sets the `scale_resolution_down_by` of the provided
         /// [`RtpEncodingParameters`].
         pub fn set_rtp_encoding_parameters_scale_resolution_down_by(

@@ -30,7 +30,8 @@ class RtpTransceiverInit {
   /// Direction of an `RtpTransceiver` which will be created from this config.
   late TransceiverDirection direction;
 
-  /// [SendEncodingParameters] of an `RtpTransceiver` which will be created from this config.
+  /// [SendEncodingParameters] of an `RtpTransceiver` which will be created from
+  /// this config.
   late List<SendEncodingParameters> sendEncodings = List.empty(growable: true);
 
   /// Converts this model to the [Map] expected by Flutter.
@@ -43,29 +44,29 @@ class RtpTransceiverInit {
   }
 }
 
-/// Encoding describes a single configuration of a codec for an RTCRtpSender.
+/// Encoding describing a single configuration of a codec for an RTCRtpSender.
 class SendEncodingParameters {
-  /// A string which, if set, specifies an RTP stream ID (RID) to be sent using
+  /// String which, if set, specifies an RTP stream ID (RID) to be sent using
   /// the RID header extension.
   SendEncodingParameters(this.rid, this.active);
 
-  /// A string which, if set, specifies an RTP stream ID (RID) to be sent using
+  /// String which, if set, specifies an RTP stream ID (RID) to be sent using
   /// the RID header extension.
   late String rid;
 
   /// If true, the described encoding is currently actively being used.
   late bool active;
 
-  /// Indicates the maximum number of bits per second to allow for this
+  /// Indicator of the maximum number of bits per second to allow for this
   /// encoding.
   int? maxBitrate;
 
-  /// A value specifying the maximum number of frames per second to allow for
+  /// Value specifying the maximum number of frames per second to allow for
   /// this encoding.
   double? maxFramerate;
 
-  /// This is a double-precision floating-point value specifying a factor by
-  /// which to scale down the video during encoding.
+  /// Double-precision floating-point value specifying a factor by which to
+  /// scale down the video during encoding.
   double? scaleResolutionDownBy;
 
   /// Scalability mode describes layers within the media stream.
