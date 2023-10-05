@@ -39,7 +39,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   late MethodChannel _chan;
 
   @override
-  int get videoRotatedWidth {
+  int get width {
     if (isDesktop) {
       return value.width.toInt();
     }
@@ -49,7 +49,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   }
 
   @override
-  int get videoRotatedHeight {
+  int get height {
     if (isDesktop) {
       return value.height.toInt();
     }
@@ -57,15 +57,6 @@ abstract class NativeVideoRenderer extends VideoRenderer {
         ? value.height.toInt()
         : value.width.toInt();
   }
-
-  @override
-  int get videoWidth => value.width.toInt();
-
-  @override
-  int get videoHeight => value.height.toInt();
-
-  @override
-  int get quarterTurnsRotation => value.quarterTurnsRotation;
 
   @override
   int? get textureId => _textureId;

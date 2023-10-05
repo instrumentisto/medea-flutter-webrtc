@@ -95,13 +95,10 @@ class WebVideoRenderer extends VideoRenderer {
   }
 
   @override
-  int get videoWidth => value.width.toInt();
+  int get height => value.height.toInt();
 
   @override
-  int get videoHeight => value.height.toInt();
-
-  @override
-  int get quarterTurnsRotation => value.quarterTurnsRotation;
+  int get width => value.width.toInt();
 
   @override
   int get textureId => _textureId;
@@ -244,10 +241,4 @@ class WebVideoRenderer extends VideoRenderer {
       return element;
     });
   }
-
-  @override
-  int get videoRotatedHeight => value.height.toInt();
-
-  @override
-  int get videoRotatedWidth => value.width.toInt();
 }
