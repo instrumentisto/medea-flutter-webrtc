@@ -30,13 +30,6 @@ struct _VideoTexture {
 
   // Buffer containing the actual `ARGB` bytes being passed to Flutter.
   uint8_t* buffer_ = nullptr;
-
-  // Named channel for communicating with the Flutter application using
-  // asynchronous event streams.
-  FlEventChannel* event_channel_ = nullptr;
-
-  // List of `VideoFrame` events.
-  FlValue* events = nullptr;
 };
 
 struct _VideoTextureClass {
@@ -54,15 +47,6 @@ static gboolean video_texture_copy_pixels(FlPixelBufferTexture* texture,
   auto v_texture = VIDEO_TEXTURE(texture);
 
   const std::lock_guard<std::mutex> lock(v_texture->mutex);
-
-
-  if (v_texture->events) {
-    for (size_t i = 0; i < fl_value_get_length (v_texture->events); ++i) {
-      FlValue *child = fl_value_get_list_value (v_texture->events, i);
-      fl_event_channel_send(v_texture->event_channel_, child, nullptr, nullptr);
-    }
-    fl_value_unref(v_texture->events);
-  }
 
   if (v_texture->frame_) {
     if (v_texture->buffer_ == nullptr) {

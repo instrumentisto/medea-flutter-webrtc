@@ -58,12 +58,11 @@ class TextureVideoRenderer {
 
  private:
 
+  // Indicates if at least one `VideoFrame` has been rendered.
+  bool first_frame_rendered = false;
+
   // Object keeping track of external textures.
   TextureRegistrar* registrar_;
-
-  // Event callback. Events to be sent to the Flutter application act as clients
-  // of this interface for sending events.
-  std::unique_ptr<EventSink<EncodableValue>> event_sink_;
 
   // ID of the Flutter texture.
   int64_t texture_id_ = -1;

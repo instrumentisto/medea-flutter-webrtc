@@ -85,12 +85,6 @@ TextureVideoRenderer::TextureVideoRenderer(TextureRegistrar* registrar,
 FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(size_t width,
                                                                  size_t height) {
   mutex_.lock();
-
-  for (auto i : std::reverse(events_.begin(), events_.end())) {
-      event_sink_->Success(EncodableValue(i));
-  }
-  events_.clear();
-
   if (pixel_buffer_.get() && frame_) {
     if (pixel_buffer_->width != frame_->width ||
         pixel_buffer_->height != frame_->height) {
@@ -115,6 +109,12 @@ FlutterDesktopPixelBuffer* TextureVideoRenderer::CopyPixelBuffer(size_t width,
 // `TextureRegistrar->MarkTextureFrameAvailable()` to notify the Flutter side
 // about a new frame being ready for polling.
 void TextureVideoRenderer::OnFrame(VideoFrame frame) {
+  if (!first_frame_rendered) {
+    pixel_buffer_.reset(new FlutterDesktopPixelBuffer());
+    pixel_buffer_->width = 0;
+    pixel_buffer_->height = 0;
+    first_frame_rendered = true;
+  }
   mutex_.lock();
   frame_.emplace(std::move(frame));
   mutex_.unlock();
@@ -127,6 +127,7 @@ void TextureVideoRenderer::ResetRenderer() {
   frame_.reset();
   mutex_.unlock();
   frame_ = std::nullopt;
+  first_frame_rendered = false;
 }
 
 // Creates a new `FrameHandler`.
