@@ -6,9 +6,10 @@ use std::{
     time::Duration,
 };
 
-use flutter_rust_bridge::{RustOpaque, StreamSink};
+use flutter_rust_bridge::{DartOpaque, RustOpaque, StreamSink};
 use libwebrtc_sys as sys;
 
+pub use crate::renderer::TextureEvent;
 use crate::{
     devices::{self, DeviceState},
     renderer::FrameHandler,
@@ -2180,18 +2181,25 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
 ///
 /// `callback_ptr` argument should be a pointer to an [`UniquePtr`] pointing to
 /// an [`OnFrameCallbackInterface`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn create_video_sink(
     sink_id: i64,
     track_id: String,
     callback_ptr: u64,
+    port: i64,
+    texture_id: i64,
+    _touch_dart_api: DartOpaque, // initializes `dart_api_dl` to use `Dart_Port`.
 ) -> anyhow::Result<()> {
-    let handler = FrameHandler::new(callback_ptr as _);
+    let handler = FrameHandler::new(callback_ptr as _, port as _, texture_id);
 
     WEBRTC
         .lock()
         .unwrap()
         .create_video_sink(sink_id, track_id, handler)
 }
+
+// This will trigger `flutter_rust_bridge` to generate `TextureEvent`.
+pub fn touch_texture_event(_value: TextureEvent) {}
 
 /// Destroys the [`VideoSink`] by the provided ID.
 pub fn dispose_video_sink(sink_id: i64) {

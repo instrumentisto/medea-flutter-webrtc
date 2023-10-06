@@ -719,6 +719,7 @@ dependencies = [
  "cc",
  "cxx",
  "cxx-build",
+ "dart-sys",
  "dashmap",
  "derive_more",
  "flutter_rust_bridge",

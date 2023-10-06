@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:ffi';
+import 'dart:isolate';
 
 import 'package:flutter/services.dart';
+
+import '../../api/bridge.g.dart' show TextureEvent;
 
 import '../../api/peer.dart';
 import '/src/api/channel.dart';
@@ -33,6 +37,9 @@ abstract class NativeVideoRenderer extends VideoRenderer {
 
   /// Subscription to the events of this [NativeVideoRenderer].
   StreamSubscription<dynamic>? _eventChan;
+
+  /// Subscription to the events of this [NativeVideoRenderer].
+  ReceivePort? _eventPort;
 
   /// [MethodChannel] for the [NativeVideoRenderer] used for the messaging with
   /// the native side.
@@ -81,12 +88,17 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   /// Listener for the [NativeVideoRenderer] events received from the native
   /// side.
   void eventListener(dynamic event) {
-    final dynamic map = event;
-    switch (map['event']) {
-      case 'onTextureChange':
-        var rotation = map['rotation'];
-        var width = 0.0 + map['width'];
-        var height = 0.0 + map['height'];
+    final dynamic values = event;
+    TextureEvent? textureEvent;
+    if (values[0] != null) {
+      textureEvent =
+          TextureEvent.values.firstWhere((e) => e.index == values[0]);
+    }
+    switch (textureEvent ?? values['event']) {
+      case TextureEvent.OnTextureChange || 'onTextureChange':
+        var rotation = values[2] ?? values['rotation'];
+        var width = 0.0 + (values[3] ?? values['width']);
+        var height = 0.0 + (values[4] ?? values['height']);
 
         var newWidth = rotation % 180 == 0 ? width : height;
         var newHeight = rotation % 180 == 0 ? height : width;
@@ -103,7 +115,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
 
         onResize?.call();
         break;
-      case 'onFirstFrameRendered':
+      case TextureEvent.OnFirstFrameRendered || 'onFirstFrameRendered':
         value = value.copyWith(renderVideo: renderVideo);
         break;
     }
@@ -154,6 +166,7 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 
   @override
   Future<void> dispose() async {
+    _eventPort?.close();
     await _eventChan?.cancel();
     await _chan.invokeMethod('dispose');
     await super.dispose();
@@ -164,13 +177,23 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 class _NativeVideoRendererFFI extends NativeVideoRenderer {
   @override
   Future<void> initialize() async {
-    final response = await _rendererFactoryChannel.invokeMethod('create');
+    _eventPort = ReceivePort()..listen(eventListener);
+
+    final response = await _rendererFactoryChannel.invokeMethod('create', {
+      'port': _eventPort!.sendPort.nativePort,
+      'dart_api': NativeApi.initializeApiDLData.address
+    });
     _textureId = response['textureId'];
-    _channelId = response['channelId'];
-    _eventChan = eventChannel('VideoRendererEvent', _channelId)
-        .receiveBroadcastStream()
-        .listen(eventListener, onError: errorListener);
     _chan = methodChannel('VideoRendererFactory', 0);
+
+    int? channelId = response['channelId'];
+    if (channelId != null) {
+      _eventChan = eventChannel('VideoRendererEvent', _channelId)
+          .receiveBroadcastStream()
+          .listen(eventListener, onError: errorListener);
+    }
+
+    _channelId = channelId ?? 0;
   }
 
   @override
@@ -198,13 +221,17 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
           .createVideoSink(
               sinkId: sinkId,
               trackId: trackId,
-              callbackPtr: handler['handler_ptr'])
+              callbackPtr: handler['handler_ptr'],
+              port: _eventPort!.sendPort.nativePort,
+              textureId: textureId ?? 0,
+              touchDartApi: '')
           .then((_) => {value = value.copyWith(renderVideo: renderVideo)});
     }
   }
 
   @override
   Future<void> dispose() async {
+    _eventPort?.close();
     await _eventChan?.cancel();
     await setSrcObject(null);
     await _chan.invokeMethod('dispose', {'textureId': textureId});

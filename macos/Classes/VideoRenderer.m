@@ -28,12 +28,7 @@ void on_frame_caller(void* handler, Frame frame) {
     int64_t tid = [registry registerTexture:self];
     self->_tid = tid;
     NSNumber* textureId = [NSNumber numberWithLong:tid];
-    NSString* channelName = [NSString
-        stringWithFormat:@"FlutterWebRtc/VideoRendererEvent/%@", textureId];
-    _eventChannel = [FlutterEventChannel eventChannelWithName:channelName
-                                              binaryMessenger:messenger];
     self->_textureId = textureId;
-    [_eventChannel setStreamHandler:self];
 
     __weak TextureVideoRenderer* weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -80,35 +75,6 @@ void on_frame_caller(void* handler, Frame frame) {
     get_argb_bytes(frame.frame, argb_stride, dst);
     drop_frame(frame.frame);
     CVPixelBufferUnlockBaseAddress(_pixelBufferRef, 0);
-
-    if (!_firstFrameRendered) {
-        if (_eventSink != nil) {
-            NSDictionary* map = @{
-                @"event" : @"onFirstFrameRendered",
-                @"id" : self->_textureId,
-            };
-            _eventSink(map);
-        }
-        _firstFrameRendered = true;
-    }
-    NSNumber* frameRotation = [NSNumber numberWithInt:frame.rotation];
-    bool isFrameWidthChanged = _frameWidth != frame.width;
-    bool isFrameHeightChanged = _frameHeight != frame.height;
-    if (isFrameWidthChanged || isFrameHeightChanged || _rotation != frameRotation) {
-        _frameWidth = frame.width;
-        _frameHeight = frame.height;
-        if (_eventSink != nil) {
-            NSDictionary* map = @{
-                @"event" : @"onTextureChange",
-                @"id" : _textureId,
-                @"width" : [NSNumber numberWithLong:frame.width],
-                @"height" : [NSNumber numberWithLong:frame.height],
-                @"rotation" : frameRotation,
-            };
-            _eventSink(map);
-        }
-        _rotation = frameRotation;
-    }
 
     __weak TextureVideoRenderer* weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{

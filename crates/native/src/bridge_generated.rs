@@ -13,10 +13,14 @@
 
 use crate::api::*;
 use core::panic::UnwindSafe;
-use flutter_rust_bridge::{rust2dart::IntoIntoDart, *};
-use std::{ffi::c_void, sync::Arc};
+use flutter_rust_bridge::rust2dart::IntoIntoDart;
+use flutter_rust_bridge::*;
+use std::ffi::c_void;
+use std::sync::Arc;
 
 // Section: imports
+
+use crate::renderer::TextureEvent;
 
 // Section: wire functions
 
@@ -613,6 +617,9 @@ fn wire_create_video_sink_impl(
     sink_id: impl Wire2Api<i64> + UnwindSafe,
     track_id: impl Wire2Api<String> + UnwindSafe,
     callback_ptr: impl Wire2Api<u64> + UnwindSafe,
+    port: impl Wire2Api<i64> + UnwindSafe,
+    texture_id: impl Wire2Api<i64> + UnwindSafe,
+    _touch_dart_api: impl Wire2Api<DartOpaque> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
         WrapInfo {
@@ -624,9 +631,35 @@ fn wire_create_video_sink_impl(
             let api_sink_id = sink_id.wire2api();
             let api_track_id = track_id.wire2api();
             let api_callback_ptr = callback_ptr.wire2api();
+            let api_port = port.wire2api();
+            let api_texture_id = texture_id.wire2api();
+            let api__touch_dart_api = _touch_dart_api.wire2api();
             move |task_callback| {
-                create_video_sink(api_sink_id, api_track_id, api_callback_ptr)
+                create_video_sink(
+                    api_sink_id,
+                    api_track_id,
+                    api_callback_ptr,
+                    api_port,
+                    api_texture_id,
+                    api__touch_dart_api,
+                )
             }
+        },
+    )
+}
+fn wire_touch_texture_event_impl(
+    port_: MessagePort,
+    _value: impl Wire2Api<TextureEvent> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "touch_texture_event",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api__value = _value.wire2api();
+            move |task_callback| Ok(touch_texture_event(api__value))
         },
     )
 }
@@ -742,6 +775,15 @@ impl Wire2Api<SdpType> for i32 {
             2 => SdpType::Answer,
             3 => SdpType::Rollback,
             _ => unreachable!("Invalid variant for SdpType: {}", self),
+        }
+    }
+}
+impl Wire2Api<TextureEvent> for i32 {
+    fn wire2api(self) -> TextureEvent {
+        match self {
+            0 => TextureEvent::OnTextureChange,
+            1 => TextureEvent::OnFirstFrameRendered,
+            _ => unreachable!("Invalid variant for TextureEvent: {}", self),
         }
     }
 }
@@ -1528,8 +1570,7 @@ impl rust2dart::IntoIntoDart<TrackState> for TrackState {
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
-        Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]

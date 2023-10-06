@@ -288,8 +288,24 @@ pub extern "C" fn wire_create_video_sink(
     sink_id: i64,
     track_id: *mut wire_uint_8_list,
     callback_ptr: u64,
+    port: i64,
+    texture_id: i64,
+    _touch_dart_api: wire_DartOpaque,
 ) {
-    wire_create_video_sink_impl(port_, sink_id, track_id, callback_ptr)
+    wire_create_video_sink_impl(
+        port_,
+        sink_id,
+        track_id,
+        callback_ptr,
+        port,
+        texture_id,
+        _touch_dart_api,
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_touch_texture_event(port_: i64, _value: i32) {
+    wire_touch_texture_event_impl(port_, _value)
 }
 
 #[no_mangle]
@@ -307,6 +323,11 @@ pub extern "C" fn new_ArcPeerConnection() -> wire_ArcPeerConnection {
 #[no_mangle]
 pub extern "C" fn new_ArcRtpTransceiver() -> wire_ArcRtpTransceiver {
     wire_ArcRtpTransceiver::new_with_null_ptr()
+}
+
+#[no_mangle]
+pub extern "C" fn new_DartOpaque() -> wire_DartOpaque {
+    wire_DartOpaque::new_with_null_ptr()
 }
 
 #[no_mangle]
@@ -414,6 +435,11 @@ impl Wire2Api<RustOpaque<Arc<PeerConnection>>> for wire_ArcPeerConnection {
 impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> for wire_ArcRtpTransceiver {
     fn wire2api(self) -> RustOpaque<Arc<RtpTransceiver>> {
         unsafe { support::opaque_from_dart(self.ptr as _) }
+    }
+}
+impl Wire2Api<DartOpaque> for wire_DartOpaque {
+    fn wire2api(self) -> DartOpaque {
+        unsafe { DartOpaque::new(self.handle as _, self.port) }
     }
 }
 impl Wire2Api<String> for *mut wire_uint_8_list {
@@ -536,6 +562,13 @@ pub struct wire_ArcRtpTransceiver {
 
 #[repr(C)]
 #[derive(Clone)]
+pub struct wire_DartOpaque {
+    port: i64,
+    handle: usize,
+}
+
+#[repr(C)]
+#[derive(Clone)]
 pub struct wire_StringList {
     ptr: *mut *mut wire_uint_8_list,
     len: i32,
@@ -618,6 +651,11 @@ impl NewWithNullPtr for wire_ArcRtpTransceiver {
         Self {
             ptr: core::ptr::null(),
         }
+    }
+}
+impl NewWithNullPtr for wire_DartOpaque {
+    fn new_with_null_ptr() -> Self {
+        Self { port: 0, handle: 0 }
     }
 }
 
