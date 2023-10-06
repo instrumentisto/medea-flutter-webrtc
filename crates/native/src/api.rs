@@ -1940,9 +1940,9 @@ pub fn set_transceiver_init_direction(
 #[allow(clippy::needless_pass_by_value)]
 pub fn add_transceiver_init_send_encoding(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
+    encod: RustOpaque<Arc<RtpEncodingParameters>>,
 ) {
-    init.add_encoding(&encoding);
+    init.add_encoding(&encod);
 }
 
 /// Creates new [`RtpEncodingParameters`] with the provided settings.
