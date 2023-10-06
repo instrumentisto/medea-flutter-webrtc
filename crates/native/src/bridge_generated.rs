@@ -13,10 +13,8 @@
 
 use crate::api::*;
 use core::panic::UnwindSafe;
-use flutter_rust_bridge::rust2dart::IntoIntoDart;
-use flutter_rust_bridge::*;
-use std::ffi::c_void;
-use std::sync::Arc;
+use flutter_rust_bridge::{rust2dart::IntoIntoDart, *};
+use std::{ffi::c_void, sync::Arc};
 
 // Section: imports
 
@@ -1570,7 +1568,8 @@ impl rust2dart::IntoIntoDart<TrackState> for TrackState {
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
+        Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]

@@ -5,7 +5,6 @@ import 'dart:isolate';
 import 'package:flutter/services.dart';
 
 import '../../api/bridge.g.dart' show TextureEvent;
-
 import '../../api/peer.dart';
 import '/src/api/channel.dart';
 import '/src/model/track.dart';

@@ -2188,7 +2188,8 @@ pub fn create_video_sink(
     callback_ptr: u64,
     port: i64,
     texture_id: i64,
-    _touch_dart_api: DartOpaque, // initializes `dart_api_dl` to use `Dart_Port`.
+    // initializes `dart_api_dl` to use `Dart_Port`.
+    _touch_dart_api: DartOpaque,
 ) -> anyhow::Result<()> {
     let handler = FrameHandler::new(callback_ptr as _, port as _, texture_id);
 
