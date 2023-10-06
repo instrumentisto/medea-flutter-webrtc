@@ -81,7 +81,8 @@ class TextureVideoRenderer {
       first_frame_rendered = true;
     }
     if (!texture_->frame_ ||
-        texture_->frame_->buffer_size != frame.buffer_size ||
+        height_ != frame.height ||
+        width_ != frame.width ||
         rotation_ != frame.rotation) {
       if (send_events_) {
         g_autoptr(FlValue) map = fl_value_new_map();
@@ -98,6 +99,8 @@ class TextureVideoRenderer {
 
         fl_event_channel_send(event_channel_, map, nullptr, nullptr);
       }
+      width_ = frame.width;
+      height_ = frame.height;
       rotation_ = frame.rotation;
     }
 
@@ -139,6 +142,12 @@ class TextureVideoRenderer {
 
   // Rotation of the current `VideoFrame`.
   int32_t rotation_ = 0;
+
+  // Height of the current `VideoFrame`.
+  size_t height_ = 0;
+
+  // Width of the current `VideoFrame`.
+  size_t width_ = 0;
 };
 
 class FrameHandler : public OnFrameCallbackInterface {
