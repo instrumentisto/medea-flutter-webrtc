@@ -39,7 +39,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   late MethodChannel _chan;
 
   @override
-  int get width {
+  int get videoWidth {
     if (isDesktop) {
       return value.width.toInt();
     }
@@ -49,7 +49,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   }
 
   @override
-  int get height {
+  int get videoHeight {
     if (isDesktop) {
       return value.height.toInt();
     }

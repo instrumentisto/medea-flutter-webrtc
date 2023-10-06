@@ -57,9 +57,9 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
 
   Function? onResize;
 
-  int get width;
+  int get videoWidth;
 
-  int get height;
+  int get videoHeight;
 
   set mirror(bool mirror);
 

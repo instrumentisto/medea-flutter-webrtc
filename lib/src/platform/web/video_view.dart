@@ -21,6 +21,8 @@ class VideoView extends StatefulWidget {
   final bool enableContextMenu;
   final FilterQuality filterQuality;
 
+  WebVideoRenderer get videoRenderer => _renderer as WebVideoRenderer;
+
   @override
   State<VideoView> createState() => _VideoViewState();
 }
