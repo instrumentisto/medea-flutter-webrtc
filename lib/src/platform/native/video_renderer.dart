@@ -94,7 +94,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
           TextureEvent.values.firstWhere((e) => e.index == values[0]);
     }
     switch (textureEvent ?? values['event']) {
-      case TextureEvent.OnTextureChange || 'onTextureChange':
+      case TextureEvent.onTextureChange || 'onTextureChange':
         var rotation = values[2] ?? values['rotation'];
         var width = 0.0 + (values[3] ?? values['width']);
         var height = 0.0 + (values[4] ?? values['height']);
@@ -114,7 +114,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
 
         onResize?.call();
         break;
-      case TextureEvent.OnFirstFrameRendered || 'onFirstFrameRendered':
+      case TextureEvent.onFirstFrameRendered || 'onFirstFrameRendered':
         value = value.copyWith(renderVideo: renderVideo);
         break;
     }
