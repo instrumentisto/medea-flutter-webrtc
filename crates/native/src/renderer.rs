@@ -285,26 +285,14 @@ mod frame_handler {
     use cxx::UniquePtr;
     use libwebrtc_sys as sys;
 
-    use dart_sys::{
-        Dart_CObject, Dart_CObject_Type_Dart_CObject_kArray as DartCTypeArray,
-        Dart_CObject_Type_Dart_CObject_kInt32 as DartCTypeI32,
-        Dart_CObject_Type_Dart_CObject_kInt64 as DartCTypeI64, Dart_Port,
-        Dart_PostCObject_DL, _Dart_CObject__bindgen_ty_1 as DartCValue,
-        _Dart_CObject__bindgen_ty_1__bindgen_ty_3 as DartCArray,
-    };
+    use dart_sys::Dart_Port;
 
-    use super::TextureEvent;
-    use sys::VideoRotation;
+    use super::TextureEventNotifier;
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
         inner: *const (),
-        first_frame_rendered: RefCell<bool>,
-        port: Dart_Port,
-        texture_id: i64,
-        width: RefCell<i32>,
-        height: RefCell<i32>,
-        rotation: RefCell<VideoRotation>,
+        event_tx: RefCell<TextureEventNotifier>,
     }
 
     impl Drop for FrameHandler {
@@ -343,119 +331,24 @@ mod frame_handler {
         ) -> Self {
             Self {
                 inner: handler,
-                first_frame_rendered: RefCell::new(false),
-                port,
-                width: RefCell::new(0),
-                height: RefCell::new(0),
-                rotation: RefCell::new(sys::VideoRotation::kVideoRotation_0),
-                texture_id,
+                event_tx: RefCell::new(TextureEventNotifier::new(
+                    port, texture_id,
+                )),
             }
         }
 
         /// Passes the provided [`sys::VideoFrame`] to the C side listener.
         #[allow(clippy::cast_sign_loss, clippy::too_many_lines)]
-        pub fn on_frame(&self, frame: UniquePtr<sys::VideoFrame>) {
+        pub fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
             let height = frame.height();
             let width = frame.width();
 
             assert!(height >= 0, "VideoFrame has a negative height");
             assert!(width >= 0, "VideoFrame has a negative width");
 
+            self.event_tx.borrow_mut().on_frame(&frame);
+
             let buffer_size = width * height * 4;
-
-            if !*self.first_frame_rendered.borrow() {
-                let mut value = Dart_CObject {
-                    type_: DartCTypeArray,
-                    value: DartCValue {
-                        as_array: DartCArray {
-                            length: 2,
-                            values: &mut [
-                                &mut Dart_CObject {
-                                    type_: DartCTypeI32,
-                                    value: DartCValue {
-                                        as_int32:
-                                            TextureEvent::OnFirstFrameRendered
-                                                as i32,
-                                    },
-                                } as *mut _,
-                                &mut Dart_CObject {
-                                    type_: DartCTypeI64,
-                                    value: DartCValue {
-                                        as_int64: self.texture_id,
-                                    },
-                                } as *mut _,
-                            ] as *mut _,
-                        },
-                    },
-                };
-                *self.first_frame_rendered.borrow_mut() = true;
-                #[allow(clippy::expect_used)]
-                unsafe {
-                    Dart_PostCObject_DL
-                        .expect("dart_api_dl has not been initialized")(
-                        self.port, &mut value,
-                    )
-                };
-            }
-
-            if *self.height.borrow() != frame.height()
-                || *self.height.borrow() != frame.width()
-                || *self.rotation.borrow() != frame.rotation()
-            {
-                let mut value = Dart_CObject {
-                    type_: DartCTypeArray,
-                    value: DartCValue {
-                        as_array: DartCArray {
-                            length: 5,
-                            values: &mut [
-                                &mut Dart_CObject {
-                                    type_: DartCTypeI64,
-                                    value: DartCValue {
-                                        as_int64: TextureEvent::OnTextureChange
-                                            as i64,
-                                    },
-                                } as *mut _,
-                                &mut Dart_CObject {
-                                    type_: DartCTypeI64,
-                                    value: DartCValue {
-                                        as_int64: self.texture_id,
-                                    },
-                                } as *mut _,
-                                &mut Dart_CObject {
-                                    type_: DartCTypeI32,
-                                    value: DartCValue {
-                                        as_int32: frame.rotation().repr,
-                                    },
-                                } as *mut _,
-                                &mut Dart_CObject {
-                                    type_: DartCTypeI32,
-                                    value: DartCValue {
-                                        as_int32: frame.width(),
-                                    },
-                                } as *mut _,
-                                &mut Dart_CObject {
-                                    type_: DartCTypeI32,
-                                    value: DartCValue {
-                                        as_int32: frame.height(),
-                                    },
-                                } as *mut _,
-                            ] as *mut _,
-                        },
-                    },
-                };
-                *self.height.borrow_mut() = frame.height();
-                *self.width.borrow_mut() = frame.width();
-                *self.rotation.borrow_mut() = frame.rotation();
-
-                #[allow(clippy::expect_used)]
-                unsafe {
-                    Dart_PostCObject_DL
-                        .expect("dart_api_dl has not been initialized")(
-                        self.port, &mut value,
-                    )
-                };
-            }
-
             unsafe {
                 on_frame_caller(
                     self.inner,
