@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(
     non_camel_case_types,
     unused,
@@ -13,10 +14,8 @@
 
 use crate::api::*;
 use core::panic::UnwindSafe;
-use flutter_rust_bridge::rust2dart::IntoIntoDart;
-use flutter_rust_bridge::*;
-use std::ffi::c_void;
-use std::sync::Arc;
+use flutter_rust_bridge::{rust2dart::IntoIntoDart, *};
+use std::{ffi::c_void, sync::Arc};
 
 // Section: imports
 
@@ -179,7 +178,7 @@ fn wire_set_transceiver_init_direction_impl(
 fn wire_add_transceiver_init_send_encoding_impl(
     port_: MessagePort,
     init: impl Wire2Api<RustOpaque<Arc<RtpTransceiverInit>>> + UnwindSafe,
-    encod: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
         WrapInfo {
@@ -189,9 +188,9 @@ fn wire_add_transceiver_init_send_encoding_impl(
         },
         move || {
             let api_init = init.wire2api();
-            let api_encod = encod.wire2api();
+            let api_encoding = encoding.wire2api();
             move |task_callback| {
-                Ok(add_transceiver_init_send_encoding(api_init, api_encod))
+                Ok(add_transceiver_init_send_encoding(api_init, api_encoding))
             }
         },
     )
@@ -737,7 +736,7 @@ fn wire_create_video_sink_impl(
 }
 fn wire_touch_texture_event_impl(
     port_: MessagePort,
-    _value: impl Wire2Api<TextureEvent> + UnwindSafe,
+    _e: impl Wire2Api<TextureEvent> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
         WrapInfo {
@@ -746,8 +745,8 @@ fn wire_touch_texture_event_impl(
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api__value = _value.wire2api();
-            move |task_callback| Ok(touch_texture_event(api__value))
+            let api__e = _e.wire2api();
+            move |task_callback| Ok(touch_texture_event(api__e))
         },
     )
 }
@@ -1663,8 +1662,7 @@ impl rust2dart::IntoIntoDart<TrackState> for TrackState {
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
-        Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]
@@ -1752,9 +1750,9 @@ mod io {
     pub extern "C" fn wire_add_transceiver_init_send_encoding(
         port_: i64,
         init: wire_ArcRtpTransceiverInit,
-        encod: wire_ArcRtpEncodingParameters,
+        encoding: wire_ArcRtpEncodingParameters,
     ) {
-        wire_add_transceiver_init_send_encoding_impl(port_, init, encod)
+        wire_add_transceiver_init_send_encoding_impl(port_, init, encoding)
     }
 
     #[no_mangle]
@@ -2022,8 +2020,8 @@ mod io {
     }
 
     #[no_mangle]
-    pub extern "C" fn wire_touch_texture_event(port_: i64, _value: i32) {
-        wire_touch_texture_event_impl(port_, _value)
+    pub extern "C" fn wire_touch_texture_event(port_: i64, _e: i32) {
+        wire_touch_texture_event_impl(port_, _e)
     }
 
     #[no_mangle]

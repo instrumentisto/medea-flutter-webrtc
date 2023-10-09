@@ -21,20 +21,34 @@ pub enum TextureEvent {
     OnFirstFrameRendered = 1,
 }
 
+/// Notifies Dart-side of any [`sys::VideoFrame`] dimensions changes.
 struct TextureEventNotifier {
-    first_frame_rendered: bool,
+    /// Identificator of a Dart-side [ReceivePort]
+    ///
+    /// [ReceivePort]: https://api.dart.dev/dart-isolate/ReceivePort-class.html
     port: Dart_Port,
+
+    /// Indicator whether any frames were rendered for the given texture.
+    first_frame_rendered: bool,
+
+    /// Rotation of the last processed frame.
     texture_id: i64,
+
+    /// Width of the last processed frame.
     width: i32,
+
+    /// Height of the last processed frame.
     height: i32,
+
+    /// Rotation of the last processed frame.
     rotation: sys::VideoRotation,
 }
 
 impl TextureEventNotifier {
     fn new(port: Dart_Port, texture_id: i64) -> Self {
         Self {
-            first_frame_rendered: false,
             port,
+            first_frame_rendered: false,
             width: 0,
             height: 0,
             rotation: sys::VideoRotation::kVideoRotation_0,
@@ -280,8 +294,6 @@ mod frame_handler {
 ///
 /// cbindgen:ignore
 mod frame_handler {
-    use std::cell::RefCell;
-
     use cxx::UniquePtr;
     use libwebrtc_sys as sys;
 
@@ -292,7 +304,7 @@ mod frame_handler {
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
         inner: *const (),
-        event_tx: RefCell<TextureEventNotifier>,
+        event_tx: TextureEventNotifier,
     }
 
     impl Drop for FrameHandler {
@@ -331,9 +343,7 @@ mod frame_handler {
         ) -> Self {
             Self {
                 inner: handler,
-                event_tx: RefCell::new(TextureEventNotifier::new(
-                    port, texture_id,
-                )),
+                event_tx: TextureEventNotifier::new(port, texture_id),
             }
         }
 
@@ -346,7 +356,7 @@ mod frame_handler {
             assert!(height >= 0, "VideoFrame has a negative height");
             assert!(width >= 0, "VideoFrame has a negative width");
 
-            self.event_tx.borrow_mut().on_frame(&frame);
+            self.event_tx.on_frame(&frame);
 
             let buffer_size = width * height * 4;
             unsafe {

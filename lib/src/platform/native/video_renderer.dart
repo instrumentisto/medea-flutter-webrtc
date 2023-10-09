@@ -28,41 +28,18 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   /// Unique ID for the texture on which video will be rendered.
   int? _textureId;
 
-  /// Unique ID of the channel for the native side `VideoRenderer`.
-  late int _channelId;
-
   /// Currently rendering [MediaStreamTrack].
   MediaStreamTrack? _srcObject;
-
-  /// Subscription to the events of this [NativeVideoRenderer].
-  StreamSubscription<dynamic>? _eventChan;
-
-  /// Subscription to the events of this [NativeVideoRenderer].
-  ReceivePort? _eventPort;
 
   /// [MethodChannel] for the [NativeVideoRenderer] used for the messaging with
   /// the native side.
   late MethodChannel _chan;
 
   @override
-  int get videoWidth {
-    if (isDesktop) {
-      return value.width.toInt();
-    }
-    return value.rotation % 180 == 0
-        ? value.width.toInt()
-        : value.height.toInt();
-  }
+  int get videoWidth;
 
   @override
-  int get videoHeight {
-    if (isDesktop) {
-      return value.height.toInt();
-    }
-    return value.rotation % 180 == 0
-        ? value.height.toInt()
-        : value.width.toInt();
-  }
+  int get videoHeight;
 
   @override
   int? get textureId => _textureId;
@@ -73,42 +50,6 @@ abstract class NativeVideoRenderer extends VideoRenderer {
   @override
   set mirror(bool mirror) {
     // No-op. Mirroring is done through [VideoView].
-  }
-
-  /// Listener for the [NativeVideoRenderer] events received from the native
-  /// side.
-  void eventListener(dynamic event) {
-    final dynamic values = event;
-    TextureEvent? textureEvent;
-    if (values[0] != null) {
-      textureEvent =
-          TextureEvent.values.firstWhere((e) => e.index == values[0]);
-    }
-    switch (textureEvent ?? values['event']) {
-      case TextureEvent.onTextureChange || 'onTextureChange':
-        var rotation = values[2] ?? values['rotation'];
-        var width = 0.0 + (values[3] ?? values['width']);
-        var height = 0.0 + (values[4] ?? values['height']);
-
-        var newWidth = rotation % 180 == 0 ? width : height;
-        var newHeight = rotation % 180 == 0 ? height : width;
-
-        width = newWidth;
-        height = newHeight;
-
-        value = value.copyWith(
-          rotation: rotation,
-          width: width,
-          height: height,
-          renderVideo: renderVideo,
-        );
-
-        onResize?.call();
-        break;
-      case TextureEvent.onFirstFrameRendered || 'onFirstFrameRendered':
-        value = value.copyWith(renderVideo: renderVideo);
-        break;
-    }
   }
 
   /// Listener for the errors of the native event channel.
@@ -124,6 +65,26 @@ abstract class NativeVideoRenderer extends VideoRenderer {
 
 /// [MethodChannel]-based implementation of a [NativeVideoRenderer].
 class _NativeVideoRendererChannel extends NativeVideoRenderer {
+  /// Unique ID of the channel for the native side `VideoRenderer`.
+  late int _channelId;
+
+  /// Subscription to the events of this [NativeVideoRenderer].
+  StreamSubscription<dynamic>? _eventChan;
+
+  @override
+  int get videoWidth {
+    return value.rotation % 180 == 0
+        ? value.width.toInt()
+        : value.height.toInt();
+  }
+
+  @override
+  int get videoHeight {
+    return value.rotation % 180 == 0
+        ? value.height.toInt()
+        : value.width.toInt();
+  }
+
   @override
   Future<void> initialize() async {
     final response = await _rendererFactoryChannel.invokeMethod('create');
@@ -156,15 +117,52 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 
   @override
   Future<void> dispose() async {
-    _eventPort?.close();
     await _eventChan?.cancel();
     await _chan.invokeMethod('dispose');
     await super.dispose();
+  }
+
+  /// Listener for the [NativeVideoRenderer] events received from the native
+  /// side.
+  void eventListener(dynamic event) {
+    final dynamic map = event;
+    switch (map['event']) {
+      case 'onTextureChange':
+        var rotation = map['rotation'];
+        var width = 0.0 + map['width'];
+        var height = 0.0 + map['height'];
+
+        value = value.copyWith(
+          rotation: rotation,
+          width: width,
+          height: height,
+          renderVideo: renderVideo,
+        );
+
+        onResize?.call();
+        break;
+      case 'onFirstFrameRendered':
+        value = value.copyWith(renderVideo: renderVideo);
+        break;
+    }
   }
 }
 
 /// FFI-based implementation of a [NativeVideoRenderer].
 class _NativeVideoRendererFFI extends NativeVideoRenderer {
+  /// Subscription to the events of this [NativeVideoRenderer].
+  ReceivePort? _eventPort;
+
+  @override
+  int get videoWidth {
+    return value.width.toInt();
+  }
+
+  @override
+  int get videoHeight {
+    return value.height.toInt();
+  }
+
   @override
   Future<void> initialize() async {
     _eventPort = ReceivePort()..listen(eventListener);
@@ -175,15 +173,6 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
     });
     _textureId = response['textureId'];
     _chan = methodChannel('VideoRendererFactory', 0);
-
-    int? channelId = response['channelId'];
-    if (channelId != null) {
-      _eventChan = eventChannel('VideoRendererEvent', _channelId)
-          .receiveBroadcastStream()
-          .listen(eventListener, onError: errorListener);
-    }
-
-    _channelId = channelId ?? 0;
   }
 
   @override
@@ -196,9 +185,8 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
     }
 
     _srcObject = track;
-    var sinkId = textureId ?? 0;
     if (track == null) {
-      api!.disposeVideoSink(sinkId: sinkId);
+      api!.disposeVideoSink(sinkId: textureId!);
       value = RTCVideoValue.empty;
     } else {
       var handler =
@@ -209,11 +197,11 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
       var trackId = track.id();
       await api!
           .createVideoSink(
-              sinkId: sinkId,
+              sinkId: textureId!,
               trackId: trackId,
               callbackPtr: handler['handler_ptr'],
               port: _eventPort!.sendPort.nativePort,
-              textureId: textureId ?? 0,
+              textureId: textureId!,
               touchDartApi: '')
           .then((_) => {value = value.copyWith(renderVideo: renderVideo)});
     }
@@ -222,9 +210,42 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
   @override
   Future<void> dispose() async {
     _eventPort?.close();
-    await _eventChan?.cancel();
     await setSrcObject(null);
     await _chan.invokeMethod('dispose', {'textureId': textureId});
     await super.dispose();
+  }
+
+  /// Listener for the [NativeVideoRenderer] events received from the native
+  /// side.
+  void eventListener(dynamic event) {
+    final dynamic values = event;
+    TextureEvent textureEvent =
+        TextureEvent.values.firstWhere((e) => e.index == values[0]);
+
+    switch (textureEvent) {
+      case TextureEvent.onTextureChange:
+        var rotation = values[2];
+        var width = 0.0 + (values[3]);
+        var height = 0.0 + (values[4]);
+
+        var newWidth = rotation % 180 == 0 ? width : height;
+        var newHeight = rotation % 180 == 0 ? height : width;
+
+        width = newWidth;
+        height = newHeight;
+
+        value = value.copyWith(
+          rotation: rotation,
+          width: width,
+          height: height,
+          renderVideo: renderVideo,
+        );
+
+        onResize?.call();
+        break;
+      case TextureEvent.onFirstFrameRendered:
+        value = value.copyWith(renderVideo: renderVideo);
+        break;
+    }
   }
 }

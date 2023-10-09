@@ -1940,9 +1940,9 @@ pub fn set_transceiver_init_direction(
 #[allow(clippy::needless_pass_by_value)]
 pub fn add_transceiver_init_send_encoding(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
-    encod: RustOpaque<Arc<RtpEncodingParameters>>,
+    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
 ) {
-    init.add_encoding(&encod);
+    init.add_encoding(&encoding);
 }
 
 /// Creates new [`RtpEncodingParameters`] with the provided settings.
@@ -2257,7 +2257,7 @@ pub fn create_video_sink(
 }
 
 // This will trigger `flutter_rust_bridge` to generate `TextureEvent`.
-pub fn touch_texture_event(_value: TextureEvent) {}
+pub fn touch_texture_event(_e: TextureEvent) {}
 
 /// Destroys the [`VideoSink`] by the provided ID.
 pub fn dispose_video_sink(sink_id: i64) {

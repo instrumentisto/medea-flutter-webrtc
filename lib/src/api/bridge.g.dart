@@ -81,7 +81,7 @@ abstract class MedeaFlutterWebrtcNative {
   /// Adds the provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
   Future<void> addTransceiverInitSendEncoding(
       {required ArcRtpTransceiverInit init,
-      required ArcRtpEncodingParameters encod,
+      required ArcRtpEncodingParameters encoding,
       dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kAddTransceiverInitSendEncodingConstMeta;
@@ -313,7 +313,7 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kCreateVideoSinkConstMeta;
 
-  Future<void> touchTextureEvent({required TextureEvent value, dynamic hint});
+  Future<void> touchTextureEvent({required TextureEvent e, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kTouchTextureEventConstMeta;
 
@@ -2030,16 +2030,16 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
 
   Future<void> addTransceiverInitSendEncoding(
       {required ArcRtpTransceiverInit init,
-      required ArcRtpEncodingParameters encod,
+      required ArcRtpEncodingParameters encoding,
       dynamic hint}) {
     var arg0 = _platform.api2wire_ArcRtpTransceiverInit(init);
-    var arg1 = _platform.api2wire_ArcRtpEncodingParameters(encod);
+    var arg1 = _platform.api2wire_ArcRtpEncodingParameters(encoding);
     return _platform.executeNormal(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner
           .wire_add_transceiver_init_send_encoding(port_, arg0, arg1),
       parseSuccessData: _wire2api_unit,
       constMeta: kAddTransceiverInitSendEncodingConstMeta,
-      argValues: [init, encod],
+      argValues: [init, encoding],
       hint: hint,
     ));
   }
@@ -2047,7 +2047,7 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta get kAddTransceiverInitSendEncodingConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "add_transceiver_init_send_encoding",
-        argNames: ["init", "encod"],
+        argNames: ["init", "encoding"],
       );
 
   Future<ArcRtpEncodingParameters> createEncodingParameters(
@@ -2651,13 +2651,13 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
         ],
       );
 
-  Future<void> touchTextureEvent({required TextureEvent value, dynamic hint}) {
-    var arg0 = api2wire_texture_event(value);
+  Future<void> touchTextureEvent({required TextureEvent e, dynamic hint}) {
+    var arg0 = api2wire_texture_event(e);
     return _platform.executeNormal(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner.wire_touch_texture_event(port_, arg0),
       parseSuccessData: _wire2api_unit,
       constMeta: kTouchTextureEventConstMeta,
-      argValues: [value],
+      argValues: [e],
       hint: hint,
     ));
   }
@@ -2665,7 +2665,7 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta get kTouchTextureEventConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "touch_texture_event",
-        argNames: ["value"],
+        argNames: ["e"],
       );
 
   Future<void> disposeVideoSink({required int sinkId, dynamic hint}) {
@@ -3870,12 +3870,12 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_add_transceiver_init_send_encoding(
     int port_,
     wire_ArcRtpTransceiverInit init,
-    wire_ArcRtpEncodingParameters encod,
+    wire_ArcRtpEncodingParameters encoding,
   ) {
     return _wire_add_transceiver_init_send_encoding(
       port_,
       init,
-      encod,
+      encoding,
     );
   }
 
@@ -4456,11 +4456,11 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
 
   void wire_touch_texture_event(
     int port_,
-    int _value,
+    int _e,
   ) {
     return _wire_touch_texture_event(
       port_,
-      _value,
+      _e,
     );
   }
 

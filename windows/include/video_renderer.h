@@ -57,7 +57,6 @@ class TextureVideoRenderer {
   int64_t texture_id() { return texture_id_; }
 
  private:
-
   // Indicates if at least one `VideoFrame` has been rendered.
   bool first_frame_rendered = false;
 
