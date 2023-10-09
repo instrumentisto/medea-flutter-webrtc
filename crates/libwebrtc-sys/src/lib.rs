@@ -1753,7 +1753,6 @@ pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 unsafe impl Send for webrtc::AudioSourceInterface {}
 unsafe impl Sync for webrtc::AudioSourceInterface {}
 
-
 /// [MediaStreamTrack] object representing a media source in an User Agent.
 ///
 /// An example source is a device connected to the User Agent.
