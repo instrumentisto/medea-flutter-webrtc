@@ -9,7 +9,6 @@ use std::{
 use flutter_rust_bridge::{DartOpaque, RustOpaque, StreamSink};
 use libwebrtc_sys as sys;
 
-pub use crate::renderer::TextureEvent;
 use crate::{
     devices::{self, DeviceState},
     renderer::FrameHandler,
@@ -19,6 +18,7 @@ use crate::{
 // Re-exporting since it is used in the generated code.
 pub use crate::{
     PeerConnection, RtpEncodingParameters, RtpTransceiver, RtpTransceiverInit,
+    renderer::TextureEvent
 };
 
 lazy_static::lazy_static! {
