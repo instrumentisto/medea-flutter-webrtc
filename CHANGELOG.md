@@ -24,7 +24,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Video renderer streching picture after rotation. ([#124])
+- Video renderer stretching a picture after rotation. ([#124])
 
 [#117]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/117
 [#119]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/119
