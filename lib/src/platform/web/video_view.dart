@@ -20,7 +20,8 @@ class VideoView extends StatefulWidget {
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
-  final bool autoRotate = false;
+
+  WebVideoRenderer get videoRenderer => _renderer as WebVideoRenderer;
 
   @override
   State<VideoView> createState() => _VideoViewState();

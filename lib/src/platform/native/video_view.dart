@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'package:medea_flutter_webrtc/src/api/peer.dart';
+import '../../api/peer.dart';
 import '../video_renderer.dart';
 
 class VideoView extends StatelessWidget {
@@ -13,16 +13,14 @@ class VideoView extends StatelessWidget {
     this.mirror = false,
     this.enableContextMenu = true,
     this.filterQuality = FilterQuality.low,
-  }) : super(key: key) {
-    autoRotate = isDesktop;
-  }
+  }) : super(key: key);
 
   final VideoRenderer _renderer;
   final VideoViewObjectFit objectFit;
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
-  late final bool autoRotate;
+  final bool _autoRotate = isDesktop;
 
   NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;
 
@@ -53,9 +51,9 @@ class VideoView extends StatelessWidget {
                   height: constraints.maxHeight,
                   child: child,
                 );
-                if (autoRotate) {
+                if (_autoRotate) {
                   result = RotatedBox(
-                    quarterTurns: value.quarterTurnsRotation,
+                    quarterTurns: (value.rotation / 90).round(),
                     child: result,
                   );
                 }
