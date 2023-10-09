@@ -18,7 +18,7 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
-        maven{url 'https://raw.githubusercontent.com/instrumentisto/libwebrtc-bin/gh-pages/android'}
+        maven { url 'https://instrumentisto.github.io/libwebrtc-bin/android' }
     }
 }
 
