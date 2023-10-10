@@ -1,11 +1,16 @@
 package com.instrumentisto.medea_flutter_webrtc.controller
 
+import com.instrumentisto.medea_flutter_webrtc.model.MediaType
 import com.instrumentisto.medea_flutter_webrtc.proxy.MediaStreamTrackProxy
 import com.instrumentisto.medea_flutter_webrtc.utils.AnyThreadSink
+import com.instrumentisto.medea_flutter_webrtc.utils.resultUnhandledException
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Controller of [MediaStreamTrackProxy] functional.
@@ -54,6 +59,16 @@ class MediaStreamTrackController(
       }
       "state" -> {
         result.success(track.state.value)
+      }
+      "width" -> {
+        GlobalScope.launch(Dispatchers.Main) {
+          result.success(track.width())
+        }
+      }
+      "height" -> {
+        GlobalScope.launch(Dispatchers.Main) {
+          result.success(track.height())
+        }
       }
       "stop" -> {
         track.stop()

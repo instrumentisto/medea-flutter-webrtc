@@ -57,4 +57,7 @@ abstract class MediaStreamTrack {
 
   /// Returns [FacingMode] of this [MediaStreamTrack].
   FacingMode? facingMode();
+
+  Future<int?> width();
+  Future<int?> height();
 }

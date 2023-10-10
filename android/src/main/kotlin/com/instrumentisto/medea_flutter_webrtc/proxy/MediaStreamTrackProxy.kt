@@ -5,7 +5,11 @@ import com.instrumentisto.medea_flutter_webrtc.TrackRepository
 import com.instrumentisto.medea_flutter_webrtc.model.FacingMode
 import com.instrumentisto.medea_flutter_webrtc.model.MediaStreamTrackState
 import com.instrumentisto.medea_flutter_webrtc.model.MediaType
+import kotlinx.coroutines.CompletableDeferred
 import org.webrtc.MediaStreamTrack
+import org.webrtc.VideoFrame
+import org.webrtc.VideoSink
+import org.webrtc.VideoTrack
 
 /**
  * Wrapper around a [MediaStreamTrack].
@@ -37,6 +41,12 @@ class MediaStreamTrackProxy(
   /** Indicator whether the underlying [MediaStreamTrack] had been disposed. */
   private var disposed: Boolean = false
 
+  var widthInit = CompletableDeferred<Unit>()
+  var heightInit = CompletableDeferred<Unit>()
+
+  var width: Int = 0
+  var height: Int = 0
+
   /** [MediaType] of the underlying [MediaStreamTrack]. */
   val kind: MediaType =
       when (obj.kind()) {
@@ -63,6 +73,64 @@ class MediaStreamTrackProxy(
 
   init {
     TrackRepository.addTrack(this)
+
+    if (kind == MediaType.VIDEO) {
+      if (deviceId == "remote") {
+        Log.d(deviceId, " "  + track.id() + " " + width.toString() + " " + height.toString())
+        widthInit.complete(Unit)
+        heightInit.complete(Unit)
+      }
+
+      val track = obj as VideoTrack
+      val sink = object : VideoSink {
+        override fun onFrame(p0: VideoFrame) {
+//          Log.d(deviceId, " " +  p0?.rotatedWidth + " " + p0?.rotatedHeight)
+          widthInit.complete(Unit)
+          heightInit.complete(Unit)
+
+
+          width = p0.rotatedWidth
+          height = p0.rotatedHeight
+
+          if (deviceId == "remote") {
+            Log.d(deviceId, " " + width.toString() + " " + height.toString())
+          }
+        }
+      }
+      Log.d(deviceId, " ADDDDDDDDD " + track.id() + " " + (sink == null).toString() )
+      track.addSink(sink)
+    }
+
+  }
+
+  suspend fun width() : Int? {
+    if (kind == MediaType.AUDIO) {
+      return null
+    }
+
+    val track = obj as VideoTrack
+    val sink = object : VideoSink {
+      override fun onFrame(p0: VideoFrame) {
+        if (deviceId == "remote") {
+          Log.d(deviceId, "WWWWWWWWW ")
+        }
+      }
+    }
+    Log.d(deviceId, "ACCCCCCCCCCCC " + track.id() + " " + (sink == null).toString() )
+
+    track.addSink(sink)
+
+
+    widthInit.await()
+    return width
+  }
+
+  suspend fun height() : Int? {
+    if (kind == MediaType.AUDIO) {
+      return null
+    }
+    heightInit.await()
+    return height
   }
 
   /** Sets the [disposed] property to `true`. */

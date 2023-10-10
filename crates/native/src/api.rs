@@ -2184,6 +2184,44 @@ pub fn track_state(
     WEBRTC.lock().unwrap().track_state(track_id, kind)
 }
 
+// todo
+pub fn track_hieght(
+    track_id: String,
+    kind: MediaType,
+) -> anyhow::Result<Option<i32>> {
+    if kind == MediaType::Audio {
+        return Ok(None);
+    }
+
+    println!("HMM1");
+    let res = WEBRTC
+        .lock()
+        .unwrap()
+        .track_hieght(track_id)
+        .map(|v| Some(v));
+    println!("HMM2");
+    res
+}
+
+// todo
+pub fn track_width(
+    track_id: String,
+    kind: MediaType,
+) -> anyhow::Result<Option<i32>> {
+    if kind == MediaType::Audio {
+        return Ok(None);
+    }
+
+    println!("wMM1");
+    let res = WEBRTC
+        .lock()
+        .unwrap()
+        .track_width(track_id)
+        .map(|v| Some(v));
+    println!("wMM2");
+    res
+}
+
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
 /// [`MediaType`].
 ///

@@ -1,6 +1,7 @@
 package com.instrumentisto.medea_flutter_webrtc
 
 import android.graphics.SurfaceTexture
+import android.util.Log
 import java.util.concurrent.CountDownLatch
 import org.webrtc.*
 import org.webrtc.RendererCommon.GlDrawer
@@ -93,6 +94,7 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
         frameRotation = frame.rotation
       }
     }
+    Log.d("AAAAAAAAAA", "42")
     super.onFrame(frame)
   }
 

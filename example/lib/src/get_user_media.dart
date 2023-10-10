@@ -51,17 +51,24 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
     caps.audio.mandatory!.deviceId = audioInputDevice;
 
     caps.video.mandatory = DeviceVideoConstraints();
+    caps.video.optional = DeviceVideoConstraints();
     caps.video.mandatory!.deviceId = videoInputDevice;
     caps.video.mandatory!.width = 1920;
     caps.video.mandatory!.height = 1080;
+    // caps.video.optional!.width = 200;
+    // caps.video.optional!.height = 200;
     caps.video.mandatory!.fps = 30;
 
     try {
       var stream = await getUserMedia(caps);
       _mediaDevicesList = await enumerateDevices();
       _tracks = stream;
-      await _localRenderer.setSrcObject(
-          _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      for (var i in _tracks!) {
+        print("W - ${await i.width()} H - ${await i.height()}");
+      }
+      await _localRenderer.setSrcObject(_tracks!.firstWhere((track) {
+        return track.kind() == MediaKind.video;
+      }));
     } catch (e) {
       print(e.toString());
     }

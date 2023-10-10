@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(
     non_camel_case_types,
     unused,
@@ -616,6 +615,42 @@ fn wire_track_state_impl(
             let api_track_id = track_id.wire2api();
             let api_kind = kind.wire2api();
             move |task_callback| track_state(api_track_id, api_kind)
+        },
+    )
+}
+fn wire_track_hieght_impl(
+    port_: MessagePort,
+    track_id: impl Wire2Api<String> + UnwindSafe,
+    kind: impl Wire2Api<MediaType> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Option<i32>>(
+        WrapInfo {
+            debug_name: "track_hieght",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_track_id = track_id.wire2api();
+            let api_kind = kind.wire2api();
+            move |task_callback| track_hieght(api_track_id, api_kind)
+        },
+    )
+}
+fn wire_track_width_impl(
+    port_: MessagePort,
+    track_id: impl Wire2Api<String> + UnwindSafe,
+    kind: impl Wire2Api<MediaType> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Option<i32>>(
+        WrapInfo {
+            debug_name: "track_width",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_track_id = track_id.wire2api();
+            let api_kind = kind.wire2api();
+            move |task_callback| track_width(api_track_id, api_kind)
         },
     )
 }
@@ -1923,6 +1958,24 @@ mod io {
         kind: i32,
     ) {
         wire_track_state_impl(port_, track_id, kind)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_track_hieght(
+        port_: i64,
+        track_id: *mut wire_uint_8_list,
+        kind: i32,
+    ) {
+        wire_track_hieght_impl(port_, track_id, kind)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_track_width(
+        port_: i64,
+        track_id: *mut wire_uint_8_list,
+        kind: i32,
+    ) {
+        wire_track_width_impl(port_, track_id, kind)
     }
 
     #[no_mangle]
