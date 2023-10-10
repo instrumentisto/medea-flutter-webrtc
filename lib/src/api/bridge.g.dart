@@ -302,20 +302,14 @@ abstract class MedeaFlutterWebrtcNative {
   ///
   /// `callback_ptr` argument should be a pointer to an [`UniquePtr`] pointing to
   /// an [`OnFrameCallbackInterface`].
-  Future<void> createVideoSink(
+  Stream<TextureEvent> createVideoSink(
       {required int sinkId,
       required String trackId,
       required int callbackPtr,
-      required int port,
       required int textureId,
-      required Object touchDartApi,
       dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kCreateVideoSinkConstMeta;
-
-  Future<void> touchTextureEvent({required TextureEvent e, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kTouchTextureEventConstMeta;
 
   /// Destroys the [`VideoSink`] by the provided ID.
   Future<void> disposeVideoSink({required int sinkId, dynamic hint});
@@ -1782,13 +1776,26 @@ enum SignalingState {
   closed,
 }
 
-/// Frame change events.
-enum TextureEvent {
+@freezed
+sealed class TextureEvent with _$TextureEvent {
   /// The height, width, or rotation have changed.
-  onTextureChange,
+  const factory TextureEvent.onTextureChange({
+    required int textureId,
+
+    /// Width of the last processed frame.
+    required int width,
+
+    /// Height of the last processed frame.
+    required int height,
+
+    /// Rotation of the last processed frame.
+    required int rotation,
+  }) = TextureEvent_OnTextureChange;
 
   /// First frame event.
-  onFirstFrameRendered,
+  const factory TextureEvent.onFirstFrameRendered({
+    required int textureId,
+  }) = TextureEvent_OnFirstFrameRendered;
 }
 
 /// Indicator of the current state of a [`MediaStreamTrack`].
@@ -2614,26 +2621,22 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
         argNames: [],
       );
 
-  Future<void> createVideoSink(
+  Stream<TextureEvent> createVideoSink(
       {required int sinkId,
       required String trackId,
       required int callbackPtr,
-      required int port,
       required int textureId,
-      required Object touchDartApi,
       dynamic hint}) {
     var arg0 = _platform.api2wire_i64(sinkId);
     var arg1 = _platform.api2wire_String(trackId);
     var arg2 = _platform.api2wire_u64(callbackPtr);
-    var arg3 = _platform.api2wire_i64(port);
-    var arg4 = _platform.api2wire_i64(textureId);
-    var arg5 = _platform.api2wire_DartOpaque(touchDartApi);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner
-          .wire_create_video_sink(port_, arg0, arg1, arg2, arg3, arg4, arg5),
-      parseSuccessData: _wire2api_unit,
+    var arg3 = _platform.api2wire_i64(textureId);
+    return _platform.executeStream(FlutterRustBridgeTask(
+      callFfi: (port_) =>
+          _platform.inner.wire_create_video_sink(port_, arg0, arg1, arg2, arg3),
+      parseSuccessData: _wire2api_texture_event,
       constMeta: kCreateVideoSinkConstMeta,
-      argValues: [sinkId, trackId, callbackPtr, port, textureId, touchDartApi],
+      argValues: [sinkId, trackId, callbackPtr, textureId],
       hint: hint,
     ));
   }
@@ -2641,31 +2644,7 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta get kCreateVideoSinkConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "create_video_sink",
-        argNames: [
-          "sinkId",
-          "trackId",
-          "callbackPtr",
-          "port",
-          "textureId",
-          "touchDartApi"
-        ],
-      );
-
-  Future<void> touchTextureEvent({required TextureEvent e, dynamic hint}) {
-    var arg0 = api2wire_texture_event(e);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner.wire_touch_texture_event(port_, arg0),
-      parseSuccessData: _wire2api_unit,
-      constMeta: kTouchTextureEventConstMeta,
-      argValues: [e],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta get kTouchTextureEventConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "touch_texture_event",
-        argNames: ["e"],
+        argNames: ["sinkId", "trackId", "callbackPtr", "textureId"],
       );
 
   Future<void> disposeVideoSink({required int sinkId, dynamic hint}) {
@@ -3255,6 +3234,24 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
     return SignalingState.values[raw as int];
   }
 
+  TextureEvent _wire2api_texture_event(dynamic raw) {
+    switch (raw[0]) {
+      case 0:
+        return TextureEvent_OnTextureChange(
+          textureId: _wire2api_i64(raw[1]),
+          width: _wire2api_i32(raw[2]),
+          height: _wire2api_i32(raw[3]),
+          rotation: _wire2api_i32(raw[4]),
+        );
+      case 1:
+        return TextureEvent_OnFirstFrameRendered(
+          textureId: _wire2api_i64(raw[1]),
+        );
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
   TrackEvent _wire2api_track_event(dynamic raw) {
     return TrackEvent.values[raw as int];
   }
@@ -3327,11 +3324,6 @@ int api2wire_sdp_type(SdpType raw) {
 }
 
 @protected
-int api2wire_texture_event(TextureEvent raw) {
-  return api2wire_i32(raw.index);
-}
-
-@protected
 int api2wire_u32(int raw) {
   return raw;
 }
@@ -3377,14 +3369,6 @@ class MedeaFlutterWebrtcNativePlatform
       ArcRtpTransceiverInit raw) {
     final ptr = inner.new_ArcRtpTransceiverInit();
     _api_fill_to_wire_ArcRtpTransceiverInit(raw, ptr);
-    return ptr;
-  }
-
-  @protected
-  wire_DartOpaque api2wire_DartOpaque(Object raw) {
-    inner.dartApi.initApi();
-    final ptr = inner.new_DartOpaque();
-    _api_fill_to_wire_DartOpaque(raw, ptr);
     return ptr;
   }
 
@@ -3541,11 +3525,6 @@ class MedeaFlutterWebrtcNativePlatform
   void _api_fill_to_wire_ArcRtpTransceiverInit(
       ArcRtpTransceiverInit apiObj, wire_ArcRtpTransceiverInit wireObj) {
     wireObj.ptr = apiObj.shareOrMove();
-  }
-
-  void _api_fill_to_wire_DartOpaque(Object apiObj, wire_DartOpaque wireObj) {
-    wireObj.handle = inner.new_dart_opaque(apiObj);
-    wireObj.port = dropPort;
   }
 
   void _api_fill_to_wire_audio_constraints(
@@ -4425,50 +4404,23 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
     int sink_id,
     ffi.Pointer<wire_uint_8_list> track_id,
     int callback_ptr,
-    int port,
     int texture_id,
-    wire_DartOpaque _touch_dart_api,
   ) {
     return _wire_create_video_sink(
       port_,
       sink_id,
       track_id,
       callback_ptr,
-      port,
       texture_id,
-      _touch_dart_api,
     );
   }
 
   late final _wire_create_video_sinkPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64,
-              ffi.Int64,
-              ffi.Pointer<wire_uint_8_list>,
-              ffi.Uint64,
-              ffi.Int64,
-              ffi.Int64,
-              wire_DartOpaque)>>('wire_create_video_sink');
+          ffi.Void Function(ffi.Int64, ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              ffi.Uint64, ffi.Int64)>>('wire_create_video_sink');
   late final _wire_create_video_sink = _wire_create_video_sinkPtr.asFunction<
-      void Function(int, int, ffi.Pointer<wire_uint_8_list>, int, int, int,
-          wire_DartOpaque)>();
-
-  void wire_touch_texture_event(
-    int port_,
-    int _e,
-  ) {
-    return _wire_touch_texture_event(
-      port_,
-      _e,
-    );
-  }
-
-  late final _wire_touch_texture_eventPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
-          'wire_touch_texture_event');
-  late final _wire_touch_texture_event =
-      _wire_touch_texture_eventPtr.asFunction<void Function(int, int)>();
+      void Function(int, int, ffi.Pointer<wire_uint_8_list>, int, int)>();
 
   void wire_dispose_video_sink(
     int port_,
@@ -4525,15 +4477,6 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
           'new_ArcRtpTransceiverInit');
   late final _new_ArcRtpTransceiverInit = _new_ArcRtpTransceiverInitPtr
       .asFunction<wire_ArcRtpTransceiverInit Function()>();
-
-  wire_DartOpaque new_DartOpaque() {
-    return _new_DartOpaque();
-  }
-
-  late final _new_DartOpaquePtr =
-      _lookup<ffi.NativeFunction<wire_DartOpaque Function()>>('new_DartOpaque');
-  late final _new_DartOpaque =
-      _new_DartOpaquePtr.asFunction<wire_DartOpaque Function()>();
 
   ffi.Pointer<wire_StringList> new_StringList_0(
     int len,
@@ -4871,14 +4814,6 @@ final class wire_MediaStreamConstraints extends ffi.Struct {
   external ffi.Pointer<wire_AudioConstraints> audio;
 
   external ffi.Pointer<wire_VideoConstraints> video;
-}
-
-final class wire_DartOpaque extends ffi.Struct {
-  @ffi.Int64()
-  external int port;
-
-  @ffi.UintPtr()
-  external int handle;
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<

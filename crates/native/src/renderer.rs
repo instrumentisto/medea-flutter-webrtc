@@ -1,37 +1,45 @@
 //! Implementations and definitions of the renderers API for C and C++ APIs.
 
-use dart_sys::{
-    Dart_CObject, Dart_CObject_Type_Dart_CObject_kArray as DartCTypeArray,
-    Dart_CObject_Type_Dart_CObject_kInt32 as DartCTypeI32,
-    Dart_CObject_Type_Dart_CObject_kInt64 as DartCTypeI64, Dart_Port,
-    Dart_PostCObject_DL, _Dart_CObject__bindgen_ty_1 as DartCValue,
-    _Dart_CObject__bindgen_ty_1__bindgen_ty_3 as DartCArray,
-};
 use libwebrtc_sys as sys;
 
 pub use frame_handler::FrameHandler;
+
+use crate::stream_sink::StreamSink;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(i32)]
 /// Frame change events.
 pub enum TextureEvent {
     /// The height, width, or rotation have changed.
-    OnTextureChange = 0,
+    OnTextureChange {
+        /// Id of the texture.
+        texture_id: i64,
+
+        /// Width of the last processed frame.
+        width: i32,
+
+        /// Height of the last processed frame.
+        height: i32,
+
+        /// Rotation of the last processed frame.
+        rotation: i32,
+    },
     /// First frame event.
-    OnFirstFrameRendered = 1,
+    OnFirstFrameRendered {
+        /// Id of the texture.
+        texture_id: i64,
+    },
 }
 
 /// Notifies Dart-side of any [`sys::VideoFrame`] dimensions changes.
 struct TextureEventNotifier {
-    /// Identificator of a Dart-side [ReceivePort]
-    ///
-    /// [ReceivePort]: https://api.dart.dev/dart-isolate/ReceivePort-class.html
-    port: Dart_Port,
+    /// A sink to send asynchronous data back to Dart.
+    sink: StreamSink<TextureEvent>,
 
     /// Indicator whether any frames were rendered for the given texture.
     first_frame_rendered: bool,
 
-    /// Rotation of the last processed frame.
+    /// Id of the texture.
     texture_id: i64,
 
     /// Width of the last processed frame.
@@ -45,9 +53,10 @@ struct TextureEventNotifier {
 }
 
 impl TextureEventNotifier {
-    fn new(port: Dart_Port, texture_id: i64) -> Self {
+    /// Creates a new [`TextureEventNotifier`].
+    fn new(sink: StreamSink<TextureEvent>, texture_id: i64) -> Self {
         Self {
-            port,
+            sink,
             first_frame_rendered: false,
             width: 0,
             height: 0,
@@ -56,97 +65,32 @@ impl TextureEventNotifier {
         }
     }
 
+    /// Passes provided [`sys::VideoFrame`] to the Dart side events.
     fn on_frame(&mut self, frame: &cxx::UniquePtr<sys::VideoFrame>) {
         let height = frame.height();
         let width = frame.width();
         let rotation = frame.rotation();
 
         if !self.first_frame_rendered {
-            let mut value = Dart_CObject {
-                type_: DartCTypeArray,
-                value: DartCValue {
-                    as_array: DartCArray {
-                        length: 2,
-                        values: &mut [
-                            &mut Dart_CObject {
-                                type_: DartCTypeI32,
-                                value: DartCValue {
-                                    as_int32: TextureEvent::OnFirstFrameRendered
-                                        as i32,
-                                },
-                            } as *mut _,
-                            &mut Dart_CObject {
-                                type_: DartCTypeI64,
-                                value: DartCValue {
-                                    as_int64: self.texture_id,
-                                },
-                            } as *mut _,
-                        ] as *mut _,
-                    },
-                },
-            };
             self.first_frame_rendered = true;
-            #[allow(clippy::expect_used)]
-            unsafe {
-                Dart_PostCObject_DL
-                    .expect("dart_api_dl has not been initialized")(
-                    self.port, &mut value,
-                )
-            };
+            self.sink.add(TextureEvent::OnFirstFrameRendered {
+                texture_id: self.texture_id,
+            });
         }
 
         if self.height != height
-            || self.height != width
+            || self.width != width
             || self.rotation != rotation
         {
-            let mut value = Dart_CObject {
-                type_: DartCTypeArray,
-                value: DartCValue {
-                    as_array: DartCArray {
-                        length: 5,
-                        values: &mut [
-                            &mut Dart_CObject {
-                                type_: DartCTypeI32,
-                                value: DartCValue {
-                                    as_int32: TextureEvent::OnTextureChange
-                                        as i32,
-                                },
-                            } as *mut _,
-                            &mut Dart_CObject {
-                                type_: DartCTypeI64,
-                                value: DartCValue {
-                                    as_int64: self.texture_id,
-                                },
-                            } as *mut _,
-                            &mut Dart_CObject {
-                                type_: DartCTypeI32,
-                                value: DartCValue {
-                                    as_int32: rotation.repr,
-                                },
-                            } as *mut _,
-                            &mut Dart_CObject {
-                                type_: DartCTypeI32,
-                                value: DartCValue { as_int32: width },
-                            } as *mut _,
-                            &mut Dart_CObject {
-                                type_: DartCTypeI32,
-                                value: DartCValue { as_int32: height },
-                            } as *mut _,
-                        ] as *mut _,
-                    },
-                },
-            };
             self.height = height;
             self.width = width;
             self.rotation = rotation;
-
-            #[allow(clippy::expect_used)]
-            unsafe {
-                Dart_PostCObject_DL
-                    .expect("dart_api_dl has not been initialized")(
-                    self.port, &mut value,
-                )
-            };
+            self.sink.add(TextureEvent::OnTextureChange {
+                texture_id: self.texture_id,
+                width,
+                height,
+                rotation: rotation.repr,
+            });
         }
     }
 }
@@ -156,13 +100,14 @@ impl TextureEventNotifier {
 /// renderer.
 mod frame_handler {
     use cxx::UniquePtr;
-    use dart_sys::Dart_Port;
     use derive_more::From;
     use libwebrtc_sys as sys;
 
     pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
 
-    use super::TextureEventNotifier;
+    use crate::stream_sink::StreamSink;
+
+    use super::{TextureEvent, TextureEventNotifier};
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
@@ -175,13 +120,13 @@ mod frame_handler {
         /// receiver.
         pub fn new(
             handler: *mut OnFrameCallbackInterface,
-            port: Dart_Port,
+            sink: StreamSink<TextureEvent>,
             texture_id: i64,
         ) -> Self {
             unsafe {
                 Self {
                     inner: UniquePtr::from_raw(handler),
-                    event_tx: TextureEventNotifier::new(port, texture_id),
+                    event_tx: TextureEventNotifier::new(sink, texture_id),
                 }
             }
         }

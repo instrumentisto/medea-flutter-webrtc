@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(
     non_camel_case_types,
     unused,
@@ -14,10 +13,8 @@
 
 use crate::api::*;
 use core::panic::UnwindSafe;
-use flutter_rust_bridge::rust2dart::IntoIntoDart;
-use flutter_rust_bridge::*;
-use std::ffi::c_void;
-use std::sync::Arc;
+use flutter_rust_bridge::{rust2dart::IntoIntoDart, *};
+use std::{ffi::c_void, sync::Arc};
 
 // Section: imports
 
@@ -706,49 +703,28 @@ fn wire_create_video_sink_impl(
     sink_id: impl Wire2Api<i64> + UnwindSafe,
     track_id: impl Wire2Api<String> + UnwindSafe,
     callback_ptr: impl Wire2Api<u64> + UnwindSafe,
-    port: impl Wire2Api<i64> + UnwindSafe,
     texture_id: impl Wire2Api<i64> + UnwindSafe,
-    _touch_dart_api: impl Wire2Api<DartOpaque> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
         WrapInfo {
             debug_name: "create_video_sink",
             port: Some(port_),
-            mode: FfiCallMode::Normal,
+            mode: FfiCallMode::Stream,
         },
         move || {
             let api_sink_id = sink_id.wire2api();
             let api_track_id = track_id.wire2api();
             let api_callback_ptr = callback_ptr.wire2api();
-            let api_port = port.wire2api();
             let api_texture_id = texture_id.wire2api();
-            let api__touch_dart_api = _touch_dart_api.wire2api();
             move |task_callback| {
                 create_video_sink(
+                    task_callback.stream_sink::<_, TextureEvent>(),
                     api_sink_id,
                     api_track_id,
                     api_callback_ptr,
-                    api_port,
                     api_texture_id,
-                    api__touch_dart_api,
                 )
             }
-        },
-    )
-}
-fn wire_touch_texture_event_impl(
-    port_: MessagePort,
-    _e: impl Wire2Api<TextureEvent> + UnwindSafe,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
-        WrapInfo {
-            debug_name: "touch_texture_event",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api__e = _e.wire2api();
-            move |task_callback| Ok(touch_texture_event(api__e))
         },
     )
 }
@@ -869,15 +845,6 @@ impl Wire2Api<SdpType> for i32 {
             2 => SdpType::Answer,
             3 => SdpType::Rollback,
             _ => unreachable!("Invalid variant for SdpType: {}", self),
-        }
-    }
-}
-impl Wire2Api<TextureEvent> for i32 {
-    fn wire2api(self) -> TextureEvent {
-        match self {
-            0 => TextureEvent::OnTextureChange,
-            1 => TextureEvent::OnFirstFrameRendered,
-            _ => unreachable!("Invalid variant for TextureEvent: {}", self),
         }
     }
 }
@@ -1630,6 +1597,35 @@ impl rust2dart::IntoIntoDart<SignalingState> for SignalingState {
     }
 }
 
+impl support::IntoDart for TextureEvent {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::OnTextureChange {
+                texture_id,
+                width,
+                height,
+                rotation,
+            } => vec![
+                0.into_dart(),
+                texture_id.into_into_dart().into_dart(),
+                width.into_into_dart().into_dart(),
+                height.into_into_dart().into_dart(),
+                rotation.into_into_dart().into_dart(),
+            ],
+            Self::OnFirstFrameRendered { texture_id } => {
+                vec![1.into_dart(), texture_id.into_into_dart().into_dart()]
+            }
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for TextureEvent {}
+impl rust2dart::IntoIntoDart<TextureEvent> for TextureEvent {
+    fn into_into_dart(self) -> Self {
+        self
+    }
+}
+
 impl support::IntoDart for TrackEvent {
     fn into_dart(self) -> support::DartAbi {
         match self {
@@ -1664,7 +1660,8 @@ impl rust2dart::IntoIntoDart<TrackState> for TrackState {
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
+        Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]
@@ -2006,24 +2003,15 @@ mod io {
         sink_id: i64,
         track_id: *mut wire_uint_8_list,
         callback_ptr: u64,
-        port: i64,
         texture_id: i64,
-        _touch_dart_api: wire_DartOpaque,
     ) {
         wire_create_video_sink_impl(
             port_,
             sink_id,
             track_id,
             callback_ptr,
-            port,
             texture_id,
-            _touch_dart_api,
         )
-    }
-
-    #[no_mangle]
-    pub extern "C" fn wire_touch_texture_event(port_: i64, _e: i32) {
-        wire_touch_texture_event_impl(port_, _e)
     }
 
     #[no_mangle]
@@ -2053,11 +2041,6 @@ mod io {
     pub extern "C" fn new_ArcRtpTransceiverInit() -> wire_ArcRtpTransceiverInit
     {
         wire_ArcRtpTransceiverInit::new_with_null_ptr()
-    }
-
-    #[no_mangle]
-    pub extern "C" fn new_DartOpaque() -> wire_DartOpaque {
-        wire_DartOpaque::new_with_null_ptr()
     }
 
     #[no_mangle]
@@ -2227,11 +2210,6 @@ mod io {
             unsafe { support::opaque_from_dart(self.ptr as _) }
         }
     }
-    impl Wire2Api<DartOpaque> for wire_DartOpaque {
-        fn wire2api(self) -> DartOpaque {
-            unsafe { DartOpaque::new(self.handle as _, self.port) }
-        }
-    }
     impl Wire2Api<String> for *mut wire_uint_8_list {
         fn wire2api(self) -> String {
             let vec: Vec<u8> = self.wire2api();
@@ -2374,13 +2352,6 @@ mod io {
 
     #[repr(C)]
     #[derive(Clone)]
-    pub struct wire_DartOpaque {
-        port: i64,
-        handle: usize,
-    }
-
-    #[repr(C)]
-    #[derive(Clone)]
     pub struct wire_StringList {
         ptr: *mut *mut wire_uint_8_list,
         len: i32,
@@ -2477,11 +2448,6 @@ mod io {
             Self {
                 ptr: core::ptr::null(),
             }
-        }
-    }
-    impl NewWithNullPtr for wire_DartOpaque {
-        fn new_with_null_ptr() -> Self {
-            Self { port: 0, handle: 0 }
         }
     }
 
