@@ -242,9 +242,8 @@ mod frame_handler {
     use cxx::UniquePtr;
     use libwebrtc_sys as sys;
 
-    use dart_sys::Dart_Port;
-
-    use super::TextureEventNotifier;
+    use super::{TextureEvent, TextureEventNotifier};
+    use crate::stream_sink::StreamSink;
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
@@ -283,12 +282,12 @@ mod frame_handler {
         /// receiver.
         pub fn new(
             handler: *const (),
-            port: Dart_Port,
+            sink: StreamSink<TextureEvent>,
             texture_id: i64,
         ) -> Self {
             Self {
                 inner: handler,
-                event_tx: TextureEventNotifier::new(port, texture_id),
+                event_tx: TextureEventNotifier::new(sink, texture_id),
             }
         }
 
