@@ -17,8 +17,8 @@ use crate::{
 
 // Re-exporting since it is used in the generated code.
 pub use crate::{
-    renderer::TextureEvent, PeerConnection, RtpEncodingParameters,
-    RtpTransceiver, RtpTransceiverInit,
+    renderer::TextureEvent, PeerConnection, RtpEncodingParams, RtpTransceiver,
+    RtpTransceiverInit,
 };
 
 lazy_static::lazy_static! {
@@ -1940,7 +1940,7 @@ pub fn set_transceiver_init_direction(
 #[allow(clippy::needless_pass_by_value)]
 pub fn add_transceiver_init_send_encoding(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
+    encoding: RustOpaque<Arc<RtpEncodingParams>>,
 ) {
     init.add_encoding(&encoding);
 }
@@ -1954,8 +1954,8 @@ pub fn create_encoding_parameters(
     max_framerate: Option<f64>,
     scale_resolution_down_by: Option<f64>,
     scalability_mode: Option<String>,
-) -> RustOpaque<Arc<RtpEncodingParameters>> {
-    let encoding = RtpEncodingParameters::new();
+) -> RustOpaque<Arc<RtpEncodingParams>> {
+    let encoding = RtpEncodingParams::new();
 
     encoding.set_rid(rid);
     encoding.set_active(active);
