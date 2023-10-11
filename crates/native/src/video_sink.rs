@@ -65,7 +65,8 @@ pub struct VideoSink {
 }
 
 impl VideoSink {
-    // todo
+    /// Creates a new [`VideoSink`].
+    #[must_use]
     pub fn new(
         id: i64,
         sink: sys::VideoSinkInterface,

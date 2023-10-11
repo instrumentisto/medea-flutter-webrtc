@@ -592,10 +592,7 @@ impl RtpTransceiverInit {
     ///
     /// If the mutex guarding the [`sys::RtpTransceiverInit`] or the
     /// [`sys::RtpEncodingParameters`] is poisoned.
-    pub fn add_encoding(
-        &self,
-        encoding: &RustOpaque<Arc<RtpEncodingParameters>>,
-    ) {
+    pub fn add_encoding(&self, encoding: &RustOpaque<Arc<RtpEncodingParams>>) {
         self.0
             .lock()
             .unwrap()
@@ -610,9 +607,9 @@ impl Default for RtpTransceiverInit {
 }
 
 /// Wrapper around a [`sys::RtpEncodingParameters`].
-pub struct RtpEncodingParameters(Arc<Mutex<sys::RtpEncodingParameters>>);
+pub struct RtpEncodingParams(Arc<Mutex<sys::RtpEncodingParameters>>);
 
-impl RtpEncodingParameters {
+impl RtpEncodingParams {
     /// Creates a new [`RtpEncodingParameters`].
     #[must_use]
     pub fn new() -> Self {
@@ -681,7 +678,7 @@ impl RtpEncodingParameters {
     }
 }
 
-impl Default for RtpEncodingParameters {
+impl Default for RtpEncodingParams {
     fn default() -> Self {
         Self::new()
     }

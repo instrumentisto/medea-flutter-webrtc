@@ -7,14 +7,10 @@ namespace video_sink {
 // Creates a new `ForwardingVideoSink` backed by the provided
 // `DynOnFrameCallback`.
 ForwardingVideoSink::ForwardingVideoSink(
-    rust::Box<bridge::DynOnFrameCallback> cb_) : cb_(std::move(cb_)) {
-  std::cout << "|||||||||| WTF WTF " << std::endl;
-
-    }
+    rust::Box<bridge::DynOnFrameCallback> cb_) : cb_(std::move(cb_)) {}
 
 // Propagates the received `VideoFrame` to the Rust side.
 void ForwardingVideoSink::OnFrame(const webrtc::VideoFrame& video_frame) {
-  std::cout << " WTF WTF " << std::endl;
   bridge::on_frame(*cb_.value(),
                    std::make_unique<webrtc::VideoFrame>(video_frame));
 }

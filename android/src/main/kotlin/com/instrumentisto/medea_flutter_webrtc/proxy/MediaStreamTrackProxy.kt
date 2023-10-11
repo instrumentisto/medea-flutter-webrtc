@@ -7,7 +7,6 @@ import com.instrumentisto.medea_flutter_webrtc.model.MediaStreamTrackState
 import com.instrumentisto.medea_flutter_webrtc.model.MediaType
 import kotlinx.coroutines.CompletableDeferred
 import org.webrtc.MediaStreamTrack
-import org.webrtc.VideoFrame
 import org.webrtc.VideoSink
 import org.webrtc.VideoTrack
 
@@ -98,15 +97,12 @@ class MediaStreamTrackProxy(
       }
       (obj as VideoTrack).addSink(sink)
 
-      addOnSyncListener {
-        (obj as VideoTrack).addSink(sink)
-      }
+      addOnSyncListener { (obj as VideoTrack).addSink(sink) }
     }
-
   }
 
   /** Returns the video [width] of the track. */
-  suspend fun width() : Int? {
+  suspend fun width(): Int? {
     if (kind == MediaType.AUDIO) {
       return null
     }
@@ -116,7 +112,7 @@ class MediaStreamTrackProxy(
   }
 
   /** Returns the video [height] of the track. */
-  suspend fun height() : Int? {
+  suspend fun height(): Int? {
     if (kind == MediaType.AUDIO) {
       return null
     }

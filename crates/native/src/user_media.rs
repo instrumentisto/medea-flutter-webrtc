@@ -1,7 +1,7 @@
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
-    sync::{Arc, Weak, RwLock},
+    sync::{Arc, RwLock, Weak},
 };
 
 use anyhow::{anyhow, bail, Context};
@@ -107,7 +107,7 @@ impl Webrtc {
                         }
                     }
                     if let MediaTrackSource::Local(src) = &track.source {
-                        if Arc::strong_count(&src) == 2 {
+                        if Arc::strong_count(src) == 2 {
                             self.video_sources.remove(&src.device_id);
                         };
                     }
@@ -343,23 +343,34 @@ impl Webrtc {
         })
     }
 
-    // todo
+    /// Returns the [width][0] property of the media track by its ID and
+    /// media type.
+    /// Blocks until width is initialized.
+    ///
+    /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-width
     pub fn track_width(&self, id: String) -> anyhow::Result<i32> {
         Ok({
             let id = VideoTrackId::from(id);
 
-                *self
-                    .video_tracks
-                    .get(&id)
-                    .ok_or_else(|| {
-                        anyhow!("Cannot find video track with ID `{id}`")
-                    })?
-                    .width.wait().read().unwrap()
+            *self
+                .video_tracks
+                .get(&id)
+                .ok_or_else(|| {
+                    anyhow!("Cannot find video track with ID `{id}`")
+                })?
+                .width
+                .wait()
+                .read()
+                .unwrap()
         })
     }
 
-    // todo
-    pub fn track_hieght(&self, id: String) -> anyhow::Result<i32> {
+    /// Returns the [height][0] property of the media track by its ID and
+    /// media type.
+    /// Blocks until width is initialized.
+    ///
+    /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
+    pub fn track_height(&self, id: String) -> anyhow::Result<i32> {
         Ok({
             let id = VideoTrackId::from(id);
             *self
@@ -369,7 +380,9 @@ impl Webrtc {
                     anyhow!("Cannot find video track with ID `{id}`")
                 })?
                 .height
-                .wait().read().unwrap()
+                .wait()
+                .read()
+                .unwrap()
         })
     }
 
@@ -948,11 +961,34 @@ pub struct VideoTrack {
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
 
+    /// Tracks changes in video `height` and `width`.
     sink: Option<VideoSink>,
 
+    /// Video width.
     width: Arc<OnceCell<RwLock<i32>>>,
 
+    /// Video height.
     height: Arc<OnceCell<RwLock<i32>>>,
+}
+
+/// Tracks changes in video `height` and `width`.
+struct VideoFormatSink {
+    /// Video width.
+    width: Arc<OnceCell<RwLock<i32>>>,
+
+    /// Video height.
+    height: Arc<OnceCell<RwLock<i32>>>,
+}
+
+impl OnFrameCallback for VideoFormatSink {
+    fn on_frame(&mut self, frame: cxx::UniquePtr<sys::VideoFrame>) {
+        if self.width.get().is_none() {
+            self.width.set(RwLock::from(frame.width())).unwrap();
+            self.height.set(RwLock::from(frame.height())).unwrap();
+        }
+        *self.width.get().unwrap().write().unwrap() = frame.width();
+        *self.height.get().unwrap().write().unwrap() = frame.height();
+    }
 }
 
 impl VideoTrack {
@@ -963,28 +999,16 @@ impl VideoTrack {
     ) -> anyhow::Result<Self> {
         let id = VideoTrackId(next_id().to_string());
 
-        struct Temp {
-            width: Arc<OnceCell<RwLock<i32>>>,
-            height: Arc<OnceCell<RwLock<i32>>>,
-        }
-        impl OnFrameCallback for Temp {
-            fn on_frame(&mut self, frame: cxx::UniquePtr<sys::VideoFrame>) {
-                if self.width.get().is_none() {
-                    self.width.set(RwLock::from(frame.width())).unwrap();
-                    self.height.set(RwLock::from(frame.height())).unwrap();
-                }
-            }
-        }
-
         let width = Arc::new(OnceCell::new());
         let height = Arc::new(OnceCell::new());
-
         let mut sink = VideoSink::new(
-            next_id() as i64,
-            sys::VideoSinkInterface::create_forwarding(Box::new(Temp {
-                width: Arc::clone(&width),
-                height: Arc::clone(&height),
-            })),
+            i64::try_from(next_id()).unwrap(),
+            sys::VideoSinkInterface::create_forwarding(Box::new(
+                VideoFormatSink {
+                    width: Arc::clone(&width),
+                    height: Arc::clone(&height),
+                },
+            )),
             id.clone(),
         );
 
@@ -1015,30 +1039,18 @@ impl VideoTrack {
         let receiver = transceiver.receiver();
         let track = receiver.track();
 
-
-        struct Temp {
-            width: Arc<OnceCell<RwLock<i32>>>,
-            height: Arc<OnceCell<RwLock<i32>>>,
-        }
-        impl OnFrameCallback for Temp {
-            fn on_frame(&mut self, frame: cxx::UniquePtr<sys::VideoFrame>) {
-                *self.width.get().unwrap().write().unwrap() = frame.width();
-                *self.height.get().unwrap().write().unwrap() = frame.height();
-            }
-        }
-
         let width = Arc::new(OnceCell::new());
         width.set(RwLock::from(0)).unwrap();
         let height = Arc::new(OnceCell::new());
         height.set(RwLock::from(0)).unwrap();
-
-
         let mut sink = VideoSink::new(
-            next_id() as i64,
-            sys::VideoSinkInterface::create_forwarding(Box::new(Temp {
-                width: Arc::clone(&width),
-                height: Arc::clone(&height),
-            })),
+            i64::try_from(next_id()).unwrap(),
+            sys::VideoSinkInterface::create_forwarding(Box::new(
+                VideoFormatSink {
+                    width: Arc::clone(&width),
+                    height: Arc::clone(&height),
+                },
+            )),
             VideoTrackId(track.id().clone()),
         );
 
@@ -1054,8 +1066,8 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-            width: width,
-            height: height,
+            width,
+            height,
             sink: None,
         };
 
@@ -1097,7 +1109,6 @@ impl VideoTrack {
 
 impl Drop for VideoTrack {
     fn drop(&mut self) {
-        println!("GHMDD");
         let sink = self.sink.take().unwrap();
         self.remove_video_sink(sink);
     }

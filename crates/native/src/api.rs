@@ -17,7 +17,7 @@ use crate::{
 
 // Re-exporting since it is used in the generated code.
 pub use crate::{
-    PeerConnection, RtpEncodingParameters, RtpTransceiver, RtpTransceiverInit,
+    PeerConnection, RtpEncodingParams, RtpTransceiver, RtpTransceiverInit,
 };
 
 lazy_static::lazy_static! {
@@ -1939,7 +1939,7 @@ pub fn set_transceiver_init_direction(
 #[allow(clippy::needless_pass_by_value)]
 pub fn add_transceiver_init_send_encoding(
     init: RustOpaque<Arc<RtpTransceiverInit>>,
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
+    encoding: RustOpaque<Arc<RtpEncodingParams>>,
 ) {
     init.add_encoding(&encoding);
 }
@@ -1953,8 +1953,8 @@ pub fn create_encoding_parameters(
     max_framerate: Option<f64>,
     scale_resolution_down_by: Option<f64>,
     scalability_mode: Option<String>,
-) -> RustOpaque<Arc<RtpEncodingParameters>> {
-    let encoding = RtpEncodingParameters::new();
+) -> RustOpaque<Arc<RtpEncodingParams>> {
+    let encoding = RtpEncodingParams::new();
 
     encoding.set_rid(rid);
     encoding.set_active(active);
@@ -2185,7 +2185,7 @@ pub fn track_state(
 }
 
 // todo
-pub fn track_hieght(
+pub fn track_height(
     track_id: String,
     kind: MediaType,
 ) -> anyhow::Result<Option<i32>> {
@@ -2193,13 +2193,7 @@ pub fn track_hieght(
         return Ok(None);
     }
 
-    println!("HMM1");
-    let res = WEBRTC
-        .lock()
-        .unwrap()
-        .track_hieght(track_id)
-        .map(|v| Some(v));
-    println!("HMM2");
+    let res = WEBRTC.lock().unwrap().track_height(track_id).map(Some);
     res
 }
 
@@ -2212,13 +2206,7 @@ pub fn track_width(
         return Ok(None);
     }
 
-    println!("wMM1");
-    let res = WEBRTC
-        .lock()
-        .unwrap()
-        .track_width(track_id)
-        .map(|v| Some(v));
-    println!("wMM2");
+    let res = WEBRTC.lock().unwrap().track_width(track_id).map(Some);
     res
 }
 

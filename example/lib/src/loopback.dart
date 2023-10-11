@@ -16,7 +16,6 @@ class Loopback extends StatefulWidget {
 class _LoopbackState extends State<Loopback> {
   List<MediaDeviceInfo>? _mediaDevicesList;
   List<MediaStreamTrack>? _tracks;
-  List<MediaStreamTrack> _Rtracks = List.empty(growable: true);
 
   PeerConnection? _pc1;
   PeerConnection? _pc2;
@@ -72,12 +71,8 @@ class _LoopbackState extends State<Loopback> {
       _mediaDevicesList = await enumerateDevices();
       _tracks = await getUserMedia(caps);
 
-      for (var i in _tracks!) {
-        print("LOCAL W - ${await i.width()} H - ${await i.height()}\n\n\n\n\n");
-      }
-
-      // await _localRenderer.setSrcObject(
-      //     _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      await _localRenderer.setSrcObject(
+          _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
 
       var server = IceServer(['stun:stun.l.google.com:19302']);
       _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
@@ -91,13 +86,8 @@ class _LoopbackState extends State<Loopback> {
       });
 
       _pc2?.onTrack((track, trans) async {
-        print('CCCCCCCCCCCCCCccc ${track.id()}');
-        _Rtracks.add(track);
         if (track.kind() == MediaKind.video) {
           await _remoteRenderer.setSrcObject(track);
-          print("object");
-          print(
-              "\n\n\n\n REMOTE W - ${await track.width()} H - ${await track.height()} \n\n\n\n");
         }
       });
 
@@ -107,12 +97,9 @@ class _LoopbackState extends State<Loopback> {
       var atrans = await _pc1?.addTransceiver(
           MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
-      print("object2");
-
       var offer = await _pc1?.createOffer();
       await _pc1?.setLocalDescription(offer!);
       await _pc2?.setRemoteDescription(offer!);
-      print("object3");
 
       var answer = await _pc2?.createAnswer();
       await _pc2?.setLocalDescription(answer!);
@@ -128,20 +115,11 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
-      print("object4");
-
       await vtrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
-      print("object5");
 
       await atrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
-
-      await Future.delayed(Duration(milliseconds: 100));
-      for (var track in _Rtracks) {
-        print(
-            "\n\n\n OPA REMOTE W - ${await track.width()} H - ${await track.height()}\n\n\n");
-      }
     } catch (e) {
       print(e.toString());
     }
@@ -164,16 +142,6 @@ class _LoopbackState extends State<Loopback> {
         await track.stop();
         await track.dispose();
       }
-
-      _tracks!.clear();
-
-      for (var track in _Rtracks) {
-        print("REMOTE W - ${await track.width()} H - ${await track.height()}");
-        await track.stop();
-        await track.dispose();
-      }
-
-      _Rtracks.clear();
 
       await _pc1?.close();
       await _pc2?.close();

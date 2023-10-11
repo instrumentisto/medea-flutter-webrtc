@@ -13,10 +13,8 @@
 
 use crate::api::*;
 use core::panic::UnwindSafe;
-use flutter_rust_bridge::rust2dart::IntoIntoDart;
-use flutter_rust_bridge::*;
-use std::ffi::c_void;
-use std::sync::Arc;
+use flutter_rust_bridge::{rust2dart::IntoIntoDart, *};
+use std::{ffi::c_void, sync::Arc};
 
 // Section: imports
 
@@ -177,7 +175,7 @@ fn wire_set_transceiver_init_direction_impl(
 fn wire_add_transceiver_init_send_encoding_impl(
     port_: MessagePort,
     init: impl Wire2Api<RustOpaque<Arc<RtpTransceiverInit>>> + UnwindSafe,
-    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParams>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
         WrapInfo {
@@ -204,7 +202,7 @@ fn wire_create_encoding_parameters_impl(
     scalability_mode: impl Wire2Api<Option<String>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER
-        .wrap::<_, _, _, RustOpaque<Arc<RtpEncodingParameters>>>(
+        .wrap::<_, _, _, RustOpaque<Arc<RtpEncodingParams>>>(
             WrapInfo {
                 debug_name: "create_encoding_parameters",
                 port: Some(port_),
@@ -620,21 +618,21 @@ fn wire_track_state_impl(
         },
     )
 }
-fn wire_track_hieght_impl(
+fn wire_track_height_impl(
     port_: MessagePort,
     track_id: impl Wire2Api<String> + UnwindSafe,
     kind: impl Wire2Api<MediaType> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Option<i32>>(
         WrapInfo {
-            debug_name: "track_hieght",
+            debug_name: "track_height",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
         move || {
             let api_track_id = track_id.wire2api();
             let api_kind = kind.wire2api();
-            move |task_callback| track_hieght(api_track_id, api_kind)
+            move |task_callback| track_height(api_track_id, api_kind)
         },
     )
 }
@@ -1659,7 +1657,8 @@ impl rust2dart::IntoIntoDart<TrackState> for TrackState {
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
+        Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]
@@ -1747,7 +1746,7 @@ mod io {
     pub extern "C" fn wire_add_transceiver_init_send_encoding(
         port_: i64,
         init: wire_ArcRtpTransceiverInit,
-        encoding: wire_ArcRtpEncodingParameters,
+        encoding: wire_ArcRtpEncodingParams,
     ) {
         wire_add_transceiver_init_send_encoding_impl(port_, init, encoding)
     }
@@ -1963,12 +1962,12 @@ mod io {
     }
 
     #[no_mangle]
-    pub extern "C" fn wire_track_hieght(
+    pub extern "C" fn wire_track_height(
         port_: i64,
         track_id: *mut wire_uint_8_list,
         kind: i32,
     ) {
-        wire_track_hieght_impl(port_, track_id, kind)
+        wire_track_height_impl(port_, track_id, kind)
     }
 
     #[no_mangle]
@@ -2036,9 +2035,8 @@ mod io {
     }
 
     #[no_mangle]
-    pub extern "C" fn new_ArcRtpEncodingParameters(
-    ) -> wire_ArcRtpEncodingParameters {
-        wire_ArcRtpEncodingParameters::new_with_null_ptr()
+    pub extern "C" fn new_ArcRtpEncodingParams() -> wire_ArcRtpEncodingParams {
+        wire_ArcRtpEncodingParams::new_with_null_ptr()
     }
 
     #[no_mangle]
@@ -2143,18 +2141,18 @@ mod io {
     }
 
     #[no_mangle]
-    pub extern "C" fn drop_opaque_ArcRtpEncodingParameters(ptr: *const c_void) {
+    pub extern "C" fn drop_opaque_ArcRtpEncodingParams(ptr: *const c_void) {
         unsafe {
-            Arc::<Arc<RtpEncodingParameters>>::decrement_strong_count(ptr as _);
+            Arc::<Arc<RtpEncodingParams>>::decrement_strong_count(ptr as _);
         }
     }
 
     #[no_mangle]
-    pub extern "C" fn share_opaque_ArcRtpEncodingParameters(
+    pub extern "C" fn share_opaque_ArcRtpEncodingParams(
         ptr: *const c_void,
     ) -> *const c_void {
         unsafe {
-            Arc::<Arc<RtpEncodingParameters>>::increment_strong_count(ptr as _);
+            Arc::<Arc<RtpEncodingParams>>::increment_strong_count(ptr as _);
             ptr
         }
     }
@@ -2200,10 +2198,10 @@ mod io {
             unsafe { support::opaque_from_dart(self.ptr as _) }
         }
     }
-    impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>>
-        for wire_ArcRtpEncodingParameters
+    impl Wire2Api<RustOpaque<Arc<RtpEncodingParams>>>
+        for wire_ArcRtpEncodingParams
     {
-        fn wire2api(self) -> RustOpaque<Arc<RtpEncodingParameters>> {
+        fn wire2api(self) -> RustOpaque<Arc<RtpEncodingParams>> {
             unsafe { support::opaque_from_dart(self.ptr as _) }
         }
     }
@@ -2343,7 +2341,7 @@ mod io {
 
     #[repr(C)]
     #[derive(Clone)]
-    pub struct wire_ArcRtpEncodingParameters {
+    pub struct wire_ArcRtpEncodingParams {
         ptr: *const core::ffi::c_void,
     }
 
@@ -2438,7 +2436,7 @@ mod io {
             }
         }
     }
-    impl NewWithNullPtr for wire_ArcRtpEncodingParameters {
+    impl NewWithNullPtr for wire_ArcRtpEncodingParams {
         fn new_with_null_ptr() -> Self {
             Self {
                 ptr: core::ptr::null(),
