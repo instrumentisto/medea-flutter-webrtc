@@ -367,7 +367,7 @@ impl Webrtc {
 
     /// Returns the [height][0] property of the media track by its ID and
     /// media type.
-    /// Blocks until width is initialized.
+    /// Blocks until height is initialized.
     ///
     /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
     pub fn track_height(&self, id: String) -> anyhow::Result<i32> {

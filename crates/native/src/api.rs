@@ -2184,7 +2184,11 @@ pub fn track_state(
     WEBRTC.lock().unwrap().track_state(track_id, kind)
 }
 
-// todo
+/// Returns the [height][0] property of the media track by its ID and
+/// media type.
+/// Blocks until height is initialized.
+///
+/// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
 pub fn track_height(
     track_id: String,
     kind: MediaType,
@@ -2193,11 +2197,14 @@ pub fn track_height(
         return Ok(None);
     }
 
-    let res = WEBRTC.lock().unwrap().track_height(track_id).map(Some);
-    res
+    WEBRTC.lock().unwrap().track_height(track_id).map(Some)
 }
 
-// todo
+/// Returns the [width][0] property of the media track by its ID and
+/// media type.
+/// Blocks until width is initialized.
+///
+/// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
 pub fn track_width(
     track_id: String,
     kind: MediaType,
@@ -2206,8 +2213,7 @@ pub fn track_width(
         return Ok(None);
     }
 
-    let res = WEBRTC.lock().unwrap().track_width(track_id).map(Some);
-    res
+    WEBRTC.lock().unwrap().track_width(track_id).map(Some)
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and

@@ -1,6 +1,5 @@
 #include "libwebrtc-sys/include/video_sink.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
-#include <iostream>
 
 namespace video_sink {
 

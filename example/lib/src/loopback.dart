@@ -70,7 +70,6 @@ class _LoopbackState extends State<Loopback> {
     try {
       _mediaDevicesList = await enumerateDevices();
       _tracks = await getUserMedia(caps);
-
       await _localRenderer.setSrcObject(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
 

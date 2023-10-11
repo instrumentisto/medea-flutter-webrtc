@@ -1840,7 +1840,6 @@ impl VideoTrackInterface {
     /// Used to connect this [`VideoTrackInterface`] to the underlying video
     /// engine.
     pub fn add_or_update_sink(&self, sink: &mut VideoSinkInterface) {
-        println!("ADD");
         webrtc::add_or_update_video_sink(&self.inner, sink.0.pin_mut());
     }
 

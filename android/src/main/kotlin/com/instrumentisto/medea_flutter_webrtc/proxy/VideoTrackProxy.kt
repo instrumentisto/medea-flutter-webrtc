@@ -43,6 +43,6 @@ class VideoTrackProxy(private val track: MediaStreamTrackProxy) {
    * Adds every [SurfaceTextureRenderer] from the [sinks] to the updater underlying [WVideoTrack].
    */
   private fun renewSinks() {
-    //    sinks.forEach { getVideoTrack().addSink(it) }
+    sinks.forEach { getVideoTrack().addSink(it) }
   }
 }

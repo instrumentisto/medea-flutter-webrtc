@@ -23,8 +23,6 @@
 #include "pc/proxy.h"
 #include "test_audio_device_module.cc"
 
-#include <iostream>
-
 namespace bridge {
 
 // Creates a new `TrackEventObserver`.
@@ -452,7 +450,6 @@ TrackState audio_track_state(const AudioTrackInterface& track) {
 // Used to connect the given `track` to the underlying video engine.
 void add_or_update_video_sink(const VideoTrackInterface& track,
                               VideoSinkInterface& sink) {
-  std::cout << "ADD SINk " << std::endl;
   track->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
 }
 
