@@ -216,32 +216,27 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
   /// Listener for the [NativeVideoRenderer] events received from the native
   /// side.
   void eventListener(ffi.TextureEvent event) {
-    // Skip '_$' prefix.
-    switch (event.runtimeType.toString().substring(2)) {
-      case 'TextureEvent_OnTextureChangeImpl':
-        var textureChange = (event as ffi.TextureEvent_OnTextureChange);
-        var rotation = textureChange.rotation;
-        var width = 0.0 + textureChange.width;
-        var height = 0.0 + textureChange.height;
+    if (event is ffi.TextureEvent_OnTextureChange) {
+      var rotation = event.rotation;
+      var width = 0.0 + event.width;
+      var height = 0.0 + event.height;
 
-        var newWidth = rotation % 180 == 0 ? width : height;
-        var newHeight = rotation % 180 == 0 ? height : width;
+      var newWidth = rotation % 180 == 0 ? width : height;
+      var newHeight = rotation % 180 == 0 ? height : width;
 
-        width = newWidth;
-        height = newHeight;
+      width = newWidth;
+      height = newHeight;
 
-        value = value.copyWith(
-          rotation: rotation,
-          width: width,
-          height: height,
-          renderVideo: renderVideo,
-        );
+      value = value.copyWith(
+        rotation: rotation,
+        width: width,
+        height: height,
+        renderVideo: renderVideo,
+      );
 
-        onResize?.call();
-        break;
-      case 'TextureEvent_OnFirstFrameRenderedImpl':
-        value = value.copyWith(renderVideo: renderVideo);
-        break;
+      onResize?.call();
+    } else if (event is ffi.TextureEvent_OnFirstFrameRendered) {
+      value = value.copyWith(renderVideo: renderVideo);
     }
   }
 }

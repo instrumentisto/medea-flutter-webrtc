@@ -8,7 +8,6 @@ mod api;
     clippy::semicolon_if_nothing_returned,
     clippy::too_many_lines,
     clippy::wildcard_imports,
-    clippy::used_underscore_binding,
     let_underscore_drop
 )]
 mod bridge_generated;
@@ -36,7 +35,8 @@ use crate::video_sink::Id as VideoSinkId;
 #[doc(inline)]
 pub use crate::{
     pc::{
-        PeerConnection, RtpEncodingParams, RtpTransceiver, RtpTransceiverInit,
+        PeerConnection, RtpEncodingParameters, RtpTransceiver,
+        RtpTransceiverInit,
     },
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,

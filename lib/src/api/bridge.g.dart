@@ -81,13 +81,13 @@ abstract class MedeaFlutterWebrtcNative {
   /// Adds the provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
   Future<void> addTransceiverInitSendEncoding(
       {required ArcRtpTransceiverInit init,
-      required ArcRtpEncodingParams encoding,
+      required ArcRtpEncodingParameters enc,
       dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kAddTransceiverInitSendEncodingConstMeta;
 
   /// Creates new [`RtpEncodingParameters`] with the provided settings.
-  Future<ArcRtpEncodingParams> createEncodingParameters(
+  Future<ArcRtpEncodingParameters> createEncodingParameters(
       {required String rid,
       required bool active,
       int? maxBitrate,
@@ -320,9 +320,9 @@ abstract class MedeaFlutterWebrtcNative {
   ShareFnType get shareOpaqueArcPeerConnection;
   OpaqueTypeFinalizer get ArcPeerConnectionFinalizer;
 
-  DropFnType get dropOpaqueArcRtpEncodingParams;
-  ShareFnType get shareOpaqueArcRtpEncodingParams;
-  OpaqueTypeFinalizer get ArcRtpEncodingParamsFinalizer;
+  DropFnType get dropOpaqueArcRtpEncodingParameters;
+  ShareFnType get shareOpaqueArcRtpEncodingParameters;
+  OpaqueTypeFinalizer get ArcRtpEncodingParametersFinalizer;
 
   DropFnType get dropOpaqueArcRtpTransceiver;
   ShareFnType get shareOpaqueArcRtpTransceiver;
@@ -349,19 +349,19 @@ class ArcPeerConnection extends FrbOpaque {
 }
 
 @sealed
-class ArcRtpEncodingParams extends FrbOpaque {
+class ArcRtpEncodingParameters extends FrbOpaque {
   final MedeaFlutterWebrtcNative bridge;
-  ArcRtpEncodingParams.fromRaw(int ptr, int size, this.bridge)
+  ArcRtpEncodingParameters.fromRaw(int ptr, int size, this.bridge)
       : super.unsafe(ptr, size);
   @override
-  DropFnType get dropFn => bridge.dropOpaqueArcRtpEncodingParams;
+  DropFnType get dropFn => bridge.dropOpaqueArcRtpEncodingParameters;
 
   @override
-  ShareFnType get shareFn => bridge.shareOpaqueArcRtpEncodingParams;
+  ShareFnType get shareFn => bridge.shareOpaqueArcRtpEncodingParameters;
 
   @override
   OpaqueTypeFinalizer get staticFinalizer =>
-      bridge.ArcRtpEncodingParamsFinalizer;
+      bridge.ArcRtpEncodingParametersFinalizer;
 }
 
 @sealed
@@ -2039,16 +2039,16 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
 
   Future<void> addTransceiverInitSendEncoding(
       {required ArcRtpTransceiverInit init,
-      required ArcRtpEncodingParams encoding,
+      required ArcRtpEncodingParameters enc,
       dynamic hint}) {
     var arg0 = _platform.api2wire_ArcRtpTransceiverInit(init);
-    var arg1 = _platform.api2wire_ArcRtpEncodingParams(encoding);
+    var arg1 = _platform.api2wire_ArcRtpEncodingParameters(enc);
     return _platform.executeNormal(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner
           .wire_add_transceiver_init_send_encoding(port_, arg0, arg1),
       parseSuccessData: _wire2api_unit,
       constMeta: kAddTransceiverInitSendEncodingConstMeta,
-      argValues: [init, encoding],
+      argValues: [init, enc],
       hint: hint,
     ));
   }
@@ -2056,10 +2056,10 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
   FlutterRustBridgeTaskConstMeta get kAddTransceiverInitSendEncodingConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "add_transceiver_init_send_encoding",
-        argNames: ["init", "encoding"],
+        argNames: ["init", "enc"],
       );
 
-  Future<ArcRtpEncodingParams> createEncodingParameters(
+  Future<ArcRtpEncodingParameters> createEncodingParameters(
       {required String rid,
       required bool active,
       int? maxBitrate,
@@ -2076,7 +2076,7 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
     return _platform.executeNormal(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner.wire_create_encoding_parameters(
           port_, arg0, arg1, arg2, arg3, arg4, arg5),
-      parseSuccessData: _wire2api_ArcRtpEncodingParams,
+      parseSuccessData: _wire2api_ArcRtpEncodingParameters,
       constMeta: kCreateEncodingParametersConstMeta,
       argValues: [
         rid,
@@ -2673,12 +2673,12 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
   OpaqueTypeFinalizer get ArcPeerConnectionFinalizer =>
       _platform.ArcPeerConnectionFinalizer;
 
-  DropFnType get dropOpaqueArcRtpEncodingParams =>
-      _platform.inner.drop_opaque_ArcRtpEncodingParams;
-  ShareFnType get shareOpaqueArcRtpEncodingParams =>
-      _platform.inner.share_opaque_ArcRtpEncodingParams;
-  OpaqueTypeFinalizer get ArcRtpEncodingParamsFinalizer =>
-      _platform.ArcRtpEncodingParamsFinalizer;
+  DropFnType get dropOpaqueArcRtpEncodingParameters =>
+      _platform.inner.drop_opaque_ArcRtpEncodingParameters;
+  ShareFnType get shareOpaqueArcRtpEncodingParameters =>
+      _platform.inner.share_opaque_ArcRtpEncodingParameters;
+  OpaqueTypeFinalizer get ArcRtpEncodingParametersFinalizer =>
+      _platform.ArcRtpEncodingParametersFinalizer;
 
   DropFnType get dropOpaqueArcRtpTransceiver =>
       _platform.inner.drop_opaque_ArcRtpTransceiver;
@@ -2703,8 +2703,8 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
     return ArcPeerConnection.fromRaw(raw[0], raw[1], this);
   }
 
-  ArcRtpEncodingParams _wire2api_ArcRtpEncodingParams(dynamic raw) {
-    return ArcRtpEncodingParams.fromRaw(raw[0], raw[1], this);
+  ArcRtpEncodingParameters _wire2api_ArcRtpEncodingParameters(dynamic raw) {
+    return ArcRtpEncodingParameters.fromRaw(raw[0], raw[1], this);
   }
 
   ArcRtpTransceiver _wire2api_ArcRtpTransceiver(dynamic raw) {
@@ -3352,10 +3352,10 @@ class MedeaFlutterWebrtcNativePlatform
   }
 
   @protected
-  wire_ArcRtpEncodingParams api2wire_ArcRtpEncodingParams(
-      ArcRtpEncodingParams raw) {
-    final ptr = inner.new_ArcRtpEncodingParams();
-    _api_fill_to_wire_ArcRtpEncodingParams(raw, ptr);
+  wire_ArcRtpEncodingParameters api2wire_ArcRtpEncodingParameters(
+      ArcRtpEncodingParameters raw) {
+    final ptr = inner.new_ArcRtpEncodingParameters();
+    _api_fill_to_wire_ArcRtpEncodingParameters(raw, ptr);
     return ptr;
   }
 
@@ -3495,10 +3495,10 @@ class MedeaFlutterWebrtcNativePlatform
       OpaqueTypeFinalizer(inner._drop_opaque_ArcPeerConnectionPtr);
   OpaqueTypeFinalizer get ArcPeerConnectionFinalizer =>
       _ArcPeerConnectionFinalizer;
-  late final OpaqueTypeFinalizer _ArcRtpEncodingParamsFinalizer =
-      OpaqueTypeFinalizer(inner._drop_opaque_ArcRtpEncodingParamsPtr);
-  OpaqueTypeFinalizer get ArcRtpEncodingParamsFinalizer =>
-      _ArcRtpEncodingParamsFinalizer;
+  late final OpaqueTypeFinalizer _ArcRtpEncodingParametersFinalizer =
+      OpaqueTypeFinalizer(inner._drop_opaque_ArcRtpEncodingParametersPtr);
+  OpaqueTypeFinalizer get ArcRtpEncodingParametersFinalizer =>
+      _ArcRtpEncodingParametersFinalizer;
   late final OpaqueTypeFinalizer _ArcRtpTransceiverFinalizer =
       OpaqueTypeFinalizer(inner._drop_opaque_ArcRtpTransceiverPtr);
   OpaqueTypeFinalizer get ArcRtpTransceiverFinalizer =>
@@ -3514,8 +3514,8 @@ class MedeaFlutterWebrtcNativePlatform
     wireObj.ptr = apiObj.shareOrMove();
   }
 
-  void _api_fill_to_wire_ArcRtpEncodingParams(
-      ArcRtpEncodingParams apiObj, wire_ArcRtpEncodingParams wireObj) {
+  void _api_fill_to_wire_ArcRtpEncodingParameters(
+      ArcRtpEncodingParameters apiObj, wire_ArcRtpEncodingParameters wireObj) {
     wireObj.ptr = apiObj.shareOrMove();
   }
 
@@ -3851,24 +3851,24 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   void wire_add_transceiver_init_send_encoding(
     int port_,
     wire_ArcRtpTransceiverInit init,
-    wire_ArcRtpEncodingParams encoding,
+    wire_ArcRtpEncodingParameters enc,
   ) {
     return _wire_add_transceiver_init_send_encoding(
       port_,
       init,
-      encoding,
+      enc,
     );
   }
 
   late final _wire_add_transceiver_init_send_encodingPtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Int64, wire_ArcRtpTransceiverInit,
-                  wire_ArcRtpEncodingParams)>>(
+                  wire_ArcRtpEncodingParameters)>>(
       'wire_add_transceiver_init_send_encoding');
   late final _wire_add_transceiver_init_send_encoding =
       _wire_add_transceiver_init_send_encodingPtr.asFunction<
-          void Function(
-              int, wire_ArcRtpTransceiverInit, wire_ArcRtpEncodingParams)>();
+          void Function(int, wire_ArcRtpTransceiverInit,
+              wire_ArcRtpEncodingParameters)>();
 
   void wire_create_encoding_parameters(
     int port_,
@@ -4450,15 +4450,15 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
   late final _new_ArcPeerConnection =
       _new_ArcPeerConnectionPtr.asFunction<wire_ArcPeerConnection Function()>();
 
-  wire_ArcRtpEncodingParams new_ArcRtpEncodingParams() {
-    return _new_ArcRtpEncodingParams();
+  wire_ArcRtpEncodingParameters new_ArcRtpEncodingParameters() {
+    return _new_ArcRtpEncodingParameters();
   }
 
-  late final _new_ArcRtpEncodingParamsPtr =
-      _lookup<ffi.NativeFunction<wire_ArcRtpEncodingParams Function()>>(
-          'new_ArcRtpEncodingParams');
-  late final _new_ArcRtpEncodingParams = _new_ArcRtpEncodingParamsPtr
-      .asFunction<wire_ArcRtpEncodingParams Function()>();
+  late final _new_ArcRtpEncodingParametersPtr =
+      _lookup<ffi.NativeFunction<wire_ArcRtpEncodingParameters Function()>>(
+          'new_ArcRtpEncodingParameters');
+  late final _new_ArcRtpEncodingParameters = _new_ArcRtpEncodingParametersPtr
+      .asFunction<wire_ArcRtpEncodingParameters Function()>();
 
   wire_ArcRtpTransceiver new_ArcRtpTransceiver() {
     return _new_ArcRtpTransceiver();
@@ -4628,35 +4628,35 @@ class MedeaFlutterWebrtcNativeWire implements FlutterRustBridgeWireBase {
       _share_opaque_ArcPeerConnectionPtr
           .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
 
-  void drop_opaque_ArcRtpEncodingParams(
+  void drop_opaque_ArcRtpEncodingParameters(
     ffi.Pointer<ffi.Void> ptr,
   ) {
-    return _drop_opaque_ArcRtpEncodingParams(
+    return _drop_opaque_ArcRtpEncodingParameters(
       ptr,
     );
   }
 
-  late final _drop_opaque_ArcRtpEncodingParamsPtr =
+  late final _drop_opaque_ArcRtpEncodingParametersPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'drop_opaque_ArcRtpEncodingParams');
-  late final _drop_opaque_ArcRtpEncodingParams =
-      _drop_opaque_ArcRtpEncodingParamsPtr
+          'drop_opaque_ArcRtpEncodingParameters');
+  late final _drop_opaque_ArcRtpEncodingParameters =
+      _drop_opaque_ArcRtpEncodingParametersPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
-  ffi.Pointer<ffi.Void> share_opaque_ArcRtpEncodingParams(
+  ffi.Pointer<ffi.Void> share_opaque_ArcRtpEncodingParameters(
     ffi.Pointer<ffi.Void> ptr,
   ) {
-    return _share_opaque_ArcRtpEncodingParams(
+    return _share_opaque_ArcRtpEncodingParameters(
       ptr,
     );
   }
 
-  late final _share_opaque_ArcRtpEncodingParamsPtr = _lookup<
+  late final _share_opaque_ArcRtpEncodingParametersPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>)>>('share_opaque_ArcRtpEncodingParams');
-  late final _share_opaque_ArcRtpEncodingParams =
-      _share_opaque_ArcRtpEncodingParamsPtr
+              ffi.Pointer<ffi.Void>)>>('share_opaque_ArcRtpEncodingParameters');
+  late final _share_opaque_ArcRtpEncodingParameters =
+      _share_opaque_ArcRtpEncodingParametersPtr
           .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
 
   void drop_opaque_ArcRtpTransceiver(
@@ -4784,7 +4784,7 @@ final class wire_ArcRtpTransceiverInit extends ffi.Struct {
   external ffi.Pointer<ffi.Void> ptr;
 }
 
-final class wire_ArcRtpEncodingParams extends ffi.Struct {
+final class wire_ArcRtpEncodingParameters extends ffi.Struct {
   external ffi.Pointer<ffi.Void> ptr;
 }
 

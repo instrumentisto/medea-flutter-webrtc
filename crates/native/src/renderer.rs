@@ -2,9 +2,9 @@
 
 use libwebrtc_sys as sys;
 
-pub use frame_handler::FrameHandler;
-
 use crate::stream_sink::StreamSink;
+
+pub use frame_handler::FrameHandler;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(i32)]
@@ -24,6 +24,7 @@ pub enum TextureEvent {
         /// Rotation of the last processed frame.
         rotation: i32,
     },
+
     /// First frame event.
     OnFirstFrameRendered {
         /// Id of the texture.
@@ -103,11 +104,12 @@ mod frame_handler {
     use derive_more::From;
     use libwebrtc_sys as sys;
 
+    use crate::{
+        renderer::{TextureEvent, TextureEventNotifier},
+        stream_sink::StreamSink,
+    };
+
     pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
-
-    use crate::stream_sink::StreamSink;
-
-    use super::{TextureEvent, TextureEventNotifier};
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
@@ -242,8 +244,10 @@ mod frame_handler {
     use cxx::UniquePtr;
     use libwebrtc_sys as sys;
 
-    use super::{TextureEvent, TextureEventNotifier};
-    use crate::stream_sink::StreamSink;
+    use crate::{
+        renderer::{TextureEvent, TextureEventNotifier},
+        stream_sink::StreamSink,
+    };
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
