@@ -94,7 +94,6 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
         frameRotation = frame.rotation
       }
     }
-    Log.d("AAAAAAAAAA", "42")
     super.onFrame(frame)
   }
 
