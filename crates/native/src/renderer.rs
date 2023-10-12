@@ -6,13 +6,13 @@ use crate::stream_sink::StreamSink;
 
 pub use frame_handler::FrameHandler;
 
+/// Frame change events.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(i32)]
-/// Frame change events.
 pub enum TextureEvent {
-    /// The height, width, or rotation have changed.
+    /// Height, width, or rotation have changed.
     OnTextureChange {
-        /// Id of the texture.
+        /// ID of the texture.
         texture_id: i64,
 
         /// Width of the last processed frame.
@@ -27,20 +27,20 @@ pub enum TextureEvent {
 
     /// First frame event.
     OnFirstFrameRendered {
-        /// Id of the texture.
+        /// ID of the texture.
         texture_id: i64,
     },
 }
 
-/// Notifies Dart-side of any [`sys::VideoFrame`] dimensions changes.
+/// Notifier of Dart side about any [`sys::VideoFrame`] dimensions changes.
 struct TextureEventNotifier {
-    /// A sink to send asynchronous data back to Dart.
+    /// Sink to send asynchronous data back to Dart.
     sink: StreamSink<TextureEvent>,
 
     /// Indicator whether any frames were rendered for the given texture.
     first_frame_rendered: bool,
 
-    /// Id of the texture.
+    /// ID of the texture.
     texture_id: i64,
 
     /// Width of the last processed frame.
@@ -66,7 +66,7 @@ impl TextureEventNotifier {
         }
     }
 
-    /// Passes provided [`sys::VideoFrame`] to the Dart side events.
+    /// Passes the provided [`sys::VideoFrame`] to Dart side events.
     fn on_frame(&mut self, frame: &cxx::UniquePtr<sys::VideoFrame>) {
         let height = frame.height();
         let width = frame.width();

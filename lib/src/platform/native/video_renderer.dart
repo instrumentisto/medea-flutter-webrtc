@@ -63,7 +63,7 @@ abstract class NativeVideoRenderer extends VideoRenderer {
 
 /// [MethodChannel]-based implementation of a [NativeVideoRenderer].
 class _NativeVideoRendererChannel extends NativeVideoRenderer {
-  /// Unique ID of the channel for the native side `VideoRenderer`.
+  /// Unique ID of the channel for this [NativeVideoRenderer].
   late int _channelId;
 
   /// Subscription to the events of this [NativeVideoRenderer].
@@ -120,7 +120,7 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
     await super.dispose();
   }
 
-  /// Listener for the [NativeVideoRenderer] events received from the native
+  /// Listener for this [NativeVideoRenderer]'s events received from the native
   /// side.
   void eventListener(dynamic event) {
     final dynamic map = event;
@@ -213,7 +213,7 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
     await super.dispose();
   }
 
-  /// Listener for the [NativeVideoRenderer] events received from the native
+  /// Listener for this [NativeVideoRenderer]'s events received from the native
   /// side.
   void eventListener(ffi.TextureEvent event) {
     if (event is ffi.TextureEvent_OnTextureChange) {
