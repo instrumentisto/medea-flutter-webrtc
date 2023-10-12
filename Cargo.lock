@@ -188,9 +188,9 @@ dependencies = [
 
 [[package]]
 name = "cxx"
-version = "1.0.108"
+version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "292b4841d939b20ba44fff686a35808b0ab31a3256e3629917d9aedd43eb7b3a"
+checksum = "c390c123d671cc547244943ecad81bdaab756c6ea332d9ca9c1f48d952a24895"
 dependencies = [
  "cc",
  "cxxbridge-flags",
@@ -200,9 +200,9 @@ dependencies = [
 
 [[package]]
 name = "cxx-build"
-version = "1.0.108"
+version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e7e35cf85fd4e90dcaba251f3ee95e08fb6f9d66e5c0588816f16a6ab939b40"
+checksum = "00d3d3ac9ffb900304edf51ca719187c779f4001bb544f26c4511d621de905cf"
 dependencies = [
  "cc",
  "codespan-reporting",
@@ -215,15 +215,15 @@ dependencies = [
 
 [[package]]
 name = "cxxbridge-flags"
-version = "1.0.108"
+version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7030aff1908ba2b7eb639466df50792b2a3fdf02bea9557c4ee1a531975554b"
+checksum = "94415827ecfea0f0c74c8cad7d1a86ddb3f05354d6a6ddeda0adee5e875d2939"
 
 [[package]]
 name = "cxxbridge-macro"
-version = "1.0.108"
+version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79418ecb0c2322a7926a5fa5a9660535432b5b3588b947e1eb484cc509edbe3c"
+checksum = "e33dbbe9f5621c9247f97ec14213b04f350bff4b6cebefe834c60055db266ecf"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1013,9 +1013,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "0.38.18"
+version = "0.38.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a74ee2d7c2581cd139b42447d7d9389b889bdaad3a73f1ebb16f2a3237bb19c"
+checksum = "745ecfa778e66b2b63c88a61cb36e0eea109e803b0b86bf9879fbc77c70e86ed"
 dependencies = [
  "bitflags 2.4.0",
  "errno",
@@ -1091,18 +1091,18 @@ checksum = "836fa6a3e1e547f9a2c4040802ec865b5d85f4014efe00555d7090a3dcaa1090"
 
 [[package]]
 name = "serde"
-version = "1.0.188"
+version = "1.0.189"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf9e0fcba69a370eed61bcf2b728575f726b50b55cba78064753d708ddc7549e"
+checksum = "8e422a44e74ad4001bdc8eede9a4570ab52f71190e9c076d14369f38b9200537"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.188"
+version = "1.0.189"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4eca7ac642d82aa35b60049a6eccb4be6be75e599bd2e9adb5f875a737654af2"
+checksum = "1e48d1f918009ce3145511378cf68d613e3b3d9137d67272562080d68a2b32d5"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -18,6 +18,8 @@ use std::{ffi::c_void, sync::Arc};
 
 // Section: imports
 
+use crate::renderer::TextureEvent;
+
 // Section: wire functions
 
 fn wire_enable_fake_media_impl(port_: MessagePort) {
@@ -175,7 +177,7 @@ fn wire_set_transceiver_init_direction_impl(
 fn wire_add_transceiver_init_send_encoding_impl(
     port_: MessagePort,
     init: impl Wire2Api<RustOpaque<Arc<RtpTransceiverInit>>> + UnwindSafe,
-    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParams>>> + UnwindSafe,
+    enc: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
         WrapInfo {
@@ -185,9 +187,9 @@ fn wire_add_transceiver_init_send_encoding_impl(
         },
         move || {
             let api_init = init.wire2api();
-            let api_encoding = encoding.wire2api();
+            let api_enc = enc.wire2api();
             move |task_callback| {
-                Ok(add_transceiver_init_send_encoding(api_init, api_encoding))
+                Ok(add_transceiver_init_send_encoding(api_init, api_enc))
             }
         },
     )
@@ -202,7 +204,7 @@ fn wire_create_encoding_parameters_impl(
     scalability_mode: impl Wire2Api<Option<String>> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER
-        .wrap::<_, _, _, RustOpaque<Arc<RtpEncodingParams>>>(
+        .wrap::<_, _, _, RustOpaque<Arc<RtpEncodingParameters>>>(
             WrapInfo {
                 debug_name: "create_encoding_parameters",
                 port: Some(port_),
@@ -737,19 +739,27 @@ fn wire_create_video_sink_impl(
     sink_id: impl Wire2Api<i64> + UnwindSafe,
     track_id: impl Wire2Api<String> + UnwindSafe,
     callback_ptr: impl Wire2Api<u64> + UnwindSafe,
+    texture_id: impl Wire2Api<i64> + UnwindSafe,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
         WrapInfo {
             debug_name: "create_video_sink",
             port: Some(port_),
-            mode: FfiCallMode::Normal,
+            mode: FfiCallMode::Stream,
         },
         move || {
             let api_sink_id = sink_id.wire2api();
             let api_track_id = track_id.wire2api();
             let api_callback_ptr = callback_ptr.wire2api();
+            let api_texture_id = texture_id.wire2api();
             move |task_callback| {
-                create_video_sink(api_sink_id, api_track_id, api_callback_ptr)
+                create_video_sink(
+                    task_callback.stream_sink::<_, TextureEvent>(),
+                    api_sink_id,
+                    api_track_id,
+                    api_callback_ptr,
+                    api_texture_id,
+                )
             }
         },
     )
@@ -1623,6 +1633,35 @@ impl rust2dart::IntoIntoDart<SignalingState> for SignalingState {
     }
 }
 
+impl support::IntoDart for TextureEvent {
+    fn into_dart(self) -> support::DartAbi {
+        match self {
+            Self::OnTextureChange {
+                texture_id,
+                width,
+                height,
+                rotation,
+            } => vec![
+                0.into_dart(),
+                texture_id.into_into_dart().into_dart(),
+                width.into_into_dart().into_dart(),
+                height.into_into_dart().into_dart(),
+                rotation.into_into_dart().into_dart(),
+            ],
+            Self::OnFirstFrameRendered { texture_id } => {
+                vec![1.into_dart(), texture_id.into_into_dart().into_dart()]
+            }
+        }
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for TextureEvent {}
+impl rust2dart::IntoIntoDart<TextureEvent> for TextureEvent {
+    fn into_into_dart(self) -> Self {
+        self
+    }
+}
+
 impl support::IntoDart for TrackEvent {
     fn into_dart(self) -> support::DartAbi {
         match self {
@@ -1746,9 +1785,9 @@ mod io {
     pub extern "C" fn wire_add_transceiver_init_send_encoding(
         port_: i64,
         init: wire_ArcRtpTransceiverInit,
-        encoding: wire_ArcRtpEncodingParams,
+        enc: wire_ArcRtpEncodingParameters,
     ) {
-        wire_add_transceiver_init_send_encoding_impl(port_, init, encoding)
+        wire_add_transceiver_init_send_encoding_impl(port_, init, enc)
     }
 
     #[no_mangle]
@@ -2018,8 +2057,15 @@ mod io {
         sink_id: i64,
         track_id: *mut wire_uint_8_list,
         callback_ptr: u64,
+        texture_id: i64,
     ) {
-        wire_create_video_sink_impl(port_, sink_id, track_id, callback_ptr)
+        wire_create_video_sink_impl(
+            port_,
+            sink_id,
+            track_id,
+            callback_ptr,
+            texture_id,
+        )
     }
 
     #[no_mangle]
@@ -2035,8 +2081,9 @@ mod io {
     }
 
     #[no_mangle]
-    pub extern "C" fn new_ArcRtpEncodingParams() -> wire_ArcRtpEncodingParams {
-        wire_ArcRtpEncodingParams::new_with_null_ptr()
+    pub extern "C" fn new_ArcRtpEncodingParameters(
+    ) -> wire_ArcRtpEncodingParameters {
+        wire_ArcRtpEncodingParameters::new_with_null_ptr()
     }
 
     #[no_mangle]
@@ -2141,18 +2188,18 @@ mod io {
     }
 
     #[no_mangle]
-    pub extern "C" fn drop_opaque_ArcRtpEncodingParams(ptr: *const c_void) {
+    pub extern "C" fn drop_opaque_ArcRtpEncodingParameters(ptr: *const c_void) {
         unsafe {
-            Arc::<Arc<RtpEncodingParams>>::decrement_strong_count(ptr as _);
+            Arc::<Arc<RtpEncodingParameters>>::decrement_strong_count(ptr as _);
         }
     }
 
     #[no_mangle]
-    pub extern "C" fn share_opaque_ArcRtpEncodingParams(
+    pub extern "C" fn share_opaque_ArcRtpEncodingParameters(
         ptr: *const c_void,
     ) -> *const c_void {
         unsafe {
-            Arc::<Arc<RtpEncodingParams>>::increment_strong_count(ptr as _);
+            Arc::<Arc<RtpEncodingParameters>>::increment_strong_count(ptr as _);
             ptr
         }
     }
@@ -2198,10 +2245,10 @@ mod io {
             unsafe { support::opaque_from_dart(self.ptr as _) }
         }
     }
-    impl Wire2Api<RustOpaque<Arc<RtpEncodingParams>>>
-        for wire_ArcRtpEncodingParams
+    impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>>
+        for wire_ArcRtpEncodingParameters
     {
-        fn wire2api(self) -> RustOpaque<Arc<RtpEncodingParams>> {
+        fn wire2api(self) -> RustOpaque<Arc<RtpEncodingParameters>> {
             unsafe { support::opaque_from_dart(self.ptr as _) }
         }
     }
@@ -2341,7 +2388,7 @@ mod io {
 
     #[repr(C)]
     #[derive(Clone)]
-    pub struct wire_ArcRtpEncodingParams {
+    pub struct wire_ArcRtpEncodingParameters {
         ptr: *const core::ffi::c_void,
     }
 
@@ -2436,7 +2483,7 @@ mod io {
             }
         }
     }
-    impl NewWithNullPtr for wire_ArcRtpEncodingParams {
+    impl NewWithNullPtr for wire_ArcRtpEncodingParameters {
         fn new_with_null_ptr() -> Self {
             Self {
                 ptr: core::ptr::null(),

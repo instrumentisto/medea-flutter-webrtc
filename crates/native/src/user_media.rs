@@ -344,46 +344,37 @@ impl Webrtc {
     }
 
     /// Returns the [width][0] property of the media track by its ID and
-    /// media type.
-    /// Blocks until width is initialized.
+    /// media type. Blocks until width is initialized.
     ///
     /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-width
     pub fn track_width(&self, id: String) -> anyhow::Result<i32> {
-        Ok({
-            let id = VideoTrackId::from(id);
+        let id = VideoTrackId::from(id);
 
-            *self
-                .video_tracks
-                .get(&id)
-                .ok_or_else(|| {
-                    anyhow!("Cannot find video track with ID `{id}`")
-                })?
-                .width
-                .wait()
-                .read()
-                .unwrap()
-        })
+        Ok(*self
+            .video_tracks
+            .get(&id)
+            .ok_or_else(|| anyhow!("Cannot find video track with ID `{id}`"))?
+            .width
+            .wait()
+            .read()
+            .unwrap())
     }
 
     /// Returns the [height][0] property of the media track by its ID and
-    /// media type.
-    /// Blocks until height is initialized.
+    /// media type. Blocks until height is initialized.
     ///
     /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
     pub fn track_height(&self, id: String) -> anyhow::Result<i32> {
-        Ok({
-            let id = VideoTrackId::from(id);
-            *self
-                .video_tracks
-                .get(&id)
-                .ok_or_else(|| {
-                    anyhow!("Cannot find video track with ID `{id}`")
-                })?
-                .height
-                .wait()
-                .read()
-                .unwrap()
-        })
+        let id = VideoTrackId::from(id);
+
+        Ok(*self
+            .video_tracks
+            .get(&id)
+            .ok_or_else(|| anyhow!("Cannot find video track with ID `{id}`"))?
+            .height
+            .wait()
+            .read()
+            .unwrap())
     }
 
     /// Changes the [enabled][1] property of the media track by its ID.
