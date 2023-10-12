@@ -251,7 +251,6 @@ fn compile_openal() -> anyhow::Result<()> {
     .unwrap();
 
     let mut cmake_cmd = Command::new("cmake");
-
     cmake_cmd
         .current_dir(&openal_src_path)
         .arg(".")
