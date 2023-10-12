@@ -250,14 +250,19 @@ fn compile_openal() -> anyhow::Result<()> {
     )
     .unwrap();
 
-    drop(
-        Command::new("cmake")
-            .current_dir(&openal_src_path)
-            .arg(".")
-            .arg(".")
-            .arg("-DCMAKE_BUILD_TYPE=Release")
-            .output()?,
-    );
+    let mut cmake_cmd = Command::new("cmake");
+
+    cmake_cmd
+        .current_dir(&openal_src_path)
+        .arg(".")
+        .arg(".")
+        .arg("-DCMAKE_BUILD_TYPE=Release");
+
+    #[cfg(target_os = "macos")]
+    cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
+
+    drop(cmake_cmd.output()?);
+
     drop(
         Command::new("cmake")
             .current_dir(&openal_src_path)
