@@ -94,7 +94,7 @@ void main() {
           'transport-cc',
           'ccm fir',
           'nack',
-          'nack pli'
+          'nack pli',
         ]) {
           expect(offer.contains(fbPref + fb), isTrue);
         }
