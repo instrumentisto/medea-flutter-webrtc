@@ -999,36 +999,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_track(&mut self, transceiver: sys::RtpTransceiverInterface) {
-        let track_id = transceiver.receiver().track().id();
-        let track_id = VideoTrackId::from(track_id);
-        if self.video_tracks.contains_key(&track_id) {
-            return;
-        }
-        let track_id = AudioTrackId::from(String::from(track_id));
-        if self.audio_tracks.contains_key(&track_id) {
-            return;
-        }
-
-        let peer = self.peer.get().unwrap();
-
-        let track = match transceiver.media_type() {
-            sys::MediaType::MEDIA_TYPE_AUDIO => {
-                let track = AudioTrack::wrap_remote(&transceiver, peer.clone());
-                let result = api::MediaStreamTrack::from(&track);
-                self.audio_tracks.insert(track.id.clone(), track);
-
-                result
-            }
-            sys::MediaType::MEDIA_TYPE_VIDEO => {
-                let track = VideoTrack::wrap_remote(&transceiver, peer.clone());
-                let result = api::MediaStreamTrack::from(&track);
-                self.video_tracks.insert(track.id.clone(), track);
-
-                result
-            }
-            _ => unreachable!(),
-        };
-
         self.pool.execute({
             // PANIC: Unwrapping is OK, since the transceiver is guaranteed
             //        to be negotiated at this point.
@@ -1036,9 +1006,43 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let direction = transceiver.direction();
             let peer = Arc::clone(&self.peer);
             let observer = Arc::clone(&self.observer);
+            let track_id = transceiver.receiver().track().id();
+            let track_id = VideoTrackId::from(track_id);
+            let video_tracks = Arc::clone(&self.video_tracks);
+            let audio_tracks = Arc::clone(&self.audio_tracks);
 
             move || {
-                if let Some(peer) = peer.get().unwrap().upgrade() {
+                if video_tracks.contains_key(&track_id) {
+                    return;
+                }
+                let track_id = AudioTrackId::from(String::from(track_id));
+                if audio_tracks.contains_key(&track_id) {
+                    return;
+                }
+
+                let peer = peer.get().unwrap();
+
+                let track = match transceiver.media_type() {
+                    sys::MediaType::MEDIA_TYPE_AUDIO => {
+                        let track =
+                            AudioTrack::wrap_remote(&transceiver, peer.clone());
+                        let result = api::MediaStreamTrack::from(&track);
+                        audio_tracks.insert(track.id.clone(), track);
+
+                        result
+                    }
+                    sys::MediaType::MEDIA_TYPE_VIDEO => {
+                        let track =
+                            VideoTrack::wrap_remote(&transceiver, peer.clone());
+                        let result = api::MediaStreamTrack::from(&track);
+                        video_tracks.insert(track.id.clone(), track);
+
+                        result
+                    }
+                    _ => unreachable!(),
+                };
+
+                if let Some(peer) = peer.upgrade() {
                     let index = peer
                         .get_transceivers()
                         .iter()
