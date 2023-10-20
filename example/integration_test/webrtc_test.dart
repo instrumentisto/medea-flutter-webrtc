@@ -918,18 +918,17 @@ void main() {
   });
 
   testWidgets('Video dimensions', (WidgetTester tester) async {
-        var caps = DeviceConstraints();
-        caps.video.mandatory = DeviceVideoConstraints();
+    var caps = DeviceConstraints();
+    caps.video.mandatory = DeviceVideoConstraints();
 
-        var track = (await getUserMedia(caps))[0];
+    var track = (await getUserMedia(caps))[0];
 
-        var w = await track.width();
-        var h = await track.height();
+    var w = await track.width();
+    var h = await track.height();
 
-        expect(w, equals(640));
-        expect(h, equals(480));
-
-      });
+    expect(w, equals(640));
+    expect(h, equals(480));
+  });
 
   testWidgets('on_track when peer has transceiver.',
       (WidgetTester tester) async {
