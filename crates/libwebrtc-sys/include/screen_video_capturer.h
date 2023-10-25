@@ -20,13 +20,18 @@
 
 #include "media/base/adapted_video_track_source.h"
 #include "modules/desktop_capture/desktop_capturer.h"
+#include "modules/desktop_capture/desktop_and_cursor_composer.h"
 #include "modules/video_capture/video_capture.h"
 #include "rtc_base/platform_thread.h"
+#include "modules/desktop_capture/mouse_cursor.h"
+#include "modules/desktop_capture/mouse_cursor_monitor.h"
+#include "modules/desktop_capture/desktop_geometry.h"
 
 // `VideoTrackSourceInterface` capturing frames from a user's display.
 class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public rtc::VideoSinkInterface<webrtc::VideoFrame>,
-                            public webrtc::DesktopCapturer::Callback {
+                            public webrtc::DesktopCapturer::Callback,
+                            public webrtc::MouseCursorMonitor::Callback {
  public:
 
   // Fills the provided `SourceList` with all the available screens that can be
@@ -39,6 +44,10 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
                       size_t max_height,
                       size_t target_fps);
   ~ScreenVideoCapturer();
+
+  // MouseCursorMonitor::Callback interface.
+  void OnMouseCursor(webrtc::MouseCursor* cursor) override;
+  void OnMouseCursorPosition(const webrtc::DesktopVector& position) override;
 
  private:
   // Captures a `webrtc::DesktopFrame`.
@@ -96,7 +105,9 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   rtc::PlatformThread capture_thread_;
 
   // `webrtc::DesktopCapturer` used to capture frames.
-  std::unique_ptr<webrtc::DesktopCapturer> capturer_;
+  std::unique_ptr<webrtc::DesktopAndCursorComposer> capturer_;
+
+  std::unique_ptr<webrtc::MouseCursorMonitor> mouse_monitor_;
 
   // Flag signaling the `capture_thread_` to stop.
   std::atomic<bool> quit_;

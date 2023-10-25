@@ -24,6 +24,11 @@
 #include "system_wrappers/include/sleep.h"
 #include "third_party/libyuv/include/libyuv.h"
 
+#if __APPLE__
+#include "mouse_cursor_monitor_mac.h"
+#endif
+
+
 // Maximum allow CPU consumption for the frame capturing thread.
 const int maxCpuConsumptionPercentage = 50;
 
@@ -75,11 +80,18 @@ ScreenVideoCapturer::ScreenVideoCapturer(
           std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
               webrtc::DesktopCapturer::CreateScreenCapturer(options));
           if (screen_capturer && screen_capturer->SelectSource(source_id)) {
-            capturer_.reset(new webrtc::DesktopAndCursorComposer(
-                std::move(screen_capturer), options));
+            capturer_ = webrtc::DesktopAndCursorComposer::CreateWithoutMouseCursorMonitor(std::move(screen_capturer));
+            mouse_monitor_ = webrtc::MouseCursorMonitor::Create(options);
+
+            #if __APPLE__
+            mouse_monitor_ = std::make_unique<bridge::MouseCursorMonitorMac>(std::move(mouse_monitor_));
+            #endif
+
+            capturer_->Start(this);
+
+            mouse_monitor_->Init(this, webrtc::MouseCursorMonitor::SHAPE_AND_POSITION);
           }
 
-          capturer_->Start(this);
           while (CaptureProcess()) {}
         },
         "ScreenCaptureThread",
@@ -109,6 +121,8 @@ bool ScreenVideoCapturer::CaptureProcess() {
 
   int64_t started_time = rtc::TimeMillis();
   capturer_->CaptureFrame();
+  mouse_monitor_->Capture();
+
   int last_capture_duration = (int) (rtc::TimeMillis() - started_time);
   int capture_period =
       std::max((last_capture_duration * 100) / maxCpuConsumptionPercentage,
@@ -255,4 +269,13 @@ webrtc::MediaSourceInterface::SourceState ScreenVideoCapturer::state() const {
 // Always returns `false`.
 bool ScreenVideoCapturer::remote() const {
   return false;
+}
+
+void ScreenVideoCapturer::OnMouseCursor(webrtc::MouseCursor* cursor) {
+    capturer_->OnMouseCursor(cursor);
+}
+
+void ScreenVideoCapturer::OnMouseCursorPosition(
+        const webrtc::DesktopVector& position) {
+    capturer_->OnMouseCursorPosition(position);
 }
