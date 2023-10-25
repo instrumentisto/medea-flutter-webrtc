@@ -4,18 +4,24 @@
 
 namespace bridge {
 
-MouseCursorMonitorMac::MouseCursorMonitorMac(std::unique_ptr<webrtc::MouseCursorMonitor> mouse_monitor) {
-    mouse_monitor_ = std::move(mouse_monitor);
+// Creates a new `MouseCursorMonitorMac`.
+MouseCursorMonitorMac::MouseCursorMonitorMac(
+    std::unique_ptr<webrtc::MouseCursorMonitor> mouse_monitor) {
+  mouse_monitor_ = std::move(mouse_monitor);
 }
 
-void MouseCursorMonitorMac::Init(webrtc::MouseCursorMonitor::Callback* callback, webrtc::MouseCursorMonitor::Mode mode) {
-    mouse_monitor_->Init(callback, mode);
+// Initializes the monitor with the `callback`, which must remain valid until
+// capturer is destroyed.
+void MouseCursorMonitorMac::Init(webrtc::MouseCursorMonitor::Callback* callback,
+                                 webrtc::MouseCursorMonitor::Mode mode) {
+  mouse_monitor_->Init(callback, mode);
 }
 
+// Captures current cursor shape and position.
 void MouseCursorMonitorMac::Capture() {
-    @autoreleasepool {
-        mouse_monitor_->Capture();
-    }
+  @autoreleasepool {
+    mouse_monitor_->Capture();
+  }
 }
 
 }  // namespace bridge

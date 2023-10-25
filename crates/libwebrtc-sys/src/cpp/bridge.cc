@@ -21,7 +21,7 @@
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "pc/proxy.h"
-#include "modules/audio_device/include/test_audio_device.h"
+#include "test_audio_device_module.cc"
 
 namespace bridge {
 
@@ -81,12 +81,12 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 // audio renderer.
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     TaskQueueFactory& task_queue_factory) {
-  auto capture =
-            webrtc::TestAudioDeviceModule::CreatePulsedNoiseCapturer(1024, 8000);
-  auto renderer = webrtc::TestAudioDeviceModule::CreateDiscardRenderer(8000);
+  auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
+  auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
 
-  auto adm_fake = webrtc::TestAudioDeviceModule::Create(
-            &task_queue_factory, std::move(capture), std::move(renderer));
+  auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
+                                        std::move(renderer), 1);
+
   return std::make_unique<AudioDeviceModule>(adm_fake);
 }
 

@@ -19,13 +19,13 @@
 #pragma once
 
 #include "media/base/adapted_video_track_source.h"
-#include "modules/desktop_capture/desktop_capturer.h"
 #include "modules/desktop_capture/desktop_and_cursor_composer.h"
-#include "modules/video_capture/video_capture.h"
-#include "rtc_base/platform_thread.h"
+#include "modules/desktop_capture/desktop_capturer.h"
+#include "modules/desktop_capture/desktop_geometry.h"
 #include "modules/desktop_capture/mouse_cursor.h"
 #include "modules/desktop_capture/mouse_cursor_monitor.h"
-#include "modules/desktop_capture/desktop_geometry.h"
+#include "modules/video_capture/video_capture.h"
+#include "rtc_base/platform_thread.h"
 
 // `VideoTrackSourceInterface` capturing frames from a user's display.
 class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
@@ -33,7 +33,6 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
                             public webrtc::DesktopCapturer::Callback,
                             public webrtc::MouseCursorMonitor::Callback {
  public:
-
   // Fills the provided `SourceList` with all the available screens that can be
   // used by this `ScreenVideoCapturer`.
   static bool GetSourceList(webrtc::DesktopCapturer::SourceList* sources);
@@ -107,6 +106,7 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   // `webrtc::DesktopCapturer` used to capture frames.
   std::unique_ptr<webrtc::DesktopAndCursorComposer> capturer_;
 
+  // Captures mouse shape and position.
   std::unique_ptr<webrtc::MouseCursorMonitor> mouse_monitor_;
 
   // Flag signaling the `capture_thread_` to stop.
