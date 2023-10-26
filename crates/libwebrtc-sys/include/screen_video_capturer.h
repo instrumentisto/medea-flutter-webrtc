@@ -44,7 +44,7 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
                       size_t target_fps);
   ~ScreenVideoCapturer();
 
-  // MouseCursorMonitor::Callback interface.
+  // `MouseCursorMonitor::Callback` interface.
   void OnMouseCursor(webrtc::MouseCursor* cursor) override;
   void OnMouseCursorPosition(const webrtc::DesktopVector& position) override;
 

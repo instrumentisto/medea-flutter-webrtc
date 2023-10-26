@@ -16,10 +16,10 @@ class MouseCursorMonitorMac : public webrtc::MouseCursorMonitor {
       std::unique_ptr<webrtc::MouseCursorMonitor> mouse_monitor);
 
   // Initializes the monitor with the `callback`, which must remain valid until
-  // capturer is destroyed.
+  // the capturer is destroyed.
   virtual void Init(Callback* callback, Mode mode) override;
 
-  // Captures current cursor shape and position
+  // Captures the current cursor shape and position
   void Capture() override;
 
  private:

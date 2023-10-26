@@ -11,7 +11,7 @@ MouseCursorMonitorMac::MouseCursorMonitorMac(
 }
 
 // Initializes the monitor with the `callback`, which must remain valid until
-// capturer is destroyed.
+// the capturer is destroyed.
 void MouseCursorMonitorMac::Init(webrtc::MouseCursorMonitor::Callback* callback,
                                  webrtc::MouseCursorMonitor::Mode mode) {
   mouse_monitor_->Init(callback, mode);

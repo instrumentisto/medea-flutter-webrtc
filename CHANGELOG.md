@@ -25,7 +25,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Video renderer stretching a picture after rotation. ([#124])
-- macOs leaking memory during screen sharing. ([#133])
+- Screen sharing leaking memory on [macOS]. ([#133])
 
 [#117]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/117
 [#119]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/119

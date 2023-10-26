@@ -272,13 +272,14 @@ bool ScreenVideoCapturer::remote() const {
   return false;
 }
 
-// Called in response to Capture() when the cursor shape has changed.
+// Called in response to `Capture()` when the cursor shape has changed.
 void ScreenVideoCapturer::OnMouseCursor(webrtc::MouseCursor* cursor) {
   capturer_->OnMouseCursor(cursor);
 }
 
-// Called in response to Capture(). `position` indicates cursor absolute
-// position.
+// Called in response to `Capture()`.
+//
+// `position` indicates cursor absolute position.
 void ScreenVideoCapturer::OnMouseCursorPosition(
     const webrtc::DesktopVector& position) {
   capturer_->OnMouseCursorPosition(position);
