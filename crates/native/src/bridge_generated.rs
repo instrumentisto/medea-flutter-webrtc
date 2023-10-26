@@ -314,58 +314,53 @@ fn wire_get_transceivers_impl(
     )
 }
 fn wire_set_transceiver_direction_impl(
-    port_: MessagePort,
     transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
     direction: impl Wire2Api<RtpTransceiverDirection> + UnwindSafe,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+) -> support::WireSyncReturn {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(
         WrapInfo {
             debug_name: "set_transceiver_direction",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
+            port: None,
+            mode: FfiCallMode::Sync,
         },
         move || {
             let api_transceiver = transceiver.wire2api();
             let api_direction = direction.wire2api();
-            move |task_callback| {
-                set_transceiver_direction(api_transceiver, api_direction)
-            }
+            set_transceiver_direction(api_transceiver, api_direction)
         },
     )
 }
 fn wire_set_transceiver_recv_impl(
-    port_: MessagePort,
     transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
     recv: impl Wire2Api<bool> + UnwindSafe,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+) -> support::WireSyncReturn {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(
         WrapInfo {
             debug_name: "set_transceiver_recv",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
+            port: None,
+            mode: FfiCallMode::Sync,
         },
         move || {
             let api_transceiver = transceiver.wire2api();
             let api_recv = recv.wire2api();
-            move |task_callback| set_transceiver_recv(api_transceiver, api_recv)
+            set_transceiver_recv(api_transceiver, api_recv)
         },
     )
 }
 fn wire_set_transceiver_send_impl(
-    port_: MessagePort,
     transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
     send: impl Wire2Api<bool> + UnwindSafe,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+) -> support::WireSyncReturn {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync(
         WrapInfo {
             debug_name: "set_transceiver_send",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
+            port: None,
+            mode: FfiCallMode::Sync,
         },
         move || {
             let api_transceiver = transceiver.wire2api();
             let api_send = send.wire2api();
-            move |task_callback| set_transceiver_send(api_transceiver, api_send)
+            set_transceiver_send(api_transceiver, api_send)
         },
     )
 }
@@ -1815,29 +1810,26 @@ mod io {
 
     #[no_mangle]
     pub extern "C" fn wire_set_transceiver_direction(
-        port_: i64,
         transceiver: wire_ArcRtpTransceiver,
         direction: i32,
-    ) {
-        wire_set_transceiver_direction_impl(port_, transceiver, direction)
+    ) -> support::WireSyncReturn {
+        wire_set_transceiver_direction_impl(transceiver, direction)
     }
 
     #[no_mangle]
     pub extern "C" fn wire_set_transceiver_recv(
-        port_: i64,
         transceiver: wire_ArcRtpTransceiver,
         recv: bool,
-    ) {
-        wire_set_transceiver_recv_impl(port_, transceiver, recv)
+    ) -> support::WireSyncReturn {
+        wire_set_transceiver_recv_impl(transceiver, recv)
     }
 
     #[no_mangle]
     pub extern "C" fn wire_set_transceiver_send(
-        port_: i64,
         transceiver: wire_ArcRtpTransceiver,
         send: bool,
-    ) {
-        wire_set_transceiver_send_impl(port_, transceiver, send)
+    ) -> support::WireSyncReturn {
+        wire_set_transceiver_send_impl(transceiver, send)
     }
 
     #[no_mangle]

@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use flutter_rust_bridge::{RustOpaque, StreamSink};
+use flutter_rust_bridge::{RustOpaque, StreamSink, SyncReturn};
 use libwebrtc_sys as sys;
 
 use crate::{
@@ -2026,8 +2026,8 @@ pub fn get_transceivers(
 pub fn set_transceiver_direction(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     direction: RtpTransceiverDirection,
-) -> anyhow::Result<()> {
-    transceiver.set_direction(direction)
+) -> anyhow::Result<SyncReturn<()>> {
+    transceiver.set_direction(direction).map(SyncReturn)
 }
 
 /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
@@ -2035,8 +2035,8 @@ pub fn set_transceiver_direction(
 pub fn set_transceiver_recv(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     recv: bool,
-) -> anyhow::Result<()> {
-    transceiver.set_recv(recv)
+) -> anyhow::Result<SyncReturn<()>> {
+    transceiver.set_recv(recv).map(SyncReturn)
 }
 
 /// Changes the send direction of the specified [`RtcRtpTransceiver`].
@@ -2044,8 +2044,8 @@ pub fn set_transceiver_recv(
 pub fn set_transceiver_send(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     send: bool,
-) -> anyhow::Result<()> {
-    transceiver.set_send(send)
+) -> anyhow::Result<SyncReturn<()>> {
+    transceiver.set_send(send).map(SyncReturn)
 }
 
 /// Returns the [negotiated media ID (mid)][1] of the specified

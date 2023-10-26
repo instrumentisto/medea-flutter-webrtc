@@ -167,10 +167,11 @@ class _RtpTransceiverFFI extends RtpTransceiver {
   }
 
   @override
-  Future<void> setDirection(TransceiverDirection direction) async {
-    await api!.setTransceiverDirection(
+  Future<void> setDirection(TransceiverDirection direction) {
+    api!.setTransceiverDirection(
         transceiver: _transceiver,
         direction: ffi.RtpTransceiverDirection.values[direction.index]);
+    return Future.value();
   }
 
   @override
@@ -184,13 +185,15 @@ class _RtpTransceiverFFI extends RtpTransceiver {
   }
 
   @override
-  Future<void> setRecv(bool recv) async {
-    await api!.setTransceiverRecv(transceiver: _transceiver, recv: recv);
+  Future<void> setRecv(bool recv) {
+    api!.setTransceiverRecv(transceiver: _transceiver, recv: recv);
+    return Future.value();
   }
 
   @override
-  Future<void> setSend(bool send) async {
-    await api!.setTransceiverSend(transceiver: _transceiver, send: send);
+  Future<void> setSend(bool send) {
+    api!.setTransceiverSend(transceiver: _transceiver, send: send);
+    return Future.value();
   }
 
   @override
