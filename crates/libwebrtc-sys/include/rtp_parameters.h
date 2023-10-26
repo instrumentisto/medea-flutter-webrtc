@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bridge.h"
+#include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
 
@@ -15,5 +16,7 @@ std::unique_ptr<std::string> rtp_parameters_mid(
 // Returns the `RtpParameters.rtcp` field value.
 std::unique_ptr<webrtc::RtcpParameters> rtp_parameters_rtcp(
     const webrtc::RtpParameters& parameters);
+
+void rtp_parameters_set_encoding(webrtc::RtpParameters& parameters, const RtpEncodingParametersContainer& encodings);
 
 }  // namespace bridge

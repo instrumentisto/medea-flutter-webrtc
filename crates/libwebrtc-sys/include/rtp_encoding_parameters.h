@@ -2,8 +2,15 @@
 
 #include "bridge.h"
 #include "rust/cxx.h"
+#include <stdexcept>
+#include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
+
+struct OptionF64;
+struct OptionString;
+
+rust::String rtp_encoding_parameters_rid(const webrtc::RtpEncodingParameters& encoding);
 
 // Sets the `RtpEncodingParameters.rid` field value.
 void set_rtp_encoding_parameters_rid(webrtc::RtpEncodingParameters& encoding,
@@ -51,6 +58,9 @@ double rtp_encoding_parameters_scale_resolution_down_by(
 void set_rtp_encoding_parameters_scale_resolution_down_by(
     webrtc::RtpEncodingParameters& encoding,
     double scale_resolution_down_by);
+
+rust::cxxbridge1::Box<bridge::OptionString> rtp_encoding_parameters_scalability_mode(
+    const webrtc::RtpEncodingParameters& encoding);
 
 // Sets the `RtpEncodingParameters.scalability_mode` field value.
 void set_rtp_encoding_parameters_scalability_mode(

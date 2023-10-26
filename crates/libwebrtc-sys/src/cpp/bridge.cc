@@ -882,6 +882,8 @@ rust::Vec<RtpExtensionContainer> rtp_parameters_header_extensions(
 rust::Vec<RtpEncodingParametersContainer> rtp_parameters_encodings(
     const webrtc::RtpParameters& parameters) {
   rust::Vec<RtpEncodingParametersContainer> result;
+  printf("\n\nwwwwwwww %i\n\n", parameters.encodings.size());
+
   for (int i = 0; i < parameters.encodings.size(); ++i) {
     RtpEncodingParametersContainer codec = {
         std::make_unique<webrtc::RtpEncodingParameters>(

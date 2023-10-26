@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bridge.h"
-
 namespace bridge {
 
 // Returns the `parameters` of the provided `RtpSenderInterface`.
@@ -23,5 +22,7 @@ bool replace_sender_video_track(
 bool replace_sender_audio_track(
     const RtpSenderInterface& sender,
     const std::unique_ptr<AudioTrackInterface>& track);
+
+rust::String rtp_sender_set_parameters(const RtpSenderInterface& sender, const webrtc::RtpParameters& parameters);
 
 }  // namespace bridge

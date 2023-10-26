@@ -565,6 +565,54 @@ impl PeerConnection {
     }
 }
 
+pub struct RtpParameters(Arc<Mutex<sys::RtpParameters>>);
+
+impl RtpParameters {
+    pub fn get_encodings(&self) -> Vec<api::RtcRtpEncodingParameters> {
+        println!("11111111111111");
+        self.0
+            .lock()
+            .unwrap()
+            .encodings()
+            .into_iter()
+            .map(|enc| {
+                println!("22222222222222");
+                let rid = enc.rid();
+                println!("33333333333333 {rid:?}");
+                let active = enc.active();
+                println!("44444444444444 {active:?}");
+                let max_bitrate = enc.max_bitrate();
+                println!("55555555555555 {max_bitrate:?}");
+                let max_framerate = enc.max_framerate();
+                println!("66666666666666 {max_framerate:?}");
+                let scale_resolution_down_by = enc.scale_resolution_down_by();
+                println!("77777777777777");
+                let scalability_mode = enc.scalability_mode();
+                println!("88888888888888");
+
+                api::RtcRtpEncodingParameters {
+                    rid,
+                    active,
+                    max_bitrate,
+                    max_framerate,
+                    scale_resolution_down_by,
+                    scalability_mode,
+                    parameters: RustOpaque::new(Arc::new(
+                        RtpEncodingParameters::from(enc),
+                    )),
+                }
+            })
+            .collect()
+    }
+
+    pub fn set_encoding(&self, encoding: &RtpEncodingParameters) {
+        self.0
+            .lock()
+            .unwrap()
+            .set_encoding(&encoding.0.lock().unwrap());
+    }
+}
+
 /// Wrapper around a [`sys::RtpTransceiverInit`].
 pub struct RtpTransceiverInit(Arc<Mutex<sys::RtpTransceiverInit>>);
 
@@ -679,11 +727,48 @@ impl RtpEncodingParameters {
             .unwrap()
             .set_scalability_mode(scalability_mode);
     }
+
+    pub fn update(
+        &self,
+        active: Option<bool>,
+        max_bitrate: Option<i32>,
+        max_framerate: Option<f64>,
+        scale_resolution_down_by: Option<f64>,
+        scalability_mode: Option<String>,
+    ) {
+        let mut this = self.0.lock().unwrap();
+
+        if let Some(active) = active {
+            this.set_active(active);
+        }
+
+        if let Some(max_bitrate) = max_bitrate {
+            this.set_max_bitrate(max_bitrate);
+        }
+
+        if let Some(max_framerate) = max_framerate {
+            this.set_max_framerate(max_framerate);
+        }
+
+        if let Some(scale_resolution_down_by) = scale_resolution_down_by {
+            this.set_scale_resolution_down_by(scale_resolution_down_by);
+        }
+
+        if let Some(scalability_mode) = scalability_mode {
+            this.set_scalability_mode(scalability_mode);
+        }
+    }
 }
 
 impl Default for RtpEncodingParameters {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl From<sys::RtpEncodingParameters> for RtpEncodingParameters {
+    fn from(value: sys::RtpEncodingParameters) -> Self {
+        Self(Arc::new(Mutex::new(value)))
     }
 }
 
@@ -790,6 +875,21 @@ impl RtpTransceiver {
     /// If the underlying engine errors.
     pub fn stop(&self) -> anyhow::Result<()> {
         self.inner.stop()
+    }
+
+    pub fn sender_get_parameters(&self) -> RtpParameters {
+        RtpParameters(Arc::new(Mutex::new(
+            self.inner.sender().get_parameters(),
+        )))
+    }
+
+    pub fn sender_set_parameters(
+        &self,
+        params: &RtpParameters,
+    ) -> anyhow::Result<()> {
+        self.inner
+            .sender()
+            .set_parameters(&params.0.lock().unwrap())
     }
 }
 

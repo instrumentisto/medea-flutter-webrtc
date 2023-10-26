@@ -1504,6 +1504,13 @@ pub(crate) mod webrtc {
 
         pub type RtpSenderInterface;
 
+        /// Returns the [`RtpParameters`] of the provided
+        /// [`RtpReceiverInterface`].
+        #[must_use]
+        pub fn rtp_sender_parameters(
+            sender: &RtpSenderInterface,
+        ) -> UniquePtr<RtpParameters>;
+
         /// Replaces the track currently being used as the `sender`'s source
         /// with a new [`VideoTrackInterface`].
         pub fn replace_sender_video_track(
@@ -1517,6 +1524,8 @@ pub(crate) mod webrtc {
             sender: &RtpSenderInterface,
             track: &UniquePtr<AudioTrackInterface>
         ) -> bool;
+
+        pub fn rtp_sender_set_parameters(sender: &RtpSenderInterface, parameters: &RtpParameters ) -> String;
     }
 
     #[rustfmt::skip]
@@ -1552,6 +1561,10 @@ pub(crate) mod webrtc {
 
         #[namespace = "webrtc"]
         pub type RtpEncodingParameters;
+
+        pub fn rtp_encoding_parameters_rid(
+            encoding: &RtpEncodingParameters,
+        ) -> String;
 
         /// Sets the `rid` of the provided [`RtpEncodingParameters`].
         pub fn set_rtp_encoding_parameters_rid(
@@ -1627,6 +1640,10 @@ pub(crate) mod webrtc {
             scale_resolution_down_by: f64
         );
 
+        pub fn rtp_encoding_parameters_scalability_mode(
+            encoding: &RtpEncodingParameters,
+        ) -> Box<OptionString>;
+
         /// Sets the `scalability_mode` of the provided
         /// [`RtpEncodingParameters`].
         pub fn set_rtp_encoding_parameters_scalability_mode(
@@ -1679,6 +1696,8 @@ pub(crate) mod webrtc {
         pub fn rtp_parameters_rtcp(
             parameters: &RtpParameters,
         ) -> UniquePtr<RtcpParameters>;
+
+        pub fn rtp_parameters_set_encoding(parameters: Pin<&mut RtpParameters>, encodings: &RtpEncodingParametersContainer);
     }
 
     #[rustfmt::skip]

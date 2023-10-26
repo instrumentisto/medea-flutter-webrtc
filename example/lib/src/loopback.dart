@@ -28,6 +28,8 @@ class _LoopbackState extends State<Loopback> {
   int _volume = -1;
   bool _microIsAvailable = false;
 
+  RtpTransceiver? tr;
+
   @override
   void initState() {
     super.initState();
@@ -63,8 +65,8 @@ class _LoopbackState extends State<Loopback> {
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
-    caps.video.mandatory!.width = 640;
-    caps.video.mandatory!.height = 480;
+    caps.video.mandatory!.width = 1280;
+    caps.video.mandatory!.height = 720;
     caps.video.mandatory!.fps = 30;
 
     try {
@@ -90,11 +92,19 @@ class _LoopbackState extends State<Loopback> {
         }
       });
 
-      var vtrans = await _pc1?.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
+      var init = RtpTransceiverInit(TransceiverDirection.sendOnly);
+      init.sendEncodings.add(SendEncodingParameters("a", true, maxBitrate: 900000));
+      // init.sendEncodings.add(SendEncodingParameters("b", true, maxBitrate: 500000));
 
-      var atrans = await _pc1?.addTransceiver(
-          MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
+      var vtrans = await _pc1?.addTransceiver(
+          MediaKind.video, init);
+      
+      print("ghjgj " + (await (await vtrans!.sender.getParameters()).encodings()).length.toString());
+      
+      tr = vtrans;
+
+      // var atrans = await _pc1?.addTransceiver(
+      //     MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
 
       var offer = await _pc1?.createOffer();
       await _pc1?.setLocalDescription(offer!);
@@ -117,8 +127,8 @@ class _LoopbackState extends State<Loopback> {
       await vtrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
 
-      await atrans?.sender.replaceTrack(
-          _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
+      // await atrans?.sender.replaceTrack(
+      //     _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
     } catch (e) {
       print(e.toString());
     }
@@ -233,7 +243,47 @@ class _LoopbackState extends State<Loopback> {
                     return [];
                   },
                   icon: const Icon(Icons.volume_down),
-                )
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  tooltip: 'Downgrade bitrate',
+                  onPressed: () async {
+                    print("aaaaaaaaaaa");
+                    var asd = await tr!.sender.getParameters();
+                    print("bbbbbbbbbbb");
+                    var encs = await asd.encodings();
+                    print("ccccccccccc " + encs.length.toString());
+                    for (var enc in encs) {
+                      print("xxxxxxxx maxBitrate " + enc.maxBitrate.toString());
+                      // if (enc.rid == "a") {
+                        enc.active = true;
+                        enc.maxBitrate = 300000;
+                        enc.maxFramerate = 3;
+                        print("ddddddddddddd");
+                        await asd.setEncodings(enc);
+                        print("eeeeeeeeeeeee");
+                      // }
+                    }
+
+                    await tr!.sender.setParameters(asd);
+
+                    var zxc = await tr!.sender.getParameters();
+                    print("yyyyyyyyyyyyy bit " + (await zxc.encodings())[0].maxBitrate.toString());
+                    print("yyyyyyyyyyyyy fps " + (await zxc.encodings())[0].maxFramerate.toString());
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.info),
+                  tooltip: 'check stats',
+                  onPressed: () async {
+                    for (var stat in await _pc2!.getStats()) {
+                      if (stat.type.runtimeType == RtcOutboundRtpStreamStats) {
+                        RtcOutboundRtpStreamStats out = stat.type as RtcOutboundRtpStreamStats;
+                        out.
+                      }
+                    }
+                  },
+                ),
               ]
             : null,
       ),

@@ -1,3 +1,6 @@
+import '/src/api/bridge.g.dart' as ffi;
+import '/src/api/peer.dart';
+
 /// Direction of an `RtpTransceiver`.
 enum TransceiverDirection {
   /// Indicates that the transceiver is both sending to and receiving from the
@@ -48,7 +51,7 @@ class RtpTransceiverInit {
 class SendEncodingParameters {
   /// String which, if set, specifies an RTP stream ID (RID) to be sent using
   /// the RID header extension.
-  SendEncodingParameters(this.rid, this.active);
+  SendEncodingParameters(this.rid, this.active, {this.maxBitrate, this.maxFramerate, this.scalabilityMode, this.scaleResolutionDownBy});
 
   /// String which, if set, specifies an RTP stream ID (RID) to be sent using
   /// the RID header extension.
@@ -72,6 +75,14 @@ class SendEncodingParameters {
   /// Scalability mode describes layers within the media stream.
   String? scalabilityMode;
 
+  static SendEncodingParameters fromFFI(ffi.RtcRtpEncodingParameters e) {
+    return _SendEncodingParametersFFI(e.parameters, e.rid, e.active,
+          maxBitrate: e.maxBitrate,
+          maxFramerate: e.maxFramerate,
+          scalabilityMode: e.scalabilityMode,
+          scaleResolutionDownBy: e.scaleResolutionDownBy);
+  }
+
   /// Converts this model to the [Map] expected by Flutter.
   Map<String, dynamic> toMap() {
     return {
@@ -82,5 +93,31 @@ class SendEncodingParameters {
       'scaleResolutionDownBy': scaleResolutionDownBy,
       'scalabilityMode': scalabilityMode
     };
+  }
+
+  Future<ffi.ArcRtpEncodingParameters?> toFFI() async {
+    return null; // no-op
+  }
+}
+
+class _SendEncodingParametersFFI extends SendEncodingParameters {
+  _SendEncodingParametersFFI(this._encoding, String rid, bool active,
+      {int? maxBitrate,
+      double? maxFramerate,
+      String? scalabilityMode,
+      double? scaleResolutionDownBy})
+      : super(rid, active,
+            maxBitrate: maxBitrate,
+            maxFramerate: maxFramerate,
+            scalabilityMode: scalabilityMode,
+            scaleResolutionDownBy: scaleResolutionDownBy);
+
+  final ffi.ArcRtpEncodingParameters _encoding;
+
+  @override
+  Future<ffi.ArcRtpEncodingParameters?> toFFI() async {
+    await api!.updateEncodingParameters(encoding: _encoding, active: super.active, maxBitrate: super.maxBitrate, maxFramerate: super.maxFramerate, scalabilityMode: super.scalabilityMode, scaleResolutionDownBy: super.scaleResolutionDownBy);
+
+    return _encoding;
   }
 }

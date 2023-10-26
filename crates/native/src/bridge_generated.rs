@@ -13,8 +13,10 @@
 
 use crate::api::*;
 use core::panic::UnwindSafe;
-use flutter_rust_bridge::{rust2dart::IntoIntoDart, *};
-use std::{ffi::c_void, sync::Arc};
+use flutter_rust_bridge::rust2dart::IntoIntoDart;
+use flutter_rust_bridge::*;
+use std::ffi::c_void;
+use std::sync::Arc;
 
 // Section: imports
 
@@ -143,6 +145,76 @@ fn wire_create_answer_impl(
         },
     )
 }
+fn wire_get_parameters_impl(
+    port_: MessagePort,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, RustOpaque<Arc<RtpParameters>>>(
+        WrapInfo {
+            debug_name: "get_parameters",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_transceiver = transceiver.wire2api();
+            move |task_callback| Ok(get_parameters(api_transceiver))
+        },
+    )
+}
+fn wire_set_parameters_impl(
+    port_: MessagePort,
+    transceiver: impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> + UnwindSafe,
+    params: impl Wire2Api<RustOpaque<Arc<RtpParameters>>> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "set_parameters",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_transceiver = transceiver.wire2api();
+            let api_params = params.wire2api();
+            move |task_callback| set_parameters(api_transceiver, api_params)
+        },
+    )
+}
+fn wire_parameters_get_encodings_impl(
+    port_: MessagePort,
+    params: impl Wire2Api<RustOpaque<Arc<RtpParameters>>> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Vec<RtcRtpEncodingParameters>>(
+        WrapInfo {
+            debug_name: "parameters_get_encodings",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_params = params.wire2api();
+            move |task_callback| Ok(parameters_get_encodings(api_params))
+        },
+    )
+}
+fn wire_parameters_set_encoding_impl(
+    port_: MessagePort,
+    params: impl Wire2Api<RustOpaque<Arc<RtpParameters>>> + UnwindSafe,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "parameters_set_encoding",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_params = params.wire2api();
+            let api_encoding = encoding.wire2api();
+            move |task_callback| {
+                Ok(parameters_set_encoding(api_params, api_encoding))
+            }
+        },
+    )
+}
 fn wire_create_transceiver_init_impl(port_: MessagePort) {
     FLUTTER_RUST_BRIDGE_HANDLER
         .wrap::<_, _, _, RustOpaque<Arc<RtpTransceiverInit>>>(
@@ -203,33 +275,68 @@ fn wire_create_encoding_parameters_impl(
     scale_resolution_down_by: impl Wire2Api<Option<f64>> + UnwindSafe,
     scalability_mode: impl Wire2Api<Option<String>> + UnwindSafe,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER
-        .wrap::<_, _, _, RustOpaque<Arc<RtpEncodingParameters>>>(
-            WrapInfo {
-                debug_name: "create_encoding_parameters",
-                port: Some(port_),
-                mode: FfiCallMode::Normal,
-            },
-            move || {
-                let api_rid = rid.wire2api();
-                let api_active = active.wire2api();
-                let api_max_bitrate = max_bitrate.wire2api();
-                let api_max_framerate = max_framerate.wire2api();
-                let api_scale_resolution_down_by =
-                    scale_resolution_down_by.wire2api();
-                let api_scalability_mode = scalability_mode.wire2api();
-                move |task_callback| {
-                    Ok(create_encoding_parameters(
-                        api_rid,
-                        api_active,
-                        api_max_bitrate,
-                        api_max_framerate,
-                        api_scale_resolution_down_by,
-                        api_scalability_mode,
-                    ))
-                }
-            },
-        )
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, RtcRtpEncodingParameters>(
+        WrapInfo {
+            debug_name: "create_encoding_parameters",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_rid = rid.wire2api();
+            let api_active = active.wire2api();
+            let api_max_bitrate = max_bitrate.wire2api();
+            let api_max_framerate = max_framerate.wire2api();
+            let api_scale_resolution_down_by =
+                scale_resolution_down_by.wire2api();
+            let api_scalability_mode = scalability_mode.wire2api();
+            move |task_callback| {
+                Ok(create_encoding_parameters(
+                    api_rid,
+                    api_active,
+                    api_max_bitrate,
+                    api_max_framerate,
+                    api_scale_resolution_down_by,
+                    api_scalability_mode,
+                ))
+            }
+        },
+    )
+}
+fn wire_update_encoding_parameters_impl(
+    port_: MessagePort,
+    encoding: impl Wire2Api<RustOpaque<Arc<RtpEncodingParameters>>> + UnwindSafe,
+    active: impl Wire2Api<Option<bool>> + UnwindSafe,
+    max_bitrate: impl Wire2Api<Option<i32>> + UnwindSafe,
+    max_framerate: impl Wire2Api<Option<f64>> + UnwindSafe,
+    scale_resolution_down_by: impl Wire2Api<Option<f64>> + UnwindSafe,
+    scalability_mode: impl Wire2Api<Option<String>> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, ()>(
+        WrapInfo {
+            debug_name: "update_encoding_parameters",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_encoding = encoding.wire2api();
+            let api_active = active.wire2api();
+            let api_max_bitrate = max_bitrate.wire2api();
+            let api_max_framerate = max_framerate.wire2api();
+            let api_scale_resolution_down_by =
+                scale_resolution_down_by.wire2api();
+            let api_scalability_mode = scalability_mode.wire2api();
+            move |task_callback| {
+                Ok(update_encoding_parameters(
+                    api_encoding,
+                    api_active,
+                    api_max_bitrate,
+                    api_max_framerate,
+                    api_scale_resolution_down_by,
+                    api_scalability_mode,
+                ))
+            }
+        },
+    )
 }
 fn wire_set_local_description_impl(
     port_: MessagePort,
@@ -1332,6 +1439,29 @@ impl rust2dart::IntoIntoDart<RtcOutboundRtpStreamStatsMediaType>
     }
 }
 
+impl support::IntoDart for RtcRtpEncodingParameters {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.rid.into_into_dart().into_dart(),
+            self.active.into_into_dart().into_dart(),
+            self.max_bitrate.into_dart(),
+            self.max_framerate.into_dart(),
+            self.scale_resolution_down_by.into_dart(),
+            self.scalability_mode.into_dart(),
+            self.parameters.into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for RtcRtpEncodingParameters {}
+impl rust2dart::IntoIntoDart<RtcRtpEncodingParameters>
+    for RtcRtpEncodingParameters
+{
+    fn into_into_dart(self) -> Self {
+        self
+    }
+}
+
 impl support::IntoDart for RtcRtpTransceiver {
     fn into_dart(self) -> support::DartAbi {
         vec![
@@ -1660,8 +1790,7 @@ impl rust2dart::IntoIntoDart<TrackState> for TrackState {
 // Section: executor
 
 support::lazy_static! {
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler =
-        Default::default();
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
 }
 
 #[cfg(not(target_family = "wasm"))]
@@ -1732,6 +1861,40 @@ mod io {
     }
 
     #[no_mangle]
+    pub extern "C" fn wire_get_parameters(
+        port_: i64,
+        transceiver: wire_ArcRtpTransceiver,
+    ) {
+        wire_get_parameters_impl(port_, transceiver)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_set_parameters(
+        port_: i64,
+        transceiver: wire_ArcRtpTransceiver,
+        params: wire_ArcRtpParameters,
+    ) {
+        wire_set_parameters_impl(port_, transceiver, params)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_parameters_get_encodings(
+        port_: i64,
+        params: wire_ArcRtpParameters,
+    ) {
+        wire_parameters_get_encodings_impl(port_, params)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_parameters_set_encoding(
+        port_: i64,
+        params: wire_ArcRtpParameters,
+        encoding: wire_ArcRtpEncodingParameters,
+    ) {
+        wire_parameters_set_encoding_impl(port_, params, encoding)
+    }
+
+    #[no_mangle]
     pub extern "C" fn wire_create_transceiver_init(port_: i64) {
         wire_create_transceiver_init_impl(port_)
     }
@@ -1767,6 +1930,27 @@ mod io {
         wire_create_encoding_parameters_impl(
             port_,
             rid,
+            active,
+            max_bitrate,
+            max_framerate,
+            scale_resolution_down_by,
+            scalability_mode,
+        )
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_update_encoding_parameters(
+        port_: i64,
+        encoding: wire_ArcRtpEncodingParameters,
+        active: *mut bool,
+        max_bitrate: *mut i32,
+        max_framerate: *mut f64,
+        scale_resolution_down_by: *mut f64,
+        scalability_mode: *mut wire_uint_8_list,
+    ) {
+        wire_update_encoding_parameters_impl(
+            port_,
+            encoding,
             active,
             max_bitrate,
             max_framerate,
@@ -2033,6 +2217,11 @@ mod io {
     }
 
     #[no_mangle]
+    pub extern "C" fn new_ArcRtpParameters() -> wire_ArcRtpParameters {
+        wire_ArcRtpParameters::new_with_null_ptr()
+    }
+
+    #[no_mangle]
     pub extern "C" fn new_ArcRtpTransceiver() -> wire_ArcRtpTransceiver {
         wire_ArcRtpTransceiver::new_with_null_ptr()
     }
@@ -2059,6 +2248,11 @@ mod io {
     pub extern "C" fn new_box_autoadd_audio_constraints_0(
     ) -> *mut wire_AudioConstraints {
         support::new_leak_box_ptr(wire_AudioConstraints::new_with_null_ptr())
+    }
+
+    #[no_mangle]
+    pub extern "C" fn new_box_autoadd_bool_0(value: bool) -> *mut bool {
+        support::new_leak_box_ptr(value)
     }
 
     #[no_mangle]
@@ -2151,6 +2345,23 @@ mod io {
     }
 
     #[no_mangle]
+    pub extern "C" fn drop_opaque_ArcRtpParameters(ptr: *const c_void) {
+        unsafe {
+            Arc::<Arc<RtpParameters>>::decrement_strong_count(ptr as _);
+        }
+    }
+
+    #[no_mangle]
+    pub extern "C" fn share_opaque_ArcRtpParameters(
+        ptr: *const c_void,
+    ) -> *const c_void {
+        unsafe {
+            Arc::<Arc<RtpParameters>>::increment_strong_count(ptr as _);
+            ptr
+        }
+    }
+
+    #[no_mangle]
     pub extern "C" fn drop_opaque_ArcRtpTransceiver(ptr: *const c_void) {
         unsafe {
             Arc::<Arc<RtpTransceiver>>::decrement_strong_count(ptr as _);
@@ -2198,6 +2409,11 @@ mod io {
             unsafe { support::opaque_from_dart(self.ptr as _) }
         }
     }
+    impl Wire2Api<RustOpaque<Arc<RtpParameters>>> for wire_ArcRtpParameters {
+        fn wire2api(self) -> RustOpaque<Arc<RtpParameters>> {
+            unsafe { support::opaque_from_dart(self.ptr as _) }
+        }
+    }
     impl Wire2Api<RustOpaque<Arc<RtpTransceiver>>> for wire_ArcRtpTransceiver {
         fn wire2api(self) -> RustOpaque<Arc<RtpTransceiver>> {
             unsafe { support::opaque_from_dart(self.ptr as _) }
@@ -2237,6 +2453,11 @@ mod io {
         fn wire2api(self) -> AudioConstraints {
             let wrap = unsafe { support::box_from_leak_ptr(self) };
             Wire2Api::<AudioConstraints>::wire2api(*wrap).into()
+        }
+    }
+    impl Wire2Api<bool> for *mut bool {
+        fn wire2api(self) -> bool {
+            unsafe { *support::box_from_leak_ptr(self) }
         }
     }
     impl Wire2Api<f64> for *mut f64 {
@@ -2340,6 +2561,12 @@ mod io {
 
     #[repr(C)]
     #[derive(Clone)]
+    pub struct wire_ArcRtpParameters {
+        ptr: *const core::ffi::c_void,
+    }
+
+    #[repr(C)]
+    #[derive(Clone)]
     pub struct wire_ArcRtpTransceiver {
         ptr: *const core::ffi::c_void,
     }
@@ -2430,6 +2657,13 @@ mod io {
         }
     }
     impl NewWithNullPtr for wire_ArcRtpEncodingParameters {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                ptr: core::ptr::null(),
+            }
+        }
+    }
+    impl NewWithNullPtr for wire_ArcRtpParameters {
         fn new_with_null_ptr() -> Self {
             Self {
                 ptr: core::ptr::null(),

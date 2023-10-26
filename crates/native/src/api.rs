@@ -18,7 +18,7 @@ use crate::{
 // Re-exporting since it is used in the generated code.
 pub use crate::{
     renderer::TextureEvent, PeerConnection, RtpEncodingParameters,
-    RtpTransceiver, RtpTransceiverInit,
+    RtpTransceiver, RtpTransceiverInit, RtpParameters,
 };
 
 lazy_static::lazy_static! {
@@ -1670,6 +1670,16 @@ pub struct MediaStreamTrack {
     pub enabled: bool,
 }
 
+pub struct RtcRtpEncodingParameters {
+    pub rid: String,
+    pub active: bool,
+    pub max_bitrate: Option<i32>,
+    pub max_framerate: Option<f64>,
+    pub scale_resolution_down_by: Option<f64>,
+    pub scalability_mode: Option<String>,
+    pub parameters: RustOpaque<Arc<RtpEncodingParameters>>,
+}
+
 /// Representation of a permanent pair of an [RTCRtpSender] and an
 /// [RTCRtpReceiver], along with some shared state.
 ///
@@ -1922,6 +1932,22 @@ pub fn create_answer(
     rx.recv_timeout(RX_TIMEOUT)?
 }
 
+pub fn get_parameters(transceiver: RustOpaque<Arc<RtpTransceiver>>) -> RustOpaque<Arc<RtpParameters>> {
+    RustOpaque::new(Arc::new(transceiver.sender_get_parameters()))
+}
+
+pub fn set_parameters(transceiver: RustOpaque<Arc<RtpTransceiver>>, params: RustOpaque<Arc<RtpParameters>>) -> anyhow::Result<()>  {
+    transceiver.sender_set_parameters(&params)
+}
+
+pub fn parameters_get_encodings(params: RustOpaque<Arc<RtpParameters>>) -> Vec<RtcRtpEncodingParameters> {
+    params.get_encodings()
+}
+
+pub fn parameters_set_encoding(params: RustOpaque<Arc<RtpParameters>>, encoding: RustOpaque<Arc<RtpEncodingParameters>>) {
+    params.set_encoding(&encoding);
+}
+
 /// Creates a new default [`RtpTransceiverInit`].
 pub fn create_transceiver_init() -> RustOpaque<Arc<RtpTransceiverInit>> {
     RustOpaque::new(Arc::new(RtpTransceiverInit::new()))
@@ -1954,10 +1980,10 @@ pub fn create_encoding_parameters(
     max_framerate: Option<f64>,
     scale_resolution_down_by: Option<f64>,
     scalability_mode: Option<String>,
-) -> RustOpaque<Arc<RtpEncodingParameters>> {
+) -> RtcRtpEncodingParameters {
     let encoding = RtpEncodingParameters::new();
 
-    encoding.set_rid(rid);
+    encoding.set_rid(rid.clone());
     encoding.set_active(active);
 
     if let Some(max_bitrate) = max_bitrate {
@@ -1969,11 +1995,22 @@ pub fn create_encoding_parameters(
     if let Some(scale_resolution_down_by) = scale_resolution_down_by {
         encoding.set_scale_resolution_down_by(scale_resolution_down_by);
     }
-    if let Some(scalability_mode) = scalability_mode {
-        encoding.set_scalability_mode(scalability_mode);
+    if let Some(scalability_mode) = &scalability_mode {
+        encoding.set_scalability_mode(scalability_mode.clone());
     }
 
-    RustOpaque::new(Arc::new(encoding))
+    RtcRtpEncodingParameters { rid, active, max_bitrate, max_framerate, scale_resolution_down_by, scalability_mode, parameters: RustOpaque::new(Arc::new(encoding)) }
+}
+
+pub fn update_encoding_parameters(
+    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
+    active: Option<bool>,
+    max_bitrate: Option<i32>,
+    max_framerate: Option<f64>,
+    scale_resolution_down_by: Option<f64>,
+    scalability_mode: Option<String>,
+) {
+    encoding.update(active, max_bitrate, max_framerate, scale_resolution_down_by, scalability_mode);
 }
 
 /// Changes the local description associated with the connection.

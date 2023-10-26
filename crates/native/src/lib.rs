@@ -36,7 +36,7 @@ use crate::video_sink::Id as VideoSinkId;
 pub use crate::{
     pc::{
         PeerConnection, RtpEncodingParameters, RtpTransceiver,
-        RtpTransceiverInit,
+        RtpTransceiverInit, RtpParameters
     },
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,

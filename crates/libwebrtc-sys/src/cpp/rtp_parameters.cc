@@ -1,4 +1,5 @@
 #include "rtp_parameters.h"
+#include "rust/cxx.h"
 
 namespace bridge {
 
@@ -18,6 +19,15 @@ std::unique_ptr<std::string> rtp_parameters_mid(
 std::unique_ptr<webrtc::RtcpParameters> rtp_parameters_rtcp(
     const webrtc::RtpParameters& parameters) {
   return std::make_unique<webrtc::RtcpParameters>(parameters.rtcp);
+}
+
+void rtp_parameters_set_encoding(webrtc::RtpParameters& parameters, const RtpEncodingParametersContainer& encodings) {
+    for (int i = 0; i < parameters.encodings.size(); i++) {
+        if (parameters.encodings[i].rid == encodings.ptr->rid) {
+            parameters.encodings[i] = *encodings.ptr;
+            return;
+        }
+    }
 }
 
 }  // namespace bridge

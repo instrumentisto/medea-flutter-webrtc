@@ -883,6 +883,10 @@ unsafe impl Sync for webrtc::RtpTransceiverInterface {}
 pub struct RtpSenderInterface(UniquePtr<webrtc::RtpSenderInterface>);
 
 impl RtpSenderInterface {
+    pub fn get_parameters(&self) -> RtpParameters {
+        RtpParameters(webrtc::rtp_sender_parameters(&self.0))
+    }
+
     /// Replaces the track currently being used as the sender's source with a
     /// new [`VideoTrackInterface`].
     pub fn replace_video_track(
@@ -914,6 +918,16 @@ impl RtpSenderInterface {
 
         if !success {
             bail!("`RtpSenderInterface::SetTrack` failed");
+        }
+
+        Ok(())
+    }
+
+    pub fn set_parameters(&mut self, params: &RtpParameters) -> anyhow::Result<()> {
+        let res = webrtc::rtp_sender_set_parameters(&self.0, &params.0);
+
+        if !res.is_empty() {
+            bail!("{res}");
         }
 
         Ok(())
@@ -1085,6 +1099,10 @@ impl RtpEncodingParameters {
         Self(webrtc::create_rtp_encoding_parameters())
     }
 
+    pub fn rid(&self) -> String {
+        webrtc::rtp_encoding_parameters_rid(&self.0.ptr)
+    }
+
     /// Sets the [`rid`][0] property of these [`RtpEncodingParameters`].
     ///
     /// [0]: https://w3.org/TR/webrtc/#dom-rtcrtpcodingparameters-rid
@@ -1183,6 +1201,12 @@ impl RtpEncodingParameters {
             self.0.ptr.pin_mut(),
             scale_resolution_down_by,
         );
+    }
+
+    pub fn scalability_mode(&self) -> Option<String> {
+        webrtc::rtp_encoding_parameters_scalability_mode(
+            &self.0.ptr,
+        ).take()
     }
 
     /// Sets the [`scalabilityMode`][0] property of these
@@ -1284,7 +1308,14 @@ impl RtpParameters {
     pub fn rtcp(&self) -> RtcpParameters {
         RtcpParameters(webrtc::rtp_parameters_rtcp(&self.0))
     }
+
+    pub fn set_encoding(&mut self, encoding: &RtpEncodingParameters) {
+        webrtc::rtp_parameters_set_encoding(self.0.pin_mut(), &encoding.0);
+    }
 }
+
+unsafe impl Sync for webrtc::RtpParameters {}
+unsafe impl Send for webrtc::RtpParameters {}
 /// This interface describes an ICE candidate, described in
 /// [RFC 5245 Section 2][1].
 ///

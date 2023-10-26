@@ -5,6 +5,7 @@ export 'src/api/devices.dart'
 export 'src/api/peer.dart' if (dart.library.html) 'none.dart';
 export 'src/api/sender.dart' if (dart.library.html) 'none.dart';
 export 'src/api/transceiver.dart' if (dart.library.html) 'none.dart';
+export 'src/api/parameters.dart' if (dart.library.html) 'none.dart';
 export 'src/model/constraints.dart' if (dart.library.html) 'none.dart';
 export 'src/model/constraints.dart' show FacingMode;
 export 'src/model/device.dart' if (dart.library.html) 'none.dart';
