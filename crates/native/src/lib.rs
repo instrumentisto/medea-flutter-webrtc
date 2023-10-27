@@ -121,6 +121,17 @@ impl Webrtc {
                 Some(&ap),
             )?;
 
+        let video_tracks = DashMap::new();
+        video_tracks.insert(
+            TrackRepositoryId::from("local".to_owned()),
+            Arc::new(DashMap::new()),
+        );
+        let audio_tracks = DashMap::new();
+        audio_tracks.insert(
+            TrackRepositoryId::from("local".to_owned()),
+            Arc::new(DashMap::new()),
+        );
+
         Ok(Self {
             task_queue_factory,
             worker_thread,
@@ -130,9 +141,9 @@ impl Webrtc {
             video_device_info: VideoDeviceInfo::new()?,
             peer_connection_factory,
             video_sources: HashMap::new(),
-            video_tracks: DashMap::new(),
+            video_tracks,
             audio_source: None,
-            audio_tracks: DashMap::new(),
+            audio_tracks,
             video_sinks: HashMap::new(),
             callback_pool: ThreadPool::new(4),
         })

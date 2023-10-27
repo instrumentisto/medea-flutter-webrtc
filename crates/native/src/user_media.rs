@@ -5,7 +5,6 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context};
-use dashmap::DashMap;
 use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
@@ -155,17 +154,10 @@ impl Webrtc {
 
         let api_track = api::MediaStreamTrack::from(&track);
 
-        let repository_id = TrackRepositoryId::from(None);
-
-        let video_tracks = if let Some(video_tracks) =
-            self.video_tracks.get_mut(&repository_id)
-        {
-            video_tracks
-        } else {
-            self.video_tracks
-                .insert(repository_id.clone(), Arc::new(DashMap::new()));
-            self.video_tracks.get_mut(&repository_id).unwrap()
-        };
+        let video_tracks = self
+            .video_tracks
+            .get_mut(&TrackRepositoryId::from(None))
+            .unwrap();
 
         video_tracks.insert(track.id.clone(), track);
 
@@ -281,17 +273,10 @@ impl Webrtc {
 
         let api_track = api::MediaStreamTrack::from(&track);
 
-        let repository_id = TrackRepositoryId::from(None);
-
-        let audio_tracks = if let Some(audio_tracks) =
-            self.audio_tracks.get_mut(&repository_id)
-        {
-            audio_tracks
-        } else {
-            self.audio_tracks
-                .insert(repository_id.clone(), Arc::new(DashMap::new()));
-            self.audio_tracks.get_mut(&repository_id).unwrap()
-        };
+        let audio_tracks = self
+            .audio_tracks
+            .get_mut(&TrackRepositoryId::from(None))
+            .unwrap();
 
         audio_tracks.insert(track.id.clone(), track);
 
