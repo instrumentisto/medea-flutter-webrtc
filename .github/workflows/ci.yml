@@ -334,7 +334,7 @@ jobs:
          || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
     needs:
-      # - build
+      - build
       - build-linux
       # - clippy
       # - dartanalyze
@@ -392,16 +392,16 @@ jobs:
           name: build-linux
           path: linux/rust/
         if: ${{ steps.skip.outputs.no == 'true' }}
-      # - uses: actions/download-artifact@v3
-      #   with:
-      #     name: build-macos
-      #     path: macos/rust/
-      #   if: ${{ steps.skip.outputs.no == 'true' }}
-      # - uses: actions/download-artifact@v3
-      #   with:
-      #     name: build-windows
-      #     path: windows/rust/
-      #   if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-macos
+          path: macos/rust/
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-windows
+          path: windows/rust/
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Append package version with commit SHA
         run: |
