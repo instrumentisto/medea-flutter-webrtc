@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import 'package:medea_flutter_webrtc/src/platform/native/media_stream_track.dart';
 import '../../api/bridge.g.dart' as ffi;
 import '../../api/peer.dart';
 import '/src/api/channel.dart';
@@ -176,6 +177,8 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
 
   @override
   Future<void> setSrcObject(MediaStreamTrack? track) async {
+    track as NativeMediaStreamTrack?;
+
     if (textureId == null) {
       throw 'Renderer should be initialize before setting src';
     }
@@ -196,6 +199,7 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
       var trackId = track.id();
       _eventStream = api!.createVideoSink(
         sinkId: textureId!,
+        peerId: track.peerId,
         trackId: trackId,
         callbackPtr: handler['handler_ptr'],
         textureId: textureId!,

@@ -18,7 +18,7 @@ use threadpool::ThreadPool;
 
 use crate::{
     api, next_id, stream_sink::StreamSink, AudioTrack, AudioTrackId,
-    VideoTrack, VideoTrackId, Webrtc,
+    TrackRepositoryId, VideoTrack, VideoTrackId, Webrtc,
 };
 
 impl Webrtc {
@@ -29,11 +29,21 @@ impl Webrtc {
         configuration: api::RtcConfiguration,
     ) -> anyhow::Result<()> {
         let id = PeerConnectionId::from(next_id());
+        let repository_id = TrackRepositoryId::from(Some(id));
+
+        let video_tracks = Arc::new(DashMap::new());
+        self.video_tracks
+            .insert(repository_id.clone(), Arc::clone(&video_tracks));
+
+        let audio_tracks = Arc::new(DashMap::new());
+        self.audio_tracks
+            .insert(repository_id, Arc::clone(&audio_tracks));
+
         let peer = PeerConnection::new(
             id,
             &mut self.peer_connection_factory,
-            Arc::clone(&self.video_tracks),
-            Arc::clone(&self.audio_tracks),
+            video_tracks,
+            audio_tracks,
             obs.clone(),
             configuration,
             self.callback_pool.clone(),
@@ -79,12 +89,23 @@ impl Webrtc {
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn dispose_peer_connection(&mut self, this: &Arc<PeerConnection>) {
+        let repository_id = TrackRepositoryId::from(Some(this.id));
         // Remove all tracks from this `Peer`'s senders.
-        for mut track in self.video_tracks.iter_mut() {
+        for mut track in self
+            .video_tracks
+            .get_mut(&repository_id)
+            .unwrap()
+            .iter_mut()
+        {
             track.senders.remove(this);
         }
 
-        for mut track in self.audio_tracks.iter_mut() {
+        for mut track in self
+            .audio_tracks
+            .get_mut(&repository_id)
+            .unwrap()
+            .iter_mut()
+        {
             track.senders.remove(this);
         }
 
@@ -108,6 +129,8 @@ impl Webrtc {
                     } else {
                         let is_sending = self
                             .audio_tracks
+                            .get(&repository_id)
+                            .unwrap()
                             .iter()
                             .any(|t| !t.senders.is_empty());
                         self.ap.set_output_will_be_muted(!is_sending);
@@ -135,9 +158,16 @@ impl Webrtc {
         transceiver: &Arc<RtpTransceiver>,
         track_id: Option<String>,
     ) -> anyhow::Result<()> {
+        let repository_id = TrackRepositoryId::from(None);
+
         match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_VIDEO => {
-                for mut track in self.video_tracks.iter_mut() {
+                for mut track in self
+                    .video_tracks
+                    .get_mut(&repository_id)
+                    .unwrap()
+                    .iter_mut()
+                {
                     let mut delete = false;
                     if let Some(trnscvrs) = track.senders.get_mut(peer) {
                         trnscvrs.retain(|tr| tr != transceiver);
@@ -149,7 +179,12 @@ impl Webrtc {
                 }
             }
             sys::MediaType::MEDIA_TYPE_AUDIO => {
-                for mut track in self.audio_tracks.iter_mut() {
+                for mut track in self
+                    .audio_tracks
+                    .get_mut(&repository_id)
+                    .unwrap()
+                    .iter_mut()
+                {
                     let mut delete = false;
                     if let Some(trnscvrs) = track.senders.get_mut(peer) {
                         trnscvrs.retain(|tr| tr != transceiver);
@@ -168,8 +203,9 @@ impl Webrtc {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
                     let track_id = VideoTrackId::from(track_id);
-                    let mut track = self
-                        .video_tracks
+                    let track_repository =
+                        self.video_tracks.get_mut(&repository_id).unwrap();
+                    let mut track = track_repository
                         .get_mut(&track_id)
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
@@ -186,8 +222,9 @@ impl Webrtc {
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
                     let track_id = AudioTrackId::from(track_id);
-                    let mut track = self
-                        .audio_tracks
+                    let track_repository =
+                        self.audio_tracks.get_mut(&repository_id).unwrap();
+                    let mut track = track_repository
                         .get_mut(&track_id)
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
@@ -215,6 +252,8 @@ impl Webrtc {
                     if result.is_ok() {
                         let is_sending = self
                             .audio_tracks
+                            .get_mut(&repository_id)
+                            .unwrap()
                             .iter()
                             .any(|t| !t.senders.is_empty());
                         self.ap.set_output_will_be_muted(!is_sending);
@@ -330,6 +369,11 @@ impl PeerConnection {
         obs_peer.set(Arc::downgrade(&res)).unwrap_or_default();
 
         Ok(res)
+    }
+
+    // todo
+    pub fn id(&self) -> PeerConnectionId {
+        self.id
     }
 
     /// Returns a sequence of [`RtpTransceiverInterface`] objects representing
@@ -1012,13 +1056,25 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let audio_tracks = Arc::clone(&self.audio_tracks);
 
             move || {
-                println!("V {:#?}", video_tracks.iter().map(|v| v.key().clone()).collect::<Vec<_>>());
+                println!(
+                    "V {:#?}",
+                    video_tracks
+                        .iter()
+                        .map(|v| v.key().clone())
+                        .collect::<Vec<_>>()
+                );
                 if video_tracks.contains_key(&track_id) {
                     println!("NOPE V {track_id:?}");
                     return;
                 }
                 let track_id = AudioTrackId::from(String::from(track_id));
-                println!("A {:#?}", audio_tracks.iter().map(|v| v.key().clone()).collect::<Vec<_>>());
+                println!(
+                    "A {:#?}",
+                    audio_tracks
+                        .iter()
+                        .map(|v| v.key().clone())
+                        .collect::<Vec<_>>()
+                );
                 if audio_tracks.contains_key(&track_id) {
                     println!("NOPE A {track_id:?}");
                     return;

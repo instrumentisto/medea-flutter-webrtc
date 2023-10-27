@@ -3,7 +3,7 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{renderer::FrameHandler, VideoTrackId, Webrtc};
+use crate::{renderer::FrameHandler, TrackRepositoryId, VideoTrackId, Webrtc};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -11,6 +11,7 @@ impl Webrtc {
         &mut self,
         sink_id: i64,
         track_id: String,
+        repository_id: &TrackRepositoryId,
         handler: FrameHandler,
     ) -> anyhow::Result<()> {
         self.dispose_video_sink(sink_id);
@@ -22,10 +23,16 @@ impl Webrtc {
                 OnFrameCallback(handler),
             )),
             track_id: track_id.clone(),
+            repository_id: repository_id.clone(),
         };
 
-        let mut track = self
-            .video_tracks
+        let track_repository =
+            self.video_tracks.get_mut(repository_id).ok_or_else(|| {
+                anyhow!(
+                    "Cannot find track repository with ID `{repository_id}`"
+                )
+            })?;
+        let mut track = track_repository
             .get_mut(&track_id)
             .ok_or_else(|| anyhow!("Cannot find track with ID `{track_id}`"))?;
         track.add_video_sink(&mut sink);
@@ -38,8 +45,14 @@ impl Webrtc {
     /// Destroys a [`VideoSink`] by the given ID.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
         if let Some(sink) = self.video_sinks.remove(&Id(sink_id)) {
-            if let Some(mut track) = self.video_tracks.get_mut(&sink.track_id) {
-                track.remove_video_sink(sink);
+            if let Some(track_repository) =
+                self.video_tracks.get_mut(&sink.repository_id)
+            {
+                if let Some(mut track) =
+                    track_repository.get_mut(&sink.track_id)
+                {
+                    track.remove_video_sink(sink);
+                }
             }
         }
     }
@@ -62,6 +75,9 @@ pub struct VideoSink {
 
     /// ID of the [`VideoTrack`] attached to this [`VideoSink`].
     track_id: VideoTrackId,
+
+    // todo
+    repository_id: TrackRepositoryId,
 }
 
 impl VideoSink {

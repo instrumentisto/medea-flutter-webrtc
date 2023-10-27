@@ -5,14 +5,17 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context};
+use dashmap::DashMap;
 use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::TrackEventObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
-    api, devices, next_id, pc::RtpTransceiver, stream_sink::StreamSink,
-    PeerConnection, VideoSink, VideoSinkId, Webrtc,
+    api, devices, next_id,
+    pc::{PeerConnectionId, RtpTransceiver},
+    stream_sink::StreamSink,
+    PeerConnection, TrackRepositoryId, VideoSink, VideoSinkId, Webrtc,
 };
 
 impl Webrtc {
@@ -66,7 +69,11 @@ impl Webrtc {
 
         if let Err(err) = inner_get_media() {
             for track in tracks {
-                self.dispose_track(track.id, track.kind);
+                let repository_id = TrackRepositoryId::from(
+                    track.peer_id.map(PeerConnectionId::from),
+                );
+
+                self.dispose_track(&repository_id, track.id, track.kind);
             }
 
             Err(err)
@@ -76,12 +83,20 @@ impl Webrtc {
     }
 
     /// Disposes a [`VideoTrack`] or [`AudioTrack`] by the provided `track_id`.
-    pub fn dispose_track(&mut self, track_id: String, kind: api::MediaType) {
+    pub fn dispose_track(
+        &mut self,
+        repository_id: &TrackRepositoryId,
+        track_id: String,
+        kind: api::MediaType,
+    ) {
         #[allow(clippy::mutable_key_type)] // false positive
         let senders = match kind {
             api::MediaType::Audio => {
-                if let Some((_, track)) =
-                    self.audio_tracks.remove(&AudioTrackId::from(track_id))
+                if let Some((_, track)) = self
+                    .audio_tracks
+                    .get_mut(repository_id)
+                    .unwrap()
+                    .remove(&AudioTrackId::from(track_id))
                 {
                     if let MediaTrackSource::Local(src) = track.source {
                         if Arc::strong_count(&src) == 2 {
@@ -96,8 +111,11 @@ impl Webrtc {
                 }
             }
             api::MediaType::Video => {
-                if let Some((_, mut track)) =
-                    self.video_tracks.remove(&VideoTrackId::from(track_id))
+                if let Some((_, mut track)) = self
+                    .video_tracks
+                    .get_mut(repository_id)
+                    .unwrap()
+                    .remove(&VideoTrackId::from(track_id))
                 {
                     for id in track.sinks.clone() {
                         if let Some(sink) = self.video_sinks.remove(&id) {
@@ -137,7 +155,19 @@ impl Webrtc {
 
         let api_track = api::MediaStreamTrack::from(&track);
 
-        self.video_tracks.insert(track.id.clone(), track);
+        let repository_id = TrackRepositoryId::from(None);
+
+        let video_tracks = if let Some(video_tracks) =
+            self.video_tracks.get_mut(&repository_id)
+        {
+            video_tracks
+        } else {
+            self.video_tracks
+                .insert(repository_id.clone(), Arc::new(DashMap::new()));
+            self.video_tracks.get_mut(&repository_id).unwrap()
+        };
+
+        video_tracks.insert(track.id.clone(), track);
 
         Ok(api_track)
     }
@@ -242,12 +272,28 @@ impl Webrtc {
         let device_id =
             self.audio_device_module.current_device_id.clone().unwrap();
 
-        let track =
-            AudioTrack::new(&self.peer_connection_factory, source, device_id)?;
+        let track = AudioTrack::new(
+            &self.peer_connection_factory,
+            source,
+            device_id,
+            None,
+        )?;
 
         let api_track = api::MediaStreamTrack::from(&track);
 
-        self.audio_tracks.insert(track.id.clone(), track);
+        let repository_id = TrackRepositoryId::from(None);
+
+        let audio_tracks = if let Some(audio_tracks) =
+            self.audio_tracks.get_mut(&repository_id)
+        {
+            audio_tracks
+        } else {
+            self.audio_tracks
+                .insert(repository_id.clone(), Arc::new(DashMap::new()));
+            self.audio_tracks.get_mut(&repository_id).unwrap()
+        };
+
+        audio_tracks.insert(track.id.clone(), track);
 
         Ok(api_track)
     }
@@ -317,12 +363,20 @@ impl Webrtc {
     pub fn track_state(
         &self,
         id: String,
+        repository_id: &TrackRepositoryId,
         kind: api::MediaType,
     ) -> anyhow::Result<api::TrackState> {
         Ok(match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
                 self.audio_tracks
+                    .get(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find
+                         audio track repository with ID `{repository_id}`"
+                        )
+                    })?
                     .get(&id)
                     .ok_or_else(|| {
                         anyhow!("Cannot find audio track with ID `{id}`")
@@ -332,6 +386,13 @@ impl Webrtc {
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
                 self.video_tracks
+                    .get(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find
+                     video track repository with ID `{repository_id}`"
+                        )
+                    })?
                     .get(&id)
                     .ok_or_else(|| {
                         anyhow!("Cannot find video track with ID `{id}`")
@@ -347,13 +408,24 @@ impl Webrtc {
     pub fn set_track_enabled(
         &self,
         id: String,
+        repository_id: &TrackRepositoryId,
         kind: api::MediaType,
         enabled: bool,
     ) -> anyhow::Result<()> {
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
-                let track = self.audio_tracks.get(&id).ok_or_else(|| {
+                let track_repository = self
+                    .audio_tracks
+                    .get_mut(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find
+                         audio track repository with ID `{repository_id}`"
+                        )
+                    })?;
+
+                let track = track_repository.get(&id).ok_or_else(|| {
                     anyhow!("Cannot find track with ID `{id}`")
                 })?;
 
@@ -361,7 +433,16 @@ impl Webrtc {
             }
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
-                let track = self.video_tracks.get(&id).ok_or_else(|| {
+                let track_repository = self
+                    .video_tracks
+                    .get_mut(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find
+                     audio track repository with ID `{repository_id}`"
+                        )
+                    })?;
+                let track = track_repository.get(&id).ok_or_else(|| {
                     anyhow!("Cannot find track with ID `{id}`")
                 })?;
 
@@ -373,9 +454,11 @@ impl Webrtc {
     }
 
     /// Clones the specified [`api::MediaStreamTrack`].
+    #[allow(clippy::too_many_lines)]
     pub fn clone_track(
         &mut self,
         id: String,
+        repository_id: &TrackRepositoryId,
         kind: api::MediaType,
     ) -> anyhow::Result<api::MediaStreamTrack> {
         match kind {
@@ -383,6 +466,13 @@ impl Webrtc {
                 let id = AudioTrackId::from(id);
                 let source = self
                     .audio_tracks
+                    .get(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find
+                         audio track repository with ID `{repository_id}`"
+                        )
+                    })?
                     .get(&id)
                     .map(|track| match &track.source {
                         MediaTrackSource::Local(source) => {
@@ -435,6 +525,13 @@ impl Webrtc {
                 let id = VideoTrackId::from(id);
                 let source = self
                     .video_tracks
+                    .get(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find
+                             video track repository with ID `{repository_id}`"
+                        )
+                    })?
                     .get(&id)
                     .map(|track| match &track.source {
                         MediaTrackSource::Local(source) => {
@@ -494,6 +591,7 @@ impl Webrtc {
     pub fn register_track_observer(
         &self,
         id: String,
+        repository_id: &TrackRepositoryId,
         kind: api::MediaType,
         cb: StreamSink<api::TrackEvent>,
     ) -> anyhow::Result<()> {
@@ -501,8 +599,17 @@ impl Webrtc {
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
+                let track_repository = self
+                    .audio_tracks
+                    .get_mut(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find audio
+                         track repository with ID `{repository_id}`"
+                        )
+                    })?;
                 let mut track =
-                    self.audio_tracks.get_mut(&id).ok_or_else(|| {
+                    track_repository.get_mut(&id).ok_or_else(|| {
                         anyhow!("Cannot find track with ID `{id}`")
                     })?;
 
@@ -511,8 +618,17 @@ impl Webrtc {
             }
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
+                let track_repository = self
+                    .video_tracks
+                    .get_mut(repository_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Cannot find
+                         audio track repository with ID `{repository_id}`"
+                        )
+                    })?;
                 let mut track =
-                    self.video_tracks.get_mut(&id).ok_or_else(|| {
+                    track_repository.get_mut(&id).ok_or_else(|| {
                         anyhow!("Cannot find track with ID `{id}`")
                     })?;
 
@@ -900,6 +1016,9 @@ pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
     pub id: VideoTrackId,
 
+    // todo
+    pub peer_id: Option<PeerConnectionId>,
+
     /// Underlying [`sys::VideoTrackInterface`].
     #[as_ref]
     inner: sys::VideoTrackInterface,
@@ -931,6 +1050,7 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
+            peer_id: None,
         })
     }
 
@@ -942,6 +1062,7 @@ impl VideoTrack {
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
+        let peer_id = peer.upgrade().map(|peer| peer.id());
         Self {
             id: VideoTrackId(track.id()),
             inner: track.try_into().unwrap(),
@@ -954,6 +1075,7 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
+            peer_id,
         }
     }
 
@@ -997,6 +1119,7 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
             },
             kind: track.kind,
             enabled: true,
+            peer_id: track.peer_id.map(Into::into),
         }
     }
 }
@@ -1006,6 +1129,9 @@ impl From<&VideoTrack> for api::MediaStreamTrack {
 pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
     pub id: AudioTrackId,
+
+    // todo
+    pub peer_id: Option<PeerConnectionId>,
 
     /// Underlying [`sys::AudioTrackInterface`].
     #[as_ref]
@@ -1035,6 +1161,7 @@ impl AudioTrack {
         pc: &sys::PeerConnectionFactoryInterface,
         src: Arc<sys::AudioSourceInterface>,
         device_id: AudioDeviceId,
+        peer_id: Option<PeerConnectionId>,
     ) -> anyhow::Result<Self> {
         let id = AudioTrackId(next_id().to_string());
         Ok(Self {
@@ -1044,6 +1171,7 @@ impl AudioTrack {
             kind: api::MediaType::Audio,
             device_id,
             senders: HashMap::new(),
+            peer_id,
         })
     }
 
@@ -1055,6 +1183,7 @@ impl AudioTrack {
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
+        let peer_id = peer.upgrade().map(|peer| peer.id());
         Self {
             id: AudioTrackId(track.id()),
             inner: track.try_into().unwrap(),
@@ -1067,6 +1196,7 @@ impl AudioTrack {
             kind: api::MediaType::Audio,
             device_id: AudioDeviceId::from("remote"),
             senders: HashMap::new(),
+            peer_id,
         }
     }
 
@@ -1095,6 +1225,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
             device_id: track.device_id.to_string(),
             kind: track.kind,
             enabled: true,
+            peer_id: track.peer_id.map(Into::into),
         }
     }
 }

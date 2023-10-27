@@ -28,9 +28,11 @@ use std::{
 
 use dashmap::DashMap;
 use libwebrtc_sys as sys;
+use pc::PeerConnectionId;
 use threadpool::ThreadPool;
 
 use crate::video_sink::Id as VideoSinkId;
+use derive_more::{Display, From, Into};
 
 #[doc(inline)]
 pub use crate::{
@@ -54,13 +56,24 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
+#[derive(Clone, Debug, Display, Eq, From, Hash, Into, PartialEq)]
+struct TrackRepositoryId(String);
+
+impl From<Option<PeerConnectionId>> for TrackRepositoryId {
+    fn from(value: Option<PeerConnectionId>) -> Self {
+        Self(value.map_or("local".to_owned(), |peer_id| peer_id.to_string()))
+    }
+}
+
 /// Global context for an application.
 struct Webrtc {
     video_device_info: VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
-    video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
+    video_tracks:
+        DashMap<TrackRepositoryId, Arc<DashMap<VideoTrackId, VideoTrack>>>,
     audio_source: Option<Arc<sys::AudioSourceInterface>>,
-    audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
+    audio_tracks:
+        DashMap<TrackRepositoryId, Arc<DashMap<AudioTrackId, AudioTrack>>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     ap: sys::AudioProcessing,
 
@@ -117,9 +130,9 @@ impl Webrtc {
             video_device_info: VideoDeviceInfo::new()?,
             peer_connection_factory,
             video_sources: HashMap::new(),
-            video_tracks: Arc::new(DashMap::new()),
+            video_tracks: DashMap::new(),
             audio_source: None,
-            audio_tracks: Arc::new(DashMap::new()),
+            audio_tracks: DashMap::new(),
             video_sinks: HashMap::new(),
             callback_pool: ThreadPool::new(4),
         })

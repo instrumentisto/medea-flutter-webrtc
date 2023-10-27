@@ -11,8 +11,9 @@ use libwebrtc_sys as sys;
 
 use crate::{
     devices::{self, DeviceState},
+    pc::PeerConnectionId,
     renderer::FrameHandler,
-    Webrtc,
+    TrackRepositoryId, Webrtc,
 };
 
 // Re-exporting since it is used in the generated code.
@@ -1657,6 +1658,9 @@ pub struct MediaStreamTrack {
     /// Unique identifier (GUID) of this [`MediaStreamTrack`].
     pub id: String,
 
+    // todo
+    pub peer_id: Option<u64>,
+
     /// Label identifying the track source, as in "internal microphone".
     pub device_id: String,
 
@@ -2170,8 +2174,13 @@ pub fn microphone_volume() -> anyhow::Result<u32> {
 }
 
 /// Disposes the specified [`MediaStreamTrack`].
-pub fn dispose_track(track_id: String, kind: MediaType) {
-    WEBRTC.lock().unwrap().dispose_track(track_id, kind);
+pub fn dispose_track(track_id: String, peer_id: Option<u64>, kind: MediaType) {
+    let repository_id =
+        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    WEBRTC
+        .lock()
+        .unwrap()
+        .dispose_track(&repository_id, track_id, kind);
 }
 
 /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
@@ -2180,9 +2189,15 @@ pub fn dispose_track(track_id: String, kind: MediaType) {
 /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
 pub fn track_state(
     track_id: String,
+    peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<TrackState> {
-    WEBRTC.lock().unwrap().track_state(track_id, kind)
+    let repository_id =
+        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    WEBRTC
+        .lock()
+        .unwrap()
+        .track_state(track_id, &repository_id, kind)
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
@@ -2191,33 +2206,49 @@ pub fn track_state(
 /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
 pub fn set_track_enabled(
     track_id: String,
+    peer_id: Option<u64>,
     kind: MediaType,
     enabled: bool,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .set_track_enabled(track_id, kind, enabled)
+    let repository_id =
+        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    WEBRTC.lock().unwrap().set_track_enabled(
+        track_id,
+        &repository_id,
+        kind,
+        enabled,
+    )
 }
 
 /// Clones the specified [`MediaStreamTrack`].
 pub fn clone_track(
     track_id: String,
+    peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<MediaStreamTrack> {
-    WEBRTC.lock().unwrap().clone_track(track_id, kind)
+    let repository_id =
+        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    WEBRTC
+        .lock()
+        .unwrap()
+        .clone_track(track_id, &repository_id, kind)
 }
 
 /// Registers an observer to the [`MediaStreamTrack`] events.
 pub fn register_track_observer(
     cb: StreamSink<TrackEvent>,
+    peer_id: Option<u64>,
     track_id: String,
     kind: MediaType,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .register_track_observer(track_id, kind, cb.into())
+    let repository_id =
+        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    WEBRTC.lock().unwrap().register_track_observer(
+        track_id,
+        &repository_id,
+        kind,
+        cb.into(),
+    )
 }
 
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
@@ -2241,16 +2272,21 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
 pub fn create_video_sink(
     cb: StreamSink<TextureEvent>,
     sink_id: i64,
+    peer_id: Option<u64>,
     track_id: String,
     callback_ptr: u64,
     texture_id: i64,
 ) -> anyhow::Result<()> {
     let handler = FrameHandler::new(callback_ptr as _, cb.into(), texture_id);
+    let repository_id =
+        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .create_video_sink(sink_id, track_id, handler)
+    WEBRTC.lock().unwrap().create_video_sink(
+        sink_id,
+        track_id,
+        &repository_id,
+        handler,
+    )
 }
 
 /// Destroys the [`VideoSink`] by the provided ID.
