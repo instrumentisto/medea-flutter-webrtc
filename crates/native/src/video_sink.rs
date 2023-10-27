@@ -76,7 +76,7 @@ pub struct VideoSink {
     /// ID of the [`VideoTrack`] attached to this [`VideoSink`].
     track_id: VideoTrackId,
 
-    // todo
+    /// ID of the repository attached to this [`VideoTrack`].
     repository_id: TrackRepositoryId,
 }
 

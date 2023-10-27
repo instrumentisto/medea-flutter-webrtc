@@ -336,14 +336,14 @@ jobs:
     needs:
       - build
       - build-linux
-      # - clippy
-      # - dartanalyze
-      # - dartfmt
-      # - ktfmt
-      # - rustdoc
-      # - rustfmt
-      # - swiftformat
-      # - test-flutter
+      - clippy
+      - dartanalyze
+      - dartfmt
+      - ktfmt
+      - rustdoc
+      - rustfmt
+      - swiftformat
+      - test-flutter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

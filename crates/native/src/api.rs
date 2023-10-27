@@ -1658,7 +1658,8 @@ pub struct MediaStreamTrack {
     /// Unique identifier (GUID) of this [`MediaStreamTrack`].
     pub id: String,
 
-    // todo
+    /// Unique identifier of [`PeerConnection`]
+    /// from which it was received this [`MediaStreamTrack`].
     pub peer_id: Option<u64>,
 
     /// Label identifying the track source, as in "internal microphone".

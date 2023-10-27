@@ -1001,7 +1001,8 @@ pub struct VideoTrack {
     /// ID of this [`VideoTrack`].
     pub id: VideoTrackId,
 
-    // todo
+    /// Unique identifier of [`PeerConnection`]
+    /// from which it was received this [`AudioTrack`].
     pub peer_id: Option<PeerConnectionId>,
 
     /// Underlying [`sys::VideoTrackInterface`].
@@ -1115,7 +1116,8 @@ pub struct AudioTrack {
     /// ID of this [`AudioTrack`].
     pub id: AudioTrackId,
 
-    // todo
+    /// Unique identifier of [`PeerConnection`]
+    /// from which it was received this [`VideoTrack`].
     pub peer_id: Option<PeerConnectionId>,
 
     /// Underlying [`sys::AudioTrackInterface`].

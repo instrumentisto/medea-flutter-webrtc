@@ -56,6 +56,7 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
+/// ID of a track repository.
 #[derive(Clone, Debug, Display, Eq, From, Hash, Into, PartialEq)]
 struct TrackRepositoryId(String);
 

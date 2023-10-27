@@ -371,7 +371,7 @@ impl PeerConnection {
         Ok(res)
     }
 
-    // todo
+    /// Returns ID of this [`PeerConnection`].
     pub fn id(&self) -> PeerConnectionId {
         self.id
     }
@@ -1056,27 +1056,12 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let audio_tracks = Arc::clone(&self.audio_tracks);
 
             move || {
-                println!(
-                    "V {:#?}",
-                    video_tracks
-                        .iter()
-                        .map(|v| v.key().clone())
-                        .collect::<Vec<_>>()
-                );
                 if video_tracks.contains_key(&track_id) {
-                    println!("NOPE V {track_id:?}");
                     return;
                 }
                 let track_id = AudioTrackId::from(String::from(track_id));
-                println!(
-                    "A {:#?}",
-                    audio_tracks
-                        .iter()
-                        .map(|v| v.key().clone())
-                        .collect::<Vec<_>>()
-                );
+
                 if audio_tracks.contains_key(&track_id) {
-                    println!("NOPE A {track_id:?}");
                     return;
                 }
 

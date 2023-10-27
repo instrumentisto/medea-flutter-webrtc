@@ -750,6 +750,9 @@ class MediaStreamConstraints {
 class MediaStreamTrack {
   /// Unique identifier (GUID) of this [`MediaStreamTrack`].
   final String id;
+
+  /// Unique identifier of [`PeerConnection`]
+  /// from which it was received this [`MediaStreamTrack`].
   final int? peerId;
 
   /// Label identifying the track source, as in "internal microphone".
