@@ -216,7 +216,7 @@ fn compile_openal() -> anyhow::Result<()> {
     }
 
     if temp_dir.exists() {
-        // fs::remove_dir_all(&temp_dir)?;
+        fs::remove_dir_all(&temp_dir)?;
     }
     fs::create_dir_all(&temp_dir)?;
 
@@ -309,7 +309,7 @@ fn compile_openal() -> anyhow::Result<()> {
         _ => (),
     }
 
-    // fs::remove_dir_all(&temp_dir)?;
+    fs::remove_dir_all(&temp_dir)?;
 
     Ok(())
 }
@@ -359,7 +359,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
 
     // Clean up `temp` directory.
     if temp_dir.exists() {
-        // fs::remove_dir_all(&temp_dir)?;
+        fs::remove_dir_all(&temp_dir)?;
     }
     fs::create_dir_all(&temp_dir)?;
 
@@ -391,7 +391,7 @@ fn download_libwebrtc() -> anyhow::Result<()> {
     archive.unpack(lib_dir)?;
 
     // Clean up the downloaded `libwebrtc` archive.
-    // fs::remove_dir_all(&temp_dir)?;
+    fs::remove_dir_all(&temp_dir)?;
 
     // Write the downloaded checksum.
     fs::write(&checksum, expected_hash).map_err(Into::into)
