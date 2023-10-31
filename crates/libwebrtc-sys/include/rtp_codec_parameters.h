@@ -13,7 +13,7 @@ int32_t rtp_codec_parameters_num_channels(
     const webrtc::RtpCodecParameters& codec);
 
 // Returns the `RtpCodecParameters.kind` field value.
-MediaType rtp_codec_parameters_kind(const webrtc::RtpCodecParameters& codec);
+bridge::MediaType rtp_codec_parameters_kind(const webrtc::RtpCodecParameters& codec);
 
 // Returns the `RtpCodecParameters.payload_type` field value.
 int32_t rtp_codec_parameters_payload_type(

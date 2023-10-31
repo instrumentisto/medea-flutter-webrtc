@@ -6,25 +6,25 @@ namespace bridge {
 
 // Returns the `parameters` of the provided `RtpSenderInterface`.
 std::unique_ptr<webrtc::RtpParameters> rtp_sender_parameters(
-    const RtpSenderInterface& sender);
+    const bridge::RtpSenderInterface& sender);
 
 // Returns the `track` of the provided `RtpSenderInterface`.
-std::unique_ptr<MediaStreamTrackInterface> rtp_sender_track(
-    const RtpSenderInterface& sender);
+std::unique_ptr<bridge::MediaStreamTrackInterface> rtp_sender_track(
+    const bridge::RtpSenderInterface& sender);
 
 // Replaces the track currently being used as the `sender`'s source with a new
 // `VideoTrackInterface`.
 bool replace_sender_video_track(
-    const RtpSenderInterface& sender,
-    const std::unique_ptr<VideoTrackInterface>& track);
+    const bridge::RtpSenderInterface& sender,
+    const std::unique_ptr<bridge::VideoTrackInterface>& track);
 
 // Replaces the track currently being used as the `sender`'s source with a new
 // `AudioTrackInterface`.
 bool replace_sender_audio_track(
-    const RtpSenderInterface& sender,
-    const std::unique_ptr<AudioTrackInterface>& track);
+    const bridge::RtpSenderInterface& sender,
+    const std::unique_ptr<bridge::AudioTrackInterface>& track);
 
 // Sets the `parameters` for the provided `RtpSenderInterface`.
-rust::String rtp_sender_set_parameters(const RtpSenderInterface& sender, const webrtc::RtpParameters& parameters);
+rust::String rtp_sender_set_parameters(const bridge::RtpSenderInterface& sender, const webrtc::RtpParameters& parameters);
 
 }  // namespace bridge
