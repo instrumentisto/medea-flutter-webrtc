@@ -37,6 +37,38 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
         sender.replaceTrack(track)
         result.success(null)
       }
+      "encodings" -> {
+        val res = sender.getParameters().encodings.mapIndexed { index, enc ->
+          mapOf(
+            "index" to index,
+            "rid" to enc.rid,
+            "active" to enc.active,
+            "maxBitrate" to enc.maxBitrateBps,
+            "maxFramerate" to enc.maxFramerate,
+            "scaleResolutionDownBy" to enc.scaleResolutionDownBy,
+          )
+        }
+
+        result.success(res)
+      }
+      "setParameters" -> {
+        val params = sender.getParameters()
+        val encodings: List<Map<String, Any>>? = call.argument("encodings")
+
+        encodings?.forEach {
+          val enc = params.encodings[it["index"] as Int]
+          enc.active = it["active"] as Boolean
+          enc.maxBitrateBps = it["maxBitrate"] as Int?
+          enc.maxFramerate = it["maxFramerate"] as Int?
+          enc.scaleResolutionDownBy = it["scaleResolutionDownBy"] as Double?
+        }
+
+        if (encodings != null && !sender.setParameters(params)) {
+          result.error("SenderException", "Could not set parameters", null)
+        }
+
+        result.success(null)
+      }
       "dispose" -> {
         chan.setMethodCallHandler(null)
         result.success(null)

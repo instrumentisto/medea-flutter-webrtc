@@ -17,6 +17,7 @@ std::unique_ptr<std::string> rtp_parameters_mid(
 std::unique_ptr<webrtc::RtcpParameters> rtp_parameters_rtcp(
     const webrtc::RtpParameters& parameters);
 
+// Sets the provided `RtpEncodingParameters` in the `RtpParameters.encodings`.
 void rtp_parameters_set_encoding(webrtc::RtpParameters& parameters, const RtpEncodingParametersContainer& encodings);
 
 }  // namespace bridge

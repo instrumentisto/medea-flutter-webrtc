@@ -1525,6 +1525,8 @@ pub(crate) mod webrtc {
             track: &UniquePtr<AudioTrackInterface>
         ) -> bool;
 
+        /// Sets the [`RtpParameters`] of the provided
+        /// [`RtpReceiverInterface`].
         pub fn rtp_sender_set_parameters(sender: &RtpSenderInterface, parameters: &RtpParameters ) -> String;
     }
 
@@ -1562,6 +1564,7 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         pub type RtpEncodingParameters;
 
+        /// Returns the `rid` of the provided [`RtpEncodingParameters`].
         pub fn rtp_encoding_parameters_rid(
             encoding: &RtpEncodingParameters,
         ) -> String;
@@ -1585,11 +1588,9 @@ pub(crate) mod webrtc {
         );
 
         /// Returns the `maxBitrate` of the provided [`RtpEncodingParameters`].
-        ///
-        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_max_bitrate(
             encoding: &RtpEncodingParameters,
-        ) -> Result<i32>;
+        ) -> Box<OptionI32>;
 
         /// Sets the `maxBitrate` of the provided [`RtpEncodingParameters`].
         pub fn set_rtp_encoding_parameters_max_bitrate(
@@ -1598,19 +1599,14 @@ pub(crate) mod webrtc {
         );
 
         /// Returns the `minBitrate` of the provided [`RtpEncodingParameters`].
-        ///
-        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_min_bitrate(
             encoding: &RtpEncodingParameters,
-        ) -> Result<i32>;
+        ) -> Box<OptionI32>;
 
         /// Returns the `maxFramerate` of the provided
-        /// [`RtpEncodingParameters`].
-        ///
-        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_max_framerate(
             encoding: &RtpEncodingParameters,
-        ) -> Result<f64>;
+        ) -> Box<OptionF64>;
 
         /// Sets the `maxFramerate` of the provided [`RtpEncodingParameters`].
         pub fn set_rtp_encoding_parameters_max_framerate(
@@ -1619,19 +1615,14 @@ pub(crate) mod webrtc {
         );
 
         /// Returns the `ssrc` of the provided [`RtpEncodingParameters`].
-        ///
-        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_ssrc(
             encoding: &RtpEncodingParameters,
-        ) -> Result<i64>;
+        ) -> Box<OptionI32>;
 
         /// Returns the `scale_resolution_down_by` of the provided
-        /// [`RtpEncodingParameters`].
-        ///
-        /// [`Result::Err`] means [`None`].
         pub fn rtp_encoding_parameters_scale_resolution_down_by(
             encoding: &RtpEncodingParameters,
-        ) -> Result<f64>;
+        ) -> Box<OptionF64>;
 
         /// Sets the `scale_resolution_down_by` of the provided
         /// [`RtpEncodingParameters`].
@@ -1640,6 +1631,7 @@ pub(crate) mod webrtc {
             scale_resolution_down_by: f64
         );
 
+        /// Returns the `scalability_mode` of the provided [`RtpEncodingParameters`].
         pub fn rtp_encoding_parameters_scalability_mode(
             encoding: &RtpEncodingParameters,
         ) -> Box<OptionString>;
@@ -1697,6 +1689,7 @@ pub(crate) mod webrtc {
             parameters: &RtpParameters,
         ) -> UniquePtr<RtcpParameters>;
 
+        /// Sets the [`RtpEncodingParametersContainer`] for the provided [`RtpParameters`].
         pub fn rtp_parameters_set_encoding(parameters: Pin<&mut RtpParameters>, encodings: &RtpEncodingParametersContainer);
     }
 

@@ -543,13 +543,15 @@ class _PeerConnectionFFI extends PeerConnection {
         direction: ffi.RtpTransceiverDirection.values[init.direction.index]);
 
     for (var encoding in init.sendEncodings) {
-      var ffiEncoding = await encoding.toFFI() ?? (await api!.createEncodingParameters(
-          rid: encoding.rid,
-          active: encoding.active,
-          maxBitrate: encoding.maxBitrate,
-          maxFramerate: encoding.maxFramerate,
-          scaleResolutionDownBy: encoding.scaleResolutionDownBy,
-          scalabilityMode: encoding.scalabilityMode)).parameters;
+      var ffiEncoding = await encoding.toFFI() ??
+          (await api!.createEncodingParameters(
+                  rid: encoding.rid,
+                  active: encoding.active,
+                  maxBitrate: encoding.maxBitrate,
+                  maxFramerate: encoding.maxFramerate,
+                  scaleResolutionDownBy: encoding.scaleResolutionDownBy,
+                  scalabilityMode: encoding.scalabilityMode))
+              .parameters;
       await api!
           .addTransceiverInitSendEncoding(init: ffiInit, enc: ffiEncoding);
     }

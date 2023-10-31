@@ -18,7 +18,7 @@ use crate::{
 // Re-exporting since it is used in the generated code.
 pub use crate::{
     renderer::TextureEvent, PeerConnection, RtpEncodingParameters,
-    RtpTransceiver, RtpTransceiverInit, RtpParameters,
+    RtpParameters, RtpTransceiver, RtpTransceiverInit,
 };
 
 lazy_static::lazy_static! {
@@ -1670,13 +1670,34 @@ pub struct MediaStreamTrack {
     pub enabled: bool,
 }
 
+/// Represents of [`RTCRtpEncodingParameters`][0].
+///
+/// [0]: https://www.w3.org/TR/webrtc/#rtcrtpencodingparameters
 pub struct RtcRtpEncodingParameters {
+    /// String specifies an RTP stream ID (RID) to be sent using the RID header
+    /// extension.
     pub rid: String,
+
+    /// If true, the described [`RtcRtpEncodingParameters`] is currently
+    /// actively being used.
     pub active: bool,
+
+    /// Indicator of the maximum number of bits per second to allow for this
+    /// [`RtcRtpEncodingParameters`].
     pub max_bitrate: Option<i32>,
+
+    /// Value specifying the maximum number of frames per second to allow for
+    /// this [`RtcRtpEncodingParameters`].
     pub max_framerate: Option<f64>,
+
+    /// Double-precision floating-point value specifying a factor by which
+    /// to scale down the video during [`RtcRtpEncodingParameters`].
     pub scale_resolution_down_by: Option<f64>,
+
+    /// Scalability mode describes layers within the media stream.
     pub scalability_mode: Option<String>,
+
+    /// Rust side [`RtpEncodingParameters`].
     pub parameters: RustOpaque<Arc<RtpEncodingParameters>>,
 }
 
@@ -1932,19 +1953,37 @@ pub fn create_answer(
     rx.recv_timeout(RX_TIMEOUT)?
 }
 
-pub fn get_parameters(transceiver: RustOpaque<Arc<RtpTransceiver>>) -> RustOpaque<Arc<RtpParameters>> {
+/// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
+#[allow(clippy::needless_pass_by_value)]
+pub fn get_parameters(
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+) -> RustOpaque<Arc<RtpParameters>> {
     RustOpaque::new(Arc::new(transceiver.sender_get_parameters()))
 }
 
-pub fn set_parameters(transceiver: RustOpaque<Arc<RtpTransceiver>>, params: RustOpaque<Arc<RtpParameters>>) -> anyhow::Result<()>  {
+/// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
+#[allow(clippy::needless_pass_by_value)]
+pub fn set_parameters(
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+    params: RustOpaque<Arc<RtpParameters>>,
+) -> anyhow::Result<()> {
     transceiver.sender_set_parameters(&params)
 }
 
-pub fn parameters_get_encodings(params: RustOpaque<Arc<RtpParameters>>) -> Vec<RtcRtpEncodingParameters> {
+/// Returns [`RtcRtpEncodingParameters`] from the provided [`RtpParameters`].
+#[allow(clippy::needless_pass_by_value)]
+pub fn parameters_get_encodings(
+    params: RustOpaque<Arc<RtpParameters>>,
+) -> Vec<RtcRtpEncodingParameters> {
     params.get_encodings()
 }
 
-pub fn parameters_set_encoding(params: RustOpaque<Arc<RtpParameters>>, encoding: RustOpaque<Arc<RtpEncodingParameters>>) {
+/// Sets the [`RtcRtpEncodingParameters`] into the provided [`RtpParameters`].
+#[allow(clippy::needless_pass_by_value)]
+pub fn parameters_set_encoding(
+    params: RustOpaque<Arc<RtpParameters>>,
+    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
+) {
     params.set_encoding(&encoding);
 }
 
@@ -1999,9 +2038,19 @@ pub fn create_encoding_parameters(
         encoding.set_scalability_mode(scalability_mode.clone());
     }
 
-    RtcRtpEncodingParameters { rid, active, max_bitrate, max_framerate, scale_resolution_down_by, scalability_mode, parameters: RustOpaque::new(Arc::new(encoding)) }
+    RtcRtpEncodingParameters {
+        rid,
+        active,
+        max_bitrate,
+        max_framerate,
+        scale_resolution_down_by,
+        scalability_mode,
+        parameters: RustOpaque::new(Arc::new(encoding)),
+    }
 }
 
+/// Updates the provided [`RtpEncodingParameters`].
+#[allow(clippy::needless_pass_by_value)]
 pub fn update_encoding_parameters(
     encoding: RustOpaque<Arc<RtpEncodingParameters>>,
     active: Option<bool>,
@@ -2010,7 +2059,13 @@ pub fn update_encoding_parameters(
     scale_resolution_down_by: Option<f64>,
     scalability_mode: Option<String>,
 ) {
-    encoding.update(active, max_bitrate, max_framerate, scale_resolution_down_by, scalability_mode);
+    encoding.update(
+        active,
+        max_bitrate,
+        max_framerate,
+        scale_resolution_down_by,
+        scalability_mode,
+    );
 }
 
 /// Changes the local description associated with the connection.

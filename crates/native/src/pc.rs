@@ -565,46 +565,41 @@ impl PeerConnection {
     }
 }
 
+/// Wrapper around a [`sys::RtpParameters`].
 pub struct RtpParameters(Arc<Mutex<sys::RtpParameters>>);
 
 impl RtpParameters {
+    /// Returns [`api::RtcRtpEncodingParameters`].
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpParameters`] is poisoned.
+    #[must_use]
     pub fn get_encodings(&self) -> Vec<api::RtcRtpEncodingParameters> {
-        println!("11111111111111");
         self.0
             .lock()
             .unwrap()
             .encodings()
             .into_iter()
-            .map(|enc| {
-                println!("22222222222222");
-                let rid = enc.rid();
-                println!("33333333333333 {rid:?}");
-                let active = enc.active();
-                println!("44444444444444 {active:?}");
-                let max_bitrate = enc.max_bitrate();
-                println!("55555555555555 {max_bitrate:?}");
-                let max_framerate = enc.max_framerate();
-                println!("66666666666666 {max_framerate:?}");
-                let scale_resolution_down_by = enc.scale_resolution_down_by();
-                println!("77777777777777");
-                let scalability_mode = enc.scalability_mode();
-                println!("88888888888888");
-
-                api::RtcRtpEncodingParameters {
-                    rid,
-                    active,
-                    max_bitrate,
-                    max_framerate,
-                    scale_resolution_down_by,
-                    scalability_mode,
-                    parameters: RustOpaque::new(Arc::new(
-                        RtpEncodingParameters::from(enc),
-                    )),
-                }
+            .map(|enc| api::RtcRtpEncodingParameters {
+                rid: enc.rid(),
+                active: enc.active(),
+                max_bitrate: enc.max_bitrate(),
+                max_framerate: enc.max_framerate(),
+                scale_resolution_down_by: enc.scale_resolution_down_by(),
+                scalability_mode: enc.scalability_mode(),
+                parameters: RustOpaque::new(Arc::new(
+                    RtpEncodingParameters::from(enc),
+                )),
             })
             .collect()
     }
 
+    /// Sets the provided [`api::RtcRtpEncodingParameters`].
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpParameters`] is poisoned.
     pub fn set_encoding(&self, encoding: &RtpEncodingParameters) {
         self.0
             .lock()
@@ -728,6 +723,11 @@ impl RtpEncodingParameters {
             .set_scalability_mode(scalability_mode);
     }
 
+    /// Updates this [`RtpEncodingParameters`].
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpEncodingParameters`] is poisoned.
     pub fn update(
         &self,
         active: Option<bool>,
@@ -877,12 +877,24 @@ impl RtpTransceiver {
         self.inner.stop()
     }
 
+    /// Returns [`RtpParameters`] from this [`RtpTransceiver`]'s `sender`.
+    #[must_use]
     pub fn sender_get_parameters(&self) -> RtpParameters {
         RtpParameters(Arc::new(Mutex::new(
             self.inner.sender().get_parameters(),
         )))
     }
 
+    /// Sets the provided [`RtpParameters`] into this [`RtpTransceiver`]'s
+    /// `sender`.
+    ///
+    /// # Errors
+    ///
+    /// If the underlying engine errors.
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpParameters`] is poisoned.
     pub fn sender_set_parameters(
         &self,
         params: &RtpParameters,

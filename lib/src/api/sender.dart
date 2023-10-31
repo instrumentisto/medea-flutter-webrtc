@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
-import 'package:medea_flutter_webrtc/src/api/parameters.dart';
 
+import '/src/api/parameters.dart';
 import '/src/platform/track.dart';
 import 'bridge.g.dart' as ffi;
 import 'channel.dart';
@@ -33,8 +33,10 @@ abstract class RtpSender {
   /// Disposes this [RtpSender].
   Future<void> dispose();
 
+  /// Returns [RtpParameters] of this [RtpSender].
   Future<RtpParameters> getParameters();
 
+  /// Sets the provided [RtpParameters].
   Future<void> setParameters(RtpParameters parameters);
 }
 
@@ -61,11 +63,13 @@ class _RtpSenderChannel extends RtpSender {
 
   @override
   Future<RtpParameters> getParameters() async {
-    return RtpParameters.forChannel();
+    return RtpParameters.fromChannel(_chan);
   }
 
   @override
-  Future<void> setParameters(RtpParameters parameters) async {}
+  Future<void> setParameters(RtpParameters parameters) async {
+    await _chan.invokeListMethod('setParameters', parameters.toMap());
+  }
 }
 
 /// FFI-based implementation of a [RtpSender].
@@ -91,11 +95,13 @@ class _RtpSenderFFI extends RtpSender {
 
   @override
   Future<RtpParameters> getParameters() async {
-    return RtpParameters.fromFFI(await api!.getParameters(transceiver: _transceiver));
+    return RtpParameters.fromFFI(
+        await api!.getParameters(transceiver: _transceiver));
   }
 
   @override
   Future<void> setParameters(RtpParameters parameters) async {
-    await api!.setParameters(transceiver: _transceiver, params: parameters.toFFI()!);
+    await api!
+        .setParameters(transceiver: _transceiver, params: parameters.toFFI()!);
   }
 }
