@@ -1,3 +1,4 @@
+#include "bridge.h"
 #include "rtp_codec_parameters.h"
 
 namespace bridge {

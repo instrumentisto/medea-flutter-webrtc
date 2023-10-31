@@ -38,16 +38,17 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
         result.success(null)
       }
       "encodings" -> {
-        val res = sender.getParameters().encodings.mapIndexed { index, enc ->
-          mapOf(
-            "index" to index,
-            "rid" to enc.rid,
-            "active" to enc.active,
-            "maxBitrate" to enc.maxBitrateBps,
-            "maxFramerate" to enc.maxFramerate,
-            "scaleResolutionDownBy" to enc.scaleResolutionDownBy,
-          )
-        }
+        val res =
+            sender.getParameters().encodings.mapIndexed { index, enc ->
+              mapOf(
+                  "index" to index,
+                  "rid" to enc.rid,
+                  "active" to enc.active,
+                  "maxBitrate" to enc.maxBitrateBps,
+                  "maxFramerate" to enc.maxFramerate,
+                  "scaleResolutionDownBy" to enc.scaleResolutionDownBy,
+              )
+            }
 
         result.success(res)
       }

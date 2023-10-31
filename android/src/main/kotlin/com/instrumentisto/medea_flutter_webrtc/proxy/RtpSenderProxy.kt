@@ -44,15 +44,15 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
     }
   }
 
-  /**
-   * Returns [RtpParameters] of the underlying [RtpSender].
-   */
-  fun getParameters() : RtpParameters {
+  /** Returns [RtpParameters] of the underlying [RtpSender]. */
+  fun getParameters(): RtpParameters {
     return obj.parameters
   }
 
   /**
    * Sets [RtpParameters] of the underlying [RtpSender] with the provided one.
+   *
+   * @return [Boolean] that indicates whether parameters has been set.
    */
   fun setParameters(params: RtpParameters): Boolean {
     return obj.setParameters(params)
@@ -61,8 +61,6 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
   /**
    * Synchronizes the [MediaStreamTrackProxy] of this [RtpSenderProxy] with the underlying
    * [RtpSender].
-   *
-   * @return [Boolean] that indicates whether parameters has been set.
    */
   private fun syncMediaStreamTrack() {
     val newSenderTrack = obj.track()

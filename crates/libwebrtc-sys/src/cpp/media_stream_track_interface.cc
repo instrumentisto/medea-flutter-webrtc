@@ -1,3 +1,4 @@
+#include "bridge.h"
 #include "media_stream_track_interface.h"
 
 namespace bridge {
