@@ -1,4 +1,3 @@
-#include "bridge.h"
 #include "rtp_sender_interface.h"
 #include "rust/cxx.h"
 

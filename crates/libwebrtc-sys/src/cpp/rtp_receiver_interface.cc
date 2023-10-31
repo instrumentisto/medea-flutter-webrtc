@@ -1,4 +1,3 @@
-#include "bridge.h"
 #include "rtp_receiver_interface.h"
 
 namespace bridge {
