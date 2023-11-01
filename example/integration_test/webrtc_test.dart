@@ -33,20 +33,16 @@ void main() {
 
     var videoInit1 = RtpTransceiverInit(TransceiverDirection.sendOnly);
 
-    var p1 = SendEncodingParameters("h", true);
-    p1.maxBitrate = 1200 * 1024;
-    p1.maxFramerate = 30;
+    var p1 = SendEncodingParameters("h", true,
+        maxBitrate: 1200 * 1024, maxFramerate: 30);
     videoInit1.sendEncodings.add(p1);
 
-    var p2 = SendEncodingParameters("m", true);
-    p2.maxBitrate = 600 * 1024;
-    p2.maxFramerate = 30;
-    p2.scaleResolutionDownBy = 2;
+    var p2 = SendEncodingParameters("m", true,
+        maxBitrate: 600 * 1024, maxFramerate: 30, scaleResolutionDownBy: 2);
     videoInit1.sendEncodings.add(p2);
 
-    var p3 = SendEncodingParameters("l", true);
-    p3.maxBitrate = 300 * 1024;
-    p3.scaleResolutionDownBy = 4;
+    var p3 = SendEncodingParameters("l", true,
+        maxBitrate: 300 * 1024, scaleResolutionDownBy: 4);
     videoInit1.sendEncodings.add(p3);
 
     var videoTrans1 = await pc.addTransceiver(MediaKind.video, videoInit1);
@@ -59,6 +55,71 @@ void main() {
     expect(response.description.contains('a=rid:m send'), isTrue);
     expect(response.description.contains('a=rid:l send'), isTrue);
     expect(response.description.contains('a=simulcast:send h;m;l'), isTrue);
+
+    await pc.close();
+    await videoTrans1.dispose();
+  });
+
+  testWidgets('Get/set sender parameters', (WidgetTester tester) async {
+    var pc = await PeerConnection.create(IceTransportType.all, []);
+
+    var videoInit1 = RtpTransceiverInit(TransceiverDirection.sendOnly);
+
+    var p1 = SendEncodingParameters("h", true,
+        maxBitrate: 1200 * 1024, maxFramerate: 30);
+    videoInit1.sendEncodings.add(p1);
+
+    var p2 = SendEncodingParameters("m", true,
+        maxBitrate: 600 * 1024, maxFramerate: 30, scaleResolutionDownBy: 2);
+    videoInit1.sendEncodings.add(p2);
+
+    var p3 = SendEncodingParameters("l", true,
+        maxBitrate: 300 * 1024, scaleResolutionDownBy: 4);
+    videoInit1.sendEncodings.add(p3);
+
+    var videoTrans1 = await pc.addTransceiver(MediaKind.video, videoInit1);
+
+    var parameters = await videoTrans1.sender.getParameters();
+
+    for (var enc in await parameters.encodings()) {
+      SendEncodingParameters expected;
+      if (enc.rid == p1.rid) {
+        expected = p1;
+      } else if (enc.rid == p2.rid) {
+        expected = p2;
+      } else if (enc.rid == p3.rid) {
+        expected = p3;
+      } else {
+        throw Exception('Unreachable.');
+      }
+
+      expect(enc.active, expected.active);
+      expect(enc.maxBitrate, expected.maxBitrate);
+      expect(enc.scaleResolutionDownBy, expected.scaleResolutionDownBy);
+
+      enc.maxBitrate = expected.maxBitrate! ~/ 2;
+
+      await parameters.setEncodings(enc);
+    }
+
+    await videoTrans1.sender.setParameters(parameters);
+
+    parameters = await videoTrans1.sender.getParameters();
+
+    for (var enc in await parameters.encodings()) {
+      SendEncodingParameters expected;
+      if (enc.rid == p1.rid) {
+        expected = p1;
+      } else if (enc.rid == p2.rid) {
+        expected = p2;
+      } else if (enc.rid == p3.rid) {
+        expected = p3;
+      } else {
+        throw Exception('Unreachable.');
+      }
+
+      expect(enc.maxBitrate, expected.maxBitrate! ~/ 2);
+    }
 
     await pc.close();
     await videoTrans1.dispose();
