@@ -30,13 +30,12 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// media will be transmitted.
   bool _enabled = true;
 
-  /// the [PeerConnection] identifier
-  /// from where the track was received.
-  /// Always null for local tracks.
+  /// ID of a [PeerConnection] that fired this track in its
+  /// [PeerConnection.onTrack] callback. Always null for local tracks.
   int? _peerId;
 
-  /// Returns the [PeerConnection] identifier
-  /// from where the track was received.
+  /// Returns an ID of a [PeerConnection] that fired this track in its
+  /// [PeerConnection.onTrack] callback. Always null for local tracks.
   int? get peerId => _peerId;
 
   /// Unique ID of this [NativeMediaStreamTrack].
