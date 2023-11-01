@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import 'package:medea_flutter_webrtc/src/platform/native/media_stream_track.dart';
 import '../../api/bridge.g.dart' as ffi;
 import '../../api/peer.dart';
 import '/src/api/channel.dart';
 import '/src/model/track.dart';
+import '/src/platform/native/media_stream_track.dart';
 import '/src/platform/track.dart';
 import '/src/platform/video_renderer.dart';
 

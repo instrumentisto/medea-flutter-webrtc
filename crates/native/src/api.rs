@@ -13,7 +13,8 @@ use crate::{
     devices::{self, DeviceState},
     pc::PeerConnectionId,
     renderer::FrameHandler,
-    TrackSourceKind, Webrtc,
+    user_media::TrackOrigin,
+    Webrtc,
 };
 
 // Re-exporting since it is used in the generated code.
@@ -1658,8 +1659,9 @@ pub struct MediaStreamTrack {
     /// Unique identifier (GUID) of this [`MediaStreamTrack`].
     pub id: String,
 
-    /// Unique identifier of [`PeerConnection`]
-    /// from which it was received this [`MediaStreamTrack`].
+    /// Unique identifier of [`PeerConnection`] from which it was received this
+    /// [`MediaStreamTrack`].
+    ///
     /// Always [`None`] for local tracks.
     pub peer_id: Option<u64>,
 
@@ -2177,12 +2179,12 @@ pub fn microphone_volume() -> anyhow::Result<u32> {
 
 /// Disposes the specified [`MediaStreamTrack`].
 pub fn dispose_track(track_id: String, peer_id: Option<u64>, kind: MediaType) {
-    let source_kind =
-        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
     WEBRTC
         .lock()
         .unwrap()
-        .dispose_track(source_kind, track_id, kind);
+        .dispose_track(track_origin, track_id, kind);
 }
 
 /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
@@ -2194,12 +2196,12 @@ pub fn track_state(
     peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<TrackState> {
-    let source_kind =
-        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
     WEBRTC
         .lock()
         .unwrap()
-        .track_state(track_id, source_kind, kind)
+        .track_state(track_id, track_origin, kind)
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
@@ -2212,11 +2214,11 @@ pub fn set_track_enabled(
     kind: MediaType,
     enabled: bool,
 ) -> anyhow::Result<()> {
-    let source_kind =
-        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
     WEBRTC.lock().unwrap().set_track_enabled(
         track_id,
-        source_kind,
+        track_origin,
         kind,
         enabled,
     )
@@ -2228,12 +2230,12 @@ pub fn clone_track(
     peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<MediaStreamTrack> {
-    let source_kind =
-        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
     WEBRTC
         .lock()
         .unwrap()
-        .clone_track(track_id, source_kind, kind)
+        .clone_track(track_id, track_origin, kind)
 }
 
 /// Registers an observer to the [`MediaStreamTrack`] events.
@@ -2243,11 +2245,11 @@ pub fn register_track_observer(
     track_id: String,
     kind: MediaType,
 ) -> anyhow::Result<()> {
-    let source_kind =
-        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
     WEBRTC.lock().unwrap().register_track_observer(
         track_id,
-        source_kind,
+        track_origin,
         kind,
         cb.into(),
     )
@@ -2280,13 +2282,12 @@ pub fn create_video_sink(
     texture_id: i64,
 ) -> anyhow::Result<()> {
     let handler = FrameHandler::new(callback_ptr as _, cb.into(), texture_id);
-    let source_kind =
-        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
     WEBRTC.lock().unwrap().create_video_sink(
         sink_id,
         track_id,
-        source_kind,
+        track_origin,
         handler,
     )
 }

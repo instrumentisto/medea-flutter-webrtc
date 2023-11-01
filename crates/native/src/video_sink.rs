@@ -3,7 +3,9 @@ use cxx::UniquePtr;
 use derive_more::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{renderer::FrameHandler, TrackSourceKind, VideoTrackId, Webrtc};
+use crate::{
+    renderer::FrameHandler, user_media::TrackOrigin, VideoTrackId, Webrtc,
+};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -11,7 +13,7 @@ impl Webrtc {
         &mut self,
         sink_id: i64,
         track_id: String,
-        source_kind: TrackSourceKind,
+        track_origin: TrackOrigin,
         handler: FrameHandler,
     ) -> anyhow::Result<()> {
         self.dispose_video_sink(sink_id);
@@ -23,12 +25,12 @@ impl Webrtc {
                 OnFrameCallback(handler),
             )),
             track_id: track_id.clone(),
-            source_kind: source_kind.clone(),
+            track_origin: track_origin.clone(),
         };
 
         let mut track = self
             .video_tracks
-            .get_mut(&(track_id.clone(), source_kind))
+            .get_mut(&(track_id.clone(), track_origin))
             .ok_or_else(|| anyhow!("Cannot find track with ID `{track_id}`"))?;
         track.add_video_sink(&mut sink);
 
@@ -42,7 +44,7 @@ impl Webrtc {
         if let Some(sink) = self.video_sinks.remove(&Id(sink_id)) {
             if let Some(mut track) = self
                 .video_tracks
-                .get_mut(&(sink.track_id.clone(), sink.source_kind.clone()))
+                .get_mut(&(sink.track_id.clone(), sink.track_origin.clone()))
             {
                 track.remove_video_sink(sink);
             }
@@ -69,7 +71,7 @@ pub struct VideoSink {
     track_id: VideoTrackId,
 
     /// Displays where the track was received from.
-    source_kind: TrackSourceKind,
+    track_origin: TrackOrigin,
 }
 
 impl VideoSink {

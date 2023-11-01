@@ -17,8 +17,8 @@ use once_cell::sync::OnceCell;
 use threadpool::ThreadPool;
 
 use crate::{
-    api, next_id, stream_sink::StreamSink, AudioTrack, AudioTrackId,
-    TrackSourceKind, VideoTrack, VideoTrackId, Webrtc,
+    api, next_id, stream_sink::StreamSink, user_media::TrackOrigin, AudioTrack,
+    AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
 
 impl Webrtc {
@@ -135,7 +135,7 @@ impl Webrtc {
         transceiver: &Arc<RtpTransceiver>,
         track_id: Option<String>,
     ) -> anyhow::Result<()> {
-        let source_kind = TrackSourceKind::Local;
+        let track_origin = TrackOrigin::Local;
 
         match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_VIDEO => {
@@ -172,7 +172,7 @@ impl Webrtc {
                     let track_id = VideoTrackId::from(track_id);
                     let mut track = self
                         .video_tracks
-                        .get_mut(&(track_id.clone(), source_kind))
+                        .get_mut(&(track_id.clone(), track_origin))
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -190,7 +190,7 @@ impl Webrtc {
                     let track_id = AudioTrackId::from(track_id);
                     let mut track = self
                         .audio_tracks
-                        .get_mut(&(track_id.clone(), source_kind))
+                        .get_mut(&(track_id.clone(), track_origin))
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -271,8 +271,8 @@ impl PeerConnection {
     fn new(
         id: PeerConnectionId,
         factory: &mut sys::PeerConnectionFactoryInterface,
-        video_tracks: Arc<DashMap<(VideoTrackId, TrackSourceKind), VideoTrack>>,
-        audio_tracks: Arc<DashMap<(AudioTrackId, TrackSourceKind), AudioTrack>>,
+        video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
+        audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
         observer: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
         pool: ThreadPool,
@@ -736,10 +736,9 @@ impl RtpTransceiver {
     pub fn set_recv(&self, recv: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let lock = self.inner.lock().unwrap();
-        println!("SET RECV {:?}", lock.direction());
+        let inner = self.inner.lock().unwrap();
 
-        let new_direction = match (lock.direction(), recv) {
+        let new_direction = match (inner.direction(), recv) {
             (D::kInactive | D::kRecvOnly, true) => D::kRecvOnly,
             (D::kSendOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kRecvOnly, false) => D::kInactive,
@@ -750,9 +749,7 @@ impl RtpTransceiver {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            let res = lock.set_direction(new_direction);
-            println!("  SET RECV {:?}", lock.direction());
-            res
+            inner.set_direction(new_direction)
         }
     }
 
@@ -768,10 +765,9 @@ impl RtpTransceiver {
     pub fn set_send(&self, send: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let lock = self.inner.lock().unwrap();
-        println!("SET SEND {:?}", lock.direction());
+        let inner = self.inner.lock().unwrap();
 
-        let new_direction = match (lock.direction(), send) {
+        let new_direction = match (inner.direction(), send) {
             (D::kInactive | D::kSendOnly, true) => D::kSendOnly,
             (D::kRecvOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kSendOnly, false) => D::kInactive,
@@ -782,9 +778,7 @@ impl RtpTransceiver {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            let res = lock.set_direction(new_direction);
-            println!("  SET SEND {:?}", lock.direction());
-            res
+            inner.set_direction(new_direction)
         }
     }
 
@@ -951,10 +945,10 @@ struct PeerConnectionObserver {
     peer: Arc<OnceCell<Weak<PeerConnection>>>,
 
     /// Map of the remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
-    video_tracks: Arc<DashMap<(VideoTrackId, TrackSourceKind), VideoTrack>>,
+    video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
 
     /// Map of the remote [`AudioTrack`]s shared with the [`crate::Webrtc`].
-    audio_tracks: Arc<DashMap<(AudioTrackId, TrackSourceKind), AudioTrack>>,
+    audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
 
     /// [`ThreadPool`] executing blocking tasks from the
     /// [`PeerConnectionObserver`] callbacks.
@@ -1052,81 +1046,84 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let peer = Arc::clone(&self.peer);
             let observer = Arc::clone(&self.observer);
             let track_id = transceiver.receiver().track().id();
-            let track_id = VideoTrackId::from(track_id);
-            let source_kind = TrackSourceKind::from(
-                peer.get().unwrap().upgrade().unwrap().id(),
-            );
             let video_tracks = Arc::clone(&self.video_tracks);
             let audio_tracks = Arc::clone(&self.audio_tracks);
 
             move || {
-                if video_tracks
-                    .contains_key(&(track_id.clone(), source_kind.clone()))
-                {
+                let peer = if let Some(peer) = peer.get().unwrap().upgrade() {
+                    peer
+                } else {
+                    // Peer is already dropped on the Rust side, so just dont do
+                    // anything.
                     return;
-                }
-                let track_id =
-                    AudioTrackId::from(String::from(track_id.clone()));
-
-                if audio_tracks
-                    .contains_key(&(track_id.clone(), source_kind.clone()))
-                {
-                    return;
-                }
-
-                let peer = peer.get().unwrap();
+                };
+                let track_origin = TrackOrigin::Remote(peer.id());
 
                 let track = match transceiver.media_type() {
                     sys::MediaType::MEDIA_TYPE_AUDIO => {
+                        let track_id = AudioTrackId::from(track_id);
+                        if audio_tracks.contains_key(&(
+                            track_id.clone(),
+                            track_origin.clone(),
+                        )) {
+                            return;
+                        }
+
                         let track =
-                            AudioTrack::wrap_remote(&transceiver, peer.clone());
+                            AudioTrack::wrap_remote(&transceiver, &peer);
                         let result = api::MediaStreamTrack::from(&track);
-                        audio_tracks.insert((track_id, source_kind), track);
+                        audio_tracks.insert((track_id, track_origin), track);
 
                         result
                     }
                     sys::MediaType::MEDIA_TYPE_VIDEO => {
+                        let track_id = VideoTrackId::from(track_id);
+                        if video_tracks.contains_key(&(
+                            track_id.clone(),
+                            track_origin.clone(),
+                        )) {
+                            return;
+                        }
+
                         let track =
-                            VideoTrack::wrap_remote(&transceiver, peer.clone());
+                            VideoTrack::wrap_remote(&transceiver, &peer);
                         let result = api::MediaStreamTrack::from(&track);
                         video_tracks
-                            .insert((track.id.clone(), source_kind), track);
+                            .insert((track.id.clone(), track_origin), track);
 
                         result
                     }
                     _ => unreachable!(),
                 };
 
-                if let Some(peer) = peer.upgrade() {
-                    let index = peer
-                        .get_transceivers()
-                        .iter()
-                        .enumerate()
-                        .find(|(_, t)| t.mid().as_ref() == Some(&mid))
-                        .map(|(id, _)| id)
-                        .unwrap();
+                let index = peer
+                    .get_transceivers()
+                    .iter()
+                    .enumerate()
+                    .find(|(_, t)| t.mid().as_ref() == Some(&mid))
+                    .map(|(id, _)| id)
+                    .unwrap();
 
-                    let result = api::RtcTrackEvent {
-                        track,
-                        transceiver: api::RtcRtpTransceiver {
-                            transceiver: RustOpaque::new(Arc::new(
-                                RtpTransceiver {
-                                    inner: Mutex::new(transceiver),
-                                    peer_id: peer.id,
-                                    index,
-                                },
-                            )),
-                            mid: Some(mid),
-                            direction: direction.into(),
-                            peer: RustOpaque::new(peer),
-                        },
-                    };
+                let result = api::RtcTrackEvent {
+                    track,
+                    transceiver: api::RtcRtpTransceiver {
+                        transceiver: RustOpaque::new(Arc::new(
+                            RtpTransceiver {
+                                inner: Mutex::new(transceiver),
+                                peer_id: peer.id,
+                                index,
+                            },
+                        )),
+                        mid: Some(mid),
+                        direction: direction.into(),
+                        peer: RustOpaque::new(peer),
+                    },
+                };
 
-                    observer
-                        .lock()
-                        .unwrap()
-                        .add(api::PeerConnectionEvent::Track(result));
-                }
+                observer
+                    .lock()
+                    .unwrap()
+                    .add(api::PeerConnectionEvent::Track(result));
             }
         });
     }

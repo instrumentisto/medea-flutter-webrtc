@@ -28,11 +28,9 @@ use std::{
 
 use dashmap::DashMap;
 use libwebrtc_sys as sys;
-use pc::PeerConnectionId;
 use threadpool::ThreadPool;
 
-use crate::video_sink::Id as VideoSinkId;
-use derive_more::From;
+use crate::{user_media::TrackOrigin, video_sink::Id as VideoSinkId};
 
 #[doc(inline)]
 pub use crate::{
@@ -56,26 +54,13 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-#[derive(Clone, Debug, Eq, From, Hash, PartialEq)]
-/// Displays where the track was received from.
-enum TrackSourceKind {
-    Local,
-    Remote { peer_id: PeerConnectionId },
-}
-
-impl From<Option<PeerConnectionId>> for TrackSourceKind {
-    fn from(value: Option<PeerConnectionId>) -> Self {
-        value.map_or(Self::Local, |peer_id| Self::Remote { peer_id })
-    }
-}
-
 /// Global context for an application.
 struct Webrtc {
     video_device_info: VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
-    video_tracks: Arc<DashMap<(VideoTrackId, TrackSourceKind), VideoTrack>>,
+    video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
     audio_source: Option<Arc<sys::AudioSourceInterface>>,
-    audio_tracks: Arc<DashMap<(AudioTrackId, TrackSourceKind), AudioTrack>>,
+    audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     ap: sys::AudioProcessing,
 
