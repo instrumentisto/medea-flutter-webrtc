@@ -6,14 +6,14 @@ use std::{
     time::Duration,
 };
 
-use flutter_rust_bridge::{RustOpaque, StreamSink, SyncReturn};
+use flutter_rust_bridge::{RustOpaque, StreamSink};
 use libwebrtc_sys as sys;
 
 use crate::{
     devices::{self, DeviceState},
     pc::PeerConnectionId,
     renderer::FrameHandler,
-    TrackRepositoryId, Webrtc,
+    TrackSourceKind, Webrtc,
 };
 
 // Re-exporting since it is used in the generated code.
@@ -1660,6 +1660,7 @@ pub struct MediaStreamTrack {
 
     /// Unique identifier of [`PeerConnection`]
     /// from which it was received this [`MediaStreamTrack`].
+    /// Always [`None`] for local tracks.
     pub peer_id: Option<u64>,
 
     /// Label identifying the track source, as in "internal microphone".
@@ -2031,8 +2032,8 @@ pub fn get_transceivers(
 pub fn set_transceiver_direction(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     direction: RtpTransceiverDirection,
-) -> anyhow::Result<SyncReturn<()>> {
-    transceiver.set_direction(direction).map(SyncReturn)
+) -> anyhow::Result<()> {
+    transceiver.set_direction(direction)
 }
 
 /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
@@ -2040,8 +2041,8 @@ pub fn set_transceiver_direction(
 pub fn set_transceiver_recv(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     recv: bool,
-) -> anyhow::Result<SyncReturn<()>> {
-    transceiver.set_recv(recv).map(SyncReturn)
+) -> anyhow::Result<()> {
+    transceiver.set_recv(recv)
 }
 
 /// Changes the send direction of the specified [`RtcRtpTransceiver`].
@@ -2049,8 +2050,8 @@ pub fn set_transceiver_recv(
 pub fn set_transceiver_send(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     send: bool,
-) -> anyhow::Result<SyncReturn<()>> {
-    transceiver.set_send(send).map(SyncReturn)
+) -> anyhow::Result<()> {
+    transceiver.set_send(send)
 }
 
 /// Returns the [negotiated media ID (mid)][1] of the specified
@@ -2176,12 +2177,12 @@ pub fn microphone_volume() -> anyhow::Result<u32> {
 
 /// Disposes the specified [`MediaStreamTrack`].
 pub fn dispose_track(track_id: String, peer_id: Option<u64>, kind: MediaType) {
-    let repository_id =
-        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    let source_kind =
+        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
     WEBRTC
         .lock()
         .unwrap()
-        .dispose_track(&repository_id, track_id, kind);
+        .dispose_track(source_kind, track_id, kind);
 }
 
 /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
@@ -2193,12 +2194,12 @@ pub fn track_state(
     peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<TrackState> {
-    let repository_id =
-        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    let source_kind =
+        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
     WEBRTC
         .lock()
         .unwrap()
-        .track_state(track_id, &repository_id, kind)
+        .track_state(track_id, source_kind, kind)
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
@@ -2211,11 +2212,11 @@ pub fn set_track_enabled(
     kind: MediaType,
     enabled: bool,
 ) -> anyhow::Result<()> {
-    let repository_id =
-        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    let source_kind =
+        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
     WEBRTC.lock().unwrap().set_track_enabled(
         track_id,
-        &repository_id,
+        source_kind,
         kind,
         enabled,
     )
@@ -2227,12 +2228,12 @@ pub fn clone_track(
     peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<MediaStreamTrack> {
-    let repository_id =
-        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    let source_kind =
+        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
     WEBRTC
         .lock()
         .unwrap()
-        .clone_track(track_id, &repository_id, kind)
+        .clone_track(track_id, source_kind, kind)
 }
 
 /// Registers an observer to the [`MediaStreamTrack`] events.
@@ -2242,11 +2243,11 @@ pub fn register_track_observer(
     track_id: String,
     kind: MediaType,
 ) -> anyhow::Result<()> {
-    let repository_id =
-        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    let source_kind =
+        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
     WEBRTC.lock().unwrap().register_track_observer(
         track_id,
-        &repository_id,
+        source_kind,
         kind,
         cb.into(),
     )
@@ -2279,13 +2280,13 @@ pub fn create_video_sink(
     texture_id: i64,
 ) -> anyhow::Result<()> {
     let handler = FrameHandler::new(callback_ptr as _, cb.into(), texture_id);
-    let repository_id =
-        TrackRepositoryId::from(peer_id.map(PeerConnectionId::from));
+    let source_kind =
+        TrackSourceKind::from(peer_id.map(PeerConnectionId::from));
 
     WEBRTC.lock().unwrap().create_video_sink(
         sink_id,
         track_id,
-        &repository_id,
+        source_kind,
         handler,
     )
 }

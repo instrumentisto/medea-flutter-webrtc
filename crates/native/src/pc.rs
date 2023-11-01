@@ -18,7 +18,7 @@ use threadpool::ThreadPool;
 
 use crate::{
     api, next_id, stream_sink::StreamSink, AudioTrack, AudioTrackId,
-    TrackRepositoryId, VideoTrack, VideoTrackId, Webrtc,
+    TrackSourceKind, VideoTrack, VideoTrackId, Webrtc,
 };
 
 impl Webrtc {
@@ -29,21 +29,11 @@ impl Webrtc {
         configuration: api::RtcConfiguration,
     ) -> anyhow::Result<()> {
         let id = PeerConnectionId::from(next_id());
-        let repository_id = TrackRepositoryId::from(Some(id));
-
-        let video_tracks = Arc::new(DashMap::new());
-        self.video_tracks
-            .insert(repository_id.clone(), Arc::clone(&video_tracks));
-
-        let audio_tracks = Arc::new(DashMap::new());
-        self.audio_tracks
-            .insert(repository_id, Arc::clone(&audio_tracks));
-
         let peer = PeerConnection::new(
             id,
             &mut self.peer_connection_factory,
-            video_tracks,
-            audio_tracks,
+            Arc::clone(&self.video_tracks),
+            Arc::clone(&self.audio_tracks),
             obs.clone(),
             configuration,
             self.callback_pool.clone(),
@@ -72,7 +62,7 @@ impl Webrtc {
                 mid: transceiver.mid(),
                 direction: transceiver.direction().into(),
                 transceiver: RustOpaque::new(Arc::new(RtpTransceiver {
-                    inner: transceiver,
+                    inner: Mutex::new(transceiver),
                     peer_id: peer.id,
                     index,
                 })),
@@ -89,23 +79,12 @@ impl Webrtc {
     ///
     /// If the mutex guarding the [`sys::PeerConnectionInterface`] is poisoned.
     pub fn dispose_peer_connection(&mut self, this: &Arc<PeerConnection>) {
-        let repository_id = TrackRepositoryId::from(Some(this.id));
         // Remove all tracks from this `Peer`'s senders.
-        for mut track in self
-            .video_tracks
-            .get_mut(&repository_id)
-            .unwrap()
-            .iter_mut()
-        {
+        for mut track in self.video_tracks.iter_mut() {
             track.senders.remove(this);
         }
 
-        for mut track in self
-            .audio_tracks
-            .get_mut(&repository_id)
-            .unwrap()
-            .iter_mut()
-        {
+        for mut track in self.audio_tracks.iter_mut() {
             track.senders.remove(this);
         }
 
@@ -129,8 +108,6 @@ impl Webrtc {
                     } else {
                         let is_sending = self
                             .audio_tracks
-                            .get(&repository_id)
-                            .unwrap()
                             .iter()
                             .any(|t| !t.senders.is_empty());
                         self.ap.set_output_will_be_muted(!is_sending);
@@ -158,16 +135,11 @@ impl Webrtc {
         transceiver: &Arc<RtpTransceiver>,
         track_id: Option<String>,
     ) -> anyhow::Result<()> {
-        let repository_id = TrackRepositoryId::from(None);
+        let source_kind = TrackSourceKind::Local;
 
         match transceiver.media_type() {
             sys::MediaType::MEDIA_TYPE_VIDEO => {
-                for mut track in self
-                    .video_tracks
-                    .get_mut(&repository_id)
-                    .unwrap()
-                    .iter_mut()
-                {
+                for mut track in self.video_tracks.iter_mut() {
                     let mut delete = false;
                     if let Some(trnscvrs) = track.senders.get_mut(peer) {
                         trnscvrs.retain(|tr| tr != transceiver);
@@ -179,12 +151,7 @@ impl Webrtc {
                 }
             }
             sys::MediaType::MEDIA_TYPE_AUDIO => {
-                for mut track in self
-                    .audio_tracks
-                    .get_mut(&repository_id)
-                    .unwrap()
-                    .iter_mut()
-                {
+                for mut track in self.audio_tracks.iter_mut() {
                     let mut delete = false;
                     if let Some(trnscvrs) = track.senders.get_mut(peer) {
                         trnscvrs.retain(|tr| tr != transceiver);
@@ -198,15 +165,14 @@ impl Webrtc {
             _ => unreachable!(),
         }
 
-        let sender = transceiver.inner.sender();
+        let sender = transceiver.inner.lock().unwrap().sender();
         if let Some(track_id) = track_id {
             match transceiver.media_type() {
                 sys::MediaType::MEDIA_TYPE_VIDEO => {
                     let track_id = VideoTrackId::from(track_id);
-                    let track_repository =
-                        self.video_tracks.get_mut(&repository_id).unwrap();
-                    let mut track = track_repository
-                        .get_mut(&track_id)
+                    let mut track = self
+                        .video_tracks
+                        .get_mut(&(track_id.clone(), source_kind))
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -222,10 +188,9 @@ impl Webrtc {
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
                     let track_id = AudioTrackId::from(track_id);
-                    let track_repository =
-                        self.audio_tracks.get_mut(&repository_id).unwrap();
-                    let mut track = track_repository
-                        .get_mut(&track_id)
+                    let mut track = self
+                        .audio_tracks
+                        .get_mut(&(track_id.clone(), source_kind))
                         .ok_or_else(|| {
                             anyhow!("Cannot find track with ID `{track_id}`")
                         })?;
@@ -252,8 +217,6 @@ impl Webrtc {
                     if result.is_ok() {
                         let is_sending = self
                             .audio_tracks
-                            .get_mut(&repository_id)
-                            .unwrap()
                             .iter()
                             .any(|t| !t.senders.is_empty());
                         self.ap.set_output_will_be_muted(!is_sending);
@@ -308,8 +271,8 @@ impl PeerConnection {
     fn new(
         id: PeerConnectionId,
         factory: &mut sys::PeerConnectionFactoryInterface,
-        video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
-        audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
+        video_tracks: Arc<DashMap<(VideoTrackId, TrackSourceKind), VideoTrack>>,
+        audio_tracks: Arc<DashMap<(AudioTrackId, TrackSourceKind), AudioTrack>>,
         observer: StreamSink<api::PeerConnectionEvent>,
         configuration: api::RtcConfiguration,
         pool: ThreadPool,
@@ -494,7 +457,7 @@ impl PeerConnection {
                 transceiver.mid(),
                 transceiver.direction().into(),
                 RustOpaque::new(Arc::new(RtpTransceiver {
-                    inner: transceiver,
+                    inner: Mutex::new(transceiver),
                     peer_id: this.id,
                     index,
                 })),
@@ -734,7 +697,7 @@ impl Default for RtpEncodingParameters {
 /// Wrapper around a [`sys::RtpTransceiverInterface`] with a unique ID.
 pub struct RtpTransceiver {
     /// Native-side transceiver.
-    inner: sys::RtpTransceiverInterface,
+    inner: Mutex<sys::RtpTransceiverInterface>,
 
     /// ID of a [`PeerConnection`] that this [`RtpTransceiver`] belongs to.
     peer_id: PeerConnectionId,
@@ -750,11 +713,15 @@ impl RtpTransceiver {
     /// # Errors
     ///
     /// If the underlying engine errors.
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpTransceiverInterface`] is poisoned.
     pub fn set_direction(
         &self,
         direction: api::RtpTransceiverDirection,
     ) -> anyhow::Result<()> {
-        self.inner.set_direction(direction.into())
+        self.inner.lock().unwrap().set_direction(direction.into())
     }
 
     /// Changes the receive direction of this [`RtpTransceiver`].
@@ -762,10 +729,17 @@ impl RtpTransceiver {
     /// # Errors
     ///
     /// If the underlying engine errors.
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpTransceiverInterface`] is poisoned.
     pub fn set_recv(&self, recv: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let new_direction = match (self.inner.direction(), recv) {
+        let lock = self.inner.lock().unwrap();
+        println!("SET RECV {:?}", lock.direction());
+
+        let new_direction = match (lock.direction(), recv) {
             (D::kInactive | D::kRecvOnly, true) => D::kRecvOnly,
             (D::kSendOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kRecvOnly, false) => D::kInactive,
@@ -776,7 +750,9 @@ impl RtpTransceiver {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            self.inner.set_direction(new_direction)
+            let res = lock.set_direction(new_direction);
+            println!("  SET RECV {:?}", lock.direction());
+            res
         }
     }
 
@@ -785,10 +761,17 @@ impl RtpTransceiver {
     /// # Errors
     ///
     /// If the underlying engine errors.
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpTransceiverInterface`] is poisoned.
     pub fn set_send(&self, send: bool) -> anyhow::Result<()> {
         use sys::RtpTransceiverDirection as D;
 
-        let new_direction = match (self.inner.direction(), send) {
+        let lock = self.inner.lock().unwrap();
+        println!("SET SEND {:?}", lock.direction());
+
+        let new_direction = match (lock.direction(), send) {
             (D::kInactive | D::kSendOnly, true) => D::kSendOnly,
             (D::kRecvOnly | D::kSendRecv, true) => D::kSendRecv,
             (D::kInactive | D::kSendOnly, false) => D::kInactive,
@@ -799,28 +782,42 @@ impl RtpTransceiver {
         if new_direction == D::kStopped {
             Ok(())
         } else {
-            self.inner.set_direction(new_direction)
+            let res = lock.set_direction(new_direction);
+            println!("  SET SEND {:?}", lock.direction());
+            res
         }
     }
 
     /// Returns the [Negotiated media ID (mid)][1] of this [`RtpTransceiver`].
     ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpTransceiverInterface`] is poisoned.
+    ///
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     #[must_use]
     pub fn mid(&self) -> Option<String> {
-        self.inner.mid()
+        self.inner.lock().unwrap().mid()
     }
 
     /// Returns the preferred direction of this [`RtpTransceiver`].
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpTransceiverInterface`] is poisoned.
     #[must_use]
     pub fn direction(&self) -> sys::RtpTransceiverDirection {
-        self.inner.direction()
+        self.inner.lock().unwrap().direction()
     }
 
     /// Returns the [`MediaType`] of this [`RtpTransceiver`].
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpTransceiverInterface`] is poisoned.
     #[must_use]
     pub fn media_type(&self) -> sys::MediaType {
-        self.inner.media_type()
+        self.inner.lock().unwrap().media_type()
     }
 
     /// Irreversibly marks this [`RtpTransceiver`] as stopping, unless it's
@@ -832,8 +829,12 @@ impl RtpTransceiver {
     /// # Errors
     ///
     /// If the underlying engine errors.
+    ///
+    /// # Panics
+    ///
+    /// If the mutex guarding the [`sys::RtpTransceiverInterface`] is poisoned.
     pub fn stop(&self) -> anyhow::Result<()> {
-        self.inner.stop()
+        self.inner.lock().unwrap().stop()
     }
 }
 
@@ -950,10 +951,10 @@ struct PeerConnectionObserver {
     peer: Arc<OnceCell<Weak<PeerConnection>>>,
 
     /// Map of the remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
-    video_tracks: Arc<DashMap<VideoTrackId, VideoTrack>>,
+    video_tracks: Arc<DashMap<(VideoTrackId, TrackSourceKind), VideoTrack>>,
 
     /// Map of the remote [`AudioTrack`]s shared with the [`crate::Webrtc`].
-    audio_tracks: Arc<DashMap<AudioTrackId, AudioTrack>>,
+    audio_tracks: Arc<DashMap<(AudioTrackId, TrackSourceKind), AudioTrack>>,
 
     /// [`ThreadPool`] executing blocking tasks from the
     /// [`PeerConnectionObserver`] callbacks.
@@ -1052,16 +1053,24 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let observer = Arc::clone(&self.observer);
             let track_id = transceiver.receiver().track().id();
             let track_id = VideoTrackId::from(track_id);
+            let source_kind = TrackSourceKind::from(
+                peer.get().unwrap().upgrade().unwrap().id(),
+            );
             let video_tracks = Arc::clone(&self.video_tracks);
             let audio_tracks = Arc::clone(&self.audio_tracks);
 
             move || {
-                if video_tracks.contains_key(&track_id) {
+                if video_tracks
+                    .contains_key(&(track_id.clone(), source_kind.clone()))
+                {
                     return;
                 }
-                let track_id = AudioTrackId::from(String::from(track_id));
+                let track_id =
+                    AudioTrackId::from(String::from(track_id.clone()));
 
-                if audio_tracks.contains_key(&track_id) {
+                if audio_tracks
+                    .contains_key(&(track_id.clone(), source_kind.clone()))
+                {
                     return;
                 }
 
@@ -1072,7 +1081,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                         let track =
                             AudioTrack::wrap_remote(&transceiver, peer.clone());
                         let result = api::MediaStreamTrack::from(&track);
-                        audio_tracks.insert(track.id.clone(), track);
+                        audio_tracks.insert((track_id, source_kind), track);
 
                         result
                     }
@@ -1080,7 +1089,8 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                         let track =
                             VideoTrack::wrap_remote(&transceiver, peer.clone());
                         let result = api::MediaStreamTrack::from(&track);
-                        video_tracks.insert(track.id.clone(), track);
+                        video_tracks
+                            .insert((track.id.clone(), source_kind), track);
 
                         result
                     }
@@ -1101,7 +1111,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                         transceiver: api::RtcRtpTransceiver {
                             transceiver: RustOpaque::new(Arc::new(
                                 RtpTransceiver {
-                                    inner: transceiver,
+                                    inner: Mutex::new(transceiver),
                                     peer_id: peer.id,
                                     index,
                                 },

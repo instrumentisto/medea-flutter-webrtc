@@ -32,7 +32,7 @@ use pc::PeerConnectionId;
 use threadpool::ThreadPool;
 
 use crate::video_sink::Id as VideoSinkId;
-use derive_more::{Display, From, Into};
+use derive_more::From;
 
 #[doc(inline)]
 pub use crate::{
@@ -56,13 +56,16 @@ pub(crate) fn next_id() -> u64 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-/// ID of a track repository.
-#[derive(Clone, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-struct TrackRepositoryId(String);
+#[derive(Clone, Debug, Eq, From, Hash, PartialEq)]
+/// Displays where the track was received from.
+enum TrackSourceKind {
+    Local,
+    Remote { peer_id: PeerConnectionId },
+}
 
-impl From<Option<PeerConnectionId>> for TrackRepositoryId {
+impl From<Option<PeerConnectionId>> for TrackSourceKind {
     fn from(value: Option<PeerConnectionId>) -> Self {
-        Self(value.map_or("local".to_owned(), |peer_id| peer_id.to_string()))
+        value.map_or(Self::Local, |peer_id| Self::Remote { peer_id })
     }
 }
 
@@ -70,11 +73,9 @@ impl From<Option<PeerConnectionId>> for TrackRepositoryId {
 struct Webrtc {
     video_device_info: VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
-    video_tracks:
-        DashMap<TrackRepositoryId, Arc<DashMap<VideoTrackId, VideoTrack>>>,
+    video_tracks: Arc<DashMap<(VideoTrackId, TrackSourceKind), VideoTrack>>,
     audio_source: Option<Arc<sys::AudioSourceInterface>>,
-    audio_tracks:
-        DashMap<TrackRepositoryId, Arc<DashMap<AudioTrackId, AudioTrack>>>,
+    audio_tracks: Arc<DashMap<(AudioTrackId, TrackSourceKind), AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     ap: sys::AudioProcessing,
 
@@ -122,17 +123,6 @@ impl Webrtc {
                 Some(&ap),
             )?;
 
-        let video_tracks = DashMap::new();
-        video_tracks.insert(
-            TrackRepositoryId::from("local".to_owned()),
-            Arc::new(DashMap::new()),
-        );
-        let audio_tracks = DashMap::new();
-        audio_tracks.insert(
-            TrackRepositoryId::from("local".to_owned()),
-            Arc::new(DashMap::new()),
-        );
-
         Ok(Self {
             task_queue_factory,
             worker_thread,
@@ -142,9 +132,9 @@ impl Webrtc {
             video_device_info: VideoDeviceInfo::new()?,
             peer_connection_factory,
             video_sources: HashMap::new(),
-            video_tracks,
+            video_tracks: Arc::new(DashMap::new()),
             audio_source: None,
-            audio_tracks,
+            audio_tracks: Arc::new(DashMap::new()),
             video_sinks: HashMap::new(),
             callback_pool: ThreadPool::new(4),
         })
