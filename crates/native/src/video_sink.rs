@@ -70,7 +70,8 @@ pub struct VideoSink {
     /// ID of the [`VideoTrack`] attached to this [`VideoSink`].
     track_id: VideoTrackId,
 
-    /// Displays where the track was received from.
+    /// Origin (local or remote) of the [`VideoTrack`] attached to this
+    /// [`VideoSink`].
     track_origin: TrackOrigin,
 }
 

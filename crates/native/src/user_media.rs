@@ -920,10 +920,10 @@ impl AudioDeviceModule {
 /// Indicates whether some track is a local track obtained via
 /// [getUserMedia()][1]/[getDisplayMedia()][2] call or a remote received in a
 /// [ontrack][3] callback.
-//
-// [1]: https://w3.org/TR/mediacapture-streams#dom-mediadevices-getusermedia
-// [2]: https://w3.org/TR/screen-capture/#dom-mediadevices-getdisplaymedia
-// [3]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-ontrack
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#dom-mediadevices-getusermedia
+/// [2]: https://w3.org/TR/screen-capture/#dom-mediadevices-getdisplaymedia
+/// [3]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-ontrack
 #[derive(Clone, Debug, Eq, From, Hash, PartialEq)]
 pub enum TrackOrigin {
     Local,
