@@ -1,3 +1,5 @@
+#pragma once
+
 #include "api/stats/rtc_stats_collector_callback.h"
 #include "api/stats/rtcstats_objects.h"
 #include "rust/cxx.h"

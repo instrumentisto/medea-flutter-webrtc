@@ -1,5 +1,4 @@
-#ifndef MAC_CAPTURER_H_
-#define MAC_CAPTURER_H_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -74,5 +73,3 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
   // `RTCVideoSourceAdapter` injected into the `capturer_`.
   RTCVideoSourceAdapter* adapter_;
 };
-
-#endif  // MAC_CAPTURER_H_
