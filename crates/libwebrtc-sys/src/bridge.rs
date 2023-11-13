@@ -1796,7 +1796,8 @@ pub(crate) mod webrtc {
         ) -> UniquePtr<PeerConnectionDependencies>;
 
         /// Creates a default [`RTCOfferAnswerOptions`].
-        pub fn create_default_rtc_offer_answer_options() -> UniquePtr<RTCOfferAnswerOptions>;
+        pub fn create_default_rtc_offer_answer_options(
+        ) -> UniquePtr<RTCOfferAnswerOptions>;
 
         /// Creates a new [`RTCOfferAnswerOptions`] from the provided options.
         pub fn create_rtc_offer_answer_options(

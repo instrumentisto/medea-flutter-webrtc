@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BRIDGE_RTP_ENCODING_PARAMETERS_H_
+#define BRIDGE_RTP_ENCODING_PARAMETERS_H_
 
 #include "bridge.h"
 #include "rust/cxx.h"
@@ -70,3 +71,5 @@ void set_rtp_encoding_parameters_scalability_mode(
     rust::String scalability_mode);
 
 }  // namespace bridge
+
+#endif // BRIDGE_RTP_ENCODING_PARAMETERS_H_

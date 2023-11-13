@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BRIDGE_STATS_H_
+#define BRIDGE_STATS_H_
 
 #include "api/stats/rtc_stats_collector_callback.h"
 #include "api/stats/rtcstats_objects.h"
@@ -77,3 +78,5 @@ rust::Vec<RTCStatsWrap> rtc_stats_report_get_stats(
     const RTCStatsReport& report);
 
 }  // namespace bridge
+
+#endif // BRIDGE_STATS_H_

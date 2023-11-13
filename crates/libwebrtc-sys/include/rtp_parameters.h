@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BRIDGE_RTP_PARAMETERS_H_
+#define BRIDGE_RTP_PARAMETERS_H_
 
 #include "bridge.h"
 
@@ -22,3 +23,5 @@ void rtp_parameters_set_encodings(
     const RtpEncodingParametersContainer& encodings);
 
 }  // namespace bridge
+
+#endif // BRIDGE_RTP_PARAMETERS_H_

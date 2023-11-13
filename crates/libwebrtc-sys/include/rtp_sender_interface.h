@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BRIDGE_RTP_SENDER_INTERFACE_H_
+#define BRIDGE_RTP_SENDER_INTERFACE_H_
 
 #include "bridge.h"
 
@@ -29,3 +30,5 @@ rust::String rtp_sender_set_parameters(const RtpSenderInterface& sender,
                                        const webrtc::RtpParameters& parameters);
 
 }  // namespace bridge
+
+#endif // BRIDGE_RTP_SENDER_INTERFACE_H_
