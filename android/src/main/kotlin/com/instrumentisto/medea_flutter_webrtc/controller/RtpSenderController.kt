@@ -39,9 +39,8 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
       }
       "getParameters" -> {
         val encodings =
-            sender.getParameters().encodings.mapIndexed { index, enc ->
+            sender.getParameters().encodings.map { enc ->
               mapOf(
-                  "index" to index,
                   "rid" to enc.rid,
                   "active" to enc.active,
                   "maxBitrate" to enc.maxBitrateBps,
@@ -54,17 +53,26 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
       }
       "setParameters" -> {
         val params = sender.getParameters()
-        val encodings: List<Map<String, Any>>? = call.argument("encodings")
+        val encodings: List<Map<String, Any>> = call.argument("encodings")!!
 
-        encodings?.forEach {
-          val enc = params.encodings[it["index"] as Int]
-          enc.active = it["active"] as Boolean
-          enc.maxBitrateBps = it["maxBitrate"] as Int?
-          enc.maxFramerate = it["maxFramerate"] as Int?
-          enc.scaleResolutionDownBy = it["scaleResolutionDownBy"] as Double?
+        for (e in encodings) {
+          val rid = e["rid"] as String
+          val enc = params.encodings.find { encoding -> encoding.rid == rid }
+          if (enc == null) {
+            result.error(
+                "SenderException",
+                "Could not set parameters: failed to find encoding with rid = $rid",
+                null)
+            return
+          }
+
+          enc.active = e["active"] as Boolean
+          enc.maxBitrateBps = e["maxBitrate"] as Int?
+          enc.maxFramerate = e["maxFramerate"] as Int?
+          enc.scaleResolutionDownBy = e["scaleResolutionDownBy"] as Double?
         }
 
-        if (encodings != null && !sender.setParameters(params)) {
+        if (!sender.setParameters(params)) {
           result.error("SenderException", "Could not set parameters", null)
         }
 
