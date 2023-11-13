@@ -26,6 +26,16 @@ class RtpSenderProxy {
     self.sender.track = t?.obj()
   }
 
+  /// Returns `RtpParameters` of the underlying `RtpSender`.
+  func getParameters() -> RTCRtpParameters {
+    return self.sender.parameters
+  }
+
+  /// Sets `RtpParameters` of the underlying `RtpSender` with the provided one.
+  func setParameters(params: RTCRtpParameters) {
+    self.sender.parameters = params
+  }
+
   /// Synchronizes the `MediaStreamTrackProxy` of this `RtpSenderProxy` with the
   /// underlying `RtpSender`.
   func syncMediaStreamTrack() {
