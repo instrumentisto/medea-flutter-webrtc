@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stdexcept>
-#include "libwebrtc-sys/src/bridge.rs.h"
+#include "bridge.h"
 #include "rust/cxx.h"
 
 namespace bridge {

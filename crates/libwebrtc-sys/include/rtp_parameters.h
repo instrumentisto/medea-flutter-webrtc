@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bridge.h"
-#include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
 

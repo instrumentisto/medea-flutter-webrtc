@@ -1,4 +1,5 @@
 #include "rtp_parameters.h"
+#include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
 
