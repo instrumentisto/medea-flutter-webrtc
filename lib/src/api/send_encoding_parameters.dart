@@ -2,12 +2,46 @@ import '/src/api/bridge.g.dart' as ffi;
 import '/src/api/peer.dart';
 
 /// Encoding describing a single configuration of a codec for an RTCRtpSender.
-class SendEncodingParameters {
-  SendEncodingParameters(this.rid, this.active,
-      {this.maxBitrate,
-      this.maxFramerate,
-      this.scalabilityMode,
-      this.scaleResolutionDownBy});
+abstract class SendEncodingParameters {
+  static SendEncodingParameters create(String rid, bool active,
+      {int? maxBitrate,
+      double? maxFramerate,
+      String? scalabilityMode,
+      double? scaleResolutionDownBy}) {
+    if (isDesktop) {
+      return _SendEncodingParametersFFI(rid, active,
+          maxBitrate: maxBitrate,
+          scalabilityMode: scalabilityMode,
+          maxFramerate: maxFramerate,
+          scaleResolutionDownBy: scaleResolutionDownBy);
+    } else {
+      return _SendEncodingParametersChannel(rid, active,
+          maxBitrate: maxBitrate,
+          scalabilityMode: scalabilityMode,
+          maxFramerate: maxFramerate,
+          scaleResolutionDownBy: scaleResolutionDownBy);
+    }
+  }
+
+  /// Create a new [SendEncodingParameters] from the provided [ffi.RtcRtpEncodingParameters].
+  static SendEncodingParameters fromFFI(ffi.RtcRtpEncodingParameters e,
+      ffi.ArcRtpEncodingParameters sysEncoding) {
+    return _SendEncodingParametersFFI(e.rid, e.active,
+        maxBitrate: e.maxBitrate,
+        maxFramerate: e.maxFramerate,
+        scalabilityMode: e.scalabilityMode,
+        scaleResolutionDownBy: e.scaleResolutionDownBy,
+        encoding: sysEncoding);
+  }
+
+  /// Creates an [SendEncodingParameters] basing on the [Map] received from the native side.
+  static SendEncodingParameters fromMap(dynamic e) {
+    return _SendEncodingParametersChannel(e['rid'], e['active'],
+        maxBitrate: e['maxBitrate'],
+        maxFramerate: (e['maxFramerate'] as int?)?.toDouble(),
+        scaleResolutionDownBy: e['scaleResolutionDownBy'],
+        index: e['index']);
+  }
 
   /// String which, if set, specifies an RTP stream ID (RID) to be sent using
   /// the RID header extension.
@@ -31,26 +65,36 @@ class SendEncodingParameters {
   /// Scalability mode describes layers within the media stream.
   String? scalabilityMode;
 
-  /// Create a new [SendEncodingParameters] from the provided [ffi.RtcRtpEncodingParameters].
-  static SendEncodingParameters fromFFI(ffi.RtcRtpEncodingParameters e) {
-    return _SendEncodingParametersFFI(e.parameters, e.rid, e.active,
-        maxBitrate: e.maxBitrate,
-        maxFramerate: e.maxFramerate,
-        scalabilityMode: e.scalabilityMode,
-        scaleResolutionDownBy: e.scaleResolutionDownBy);
-  }
-
-  /// Creates an [SendEncodingParameters] basing on the [Map] received from the native side.
-  static SendEncodingParameters fromMap(dynamic e) {
-    return _SendEncodingParametersChannel(e['index'], e['rid'], e['active'],
-        maxBitrate: e['maxBitrate'],
-        maxFramerate: (e['maxFramrate'] as int?)?.toDouble(),
-        scaleResolutionDownBy: e['scaleResolutionDownBy']);
-  }
-
   /// Converts this [SendEncodingParameters] to the [Map] expected by Flutter.
+  Map<String, dynamic> toMap();
+
+  /// Tries to convert this [SendEncodingParameters] to the [ffi.ArcRtpEncodingParameters].
+  (ffi.RtcRtpEncodingParameters, ffi.ArcRtpEncodingParameters?) toFFI();
+}
+
+/// [MethodChannel]-based implementation of a [SendEncodingParameters].
+class _SendEncodingParametersChannel extends SendEncodingParameters {
+  _SendEncodingParametersChannel(String rid, bool active,
+      {int? maxBitrate,
+      double? maxFramerate,
+      double? scaleResolutionDownBy,
+      String? scalabilityMode,
+      int? index})
+      : _index = index {
+    this.rid = rid;
+    this.active = active;
+    this.maxBitrate = maxBitrate;
+    this.maxFramerate = maxFramerate;
+    this.scaleResolutionDownBy = scaleResolutionDownBy;
+    this.scalabilityMode = scalabilityMode;
+  }
+
+  final int? _index;
+
+  @override
   Map<String, dynamic> toMap() {
     return {
+      'index': _index,
       'rid': rid,
       'active': active,
       'maxBitrate': maxBitrate,
@@ -60,62 +104,48 @@ class SendEncodingParameters {
     };
   }
 
-  /// Tries to convert this [SendEncodingParameters] to the [ffi.ArcRtpEncodingParameters].
-  Future<ffi.ArcRtpEncodingParameters?> toFFI() async {
-    return null; // no-op
-  }
-}
-
-/// [MethodChannel]-based implementation of a [SendEncodingParameters].
-class _SendEncodingParametersChannel extends SendEncodingParameters {
-  _SendEncodingParametersChannel(this._index, String rid, bool active,
-      {int? maxBitrate,
-      double? maxFramerate,
-      String? scalabilityMode,
-      double? scaleResolutionDownBy})
-      : super(rid, active,
-            maxBitrate: maxBitrate,
-            maxFramerate: maxFramerate,
-            scalabilityMode: scalabilityMode,
-            scaleResolutionDownBy: scaleResolutionDownBy);
-
-  final int _index;
-
   @override
-  Map<String, dynamic> toMap() {
-    var res = super.toMap();
-    res['index'] = _index;
-
-    return res;
+  (ffi.RtcRtpEncodingParameters, ffi.ArcRtpEncodingParameters?) toFFI() {
+    throw UnimplementedError();
   }
 }
 
 /// FFI-based implementation of a [SendEncodingParameters].
 class _SendEncodingParametersFFI extends SendEncodingParameters {
-  _SendEncodingParametersFFI(this._encoding, String rid, bool active,
+  _SendEncodingParametersFFI(String rid, bool active,
       {int? maxBitrate,
       double? maxFramerate,
+      double? scaleResolutionDownBy,
       String? scalabilityMode,
-      double? scaleResolutionDownBy})
-      : super(rid, active,
-            maxBitrate: maxBitrate,
-            maxFramerate: maxFramerate,
-            scalabilityMode: scalabilityMode,
-            scaleResolutionDownBy: scaleResolutionDownBy);
+      ffi.ArcRtpEncodingParameters? encoding}) {
+    this.rid = rid;
+    this.active = active;
+    this.maxBitrate = maxBitrate;
+    this.maxFramerate = maxFramerate;
+    this.scaleResolutionDownBy = scaleResolutionDownBy;
+    this.scalabilityMode = scalabilityMode;
+    _encoding = encoding;
+  }
 
   /// Underlying [ffi.ArcRtpEncodingParameters].
-  final ffi.ArcRtpEncodingParameters _encoding;
+  ffi.ArcRtpEncodingParameters? _encoding;
 
   @override
-  Future<ffi.ArcRtpEncodingParameters?> toFFI() async {
-    await api!.updateEncodingParameters(
-        encoding: _encoding,
-        active: super.active,
-        maxBitrate: super.maxBitrate,
-        maxFramerate: super.maxFramerate,
-        scalabilityMode: super.scalabilityMode,
-        scaleResolutionDownBy: super.scaleResolutionDownBy);
+  (ffi.RtcRtpEncodingParameters, ffi.ArcRtpEncodingParameters?) toFFI() {
+    return (
+      ffi.RtcRtpEncodingParameters(
+          rid: rid,
+          active: active,
+          maxBitrate: maxBitrate,
+          maxFramerate: maxFramerate,
+          scaleResolutionDownBy: scaleResolutionDownBy,
+          scalabilityMode: scalabilityMode),
+      _encoding
+    );
+  }
 
-    return _encoding;
+  @override
+  Map<String, dynamic> toMap() {
+    throw UnimplementedError();
   }
 }

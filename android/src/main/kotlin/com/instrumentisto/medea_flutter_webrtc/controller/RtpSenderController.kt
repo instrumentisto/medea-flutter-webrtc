@@ -37,8 +37,8 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
         sender.replaceTrack(track)
         result.success(null)
       }
-      "encodings" -> {
-        val res =
+      "getParameters" -> {
+        val encodings =
             sender.getParameters().encodings.mapIndexed { index, enc ->
               mapOf(
                   "index" to index,
@@ -50,7 +50,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
               )
             }
 
-        result.success(res)
+        result.success(mapOf("encodings" to encodings))
       }
       "setParameters" -> {
         val params = sender.getParameters()

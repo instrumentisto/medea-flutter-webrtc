@@ -134,7 +134,7 @@ flutter.run:
 # Run Flutter plugin integration tests on the current host as desktop.
 #
 # Usage:
-#	make flutter.test.desktop [debug=(no|yes)]
+#	make flutter.test.desktop
 
 flutter.test.desktop:
 	cd example/ && \
@@ -303,7 +303,8 @@ endif
 		--skip-add-mod-to-lib \
 		--no-build-runner \
 		--dart-enums-style \
-		--inline-rust
+		--inline-rust \
+		--keep-going
 	flutter pub run build_runner build --delete-conflicting-outputs
 
 
@@ -432,6 +433,7 @@ test.flutter: flutter.test
 # .PHONY section #
 ##################
 
+
 .PHONY: build clean codegen deps docs fmt lint run test \
         cargo.clean cargo.build cargo.doc cargo.fmt cargo.gen cargo.lint \
         	cargo.test \
@@ -441,4 +443,4 @@ test.flutter: flutter.test
         kt.fmt \
         rustup.targets \
         swift.fmt \
-        test.cargo test.flutter.desktop test.flutter.mobile
+        test.cargo flutter.test.desktop flutter.test.mobile

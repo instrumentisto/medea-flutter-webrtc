@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 
 import 'package:medea_flutter_webrtc/src/api/bridge.g.dart';
 import 'bridge.g.dart' as ffi;
-import 'peer.dart';
 import 'send_encoding_parameters.dart';
 
 /// [RtpParameters][1] implementation.
@@ -10,84 +9,69 @@ import 'send_encoding_parameters.dart';
 /// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters
 abstract class RtpParameters {
   /// Create a new [RtpParameters] from the provided [ArcRtpParameters].
-  static fromFFI(ArcRtpParameters params) {
+  static fromFFI(ffi.RtcRtpSendParameters params) {
     return _RtpParametersFFI(params);
   }
 
   /// Create a new [RtpParameters] from the provided [MethodChannel].
-  static fromChannel(MethodChannel chan) {
-    return _RtpParametersChannel(chan);
+  static fromMap(dynamic map) {
+    return _RtpParametersChannel.fromMap(map);
   }
+
+  /// The [SendEncodingParameters] which has been set.
+  late List<SendEncodingParameters> encodings;
 
   /// Tries to convert this [RtpParameters] into [ffi.ArcRtpParameters].
-  ffi.ArcRtpParameters? toFFI() {
-    return null;
-  }
+  ffi.RtcRtpSendParameters toFFI();
 
   /// Converts this [RtpParameters] to the [Map] expected by Flutter.
-  Map<String, dynamic> toMap() {
-    return {};
-  }
-
-  /// Returns [SendEncodingParameters] of this [RtpParameters].
-  Future<List<SendEncodingParameters>> encodings();
-
-  /// Sets the provided [SendEncodingParameters] for this [RtpParameters].
-  Future<void> setEncodings(SendEncodingParameters encoding);
+  Map<String, dynamic> toMap();
 }
 
 /// [MethodChannel]-based implementation of a [RtpParameters].
 class _RtpParametersChannel extends RtpParameters {
-  _RtpParametersChannel(this._chan);
-
-  /// Underlying [MethodChannel].
-  final MethodChannel _chan;
-
-  /// The [SendEncodingParameters] which has been set.
-  final List<SendEncodingParameters> _setEncodings = List.empty(growable: true);
-
-  @override
-  Future<List<SendEncodingParameters>> encodings() async {
-    List<dynamic>? res = await _chan.invokeMethod('encodings');
-
-    return res!.map((e) => SendEncodingParameters.fromMap(e)).toList();
-  }
-
-  @override
-  Future<void> setEncodings(SendEncodingParameters encoding) async {
-    _setEncodings.add(encoding);
+  _RtpParametersChannel.fromMap(dynamic map) {
+    encodings = List.unmodifiable(map!['encodings']
+        .map((e) => SendEncodingParameters.fromMap(e))
+        .toList());
   }
 
   @override
   Map<String, dynamic> toMap() {
     return {
-      'encodings': _setEncodings.map((e) => e.toMap()).toList(),
+      'encodings': encodings.map((e) => e.toMap()).toList(),
     };
+  }
+
+  @override
+  ffi.RtcRtpSendParameters toFFI() {
+    throw UnimplementedError();
   }
 }
 
 /// FFI-based implementation of a [RtpParameters].
 class _RtpParametersFFI extends RtpParameters {
-  _RtpParametersFFI(this._params);
+  _RtpParametersFFI(ffi.RtcRtpSendParameters params) {
+    _inner = params.inner;
+    encodings = List.unmodifiable(params.encodings
+        .map((e) => SendEncodingParameters.fromFFI(e.$1, e.$2))
+        .toList());
+  }
 
-  /// Underlying [ffi.ArcRtpParameters].
-  final ffi.ArcRtpParameters _params;
+  late ArcRtpParameters _inner;
 
   @override
-  Future<List<SendEncodingParameters>> encodings() async {
-    return (await api!.parametersGetEncodings(params: _params))
-        .map((e) => SendEncodingParameters.fromFFI(e))
-        .toList();
+  ffi.RtcRtpSendParameters toFFI() {
+    return ffi.RtcRtpSendParameters(
+        encodings: encodings.map((e) {
+          var r = e.toFFI();
+          return (r.$1, r.$2!);
+        }).toList(),
+        inner: _inner);
   }
 
   @override
-  Future<void> setEncodings(SendEncodingParameters encoding) async {
-    await api!.parametersSetEncoding(
-        params: _params, encoding: (await encoding.toFFI())!);
-  }
-
-  @override
-  ffi.ArcRtpParameters? toFFI() {
-    return _params;
+  Map<String, dynamic> toMap() {
+    throw UnimplementedError();
   }
 }

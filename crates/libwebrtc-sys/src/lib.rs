@@ -1240,7 +1240,6 @@ impl Default for RtpEncodingParameters {
     }
 }
 
-unsafe impl Sync for webrtc::RtpEncodingParameters {}
 unsafe impl Send for webrtc::RtpEncodingParameters {}
 
 /// [RTCRtcpParameters][0] representation.
@@ -1305,6 +1304,14 @@ impl RtpParameters {
             .collect()
     }
 
+    /// Returns the [`rtcp`][0] of these [`RtcpParameters`].
+    ///
+    /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpparameters-rtcp
+    #[must_use]
+    pub fn rtcp(&self) -> RtcpParameters {
+        RtcpParameters(webrtc::rtp_parameters_rtcp(&self.0))
+    }
+
     /// Returns the `encodings` of these [`RtpParameters`].
     #[must_use]
     pub fn encodings(&self) -> Vec<RtpEncodingParameters> {
@@ -1314,23 +1321,15 @@ impl RtpParameters {
             .collect()
     }
 
-    /// Returns the [`rtcp`][0] of these [`RtcpParameters`].
-    ///
-    /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpparameters-rtcp
-    #[must_use]
-    pub fn rtcp(&self) -> RtcpParameters {
-        RtcpParameters(webrtc::rtp_parameters_rtcp(&self.0))
-    }
-
     /// Sets the provided [`RtpEncodingParameters`] into these
     /// [`RtcpParameters`]
-    pub fn set_encoding(&mut self, encoding: &RtpEncodingParameters) {
-        webrtc::rtp_parameters_set_encoding(self.0.pin_mut(), &encoding.0);
+    pub fn set_encodings(&mut self, encoding: &RtpEncodingParameters) {
+        webrtc::rtp_parameters_set_encodings(self.0.pin_mut(), &encoding.0);
     }
 }
 
-unsafe impl Sync for webrtc::RtpParameters {}
 unsafe impl Send for webrtc::RtpParameters {}
+
 /// This interface describes an ICE candidate, described in
 /// [RFC 5245 Section 2][1].
 ///

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef ADM_PROXY
-#define ADM_PROXY
 
 #include "modules/audio_device/include/audio_device.h"
 #include "pc/proxy.h"
@@ -72,10 +70,8 @@ PROXY_METHOD1(int32_t, EnableBuiltInAGC, bool)
 PROXY_METHOD1(int32_t, EnableBuiltInNS, bool)
 PROXY_CONSTMETHOD0(int32_t, GetPlayoutUnderrunCount)
 #if defined(WEBRTC_IOS)
-PROXY_CONSTMETHOD1(int, GetPlayoutAudioParameters, AudioParameters*)
-PROXY_CONSTMETHOD1(int, GetRecordAudioParameters, AudioParameters*)
+  PROXY_CONSTMETHOD1(int, GetPlayoutAudioParameters, AudioParameters*)
+  PROXY_CONSTMETHOD1(int, GetRecordAudioParameters, AudioParameters*)
 #endif  // WEBRTC_IOS
 END_PROXY_MAP(AudioDeviceModule)
 }  // namespace webrtc
-
-#endif

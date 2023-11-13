@@ -1,9 +1,8 @@
 #pragma once
 
-#include "bridge.h"
-#include "rust/cxx.h"
 #include <stdexcept>
 #include "libwebrtc-sys/src/bridge.rs.h"
+#include "rust/cxx.h"
 
 namespace bridge {
 
@@ -12,7 +11,8 @@ struct OptionI32;
 struct OptionString;
 
 // Returns the `RtpEncodingParameters.rid` field value.
-rust::String rtp_encoding_parameters_rid(const webrtc::RtpEncodingParameters& encoding);
+rust::String rtp_encoding_parameters_rid(
+    const webrtc::RtpEncodingParameters& encoding);
 
 // Sets the `RtpEncodingParameters.rid` field value.
 void set_rtp_encoding_parameters_rid(webrtc::RtpEncodingParameters& encoding,
@@ -27,7 +27,7 @@ void set_rtp_encoding_parameters_active(webrtc::RtpEncodingParameters& encoding,
                                         bool active);
 
 // Returns the `RtpEncodingParameters.maxBitrate` field value.
-rust::cxxbridge1::Box<bridge::OptionI32> rtp_encoding_parameters_max_bitrate(
+rust::Box<bridge::OptionI32> rtp_encoding_parameters_max_bitrate(
     const webrtc::RtpEncodingParameters& encoding);
 
 // Returns the `RtpEncodingParameters.maxBitrate` field value.
@@ -36,11 +36,11 @@ void set_rtp_encoding_parameters_max_bitrate(
     int32_t max_bitrate);
 
 // Returns the `RtpEncodingParameters.minBitrate` field value.
-rust::cxxbridge1::Box<bridge::OptionI32> rtp_encoding_parameters_min_bitrate(
+rust::Box<bridge::OptionI32> rtp_encoding_parameters_min_bitrate(
     const webrtc::RtpEncodingParameters& encoding);
 
 // Returns the `RtpEncodingParameters.maxFramerate` field value.
-rust::cxxbridge1::Box<bridge::OptionF64> rtp_encoding_parameters_max_framerate(
+rust::Box<bridge::OptionF64> rtp_encoding_parameters_max_framerate(
     const webrtc::RtpEncodingParameters& encoding);
 
 // Sets the `RtpEncodingParameters.maxFramerate` field value.
@@ -49,11 +49,11 @@ void set_rtp_encoding_parameters_max_framerate(
     double max_framrate);
 
 // Returns the `RtpEncodingParameters.ssrc` field value.
-rust::cxxbridge1::Box<bridge::OptionI32> rtp_encoding_parameters_ssrc(
+rust::Box<bridge::OptionI32> rtp_encoding_parameters_ssrc(
     const webrtc::RtpEncodingParameters& encoding);
 
 // Returns the `RtpEncodingParameters.scale_resolution_down_by` field value.
-rust::cxxbridge1::Box<bridge::OptionF64> rtp_encoding_parameters_scale_resolution_down_by(
+rust::Box<bridge::OptionF64> rtp_encoding_parameters_scale_resolution_down_by(
     const webrtc::RtpEncodingParameters& encoding);
 
 // Sets the `RtpEncodingParameters.scale_resolution_down_by` field value.
@@ -62,7 +62,7 @@ void set_rtp_encoding_parameters_scale_resolution_down_by(
     double scale_resolution_down_by);
 
 // Returns the `RtpEncodingParameters.scalability_mode` field value.
-rust::cxxbridge1::Box<bridge::OptionString> rtp_encoding_parameters_scalability_mode(
+rust::Box<bridge::OptionString> rtp_encoding_parameters_scalability_mode(
     const webrtc::RtpEncodingParameters& encoding);
 
 // Sets the `RtpEncodingParameters.scalability_mode` field value.

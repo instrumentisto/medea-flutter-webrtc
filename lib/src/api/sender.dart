@@ -63,7 +63,9 @@ class _RtpSenderChannel extends RtpSender {
 
   @override
   Future<RtpParameters> getParameters() async {
-    return RtpParameters.fromChannel(_chan);
+    dynamic parameters = await _chan.invokeMethod('getParameters');
+
+    return RtpParameters.fromMap(parameters);
   }
 
   @override
@@ -96,12 +98,12 @@ class _RtpSenderFFI extends RtpSender {
   @override
   Future<RtpParameters> getParameters() async {
     return RtpParameters.fromFFI(
-        await api!.getParameters(transceiver: _transceiver));
+        await api!.senderGetParameters(transceiver: _transceiver));
   }
 
   @override
   Future<void> setParameters(RtpParameters parameters) async {
-    await api!
-        .setParameters(transceiver: _transceiver, params: parameters.toFFI()!);
+    await api!.senderSetParameters(
+        transceiver: _transceiver, params: parameters.toFFI());
   }
 }

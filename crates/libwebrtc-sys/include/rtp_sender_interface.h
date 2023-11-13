@@ -24,7 +24,8 @@ bool replace_sender_audio_track(
     const RtpSenderInterface& sender,
     const std::unique_ptr<AudioTrackInterface>& track);
 
-// Sets the `parameters` for the provided `RtpSenderInterface`.
-rust::String rtp_sender_set_parameters(const RtpSenderInterface& sender, const webrtc::RtpParameters& parameters);
+// Sets the provided `RtpParameters` for the provided `RtpSenderInterface`.
+rust::String rtp_sender_set_parameters(const RtpSenderInterface& sender,
+                                       const webrtc::RtpParameters& parameters);
 
 }  // namespace bridge

@@ -1,5 +1,4 @@
 #include "rtp_sender_interface.h"
-#include "rust/cxx.h"
 
 namespace bridge {
 
@@ -37,15 +36,19 @@ bool replace_sender_audio_track(
   }
 }
 
-rust::String rtp_sender_set_parameters(const RtpSenderInterface& sender, const webrtc::RtpParameters& parameters) {
-    webrtc::RTCError result = sender->SetParameters(parameters);
-    rust::String error;
+// Sets the provided `RtpParameters` for the provided `RtpSenderInterface`.
+rust::String rtp_sender_set_parameters(
+    const RtpSenderInterface& sender,
+    const webrtc::RtpParameters& parameters) {
+  rust::String error;
 
-    if (!result.ok()) {
-        error = result.message();
-    }
+  webrtc::RTCError result = sender->SetParameters(parameters);
 
-    return error;
+  if (!result.ok()) {
+    error = result.message();
+  }
+
+  return error;
 }
 
 }  // namespace bridge

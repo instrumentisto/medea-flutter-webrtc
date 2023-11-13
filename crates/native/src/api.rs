@@ -20,7 +20,7 @@ use crate::{
 // Re-exporting since it is used in the generated code.
 pub use crate::{
     renderer::TextureEvent, PeerConnection, RtpEncodingParameters,
-    RtpParameters, RtpTransceiver, RtpTransceiverInit,
+    RtpParameters, RtpTransceiver,
 };
 
 lazy_static::lazy_static! {
@@ -1704,9 +1704,30 @@ pub struct RtcRtpEncodingParameters {
 
     /// Scalability mode describes layers within the media stream.
     pub scalability_mode: Option<String>,
+}
 
-    /// Rust side [`RtpEncodingParameters`].
-    pub parameters: RustOpaque<Arc<RtpEncodingParameters>>,
+impl From<&sys::RtpEncodingParameters> for RtcRtpEncodingParameters {
+    fn from(sys: &sys::RtpEncodingParameters) -> Self {
+        Self {
+            rid: sys.rid(),
+            active: sys.active(),
+            max_bitrate: sys.max_bitrate(),
+            max_framerate: sys.max_framerate(),
+            scale_resolution_down_by: sys.scale_resolution_down_by(),
+            scalability_mode: sys.scalability_mode(),
+        }
+    }
+}
+
+/// Representation of a [RTCRtpTransceiverInit].
+///
+/// [RTCRtpTransceiverInit]: https://w3.org/TR/webrtc/#dom-rtcrtptransceiverinit
+pub struct RtpTransceiverInit {
+    /// The direction of the RTCRtpTransceiver.
+    pub direction: RtpTransceiverDirection,
+
+    /// A sequence containing parameters for sending RTP encodings of media.
+    pub send_encodings: Vec<RtcRtpEncodingParameters>,
 }
 
 /// Representation of a permanent pair of an [RTCRtpSender] and an
@@ -1733,6 +1754,40 @@ pub struct RtcRtpTransceiver {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     pub direction: RtpTransceiverDirection,
+}
+
+/// Representation of a [RtcRtpSendParameters].
+///
+/// [RtcRtpSendParameters]: https://w3.org/TR/webrtc/#dom-rtcrtpsendparameters
+pub struct RtcRtpSendParameters {
+    /// A sequence containing parameters for RTP encodings of media.
+    pub encodings: Vec<(
+        RtcRtpEncodingParameters,
+        RustOpaque<Arc<RtpEncodingParameters>>,
+    )>,
+
+    /// Reference to the Rust side [`RtpParameters`].
+    pub inner: RustOpaque<Arc<RtpParameters>>,
+}
+
+impl From<RtpParameters> for RtcRtpSendParameters {
+    fn from(v: RtpParameters) -> Self {
+        let encodings = v
+            .get_encodings()
+            .into_iter()
+            .map(|e| {
+                (
+                    RtcRtpEncodingParameters::from(&e),
+                    RustOpaque::new(Arc::new(RtpEncodingParameters::from(e))),
+                )
+            })
+            .collect();
+
+        Self {
+            encodings,
+            inner: RustOpaque::new(Arc::new(v)),
+        }
+    }
 }
 
 /// Representation of a track event, sent when a new [`MediaStreamTrack`] is
@@ -1961,121 +2016,6 @@ pub fn create_answer(
     rx.recv_timeout(RX_TIMEOUT)?
 }
 
-/// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
-#[allow(clippy::needless_pass_by_value)]
-pub fn get_parameters(
-    transceiver: RustOpaque<Arc<RtpTransceiver>>,
-) -> RustOpaque<Arc<RtpParameters>> {
-    RustOpaque::new(Arc::new(transceiver.sender_get_parameters()))
-}
-
-/// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
-#[allow(clippy::needless_pass_by_value)]
-pub fn set_parameters(
-    transceiver: RustOpaque<Arc<RtpTransceiver>>,
-    params: RustOpaque<Arc<RtpParameters>>,
-) -> anyhow::Result<()> {
-    transceiver.sender_set_parameters(&params)
-}
-
-/// Returns [`RtcRtpEncodingParameters`] from the provided [`RtpParameters`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn parameters_get_encodings(
-    params: RustOpaque<Arc<RtpParameters>>,
-) -> Vec<RtcRtpEncodingParameters> {
-    params.get_encodings()
-}
-
-/// Sets the [`RtcRtpEncodingParameters`] into the provided [`RtpParameters`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn parameters_set_encoding(
-    params: RustOpaque<Arc<RtpParameters>>,
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
-) {
-    params.set_encoding(&encoding);
-}
-
-/// Creates a new default [`RtpTransceiverInit`].
-pub fn create_transceiver_init() -> RustOpaque<Arc<RtpTransceiverInit>> {
-    RustOpaque::new(Arc::new(RtpTransceiverInit::new()))
-}
-
-/// Sets the provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn set_transceiver_init_direction(
-    init: RustOpaque<Arc<RtpTransceiverInit>>,
-    direction: RtpTransceiverDirection,
-) {
-    init.set_direction(direction);
-}
-
-/// Adds the provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn add_transceiver_init_send_encoding(
-    init: RustOpaque<Arc<RtpTransceiverInit>>,
-    enc: RustOpaque<Arc<RtpEncodingParameters>>,
-) {
-    init.add_encoding(&enc);
-}
-
-/// Creates new [`RtpEncodingParameters`] with the provided settings.
-#[allow(clippy::needless_pass_by_value)]
-pub fn create_encoding_parameters(
-    rid: String,
-    active: bool,
-    max_bitrate: Option<i32>,
-    max_framerate: Option<f64>,
-    scale_resolution_down_by: Option<f64>,
-    scalability_mode: Option<String>,
-) -> RtcRtpEncodingParameters {
-    let encoding = RtpEncodingParameters::new();
-
-    encoding.set_rid(rid.clone());
-    encoding.set_active(active);
-
-    if let Some(max_bitrate) = max_bitrate {
-        encoding.set_max_bitrate(max_bitrate);
-    }
-    if let Some(max_framerate) = max_framerate {
-        encoding.set_max_framerate(max_framerate);
-    }
-    if let Some(scale_resolution_down_by) = scale_resolution_down_by {
-        encoding.set_scale_resolution_down_by(scale_resolution_down_by);
-    }
-    if let Some(scalability_mode) = &scalability_mode {
-        encoding.set_scalability_mode(scalability_mode.clone());
-    }
-
-    RtcRtpEncodingParameters {
-        rid,
-        active,
-        max_bitrate,
-        max_framerate,
-        scale_resolution_down_by,
-        scalability_mode,
-        parameters: RustOpaque::new(Arc::new(encoding)),
-    }
-}
-
-/// Updates the provided [`RtpEncodingParameters`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn update_encoding_parameters(
-    encoding: RustOpaque<Arc<RtpEncodingParameters>>,
-    active: Option<bool>,
-    max_bitrate: Option<i32>,
-    max_framerate: Option<f64>,
-    scale_resolution_down_by: Option<f64>,
-    scalability_mode: Option<String>,
-) {
-    encoding.update(
-        active,
-        max_bitrate,
-        max_framerate,
-        scale_resolution_down_by,
-        scalability_mode,
-    );
-}
-
 /// Changes the local description associated with the connection.
 #[allow(clippy::needless_pass_by_value)]
 pub fn set_local_description(
@@ -2107,9 +2047,9 @@ pub fn set_remote_description(
 pub fn add_transceiver(
     peer: RustOpaque<Arc<PeerConnection>>,
     media_type: MediaType,
-    init: RustOpaque<Arc<RtpTransceiverInit>>,
+    init: RtpTransceiverInit,
 ) -> anyhow::Result<RtcRtpTransceiver> {
-    PeerConnection::add_transceiver(peer, media_type.into(), &init)
+    PeerConnection::add_transceiver(peer, media_type.into(), init)
 }
 
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
@@ -2208,6 +2148,23 @@ pub fn sender_replace_track(
         .lock()
         .unwrap()
         .sender_replace_track(&peer, &transceiver, track_id)
+}
+
+/// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
+#[allow(clippy::needless_pass_by_value)]
+pub fn sender_get_parameters(
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+) -> RtcRtpSendParameters {
+    RtcRtpSendParameters::from(transceiver.sender_get_parameters())
+}
+
+/// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
+#[allow(clippy::needless_pass_by_value)]
+pub fn sender_set_parameters(
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+    params: RtcRtpSendParameters,
+) -> anyhow::Result<()> {
+    transceiver.sender_set_parameters(params)
 }
 
 /// Adds the new ICE `candidate` to the given [`PeerConnection`].
