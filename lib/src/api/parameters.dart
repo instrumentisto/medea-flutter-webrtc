@@ -4,31 +4,31 @@ import 'package:medea_flutter_webrtc/src/api/bridge.g.dart';
 import 'bridge.g.dart' as ffi;
 import 'send_encoding_parameters.dart';
 
-/// [RtpParameters][1] implementation.
+/// [RTCRtpParameters][0] implementation.
 ///
-/// [1]: https://w3.org/TR/webrtc/#dom-rtcrtpparameters
+/// [0]: https://w3.org/TR/webrtc#dom-rtcrtpparameters
 abstract class RtpParameters {
-  /// Create a new [RtpParameters] from the provided [ArcRtpParameters].
+  /// Creates new [RtpParameters] from the provided [ffi.RtcRtpSendParameters].
   static fromFFI(ffi.RtcRtpSendParameters params) {
     return _RtpParametersFFI(params);
   }
 
-  /// Create a new [RtpParameters] from the provided [MethodChannel].
+  /// Creates new [RtpParameters] from the provided [MethodChannel].
   static fromMap(dynamic map) {
     return _RtpParametersChannel.fromMap(map);
   }
 
-  /// The [SendEncodingParameters] which has been set.
+  /// [SendEncodingParameters] which has been set.
   late List<SendEncodingParameters> encodings;
 
-  /// Tries to convert this [RtpParameters] into [ffi.ArcRtpParameters].
+  /// Tries to convert these [RtpParameters] into [ffi.ArcRtpParameters].
   ffi.RtcRtpSendParameters toFFI();
 
-  /// Converts this [RtpParameters] to the [Map] expected by Flutter.
+  /// Converts these [RtpParameters] into the [Map] expected by Flutter.
   Map<String, dynamic> toMap();
 }
 
-/// [MethodChannel]-based implementation of a [RtpParameters].
+/// [MethodChannel]-based implementation of [RtpParameters].
 class _RtpParametersChannel extends RtpParameters {
   _RtpParametersChannel.fromMap(dynamic map) {
     encodings = List.unmodifiable(map!['encodings']
@@ -49,7 +49,7 @@ class _RtpParametersChannel extends RtpParameters {
   }
 }
 
-/// FFI-based implementation of a [RtpParameters].
+/// FFI-based implementation of [RtpParameters].
 class _RtpParametersFFI extends RtpParameters {
   _RtpParametersFFI(ffi.RtcRtpSendParameters params) {
     _inner = params.inner;

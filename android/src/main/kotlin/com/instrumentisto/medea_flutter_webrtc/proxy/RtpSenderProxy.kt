@@ -52,7 +52,7 @@ class RtpSenderProxy(sender: RtpSender) : Proxy<RtpSender>(sender) {
   /**
    * Sets [RtpParameters] of the underlying [RtpSender] with the provided one.
    *
-   * @return [Boolean] that indicates whether parameters has been set.
+   * @return [Boolean] indicating whether parameters has been set.
    */
   fun setParameters(params: RtpParameters): Boolean {
     return obj.setParameters(params)

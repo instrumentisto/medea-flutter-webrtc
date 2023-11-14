@@ -1688,7 +1688,7 @@ pub struct RtcRtpEncodingParameters {
     pub rid: String,
 
     /// Indicator whether the described [`RtcRtpEncodingParameters`] are
-    /// currently actively used.
+    /// currently actively being used.
     pub active: bool,
 
     /// Maximum number of bits per second to allow for these
@@ -1699,7 +1699,8 @@ pub struct RtcRtpEncodingParameters {
     /// [`RtcRtpEncodingParameters`].
     pub max_framerate: Option<f64>,
 
-    /// Factor for scaling down the video during [`RtcRtpEncodingParameters`].
+    /// Factor for scaling down the video with these
+    /// [`RtcRtpEncodingParameters`].
     pub scale_resolution_down_by: Option<f64>,
 
     /// Scalability mode describing layers within the media stream.

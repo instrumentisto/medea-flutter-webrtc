@@ -1,9 +1,11 @@
 import '/src/api/bridge.g.dart' as ffi;
 import '/src/api/peer.dart';
 
-/// Encoding describing a single configuration of a codec for an RTCRtpSender.
+/// Encoding describing a single configuration of a codec for an [RTCRtpSender].
+///
+/// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
 abstract class SendEncodingParameters {
-  /// Creates a new [SendEncodingParameters].
+  /// Creates new [SendEncodingParameters].
   static SendEncodingParameters create(String rid, bool active,
       {int? maxBitrate,
       double? maxFramerate,
@@ -24,7 +26,8 @@ abstract class SendEncodingParameters {
     }
   }
 
-  /// Create a new [SendEncodingParameters] from the provided [ffi.RtcRtpEncodingParameters].
+  /// Create new [SendEncodingParameters] from the provided
+  /// [ffi.RtcRtpEncodingParameters].
   static SendEncodingParameters fromFFI(ffi.RtcRtpEncodingParameters e,
       ffi.ArcRtpEncodingParameters sysEncoding) {
     return _SendEncodingParametersFFI(e.rid, e.active,
@@ -35,7 +38,8 @@ abstract class SendEncodingParameters {
         encoding: sysEncoding);
   }
 
-  /// Creates an [SendEncodingParameters] basing on the [Map] received from the native side.
+  /// Creates [SendEncodingParameters] basing on the [Map] received from the
+  /// native side.
   static SendEncodingParameters fromMap(dynamic e) {
     return _SendEncodingParametersChannel(e['rid'], e['active'],
         maxBitrate: e['maxBitrate'],
@@ -43,36 +47,36 @@ abstract class SendEncodingParameters {
         scaleResolutionDownBy: e['scaleResolutionDownBy']);
   }
 
-  /// String which, if set, specifies an RTP stream ID (RID) to be sent using
-  /// the RID header extension.
+  /// [RTP stream ID (RID)][0] to be sent using the RID header extension.
+  ///
+  /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodingparameters-rid
   late String rid;
 
-  /// If true, the described encoding is currently actively being used.
+  /// Indicator whether the described encoding is currently actively being used.
   late bool active;
 
-  /// Indicator of the maximum number of bits per second to allow for this
-  /// encoding.
+  /// Maximum number of bits per second to allow for this encoding.
   int? maxBitrate;
 
-  /// Value specifying the maximum number of frames per second to allow for
-  /// this encoding.
+  /// Maximum number of frames per second to allow for this encoding.
   double? maxFramerate;
 
-  /// Double-precision floating-point value specifying a factor by which to
-  /// scale down the video during encoding.
+  /// Factor for scaling down the video during encoding.
   double? scaleResolutionDownBy;
 
-  /// Scalability mode describes layers within the media stream.
+  /// Scalability mode describing layers within the media stream.
   String? scalabilityMode;
 
-  /// Converts this [SendEncodingParameters] to the [Map] expected by Flutter.
+  /// Converts these [SendEncodingParameters] into the [Map] expected by
+  /// Flutter.
   Map<String, dynamic> toMap();
 
-  /// Tries to convert this [SendEncodingParameters] to the [ffi.ArcRtpEncodingParameters].
+  /// Tries to convert these [SendEncodingParameters] into
+  /// [ffi.ArcRtpEncodingParameters].
   (ffi.RtcRtpEncodingParameters, ffi.ArcRtpEncodingParameters?) toFFI();
 }
 
-/// [MethodChannel]-based implementation of a [SendEncodingParameters].
+/// [MethodChannel]-based implementation of [SendEncodingParameters].
 class _SendEncodingParametersChannel extends SendEncodingParameters {
   _SendEncodingParametersChannel(String rid, bool active,
       {int? maxBitrate,
@@ -105,7 +109,7 @@ class _SendEncodingParametersChannel extends SendEncodingParameters {
   }
 }
 
-/// FFI-based implementation of a [SendEncodingParameters].
+/// FFI-based implementation of [SendEncodingParameters].
 class _SendEncodingParametersFFI extends SendEncodingParameters {
   _SendEncodingParametersFFI(String rid, bool active,
       {int? maxBitrate,

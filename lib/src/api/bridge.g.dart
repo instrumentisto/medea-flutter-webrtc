@@ -1212,7 +1212,7 @@ class RtcRtpEncodingParameters {
   final String rid;
 
   /// Indicator whether the described [`RtcRtpEncodingParameters`] are
-  /// currently actively used.
+  /// currently actively being used.
   final bool active;
 
   /// Maximum number of bits per second to allow for these
@@ -1223,7 +1223,8 @@ class RtcRtpEncodingParameters {
   /// [`RtcRtpEncodingParameters`].
   final double? maxFramerate;
 
-  /// Factor for scaling down the video during [`RtcRtpEncodingParameters`].
+  /// Factor for scaling down the video with these
+  /// [`RtcRtpEncodingParameters`].
   final double? scaleResolutionDownBy;
 
   /// Scalability mode describing layers within the media stream.
