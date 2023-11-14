@@ -58,6 +58,7 @@ class _RtpParametersFFI extends RtpParameters {
         .toList());
   }
 
+  /// Reference to the Rust side [RtpParameters].
   late ArcRtpParameters _inner;
 
   @override

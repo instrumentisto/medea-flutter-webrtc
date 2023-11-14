@@ -3,6 +3,7 @@ import '/src/api/peer.dart';
 
 /// Encoding describing a single configuration of a codec for an RTCRtpSender.
 abstract class SendEncodingParameters {
+  /// Creates a new [SendEncodingParameters].
   static SendEncodingParameters create(String rid, bool active,
       {int? maxBitrate,
       double? maxFramerate,
@@ -39,8 +40,7 @@ abstract class SendEncodingParameters {
     return _SendEncodingParametersChannel(e['rid'], e['active'],
         maxBitrate: e['maxBitrate'],
         maxFramerate: (e['maxFramerate'] as int?)?.toDouble(),
-        scaleResolutionDownBy: e['scaleResolutionDownBy'],
-        index: e['index']);
+        scaleResolutionDownBy: e['scaleResolutionDownBy']);
   }
 
   /// String which, if set, specifies an RTP stream ID (RID) to be sent using
@@ -78,9 +78,7 @@ class _SendEncodingParametersChannel extends SendEncodingParameters {
       {int? maxBitrate,
       double? maxFramerate,
       double? scaleResolutionDownBy,
-      String? scalabilityMode,
-      int? index})
-      : _index = index {
+      String? scalabilityMode}) {
     this.rid = rid;
     this.active = active;
     this.maxBitrate = maxBitrate;
@@ -89,12 +87,9 @@ class _SendEncodingParametersChannel extends SendEncodingParameters {
     this.scalabilityMode = scalabilityMode;
   }
 
-  final int? _index;
-
   @override
   Map<String, dynamic> toMap() {
     return {
-      'index': _index,
       'rid': rid,
       'active': active,
       'maxBitrate': maxBitrate,

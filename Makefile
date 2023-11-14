@@ -303,8 +303,7 @@ endif
 		--skip-add-mod-to-lib \
 		--no-build-runner \
 		--dart-enums-style \
-		--inline-rust \
-		--keep-going
+		--inline-rust
 	flutter pub run build_runner build --delete-conflicting-outputs
 
 
@@ -432,7 +431,6 @@ test.flutter: flutter.test
 ##################
 # .PHONY section #
 ##################
-
 
 .PHONY: build clean codegen deps docs fmt lint run test \
         cargo.clean cargo.build cargo.doc cargo.fmt cargo.gen cargo.lint \
