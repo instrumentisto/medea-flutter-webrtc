@@ -89,7 +89,7 @@ class RtpSenderController {
         }
       }
 
-      rtpSender.setParameters(params: params);
+      self.rtpSender.setParameters(params: params)
 
       result(nil)
     case "dispose":
