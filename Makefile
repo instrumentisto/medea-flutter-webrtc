@@ -272,7 +272,8 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/rust:$(RUST_NIGHTLY_VER) \
 			make cargo.fmt check=$(check) dockerized=no
 else
-	cargo +nightly fmt --all $(if $(call eq,$(check),yes),-- --check,)
+	cargo +nightly fmt --all -- --config-path=.nightly.rustfmt.toml \
+		$(if $(call eq,$(check),yes),--check,)
 endif
 
 

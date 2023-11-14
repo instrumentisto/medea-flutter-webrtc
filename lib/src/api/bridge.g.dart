@@ -1202,31 +1202,31 @@ sealed class RtcOutboundRtpStreamStatsMediaType
   }) = RtcOutboundRtpStreamStatsMediaType_Video;
 }
 
-/// Represents of [`RTCRtpEncodingParameters`][0].
+/// Representation of [RTCRtpEncodingParameters][0].
 ///
-/// [0]: https://www.w3.org/TR/webrtc/#rtcrtpencodingparameters
+/// [0]: https://w3.org/TR/webrtc#rtcrtpencodingparameters
 class RtcRtpEncodingParameters {
-  /// String specifies an RTP stream ID (RID) to be sent using the RID header
-  /// extension.
+  /// [RTP stream ID (RID)][0] to be sent using the RID header extension.
+  ///
+  /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodingparameters-rid
   final String rid;
 
-  /// If true, the described [`RtcRtpEncodingParameters`] is currently
-  /// actively being used.
+  /// Indicator whether the described [`RtcRtpEncodingParameters`] are
+  /// currently actively used.
   final bool active;
 
-  /// Indicator of the maximum number of bits per second to allow for this
+  /// Maximum number of bits per second to allow for these
   /// [`RtcRtpEncodingParameters`].
   final int? maxBitrate;
 
-  /// Value specifying the maximum number of frames per second to allow for
-  /// this [`RtcRtpEncodingParameters`].
+  /// Maximum number of frames per second to allow for these
+  /// [`RtcRtpEncodingParameters`].
   final double? maxFramerate;
 
-  /// Double-precision floating-point value specifying a factor by which
-  /// to scale down the video during [`RtcRtpEncodingParameters`].
+  /// Factor for scaling down the video during [`RtcRtpEncodingParameters`].
   final double? scaleResolutionDownBy;
 
-  /// Scalability mode describes layers within the media stream.
+  /// Scalability mode describing layers within the media stream.
   final String? scalabilityMode;
 
   const RtcRtpEncodingParameters({
@@ -1239,11 +1239,13 @@ class RtcRtpEncodingParameters {
   });
 }
 
-/// Representation of a [RtcRtpSendParameters].
+/// Representation of [RTCRtpSendParameters][0].
 ///
-/// [RtcRtpSendParameters]: https://w3.org/TR/webrtc/#dom-rtcrtpsendparameters
+/// [0]: https://w3.org/TR/webrtc#dom-rtcrtpsendparameters
 class RtcRtpSendParameters {
-  /// A sequence containing parameters for RTP encodings of media.
+  /// Sequence containing parameters for sending [RTP] encodings of media.
+  ///
+  /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   final List<(RtcRtpEncodingParameters, ArcRtpEncodingParameters)> encodings;
 
   /// Reference to the Rust side [`RtpParameters`].
@@ -1770,14 +1772,18 @@ enum RtpTransceiverDirection {
   stopped,
 }
 
-/// Representation of a [RTCRtpTransceiverInit].
+/// Representation of an [RTCRtpTransceiverInit][0].
 ///
-/// [RTCRtpTransceiverInit]: https://w3.org/TR/webrtc/#dom-rtcrtptransceiverinit
+/// [0]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverinit
 class RtpTransceiverInit {
-  /// The direction of the RTCRtpTransceiver.
+  /// Direction of the [RTCRtpTransceiver][1].
+  ///
+  /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
   final RtpTransceiverDirection direction;
 
-  /// A sequence containing parameters for sending RTP encodings of media.
+  /// Sequence containing parameters for sending [RTP] encodings of media.
+  ///
+  /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   final List<RtcRtpEncodingParameters> sendEncodings;
 
   const RtpTransceiverInit({
