@@ -1529,7 +1529,7 @@ pub(crate) mod webrtc {
         /// Sets the [`RtpParameters`] of the provided [`RtpReceiverInterface`].
         pub fn rtp_sender_set_parameters(
             sender: &RtpSenderInterface,
-            parameters: &RtpParameters
+            parameters: &RtpParameters,
         ) -> String;
     }
 
@@ -1698,7 +1698,7 @@ pub(crate) mod webrtc {
         /// [`RtpParameters`].
         pub fn rtp_parameters_set_encodings(
             parameters: Pin<&mut RtpParameters>,
-            encodings: &RtpEncodingParametersContainer
+            encodings: &RtpEncodingParametersContainer,
         );
     }
 

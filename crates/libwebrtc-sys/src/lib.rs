@@ -1107,7 +1107,7 @@ impl RtpEncodingParameters {
 
     /// Returns the [`rid`][0] property of these [`RtpEncodingParameters`].
     ///
-    /// [0]: https://w3.org/TR/webrtc/#dom-rtcrtpcodingparameters-rid
+    /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodingparameters-rid
     #[must_use]
     pub fn rid(&self) -> String {
         webrtc::rtp_encoding_parameters_rid(&self.0.ptr)
@@ -1322,7 +1322,7 @@ impl RtpParameters {
     }
 
     /// Sets the provided [`RtpEncodingParameters`] into these
-    /// [`RtcpParameters`]
+    /// [`RtcpParameters`].
     pub fn set_encodings(&mut self, encoding: &RtpEncodingParameters) {
         webrtc::rtp_parameters_set_encodings(self.0.pin_mut(), &encoding.0);
     }

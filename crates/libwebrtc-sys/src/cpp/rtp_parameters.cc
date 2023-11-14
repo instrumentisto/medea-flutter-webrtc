@@ -1,5 +1,5 @@
-#include "rtp_parameters.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
+#include "rtp_parameters.h"
 
 namespace bridge {
 
@@ -21,7 +21,7 @@ std::unique_ptr<webrtc::RtcpParameters> rtp_parameters_rtcp(
   return std::make_unique<webrtc::RtcpParameters>(parameters.rtcp);
 }
 
-// Updates `RtpParameters.encodings` with the provided values.
+// Updates the `RtpParameters.encodings` with the provided values.
 void rtp_parameters_set_encodings(
     webrtc::RtpParameters& parameters,
     const RtpEncodingParametersContainer& encodings) {

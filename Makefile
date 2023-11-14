@@ -423,7 +423,7 @@ docs.rust: cargo.doc
 
 test.cargo: cargo.test
 
-test.flutter: flutter.test
+test.flutter: flutter.test.desktop flutter.test.mobile
 
 
 
@@ -437,8 +437,8 @@ test.flutter: flutter.test
         	cargo.test \
         docs.rust \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.pub \
-        	flutter.run flutter.test \
+        	flutter.run flutter.test.desktop flutter.test.mobile \
         kt.fmt \
         rustup.targets \
         swift.fmt \
-        test.cargo flutter.test.desktop flutter.test.mobile
+        test.cargo test.flutter

@@ -572,7 +572,7 @@ impl PeerConnection {
     }
 }
 
-/// Wrapper around a [`sys::RtpParameters`].
+/// Wrapper around [`sys::RtpParameters`].
 pub struct RtpParameters(Arc<Mutex<sys::RtpParameters>>);
 
 impl RtpParameters {
@@ -580,7 +580,7 @@ impl RtpParameters {
     ///
     /// # Panics
     ///
-    /// If the mutex guarding the [`sys::RtpParameters`] is poisoned.
+    /// If the [`Mutex`] guarding the [`sys::RtpParameters`] is poisoned.
     #[must_use]
     pub fn get_encodings(&self) -> Vec<sys::RtpEncodingParameters> {
         self.0.lock().unwrap().encodings()
@@ -590,7 +590,7 @@ impl RtpParameters {
     ///
     /// # Panics
     ///
-    /// If the mutex guarding the [`sys::RtpParameters`] is poisoned.
+    /// If the [`Mutex`] guarding the [`sys::RtpParameters`] is poisoned.
     fn update_encoding(&self, encoding: &RtpEncodingParameters) {
         self.0
             .lock()
@@ -614,11 +614,11 @@ impl From<api::RtpTransceiverInit> for sys::RtpTransceiverInit {
     }
 }
 
-/// Wrapper around a [`sys::RtpEncodingParameters`].
+/// Wrapper around [`sys::RtpEncodingParameters`].
 pub struct RtpEncodingParameters(Mutex<sys::RtpEncodingParameters>);
 
 impl RtpEncodingParameters {
-    /// Creates a new [`RtpEncodingParameters`].
+    /// Creates new [`RtpEncodingParameters`].
     #[must_use]
     pub fn new() -> Self {
         Self(Mutex::new(sys::RtpEncodingParameters::new()))
@@ -700,22 +700,31 @@ impl Default for RtpEncodingParameters {
 
 impl From<api::RtcRtpEncodingParameters> for RtpEncodingParameters {
     fn from(v: api::RtcRtpEncodingParameters) -> Self {
+        let api::RtcRtpEncodingParameters {
+            rid,
+            active,
+            max_bitrate,
+            max_framerate,
+            scale_resolution_down_by,
+            scalability_mode,
+        } = v;
+
         let e = RtpEncodingParameters::new();
 
-        e.set_rid(v.rid);
-        e.set_active(v.active);
+        e.set_rid(rid);
+        e.set_active(active);
 
-        if let Some(max_bitrate) = v.max_bitrate {
-            e.set_max_bitrate(max_bitrate);
+        if let Some(b) = max_bitrate {
+            e.set_max_bitrate(b);
         }
-        if let Some(max_framerate) = v.max_framerate {
-            e.set_max_framerate(max_framerate);
+        if let Some(f) = max_framerate {
+            e.set_max_framerate(f);
         }
-        if let Some(scale_resolution_down_by) = v.scale_resolution_down_by {
-            e.set_scale_resolution_down_by(scale_resolution_down_by);
+        if let Some(r) = scale_resolution_down_by {
+            e.set_scale_resolution_down_by(r);
         }
-        if let Some(scalability_mode) = v.scalability_mode {
-            e.set_scalability_mode(scalability_mode);
+        if let Some(m) = scalability_mode {
+            e.set_scalability_mode(m);
         }
 
         e
@@ -723,8 +732,8 @@ impl From<api::RtcRtpEncodingParameters> for RtpEncodingParameters {
 }
 
 impl From<sys::RtpEncodingParameters> for RtpEncodingParameters {
-    fn from(value: sys::RtpEncodingParameters) -> Self {
-        Self(Mutex::new(value))
+    fn from(val: sys::RtpEncodingParameters) -> Self {
+        Self(Mutex::new(val))
     }
 }
 
@@ -883,19 +892,28 @@ impl RtpTransceiver {
         params: api::RtcRtpSendParameters,
     ) -> anyhow::Result<()> {
         for (api, sys) in params.encodings {
-            sys.set_rid(api.rid);
-            sys.set_active(api.active);
-            if let Some(max_bitrate) = api.max_bitrate {
-                sys.set_max_bitrate(max_bitrate);
+            let api::RtcRtpEncodingParameters {
+                rid,
+                active,
+                max_bitrate,
+                max_framerate,
+                scale_resolution_down_by,
+                scalability_mode,
+            } = api;
+
+            sys.set_rid(rid);
+            sys.set_active(active);
+            if let Some(b) = max_bitrate {
+                sys.set_max_bitrate(b);
             }
-            if let Some(max_framerate) = api.max_framerate {
-                sys.set_max_framerate(max_framerate);
+            if let Some(f) = max_framerate {
+                sys.set_max_framerate(f);
             }
-            if let Some(scalability_mode) = api.scalability_mode {
-                sys.set_scalability_mode(scalability_mode);
+            if let Some(r) = scale_resolution_down_by {
+                sys.set_scale_resolution_down_by(r);
             }
-            if let Some(scale_res_down_by) = api.scale_resolution_down_by {
-                sys.set_scale_resolution_down_by(scale_res_down_by);
+            if let Some(m) = scalability_mode {
+                sys.set_scalability_mode(m);
             }
 
             params.inner.update_encoding(&sys);

@@ -1678,31 +1678,31 @@ pub struct MediaStreamTrack {
     pub enabled: bool,
 }
 
-/// Represents of [`RTCRtpEncodingParameters`][0].
+/// Representation of [RTCRtpEncodingParameters][0].
 ///
-/// [0]: https://www.w3.org/TR/webrtc/#rtcrtpencodingparameters
+/// [0]: https://w3.org/TR/webrtc#rtcrtpencodingparameters
 pub struct RtcRtpEncodingParameters {
-    /// String specifies an RTP stream ID (RID) to be sent using the RID header
-    /// extension.
+    /// [RTP stream ID (RID)][0] to be sent using the RID header extension.
+    ///
+    /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodingparameters-rid
     pub rid: String,
 
-    /// If true, the described [`RtcRtpEncodingParameters`] is currently
-    /// actively being used.
+    /// Indicator whether the described [`RtcRtpEncodingParameters`] are
+    /// currently actively used.
     pub active: bool,
 
-    /// Indicator of the maximum number of bits per second to allow for this
+    /// Maximum number of bits per second to allow for these
     /// [`RtcRtpEncodingParameters`].
     pub max_bitrate: Option<i32>,
 
-    /// Value specifying the maximum number of frames per second to allow for
-    /// this [`RtcRtpEncodingParameters`].
+    /// Maximum number of frames per second to allow for these
+    /// [`RtcRtpEncodingParameters`].
     pub max_framerate: Option<f64>,
 
-    /// Double-precision floating-point value specifying a factor by which
-    /// to scale down the video during [`RtcRtpEncodingParameters`].
+    /// Factor for scaling down the video during [`RtcRtpEncodingParameters`].
     pub scale_resolution_down_by: Option<f64>,
 
-    /// Scalability mode describes layers within the media stream.
+    /// Scalability mode describing layers within the media stream.
     pub scalability_mode: Option<String>,
 }
 
@@ -1719,14 +1719,18 @@ impl From<&sys::RtpEncodingParameters> for RtcRtpEncodingParameters {
     }
 }
 
-/// Representation of a [RTCRtpTransceiverInit].
+/// Representation of an [RTCRtpTransceiverInit][0].
 ///
-/// [RTCRtpTransceiverInit]: https://w3.org/TR/webrtc/#dom-rtcrtptransceiverinit
+/// [0]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverinit
 pub struct RtpTransceiverInit {
-    /// The direction of the RTCRtpTransceiver.
+    /// Direction of the [RTCRtpTransceiver][1].
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     pub direction: RtpTransceiverDirection,
 
-    /// A sequence containing parameters for sending RTP encodings of media.
+    /// Sequence containing parameters for sending [RTP] encodings of media.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     pub send_encodings: Vec<RtcRtpEncodingParameters>,
 }
 
@@ -1756,11 +1760,13 @@ pub struct RtcRtpTransceiver {
     pub direction: RtpTransceiverDirection,
 }
 
-/// Representation of a [RtcRtpSendParameters].
+/// Representation of [RTCRtpSendParameters][0].
 ///
-/// [RtcRtpSendParameters]: https://w3.org/TR/webrtc/#dom-rtcrtpsendparameters
+/// [0]: https://w3.org/TR/webrtc#dom-rtcrtpsendparameters
 pub struct RtcRtpSendParameters {
-    /// A sequence containing parameters for RTP encodings of media.
+    /// Sequence containing parameters for sending [RTP] encodings of media.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     pub encodings: Vec<(
         RtcRtpEncodingParameters,
         RustOpaque<Arc<RtpEncodingParameters>>,

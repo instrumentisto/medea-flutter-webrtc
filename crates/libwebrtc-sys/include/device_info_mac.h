@@ -42,7 +42,6 @@ class DeviceInfoMac : public webrtc::videocapturemodule::DeviceInfoImpl {
  protected:
   AVCaptureDevice* device;
 };
-
 #endif // __OBJC__
 
 // Creates a new `DeviceInfo`.
