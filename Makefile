@@ -15,8 +15,8 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 # Project parameters #
 ######################
 
-RUST_VER ?= 1.64
-RUST_NIGHTLY_VER ?= nightly-2022-10-05
+RUST_VER ?= 1.74
+RUST_NIGHTLY_VER ?= nightly-2023-11-16
 
 FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	$(shell grep -A1 'name = "flutter_rust_bridge"' Cargo.lock \
@@ -134,7 +134,7 @@ flutter.run:
 # Run Flutter plugin integration tests on the current host as desktop.
 #
 # Usage:
-#	make flutter.test.desktop [debug=(no|yes)]
+#	make flutter.test.desktop
 
 flutter.test.desktop:
 	cd example/ && \
@@ -272,7 +272,8 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/rust:$(RUST_NIGHTLY_VER) \
 			make cargo.fmt check=$(check) dockerized=no
 else
-	cargo +nightly fmt --all $(if $(call eq,$(check),yes),-- --check,)
+	cargo +nightly fmt --all -- --config-path=.nightly.rustfmt.toml \
+		$(if $(call eq,$(check),yes),--check,)
 endif
 
 
@@ -304,6 +305,9 @@ endif
 		--no-build-runner \
 		--dart-enums-style \
 		--inline-rust
+	sed -i$(if $(call eq,$(CURRENT_OS),macos), '',) \
+		's/^pub use io::\*;$$/pub use self::io::*;/' \
+		crates/native/src/bridge_generated.rs
 	flutter pub run build_runner build --delete-conflicting-outputs
 
 
@@ -423,7 +427,7 @@ docs.rust: cargo.doc
 
 test.cargo: cargo.test
 
-test.flutter: flutter.test
+test.flutter: flutter.test.desktop flutter.test.mobile
 
 
 
@@ -437,8 +441,8 @@ test.flutter: flutter.test
         	cargo.test \
         docs.rust \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.pub \
-        	flutter.run flutter.test \
+        	flutter.run flutter.test.desktop flutter.test.mobile \
         kt.fmt \
         rustup.targets \
         swift.fmt \
-        test.cargo test.flutter.desktop test.flutter.mobile
+        test.cargo test.flutter

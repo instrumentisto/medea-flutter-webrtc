@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BRIDGE_ADM_H_
+#define BRIDGE_ADM_H_
 
 #define WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE 1
 
@@ -174,3 +175,5 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   std::recursive_mutex _playout_mutex;
   std::recursive_mutex _record_mutex;
 };
+
+#endif // BRIDGE_ADM_H_
