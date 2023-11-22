@@ -1,24 +1,24 @@
 /*
- * This file is part of Desktop App Toolkit, a set of libraries for developing
- * nice desktop applications.
- *
- * Copyright (c) 2014-2023 The Desktop App Toolkit Authors.
- *
- * Desktop App Toolkit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * It is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * In addition, as a special exception, the copyright holders give permission
- * to link the code of portions of this program with the OpenSSL library.
- *
- * Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
- */
+* This file is part of Desktop App Toolkit, a set of libraries for developing
+* nice desktop applications.
+*
+* Copyright (c) 2014-2023 The Desktop App Toolkit Authors.
+*
+* Desktop App Toolkit is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* It is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* In addition, as a special exception, the copyright holders give permission
+* to link the code of portions of this program with the OpenSSL library.
+*
+* Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
+*/
 
 #include <iostream>
 
@@ -42,7 +42,6 @@ constexpr auto kRecordingChannels = 1;
 constexpr std::int64_t kBufferSizeMs = 10;
 constexpr auto kRecordingPart =
     (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
-;
 constexpr auto kProcessInterval = 10;
 constexpr auto kALMaxValues = 6;
 constexpr auto kQueryExactTimeEach = 20;
@@ -228,7 +227,7 @@ int DeviceName(ALCenum specifier,
                int index,
                std::string* name,
                std::string* guid) {
-  EnumerateDevices(specifier, [&](const char* device) {
+  EnumerateDevices(specifier, [&](const char* device_name_str) {
     if (index < 0) {
       return;
     } else if (index > 0) {
@@ -236,18 +235,18 @@ int DeviceName(ALCenum specifier,
       return;
     }
 
-    auto string = std::string(device);
+    auto device_name = std::string(device_name_str);
     if (name) {
       if (guid) {
-        *guid = string;
+        *guid = device_name;
       }
       const auto prefix = std::string("OpenAL Soft on ");
-      if (string.rfind(prefix, 0) == 0) {
-        string = string.substr(prefix.size());
+      if (device_name.rfind(prefix, 0) == 0) {
+        device_name = device_name.substr(prefix.size());
       }
-      *name = std::move(string);
+      *name = std::move(device_name);
     } else if (guid) {
-      *guid = std::move(string);
+      *guid = std::move(device_name);
     }
     index = -1;
   });
@@ -344,6 +343,7 @@ bool OpenALAudioDeviceModule::PlayoutIsInitialized() const {
 
 int32_t OpenALAudioDeviceModule::StartPlayout() {
   std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
   if (!_playoutInitialized) {
     return -1;
   } else if (Playing()) {
@@ -358,6 +358,7 @@ int32_t OpenALAudioDeviceModule::StartPlayout() {
   GetAudioDeviceBuffer()->SetPlayoutChannels(_playoutChannels);
   GetAudioDeviceBuffer()->StartPlayout();
   startPlayingOnThread();
+
   return 0;
 }
 
@@ -505,6 +506,7 @@ void OpenALAudioDeviceModule::processPlayoutQueued() {
   _data->_playoutThread->PostDelayedHighPrecisionTask(
       [=] {
         std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
         processPlayout();
         processPlayoutQueued();
       },
@@ -701,6 +703,7 @@ void OpenALAudioDeviceModule::startPlayingOnThread() {
 void OpenALAudioDeviceModule::stopPlayingOnThread() {
   {
     std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
     if (!_data->playing) {
       _data->_playoutThread->PostTask([this] {
         std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
@@ -732,7 +735,8 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
 }
 
 void OpenALAudioDeviceModule::closeRecordingDevice() {
-  std::lock_guard<std::recursive_mutex> lk(_record_mutex);
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
   if (_recordingDevice) {
     alcCaptureCloseDevice(_recordingDevice);
     _recordingDevice = nullptr;
@@ -741,13 +745,15 @@ void OpenALAudioDeviceModule::closeRecordingDevice() {
 
 void OpenALAudioDeviceModule::stopCaptureOnThread() {
   {
-    std::lock_guard<std::recursive_mutex> lk(_record_mutex);
+    std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
     if (!_data->recording) {
       return;
     }
 
     _data->_recordingThread->PostTask([=]() {
-      std::lock_guard<std::recursive_mutex> lk(_record_mutex);
+      std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
       _data->recording = false;
       if (_recordingFailed) {
         return;
@@ -763,9 +769,10 @@ void OpenALAudioDeviceModule::stopCaptureOnThread() {
 void OpenALAudioDeviceModule::processRecordingQueued() {
   _data->_recordingThread->PostDelayedHighPrecisionTask(
       [=] {
-        std::lock_guard<std::recursive_mutex> lk(_record_mutex);
+        std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
         if (_data->recording && !_recordingFailed) {
-          processRecordingData();
+          for (auto first = true; processRecordedPart(first); first = false) {}
           processRecordingQueued();
         }
       },
@@ -775,7 +782,8 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
 void OpenALAudioDeviceModule::startCaptureOnThread() {
   _data->_recordingThread->Start();
   _data->_recordingThread->PostTask([=]() {
-    std::lock_guard<std::recursive_mutex> lk(_record_mutex);
+    std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
     _data->recording = true;
     if (_recordingFailed) {
       return;
@@ -997,12 +1005,8 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
   GetAudioDeviceBuffer()->SetVQEData(_playoutLatency.count(),
                                      _recordingLatency.count());
   GetAudioDeviceBuffer()->DeliverRecordedData();
-  return true;
-}
 
-void OpenALAudioDeviceModule::processRecordingData() {
-  for (auto first = true; processRecordedPart(first); first = false) {
-  }
+  return true;
 }
 
 std::chrono::milliseconds OpenALAudioDeviceModule::countExactQueuedMsForLatency(
@@ -1088,7 +1092,8 @@ bool OpenALAudioDeviceModule::validateRecordingDeviceId() {
 }
 
 int OpenALAudioDeviceModule::restartRecording() {
-  std::lock_guard<std::recursive_mutex> lk(_record_mutex);
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
   if (!_data || !_data->recording) {
     return 0;
   }
@@ -1097,7 +1102,8 @@ int OpenALAudioDeviceModule::restartRecording() {
   closeRecordingDevice();
   if (!validateRecordingDeviceId()) {
     _data->_recordingThread->PostTask([=]() {
-      std::lock_guard<std::recursive_mutex> lk(_record_mutex);
+      std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
       _data->recording = true;
       _recordingFailed = true;
     });

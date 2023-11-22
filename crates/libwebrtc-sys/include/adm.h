@@ -144,7 +144,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
 	int restartRecording();
 	void openRecordingDevice();
   void closeRecordingDevice();
-  void processRecordingData();
   bool processRecordedPart(bool firstInCycle);
   std::chrono::milliseconds countExactQueuedMsForLatency(
       std::chrono::time_point<std::chrono::steady_clock> now,
@@ -155,25 +154,24 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   void processRecordingQueued();
 
   rtc::Thread* _thread = nullptr;
-  std::string _playoutDeviceId;
-  bool _playoutInitialized = false;
-  bool _playoutFailed = false;
-  int _playoutChannels = 2;
-  bool _speakerInitialized = false;
-  ALCcontext* _playoutContext = nullptr;
-  ALCdevice* _playoutDevice = nullptr;
 
+  std::recursive_mutex _recording_mutex;
+  std::string _recordingDeviceId;
+  bool _recordingInitialized = false;
+  bool _microphoneInitialized = false;
+  bool _recordingFailed = false;
   ALCdevice *_recordingDevice = nullptr;
-	std::string _recordingDeviceId;
-	std::chrono::milliseconds _recordingLatency = std::chrono::milliseconds(0);
-  std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
-	bool _recordingInitialized = false;
-	bool _recordingFailed = false;
-
-	bool _microphoneInitialized = false;
+  std::chrono::milliseconds _recordingLatency = std::chrono::milliseconds(0);
 
   std::recursive_mutex _playout_mutex;
-  std::recursive_mutex _record_mutex;
+  std::string _playoutDeviceId;
+  bool _playoutInitialized = false;
+  bool _speakerInitialized = false;
+  bool _playoutFailed = false;
+  ALCdevice* _playoutDevice = nullptr;
+  std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
+  ALCcontext* _playoutContext = nullptr;
+  int _playoutChannels = 2;
 };
 
 #endif // BRIDGE_ADM_H_
