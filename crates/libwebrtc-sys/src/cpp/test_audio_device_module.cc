@@ -42,7 +42,7 @@ constexpr int kFrameLengthUs = 10000;
 constexpr int kFramesPerSecond = rtc::kNumMicrosecsPerSec / kFrameLengthUs;
 
 size_t _SamplesPerFrame(int sampling_frequency_in_hz) {
-  return rtc::CheckedDivExact(sampling_frequency_in_hz, kFramesPerSecond);
+  return sampling_frequency_in_hz / kFramesPerSecond;
 }
 
 class TestADM : public AudioDeviceGeneric {
