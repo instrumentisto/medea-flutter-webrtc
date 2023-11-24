@@ -1,24 +1,25 @@
 /*
-* This file is part of Desktop App Toolkit, a set of libraries for developing
-* nice desktop applications.
-*
-* Copyright (c) 2014-2023 The Desktop App Toolkit Authors.
-*
-* Desktop App Toolkit is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* It is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* In addition, as a special exception, the copyright holders give permission
-* to link the code of portions of this program with the OpenSSL library.
-*
-* Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
-*/
+ * This file is modified version of the one from Desktop App Toolkit, a set of
+ * libraries for developing nice desktop applications.
+ * https://github.com/desktop-app/lib_webrtc/blob/openal/webrtc/details/webrtc_openal_adm.cpp
+ *
+ * Copyright (c) 2014-2023 The Desktop App Toolkit Authors.
+ *
+ * Desktop App Toolkit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * It is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * In addition, as a special exception, the copyright holders give permission
+ * to link the code of portions of this program with the OpenSSL library.
+ *
+ * Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
+ */
 
 #include <iostream>
 
@@ -171,7 +172,8 @@ rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::CreateForTe
 
   // Create the generic reference counted (platform independent) implementation.
   auto audio_device =
-      rtc::make_ref_counted<OpenALAudioDeviceModule>(audio_layer, task_queue_factory);
+      rtc::make_ref_counted<OpenALAudioDeviceModule>(audio_layer,
+                                                     task_queue_factory);
 
   // Ensure that the current platform is supported.
   if (audio_device->CheckPlatform() == -1) {
@@ -349,9 +351,11 @@ int32_t OpenALAudioDeviceModule::StartPlayout() {
   } else if (Playing()) {
     return 0;
   }
+
   if (_playoutFailed) {
     _playoutFailed = false;
   }
+
   _data->_playoutThread->Start();
   openPlayoutDevice();
   GetAudioDeviceBuffer()->SetPlayoutSampleRate(kPlayoutFrequency);
@@ -490,8 +494,8 @@ void OpenALAudioDeviceModule::ensureThreadStarted() {
   if (_data) {
     return;
   }
-  _thread = rtc::Thread::Current();
 
+  _thread = rtc::Thread::Current();
   if (_thread && !_thread->IsOwned()) {
     _thread->UnwrapCurrent();
     _thread = nullptr;
@@ -871,12 +875,15 @@ int32_t OpenALAudioDeviceModule::StartRecording() {
   } else if (_data && _data->recording) {
     return 0;
   }
+
   if (_recordingFailed) {
     _recordingFailed = false;
     openRecordingDevice();
   }
+
   GetAudioDeviceBuffer()->StartRecording();
   startCaptureOnThread();
+
   return 0;
 }
 
@@ -889,6 +896,7 @@ int32_t OpenALAudioDeviceModule::StopRecording() {
       _data = nullptr;
     }
   }
+
   closeRecordingDevice();
   _recordingInitialized = false;
 
@@ -985,7 +993,7 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
     }
     return false;
   } else if (samples < kRecordingPart) {
-    // Not enough data for 10ms.
+    // Not enough data for 10 milliseconds.
     return false;
   }
 
@@ -1030,7 +1038,7 @@ std::chrono::milliseconds OpenALAudioDeviceModule::countExactQueuedMsForLatency(
       alGetSourcei64vSOFT(_data->source, kAL_SAMPLE_OFFSET_CLOCK_SOFT,
                           values.data());
 
-      // The exactDeviceTime is in nanoseconds.
+      // `exactDeviceTime` is in nanoseconds.
       exactDeviceTime =
           _data->lastExactDeviceTime +
           (now_nanos - _data->lastExactDeviceTimeWhen) * 1'000'000;
@@ -1100,6 +1108,7 @@ int OpenALAudioDeviceModule::restartRecording() {
 
   stopCaptureOnThread();
   closeRecordingDevice();
+
   if (!validateRecordingDeviceId()) {
     _data->_recordingThread->PostTask([=]() {
       std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
@@ -1109,8 +1118,10 @@ int OpenALAudioDeviceModule::restartRecording() {
     });
     return 0;
   }
+
   _recordingFailed = false;
   openRecordingDevice();
   startCaptureOnThread();
+
   return 0;
 }

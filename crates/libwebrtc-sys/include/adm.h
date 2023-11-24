@@ -1,8 +1,32 @@
+/*
+ * This file is modified version of the one from Desktop App Toolkit, a set of
+ * libraries for developing nice desktop applications.
+ * https://github.com/desktop-app/lib_webrtc/blob/openal/webrtc/details/webrtc_openal_adm.h
+ *
+ * Copyright (c) 2014-2023 The Desktop App Toolkit Authors.
+ *
+ * Desktop App Toolkit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * It is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * In addition, as a special exception, the copyright holders give permission
+ * to link the code of portions of this program with the OpenSSL library.
+ *
+ * Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
+ */
+
 #ifndef BRIDGE_ADM_H_
 #define BRIDGE_ADM_H_
 
 #define WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE 1
 
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -26,7 +50,6 @@
 #include "rtc_base/synchronization/mutex.h"
 #include "rtc_base/thread.h"
 #include "rtc_base/thread_annotations.h"
-#include <chrono>
 
 #if defined(WEBRTC_USE_X11)
 #include <X11/Xlib.h>
@@ -79,7 +102,7 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   int32_t SpeakerMute(bool* enabled) const override;
   int32_t RegisterAudioCallback(webrtc::AudioTransport* audioCallback) override;
 
-  // Caprute control.
+  // Capture control.
   int16_t RecordingDevices() override;
   int32_t RecordingDeviceName(uint16_t index,
                               char name[webrtc::kAdmMaxDeviceNameSize],
