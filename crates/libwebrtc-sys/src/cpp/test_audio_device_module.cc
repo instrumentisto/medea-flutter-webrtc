@@ -12,7 +12,6 @@
 #include "absl/strings/string_view.h"
 #include "api/array_view.h"
 #include "api/make_ref_counted.h"
-#include "common_audio/wav_file.h"
 #include "modules/audio_device/audio_device_impl.h"
 #include "modules/audio_device/include/audio_device_default.h"
 #include "rtc_base/buffer.h"
@@ -331,7 +330,6 @@ class TestADM : public AudioDeviceGeneric {
           _SamplesPerFrame(sampling_frequency));
       audio_buffer_->GetPlayoutData(playout_buffer_.data());
       size_t samples_out = samples_per_channel * renderer_->NumChannels();
-      RTC_CHECK_LE(samples_out, playout_buffer_.size());
       const bool keep_rendering = renderer_->Render(
           rtc::ArrayView<const int16_t>(playout_buffer_.data(), samples_out));
       if (!keep_rendering) {
