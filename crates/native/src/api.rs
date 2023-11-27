@@ -11,14 +11,16 @@ use libwebrtc_sys as sys;
 
 use crate::{
     devices::{self, DeviceState},
+    pc::PeerConnectionId,
     renderer::FrameHandler,
+    user_media::TrackOrigin,
     Webrtc,
 };
 
 // Re-exporting since it is used in the generated code.
 pub use crate::{
     renderer::TextureEvent, PeerConnection, RtpEncodingParameters,
-    RtpTransceiver, RtpTransceiverInit,
+    RtpParameters, RtpTransceiver,
 };
 
 lazy_static::lazy_static! {
@@ -1657,6 +1659,12 @@ pub struct MediaStreamTrack {
     /// Unique identifier (GUID) of this [`MediaStreamTrack`].
     pub id: String,
 
+    /// Unique identifier of the [`PeerConnection`] from which this
+    /// [`MediaStreamTrack`] was received.
+    ///
+    /// Always [`None`] for local [`MediaStreamTrack`]s.
+    pub peer_id: Option<u64>,
+
     /// Label identifying the track source, as in "internal microphone".
     pub device_id: String,
 
@@ -1668,6 +1676,63 @@ pub struct MediaStreamTrack {
     ///
     /// This can be used to intentionally mute a track.
     pub enabled: bool,
+}
+
+/// Representation of [RTCRtpEncodingParameters][0].
+///
+/// [0]: https://w3.org/TR/webrtc#rtcrtpencodingparameters
+pub struct RtcRtpEncodingParameters {
+    /// [RTP stream ID (RID)][0] to be sent using the RID header extension.
+    ///
+    /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodingparameters-rid
+    pub rid: String,
+
+    /// Indicator whether the described [`RtcRtpEncodingParameters`] are
+    /// currently actively being used.
+    pub active: bool,
+
+    /// Maximum number of bits per second to allow for these
+    /// [`RtcRtpEncodingParameters`].
+    pub max_bitrate: Option<i32>,
+
+    /// Maximum number of frames per second to allow for these
+    /// [`RtcRtpEncodingParameters`].
+    pub max_framerate: Option<f64>,
+
+    /// Factor for scaling down the video with these
+    /// [`RtcRtpEncodingParameters`].
+    pub scale_resolution_down_by: Option<f64>,
+
+    /// Scalability mode describing layers within the media stream.
+    pub scalability_mode: Option<String>,
+}
+
+impl From<&sys::RtpEncodingParameters> for RtcRtpEncodingParameters {
+    fn from(sys: &sys::RtpEncodingParameters) -> Self {
+        Self {
+            rid: sys.rid(),
+            active: sys.active(),
+            max_bitrate: sys.max_bitrate(),
+            max_framerate: sys.max_framerate(),
+            scale_resolution_down_by: sys.scale_resolution_down_by(),
+            scalability_mode: sys.scalability_mode(),
+        }
+    }
+}
+
+/// Representation of an [RTCRtpTransceiverInit][0].
+///
+/// [0]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverinit
+pub struct RtpTransceiverInit {
+    /// Direction of the [RTCRtpTransceiver][1].
+    ///
+    /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
+    pub direction: RtpTransceiverDirection,
+
+    /// Sequence containing parameters for sending [RTP] encodings of media.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+    pub send_encodings: Vec<RtcRtpEncodingParameters>,
 }
 
 /// Representation of a permanent pair of an [RTCRtpSender] and an
@@ -1694,6 +1759,42 @@ pub struct RtcRtpTransceiver {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     pub direction: RtpTransceiverDirection,
+}
+
+/// Representation of [RTCRtpSendParameters][0].
+///
+/// [0]: https://w3.org/TR/webrtc#dom-rtcrtpsendparameters
+pub struct RtcRtpSendParameters {
+    /// Sequence containing parameters for sending [RTP] encodings of media.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+    pub encodings: Vec<(
+        RtcRtpEncodingParameters,
+        RustOpaque<Arc<RtpEncodingParameters>>,
+    )>,
+
+    /// Reference to the Rust side [`RtpParameters`].
+    pub inner: RustOpaque<Arc<RtpParameters>>,
+}
+
+impl From<RtpParameters> for RtcRtpSendParameters {
+    fn from(v: RtpParameters) -> Self {
+        let encodings = v
+            .get_encodings()
+            .into_iter()
+            .map(|e| {
+                (
+                    RtcRtpEncodingParameters::from(&e),
+                    RustOpaque::new(Arc::new(RtpEncodingParameters::from(e))),
+                )
+            })
+            .collect();
+
+        Self {
+            encodings,
+            inner: RustOpaque::new(Arc::new(v)),
+        }
+    }
 }
 
 /// Representation of a track event, sent when a new [`MediaStreamTrack`] is
@@ -1922,60 +2023,6 @@ pub fn create_answer(
     rx.recv_timeout(RX_TIMEOUT)?
 }
 
-/// Creates a new default [`RtpTransceiverInit`].
-pub fn create_transceiver_init() -> RustOpaque<Arc<RtpTransceiverInit>> {
-    RustOpaque::new(Arc::new(RtpTransceiverInit::new()))
-}
-
-/// Sets the provided [`RtpTransceiverDirection`] to the [`RtpTransceiverInit`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn set_transceiver_init_direction(
-    init: RustOpaque<Arc<RtpTransceiverInit>>,
-    direction: RtpTransceiverDirection,
-) {
-    init.set_direction(direction);
-}
-
-/// Adds the provided [`RtpEncodingParameters`] to the [`RtpTransceiverInit`].
-#[allow(clippy::needless_pass_by_value)]
-pub fn add_transceiver_init_send_encoding(
-    init: RustOpaque<Arc<RtpTransceiverInit>>,
-    enc: RustOpaque<Arc<RtpEncodingParameters>>,
-) {
-    init.add_encoding(&enc);
-}
-
-/// Creates new [`RtpEncodingParameters`] with the provided settings.
-#[allow(clippy::needless_pass_by_value)]
-pub fn create_encoding_parameters(
-    rid: String,
-    active: bool,
-    max_bitrate: Option<i32>,
-    max_framerate: Option<f64>,
-    scale_resolution_down_by: Option<f64>,
-    scalability_mode: Option<String>,
-) -> RustOpaque<Arc<RtpEncodingParameters>> {
-    let encoding = RtpEncodingParameters::new();
-
-    encoding.set_rid(rid);
-    encoding.set_active(active);
-
-    if let Some(max_bitrate) = max_bitrate {
-        encoding.set_max_bitrate(max_bitrate);
-    }
-    if let Some(max_framerate) = max_framerate {
-        encoding.set_max_framerate(max_framerate);
-    }
-    if let Some(scale_resolution_down_by) = scale_resolution_down_by {
-        encoding.set_scale_resolution_down_by(scale_resolution_down_by);
-    }
-    if let Some(scalability_mode) = scalability_mode {
-        encoding.set_scalability_mode(scalability_mode);
-    }
-
-    RustOpaque::new(Arc::new(encoding))
-}
-
 /// Changes the local description associated with the connection.
 #[allow(clippy::needless_pass_by_value)]
 pub fn set_local_description(
@@ -2007,9 +2054,9 @@ pub fn set_remote_description(
 pub fn add_transceiver(
     peer: RustOpaque<Arc<PeerConnection>>,
     media_type: MediaType,
-    init: RustOpaque<Arc<RtpTransceiverInit>>,
+    init: RtpTransceiverInit,
 ) -> anyhow::Result<RtcRtpTransceiver> {
-    PeerConnection::add_transceiver(peer, media_type.into(), &init)
+    PeerConnection::add_transceiver(peer, media_type.into(), init)
 }
 
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
@@ -2110,6 +2157,23 @@ pub fn sender_replace_track(
         .sender_replace_track(&peer, &transceiver, track_id)
 }
 
+/// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
+#[allow(clippy::needless_pass_by_value)]
+pub fn sender_get_parameters(
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+) -> RtcRtpSendParameters {
+    RtcRtpSendParameters::from(transceiver.sender_get_parameters())
+}
+
+/// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
+#[allow(clippy::needless_pass_by_value)]
+pub fn sender_set_parameters(
+    transceiver: RustOpaque<Arc<RtpTransceiver>>,
+    params: RtcRtpSendParameters,
+) -> anyhow::Result<()> {
+    transceiver.sender_set_parameters(params)
+}
+
 /// Adds the new ICE `candidate` to the given [`PeerConnection`].
 #[allow(clippy::needless_pass_by_value)]
 pub fn add_ice_candidate(
@@ -2170,8 +2234,13 @@ pub fn microphone_volume() -> anyhow::Result<u32> {
 }
 
 /// Disposes the specified [`MediaStreamTrack`].
-pub fn dispose_track(track_id: String, kind: MediaType) {
-    WEBRTC.lock().unwrap().dispose_track(track_id, kind);
+pub fn dispose_track(track_id: String, peer_id: Option<u64>, kind: MediaType) {
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
+    WEBRTC
+        .lock()
+        .unwrap()
+        .dispose_track(track_origin, track_id, kind);
 }
 
 /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
@@ -2180,9 +2249,15 @@ pub fn dispose_track(track_id: String, kind: MediaType) {
 /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
 pub fn track_state(
     track_id: String,
+    peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<TrackState> {
-    WEBRTC.lock().unwrap().track_state(track_id, kind)
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
+    WEBRTC
+        .lock()
+        .unwrap()
+        .track_state(track_id, track_origin, kind)
 }
 
 /// Returns the [height][0] property of the media track by its ID and
@@ -2223,33 +2298,49 @@ pub fn track_width(
 /// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
 pub fn set_track_enabled(
     track_id: String,
+    peer_id: Option<u64>,
     kind: MediaType,
     enabled: bool,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .set_track_enabled(track_id, kind, enabled)
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
+    WEBRTC.lock().unwrap().set_track_enabled(
+        track_id,
+        track_origin,
+        kind,
+        enabled,
+    )
 }
 
 /// Clones the specified [`MediaStreamTrack`].
 pub fn clone_track(
     track_id: String,
+    peer_id: Option<u64>,
     kind: MediaType,
 ) -> anyhow::Result<MediaStreamTrack> {
-    WEBRTC.lock().unwrap().clone_track(track_id, kind)
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
+    WEBRTC
+        .lock()
+        .unwrap()
+        .clone_track(track_id, track_origin, kind)
 }
 
 /// Registers an observer to the [`MediaStreamTrack`] events.
 pub fn register_track_observer(
     cb: StreamSink<TrackEvent>,
+    peer_id: Option<u64>,
     track_id: String,
     kind: MediaType,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .register_track_observer(track_id, kind, cb.into())
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+
+    WEBRTC.lock().unwrap().register_track_observer(
+        track_id,
+        track_origin,
+        kind,
+        cb.into(),
+    )
 }
 
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
@@ -2273,16 +2364,20 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
 pub fn create_video_sink(
     cb: StreamSink<TextureEvent>,
     sink_id: i64,
+    peer_id: Option<u64>,
     track_id: String,
     callback_ptr: u64,
     texture_id: i64,
 ) -> anyhow::Result<()> {
     let handler = FrameHandler::new(callback_ptr as _, cb.into(), texture_id);
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .create_video_sink(sink_id, track_id, handler)
+    WEBRTC.lock().unwrap().create_video_sink(
+        sink_id,
+        track_id,
+        track_origin,
+        handler,
+    )
 }
 
 /// Destroys the [`VideoSink`] by the provided ID.

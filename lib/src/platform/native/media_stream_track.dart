@@ -30,6 +30,18 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// media will be transmitted.
   bool _enabled = true;
 
+  /// ID of the [PeerConnection] that fired this track in its
+  /// [PeerConnection.onTrack] callback.
+  ///
+  /// Always `null` for local tracks.
+  int? _peerId;
+
+  /// Returns ID of the [PeerConnection] that fired this track in its
+  /// [PeerConnection.onTrack] callback.
+  ///
+  /// Always `null` for local tracks.
+  int? get peerId => _peerId;
+
   /// Unique ID of this [NativeMediaStreamTrack].
   late String _id;
 
@@ -177,10 +189,13 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
     _id = track.id.toString();
     _deviceId = track.deviceId;
+    _peerId = track.peerId;
     _kind = MediaKind.values[track.kind.index];
     _eventSub = api!
         .registerTrackObserver(
-            trackId: track.id, kind: ffi.MediaType.values[_kind.index])
+            peerId: _peerId,
+            trackId: track.id,
+            kind: ffi.MediaType.values[_kind.index])
         .listen((event) {
       if (_onEnded != null) {
         _onEnded!();
@@ -191,12 +206,15 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<MediaStreamTrack> clone() async {
     if (!_stopped) {
-      return NativeMediaStreamTrack.from(await api!
-          .cloneTrack(trackId: _id, kind: ffi.MediaType.values[_kind.index]));
+      return NativeMediaStreamTrack.from(await api!.cloneTrack(
+          trackId: _id,
+          peerId: _peerId,
+          kind: ffi.MediaType.values[_kind.index]));
     } else {
       return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
           deviceId: _deviceId,
           enabled: _enabled,
+          peerId: _peerId,
           id: _id,
           kind: ffi.MediaType.values[_kind.index]));
     }
@@ -211,6 +229,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   Future<void> setEnabled(bool enabled) async {
     if (!_stopped) {
       await api!.setTrackEnabled(
+          peerId: _peerId,
           trackId: _id,
           enabled: enabled,
           kind: ffi.MediaType.values[_kind.index]);
@@ -223,7 +242,9 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   Future<MediaStreamTrackState> state() async {
     return !_stopped
         ? MediaStreamTrackState.values[(await api!.trackState(
-                trackId: _id, kind: ffi.MediaType.values[_kind.index]))
+                peerId: _peerId,
+                trackId: _id,
+                kind: ffi.MediaType.values[_kind.index]))
             .index]
         : MediaStreamTrackState.ended;
   }
@@ -233,8 +254,10 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
     if (!_stopped) {
       _onEnded = null;
 
-      await api!
-          .disposeTrack(trackId: _id, kind: ffi.MediaType.values[_kind.index]);
+      await api!.disposeTrack(
+          trackId: _id,
+          peerId: _peerId,
+          kind: ffi.MediaType.values[_kind.index]);
     }
     _stopped = true;
   }

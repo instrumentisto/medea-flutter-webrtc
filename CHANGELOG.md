@@ -14,10 +14,11 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - `RtpTransceiverInit.sendEncodings` field with `SendEncodingParameters`. ([#125])
+- `RtpParameters` class, `RtpSender.getParameters()` and `RtpSender.setParameters()` methods. ([#135])
 
 ### Changed
 
-- Refactor Audio Device Module to use [OpenAL] library for playout. ([#117])
+- Refactor Audio Device Module to use [OpenAL] library for playout and recording. ([#117], [#136])
 - Fire `onDeviceChange` callback whenever an output audio device is changed in system settings on desktop platforms. ([#119], [#120])
 - Upgraded [libwebrtc] to [116.0.5845.110] version. ([#123])
 - `VideoRenderer.width` and `VideoRenderer.height` now take rotation into account. ([#124])
@@ -25,6 +26,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Video renderer stretching a picture after rotation. ([#124])
+- Screen sharing leaking memory on [macOS]. ([#133])
 
 [#117]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/117
 [#119]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/119
@@ -32,6 +34,9 @@ All user visible changes to this project will be documented in this file. This p
 [#123]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/123
 [#124]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/124
 [#125]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/125
+[#133]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/133
+[#135]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/135
+[#136]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/136
 [116.0.5845.110]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/116.0.5845.110
 
 
