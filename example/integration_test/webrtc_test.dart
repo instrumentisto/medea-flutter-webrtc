@@ -1013,16 +1013,39 @@ void main() {
   });
 
   testWidgets('Video dimensions', (WidgetTester tester) async {
-    var caps = DeviceConstraints();
-    caps.video.mandatory = DeviceVideoConstraints();
+    {
+      var caps = DeviceConstraints();
+      caps.video.mandatory = DeviceVideoConstraints();
+      caps.video.mandatory!.width = 640;
+      caps.video.mandatory!.height = 480;
 
-    var track = (await getUserMedia(caps))[0];
+      var track = (await getUserMedia(caps))[0];
 
-    var w = await track.width();
-    var h = await track.height();
+      var w = await track.width();
+      var h = await track.height();
 
-    expect(w, equals(640));
-    expect(h, equals(480));
+      expect(w, equals(640));
+      expect(h, equals(480));
+
+      await track.dispose();
+    }
+
+    {
+      var caps = DisplayConstraints();
+      caps.video.mandatory = DeviceVideoConstraints();
+      caps.video.mandatory!.width = 320;
+      caps.video.mandatory!.height = 240;
+
+      var track = (await getDisplayMedia(caps))[0];
+
+      var w = await track.width();
+      var h = await track.height();
+
+      expect(w, equals(320));
+      expect(h, equals(240));
+
+      await track.dispose();
+    }
   });
 
   testWidgets('on_track when peer has transceiver.',

@@ -369,12 +369,16 @@ impl Webrtc {
     /// media type. Blocks until width is initialized.
     ///
     /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-width
-    pub fn track_width(&self, id: String) -> anyhow::Result<i32> {
+    pub fn track_width(
+        &self,
+        id: String,
+        track_origin: TrackOrigin,
+    ) -> anyhow::Result<i32> {
         let id = VideoTrackId::from(id);
 
         Ok(*self
             .video_tracks
-            .get(&id)
+            .get(&(id.clone(), track_origin))
             .ok_or_else(|| anyhow!("Cannot find video track with ID `{id}`"))?
             .width
             .wait()
@@ -386,12 +390,16 @@ impl Webrtc {
     /// media type. Blocks until height is initialized.
     ///
     /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
-    pub fn track_height(&self, id: String) -> anyhow::Result<i32> {
+    pub fn track_height(
+        &self,
+        id: String,
+        track_origin: TrackOrigin,
+    ) -> anyhow::Result<i32> {
         let id = VideoTrackId::from(id);
 
         Ok(*self
             .video_tracks
-            .get(&id)
+            .get(&(id.clone(), track_origin))
             .ok_or_else(|| anyhow!("Cannot find video track with ID `{id}`"))?
             .height
             .wait()
@@ -960,7 +968,7 @@ impl AudioDeviceModule {
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediadevices-getusermedia
 /// [2]: https://w3.org/TR/screen-capture/#dom-mediadevices-getdisplaymedia
 /// [3]: https://w3.org/TR/webrtc/#dom-rtcpeerconnection-ontrack
-#[derive(Clone, Debug, Eq, From, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, From, Hash, PartialEq)]
 pub enum TrackOrigin {
     Local,
     Remote(PeerConnectionId),
@@ -1043,6 +1051,7 @@ impl VideoTrack {
         src: Arc<VideoSource>,
     ) -> anyhow::Result<Self> {
         let id = VideoTrackId(next_id().to_string());
+        let track_origin = TrackOrigin::Local;
 
         let width = Arc::new(OnceCell::new());
         let height = Arc::new(OnceCell::new());
@@ -1055,6 +1064,7 @@ impl VideoTrack {
                 },
             )),
             id.clone(),
+            track_origin,
         );
 
         let mut res = Self {
@@ -1067,7 +1077,7 @@ impl VideoTrack {
             width,
             height,
             sink: None,
-            track_origin: TrackOrigin::Local,
+            track_origin,
         };
 
         res.add_video_sink(&mut sink);
@@ -1084,6 +1094,7 @@ impl VideoTrack {
     ) -> Self {
         let receiver = transceiver.receiver();
         let track = receiver.track();
+        let track_origin = TrackOrigin::Remote(peer.id());
 
         let width = Arc::new(OnceCell::new());
         width.set(RwLock::from(0)).unwrap();
@@ -1098,6 +1109,7 @@ impl VideoTrack {
                 },
             )),
             VideoTrackId(track.id().clone()),
+            track_origin,
         );
 
         let mut res = Self {
@@ -1115,7 +1127,7 @@ impl VideoTrack {
             width,
             height,
             sink: None,
-            track_origin: TrackOrigin::Remote(peer.id()),
+            track_origin,
         };
 
         res.add_video_sink(&mut sink);

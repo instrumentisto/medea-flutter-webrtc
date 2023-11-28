@@ -43,17 +43,14 @@ class MediaStreamTrackProxy(
   /** [VideoSink] to track height and width changes. */
   private lateinit var sink: VideoSink
 
-  /** Provides asynchronous wait for [width] initialization. */
-  private val widthInit = CompletableDeferred<Unit>()
-
-  /** Provides asynchronous wait for [height] initialization. */
-  private val heightInit = CompletableDeferred<Unit>()
+  /** Provides asynchronous wait for [width] and [height] initialization. */
+  private val fetchDimensions = CompletableDeferred<Unit>()
 
   /** Video width */
-  var width: Int = 0
+  @Volatile private var width: Int = 0
 
   /** Video height */
-  var height: Int = 0
+  @Volatile private var height: Int = 0
 
   /** [MediaType] of the underlying [MediaStreamTrack]. */
   val kind: MediaType =
@@ -84,16 +81,13 @@ class MediaStreamTrackProxy(
 
     if (kind == MediaType.VIDEO) {
       if (deviceId == "remote") {
-        widthInit.complete(Unit)
-        heightInit.complete(Unit)
+        fetchDimensions.complete(Unit)
       }
 
       sink = VideoSink { p0 ->
         width = p0.rotatedWidth
-        widthInit.complete(Unit)
-
         height = p0.rotatedHeight
-        heightInit.complete(Unit)
+        fetchDimensions.complete(Unit)
       }
       (obj as VideoTrack).addSink(sink)
 
@@ -107,7 +101,7 @@ class MediaStreamTrackProxy(
       return null
     }
 
-    widthInit.await()
+    fetchDimensions.await()
     return width
   }
 
@@ -116,7 +110,7 @@ class MediaStreamTrackProxy(
     if (kind == MediaType.AUDIO) {
       return null
     }
-    heightInit.await()
+    fetchDimensions.await()
     return height
   }
 

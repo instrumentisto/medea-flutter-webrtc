@@ -557,9 +557,10 @@ fn wire_track_state_impl(
 fn wire_track_height_impl(
     port_: MessagePort,
     track_id: impl Wire2Api<String> + UnwindSafe,
+    peer_id: impl Wire2Api<Option<u64>> + UnwindSafe,
     kind: impl Wire2Api<MediaType> + UnwindSafe,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Option<i32>>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Option<i32>, _>(
         WrapInfo {
             debug_name: "track_height",
             port: Some(port_),
@@ -567,17 +568,19 @@ fn wire_track_height_impl(
         },
         move || {
             let api_track_id = track_id.wire2api();
+            let api_peer_id = peer_id.wire2api();
             let api_kind = kind.wire2api();
-            move |task_callback| track_height(api_track_id, api_kind)
+            move |task_callback| track_height(api_track_id, api_peer_id, api_kind)
         },
     )
 }
 fn wire_track_width_impl(
     port_: MessagePort,
     track_id: impl Wire2Api<String> + UnwindSafe,
+    peer_id: impl Wire2Api<Option<u64>> + UnwindSafe,
     kind: impl Wire2Api<MediaType> + UnwindSafe,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Option<i32>>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Option<i32>, _>(
         WrapInfo {
             debug_name: "track_width",
             port: Some(port_),
@@ -585,8 +588,9 @@ fn wire_track_width_impl(
         },
         move || {
             let api_track_id = track_id.wire2api();
+            let api_peer_id = peer_id.wire2api();
             let api_kind = kind.wire2api();
-            move |task_callback| track_width(api_track_id, api_kind)
+            move |task_callback| track_width(api_track_id, api_peer_id, api_kind)
         },
     )
 }
@@ -1891,18 +1895,20 @@ mod io {
     pub extern "C" fn wire_track_height(
         port_: i64,
         track_id: *mut wire_uint_8_list,
+        peer_id: *mut u64,
         kind: i32,
     ) {
-        wire_track_height_impl(port_, track_id, kind)
+        wire_track_height_impl(port_, track_id, peer_id, kind)
     }
 
     #[no_mangle]
     pub extern "C" fn wire_track_width(
         port_: i64,
         track_id: *mut wire_uint_8_list,
+        peer_id: *mut u64,
         kind: i32,
     ) {
-        wire_track_width_impl(port_, track_id, kind)
+        wire_track_width_impl(port_, track_id, peer_id, kind)
     }
 
     #[no_mangle]

@@ -1175,10 +1175,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 let track = match transceiver.media_type() {
                     sys::MediaType::MEDIA_TYPE_AUDIO => {
                         let track_id = AudioTrackId::from(track_id);
-                        if audio_tracks.contains_key(&(
-                            track_id.clone(),
-                            track_origin.clone(),
-                        )) {
+                        if audio_tracks
+                            .contains_key(&(track_id.clone(), track_origin))
+                        {
                             return;
                         }
 
@@ -1191,10 +1190,9 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     }
                     sys::MediaType::MEDIA_TYPE_VIDEO => {
                         let track_id = VideoTrackId::from(track_id);
-                        if video_tracks.contains_key(&(
-                            track_id.clone(),
-                            track_origin.clone(),
-                        )) {
+                        if video_tracks
+                            .contains_key(&(track_id.clone(), track_origin))
+                        {
                             return;
                         }
 
