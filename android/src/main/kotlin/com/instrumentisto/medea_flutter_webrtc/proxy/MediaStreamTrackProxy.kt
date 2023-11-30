@@ -40,7 +40,7 @@ class MediaStreamTrackProxy(
   /** Indicator whether the underlying [MediaStreamTrack] had been disposed. */
   private var disposed: Boolean = false
 
-  /** [VideoSink] to track height and width changes. */
+  /** [VideoSink] that tracks height and width changes. */
   private lateinit var sink: VideoSink
 
   /** Provides asynchronous wait for [width] and [height] initialization. */
@@ -80,10 +80,6 @@ class MediaStreamTrackProxy(
     TrackRepository.addTrack(this)
 
     if (kind == MediaType.VIDEO) {
-      if (deviceId == "remote") {
-        fetchDimensions.complete(Unit)
-      }
-
       sink = VideoSink { p0 ->
         width = p0.rotatedWidth
         height = p0.rotatedHeight
