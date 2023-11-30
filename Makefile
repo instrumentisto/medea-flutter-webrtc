@@ -441,8 +441,8 @@ test.flutter: flutter.test.desktop flutter.test.mobile
         	cargo.test \
         docs.rust \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.pub \
-        	flutter.run flutter.test flutter.test.desktop flutter.test.mobile \
+        	flutter.run flutter.test.desktop flutter.test.mobile \
         kt.fmt \
         rustup.targets \
         swift.fmt \
-        test.cargo
+        test.cargo test.flutter

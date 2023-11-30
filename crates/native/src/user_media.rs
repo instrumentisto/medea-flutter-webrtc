@@ -7,10 +7,9 @@ use std::{
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
+use once_cell::sync::OnceCell;
 use sys::{OnFrameCallback, TrackEventObserver};
 use xxhash::xxh3::xxh3_64;
-
-use once_cell::sync::OnceCell;
 
 use crate::{
     api, devices, next_id,
@@ -1038,9 +1037,10 @@ impl OnFrameCallback for VideoFormatSink {
         if self.width.get().is_none() {
             self.width.set(RwLock::from(frame.width())).unwrap();
             self.height.set(RwLock::from(frame.height())).unwrap();
+        } else {
+            *self.width.get().unwrap().write().unwrap() = frame.width();
+            *self.height.get().unwrap().write().unwrap() = frame.height();
         }
-        *self.width.get().unwrap().write().unwrap() = frame.width();
-        *self.height.get().unwrap().write().unwrap() = frame.height();
     }
 }
 

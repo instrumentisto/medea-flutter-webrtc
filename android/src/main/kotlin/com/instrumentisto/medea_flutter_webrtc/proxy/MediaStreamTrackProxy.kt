@@ -80,9 +80,9 @@ class MediaStreamTrackProxy(
     TrackRepository.addTrack(this)
 
     if (kind == MediaType.VIDEO) {
-      sink = VideoSink { p0 ->
-        width = p0.rotatedWidth
-        height = p0.rotatedHeight
+      sink = VideoSink { frame ->
+        width = frame.buffer.width
+        height = frame.buffer.height
         fetchDimensions.complete(Unit)
       }
       (obj as VideoTrack).addSink(sink)
