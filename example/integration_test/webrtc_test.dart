@@ -1013,7 +1013,8 @@ void main() {
   });
 
   testWidgets('Video dimensions', (WidgetTester tester) async {
-    {
+    // iOS simulator does not have camera
+    if (!Platform.isIOS) {
       var caps = DeviceConstraints();
       caps.video.mandatory = DeviceVideoConstraints();
       caps.video.mandatory!.width = 640;
