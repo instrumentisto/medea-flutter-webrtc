@@ -1162,9 +1162,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
             let audio_tracks = Arc::clone(&self.audio_tracks);
 
             move || {
-                let peer = if let Some(peer) = peer.get().unwrap().upgrade() {
-                    peer
-                } else {
+                let Some(peer) = peer.get().unwrap().upgrade() else {
                     // `peer` is already dropped on the Rust side, so just don't
                     // do anything.
                     return;

@@ -1,13 +1,14 @@
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
-    sync::{Arc, OnceLock, RwLock, Weak},
+    sync::{Arc, RwLock, Weak},
 };
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
-use libwebrtc_sys as sys;
-use sys::{OnFrameCallback, TrackEventObserver};
+use libwebrtc_sys::{self as sys, OnFrameCallback, TrackEventObserver};
+// TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
+use once_cell::sync::OnceCell;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
@@ -301,11 +302,9 @@ impl Webrtc {
             }
         };
 
-        let device_index = if let Some(index) =
+        let Some(device_index) =
             self.get_index_of_audio_recording_device(&device_id)?
-        {
-            index
-        } else {
+        else {
             bail!(
                 "Cannot find audio device with the specified ID `{device_id}`",
             );
@@ -1018,19 +1017,19 @@ pub struct VideoTrack {
     sink: Option<VideoSink>,
 
     /// Video width.
-    width: Arc<OnceLock<RwLock<i32>>>,
+    width: Arc<OnceCell<RwLock<i32>>>,
 
     /// Video height.
-    height: Arc<OnceLock<RwLock<i32>>>,
+    height: Arc<OnceCell<RwLock<i32>>>,
 }
 
 /// Tracks changes in video `height` and `width`.
 struct VideoFormatSink {
     /// Video width.
-    width: Arc<OnceLock<RwLock<i32>>>,
+    width: Arc<OnceCell<RwLock<i32>>>,
 
     /// Video height.
-    height: Arc<OnceLock<RwLock<i32>>>,
+    height: Arc<OnceCell<RwLock<i32>>>,
 }
 
 impl OnFrameCallback for VideoFormatSink {
@@ -1054,8 +1053,8 @@ impl VideoTrack {
         let id = VideoTrackId(next_id().to_string());
         let track_origin = TrackOrigin::Local;
 
-        let width = Arc::new(OnceLock::new());
-        let height = Arc::new(OnceLock::new());
+        let width = Arc::new(OnceCell::new());
+        let height = Arc::new(OnceCell::new());
         let mut sink = VideoSink::new(
             i64::try_from(next_id()).unwrap(),
             sys::VideoSinkInterface::create_forwarding(Box::new(
@@ -1097,9 +1096,9 @@ impl VideoTrack {
         let track = receiver.track();
         let track_origin = TrackOrigin::Remote(peer.id());
 
-        let width = Arc::new(OnceLock::new());
+        let width = Arc::new(OnceCell::new());
         width.set(RwLock::from(0)).unwrap();
-        let height = Arc::new(OnceLock::new());
+        let height = Arc::new(OnceCell::new());
         height.set(RwLock::from(0)).unwrap();
         let mut sink = VideoSink::new(
             i64::try_from(next_id()).unwrap(),
