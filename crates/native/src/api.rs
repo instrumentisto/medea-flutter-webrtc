@@ -2260,11 +2260,12 @@ pub fn track_state(
         .track_state(track_id, track_origin, kind)
 }
 
-/// Returns the [height][0] property of the media track by its ID and
-/// media type.
-/// Blocks until height is initialized.
+/// Returns the [height] property of the media track by its ID and
+/// [`MediaType`].
 ///
-/// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
+/// Blocks until the [height] is initialized.
+///
+/// [height]: https://w3.org/TR/mediacapture-streams#dfn-height
 pub fn track_height(
     track_id: String,
     peer_id: Option<u64>,
@@ -2283,11 +2284,11 @@ pub fn track_height(
         .map(Some)
 }
 
-/// Returns the [width][0] property of the media track by its ID and
-/// media type.
-/// Blocks until width is initialized.
+/// Returns the [width] property of the media track by its ID and [`MediaType`].
 ///
-/// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
+/// Blocks until the [width] is initialized.
+///
+/// [width]: https://w3.org/TR/mediacapture-streams#dfn-height
 pub fn track_width(
     track_id: String,
     peer_id: Option<u64>,

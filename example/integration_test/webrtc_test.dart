@@ -1031,7 +1031,7 @@ void main() {
       await track.dispose();
     }
 
-    // Desktop only since screen sharing is unimplemented on mobile platforms
+    // Desktop only, since screen sharing is unimplemented on mobile platforms.
     if (!Platform.isAndroid && !Platform.isIOS) {
       var caps = DisplayConstraints();
       caps.video.mandatory = DeviceVideoConstraints();

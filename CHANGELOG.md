@@ -14,7 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - `RtpTransceiverInit.sendEncodings` field with `SendEncodingParameters`. ([#125])
-- `MediaStreamTrack.height` and `MediaStreamTrack.width` methods. ([#129])
+- `MediaStreamTrack.height()` and `MediaStreamTrack.width()` methods. ([#129])
 - `RtpParameters` class, `RtpSender.getParameters()` and `RtpSender.setParameters()` methods. ([#135])
 
 ### Changed

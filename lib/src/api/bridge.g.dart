@@ -252,11 +252,12 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kTrackStateConstMeta;
 
-  /// Returns the [height][0] property of the media track by its ID and
-  /// media type.
-  /// Blocks until height is initialized.
+  /// Returns the [height] property of the media track by its ID and
+  /// [`MediaType`].
   ///
-  /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
+  /// Blocks until the [height] is initialized.
+  ///
+  /// [height]: https://w3.org/TR/mediacapture-streams#dfn-height
   Future<int?> trackHeight(
       {required String trackId,
       int? peerId,
@@ -265,11 +266,11 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kTrackHeightConstMeta;
 
-  /// Returns the [width][0] property of the media track by its ID and
-  /// media type.
-  /// Blocks until width is initialized.
+  /// Returns the [width] property of the media track by its ID and [`MediaType`].
   ///
-  /// [0]: https://www.w3.org/TR/mediacapture-streams/#dfn-height
+  /// Blocks until the [width] is initialized.
+  ///
+  /// [width]: https://w3.org/TR/mediacapture-streams#dfn-height
   Future<int?> trackWidth(
       {required String trackId,
       int? peerId,

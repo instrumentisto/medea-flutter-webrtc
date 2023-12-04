@@ -720,7 +720,6 @@ dependencies = [
  "libwebrtc-sys",
  "log",
  "nix",
- "once_cell",
  "threadpool",
  "windows",
  "xxhash-rust",

@@ -3,7 +3,7 @@ use std::{
     mem,
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc, Arc, Mutex, Weak,
+        mpsc, Arc, Mutex, OnceLock, Weak,
     },
 };
 
@@ -13,7 +13,6 @@ use dashmap::DashMap;
 use derive_more::{Display, From, Into};
 use flutter_rust_bridge::RustOpaque;
 use libwebrtc_sys as sys;
-use once_cell::sync::OnceCell;
 use threadpool::ThreadPool;
 
 use crate::{
@@ -273,7 +272,7 @@ impl PeerConnection {
         configuration: api::RtcConfiguration,
         pool: ThreadPool,
     ) -> anyhow::Result<Arc<Self>> {
-        let obs_peer = Arc::new(OnceCell::new());
+        let obs_peer = Arc::new(OnceLock::new());
         let observer = sys::PeerConnectionObserver::new(Box::new(
             PeerConnectionObserver {
                 observer: Arc::new(Mutex::new(observer)),
@@ -1055,7 +1054,7 @@ struct PeerConnectionObserver {
     ///
     /// Tasks with [`InnerPeer`] must be offloaded to a separate [`ThreadPool`],
     /// so the signalling thread wouldn't be blocked.
-    peer: Arc<OnceCell<Weak<PeerConnection>>>,
+    peer: Arc<OnceLock<Weak<PeerConnection>>>,
 
     /// Map of the remote [`VideoTrack`]s shared with the [`crate::Webrtc`].
     video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
