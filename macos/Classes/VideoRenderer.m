@@ -1,5 +1,4 @@
 #import "VideoRenderer.h"
-#import <Foundation/Foundation.h>
 
 // Drops the provided `TextureVideoRenderer`.
 void drop_handler(void* handler) {
