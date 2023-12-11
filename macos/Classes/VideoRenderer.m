@@ -154,6 +154,7 @@ void on_frame_caller(void* handler, Frame frame) {
     TextureVideoRenderer* renderer = _renderers[textureId];
 
     int64_t rendererPtr = (int64_t)renderer;
+    // Leaking pointer and it will be freed by Rust calling drop_handler function.
     CFBridgingRetain(renderer);
     result(@{
         @"handler_ptr" : [NSNumber numberWithLong:rendererPtr],
