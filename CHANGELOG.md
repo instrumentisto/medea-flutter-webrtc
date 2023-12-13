@@ -13,7 +13,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Double free when MacOS video renderer is reused for different track. ([#139])
+- Double free when [macOS] video renderer is reused for different tracks. ([#139])
 
 [#139]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/139
 
