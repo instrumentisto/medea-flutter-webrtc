@@ -76,14 +76,17 @@ rtc::scoped_refptr<MacCapturer> MacCapturer::Create(size_t width,
                                                     size_t height,
                                                     size_t target_fps,
                                                     uint32_t capture_device_index) {
-  AVCaptureDeviceDiscoverySession *discoverySession = [AVCaptureDeviceDiscoverySession
-      discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeExternalUnknown]
-      mediaType:AVMediaTypeVideo
-      position:AVCaptureDevicePositionUnspecified];
+  AVCaptureDeviceDiscoverySession* discoverySession =
+      [AVCaptureDeviceDiscoverySession
+          discoverySessionWithDeviceTypes:@[
+            AVCaptureDeviceTypeBuiltInWideAngleCamera,
+            AVCaptureDeviceTypeExternalUnknown
+          ]
+          mediaType:AVMediaTypeVideo
+          position:AVCaptureDevicePositionUnspecified];
 
-  NSArray<AVCaptureDevice *> *devices = discoverySession.devices;
-  AVCaptureDevice* device =
-      [devices objectAtIndex:capture_device_index];
+  NSArray<AVCaptureDevice*>* devices = discoverySession.devices;
+  AVCaptureDevice* device = [devices objectAtIndex:capture_device_index];
   if (!device) {
     RTC_LOG(LS_ERROR) << "Failed to create MacCapture";
     return nullptr;
