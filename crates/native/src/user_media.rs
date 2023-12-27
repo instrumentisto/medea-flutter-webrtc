@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
-use libwebrtc_sys::{self as sys, OnFrameCallback, TrackEventObserver};
+use libwebrtc_sys::{self as sys, AudioSourceInterface, OnFrameCallback, TrackEventObserver};
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
 use once_cell::sync::OnceCell;
 use xxhash::xxh3::xxh3_64;
@@ -326,6 +326,8 @@ impl Webrtc {
 
             src
         };
+
+        self.audio_device_module.set_source(&src);
 
         Ok(src)
     }
@@ -839,6 +841,10 @@ impl AudioDeviceModule {
         }
 
         Ok(())
+    }
+
+    pub fn set_source(&mut self, src: &Arc<AudioSourceInterface>) {
+        self.inner.set_source(src);
     }
 
     /// Sets the microphone system volume according to the given level in

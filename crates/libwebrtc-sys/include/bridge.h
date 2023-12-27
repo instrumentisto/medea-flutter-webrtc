@@ -111,6 +111,8 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory);
 
+void set_source(AudioDeviceModule& adm, const AudioSourceInterface& src);
+
 // Creates a new fake `AudioDeviceModule`.
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     TaskQueueFactory& task_queue_factory);

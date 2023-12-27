@@ -17,6 +17,7 @@
 #include "api/video_codecs/video_encoder_factory_template_libvpx_vp9_adapter.h"
 #include "api/video_codecs/video_encoder_factory_template_open_h264_adapter.h"
 #include "libwebrtc-sys/include/bridge.h"
+#include "libwebrtc-sys/include/local_audio_source.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
@@ -140,6 +141,11 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
       webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
 
   return std::make_unique<AudioDeviceModule>(proxied);
+}
+
+void set_source(AudioDeviceModule& adm, const AudioSourceInterface& src) {
+  // TODO: asdasdadsasd
+  // adm.set_source(src);
 }
 
 // Calls `AudioDeviceModule->Init()`.
@@ -347,8 +353,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const PeerConnectionFactoryInterface& peer_connection_factory) {
-  auto src =
-      peer_connection_factory->CreateAudioSource(cricket::AudioOptions());
+
+  auto src = LocalAudioSource::Create(cricket::AudioOptions());
 
   if (src == nullptr) {
     return nullptr;

@@ -155,6 +155,10 @@ int32_t OpenALAudioDeviceModule::Init() {
 
 OpenALAudioDeviceModule::~OpenALAudioDeviceModule() {}
 
+// add_source(AudioSourceInterface& src) {
+    // TODO: save src to local AudioTransport
+// }
+
 rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
     AudioLayer audio_layer,
     webrtc::TaskQueueFactory* task_queue_factory) {
@@ -560,7 +564,10 @@ void OpenALAudioDeviceModule::unqueueAllBuffers() {
 
 int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
-  return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
+  // TODO: own impl that redirects data to audio source from set_source
+  // return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
+
+  return 0;
 }
 
 bool OpenALAudioDeviceModule::processPlayout() {
