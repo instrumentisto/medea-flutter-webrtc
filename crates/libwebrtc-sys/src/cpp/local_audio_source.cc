@@ -26,11 +26,20 @@ void LocalAudioSource::Initialize(const cricket::AudioOptions audio_options) {
 }
 
 void LocalAudioSource::AddSink(webrtc::AudioTrackSinkInterface* sink) {
+  _sinks.push_back(sink);
   RTC_LOG(LS_ERROR) << "LocalAudioSource::AddSink";
 }
 
 void LocalAudioSource::RemoveSink(webrtc::AudioTrackSinkInterface* sink) {
   RTC_LOG(LS_ERROR) << "LocalAudioSource::RemoveSink";
+}
+
+void OnData(const void* audio_data,
+                    int bits_per_sample,
+                    int sample_rate,
+                    size_t number_of_channels,
+                    size_t number_of_frames) {
+  RTC_LOG(LS_ERROR) << "OnData";
 }
 
 }  // namespace webrtc

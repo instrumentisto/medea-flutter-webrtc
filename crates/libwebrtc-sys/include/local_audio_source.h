@@ -37,6 +37,12 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   // void AddSink(webrtc::AudioTrackSinkInterface* sink) override {}
   // void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override {}
 
+  void OnData(const void* audio_data,
+                      int bits_per_sample,
+                      int sample_rate,
+                      size_t number_of_channels,
+                      size_t number_of_frames);
+
  protected:
   LocalAudioSource() {}
   ~LocalAudioSource() override {}
@@ -45,6 +51,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   void Initialize(cricket::AudioOptions audio_options);
 
   cricket::AudioOptions options_;
+  std::vector<webrtc::AudioTrackSinkInterface*> _sinks;
 };
 
 }  // namespace webrtc

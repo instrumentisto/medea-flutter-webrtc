@@ -1228,7 +1228,7 @@ pub(crate) mod webrtc {
 
         /// Adds [`AudioSource`] to [`AudioSourceManager`].
         pub fn set_source(
-            manager: Pin<&mut AudioDeviceModule>,
+            audio_device_module: &AudioDeviceModule,
             source: &AudioSourceInterface,
         );
 

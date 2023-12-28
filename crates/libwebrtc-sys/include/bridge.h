@@ -90,7 +90,7 @@ using VideoRotation = webrtc::VideoRotation;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using TrackState = webrtc::MediaStreamTrackInterface::TrackState;
 
-using AudioDeviceModule = rtc::scoped_refptr<webrtc::AudioDeviceModule>;
+using AudioDeviceModule = rtc::scoped_refptr<OpenALAudioDeviceModule>;
 using AudioProcessing = rtc::scoped_refptr<webrtc::AudioProcessing>;
 using AudioSourceInterface = rtc::scoped_refptr<webrtc::AudioSourceInterface>;
 using AudioTrackInterface = rtc::scoped_refptr<webrtc::AudioTrackInterface>;
@@ -111,7 +111,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory);
 
-void set_source(AudioDeviceModule& adm, const AudioSourceInterface& src);
+void set_source(const AudioDeviceModule& audio_device_module, const AudioSourceInterface& src);
 
 // Creates a new fake `AudioDeviceModule`.
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(

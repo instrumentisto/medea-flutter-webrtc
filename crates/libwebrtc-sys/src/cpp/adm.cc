@@ -1026,6 +1026,8 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
     return false;
   }
 
+  // _source->OnData();
+
   GetAudioDeviceBuffer()->SetRecordedBuffer(_data->recordedSamples->data(),
                                             kRecordingPart);
   GetAudioDeviceBuffer()->SetVQEData(_playoutLatency.count(),

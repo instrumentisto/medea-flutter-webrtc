@@ -34,6 +34,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include "local_audio_source.h"
+
 #include "api/audio/audio_frame.h"
 #include "api/audio/audio_mixer.h"
 #include "api/media_stream_interface.h"

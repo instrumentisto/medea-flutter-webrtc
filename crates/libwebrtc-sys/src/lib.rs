@@ -312,8 +312,8 @@ impl AudioDeviceModule {
         Ok(())
     }
 
-    pub fn set_source(&mut self, source: &AudioSourceInterface) {
-        webrtc::set_source(self.0.pin_mut(), &source.0);
+    pub fn set_source(&self, source: &AudioSourceInterface) {
+        webrtc::set_source(&self.0, &source.0);
     }
 
     /// Sets the playout audio device according to the given `index`.
