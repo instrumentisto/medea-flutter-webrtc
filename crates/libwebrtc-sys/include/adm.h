@@ -34,7 +34,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include "local_audio_source.h"
+#include "libwebrtc-sys/include/local_audio_source.h"
 
 #include "api/audio/audio_frame.h"
 #include "api/audio/audio_mixer.h"
@@ -71,7 +71,7 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
       AudioLayer audio_layer,
       webrtc::TaskQueueFactory* task_queue_factory);
 
-  void SetAudioSource(webrtc::AudioSourceInterface* source);
+  void SetAudioSource(bridge::LocalAudioSource* source);
 
   // TODO: add_source(AudioSourceInterface& src);
 
@@ -203,7 +203,7 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   int _playoutChannels = 2;
   // TODO(evdokimovs): We can't use AudioSourceInterface* here in generic.
   // std::vector<AudioSourceInterface*> _sources;
-  webrtc::AudioSourceInterface* _source;
+  bridge::LocalAudioSource* _source;
 };
 
 #endif // BRIDGE_ADM_H_

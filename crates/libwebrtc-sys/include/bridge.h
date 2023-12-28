@@ -92,7 +92,7 @@ using TrackState = webrtc::MediaStreamTrackInterface::TrackState;
 
 using AudioDeviceModule = rtc::scoped_refptr<OpenALAudioDeviceModule>;
 using AudioProcessing = rtc::scoped_refptr<webrtc::AudioProcessing>;
-using AudioSourceInterface = rtc::scoped_refptr<webrtc::AudioSourceInterface>;
+using AudioSourceInterface = rtc::scoped_refptr<LocalAudioSource>;
 using AudioTrackInterface = rtc::scoped_refptr<webrtc::AudioTrackInterface>;
 using MediaStreamInterface = rtc::scoped_refptr<webrtc::MediaStreamInterface>;
 using PeerConnectionFactoryInterface =

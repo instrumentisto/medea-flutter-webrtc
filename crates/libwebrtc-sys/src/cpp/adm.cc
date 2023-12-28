@@ -155,7 +155,7 @@ int32_t OpenALAudioDeviceModule::Init() {
 
 OpenALAudioDeviceModule::~OpenALAudioDeviceModule() {}
 
-void OpenALAudioDeviceModule::SetAudioSource(webrtc::AudioSourceInterface* source) {
+void OpenALAudioDeviceModule::SetAudioSource(bridge::LocalAudioSource* source) {
   _source = source;
 }
 
@@ -1026,7 +1026,14 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
     return false;
   }
 
-  // _source->OnData();
+  _source->OnData(
+    _data->recordedSamples->data(), // audio_data
+    16,
+    kRecordingFrequency, // sample_rate
+    kRecordingChannels,
+    kRecordingFrequency * 10 / 1000
+  );
+  return true;
 
   GetAudioDeviceBuffer()->SetRecordedBuffer(_data->recordedSamples->data(),
                                             kRecordingPart);

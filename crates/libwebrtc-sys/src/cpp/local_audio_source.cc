@@ -34,12 +34,13 @@ void LocalAudioSource::RemoveSink(webrtc::AudioTrackSinkInterface* sink) {
   RTC_LOG(LS_ERROR) << "LocalAudioSource::RemoveSink";
 }
 
-void OnData(const void* audio_data,
+void LocalAudioSource::OnData(const void* audio_data,
                     int bits_per_sample,
                     int sample_rate,
                     size_t number_of_channels,
                     size_t number_of_frames) {
   RTC_LOG(LS_ERROR) << "OnData";
+  _sinks.front()->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
 }
 
 }  // namespace webrtc
