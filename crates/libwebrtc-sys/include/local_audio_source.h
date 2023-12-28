@@ -13,6 +13,7 @@
 
 #include "api/audio_options.h"
 #include "api/media_stream_interface.h"
+#include "rtc_base/logging.h"
 #include "api/notifier.h"
 #include "api/scoped_refptr.h"
 
@@ -31,8 +32,10 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
 
   const cricket::AudioOptions options() const override { return options_; }
 
-  void AddSink(webrtc::AudioTrackSinkInterface* sink) override {}
-  void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override {}
+  void AddSink(webrtc::AudioTrackSinkInterface* sink) override;
+  void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override;
+  // void AddSink(webrtc::AudioTrackSinkInterface* sink) override {}
+  // void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override {}
 
  protected:
   LocalAudioSource() {}

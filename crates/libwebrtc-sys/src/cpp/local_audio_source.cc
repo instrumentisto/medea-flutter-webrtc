@@ -21,7 +21,16 @@ rtc::scoped_refptr<LocalAudioSource> LocalAudioSource::Create(cricket::AudioOpti
 }
 
 void LocalAudioSource::Initialize(const cricket::AudioOptions audio_options) {
+  RTC_LOG(LS_ERROR) << "LocalAudioSource::Initialize";
   options_ = audio_options;
+}
+
+void LocalAudioSource::AddSink(webrtc::AudioTrackSinkInterface* sink) {
+  RTC_LOG(LS_ERROR) << "LocalAudioSource::AddSink";
+}
+
+void LocalAudioSource::RemoveSink(webrtc::AudioTrackSinkInterface* sink) {
+  RTC_LOG(LS_ERROR) << "LocalAudioSource::RemoveSink";
 }
 
 }  // namespace webrtc

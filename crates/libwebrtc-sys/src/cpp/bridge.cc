@@ -143,7 +143,8 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   return std::make_unique<AudioDeviceModule>(proxied);
 }
 
-void set_source(AudioDeviceModule& adm, const AudioSourceInterface& src) {
+void set_source(const AudioDeviceModule& adm, const AudioSourceInterface& src) {
+  adm->SetAudioSource(src.get());
   // TODO: asdasdadsasd
   // adm.set_source(src);
 }

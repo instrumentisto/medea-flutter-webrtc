@@ -155,6 +155,10 @@ int32_t OpenALAudioDeviceModule::Init() {
 
 OpenALAudioDeviceModule::~OpenALAudioDeviceModule() {}
 
+void OpenALAudioDeviceModule::SetAudioSource(webrtc::AudioSourceInterface* source) {
+  _source = source;
+}
+
 // add_source(AudioSourceInterface& src) {
     // TODO: save src to local AudioTransport
 // }
@@ -564,10 +568,17 @@ void OpenALAudioDeviceModule::unqueueAllBuffers() {
 
 int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
-  // TODO: own impl that redirects data to audio source from set_source
-  // return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
+  // TODO(alexlapa): own impl that redirects data to audio source from set_source
+  //
+  // TODO(evdokimovs): Write custom AudioTransport implementation
+  // which will pass all data written to AudioDeviceBuffer to the
+  // underlying LocalAudioSource.
+  //
+  // Maybe LocalAudioSource should implement AudioTransport interface and then
+  // route everything to the underlying sinks.
+  return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
 
-  return 0;
+  // return 0;
 }
 
 bool OpenALAudioDeviceModule::processPlayout() {

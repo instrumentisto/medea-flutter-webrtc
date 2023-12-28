@@ -69,6 +69,8 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
       AudioLayer audio_layer,
       webrtc::TaskQueueFactory* task_queue_factory);
 
+  void SetAudioSource(webrtc::AudioSourceInterface* source);
+
   // TODO: add_source(AudioSourceInterface& src);
 
   // Main initialization and termination.
@@ -197,6 +199,9 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
+  // TODO(evdokimovs): We can't use AudioSourceInterface* here in generic.
+  // std::vector<AudioSourceInterface*> _sources;
+  webrtc::AudioSourceInterface* _source;
 };
 
 #endif // BRIDGE_ADM_H_
