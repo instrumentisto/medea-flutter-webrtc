@@ -34,7 +34,7 @@ class VideoCodecInfo {
     [
       "isHardwareAccelerated": self.isHardwareAccelerated,
       "kind": self.kind.rawValue,
-      "mymeType": self.mymeType,
+      "mimeType": self.mymeType,
     ]
   }
 }
