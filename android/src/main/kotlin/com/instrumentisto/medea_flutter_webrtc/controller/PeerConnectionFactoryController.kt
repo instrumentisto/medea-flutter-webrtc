@@ -1,9 +1,8 @@
 package com.instrumentisto.medea_flutter_webrtc.controller
 
+import android.media.MediaCodecList
 import com.instrumentisto.medea_flutter_webrtc.State
-import com.instrumentisto.medea_flutter_webrtc.model.IceServer
-import com.instrumentisto.medea_flutter_webrtc.model.IceTransportType
-import com.instrumentisto.medea_flutter_webrtc.model.PeerConnectionConfiguration
+import com.instrumentisto.medea_flutter_webrtc.model.*
 import com.instrumentisto.medea_flutter_webrtc.proxy.PeerConnectionFactoryProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -47,6 +46,41 @@ class PeerConnectionFactoryController(private val messenger: BinaryMessenger, st
         val newPeer = factory.create(PeerConnectionConfiguration(iceServers, iceTransportType))
         val peerController = PeerConnectionController(messenger, newPeer)
         result.success(peerController.asFlutterResult())
+      }
+      "videoEncoders" -> {
+        var codecsCount = android.media.MediaCodecList.getCodecCount()
+        var resultList = mutableListOf<Map<String, Any>>()
+        for (i in 0 until codecsCount) {
+
+          var info = MediaCodecList.getCodecInfoAt(i)
+          if (info.isEncoder) {
+            val codec = VideoCodecMimeType.values().find { it.value == info.supportedTypes[0] }
+            if (codec != null) {
+              val info =
+                  VideoCodecInfo(
+                      VideoCodecInfo.isHardwareSupportedInCurrentSdk(info), codec, info.name)
+              resultList.add(info.asFlutterResult())
+            }
+          }
+        }
+        result.success(resultList)
+      }
+      "videoDecoders" -> {
+        var codecsCount = android.media.MediaCodecList.getCodecCount()
+        var resultList = mutableListOf<Map<String, Any>>()
+        for (i in 0 until codecsCount) {
+          var info = MediaCodecList.getCodecInfoAt(i)
+          if (!info.isEncoder) {
+            val codec = VideoCodecMimeType.values().find { it.value == info.supportedTypes[0] }
+            if (codec != null) {
+              val info =
+                  VideoCodecInfo(
+                      VideoCodecInfo.isHardwareSupportedInCurrentSdk(info), codec, info.name)
+              resultList.add(info.asFlutterResult())
+            }
+          }
+        }
+        result.success(resultList)
       }
       "dispose" -> {
         chan.setMethodCallHandler(null)

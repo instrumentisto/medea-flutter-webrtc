@@ -1,3 +1,5 @@
+import '../api/bridge.g.dart' as ffi;
+
 /// ICE transport which should be used by some peer connection.
 enum IceTransportType {
   /// Offer all types of ICE candidates.
@@ -158,4 +160,45 @@ enum PeerConnectionState {
 
   /// Peer connection is closed.
   closed,
+}
+
+/// Video codecs for peer connection
+enum VideoCodec {
+  // ignore: constant_identifier_names
+  VP8,
+  // ignore: constant_identifier_names
+  VP9,
+  // ignore: constant_identifier_names
+  H264,
+  // ignore: constant_identifier_names
+  AV1,
+  // ignore: constant_identifier_names
+  H265,
+}
+
+/// Video codecs for peer connection
+class VideoCodecInfo {
+  /// Hardware acceleration decode/encode.
+  bool isHardwareAccelerated = false;
+
+  /// Video codec kind.
+  VideoCodec kind;
+
+  /// Mime type of the codec.
+  String mimeType;
+
+  VideoCodecInfo(this.isHardwareAccelerated, this.kind, this.mimeType);
+
+  static VideoCodecInfo fromFFI(ffi.VideoCodecInfo codec) {
+    VideoCodec mediaCodec = VideoCodec.values
+        .firstWhere((element) => element.name.toLowerCase() == codec.kind.name);
+    return VideoCodecInfo(
+        codec.isHardwareAccelerated, mediaCodec, codec.mimeType);
+  }
+
+  static VideoCodecInfo fromMap(dynamic info) {
+    VideoCodec mediaCodec = VideoCodec.values[info['kind']];
+    return VideoCodecInfo(
+        info['isHardwareAccelerated'], mediaCodec, info['mimeType']);
+  }
 }
