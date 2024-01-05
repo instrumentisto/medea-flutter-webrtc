@@ -56,23 +56,23 @@ class PeerConnectionFactoryController {
       result(peer.asFlutterResult())
 
     case "videoEncoders":
-      let res = listOf(
-        VideoCodecInfo(false, VideoCodec.VP8, ""),
-        VideoCodecInfo(false, VideoCodec.VP9, ""),
-        VideoCodecInfo(false, VideoCodec.AV1, ""),
-        VideoCodecInfo(true, VideoCodec.H264, "")
-      ).map {
-        self.asFlutterResult()
+      let res = [
+        VideoCodecInfo(isHardwareAccelerated: false, kind: VideoCodec.VP8, mymeType: ""),
+        VideoCodecInfo(isHardwareAccelerated: false, kind: VideoCodec.VP9, mymeType: ""),
+        VideoCodecInfo(isHardwareAccelerated: false, kind: VideoCodec.AV1, mymeType: ""),
+        VideoCodecInfo(isHardwareAccelerated: true, kind: VideoCodec.H264, mymeType: "")
+      ].map {
+        $0.asFlutterResult()
       }
       result(res)
     case "videoDecoders":
-      let res = listOf(
-        VideoCodecInfo(false, VideoCodec.VP8, ""),
-        VideoCodecInfo(false, VideoCodec.VP9, ""),
-        VideoCodecInfo(false, VideoCodec.AV1, ""),
-        VideoCodecInfo(true, VideoCodec.H264, "")
-      ).map {
-        self.asFlutterResult()
+      let res = [
+        VideoCodecInfo(isHardwareAccelerated: false, kind: VideoCodec.VP8, mymeType: ""),
+        VideoCodecInfo(isHardwareAccelerated: false, kind: VideoCodec.VP9, mymeType: ""),
+        VideoCodecInfo(isHardwareAccelerated: false, kind: VideoCodec.AV1, mymeType: ""),
+        VideoCodecInfo(isHardwareAccelerated: true, kind: VideoCodec.H264, mymeType: "")
+      ].map {
+        $0.asFlutterResult()
       }
       result(res)
     case "dispose":
