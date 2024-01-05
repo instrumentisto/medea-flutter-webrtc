@@ -13,7 +13,6 @@ enum VideoCodec: Int {
 
 /// Represents an information about video codec.
 class VideoCodecInfo {
-
   /// Identifier of the HW accelerated.
   private var isHardwareAccelerated: Bool
 
