@@ -200,6 +200,27 @@ void main() {
     await videoTransceiver.dispose();
   });
 
+  testWidgets('Video codec info', (WidgetTester tester) async {
+    var pc = await PeerConnection.create(IceTransportType.all, []);
+    var decoders = await pc.videoDecoders();
+    expect(decoders.where((element) => element.kind == VideoCodec.VP9).length,
+        isNonZero);
+    expect(decoders.where((element) => element.kind == VideoCodec.VP8).length,
+        isNonZero);
+    expect(decoders.where((element) => element.kind == VideoCodec.AV1).length,
+        isNonZero);
+    expect(decoders.where((element) => element.kind == VideoCodec.H264).length,
+        isNonZero);
+
+    var encoders = await pc.videoEncoders();
+    expect(encoders.where((element) => element.kind == VideoCodec.VP9).length,
+        isNonZero);
+    expect(encoders.where((element) => element.kind == VideoCodec.VP8).length,
+        isNonZero);
+    expect(encoders.where((element) => element.kind == VideoCodec.H264).length,
+        isNonZero);
+  });
+
   testWidgets('Get transceivers', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var t1 = await pc.addTransceiver(
