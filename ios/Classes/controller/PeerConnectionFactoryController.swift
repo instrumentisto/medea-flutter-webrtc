@@ -58,13 +58,17 @@ class PeerConnectionFactoryController {
     case "videoEncoders":
       let res = [
         VideoCodecInfo(
-          isHardwareAccelerated: false, kind: VideoCodec.VP8, mymeType: ""),
+          isHardwareAccelerated: false, kind: VideoCodec.VP8, mymeType: ""
+        ),
         VideoCodecInfo(
-          isHardwareAccelerated: false, kind: VideoCodec.VP9, mymeType: ""),
+          isHardwareAccelerated: false, kind: VideoCodec.VP9, mymeType: ""
+        ),
         VideoCodecInfo(
-          isHardwareAccelerated: false, kind: VideoCodec.AV1, mymeType: ""),
+          isHardwareAccelerated: false, kind: VideoCodec.AV1, mymeType: ""
+        ),
         VideoCodecInfo(
-          isHardwareAccelerated: true, kind: VideoCodec.H264, mymeType: ""),
+          isHardwareAccelerated: true, kind: VideoCodec.H264, mymeType: ""
+        ),
       ].map {
         $0.asFlutterResult()
       }
@@ -72,13 +76,17 @@ class PeerConnectionFactoryController {
     case "videoDecoders":
       let res = [
         VideoCodecInfo(
-          isHardwareAccelerated: false, kind: VideoCodec.VP8, mymeType: ""),
+          isHardwareAccelerated: false, kind: VideoCodec.VP8, mymeType: ""
+        ),
         VideoCodecInfo(
-          isHardwareAccelerated: false, kind: VideoCodec.VP9, mymeType: ""),
+          isHardwareAccelerated: false, kind: VideoCodec.VP9, mymeType: ""
+        ),
         VideoCodecInfo(
-          isHardwareAccelerated: false, kind: VideoCodec.AV1, mymeType: ""),
+          isHardwareAccelerated: false, kind: VideoCodec.AV1, mymeType: ""
+        ),
         VideoCodecInfo(
-          isHardwareAccelerated: true, kind: VideoCodec.H264, mymeType: ""),
+          isHardwareAccelerated: true, kind: VideoCodec.H264, mymeType: ""
+        ),
       ].map {
         $0.asFlutterResult()
       }
