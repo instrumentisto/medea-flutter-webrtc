@@ -85,7 +85,7 @@ class PeerConnectionFactoryController {
       let res = [
         VideoCodecInfo(
           isHardwareAccelerated: false,
-          kind: VideoCodec.VP8
+          kind: VideoCodec.VP8,
           mymeType: "video/VP8"
         ),
         VideoCodecInfo(
