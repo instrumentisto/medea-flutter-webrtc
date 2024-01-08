@@ -2232,7 +2232,8 @@ pub(crate) mod webrtc {
 
         /// Creates a new [`AudioSourceInterface`].
         pub fn create_audio_source(
-            peer_connection_factory: &PeerConnectionFactoryInterface,
+            audio_device_module: &AudioDeviceModule,
+            device_index: u16,
         ) -> UniquePtr<AudioSourceInterface>;
 
         /// Creates a new [`VideoTrackInterface`].

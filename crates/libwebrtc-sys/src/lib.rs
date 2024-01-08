@@ -316,6 +316,18 @@ impl AudioDeviceModule {
         webrtc::set_source(&self.0, &source.0);
     }
 
+    pub fn create_audio_source(&self, device_index: u16) -> anyhow::Result<AudioSourceInterface> {
+        let ptr = webrtc::create_audio_source(&self.0, device_index);
+
+        if ptr.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`",
+            );
+        }
+        Ok(AudioSourceInterface(ptr))
+    }
+
     /// Sets the playout audio device according to the given `index`.
     pub fn set_playout_device(&self, index: u16) -> anyhow::Result<()> {
         let result = webrtc::set_audio_playout_device(&self.0, index);
@@ -1608,20 +1620,6 @@ impl PeerConnectionFactoryInterface {
             inner,
             _observer: dependencies.observer,
         })
-    }
-
-    /// Creates a new [`AudioSourceInterface`], which provides sound recording
-    /// from native platform.
-    pub fn create_audio_source(&self) -> anyhow::Result<AudioSourceInterface> {
-        let ptr = webrtc::create_audio_source(&self.0);
-
-        if ptr.is_null() {
-            bail!(
-                "`null` pointer returned from \
-                 `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`",
-            );
-        }
-        Ok(AudioSourceInterface(ptr))
     }
 
     /// Creates a new [`VideoTrackInterface`] sourced by the provided

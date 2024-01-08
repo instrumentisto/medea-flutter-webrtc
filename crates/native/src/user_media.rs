@@ -310,18 +310,18 @@ impl Webrtc {
             );
         };
 
-        if Some(&device_id)
-            != self.audio_device_module.current_device_id.as_ref()
-        {
-            self.audio_device_module
-                .set_recording_device(device_id, device_index)?;
-        }
+        // if Some(&device_id)
+        //     != self.audio_device_module.current_device_id.as_ref()
+        // {
+        //     self.audio_device_module
+        //         .set_recording_device(device_id.clone(), device_index)?;
+        // }
 
         let src = if let Some(src) = self.audio_source.as_ref() {
             Arc::clone(src)
         } else {
             let src =
-                Arc::new(self.peer_connection_factory.create_audio_source()?);
+                Arc::new(self.audio_device_module.create_audio_source(device_index)?);
             self.audio_source.replace(Arc::clone(&src));
 
             src
@@ -845,6 +845,10 @@ impl AudioDeviceModule {
 
     pub fn set_source(&mut self, src: &Arc<AudioSourceInterface>) {
         self.inner.set_source(src);
+    }
+
+    pub fn create_audio_source(&mut self, device_index: u16) -> anyhow::Result<AudioSourceInterface> {
+        self.inner.create_audio_source(device_index)
     }
 
     /// Sets the microphone system volume according to the given level in

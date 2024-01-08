@@ -354,9 +354,9 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // Calls `PeerConnectionFactoryInterface->CreateAudioSource()` with empty
 // `AudioOptions`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
-    const PeerConnectionFactoryInterface& peer_connection_factory) {
-
-  auto src = LocalAudioSource::Create(cricket::AudioOptions());
+  const AudioDeviceModule& audio_device_module,
+  uint16_t device_index) {
+  auto src = audio_device_module->CreateAudioSource(device_index);
 
   if (src == nullptr) {
     return nullptr;

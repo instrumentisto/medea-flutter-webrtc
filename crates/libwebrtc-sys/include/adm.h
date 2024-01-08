@@ -57,6 +57,18 @@
 #include <X11/Xlib.h>
 #endif
 
+class AudioDeviceRecorder {
+public:
+  struct Data;
+
+  AudioDeviceRecorder(std::string deviceId, ALCdevice* device);
+
+  rtc::scoped_refptr<bridge::LocalAudioSource> source;
+  ALCdevice* device;
+  std::string deviceId;
+  std::unique_ptr<Data> data;
+};
+
 class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
  public:
   OpenALAudioDeviceModule(AudioLayer audio_layer,
@@ -77,6 +89,8 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
 
   // Main initialization and termination.
   int32_t Init() override;
+
+  rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(uint32_t device_index);
 
   // Playout control.
   int16_t PlayoutDevices() override;
@@ -204,6 +218,8 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   // TODO(evdokimovs): We can't use AudioSourceInterface* here in generic.
   // std::vector<AudioSourceInterface*> _sources;
   bridge::LocalAudioSource* _source;
+
+  std::unordered_map<std::string, AudioDeviceRecorder*> _recorders;
 };
 
 #endif // BRIDGE_ADM_H_
