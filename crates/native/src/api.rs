@@ -1985,22 +1985,22 @@ pub fn video_encoders() -> Vec<VideoCodecInfo> {
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP8,
-            mime_type: String::new(),
+            mime_type: "video/VP8".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP9,
-            mime_type: String::new(),
+            mime_type: "video/VP9".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::H264,
-            mime_type: String::new(),
+            mime_type: "video/H264".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::AV1,
-            mime_type: String::new(),
+            mime_type: "video/AV1".to_owned(),
         },
     ]
 }
@@ -2012,22 +2012,22 @@ pub fn video_decoders() -> Vec<VideoCodecInfo> {
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP8,
-            mime_type: String::new(),
+            mime_type: "video/VP8".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP9,
-            mime_type: String::new(),
+            mime_type: "video/VP9".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::H264,
-            mime_type: String::new(),
+            mime_type: "video/H264".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::AV1,
-            mime_type: String::new(),
+            mime_type: "video/AV1".to_owned(),
         },
     ]
 }
