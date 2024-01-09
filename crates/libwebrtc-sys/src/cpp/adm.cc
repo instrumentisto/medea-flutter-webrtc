@@ -232,28 +232,17 @@ AudioDeviceRecorder::AudioDeviceRecorder(std::string id, ALCdevice* d) {
 }
 
 rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(uint32_t device_index) {
-  // auto recordingDevice = alcCaptureOpenDevice(
-  //       deviceId.empty() ? nullptr : deviceId.c_str(),
-  //       kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
   std::string deviceId;
   const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index, nullptr,
                                  &deviceId);
   auto recordingDevice = alcCaptureOpenDevice(
         deviceId.empty() ? nullptr : deviceId.c_str(),
         kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
-  if (CheckDeviceFailed(recordingDevice)) {
-    RTC_LOG(LS_ERROR) << "[TEST] Device is failed";
-  } else {
-    RTC_LOG(LS_ERROR) << "[TEST] Device is not failed";
-  }
   auto recorder = new AudioDeviceRecorder(deviceId, recordingDevice);
   _recorders[deviceId] = recorder;
+  restartRecording();
   return recorder->source;
 }
-
-// add_source(AudioSourceInterface& src) {
-    // TODO: save src to local AudioTransport
-// }
 
 rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
     AudioLayer audio_layer,
@@ -595,17 +584,7 @@ void OpenALAudioDeviceModule::unqueueAllBuffers() {
 
 int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
-  // TODO(alexlapa): own impl that redirects data to audio source from set_source
-  //
-  // TODO(evdokimovs): Write custom AudioTransport implementation
-  // which will pass all data written to AudioDeviceBuffer to the
-  // underlying LocalAudioSource.
-  //
-  // Maybe LocalAudioSource should implement AudioTransport interface and then
-  // route everything to the underlying sinks.
   return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
-
-  // return 0;
 }
 
 bool OpenALAudioDeviceModule::processPlayout() {
@@ -839,11 +818,6 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
     }
 
     for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
-      if (CheckDeviceFailed(r.second->device)) {
-        RTC_LOG(LS_ERROR) << "Device is failed before start";
-      } else {
-        RTC_LOG(LS_ERROR) << "Device is NOT failed before start";
-      }
       alcCaptureStart(r.second->device);
       if (CheckDeviceFailed(r.second->device)) {
         _recordingFailed = true;
@@ -852,9 +826,6 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
         return;
       }
     }
-      RTC_LOG(LS_ERROR) << "processRecordingQueued";
-
-    // alcCaptureStart(_recordingDevice);
 
     processRecordingQueued();
 
@@ -1060,6 +1031,7 @@ struct AudioDeviceRecorder::Data {
 
 bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
   for (const std::pair<const std::string, AudioDeviceRecorder*>& recorder : _recorders) {
+    RTC_LOG(LS_ERROR) << "Recorded of device: " << recorder.first;
     auto recordingDevice = recorder.second->device;
     auto data = recorder.second->data.get();
     auto samples = ALint();
@@ -1095,6 +1067,7 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
       return false;
     }
 
+    RTC_LOG(LS_ERROR) << "OnData fire for " << recorder.first;
     source->OnData(
       data->recordedSamples->data(), // audio_data
       16,

@@ -144,6 +144,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   return std::make_unique<AudioDeviceModule>(adm);
 }
 
+// TODO(evdokimovs): Remove me
 void set_source(const AudioDeviceModule& audio_device_module, const AudioSourceInterface& src) {
   audio_device_module->SetAudioSource(src.get());
   // TODO: asdasdadsasd
@@ -710,6 +711,7 @@ std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
 }
 
 // Returns the `AudioSourceInterface` of the provided `AudioTrackInterface`.
+// TODO(evdokimovs): Maybe remove me
 std::unique_ptr<AudioSourceInterface> get_audio_track_source(
     const AudioTrackInterface& track) {
   return nullptr;

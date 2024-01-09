@@ -34,8 +34,6 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
 
   void AddSink(webrtc::AudioTrackSinkInterface* sink) override;
   void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override;
-  // void AddSink(webrtc::AudioTrackSinkInterface* sink) override {}
-  // void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override {}
 
   void OnData(const void* audio_data,
                       int bits_per_sample,

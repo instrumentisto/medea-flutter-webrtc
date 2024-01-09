@@ -317,15 +317,25 @@ impl Webrtc {
         //         .set_recording_device(device_id.clone(), device_index)?;
         // }
 
-        let src = if let Some(src) = self.audio_source.as_ref() {
+        let src = if let Some(src) = self.audio_sources.get(&device_id) {
             Arc::clone(src)
         } else {
-            let src =
-                Arc::new(self.audio_device_module.create_audio_source(device_index)?);
-            self.audio_source.replace(Arc::clone(&src));
+            let src = Arc::new(self.audio_device_module.create_audio_source(device_index)?);
+            self.audio_sources.insert(device_id, Arc::clone(&src));
 
             src
+
         };
+
+        // let src = if let Some(src) = self.audio_source.as_ref() {
+        //     Arc::clone(src)
+        // } else {
+        //     let src =
+        //         Arc::new(self.audio_device_module.create_audio_source(device_index)?);
+        //     self.audio_source.replace(Arc::clone(&src));
+        //
+        //     src
+        // };
 
         self.audio_device_module.set_source(&src);
 

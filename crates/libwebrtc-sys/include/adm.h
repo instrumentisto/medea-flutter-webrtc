@@ -85,8 +85,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
 
   void SetAudioSource(bridge::LocalAudioSource* source);
 
-  // TODO: add_source(AudioSourceInterface& src);
-
   // Main initialization and termination.
   int32_t Init() override;
 
@@ -215,10 +213,7 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
-  // TODO(evdokimovs): We can't use AudioSourceInterface* here in generic.
-  // std::vector<AudioSourceInterface*> _sources;
   bridge::LocalAudioSource* _source;
-
   std::unordered_map<std::string, AudioDeviceRecorder*> _recorders;
 };
 
