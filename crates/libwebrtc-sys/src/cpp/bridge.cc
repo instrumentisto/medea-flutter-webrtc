@@ -138,10 +138,10 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     return nullptr;
   }
 
-  AudioDeviceModule proxied =
-      webrtc::OpenALAudioDeviceModuleProxy::Create(&worker_thread, adm);
+  // AudioDeviceModule proxied =
+  //     webrtc::OpenALAudioDeviceModuleProxy::Create(&worker_thread, adm);
 
-  return std::make_unique<AudioDeviceModule>(proxied);
+  return std::make_unique<AudioDeviceModule>(adm);
 }
 
 // Calls `AudioDeviceModule->Init()`.
