@@ -821,8 +821,6 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
       alcCaptureStart(r.second->device);
       if (CheckDeviceFailed(r.second->device)) {
         _recordingFailed = true;
-        RTC_LOG(LS_ERROR) << "failed to start capturing";
-        // TODO(evdokimovs): Proper error handling
         return;
       }
     }
