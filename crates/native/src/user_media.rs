@@ -52,16 +52,8 @@ impl Webrtc {
                     })?;
                 let track = self
                     .create_audio_track(src)
-                    .map_err(|err| api::GetMediaError::Audio(err.to_string()));
-                if let Err(err) = track {
-                    if Arc::get_mut(self.audio_source.as_mut().unwrap())
-                        .is_some()
-                    {
-                        self.audio_source.take();
-                    }
-                    return Err(err);
-                }
-                tracks.push(track?);
+                    .map_err(|err| api::GetMediaError::Audio(err.to_string()))?;
+                tracks.push(track);
             }
 
             Ok(())
@@ -100,7 +92,8 @@ impl Webrtc {
                 {
                     if let MediaTrackSource::Local(src) = track.source {
                         if Arc::strong_count(&src) == 2 {
-                            self.audio_source.take();
+                            // TODO(evdokimovs): Dispose AudioSource
+                            // self.audio_source.take();
                             // TODO: We should make `AudioDeviceModule` to stop
                             //       recording.
                         };
@@ -310,13 +303,6 @@ impl Webrtc {
             );
         };
 
-        // if Some(&device_id)
-        //     != self.audio_device_module.current_device_id.as_ref()
-        // {
-        //     self.audio_device_module
-        //         .set_recording_device(device_id.clone(), device_index)?;
-        // }
-
         let src = if let Some(src) = self.audio_sources.get(&device_id) {
             Arc::clone(src)
         } else {
@@ -326,18 +312,6 @@ impl Webrtc {
             src
 
         };
-
-        // let src = if let Some(src) = self.audio_source.as_ref() {
-        //     Arc::clone(src)
-        // } else {
-        //     let src =
-        //         Arc::new(self.audio_device_module.create_audio_source(device_index)?);
-        //     self.audio_source.replace(Arc::clone(&src));
-        //
-        //     src
-        // };
-
-        self.audio_device_module.set_source(&src);
 
         Ok(src)
     }
@@ -851,10 +825,6 @@ impl AudioDeviceModule {
         }
 
         Ok(())
-    }
-
-    pub fn set_source(&mut self, src: &Arc<AudioSourceInterface>) {
-        self.inner.set_source(src);
     }
 
     pub fn create_audio_source(&mut self, device_index: u16) -> anyhow::Result<AudioSourceInterface> {

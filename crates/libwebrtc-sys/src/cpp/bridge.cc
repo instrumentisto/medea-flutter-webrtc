@@ -138,17 +138,10 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     return nullptr;
   }
 
-  // AudioDeviceModule proxied =
-  //     webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
+  AudioDeviceModule proxied =
+      webrtc::OpenALAudioDeviceModuleProxy::Create(&worker_thread, adm);
 
-  return std::make_unique<AudioDeviceModule>(adm);
-}
-
-// TODO(evdokimovs): Remove me
-void set_source(const AudioDeviceModule& audio_device_module, const AudioSourceInterface& src) {
-  audio_device_module->SetAudioSource(src.get());
-  // TODO: asdasdadsasd
-  // adm.set_source(src);
+  return std::make_unique<AudioDeviceModule>(proxied);
 }
 
 // Calls `AudioDeviceModule->Init()`.

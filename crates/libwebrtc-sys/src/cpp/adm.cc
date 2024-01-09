@@ -1031,7 +1031,6 @@ struct AudioDeviceRecorder::Data {
 
 bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
   for (const std::pair<const std::string, AudioDeviceRecorder*>& recorder : _recorders) {
-    RTC_LOG(LS_ERROR) << "Recorded of device: " << recorder.first;
     auto recordingDevice = recorder.second->device;
     auto data = recorder.second->data.get();
     auto samples = ALint();

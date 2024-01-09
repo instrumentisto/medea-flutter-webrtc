@@ -1226,12 +1226,6 @@ pub(crate) mod webrtc {
             task_queue_factory: Pin<&mut TaskQueueFactory>,
         ) -> UniquePtr<AudioDeviceModule>;
 
-        /// Adds [`AudioSource`] to [`AudioSourceManager`].
-        pub fn set_source(
-            audio_device_module: &AudioDeviceModule,
-            source: &AudioSourceInterface,
-        );
-
         /// Creates a new fake [`AudioDeviceModule`], that will not try to
         /// access real media devices, but will generate pulsed noise.
         pub fn create_fake_audio_device_module(
