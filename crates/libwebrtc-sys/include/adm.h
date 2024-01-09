@@ -83,8 +83,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
       AudioLayer audio_layer,
       webrtc::TaskQueueFactory* task_queue_factory);
 
-  void SetAudioSource(bridge::LocalAudioSource* source);
-
   // Main initialization and termination.
   int32_t Init() override;
 

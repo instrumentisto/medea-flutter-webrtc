@@ -82,14 +82,13 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 // audio renderer.
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     TaskQueueFactory& task_queue_factory) {
-  return nullptr;
-  // auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
-  // auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
-  //
-  // auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
-  //                                       std::move(renderer), 1);
-  //
-  // return std::make_unique<AudioDeviceModule>(adm_fake);
+  auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
+  auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
+
+  auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
+                                        std::move(renderer), 1);
+
+  return std::make_unique<AudioDeviceModule>(adm_fake);
 }
 
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
@@ -138,8 +137,8 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     return nullptr;
   }
 
-  // AudioDeviceModule proxied =
-  //     webrtc::OpenALAudioDeviceModuleProxy::Create(&worker_thread, adm);
+  AudioDeviceModule proxied =
+      webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
 
   return std::make_unique<AudioDeviceModule>(adm);
 }
@@ -350,7 +349,13 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 std::unique_ptr<AudioSourceInterface> create_audio_source(
   const AudioDeviceModule& audio_device_module,
   uint16_t device_index) {
-  auto src = audio_device_module->CreateAudioSource(device_index);
+  auto upcasted_adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
+  AudioSourceInterface src;
+  if (upcasted_adm == nullptr) {
+    src = bridge::LocalAudioSource::Create(cricket::AudioOptions());
+  } else {
+    src = upcasted_adm->CreateAudioSource(device_index);
+  }
 
   if (src == nullptr) {
     return nullptr;

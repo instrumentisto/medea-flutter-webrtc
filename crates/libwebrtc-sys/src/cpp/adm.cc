@@ -155,10 +155,6 @@ int32_t OpenALAudioDeviceModule::Init() {
 
 OpenALAudioDeviceModule::~OpenALAudioDeviceModule() {}
 
-void OpenALAudioDeviceModule::SetAudioSource(bridge::LocalAudioSource* source) {
-  _source = source;
-}
-
 template <typename Callback>
 void EnumerateDevices(ALCenum specifier, Callback&& callback) {
   auto devices = alcGetString(nullptr, specifier);
