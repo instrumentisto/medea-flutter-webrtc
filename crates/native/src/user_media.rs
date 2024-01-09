@@ -92,8 +92,7 @@ impl Webrtc {
                 {
                     if let MediaTrackSource::Local(src) = track.source {
                         if Arc::strong_count(&src) == 2 {
-                            // TODO(evdokimovs): Dispose AudioSource
-                            // self.audio_source.take();
+                            self.audio_sources.remove(&track.device_id);
                             // TODO: We should make `AudioDeviceModule` to stop
                             //       recording.
                         };
