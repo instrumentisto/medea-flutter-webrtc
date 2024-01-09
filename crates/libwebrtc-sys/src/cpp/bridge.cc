@@ -703,15 +703,6 @@ std::unique_ptr<VideoTrackSourceInterface> get_video_track_source(
   return std::make_unique<VideoTrackSourceInterface>(track->GetSource());
 }
 
-// Returns the `AudioSourceInterface` of the provided `AudioTrackInterface`.
-// TODO(evdokimovs): Maybe remove me
-std::unique_ptr<AudioSourceInterface> get_audio_track_source(
-    const AudioTrackInterface& track) {
-  return nullptr;
-  // TODO(evdokimovs)
-  // return std::make_unique<AudioSourceInterface>(track->GetSource());
-}
-
 // Calls `IceCandidateInterface->ToString`.
 std::unique_ptr<std::string> ice_candidate_interface_to_string(
     const IceCandidateInterface& candidate) {

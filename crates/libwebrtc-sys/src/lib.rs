@@ -1993,13 +1993,6 @@ impl AudioTrackInterface {
         self.observers.push(obs);
     }
 
-    /// Returns the [`AudioSourceInterface`] attached to this
-    /// [`AudioTrackInterface`].
-    #[must_use]
-    pub fn source(&self) -> AudioSourceInterface {
-        AudioSourceInterface(webrtc::get_audio_track_source(&self.inner))
-    }
-
     /// Returns the [readyState][0] property of this [`AudioTrackInterface`].
     ///
     /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate

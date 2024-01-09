@@ -2256,13 +2256,6 @@ pub(crate) mod webrtc {
             track: &VideoTrackInterface,
         ) -> bool;
 
-        /// Returns the `AudioSourceInterface` of the provided
-        /// [`AudioTrackInterface`].
-        #[must_use]
-        pub fn get_audio_track_source(
-            track: &AudioTrackInterface,
-        ) -> UniquePtr<AudioSourceInterface>;
-
         /// Returns the `VideoTrackSourceInterface` of the provided
         /// [`VideoTrackInterface`].
         #[must_use]
