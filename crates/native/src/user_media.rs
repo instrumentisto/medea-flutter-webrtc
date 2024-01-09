@@ -248,8 +248,10 @@ impl Webrtc {
     ) -> anyhow::Result<api::MediaStreamTrack> {
         // PANIC: If there is a `sys::AudioSourceInterface` then we are sure
         //        that `current_device_id` is set in the `AudioDeviceModule`.
-        let device_id =
-            self.audio_device_module.current_device_id.clone().unwrap();
+        // TODO(evdokimovs): Fix me!
+        // let device_id =
+        //     self.audio_device_module.current_device_id.clone().unwrap();
+        let device_id = AudioDeviceId::from("helloworld");
 
         let track = AudioTrack::new(
             &self.peer_connection_factory,
