@@ -344,8 +344,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
   return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
-// Calls `PeerConnectionFactoryInterface->CreateAudioSource()` with empty
-// `AudioOptions`.
+// Creates new `AudioSource` with provided `AudioDeviceModule`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
   const AudioDeviceModule& audio_device_module,
   uint16_t device_index) {
