@@ -11,6 +11,9 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.9.0...0.9.1)
 
+### Added
+- `PeerConnection.videoDecoders()` and PeerConnection.videoEncoders() functions. ([#144])
+
 ### Fixed
 
 - Double free when [macOS] video renderer is reused for different tracks. ([#139])
@@ -19,6 +22,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#139]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/139
 [#142]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/142
+[#144]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/144
 
 
 
