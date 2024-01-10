@@ -30,6 +30,7 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <unordered_map>
 
 #include <AL/al.h>
 #include <AL/alc.h>
