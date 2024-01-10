@@ -8,9 +8,9 @@ package com.instrumentisto.medea_flutter_webrtc.model
 enum class VideoCodec {
   AV1,
   H264,
-  H265;
+  H265,
   VP8,
-  VP9,
+  VP9;
 
   companion object {
     fun valueOfOrNull(name: String): VideoCodec? {
