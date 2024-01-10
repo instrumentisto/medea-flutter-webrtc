@@ -477,7 +477,7 @@ impl Webrtc {
                         }
 
                         let track = AudioTrack::wrap_remote(
-                            transceivers.get(0).unwrap(),
+                            transceivers.first().unwrap(),
                             &peer,
                         );
 
@@ -526,7 +526,7 @@ impl Webrtc {
                         }
 
                         let track = VideoTrack::wrap_remote(
-                            transceivers.get(0).unwrap(),
+                            transceivers.first().unwrap(),
                             &peer,
                         );
 
