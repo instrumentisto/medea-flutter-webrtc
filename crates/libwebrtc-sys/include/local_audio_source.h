@@ -49,7 +49,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   void Initialize(cricket::AudioOptions audio_options);
 
   cricket::AudioOptions options_;
-  std::vector<webrtc::AudioTrackSinkInterface*> _sinks;
+  webrtc::AudioTrackSinkInterface* sink_;
 };
 
 }  // namespace webrtc
