@@ -1,16 +1,16 @@
 package com.instrumentisto.medea_flutter_webrtc.model
 
 /**
- * Video codec kind.
+ * Supported video codecs.
  *
  * @property value [String] representation of this enum which will be expected on the Flutter side.
  */
 enum class VideoCodec {
+  AV1,
+  H264,
+  H265;
   VP8,
   VP9,
-  H264,
-  AV1,
-  H265;
 
   companion object {
     fun valueOfOrNull(name: String): VideoCodec? {
@@ -20,10 +20,10 @@ enum class VideoCodec {
 }
 
 /**
- * Represents an information about video codec.
+ * [VideoCodec] info for encoding/decoding in a peer connection.
  *
- * @property isHardwareAccelerated Identifier of the HW accelerated.
- * @property codec video codec kind.
+ * @property isHardwareAccelerated Indicator whether hardware acceleration should be used.
+ * @property codec [VideoCodec] to be used for encoding/decoding..
  */
 data class VideoCodecInfo(
     val codec: VideoCodec,

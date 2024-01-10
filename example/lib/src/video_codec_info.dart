@@ -27,11 +27,11 @@ class _State extends State<VideoCodecInfoSample> {
     setState(() {
       var codecs = '';
       for (var enc in encoders) {
-        codecs += 'Encoder: ${enc.kind} HW: ${enc.isHardwareAccelerated}\n';
+        codecs += 'Encoder: ${enc.codec} HW: ${enc.isHardwareAccelerated}\n';
       }
       codecs += '\n';
       for (var dec in decoders) {
-        codecs += 'Decoder: ${dec.kind} HW: ${dec.isHardwareAccelerated}\n';
+        codecs += 'Decoder: ${dec.codec} HW: ${dec.isHardwareAccelerated}\n';
       }
 
       text = codecs;

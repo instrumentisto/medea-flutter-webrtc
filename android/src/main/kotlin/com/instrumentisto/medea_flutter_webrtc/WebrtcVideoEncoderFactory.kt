@@ -9,7 +9,7 @@ import org.webrtc.VideoEncoderFactory
 import org.webrtc.VideoEncoderFallback
 
 class WebrtcVideoEncoderFactory
-/** Create encoder factory using default hardware encoder factory. */
+/** Creates encoder factory using default hardware encoder factory. */
 (eglContext: EglBase.Context?, enableIntelVp8Encoder: Boolean, enableH264HighProfile: Boolean) :
     VideoEncoderFactory {
 
@@ -32,7 +32,7 @@ class WebrtcVideoEncoderFactory
     val hw = hwFactory.createEncoder(info)
 
     return if (hw != null && sw != null) {
-      // Both hardware and software supported, wrap it in a software fallback
+      // Both hardware and software supported, wrap it in a software fallback.
       VideoEncoderFallback(sw, hw)
     } else hw ?: sw
   }

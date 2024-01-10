@@ -54,7 +54,6 @@ class PeerConnectionFactoryController {
         messenger: self.messenger, peer: self.peerFactory.create(conf: conf)
       )
       result(peer.asFlutterResult())
-
     case "videoEncoders":
       let res = [
         VideoCodecInfo(

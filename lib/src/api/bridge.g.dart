@@ -14,12 +14,12 @@ import 'package:uuid/uuid.dart';
 part 'bridge.g.freezed.dart';
 
 abstract class MedeaFlutterWebrtcNative {
-  /// Returns the current [`VideoCodecInfo`] encoders.
+  /// Returns all [`VideoCodecInfo`]s of the supported video encoders.
   Future<List<VideoCodecInfo>> videoEncoders({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kVideoEncodersConstMeta;
 
-  /// Returns the current [`VideoCodecInfo`] decoders.
+  /// Returns all [`VideoCodecInfo`]s of the supported video decoders.
   Future<List<VideoCodecInfo>> videoDecoders({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kVideoDecodersConstMeta;
@@ -1938,35 +1938,45 @@ enum TrackState {
   ended,
 }
 
-/// Video codecs.
+/// Supported video codecs.
 enum VideoCodec {
-  /// VP8 video codec.
-  vp8,
-
-  /// VP9 video codec.
-  vp9,
-
-  /// H264 video codec.
-  h264,
-
-  /// AV1 video codec.
+  /// [AV1] AOMedia Video 1.
+  ///
+  /// [AV1]: https://en.wikipedia.org/wiki/AV1
   av1,
 
-  /// H265 video codec.
+  /// [H.264] Advanced Video Coding (AVC).
+  ///
+  /// [H.264]: https://en.wikipedia.org/wiki/Advanced_Video_Coding
+  h264,
+
+  /// [H.265] High Efficiency Video Coding (HEVC).
+  ///
+  /// [H.265]: https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding
   h265,
+
+  /// [VP8] codec.
+  ///
+  /// [VP8]: https://en.wikipedia.org/wiki/VP8
+  vp8,
+
+  /// [VP9] codec.
+  ///
+  /// [VP9]: https://en.wikipedia.org/wiki/VP9
+  vp9,
 }
 
-/// Video codec info.
+/// [`VideoCodec`] info for encoding/decoding.
 class VideoCodecInfo {
-  /// Hardware acceleration decode/encode.
+  /// Indicator whether hardware acceleration should be used.
   final bool isHardwareAccelerated;
 
-  /// Video codec kind.
-  final VideoCodec kind;
+  /// [`VideoCodec`] to be used for encoding/decoding.
+  final VideoCodec codec;
 
   const VideoCodecInfo({
     required this.isHardwareAccelerated,
-    required this.kind,
+    required this.codec,
   });
 }
 
@@ -3576,7 +3586,7 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
       throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
     return VideoCodecInfo(
       isHardwareAccelerated: _wire2api_bool(arr[0]),
-      kind: _wire2api_video_codec(arr[1]),
+      codec: _wire2api_video_codec(arr[1]),
     );
   }
 }

@@ -1956,83 +1956,93 @@ pub struct RtcIceServer {
     pub credential: String,
 }
 
-/// Video codecs.
+/// Supported video codecs.
 pub enum VideoCodec {
-    /// VP8 video codec.
-    VP8,
-
-    /// VP9 video codec.
-    VP9,
-
-    /// H264 video codec.
-    H264,
-
-    /// AV1 video codec.
+    /// [AV1] AOMedia Video 1.
+    ///
+    /// [AV1]: https://en.wikipedia.org/wiki/AV1
     AV1,
 
-    /// H265 video codec.
+    /// [H.264] Advanced Video Coding (AVC).
+    ///
+    /// [H.264]: https://en.wikipedia.org/wiki/Advanced_Video_Coding
+    H264,
+
+    /// [H.265] High Efficiency Video Coding (HEVC).
+    ///
+    /// [H.265]: https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding
     H265,
+
+    /// [VP8] codec.
+    ///
+    /// [VP8]: https://en.wikipedia.org/wiki/VP8
+    VP8,
+
+    /// [VP9] codec.
+    ///
+    /// [VP9]: https://en.wikipedia.org/wiki/VP9
+    VP9,
 }
 
-/// Video codec info.
+/// [`VideoCodec`] info for encoding/decoding.
 pub struct VideoCodecInfo {
-    /// Hardware acceleration decode/encode.
+    /// Indicator whether hardware acceleration should be used.
     pub is_hardware_accelerated: bool,
 
-    /// Video codec kind.
-    pub kind: VideoCodec,
+    /// [`VideoCodec`] to be used for encoding/decoding.
+    pub codec: VideoCodec,
 }
 
-/// Returns the current [`VideoCodecInfo`] encoders.
+/// Returns all [`VideoCodecInfo`]s of the supported video encoders.
 pub fn video_encoders() -> Vec<VideoCodecInfo> {
     // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::VP8,
+            codec: VideoCodec::VP8,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::VP9,
+            codec: VideoCodec::VP9,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::H264,
+            codec: VideoCodec::H264,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::AV1,
+            codec: VideoCodec::AV1,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::H265,
+            codec: VideoCodec::H265,
         },
     ]
 }
 
-/// Returns the current [`VideoCodecInfo`] decoders.
+/// Returns all [`VideoCodecInfo`]s of the supported video decoders.
 pub fn video_decoders() -> Vec<VideoCodecInfo> {
     // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::VP8,
+            codec: VideoCodec::VP8,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::VP9,
+            codec: VideoCodec::VP9,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::H264,
+            codec: VideoCodec::H264,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::AV1,
+            codec: VideoCodec::AV1,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            kind: VideoCodec::H265,
+            codec: VideoCodec::H265,
         },
     ]
 }

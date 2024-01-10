@@ -19,10 +19,10 @@ class State(private val context: Context) {
   /** Module for the controlling audio devices in context of `libwebrtc`. */
   private var audioDeviceModule: JavaAudioDeviceModule? = null
 
-  /** [VideoEncoderFactory] used by [PeerConnectionFactory]. */
+  /** [VideoEncoderFactory] used by the [PeerConnectionFactory]. */
   var encoder: WebrtcVideoEncoderFactory
 
-  /** [VideoDecoderFactory] used by [PeerConnectionFactory]. */
+  /** [VideoDecoderFactory] used by the [PeerConnectionFactory]. */
   var decoder: WebrtcVideoDecoderFactory
 
   /**
@@ -45,7 +45,7 @@ class State(private val context: Context) {
   }
 
   /**
-   * Initializes the [PeerConnectionFactory] if it wasn't initialized before.
+   * Initializes the [PeerConnectionFactory] in this [State] if it wasn't initialized before.
    *
    * @return Current [PeerConnectionFactory] of this [State].
    */

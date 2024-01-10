@@ -10,21 +10,27 @@ import org.webrtc.VideoDecoderFactory
 import org.webrtc.VideoDecoderFallback
 
 class WebrtcVideoDecoderFactory
-/** Create decoder factory using default hardware decoder factory. */
+/** Creates decoder factory using default hardware decoder factory. */
 (eglContext: EglBase.Context?) : VideoDecoderFactory {
 
   /** [HardwareVideoDecoderFactory] capable of creating hardware-accelerated [VideoDecoder]s. */
   private val hwFactory: HardwareVideoDecoderFactory
 
   /**
-   * [VideoDecoderFactory] used as a fallback for codecs that are not supported by
-   * [HardwareVideoDecoderFactory]. It uses `libwebrtc`'s `BuiltinVideoDecoderFactory` underneath.
+   * [VideoDecoderFactory] used as a fallback for codecs that are not supported by the
+   * [HardwareVideoDecoderFactory].
+   *
+   * Uses `libwebrtc`'s `BuiltinVideoDecoderFactory` underneath.
    */
   private val swFactory: SoftwareVideoDecoderFactory = SoftwareVideoDecoderFactory()
 
   /**
    * [VideoDecoderFactory] used as a last resort when neither [HardwareVideoDecoderFactory] nor
-   * [SoftwareVideoDecoderFactory] could not be used. Backed by Android MediaCodec API.
+   * [SoftwareVideoDecoderFactory] could not be used.
+   *
+   * Backed by Android MediaCodec API.
+   *
+   * []Android MediaCodec API]: https://developer.android.com/reference/android/media/MediaCodec
    */
   private val platformSWFactory: PlatformSoftwareVideoDecoderFactory
 
@@ -41,7 +47,7 @@ class WebrtcVideoDecoderFactory
     }
 
     return if (wh != null && sw != null) {
-      // Both hardware and software supported, wrap it in a software fallback
+      // Both hardware and software supported, wrap it in a software fallback.
       VideoDecoderFallback(sw, wh)
     } else wh ?: sw
   }

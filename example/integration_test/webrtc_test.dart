@@ -204,25 +204,23 @@ void main() {
     // Desktop only.
     if (!Platform.isAndroid && !Platform.isIOS) {
       var decoders = await PeerConnection.videoDecoders();
-      expect(decoders.where((element) => element.kind == VideoCodec.VP9).length,
+      expect(decoders.where((dec) => dec.codec == VideoCodec.VP8).length,
           isNonZero);
-      expect(decoders.where((element) => element.kind == VideoCodec.VP8).length,
+      expect(decoders.where((dec) => dec.codec == VideoCodec.VP9).length,
           isNonZero);
-      expect(decoders.where((element) => element.kind == VideoCodec.AV1).length,
+      expect(decoders.where((dec) => dec.codec == VideoCodec.AV1).length,
           isNonZero);
-      expect(
-          decoders.where((element) => element.kind == VideoCodec.H264).length,
+      expect(decoders.where((dec) => dec.codec == VideoCodec.H264).length,
           isNonZero);
 
       var encoders = await PeerConnection.videoEncoders();
-      expect(encoders.where((element) => element.kind == VideoCodec.VP9).length,
+      expect(encoders.where((enc) => enc.codec == VideoCodec.VP8).length,
           isNonZero);
-      expect(encoders.where((element) => element.kind == VideoCodec.VP8).length,
+      expect(encoders.where((enc) => enc.codec == VideoCodec.VP9).length,
           isNonZero);
-      expect(encoders.where((element) => element.kind == VideoCodec.AV1).length,
+      expect(encoders.where((enc) => enc.codec == VideoCodec.AV1).length,
           isNonZero);
-      expect(
-          encoders.where((element) => element.kind == VideoCodec.H264).length,
+      expect(encoders.where((enc) => enc.codec == VideoCodec.H264).length,
           isNonZero);
     }
   });

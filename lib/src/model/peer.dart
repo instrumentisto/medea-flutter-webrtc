@@ -162,34 +162,53 @@ enum PeerConnectionState {
   closed,
 }
 
-/// Video codecs for peer connection
+/// Supported video codecs.
 enum VideoCodec {
-  // ignore: constant_identifier_names
-  VP8,
-  // ignore: constant_identifier_names
-  VP9,
-  // ignore: constant_identifier_names
-  H264,
+  /// [AV1] AOMedia Video 1.
+  ///
+  /// [AV1]: https://en.wikipedia.org/wiki/AV1
   // ignore: constant_identifier_names
   AV1,
+
+  /// [H.264] Advanced Video Coding (AVC).
+  ///
+  /// [H.264]: https://en.wikipedia.org/wiki/Advanced_Video_Coding
+  // ignore: constant_identifier_names
+  H264,
+
+  /// [H.265] High Efficiency Video Coding (HEVC).
+  ///
+  /// [H.265]: https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding
   // ignore: constant_identifier_names
   H265,
+
+  /// [VP8] codec.
+  ///
+  /// [VP8]: https://en.wikipedia.org/wiki/VP8
+  // ignore: constant_identifier_names
+  VP8,
+
+  /// [VP9] codec.
+  ///
+  /// [VP9]: https://en.wikipedia.org/wiki/VP9
+  // ignore: constant_identifier_names
+  VP9,
 }
 
-/// Video codecs for peer connection
+/// [VideoCodec] info for encoding/decoding in a peer connection.
 class VideoCodecInfo {
-  /// Hardware acceleration decode/encode.
+  /// Indicator whether hardware acceleration should be used.
   bool isHardwareAccelerated = false;
 
-  /// Video codec kind.
-  VideoCodec kind;
+  /// [VideoCodec] to be used for encoding/decoding.
+  VideoCodec codec;
 
-  VideoCodecInfo(this.isHardwareAccelerated, this.kind);
+  VideoCodecInfo(this.isHardwareAccelerated, this.codec);
 
-  static VideoCodecInfo fromFFI(ffi.VideoCodecInfo codec) {
+  static VideoCodecInfo fromFFI(ffi.VideoCodecInfo vc) {
     VideoCodec mediaCodec = VideoCodec.values
-        .firstWhere((element) => element.name.toLowerCase() == codec.kind.name);
-    return VideoCodecInfo(codec.isHardwareAccelerated, mediaCodec);
+        .firstWhere((el) => el.name.toLowerCase() == vc.codec.name);
+    return VideoCodecInfo(vc.isHardwareAccelerated, mediaCodec);
   }
 
   static VideoCodecInfo fromMap(dynamic info) {
