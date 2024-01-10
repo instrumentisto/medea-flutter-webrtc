@@ -41,7 +41,7 @@ pub use crate::{
     user_media::{
         AudioDeviceId, AudioDeviceModule, AudioTrack, AudioTrackId,
         MediaStreamId, VideoDeviceId, VideoDeviceInfo, VideoSource, VideoTrack,
-        VideoTrackId,
+        VideoTrackId, AudioSource,
     },
     video_sink::VideoSink,
 };
@@ -59,7 +59,7 @@ struct Webrtc {
     video_device_info: VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
     video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
-    audio_sources: HashMap<AudioDeviceId, Arc<sys::AudioSourceInterface>>,
+    audio_sources: HashMap<AudioDeviceId, Arc<AudioSource>>,
     audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     ap: sys::AudioProcessing,
@@ -91,12 +91,11 @@ impl Webrtc {
         let audio_device_module = if api::is_fake_media() {
             AudioDeviceModule::new_fake(&mut task_queue_factory)
         } else {
-            AudioDeviceModule::new_fake(&mut task_queue_factory)
-            // AudioDeviceModule::new(
-            //     &mut worker_thread,
-            //     sys::AudioLayer::kPlatformDefaultAudio,
-            //     &mut task_queue_factory,
-            // )?
+            AudioDeviceModule::new(
+                &mut worker_thread,
+                sys::AudioLayer::kPlatformDefaultAudio,
+                &mut task_queue_factory,
+            )?
         };
 
         let ap = sys::AudioProcessing::new()?;
