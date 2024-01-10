@@ -1060,7 +1060,6 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
       return false;
     }
 
-    RTC_LOG(LS_ERROR) << "OnData fire for " << recorder.first;
     source->OnData(
       data->recordedSamples->data(), // audio_data
       16,
