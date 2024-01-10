@@ -102,14 +102,10 @@ struct OpenALAudioDeviceModule::Data {
   std::array<bool, kBuffersFullCount> queuedBuffers = {{false}};
   int playBufferSize = kPlayoutPart * sizeof(int16_t) * 2;
   std::vector<char>* playoutSamples = new std::vector<char>(playBufferSize, 0);
-  int recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-  std::vector<char>* recordedSamples =
-      new std::vector<char>(recordBufferSize, 0);
   int64_t exactDeviceTimeCounter = 0;
   int64_t lastExactDeviceTime = 0;
   std::int64_t lastExactDeviceTimeWhen = 0;
   bool playing = false;
-  int emptyRecordingData = 0;
   bool recording = false;
 };
 
@@ -881,8 +877,6 @@ int32_t OpenALAudioDeviceModule::InitRecording() {
   _recordingInitialized = true;
   ensureThreadStarted();
   openRecordingDevice();
-  GetAudioDeviceBuffer()->SetRecordingSampleRate(kRecordingFrequency);
-  GetAudioDeviceBuffer()->SetRecordingChannels(kRecordingChannels);
   return 0;
 }
 
@@ -902,7 +896,6 @@ int32_t OpenALAudioDeviceModule::StartRecording() {
     openRecordingDevice();
   }
 
-  GetAudioDeviceBuffer()->StartRecording();
   startCaptureOnThread();
 
   return 0;
@@ -911,7 +904,6 @@ int32_t OpenALAudioDeviceModule::StartRecording() {
 int32_t OpenALAudioDeviceModule::StopRecording() {
   if (_data) {
     stopCaptureOnThread();
-    GetAudioDeviceBuffer()->StopRecording();
     if (!_data->playing) {
       _data->_recordingThread->Stop();
       _data = nullptr;
@@ -997,30 +989,12 @@ int32_t OpenALAudioDeviceModule::StereoRecording(bool* enabled) const {
 }
 
 struct AudioDeviceRecorder::Data {
-  Data() {
-    _playoutThread = rtc::Thread::Create();
-    _recordingThread = rtc::Thread::Create();
-    // TODO(evdokimovs): Research why this segfaults:
-    // rtc::Thread::Current()->AllowInvokesToThread(_recordingThread./*  */get());
-  }
+  Data() {}
 
-  std::unique_ptr<rtc::Thread> _playoutThread;
-  std::unique_ptr<rtc::Thread> _recordingThread;
-  ALuint source = 0;
-  int queuedBuffersCount = 0;
-  std::array<ALuint, kBuffersFullCount> buffers = {{0}};
-  std::array<bool, kBuffersFullCount> queuedBuffers = {{false}};
-  int playBufferSize = kPlayoutPart * sizeof(int16_t) * 2;
-  std::vector<char>* playoutSamples = new std::vector<char>(playBufferSize, 0);
   int recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
   std::vector<char>* recordedSamples =
       new std::vector<char>(recordBufferSize, 0);
-  int64_t exactDeviceTimeCounter = 0;
-  int64_t lastExactDeviceTime = 0;
-  std::int64_t lastExactDeviceTimeWhen = 0;
-  bool playing = false;
   int emptyRecordingData = 0;
-  bool recording = false;
 };
 
 bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
