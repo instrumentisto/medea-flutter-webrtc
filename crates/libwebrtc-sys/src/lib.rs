@@ -298,20 +298,6 @@ impl AudioDeviceModule {
         Ok((name, guid))
     }
 
-    /// Sets the recording audio device according to the given `index`.
-    pub fn set_recording_device(&self, index: u16) -> anyhow::Result<()> {
-        let result = webrtc::set_audio_recording_device(&self.0, index);
-
-        if result != 0 {
-            bail!(
-                "`AudioDeviceModule::SetRecordingDevice()` failed with \
-                 `{result}` code",
-            );
-        }
-
-        Ok(())
-    }
-
     pub fn create_audio_source(&self, device_index: u16) -> anyhow::Result<AudioSourceInterface> {
         let ptr = webrtc::create_audio_source(&self.0, device_index);
 

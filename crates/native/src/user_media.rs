@@ -678,10 +678,9 @@ impl AudioDeviceModule {
         )?;
         inner.init()?;
 
-        let mut adm = Self {
+        Ok(Self {
             inner,
-        };
-        Ok(adm)
+        })
     }
 
     /// Creates a new [`AudioDeviceModule`] according to the passed
@@ -780,26 +779,6 @@ impl AudioDeviceModule {
         } else {
             self.inner.recording_devices()
         }
-    }
-
-    /// Changes the recording device for this [`AudioDeviceModule`].
-    ///
-    /// # Errors
-    ///
-    /// If [`sys::AudioDeviceModule::set_recording_device()`] call fails.
-    // TODO(evdokimovs): remove me
-    pub fn set_recording_device(
-        &mut self,
-        id: AudioDeviceId,
-        index: u16,
-    ) -> anyhow::Result<()> {
-        self.inner.set_recording_device(index)?;
-
-        if !self.inner.microphone_is_initialized() {
-            self.inner.init_microphone()?;
-        }
-
-        Ok(())
     }
 
     pub fn create_audio_source(&mut self, device_index: u16) -> anyhow::Result<AudioSourceInterface> {
