@@ -1951,6 +1951,9 @@ enum VideoCodec {
 
   /// AV1 video codec.
   av1,
+
+  /// H265 video codec.
+  h265,
 }
 
 /// Video codec info.
@@ -1961,13 +1964,9 @@ class VideoCodecInfo {
   /// Video codec kind.
   final VideoCodec kind;
 
-  /// Mime type of the codec.
-  final String mimeType;
-
   const VideoCodecInfo({
     required this.isHardwareAccelerated,
     required this.kind,
-    required this.mimeType,
   });
 }
 
@@ -3573,12 +3572,11 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
 
   VideoCodecInfo _wire2api_video_codec_info(dynamic raw) {
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
     return VideoCodecInfo(
       isHardwareAccelerated: _wire2api_bool(arr[0]),
       kind: _wire2api_video_codec(arr[1]),
-      mimeType: _wire2api_String(arr[2]),
     );
   }
 }

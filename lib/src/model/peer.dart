@@ -184,21 +184,16 @@ class VideoCodecInfo {
   /// Video codec kind.
   VideoCodec kind;
 
-  /// Mime type of the codec.
-  String mimeType;
-
-  VideoCodecInfo(this.isHardwareAccelerated, this.kind, this.mimeType);
+  VideoCodecInfo(this.isHardwareAccelerated, this.kind);
 
   static VideoCodecInfo fromFFI(ffi.VideoCodecInfo codec) {
     VideoCodec mediaCodec = VideoCodec.values
         .firstWhere((element) => element.name.toLowerCase() == codec.kind.name);
-    return VideoCodecInfo(
-        codec.isHardwareAccelerated, mediaCodec, codec.mimeType);
+    return VideoCodecInfo(codec.isHardwareAccelerated, mediaCodec);
   }
 
   static VideoCodecInfo fromMap(dynamic info) {
-    VideoCodec mediaCodec = VideoCodec.values[info['kind']];
-    return VideoCodecInfo(
-        info['isHardwareAccelerated'], mediaCodec, info['mimeType']);
+    VideoCodec mediaCodec = VideoCodec.values[info['codec']];
+    return VideoCodecInfo(info['isHardwareAccelerated'], mediaCodec);
   }
 }

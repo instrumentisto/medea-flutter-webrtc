@@ -71,6 +71,24 @@ abstract class PeerConnection {
     }
   }
 
+  /// Returns a list of supported [VideoCodecInfo] encoders.
+  static Future<List<VideoCodecInfo>> videoEncoders() async {
+    if (isDesktop) {
+      return await _PeerConnectionFFI.videoEncoders();
+    } else {
+      return await _PeerConnectionChannel.videoEncoders();
+    }
+  }
+
+  /// Returns a list of supported [VideoCodecInfo] decoders.
+  static Future<List<VideoCodecInfo>> videoDecoders() async {
+    if (isDesktop) {
+      return await _PeerConnectionFFI.videoDecoders();
+    } else {
+      return await _PeerConnectionChannel.videoDecoders();
+    }
+  }
+
   /// Indicator whether the [close] was called.
   bool _closed = false;
 
@@ -215,12 +233,6 @@ abstract class PeerConnection {
     return _iceConnectionState;
   }
 
-  /// Returns the current [VideoCodecInfo] encoders.
-  Future<List<VideoCodecInfo>> videoEncoders();
-
-  /// Returns the current [VideoCodecInfo] decoders.
-  Future<List<VideoCodecInfo>> videoDecoders();
-
   /// Closes this [PeerConnection] and all it's owned entities (for example,
   /// [RtpTransceiver]s).
   Future<void> close() async {
@@ -249,10 +261,8 @@ class _PeerConnectionChannel extends PeerConnection {
     return _PeerConnectionChannel._fromMap(res);
   }
 
-  @override
-
-  /// Returns the current [VideoCodecInfo] encoders.
-  Future<List<VideoCodecInfo>> videoEncoders() async {
+  /// Returns a list of supported [VideoCodecInfo] encoders.
+  static Future<List<VideoCodecInfo>> videoEncoders() async {
     dynamic res =
         await _peerConnectionFactoryMethodChannel.invokeMethod('videoEncoders');
     res as List<dynamic>;
@@ -260,10 +270,8 @@ class _PeerConnectionChannel extends PeerConnection {
     return res.map((info) => VideoCodecInfo.fromMap(info)).toList();
   }
 
-  @override
-
-  /// Returns the current [VideoCodecInfo] decoders.
-  Future<List<VideoCodecInfo>> videoDecoders() async {
+  /// Returns a list of supported [VideoCodecInfo] decoders.
+  static Future<List<VideoCodecInfo>> videoDecoders() async {
     dynamic res =
         await _peerConnectionFactoryMethodChannel.invokeMethod('videoDecoders');
     res as List<dynamic>;
@@ -504,18 +512,14 @@ class _PeerConnectionFFI extends PeerConnection {
     }
   }
 
-  @override
-
-  /// Returns the current [VideoCodecInfo] encoders.
-  Future<List<VideoCodecInfo>> videoEncoders() async {
+  /// Returns a list of supported [VideoCodecInfo] encoders.
+  static Future<List<VideoCodecInfo>> videoEncoders() async {
     var res = await api!.videoEncoders();
     return res.map((info) => VideoCodecInfo.fromFFI(info)).toList();
   }
 
-  @override
-
-  /// Returns the current [VideoCodecInfo] decoders.
-  Future<List<VideoCodecInfo>> videoDecoders() async {
+  /// Returns a list of supported [VideoCodecInfo] decoders.
+  static Future<List<VideoCodecInfo>> videoDecoders() async {
     var res = await api!.videoDecoders();
     return res.map((info) => VideoCodecInfo.fromFFI(info)).toList();
   }

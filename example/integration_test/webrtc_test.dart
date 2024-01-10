@@ -203,8 +203,7 @@ void main() {
   testWidgets('Video codec info', (WidgetTester tester) async {
     // Desktop only.
     if (!Platform.isAndroid && !Platform.isIOS) {
-      var pc = await PeerConnection.create(IceTransportType.all, []);
-      var decoders = await pc.videoDecoders();
+      var decoders = await PeerConnection.videoDecoders();
       expect(decoders.where((element) => element.kind == VideoCodec.VP9).length,
           isNonZero);
       expect(decoders.where((element) => element.kind == VideoCodec.VP8).length,
@@ -215,7 +214,7 @@ void main() {
           decoders.where((element) => element.kind == VideoCodec.H264).length,
           isNonZero);
 
-      var encoders = await pc.videoEncoders();
+      var encoders = await PeerConnection.videoEncoders();
       expect(encoders.where((element) => element.kind == VideoCodec.VP9).length,
           isNonZero);
       expect(encoders.where((element) => element.kind == VideoCodec.VP8).length,

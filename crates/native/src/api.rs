@@ -1960,74 +1960,71 @@ pub struct RtcIceServer {
 pub enum VideoCodec {
     /// VP8 video codec.
     VP8,
+
     /// VP9 video codec.
     VP9,
+
     /// H264 video codec.
     H264,
+
     /// AV1 video codec.
     AV1,
+
+    /// H265 video codec.
+    H265,
 }
 
 /// Video codec info.
 pub struct VideoCodecInfo {
     /// Hardware acceleration decode/encode.
     pub is_hardware_accelerated: bool,
+
     /// Video codec kind.
     pub kind: VideoCodec,
-    /// Mime type of the codec.
-    pub mime_type: String,
 }
 
 /// Returns the current [`VideoCodecInfo`] encoders.
 pub fn video_encoders() -> Vec<VideoCodecInfo> {
-    // TODO(rogurotus): Implement HW acceleration for desktop.
+    // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP8,
-            mime_type: "video/VP8".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP9,
-            mime_type: "video/VP9".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::H264,
-            mime_type: "video/H264".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::AV1,
-            mime_type: "video/AV1".to_owned(),
         },
     ]
 }
 
 /// Returns the current [`VideoCodecInfo`] decoders.
 pub fn video_decoders() -> Vec<VideoCodecInfo> {
-    // TODO(rogurotus): Implement HW acceleration for desktop.
+    // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP8,
-            mime_type: "video/VP8".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::VP9,
-            mime_type: "video/VP9".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::H264,
-            mime_type: "video/H264".to_owned(),
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::AV1,
-            mime_type: "video/AV1".to_owned(),
         },
     ]
 }

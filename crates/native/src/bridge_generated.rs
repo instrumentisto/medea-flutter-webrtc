@@ -1670,6 +1670,7 @@ impl support::IntoDart for VideoCodec {
             Self::VP9 => 1,
             Self::H264 => 2,
             Self::AV1 => 3,
+            Self::H265 => 4,
         }
         .into_dart()
     }
@@ -1686,7 +1687,6 @@ impl support::IntoDart for VideoCodecInfo {
         vec![
             self.is_hardware_accelerated.into_into_dart().into_dart(),
             self.kind.into_into_dart().into_dart(),
-            self.mime_type.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
