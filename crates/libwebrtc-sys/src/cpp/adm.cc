@@ -155,6 +155,59 @@ int32_t OpenALAudioDeviceModule::Init() {
 
 OpenALAudioDeviceModule::~OpenALAudioDeviceModule() {}
 
+AudioDeviceRecorder::AudioDeviceRecorder(std::string id, ALCdevice* d) {
+  source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
+  device = d;
+  deviceId = id;
+  data = std::make_unique<Data>();
+}
+
+rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
+    AudioLayer audio_layer,
+    webrtc::TaskQueueFactory* task_queue_factory) {
+  return OpenALAudioDeviceModule::CreateForTest(audio_layer, task_queue_factory);
+}
+
+rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::CreateForTest(
+    AudioLayer audio_layer,
+    webrtc::TaskQueueFactory* task_queue_factory) {
+  // The "AudioDeviceModule::kWindowsCoreAudio2" audio layer has its own
+  // dedicated factory method which should be used instead.
+  if (audio_layer == AudioDeviceModule::kWindowsCoreAudio2) {
+    return nullptr;
+  }
+
+  // Create the generic reference counted (platform independent) implementation.
+  auto audio_device =
+      rtc::make_ref_counted<OpenALAudioDeviceModule>(audio_layer,
+                                                     task_queue_factory);
+
+  // Ensure that the current platform is supported.
+  if (audio_device->CheckPlatform() == -1) {
+    return nullptr;
+  }
+
+  // Create the platform-dependent implementation.
+  if (audio_device->CreatePlatformSpecificObjects() == -1) {
+    return nullptr;
+  }
+
+  // Ensure that the generic audio buffer can communicate with the platform
+  // specific parts.
+  if (audio_device->AttachAudioBuffer() == -1) {
+    return nullptr;
+  }
+
+  return audio_device;
+}
+
+OpenALAudioDeviceModule::OpenALAudioDeviceModule(AudioLayer audio_layer,
+                                   webrtc::TaskQueueFactory* task_queue_factory)
+    : webrtc::AudioDeviceModuleImpl(audio_layer, task_queue_factory) {
+  GetAudioDeviceBuffer()->SetPlayoutSampleRate(kPlayoutFrequency);
+  GetAudioDeviceBuffer()->SetPlayoutChannels(_playoutChannels);
+}
+
 template <typename Callback>
 void EnumerateDevices(ALCenum specifier, Callback&& callback) {
   auto devices = alcGetString(nullptr, specifier);
@@ -208,82 +261,6 @@ int DeviceName(ALCenum specifier,
   });
 
   return (index > 0) ? -1 : 0;
-}
-
-bool CheckDeviceFailed(ALCdevice* device) {
-  if (auto code = alcGetError(device); code != ALC_NO_ERROR) {
-    RTC_LOG(LS_ERROR) << "OpenAL Error " << code << ": "
-                      << (const char*)alcGetString(device, code);
-    return true;
-  }
-
-  return false;
-}
-
-AudioDeviceRecorder::AudioDeviceRecorder(std::string id, ALCdevice* d) {
-  source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
-  device = d;
-  deviceId = id;
-  data = std::make_unique<Data>();
-}
-
-rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(uint32_t device_index) {
-  std::string deviceId;
-  const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index, nullptr,
-                                 &deviceId);
-  auto recordingDevice = alcCaptureOpenDevice(
-        deviceId.empty() ? nullptr : deviceId.c_str(),
-        kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
-  auto recorder = new AudioDeviceRecorder(deviceId, recordingDevice);
-  _recorders[deviceId] = recorder;
-  restartRecording();
-  return recorder->source;
-}
-
-rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
-    AudioLayer audio_layer,
-    webrtc::TaskQueueFactory* task_queue_factory) {
-  return OpenALAudioDeviceModule::CreateForTest(audio_layer, task_queue_factory);
-}
-
-rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::CreateForTest(
-    AudioLayer audio_layer,
-    webrtc::TaskQueueFactory* task_queue_factory) {
-  // The "AudioDeviceModule::kWindowsCoreAudio2" audio layer has its own
-  // dedicated factory method which should be used instead.
-  if (audio_layer == AudioDeviceModule::kWindowsCoreAudio2) {
-    return nullptr;
-  }
-
-  // Create the generic reference counted (platform independent) implementation.
-  auto audio_device =
-      rtc::make_ref_counted<OpenALAudioDeviceModule>(audio_layer,
-                                                     task_queue_factory);
-
-  // Ensure that the current platform is supported.
-  if (audio_device->CheckPlatform() == -1) {
-    return nullptr;
-  }
-
-  // Create the platform-dependent implementation.
-  if (audio_device->CreatePlatformSpecificObjects() == -1) {
-    return nullptr;
-  }
-
-  // Ensure that the generic audio buffer can communicate with the platform
-  // specific parts.
-  if (audio_device->AttachAudioBuffer() == -1) {
-    return nullptr;
-  }
-
-  return audio_device;
-}
-
-OpenALAudioDeviceModule::OpenALAudioDeviceModule(AudioLayer audio_layer,
-                                   webrtc::TaskQueueFactory* task_queue_factory)
-    : webrtc::AudioDeviceModuleImpl(audio_layer, task_queue_factory) {
-  GetAudioDeviceBuffer()->SetPlayoutSampleRate(kPlayoutFrequency);
-  GetAudioDeviceBuffer()->SetPlayoutChannels(_playoutChannels);
 }
 
 void SetStringToArray(const std::string& string, char* array, int size) {
@@ -547,6 +524,16 @@ void OpenALAudioDeviceModule::processPlayoutQueued() {
       webrtc::TimeDelta::Millis(10));
 }
 
+bool CheckDeviceFailed(ALCdevice* device) {
+  if (auto code = alcGetError(device); code != ALC_NO_ERROR) {
+    RTC_LOG(LS_ERROR) << "OpenAL Error " << code << ": "
+                      << (const char*)alcGetString(device, code);
+    return true;
+  }
+
+  return false;
+}
+
 bool OpenALAudioDeviceModule::clearProcessedBuffer() {
   auto processed = ALint(0);
   alGetSourcei(_data->source, AL_BUFFERS_PROCESSED, &processed);
@@ -756,6 +743,19 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
   }
   _data->_playoutThread->PostTask([this] { alcSetThreadContext(nullptr); });
   _data->_playoutThread->Stop();
+}
+
+rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(uint32_t device_index) {
+  std::string deviceId;
+  const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index, nullptr,
+                                 &deviceId);
+  auto recordingDevice = alcCaptureOpenDevice(
+        deviceId.empty() ? nullptr : deviceId.c_str(),
+        kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
+  auto recorder = new AudioDeviceRecorder(deviceId, recordingDevice);
+  _recorders[deviceId] = recorder;
+  restartRecording();
+  return recorder->source;
 }
 
 void OpenALAudioDeviceModule::closeRecordingDevice() {
