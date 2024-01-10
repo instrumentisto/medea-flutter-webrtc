@@ -60,22 +60,18 @@ class PeerConnectionFactoryController {
         VideoCodecInfo(
           isHardwareAccelerated: false,
           kind: VideoCodec.VP8,
-          mymeType: "video/VP8"
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
           kind: VideoCodec.VP9,
-          mymeType: "video/VP9"
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
           kind: VideoCodec.AV1,
-          mymeType: "video/AV1"
         ),
         VideoCodecInfo(
           isHardwareAccelerated: true,
           kind: VideoCodec.H264,
-          mymeType: "video/H264"
         ),
       ].map {
         $0.asFlutterResult()
@@ -86,22 +82,18 @@ class PeerConnectionFactoryController {
         VideoCodecInfo(
           isHardwareAccelerated: false,
           kind: VideoCodec.VP8,
-          mymeType: "video/VP8"
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
           kind: VideoCodec.VP9,
-          mymeType: "video/VP9"
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
           kind: VideoCodec.AV1,
-          mymeType: "video/AV1"
         ),
         VideoCodecInfo(
           isHardwareAccelerated: true,
           kind: VideoCodec.H264,
-          mymeType: "video/H264"
         ),
       ].map {
         $0.asFlutterResult()

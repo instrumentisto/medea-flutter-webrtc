@@ -2003,6 +2003,10 @@ pub fn video_encoders() -> Vec<VideoCodecInfo> {
             is_hardware_accelerated: false,
             kind: VideoCodec::AV1,
         },
+        VideoCodecInfo {
+            is_hardware_accelerated: false,
+            kind: VideoCodec::H265,
+        },
     ]
 }
 
@@ -2025,6 +2029,10 @@ pub fn video_decoders() -> Vec<VideoCodecInfo> {
         VideoCodecInfo {
             is_hardware_accelerated: false,
             kind: VideoCodec::AV1,
+        },
+        VideoCodecInfo {
+            is_hardware_accelerated: false,
+            kind: VideoCodec::H265,
         },
     ]
 }
