@@ -59,19 +59,19 @@ class PeerConnectionFactoryController {
       let res = [
         VideoCodecInfo(
           isHardwareAccelerated: false,
-          kind: VideoCodec.VP8,
+          codec: VideoCodec.VP8
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
-          kind: VideoCodec.VP9,
+          codec: VideoCodec.VP9
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
-          kind: VideoCodec.AV1,
+          codec: VideoCodec.AV1
         ),
         VideoCodecInfo(
           isHardwareAccelerated: true,
-          kind: VideoCodec.H264,
+          codec: VideoCodec.H264
         ),
       ].map {
         $0.asFlutterResult()
@@ -81,19 +81,19 @@ class PeerConnectionFactoryController {
       let res = [
         VideoCodecInfo(
           isHardwareAccelerated: false,
-          kind: VideoCodec.VP8,
+          codec: VideoCodec.VP8
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
-          kind: VideoCodec.VP9,
+          codec: VideoCodec.VP9
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
-          kind: VideoCodec.AV1,
+          codec: VideoCodec.AV1
         ),
         VideoCodecInfo(
           isHardwareAccelerated: true,
-          kind: VideoCodec.H264,
+          codec: VideoCodec.H264
         ),
       ].map {
         $0.asFlutterResult()
