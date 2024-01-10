@@ -19,7 +19,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   SourceState state() const override { return kLive; }
   bool remote() const override { return false; }
 
-  const cricket::AudioOptions options() const override { return options_; }
+  const cricket::AudioOptions options() const override { return _options; }
 
   void AddSink(webrtc::AudioTrackSinkInterface* sink) override;
   void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override;
@@ -35,10 +35,10 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   ~LocalAudioSource() override {}
 
  private:
-  void Initialize(cricket::AudioOptions audio_options);
-
-  cricket::AudioOptions options_;
-  webrtc::AudioTrackSinkInterface* sink_;
+  cricket::AudioOptions _options;
+  // TODO(review): why its only one sink? i believe it should be possible to create multiple
+  //               tracks from single source.
+  webrtc::AudioTrackSinkInterface* _sink;
 };
 
 }  // namespace bridge

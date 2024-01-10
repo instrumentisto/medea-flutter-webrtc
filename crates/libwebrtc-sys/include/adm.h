@@ -35,13 +35,12 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include "libwebrtc-sys/include/local_audio_source.h"
-
 #include "api/audio/audio_frame.h"
 #include "api/audio/audio_mixer.h"
 #include "api/media_stream_interface.h"
 #include "api/sequence_checker.h"
 #include "api/task_queue/task_queue_factory.h"
+#include "libwebrtc-sys/include/local_audio_source.h"
 #include "modules/audio_device/audio_device_buffer.h"
 #include "modules/audio_device/audio_device_generic.h"
 #include "modules/audio_device/audio_device_impl.h"
@@ -58,16 +57,41 @@
 #include <X11/Xlib.h>
 #endif
 
+// TODO(review): segfault in loopback sample
+// (audio_device_buffer.cc:66): AudioDeviceBuffer::ctor
+// (audio_device_impl.cc:120): AudioDeviceModuleImpl
+// (audio_device_buffer.cc:192): SetPlayoutSampleRate(48000)
+// (audio_device_buffer.cc:212): SetPlayoutChannels(2)
+// (audio_device_impl.cc:135): CheckPlatform
+// (audio_device_impl.cc:146): current platform is Linux
+// (audio_device_impl.cc:168): CreatePlatformSpecificObjects
+// (audio_device_impl.cc:905): PlatformAudioLayer
+// (audio_device_impl.cc:226): PulseAudio support is enabled.
+// (audio_mixer_manager_pulse_linux.cc:57): AudioMixerManagerLinuxPulse created
+// (audio_device_pulse_linux.cc:82): AudioDeviceLinuxPulse created
+// (audio_device_impl.cc:231): Linux PulseAudio APIs will be utilized
+// (audio_device_impl.cc:272): AttachAudioBuffer
+// (audio_device_buffer.cc:186): SetRecordingSampleRate(0)
+// (audio_device_buffer.cc:192): SetPlayoutSampleRate(0)
+// (audio_device_buffer.cc:206): SetRecordingChannels(0)
+// (audio_device_buffer.cc:212): SetPlayoutChannels(0)
+// (audio_device_impl.cc:292): Init
+// #
+// # Fatal error in: ../../webrtc/src/modules/audio_device/linux/audio_device_pulse_linux.cc, line 138
+// # last system error: 0
+// # Check failed: thread_checker_.IsCurrent()
+
+
 class AudioDeviceRecorder {
-public:
-  struct Data;
+ public:
+   struct Data;
 
-  AudioDeviceRecorder(std::string deviceId, ALCdevice* device);
+   AudioDeviceRecorder(std::string deviceId, ALCdevice* device);
 
-  rtc::scoped_refptr<bridge::LocalAudioSource> source;
-  ALCdevice* device;
-  std::string deviceId;
-  std::unique_ptr<Data> data;
+   rtc::scoped_refptr<bridge::LocalAudioSource> _source;
+   ALCdevice* _device;
+   std::string _deviceId;
+   std::unique_ptr<Data> _data;
 };
 
 class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
@@ -195,6 +219,8 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
 
   rtc::Thread* _thread = nullptr;
 
+  // TODO(review): isnt this supposed to be inside AudioDeviceRecorder? what is this
+  //               _recordingDevice right now, when we can have multiple recording devices?
   std::recursive_mutex _recording_mutex;
   std::string _recordingDeviceId;
   bool _recordingInitialized = false;
@@ -212,7 +238,14 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
+
+  // TODO(review): unused?
   bridge::LocalAudioSource* _source;
+
+  // TODO(review): why dont AudioDeviceRecorder lives in LocalAudioSource?
+  //               any reason for this to be raw ptr and not unique/shared?
+  //               i dont see AudioDeviceRecorder being removed from the map and device being
+  //               released anywhere
   std::unordered_map<std::string, AudioDeviceRecorder*> _recorders;
 };
 

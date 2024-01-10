@@ -346,14 +346,16 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 
 // Creates new `AudioSource` with provided `AudioDeviceModule`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
-  const AudioDeviceModule& audio_device_module,
-  uint16_t device_index) {
-  auto upcasted_adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
+    const AudioDeviceModule& audio_device_module,
+    uint16_t device_index) {
+  auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
+
+  // TODO(review): what this `if` is for?
   AudioSourceInterface src;
-  if (upcasted_adm == nullptr) {
-    src = bridge::LocalAudioSource::Create(cricket::AudioOptions());
+  if (adm) {
+    src = adm->CreateAudioSource(device_index);
   } else {
-    src = upcasted_adm->CreateAudioSource(device_index);
+    src = bridge::LocalAudioSource::Create(cricket::AudioOptions());
   }
 
   if (src == nullptr) {

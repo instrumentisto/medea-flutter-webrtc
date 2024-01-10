@@ -152,10 +152,10 @@ int32_t OpenALAudioDeviceModule::Init() {
 OpenALAudioDeviceModule::~OpenALAudioDeviceModule() {}
 
 AudioDeviceRecorder::AudioDeviceRecorder(std::string id, ALCdevice* d) {
-  source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
-  device = d;
-  deviceId = id;
-  data = std::make_unique<Data>();
+  _source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
+  _device = d;
+  _deviceId = id;
+  _data = std::make_unique<Data>();
 }
 
 rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
@@ -561,6 +561,7 @@ void OpenALAudioDeviceModule::unqueueAllBuffers() {
   _data->queuedBuffersCount = 0;
 }
 
+// TODO(review): unused?
 int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
   return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
@@ -743,6 +744,7 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
 
 rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(uint32_t device_index) {
   std::string deviceId;
+  // TODO(review): check result, move this into AudioDeviceRecorder ctor?
   const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index, nullptr,
                                  &deviceId);
   auto recordingDevice = alcCaptureOpenDevice(
@@ -751,9 +753,11 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
   auto recorder = new AudioDeviceRecorder(deviceId, recordingDevice);
   _recorders[deviceId] = recorder;
   restartRecording();
-  return recorder->source;
+
+  return recorder->_source;
 }
 
+// TODO(review): what exactly is being closed here? AudioDeviceRecorders arent being accessed
 void OpenALAudioDeviceModule::closeRecordingDevice() {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
@@ -763,6 +767,7 @@ void OpenALAudioDeviceModule::closeRecordingDevice() {
   }
 }
 
+// TODO(review): same as for closeRecordingDevice
 void OpenALAudioDeviceModule::stopCaptureOnThread() {
   {
     std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
@@ -810,8 +815,11 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
     }
 
     for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
-      alcCaptureStart(r.second->device);
-      if (CheckDeviceFailed(r.second->device)) {
+      // TODO(review): i believe openal calls should be incapsulated in AudioDeviceRecorder,
+      //               cause currently it kinda does not nothing, and everything he is supposed to
+      //               be responsible for is happening outside
+      alcCaptureStart(r.second->_device);
+      if (CheckDeviceFailed(r.second->_device)) {
         _recordingFailed = true;
         return;
       }
@@ -825,6 +833,7 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
   });
 }
 
+// TODO(review): same as for closeRecordingDevice
 void OpenALAudioDeviceModule::openRecordingDevice() {
   if (_recordingDevice || _recordingFailed) {
     return;
@@ -843,6 +852,7 @@ int16_t OpenALAudioDeviceModule::RecordingDevices() {
   return DevicesCount(ALC_CAPTURE_DEVICE_SPECIFIER);
 }
 
+// TODO(review): unused?
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(uint16_t index) {
   const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, index, nullptr,
                                  &_recordingDeviceId);
@@ -861,6 +871,7 @@ int32_t OpenALAudioDeviceModule::RecordingDeviceName(
   return DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, index, name, guid);
 }
 
+// TODO(review): unused?
 int32_t OpenALAudioDeviceModule::RecordingIsAvailable(bool* available) {
   if (available) {
     *available = true;
@@ -998,11 +1009,10 @@ struct AudioDeviceRecorder::Data {
 };
 
 bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
-  for (const std::pair<const std::string, AudioDeviceRecorder*>& recorder : _recorders) {
-    auto recordingDevice = recorder.second->device;
-    auto data = recorder.second->data.get();
+  for (const auto& [_, recorder] : _recorders) {
+    auto recordingDevice = recorder->_device;
+    auto data = recorder->_data.get();
     auto samples = ALint();
-    auto source = recorder.second->source;
     alcGetIntegerv(recordingDevice, ALC_CAPTURE_SAMPLES, 1, &samples);
 
     if (CheckDeviceFailed(recordingDevice)) {
@@ -1023,6 +1033,7 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
       return false;
     }
 
+    // TODO(review): unused?
     _recordingLatency = queryRecordingLatencyMs();
 
     data->emptyRecordingData = 0;
@@ -1034,7 +1045,7 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
       return false;
     }
 
-    source->OnData(
+    recorder->_source->OnData(
       data->recordedSamples->data(), // audio_data
       16,
       kRecordingFrequency, // sample_rate
@@ -1042,6 +1053,7 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
       kRecordingFrequency * 10 / 1000
     );
   }
+
   return true;
 }
 
@@ -1108,6 +1120,7 @@ std::chrono::milliseconds OpenALAudioDeviceModule::queryRecordingLatencyMs() {
   return kDefaultRecordingLatency;
 }
 
+// TODO(review): unused?
 bool OpenALAudioDeviceModule::validateRecordingDeviceId() {
   auto valid = false;
   EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER, [&](const char* device) {
@@ -1127,6 +1140,7 @@ bool OpenALAudioDeviceModule::validateRecordingDeviceId() {
   return false;
 }
 
+// TODO(review): unused?
 int OpenALAudioDeviceModule::restartRecording() {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
