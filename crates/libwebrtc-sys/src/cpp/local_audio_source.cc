@@ -9,11 +9,13 @@ rtc::scoped_refptr<LocalAudioSource> LocalAudioSource::Create(cricket::AudioOpti
 }
 
 void LocalAudioSource::AddSink(webrtc::AudioTrackSinkInterface* sink) {
-  _sink = sink;
+  std::lock_guard<std::recursive_mutex> lk(sink_lock_);
+  sinks_.push_back(sink);
 }
 
 void LocalAudioSource::RemoveSink(webrtc::AudioTrackSinkInterface* sink) {
-  _sink = nullptr;
+  std::lock_guard<std::recursive_mutex> lk(sink_lock_);
+  sinks_.remove(sink);
 }
 
 void LocalAudioSource::OnData(const void* audio_data,
@@ -21,8 +23,9 @@ void LocalAudioSource::OnData(const void* audio_data,
                     int sample_rate,
                     size_t number_of_channels,
                     size_t number_of_frames) {
-  if (_sink != nullptr) {
-    _sink->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
+  std::lock_guard<std::recursive_mutex> lk(sink_lock_);
+  for (auto* sink : sinks_) {
+    sink->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
   }
 }
 

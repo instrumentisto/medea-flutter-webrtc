@@ -36,9 +36,8 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
 
  private:
   cricket::AudioOptions _options;
-  // TODO(review): why its only one sink? i believe it should be possible to create multiple
-  //               tracks from single source.
-  webrtc::AudioTrackSinkInterface* _sink;
+  std::recursive_mutex sink_lock_;
+  std::list<webrtc::AudioTrackSinkInterface*> sinks_;
 };
 
 }  // namespace bridge
