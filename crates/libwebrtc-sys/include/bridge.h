@@ -252,6 +252,9 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
   const AudioDeviceModule& audio_device_module,
   uint16_t device_index);
 
+// Creates a new fake `AudioSourceInterface`.
+std::unique_ptr<AudioSourceInterface> create_fake_audio_source();
+
 // Creates a new `VideoTrackInterface`.
 std::unique_ptr<VideoTrackInterface> create_video_track(
     const PeerConnectionFactoryInterface& peer_connection_factory,

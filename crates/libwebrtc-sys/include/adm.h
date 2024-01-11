@@ -212,7 +212,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   std::chrono::milliseconds countExactQueuedMsForLatency(
       std::chrono::time_point<std::chrono::steady_clock> now,
       bool playing);
-  std::chrono::milliseconds queryRecordingLatencyMs();
   void restartRecordingQueued();
   bool validateRecordingDeviceId();
   void processRecordingQueued();
@@ -227,7 +226,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   bool _microphoneInitialized = false;
   bool _recordingFailed = false;
   ALCdevice *_recordingDevice = nullptr;
-  std::chrono::milliseconds _recordingLatency = std::chrono::milliseconds(0);
 
   std::recursive_mutex _playout_mutex;
   std::string _playoutDeviceId;

@@ -792,7 +792,11 @@ impl AudioDeviceModule {
         &mut self,
         device_index: u16,
     ) -> anyhow::Result<AudioSourceInterface> {
-        self.inner.create_audio_source(device_index)
+        if api::is_fake_media() {
+            self.inner.create_fake_audio_source()
+        } else {
+            self.inner.create_audio_source(device_index)
+        }
     }
 
     /// Sets the microphone system volume according to the given level in

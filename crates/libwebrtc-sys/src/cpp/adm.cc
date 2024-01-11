@@ -1033,9 +1033,6 @@ bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
       return false;
     }
 
-    // TODO(review): unused?
-    _recordingLatency = queryRecordingLatencyMs();
-
     data->emptyRecordingData = 0;
     alcCaptureSamples(recordingDevice, data->recordedSamples->data(),
                       kRecordingPart);
@@ -1105,19 +1102,6 @@ std::chrono::milliseconds OpenALAudioDeviceModule::countExactQueuedMsForLatency(
       countExact ? queuedTotal : std::max(queuedTotal, kDefaultPlayoutLatency);
 
   return std::chrono::duration_cast<std::chrono::milliseconds>(res);
-}
-
-std::chrono::milliseconds OpenALAudioDeviceModule::queryRecordingLatencyMs() {
-#ifdef WEBRTC_WIN
-  if (kALC_DEVICE_LATENCY_SOFT &&
-      kAL_SAMPLE_OFFSET_CLOCK_EXACT_SOFT) {  // Check patched build.
-    auto latency = AL_INT64_TYPE();
-    alcGetInteger64vSOFT(_recordingDevice, kALC_DEVICE_LATENCY_SOFT, 1,
-                         &latency);
-    return std::chrono::milliseconds(latency / 1'000'000);
-  }
-#endif  // WEBRTC_WIN
-  return kDefaultRecordingLatency;
 }
 
 // TODO(review): unused?

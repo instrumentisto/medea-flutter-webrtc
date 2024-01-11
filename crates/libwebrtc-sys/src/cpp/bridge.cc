@@ -349,20 +349,21 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
     uint16_t device_index) {
   auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
-
-  // TODO(review): what this `if` is for?
-  AudioSourceInterface src;
-  if (adm) {
-    src = adm->CreateAudioSource(device_index);
-  } else {
-    src = bridge::LocalAudioSource::Create(cricket::AudioOptions());
+  if (adm == nullptr) {
+    return nullptr;
   }
 
+  auto src = adm->CreateAudioSource(device_index);
   if (src == nullptr) {
     return nullptr;
   }
 
   return std::make_unique<AudioSourceInterface>(src);
+}
+
+// Creates new fake `AudioSource`.
+std::unique_ptr<AudioSourceInterface> create_fake_audio_source() {
+  return std::make_unique<AudioSourceInterface>(bridge::LocalAudioSource::Create(cricket::AudioOptions()));
 }
 
 // Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.

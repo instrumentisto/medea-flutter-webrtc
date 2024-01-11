@@ -2222,6 +2222,9 @@ pub(crate) mod webrtc {
             device_index: u16,
         ) -> UniquePtr<AudioSourceInterface>;
 
+        /// Creates a new fake [`AudioSourceInterface`].
+        pub fn create_fake_audio_source() -> UniquePtr<AudioSourceInterface>;
+
         /// Creates a new [`VideoTrackInterface`].
         pub fn create_video_track(
             peer_connection_factory: &PeerConnectionFactoryInterface,

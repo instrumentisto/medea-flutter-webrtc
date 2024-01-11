@@ -298,6 +298,23 @@ impl AudioDeviceModule {
         Ok((name, guid))
     }
 
+    /// Creates a new fake [`AudioSourceInterface`].
+    pub fn create_fake_audio_source(
+        &self,
+    ) -> anyhow::Result<AudioSourceInterface> {
+        let ptr = webrtc::create_fake_audio_source();
+
+        if ptr.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `webrtc::PeerConnectionFactoryInterface\
+                ::CreateFakeAudioSource()`",
+            );
+        }
+        Ok(AudioSourceInterface(ptr))
+    }
+
+    /// Creates a new [`AudioSourceInterface`].
     pub fn create_audio_source(
         &self,
         device_index: u16,
