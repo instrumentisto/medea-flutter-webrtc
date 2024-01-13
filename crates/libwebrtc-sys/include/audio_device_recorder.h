@@ -13,9 +13,6 @@ class AudioDeviceRecorder {
     struct Data;
 
     AudioDeviceRecorder(std::string deviceId);
-    int32_t StartRecording();
-    int32_t StopRecording();
-    bool IsRecording() const;
     bool ProcessRecordedPart(bool firstInCycle);
     void StopCapture();
     void StartCapture();

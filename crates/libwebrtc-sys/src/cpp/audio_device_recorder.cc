@@ -154,30 +154,6 @@ void AudioDeviceRecorder::StartCapture() {
   }
 }
 
-int32_t AudioDeviceRecorder::StartRecording() {
-{
-  RTC_LOG(LS_ERROR) << "StartRecording";
-  if (_recording) {
-    return 0;
-  }
-
-  if (_recordingFailed) {
-    _recordingFailed = false;
-    openRecordingDevice();
-  }
-
-  return 0;
-}
-}
-
-bool AudioDeviceRecorder::IsRecording() const {
-  return _recording;
-}
-
-int32_t AudioDeviceRecorder::StopRecording() {
-
-}
-
 rtc::scoped_refptr<bridge::LocalAudioSource> AudioDeviceRecorder::GetSource() {
   return _source;
 }
@@ -214,7 +190,6 @@ bool AudioDeviceRecorder::validateRecordingDeviceId() {
 void AudioDeviceRecorder::restartRecording() {
   std::lock_guard<std::recursive_mutex> lk(_mutex);
 
-  // TODO(evdokimovs): Maybe check data for nullptr here:
   if (!_recording) {
     return;
   }
@@ -245,9 +220,7 @@ void AudioDeviceRecorder::closeRecordingDevice() {
 }
 
 void AudioDeviceRecorder::openRecordingDevice() {
-  // TODO(evdokimovs): There was check for _recordingFailed,
-  // but I think that this is wrong check.
-  if (_device) {
+  if (_device && !_recordingFailed) {
     return;
   }
 
