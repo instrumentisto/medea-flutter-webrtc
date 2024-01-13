@@ -191,14 +191,11 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
 
   void startCaptureOnThread();
   void stopCaptureOnThread();
-	int restartRecording();
 	void openRecordingDevice();
   void closeRecordingDevice();
   std::chrono::milliseconds countExactQueuedMsForLatency(
       std::chrono::time_point<std::chrono::steady_clock> now,
       bool playing);
-  void restartRecordingQueued();
-  bool validateRecordingDeviceId();
   void processRecordingQueued();
 
   rtc::Thread* _thread = nullptr;

@@ -742,7 +742,6 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
                                  &deviceId);
   auto recorder = new AudioDeviceRecorder(deviceId);
   _recorders[deviceId] = recorder;
-  restartRecording();
 
   return recorder->GetSource();
 }
@@ -1027,50 +1026,3 @@ std::chrono::milliseconds OpenALAudioDeviceModule::countExactQueuedMsForLatency(
   return std::chrono::duration_cast<std::chrono::milliseconds>(res);
 }
 
-// TODO(review): unused?
-bool OpenALAudioDeviceModule::validateRecordingDeviceId() {
-  auto valid = false;
-  EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER, [&](const char* device) {
-    if (!valid && _recordingDeviceId == std::string(device)) {
-      valid = true;
-    }
-  });
-  if (valid) {
-    return true;
-  }
-  const auto defaultDeviceId =
-      GetDefaultDeviceId(ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
-  if (!defaultDeviceId.empty()) {
-    _recordingDeviceId = defaultDeviceId;
-    return true;
-  }
-  return false;
-}
-
-// TODO(review): unused?
-int OpenALAudioDeviceModule::restartRecording() {
-  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
-
-  if (!_data || !_data->recording) {
-    return 0;
-  }
-
-  stopCaptureOnThread();
-  closeRecordingDevice();
-
-  if (!validateRecordingDeviceId()) {
-    _data->_recordingThread->PostTask([=]() {
-      std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
-
-      _data->recording = true;
-      _recordingFailed = true;
-    });
-    return 0;
-  }
-
-  _recordingFailed = false;
-  openRecordingDevice();
-  startCaptureOnThread();
-
-  return 0;
-}
