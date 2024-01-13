@@ -41,6 +41,7 @@
 #include "api/sequence_checker.h"
 #include "api/task_queue/task_queue_factory.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
+#include "libwebrtc-sys/include/audio_device_recorder.h"
 #include "modules/audio_device/audio_device_buffer.h"
 #include "modules/audio_device/audio_device_generic.h"
 #include "modules/audio_device/audio_device_impl.h"
@@ -80,19 +81,6 @@
 // # Fatal error in: ../../webrtc/src/modules/audio_device/linux/audio_device_pulse_linux.cc, line 138
 // # last system error: 0
 // # Check failed: thread_checker_.IsCurrent()
-
-
-class AudioDeviceRecorder {
- public:
-   struct Data;
-
-   AudioDeviceRecorder(std::string deviceId, ALCdevice* device);
-
-   rtc::scoped_refptr<bridge::LocalAudioSource> _source;
-   ALCdevice* _device;
-   std::string _deviceId;
-   std::unique_ptr<Data> _data;
-};
 
 class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
  public:
@@ -208,7 +196,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
 	int restartRecording();
 	void openRecordingDevice();
   void closeRecordingDevice();
-  bool processRecordedPart(bool firstInCycle);
   std::chrono::milliseconds countExactQueuedMsForLatency(
       std::chrono::time_point<std::chrono::steady_clock> now,
       bool playing);

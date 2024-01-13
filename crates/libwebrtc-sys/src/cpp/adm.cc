@@ -151,13 +151,6 @@ int32_t OpenALAudioDeviceModule::Init() {
 
 OpenALAudioDeviceModule::~OpenALAudioDeviceModule() {}
 
-AudioDeviceRecorder::AudioDeviceRecorder(std::string id, ALCdevice* d) {
-  _source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
-  _device = d;
-  _deviceId = id;
-  _data = std::make_unique<Data>();
-}
-
 rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
     AudioLayer audio_layer,
     webrtc::TaskQueueFactory* task_queue_factory) {
@@ -747,14 +740,11 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
   // TODO(review): check result, move this into AudioDeviceRecorder ctor?
   const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index, nullptr,
                                  &deviceId);
-  auto recordingDevice = alcCaptureOpenDevice(
-        deviceId.empty() ? nullptr : deviceId.c_str(),
-        kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
-  auto recorder = new AudioDeviceRecorder(deviceId, recordingDevice);
+  auto recorder = new AudioDeviceRecorder(deviceId);
   _recorders[deviceId] = recorder;
   restartRecording();
 
-  return recorder->_source;
+  return recorder->GetSource();
 }
 
 // TODO(review): what exactly is being closed here? AudioDeviceRecorders arent being accessed
@@ -796,8 +786,9 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
       [=] {
         std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-        if (_data->recording && !_recordingFailed) {
-          for (auto first = true; processRecordedPart(first); first = false) {}
+
+        for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
+          for (auto first = true; r.second->ProcessRecordedPart(first); first = false) {}
           processRecordingQueued();
         }
       },
@@ -810,19 +801,9 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
     std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
     _data->recording = true;
-    if (_recordingFailed) {
-      return;
-    }
 
     for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
-      // TODO(review): i believe openal calls should be incapsulated in AudioDeviceRecorder,
-      //               cause currently it kinda does not nothing, and everything he is supposed to
-      //               be responsible for is happening outside
-      alcCaptureStart(r.second->_device);
-      if (CheckDeviceFailed(r.second->_device)) {
-        _recordingFailed = true;
-        return;
-      }
+      r.second->StartCapture();
     }
 
     processRecordingQueued();
@@ -1007,52 +988,6 @@ struct AudioDeviceRecorder::Data {
       new std::vector<char>(recordBufferSize, 0);
   int emptyRecordingData = 0;
 };
-
-bool OpenALAudioDeviceModule::processRecordedPart(bool firstInCycle) {
-  for (const auto& [_, recorder] : _recorders) {
-    auto recordingDevice = recorder->_device;
-    auto data = recorder->_data.get();
-    auto samples = ALint();
-    alcGetIntegerv(recordingDevice, ALC_CAPTURE_SAMPLES, 1, &samples);
-
-    if (CheckDeviceFailed(recordingDevice)) {
-      _recordingFailed = true;
-      return false;
-    }
-
-    if (samples <= 0) {
-      if (firstInCycle) {
-        ++data->emptyRecordingData;
-        if (data->emptyRecordingData == kRestartAfterEmptyData) {
-          restartRecording();
-        }
-      }
-      return false;
-    } else if (samples < kRecordingPart) {
-      // Not enough data for 10 milliseconds.
-      return false;
-    }
-
-    data->emptyRecordingData = 0;
-    alcCaptureSamples(recordingDevice, data->recordedSamples->data(),
-                      kRecordingPart);
-
-    if (CheckDeviceFailed(recordingDevice)) {
-      restartRecording();
-      return false;
-    }
-
-    recorder->_source->OnData(
-      data->recordedSamples->data(), // audio_data
-      16,
-      kRecordingFrequency, // sample_rate
-      kRecordingChannels,
-      kRecordingFrequency * 10 / 1000
-    );
-  }
-
-  return true;
-}
 
 std::chrono::milliseconds OpenALAudioDeviceModule::countExactQueuedMsForLatency(
     std::chrono::time_point<std::chrono::steady_clock> now,
