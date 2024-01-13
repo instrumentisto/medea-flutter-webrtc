@@ -813,21 +813,6 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
   });
 }
 
-// TODO(review): same as for closeRecordingDevice
-void OpenALAudioDeviceModule::openRecordingDevice() {
-  if (_recordingDevice || _recordingFailed) {
-    return;
-  }
-
-  _recordingDevice = alcCaptureOpenDevice(
-      _recordingDeviceId.empty() ? nullptr : _recordingDeviceId.c_str(),
-      kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
-  if (!_recordingDevice) {
-    _recordingFailed = true;
-    return;
-  }
-}
-
 int16_t OpenALAudioDeviceModule::RecordingDevices() {
   return DevicesCount(ALC_CAPTURE_DEVICE_SPECIFIER);
 }
@@ -855,7 +840,6 @@ int32_t OpenALAudioDeviceModule::InitRecording() {
   }
   _recordingInitialized = true;
   ensureThreadStarted();
-  openRecordingDevice();
   return 0;
 }
 
@@ -864,19 +848,7 @@ bool OpenALAudioDeviceModule::RecordingIsInitialized() const {
 }
 
 int32_t OpenALAudioDeviceModule::StartRecording() {
-  if (!_recordingInitialized) {
-    return -1;
-  } else if (_data && _data->recording) {
-    return 0;
-  }
-
-  if (_recordingFailed) {
-    _recordingFailed = false;
-    openRecordingDevice();
-  }
-
   startCaptureOnThread();
-
   return 0;
 }
 
