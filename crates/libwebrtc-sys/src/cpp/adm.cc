@@ -742,21 +742,11 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
                                  &deviceId);
   auto recorder = new AudioDeviceRecorder(deviceId);
   _recorders[deviceId] = recorder;
+  recorder->StartCapture();
 
   return recorder->GetSource();
 }
 
-// TODO(review): what exactly is being closed here? AudioDeviceRecorders arent being accessed
-void OpenALAudioDeviceModule::closeRecordingDevice() {
-  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
-
-  if (_recordingDevice) {
-    alcCaptureCloseDevice(_recordingDevice);
-    _recordingDevice = nullptr;
-  }
-}
-
-// TODO(review): same as for closeRecordingDevice
 void OpenALAudioDeviceModule::stopCaptureOnThread() {
   {
     std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
@@ -769,11 +759,8 @@ void OpenALAudioDeviceModule::stopCaptureOnThread() {
       std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
       _data->recording = false;
-      if (_recordingFailed) {
-        return;
-      }
-      if (_recordingDevice) {
-        alcCaptureStop(_recordingDevice);
+      for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
+        r.second->StopCapture();
       }
     });
   }
@@ -784,7 +771,6 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
   _data->_recordingThread->PostDelayedHighPrecisionTask(
       [=] {
         std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
-
 
         for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
           for (auto first = true; r.second->ProcessRecordedPart(first); first = false) {}
@@ -798,18 +784,8 @@ void OpenALAudioDeviceModule::startCaptureOnThread() {
   _data->_recordingThread->Start();
   _data->_recordingThread->PostTask([=]() {
     std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
-
     _data->recording = true;
-
-    for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
-      r.second->StartCapture();
-    }
-
     processRecordingQueued();
-
-    if (_recordingFailed) {
-      closeRecordingDevice();
-    }
   });
 }
 
@@ -860,9 +836,6 @@ int32_t OpenALAudioDeviceModule::StopRecording() {
       _data = nullptr;
     }
   }
-
-  closeRecordingDevice();
-  _recordingInitialized = false;
 
   return 0;
 }
