@@ -554,10 +554,10 @@ void OpenALAudioDeviceModule::unqueueAllBuffers() {
   _data->queuedBuffersCount = 0;
 }
 
-// TODO(review): unused?
 int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
   return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
+  return 0;
 }
 
 bool OpenALAudioDeviceModule::processPlayout() {
@@ -911,15 +911,6 @@ int32_t OpenALAudioDeviceModule::StereoRecording(bool* enabled) const {
   }
   return 0;
 }
-
-struct AudioDeviceRecorder::Data {
-  Data() {}
-
-  int recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-  std::vector<char>* recordedSamples =
-      new std::vector<char>(recordBufferSize, 0);
-  int emptyRecordingData = 0;
-};
 
 std::chrono::milliseconds OpenALAudioDeviceModule::countExactQueuedMsForLatency(
     std::chrono::time_point<std::chrono::steady_clock> now,
