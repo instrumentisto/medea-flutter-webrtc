@@ -163,12 +163,6 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
                               rust::String& name,
                               rust::String& guid);
 
-// Specifies which microphone to use for recording audio using an index
-// retrieved by the corresponding enumeration method which is
-// `AudiDeviceModule::RecordingDeviceName`.
-int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
-                                   uint16_t index);
-
 // Stops playout of audio on the specified device.
 int32_t stop_playout(const AudioDeviceModule& audio_device_module);
 

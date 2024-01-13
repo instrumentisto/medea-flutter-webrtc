@@ -136,8 +136,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   int32_t RecordingDeviceName(uint16_t index,
                               char name[webrtc::kAdmMaxDeviceNameSize],
                               char guid[webrtc::kAdmMaxGuidSize]) override;
-	int32_t SetRecordingDevice(uint16_t index) override;
-	int32_t SetRecordingDevice(WindowsDeviceType device) override;
   int32_t RecordingIsAvailable(bool* available) override;
   int32_t InitRecording() override;
   bool RecordingIsInitialized() const override;

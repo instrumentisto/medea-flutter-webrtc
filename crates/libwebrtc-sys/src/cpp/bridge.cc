@@ -232,12 +232,6 @@ int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
   return result;
 }
 
-// Calls `AudioDeviceModule->SetRecordingDevice()` with the provided arguments.
-int32_t set_audio_recording_device(const AudioDeviceModule& audio_device_module,
-                                   uint16_t index) {
-  return audio_device_module->SetRecordingDevice(index);
-}
-
 // Stops playout of audio on the specified device.
 int32_t stop_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->StopPlayout();

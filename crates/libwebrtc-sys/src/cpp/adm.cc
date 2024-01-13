@@ -833,18 +833,6 @@ int16_t OpenALAudioDeviceModule::RecordingDevices() {
   return DevicesCount(ALC_CAPTURE_DEVICE_SPECIFIER);
 }
 
-// TODO(review): unused?
-int32_t OpenALAudioDeviceModule::SetRecordingDevice(uint16_t index) {
-  const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, index, nullptr,
-                                 &_recordingDeviceId);
-  return result ? result : restartRecording();
-}
-
-int32_t OpenALAudioDeviceModule::SetRecordingDevice(WindowsDeviceType /*device*/) {
-  _recordingDeviceId = GetDefaultDeviceId(ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
-  return _recordingDeviceId.empty() ? -1 : restartRecording();
-}
-
 int32_t OpenALAudioDeviceModule::RecordingDeviceName(
     uint16_t index,
     char name[webrtc::kAdmMaxDeviceNameSize],
