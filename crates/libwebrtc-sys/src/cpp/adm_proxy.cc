@@ -10,6 +10,13 @@ AudioDeviceModuleCustomProxy::AudioDeviceModuleCustomProxy(
   _adm = adm;
 }
 
+AudioDeviceModuleCustomProxy::AudioDeviceModuleCustomProxy(
+  rtc::scoped_refptr<webrtc::AudioDeviceModule> proxied_adm
+) {
+  _proxied_adm = proxied_adm;
+  _adm = nullptr;
+}
+
 int32_t AudioDeviceModuleCustomProxy::Init() {
   return _proxied_adm->Init();
 }
@@ -19,11 +26,17 @@ rtc::scoped_refptr<webrtc::AudioDeviceModule> AudioDeviceModuleCustomProxy::GetP
 }
 
 rtc::scoped_refptr<bridge::LocalAudioSource> AudioDeviceModuleCustomProxy::CreateAudioSource(uint32_t device_index) {
-  return _adm->CreateAudioSource(device_index);
+  if (_adm == nullptr) {
+    return nullptr;
+  } else {
+    return _adm->CreateAudioSource(device_index);
+  }
 }
 
 void AudioDeviceModuleCustomProxy::DisposeAudioSource(std::string device_id) {
-  return _adm->DisposeAudioSource(device_id);
+  if (_adm != nullptr) {
+    return _adm->DisposeAudioSource(device_id);
+  }
 }
 int16_t AudioDeviceModuleCustomProxy::PlayoutDevices() {
   return _proxied_adm->PlayoutDevices();

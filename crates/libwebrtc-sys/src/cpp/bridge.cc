@@ -82,14 +82,15 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 // audio renderer.
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     TaskQueueFactory& task_queue_factory) {
-  return nullptr;
-  // auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
-  // auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
-  //
-  // auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
-  //                                       std::move(renderer), 1);
-  //
-  // return std::make_unique<AudioDeviceModule>(adm_fake);
+  auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
+  auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
+
+  auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
+                                        std::move(renderer), 1);
+  auto counted =
+      rtc::make_ref_counted<webrtc::AudioDeviceModuleCustomProxy>(adm_fake);
+
+  return std::make_unique<AudioDeviceModule>(counted);
 }
 
 // Creates a new `DeviceVideoCapturer` with the specified constraints and

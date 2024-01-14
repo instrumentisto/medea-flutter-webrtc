@@ -14,6 +14,10 @@ class AudioDeviceModuleCustomProxy : public rtc::RefCountInterface {
     rtc::scoped_refptr<OpenALAudioDeviceModule> adm
   );
 
+  AudioDeviceModuleCustomProxy(
+    rtc::scoped_refptr<webrtc::AudioDeviceModule> proxied_adm
+  );
+
   int32_t Init();
 
   rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(uint32_t device_index);
