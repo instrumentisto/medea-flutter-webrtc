@@ -58,30 +58,6 @@
 #include <X11/Xlib.h>
 #endif
 
-// TODO(review): segfault in loopback sample
-// (audio_device_buffer.cc:66): AudioDeviceBuffer::ctor
-// (audio_device_impl.cc:120): AudioDeviceModuleImpl
-// (audio_device_buffer.cc:192): SetPlayoutSampleRate(48000)
-// (audio_device_buffer.cc:212): SetPlayoutChannels(2)
-// (audio_device_impl.cc:135): CheckPlatform
-// (audio_device_impl.cc:146): current platform is Linux
-// (audio_device_impl.cc:168): CreatePlatformSpecificObjects
-// (audio_device_impl.cc:905): PlatformAudioLayer
-// (audio_device_impl.cc:226): PulseAudio support is enabled.
-// (audio_mixer_manager_pulse_linux.cc:57): AudioMixerManagerLinuxPulse created
-// (audio_device_pulse_linux.cc:82): AudioDeviceLinuxPulse created
-// (audio_device_impl.cc:231): Linux PulseAudio APIs will be utilized
-// (audio_device_impl.cc:272): AttachAudioBuffer
-// (audio_device_buffer.cc:186): SetRecordingSampleRate(0)
-// (audio_device_buffer.cc:192): SetPlayoutSampleRate(0)
-// (audio_device_buffer.cc:206): SetRecordingChannels(0)
-// (audio_device_buffer.cc:212): SetPlayoutChannels(0)
-// (audio_device_impl.cc:292): Init
-// #
-// # Fatal error in: ../../webrtc/src/modules/audio_device/linux/audio_device_pulse_linux.cc, line 138
-// # last system error: 0
-// # Check failed: thread_checker_.IsCurrent()
-
 class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
  public:
   OpenALAudioDeviceModule(AudioLayer audio_layer,
@@ -199,8 +175,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
 
   rtc::Thread* _thread = nullptr;
 
-  // TODO(review): isnt this supposed to be inside AudioDeviceRecorder? what is this
-  //               _recordingDevice right now, when we can have multiple recording devices?
   std::recursive_mutex _recording_mutex;
   std::string _recordingDeviceId;
   bool _recordingInitialized = false;
@@ -217,9 +191,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
-
-  // TODO(review): unused?
-  bridge::LocalAudioSource* _source;
 
   // TODO(review): why dont AudioDeviceRecorder lives in LocalAudioSource?
   //               any reason for this to be raw ptr and not unique/shared?

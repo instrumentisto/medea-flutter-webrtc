@@ -810,7 +810,6 @@ int32_t OpenALAudioDeviceModule::RecordingDeviceName(
   return DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, index, name, guid);
 }
 
-// TODO(review): unused?
 int32_t OpenALAudioDeviceModule::RecordingIsAvailable(bool* available) {
   if (available) {
     *available = true;
