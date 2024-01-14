@@ -3,6 +3,7 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <mutex>
 
 #include "api/media_stream_interface.h"
 #include "libwebrtc-sys/include/local_audio_source.h"

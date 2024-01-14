@@ -1,6 +1,8 @@
 #ifndef BRIDGE_LOCAL_AUDIO_SOURCE_H_
 #define BRIDGE_LOCAL_AUDIO_SOURCE_H_
 
+#include <mutex>
+
 #include "api/audio_options.h"
 #include "api/media_stream_interface.h"
 #include "rtc_base/logging.h"

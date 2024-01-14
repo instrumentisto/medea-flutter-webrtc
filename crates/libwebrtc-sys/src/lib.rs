@@ -330,10 +330,7 @@ impl AudioDeviceModule {
         Ok(AudioSourceInterface(ptr))
     }
 
-    pub fn dispose_audio_source(
-        &self,
-        device_id: String,
-    ) {
+    pub fn dispose_audio_source(&self, device_id: String) {
         webrtc::dispose_audio_source(&self.0, device_id);
     }
 

@@ -97,7 +97,8 @@ impl Webrtc {
                     if let MediaTrackSource::Local(src) = track.source {
                         if Arc::strong_count(&src) == 2 {
                             self.audio_sources.remove(&track.device_id);
-                            self.audio_device_module.dispose_audio_source(&track.device_id);
+                            self.audio_device_module
+                                .dispose_audio_source(&track.device_id);
                         };
                     }
                     track.senders
@@ -798,10 +799,7 @@ impl AudioDeviceModule {
         }
     }
 
-    pub fn dispose_audio_source(
-        &mut self,
-        device_id: &AudioDeviceId,
-    ) {
+    pub fn dispose_audio_source(&mut self, device_id: &AudioDeviceId) {
         self.inner.dispose_audio_source(device_id.to_string());
     }
 
