@@ -82,13 +82,14 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
 // audio renderer.
 std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
     TaskQueueFactory& task_queue_factory) {
-  auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
-  auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
-
-  auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
-                                        std::move(renderer), 1);
-
-  return std::make_unique<AudioDeviceModule>(adm_fake);
+  return nullptr;
+  // auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
+  // auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
+  //
+  // auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
+  //                                       std::move(renderer), 1);
+  //
+  // return std::make_unique<AudioDeviceModule>(adm_fake);
 }
 
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
@@ -128,7 +129,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
-  AudioDeviceModule adm =
+  rtc::scoped_refptr<OpenALAudioDeviceModule> adm =
       worker_thread.BlockingCall([audio_layer, &task_queue_factory] {
         return ::OpenALAudioDeviceModule::Create(audio_layer, &task_queue_factory);
       });
@@ -137,10 +138,15 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     return nullptr;
   }
 
-  AudioDeviceModule proxied =
+  auto proxied =
       webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
 
-  return std::make_unique<AudioDeviceModule>(proxied);
+  // auto pp = webrtc::AudioDeviceModuleCustomProxy(proxied, adm);
+  // rtc::scoped_refptr<webrtc::AudioDeviceModuleCustomProxy> scoped(pp);
+  auto counted =
+      rtc::make_ref_counted<webrtc::AudioDeviceModuleCustomProxy>(proxied, adm);
+
+  return std::make_unique<AudioDeviceModule>(counted);
 }
 
 // Calls `AudioDeviceModule->Init()`.
@@ -342,13 +348,13 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
     uint16_t device_index) {
-  auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
-  if (adm == nullptr) {
-    RTC_LOG(LS_ERROR) << "Dynamic cast not working that way";
-    return nullptr;
-  }
+  // auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
+  // if (adm == nullptr) {
+  //   RTC_LOG(LS_ERROR) << "Dynamic cast not working that way";
+  //   return nullptr;
+  // }
 
-  auto src = adm->CreateAudioSource(device_index);
+  auto src = audio_device_module->CreateAudioSource(device_index);
   if (src == nullptr) {
     return nullptr;
   }
@@ -361,11 +367,11 @@ void dispose_audio_source(
     const AudioDeviceModule& audio_device_module,
     rust::String device_id
 ) {
-  auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
-  if (adm == nullptr) {
-    return;
-  }
-  adm->DisposeAudioSource(std::string(device_id));
+  // auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
+  // if (adm == nullptr) {
+  //   return;
+  // }
+  audio_device_module->DisposeAudioSource(std::string(device_id));
 }
 
 // Creates new fake `AudioSource`.
@@ -526,9 +532,11 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
           webrtc::OpenH264DecoderTemplateAdapter,
           webrtc::Dav1dDecoderTemplateAdapter>>();
 
+  AudioDeviceModule* adm = default_adm.get();
+  auto proxied_adm = (*adm)->GetProxiedAdm();
   auto factory = webrtc::CreatePeerConnectionFactory(
       network_thread.get(), worker_thread.get(), signaling_thread.get(),
-      default_adm ? *default_adm : nullptr,
+     proxied_adm,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       std::move(video_encoder_factory), std::move(video_decoder_factory),

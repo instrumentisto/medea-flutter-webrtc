@@ -90,7 +90,7 @@ using VideoRotation = webrtc::VideoRotation;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using TrackState = webrtc::MediaStreamTrackInterface::TrackState;
 
-using AudioDeviceModule = rtc::scoped_refptr<webrtc::AudioDeviceModule>;
+using AudioDeviceModule = rtc::scoped_refptr<webrtc::AudioDeviceModuleCustomProxy>;
 using AudioProcessing = rtc::scoped_refptr<webrtc::AudioProcessing>;
 using AudioSourceInterface = rtc::scoped_refptr<LocalAudioSource>;
 using AudioTrackInterface = rtc::scoped_refptr<webrtc::AudioTrackInterface>;
