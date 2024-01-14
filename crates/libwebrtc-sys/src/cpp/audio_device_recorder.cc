@@ -80,6 +80,7 @@ AudioDeviceRecorder::AudioDeviceRecorder(std::string deviceId) {
 
 bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   RTC_LOG(LS_ERROR) << "proccess recorded part";
+  std::lock_guard<std::recursive_mutex> lk(_mutex);
   auto data = _data.get();
   auto samples = ALint();
   alcGetIntegerv(_device, ALC_CAPTURE_SAMPLES, 1, &samples);
@@ -118,6 +119,8 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
     kRecordingChannels,
     kRecordingFrequency * 10 / 1000
   );
+
+  return true;
 }
 
 void AudioDeviceRecorder::StopCapture() {
