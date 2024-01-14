@@ -246,6 +246,12 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
   const AudioDeviceModule& audio_device_module,
   uint16_t device_index);
 
+// Disposes `AudioSourceInterface` with a provided device ID.
+void dispose_audio_source(
+    const AudioDeviceModule& audio_device_module,
+    rust::String device_id
+);
+
 // Creates a new fake `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_fake_audio_source();
 

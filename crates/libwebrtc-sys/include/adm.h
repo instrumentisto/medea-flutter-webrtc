@@ -100,6 +100,7 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   int32_t Init() override;
 
   rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(uint32_t device_index);
+  void DisposeAudioSource(std::string device_id);
 
   // Playout control.
   int16_t PlayoutDevices() override;

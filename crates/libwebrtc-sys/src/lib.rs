@@ -330,6 +330,13 @@ impl AudioDeviceModule {
         Ok(AudioSourceInterface(ptr))
     }
 
+    pub fn dispose_audio_source(
+        &self,
+        device_id: String,
+    ) {
+        webrtc::dispose_audio_source(&self.0, device_id);
+    }
+
     /// Sets the playout audio device according to the given `index`.
     pub fn set_playout_device(&self, index: u16) -> anyhow::Result<()> {
         let result = webrtc::set_audio_playout_device(&self.0, index);

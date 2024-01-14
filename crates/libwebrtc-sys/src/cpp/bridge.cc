@@ -355,6 +355,18 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
   return std::make_unique<AudioSourceInterface>(src);
 }
 
+// Disposes `AudioSourceInterface` with a provided device ID.
+void dispose_audio_source(
+    const AudioDeviceModule& audio_device_module,
+    rust::String device_id
+) {
+  auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
+  if (adm == nullptr) {
+    return;
+  }
+  adm->DisposeAudioSource(std::string(device_id));
+}
+
 // Creates new fake `AudioSource`.
 std::unique_ptr<AudioSourceInterface> create_fake_audio_source() {
   return std::make_unique<AudioSourceInterface>(bridge::LocalAudioSource::Create(cricket::AudioOptions()));

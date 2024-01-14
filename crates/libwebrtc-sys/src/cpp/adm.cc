@@ -747,6 +747,14 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
   return recorder->GetSource();
 }
 
+void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
+  auto it = _recorders.find(device_id);
+  if (it != _recorders.end()) {
+    auto recorder = std::move(it->second);
+    recorder->StopCapture();
+  }
+}
+
 void OpenALAudioDeviceModule::stopCaptureOnThread() {
   {
     std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
