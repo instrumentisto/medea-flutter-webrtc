@@ -748,10 +748,12 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
 }
 
 void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
   auto it = _recorders.find(device_id);
   if (it != _recorders.end()) {
     auto recorder = std::move(it->second);
     recorder->StopCapture();
+    _recorders.erase(it);
   }
 }
 
@@ -782,8 +784,8 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
 
         for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
           for (auto first = true; r.second->ProcessRecordedPart(first); first = false) {}
-          processRecordingQueued();
         }
+        processRecordingQueued();
       },
       webrtc::TimeDelta::Millis(kProcessInterval));
 }
