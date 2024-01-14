@@ -140,7 +140,7 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
   AudioDeviceModule proxied =
       webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
 
-  return std::make_unique<AudioDeviceModule>(adm);
+  return std::make_unique<AudioDeviceModule>(proxied);
 }
 
 // Calls `AudioDeviceModule->Init()`.
@@ -344,6 +344,7 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
     uint16_t device_index) {
   auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
   if (adm == nullptr) {
+    RTC_LOG(LS_ERROR) << "Dynamic cast not working that way";
     return nullptr;
   }
 

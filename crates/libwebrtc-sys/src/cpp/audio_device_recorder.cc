@@ -30,6 +30,8 @@ constexpr auto kPlayoutPart = (kPlayoutFrequency * kBufferSizeMs + 999) / 1000;
 constexpr auto kBuffersFullCount = 7;
 constexpr auto kBuffersKeepReadyCount = 5;
 
+namespace recorder {
+
 template <typename Callback>
 void EnumerateDevices(ALCenum specifier, Callback&& callback) {
   auto devices = alcGetString(nullptr, specifier);
@@ -56,6 +58,7 @@ bool CheckDeviceFailed(ALCdevice* device) {
 
   return false;
 }
+}
 
 struct AudioDeviceRecorder::Data {
   Data() {}
@@ -81,7 +84,7 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   auto samples = ALint();
   alcGetIntegerv(_device, ALC_CAPTURE_SAMPLES, 1, &samples);
 
-  if (CheckDeviceFailed(_device)) {
+  if (recorder::CheckDeviceFailed(_device)) {
     _recordingFailed = true;
     return false;
   }
@@ -144,7 +147,7 @@ void AudioDeviceRecorder::StartCapture() {
   }
 
   alcCaptureStart(_device);
-  if (CheckDeviceFailed(_device)) {
+  if (recorder::CheckDeviceFailed(_device)) {
     _recordingFailed = true;
     return;
   }
@@ -170,7 +173,7 @@ bool AudioDeviceRecorder::checkDeviceFailed() {
 
 bool AudioDeviceRecorder::validateRecordingDeviceId() {
   auto valid = false;
-  EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER, [&](const char* device) {
+  recorder::EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER, [&](const char* device) {
     if (!valid && _deviceId == std::string(device)) {
       valid = true;
     }
@@ -179,7 +182,7 @@ bool AudioDeviceRecorder::validateRecordingDeviceId() {
     return true;
   }
   const auto defaultDeviceId =
-      GetDefaultDeviceId(ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
+      recorder::GetDefaultDeviceId(ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
   if (!defaultDeviceId.empty()) {
     _deviceId = defaultDeviceId;
     return true;
