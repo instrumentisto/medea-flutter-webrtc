@@ -541,7 +541,6 @@ void OpenALAudioDeviceModule::unqueueAllBuffers() {
 int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
   return GetAudioDeviceBuffer()->RegisterAudioCallback(audioCallback);
-  return 0;
 }
 
 bool OpenALAudioDeviceModule::processPlayout() {
