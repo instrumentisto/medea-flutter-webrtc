@@ -23,7 +23,6 @@ void LocalAudioSource::OnData(const void* audio_data,
                     int sample_rate,
                     size_t number_of_channels,
                     size_t number_of_frames) {
-  RTC_LOG(LS_ERROR) << "OnData";
   std::lock_guard<std::recursive_mutex> lk(sink_lock_);
   for (auto* sink : sinks_) {
     sink->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);

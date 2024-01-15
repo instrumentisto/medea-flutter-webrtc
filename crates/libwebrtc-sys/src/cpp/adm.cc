@@ -736,10 +736,15 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
 }
 
 rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(uint32_t device_index) {
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
   std::string deviceId;
-  // TODO(review): check result, move this into AudioDeviceRecorder ctor?
   const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index, nullptr,
                                  &deviceId);
+  if (result != 0) {
+    return nullptr;
+  }
+
   auto recorder = new AudioDeviceRecorder(deviceId);
   _recorders[deviceId] = recorder;
   recorder->StartCapture();
