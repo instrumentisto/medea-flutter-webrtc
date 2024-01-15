@@ -729,7 +729,6 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
     return nullptr;
   }
 
-  // auto recorder = new AudioDeviceRecorder(deviceId);
   auto recorder = std::make_unique<AudioDeviceRecorder>(deviceId);
   recorder->StartCapture();
   auto source = recorder->GetSource();

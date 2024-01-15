@@ -1261,6 +1261,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
     }
 }
 
+/// [`sys::AudiosourceInterface`] wrapper.
 pub struct AudioSource(AudioDeviceId, Arc<sys::AudioSourceInterface>);
 
 /// [`sys::VideoTrackSourceInterface`] wrapper.

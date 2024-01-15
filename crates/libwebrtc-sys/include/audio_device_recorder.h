@@ -27,8 +27,6 @@ constexpr auto kRecordingPart =
 
 class AudioDeviceRecorder {
   public:
-    struct Data;
-
     AudioDeviceRecorder(std::string deviceId);
     bool ProcessRecordedPart(bool firstInCycle);
     void StopCapture();

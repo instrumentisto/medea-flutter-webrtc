@@ -141,9 +141,6 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
 
   auto proxied =
       webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
-
-  // auto pp = webrtc::AudioDeviceModuleCustomProxy(proxied, adm);
-  // rtc::scoped_refptr<webrtc::AudioDeviceModuleCustomProxy> scoped(pp);
   auto counted =
       rtc::make_ref_counted<webrtc::AudioDeviceModuleCustomProxy>(proxied, adm);
 
@@ -349,12 +346,6 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
     uint16_t device_index) {
-  // auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
-  // if (adm == nullptr) {
-  //   RTC_LOG(LS_ERROR) << "Dynamic cast not working that way";
-  //   return nullptr;
-  // }
-
   auto src = audio_device_module->CreateAudioSource(device_index);
   if (src == nullptr) {
     return nullptr;
@@ -368,10 +359,6 @@ void dispose_audio_source(
     const AudioDeviceModule& audio_device_module,
     rust::String device_id
 ) {
-  // auto adm = dynamic_cast<OpenALAudioDeviceModule*>(audio_device_module.get());
-  // if (adm == nullptr) {
-  //   return;
-  // }
   audio_device_module->DisposeAudioSource(std::string(device_id));
 }
 
@@ -537,7 +524,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
   auto proxied_adm = (*adm)->GetProxiedAdm();
   auto factory = webrtc::CreatePeerConnectionFactory(
       network_thread.get(), worker_thread.get(), signaling_thread.get(),
-     proxied_adm,
+      proxied_adm,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       std::move(video_encoder_factory), std::move(video_decoder_factory),
