@@ -192,11 +192,7 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
 
-  // TODO(review): why dont AudioDeviceRecorder lives in LocalAudioSource?
-  //               any reason for this to be raw ptr and not unique/shared?
-  //               i dont see AudioDeviceRecorder being removed from the map and device being
-  //               released anywhere
-  std::unordered_map<std::string, AudioDeviceRecorder*> _recorders;
+  std::unordered_map<std::string, std::unique_ptr<AudioDeviceRecorder>> _recorders;
 };
 
 #endif // BRIDGE_ADM_H_

@@ -37,22 +37,6 @@
 #include "rtc_base/logging.h"
 #include "rtc_base/platform_thread.h"
 
-constexpr auto kPlayoutFrequency = 48000;
-constexpr auto kRecordingFrequency = 48000;
-constexpr auto kRecordingChannels = 1;
-constexpr std::int64_t kBufferSizeMs = 10;
-constexpr auto kRecordingPart =
-    (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
-constexpr auto kProcessInterval = 10;
-constexpr auto kALMaxValues = 6;
-constexpr auto kQueryExactTimeEach = 20;
-constexpr auto kDefaultPlayoutLatency = std::chrono::duration<double>(20.0);
-constexpr auto kDefaultRecordingLatency = std::chrono::milliseconds(20);
-constexpr auto kRestartAfterEmptyData = 50;  // Half a second with no data.
-constexpr auto kPlayoutPart = (kPlayoutFrequency * kBufferSizeMs + 999) / 1000;
-constexpr auto kBuffersFullCount = 7;
-constexpr auto kBuffersKeepReadyCount = 5;
-
 auto kAL_EVENT_CALLBACK_FUNCTION_SOFT = ALenum();
 auto kAL_EVENT_CALLBACK_USER_PARAM_SOFT = ALenum();
 auto kAL_EVENT_TYPE_BUFFER_COMPLETED_SOFT = ALenum();
@@ -745,11 +729,13 @@ rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudi
     return nullptr;
   }
 
-  auto recorder = new AudioDeviceRecorder(deviceId);
-  _recorders[deviceId] = recorder;
+  // auto recorder = new AudioDeviceRecorder(deviceId);
+  auto recorder = std::make_unique<AudioDeviceRecorder>(deviceId);
   recorder->StartCapture();
+  auto source = recorder->GetSource();
+  _recorders[deviceId] = std::move(recorder);
 
-  return recorder->GetSource();
+  return source;
 }
 
 void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
@@ -774,7 +760,7 @@ void OpenALAudioDeviceModule::stopCaptureOnThread() {
       std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
       _data->recording = false;
-      for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
+      for (const std::pair<const std::string, std::unique_ptr<AudioDeviceRecorder>>& r : _recorders) {
         r.second->StopCapture();
       }
     });
@@ -787,7 +773,7 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
       [=] {
         std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-        for (const std::pair<const std::string, AudioDeviceRecorder*>& r : _recorders) {
+        for (const std::pair<const std::string, std::unique_ptr<AudioDeviceRecorder>>& r : _recorders) {
           for (auto first = true; r.second->ProcessRecordedPart(first); first = false) {}
         }
         processRecordingQueued();

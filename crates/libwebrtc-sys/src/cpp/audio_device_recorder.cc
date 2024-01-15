@@ -14,22 +14,6 @@
 #include "rtc_base/logging.h"
 #include "rtc_base/platform_thread.h"
 
-constexpr auto kPlayoutFrequency = 48000;
-constexpr auto kRecordingFrequency = 48000;
-constexpr auto kRecordingChannels = 1;
-constexpr std::int64_t kBufferSizeMs = 10;
-constexpr auto kRecordingPart =
-    (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
-constexpr auto kProcessInterval = 10;
-constexpr auto kALMaxValues = 6;
-constexpr auto kQueryExactTimeEach = 20;
-constexpr auto kDefaultPlayoutLatency = std::chrono::duration<double>(20.0);
-constexpr auto kDefaultRecordingLatency = std::chrono::milliseconds(20);
-constexpr auto kRestartAfterEmptyData = 50;  // Half a second with no data.
-constexpr auto kPlayoutPart = (kPlayoutFrequency * kBufferSizeMs + 999) / 1000;
-constexpr auto kBuffersFullCount = 7;
-constexpr auto kBuffersKeepReadyCount = 5;
-
 namespace recorder {
 
 template <typename Callback>
@@ -60,27 +44,16 @@ bool CheckDeviceFailed(ALCdevice* device) {
 }
 }
 
-struct AudioDeviceRecorder::Data {
-  Data() {}
-
-  int recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-  std::vector<char>* recordedSamples =
-      new std::vector<char>(recordBufferSize, 0);
-  int emptyRecordingData = 0;
-};
-
 AudioDeviceRecorder::AudioDeviceRecorder(std::string deviceId) {
   _device = alcCaptureOpenDevice(
         deviceId.empty() ? nullptr : deviceId.c_str(),
         kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
   _source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
   _deviceId = deviceId;
-  _data = std::make_unique<Data>();
 }
 
 bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   std::lock_guard<std::recursive_mutex> lk(_mutex);
-  auto data = _data.get();
   auto samples = ALint();
   alcGetIntegerv(_device, ALC_CAPTURE_SAMPLES, 1, &samples);
 
@@ -91,8 +64,8 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
 
   if (samples <= 0) {
     if (isFirstInCycle) {
-      ++data->emptyRecordingData;
-      if (data->emptyRecordingData == kRestartAfterEmptyData) {
+      ++_emptyRecordingData;
+      if (_emptyRecordingData == kRestartAfterEmptyData) {
         restartRecording();
       }
     }
@@ -102,8 +75,8 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
     return false;
   }
 
-  data->emptyRecordingData = 0;
-  alcCaptureSamples(_device, data->recordedSamples->data(),
+  _emptyRecordingData = 0;
+  alcCaptureSamples(_device, _recordedSamples->data(),
                     kRecordingPart);
 
   if (checkDeviceFailed()) {
@@ -112,7 +85,7 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   }
 
   _source->OnData(
-    data->recordedSamples->data(), // audio_data
+    _recordedSamples->data(), // audio_data
     16,
     kRecordingFrequency, // sample_rate
     kRecordingChannels,

@@ -9,6 +9,22 @@
 #include "libwebrtc-sys/include/local_audio_source.h"
 #include "rtc_base/thread.h"
 
+constexpr auto kPlayoutFrequency = 48000;
+constexpr auto kRecordingFrequency = 48000;
+constexpr auto kRecordingChannels = 1;
+constexpr std::int64_t kBufferSizeMs = 10;
+constexpr auto kProcessInterval = 10;
+constexpr auto kALMaxValues = 6;
+constexpr auto kQueryExactTimeEach = 20;
+constexpr auto kDefaultPlayoutLatency = std::chrono::duration<double>(20.0);
+constexpr auto kDefaultRecordingLatency = std::chrono::milliseconds(20);
+constexpr auto kRestartAfterEmptyData = 50;  // Half a second with no data.
+constexpr auto kPlayoutPart = (kPlayoutFrequency * kBufferSizeMs + 999) / 1000;
+constexpr auto kBuffersFullCount = 7;
+constexpr auto kBuffersKeepReadyCount = 5;
+constexpr auto kRecordingPart =
+    (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
+
 class AudioDeviceRecorder {
   public:
     struct Data;
@@ -29,10 +45,14 @@ class AudioDeviceRecorder {
     rtc::scoped_refptr<bridge::LocalAudioSource> _source;
     ALCdevice* _device;
     std::string _deviceId;
-    std::unique_ptr<Data> _data;
+    // std::unique_ptr<Data> _data;
     std::recursive_mutex _mutex;
     bool _recordingFailed = false;
     bool _recording = false;
+    int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
+    std::vector<char>* _recordedSamples =
+        new std::vector<char>(_recordBufferSize, 0);
+    int _emptyRecordingData = 0;
 };
 
 #endif // AUDIO_RECORDER_H_
