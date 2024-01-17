@@ -1,4 +1,5 @@
 import Flutter
+import VideoToolbox
 
 /// Controller of a `PeerConnection` factory management.
 class PeerConnectionFactoryController {
@@ -61,16 +62,18 @@ class PeerConnectionFactoryController {
           codec: VideoCodec.VP8
         ),
         VideoCodecInfo(
-          isHardwareAccelerated: false,
-          codec: VideoCodec.VP9
+          isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9),
+          kind: VideoCodec.VP9,
+          mymeType: "video/VP9"
         ),
         VideoCodecInfo(
           isHardwareAccelerated: false,
           codec: VideoCodec.AV1
         ),
         VideoCodecInfo(
-          isHardwareAccelerated: true,
-          codec: VideoCodec.H264
+          isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_H264),
+          kind: VideoCodec.H264,
+          mymeType: "video/H264"
         ),
       ].map {
         $0.asFlutterResult()
