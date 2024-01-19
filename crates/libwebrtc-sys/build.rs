@@ -30,6 +30,8 @@ static OPENAL_URL: &str =
     "https://github.com/kcat/openal-soft/archive/refs/tags/1.23.1";
 
 fn main() -> anyhow::Result<()> {
+    #[cfg(target_os = "macos")]
+    println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.11");
     let lib_dir = libpath()?;
     if lib_dir.exists() {
         fs::create_dir_all(&lib_dir)?;
@@ -72,7 +74,6 @@ fn main() -> anyhow::Result<()> {
     }
     #[cfg(target_os = "macos")]
     {
-        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.11");
         build
             .include(libpath.join("include/sdk/objc/base"))
             .include(libpath.join("include/sdk/objc"));
