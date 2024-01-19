@@ -22,7 +22,6 @@
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "pc/proxy.h"
-#include "test_audio_device_module.cc"
 
 namespace bridge {
 
@@ -76,20 +75,6 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
   }
 
   return std::make_unique<VideoTrackSourceInterface>(proxied);
-}
-
-// Creates a new fake `AudioDeviceModule` with `PulsedNoiseCapturer` and without
-// audio renderer.
-std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
-    TaskQueueFactory& task_queue_factory) {
-  auto capture = webrtc::CreatePulsedNoiseCapturer(1024, 8000, 1);
-  auto renderer = webrtc::CreateDiscardRenderer(8000, 1);
-
-  auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
-                                        std::move(renderer), 1);
-  //
-  //  return std::make_unique<AudioDeviceModule>(adm_fake); asdasdasd fix
-  return nullptr;
 }
 
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
