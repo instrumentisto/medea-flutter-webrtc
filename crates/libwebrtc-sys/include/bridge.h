@@ -111,10 +111,6 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory);
 
-// Creates a new fake `AudioDeviceModule`.
-std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
-    TaskQueueFactory& task_queue_factory);
-
 // Initializes the native audio parts required for each platform.
 int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module);
 

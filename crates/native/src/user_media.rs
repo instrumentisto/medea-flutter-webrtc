@@ -687,19 +687,6 @@ impl AudioDeviceModule {
         Ok(Self { inner })
     }
 
-    /// Creates a new [`AudioDeviceModule`] according to the passed
-    /// [`sys::AudioLayer`].
-    ///
-    /// # Errors
-    ///
-    /// If could not find any available recording device.
-    pub fn new_fake(task_queue_factory: &mut sys::TaskQueueFactory) -> Self {
-        let inner = sys::AudioDeviceModule::create_fake(task_queue_factory);
-        drop(inner.init());
-
-        Self { inner }
-    }
-
     /// Returns the `(label, id)` tuple for the given audio playout device
     /// `index`.
     ///

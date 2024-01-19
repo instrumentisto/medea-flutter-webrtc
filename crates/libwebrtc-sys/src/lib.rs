@@ -223,14 +223,6 @@ impl AudioDeviceModule {
         Ok(Self(ptr))
     }
 
-    /// Creates a new fake [`AudioDeviceModule`], that will not try to access
-    /// real media devices, but will generate pulsed noise.
-    pub fn create_fake(task_queue_factory: &mut TaskQueueFactory) -> Self {
-        Self(webrtc::create_fake_audio_device_module(
-            task_queue_factory.0.pin_mut(),
-        ))
-    }
-
     /// Initializes the current [`AudioDeviceModule`].
     pub fn init(&self) -> anyhow::Result<()> {
         let result = webrtc::init_audio_device_module(&self.0);
