@@ -781,13 +781,13 @@ int16_t OpenALAudioDeviceModule::RecordingDevices() {
 }
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(uint16_t index) {
-  // Use CreateAudioSource.
+  RTC_LOG(LS_ERROR) << "Use CreateAudioSource insted of SetRecordingDevice";
   return -1;
 }
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(
     WindowsDeviceType /*device*/) {
-  // Use CreateAudioSource.
+  RTC_LOG(LS_ERROR) << "Use CreateAudioSource insted of SetRecordingDevice";
   return -1;
 }
 

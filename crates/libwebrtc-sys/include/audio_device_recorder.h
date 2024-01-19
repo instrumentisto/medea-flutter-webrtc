@@ -25,13 +25,13 @@ constexpr auto kBuffersKeepReadyCount = 5;
 constexpr auto kRecordingPart =
     (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
 
-// Implements audio recording from the given audio device propagating recorded
-// data to the `bridge::LocalAudioSource`.
+// Implements audio recording from the given audio device and propagates recorded
+// audio data to the `bridge::LocalAudioSource`.
 class AudioDeviceRecorder {
  public:
   AudioDeviceRecorder(std::string deviceId);
 
-  // Captures a new batch of audio samples and propgateds it to the inner
+  // Captures a new batch of audio samples and propagates it to the inner
   // `bridge::LocalAudioSource`.
   bool ProcessRecordedPart(bool firstInCycle);
 

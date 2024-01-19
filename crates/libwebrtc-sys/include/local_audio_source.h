@@ -7,7 +7,6 @@
 #include "api/media_stream_interface.h"
 #include "api/notifier.h"
 #include "api/scoped_refptr.h"
-#include "rtc_base/logging.h"
 
 // LocalAudioSource implements AudioSourceInterface.
 // This contains settings for switching audio processing on and off.
