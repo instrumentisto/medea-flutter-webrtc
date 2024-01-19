@@ -40,8 +40,8 @@
 #include "api/media_stream_interface.h"
 #include "api/sequence_checker.h"
 #include "api/task_queue/task_queue_factory.h"
-#include "libwebrtc-sys/include/local_audio_source.h"
 #include "libwebrtc-sys/include/audio_device_recorder.h"
+#include "libwebrtc-sys/include/local_audio_source.h"
 #include "modules/audio_device/audio_device_buffer.h"
 #include "modules/audio_device/audio_device_generic.h"
 #include "modules/audio_device/audio_device_impl.h"
@@ -58,25 +58,37 @@
 #include <X11/Xlib.h>
 #endif
 
-class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
+class ExtendedADM : public webrtc::AudioDeviceModule {
  public:
-  OpenALAudioDeviceModule(AudioLayer audio_layer,
-                   webrtc::TaskQueueFactory* task_queue_factory);
-  ~OpenALAudioDeviceModule();
+  // Creates a new `bridge::LocalAudioSource` that will record audio from the
+  // device with the given ID.
+  virtual rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
+      uint32_t device_index) = 0;
+
+  // Stops the `bridge::LocalAudioSource` for the given device ID.
+  virtual void DisposeAudioSource(std::string device_id) = 0;
+};
+
+class OpenALAudioDeviceModule : public ExtendedADM {
+ public:
+  ~OpenALAudioDeviceModule() override;
 
   static rtc::scoped_refptr<OpenALAudioDeviceModule> Create(
       AudioLayer audio_layer,
       webrtc::TaskQueueFactory* task_queue_factory);
 
-  static rtc::scoped_refptr<OpenALAudioDeviceModule> CreateForTest(
-      AudioLayer audio_layer,
-      webrtc::TaskQueueFactory* task_queue_factory);
-
   // Main initialization and termination.
   int32_t Init() override;
+  int32_t Terminate() override;
+  bool Initialized() const override;
 
-  rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(uint32_t device_index);
-  void DisposeAudioSource(std::string device_id);
+  // Creates a new `bridge::LocalAudioSource` that will record audio from the
+  // device with the given ID.
+  rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
+      uint32_t device_index) override;
+
+  // Stops the `bridge::LocalAudioSource` for the given device ID.
+  void DisposeAudioSource(std::string device_id) override;
 
   // Playout control.
   int16_t PlayoutDevices() override;
@@ -113,6 +125,8 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   int32_t RecordingDeviceName(uint16_t index,
                               char name[webrtc::kAdmMaxDeviceNameSize],
                               char guid[webrtc::kAdmMaxGuidSize]) override;
+  int32_t SetRecordingDevice(uint16_t index) override;
+  int32_t SetRecordingDevice(WindowsDeviceType device) override;
   int32_t RecordingIsAvailable(bool* available) override;
   int32_t InitRecording() override;
   bool RecordingIsInitialized() const override;
@@ -136,6 +150,34 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   int32_t SetStereoRecording(bool enable) override;
   int32_t StereoRecording(bool* enabled) const override;
 
+  // ----------------
+
+  // Retrieve the currently utilized audio layer
+  int32_t ActiveAudioLayer(AudioLayer* audioLayer) const override;
+
+  int32_t PlayoutIsAvailable(bool* available) override;
+
+  bool BuiltInAECIsAvailable() const override;
+  int32_t EnableBuiltInAEC(bool enable) override;
+  bool BuiltInAGCIsAvailable() const override;
+  int32_t EnableBuiltInAGC(bool enable) override;
+  bool BuiltInNSIsAvailable() const override;
+  int32_t EnableBuiltInNS(bool enable) override;
+
+  int32_t GetPlayoutUnderrunCount() const override { return -1; }
+
+  virtual absl::optional<Stats> GetStats() const { return absl::nullopt; }
+
+#if defined(WEBRTC_IOS)
+  virtual int GetPlayoutAudioParameters(AudioParameters* params) const {
+    return absl::nullopt;
+  }
+  virtual int GetRecordAudioParameters(AudioParameters* params) const {
+    return absl::nullopt;
+  }
+#endif  // WEBRTC_IOS
+
+  // ----------------
  private:
   struct Data;
 
@@ -173,14 +215,15 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
       bool playing);
   void processRecordingQueued();
 
+  std::unique_ptr<webrtc::AudioDeviceBuffer> audio_device_buffer_ = nullptr;
+
   rtc::Thread* _thread = nullptr;
 
   std::recursive_mutex _recording_mutex;
-  std::string _recordingDeviceId;
   bool _recordingInitialized = false;
   bool _microphoneInitialized = false;
-  bool _recordingFailed = false;
-  ALCdevice *_recordingDevice = nullptr;
+  std::unordered_map<std::string, std::unique_ptr<AudioDeviceRecorder>>
+      _recorders;
 
   std::recursive_mutex _playout_mutex;
   std::string _playoutDeviceId;
@@ -191,8 +234,6 @@ class OpenALAudioDeviceModule : public webrtc::AudioDeviceModuleImpl {
   std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
-
-  std::unordered_map<std::string, std::unique_ptr<AudioDeviceRecorder>> _recorders;
 };
 
-#endif // BRIDGE_ADM_H_
+#endif  // BRIDGE_ADM_H_

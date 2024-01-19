@@ -90,7 +90,7 @@ using VideoRotation = webrtc::VideoRotation;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using TrackState = webrtc::MediaStreamTrackInterface::TrackState;
 
-using AudioDeviceModule = rtc::scoped_refptr<webrtc::AudioDeviceModuleCustomProxy>;
+using AudioDeviceModule = rtc::scoped_refptr<ExtendedADM>;
 using AudioProcessing = rtc::scoped_refptr<webrtc::AudioProcessing>;
 using AudioSourceInterface = rtc::scoped_refptr<LocalAudioSource>;
 using AudioTrackInterface = rtc::scoped_refptr<webrtc::AudioTrackInterface>;
@@ -243,14 +243,12 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 
 // Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
-  const AudioDeviceModule& audio_device_module,
-  uint16_t device_index);
+    const AudioDeviceModule& audio_device_module,
+    uint16_t device_index);
 
 // Disposes `AudioSourceInterface` with a provided device ID.
-void dispose_audio_source(
-    const AudioDeviceModule& audio_device_module,
-    rust::String device_id
-);
+void dispose_audio_source(const AudioDeviceModule& audio_device_module,
+                          rust::String device_id);
 
 // Creates a new fake `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_fake_audio_source();
@@ -578,4 +576,4 @@ std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
 
 }  // namespace bridge
 
-#endif // BRIDGE_H_
+#endif  // BRIDGE_H_

@@ -1,5 +1,5 @@
-#ifndef AUDIO_DEVICE_RECORDER_H_
-#define AUDIO_DEVICE_RECORDER_H_
+#ifndef BRIDGE_AUDIO_DEVICE_RECORDER_H_
+#define BRIDGE_AUDIO_DEVICE_RECORDER_H_
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -25,32 +25,43 @@ constexpr auto kBuffersKeepReadyCount = 5;
 constexpr auto kRecordingPart =
     (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
 
+// Implements audio recording from the given audio device propagating recorded
+// data to the `bridge::LocalAudioSource`.
 class AudioDeviceRecorder {
-  public:
-    AudioDeviceRecorder(std::string deviceId);
-    bool ProcessRecordedPart(bool firstInCycle);
-    void StopCapture();
-    void StartCapture();
-    rtc::scoped_refptr<bridge::LocalAudioSource> GetSource();
+ public:
+  AudioDeviceRecorder(std::string deviceId);
 
-  private:
-    void openRecordingDevice();
-    bool checkDeviceFailed();
-    void closeRecordingDevice();
-    void restartRecording();
-    bool validateRecordingDeviceId();
+  // Captures a new batch of audio samples and propgateds it to the inner
+  // `bridge::LocalAudioSource`.
+  bool ProcessRecordedPart(bool firstInCycle);
 
-    rtc::scoped_refptr<bridge::LocalAudioSource> _source;
-    ALCdevice* _device;
-    std::string _deviceId;
-    // std::unique_ptr<Data> _data;
-    std::recursive_mutex _mutex;
-    bool _recordingFailed = false;
-    bool _recording = false;
-    int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-    std::vector<char>* _recordedSamples =
-        new std::vector<char>(_recordBufferSize, 0);
-    int _emptyRecordingData = 0;
+  // Stops audio capture freeing captrued device.
+  void StopCapture();
+
+  // Starts recording audio from the device.
+  void StartCapture();
+
+  // Returns `bridge::LocalAudioSource` that this `AudioDeviceRecorder` writes
+  // recorded audio to.
+  rtc::scoped_refptr<bridge::LocalAudioSource> GetSource();
+
+ private:
+  void openRecordingDevice();
+  bool checkDeviceFailed();
+  void closeRecordingDevice();
+  void restartRecording();
+  bool validateRecordingDeviceId();
+
+  rtc::scoped_refptr<bridge::LocalAudioSource> _source;
+  ALCdevice* _device;
+  std::string _deviceId;
+  std::recursive_mutex _mutex;
+  bool _recordingFailed = false;
+  bool _recording = false;
+  int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
+  std::vector<char>* _recordedSamples =
+      new std::vector<char>(_recordBufferSize, 0);
+  int _emptyRecordingData = 0;
 };
 
-#endif // AUDIO_RECORDER_H_
+#endif  // BRIDGE_AUDIO_DEVICE_RECORDER_H_

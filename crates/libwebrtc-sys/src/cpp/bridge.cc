@@ -87,10 +87,9 @@ std::unique_ptr<AudioDeviceModule> create_fake_audio_device_module(
 
   auto adm_fake = webrtc::CreateTestAdm(&task_queue_factory, std::move(capture),
                                         std::move(renderer), 1);
-  auto counted =
-      rtc::make_ref_counted<webrtc::AudioDeviceModuleCustomProxy>(adm_fake);
-
-  return std::make_unique<AudioDeviceModule>(counted);
+  //
+  //  return std::make_unique<AudioDeviceModule>(adm_fake); asdasdasd fix
+  return nullptr;
 }
 
 // Creates a new `DeviceVideoCapturer` with the specified constraints and
@@ -130,21 +129,19 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
     TaskQueueFactory& task_queue_factory) {
-  rtc::scoped_refptr<OpenALAudioDeviceModule> adm =
-      worker_thread.BlockingCall([audio_layer, &task_queue_factory] {
-        return ::OpenALAudioDeviceModule::Create(audio_layer, &task_queue_factory);
-      });
+  AudioDeviceModule adm = worker_thread.BlockingCall([audio_layer,
+                                                      &task_queue_factory] {
+    return ::OpenALAudioDeviceModule::Create(audio_layer, &task_queue_factory);
+  });
 
   if (adm == nullptr) {
     return nullptr;
   }
 
-  auto proxied =
-      webrtc::AudioDeviceModuleProxy::Create(&worker_thread, adm);
-  auto counted =
-      rtc::make_ref_counted<webrtc::AudioDeviceModuleCustomProxy>(proxied, adm);
+  AudioDeviceModule proxied =
+      webrtc::ExtendedADMProxy::Create(&worker_thread, adm);
 
-  return std::make_unique<AudioDeviceModule>(counted);
+  return std::make_unique<AudioDeviceModule>(proxied);
 }
 
 // Calls `AudioDeviceModule->Init()`.
@@ -355,16 +352,15 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
 }
 
 // Disposes `AudioSourceInterface` with a provided device ID.
-void dispose_audio_source(
-    const AudioDeviceModule& audio_device_module,
-    rust::String device_id
-) {
+void dispose_audio_source(const AudioDeviceModule& audio_device_module,
+                          rust::String device_id) {
   audio_device_module->DisposeAudioSource(std::string(device_id));
 }
 
 // Creates new fake `AudioSource`.
 std::unique_ptr<AudioSourceInterface> create_fake_audio_source() {
-  return std::make_unique<AudioSourceInterface>(bridge::LocalAudioSource::Create(cricket::AudioOptions()));
+  return std::make_unique<AudioSourceInterface>(
+      bridge::LocalAudioSource::Create(cricket::AudioOptions()));
 }
 
 // Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.
@@ -520,11 +516,9 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
           webrtc::OpenH264DecoderTemplateAdapter,
           webrtc::Dav1dDecoderTemplateAdapter>>();
 
-  AudioDeviceModule* adm = default_adm.get();
-  auto proxied_adm = (*adm)->GetProxiedAdm();
   auto factory = webrtc::CreatePeerConnectionFactory(
       network_thread.get(), worker_thread.get(), signaling_thread.get(),
-      proxied_adm,
+      default_adm ? *default_adm : nullptr,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       std::move(video_encoder_factory), std::move(video_decoder_factory),

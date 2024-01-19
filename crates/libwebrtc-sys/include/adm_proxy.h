@@ -1,102 +1,26 @@
 #ifndef BRIDGE_ADM_PROXY_H_
 #define BRIDGE_ADM_PROXY_H_
 
-#include "libwebrtc-sys/include/adm.h"
+#include "adm.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "pc/proxy.h"
 
 namespace webrtc {
 
-class AudioDeviceModuleCustomProxy : public rtc::RefCountInterface {
- public:
-  AudioDeviceModuleCustomProxy(
-    rtc::scoped_refptr<webrtc::AudioDeviceModule> proxied_adm,
-    rtc::scoped_refptr<OpenALAudioDeviceModule> adm
-  );
+using ExtendedADMInterface = ExtendedADM;
 
-  AudioDeviceModuleCustomProxy(
-    rtc::scoped_refptr<webrtc::AudioDeviceModule> proxied_adm
-  );
-
-  int32_t Init();
-
-  rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(uint32_t device_index);
-  void DisposeAudioSource(std::string device_id);
-
-  rtc::scoped_refptr<webrtc::AudioDeviceModule> GetProxiedAdm();
-
-  int16_t PlayoutDevices();
-  int32_t SetPlayoutDevice(uint16_t index);
-  int32_t SetPlayoutDevice(AudioDeviceModule::WindowsDeviceType device);
-  int32_t PlayoutDeviceName(uint16_t index,
-                            char name[webrtc::kAdmMaxDeviceNameSize],
-                            char guid[webrtc::kAdmMaxGuidSize]);
-  int32_t InitPlayout();
-  bool PlayoutIsInitialized() const;
-  int32_t StartPlayout();
-  int32_t StopPlayout();
-  bool Playing() const;
-  int32_t InitSpeaker();
-  bool SpeakerIsInitialized() const;
-  int32_t StereoPlayoutIsAvailable(bool* available) const;
-  int32_t SetStereoPlayout(bool enable);
-  int32_t StereoPlayout(bool* enabled) const;
-  int32_t PlayoutDelay(uint16_t* delayMS) const;
-
-  int32_t SpeakerVolumeIsAvailable(bool* available);
-  int32_t SetSpeakerVolume(uint32_t volume);
-  int32_t SpeakerVolume(uint32_t* volume) const;
-  int32_t MaxSpeakerVolume(uint32_t* maxVolume) const;
-  int32_t MinSpeakerVolume(uint32_t* minVolume) const;
-
-  int32_t SpeakerMuteIsAvailable(bool* available);
-  int32_t SetSpeakerMute(bool enable);
-  int32_t SpeakerMute(bool* enabled) const;
-  int32_t RegisterAudioCallback(webrtc::AudioTransport* audioCallback);
-
-  // Capture control.
-  int16_t RecordingDevices();
-  int32_t RecordingDeviceName(uint16_t index,
-                              char name[webrtc::kAdmMaxDeviceNameSize],
-                              char guid[webrtc::kAdmMaxGuidSize]);
-  int32_t RecordingIsAvailable(bool* available);
-  int32_t InitRecording();
-  bool RecordingIsInitialized() const;
-  int32_t StartRecording();
-  int32_t StopRecording();
-  bool Recording() const;
-  int32_t InitMicrophone();
-  bool MicrophoneIsInitialized() const;
-
-  int32_t MicrophoneVolumeIsAvailable(bool* available);
-  int32_t SetMicrophoneVolume(uint32_t volume);
-  int32_t MicrophoneVolume(uint32_t* volume) const;
-  int32_t MaxMicrophoneVolume(uint32_t* maxVolume) const;
-  int32_t MinMicrophoneVolume(uint32_t* minVolume) const;
-
-  int32_t MicrophoneMuteIsAvailable(bool* available);
-  int32_t SetMicrophoneMute(bool enable);
-  int32_t MicrophoneMute(bool* enabled) const;
-
-  int32_t StereoRecordingIsAvailable(bool* available) const;
-  int32_t SetStereoRecording(bool enable);
-  int32_t StereoRecording(bool* enabled) const;
-
- private:
-  rtc::scoped_refptr<webrtc::AudioDeviceModule> _proxied_adm;
-  rtc::scoped_refptr<OpenALAudioDeviceModule> _adm;
-};
-
-using AudioDeviceModuleInterface = AudioDeviceModule;
-
-// Define proxy for `AudioDeviceModule`.
-BEGIN_PRIMARY_PROXY_MAP(AudioDeviceModule)
+//  Define proxy for `AudioDeviceModule`.
+BEGIN_PRIMARY_PROXY_MAP(ExtendedADM)
 PROXY_PRIMARY_THREAD_DESTRUCTOR()
 PROXY_CONSTMETHOD1(int32_t, ActiveAudioLayer, AudioDeviceModule::AudioLayer*)
 PROXY_METHOD1(int32_t, RegisterAudioCallback, AudioTransport*)
 PROXY_METHOD0(int32_t, Init)
 PROXY_METHOD0(int32_t, Terminate)
 PROXY_CONSTMETHOD0(bool, Initialized)
+PROXY_METHOD1(rtc::scoped_refptr<bridge::LocalAudioSource>,
+              CreateAudioSource,
+              uint32_t)
+PROXY_METHOD1(void, DisposeAudioSource, std::string)
 PROXY_METHOD0(int16_t, PlayoutDevices)
 PROXY_METHOD0(int16_t, RecordingDevices)
 PROXY_METHOD3(int32_t, PlayoutDeviceName, uint16_t, char*, char*)
@@ -152,10 +76,10 @@ PROXY_METHOD1(int32_t, EnableBuiltInAGC, bool)
 PROXY_METHOD1(int32_t, EnableBuiltInNS, bool)
 PROXY_CONSTMETHOD0(int32_t, GetPlayoutUnderrunCount)
 #if defined(WEBRTC_IOS)
-  PROXY_CONSTMETHOD1(int, GetPlayoutAudioParameters, AudioParameters*)
-  PROXY_CONSTMETHOD1(int, GetRecordAudioParameters, AudioParameters*)
+PROXY_CONSTMETHOD1(int, GetPlayoutAudioParameters, AudioParameters*)
+PROXY_CONSTMETHOD1(int, GetRecordAudioParameters, AudioParameters*)
 #endif  // WEBRTC_IOS
-END_PROXY_MAP(AudioDeviceModule)
+END_PROXY_MAP(ExtendedADM)
 }  // namespace webrtc
 
-#endif // BRIDGE_ADM_PROXY_H_
+#endif  // BRIDGE_ADM_PROXY_H_

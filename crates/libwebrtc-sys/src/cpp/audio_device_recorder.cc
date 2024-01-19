@@ -1,18 +1,11 @@
 #include <iostream>
 
 #include <algorithm>
-#include <cfenv>
 #include <chrono>
-#include <cmath>
-#include <thread>
 #include <vector>
-#include "audio_device_recorder.h"
 #include "api/make_ref_counted.h"
-#include "common_audio/wav_file.h"
-#include "modules/audio_device/include/test_audio_device.h"
-#include "rtc_base/checks.h"
+#include "audio_device_recorder.h"
 #include "rtc_base/logging.h"
-#include "rtc_base/platform_thread.h"
 
 namespace recorder {
 
@@ -42,18 +35,19 @@ bool CheckDeviceFailed(ALCdevice* device) {
 
   return false;
 }
-}
+}  // namespace recorder
 
 AudioDeviceRecorder::AudioDeviceRecorder(std::string deviceId) {
-  _device = alcCaptureOpenDevice(
-        deviceId.empty() ? nullptr : deviceId.c_str(),
-        kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
+  _device = alcCaptureOpenDevice(deviceId.empty() ? nullptr : deviceId.c_str(),
+                                 kRecordingFrequency, AL_FORMAT_MONO16,
+                                 kRecordingFrequency);
   _source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
   _deviceId = deviceId;
 }
 
 bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   std::lock_guard<std::recursive_mutex> lk(_mutex);
+
   auto samples = ALint();
   alcGetIntegerv(_device, ALC_CAPTURE_SAMPLES, 1, &samples);
 
@@ -76,39 +70,34 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   }
 
   _emptyRecordingData = 0;
-  alcCaptureSamples(_device, _recordedSamples->data(),
-                    kRecordingPart);
+  alcCaptureSamples(_device, _recordedSamples->data(), kRecordingPart);
 
   if (checkDeviceFailed()) {
     restartRecording();
     return false;
   }
 
-  _source->OnData(
-    _recordedSamples->data(), // audio_data
-    16,
-    kRecordingFrequency, // sample_rate
-    kRecordingChannels,
-    kRecordingFrequency * 10 / 1000
-  );
+  _source->OnData(_recordedSamples->data(),  // audio_data
+                  16,
+                  kRecordingFrequency,  // sample_rate
+                  kRecordingChannels, kRecordingFrequency * 10 / 1000);
 
   return true;
 }
 
 void AudioDeviceRecorder::StopCapture() {
-  {
-    std::lock_guard<std::recursive_mutex> lk(_mutex);
-    if (!_recording) {
-      return;
-    }
+  std::lock_guard<std::recursive_mutex> lk(_mutex);
 
-    _recording = false;
-    if (_recordingFailed) {
-      return;
-    }
-    if (_device) {
-      alcCaptureStop(_device);
-    }
+  if (!_recording) {
+    return;
+  }
+
+  _recording = false;
+  if (_recordingFailed) {
+    return;
+  }
+  if (_device) {
+    alcCaptureStop(_device);
   }
 }
 
@@ -147,11 +136,12 @@ bool AudioDeviceRecorder::checkDeviceFailed() {
 
 bool AudioDeviceRecorder::validateRecordingDeviceId() {
   auto valid = false;
-  recorder::EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER, [&](const char* device) {
-    if (!valid && _deviceId == std::string(device)) {
-      valid = true;
-    }
-  });
+  recorder::EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER,
+                             [&](const char* device) {
+                               if (!valid && _deviceId == std::string(device)) {
+                                 valid = true;
+                               }
+                             });
   if (valid) {
     return true;
   }
@@ -202,12 +192,11 @@ void AudioDeviceRecorder::openRecordingDevice() {
   }
 
   _device = alcCaptureOpenDevice(
-        _deviceId.empty() ? nullptr : _deviceId.c_str(),
-        kRecordingFrequency, AL_FORMAT_MONO16, kRecordingFrequency);
+      _deviceId.empty() ? nullptr : _deviceId.c_str(), kRecordingFrequency,
+      AL_FORMAT_MONO16, kRecordingFrequency);
 
   if (!_device) {
     _recordingFailed = true;
     return;
   }
 }
-
