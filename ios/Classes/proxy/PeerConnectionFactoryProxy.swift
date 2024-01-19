@@ -1,3 +1,4 @@
+import VideoToolbox
 import WebRTC
 
 /// Creator of new `PeerConnectionProxy`s.
@@ -40,6 +41,52 @@ class PeerConnectionFactoryProxy {
     self.peerObservers[id] = peerObserver
 
     return peerProxy
+  }
+
+  /// Returns list containing information about video encoders for the different video codecs.
+  func videoEncoders() -> [VideoCodecInfo] {
+    [
+      VideoCodecInfo(
+        isHardwareAccelerated: false,
+        codec: VideoCodec.VP8
+      ),
+      VideoCodecInfo(
+        isHardwareAccelerated: VTIsHardwareEncodeSupported(kCMVideoCodecType_VP9),
+        kind: VideoCodec.VP9,
+        mymeType: "video/VP9"
+      ),
+      VideoCodecInfo(
+        isHardwareAccelerated: false,
+        codec: VideoCodec.AV1
+      ),
+      VideoCodecInfo(
+        isHardwareAccelerated: VTIsHardwareEncodeSupported(kCMVideoCodecType_H264),
+        kind: VideoCodec.H264,
+        mymeType: "video/H264"
+      ),
+    ]
+  }
+
+  /// Returns list containing information about video encoders for the different video codecs.
+  func audioEncoders() -> [VideoCodecInfo] {
+    [
+      VideoCodecInfo(
+        isHardwareAccelerated: false,
+        codec: VideoCodec.VP8
+      ),
+      VideoCodecInfo(
+        isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9),
+        codec: VideoCodec.VP9
+      ),
+      VideoCodecInfo(
+        isHardwareAccelerated: false,
+        codec: VideoCodec.AV1
+      ),
+      VideoCodecInfo(
+        isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_H264),
+        codec: VideoCodec.H264
+      ),
+    ]
   }
 
   /// Removes the specified [PeerObserver] from the [peerObservers].
