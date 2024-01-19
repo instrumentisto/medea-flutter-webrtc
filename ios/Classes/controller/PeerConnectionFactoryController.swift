@@ -62,7 +62,7 @@ class PeerConnectionFactoryController {
           codec: VideoCodec.VP8
         ),
         VideoCodecInfo(
-          isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9),
+          isHardwareAccelerated: VTIsHardwareEncodeSupported(kCMVideoCodecType_VP9),
           kind: VideoCodec.VP9,
           mymeType: "video/VP9"
         ),
@@ -71,7 +71,7 @@ class PeerConnectionFactoryController {
           codec: VideoCodec.AV1
         ),
         VideoCodecInfo(
-          isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_H264),
+          isHardwareAccelerated: VTIsHardwareEncodeSupported(kCMVideoCodecType_H264),
           kind: VideoCodec.H264,
           mymeType: "video/H264"
         ),
@@ -86,7 +86,7 @@ class PeerConnectionFactoryController {
           codec: VideoCodec.VP8
         ),
         VideoCodecInfo(
-          isHardwareAccelerated: false,
+          isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9),
           codec: VideoCodec.VP9
         ),
         VideoCodecInfo(
@@ -94,7 +94,7 @@ class PeerConnectionFactoryController {
           codec: VideoCodec.AV1
         ),
         VideoCodecInfo(
-          isHardwareAccelerated: true,
+          isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_H264),
           codec: VideoCodec.H264
         ),
       ].map {
