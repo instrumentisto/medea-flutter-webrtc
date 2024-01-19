@@ -300,7 +300,7 @@ impl AudioDeviceModule {
             bail!(
                 "`null` pointer returned from \
                  `webrtc::PeerConnectionFactoryInterface\
-                ::CreateFakeAudioSource()`",
+                  ::CreateFakeAudioSource()`",
             );
         }
         Ok(AudioSourceInterface(ptr))
@@ -322,6 +322,7 @@ impl AudioDeviceModule {
         Ok(AudioSourceInterface(ptr))
     }
 
+    /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
     pub fn dispose_audio_source(&self, device_id: String) {
         webrtc::dispose_audio_source(&self.0, device_id);
     }

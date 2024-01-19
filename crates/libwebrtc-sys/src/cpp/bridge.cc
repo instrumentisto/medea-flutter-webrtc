@@ -324,7 +324,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
   return std::make_unique<VideoTrackSourceInterface>(src);
 }
 
-// Creates new `AudioSource` with provided `AudioDeviceModule`.
+// Creates a new `AudioSource` with the provided `AudioDeviceModule`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
     uint16_t device_index) {
@@ -336,13 +336,13 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
   return std::make_unique<AudioSourceInterface>(src);
 }
 
-// Disposes `AudioSourceInterface` with a provided device ID.
+// Disposes the `AudioSourceInterface` with the provided device ID.
 void dispose_audio_source(const AudioDeviceModule& audio_device_module,
                           rust::String device_id) {
   audio_device_module->DisposeAudioSource(std::string(device_id));
 }
 
-// Creates new fake `AudioSource`.
+// Creates a new fake `AudioSource`.
 std::unique_ptr<AudioSourceInterface> create_fake_audio_source() {
   return std::make_unique<AudioSourceInterface>(
       bridge::LocalAudioSource::Create(cricket::AudioOptions()));

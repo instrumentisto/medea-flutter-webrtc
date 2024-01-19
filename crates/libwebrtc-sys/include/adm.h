@@ -61,11 +61,11 @@
 class ExtendedADM : public webrtc::AudioDeviceModule {
  public:
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
-  // device with the given ID.
+  // device with the provided ID.
   virtual rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
       uint32_t device_index) = 0;
 
-  // Stops the `bridge::LocalAudioSource` for the given device ID.
+  // Stops the `bridge::LocalAudioSource` for the provided device ID.
   virtual void DisposeAudioSource(std::string device_id) = 0;
 };
 
@@ -83,11 +83,11 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   bool Initialized() const override;
 
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
-  // device with the given ID.
+  // device with the provided ID.
   rtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
       uint32_t device_index) override;
 
-  // Stops the `bridge::LocalAudioSource` for the given device ID.
+  // Stops the `bridge::LocalAudioSource` for the provided device ID.
   void DisposeAudioSource(std::string device_id) override;
 
   // Playout control.
@@ -152,7 +152,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
 
   // ----------------
 
-  // Retrieve the currently utilized audio layer
+  // Retrieves the currently utilized audio layer.
   int32_t ActiveAudioLayer(AudioLayer* audioLayer) const override;
 
   int32_t PlayoutIsAvailable(bool* available) override;

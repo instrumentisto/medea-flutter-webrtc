@@ -6,9 +6,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
-use libwebrtc_sys::{
-    self as sys, AudioSourceInterface, OnFrameCallback, TrackEventObserver,
-};
+use libwebrtc_sys::{self as sys, OnFrameCallback, TrackEventObserver};
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
 use once_cell::sync::OnceCell;
 use xxhash::xxh3::xxh3_64;
@@ -770,7 +768,8 @@ impl AudioDeviceModule {
         }
     }
 
-    /// Creates new [`AudioSourceInterface`] based on the provided device index.
+    /// Creates a new [`sys::AudioSourceInterface`] based on the provided
+    /// `device_index`.
     ///
     /// # Errors
     ///
@@ -778,7 +777,7 @@ impl AudioDeviceModule {
     pub fn create_audio_source(
         &mut self,
         device_index: u16,
-    ) -> anyhow::Result<AudioSourceInterface> {
+    ) -> anyhow::Result<sys::AudioSourceInterface> {
         if api::is_fake_media() {
             self.inner.create_fake_audio_source()
         } else {
@@ -1248,7 +1247,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
     }
 }
 
-/// [`sys::AudiosourceInterface`] wrapper.
+/// [`sys::AudioSourceInterface`] wrapper.
 pub struct AudioSource(AudioDeviceId, Arc<sys::AudioSourceInterface>);
 
 /// [`sys::VideoTrackSourceInterface`] wrapper.

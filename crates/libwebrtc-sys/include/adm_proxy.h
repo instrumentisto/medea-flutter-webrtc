@@ -9,7 +9,7 @@ namespace webrtc {
 
 using ExtendedADMInterface = ExtendedADM;
 
-//  Define proxy for `AudioDeviceModule`.
+// Define proxy for `AudioDeviceModule`.
 BEGIN_PRIMARY_PROXY_MAP(ExtendedADM)
 PROXY_PRIMARY_THREAD_DESTRUCTOR()
 PROXY_CONSTMETHOD1(int32_t, ActiveAudioLayer, AudioDeviceModule::AudioLayer*)

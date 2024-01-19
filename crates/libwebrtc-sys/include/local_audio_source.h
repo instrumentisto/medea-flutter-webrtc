@@ -8,13 +8,13 @@
 #include "api/notifier.h"
 #include "api/scoped_refptr.h"
 
-// LocalAudioSource implements AudioSourceInterface.
-// This contains settings for switching audio processing on and off.
 namespace bridge {
 
+// Implementation of an `AudioSourceInterface` with settings for switching audio
+// processing on and off.
 class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
  public:
-  // Creates an instance of LocalAudioSource.
+  // Creates a new `LocalAudioSource`.
   static rtc::scoped_refptr<LocalAudioSource> Create(
       cricket::AudioOptions audio_options);
 

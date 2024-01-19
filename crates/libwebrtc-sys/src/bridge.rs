@@ -2216,7 +2216,7 @@ pub(crate) mod webrtc {
             device_index: u16,
         ) -> UniquePtr<AudioSourceInterface>;
 
-        /// Disposes [`AudioSourceInterface`] with a provided device ID.
+        /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
         pub fn dispose_audio_source(
             audio_device_module: &AudioDeviceModule,
             device_id: String,

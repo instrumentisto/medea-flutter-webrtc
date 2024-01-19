@@ -25,8 +25,8 @@ constexpr auto kBuffersKeepReadyCount = 5;
 constexpr auto kRecordingPart =
     (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
 
-// Implements audio recording from the given audio device and propagates recorded
-// audio data to the `bridge::LocalAudioSource`.
+// Audio recording from an audio device and propagation of the recorded audio
+// data to a `bridge::LocalAudioSource`.
 class AudioDeviceRecorder {
  public:
   AudioDeviceRecorder(std::string deviceId);
@@ -35,14 +35,14 @@ class AudioDeviceRecorder {
   // `bridge::LocalAudioSource`.
   bool ProcessRecordedPart(bool firstInCycle);
 
-  // Stops audio capture freeing captrued device.
+  // Stops audio capture freeing the captured device.
   void StopCapture();
 
-  // Starts recording audio from the device.
+  // Starts recording audio from the captured device.
   void StartCapture();
 
-  // Returns `bridge::LocalAudioSource` that this `AudioDeviceRecorder` writes
-  // recorded audio to.
+  // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
+  // writes the recorded audio to.
   rtc::scoped_refptr<bridge::LocalAudioSource> GetSource();
 
  private:
