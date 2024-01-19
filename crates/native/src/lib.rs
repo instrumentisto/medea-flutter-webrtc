@@ -88,15 +88,11 @@ impl Webrtc {
         let mut signaling_thread = sys::Thread::create(false)?;
         signaling_thread.start()?;
 
-        let audio_device_module = if api::is_fake_media() {
-            AudioDeviceModule::new_fake(&mut task_queue_factory)
-        } else {
-            AudioDeviceModule::new(
-                &mut worker_thread,
-                sys::AudioLayer::kPlatformDefaultAudio,
-                &mut task_queue_factory,
-            )?
-        };
+        let audio_device_module = AudioDeviceModule::new(
+            &mut worker_thread,
+            sys::AudioLayer::kPlatformDefaultAudio,
+            &mut task_queue_factory,
+        )?;
 
         let ap = sys::AudioProcessing::new()?;
         let peer_connection_factory =
