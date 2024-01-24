@@ -24,6 +24,7 @@ import kotlinx.coroutines.CompletableDeferred
 import org.webrtc.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 
 /**
  * Default device video width.
@@ -256,7 +257,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
               audioManager.startBluetoothSco()
             }
             try {
-              bluetoothScoDeferred?.await()
+              withTimeout(50000L) {
+                bluetoothScoDeferred?.await()
+              }
             } catch (e: Exception) {
               selectedAudioOutputId = deviceIdBefore
               audioManager.stopBluetoothSco()
