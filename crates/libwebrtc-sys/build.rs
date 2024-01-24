@@ -37,7 +37,10 @@ fn main() -> anyhow::Result<()> {
     download_libwebrtc()?;
 
     #[cfg(target_os = "macos")]
-    std::env::set_var("MACOSX_DEPLOYMENT_TARGET", 10.11);
+    {
+        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.13");
+        env::set_var("MACOSX_DEPLOYMENT_TARGET", "10.13");
+    }
 
     compile_openal()?;
 
