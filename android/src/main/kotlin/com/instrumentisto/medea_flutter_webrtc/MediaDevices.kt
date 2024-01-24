@@ -21,10 +21,10 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.VideoMediaTrackSource
 import com.instrumentisto.medea_flutter_webrtc.utils.EglUtils
 import java.util.*
 import kotlinx.coroutines.CompletableDeferred
-import org.webrtc.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
+import org.webrtc.*
 
 /**
  * Default device video width.
@@ -94,9 +94,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** [CompletableDeferred] being resolved once Bluetooth SCO request is completed. */
   private var bluetoothScoDeferred: CompletableDeferred<Unit>? = null
 
-  /**
-   * [Mutex] that ensures only one call to [setOutputAudioId] can be executed at a time.
-   */
+  /** [Mutex] that ensures only one call to [setOutputAudioId] can be executed at a time. */
   private var outputMutex: Mutex = Mutex()
 
   companion object {
@@ -257,9 +255,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
               audioManager.startBluetoothSco()
             }
             try {
-              withTimeout(50000L) {
-                bluetoothScoDeferred?.await()
-              }
+              withTimeout(50000L) { bluetoothScoDeferred?.await() }
             } catch (e: Exception) {
               selectedAudioOutputId = deviceIdBefore
               audioManager.stopBluetoothSco()
