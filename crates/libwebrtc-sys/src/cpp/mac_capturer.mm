@@ -38,8 +38,8 @@ AVCaptureDeviceFormat* SelectClosestFormat(AVCaptureDevice* device, size_t width
   int currentDiff = INT_MAX;
   for (AVCaptureDeviceFormat* format in formats) {
     CMVideoDimensions dimension = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
-    int diff = std::abs((int64_t)width - dimension.width) +
-               std::abs((int64_t)height - dimension.height);
+    int diff =
+        std::abs((int64_t)width - dimension.width) + std::abs((int64_t)height - dimension.height);
     if (diff < currentDiff) {
       selectedFormat = format;
       currentDiff = diff;
@@ -76,8 +76,20 @@ rtc::scoped_refptr<MacCapturer> MacCapturer::Create(size_t width,
                                                     size_t height,
                                                     size_t target_fps,
                                                     uint32_t capture_device_index) {
-  AVCaptureDevice* device =
-      [[RTCCameraVideoCapturer captureDevices] objectAtIndex:capture_device_index];
+  NSArray<AVCaptureDevice*>* devices;
+  if (@available(macOS 10.15, *)) {
+    AVCaptureDeviceDiscoverySession* discoverySession = [AVCaptureDeviceDiscoverySession
+        discoverySessionWithDeviceTypes:@[
+          AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeExternalUnknown
+        ]
+                              mediaType:AVMediaTypeVideo
+                               position:AVCaptureDevicePositionUnspecified];
+    devices = discoverySession.devices;
+  } else {
+    devices = [RTCCameraVideoCapturer captureDevices];
+  }
+
+  AVCaptureDevice* device = [devices objectAtIndex:capture_device_index];
   if (!device) {
     RTC_LOG(LS_ERROR) << "Failed to create MacCapture";
     return nullptr;

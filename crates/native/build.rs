@@ -39,7 +39,8 @@ fn main() -> anyhow::Result<()> {
 #[cfg(target_os = "macos")]
 /// Emits all the required `rustc-link-lib` instructions.
 fn link_libs() {
-    println!("cargo:rustc-link-lib=framework=AVFoundation");
+    println!("cargo:rustc-link-arg=-weak_framework");
+    println!("cargo:rustc-link-arg=AVFoundation");
     if let Some(path) = macos_link_search_path() {
         println!("cargo:rustc-link-lib=clang_rt.osx");
         println!("cargo:rustc-link-search={path}");

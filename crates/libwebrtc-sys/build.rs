@@ -27,6 +27,13 @@ static LIBWEBRTC_URL: &str =
 fn main() -> anyhow::Result<()> {
     download_libwebrtc()?;
 
+    #[cfg(target_os = "macos")]
+    {
+        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.13");
+        env::set_var("MACOSX_DEPLOYMENT_TARGET", "10.13");
+        // println!("cargo:rustc-link-arg=-Wl,-undefined,dynamic_lookup");
+    }
+
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let libpath = libpath()?;
     let cpp_files = get_cpp_files()?;
@@ -302,7 +309,8 @@ fn link_libs() -> anyhow::Result<()> {
             "AppKit",
             "System",
         ] {
-            println!("cargo:rustc-link-lib=framework={framework}");
+            println!("cargo:rustc-link-arg=-weak_framework");
+            println!("cargo:rustc-link-arg={framework}");
         }
         if let Some(path) = macos_link_search_path() {
             println!("cargo:rustc-link-lib=clang_rt.osx");
