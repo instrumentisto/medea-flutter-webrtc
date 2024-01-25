@@ -100,6 +100,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** [CompletableDeferred] being resolved once Bluetooth SCO is completely stopped. */
   private var stopBluetoothScoDeferred: CompletableDeferred<Unit>? = null
 
+  /** Indicates whether bluetooth SCO is connected. */
   private var scoAudioStateConnected: Boolean = false
 
   companion object {
@@ -217,20 +218,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   /**
-   * Cancels Bluetooth SCO request.
-   *
-   * Throws [GetUserMediaException] from [setOutputAudioId] for enabling Bluetooth SCO (if
-   * [MediaDevices] has ongoing request).
-   */
-  private fun cancelBluetoothSco() {
-    bluetoothScoDeferred?.completeExceptionally(
-        GetUserMediaException(
-            "Bluetooth headset connection request was cancelled", GetUserMediaException.Kind.Audio))
-    audioManager.stopBluetoothSco()
-    audioManager.isBluetoothScoOn = false
-  }
-
-  /**
    * Stops Bluetooth SCO.
    *
    * Throws [GetUserMediaException] from [setOutputAudioId] for enabling Bluetooth SCO (if
@@ -284,21 +271,18 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
               audioManager.startBluetoothSco()
             }
             try {
-              withTimeout(5000L) { bluetoothScoDeferred?.await() }
+              withTimeout(10000L) { bluetoothScoDeferred?.await() }
             } catch (e: Exception) {
-              Log.e("setOutputAudioId", "3 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
               selectedAudioOutputId = deviceIdBefore
               audioManager.stopBluetoothSco()
               isBluetoothScoFailed = true
               throw e
             }
           } else {
-            Log.e("setOutputAudioId", "4 BLUETOOTH_HEADSET_DEVICE_ID EEE ${deviceId}")
             throw IllegalArgumentException("Unknown output device: $deviceId")
           }
         }
         else -> {
-          Log.e("setOutputAudioId", "5 BLUETOOTH_HEADSET_DEVICE_ID EEE ${deviceId}")
           throw IllegalArgumentException("Unknown output device: $deviceId")
         }
       }
@@ -359,7 +343,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     try {
       permissions.requestPermission(Manifest.permission.CAMERA)
     } catch (e: PermissionException) {
-      Log.e("setOutputAudioId", "1 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
       throw GetUserMediaException(
           "Camera permission was not granted", GetUserMediaException.Kind.Video)
     }
@@ -467,7 +450,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     try {
       permissions.requestPermission(Manifest.permission.RECORD_AUDIO)
     } catch (e: PermissionException) {
-      Log.e("setOutputAudioId", "2 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
       throw GetUserMediaException(
           "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
     }
@@ -477,7 +459,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
-    Log.e("setOutputAudioId", "onReceive ${intent}")
     if (intent?.action != null) {
       if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent.action) {
         val state =
