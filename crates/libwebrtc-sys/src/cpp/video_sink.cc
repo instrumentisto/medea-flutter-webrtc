@@ -10,7 +10,7 @@ ForwardingVideoSink::ForwardingVideoSink(
 
 // Propagates the received `VideoFrame` to the Rust side.
 void ForwardingVideoSink::OnFrame(const webrtc::VideoFrame& video_frame) {
-  bridge::on_frame(*cb_.value(),
+  bridge::on_frame(**cb_,
                    std::make_unique<webrtc::VideoFrame>(video_frame));
 }
 
