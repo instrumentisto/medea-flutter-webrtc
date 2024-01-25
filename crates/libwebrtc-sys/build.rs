@@ -30,13 +30,18 @@ static OPENAL_URL: &str =
     "https://github.com/kcat/openal-soft/archive/refs/tags/1.23.1";
 
 fn main() -> anyhow::Result<()> {
-    #[cfg(target_os = "macos")]
-    println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.11");
     let lib_dir = libpath()?;
     if lib_dir.exists() {
         fs::create_dir_all(&lib_dir)?;
     }
     download_libwebrtc()?;
+
+    #[cfg(target_os = "macos")]
+    {
+        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.13");
+        env::set_var("MACOSX_DEPLOYMENT_TARGET", "10.13");
+    }
+
     compile_openal()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);

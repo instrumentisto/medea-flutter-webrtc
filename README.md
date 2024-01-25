@@ -16,7 +16,7 @@ Initially, represented a fork of the [Flutter-WebRTC] plugin, but at the moment,
 
 ## Supported platforms
 
-- [macOS] 10.11+
+- [macOS] 10.13+
 - [Linux] (with [PulseAudio] and [X11] for screen sharing)
 - [Windows] 7+
 - [Android] 24+
