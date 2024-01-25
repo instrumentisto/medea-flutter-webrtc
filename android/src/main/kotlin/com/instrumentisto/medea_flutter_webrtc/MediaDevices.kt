@@ -97,6 +97,9 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** [Mutex] that ensures only one call to [setOutputAudioId] can be executed at a time. */
   private var outputMutex: Mutex = Mutex()
 
+  /** [CompletableDeferred] being resolved once Bluetooth SCO is completely stopped. */
+  private var stopBluetoothScoDeferred: CompletableDeferred<Unit>? = null
+
   companion object {
     /** Observer of [MediaDevices] events. */
     interface EventObserver {
@@ -226,6 +229,23 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   /**
+   * Stops Bluetooth SCO.
+   *
+   * Throws [GetUserMediaException] from [setOutputAudioId] for enabling Bluetooth SCO (if
+   * [MediaDevices] has ongoing request).
+   */
+  private suspend fun stopBluetoothSco() {
+    stopBluetoothScoDeferred = CompletableDeferred()
+    audioManager.stopBluetoothSco()
+    stopBluetoothScoDeferred?.await()
+    audioManager.isBluetoothScoOn = false
+    bluetoothScoDeferred?.completeExceptionally(
+        GetUserMediaException(
+            "Bluetooth headset connection request was cancelled", GetUserMediaException.Kind.Audio))
+    bluetoothScoDeferred = null
+   }
+
+  /**
    * Switches the current output audio device to the device with the provided identifier.
    *
    * @param deviceId Identifier for the output audio device to be selected.
@@ -235,38 +255,44 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       val audioManager = state.getAudioManager()
       when (deviceId) {
         EAR_SPEAKER_DEVICE_ID -> {
-          cancelBluetoothSco()
+          stopBluetoothSco()
           audioManager.isSpeakerphoneOn = false
         }
         SPEAKERPHONE_DEVICE_ID -> {
-          cancelBluetoothSco()
+          stopBluetoothSco()
           audioManager.isSpeakerphoneOn = true
         }
         BLUETOOTH_HEADSET_DEVICE_ID -> {
+          if (audioManager.isBluetoothScoOn) {
+            return;
+          }
           val deviceIdBefore = selectedAudioOutputId
           selectedAudioOutputId = deviceId
           if (isBluetoothHeadsetConnected) {
-            if (bluetoothScoDeferred == null) {
+            // if (bluetoothScoDeferred == null) {
               isBluetoothScoFailed = false
               Log.d(
                   "FlutterWebRtcDebug",
                   "Bluetooth headset was selected. Trying to start Bluetooth SCO...")
               bluetoothScoDeferred = CompletableDeferred()
               audioManager.startBluetoothSco()
-            }
+            // }
             try {
-              withTimeout(50000L) { bluetoothScoDeferred?.await() }
+              withTimeout(5000L) { bluetoothScoDeferred?.await() }
             } catch (e: Exception) {
+              Log.e("setOutputAudioId", "3 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
               selectedAudioOutputId = deviceIdBefore
               audioManager.stopBluetoothSco()
               isBluetoothScoFailed = true
               throw e
             }
           } else {
+              Log.e("setOutputAudioId", "4 BLUETOOTH_HEADSET_DEVICE_ID EEE ${deviceId}")
             throw IllegalArgumentException("Unknown output device: $deviceId")
           }
         }
         else -> {
+          Log.e("setOutputAudioId", "5 BLUETOOTH_HEADSET_DEVICE_ID EEE ${deviceId}")
           throw IllegalArgumentException("Unknown output device: $deviceId")
         }
       }
@@ -327,6 +353,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     try {
       permissions.requestPermission(Manifest.permission.CAMERA)
     } catch (e: PermissionException) {
+      Log.e("setOutputAudioId", "1 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
       throw GetUserMediaException(
           "Camera permission was not granted", GetUserMediaException.Kind.Video)
     }
@@ -434,6 +461,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     try {
       permissions.requestPermission(Manifest.permission.RECORD_AUDIO)
     } catch (e: PermissionException) {
+      Log.e("setOutputAudioId", "2 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
       throw GetUserMediaException(
           "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
     }
@@ -461,6 +489,8 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             AudioManager.SCO_AUDIO_STATE_DISCONNECTED -> {
               Log.d("FlutterWebRtcDebug", "SCO disconnected")
               isBluetoothScoFailed = true
+              stopBluetoothScoDeferred?.complete(Unit)
+              stopBluetoothScoDeferred = null
               bluetoothScoDeferred?.completeExceptionally(
                   GetUserMediaException(
                       "Bluetooth headset is unavailable at this moment",
