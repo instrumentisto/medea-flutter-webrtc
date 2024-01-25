@@ -95,7 +95,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   private var bluetoothScoDeferred: CompletableDeferred<Unit>? = null
 
   /** [Mutex] that ensures only one call to [setOutputAudioId] can be executed at a time. */
-  private var outputMutex: Mutex = Mutex()
+  private var setOutputAudioMutex: Mutex = Mutex()
 
   /** [CompletableDeferred] being resolved once Bluetooth SCO is completely stopped. */
   private var stopBluetoothScoDeferred: CompletableDeferred<Unit>? = null
@@ -240,7 +240,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
    * @param deviceId Identifier for the output audio device to be selected.
    */
   suspend fun setOutputAudioId(deviceId: String) {
-    outputMutex.withLock {
+    setOutputAudioMutex.withLock {
       val audioManager = state.getAudioManager()
       when (deviceId) {
         EAR_SPEAKER_DEVICE_ID -> {
