@@ -263,22 +263,19 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
           audioManager.isSpeakerphoneOn = true
         }
         BLUETOOTH_HEADSET_DEVICE_ID -> {
-          if (audioManager.isBluetoothScoOn) {
-            return;
-          }
           val deviceIdBefore = selectedAudioOutputId
           selectedAudioOutputId = deviceId
           if (isBluetoothHeadsetConnected) {
-            // if (bluetoothScoDeferred == null) {
+            if (bluetoothScoDeferred == null) {
               isBluetoothScoFailed = false
               Log.d(
                   "FlutterWebRtcDebug",
                   "Bluetooth headset was selected. Trying to start Bluetooth SCO...")
               bluetoothScoDeferred = CompletableDeferred()
               audioManager.startBluetoothSco()
-            // }
+            }
             try {
-              withTimeout(5000L) { bluetoothScoDeferred?.await() }
+              bluetoothScoDeferred?.await()
             } catch (e: Exception) {
               Log.e("setOutputAudioId", "3 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
               selectedAudioOutputId = deviceIdBefore
