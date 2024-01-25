@@ -39,7 +39,13 @@ fn main() -> anyhow::Result<()> {
 #[cfg(target_os = "macos")]
 /// Emits all the required `rustc-link-lib` instructions.
 fn link_libs() {
-    println!("cargo:rustc-link-lib=framework=AVFoundation");
+    // AVFoundation framework needs to be weakly linked due to the usage of
+    // new APIs in libwebrtc-sys that are not available on older systems. If
+    // AVFoundation is linked strongly, dyld on application start may crash
+    // the application because it cannot link the new API symbols on the
+    // older MacOS system.
+    println!("cargo:rustc-link-arg=-weak_framework");
+    println!("cargo:rustc-link-arg=AVFoundation");
     if let Some(path) = macos_link_search_path() {
         println!("cargo:rustc-link-lib=clang_rt.osx");
         println!("cargo:rustc-link-search={path}");
