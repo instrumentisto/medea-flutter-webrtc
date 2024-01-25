@@ -100,6 +100,8 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** [CompletableDeferred] being resolved once Bluetooth SCO is completely stopped. */
   private var stopBluetoothScoDeferred: CompletableDeferred<Unit>? = null
 
+  private var scoAudioStateConnected: Boolean = false
+
   companion object {
     /** Observer of [MediaDevices] events. */
     interface EventObserver {
@@ -255,14 +257,21 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
       val audioManager = state.getAudioManager()
       when (deviceId) {
         EAR_SPEAKER_DEVICE_ID -> {
-          stopBluetoothSco()
+          if (scoAudioStateConnected) {
+            stopBluetoothSco()
+          }
           audioManager.isSpeakerphoneOn = false
         }
         SPEAKERPHONE_DEVICE_ID -> {
-          stopBluetoothSco()
+          if (scoAudioStateConnected) {
+            stopBluetoothSco()
+          }
           audioManager.isSpeakerphoneOn = true
         }
         BLUETOOTH_HEADSET_DEVICE_ID -> {
+          if (scoAudioStateConnected) {
+            return
+          }
           val deviceIdBefore = selectedAudioOutputId
           selectedAudioOutputId = deviceId
           if (isBluetoothHeadsetConnected) {
@@ -275,7 +284,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
               audioManager.startBluetoothSco()
             }
             try {
-              bluetoothScoDeferred?.await()
+              withTimeout(5000L) { bluetoothScoDeferred?.await() }
             } catch (e: Exception) {
               Log.e("setOutputAudioId", "3 BLUETOOTH_HEADSET_DEVICE_ID EEE ${e}")
               selectedAudioOutputId = deviceIdBefore
@@ -468,15 +477,16 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   override fun onReceive(ctx: Context?, intent: Intent?) {
+    Log.e("setOutputAudioId", "onReceive ${intent}")
     if (intent?.action != null) {
       if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent.action) {
         val state =
             intent.getIntExtra(
                 AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_DISCONNECTED)
-        if (selectedAudioOutputId == BLUETOOTH_HEADSET_DEVICE_ID) {
           when (state) {
             AudioManager.SCO_AUDIO_STATE_CONNECTED -> {
               Log.d("FlutterWebRtcDebug", "SCO connected")
+              scoAudioStateConnected = true
               isBluetoothScoFailed = false
               bluetoothScoDeferred?.complete(Unit)
               bluetoothScoDeferred = null
@@ -485,6 +495,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
             }
             AudioManager.SCO_AUDIO_STATE_DISCONNECTED -> {
               Log.d("FlutterWebRtcDebug", "SCO disconnected")
+              scoAudioStateConnected = false
               isBluetoothScoFailed = true
               stopBluetoothScoDeferred?.complete(Unit)
               stopBluetoothScoDeferred = null
@@ -496,7 +507,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
               Handler(Looper.getMainLooper()).post { eventBroadcaster().onDeviceChange() }
             }
           }
-        }
       }
     }
   }
