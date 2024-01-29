@@ -49,8 +49,8 @@ class State {
 
   /// Initializes a new `State`.
   init() {
-    let decoderFactory = RTCDefaultVideoDecoderFactory()
-    let encoderFactory = RTCDefaultVideoEncoderFactory()
+    let decoderFactory = MedeaVideoDecoderFactory()
+    let encoderFactory = MedeaVideoEncoderFactory()
     self.factory = RTCPeerConnectionFactory(
       encoderFactory: encoderFactory, decoderFactory: decoderFactory
     )
