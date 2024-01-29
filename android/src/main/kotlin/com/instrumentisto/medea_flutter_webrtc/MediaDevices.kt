@@ -94,13 +94,13 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** [CompletableDeferred] being resolved once Bluetooth SCO request is completed. */
   private var bluetoothScoDeferred: CompletableDeferred<Unit>? = null
 
-  /** [Mutex] that ensures only one call to [setOutputAudioId] can be executed at a time. */
+  /** [Mutex] ensuring only one call to [setOutputAudioId] can be executed at the time. */
   private var setOutputAudioMutex: Mutex = Mutex()
 
   /** [CompletableDeferred] being resolved once Bluetooth SCO is completely stopped. */
   private var stopBluetoothScoDeferred: CompletableDeferred<Unit>? = null
 
-  /** Indicates whether bluetooth SCO is connected. */
+  /** Indicator whether bluetooth SCO is connected. */
   private var scoAudioStateConnected: Boolean = false
 
   companion object {
