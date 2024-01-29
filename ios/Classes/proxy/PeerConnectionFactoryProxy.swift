@@ -59,13 +59,13 @@ class PeerConnectionFactoryProxy {
         codec: VideoCodec.AV1
       ),
       VideoCodecInfo(
-        isHardwareAccelerated: true,
+        isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_H264),
         codec: VideoCodec.H264
       ),
     ]
   }
 
-  /// Returns list containing information about video encoders for the different video codecs.
+  /// Returns list containing information about video decoders for the different video codecs.
   func videoDecoders() -> [VideoCodecInfo] {
     [
       VideoCodecInfo(
