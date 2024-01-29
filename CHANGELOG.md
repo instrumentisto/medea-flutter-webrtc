@@ -13,7 +13,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` methods enumerating available video codecs and their capability of hardware acceleration. ([#144])
+- `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` methods enumerating available video codecs and their capability of hardware acceleration. ([#144], [#148])
 - Support for multiple input audio devices usage at one time on desktop platforms. ([#145])
 
 ### Fixed
@@ -29,6 +29,7 @@ All user visible changes to this project will be documented in this file. This p
 [#144]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/144
 [#145]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/145
 [#146]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/146
+[#148]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/148
 
 
 
