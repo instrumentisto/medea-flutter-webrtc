@@ -26,6 +26,7 @@ class MedeaVideoDecoderFactory: NSObject, RTCVideoDecoderFactory {
     return [
       constrainedHighInfo,
       constrainedBaselineInfo,
+      vp8Info,
     ]
   }
 

@@ -59,7 +59,7 @@ class PeerConnectionFactoryProxy {
         codec: VideoCodec.AV1
       ),
       VideoCodecInfo(
-        isHardwareAccelerated: false,
+        isHardwareAccelerated: true,
         codec: VideoCodec.H264
       ),
     ]
@@ -73,7 +73,7 @@ class PeerConnectionFactoryProxy {
         codec: VideoCodec.VP8
       ),
       VideoCodecInfo(
-        isHardwareAccelerated: VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9),
+        isHardwareAccelerated: false,
         codec: VideoCodec.VP9
       ),
       VideoCodecInfo(
