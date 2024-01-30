@@ -6,8 +6,12 @@ AudioSourceOnVolumeChangeObserver::AudioSourceOnVolumeChangeObserver(
     rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb)
     : cb_(std::move(cb)){};
 
-void AudioSourceOnVolumeChangeObserver::VolumeChanged(float volume) {
-  // TODO
+float calculate_audio_level(int16_t* data, int size) {
+  double sum = 0.0;
+  for (int i = 0; i<size; ++i) {
+    sum += data[i] * data[i];
+  }
+  return std::sqrt(sum / size) / INT16_MAX;
 }
 
 rtc::scoped_refptr<LocalAudioSource> LocalAudioSource::Create(
@@ -37,6 +41,10 @@ void LocalAudioSource::OnData(const void* audio_data,
   std::lock_guard<std::recursive_mutex> lk(sink_lock_);
 
   for (auto* sink : sinks_) {
+    auto volume = calculate_audio_level((int16_t*) audio_data, number_of_channels * sample_rate / 100);
+    if ((*observer_) != nullptr) {
+      (*observer_)->VolumeChanged(volume);
+    }
     sink->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels,
                  number_of_frames);
   }

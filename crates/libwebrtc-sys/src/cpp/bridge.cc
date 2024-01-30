@@ -41,6 +41,10 @@ void TrackEventObserver::OnChanged() {
   }
 }
 
+void AudioSourceOnVolumeChangeObserver::VolumeChanged(float volume) {
+  bridge::on_volume_change(*cb_, volume);
+}
+
 // Sets the inner `MediaStreamTrackInterface`.
 void TrackEventObserver::set_track(
     rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track) {
