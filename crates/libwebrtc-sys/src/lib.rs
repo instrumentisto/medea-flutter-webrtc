@@ -198,14 +198,6 @@ impl TaskQueueFactory {
 unsafe impl Send for webrtc::TaskQueueFactory {}
 unsafe impl Sync for webrtc::TaskQueueFactory {}
 
-            struct AudioSourceVolumeHandler;
-
-            impl AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
-                fn on_volume_change(&mut self, volume: f32) {
-                    println!("Volume update: {}", volume);
-                }
-            }
-
 /// Available audio devices manager that is responsible for driving input
 /// (microphone) and output (speaker) audio in WebRTC.
 ///
@@ -332,12 +324,7 @@ impl AudioDeviceModule {
                  `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`",
             );
         }
-        let source = AudioSourceInterface(ptr);
-        let mut observer = AudioSourceVolumeObserver::new(Box::new(AudioSourceVolumeHandler));
-        observer.register(&source);
-        mem::forget(observer);
-
-        Ok(source)
+        Ok(AudioSourceInterface(ptr))
     }
 
     /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
@@ -1815,8 +1802,10 @@ unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
 impl AudioSourceInterface {
-    pub fn subscribe_on_volume(&self, ) {
-        // TODO(evdokimovs): Implement subscription
+    pub fn subscribe_on_volume(&self, cb: Box<dyn AudioSourceOnVolumeChangeCallback>) -> AudioSourceVolumeObserver {
+        let mut observer = AudioSourceVolumeObserver::new(cb);
+        observer.register(&self);
+        observer
     }
 }
 

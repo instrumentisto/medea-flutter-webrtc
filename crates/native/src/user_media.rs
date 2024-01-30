@@ -1,8 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
-    hash::Hash,
-    sync::{Arc, RwLock, Weak},
-    sync::mpsc,
+    collections::{HashMap, HashSet}, hash::Hash, mem, sync::mpsc, sync::{Arc, RwLock, Weak}
 };
 
 use anyhow::{anyhow, bail, Context};
@@ -10,6 +7,7 @@ use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys::{self as sys, OnFrameCallback, TrackEventObserver};
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
 use once_cell::sync::OnceCell;
+use sys::AudioSourceVolumeObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
@@ -250,12 +248,13 @@ impl Webrtc {
         device_id: AudioDeviceId,
         source: Arc<sys::AudioSourceInterface>,
     ) -> anyhow::Result<api::MediaStreamTrack> {
-        let track = AudioTrack::new(
+        let mut track = AudioTrack::new(
             &self.peer_connection_factory,
             device_id,
             source,
             TrackOrigin::Local,
         )?;
+        track.subscribe_to_volume();
 
         let api_track = api::MediaStreamTrack::from(&track);
 
@@ -1164,6 +1163,16 @@ pub struct AudioTrack {
 
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
+
+    volume_observer: Option<AudioSourceVolumeObserver>,
+}
+
+struct AudioSourceVolumeHandler;
+
+impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
+    fn on_volume_change(&mut self, volume: f32) {
+        println!("Volume update: {}", volume);
+    }
 }
 
 impl AudioTrack {
@@ -1188,7 +1197,19 @@ impl AudioTrack {
             device_id,
             senders: HashMap::new(),
             track_origin,
+            volume_observer: None,
         })
+    }
+
+    pub fn subscribe_to_volume(&mut self) {
+        match &self.source {
+            MediaTrackSource::Local(src) => {
+                let cb = Box::new(AudioSourceVolumeHandler);
+                let observer = src.subscribe_on_volume(cb);
+                self.volume_observer = Some(observer);
+            }
+            _ => ()
+        }
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into an
@@ -1212,6 +1233,7 @@ impl AudioTrack {
             device_id: AudioDeviceId::from("remote"),
             senders: HashMap::new(),
             track_origin: TrackOrigin::Remote(peer.id()),
+            volume_observer: None,
         }
     }
 
@@ -1332,13 +1354,5 @@ struct TrackEventHandler(StreamSink<api::TrackEvent>);
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {
         self.0.add(api::TrackEvent::Ended);
-    }
-}
-
-struct AudioSourceVolumeHandler;
-
-impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
-    fn on_volume_change(&mut self, volume: f32) {
-        log::error!("Volume update: {}", volume);
     }
 }
