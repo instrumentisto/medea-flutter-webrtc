@@ -2,6 +2,7 @@ use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
     sync::{Arc, RwLock, Weak},
+    sync::mpsc,
 };
 
 use anyhow::{anyhow, bail, Context};
@@ -1244,6 +1245,14 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
                 TrackOrigin::Remote(peer_id) => Some(peer_id.into()),
             },
         }
+    }
+}
+
+pub struct AudioSourceVolumeCb(mpsc::Sender<f32>);
+
+impl AudioSourceVolumeCb {
+    pub fn update_volume(&mut self, volume: f32) {
+        self.0.send(volume);
     }
 }
 

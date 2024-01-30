@@ -36,6 +36,16 @@
 
 namespace bridge {
 
+struct DynAudioSourceOnVolumeChangeCallback;
+
+class AudioSourceOnVolumeChangeObserver {
+  public:
+  AudioSourceOnVolumeChangeObserver(rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb);
+
+  private:
+    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb_;
+};
+
 struct DynTrackEventCallback;
 
 // `TrackEventObserver` propagating track events to the Rust side.
@@ -490,9 +500,15 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 std::unique_ptr<TrackEventObserver> create_track_event_observer(
     rust::Box<bridge::DynTrackEventCallback> cb);
 
+std::unique_ptr<AudioSourceOnVolumeChangeObserver> create_audio_source_on_volume_change_observer(
+    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb);
+
 // Changes the `track` member of the provided `TrackEventObserver`.
 void set_track_observer_video_track(TrackEventObserver& obs,
                                     const VideoTrackInterface& track);
+
+void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& obs,
+                                    const AudioSourceInterface& audio_source);
 
 // Changes the `track` member of the provided `TrackEventObserver`.
 void set_track_observer_audio_track(TrackEventObserver& obs,

@@ -8,7 +8,7 @@ use crate::{
     AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
     OnFrameCallback, PeerConnectionEventsHandler, RTCStatsCollectorCallback,
     RtpReceiverInterface, RtpTransceiverInterface, SetDescriptionCallback,
-    TrackEventCallback,
+    TrackEventCallback, AudioSourceOnVolumeChangeCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -31,6 +31,8 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
+
+type DynAudioSourceOnVolumeChangeCallback = Box<dyn AudioSourceOnVolumeChangeCallback>;
 
 /// [`Option`]`<`[`i32`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
@@ -2178,6 +2180,7 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         pub type RtcpParameters;
         pub type TrackEventObserver;
+        pub type AudioSourceOnVolumeChangeObserver;
 
         /// Creates a new [`VideoTrackSourceInterface`] sourced by a video input
         /// device with provided `device_index`.
@@ -2220,6 +2223,12 @@ pub(crate) mod webrtc {
         pub fn dispose_audio_source(
             audio_device_module: &AudioDeviceModule,
             device_id: String,
+        );
+
+        /// Changes the `track` member of the provided [`TrackEventObserver`].
+        pub fn audio_source_register_volume_observer(
+            obs: Pin<&mut AudioSourceOnVolumeChangeObserver>,
+            audio_source: &AudioSourceInterface,
         );
 
         /// Creates a new fake [`AudioSourceInterface`].
@@ -2443,6 +2452,10 @@ pub(crate) mod webrtc {
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
+        pub fn create_audio_source_on_volume_change_observer(
+            cb: Box<DynAudioSourceOnVolumeChangeCallback>,
+        ) -> UniquePtr<AudioSourceOnVolumeChangeObserver>;
+
         /// Changes the `track` member of the provided [`TrackEventObserver`].
         pub fn set_track_observer_video_track(
             obs: Pin<&mut TrackEventObserver>,
@@ -2514,6 +2527,12 @@ pub(crate) mod webrtc {
         ///
         /// [1]: https://tinyurl.com/w3-streams#event-mediastreamtrack-ended
         fn on_ended(cb: &mut DynTrackEventCallback);
+    }
+
+    extern "Rust" {
+        pub type DynAudioSourceOnVolumeChangeCallback;
+
+        fn on_volume_change(cb: &mut DynAudioSourceOnVolumeChangeCallback, volume: f32);
     }
 
     extern "Rust" {
@@ -2883,6 +2902,10 @@ pub fn on_remove_track(
 /// [1]: https://w3.org/TR/mediacapture-streams#event-mediastreamtrack-ended
 pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
+}
+
+pub fn on_volume_change(cb: &mut DynAudioSourceOnVolumeChangeCallback, volume: f32) {
+    cb.on_volume_change(volume);
 }
 
 /// Creates a new [`StringPair`].

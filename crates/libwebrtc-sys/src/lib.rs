@@ -30,6 +30,10 @@ pub trait TrackEventCallback {
     fn on_ended(&mut self);
 }
 
+pub trait AudioSourceOnVolumeChangeCallback {
+    fn on_volume_change(&mut self, volume: f32);
+}
+
 /// Completion callback for a [`CreateSessionDescriptionObserver`], used to call
 /// [`PeerConnectionInterface::create_offer()`] and
 /// [`PeerConnectionInterface::create_answer()`].
