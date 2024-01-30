@@ -7,8 +7,20 @@
 #include "api/media_stream_interface.h"
 #include "api/notifier.h"
 #include "api/scoped_refptr.h"
+#include "rust/cxx.h"
 
 namespace bridge {
+
+struct DynAudioSourceOnVolumeChangeCallback;
+
+class AudioSourceOnVolumeChangeObserver {
+  public:
+  AudioSourceOnVolumeChangeObserver(rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb);
+  void VolumeChanged(float volume);
+
+  private:
+    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb_;
+};
 
 // Implementation of an `AudioSourceInterface` with settings for switching audio
 // processing on and off.
@@ -32,6 +44,8 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
               size_t number_of_channels,
               size_t number_of_frames);
 
+  void RegisterVolumeObserver(AudioSourceOnVolumeChangeObserver* obs);
+
  protected:
   LocalAudioSource() {}
   ~LocalAudioSource() override {}
@@ -40,6 +54,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   cricket::AudioOptions _options;
   std::recursive_mutex sink_lock_;
   std::list<webrtc::AudioTrackSinkInterface*> sinks_;
+  std::optional<AudioSourceOnVolumeChangeObserver*> observer_;
 };
 
 }  // namespace bridge

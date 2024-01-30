@@ -2,6 +2,14 @@
 
 namespace bridge {
 
+AudioSourceOnVolumeChangeObserver::AudioSourceOnVolumeChangeObserver(
+    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb)
+    : cb_(std::move(cb)){};
+
+void AudioSourceOnVolumeChangeObserver::VolumeChanged(float volume) {
+  // TODO
+}
+
 rtc::scoped_refptr<LocalAudioSource> LocalAudioSource::Create(
     cricket::AudioOptions audio_options) {
   auto source = rtc::make_ref_counted<LocalAudioSource>();
@@ -32,6 +40,10 @@ void LocalAudioSource::OnData(const void* audio_data,
     sink->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels,
                  number_of_frames);
   }
+}
+
+void LocalAudioSource::RegisterVolumeObserver(AudioSourceOnVolumeChangeObserver* obs) {
+  observer_ = obs;
 }
 
 }  // namespace bridge

@@ -26,11 +26,6 @@
 namespace bridge {
 
 // Creates a new `TrackEventObserver`.
-AudioSourceOnVolumeChangeObserver::AudioSourceOnVolumeChangeObserver(
-    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb)
-    : cb_(std::move(cb)){};
-
-// Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
     rust::Box<bridge::DynTrackEventCallback> cb)
     : cb_(std::move(cb)){};
@@ -804,8 +799,10 @@ void set_track_observer_audio_track(TrackEventObserver& obs,
 
 void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& obs,
                                     const AudioSourceInterface& audio_source) {
-  // TODO(evdokimovs): Implement it
-  // audio_source->RegisterVolumeObserver(&obs);
+  LocalAudioSource* local_audio_source = dynamic_cast<LocalAudioSource*>(audio_source.get());
+  if (local_audio_source) {
+    local_audio_source->RegisterVolumeObserver(&obs);
+  }
 }
 
 // Calls `VideoTrackInterface->RegisterObserver`.

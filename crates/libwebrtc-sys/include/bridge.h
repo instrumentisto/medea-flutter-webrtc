@@ -36,16 +36,6 @@
 
 namespace bridge {
 
-struct DynAudioSourceOnVolumeChangeCallback;
-
-class AudioSourceOnVolumeChangeObserver {
-  public:
-  AudioSourceOnVolumeChangeObserver(rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb);
-
-  private:
-    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb_;
-};
-
 struct DynTrackEventCallback;
 
 // `TrackEventObserver` propagating track events to the Rust side.
