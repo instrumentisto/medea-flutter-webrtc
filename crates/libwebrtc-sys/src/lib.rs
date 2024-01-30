@@ -6,6 +6,7 @@ mod bridge;
 use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
+use bridge::webrtc::AudioSourceOnVolumeChangeObserver;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::From;
 
@@ -197,6 +198,14 @@ impl TaskQueueFactory {
 unsafe impl Send for webrtc::TaskQueueFactory {}
 unsafe impl Sync for webrtc::TaskQueueFactory {}
 
+            struct AudioSourceVolumeHandler;
+
+            impl AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
+                fn on_volume_change(&mut self, volume: f32) {
+                    println!("Volume update: {}", volume);
+                }
+            }
+
 /// Available audio devices manager that is responsible for driving input
 /// (microphone) and output (speaker) audio in WebRTC.
 ///
@@ -323,7 +332,12 @@ impl AudioDeviceModule {
                  `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`",
             );
         }
-        Ok(AudioSourceInterface(ptr))
+        let source = AudioSourceInterface(ptr);
+        let mut observer = AudioSourceVolumeObserver::new(Box::new(AudioSourceVolumeHandler));
+        observer.register(&source);
+        mem::forget(observer);
+
+        Ok(source)
     }
 
     /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
@@ -1800,6 +1814,12 @@ unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
+impl AudioSourceInterface {
+    pub fn subscribe_on_volume(&self, ) {
+        // TODO(evdokimovs): Implement subscription
+    }
+}
+
 unsafe impl Send for webrtc::AudioSourceInterface {}
 unsafe impl Sync for webrtc::AudioSourceInterface {}
 
@@ -1870,6 +1890,21 @@ impl TrackEventObserver {
 
 unsafe impl Send for webrtc::TrackEventObserver {}
 unsafe impl Sync for webrtc::TrackEventObserver {}
+
+pub struct AudioSourceVolumeObserver(UniquePtr<webrtc::AudioSourceOnVolumeChangeObserver>);
+
+impl AudioSourceVolumeObserver {
+    pub fn new(cb: Box<dyn AudioSourceOnVolumeChangeCallback>) -> Self {
+        AudioSourceVolumeObserver(webrtc::create_audio_source_on_volume_change_observer(Box::new(cb)))
+    }
+
+    pub fn register(&mut self, source: &AudioSourceInterface) {
+        webrtc::audio_source_register_volume_observer(self.0.pin_mut(), &source.0);
+    }
+}
+
+unsafe impl Send for webrtc::AudioSourceOnVolumeChangeObserver {}
+unsafe impl Sync for webrtc::AudioSourceOnVolumeChangeObserver {}
 
 /// Video [`MediaStreamTrack`][1].
 ///

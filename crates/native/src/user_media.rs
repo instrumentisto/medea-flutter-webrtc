@@ -1248,14 +1248,6 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
     }
 }
 
-pub struct AudioSourceVolumeCb(mpsc::Sender<f32>);
-
-impl AudioSourceVolumeCb {
-    pub fn update_volume(&mut self, volume: f32) {
-        self.0.send(volume);
-    }
-}
-
 /// [`sys::AudioSourceInterface`] wrapper.
 pub struct AudioSource(AudioDeviceId, Arc<sys::AudioSourceInterface>);
 
@@ -1340,5 +1332,13 @@ struct TrackEventHandler(StreamSink<api::TrackEvent>);
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {
         self.0.add(api::TrackEvent::Ended);
+    }
+}
+
+struct AudioSourceVolumeHandler;
+
+impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
+    fn on_volume_change(&mut self, volume: f32) {
+        log::error!("Volume update: {}", volume);
     }
 }
