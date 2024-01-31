@@ -126,6 +126,11 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   late EventChannel _eventChan;
 
   @override
+  void onVolume(OnVolumeCallback cb) {
+    // TODO(evdokimovs): Maybe throw exception
+  }
+
+  @override
   Future<void> setEnabled(bool enabled) async {
     await _chan.invokeMethod('setEnabled', {'enabled': enabled});
     _enabled = enabled;
@@ -184,6 +189,8 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
 /// FFI-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
+  OnVolumeCallback? _onVolume;
+
   /// Creates a [NativeMediaStreamTrack] basing on the provided
   /// [ffi.MediaStreamTrack].
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
@@ -198,15 +205,18 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
             kind: ffi.MediaType.values[_kind.index])
         .listen((event) {
       if (event is ffi.TrackEvent_VolumeUpdated) {
-        // TODO(evdokimovs): Implement callback call logic
-        var volume = event.field0;
-        print("Volume update: $volume");
+        _onVolume?.call(event.field0);
         return;
       } else if (event is ffi.TrackEvent_Ended) {
         _onEnded?.call();
         return;
       }
     });
+  }
+
+  @override
+  void onVolume(OnVolumeCallback cb) {
+    _onVolume = cb;
   }
 
   @override

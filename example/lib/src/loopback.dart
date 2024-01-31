@@ -116,11 +116,13 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
+      var audioTrack = _tracks!.firstWhere((track) => track.kind() == MediaKind.audio);
+      audioTrack.onVolume((volume) => print("Volume update: $volume"));
+
       await vtrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
 
-      await _audioTxTr?.sender.replaceTrack(
-          _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
+      await _audioTxTr?.sender.replaceTrack(audioTrack);
     } catch (e) {
       print(e.toString());
     }
