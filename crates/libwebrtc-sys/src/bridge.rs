@@ -5,10 +5,11 @@ use cxx::{CxxString, CxxVector, UniquePtr};
 use derive_more::{Deref, DerefMut};
 
 use crate::{
-    AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
-    OnFrameCallback, PeerConnectionEventsHandler, RTCStatsCollectorCallback,
+    AddIceCandidateCallback, AudioSourceOnVolumeChangeCallback,
+    CreateSdpCallback, IceCandidateInterface, OnFrameCallback,
+    PeerConnectionEventsHandler, RTCStatsCollectorCallback,
     RtpReceiverInterface, RtpTransceiverInterface, SetDescriptionCallback,
-    TrackEventCallback, AudioSourceOnVolumeChangeCallback,
+    TrackEventCallback,
 };
 
 /// [`CreateSdpCallback`] transferable to the C++ side.
@@ -32,7 +33,8 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
-type DynAudioSourceOnVolumeChangeCallback = Box<dyn AudioSourceOnVolumeChangeCallback>;
+type DynAudioSourceOnVolumeChangeCallback =
+    Box<dyn AudioSourceOnVolumeChangeCallback>;
 
 /// [`Option`]`<`[`i32`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
@@ -2532,7 +2534,10 @@ pub(crate) mod webrtc {
     extern "Rust" {
         pub type DynAudioSourceOnVolumeChangeCallback;
 
-        fn on_volume_change(cb: &mut DynAudioSourceOnVolumeChangeCallback, volume: f32);
+        fn on_volume_change(
+            cb: &mut DynAudioSourceOnVolumeChangeCallback,
+            volume: f32,
+        );
     }
 
     extern "Rust" {
@@ -2904,7 +2909,10 @@ pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }
 
-pub fn on_volume_change(cb: &mut DynAudioSourceOnVolumeChangeCallback, volume: f32) {
+pub fn on_volume_change(
+    cb: &mut DynAudioSourceOnVolumeChangeCallback,
+    volume: f32,
+) {
     cb.on_volume_change(volume);
 }
 

@@ -1,5 +1,7 @@
 use std::{
-    collections::{HashMap, HashSet}, hash::Hash, sync::{Arc, RwLock, Weak}
+    collections::{HashMap, HashSet},
+    hash::Hash,
+    sync::{Arc, RwLock, Weak},
 };
 
 use anyhow::{anyhow, bail, Context};
@@ -547,7 +549,8 @@ impl Webrtc {
         kind: api::MediaType,
         cb: StreamSink<api::TrackEvent>,
     ) -> anyhow::Result<()> {
-        let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb.clone())));
+        let mut obs =
+            TrackEventObserver::new(Box::new(TrackEventHandler(cb.clone())));
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
@@ -1199,7 +1202,7 @@ impl AudioTrack {
                 let observer = src.subscribe_on_volume(Box::new(cb));
                 self.volume_observer = Some(observer);
             }
-            _ => ()
+            _ => (),
         }
     }
 
@@ -1352,6 +1355,8 @@ struct AudioSourceVolumeHandler(StreamSink<api::TrackEvent>);
 
 impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
     fn on_volume_change(&mut self, volume: f32) {
-        self.0.add(api::TrackEvent::VolumeUpdated((volume * 1000.0).round() as u16));
+        self.0.add(api::TrackEvent::VolumeUpdated(
+            (volume * 1000.0).round() as u16
+        ));
     }
 }

@@ -1801,7 +1801,10 @@ unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
 impl AudioSourceInterface {
-    pub fn subscribe_on_volume(&self, cb: Box<dyn AudioSourceOnVolumeChangeCallback>) -> AudioSourceVolumeObserver {
+    pub fn subscribe_on_volume(
+        &self,
+        cb: Box<dyn AudioSourceOnVolumeChangeCallback>,
+    ) -> AudioSourceVolumeObserver {
         let mut observer = AudioSourceVolumeObserver::new(cb);
         observer.register(&self);
         observer
@@ -1879,15 +1882,22 @@ impl TrackEventObserver {
 unsafe impl Send for webrtc::TrackEventObserver {}
 unsafe impl Sync for webrtc::TrackEventObserver {}
 
-pub struct AudioSourceVolumeObserver(UniquePtr<webrtc::AudioSourceOnVolumeChangeObserver>);
+pub struct AudioSourceVolumeObserver(
+    UniquePtr<webrtc::AudioSourceOnVolumeChangeObserver>,
+);
 
 impl AudioSourceVolumeObserver {
     pub fn new(cb: Box<dyn AudioSourceOnVolumeChangeCallback>) -> Self {
-        AudioSourceVolumeObserver(webrtc::create_audio_source_on_volume_change_observer(Box::new(cb)))
+        AudioSourceVolumeObserver(
+            webrtc::create_audio_source_on_volume_change_observer(Box::new(cb)),
+        )
     }
 
     pub fn register(&mut self, source: &AudioSourceInterface) {
-        webrtc::audio_source_register_volume_observer(self.0.pin_mut(), &source.0);
+        webrtc::audio_source_register_volume_observer(
+            self.0.pin_mut(),
+            &source.0,
+        );
     }
 }
 
