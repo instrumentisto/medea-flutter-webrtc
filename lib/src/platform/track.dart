@@ -45,7 +45,7 @@ abstract class MediaStreamTrack {
   /// Subscribes provided callback to the `onEnded` events of this [MediaStreamTrack].
   void onEnded(OnEndedCallback cb);
 
-  void onVolume(OnVolumeCallback cb);
+  void onVolume(OnVolumeCallback? cb);
 
   /// Creates a new instance of [MediaStreamTrack], which will depend on the same
   /// media source as this [MediaStreamTrack].

@@ -539,6 +539,26 @@ impl Webrtc {
         }
     }
 
+    pub fn set_volume_observer_enabled(
+        &self,
+        id: String,
+        track_origin: TrackOrigin,
+        enabled: bool,
+    ) -> anyhow::Result<()> {
+        let id = AudioTrackId::from(id);
+        let mut track = self
+            .audio_tracks
+            .get_mut(&(id.clone(), track_origin))
+            .ok_or_else(|| anyhow!("Cannot find track with ID `{id}`"))?;
+        if enabled {
+            track.subscribe_to_volume();
+        } else {
+            track.unsubscribe_from_volume();
+        }
+
+        Ok(())
+    }
+
     /// Registers an events observer for an [`AudioTrack`] or a [`VideoTrack`].
     ///
     /// # Warning
@@ -565,7 +585,7 @@ impl Webrtc {
                     })?;
 
                 obs.set_audio_track(&track.inner);
-                track.subscribe_to_volume(AudioSourceVolumeHandler(cb));
+                track.set_stream_sink(cb);
                 track.inner.register_observer(obs);
             }
             api::MediaType::Video => {
@@ -1167,6 +1187,8 @@ pub struct AudioTrack {
     /// Device ID of the [`AudioTrack`]'s [`sys::AudioSourceInterface`].
     device_id: AudioDeviceId,
 
+    stream_sink: Option<StreamSink<api::TrackEvent>>,
+
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
 
@@ -1195,18 +1217,38 @@ impl AudioTrack {
             device_id,
             senders: HashMap::new(),
             track_origin,
+            stream_sink: None,
             volume_observer_id: None,
         })
     }
 
-    pub fn subscribe_to_volume(&mut self, cb: AudioSourceVolumeHandler) {
+    pub fn subscribe_to_volume(&mut self) {
+        if let Some(sink) = self.stream_sink.clone() {
+            match &self.source {
+                MediaTrackSource::Local(src) => {
+                    let observer = src.subscribe_on_volume(Box::new(
+                        AudioSourceVolumeHandler(sink),
+                    ));
+                    self.volume_observer_id = Some(observer);
+                }
+                _ => (),
+            }
+        }
+    }
+
+    pub fn unsubscribe_from_volume(&self) {
         match &self.source {
             MediaTrackSource::Local(src) => {
-                let observer = src.subscribe_on_volume(Box::new(cb));
-                self.volume_observer_id = Some(observer);
+                if let Some(id) = self.volume_observer_id {
+                    src.unsubscribe_volume_observer(id);
+                }
             }
             _ => (),
         }
+    }
+
+    pub fn set_stream_sink(&mut self, sink: StreamSink<api::TrackEvent>) {
+        drop(self.stream_sink.replace(sink));
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into an
@@ -1230,6 +1272,7 @@ impl AudioTrack {
             device_id: AudioDeviceId::from("remote"),
             senders: HashMap::new(),
             track_origin: TrackOrigin::Remote(peer.id()),
+            stream_sink: None,
             volume_observer_id: None,
         }
     }
@@ -1269,14 +1312,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
 
 impl Drop for AudioTrack {
     fn drop(&mut self) {
-        match &self.source {
-            MediaTrackSource::Local(src) => {
-                if let Some(id) = self.volume_observer_id {
-                    src.unsubscribe_volume_observer(id);
-                }
-            }
-            _ => (),
-        }
+        self.unsubscribe_from_volume();
     }
 }
 

@@ -126,7 +126,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   late EventChannel _eventChan;
 
   @override
-  void onVolume(OnVolumeCallback cb) {
+  void onVolume(OnVolumeCallback? cb) {
     // TODO(evdokimovs): Maybe throw exception
   }
 
@@ -205,6 +205,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
             kind: ffi.MediaType.values[_kind.index])
         .listen((event) {
       if (event is ffi.TrackEvent_VolumeUpdated) {
+        print("onVolume");
         _onVolume?.call(event.field0);
         return;
       } else if (event is ffi.TrackEvent_Ended) {
@@ -215,7 +216,12 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   }
 
   @override
-  void onVolume(OnVolumeCallback cb) {
+  void onVolume(OnVolumeCallback? cb) {
+    api!.setVolumeObserverEnabled(
+      peerId: _peerId,
+      trackId: _id,
+      enabled: cb != null,
+    );
     _onVolume = cb;
   }
 

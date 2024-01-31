@@ -2451,6 +2451,19 @@ pub fn register_track_observer(
     )
 }
 
+pub fn set_volume_observer_enabled(
+    track_id: String,
+    peer_id: Option<u64>,
+    enabled: bool,
+) -> anyhow::Result<()> {
+    let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
+    WEBRTC.lock().unwrap().set_volume_observer_enabled(
+        track_id,
+        track_origin,
+        enabled,
+    )
+}
+
 /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
 /// whenever a set of available media devices changes.
 ///
