@@ -1928,6 +1928,8 @@ sealed class TrackEvent with _$TrackEvent {
   /// or streaming has stopped because the end of the media was reached or
   /// because no further data is available.
   const factory TrackEvent.ended() = TrackEvent_Ended;
+
+  /// Event which indicates that new audio volume level occurred.
   const factory TrackEvent.volumeUpdated(
     int field0,
   ) = TrackEvent_VolumeUpdated;
@@ -3590,7 +3592,7 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
         return TrackEvent_Ended();
       case 1:
         return TrackEvent_VolumeUpdated(
-          _wire2api_u16(raw[1]),
+          _wire2api_u32(raw[1]),
         );
       default:
         throw Exception("unreachable");
@@ -3599,10 +3601,6 @@ class MedeaFlutterWebrtcNativeImpl implements MedeaFlutterWebrtcNative {
 
   TrackState _wire2api_track_state(dynamic raw) {
     return TrackState.values[raw as int];
-  }
-
-  int _wire2api_u16(dynamic raw) {
-    return raw as int;
   }
 
   int _wire2api_u32(dynamic raw) {
