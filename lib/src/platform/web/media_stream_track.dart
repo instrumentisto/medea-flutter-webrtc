@@ -30,7 +30,7 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   }
 
   @override
-  void onVolume(OnVolumeCallback cb) {
+  void onVolume(OnVolumeCallback? cb) {
     throw 'onVolume callback is not supported on web';
   }
 

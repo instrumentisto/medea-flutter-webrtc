@@ -127,7 +127,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
   @override
   void onVolume(OnVolumeCallback? cb) {
-      throw 'onVolume callback is not supported on mobile platforms';
+    throw 'onVolume callback is not supported on mobile platforms';
   }
 
   @override
