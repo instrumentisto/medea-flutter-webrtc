@@ -2227,9 +2227,12 @@ pub(crate) mod webrtc {
             device_id: String,
         );
 
-        /// Changes the `track` member of the provided [`TrackEventObserver`].
         pub fn audio_source_register_volume_observer(
             obs: Pin<&mut AudioSourceOnVolumeChangeObserver>,
+            audio_source: &AudioSourceInterface,
+        );
+
+        pub fn audio_source_unregister_volume_observer(
             audio_source: &AudioSourceInterface,
         );
 

@@ -809,6 +809,13 @@ void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& ob
   }
 }
 
+void audio_source_unregister_volume_observer(const AudioSourceInterface& audio_source) {
+  LocalAudioSource* local_audio_source = dynamic_cast<LocalAudioSource*>(audio_source.get());
+  if (local_audio_source) {
+    local_audio_source->UnregisterVolumeObserver();
+  }
+}
+
 // Calls `VideoTrackInterface->RegisterObserver`.
 void video_track_register_observer(VideoTrackInterface& track,
                                    TrackEventObserver& obs) {

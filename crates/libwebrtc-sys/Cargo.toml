@@ -10,6 +10,7 @@ links = "webrtc"
 anyhow = "1.0"
 cxx = "1.0"
 derive_more = { version = "0.99", features = ["deref", "deref_mut", "from"], default-features = false }
+dashmap = "5.4"
 
 [build-dependencies]
 anyhow = "1.0"

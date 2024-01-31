@@ -45,6 +45,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
               size_t number_of_frames);
 
   void RegisterVolumeObserver(AudioSourceOnVolumeChangeObserver* obs);
+  void UnregisterVolumeObserver();
 
  protected:
   LocalAudioSource() {}

@@ -500,6 +500,8 @@ void set_track_observer_video_track(TrackEventObserver& obs,
 void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& obs,
                                     const AudioSourceInterface& audio_source);
 
+void audio_source_unregister_volume_observer(const AudioSourceInterface& audio_source);
+
 // Changes the `track` member of the provided `TrackEventObserver`.
 void set_track_observer_audio_track(TrackEventObserver& obs,
                                     const AudioTrackInterface& track);

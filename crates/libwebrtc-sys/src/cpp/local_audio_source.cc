@@ -60,4 +60,8 @@ void LocalAudioSource::RegisterVolumeObserver(AudioSourceOnVolumeChangeObserver*
   observer_ = obs;
 }
 
+void LocalAudioSource::UnregisterVolumeObserver() {
+  observer_ = nullptr;
+}
+
 }  // namespace bridge

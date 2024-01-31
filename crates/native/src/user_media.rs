@@ -1,12 +1,15 @@
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
+    mem,
     sync::{Arc, RwLock, Weak},
 };
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
-use libwebrtc_sys::{self as sys, OnFrameCallback, TrackEventObserver};
+use libwebrtc_sys::{
+    self as sys, OnFrameCallback, TrackEventObserver, VolumeObserverId,
+};
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
 use once_cell::sync::OnceCell;
 use sys::AudioSourceVolumeObserver;
@@ -89,18 +92,18 @@ impl Webrtc {
         #[allow(clippy::mutable_key_type)] // false positive
         let senders = match kind {
             api::MediaType::Audio => {
-                if let Some((_, track)) = self
+                if let Some((_, mut track)) = self
                     .audio_tracks
                     .remove(&(AudioTrackId::from(track_id), track_origin))
                 {
-                    if let MediaTrackSource::Local(src) = track.source {
+                    if let MediaTrackSource::Local(src) = &track.source {
                         if Arc::strong_count(&src) == 2 {
                             self.audio_sources.remove(&track.device_id);
                             self.audio_device_module
                                 .dispose_audio_source(&track.device_id);
                         };
                     }
-                    track.senders
+                    mem::take(&mut track.senders)
                 } else {
                     return;
                 }
@@ -1167,7 +1170,7 @@ pub struct AudioTrack {
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
 
-    volume_observer: Option<AudioSourceVolumeObserver>,
+    volume_observer_id: Option<VolumeObserverId>,
 }
 
 impl AudioTrack {
@@ -1192,7 +1195,7 @@ impl AudioTrack {
             device_id,
             senders: HashMap::new(),
             track_origin,
-            volume_observer: None,
+            volume_observer_id: None,
         })
     }
 
@@ -1200,7 +1203,7 @@ impl AudioTrack {
         match &self.source {
             MediaTrackSource::Local(src) => {
                 let observer = src.subscribe_on_volume(Box::new(cb));
-                self.volume_observer = Some(observer);
+                self.volume_observer_id = Some(observer);
             }
             _ => (),
         }
@@ -1227,7 +1230,7 @@ impl AudioTrack {
             device_id: AudioDeviceId::from("remote"),
             senders: HashMap::new(),
             track_origin: TrackOrigin::Remote(peer.id()),
-            volume_observer: None,
+            volume_observer_id: None,
         }
     }
 
@@ -1260,6 +1263,19 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
                 TrackOrigin::Local => None,
                 TrackOrigin::Remote(peer_id) => Some(peer_id.into()),
             },
+        }
+    }
+}
+
+impl Drop for AudioTrack {
+    fn drop(&mut self) {
+        match &self.source {
+            MediaTrackSource::Local(src) => {
+                if let Some(id) = self.volume_observer_id {
+                    src.unsubscribe_volume_observer(id);
+                }
+            }
+            _ => (),
         }
     }
 }
@@ -1354,7 +1370,7 @@ impl sys::TrackEventCallback for TrackEventHandler {
 struct AudioSourceVolumeHandler(StreamSink<api::TrackEvent>);
 
 impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
-    fn on_volume_change(&mut self, volume: f32) {
+    fn on_volume_change(&self, volume: f32) {
         self.0.add(api::TrackEvent::VolumeUpdated(
             (volume * 1000.0).round() as u16
         ));
