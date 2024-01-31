@@ -1866,6 +1866,7 @@ pub struct AudioSourceInterface {
 impl AudioSourceInterface {
     /// Creates new [`AudioSourceInterface`] with a provided
     /// [`webrtc::AudioSourceInterface`] [`UniquePtr`].
+    #[must_use]
     pub fn new(ptr: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
         Self {
             ptr,
@@ -1883,14 +1884,18 @@ impl AudioSourceInterface {
     ///
     /// Returns [`VolumeObserverId`] which can be used to unsubscibe provided
     /// here [`AudioSourceOnVolumeChangeCallback`].
+    ///
+    /// # Panics
+    ///
+    /// On [`Mutex`] poisoning.
     pub fn subscribe_on_volume(
         &self,
         cb: Box<dyn AudioSourceOnVolumeChangeCallback + Send + Sync>,
     ) -> VolumeObserverId {
         if self.observers.is_empty() {
-            let mut observer = AudioSourceVolumeObserver::new(
+            let observer = AudioSourceVolumeObserver::new(
                 Box::new(BroadcasterObserver::new(Arc::clone(&self.observers))),
-                &self,
+                self,
             );
             self.observer.lock().unwrap().replace(observer);
         }
@@ -1913,6 +1918,10 @@ impl AudioSourceInterface {
     ///
     /// If [`AudioSourceInterface`] detects that this was last callback, it
     /// will stop any audio volume level calculations to save system resources.
+    ///
+    /// # Panics
+    ///
+    /// On [`Mutex`] poisoning.
     pub fn unsubscribe_volume_observer(&self, id: VolumeObserverId) {
         self.observers.remove(&id);
         if self.observers.is_empty() {

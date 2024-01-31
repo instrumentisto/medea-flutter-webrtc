@@ -12,7 +12,6 @@ use libwebrtc_sys::{
 };
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
 use once_cell::sync::OnceCell;
-use sys::AudioSourceVolumeObserver;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
@@ -97,7 +96,7 @@ impl Webrtc {
                     .remove(&(AudioTrackId::from(track_id), track_origin))
                 {
                     if let MediaTrackSource::Local(src) = &track.source {
-                        if Arc::strong_count(&src) == 2 {
+                        if Arc::strong_count(src) == 2 {
                             self.audio_sources.remove(&track.device_id);
                             self.audio_device_module
                                 .dispose_audio_source(&track.device_id);
@@ -1247,7 +1246,7 @@ impl AudioTrack {
                     ));
                     self.volume_observer_id = Some(observer);
                 }
-                _ => (),
+                MediaTrackSource::Remote { mid: _, peer: _ } => (),
             }
         }
     }
@@ -1260,7 +1259,7 @@ impl AudioTrack {
                     src.unsubscribe_volume_observer(id);
                 }
             }
-            _ => (),
+            MediaTrackSource::Remote { mid: _, peer: _ } => (),
         }
     }
 
@@ -1430,6 +1429,7 @@ impl sys::TrackEventCallback for TrackEventHandler {
 struct AudioSourceVolumeHandler(StreamSink<api::TrackEvent>);
 
 impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn on_volume_change(&self, volume: f32) {
         self.0.add(api::TrackEvent::VolumeUpdated(
             (volume * 1000.0).round() as u32

@@ -1099,7 +1099,7 @@ pub enum TrackEvent {
     Ended,
 
     /// Event which indicates that new audio volume level occurred.
-    VolumeUpdated(u16),
+    VolumeUpdated(u32),
 }
 
 /// [RTCIceGatheringState][1] representation.
