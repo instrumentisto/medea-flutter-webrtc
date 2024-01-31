@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet}, hash::Hash, mem, sync::mpsc, sync::{Arc, RwLock, Weak}
+    collections::{HashMap, HashSet}, hash::Hash, sync::{Arc, RwLock, Weak}
 };
 
 use anyhow::{anyhow, bail, Context};
@@ -248,7 +248,7 @@ impl Webrtc {
         device_id: AudioDeviceId,
         source: Arc<sys::AudioSourceInterface>,
     ) -> anyhow::Result<api::MediaStreamTrack> {
-        let mut track = AudioTrack::new(
+        let track = AudioTrack::new(
             &self.peer_connection_factory,
             device_id,
             source,

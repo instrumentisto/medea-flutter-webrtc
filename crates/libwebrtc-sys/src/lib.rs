@@ -6,7 +6,6 @@ mod bridge;
 use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
-use bridge::webrtc::AudioSourceOnVolumeChangeObserver;
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
 use derive_more::From;
 
