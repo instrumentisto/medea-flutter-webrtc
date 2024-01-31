@@ -30,6 +30,11 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   }
 
   @override
+  void onVolume(OnVolumeCallback cb) {
+    throw 'onVolume callback is not supported on web';
+  }
+
+  @override
   bool isEnabled() {
     return jsTrack.enabled ?? false;
   }
