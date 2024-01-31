@@ -1871,6 +1871,7 @@ impl AudioSourceInterface {
         self.observers.remove(&id);
         if self.observers.is_empty() {
             webrtc::audio_source_unregister_volume_observer(&self.ptr);
+            drop(self.observer.lock().unwrap().take());
         }
     }
 }
