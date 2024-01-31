@@ -189,6 +189,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
 /// FFI-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
+  /// Subscriber for the audio volume levl updates of this track.
   OnVolumeCallback? _onVolume;
 
   /// Creates a [NativeMediaStreamTrack] basing on the provided
@@ -205,7 +206,6 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
             kind: ffi.MediaType.values[_kind.index])
         .listen((event) {
       if (event is ffi.TrackEvent_VolumeUpdated) {
-        print("onVolume");
         _onVolume?.call(event.field0);
         return;
       } else if (event is ffi.TrackEvent_Ended) {

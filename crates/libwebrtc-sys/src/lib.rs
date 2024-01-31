@@ -3,10 +3,15 @@
 
 mod bridge;
 
-use std::{collections::HashMap, mem};
+use std::{
+    collections::HashMap,
+    mem,
+    sync::{Arc, Mutex},
+};
 
 use anyhow::{anyhow, bail};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
+use dashmap::DashMap;
 use derive_more::From;
 
 use self::bridge::webrtc;
@@ -30,7 +35,9 @@ pub trait TrackEventCallback {
     fn on_ended(&mut self);
 }
 
+/// Handler of audio volume level updates from a [`AudioSourceInterface`].
 pub trait AudioSourceOnVolumeChangeCallback {
+    /// Called when new audio volume level update occurs.
     fn on_volume_change(&self, volume: f32);
 }
 
@@ -1793,12 +1800,12 @@ impl VideoTrackSourceInterface {
 unsafe impl Send for webrtc::VideoTrackSourceInterface {}
 unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 
-use dashmap::DashMap;
-use std::sync::{Arc, Mutex};
-
+/// [`AudioSourceOnVolumeChangeCallback`] unique (per [`AudioSourceInterface`])
+/// ID.
 #[derive(Clone, Default, Copy, Hash, PartialEq, Eq, Debug)]
 pub struct VolumeObserverId(u64);
 
+/// Storage for the [`AudioSourceOnVolumeChangeCallback`].
 type ObserverStorage = Arc<
     DashMap<
         VolumeObserverId,
@@ -1806,15 +1813,22 @@ type ObserverStorage = Arc<
     >,
 >;
 
+/// [`AudioSourceOnVolumeChangeCallback`] implementation which broadcasts
+/// all audio volume level updates to the all underlying
+/// [`AudioSourceOnVolumeChangeCallback`].
 struct BroadcasterObserver(ObserverStorage);
 
 impl BroadcasterObserver {
+    /// Creates new [`BroadcasterObserver`] with a provided [`ObserverStorage`]
+    /// as sink for audio level broadcasts.
     pub fn new(observers: ObserverStorage) -> Self {
         Self(observers)
     }
 }
 
 impl AudioSourceOnVolumeChangeCallback for BroadcasterObserver {
+    /// Calls [`AudioSourceOnVolumeChangeCallback::on_volume_change`] on all
+    /// underlying [`AudioSourceOnVolumeChangeCallback`].
     fn on_volume_change(&self, volume: f32) {
         self.0.iter().for_each(|i| {
             i.value().on_volume_change(volume);
@@ -1828,13 +1842,30 @@ impl AudioSourceOnVolumeChangeCallback for BroadcasterObserver {
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
 pub struct AudioSourceInterface {
+    /// [`UniquePtr`] to the [`webrtc::AudioSourceInterface`] on C++ side.
     ptr: UniquePtr<webrtc::AudioSourceInterface>,
+
+    /// Storage for the all [`AudioSourceOnVolumeChangeCallback`] related
+    /// to this [`AudioSourceInterface`].
+    ///
+    /// This [`ObserverStorage`] is shared with [`BroadcasterObserver`] and
+    /// needed for [`AudioSourceOnVolumeChangeCallback`] disposing without
+    /// calling C++ side.
     observers: ObserverStorage,
+
+    /// Handle for this [`BroadcastObserver`].
+    ///
+    /// C++ side has pointer to this object, so we need to store it, so it
+    /// won't be deallocated.
     observer: Mutex<Option<AudioSourceVolumeObserver>>,
+
+    /// Last ID used for [`VolumeObserverId`].
     last_observer_id: Mutex<VolumeObserverId>,
 }
 
 impl AudioSourceInterface {
+    /// Creates new [`AudioSourceInterface`] with a provided
+    /// [`webrtc::AudioSourceInterface`] [`UniquePtr`].
     pub fn new(ptr: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
         Self {
             ptr,
@@ -1844,15 +1875,23 @@ impl AudioSourceInterface {
         }
     }
 
+    /// Subscribes provided [`AudioSourceOnVolumeChangeCallback`] to audio
+    /// volume level updates.
+    ///
+    /// This method will initialize new [`BroadcasterObserver`] if it wasn't
+    /// initialized before.
+    ///
+    /// Returns [`VolumeObserverId`] which can be used to unsubscibe provided
+    /// here [`AudioSourceOnVolumeChangeCallback`].
     pub fn subscribe_on_volume(
         &self,
         cb: Box<dyn AudioSourceOnVolumeChangeCallback + Send + Sync>,
     ) -> VolumeObserverId {
         if self.observers.is_empty() {
-            let mut observer = AudioSourceVolumeObserver::new(Box::new(
-                BroadcasterObserver::new(Arc::clone(&self.observers)),
-            ));
-            observer.register(&self);
+            let mut observer = AudioSourceVolumeObserver::new(
+                Box::new(BroadcasterObserver::new(Arc::clone(&self.observers))),
+                &self,
+            );
             self.observer.lock().unwrap().replace(observer);
         }
 
@@ -1867,6 +1906,13 @@ impl AudioSourceInterface {
         observer_id
     }
 
+    /// Unsubscribes [`AudioSourceOnVolumeChangeCallback`] from audio volume
+    /// level updates.
+    ///
+    /// After unsubscribing this callback will be disposed.
+    ///
+    /// If [`AudioSourceInterface`] detects that this was last callback, it
+    /// will stop any audio volume level calculations to save system resources.
     pub fn unsubscribe_volume_observer(&self, id: VolumeObserverId) {
         self.observers.remove(&id);
         if self.observers.is_empty() {
@@ -1947,22 +1993,26 @@ impl TrackEventObserver {
 unsafe impl Send for webrtc::TrackEventObserver {}
 unsafe impl Sync for webrtc::TrackEventObserver {}
 
+/// C++ side [`AudioSourceOnVolumeChangeCallback`] handling audio volume
+/// level updates.
 pub struct AudioSourceVolumeObserver(
     UniquePtr<webrtc::AudioSourceOnVolumeChangeObserver>,
 );
 
 impl AudioSourceVolumeObserver {
-    pub fn new(cb: Box<dyn AudioSourceOnVolumeChangeCallback>) -> Self {
-        AudioSourceVolumeObserver(
-            webrtc::create_audio_source_on_volume_change_observer(Box::new(cb)),
-        )
-    }
-
-    pub fn register(&mut self, source: &AudioSourceInterface) {
+    /// Creates and registers a new [`AudioSourceVolumeObserver`].
+    #[must_use]
+    pub fn new(
+        cb: Box<dyn AudioSourceOnVolumeChangeCallback>,
+        source: &AudioSourceInterface,
+    ) -> Self {
+        let mut ptr =
+            webrtc::create_audio_source_on_volume_change_observer(Box::new(cb));
         webrtc::audio_source_register_volume_observer(
-            self.0.pin_mut(),
+            ptr.pin_mut(),
             &source.ptr,
         );
+        AudioSourceVolumeObserver(ptr)
     }
 }
 

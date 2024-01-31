@@ -539,6 +539,13 @@ impl Webrtc {
         }
     }
 
+    /// Enables or disables audio volume level observer of the [`AudioTrack`]
+    /// with a provided `id`.
+    ///
+    /// # Warning
+    ///
+    /// Returns error message if cannot find any [`AudioTrack`] by the
+    /// specified `id`.
     pub fn set_volume_observer_enabled(
         &self,
         id: String,
@@ -1187,11 +1194,16 @@ pub struct AudioTrack {
     /// Device ID of the [`AudioTrack`]'s [`sys::AudioSourceInterface`].
     device_id: AudioDeviceId,
 
+    /// [`StreamSink`] which can be used by this [`AudioTrack`] to emit
+    /// [`api::TrackEvent`]s to Flutter side.
     stream_sink: Option<StreamSink<api::TrackEvent>>,
 
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
 
+    /// [`VolumeObserverId`] related to this [`AudioTrack`].
+    ///
+    /// This ID can be used when [`AudioTrack`] needs to dispose observer.
     volume_observer_id: Option<VolumeObserverId>,
 }
 
@@ -1222,6 +1234,10 @@ impl AudioTrack {
         })
     }
 
+    /// Subscribes this [`AudioTrack`] to the audio volume level updates.
+    ///
+    /// Volume updates will be passed to the [`StreamSink`] of
+    /// this [`AudioTrack`].
     pub fn subscribe_to_volume(&mut self) {
         if let Some(sink) = self.stream_sink.clone() {
             match &self.source {
@@ -1236,6 +1252,7 @@ impl AudioTrack {
         }
     }
 
+    /// Unsuscibes this [`AudioTrack`] from the audio volume level updates.
     pub fn unsubscribe_from_volume(&self) {
         match &self.source {
             MediaTrackSource::Local(src) => {
@@ -1247,6 +1264,8 @@ impl AudioTrack {
         }
     }
 
+    /// Sets [`StreamSink`] used by this [`AudioTrack`] for
+    /// [`api::TrackEvent`]s emitting.
     pub fn set_stream_sink(&mut self, sink: StreamSink<api::TrackEvent>) {
         drop(self.stream_sink.replace(sink));
     }
@@ -1403,12 +1422,17 @@ impl sys::TrackEventCallback for TrackEventHandler {
     }
 }
 
+/// Wrapper around [`StreamSink`] which produces audio volume level
+/// updates to the Flutter side.
+///
+/// This handler also will multiply volume by `1000` and cast it to [`u32`], for
+/// more convenient usage.
 struct AudioSourceVolumeHandler(StreamSink<api::TrackEvent>);
 
 impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
     fn on_volume_change(&self, volume: f32) {
         self.0.add(api::TrackEvent::VolumeUpdated(
-            (volume * 1000.0).round() as u16
+            (volume * 1000.0).round() as u32
         ));
     }
 }

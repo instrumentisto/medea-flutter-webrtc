@@ -41,6 +41,7 @@ void TrackEventObserver::OnChanged() {
   }
 }
 
+// Called when the `LocalAudioSource` produces new audio volume update.
 void AudioSourceOnVolumeChangeObserver::VolumeChanged(float volume) {
   bridge::on_volume_change(*cb_, volume);
 }
@@ -784,6 +785,8 @@ std::unique_ptr<TrackEventObserver> create_track_event_observer(
       TrackEventObserver(std::move(cb)));
 }
 
+// Creates new AudioSourceOnVolumeChangeObserver from the provided
+// `bridge::DynAudioSourceOnVolumeChangeCallback`.
 std::unique_ptr<AudioSourceOnVolumeChangeObserver> create_audio_source_on_volume_change_observer(
     rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb) {
   return std::make_unique<AudioSourceOnVolumeChangeObserver>(AudioSourceOnVolumeChangeObserver(std::move(cb)));
@@ -801,6 +804,10 @@ void set_track_observer_audio_track(TrackEventObserver& obs,
   obs.set_track(track);
 }
 
+// Registers provided observer in `LocalAudioSource`. So audio volume updates
+// will be passes to this observer.
+//
+// Previous observer will be disposed. Only one observer at a time is supported.
 void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& obs,
                                     const AudioSourceInterface& audio_source) {
   LocalAudioSource* local_audio_source = dynamic_cast<LocalAudioSource*>(audio_source.get());
@@ -809,6 +816,9 @@ void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& ob
   }
 }
 
+// Unregisters audio volume level observer from the provided `LocalAudioSource`.
+//
+// `LocalAudioSource` will not calculate audio level after call to this function.
 void audio_source_unregister_volume_observer(const AudioSourceInterface& audio_source) {
   LocalAudioSource* local_audio_source = dynamic_cast<LocalAudioSource*>(audio_source.get());
   if (local_audio_source) {

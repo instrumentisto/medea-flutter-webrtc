@@ -33,6 +33,7 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
+/// [`AudioSourceOnVolumeChangeCallback`] transferable to the C++ side.
 type DynAudioSourceOnVolumeChangeCallback =
     Box<dyn AudioSourceOnVolumeChangeCallback>;
 
@@ -2227,11 +2228,21 @@ pub(crate) mod webrtc {
             device_id: String,
         );
 
+        /// Registers provided observer in [`AudioSourceInterface`]. So audio
+        /// volume updates will be passes to this observer.
+        ///
+        /// Previous observer will be disposed. Only one observer at a time
+        /// is supported.
         pub fn audio_source_register_volume_observer(
             obs: Pin<&mut AudioSourceOnVolumeChangeObserver>,
             audio_source: &AudioSourceInterface,
         );
 
+        /// Unregisters audio volume level observer from the provided
+        /// [`AudioSourceInterface`].
+        ///
+        /// [`AudioSourceInterface`] will not calculate audio level after
+        /// call to this function.
         pub fn audio_source_unregister_volume_observer(
             audio_source: &AudioSourceInterface,
         );
@@ -2457,6 +2468,8 @@ pub(crate) mod webrtc {
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
+        /// Creates a new [`AudioSourceOnVolumeChangeObserver`] backed by
+        /// the provided [`DynAudioSourceOnVolumeChangeCallback`].
         pub fn create_audio_source_on_volume_change_observer(
             cb: Box<DynAudioSourceOnVolumeChangeCallback>,
         ) -> UniquePtr<AudioSourceOnVolumeChangeObserver>;
@@ -2537,6 +2550,7 @@ pub(crate) mod webrtc {
     extern "Rust" {
         pub type DynAudioSourceOnVolumeChangeCallback;
 
+        /// Called when the `LocalAudioSource` produces new audio volume update.
         fn on_volume_change(
             cb: &mut DynAudioSourceOnVolumeChangeCallback,
             volume: f32,
@@ -2912,6 +2926,8 @@ pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }
 
+/// Notifies provided [`DynAudioSourceOnVolumeChangeCallback`] about audio
+/// volume level update.
 pub fn on_volume_change(
     cb: &mut DynAudioSourceOnVolumeChangeCallback,
     volume: f32,

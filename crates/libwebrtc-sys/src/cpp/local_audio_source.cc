@@ -2,10 +2,12 @@
 
 namespace bridge {
 
+// Creates new `AudioSourceOnVolumeChangeObserver` with a provided `DynAudioSourceOnVolumeChangeCallback`.
 AudioSourceOnVolumeChangeObserver::AudioSourceOnVolumeChangeObserver(
     rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb)
     : cb_(std::move(cb)){};
 
+// Calculates audio level based on the provided audio data.
 float calculate_audio_level(int16_t* data, int size) {
   double sum = 0.0;
   for (int i = 0; i<size; ++i) {
