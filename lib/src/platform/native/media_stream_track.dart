@@ -197,8 +197,14 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
             trackId: track.id,
             kind: ffi.MediaType.values[_kind.index])
         .listen((event) {
-      if (_onEnded != null) {
-        _onEnded!();
+      if (event is ffi.TrackEvent_VolumeUpdated) {
+        // TODO(evdokimovs): Implement callback call logic
+        var volume = event.field0;
+        print("Volume update: $volume");
+        return;
+      } else if (event is ffi.TrackEvent_Ended) {
+        _onEnded?.call();
+        return;
       }
     });
   }

@@ -1097,6 +1097,8 @@ pub enum TrackEvent {
     /// or streaming has stopped because the end of the media was reached or
     /// because no further data is available.
     Ended,
+
+    VolumeUpdated(u16),
 }
 
 /// [RTCIceGatheringState][1] representation.

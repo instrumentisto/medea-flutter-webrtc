@@ -254,7 +254,6 @@ impl Webrtc {
             source,
             TrackOrigin::Local,
         )?;
-        track.subscribe_to_volume();
 
         let api_track = api::MediaStreamTrack::from(&track);
 
@@ -548,7 +547,7 @@ impl Webrtc {
         kind: api::MediaType,
         cb: StreamSink<api::TrackEvent>,
     ) -> anyhow::Result<()> {
-        let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb)));
+        let mut obs = TrackEventObserver::new(Box::new(TrackEventHandler(cb.clone())));
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
@@ -560,6 +559,7 @@ impl Webrtc {
                     })?;
 
                 obs.set_audio_track(&track.inner);
+                track.subscribe_to_volume(AudioSourceVolumeHandler(cb));
                 track.inner.register_observer(obs);
             }
             api::MediaType::Video => {
@@ -1167,14 +1167,6 @@ pub struct AudioTrack {
     volume_observer: Option<AudioSourceVolumeObserver>,
 }
 
-struct AudioSourceVolumeHandler;
-
-impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
-    fn on_volume_change(&mut self, volume: f32) {
-        println!("Volume update: {}", volume);
-    }
-}
-
 impl AudioTrack {
     /// Creates a new [`AudioTrack`].
     ///
@@ -1201,11 +1193,10 @@ impl AudioTrack {
         })
     }
 
-    pub fn subscribe_to_volume(&mut self) {
+    pub fn subscribe_to_volume(&mut self, cb: AudioSourceVolumeHandler) {
         match &self.source {
             MediaTrackSource::Local(src) => {
-                let cb = Box::new(AudioSourceVolumeHandler);
-                let observer = src.subscribe_on_volume(cb);
+                let observer = src.subscribe_on_volume(Box::new(cb));
                 self.volume_observer = Some(observer);
             }
             _ => ()
@@ -1354,5 +1345,13 @@ struct TrackEventHandler(StreamSink<api::TrackEvent>);
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {
         self.0.add(api::TrackEvent::Ended);
+    }
+}
+
+struct AudioSourceVolumeHandler(StreamSink<api::TrackEvent>);
+
+impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
+    fn on_volume_change(&mut self, volume: f32) {
+        self.0.add(api::TrackEvent::VolumeUpdated((volume * 1000.0).round() as u16));
     }
 }
