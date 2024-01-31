@@ -40,11 +40,17 @@ void LocalAudioSource::OnData(const void* audio_data,
                               size_t number_of_frames) {
   std::lock_guard<std::recursive_mutex> lk(sink_lock_);
 
-  for (auto* sink : sinks_) {
-    auto volume = calculate_audio_level((int16_t*) audio_data, number_of_channels * sample_rate / 100);
-    if ((*observer_) != nullptr) {
+  if ((*observer_) != nullptr) {
+    if (_frames_without_volume_recalculation > 5) {
+      _frames_without_volume_recalculation = 0;
+      auto volume = calculate_audio_level((int16_t*) audio_data, number_of_channels * sample_rate / 100);
       (*observer_)->VolumeChanged(volume);
+    } else {
+      _frames_without_volume_recalculation++;
     }
+  }
+
+  for (auto* sink : sinks_) {
     sink->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels,
                  number_of_frames);
   }

@@ -53,6 +53,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
  private:
   cricket::AudioOptions _options;
   std::recursive_mutex sink_lock_;
+  uint16_t _frames_without_volume_recalculation = 0;
   std::list<webrtc::AudioTrackSinkInterface*> sinks_;
   std::optional<AudioSourceOnVolumeChangeObserver*> observer_;
 };
