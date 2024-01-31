@@ -2,6 +2,7 @@
 #define BRIDGE_LOCAL_AUDIO_SOURCE_H_
 
 #include <mutex>
+#include <optional>
 
 #include "api/audio_options.h"
 #include "api/media_stream_interface.h"
