@@ -116,6 +116,7 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
+      // TODO: add some visualization via some progress indicator?
       var audioTrack =
           _tracks!.firstWhere((track) => track.kind() == MediaKind.audio);
       audioTrack.onVolume((volume) => print("Volume update: $volume"));

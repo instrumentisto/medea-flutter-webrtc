@@ -1845,6 +1845,7 @@ pub struct AudioSourceInterface {
     /// [`UniquePtr`] to the [`webrtc::AudioSourceInterface`] on C++ side.
     ptr: UniquePtr<webrtc::AudioSourceInterface>,
 
+    // TODO(review): move to native crate?
     /// Storage for the all [`AudioSourceOnVolumeChangeCallback`] related
     /// to this [`AudioSourceInterface`].
     ///
@@ -1859,6 +1860,7 @@ pub struct AudioSourceInterface {
     /// won't be deallocated.
     observer: Mutex<Option<AudioSourceVolumeObserver>>,
 
+    // TODO(review): move to native crate?
     /// Last ID used for [`VolumeObserverId`].
     last_observer_id: Mutex<VolumeObserverId>,
 }

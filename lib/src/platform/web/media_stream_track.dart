@@ -31,6 +31,9 @@ class WebMediaStreamTrack extends MediaStreamTrack {
 
   @override
   void onVolume(OnVolumeCallback? cb) {
+    // TODO(review): is it? there is audio level in media-source stats and
+    //               audio node and AnalyserNode
+    //               https://webrtc.github.io/samples/src/content/getusermedia/volume/
     throw 'onVolume callback is not supported on web';
   }
 

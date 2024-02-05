@@ -91,7 +91,7 @@ impl Webrtc {
         #[allow(clippy::mutable_key_type)] // false positive
         let senders = match kind {
             api::MediaType::Audio => {
-                if let Some((_, mut track)) = self
+                if let Some((_,mut track)) = self
                     .audio_tracks
                     .remove(&(AudioTrackId::from(track_id), track_origin))
                 {
@@ -1251,7 +1251,7 @@ impl AudioTrack {
         }
     }
 
-    /// Unsuscibes this [`AudioTrack`] from the audio volume level updates.
+    /// Unsubscribes this [`AudioTrack`] from the audio volume level updates.
     pub fn unsubscribe_from_volume(&self) {
         match &self.source {
             MediaTrackSource::Local(src) => {

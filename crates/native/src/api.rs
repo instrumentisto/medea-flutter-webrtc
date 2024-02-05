@@ -1098,6 +1098,7 @@ pub enum TrackEvent {
     /// because no further data is available.
     Ended,
 
+    // TODO(review): it is rather audioLevel than volume
     /// Event which indicates that new audio volume level occurred.
     VolumeUpdated(u32),
 }
